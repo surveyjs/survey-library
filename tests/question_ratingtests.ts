@@ -912,3 +912,25 @@ QUnit.test("rate autoGenerate loading from json", (assert) => {
   assert.ok(q1.autoGenerate);
   assert.equal(q1.visibleRateValues.length, 6);
 });
+
+QUnit.test("check icons for rateValues", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateDisplayMode": "stars",
+        "rateValues": [1, 2]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.rateDisplayMode = "smileys";
+  assert.equal(q1.rateValues[0].icon, "not-good");
+  assert.equal(q1.rateValues[1].icon, "very-good");
+
+  q1.rateCount = 3;
+  assert.equal(q1.rateValues[0].icon, "not-good");
+  assert.equal(q1.rateValues[1].icon, "normal");
+  assert.equal(q1.rateValues[2].icon, "very-good");
+});

@@ -99,6 +99,7 @@ export class QuestionRatingModel extends Question {
     }
     if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
     this.updateRateCount();
+    this.setIconsToRateValues();
     this.createRenderedRateItems();
   }
 

@@ -485,14 +485,14 @@ Serializer.addClass(
         return !obj || obj.ownerPropertyName !== "rateValues";
       },
     },
+    {
+      name: "icon", isSerializable: false, readOnly: true, visibleIndex: 0, visibleIf: (obj: ItemValue): boolean => {
+        return obj &&
+          obj.ownerPropertyName === "rateValues" &&
+          obj.locOwner instanceof QuestionRatingModel &&
+          obj.locOwner.rateType == "smileys";
+      },
+    }
   ],
   (value: any) => new ItemValue(value)
 );
-Serializer.addProperty("itemvalue", {
-  name: "icon", isSerializable: false, readOnly: true, visibleIndex: 0, visibleIf: (obj: ItemValue): boolean => {
-    return obj &&
-      obj.ownerPropertyName === "rateValues" &&
-      obj.locOwner instanceof QuestionRatingModel &&
-      obj.locOwner.rateType == "smileys";
-  },
-});

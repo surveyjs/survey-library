@@ -23,7 +23,7 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "skipLibCheck": true,
-    "outDir": "../../build/survey-core/plugins/typings/bootstrap/"
+    "outFile": "../../build/survey-core/plugins/bootstrap-integration.d.ts"
   },
   "include": [
     "../../src/plugins/themes/bootstrap/index.ts"

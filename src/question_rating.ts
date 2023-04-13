@@ -42,12 +42,18 @@ export class QuestionRatingModel extends Question {
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax", "rateDisplayMode",
+    this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.createRenderedRateItems());
+    this.registerFunctionOnPropertiesValueChanged(["rateDisplayMode"],
+      () => {
+        this.setIconsToRateValues();
+        this.createRenderedRateItems();
+      });
     this.registerFunctionOnPropertiesValueChanged(["rateValues"],
       () => {
         this.autoGenerate = false;
+        this.setIconsToRateValues();
         this.createRenderedRateItems();
       });
     this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
@@ -71,6 +77,11 @@ export class QuestionRatingModel extends Question {
     this.initPropertyDependencies();
   }
   private jsonObj: any;
+  private setIconsToRateValues() {
+    if (this.rateType == "smileys")
+      this.rateValues.map(item => item.icon = this.getItemSmiley(item));
+  }
+
   startLoadingFromJson(jsonObj: any) {
     super.startLoadingFromJson(jsonObj);
     this.jsonObj = jsonObj;
@@ -88,6 +99,7 @@ export class QuestionRatingModel extends Question {
     }
     if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
     this.updateRateCount();
+    this.setIconsToRateValues();
     this.createRenderedRateItems();
   }
 

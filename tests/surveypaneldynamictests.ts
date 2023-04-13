@@ -780,6 +780,22 @@ QUnit.test("PanelDynamic in design time", function(assert) {
     "It is always zero  in non list mode at design-time"
   );
 });
+QUnit.test("PanelDynamic in design time + panelCount", function(assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "paneldynamic", name: "q1", panelCount: 5 }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  assert.equal(panel.panelCount, 5, "Loading correctly");
+  assert.equal(panel.getPropertyValue("panelCount"), 5, "property is set correcty on loading");
+  panel.setPropertyValue("panelCount", 7);
+  assert.equal(panel.panelCount, 7, "panelCount set correctly");
+  panel.panelCount = 3;
+  assert.equal(panel.getPropertyValue("panelCount"), 3, "property is set correcty");
+});
 QUnit.test("PanelDynamic, question no", function(assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p");

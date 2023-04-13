@@ -231,7 +231,6 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
 export class QuestionPanelDynamicModel extends Question
   implements IQuestionPanelDynamicData {
   private templateValue: PanelModel;
-  private loadingPanelCount: number = 0;
   private isValueChangingInternally: boolean;
   private changingValueQuestion: Question;
 
@@ -643,13 +642,13 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get panelCount(): number {
     return this.isLoadingFromJson || this.useTemplatePanel
-      ? this.loadingPanelCount
+      ? this.getPropertyValue("panelCount")
       : this.panels.length;
   }
   public set panelCount(val: number) {
     if (val < 0) return;
     if (this.isLoadingFromJson || this.useTemplatePanel) {
-      this.loadingPanelCount = val;
+      this.setPropertyValue("panelCount", val);
       return;
     }
     if (val == this.panels.length || this.useTemplatePanel) return;
@@ -1322,8 +1321,8 @@ export class QuestionPanelDynamicModel extends Question
   public onSurveyLoad() {
     this.template.readOnly = this.isReadOnly;
     this.template.onSurveyLoad();
-    if (this.loadingPanelCount > 0) {
-      this.panelCount = this.loadingPanelCount;
+    if (this.getPropertyValue("panelCount") > 0) {
+      this.panelCount = this.getPropertyValue("panelCount");
     }
     if (this.useTemplatePanel) {
       this.rebuildPanels();
@@ -1639,8 +1638,8 @@ export class QuestionPanelDynamicModel extends Question
     if (this.isValueChangingInternally || this.useTemplatePanel) return;
     var val = this.value;
     var newPanelCount = val && Array.isArray(val) ? val.length : 0;
-    if (newPanelCount == 0 && this.loadingPanelCount > 0) {
-      newPanelCount = this.loadingPanelCount;
+    if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
+      newPanelCount = this.getPropertyValue("panelCount");
     }
     this.panelCount = newPanelCount;
   }

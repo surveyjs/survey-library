@@ -199,3 +199,14 @@
 .sv-ranking-shortcut .sv-ranking-item__icon-container {
   margin-left: calcSize(1);
 }
+
+.sv-ranking__containers-divider {
+  border: 1px solid black;
+  width: 100%; 
+  margin: 20px 0;
+}
+
+.sv-ranking__to-container {
+  min-height: 100px;
+  border: 1px solid tomato;
+}

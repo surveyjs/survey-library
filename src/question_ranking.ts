@@ -43,7 +43,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
-      .append(this.cssClasses.rootChooseItemsToOrderMod, this.isChooseItemsToOrder)
+      .append(this.cssClasses.rootChooseItemsToOrderMod, this.chooseItemsToOrderMode)
       .toString();
   }
 
@@ -160,7 +160,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   private updateRankingChoices(forceUpdate = false): ItemValue[] {
     const newRankingChoices: ItemValue[] = [];
 
-    if (this.isChooseItemsToOrder && this.isEmpty()) {
+    if (this.chooseItemsToOrderMode && this.isEmpty()) {
       this.setPropertyValue("rankingChoices", []);
       return;
     }
@@ -193,7 +193,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
 
-    if (this.isChooseItemsToOrder) {
+    if (this.chooseItemsToOrderMode) {
       this.dragDropRankingChoices = new DragDropRankingChooseChoices(this.survey, null, this.longTap);
     } else {
       this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
@@ -330,11 +330,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    *
    * Default value: `false`
   */
-  public get isChooseItemsToOrder(): boolean {
-    return this.getPropertyValue("chooseItemsToOrder");
+  public get chooseItemsToOrderMode(): boolean {
+    return this.getPropertyValue("chooseItemsToOrderMode");
   }
-  public set isChooseItemsToOrder(val: boolean) {
-    this.setPropertyValue("chooseItemsToOrder", val);
+  public set chooseItemsToOrderMode(val: boolean) {
+    this.setPropertyValue("chooseItemsToOrderMode", val);
   }
 
   public get useFullItemSizeForShortcut(): boolean {
@@ -366,7 +366,7 @@ Serializer.addClass(
       isSerializable: false,
     },
     {
-      name: "isChooseItemsToOrder",
+      name: "chooseItemsToOrderMode",
       default: true,
       visible: false,
       isSerializable: false,

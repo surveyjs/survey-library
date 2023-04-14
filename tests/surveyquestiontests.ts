@@ -3171,6 +3171,15 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   survey.setValue("val1", 2);
   assert.equal(question.isVisible, true, "There is one visible item");
 });
+QUnit.test("Do not restore visibility for invlible question", function (assert) {
+  var survey = new SurveyModel({
+    elements: [{ type: "checkbox", name: "q1", hideIfChoicesEmpty: true }]
+  });
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.visible = false;
+  question.choices = [1, 2, 3];
+  assert.equal(question.isVisible, false, "It should be visible, since we make it invisible in code");
+});
 QUnit.test("Change hideIfChoicesEmpty property default value", function (assert) {
   let question = new QuestionCheckboxModel("q1");
   assert.equal(question.hideIfChoicesEmpty, false, "default value #1");

@@ -66,3 +66,8 @@ $base-unit: var(--base-unit, 8px);
   font-size: calcSize(2);
   line-height: calcSize(3);
 }
+
+@mixin borderLight {
+  border: calcSize(0.25) solid $border-light;
+  border-radius: 3px;
+}

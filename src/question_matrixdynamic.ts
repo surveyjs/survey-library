@@ -181,20 +181,15 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
-  public moveRowByIndex = (fromIndex: number, toIndex: number):void => {
+  public moveRowByIndex(fromIndex: number, toIndex: number):void {
     const value = this.createNewValue();
-
-    if (!value) return;
-
+    if (!Array.isArray(value) && Math.max(fromIndex, toIndex) >= value.length) return;
     const movableRow = value[fromIndex];
-
-    if (!movableRow) return;
-
     value.splice(fromIndex, 1);
     value.splice(toIndex, 0, movableRow);
 
     this.value = value;
-  };
+  }
   /**
    * The number of rows in the matrix.
    * @see minRowCount

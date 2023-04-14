@@ -6917,8 +6917,23 @@ QUnit.test("Row actions, check getUpdatedMatrixRowActions", function (assert) {
 QUnit.test("moveRowByIndex test", function (assert) {
   var matrixD = new QuestionMatrixDynamicModel("q1");
   matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
-  matrixD["moveRowByIndex"](1, 0);
+  matrixD.moveRowByIndex(1, 0);
   assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
+});
+
+QUnit.test("moveRowByIndex - do not recreate rows&renderedTable", function (assert) {
+  const matrix = new QuestionMatrixDynamicModel("q1");
+  matrix.addColumn("col1");
+  matrix.value = [{ col1: 1 }, { col1: 2 }];
+  let rows = matrix.visibleRows;
+  const table = matrix.renderedTable;
+  const row0Id = rows[0].id;
+  const row1Id = rows[1].id;
+  matrix.moveRowByIndex(2, 0);
+  rows = matrix.visibleRows;
+  assert.equal(rows[0].id, row0Id, "row1 is not re-created");
+  assert.equal(rows[1].id, row1Id, "row0 is not re-created");
+  assert.strictEqual(matrix.renderedTable, table, "rendered table is not recreated");
 });
 
 QUnit.test("Row actions, rendered table and className", function (assert) {

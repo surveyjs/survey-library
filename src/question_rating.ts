@@ -420,7 +420,7 @@ export class QuestionRatingModel extends Question {
     }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
-    if (this.isReadOnly || !item.itemValue.isEnabled) return;
+    if (this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;
     let high = true;
     let selected = this.value != null;
     for (let i: number = 0; i < this.renderedRateItems.length; i++) {

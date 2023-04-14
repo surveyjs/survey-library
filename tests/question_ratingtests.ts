@@ -758,7 +758,7 @@ QUnit.test("rateCount changing rateValues", (assert) => {
   assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b"]);
 
   q1.rateCount = 4;
-  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", undefined, undefined]);
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "item3", "item4"]);
 });
 
 QUnit.test("rateMin/rateMax/rateStep does not change rateValues and rateCount", (assert) => {

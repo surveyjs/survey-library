@@ -132,7 +132,6 @@ frameworks.forEach((framework) => {
     const types = [
       "color",
       "date",
-      "datetime",
       "datetime-local",
       "email",
       "month",

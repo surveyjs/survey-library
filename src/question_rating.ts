@@ -418,6 +418,9 @@ export class QuestionRatingModel extends Question {
     } else {
       this.value = value;
     }
+    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
+      this.renderedRateItems[i].highlight = "none";
+    }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
     if (this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;

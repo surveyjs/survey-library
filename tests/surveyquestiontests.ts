@@ -4434,6 +4434,17 @@ QUnit.test(
 );
 
 QUnit.test(
+  "QuestionRating reset highlight on click",
+  function (assert) {
+    var question = new QuestionRatingModel("q");
+    question.onItemMouseIn(question.renderedRateItems[2]);
+    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
+    question.setValueFromClick("3");
+    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["none", "none", "none", "none", "none"]);
+  }
+);
+
+QUnit.test(
   "Do not serialize default values labelTrue/labelFalse for boolean question, Bug #2231",
   function (assert) {
     var question = new QuestionBooleanModel("q");

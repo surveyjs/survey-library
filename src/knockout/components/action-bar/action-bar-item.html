@@ -1,7 +1,7 @@
 <!-- ko with: $data.item -->
 <button
   type="button"
-  data-bind="click: action, key2click: { processEsc: false }, disable: $data.disabled, css: getActionBarItemCss(), attr: { title: $data.tooltip || $data.title, 'aria-checked': $data.ariaChecked, 'role': $data.ariaRole, 'aria-expanded': typeof $data.ariaExpanded === 'undefined' ? null : ($data.ariaExpanded ? 'true': 'false') }"
+  data-bind="click: function(s, args) { $data.action($data, args.originalEvent.isTrusted); }, key2click: { processEsc: false }, disable: $data.disabled, css: getActionBarItemCss(), attr: { title: $data.tooltip || $data.title, 'aria-checked': $data.ariaChecked, 'role': $data.ariaRole, 'aria-expanded': typeof $data.ariaExpanded === 'undefined' ? null : ($data.ariaExpanded ? 'true': 'false') }"
 >
   <!-- ko if: $data.iconName -->
   <!-- ko component: { name: 'sv-svg-icon', params: { css: $data.cssClasses.itemIcon, iconName: iconName, size: iconSize, title: $data.tooltip || $data.title } } --><!-- /ko -->

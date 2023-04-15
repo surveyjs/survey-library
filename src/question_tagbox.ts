@@ -181,6 +181,12 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public getInputId() {
     return this.inputId + "_0";
   }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+    }
+  }
 }
 
 Serializer.addClass(

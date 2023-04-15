@@ -603,6 +603,12 @@ export class QuestionRatingModel extends Question {
     }
     return classes;
   }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+    }
+  }
 }
 Serializer.addClass(
   "rating",

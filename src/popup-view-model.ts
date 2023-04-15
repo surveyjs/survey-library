@@ -202,8 +202,9 @@ export class PopupBaseViewModel extends Base {
     super.dispose();
     this.unmountPopupContainer();
     this.container = undefined;
-    this.model.onVisibilityChanged.clear();
-    this.model.onRecalculatePosition.clear();
+    if(!!this.footerToolbarValue) {
+      this.footerToolbarValue.dispose();
+    }
   }
   public initializePopupContainer(): void {
     if (!this.createdContainer) {

@@ -140,7 +140,9 @@ export class QuestionRatingModel extends Question {
           if (this.rateCount < this.rateValues.length) {
             this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
           } else {
-            for (let i = this.rateValues.length; i < this.rateCount; i++) this.rateValues.push(new ItemValue(undefined));
+            for (let i = this.rateValues.length; i < this.rateCount; i++) {
+              this.rateValues.push(new ItemValue(surveyLocalization.getString("choices_Item") + (i + 1)));
+            }
           }
         }
       });

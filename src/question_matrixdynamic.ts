@@ -181,20 +181,20 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     this.value = newValue;
   }
-  public moveRowByIndex = (fromIndex: number, toIndex: number):void => {
+  public moveRowByIndex(fromIndex: number, toIndex: number):void {
     const value = this.createNewValue();
-
-    if (!value) return;
-
+    if (!Array.isArray(value) && Math.max(fromIndex, toIndex) >= value.length) return;
     const movableRow = value[fromIndex];
-
-    if (!movableRow) return;
-
     value.splice(fromIndex, 1);
     value.splice(toIndex, 0, movableRow);
 
     this.value = value;
-  };
+  }
+  public clearOnDrop(): void {
+    if(!this.isEditingSurveyElement) {
+      this.resetRenderedTable();
+    }
+  }
   /**
    * The number of rows in the matrix.
    * @see minRowCount
@@ -749,12 +749,54 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected createMatrixRow(value: any): MatrixDynamicRowModel {
     return new MatrixDynamicRowModel(this.rowCounter++, this, value);
   }
+  private lastDeletedRow: MatrixDropdownRowModelBase;
+  private getInsertedDeletedIndex(rows: MatrixDropdownRowModelBase[], val: any[]): number {
+    const len = Math.min(rows.length, val.length);
+    for(let i = 0; i < len; i ++) {
+      if(val[i] !== rows[i].editingObj) return i;
+    }
+    return len;
+  }
+  private isEditingObjectValueChanged(): boolean {
+    if(!this.generatedVisibleRows || !this.isValueSurveyElement) return false;
+    const lastDelRow = this.lastDeletedRow;
+    this.lastDeletedRow = undefined;
+    const val = this.value;
+    const rows = this.generatedVisibleRows;
+    if(!Array.isArray(val) || Math.abs(rows.length - val.length) > 1) return false;
+    const index = this.getInsertedDeletedIndex(rows, val);
+    if(rows.length > val.length) {
+      this.lastDeletedRow = rows[index];
+      const row = rows[index];
+      rows.splice(index, 1);
+      if(this.isRendredTableCreated) {
+        this.renderedTable.onRemovedRow(row);
+      }
+    } else {
+      let newRow = undefined;
+      if(!!lastDelRow && lastDelRow.editingObj === val[index]) {
+        newRow = lastDelRow;
+      } else {
+        newRow = this.createMatrixRow(val[index]);
+      }
+      rows.splice(index, 0, newRow);
+      if(!lastDelRow) {
+        this.onMatrixRowCreated(newRow);
+      }
+      if(this.isRendredTableCreated) {
+        this.renderedTable.onAddedRow(newRow, index);
+      }
+    }
+    this.setPropertyValueDirectly("rowCount", val.length);
+    return true;
+  }
   protected onBeforeValueChanged(val: any) {
     if (!val || !Array.isArray(val)) return;
     var newRowCount = val.length;
     if (newRowCount == this.rowCount) return;
     if (!this.setRowCountValueFromData && newRowCount < this.initialRowCount)
       return;
+    if(this.isEditingObjectValueChanged()) return;
     this.setRowCountValueFromData = true;
     this.rowCountValue = newRowCount;
     if(!this.generatedVisibleRows) return;

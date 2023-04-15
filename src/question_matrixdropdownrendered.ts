@@ -257,15 +257,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
     this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }
-  public onAddedRow() {
+  public onAddedRow(row: MatrixDropdownRowModelBase, index: number): void {
     if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
       return;
-    var row = this.matrix.visibleRows[this.matrix.visibleRows.length - 1];
-    this.rowsActions.push(this.buildRowActions(row));
+    this.rowsActions.splice(index, 0, this.buildRowActions(row));
     this.addHorizontalRow(
       this.rows,
       row,
-      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader
+      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader, index
     );
     this.updateShowTableAndAddRow();
   }
@@ -438,13 +437,16 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private addHorizontalRow(
     renderedRows: Array<QuestionMatrixDropdownRenderedRow>,
     row: MatrixDropdownRowModelBase,
-    useAsHeader: boolean
+    useAsHeader: boolean, index: number = -1
   ) {
     var renderedRow = this.createHorizontalRow(row, useAsHeader);
     renderedRow.row = row;
-    renderedRows.push(renderedRow);
+    if(index < 0) {
+      index = renderedRows.length;
+    }
+    renderedRows.splice(index, 0, renderedRow);
     if (row.isDetailPanelShowing) {
-      renderedRows.push(this.createDetailPanelRow(row, renderedRow));
+      renderedRows.splice(index + 1, 0, this.createDetailPanelRow(row, renderedRow));
     }
   }
   private getRowDragCell(rowIndex: number) {

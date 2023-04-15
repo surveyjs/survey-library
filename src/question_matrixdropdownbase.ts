@@ -1029,7 +1029,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (this.renderedTable.isRequireReset()) {
       this.resetRenderedTable();
     } else {
-      this.renderedTable.onAddedRow();
+      const index = this.visibleRows.length - 1;
+      this.renderedTable.onAddedRow(this.visibleRows[index], index);
     }
   }
   protected onEndRowRemoving(row: MatrixDropdownRowModelBase) {
@@ -1065,7 +1066,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     super.clearGeneratedRows();
   }
-
+  protected get isRendredTableCreated(): boolean {
+    return !!this.renderedTableValue;
+  }
   public get renderedTable(): QuestionMatrixDropdownRenderedTable {
     if (!this.renderedTableValue) {
       this.renderedTableValue = this.createRenderedTable();

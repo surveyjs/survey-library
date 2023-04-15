@@ -263,21 +263,28 @@ QUnit.test("Edit columns in matrix", function (assert) {
     return item;
   };
   survey.editingObj = question;
-  assert.equal(matrix.visibleRows.length, 2, "Two columns");
+  const rows = matrix.visibleRows;
+  let cellCreatedCallbackCounter = 0;
+  matrix.onCellCreatedCallback = () => {
+    cellCreatedCallbackCounter ++;
+  };
+  assert.equal(rows.length, 2, "Two columns");
   assert.equal(
-    matrix.visibleRows[0].cells[0].value,
+    rows[0].cells[0].value,
     "col1",
     "Name set correctly"
   );
-  assert.notOk(matrix.visibleRows[0].cells[1].value, "Title is empty");
+  assert.notOk(rows[0].cells[1].value, "Title is empty");
   assert.equal(
-    matrix.visibleRows[1].cells[1].value,
+    rows[1].cells[1].value,
     "Column 2",
     "Set title correctly"
   );
-  matrix.visibleRows[0].cells[1].value = "title1";
+  rows[0].cells[1].value = "title1";
   assert.equal(question.columns[0].title, "title1", "Edit title correctly");
+  assert.equal(cellCreatedCallbackCounter, 0, "new cells are not created yet");
   matrix.addRow();
+  assert.equal(cellCreatedCallbackCounter, 2, "two cells are created");
   assert.equal(question.columns.length, 3, "We have 3 columns");
   assert.equal(question.columns[2].name, "col3", "column has correct name");
   assert.equal(
@@ -331,7 +338,7 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
   question.addColumn("col1");
   question.addColumn("col2");
   question.addColumn("col3");
-  var survey = new SurveyModel({
+  const survey = new SurveyModel({
     elements: [
       {
         type: "matrixdynamic",
@@ -344,7 +351,7 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
       },
     ],
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("columns");
   survey.editingObj = question;
 
   assert.equal(matrix.value.length, 3);
@@ -352,12 +359,48 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
   assert.equal(matrix.value[1].name, "col2");
   assert.equal(matrix.value[2].name, "col3");
 
-  matrix["moveRowByIndex"](0, 2);
+  let rows = matrix.visibleRows;
+  let table = matrix.renderedTable;
+  const row0Id = rows[0].id;
+  const row1Id = rows[1].id;
+  const row2Id = rows[2].id;
+  let cellCreatedCallbackCounter = 0;
+  matrix.onCellCreatedCallback = () => {
+    cellCreatedCallbackCounter ++;
+  };
+
+  matrix.moveRowByIndex(0, 2);
 
   assert.equal(matrix.value.length, 3);
   assert.equal(matrix.value[0].name, "col2");
   assert.equal(matrix.value[1].name, "col3");
   assert.equal(matrix.value[2].name, "col1");
+
+  rows = matrix.visibleRows;
+  assert.equal(rows[0].id, row1Id, "row1 is not re-created, #1");
+  assert.equal(rows[1].id, row2Id, "row2 is not re-created, #1");
+  assert.equal(rows[2].id, row0Id, "row0 is not re-created, #1");
+  assert.strictEqual(matrix.renderedTable, table, "rendered table is not recreated, #1");
+  table = matrix.renderedTable;
+  assert.equal(table.rows[0].cells[1].question.value, "col2", "renderedTable:Row0Cell0, #1");
+  assert.equal(table.rows[1].cells[1].question.value, "col3", "renderedTable:Row1Cell0, #1");
+  assert.equal(table.rows[2].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #1");
+
+  matrix.moveRowByIndex(1, 0);
+  assert.equal(matrix.value.length, 3);
+  assert.equal(matrix.value[0].name, "col3");
+  assert.equal(matrix.value[1].name, "col2");
+  assert.equal(matrix.value[2].name, "col1");
+  rows = matrix.visibleRows;
+  assert.equal(rows[0].id, row2Id, "row1 is not re-created, #2");
+  assert.equal(rows[1].id, row1Id, "row2 is not re-created, #2");
+  assert.equal(rows[2].id, row0Id, "row0 is not re-created, #2");
+  assert.strictEqual(matrix.renderedTable, table, "rendered table is not recreated, #2");
+  table = matrix.renderedTable;
+  assert.equal(table.rows[0].cells[1].question.value, "col3", "renderedTable:Row0Cell0, #2");
+  assert.equal(table.rows[1].cells[1].question.value, "col2", "renderedTable:Row1Cell0, #2");
+  assert.equal(table.rows[2].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #2");
+  assert.equal(cellCreatedCallbackCounter, 0, "new cell is not created");
 });
 QUnit.test(
   "Edit columns in matrix, where there is no columns from the beginning",

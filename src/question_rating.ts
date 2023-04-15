@@ -460,6 +460,9 @@ export class QuestionRatingModel extends Question {
     return "icon-" + this.getItemSmiley(item);
   }
 
+  public getItemClassByText(item: ItemValue, text: string) {
+    return this.getItemClass(item);
+  }
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
     let isSelected = this.value == item.value;
     if (this.isStar) {

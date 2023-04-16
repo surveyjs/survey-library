@@ -4033,6 +4033,26 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
 
+QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q1",
+        choices: [
+          { value: 1, imageLink: "test1" },
+          { value: 2, imageLink: "test2" },
+          { value: 3, imageLink: "test3" }]
+      },
+      { type: "imagepicker", name: "q2", choicesFromQuestion: "q1",
+        choices: [{ value: 4, imageLink: "test4" }], }
+    ]
+  });
+  const q2 = <QuestionImagePickerModel>survey.getQuestionByName("q2");
+  const choices = q2.visibleChoices;
+  assert.equal(choices.length, 3, "There are 3 values");
+  assert.equal(choices[0].getType(), "imageitemvalue", "choice item type is correct");
+  assert.equal(choices[0].imageLink, "test1", "image link is copied");
+});
+
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);

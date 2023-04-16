@@ -218,6 +218,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-tab-center",
+    removeIds: true,
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
       StylesManager.applyTheme("defaultV2");
@@ -238,6 +239,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-tab-right",
+    removeIds: true,
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
       StylesManager.applyTheme("defaultV2");
@@ -258,6 +260,7 @@ registerMarkupTests(
       ]
     },
     snapshot: "paneldynamic-progress-tab-left",
+    removeIds: true,
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
       StylesManager.applyTheme("defaultV2");

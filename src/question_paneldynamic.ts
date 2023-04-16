@@ -12,7 +12,7 @@ import {
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
-import { LocalizableString } from "./localizablestring";
+import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import {
   TextPreProcessorValue,
   QuestionTextProcessor,
@@ -260,6 +260,7 @@ export class QuestionPanelDynamicModel extends Question
     this.createLocalizableString("panelPrevText", this, false, "pagePrevText");
     this.createLocalizableString("panelNextText", this, false, "pageNextText");
     this.createLocalizableString("noEntriesText", this, false, "noEntriesText");
+    this.createLocalizableString("templateTabTitle", this, true, "panelDynamicTabTextFormat");
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
@@ -376,6 +377,20 @@ export class QuestionPanelDynamicModel extends Question
   }
   get locTemplateTitle(): LocalizableString {
     return this.template.locTitle;
+  }
+  /**
+   * A title for the template panel tab. It is rendered if renderMode is "tab"
+   * @see templateTitle
+   * @see renderMode
+   */
+  public get templateTabTitle(): string {
+    return this.locTemplateTabTitle.text;
+  }
+  public set templateTabTitle(newValue: string) {
+    this.locTemplateTabTitle.text = newValue;
+  }
+  get locTemplateTabTitle(): LocalizableString {
+    return this.getLocalizableString("templateTabTitle");
   }
   /**
    * A description for the template panel.
@@ -1180,11 +1195,20 @@ export class QuestionPanelDynamicModel extends Question
     }
     return -1;
   }
+  private getPanelIndexById(id: string): number {
+    for (var i = 0; i < this.panels.length; i++) {
+      if (this.panels[i].id === id) return i;
+    }
+    return -1;
+  }
   public locStrsChanged() {
     super.locStrsChanged();
     var panels = this.panels;
     for (var i = 0; i < panels.length; i++) {
       panels[i].locStrsChanged();
+    }
+    if(this.additionalTitleToolbar) {
+      this.additionalTitleToolbar.locStrsChanged();
     }
   }
   public clearIncorrectValues() {
@@ -1999,15 +2023,15 @@ export class QuestionPanelDynamicModel extends Question
   private createTabByPanel(panel: PanelModel) {
     if(!this.isRenderModeTab) return;
 
-    const index = this.getPanelIndex(panel);
-    const title = this.getLocalizationFormatString("panelDynamicTabTextFormat", index + 1);
+    const locTitle = new LocalizableString(panel, true);
+    locTitle.sharedData = this.locTemplateTabTitle;
     const newItem = new Action({
-      id: index.toString(),
+      id: panel.id,
       css: "sv-tab-item__root",
-      pressed: index === this.currentIndex,
-      title: title,
+      pressed: this.getPanelIndexById(panel.id) === this.currentIndex,
+      locTitle: locTitle,
       action: () => {
-        this.currentIndex = parseInt(newItem.id);
+        this.currentIndex = this.getPanelIndexById(newItem.id);
         this.updateTabToolbarItemsPressedState();
       }
     });
@@ -2023,7 +2047,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   private updateTabToolbarItemsPressedState() {
     if(!this.isRenderModeTab) return;
-    this.additionalTitleToolbar.renderedActions.forEach(action => action.pressed = parseInt(action.id) === this.currentIndex);
+    if(this.currentIndex < 0 || this.currentIndex >= this.panels.length) return;
+    const panel = this.panels[this.currentIndex];
+    this.additionalTitleToolbar.renderedActions.forEach(action => action.pressed = action.id === panel.id);
   }
   private updateTabToolbar() {
     if(!this.isRenderModeTab) return;
@@ -2043,8 +2069,7 @@ export class QuestionPanelDynamicModel extends Question
     if(!this.isRenderModeTab) return;
 
     panels.forEach(panel => {
-      const index = this.getPanelIndex(panel);
-      const removedItem = this.additionalTitleToolbar.getActionById(index.toString());
+      const removedItem = this.additionalTitleToolbar.getActionById(panel.id);
       this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
     });
     this.updateTabToolbarItemsPressedState();
@@ -2066,6 +2091,8 @@ Serializer.addClass(
       isLightSerializable: false
     },
     { name: "templateTitle:text", serializationProperty: "locTemplateTitle" },
+    { name: "templateTabTitle", serializationProperty: "locTemplateTabTitle",
+      visibleIf: (obj: any) => { return obj.renderMode === "tab"; } },
     {
       name: "templateDescription:text",
       serializationProperty: "locTemplateDescription",
@@ -2119,6 +2146,7 @@ Serializer.addClass(
     },
     {
       name: "tabAlign", default: "center", choices: ["center", "left", "right"],
+      visibleIf: (obj: any) => { return obj.renderMode === "tab"; }
     },
     {
       name: "templateTitleLocation",

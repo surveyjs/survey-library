@@ -59,7 +59,10 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
 
   public locStrsChanged(): void {
     super.locStrsChanged();
-    this.actions.forEach(item => item.locStrsChanged());
+    this.actions.forEach(item => {
+      if(item.locTitle) item.locTitle.strChanged();
+      item.locStrsChanged();
+    });
   }
   protected raiseUpdate(isResetInitialized: boolean) {
     this.isEmpty = !this.actions.some((action) => action.visible);

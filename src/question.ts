@@ -325,7 +325,11 @@ export class Question extends SurveyElement<Question>
   public get isVisible(): boolean {
     if (this.survey && this.survey.areEmptyElementsHidden && this.isEmpty())
       return false;
-    return this.visible || this.areInvisibleElementsShowing;
+    if(this.areInvisibleElementsShowing) return true;
+    return this.isVisibleCore();
+  }
+  protected isVisibleCore(): boolean {
+    return this.visible;
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1

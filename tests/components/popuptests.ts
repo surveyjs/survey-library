@@ -7,8 +7,7 @@ import { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
-import { ISurveyEnvironment } from "../../src/base-interfaces";
-import { settings } from "../../src/settings";
+import { settings, ISurveyEnvironment } from "../../src/settings";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 

@@ -6,7 +6,7 @@ import { CustomWidgetCollection } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
-import { getElement } from "../utils/utils";
+import { getElement } from "survey-core";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;

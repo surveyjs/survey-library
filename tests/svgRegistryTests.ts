@@ -1,5 +1,4 @@
-import { ISurveyEnvironment } from "../src/base-interfaces";
-import { settings } from "../src/settings";
+import { settings, ISurveyEnvironment } from "../src/settings";
 import { SvgIconRegistry } from "../src/svgbundle";
 export default QUnit.module("SvgRegistryTests");
 

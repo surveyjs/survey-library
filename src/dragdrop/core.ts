@@ -1,10 +1,10 @@
 import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
-import { IShortcutText, ISurvey, ISurveyEnvironment } from "../base-interfaces";
+import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
 import { findScrollableParent } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
-import { settings } from "../settings";
+import { settings, ISurveyEnvironment } from "../settings";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250

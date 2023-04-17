@@ -5,7 +5,6 @@ import { LocalizableString } from "./localizablestring";
 import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
 import { settings } from "./settings";
-import { ISurveyEnvironment } from "./base-interfaces";
 
 /**
  * A class that describes the Comment question type.

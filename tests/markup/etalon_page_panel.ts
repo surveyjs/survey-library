@@ -1,4 +1,3 @@
-import { settings } from "../../src/settings";
 import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
 

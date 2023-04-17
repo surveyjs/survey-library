@@ -1,6 +1,5 @@
-import { ISurveyEnvironment } from "./base-interfaces";
 import { surveyCss } from "./defaultCss/defaultV2Css";
-import { settings } from "./settings";
+import { settings, ISurveyEnvironment } from "./settings";
 import { getElement, Logger } from "./utils/utils";
 
 export const modernThemeColors: { [key: string]: string } = {

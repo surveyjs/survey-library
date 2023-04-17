@@ -4,8 +4,7 @@ import { PopupModel } from "./popup";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
-import { ISurveyEnvironment } from "./base-interfaces";
-import { settings } from "survey-core";
+import { settings, ISurveyEnvironment } from "./settings";
 import { getElement } from "./utils/utils";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";

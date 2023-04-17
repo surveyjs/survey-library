@@ -1,5 +1,5 @@
 import { DragTypeOverMeEnum, SurveyElement } from "../survey-element";
-import { IElement, IShortcutText, ISurveyEnvironment } from "../base-interfaces";
+import { IElement, IShortcutText } from "../base-interfaces";
 import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";

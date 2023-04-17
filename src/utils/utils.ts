@@ -1,5 +1,4 @@
-import { ISurveyEnvironment } from "../base-interfaces";
-import { settings } from "./../settings";
+import { settings, ISurveyEnvironment } from "./../settings";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;

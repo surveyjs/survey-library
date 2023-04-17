@@ -1,5 +1,4 @@
-import { ISurveyEnvironment } from "./base-interfaces";
-import { settings } from "./settings";
+import { settings, ISurveyEnvironment } from "./settings";
 import { getElement } from "./utils/utils";
 
 class SvgIconData {

@@ -14,7 +14,7 @@ export function checkLibraryVersion(ver: string, libraryName: string): void {
   }
 }
 
-export { settings } from "../../settings";
+export { settings, ISurveyEnvironment } from "../../settings";
 export { Helpers, HashTable } from "../../helpers";
 export {
   AnswerCountValidator,

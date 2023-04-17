@@ -63,7 +63,7 @@ function addTitleActions2(_, opt) {
 }
 
 const clickButton = Selector(".sv-action").filterVisible();
-const popupSelector = Selector(".sv-popup").filterVisible();
+const popupSelector = Selector(".sv-popup .sv-popup__container").filterVisible();
 const visibleItems = Selector(".sv-list__item").filterVisible();
 const listInput = popupSelector.find(".sv-list__input");
 function getActionByText(text: string) {
@@ -142,7 +142,7 @@ frameworks.forEach(async framework => {
       .expect(listInput.exists).notOk()
       .expect(visibleItems.count).eql(10)
 
-      .click(getActionByText("Set items")) // close popup
+      .click(getActionByText("Open popup")) // close popup
       .click(getActionByText("Set items"))
       .click(getActionByText("Open popup"))
       .expect(popupSelector.exists).ok()
@@ -160,7 +160,7 @@ frameworks.forEach(async framework => {
       .typeText(listInput, "1")
       .expect(visibleItems.count).eql(11)
 
-      .click(getActionByText("Set items")) // close popup
+      .click(getActionByText("Open popup")) // close popup
       .expect(popupSelector.exists).notOk()
 
       .click(getActionByText("Open popup"))

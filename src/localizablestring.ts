@@ -45,6 +45,7 @@ export class LocalizableString implements ILocalizableString {
   public sharedData: LocalizableString;
   public searchText: string;
   public searchIndex: number;
+  public disableLocalization: boolean;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false,
@@ -166,13 +167,16 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   public setLocaleText(loc: string, value: string): void {
+    if(this.disableLocalization) {
+      loc = settings.defaultLocaleName;
+    }
     if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
       if(!!value || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;
       let oldValue = this.getValue(dl);
       if(!!dl && !!oldValue) {
         this.setValue(dl, value);
-        this.fireStrChanged(oldValue, value);
+        this.fireStrChanged(dl, oldValue);
       }
       return;
     }
@@ -184,9 +188,8 @@ export class LocalizableString implements ILocalizableString {
       value == this.getLocaleText(this.defaultLoc)
     )
       return;
-    var curLoc = this.locale;
+    var curLoc = this.curLocale;
     if (!loc) loc = this.defaultLoc;
-    if (!curLoc) curLoc = this.defaultLoc;
     var oldValue = this.onStrChanged && loc === curLoc ? this.pureText : undefined;
     delete (<any>this).htmlValues[loc];
     if (!value) {
@@ -203,7 +206,10 @@ export class LocalizableString implements ILocalizableString {
         }
       }
     }
-    this.fireStrChanged(oldValue, value);
+    this.fireStrChanged(loc, oldValue);
+  }
+  private get curLocale(): string {
+    return !!this.locale ? this.locale : this.defaultLoc;
   }
   private canRemoveLocValue(loc: string, val: string): boolean {
     if(settings.storeDuplicatedTranslations) return false;
@@ -217,9 +223,11 @@ export class LocalizableString implements ILocalizableString {
       return val == this.getLocaleText(this.defaultLoc);
     }
   }
-  private fireStrChanged(oldValue: string, value: string) {
+  private fireStrChanged(loc: string, oldValue: string) {
     this.strChanged();
-    if (!!this.onStrChanged && oldValue !== value) {
+    if(!this.onStrChanged) return;
+    const value = this.pureText;
+    if (loc !== this.curLocale || oldValue !== value) {
       this.onStrChanged(oldValue, value);
     }
   }

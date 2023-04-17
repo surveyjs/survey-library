@@ -11,7 +11,7 @@
   font-family: var(--font-family, $font-family);
   font-size: calcSize(2);
   color: $foreground;
-  background-color: $background-for-editors;
+  background-color: $editor-background;
   box-shadow: inset 0px 1px 2px $shadow-inner;
   border: none;
   border-radius: 3px;
@@ -23,7 +23,7 @@
 }
 
 .sd-input--disabled {
-  background-color: $background-for-editors;
+  background-color: $editor-background;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -40,7 +40,8 @@
 
 .sd-input--disabled,
 .sd-input--disabled::placeholder {
-  color: $foreground-disabled-for-editors;
+  color: $foreground;
+  opacity: 0.25;
 }
 
 .sd-root--readonly .sd-input--disabled,

@@ -96,7 +96,11 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  @property({ defaultValue: false }) isMobile: boolean;
+  protected setIsMobile(val: boolean) { }
+
+  @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+    target.setIsMobile(val);
+  } }) isMobile: boolean;
 
   constructor(name: string) {
     super(name);
@@ -322,7 +326,11 @@ export class Question extends SurveyElement<Question>
   public get isVisible(): boolean {
     if (this.survey && this.survey.areEmptyElementsHidden && this.isEmpty())
       return false;
-    return this.visible || this.areInvisibleElementsShowing;
+    if(this.areInvisibleElementsShowing) return true;
+    return this.isVisibleCore();
+  }
+  protected isVisibleCore(): boolean {
+    return this.visible;
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
@@ -1888,8 +1896,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   protected getValidName(name: string): string {
-    if (!name) return name;
-    return name.trim().replace(/[\{\}]+/g, "");
+    return makeNameValid(name);
   }
   //IQuestion
   updateValueFromSurvey(newValue: any): void {
@@ -1947,7 +1954,7 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values that do not pass validation. Call the `validate()` method to validate newly assigned values.
+   * > This method does not remove values that fail validation. Call the `validate()` method to validate newly assigned values.
    *
    * @see validate
    */
@@ -2107,12 +2114,16 @@ export class Question extends SurveyElement<Question>
     this.destroyResizeObserver();
   }
 }
-function removeConverChar(str: string): string {
-  if (!!str && str[0] === settings.expressionDisableConversionChar) return str.substring(1);
+function makeNameValid(str: string): string {
+  if(!str) return str;
+  str = str.trim().replace(/[\{\}]+/g, "");
+  while (!!str && str[0] === settings.expressionDisableConversionChar) {
+    str = str.substring(1);
+  }
   return str;
 }
 Serializer.addClass("question", [
-  { name: "!name", onSettingValue: (obj: any, val: any): any => { return removeConverChar(val); } },
+  { name: "!name", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   {
     name: "state",
     default: "default",
@@ -2190,7 +2201,7 @@ Serializer.addClass("question", [
       );
     },
   },
-  { name: "valueName", onSettingValue: (obj: any, val: any): any => { return removeConverChar(val); } },
+  { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   "defaultValue:value",
   {

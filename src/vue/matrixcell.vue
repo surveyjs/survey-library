@@ -77,6 +77,7 @@ import {
   QuestionMatrixDropdownRenderedCell,
   CssClassBuilder,
 } from "survey-core";
+import { getComponentName } from "./question";
 
 @Component
 export class MatrixCell extends Vue {
@@ -85,10 +86,7 @@ export class MatrixCell extends Vue {
 
   isVisible: boolean = false;
   getComponentName(element: Question | any) {
-    if (element.customWidget) {
-      return "survey-customwidget";
-    }
-    return "survey-" + element.getType();
+    return getComponentName(element);
   }
   getHeaders(): string {
     return this.cell.headers;

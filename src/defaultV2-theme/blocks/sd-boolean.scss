@@ -3,9 +3,13 @@
   width: max-content;
   position: relative;
   padding: calcSize(0.5);
-  background: $background-for-editors;
+  background: $editor-background;
   box-shadow: inset 0px 1px 2px $shadow-inner;
   border-radius: calcSize(12.5);
+}
+
+.sd-boolean.sd-boolean--indeterminate:hover {
+  background-color: $background-dim-dark;
 }
 
 .sd-boolean__thumb,
@@ -58,15 +62,14 @@
 }
 
 .sd-boolean--disabled {
-
   .sd-boolean__thumb,
   .sd-boolean__label {
-    color: $foreground-disabled-for-editors;
+    color: $foreground;
+    opacity: 0.25;
   }
 }
 
 .svc-question__content {
-
   .sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate) .sd-boolean__label:nth-of-type(1),
   .sd-boolean--checked .sd-boolean__label:nth-of-type(2) {
     color: $primary;

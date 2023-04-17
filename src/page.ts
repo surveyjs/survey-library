@@ -49,7 +49,7 @@ export class PageModel extends PanelModelBase implements IPage {
   /**
    * A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when [`showProgressBar`](https://surveyjs.io/form-library/documentation/surveymodel#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is `"buttons"`.
    *
-   * If this property is undefined, the navigation buttons display page [titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title) or [names](https://surveyjs.io/form-library/documentation/pagemodel#name).
+   * If navigation titles are unspecified, the navigation buttons display page [titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title) or [names](https://surveyjs.io/form-library/documentation/pagemodel#name).
    */
   public get navigationTitle(): string {
     return this.getLocalizableStringText("navigationTitle");
@@ -281,7 +281,7 @@ Serializer.addClass(
     {
       name: "navigationTitle",
       visibleIf: function (obj: any) {
-        return !!obj.survey && obj.survey.progressBarType === "buttons";
+        return !!obj.survey && (obj.survey.progressBarType === "buttons" || obj.survey.showTOC);
       },
       serializationProperty: "locNavigationTitle",
     },

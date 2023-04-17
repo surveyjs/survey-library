@@ -7,7 +7,7 @@ Survey results are JSON objects that you can store in your own database or in th
 
 ## Store Survey Results in Your Own Database
 
-To store survey results in your own database, handle the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event raised in response to a click on the Complete button. The following code shows how to use this event to send survey results to your server:
+To store survey results in your own database, handle the [`onComplete`](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event raised in response to a click on the Complete button. The following code shows how to use this event to send survey results to your server:
 
 ```js
 import { Model } from "survey-core";
@@ -17,19 +17,19 @@ const surveyJson = { ... };
 const survey = new Model(surveyJson);
 survey.onComplete.add(function (sender, options) {
   // Display the "Saving..." message (pass a string value to display a custom message)
-  options.showDataSaving();
+  options.showSaveInProgress();
   const xhr = new XMLHttpRequest();
   xhr.open("POST", "your/server/url");
   xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
   xhr.onload = xhr.onerror = function () {
     if (xhr.status == 200) {
       // Display the "Success" message (pass a string value to display a custom message)
-      options.showDataSavingSuccess();
+      options.showSaveSuccess();
       // Alternatively, you can clear all messages:
-      // options.showDataSavingClear();
+      // options.clearSaveMessages();
     } else {
       // Display the "Error" message (pass a string value to display a custom message)
-      options.showDataSavingError();
+      options.showSaveError();
     }
   };
   xhr.send(JSON.stringify(sender.data));

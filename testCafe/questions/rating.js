@@ -131,8 +131,31 @@ frameworks.forEach((framework) => {
         }
       ]
     });
-
     await t.expect(Selector(".sd-question select").visible).ok;
+  });
+
+  var jsonR = {
+    questions: [
+      {
+        "type": "rating",
+        "name": "q1"
+      },
+    ],
+  };
+  frameworks.forEach((framework) => {
+    fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+      async (t) => {
+        await initSurvey(framework, jsonR);
+      }
+    );
+  });
+  test("check fixed width observability", async (t) => {
+    await t.expect(Selector(".sv_q_rating_item").withText("1").visible).ok();
+    await t.expect(Selector(".sv_q_rating_item").withText("1").classNames).contains("sv_q_rating_item_fixed");
+    await ClientFunction(() => { window["survey"].getQuestionByName("q1").renderedRateItems[1].locText.text = "a"; })();
+    await t.expect(Selector(".sv_q_rating_item").withText("a").classNames).notContains("sv_q_rating_item_fixed");
+    await ClientFunction(() => { window["survey"].getQuestionByName("q1").renderedRateItems[2].locText.text = "b"; })();
+    await t.expect(Selector(".sv_q_rating_item").withText("b").classNames).notContains("sv_q_rating_item_fixed");
   });
 
   const jsonStars = {

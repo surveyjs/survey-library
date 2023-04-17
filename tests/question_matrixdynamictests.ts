@@ -6917,7 +6917,7 @@ QUnit.test("Row actions, check getUpdatedMatrixRowActions", function (assert) {
 QUnit.test("moveRowByIndex test", function (assert) {
   var matrixD = new QuestionMatrixDynamicModel("q1");
   matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
-  matrixD["moveRowByIndex"](1, 0);
+  matrixD.moveRowByIndex(1, 0);
   assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
 });
 
@@ -7816,7 +7816,6 @@ QUnit.test("Summary doesn't work correctly if there is invisible column and clea
           {
             name: "col1",
             cellType: "text",
-            totalType: "sum",
             inputType: "number",
           },
           {
@@ -7848,6 +7847,37 @@ QUnit.test("Summary doesn't work correctly if there is invisible column and clea
   matrix.visibleRows[1].cells[0].question.value = 3;
   matrix.visibleRows[1].cells[1].question.value = 4;
   assert.equal(matrix.visibleTotalRow.cells[2].value, 1 + 2 + 3 + 4, "summary calculated correctly");
+});
+QUnit.test("Set empty string to expression with empty total type", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "col1",
+      },
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          {
+            name: "col1",
+            cellType: "text"
+          },
+          {
+            name: "col2",
+            cellType: "text",
+            totalType: "sum"
+          },
+        ]
+      },
+    ]
+  });
+  const q = survey.getQuestionByName("col1");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  q.value = "1";
+  assert.notOk(matrix.visibleTotalRow.cells[0].value, "summary for first column is empty");
+  assert.deepEqual(survey.data, { col1: "1", "matrix-total": { col2: 0 } }, "matrix is empty");
 });
 QUnit.test("Get choices from matrix for default column type", function (assert) {
   const survey = new SurveyModel({

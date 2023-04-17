@@ -257,17 +257,28 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
     this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }
-  public onAddedRow() {
+  public onAddedRow(row: MatrixDropdownRowModelBase, index: number): void {
     if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
       return;
-    var row = this.matrix.visibleRows[this.matrix.visibleRows.length - 1];
-    this.rowsActions.push(this.buildRowActions(row));
-    this.addHorizontalRow(
-      this.rows,
-      row,
-      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader
-    );
+    let rowIndex = this.getRenderedRowIndexByIndex(index);
+    this.rowsActions.splice(index, 0, this.buildRowActions(row));
+    this.addHorizontalRow(this.rows, row,
+      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader, rowIndex);
     this.updateShowTableAndAddRow();
+  }
+  private getRenderedRowIndexByIndex(index: number): number {
+    let res = 0;
+    let dataRowIndex = 0;
+    for (var i = 0; i < this.rows.length; i++) {
+      if(dataRowIndex === index) {
+        if (this.rows[i].isDetailRow) res++;
+        break;
+      }
+      res ++;
+      if (!this.rows[i].isDetailRow) dataRowIndex++;
+    }
+    if(dataRowIndex < index) return this.rows.length;
+    return res;
   }
   private getRenderedDataRowCount(): number {
     var res = 0;
@@ -438,13 +449,16 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private addHorizontalRow(
     renderedRows: Array<QuestionMatrixDropdownRenderedRow>,
     row: MatrixDropdownRowModelBase,
-    useAsHeader: boolean
+    useAsHeader: boolean, index: number = -1
   ) {
     var renderedRow = this.createHorizontalRow(row, useAsHeader);
     renderedRow.row = row;
-    renderedRows.push(renderedRow);
+    if(index < 0) {
+      index = renderedRows.length;
+    }
+    renderedRows.splice(index, 0, renderedRow);
     if (row.isDetailPanelShowing) {
-      renderedRows.push(this.createDetailPanelRow(row, renderedRow));
+      renderedRows.splice(index + 1, 0, this.createDetailPanelRow(row, renderedRow));
     }
   }
   private getRowDragCell(rowIndex: number) {

@@ -25,7 +25,11 @@
   box-shadow: 0px 1px 2px $shadow-inner;
   border-radius: calcSize(12.5);
   white-space: nowrap;
-  padding: calcSize(1.25);
+  padding: calcSize(0.5) calcSize(2.5);
+  height: calcSize(6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
   box-sizing: border-box;
   min-width: calcSize(6);
   text-align: center;
@@ -33,6 +37,10 @@
   color: $foreground;
   fill: $foreground;
   font-size: calcSize(2);
+}
+.sd-rating__item--fixed-size {
+  width: calcSize(6);
+  padding: 0;
 }
 
 legend+.sd-rating__item,
@@ -47,16 +55,24 @@ legend+sv-ng-rating-item+.sd-rating__item {
 }
 
 .sd-rating__item.sd-rating__item--disabled {
-  color: $foreground-disabled-for-editors;
-  fill: $foreground-disabled-for-editors;
+  color: $foreground;
+  fill: $foreground;
 }
 
 .sd-rating__item.sd-rating__item--selected.sd-rating__item--disabled {
-  color: $primary-foreground-disabled;
-  fill: $foreground-disabled-for-editors;
+  color: $primary-foreground;
+  fill: $foreground;
 }
 
-.sd-rating__item--allowhover:hover,
+.sd-question--disabled .sd-rating__item-text {
+  opacity: 0.25;
+}
+
+.sd-rating__item--allowhover:hover {
+  background-color: $background-dark;
+  border-color: $background-dark;
+}
+
 .sd-rating__item:focus-within {
   border-color: $primary;
 }
@@ -112,7 +128,10 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   fill: $primary-foreground;
 }
 
-.sd-rating__item-smiley--allowhover:hover,
+.sd-rating__item-smiley--allowhover:hover {
+  background-color: $background-dark;
+}
+
 .sd-rating__item-smiley:focus-within {
   border-color: $primary;
 }
@@ -199,11 +218,10 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
-
 .sd-rating__item-star--highlighted {
   svg {
-    stroke: $primary;
-    fill: none;
+    stroke: $border;
+    fill: $background-dark;
   }
 }
 
@@ -230,7 +248,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 .sd-rating__item-text.sd-rating__item-text {
   font-size: calcSize(2);
   line-height: calcSize(3);
-  min-width: calcSize(3);
   display: inline-block;
 
   &.sd-rating__min-text,
@@ -255,4 +272,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   .sv-string-editor {
     white-space: nowrap;
   }
+        &.sd-rating__item--fixed-size {
+          min-width: calcSize(3);
+        }
 }

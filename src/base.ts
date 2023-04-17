@@ -782,6 +782,8 @@ export class Base {
       this.localizableStrings = {};
     }
     this.localizableStrings[name] = locStr;
+    const prop = this.getPropertyByName(name);
+    locStr.disableLocalization = prop && prop.isLocalizable === false;
     return locStr;
   }
   public getLocalizableString(name: string): LocalizableString {

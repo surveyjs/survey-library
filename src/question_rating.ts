@@ -12,6 +12,9 @@ import { mergeValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 
 export class RenderedRatingItem extends Base {
+  private onStringChangedCallback() {
+    this.text = this.itemValue.text;
+  }
   public get value(): number {
     return this.itemValue.getPropertyValue("value");
   }
@@ -20,11 +23,11 @@ export class RenderedRatingItem extends Base {
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
-  public get text(): string {
-    return this.itemValue.text;
-  }
+  @property({ defaultValue: "" }) text: string;
   constructor(public itemValue: ItemValue, private locString: LocalizableString = null) {
     super();
+    this.locText.onStringChanged.add(this.onStringChangedCallback.bind(this));
+    this.onStringChangedCallback();
   }
 }
 
@@ -39,9 +42,28 @@ export class QuestionRatingModel extends Question {
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax",
+    this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.createRenderedRateItems());
+    this.registerFunctionOnPropertiesValueChanged(["rateDisplayMode"],
+      () => {
+        this.setIconsToRateValues();
+        this.createRenderedRateItems();
+      });
+    this.registerFunctionOnPropertiesValueChanged(["rateValues"],
+      () => {
+        this.autoGenerate = false;
+        this.setIconsToRateValues();
+        this.createRenderedRateItems();
+      });
+    this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
+      () => {
+        if (!this.autoGenerate && this.rateValues.length === 0) {
+          this.setPropertyValue("rateValues", this.visibleRateValues);
+        }
+        if (this.autoGenerate) this.updateRateMax();
+        this.createRenderedRateItems();
+      });
     this.createLocalizableString(
       "minRateDescription",
       this,
@@ -52,13 +74,86 @@ export class QuestionRatingModel extends Question {
       this,
       true
     );
+    this.initPropertyDependencies();
   }
+  private jsonObj: any;
+  private setIconsToRateValues() {
+    if (this.rateType == "smileys")
+      this.rateValues.map(item => item.icon = this.getItemSmiley(item));
+  }
+
+  startLoadingFromJson(jsonObj: any) {
+    super.startLoadingFromJson(jsonObj);
+    this.jsonObj = jsonObj;
+  }
+
   endLoadingFromJson() {
     super.endLoadingFromJson();
     this.hasMinRateDescription = !!this.minRateDescription;
     this.hasMaxRateDescription = !!this.maxRateDescription;
+    if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
+      this.updateRateMax();
+    }
+    if (this.jsonObj.rateMax !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMin === undefined) {
+      this.updateRateMin();
+    }
+    if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
+    this.updateRateCount();
+    this.setIconsToRateValues();
     this.createRenderedRateItems();
   }
+
+  private _syncPropertiesChanging: boolean = false;
+  private registerSychProperties(names: Array<string>, func: any) {
+    this.registerFunctionOnPropertiesValueChanged(names,
+      () => {
+        if (!this._syncPropertiesChanging) {
+          this._syncPropertiesChanging = true;
+          func();
+          this._syncPropertiesChanging = false;
+        }
+      });
+  }
+  private useRateValues() {
+    return !!this.rateValues.length && !this.autoGenerate;
+  }
+  private updateRateMax() {
+    this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
+  }
+  private updateRateMin() {
+    this.rateMin = this.rateMax - this.rateStep * (this.rateCount - 1);
+  }
+  private updateRateCount() {
+    if (this.useRateValues()) {
+      this.rateCount = this.rateValues.length;
+    }
+    else {
+      this.rateCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
+    }
+  }
+  initPropertyDependencies() {
+    this.registerSychProperties(["rateCount"],
+      () => {
+        if (!this.useRateValues()) {
+          this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
+        } else {
+          if (this.rateCount < this.rateValues.length) {
+            this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
+          } else {
+            for (let i = this.rateValues.length; i < this.rateCount; i++) {
+              this.rateValues.push(new ItemValue(surveyLocalization.getString("choices_Item") + (i + 1)));
+            }
+          }
+        }
+      });
+    this.registerSychProperties(["rateMin", "rateMax", "rateStep", "rateValues"],
+      () => {
+        this.updateRateCount();
+      });
+  }
+
+  @property({ defaultValue: true }) autoGenerate: boolean;
+
   /**
    * A list of rate values.
    *
@@ -78,10 +173,7 @@ export class QuestionRatingModel extends Question {
    *
    * If you need to specify only the `value` property, you can set the `rateValues` property to an array of numbers, for example, `[ 3, 6, 10 ]`. These values are both saved in survey results and used as display text.
    *
-   * If you do not specify the `rateValues` property, rate values are generated automatically based upon the `rateMin`, `rateMax`, and `rateStep` property values.
-   * @see rateMin
-   * @see rateMax
-   * @see rateStep
+   * If you do not specify the `rateValues` property, rate values are generated automatically based upon the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin), [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax), [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep), and [`rateCount`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateCount) property values.
    */
   public get rateValues(): Array<any> {
     return this.getPropertyValue("rateValues");
@@ -91,12 +183,12 @@ export class QuestionRatingModel extends Question {
     this.createRenderedRateItems();
   }
   /**
-   * Specifies the first rate value in the generated sequence of rate values. Applies if the `rateValues` array is empty.
+   * Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
-   * @see rateValues
    * @see rateMax
    * @see rateStep
+   * @see rateCount
    */
   public get rateMin(): number {
     return this.getPropertyValue("rateMin");
@@ -105,12 +197,12 @@ export class QuestionRatingModel extends Question {
     this.setPropertyValue("rateMin", val);
   }
   /**
-   * Specifies the last rate value in the generated sequence of rate values. Applies if the `rateValues` array is empty.
+   * Specifies the last rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 5
-   * @see rateValues
    * @see rateMin
    * @see rateStep
+   * @see rateCount
    */
   public get rateMax(): number {
     return this.getPropertyValue("rateMax");
@@ -119,12 +211,12 @@ export class QuestionRatingModel extends Question {
     this.setPropertyValue("rateMax", val);
   }
   /**
-   * Specifies a step with which to generate rate values. Applies if the `rateValues` array is empty.
+   * Specifies a step with which to generate rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
-   * @see rateValues
    * @see rateMin
    * @see rateMax
+   * @see rateCount
    */
   public get rateStep(): number {
     return this.getPropertyValue("rateStep");
@@ -132,6 +224,13 @@ export class QuestionRatingModel extends Question {
   public set rateStep(val: number) {
     this.setPropertyValue("rateStep", val);
   }
+  /**
+   * Specifies the number of rate values you want to generate. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
+   *
+   * Set the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin) or [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax) property to specify the first or the last rate value. Use the [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep) property to specify a step with which to generate rate values.
+   */
+  @property({ defaultValue: 5 }) rateCount: number;
+
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
@@ -146,12 +245,12 @@ export class QuestionRatingModel extends Question {
     oldValue: any,
     newValue: any
   ) {
-    if (this.rateValues.length === 0 && newValue !== undefined) this.setPropertyValue("rateValues", this.visibleRateValues);
+    if (!this.useRateValues() && newValue !== undefined) this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
   private createRenderedRateItems() {
     let rateValues = [];
-    if (this.rateValues.length > 0) {
+    if (this.useRateValues()) {
       rateValues = this.rateValues;
     }
     else {
@@ -170,6 +269,8 @@ export class QuestionRatingModel extends Question {
       }
       rateValues = res;
     }
+
+    if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
 
     this.renderedRateItems = rateValues.map((v, i) => {
       if (this.displayRateDescriptionsAsExtremeItems) {
@@ -285,7 +386,14 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
-  @property({ defaultValue: "number" }) rateType: "numbers" | "labels" | "stars" | "smileys";
+  @property({ defaultValue: "labels" }) rateDisplayMode: "labels" | "stars" | "smileys";
+
+  public get rateType() {
+    return this.rateDisplayMode;
+  }
+  public set rateType(val: "labels" | "stars" | "smileys") {
+    this.rateDisplayMode = val;
+  }
   @property({ defaultValue: "monochrome" }) smileysColorMode: "monochrome" | "colored";
   public get isStar() {
     return this.rateType == "stars";
@@ -300,7 +408,7 @@ export class QuestionRatingModel extends Question {
   }
 
   protected valueToData(val: any): any {
-    if (this.rateValues.length > 0) {
+    if (this.useRateValues()) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
       return !!item ? item.value : val;
     }
@@ -312,9 +420,12 @@ export class QuestionRatingModel extends Question {
     } else {
       this.value = value;
     }
+    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
+      this.renderedRateItems[i].highlight = "none";
+    }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
-    if (this.isReadOnly || !item.itemValue.isEnabled) return;
+    if (this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;
     let high = true;
     let selected = this.value != null;
     for (let i: number = 0; i < this.renderedRateItems.length; i++) {
@@ -335,10 +446,10 @@ export class QuestionRatingModel extends Question {
   public getItemSmiley(item: ItemValue) {
     const icons = ["terrible", "very-poor", "poor", "not-good", "average", "normal", "good", "very-good", "excellent", "perfect"];
     const priority = ["very-good", "not-good", "normal", "good", "average", "excellent", "poor", "perfect", "very-poor", "terrible"];
-    const count = this.rateValues.length || this.rateMax - this.rateMin + 1;
+    const count = this.useRateValues() ? this.rateValues.length : this.rateMax - this.rateMin + 1;
     const selectedPriority = priority.slice(0, count);
     const selectedIcons = icons.filter(i => selectedPriority.indexOf(i) != -1);
-    if (this.rateValues.length == 0) {
+    if (!this.useRateValues()) {
       return selectedIcons[item.value - this.rateMin];
     } else {
       return selectedIcons[this.rateValues.indexOf(item)];
@@ -349,10 +460,13 @@ export class QuestionRatingModel extends Question {
     return "icon-" + this.getItemSmiley(item);
   }
 
+  public getItemClassByText(item: ItemValue, text: string) {
+    return this.getItemClass(item);
+  }
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
     let isSelected = this.value == item.value;
     if (this.isStar) {
-      if (this.rateValues.length == 0) {
+      if (!this.useRateValues()) {
         isSelected = this.value >= item.value;
       } else {
         isSelected = this.rateValues.indexOf(this.rateValues.filter(i => i.value == this.value)[0]) >= this.rateValues.indexOf(item);
@@ -388,6 +502,16 @@ export class QuestionRatingModel extends Question {
       itemitemOnErrorClass = this.cssClasses.itemSmileyOnError;
     }
 
+    const hasFixedSize =
+      !this.isStar &&
+      !this.isSmiley &&
+      (!this.displayRateDescriptionsAsExtremeItems ||
+        this.useRateValues() && item != this.rateValues[0] && item != this.rateValues[this.rateValues.length - 1] ||
+        !this.useRateValues() && item.value != this.rateMin && item.value != this.rateMax
+      ) &&
+      item.locText.calculatedText.length <= 2 &&
+      Number.isInteger(Number(item.locText.calculatedText));
+
     return new CssClassBuilder()
       .append(itemClass)
       .append(itemSelectedClass, isSelected)
@@ -396,6 +520,7 @@ export class QuestionRatingModel extends Question {
       .append(itemHighlightedClass, isHighlighted)
       .append(itemUnhighlightedClass, isUnhighlighted)
       .append(itemitemOnErrorClass, this.errors.length > 0)
+      .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
   }
   //methods for mobile view
@@ -483,28 +608,69 @@ export class QuestionRatingModel extends Question {
     }
     return classes;
   }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+    }
+  }
 }
 Serializer.addClass(
   "rating",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
+      name: "rateDisplayMode",
+      alternativeName: "rateType",
+      default: "labels",
+      category: "rateValues",
+      choices: ["labels", "stars", "smileys"],
+      visibleIndex: 0
+    },
+    {
+      name: "autoGenerate",
+      displayName: "How to specify rate values?",
+      category: "rateValues",
+      default: true,
+      choices: [{ value: true, text: "Generate" }, { value: false, text: "Enter manually" }],
+      visibleIndex: 2
+    },
+    {
+      name: "rateCount:number",
+      default: 5,
+      category: "rateValues",
+      visibleIndex: 1
+    },
+    {
       name: "rateValues:itemvalue[]",
       baseValue: function () {
         return surveyLocalization.getString("choices_Item");
       },
+      category: "rateValues",
+      visibleIf: function (obj: any) {
+        return !obj.autoGenerate;
+      },
+      visibleIndex: 3
     },
     {
       name: "rateMin:number", default: 1,
       onSettingValue: (obj: any, val: any): any => {
         return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep : val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 4
     },
     {
       name: "rateMax:number", default: 5,
       onSettingValue: (obj: any, val: any): any => {
         return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep : val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 5
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -513,30 +679,31 @@ Serializer.addClass(
         if (val > obj.rateMax - obj.rateMin)
           val = obj.rateMax - obj.rateMin;
         return val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 6
     },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
       serializationProperty: "locMinRateDescription",
+      visibleIndex: 17
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
+      visibleIndex: 18
     },
-    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
+    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false, visibleIndex: 19 },
     {
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
+      visibleIndex: 20
     },
-    {
-      name: "rateType",
-      visible: false,
-      default: "number",
-      choices: ["numbers", "labels", "stars", "smileys"],
-    }
   ],
   function () {
     return new QuestionRatingModel("");

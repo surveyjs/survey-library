@@ -57,7 +57,7 @@ export class QuestionSelectBase extends Question {
       }
     );
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
-      this.updateVisibilityBasedOnChoices();
+      this.onVisibleChanged();
     });
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
@@ -1274,17 +1274,17 @@ export class QuestionSelectBase extends Question {
   protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;
     this.updateVisibleChoices();
-    this.updateVisibilityBasedOnChoices();
+    this.onVisibleChanged();
     if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();
     }
     this.updateChoicesDependedQuestions();
   }
-  private updateVisibilityBasedOnChoices() {
-    if (this.hideIfChoicesEmpty) {
-      var filteredChoices = this.getFilteredChoices();
-      this.visible = !filteredChoices || filteredChoices.length > 0;
-    }
+  protected isVisibleCore(): boolean {
+    const superVal = super.isVisibleCore();
+    if (!this.hideIfChoicesEmpty || !superVal) return superVal;
+    var filteredChoices = this.getFilteredChoices();
+    return !filteredChoices || filteredChoices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
     var order = this.choicesOrder.toLowerCase();

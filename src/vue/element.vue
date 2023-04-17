@@ -79,7 +79,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { Base, SurveyModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
+import { Base, SurveyModel, Question, QuestionRowModel } from "survey-core";
+import { getComponentName } from "./question";
 import { BaseVue } from "./base";
 
 @Component
@@ -91,12 +92,8 @@ export class SurveyElementVue extends BaseVue {
   protected getModel(): Base {
     return this.element;
   }
-    getComponentName(element: Question) {
-    if (element.customWidget) return "survey-customwidget";
-    if (element.getType() === "panel" || element.isDefaultRendering()) {
-      return "survey-" + element.getTemplate();
-    }
-    return element.getComponentName();
+  getComponentName(element: Question) {
+    return getComponentName(element);
   }
   getContentClass(element: Question) {
     return element.cssContent;

@@ -224,7 +224,7 @@ export class QuestionPanelDynamicTemplateSurveyImpl implements ISurveyImpl {
 /**
   * A class that describes the Dynamic Panel question type.
   *
-  * Dynamic Panel allows respondents to add panels based on a template panel and delete them. Specify the [`templateElements`](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel#templateElements) property to configure template panel elements.
+  * Dynamic Panel allows respondents to add panels based on a panel template and delete them. Specify the [`templateElements`](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel#templateElements) property to configure panel template elements.
   *
   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/ (linkStyle))
   */
@@ -353,7 +353,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.template;
   }
   /**
-   * An array of questions and panels included in the template panel.
+   * An array of questions and panels included in a panel template.
    * @see template
    * @see panels
    * @see panelCount
@@ -362,7 +362,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.template.elements;
   }
   /**
-   * A title for the template panel.
+   * A template for panel titles.
    * @see template
    * @see templateDescription
    * @see templateElements
@@ -379,7 +379,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.template.locTitle;
   }
   /**
-   * A title for the template panel tab. It is rendered if renderMode is "tab"
+   * A template for tab titles. Applies when [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`.
    * @see templateTitle
    * @see renderMode
    */
@@ -393,7 +393,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("templateTabTitle");
   }
   /**
-   * A description for the template panel.
+   * A template for panel descriptions.
    * @see template
    * @see templateTitle
    * @see templateElements
@@ -418,7 +418,7 @@ export class QuestionPanelDynamicModel extends Question
     return res;
   }
   /**
-   * An array of `PanelModel` objects created based on the template panel.
+   * An array of `PanelModel` objects created based on a panel template.
    * @see PanelModel
    * @see template
    * @see panelCount
@@ -814,7 +814,7 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("allowRemovePanel", val);
   }
   /**
-   * Gets or sets the location of question titles within the template panel relative to their input fields.
+   * Gets or sets the location of question titles relative to their input fields.
    *
    * - `"default"` (default) - Inherits the setting from the Dynamic Panel's `titleLocation` property, which in turn inherits the [`questionTitleLocation`](https://surveyjs.io/form-library/documentation/surveymodel#questionTitleLocation) property value specified for the Dynamic Panel's container (page or survey).
    * - `"top"` - Displays question titles above input fields.
@@ -871,7 +871,15 @@ export class QuestionPanelDynamicModel extends Question
     this.fireCallback(this.currentIndexChangedCallback);
   }
   /**
-   * By default the property equals to "list" and all dynamic panels are rendered one by one on the page. You may change it to: "progressTop", "progressBottom" or "progressTopBottom" to render only one dynamic panel at once. The progress and navigation elements can be rendred on top, bottom or both.
+   * Specifies how to render panels.
+   *
+   * Possible values:
+   *
+   * - `"list"` - Renders panels one under the other. [View Demo](https://surveyjs.io/form-library/examples/how-to-use-expressions-in-dynamic-panel/)
+   * - `"progressTop"` - Renders each panel as a card and displays a progress bar at the top. [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)
+   * - `"progressBottom"` - Renders each panel panel as a card and displays a progress bar at the bottom.
+   * - `"progressTopBottom"` - Renders each panel as a card and displays a progress bar at the top and bottom.
+   * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles.
    */
   public get renderMode(): string {
     return this.getPropertyValue("renderMode");

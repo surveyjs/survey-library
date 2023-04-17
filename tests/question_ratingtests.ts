@@ -965,3 +965,47 @@ QUnit.test("check icons for rateValues", (assert) => {
   assert.equal(q1.rateValues[1].icon, "normal");
   assert.equal(q1.rateValues[2].icon, "very-good");
 });
+
+QUnit.test("change rateCount on switch rateDisplayMode", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateDisplayMode": "stars",
+        "rateValues": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.rateDisplayMode = "smileys";
+  assert.equal(q1.rateCount, 10);
+  assert.equal(q1.rateValues.length, 12);
+});
+
+QUnit.test("rateCount limitations", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateDisplayMode": "stars"
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.rateCount = 1;
+  assert.equal(q1.rateCount, 2);
+  q1.rateCount = 21;
+  assert.equal(q1.rateCount, 20);
+  q1.rateCount = 15;
+  assert.equal(q1.rateCount, 15);
+  q1.rateValues = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+  assert.equal(q1.rateCount, 22);
+  q1.rateCount = 21;
+  assert.equal(q1.rateCount, 21);
+
+  q1.rateDisplayMode = "smileys";
+  q1.rateCount = 15;
+  assert.equal(q1.rateCount, 10);
+});

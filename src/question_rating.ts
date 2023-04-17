@@ -629,7 +629,6 @@ Serializer.addClass(
     },
     {
       name: "autoGenerate",
-      displayName: "How to specify rate values?",
       category: "rateValues",
       default: true,
       choices: [{ value: true, text: "Generate" }, { value: false, text: "Enter manually" }],

@@ -182,9 +182,9 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     }
     values[QuestionPanelDynamicItem.ItemVariableName] = this.getAllValues();
     if (!!this.data) {
-      values[
-        QuestionPanelDynamicItem.IndexVariableName.toLowerCase()
-      ] = this.data.getItemIndex(this);
+      const indexStr = QuestionPanelDynamicItem.IndexVariableName;
+      delete values[indexStr];
+      values[indexStr.toLowerCase()] = this.data.getItemIndex(this);
       const q = <Question>(<any>this.data);
       if (!!q && !!q.parentQuestion && !!q.parent) {
         values[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>q.parent).getValue();

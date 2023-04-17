@@ -6330,6 +6330,7 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   q1.inputType = "range";
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "datetime";
+  assert.equal(q1.inputType, "datetime-local", "We do not have datetime value");
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "tel";
   assert.equal(q1.isMinMaxType, false);
@@ -6517,7 +6518,7 @@ QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function
   });
   assert.equal(cellLocStr.textOrHtml, "!!text");
 });
-QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputtype, Bug#5296", function (
+QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime-local' inputtype, Bug#5296", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -6537,10 +6538,12 @@ QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputty
   const d = new Date();
   let prefix = d.getFullYear() + "-";
   const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q1");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime has year");
-  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.inputType, "datetime-local", "inputType is correct");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime-local has time");
+  assert.equal(q2.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q2.displayValue.indexOf(":") < 0, true, "date has no time");
 });
 QUnit.test("Supporting showCommentArea property, Bug#5479", function (
   assert

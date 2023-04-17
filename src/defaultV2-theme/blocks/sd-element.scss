@@ -3,78 +3,6 @@
   padding-right: var(--sv-element-add-padding-right, 0px);
 }
 
-.svc-logic-question-value,
-.sd-element--with-frame:not(.sd-element--collapsed) {
-  border-radius: calcSize(0.5);
-  box-sizing: border-box;
-  padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
-  padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
-  padding-bottom: var(--sd-base-padding);
-  background: $question-background;
-  box-shadow: 0px 1px 2px $shadow-inner;
-
-  & > .sd-question__erbox--outside-question {
-    margin-left: calc(-1 * var(--sd-base-padding));
-    margin-right: calc(-1 * var(--sd-base-padding));
-    width: calc(100% + 2 * var(--sd-base-padding));
-  }
-
-  &.sd-question--paneldynamic {
-    padding-bottom: 0;
-
-    & > .sd-question__erbox--below-question {
-      bottom: 0;
-      margin-top: 0;
-    }
-  }
-}
-
-.sd-element--with-frame {
-  & > .sd-question__erbox--above-question {
-    margin-top: calc(-1 * var(--sd-base-vertical-padding));
-  }
-}
-
-.svc-logic-question-value,
-.sd-element:not(.sd-element--collapsed) {
-  padding-top: var(--sd-base-vertical-padding);
-}
-
-.sd-table__cell--detail-panel {
-  .sd-element:not(.sd-element--collapsed) {
-    padding-top: calcSize(0.5);
-  }
-}
-
-.sd-element.sd-element--complex {
-  padding-top: 0;
-}
-
-.sd-element--expanded,
-.sd-element--collapsed {
-  & > .sd-element__header {
-    cursor: pointer;
-  }
-}
-
-.sd-element--collapsed {
-  & > .sd-element__header {
-    padding: calcSize(2) var(--sd-base-padding);
-    box-sizing: border-box;
-    background-color: $background;
-  }
-
-  &.sd-element--with-frame > .sd-element__header {
-    box-shadow: 0px 1px 2px $shadow-inner;
-    border-radius: calcSize(0.5);
-  }
-
-  & > .sd-element__header:focus-within,
-  & > .sd-element__header:hover {
-    background-color: $background-dim-light;
-  }
-}
-
 .sd-element__title {
   outline: none;
 }
@@ -198,7 +126,7 @@
   padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
   padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
-  background: $background;
+  background: $question-background;
   box-shadow: 0px 1px 2px $shadow-inner;
 
   &.sd-question--paneldynamic {

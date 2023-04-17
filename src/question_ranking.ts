@@ -364,7 +364,7 @@ Serializer.addClass(
     },
     {
       name: "chooseItemsToOrderMode",
-      default: true,
+      default: false,
       visible: false,
       isSerializable: false,
     },

@@ -4033,6 +4033,26 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
 
+QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q1",
+        choices: [
+          { value: 1, imageLink: "test1" },
+          { value: 2, imageLink: "test2" },
+          { value: 3, imageLink: "test3" }]
+      },
+      { type: "imagepicker", name: "q2", choicesFromQuestion: "q1",
+        choices: [{ value: 4, imageLink: "test4" }], }
+    ]
+  });
+  const q2 = <QuestionImagePickerModel>survey.getQuestionByName("q2");
+  const choices = q2.visibleChoices;
+  assert.equal(choices.length, 3, "There are 3 values");
+  assert.equal(choices[0].getType(), "imageitemvalue", "choice item type is correct");
+  assert.equal(choices[0].imageLink, "test1", "image link is copied");
+});
+
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);
@@ -6330,6 +6350,7 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   q1.inputType = "range";
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "datetime";
+  assert.equal(q1.inputType, "datetime-local", "We do not have datetime value");
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "tel";
   assert.equal(q1.isMinMaxType, false);
@@ -6517,7 +6538,7 @@ QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function
   });
   assert.equal(cellLocStr.textOrHtml, "!!text");
 });
-QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputtype, Bug#5296", function (
+QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime-local' inputtype, Bug#5296", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -6537,10 +6558,12 @@ QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputty
   const d = new Date();
   let prefix = d.getFullYear() + "-";
   const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q1");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime has year");
-  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.inputType, "datetime-local", "inputType is correct");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime-local has time");
+  assert.equal(q2.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q2.displayValue.indexOf(":") < 0, true, "date has no time");
 });
 QUnit.test("Supporting showCommentArea property, Bug#5479", function (
   assert

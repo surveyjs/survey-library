@@ -351,7 +351,7 @@ export class Helpers {
   }
   public static convertValToQuestionVal(val: any, inputType?: string): any {
     if (val instanceof Date) {
-      if(inputType === "datetime") return Helpers.convertDateTimeToString(val);
+      if(inputType === "datetime-local") return Helpers.convertDateTimeToString(val);
       return Helpers.convertDateToString(val);
     }
     return val;

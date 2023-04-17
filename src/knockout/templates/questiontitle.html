@@ -2,9 +2,7 @@
   <div data-bind="css: question.cssHeader, click: question.clickTitleFunction">
     <!-- ko component: { name: 'survey-element-title', params: { element: $data } } --><!-- /ko -->
     <!-- ko if: $data.hasDescriptionUnderTitle -->
-    <div
-      data-bind="css: $data.cssDescription"
-    >
+    <div data-bind="css: $data.cssDescription, visible: !!$data.description">
       <!-- ko template: { name: 'survey-string', data: $data.locDescription } --><!-- /ko -->
     </div>
     <!-- /ko -->

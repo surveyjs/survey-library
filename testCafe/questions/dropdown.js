@@ -10,6 +10,8 @@ const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
 
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
+const questionOffsetTopConst = 186;
+
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
@@ -1536,13 +1538,13 @@ frameworks.forEach((framework) => {
       .expect(dropdown1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.offsetTop).eql(questionOffsetTopConst)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.offsetTop).eql(questionOffsetTopConst)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
@@ -3078,13 +3080,13 @@ frameworks.forEach((framework) => {
       .expect(dropdown1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.offsetTop).eql(questionOffsetTopConst)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown1.offsetTop).eql(184)
+      .expect(dropdown1.offsetTop).eql(questionOffsetTopConst)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")

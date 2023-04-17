@@ -20,15 +20,15 @@
   box-shadow: none;
 }
 
-.sd-item__control:focus + .sd-item__decorator,
-.sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
+.sd-item__control:focus + .sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
+  background: $background;
   outline: none;
 }
 
-.sd-item__control:focus + .sd-item__decorator,
 .sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
-  background: $background;
+  background: $background-dim-dark;
+  outline: none;
 }
 
 .sd-item--checked .sd-item__decorator {

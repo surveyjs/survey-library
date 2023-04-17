@@ -57,7 +57,7 @@ export class QuestionSelectBase extends Question {
       }
     );
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
-      this.updateVisibilityBasedOnChoices();
+      this.onVisibleChanged();
     });
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
@@ -103,8 +103,10 @@ export class QuestionSelectBase extends Question {
   protected getItemValueType(): string {
     return "itemvalue";
   }
-  public createItemValue(value: any): ItemValue {
-    return Serializer.createClass(this.getItemValueType(), value);
+  public createItemValue(value: any, text?: string): ItemValue {
+    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
+    if(!!text) res.text = text;
+    return res;
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.otherValue;
@@ -330,7 +332,7 @@ export class QuestionSelectBase extends Question {
     if(!itemValue && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
-    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.createItemValue(this.value));
   }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
   private setConditionalChoicesRunner() {
@@ -551,9 +553,9 @@ export class QuestionSelectBase extends Question {
           if (!displayValues || !displayValues.length) return;
 
           if (IsMultipleValue) {
-            this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
+            this.selectedItemValues = displayValues.map((displayValue, index) => this.createItemValue(this.value[index], displayValue));
           } else {
-            this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
+            this.selectedItemValues = this.createItemValue(this.value, displayValues[0]);
           }
         }
       });
@@ -832,7 +834,7 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (isAddAll) {
       if (!this.newItemValue) {
-        this.newItemValue = new ItemValue("newitem"); //TODO
+        this.newItemValue = this.createItemValue("newitem"); //TODO
       }
       if (this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
@@ -979,12 +981,14 @@ export class QuestionSelectBase extends Question {
       }
     }
     if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
-      res.push(new ItemValue(question.otherItem.value, question.comment));
+      res.push(this.createItemValue(question.otherItem.value, question.comment));
     }
     return res;
   }
   private copyChoiceItem(item: ItemValue): ItemValue {
-    return new ItemValue(item.value, item.text);
+    const res = this.createItemValue(item.value);
+    res.setData(item);
+    return res;
   }
   protected get hasActiveChoices(): boolean {
     var choices = this.visibleChoices;
@@ -1274,17 +1278,17 @@ export class QuestionSelectBase extends Question {
   protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;
     this.updateVisibleChoices();
-    this.updateVisibilityBasedOnChoices();
+    this.onVisibleChanged();
     if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();
     }
     this.updateChoicesDependedQuestions();
   }
-  private updateVisibilityBasedOnChoices() {
-    if (this.hideIfChoicesEmpty) {
-      var filteredChoices = this.getFilteredChoices();
-      this.visible = !filteredChoices || filteredChoices.length > 0;
-    }
+  protected isVisibleCore(): boolean {
+    const superVal = super.isVisibleCore();
+    if (!this.hideIfChoicesEmpty || !superVal) return superVal;
+    var filteredChoices = this.getFilteredChoices();
+    return !filteredChoices || filteredChoices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
     var order = this.choicesOrder.toLowerCase();

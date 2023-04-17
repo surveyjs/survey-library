@@ -460,6 +460,16 @@ export class DropdownListModel extends Base {
     }
   }
 
+  dispose(): void {
+    super.dispose();
+    if(!!this.listModel) {
+      this.listModel.dispose();
+    }
+    if(!!this.popupModel) {
+      this.popupModel.dispose();
+    }
+  }
+
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();
   }

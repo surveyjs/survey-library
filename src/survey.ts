@@ -1876,7 +1876,8 @@ export class SurveyModel extends SurveyElementCore
     return "";
   }
   /**
-   * Gets or sets a survey backgroundImage.
+   * An image to display in the background of the survey or form. Accepts a base64 or URL string value.
+   * @see backgroundOpacity
    */
   public get backgroundImage(): string {
     return this.getLocalizableStringText("backgroundImage");
@@ -1891,6 +1892,10 @@ export class SurveyModel extends SurveyElementCore
   private updateRenderBackgroundImage(): void {
     this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
   }
+  /**
+   * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
+   * @see backgroundImage
+   */
   public get backgroundOpacity(): number {
     return this.getPropertyValue("backgroundOpacity");
   }
@@ -3141,7 +3146,7 @@ export class SurveyModel extends SurveyElementCore
     var page = this.currentPage;
     if (!page) return "none";
     if (page.navigationButtonsVisibility === "show") {
-      return "bottom";
+      return this.showNavigationButtons === "none" ? "bottom" : this.showNavigationButtons;
     }
     if (page.navigationButtonsVisibility === "hide") {
       return "none";
@@ -6834,12 +6839,12 @@ export class SurveyModel extends SurveyElementCore
         }
       } else if(isStrCiEqual(layoutElement.id, "navigationbuttons")) {
         if(container === "contentTop") {
-          if(["top", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnTop) {
+          if(["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
         if(container === "contentBottom") {
-          if(["bottom", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnBottom) {
+          if(["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }

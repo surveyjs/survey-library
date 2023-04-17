@@ -1,5 +1,5 @@
 <template>
-  <label :key="item.value" :class="question.getItemClass(item.itemValue)">
+  <label :key="item.value" :class="question.getItemClassByText(item.itemValue, item.text)">
     <input type="radio" class="sv-visuallyhidden" :name="question.name" :id="question.getInputId(index)"
       :value="item.value" :disabled="question.isInputReadOnly"
       @click="(e) => question.setValueFromClick(e.target.value)" :aria-required="question.ariaRequired"

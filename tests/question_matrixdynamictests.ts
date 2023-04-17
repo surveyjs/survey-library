@@ -6917,7 +6917,7 @@ QUnit.test("Row actions, check getUpdatedMatrixRowActions", function (assert) {
 QUnit.test("moveRowByIndex test", function (assert) {
   var matrixD = new QuestionMatrixDynamicModel("q1");
   matrixD.value = [{ v1: "v1" }, { v2: "v2" }];
-  matrixD["moveRowByIndex"](1, 0);
+  matrixD.moveRowByIndex(1, 0);
   assert.deepEqual(matrixD.value, [{ v2: "v2" }, { v1: "v1" }]);
 });
 

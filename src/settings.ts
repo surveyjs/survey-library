@@ -351,11 +351,11 @@ export var settings = {
     imagepicker: ["answercount"],
   },
   /**
-   * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+   * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   minDate: "",
   /**
-   * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+   * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
   showModal: <
@@ -402,7 +402,6 @@ export var settings = {
     inputTypes: [
       "color",
       "date",
-      "datetime",
       "datetime-local",
       "email",
       "month",

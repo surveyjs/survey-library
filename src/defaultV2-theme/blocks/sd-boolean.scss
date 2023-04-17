@@ -8,6 +8,10 @@
   border-radius: calcSize(12.5);
 }
 
+.sd-boolean.sd-boolean--indeterminate:hover {
+  background-color: $background-dim-dark;
+}
+
 .sd-boolean__thumb,
 .sd-boolean__label {
   display: block;

@@ -307,6 +307,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       event.stopPropagation();
     }
   }
+
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+    }
+  }
 }
 Serializer.addClass(
   "dropdown",

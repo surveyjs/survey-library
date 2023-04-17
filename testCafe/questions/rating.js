@@ -138,12 +138,7 @@ frameworks.forEach((framework) => {
     questions: [
       {
         "type": "rating",
-        "name": "q1",
-        "rateValues": [
-          0,
-          1,
-          2,
-        ]
+        "name": "q1"
       },
     ],
   };
@@ -157,8 +152,10 @@ frameworks.forEach((framework) => {
   test("check fixed width observability", async (t) => {
     await t.expect(Selector(".sv_q_rating_item").withText("1").visible).ok();
     await t.expect(Selector(".sv_q_rating_item").withText("1").classNames).contains("sv_q_rating_item_fixed");
-    await ClientFunction(() => { window["survey"].getQuestionByName("q1").rateValues[1].value = "a"; })();
+    await ClientFunction(() => { window["survey"].getQuestionByName("q1").renderedRateItems[1].locText.text = "a"; })();
     await t.expect(Selector(".sv_q_rating_item").withText("a").classNames).notContains("sv_q_rating_item_fixed");
+    await ClientFunction(() => { window["survey"].getQuestionByName("q1").renderedRateItems[2].locText.text = "b"; })();
+    await t.expect(Selector(".sv_q_rating_item").withText("b").classNames).notContains("sv_q_rating_item_fixed");
   });
 
   const jsonStars = {

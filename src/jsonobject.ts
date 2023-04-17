@@ -1721,6 +1721,9 @@ export class JsonObject {
         if (!!value[i].name) {
           newValue.newObj.name = value[i].name;
         }
+        if (!!value[i].valueName) {
+          newValue.newObj.valueName = value[i].valueName.toString();
+        }
         result.push(newValue.newObj);
         this.toObjectCore(value[i], newValue.newObj);
       } else {

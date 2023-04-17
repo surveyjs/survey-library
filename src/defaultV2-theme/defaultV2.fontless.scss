@@ -1,4 +1,3 @@
-@import "./variables.scss";
 @import "./blocks/mixins.scss";
 @import "../common-styles/common-styles.scss";
 
@@ -91,7 +90,7 @@ body {
   }
 }
 
-.sd-container-modern--brand-info {
+.sd-container-modern {
   margin-bottom: calcSize(10);
 }
 

@@ -1,3 +1,9 @@
+
+const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } } = {
+  "file": { minWidth: "240px" },
+  "comment": { minWidth: "200px" }
+};
+
 /**
  * Global settings that apply to all surveys on the page. To specify one of the settings, use the code below:
  *
@@ -7,6 +13,7 @@
  * settings.settingName = "value";
  * ```
  */
+
 export var settings = {
   /**
    * Specifies an action to perform when users press the Enter key within a survey.
@@ -344,11 +351,11 @@ export var settings = {
     imagepicker: ["answercount"],
   },
   /**
-   * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+   * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   minDate: "",
   /**
-   * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+   * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
   showModal: <
@@ -395,7 +402,6 @@ export var settings = {
     inputTypes: [
       "color",
       "date",
-      "datetime",
       "datetime-local",
       "email",
       "month",
@@ -464,5 +470,17 @@ export var settings = {
       "email",
       "impp",
     ]
+  },
+  /**
+   * Contains properties that apply to [Single-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multiple-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions.
+   *
+   * Nested properties:
+   *
+   * - `columnWidthsByType`: `Object`\
+   * An object that specifies fixed and minimum column width based on the column type.\
+   * Example: `settings.matrix.columnWidthsByType = { "tagbox": { minWidth: "240px", width: "300px" } }`
+   */
+  matrix: {
+    columnWidthsByType: columnWidthsByType
   }
 };

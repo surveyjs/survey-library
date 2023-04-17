@@ -16,6 +16,7 @@ import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { ItemValue } from "../src/itemvalue";
 import { StylesManager } from "../src/stylesmanager";
 import { settings } from "../src/settings";
+import { QuestionMatrixModel } from "../src/question_matrix";
 
 export default QUnit.module("Survey_QuestionPanelDynamic");
 
@@ -778,6 +779,22 @@ QUnit.test("PanelDynamic in design time", function(assert) {
     0,
     "It is always zero  in non list mode at design-time"
   );
+});
+QUnit.test("PanelDynamic in design time + panelCount", function(assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "paneldynamic", name: "q1", panelCount: 5 }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  assert.equal(panel.panelCount, 5, "Loading correctly");
+  assert.equal(panel.getPropertyValue("panelCount"), 5, "property is set correcty on loading");
+  panel.setPropertyValue("panelCount", 7);
+  assert.equal(panel.panelCount, 7, "panelCount set correctly");
+  panel.panelCount = 3;
+  assert.equal(panel.getPropertyValue("panelCount"), 3, "property is set correcty");
 });
 QUnit.test("PanelDynamic, question no", function(assert) {
   var survey = new SurveyModel();
@@ -5119,4 +5136,425 @@ QUnit.test("Doesn't update value correctly for nested matrix with expressions, b
   assert.deepEqual(matrix.value, [{ col1: 10, col2: 20 }], "matrix value");
   assert.deepEqual(panel.value, [{ matrix: [{ col1: 10, col2: 20 }] }], "panel value");
   assert.deepEqual(survey.data, { panel: [{ matrix: [{ col1: 10, col2: 20 }] }] }, "survey.data");
+});
+
+QUnit.test("renderMode: tab, issue#5829", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        renderMode: "tab",
+        templateTitle: "Information about: {panel.relativeType}",
+        templateElements: [
+          {
+            name: "relativeType",
+            type: "dropdown",
+            title: "Relative",
+            choices: [
+              "father",
+              "mother",
+              "brother",
+              "sister",
+              "son",
+              "daughter"
+            ],
+          },
+          {
+            name: "isalive",
+            type: "radiogroup",
+            title: "Alive?",
+            startWithNewLine: false,
+            colCount: 0,
+            choices: ["Yes", "No"]
+          },
+          {
+            name: "liveage",
+            type: "dropdown",
+            title: "Age",
+            startWithNewLine: false,
+            visibleIf: "{panel.isalive} = 'Yes'",
+            choicesMin: 1,
+            choicesMax: 115
+          },
+          {
+            name: "deceasedage",
+            type: "dropdown",
+            title: "Deceased Age",
+            startWithNewLine: false,
+            visibleIf: "{panel.isalive} = 'No'",
+            choices: [
+              {
+                value: -1,
+                text: "Unknown"
+              }
+            ],
+            choicesMin: 1,
+            choicesMax: 115
+          },
+          {
+            name: "causeofdeathknown",
+            type: "radiogroup",
+            title: "Cause of Death Known?",
+            colCount: 0,
+            startWithNewLine: false,
+            visibleIf: "{panel.isalive} = 'No'",
+            choices: ["Yes", "No"]
+          },
+          {
+            name: "causeofdeath",
+            type: "text",
+            title: "Cause of Death",
+            startWithNewLine: false,
+            visibleIf:
+              "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
+          },
+          {
+            type: "panel",
+            name: "moreInfo",
+            state: "expanded",
+            title: "Detail Information about: {panel.relativeType}",
+            elements: [
+              {
+                type: "matrixdynamic",
+                name: "relativeillness",
+                title: "Describe the illness or condition.",
+                rowCount: 0,
+                columns: [
+                  {
+                    name: "illness",
+                    cellType: "dropdown",
+                    title: "Illness/Condition",
+                    choices: [
+                      "Cancer",
+                      "Heart Disease",
+                      "Diabetes",
+                      "Stroke/TIA",
+                      "High Blood Pressure",
+                      "High Cholesterol or Triglycerides",
+                      "Liver Disease",
+                      "Alcohol or Drug Abuse",
+                      "Anxiety, Depression or Psychiatric Illness",
+                      "Tuberculosis",
+                      "Anesthesia Complications",
+                      "Genetic Disorder",
+                      "Other – describe"
+                    ],
+                    isRequired: true
+                  },
+                  {
+                    name: "description",
+                    cellType: "text",
+                    title: "Describe",
+                    isRequired: true
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        panelCount: 2,
+        panelAddText: "Add a blood relative",
+        panelRemoveText: "Remove the relative"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.ok(!!panel["additionalTitleToolbarValue"], "additionalTitleToolbarValue exist");
+  assert.ok(panel.isRenderModeTab, "isRenderModeTab");
+  assert.equal(panel.currentIndex, 0, "currentIndex is 0");
+  assert.equal(panelTabToolbar.actions.length, 2, "2 panels");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
+  assert.equal(panelTabToolbar.actions[0].pressed, true, "Panel 1 pressed true");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
+  assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
+
+  panel.addPanel();
+  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
+  assert.equal(panelTabToolbar.actions.length, 3, "3 panels");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1", "Panel 1");
+  assert.equal(panelTabToolbar.actions[0].pressed, false, "Panel 1 pressed false");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
+  assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
+  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "Panel 3", "Panel 3");
+  assert.equal(panelTabToolbar.actions[2].pressed, true, "Panel 3 pressed true");
+
+  panelTabToolbar.actions[1].action();
+  assert.equal(panel.currentIndex, 1, "currentIndex is 1");
+
+  panelTabToolbar.actions[2].action();
+  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
+
+  panelTabToolbar.actions[0].action();
+  assert.equal(panel.currentIndex, 0, "currentIndex is 0");
+});
+
+QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        renderMode: "tab",
+        tabAlign: "left"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--left", "tabAlign value is left");
+
+  panel.tabAlign = "right";
+  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--right", "tabAlign value is right");
+
+  panel.tabAlign = "center";
+  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--center", "tabAlign default value is center");
+});
+
+QUnit.test("question.cssHeader class", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        renderMode: "tab",
+        tabAlign: "left"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
+  panel.addPanel();
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
+
+  panel.renderMode = undefined;
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
+  panel.titleLocation = "hidden";
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
+  panel.renderMode = "tab";
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header sv-paneldynamic__header-tab");
+
+  panel.removePanelUI(0);
+  assert.equal(panel.cssHeader, "sv-paneldynamic__header sv_header");
+
+});
+
+QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        titleLocation: "hidden",
+        tabAlign: "left"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  assert.equal(panel.hasTitleOnLeftTop, false, "titleLocation hidden");
+
+  panel.renderMode = "tab";
+  assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is tab");
+
+  panel.addPanel();
+  assert.equal(panel.hasTitleOnLeftTop, true, "panelCount is 1");
+
+  panel.renderMode = undefined;
+  assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is default");
+});
+QUnit.test("Pass isMobile to the nested questions", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "matrix",
+            "name": "quality1",
+            "title": "Please indicate if you agree or disagree with the following statements",
+            "alternateRows": true,
+            "columns": [
+              {
+                "value": 5,
+                "text": "Strongly agree"
+              },
+              {
+                "value": 4,
+                "text": "Agree"
+              },
+              {
+                "value": 3,
+                "text": "Neutral"
+              },
+              {
+                "value": 2,
+                "text": "Disagree"
+              },
+              {
+                "value": 1,
+                "text": "Strongly disagree"
+              }
+            ],
+            "rows": [
+              {
+                "value": "affordable",
+                "text": "Product is affordable"
+              },
+              {
+                "value": "does what it claims",
+                "text": "Product does what it claims"
+              },
+              {
+                "value": "better than others",
+                "text": "Product is better than other products on the market"
+              },
+              {
+                "value": "easy to use",
+                "text": "Product is easy to use"
+              }
+            ],
+            "isAllRowRequired": true
+          },
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "panelCount": 1,
+            "templateElements": [
+              {
+                "type": "matrix",
+                "name": "quality",
+                "title": "Please indicate if you agree or disagree with the following statements",
+                "alternateRows": true,
+                "columns": [
+                  {
+                    "value": 5,
+                    "text": "Strongly agree"
+                  },
+                  {
+                    "value": 4,
+                    "text": "Agree"
+                  },
+                  {
+                    "value": 3,
+                    "text": "Neutral"
+                  },
+                  {
+                    "value": 2,
+                    "text": "Disagree"
+                  },
+                  {
+                    "value": 1,
+                    "text": "Strongly disagree"
+                  }
+                ],
+                "rows": [
+                  {
+                    "value": "affordable",
+                    "text": "Product is affordable"
+                  },
+                  {
+                    "value": "does what it claims",
+                    "text": "Product does what it claims"
+                  },
+                  {
+                    "value": "better than others",
+                    "text": "Product is better than other products on the market"
+                  },
+                  {
+                    "value": "easy to use",
+                    "text": "Product is easy to use"
+                  }
+                ],
+                "isAllRowRequired": true
+              }
+            ]
+          }
+        ]
+      }
+    ],
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("quality1");
+  const dynPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("question1");
+
+  survey.setIsMobile();
+  assert.equal(matrix.isMobile, true, "Matrix is mobile");
+  assert.equal(dynPanel.isMobile, true, "dynPanel is mobile");
+
+  const innerMatrix = dynPanel.panels[0].elements[0] as QuestionMatrixModel;
+  assert.equal(innerMatrix.isMobile, true, "innerMatrix is mobile");
+});
+QUnit.test("renderMode: tab, additionalTitleToolbar&titles", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "Panel 1");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
+  panel.templateTabTitle = "#{panelIndex} {panel.q1}";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 ");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  panel.panels[0].getQuestionByName("q1").value = "q1-value";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+});
+QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab",
+        templateTabTitle: "#{panelIndex} {panel.q1}"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 ");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  let counter = 0;
+  panelTabToolbar.actions[0].locTitle.onStringChanged.add((sender, options) => {
+    counter++;
+  });
+  panel.panels[0].getQuestionByName("q1").value = "q1-value";
+  assert.equal(counter, 1, "str has been changed");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  panel.addPanel();
+  assert.strictEqual(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[2].locTitle.owner), 2, "Set correct panel as owner");
+  panel.panels[2].getQuestionByName("q1").value = "q3-value";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3 q3-value");
+  panel.removePanel(1);
+  assert.equal(panel.panels.indexOf(<PanelModel>panelTabToolbar.actions[1].locTitle.owner), 1, "Keep correct panel as owner");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value");
+  panel.panels[1].getQuestionByName("q1").value = "q3-value!";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
 });

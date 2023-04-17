@@ -13,6 +13,7 @@ import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { QuestionSelectBase } from "./question_baseselect";
+import { QuestionRatingModel } from "./question_rating";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
@@ -442,6 +443,8 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   protected setLocTitle(val: LocalizableString): void {}
   protected setTitle(val: string): void {}
+
+  @property() icon: string;
 }
 
 Base.createItemValue = function (source: any, type?: string): any {
@@ -481,7 +484,7 @@ Serializer.addClass(
       visibleIf: (obj: ItemValue): boolean => {
         return !obj || obj.ownerPropertyName !== "rateValues";
       },
-    },
+    }
   ],
   (value: any) => new ItemValue(value)
 );

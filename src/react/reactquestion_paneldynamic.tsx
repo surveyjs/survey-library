@@ -165,10 +165,10 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
   }
   protected renderNavigatorV2(): JSX.Element | null {
     if (this.question.panelCount === 0 || this.question["showLegacyNavigation"]) return null;
-    const range: JSX.Element | null = this.question.isRangeShowing && !this.question.isProgressTopShowing ? this.renderRange() : null;
     if (!this.question.cssClasses.footer) {
       return null;
     }
+    const range: JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
     return (<div className={this.question.cssClasses.footer}>
       <hr className={this.question.cssClasses.separator} />
       {range}

@@ -402,6 +402,40 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
   assert.equal(columnName, "col2", "The event raised correctly on adding into array");
 });
 
+QUnit.test("Check matrixdropdown default column min widths", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"],
+        columns: [
+          {
+            "name": "file",
+            "cellType": "file",
+          },
+          {
+            "name": "description",
+            "cellType": "comment",
+          }]
+      },
+    ],
+  });
+  const question = <QuestionMatrixDropdownModelBase>survey.getAllQuestions()[0];
+  assert.equal(question.getColumnWidth(question.columns[0]), "240px");
+  assert.equal(question.getColumnWidth(question.columns[1]), "200px");
+
+  question.columnMinWidth = "300px";
+  assert.equal(question.getColumnWidth(question.columns[0]), "300px");
+  assert.equal(question.getColumnWidth(question.columns[1]), "300px");
+
+  question.columns[0].minWidth = "320px";
+  question.columns[1].minWidth = "340px";
+
+  assert.equal(question.getColumnWidth(question.columns[0]), "320px");
+  assert.equal(question.getColumnWidth(question.columns[1]), "340px");
+
+});
 class TestElementWrapperSurveyModel extends SurveyModel {
   constructor(json: any) {
     super(json);

@@ -89,16 +89,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get ariaRole(): string {
     return "combobox";
   }
-  public get selectedItem(): ItemValue {
-    const selectedItemValues = this.selectedItemValues;
-    if (this.isEmpty()) return null;
-    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
-    if(!!itemValue) {
-      this.lastSelectedItemValue = itemValue;
-    } else if(!selectedItemValues) {
-      this.updateSelectedItemValues();
+  public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
+  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {
+    if(!!selectedItemByValue) {
+      this.lastSelectedItemValue = selectedItemByValue;
     }
-    return this.lastSelectedItemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
   }
   supportGoNextPageAutomatic() {
     return true;
@@ -229,8 +224,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
       .toString();
   }
+
+  @property() suggestedItem: ItemValue;
   public get selectedItemLocText() {
-    const item = this.selectedItem;
+    const item = this.suggestedItem || this.selectedItem;
     return item?.locText;
   }
   public get inputFieldComponentName(): string {
@@ -308,6 +305,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.clearValue();
       event.preventDefault();
       event.stopPropagation();
+    }
+  }
+
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
     }
   }
 }

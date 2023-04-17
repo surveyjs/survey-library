@@ -158,7 +158,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   };
 
   protected doClear(): void {
-    this.parentElement["resetRenderedTable"]();
+    this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
   }

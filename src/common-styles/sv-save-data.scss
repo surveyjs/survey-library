@@ -1,17 +1,4 @@
-$primary: var(--primary, #19b394);
-$background: var(--background, #fff);
-$foreground: var(--foreground, #161616);
-$red: var(--red, #e60a3e);
-$shadow-medium: rgba(0, 0, 0, 0.1);
-
-$font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-
-$base-unit: var(--base-unit, 8px);
-
-@function calcSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$base-unit});
-  @return $result;
-}
+@import "../defaultV2-theme/variables.scss";
 
 .sv-save-data_root {
   position: absolute;

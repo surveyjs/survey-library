@@ -29,7 +29,7 @@ export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {
   render(): JSX.Element | null {
     var itemText = this.renderLocString(this.item.locText);
     return (
-      <label className={this.question.getItemClass(this.item.itemValue)}>
+      <label className={this.question.getItemClassByText(this.item.itemValue, this.item.text)}>
         <input
           type="radio"
           className="sv-visuallyhidden"

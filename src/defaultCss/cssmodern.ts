@@ -4,7 +4,6 @@ export var modernCss = {
   root: "sv-root-modern",
   timerRoot: "sv-body__timer",
   container: "sv-container-modern",
-  brandInfoContainer: "sv-container-modern--brand-info",
   header: "sv-title sv-container-modern__title",
   headerClose: "sv-container-modern__close",
   bodyContainer: "sv-components-row",
@@ -369,7 +368,11 @@ export var modernCss = {
     cleanButtonSvg: "sv-dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     controlValue: "sv-dropdown__value",
-    controlInputFieldComponent: "sv_dropdown_control__input-field-component"
+    controlInputFieldComponent: "sv_dropdown_control__input-field-component",
+    itemSmiley: "sv-rating__item-smiley",
+    itemStar: "sv-rating__item-star",
+    itemSmileySelected: "sv-rating__item-smiley--selected",
+    itemStarSelected: "sv-rating__item-star--selected"
   },
   comment: {
     root: "sv-comment",

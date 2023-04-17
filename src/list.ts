@@ -292,4 +292,11 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       this.scrollableContainer.removeEventListener("scroll", this.scrollHandler);
     }
   }
+
+  dispose(): void {
+    super.dispose();
+    if(!!this.loadingIndicatorValue) {
+      this.loadingIndicatorValue.dispose();
+    }
+  }
 }

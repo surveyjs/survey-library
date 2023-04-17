@@ -650,3 +650,24 @@ QUnit.test(
     );
   }
 );
+
+QUnit.test(
+  "navigationTitle property visibility",
+  function (assert) {
+    var survey = new SurveyModel({
+      questions: [
+        { name: "q1", type: "html" },
+      ],
+    });
+    var page = survey.pages[0];
+    var property = Serializer.findProperty("page", "navigationTitle");
+
+    assert.notOk(property.isVisible("", page), "navigationTitle invisible");
+    survey.showTOC = true;
+    assert.ok(property.isVisible("", page), "navigationTitle visible for TOC");
+    survey.showTOC = false;
+    assert.notOk(property.isVisible("", page), "navigationTitle invisible");
+    survey.progressBarType = "buttons";
+    assert.ok(property.isVisible("", page), "navigationTitle visible for buttons nav");
+  }
+);

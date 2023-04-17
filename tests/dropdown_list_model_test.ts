@@ -438,6 +438,57 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   assert.equal(question.value, "item1", "value rolled back on Esc");
 });
 
+QUnit.test("dropdown keyboard tests - empty question, search disabled", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  question.searchEnabled = false;
+  assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
+  assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible by default");
+
+  // TODO: change this behaviour (show popup on UP key)
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first UP");
+  assert.equal(dropdownListModel.hintString, "", "hintString still empty on first UP");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is still hidden on first UP");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first DOWN");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first DOWN");
+  assert.ok(dropdownListModel.showHintString, "hintString already shown on first DOWN");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible on first DOWN");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on second DOWN");
+  assert.equal(dropdownListModel.hintString, "item2", "hintString changed on second DOWN");
+  assert.equal(question.value, undefined, "value not changed on second DOWN");
+
+  event.keyCode = 38;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on UP");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on UP");
+  assert.equal(question.value, undefined, "value not changed on UP");
+
+  event.keyCode = 27;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "", "inputString cleared on Escape");
+  assert.equal(dropdownListModel.hintString, "", "hintString cleared on Escape");
+  assert.equal(question.value, undefined, "value not changed on Escape");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Escape");
+});
+
 QUnit.test("always show invisible hint part", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -456,4 +507,62 @@ QUnit.test("always show invisible hint part", function (assert) {
   assert.ok(dropdownListModel.showHintString, "list click, hint visible");
   assert.equal(dropdownListModel.hintString, "item5", "list click, hint string should be set on click");
   assert.equal(dropdownListModel.hintStringSuffix, "", "list click, hint suffix empty");
+});
+
+QUnit.test("change selection on keyboard", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.onClick(null);
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when no value");
+  assert.notOk(question.selectedItemLocText, "no selected text when no value");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "still no selected items when no value");
+  assert.notOk(question.selectedItemLocText, "still no selected text when no value");
+  dropdownListModel.onClick(null);
+
+  question.value = "item1";
+  dropdownListModel.onClick(null);
+  assert.equal(question.value, "item1");
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
+  assert.equal(question.selectedItemLocText.calculatedText, "item1");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(question.value, "item1");
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2");
+  assert.equal(question.selectedItemLocText.calculatedText, "item2", "selected item is changed too on DOWN one more time");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(question.value, "item1");
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item3");
+  assert.equal(question.selectedItemLocText.calculatedText, "item3", "selected item is changed too on DOWN one more time");
+
+  (dropdownListModel as any).onHidePopup();
+  assert.equal(question.selectedItemLocText.calculatedText, "item1");
+});
+
+QUnit.test("filtering on question with value", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  question.value = "item1";
+
+  dropdownListModel.onClick(null);
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item1");
+  assert.equal(dropdownListModel.inputStringRendered, "item1", "input string is set to value");
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal((list.actions.filter(a => (a as any).selected)[0] as any).value, "item2", "selected item changed");
+  assert.equal(dropdownListModel.inputStringRendered, "item2", "input string rendered changed");
+
+  dropdownListModel.inputStringRendered = "i";
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering and move key");
+
 });

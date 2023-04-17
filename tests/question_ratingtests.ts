@@ -5,6 +5,7 @@ import { CustomResizeObserver } from "./questionImagepicker";
 import { RendererFactory } from "../src/rendererFactory";
 import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
+import { ItemValue } from "../src/itemvalue";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -387,6 +388,37 @@ QUnit.test("check stars highlighting", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
 });
 
+QUnit.test("check stars highlighting design mode", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "stars",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemStar = "";
+  q1.cssClasses.itemStarHighlighted = "sv_q_high";
+  q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
+
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  q1.onItemMouseIn(q1.renderedRateItems[3]);
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+});
+
 QUnit.test("check stars styles", (assert) => {
   var json = {
     questions: [
@@ -546,4 +578,390 @@ QUnit.test("check smileys styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_disabled");
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_disabled");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled");
+});
+
+QUnit.test("rating smileys max item count", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "smileys",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  assert.equal(q1.renderedRateItems.length, 5);
+  q1.rateMax = 10;
+  assert.equal(q1.renderedRateItems.length, 10);
+  q1.rateMax = 15;
+  assert.equal(q1.renderedRateItems.length, 10);
+
+  q1.rateType = "labels";
+  assert.equal(q1.renderedRateItems.length, 15);
+  q1.renderedRateItems[0].itemValue.value = "a";
+
+  q1.rateType = "smileys";
+  assert.equal(q1.renderedRateItems.length, 10);
+});
+
+QUnit.test("check fixed width styles", (assert) => {
+  var json = {
+    questions: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateMin": 0,
+        "rateMax": 4,
+        "minRateDescription": "mindesc",
+        "maxRateDescription": "maxdesc",
+        "displayRateDescriptionsAsExtremeItems": true
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.item = "sv_q_item";
+  q1.cssClasses.itemHover = "";
+  q1.cssClasses.itemFixedSize = "sv_q_item-fixed";
+
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_item");
+});
+
+QUnit.test("check fixed width styles - rate values", (assert) => {
+  var json = {
+    questions: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateValues": [
+          0,
+          1,
+          {
+            "value": 2,
+            "text": "middle"
+          },
+          3,
+          4
+        ],
+        "minRateDescription": "mindesc",
+        "maxRateDescription": "maxdesc",
+        "displayRateDescriptionsAsExtremeItems": true
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.item = "sv_q_item";
+  q1.cssClasses.itemHover = "";
+  q1.cssClasses.itemFixedSize = "sv_q_item-fixed";
+
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_item");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_item sv_q_item-fixed");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_item");
+});
+
+QUnit.test("rateCount changing rateMin/rateMax", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+
+  q1.rateCount = 6;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.visibleRateValues.length, 6);
+});
+
+QUnit.test("rateMin/rateMax/rateStep changing rateCount", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateCount, 5);
+
+  q1.rateMax = 6;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.visibleRateValues.length, 6);
+  assert.equal(q1.rateCount, 6);
+
+  q1.rateMin = 2;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 2);
+  assert.equal(q1.visibleRateValues.length, 5);
+  assert.equal(q1.rateCount, 5);
+
+  q1.rateStep = 3;
+  assert.equal(q1.rateMax, 6);
+  assert.equal(q1.rateMin, 2);
+  assert.equal(q1.visibleRateValues.length, 2);
+  assert.equal(q1.rateCount, 2);
+});
+
+QUnit.test("rateValues changing rateCount", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateValues.push(new ItemValue("d"));
+  assert.equal(q1.rateCount, 4);
+});
+
+QUnit.test("rateCount changing rateValues", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  q1.rateCount = 2;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b"]);
+
+  q1.rateCount = 4;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "item3", "item4"]);
+});
+
+QUnit.test("rateMin/rateMax/rateStep does not change rateValues and rateCount", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateMax = 100;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateMin = 50;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
+
+  q1.rateStep = 3;
+  assert.deepEqual(q1.rateValues.map(i => i.value), ["a", "b", "c"]);
+  assert.equal(q1.rateCount, 3);
+});
+
+QUnit.test("rate params loading from json", (assert) => {
+  const survey = new SurveyModel();
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 6,
+        rateMin: 2
+      },
+    ],
+  });
+  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 6, "rateCount, rateMin -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMin -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMin -> rateMax");
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 6,
+        rateMax: 7
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 6, "rateCount, rateMax -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMax -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 6, "rateCount, rateMax -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMax -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2,
+        rateValues: [1, 2, 3]
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateCount, 3, "rateCount, rateMax -> rateCount");
+  assert.equal(q1.rateMin, 2, "rateCount, rateMax -> rateMin");
+  assert.equal(q1.rateMax, 7, "rateCount, rateMax -> rateMax");
+});
+
+QUnit.test("autoGenerate change creates rateValues", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateValues.length, 0);
+
+  q1.autoGenerate = false;
+  assert.equal(q1.rateValues.length, 5);
+});
+
+QUnit.test("when autoGenerate true rateValues ignored", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateValues: ["a", "b", "c"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+
+  q1.autoGenerate = true;
+  assert.deepEqual(q1.visibleRateValues.map(i => i.value), [1, 2, 3]);
+});
+
+QUnit.test("rate autoGenerate loading from json", (assert) => {
+  const survey = new SurveyModel();
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 6,
+        rateMin: 2
+      },
+    ],
+  });
+  let q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.ok(q1.autoGenerate);
+  assert.equal(q1.visibleRateValues.length, 6);
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2,
+        rateValues: [1, 2, 3]
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.notOk(q1.autoGenerate);
+  assert.equal(q1.visibleRateValues.length, 3);
+
+  survey.setJsonObject({
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        rateCount: 1,
+        rateMax: 7,
+        rateMin: 2,
+        rateValues: [1, 2, 3],
+        autoGenerate: true
+      },
+    ],
+  });
+  q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.ok(q1.autoGenerate);
+  assert.equal(q1.visibleRateValues.length, 6);
+});
+
+QUnit.test("check icons for rateValues", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateDisplayMode": "stars",
+        "rateValues": [1, 2]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.rateDisplayMode = "smileys";
+  assert.equal(q1.rateValues[0].icon, "not-good");
+  assert.equal(q1.rateValues[1].icon, "very-good");
+
+  q1.rateCount = 3;
+  assert.equal(q1.rateValues[0].icon, "not-good");
+  assert.equal(q1.rateValues[1].icon, "normal");
+  assert.equal(q1.rateValues[2].icon, "very-good");
 });

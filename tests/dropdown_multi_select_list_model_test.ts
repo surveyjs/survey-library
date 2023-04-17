@@ -3,7 +3,7 @@ import { MultiSelectListModel } from "../src/multiSelectListModel";
 import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 
-export default QUnit.module("DropdownListModel");
+export default QUnit.module("DropdownMultiListModel");
 
 const jsonTagbox = {
   questions: [{
@@ -130,20 +130,20 @@ QUnit.test("DropdownListModel with MultiListModel state actions", (assert) => {
   assert.equal(list.actions.length, 28);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.actions[0].active, true);
-  assert.equal(list.actions[3].active, false);
+  assert.equal(list.isItemSelected(list.actions[0]), true);
+  assert.equal(list.isItemSelected(list.actions[3]), false);
 
   list.onItemClick(list.actions[3]);
-  assert.equal(list.actions[0].active, true);
-  assert.equal(list.actions[3].active, true);
+  assert.equal(list.isItemSelected(list.actions[0]), true);
+  assert.equal(list.isItemSelected(list.actions[3]), true);
 
   list.onItemClick(list.actions[0]);
-  assert.equal(list.actions[0].active, false);
-  assert.equal(list.actions[3].active, true);
+  assert.equal(list.isItemSelected(list.actions[0]), false);
+  assert.equal(list.isItemSelected(list.actions[3]), true);
 
   dropdownListModel.onClear(new Event("click"));
-  assert.equal(list.actions[0].active, false);
-  assert.equal(list.actions[3].active, false);
+  assert.equal(list.isItemSelected(list.actions[0]), false);
+  assert.equal(list.isItemSelected(list.actions[3]), false);
 });
 
 QUnit.test("open/hide tagbox popup after start/end filtration", function (assert) {
@@ -197,11 +197,84 @@ QUnit.test("filterStringPlaceholder", (assert) => {
   question.defaultValue = ["item1"];
   const dropdownListModel = new DropdownMultiSelectListModel(question);
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
-  assert.deepEqual(dropdownListModel.filterStringPlaceholder, undefined);
+  assert.equal(dropdownListModel.filterStringPlaceholder, "");
 
   dropdownListModel.onClear(new Event("click"));
-  assert.deepEqual(dropdownListModel.filterStringPlaceholder, "Select...");
+  assert.equal(dropdownListModel.filterStringPlaceholder, "Select...");
 
   list.onItemClick(list.actions[3]);
-  assert.deepEqual(dropdownListModel.filterStringPlaceholder, undefined);
+  assert.equal(dropdownListModel.filterStringPlaceholder, "");
+});
+
+QUnit.test("hintString test", function (assert) {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  assert.equal(dropdownListModel.inputMode, "text");
+  assert.notOk(dropdownListModel.showHintPrefix, "no filter, hint prefix hidden");
+  assert.notOk(dropdownListModel.showHintString, "no filter, hint hidden");
+
+  dropdownListModel.inputStringRendered = "It";
+  assert.notOk(dropdownListModel.showHintPrefix, "filter from start, hint prefix hidden");
+  assert.ok(dropdownListModel.showHintString, "filter from start, hint visible");
+  assert.equal(dropdownListModel.hintString, "item1", "filter from start, hint string correct");
+  assert.equal(dropdownListModel.hintStringSuffix, "em1", "filter from start, hint suffix correct");
+
+  dropdownListModel.inputStringRendered = "te";
+  assert.ok(dropdownListModel.showHintPrefix, "filter from middle, hint prefix visible");
+  assert.ok(dropdownListModel.showHintString, "filter from middle, hint visible");
+  assert.equal(dropdownListModel.hintStringPrefix, "i", "filter from middle, hint prefix correct");
+  assert.equal(dropdownListModel.hintStringSuffix, "m1", "filter from middle, hint suffix correct");
+
+  dropdownListModel.inputStringRendered = "zzz";
+  assert.notOk(dropdownListModel.showHintPrefix, "wrong filter, hint prefix hidden");
+  assert.notOk(dropdownListModel.showHintString, "wrong filter, hint hidden");
+
+  list.onItemClick(list.actions[2]);
+  assert.notOk(dropdownListModel.showHintPrefix, "filter from start with value, hint prefix hidden");
+  assert.notOk(dropdownListModel.showHintString, "filter from start with value, hint not visible");
+  assert.notOk(dropdownListModel.inputStringRendered, "inputStringRendered is empty");
+
+  dropdownListModel.inputStringRendered = "it";
+  assert.notOk(dropdownListModel.showHintPrefix, "filter from start with value, hint prefix hidden");
+  assert.ok(dropdownListModel.showHintString, "filter from start with value, hint visible");
+  assert.equal(dropdownListModel.hintStringSuffix, "em1", "filter from start with value, hint suffix correct");
+});
+
+QUnit.test("tagbox keyboard tests", function (assert) {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  question.value = ["item2"];
+  assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
+  assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.notOk(dropdownListModel.showHintPrefix, "item2 showHintPrefix");
+  assert.notOk(dropdownListModel.showHintString, "item2 showHintString");
+  assert.equal(dropdownListModel.inputString, "", "item2 inputString");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.notOk(dropdownListModel.showHintPrefix, "item3 showHintPrefix");
+  assert.ok(dropdownListModel.showHintString, "item3 showHintString");
+  assert.equal(dropdownListModel.inputString, "", "item3 inputString");
+  assert.equal(dropdownListModel.hintString, "item3", "item3 hintString");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.notOk(dropdownListModel.showHintPrefix, "showHintPrefix");
+  assert.notOk(dropdownListModel.showHintString, "showHintString");
+  assert.equal(dropdownListModel.inputString, "", "inputString");
 });

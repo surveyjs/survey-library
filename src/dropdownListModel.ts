@@ -370,8 +370,10 @@ export class DropdownListModel extends Base {
     if (this.question.value && !this.listModel.filterString && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
       this.applyInputString(this.listModel.focusedItem);
     }
-    else {
+    else if (this.question instanceof QuestionDropdownModel || !this.listModel.focusedItem.selected) {
       this.applyHintString(this.listModel.focusedItem);
+    } else {
+      this.hintString = "";
     }
 
     this.ariaActivedescendant = this.listModel.focusedItem?.elementId;

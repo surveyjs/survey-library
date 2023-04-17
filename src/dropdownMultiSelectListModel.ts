@@ -63,6 +63,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   protected resetFilterString(): void {
     super.resetFilterString();
     this.inputString = null;
+    this.hintString = "";
   }
   @property() previousValue: any;
   @property({ localizable: { defaultStr: "tagboxDoneButtonCaption" } }) doneButtonCaption: string;

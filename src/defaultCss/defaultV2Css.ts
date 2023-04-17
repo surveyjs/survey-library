@@ -630,7 +630,9 @@ export var defaultV2Css = {
     controlEmpty: "sd-dropdown--empty sd-tagbox--empty",
     controlLabel: "sd-item__control-label",
     filterStringInput: "sd-tagbox__filter-string-input sd-dropdown__filter-string-input",
-    materialDecorator: "sd-item__decorator sd-checkbox__decorator"
+    materialDecorator: "sd-item__decorator sd-checkbox__decorator",
+    hintPrefix: "sd-dropdown__hint-prefix sd-tagbox__hint-prefix",
+    hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix"
   },
 };
 

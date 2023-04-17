@@ -260,13 +260,25 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public onAddedRow(row: MatrixDropdownRowModelBase, index: number): void {
     if (this.getRenderedDataRowCount() >= this.matrix.visibleRows.length)
       return;
+    let rowIndex = this.getRenderedRowIndexByIndex(index);
     this.rowsActions.splice(index, 0, this.buildRowActions(row));
-    this.addHorizontalRow(
-      this.rows,
-      row,
-      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader, index
-    );
+    this.addHorizontalRow(this.rows, row,
+      this.matrix.visibleRows.length == 1 && !this.matrix.showHeader, rowIndex);
     this.updateShowTableAndAddRow();
+  }
+  private getRenderedRowIndexByIndex(index: number): number {
+    let res = 0;
+    let dataRowIndex = 0;
+    for (var i = 0; i < this.rows.length; i++) {
+      if(dataRowIndex === index) {
+        if (this.rows[i].isDetailRow) res++;
+        break;
+      }
+      res ++;
+      if (!this.rows[i].isDetailRow) dataRowIndex++;
+    }
+    if(dataRowIndex < index) return this.rows.length;
+    return res;
   }
   private getRenderedDataRowCount(): number {
     var res = 0;

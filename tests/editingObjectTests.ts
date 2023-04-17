@@ -725,6 +725,46 @@ QUnit.test("Edit choices in matrix + detailPanel + hasError", function (assert) 
   rows[0].cells[0].value = "item1";
   assert.equal(matrix.hasErrors(), false, "value is not null");
 });
+QUnit.test("Edit choices in matrix + detailPanel + addChoice", function (assert) {
+  var question = new QuestionDropdownModel("q1");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "choices",
+        rowCount: 0,
+        columns: [
+          { cellType: "text", name: "value", isRequired: true },
+          { cellType: "text", name: "text" },
+        ],
+        detailPanelMode: "underRowSingle",
+        detailElements: [{ type: "text", name: "value", isRequired: true }],
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("choices");
+  matrix.onGetValueForNewRowCallBack = (
+    sender: QuestionMatrixDynamicModel
+  ): any => {
+    var item = new ItemValue("val");
+    matrix.value.push(item);
+    return item;
+  };
+  survey.editingObj = question;
+  question.choices.push(new ItemValue("val1"));
+  let rows = matrix.visibleRows;
+  rows[0].showDetailPanel();
+  question.choices.push(new ItemValue("val3", "text3"));
+  rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "There are 2 rows");
+  rows[1].showDetailPanel();
+  const table = matrix.renderedTable;
+  assert.equal(table.rows.length, 3, "There are 2 rows in rendred table");
+  assert.equal(table.rows[0].row.id, rows[0].id, "row0.id is correct");
+  assert.equal(table.rows[1].row.id, rows[1].id, "row1.id is correct");
+  assert.equal(table.rows[2].isDetailRow, true, "The last row is detail row");
+  assert.equal(table.rows[2].row.id, rows[1].id, "ros1.id in detail row");
+});
 QUnit.test("Edit custom choices in matrix with custom property", function (
   assert
 ) {

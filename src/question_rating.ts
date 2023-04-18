@@ -49,6 +49,7 @@ export class QuestionRatingModel extends Question {
       () => {
         this.setIconsToRateValues();
         this.createRenderedRateItems();
+        this.updateRateCount();
       });
     this.registerFunctionOnPropertiesValueChanged(["rateValues"],
       () => {
@@ -124,12 +125,17 @@ export class QuestionRatingModel extends Question {
     this.rateMin = this.rateMax - this.rateStep * (this.rateCount - 1);
   }
   private updateRateCount() {
+    let newCount = 0;
     if (this.useRateValues()) {
-      this.rateCount = this.rateValues.length;
+      newCount = this.rateValues.length;
     }
     else {
-      this.rateCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
+      newCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
     }
+    if (newCount > 10 && this.rateDisplayMode == "smileys") {
+      newCount = 10;
+    }
+    this.rateCount = newCount;
   }
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],
@@ -138,6 +144,7 @@ export class QuestionRatingModel extends Question {
           this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
         } else {
           if (this.rateCount < this.rateValues.length) {
+            if (this.rateCount >= 10 && this.rateDisplayMode == "smileys") return;
             this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
           } else {
             for (let i = this.rateValues.length; i < this.rateCount; i++) {
@@ -639,7 +646,13 @@ Serializer.addClass(
       name: "rateCount:number",
       default: 5,
       category: "rateValues",
-      visibleIndex: 1
+      visibleIndex: 1,
+      onSettingValue: (obj: any, val: any): any => {
+        if (val < 2) return 2;
+        if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
+        if (val > 10 && obj.rateDisplayMode == "smileys") return 10;
+        return val;
+      },
     },
     {
       name: "rateValues:itemvalue[]",

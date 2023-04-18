@@ -10,7 +10,7 @@ const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
 
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
-const questionOffsetTopConst = 186;
+const questionOffsetTopConst = 184;
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(

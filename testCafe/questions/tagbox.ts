@@ -2,7 +2,7 @@ import { frameworks, url, initSurvey, getListItemByText, applyTheme, url_test } 
 import { Selector } from "testcafe";
 const title = "tagbox";
 
-const questionOffsetTopConst = 186;
+const questionOffsetTopConst = 184;
 
 const jsonCloseOnSelectIsTrue = {
   showQuestionNumbers: "off",

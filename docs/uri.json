@@ -1,6 +1,7 @@
 {
   "folders": [
-    "design-survey"
+    "design-survey",
+    "customize-question-types"
   ],
   "rename": {
     "design-survey-question-titles": "design-survey-configure-question-titles",

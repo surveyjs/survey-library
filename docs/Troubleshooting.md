@@ -24,7 +24,7 @@ Survey elements become invisible when their [visible](https://surveyjs.io/form-l
 
 ### Survey uses an unregistered custom question component
 
-If you implement a custom question component, add it to the survey's `ComponentCollection`. For more information, refer to the following help topic: [Create Specialized Question Types](https://surveyjs.io/survey-creator/documentation/create-specialized-question-types).
+If you implement a custom question component, add it to the survey's `ComponentCollection`. For more information, refer to the following help topic: [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types).
 
 ## Answers are duplicated
 

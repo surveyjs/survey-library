@@ -1,7 +1,5 @@
 <sv-ng-element-title [element]="element"></sv-ng-element-title>
-<ng-container *ngIf="element.hasDescriptionUnderTitle">
-<div *ngIf="!!element.description" [class]="element.cssDescription" [model]="element.locDescription" sv-ng-string></div>
-</ng-container>
+<div *ngIf="element.hasDescriptionUnderTitle" [class]="element.cssDescription" [model]="element.locDescription" [style.display]="!!element.description ? '': 'none' " sv-ng-string></div>
 <ng-container *ngIf="!!element.additionalTitleToolbar">
 <sv-ng-action-bar [model]="element.additionalTitleToolbar"></sv-ng-action-bar>
 </ng-container>

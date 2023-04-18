@@ -1,5 +1,4 @@
 .sd-description {
-  margin-top: calcSize(0.25);
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: normal;
@@ -8,4 +7,8 @@
   color: $foreground-light;
   white-space: normal;
   word-break: break-word;
+}
+
+.sd-element__header--location-top .sd-description {
+  margin-top: calcSize(0.25);
 }

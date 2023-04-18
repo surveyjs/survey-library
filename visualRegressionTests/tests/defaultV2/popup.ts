@@ -19,6 +19,7 @@ const json = {
 const theme = "defaultV2";
 
 const clickButton = Selector(".sv-action").filterVisible();
+const popupSelector = Selector(".sv-popup .sv-popup__container").filterVisible();
 
 function addDropdownActions(_, opt) {
   const getItems = (count: number, startIndex = 0) => {
@@ -235,6 +236,33 @@ frameworks.forEach(framework => {
         .wait(1000)
         .click(clickButton.withText("List Icons"));
       await takeElementScreenshot("popup-dropdown-list-with-icons.png", null, t, comparer);
+    });
+  });
+
+  test("Dropdown popup with scroll to selected items", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, json, { onGetQuestionTitleActions: (_, opt) => {
+        const getItems = (count: number, startIndex = 0) => {
+          const list: Array<any> = [];
+          for (let index = startIndex; index < count; index++) {
+            list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index });
+          }
+          return list;
+        };
+        const items = getItems(40);
+        const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+          { title: "Long List", showTitle: true },
+          { items: items, showPointer: true, selectedItem: items[39] }
+        );
+        opt.titleActions = [dropdownWithSearchAction];
+      } });
+      await t
+        .wait(1000)
+        .resizeWindow(1000, 600)
+        .wait(1000)
+        .click(clickButton.withText("Long List"))
+        .wait(1000);
+      await takeElementScreenshot("popup-dropdown-list-with-scroll-to-selected-items.png", popupSelector, t, comparer);
     });
   });
 

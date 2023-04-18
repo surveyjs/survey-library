@@ -16798,3 +16798,24 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
 });
+
+QUnit.test("check title classes when readOnly changed", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "type": "text",
+      name: "q1"
+    }]
+  });
+  const customDisabledClass = "custom_disabled_class";
+  survey.css = {
+    question: {
+      titleDisabled: customDisabledClass
+    },
+  };
+  const question = survey.getQuestionByName("q1");
+  assert.notOk(question.cssTitle.includes(customDisabledClass));
+  question.readOnly = true;
+  assert.ok(question.cssTitle.includes(customDisabledClass));
+  question.readOnly = false;
+  assert.notOk(question.cssTitle.includes(customDisabledClass));
+});

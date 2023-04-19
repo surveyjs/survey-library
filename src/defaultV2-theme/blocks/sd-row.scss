@@ -46,6 +46,9 @@
     gap: calcSize(1);
   }
 }
+.svc-row:not(.svc-row--ghost) > .sd-row {
+  min-height: 50px;
+}
 
 .sd-row__panel {
   box-sizing: border-box;

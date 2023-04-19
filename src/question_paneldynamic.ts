@@ -9,6 +9,7 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
+  OptionalCallback,
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
@@ -234,9 +235,9 @@ export class QuestionPanelDynamicModel extends Question
   private isValueChangingInternally: boolean;
   private changingValueQuestion: Question;
 
-  renderModeChangedCallback: () => void;
-  panelCountChangedCallback: () => void;
-  currentIndexChangedCallback: () => void;
+  renderModeChangedCallback: OptionalCallback;
+  panelCountChangedCallback: OptionalCallback;
+  currentIndexChangedCallback: OptionalCallback;
 
   constructor(name: string) {
     super(name);

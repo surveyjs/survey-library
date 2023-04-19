@@ -1,5 +1,5 @@
 import { Serializer } from "./jsonobject";
-import { IElement, IQuestion } from "./base-interfaces";
+import { IElement, IQuestion, OptionalCallback } from "./base-interfaces";
 import { PanelModel } from "./panel";
 import { LocalizableString } from "./localizablestring";
 import { Question } from "./question";
@@ -10,7 +10,7 @@ import { Question } from "./question";
  */
 export class FlowPanelModel extends PanelModel {
   static contentElementNamePrefix = "element:";
-  public contentChangedCallback: () => void;
+  public contentChangedCallback: OptionalCallback;
   public onGetHtmlForQuestion: (question: Question) => string;
   public onCustomHtmlProducing: () => string;
   constructor(name: string = "") {

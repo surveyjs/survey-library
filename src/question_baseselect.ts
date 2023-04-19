@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, OptionalCallback } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -18,8 +18,8 @@ import { mergeValues } from "./utils/utils";
  * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
 export class QuestionSelectBase extends Question {
-  public visibleChoicesChangedCallback: () => void;
-  public loadedChoicesFromServerCallback: () => void;
+  public visibleChoicesChangedCallback: OptionalCallback;
+  public loadedChoicesFromServerCallback: OptionalCallback;
   private filteredChoicesValue: Array<ItemValue>;
   private conditionChoicesVisibleIfRunner: ConditionRunner;
   private conditionChoicesEnableIfRunner: ConditionRunner;
@@ -30,7 +30,7 @@ export class QuestionSelectBase extends Question {
   private isChoicesLoaded: boolean;
   private enableOnLoadingChoices: boolean;
   private dependedQuestions: Array<QuestionSelectBase> = [];
-  private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
+  private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue, null, null, true);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private isUsingCarrayForward: boolean;
@@ -585,7 +585,7 @@ export class QuestionSelectBase extends Question {
   /**
    * If the clearIncorrectValuesCallback is set, it is used to clear incorrect values instead of default behaviour.
    */
-  public clearIncorrectValuesCallback: () => void;
+  public clearIncorrectValuesCallback: OptionalCallback;
   /**
    * Configures access to a RESTful service that returns choice items. Refer to the [ChoicesRestful](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information.
    *
@@ -1622,7 +1622,7 @@ export class QuestionSelectBase extends Question {
  * A base class for multiple-selection question types that can display choice items in multiple columns ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Image Picker](https://surveyjs.io/form-library/documentation/questionimagepickermodel)).
  */
 export class QuestionCheckboxBase extends QuestionSelectBase {
-  colCountChangedCallback: () => void;
+  colCountChangedCallback: OptionalCallback;
   constructor(name: string) {
     super(name);
   }

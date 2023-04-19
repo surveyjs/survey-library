@@ -13,7 +13,8 @@ import {
   ISurveyData,
   ISurveyImpl,
   ITextProcessor,
-  ITitleOwner
+  ITitleOwner,
+  OptionalCallback
 } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { Helpers } from "./helpers";
@@ -119,7 +120,7 @@ export enum DragTypeOverMeEnum {
  * A base class for all survey elements.
  */
 export class SurveyElement<E = any> extends SurveyElementCore implements ISurveyElement {
-  stateChangedCallback: () => void;
+  stateChangedCallback: OptionalCallback;
 
   public static getProgressInfoByElements(
     children: Array<SurveyElement>,
@@ -151,7 +152,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   @property({ defaultValue: false }) isDragMe: boolean;
 
-  public readOnlyChangedCallback: () => void;
+  public readOnlyChangedCallback: OptionalCallback;
 
   public static ScrollElementToTop(elementId: string): boolean {
     if (!elementId || typeof document === "undefined") return false;

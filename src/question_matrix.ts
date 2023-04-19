@@ -13,6 +13,7 @@ import { IConditionObject } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { OptionalCallback } from "./base-interfaces";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -77,7 +78,7 @@ export class MatrixCells {
   public get isEmpty(): boolean {
     return Object.keys(this.values).length == 0;
   }
-  public onValuesChanged: () => void;
+  public onValuesChanged: OptionalCallback;
   private valuesChanged(): void {
     if(!!this.onValuesChanged) {
       this.onValuesChanged();

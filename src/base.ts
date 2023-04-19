@@ -9,7 +9,7 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { IElement, IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IFindElement, IProgressInfo, ISurvey, OptionalCallback } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { surveyLocalization } from "./surveyStrings";
 
@@ -285,7 +285,7 @@ export class Base {
     val: any
   ) => void;
   createArrayCoreHandler: (propertiesHash: any, name: string) => Array<any>;
-  surveyChangedCallback: () => void;
+  surveyChangedCallback: OptionalCallback;
 
   private isCreating = true;
 
@@ -1087,7 +1087,7 @@ export class ArrayChanges {
 }
 
 export class Event<CallbackFunction extends Function, Sender, Options> {
-  public onCallbacksChanged: () => void;
+  public onCallbacksChanged: OptionalCallback;
   protected callbacks: Array<CallbackFunction>;
   public get isEmpty(): boolean {
     return this.length === 0;

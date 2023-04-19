@@ -5,6 +5,7 @@ import { property, Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { OptionalCallback } from "./base-interfaces";
 
 /**
  * A base class for all matrix question types.
@@ -14,7 +15,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   protected filteredRows: Array<ItemValue>;
   protected generatedVisibleRows: Array<TRow> = null;
   protected generatedTotalRow: TRow = null;
-  public visibleRowsChangedCallback: () => void;
+  public visibleRowsChangedCallback: OptionalCallback;
 
   protected createColumnValues(): any {
     return this.createItemValues("columns");

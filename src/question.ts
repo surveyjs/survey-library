@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, OptionalCallback } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -56,16 +56,16 @@ export class Question extends SurveyElement<Question>
   private isCustomWidgetRequested: boolean;
   private customWidgetValue: QuestionCustomWidget;
   customWidgetData = { isNeedRender: true };
-  focusCallback: () => void;
-  surveyLoadCallback: () => void;
+  focusCallback: OptionalCallback;
+  surveyLoadCallback: OptionalCallback;
   displayValueCallback: (text: string) => string;
 
   private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
   private isValueChangedDirectly: boolean;
-  valueChangedCallback: () => void;
-  commentChangedCallback: () => void;
-  localeChangedCallback: () => void;
+  valueChangedCallback: OptionalCallback;
+  commentChangedCallback: OptionalCallback;
+  localeChangedCallback: OptionalCallback;
   validateValueCallback: () => SurveyError;
   questionTitleTemplateCallback: () => string;
   afterRenderQuestionCallback: (question: Question, element: any) => any;
@@ -971,7 +971,7 @@ export class Question extends SurveyElement<Question>
     if(!this.survey) return;
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
   }
-  protected fireCallback(callback: () => void): void {
+  protected fireCallback(callback: OptionalCallback): void {
     if (callback) callback();
   }
   public getOthersMaxLength(): any {
@@ -2049,7 +2049,7 @@ export class Question extends SurveyElement<Question>
     this.onMobileChangedCallback && this.onMobileChangedCallback();
   }
 
-  private onMobileChangedCallback: () => void;
+  private onMobileChangedCallback: OptionalCallback;
 
   private initResponsiveness(el: HTMLElement) {
     this.destroyResizeObserver();

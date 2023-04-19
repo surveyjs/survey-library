@@ -7,7 +7,8 @@ import {
   IElement,
   IQuestion,
   ITextProcessor,
-  IProgressInfo
+  IProgressInfo,
+  OptionalCallback
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
@@ -296,7 +297,7 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < names.length; i++) question.addItem(names[i]);
   }
 
-  colCountChangedCallback: () => void;
+  colCountChangedCallback: OptionalCallback;
   constructor(name: string) {
     super(name);
     this.createNewArray("items", (item: any) => {

@@ -1,5 +1,5 @@
 import { Base } from "./base";
-import { ITextProcessor, IQuestion, ISurvey } from "./base-interfaces";
+import { ITextProcessor, IQuestion, ISurvey, OptionalCallback } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { Serializer, JsonObjectProperty } from "./jsonobject";
 import { WebRequestError, WebRequestEmptyError } from "./error";
@@ -123,7 +123,7 @@ export class ChoicesRestful extends Base {
   private isUsingCacheFromUrl: boolean = undefined;
   public onProcessedUrlCallback: (url: string, path: string) => void;
   public getResultCallback: (items: Array<ItemValue>) => void;
-  public beforeSendRequestCallback: () => void;
+  public beforeSendRequestCallback: OptionalCallback;
   public updateResultCallback: (
     items: Array<ItemValue>,
     serverResult: any

@@ -6,6 +6,7 @@ import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
+import { OptionalCallback } from "src/base-interfaces";
 
 export type actionModeType = "large" | "small" | "popup";
 
@@ -287,7 +288,7 @@ export abstract class BaseAction extends Base implements IAction {
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
-  public updateCallback: () => void;
+  public updateCallback: OptionalCallback;
   private raiseUpdate() {
     this.updateCallback && this.updateCallback();
   }

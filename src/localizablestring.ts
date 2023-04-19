@@ -2,6 +2,7 @@ import { Helpers } from "./helpers";
 import { surveyLocalization } from "./surveyStrings";
 import { settings } from "./settings";
 import { EventBase } from "./base";
+import { OptionalCallback } from "./base-interfaces";
 
 export interface ILocalizableOwner {
   getLocale(): string;
@@ -41,7 +42,7 @@ export class LocalizableString implements ILocalizableString {
   public storeDefaultText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
-  public onSearchChanged: () => void;
+  public onSearchChanged: OptionalCallback;
   public sharedData: LocalizableString;
   public searchText: string;
   public searchIndex: number;

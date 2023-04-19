@@ -3,7 +3,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { Question, IConditionObject } from "./question";
 import { HashTable, Helpers } from "./helpers";
 import { Base } from "./base";
-import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel } from "./base-interfaces";
+import { IElement, IQuestion, ISurveyData, ISurvey, ISurveyImpl, ITextProcessor, IProgressInfo, IPanel, OptionalCallback } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { TextPreProcessorValue, QuestionTextProcessor } from "./textPreProcessor";
 import { ItemValue } from "./itemvalue";
@@ -212,7 +212,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
 
   public cells: Array<MatrixDropdownCell> = [];
   public showHideDetailPanelClick: any;
-  public onDetailPanelShowingChanged: () => void;
+  public onDetailPanelShowingChanged: OptionalCallback;
 
   constructor(data: IMatrixDropdownData, value: any) {
     this.data = data;
@@ -619,7 +619,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public hasErrors(
     fireCallback: boolean,
     rec: any,
-    raiseOnCompletedAsyncValidators: () => void
+    raiseOnCompletedAsyncValidators: OptionalCallback
   ): boolean {
     var res = false;
     var cells = this.cells;
@@ -792,8 +792,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private detailPanelValue: PanelModel;
   private isUniqueCaseSensitiveValue: boolean;
   protected isRowChanging = false;
-  columnsChangedCallback: () => void;
-  onRenderedTableResetCallback: () => void;
+  columnsChangedCallback: OptionalCallback;
+  onRenderedTableResetCallback: OptionalCallback;
   onRenderedTableCreatedCallback: (
     table: QuestionMatrixDropdownRenderedTable
   ) => void;

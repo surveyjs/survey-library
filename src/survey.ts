@@ -15,7 +15,8 @@ import {
   IProgressInfo,
   IFindElement,
   ISurveyLayoutElement,
-  LayoutElementContainer
+  LayoutElementContainer,
+  OptionalCallback
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -975,7 +976,7 @@ export class SurveyModel extends SurveyElementCore
   public get pages(): Array<PageModel> {
     return this.getPropertyValue("pages");
   }
-  renderCallback: () => void;
+  renderCallback: OptionalCallback;
   public render(element: any = null): void {
     if (this.renderCallback) {
       this.renderCallback();
@@ -6886,7 +6887,7 @@ export class SurveyModel extends SurveyElementCore
       this.disposeCallback();
     }
   }
-  disposeCallback: () => void;
+  disposeCallback: OptionalCallback;
 }
 
 function isStrCiEqual(a: string, b: string) {

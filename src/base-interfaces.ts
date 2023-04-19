@@ -345,6 +345,8 @@ export interface IFindElement {
 
 export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
 
+export type OptionalCallback = null | (() => void);
+
 export interface ISurveyLayoutElement {
   id: string;
   container?: LayoutElementContainer | Array<LayoutElementContainer>;

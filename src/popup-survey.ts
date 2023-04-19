@@ -2,6 +2,7 @@ import { Base, ComputedUpdater } from "./base";
 import { SurveyModel } from "./survey";
 import { LocalizableString } from "./localizablestring";
 import { property } from "./jsonobject";
+import { OptionalCallback } from "./base-interfaces";
 
 /**
  * A Model for a survey running in the Popup Window.
@@ -13,8 +14,8 @@ export class PopupSurveyModel extends Base {
   windowElement: HTMLDivElement;
 
   templateValue: string;
-  expandedChangedCallback: () => void;
-  showingChangedCallback: () => void;
+  expandedChangedCallback: OptionalCallback;
+  showingChangedCallback: OptionalCallback;
 
   constructor(jsonObj: any, initialModel: SurveyModel = null) {
     super();

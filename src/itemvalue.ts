@@ -36,19 +36,6 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     return this.locOwner ? this.locOwner.getProcessedText(text) : text;
   }
 
-  private _isExclusive: boolean;
-  public get isExclusive(): boolean {
-    return this._isExclusive
-  }
-
-  public set isExclusive(value: boolean) {
-    this._isExclusive = value
-  }
-
-  public isFixedPosition(): boolean {
-    return false
-  }
-
   public static get Separator() {
     return settings.itemValueSeparator;
   }
@@ -206,12 +193,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   constructor(
     value: any,
     text: string = null,
-    protected typeName = "itemvalue",
-    isExclusive: boolean = false
+    protected typeName = "itemvalue"
   ) {
     super();
     this.locTextValue = new LocalizableString(this, true, "text");
-    this.isExclusive = isExclusive;
     this.locTextValue.onStrChanged = (oldValue: string, newValue: string) => {
       if (newValue == this.value) {
         newValue = undefined;
@@ -462,14 +447,14 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   @property() icon: string;
 }
 
-Base.createItemValue = function (source: any, type?: string, isExclusive: boolean = false): any {
+Base.createItemValue = function (source: any, type?: string): any {
   var item = null;
   if (!!type) {
     item = JsonObject.metaData.createClass(type, {});
   } else if (typeof source.getType === "function") {
-    item = new ItemValue(null, undefined, source.getType(), isExclusive);
+    item = new ItemValue(null, undefined, source.getType());
   } else {
-    item = new ItemValue(null, null, null, isExclusive);
+    item = new ItemValue(null);
   }
   item.setData(source);
   return item;

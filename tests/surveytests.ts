@@ -7549,6 +7549,28 @@ QUnit.test(
     assert.equal(survey.getInCorrectedAnswers(), 1, "1 in matrix");
   }
 );
+QUnit.test("question.isCorrectAnswer() and onIsAnswerCorrect event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", correctAnswer: 1 },
+      { type: "text", name: "q2", correctAnswer: 2 }
+    ] });
+  survey.onIsAnswerCorrect.add((sender, options) => {
+    const q = options.question;
+    options.result = Math.abs(q.value - q.correctAnswer) < 2;
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isAnswerCorrect(), false, "Value is empty");
+  q1.value = 1;
+  assert.equal(q1.isAnswerCorrect(), true, "q1.value = 1");
+  q1.value = 5;
+  assert.equal(q1.isAnswerCorrect(), false, "q1.value = 5");
+  q1.value = 2;
+  assert.equal(q1.isAnswerCorrect(), true, "q1.value = 2");
+  q2.value = 3;
+  assert.equal(q2.isAnswerCorrect(), true, "q2.value = 3");
+});
 QUnit.test(
   "Quiz, correct, trim value on checking correct answers, https://surveyjs.answerdesk.io/ticket/details/T6569",
   function (assert) {

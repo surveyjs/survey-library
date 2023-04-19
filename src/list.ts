@@ -86,7 +86,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
       const item = this.listContainerHtmlElement.querySelector("." + selector);
       if (item) {
-        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+        setTimeout(() => {
+          item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+        }, ms);
       }
     }, ms);
   }

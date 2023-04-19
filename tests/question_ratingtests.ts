@@ -980,7 +980,24 @@ QUnit.test("change rateCount on switch rateDisplayMode", (assert) => {
   const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
   q1.rateDisplayMode = "smileys";
   assert.equal(q1.rateCount, 10);
-  assert.equal(q1.rateValues.length, 12);
+  assert.equal(q1.rateValues.length, 10);
+});
+
+QUnit.test("reset rateValues on change autoGenerate", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1",
+        "rateDisplayMode": "stars",
+        "rateValues": [1, 2, 3]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateValues.length, 3);
+  q1.autoGenerate = true;
+  assert.equal(q1.rateValues.length, 0);
 });
 
 QUnit.test("rateCount limitations", (assert) => {

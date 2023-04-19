@@ -17,6 +17,7 @@ sv-popup {
   z-index: 2000;
   height: 100vh;
 }
+
 .sv-dropdown-popup {
   height: 0;
 }
@@ -38,7 +39,7 @@ sv-popup {
   border-radius: calcSize(0.5);
 
   width: 100%;
-  height: 100%;
+  height: auto;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -401,6 +402,7 @@ sv-popup {
     }
   }
 }
+
 .sv-dropdown-popup.sv-popup--overlay.sv-popup--tablet {
   .sv-popup__body-content {
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
@@ -420,6 +422,7 @@ sv-popup {
     margin: 0;
     border-radius: 4px;
   }
+
   .sv-popup__content,
   .sv-popup__scrolling-content,
   .sv-list__container {

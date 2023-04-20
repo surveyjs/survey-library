@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { setData } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler, resetFocusToBody } from "../../helper";
 import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";

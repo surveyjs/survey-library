@@ -6296,6 +6296,11 @@ export class SurveyModel extends SurveyElementCore
   public getInCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
   }
+  onCorrectQuestionAnswer(question: IQuestion, options: any): void {
+    if(this.onIsAnswerCorrect.isEmpty) return;
+    options.question = question;
+    this.onIsAnswerCorrect.fire(this, options);
+  }
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();
     var counter = 0;

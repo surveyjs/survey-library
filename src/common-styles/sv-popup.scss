@@ -39,7 +39,7 @@ sv-popup {
   border-radius: calcSize(0.5);
 
   width: 100%;
-  height: auto;
+  height: 100%;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
@@ -47,7 +47,7 @@ sv-popup {
   max-width: 90vw;
 }
 
-.sv-popup--modal {
+.sv-popup.sv-popup--modal {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,6 +62,8 @@ sv-popup {
 
   .sv-popup__body-content {
     padding: calcSize(4);
+    height: auto;
+    max-height: 100%;
   }
 }
 

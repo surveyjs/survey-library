@@ -73,6 +73,7 @@ export var defaultV2Css = {
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
     navigationButton: "",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
@@ -100,7 +101,8 @@ export var defaultV2Css = {
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
-    noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder"
+    noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   progress: "sd-progress sd-body__progress",
   progressTop: "sd-body__progress--top",
@@ -132,6 +134,7 @@ export var defaultV2Css = {
   pageDescription: "sd-description sd-page__description",
   row: "sd-row sd-clearfix",
   rowMultiple: "sd-row--multiple",
+  rowCompact: "sd-row--compact",
   pageRow: "sd-page__row",
   question: {
     mainRoot: "sd-element sd-question sd-row__question",
@@ -375,7 +378,8 @@ export var defaultV2Css = {
     cellText: "sd-matrix__text",
     cellTextSelected: "sd-matrix__text--checked",
     cellTextDisabled: "sd-matrix__text--disabled",
-    cellResponsiveTitle: "sd-matrix__responsive-title"
+    cellResponsiveTitle: "sd-matrix__responsive-title",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -400,7 +404,8 @@ export var defaultV2Css = {
     actionsCell: "sd-table__cell sd-table__cell--actions",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
-    cellQuestionWrapper: "sd-table__question-wrapper"
+    cellQuestionWrapper: "sd-table__question-wrapper",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -437,7 +442,8 @@ export var defaultV2Css = {
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
-    cellQuestionWrapper: "sd-table__question-wrapper"
+    cellQuestionWrapper: "sd-table__question-wrapper",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",

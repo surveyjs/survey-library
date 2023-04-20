@@ -112,7 +112,7 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
-    const classes = { page: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "" };
+    const classes = { page: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.page, css.page);
     if (!!css.pageTitle) {
       classes.pageTitle = css.pageTitle;
@@ -128,6 +128,9 @@ export class PageModel extends PanelModelBase implements IPage {
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;
+    }
+    if (!!css.rowCompact) {
+      classes.rowCompact = css.rowCompact;
     }
     if (this.survey) {
       this.survey.updatePageCssClasses(this, classes);

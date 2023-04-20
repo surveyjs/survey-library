@@ -158,6 +158,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     action: () => {
       !!(actionOptions.action) && actionOptions.action();
       innerPopupModel.toggleVisibility();
+      listModel.scrollToSelectedItem();
     },
   });
   const newAction: Action = new Action(newActionOptions);

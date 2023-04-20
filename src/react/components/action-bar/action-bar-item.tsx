@@ -91,7 +91,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         className={className}
         type="button"
         disabled={this.item.disabled}
-        onClick={() => this.item.action(this.item)}
+        onClick={(args) => this.item.action(this.item, args.isTrusted)}
         title={title}
         tabIndex={tabIndex}
         aria-checked={this.item.ariaChecked}

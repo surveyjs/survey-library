@@ -62,7 +62,10 @@ export class QuestionRatingModel extends Question {
         if (!this.autoGenerate && this.rateValues.length === 0) {
           this.setPropertyValue("rateValues", this.visibleRateValues);
         }
-        if (this.autoGenerate) this.updateRateMax();
+        if (this.autoGenerate) {
+          this.rateValues.length = 0;
+          this.updateRateMax();
+        }
         this.createRenderedRateItems();
       });
     this.createLocalizableString(
@@ -79,8 +82,9 @@ export class QuestionRatingModel extends Question {
   }
   private jsonObj: any;
   private setIconsToRateValues() {
-    if (this.rateType == "smileys")
+    if (this.rateType == "smileys") {
       this.rateValues.map(item => item.icon = this.getItemSmiley(item));
+    }
   }
 
   startLoadingFromJson(jsonObj: any) {
@@ -136,6 +140,7 @@ export class QuestionRatingModel extends Question {
       newCount = 10;
     }
     this.rateCount = newCount;
+    if (this.rateValues.length > newCount) this.rateValues.length = newCount;
   }
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],

@@ -18,7 +18,7 @@ export class SurveyElementBase<P, S> extends React.Component<P, S> {
   }
   public static renderQuestionDescription(question: Question | PanelModel): JSX.Element {
     var descriptionText = SurveyElementBase.renderLocString(question.locDescription);
-    return <div style={!question.description ? { display: "none" } : undefined } className={question.cssDescription}>{descriptionText}</div>;
+    return <div style={question.isDescriptionVisible ? undefined : { display: "none" } } className={question.cssDescription}>{descriptionText}</div>;
   }
   private changedStatePropNameValue: string | undefined;
   constructor(props: any) {

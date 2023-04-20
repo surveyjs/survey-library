@@ -894,7 +894,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   set paddingRight(val: string) {
     this.setPropertyValue("paddingRight", val);
   }
-  public isDescriptionVisible(): boolean {
+  public get isDescriptionVisible(): boolean {
     return (!!this.description || this.isDesignMode);
   }
 

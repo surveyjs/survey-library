@@ -3,6 +3,7 @@
     <survey-element-title :element="element" :css="css"/>
     <div
       v-if="element.hasDescriptionUnderTitle"
+      v-show="!!element.description"
       :class="element.cssDescription"
     >
       <survey-string :locString="element.locDescription" />

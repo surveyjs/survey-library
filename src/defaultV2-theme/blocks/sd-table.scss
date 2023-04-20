@@ -341,3 +341,8 @@
     }
   }
 }
+.sd-table__cell--detail-panel {
+  .sd-panel__content {
+    padding-top: calcSize(1);
+  }
+}

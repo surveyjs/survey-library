@@ -1,13 +1,10 @@
 .sd-panel {
   position: relative;
-  .sd-row {
-    margin-top: 0;
-  }
-  :not(.svc-row) > .sd-row--multiple {
-    row-gap: 0;
-  }
 }
 .sd-panel.sd-panel--as-page {
+  & > .sd-panel__content {
+    padding-top: 0;
+  }
   & > .sd-panel__header.sd-panel__header {
     padding-top: 0;
     padding-bottom: 0;
@@ -38,4 +35,13 @@
   margin-top: calc(0.5 * var(--sd-base-vertical-padding));
   border-top: 1px solid $border-light;
   padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+}
+.sd-panel__content {
+  padding-top: var(--sd-base-vertical-padding);
+}
+.svc-question__content {
+  .sd-panel__content {
+    gap: 0;
+    padding-top: 0;
+  }
 }

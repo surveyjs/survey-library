@@ -42,7 +42,27 @@
 .sd-question__header--location-top {
   padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
 }
+.sd-question__header--location--bottom {
+  padding-top: calc(0.5 * var(--sd-base-vertical-padding));
+}
+.sd-element--with-frame {
+  & > .sd-question__erbox--outside-question {
+    margin-left: calc(-1 * var(--sd-base-padding));
+    margin-right: calc(-1 * var(--sd-base-padding));
+    width: calc(100% + 2 * var(--sd-base-padding));
+  }
 
+  & > .sd-question__erbox--above-question {
+    margin-top: calc(-1 * var(--sd-base-padding));
+    margin-bottom: var(--sd-base-vertical-padding);
+  }
+  & > .sd-question__header--location-top {
+    margin-top: calcSize(-1);
+  }
+  & > .sd-question__content > .sd-question__header--location--bottom {
+    margin-bottom: calcSize(-1);
+  }
+}
 .sd-scrollable .sd-question__content {
   overflow-x: auto;
   padding: calcSize(2) 0;
@@ -108,6 +128,7 @@
 .sd-question--complex {
   .sd-question__erbox--above-question {
     margin-top: 0;
+    margin-bottom: calc(var(--sd-base-vertical-padding) - 1 * #{$base-unit});
     & ~ .sd-question__header--location-top {
       padding-top: calcSize(1);
     }

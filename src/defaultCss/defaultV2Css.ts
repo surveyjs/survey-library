@@ -257,6 +257,7 @@ export var defaultV2Css = {
     disabledLabel: "sd-checkbox__label--disabled",
     sliderText: "sd-boolean__thumb-text",
     slider: "sd-boolean__thumb",
+    sliderGhost: "sd-boolean__thumb-ghost",
     //radio
     radioItem: "sd-item",
     radioItemChecked: "sd-item--checked sd-radio--checked",

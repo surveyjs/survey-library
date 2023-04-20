@@ -763,6 +763,9 @@ f-panel {
   cursor: pointer;
 }
 
+.sv_main .sv-boolean__thumb-ghost {
+  display: inline-block;
+}
 .sv_main .sv-boolean__slider {
   display: inline-block;
   width: 20px;

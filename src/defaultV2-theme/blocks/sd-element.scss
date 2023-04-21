@@ -267,6 +267,13 @@
     padding-bottom: var(--sd-base-padding);
   }
 }
+//compact styles
+.sd-element--with-frame.sd-element--compact {
+  border: 1px solid $border-inside;
+  border-radius: 4px;
+  box-shadow: none;
+}
+
 //creator styles
 .svc-question__content .sd-element--complex > .sd-element__header--location-top {
   padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));

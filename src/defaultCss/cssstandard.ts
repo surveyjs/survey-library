@@ -110,6 +110,7 @@ export var defaultStandardCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
+    sliderGhost: "sv-boolean__thumb-ghost",
     //checkbox
     rootCheckbox: "sv_qcbc sv_qbln",
     checkboxItem: "sv-boolean",

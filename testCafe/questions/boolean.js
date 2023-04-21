@@ -76,7 +76,7 @@ frameworks.forEach((framework) => {
   test("click on true label in intermediate state", async (t) => {
     assert.equal(await getQuestionValue(), null);
 
-    await t.click(".sv-boolean__label:nth-of-type(2)");
+    await t.click(Selector(".sv-boolean__thumb-ghost").nth(1));
 
     assert.equal(await getQuestionValue(), true);
   });
@@ -146,11 +146,10 @@ frameworks.forEach((framework) => {
     var labelFalse = json.labelFalse;
     assert.equal(await getQuestionValue(), null);
 
-    var outerSelector = ".sv-boolean__label:nth-of-type(2)";
-    var innerSelector = ".sv-string-editor";
+    var outerSelector = Selector(".sv-boolean__label").nth(1);
     await t
       .click(outerSelector)
-      .typeText(outerSelector + " " + innerSelector, newLabelTrue, { replace: true })
+      .typeText(outerSelector.find(".sv-string-editor"), newLabelTrue, { replace: true })
       .click("body", { offsetX: 0, offsetY: 0 });
 
     assert.equal(await getQuestionValue(), null);

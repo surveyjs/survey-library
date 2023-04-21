@@ -6,7 +6,7 @@ import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
-import { OptionalCallback } from "src/base-interfaces";
+import { OptionalCallback } from "../base-interfaces";
 
 export type actionModeType = "large" | "small" | "popup";
 

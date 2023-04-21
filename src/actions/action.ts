@@ -275,6 +275,12 @@ export abstract class BaseAction extends Base implements IAction {
   public getTooltip(): string {
     return this.tooltip || this.title;
   }
+  public getIsTrusted(args: any): boolean {
+    if(!!args.originalEvent) {
+      return args.originalEvent.isTrusted;
+    }
+    return args.isTrusted;
+  }
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;

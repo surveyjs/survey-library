@@ -426,6 +426,24 @@ QUnit.test("Check errors", function(assert) {
   error2.text = "Error #2";
   assert.equal(Helpers.isTwoValueEquals(error1, error2), false, "Two errors are not equal");
 });
+QUnit.test("Check compareStrings function", function(assert) {
+  assert.equal(Helpers.compareStrings("abc", "abc"), 0, "#1");
+  assert.equal(Helpers.compareStrings("abc", "abcd"), -1, "#2");
+  assert.equal(Helpers.compareStrings("abcd", "abc"), 1, "#3");
+  assert.equal(Helpers.compareStrings("", ""), 0, "#4");
+  assert.equal(Helpers.compareStrings("a", ""), 1, "#5");
+  assert.equal(Helpers.compareStrings("", "a"), -1, "#6");
+  assert.equal(Helpers.compareStrings("1 a", "2 b"), -1, "#7");
+  assert.equal(Helpers.compareStrings("12 a", "2 b"), 1, "#8");
+  assert.equal(Helpers.compareStrings("item 1", "item 2"), -1, "#9");
+  assert.equal(Helpers.compareStrings("item 12", "item 2"), 1, "#10");
+  assert.equal(Helpers.compareStrings("item 1 abc", "item 2 ed"), -1, "#11");
+  assert.equal(Helpers.compareStrings("item 12 ed", "item 2 ed"), 1, "#12");
+  assert.equal(Helpers.compareStrings("item1", "item 2"), 1, "#13");
+  assert.equal(Helpers.compareStrings("item12", "item 2"), 1, "#14");
+  assert.equal(Helpers.compareStrings("401", "60"), 1, "#15");
+  assert.equal(Helpers.compareStrings("60", "401"), -1, "#16");
+});
 QUnit.test("convertArrayValueToObject function", function(assert) {
   assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name"), [{ name: 1 }, { name: 2 }], "#1");
   assert.deepEqual(Helpers.convertArrayObjectToValue([{ name: 1 }, { name: 2 }], "name"), [1, 2], "#2");

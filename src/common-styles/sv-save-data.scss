@@ -15,7 +15,7 @@
   z-index: 1600; //todo: should overlap popup
 
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
 
   display: flex;
@@ -65,7 +65,7 @@
 
 .sv-save-data_root.sv-save-data_error .sv-save-data_button {
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   height: calcSize(5);
   color: #ffffff;

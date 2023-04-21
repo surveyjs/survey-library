@@ -36,7 +36,7 @@
   border: 2px solid $background;
   color: $foreground;
   fill: $foreground;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
 }
 .sd-rating__item--fixed-size {
   width: calcSize(6);
@@ -246,7 +246,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 .sd-rating__item-text.sd-rating__item-text {
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   display: inline-block;
 

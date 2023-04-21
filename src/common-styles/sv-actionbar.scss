@@ -51,14 +51,14 @@ button.sv-action-bar-item {
 
 .sv-action-bar--default-size-mode .sv-action-bar-item {
   height: calcSize(5);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   margin: 0 calcSize(1);
 }
 
 .sv-action-bar--small-size-mode .sv-action-bar-item {
   height: calcSize(4);
-  font-size: calcSize(1.5);
+  font-size: calcFontSize(0.75);
   line-height: calcSize(2);
   margin: 0 calcSize(0.5);
 }
@@ -146,7 +146,7 @@ button.sv-action-bar-item {
   background-color: transparent;
   cursor: pointer;
   line-height: calcSize(3);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   font-family: var(--font-family, $font-family);
 }
 

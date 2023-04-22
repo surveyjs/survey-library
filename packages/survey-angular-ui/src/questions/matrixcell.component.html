@@ -14,13 +14,16 @@
       </ng-container>
       <ng-template *ngIf="!cell.isChoice && !cell.question.isDefaultRendering()" [component]="{ name: cell.question.getComponentName(), data: { model: cell.question } }">
       </ng-template>
-      <sv-ng-selebase-item
-        *ngIf="cell.isItemChoice"
-        [showLabel]="false"
-        [inputType]="cell.isCheckbox ? 'checkbox': 'radio'"
-        [question]="cell.question"
-        [model]="cell.item"
-      ></sv-ng-selebase-item>
+      <ng-container *ngIf="cell.isItemChoice">
+        <ng-template [component]="{ name: question.getCellWrapperComponentName(cell.cell), data: { componentData: question.getCellWrapperComponentData(cell.cell)} }">
+          <sv-ng-selebase-item
+          [showLabel]="false"
+          [inputType]="cell.isCheckbox ? 'checkbox': 'radio'"
+          [question]="cell.question"
+          [model]="cell.item"
+        ></sv-ng-selebase-item>
+        </ng-template>
+      </ng-container>
       <div *ngIf="cell.isOtherChoice" [class]="cell.question.getCommentAreaCss(true)" [question]="cell.question" sv-ng-comment-other></div>
       <div *ngIf="cell.showErrorOnBottom && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'top'" sv-ng-errors></div>
       <div *ngIf="cell.question.isErrorsModeTooltip && cell.question.hasVisibleErrors" [element]="cell.question" [location]="'tooltip'" sv-ng-errors></div>

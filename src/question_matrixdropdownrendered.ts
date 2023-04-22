@@ -115,7 +115,11 @@ export class QuestionMatrixDropdownRenderedCell {
         return this.cell.column.locCellHint.renderedHtml;
       }
       if(this.cell.column.isShowInMultipleColumns) {
-        return this.item.locText.renderedHtml;
+        if(!!this.item) {
+          return this.item.locText.renderedHtml;
+        } else {
+          return "";
+        }
       }
     }
     if(this.question && this.question.isVisible) {

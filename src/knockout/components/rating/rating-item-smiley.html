@@ -1,4 +1,4 @@
-<label data-bind="css: question.getItemClass(item.itemValue, item.highlight), event: { mouseover: function () { question.onItemMouseIn(item); }, mouseleave: function () { question.onItemMouseOut(item);} }">
+<label data-bind="style: question.getItemStyle(item.itemValue, item.highlight), css: question.getItemClass(item.itemValue, item.highlight), event: { mouseover: function () { question.onItemMouseIn(item); }, mouseleave: function () { question.onItemMouseOut(item);} }">
   <input
   type="radio"
   class="sv-visuallyhidden"

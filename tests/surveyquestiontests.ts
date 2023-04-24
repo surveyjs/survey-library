@@ -4466,6 +4466,7 @@ QUnit.test(
   "QuestionRating reset highlight on click",
   function (assert) {
     var question = new QuestionRatingModel("q");
+    question.rateDisplayMode = "stars";
     question.onItemMouseIn(question.renderedRateItems[2]);
     assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
     question.setValueFromClick("3");

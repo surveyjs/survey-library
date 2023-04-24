@@ -497,6 +497,42 @@ QUnit.test("showInputFieldComponent", assert => {
   question.value = 1;
   assert.equal(question.showInputFieldComponent, true);
 });
+QUnit.test("clearValue", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+
+  assert.equal(question.value, undefined, "init");
+  assert.equal(dropdownListModel.filterString, "", "init");
+  assert.equal(dropdownListModel.inputStringRendered, "", "init");
+  assert.equal(dropdownListModel.hintString, "", "init");
+
+  question.value = 2;
+  dropdownListModel.inputStringRendered = "i";
+
+  assert.equal(question.value, 2);
+  assert.equal(dropdownListModel.filterString, "i");
+  assert.equal(dropdownListModel.inputStringRendered, "i");
+  assert.equal(dropdownListModel.hintString, "item 2");
+
+  question.clearValue();
+
+  assert.equal(question.value, undefined, "after clear");
+  assert.equal(dropdownListModel.filterString, "", "after clear");
+  assert.equal(dropdownListModel.inputStringRendered, "", "after clear");
+  assert.equal(dropdownListModel.hintString, "", "after clear");
+});
 
 QUnit.test("hasScroll property", assert => {
   const json = {

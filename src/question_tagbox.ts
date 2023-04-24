@@ -187,6 +187,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       this.dropdownListModelValue.dispose();
     }
   }
+  public clearValue(): void {
+    super.clearValue();
+    this.dropdownListModel.clear();
+  }
 }
 
 Serializer.addClass(

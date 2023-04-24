@@ -290,9 +290,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getInputId() {
     return this.inputId + "_0";
   }
-  public clearValue() {
+  public clearValue(): void {
     super.clearValue();
     this.lastSelectedItemValue = null;
+    this.dropdownListModel?.clear();
   }
 
   onClick(e: any): void {

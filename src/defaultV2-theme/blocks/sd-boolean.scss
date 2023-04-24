@@ -76,7 +76,7 @@
   z-index: 1;
 }
 
-.sd-boolean__thumb-ghost:hover {
+.sd-boolean:not(.sd-boolean_hover--disabled) .sd-boolean__thumb-ghost:hover {
   background-color: $background-dim-dark;
   border-radius: calcSize(12.5);
 }

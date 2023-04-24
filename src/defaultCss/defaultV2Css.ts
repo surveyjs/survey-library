@@ -255,6 +255,7 @@ export var defaultV2Css = {
     itemChecked: "sd-boolean--checked",
     itemIndeterminate: "sd-boolean--indeterminate",
     itemDisabled: "sd-boolean--disabled",
+    itemHoverDisabled: "sd-boolean_hover--disabled",
     label: "sd-boolean__label",
     switch: "sd-boolean__switch",
     disabledLabel: "sd-checkbox__label--disabled",

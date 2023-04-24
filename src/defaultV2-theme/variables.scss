@@ -1,3 +1,8 @@
+:root {
+  $font-size-base-unit: calcSize(2);
+  --sjs-font-size-in-base-units: #{$font-size-base-unit};
+}
+
 $primary: var(--primary, #19b394);
 $primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
 $primary-foreground: var(--sjs-primary-forecolor, var(--primary-foreground, #fff));
@@ -36,7 +41,7 @@ $green-light: var(--green-light, rgba(25, 179, 148, 0.1));
 $blue-light: var(--blue-light, rgba(67, 127, 217, 0.1));
 
 $font-family: var(--font-family);
-$font-size: var(--sjs-font-size, 16px);
+$font-size: var(--sjs-font-size, var(--sjs-font-size-in-base-units, 16px));
 
 $base-unit: var(--base-unit, 8px);
 

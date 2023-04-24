@@ -1299,9 +1299,7 @@ export class QuestionSelectBase extends Question {
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function (a, b) {
-      if (a.calculatedText < b.calculatedText) return -1 * mult;
-      if (a.calculatedText > b.calculatedText) return 1 * mult;
-      return 0;
+      return Helpers.compareStrings(a.calculatedText, b.calculatedText) * mult;
     });
   }
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {

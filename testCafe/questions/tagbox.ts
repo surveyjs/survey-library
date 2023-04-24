@@ -2,6 +2,8 @@ import { frameworks, url, initSurvey, getListItemByText, applyTheme, url_test } 
 import { Selector } from "testcafe";
 const title = "tagbox";
 
+const questionOffsetTopConst = 184;
+
 const jsonCloseOnSelectIsTrue = {
   showQuestionNumbers: "off",
   questions: [
@@ -580,13 +582,13 @@ frameworks.forEach((framework) => {
       .expect(tagbox1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
@@ -808,13 +810,13 @@ frameworks.forEach((framework) => {
       .expect(tagbox1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")

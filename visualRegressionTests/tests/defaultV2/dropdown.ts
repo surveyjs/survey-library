@@ -100,6 +100,43 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("item focused state for keyboard navigation", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            title: "Where are you living?",
+            name: "dropdown_question",
+            optionsCaption: "Select country here...",
+            allowClear: false,
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10"
+            ]
+          },
+        ]
+      });
+
+      const popupContainer = Selector(".sv-popup__container").filterVisible();
+      await t
+        .pressKey("down")
+        .pressKey("down")
+        .wait(500);
+      await takeElementScreenshot("dropdown-item-focused-state.png", popupContainer, t, comparer);
+    });
+  });
+
   test("Check dropdown select question popup", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);

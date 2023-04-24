@@ -1859,6 +1859,16 @@ export class SurveyModel extends SurveyElementCore
   private get isMobile() {
     return this._isMobile;
   }
+  @property() private _isCompact: boolean = false;
+  private set isCompact(newVal: boolean) {
+    if(newVal !== this._isCompact) {
+      this._isCompact = newVal;
+      this.updateElementCss();
+    }
+  }
+  private get isCompact() {
+    return this._isCompact;
+  }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
@@ -6295,6 +6305,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public getInCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
+  }
+  onCorrectQuestionAnswer(question: IQuestion, options: any): void {
+    if(this.onIsAnswerCorrect.isEmpty) return;
+    options.question = question;
+    this.onIsAnswerCorrect.fire(this, options);
   }
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();

@@ -22,8 +22,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  *
  * Refer to the following articles for more information:
  *
- * - [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types)
- * - [Create Composite Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types)
+ * - [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types)
+ * - [Create Composite Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types)
  */
 export interface ICustomQuestionTypeConfiguration {
   /**
@@ -43,7 +43,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   icon?: string;
   /**
-   * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types#override-base-question-properties)).
+   * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types#override-base-question-properties)).
    */
   onInit?(): void;
   /**
@@ -55,7 +55,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   showInToolbox?: boolean;
   /**
-   * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
+   * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    *
    * Parameters:
    *
@@ -84,7 +84,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onAfterRender?(question: Question, htmlElement: any): void;
   /**
-   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) is rendered.
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types) is rendered.
    *
    * Parameters:
    *
@@ -101,7 +101,7 @@ export interface ICustomQuestionTypeConfiguration {
     htmlElement: any
   ): void;
   /**
-   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) requires an update of its CSS classes.
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types) requires an update of its CSS classes.
    *
    * Parameters:
    *
@@ -183,7 +183,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   getDisplayValue?: ((keyAsText: boolean, value: any) => any) | ((question: Question) => any);
   /**
-   * JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
+   * JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    */
   elementsJSON?: any;
   /**
@@ -195,7 +195,7 @@ export interface ICustomQuestionTypeConfiguration {
   /**
    * A JSON schema for a built-in question type on which the custom question type is based.
    *
-   * Refer to the [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types) help topic for more information.
+   * Refer to the [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types) help topic for more information.
    */
   questionJSON?: any;
   /**

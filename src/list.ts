@@ -80,6 +80,18 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       this.onFilterStringChangedCallback(text);
     }
   }
+  private scrollToItem(selector: string, ms = 0): void {
+    setTimeout(() => {
+      if (!this.listContainerHtmlElement) return;
+
+      const item = this.listContainerHtmlElement.querySelector("." + selector);
+      if (item) {
+        setTimeout(() => {
+          item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+        }, ms);
+      }
+    }, ms);
+  }
 
   constructor(
     items: Array<IAction>,
@@ -269,14 +281,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
   public scrollToFocusedItem(): void {
-    setTimeout(() => {
-      if (!this.listContainerHtmlElement) return;
-
-      const item = this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemFocused);
-      if (item) {
-        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-      }
-    }, 0);
+    this.scrollToItem(this.getDefaultCssClasses().itemFocused);
+  }
+  public scrollToSelectedItem(): void {
+    this.scrollToItem(this.getDefaultCssClasses().itemSelected, 110);
   }
 
   public addScrollEventListener(handler: (e?: any) => void): void {

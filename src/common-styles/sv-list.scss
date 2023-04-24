@@ -55,7 +55,21 @@
   white-space: nowrap;
 }
 
-.sv-list__item.sv-list__item--focused,
+.sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
+  .sv-list__item-body {
+    @include borderLight;
+    padding-block: calcSize(0.75);
+    padding-inline-end: calcSize(7.75);
+    padding-inline-start: calcSize(1.75);
+  }
+
+  .sv-string-viewer {
+    margin-inline-start: calcSize(-0.25);
+  }
+
+  outline: none;
+}
+
 .sv-list__item:hover,
 .sv-list__item:focus {
   .sv-list__item-body {

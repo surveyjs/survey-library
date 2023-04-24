@@ -739,26 +739,36 @@ Serializer.addClass(
     },
     {
       name: "scaleColorMode",
+      category: "rateValues",
       default: "monochrome",
       choices: ["monochrome", "colored"],
+      visibleIf: function (obj: any) {
+        return obj.rateDisplayMode == "smileys";
+      },
+      visibleIndex: 1
     },
     {
       name: "rateColorMode",
+      category: "rateValues",
       default: "scale",
       choices: ["default", "scale"],
+      visibleIf: function (obj: any) {
+        return obj.rateDisplayMode == "smileys";
+      },
+      visibleIndex: 2
     },
     {
       name: "autoGenerate",
       category: "rateValues",
       default: true,
       choices: [{ value: true, text: "Generate" }, { value: false, text: "Enter manually" }],
-      visibleIndex: 2
+      visibleIndex: 4
     },
     {
       name: "rateCount:number",
       default: 5,
       category: "rateValues",
-      visibleIndex: 1,
+      visibleIndex: 3,
       onSettingValue: (obj: any, val: any): any => {
         if (val < 2) return 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
@@ -775,7 +785,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !obj.autoGenerate;
       },
-      visibleIndex: 3
+      visibleIndex: 5
     },
     {
       name: "rateMin:number", default: 1,
@@ -785,7 +795,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 4
+      visibleIndex: 6
     },
     {
       name: "rateMax:number", default: 5,
@@ -795,7 +805,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 5
+      visibleIndex: 7
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -808,7 +818,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 6
+      visibleIndex: 8
     },
     {
       name: "minRateDescription",

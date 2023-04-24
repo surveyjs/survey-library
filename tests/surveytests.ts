@@ -4843,7 +4843,26 @@ QUnit.test("customWidgets camel name", function (assert) {
   );
   CustomWidgetCollection.Instance.clear();
 });
-
+QUnit.test("Create custom widget from addQuestion", function (assert) {
+  const cType = "newcustomwidget";
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: cType,
+    isFit: (question) => {
+      return question.getType() == cType;
+    },
+  });
+  if (!Serializer.findClass(cType)) {
+    Serializer.addClass(cType, [], undefined, "text");
+  }
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const question = page.addNewQuestion(cType, "q1");
+  assert.equal(question.name, "q1", "name is correct");
+  assert.equal(question.getType(), cType, "type is correct");
+  CustomWidgetCollection.Instance.clear();
+  Serializer.removeClass(cType);
+});
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();
   var readOnlyCounter = 0;

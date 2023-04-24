@@ -48,9 +48,7 @@ export class QuestionFactory {
     return result.sort();
   }
   public createQuestion(questionType: string, name: string): Question {
-    var creator = this.creatorHash[questionType];
-    if (creator == null) return null;
-    return creator(name);
+    return <Question>createElement(this.creatorHash, questionType, name);
   }
 }
 
@@ -85,9 +83,16 @@ export class ElementFactory {
     return result.sort();
   }
   public createElement(elementType: string, name: string): IElement {
-    var creator = this.creatorHash[elementType];
-    if (creator == null)
-      return QuestionFactory.Instance.createQuestion(elementType, name);
-    return creator(name);
+    return createElement(this.creatorHash, elementType, name);
   }
+}
+function createElement(creatorHash: any, questionType: string, name: string): IElement {
+  var creator = creatorHash[questionType];
+  if (creator == null) {
+    const el = Serializer.createClass(questionType);
+    if(!el || (!el.isPanel && !el.isQuestion)) return null;
+    el.name = name;
+    return el;
+  }
+  return creator(name);
 }

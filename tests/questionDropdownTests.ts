@@ -622,6 +622,74 @@ QUnit.test("lazy loading: several loading", assert => {
   }, 550);
 });
 
+QUnit.test("storeOthersAsComment is false", assert => {
+  const json = {
+    "storeOthersAsComment": false,
+    "elements": [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "showOtherItem": true
+      }
+    ],
+    "showQuestionNumbers": false
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.visibleChoices.length, 1);
+  assert.equal(question.visibleChoices[0].id, "other");
+  assert.equal(question.visibleChoices[0].value, "other");
+
+  question.renderedValue = "other";
+  assert.deepEqual(question.value, "other", "#1");
+  question.comment = "text1";
+  assert.deepEqual(question.value, "text1", "#2");
+  assert.deepEqual(survey.data, { q1: "text1" }, "#3");
+});
+
+QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
+  const done = assert.async();
+  const json = {
+    "storeOthersAsComment": false,
+    "elements": [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "choicesLazyLoadEnabled": true,
+        "choicesLazyLoadPageSize": 60,
+        "showOtherItem": true
+      }
+    ],
+    "showQuestionNumbers": false
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.visibleChoices.length, 1);
+  assert.equal(question.visibleChoices[0].id, "other");
+  assert.equal(question.visibleChoices[0].value, "other");
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.visibleChoices.length, 56);
+    assert.equal(question.visibleChoices[0].value, 1);
+    assert.equal(question.visibleChoices[54].value, 55);
+    assert.equal(question.visibleChoices[55].id, "other");
+    assert.equal(question.visibleChoices[55].value, "other");
+
+    question.renderedValue = "other";
+    assert.deepEqual(question.value, "other", "#1");
+    question.comment = "text1";
+    assert.deepEqual(question.value, "text1", "#2");
+    assert.deepEqual(survey.data, { q1: "text1" }, "#3");
+    done();
+  }, 550);
+});
+
 QUnit.test("itemsSettings property", assert => {
   const done1 = assert.async();
   const done2 = assert.async();

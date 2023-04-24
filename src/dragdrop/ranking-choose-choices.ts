@@ -1,4 +1,4 @@
-import { ItemValue } from "survey-core";
+import { ItemValue, QuestionRankingModel } from "survey-core";
 import { DragDropRankingChoices } from "./ranking-choices";
 
 export class DragDropRankingChooseChoices extends DragDropRankingChoices {
@@ -40,13 +40,20 @@ export class DragDropRankingChooseChoices extends DragDropRankingChoices {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    const rankingModel = this.parentElement;
-    const rankingChoices = rankingModel.rankingChoices;
+    const choices = this.parentElement.rankingChoices;
+    const unRankingChoices = this.parentElement.unRankingChoices;
+    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    const draggedElementIndex = choices.indexOf(this.draggedElement);
 
-    if (this.dropTarget === "to-container" && rankingChoices.length === 0) {
-      const choices = rankingChoices;
-      choices.splice(0, 0, this.draggedElement);
-      rankingModel.setPropertyValue("rankingChoices", choices);
+    // visibleChoices.splice(visibleChoices.indexOf(this.draggedElement), 1);
+    // rankingChoices.splice(0, 0, this.draggedElement);
+    // parentElement.setPropertyValue("rankingChoices", rankingChoices);
+
+    if (this.dropTarget === "to-container" && choices.length === 0) {
+      unRankingChoices.splice(unRankingChoices.indexOf(this.draggedElement), 1);
+      choices.splice(1, 0, this.draggedElement);
+      this.parentElement.setPropertyValue("rankingChoices", choices);
+      this.updateDraggedElementShortcut(1);
       return;
     }
 
@@ -92,4 +99,10 @@ export class DragDropRankingChooseChoices extends DragDropRankingChoices {
   private isDraggedElementUnordered() {
     return !this.isDraggedElementOrdered;
   }
+
+  // protected doClear = (): void => {
+  //   this.parentElement.dropTargetNodeMove = null;
+  //   this.parentElement.updateRankingChoices(true);
+  //   this.parentElement["updateVisibleChoices"]();
+  // };
 }

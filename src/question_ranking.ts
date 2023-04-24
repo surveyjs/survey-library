@@ -154,13 +154,29 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return this.getPropertyValue("rankingChoices", []);
   }
 
-  private updateRankingChoices(forceUpdate = false): ItemValue[] {
-    const newRankingChoices: ItemValue[] = [];
+  public get unRankingChoices(): Array<ItemValue> {
+    const unRankingChoices: ItemValue[] = [];
 
-    if (this.chooseItemsToOrderMode && this.isEmpty()) {
-      this.setPropertyValue("rankingChoices", []);
+    this.visibleChoices.forEach((choice) => {
+      unRankingChoices.push(choice);
+    });
+
+    this.value.forEach((valueItem: string) => {
+      unRankingChoices.forEach((choice, index) => {
+        if (choice.value === valueItem) unRankingChoices.splice(index, 1);
+      });
+    });
+
+    return unRankingChoices;
+  }
+
+  private updateRankingChoices(forceUpdate = false): ItemValue[] {
+    if (this.chooseItemsToOrderMode) {
+      this.updateRankingChoicesChooseItemsToOrderMode(forceUpdate);
       return;
     }
+
+    const newRankingChoices: ItemValue[] = [];
 
     // ranking question with only one choice doesn't make sense
     if (this.visibleChoices.length === 1) {
@@ -181,6 +197,22 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       });
     });
     this.setPropertyValue("rankingChoices", newRankingChoices);
+  }
+
+  private updateRankingChoicesChooseItemsToOrderMode(forceUpdate:boolean) {
+    if (this.isEmpty()) {
+      this.setPropertyValue("rankingChoices", []);
+      return;
+    }
+
+    // const newRankingChoices: ItemValue[] = [];
+
+    // this.value.forEach((valueItem: string) => {
+    //   this.visibleChoices.forEach((choice) => {
+    //     if (choice.value === valueItem) newRankingChoices.push(choice);
+    //   });
+    // });
+    // this.setPropertyValue("rankingChoices", newRankingChoices);
   }
 
   public dragDropRankingChoices: DragDropRankingChoices;

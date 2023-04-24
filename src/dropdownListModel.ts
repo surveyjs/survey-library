@@ -176,6 +176,11 @@ export class DropdownListModel extends Base {
       this.filterString = undefined;
     }
   }
+  public clear(): void {
+    this.inputString = null;
+    this.hintString = "";
+    this.resetFilterString();
+  }
   protected onSetFilterString(): void {
     if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
@@ -340,9 +345,6 @@ export class DropdownListModel extends Base {
 
   public onClear(event: any): void {
     this.question.clearValue();
-    this.inputString = null;
-    this.hintString = "";
-    this.resetFilterString();
     if (event) {
       event.preventDefault();
       event.stopPropagation();

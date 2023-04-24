@@ -1,3 +1,11 @@
+:root {
+  --sd-rating-bad-color: #{$red};
+  --sd-rating-normal-color: #{$yellow};
+  --sd-rating-good-color: #{$green};
+  --sd-rating-bad-color-light: #{$red-light};
+  --sd-rating-normal-color-light: #{$yellow-light};
+  --sd-rating-good-color-light: #{$green-light};
+}
 .sd-rating {
   overflow-x: auto;
   min-height: calcSize(8);
@@ -145,6 +153,27 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-smiley--selected:focus-within {
   box-shadow: inset 0 0 0 2px $background;
+}
+.sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected) {
+  opacity: 0.25;
+
+  &.sd-rating__item-smiley--allowhover:hover {
+    opacity: 0.35;
+  }
+}
+
+.sd-rating__item-smiley--rate-colored:not(.sd-rating__item-smiley--selected) {
+  &.sd-rating__item-smiley--allowhover:hover {
+    opacity: 0.35;
+  }
+}
+
+.sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected):focus-within {
+  opacity: 1;
+
+  svg {
+    opacity: 0.25
+  }
 }
 .sd-rating__item-star {
   position: relative;

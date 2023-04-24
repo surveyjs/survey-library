@@ -22,6 +22,7 @@ export class RatingItemSmiley extends SurveyElementBase<IRatingItemProps, any> {
   render(): JSX.Element | null {
     return (
       <label
+        style={this.question.getItemStyle(this.item.itemValue, this.item.highlight)}
         className={this.question.getItemClass(this.item.itemValue)}
         onMouseOver={e => this.question.onItemMouseIn(this.item)}
         onMouseOut={e => this.question.onItemMouseOut(this.item)}

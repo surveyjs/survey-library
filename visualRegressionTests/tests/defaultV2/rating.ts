@@ -337,6 +337,7 @@ frameworks.forEach(framework => {
             name: "satisfaction",
             title: "Rating",
             rateType: "smileys",
+            rateColorMode: "default",
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
@@ -359,6 +360,81 @@ frameworks.forEach(framework => {
       await focusBody();
       await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
       await takeElementScreenshot("question-rating-smileys-selected", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating smileys rate colored question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-rate-colored.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); })();
+      await takeElementScreenshot("question-rating-smileys-rate-colored-focus.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-rate-colored-focus-hovered.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-rate-colored-focus-selected.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-rate-colored-unhovered.png", questionRoot, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-smileys-rate-colored-selected", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating smileys scale colored question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            scaleColorMode: "colored",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-scale-colored.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); })();
+      await takeElementScreenshot("question-rating-smileys-scale-colored-focus.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-scale-colored-focus-hovered.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-scale-colored-focus-selected.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-scale-colored-unhovered.png", questionRoot, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-smileys-scale-colored-selected", questionRoot, t, comparer);
     });
   });
 

@@ -451,6 +451,53 @@ QUnit.test("check stars styles", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_disabled");
 });
 
+QUnit.test("check smiley styles", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "smileys",
+        scaleColorMode: "monochrome",
+        name: "q1",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemSmiley = "";
+  q1.cssClasses.itemSmileyHover = "";
+  q1.cssClasses.itemSmileyHighlighted = "sv_q_high";
+  q1.cssClasses.itemSmileySelected = "sv_q_selected";
+  q1.cssClasses.itemSmileyDisabled = "sv_q_disabled";
+  q1.cssClasses.itemSmileyScaleColored = "sv_q_sc";
+  q1.cssClasses.itemSmileyRateColored = "sv_q_rc";
+
+  q1.value = 2;
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_sc sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_sc sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_sc sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_sc sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_sc sv_q_rc");
+
+  q1.scaleColorMode = "monochrome";
+  q1.rateColorMode = "scale";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_rc");
+
+  q1.scaleColorMode = "monochrome";
+  q1.rateColorMode = "default";
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+});
+
 QUnit.test("check stars for rateValues", (assert) => {
   var json = {
     elements: [
@@ -1025,4 +1072,80 @@ QUnit.test("rateCount limitations", (assert) => {
   q1.rateDisplayMode = "smileys";
   q1.rateCount = 15;
   assert.equal(q1.rateCount, 10);
+});
+
+QUnit.test("rating colors without css vars", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1"
+      }
+    ]
+  };
+
+  const survey = new SurveyModel(json);
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.value = 4;
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+});
+
+QUnit.test("rating colors", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "rating",
+        "name": "q1"
+      }
+    ]
+  };
+  document.documentElement.style.setProperty("--sd-rating-bad-color", "#c8140a");
+  document.documentElement.style.setProperty("--sd-rating-normal-color", "gold");
+  document.documentElement.style.setProperty("--sd-rating-good-color", "rgb(10,200,20)");
+
+  document.documentElement.style.setProperty("--sd-rating-bad-color-light", "rgba(200, 20, 10, 0.2)");
+  document.documentElement.style.setProperty("--sd-rating-normal-color-light", "rgba(255, 215, 0, 0.2)");
+  document.documentElement.style.setProperty("--sd-rating-good-color-light", "rgba(10,200,20, 0.2)");
+
+  const survey = new SurveyModel(json);
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.value = 4;
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: "rgba(200, 20, 10, 1)", borderColor: "rgba(200, 20, 10, 1)", backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: "rgba(227, 117, 5, 1)", borderColor: "rgba(227, 117, 5, 1)", backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: "rgba(255, 215, 0, 1)", borderColor: "rgba(255, 215, 0, 1)", backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: "rgba(132, 207, 10, 1)", backgroundColor: "rgba(132, 207, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: "rgba(10, 200, 20, 1)", borderColor: "rgba(10, 200, 20, 1)", backgroundColor: null });
+
+  q1.onItemMouseIn(q1.renderedRateItems[1]);
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { fill: "rgba(227, 117, 5, 1)", borderColor: "rgba(227, 117, 5, 1)", backgroundColor: "rgba(227, 117, 5, 0.2)" });
+  q1.onItemMouseOut(q1.renderedRateItems[1]);
+
+  q1.scaleColorMode = "monochrome";
+  q1.onItemMouseIn(q1.renderedRateItems[1]);
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { fill: "rgba(227, 117, 5, 1)", borderColor: "rgba(227, 117, 5, 1)", backgroundColor: "rgba(227, 117, 5, 0.2)" });
+  q1.onItemMouseOut(q1.renderedRateItems[1]);
+
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: "rgba(132, 207, 10, 1)", backgroundColor: "rgba(132, 207, 10, 1)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+
+  q1.scaleColorMode = "monochrome";
+  q1.rateColorMode = "default";
+
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
 });

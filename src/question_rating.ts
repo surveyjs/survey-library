@@ -558,8 +558,8 @@ export class QuestionRatingModel extends Question {
     const color = this.getRenderedItemColor(index, false);
     if (this.value != this.renderedRateItems[index].value) {
       const colorLight = this.getRenderedItemColor(index, true);
-      if (highlight == "highlighted") return { borderColor: color, fill: color, backgroundColor: colorLight };
-      if (this.scaleColorMode === "colored") return { borderColor: color, fill: color, backgroundColor: null };
+      if (highlight == "highlighted" && this.scaleColorMode === "colored") return { borderColor: color, fill: color, backgroundColor: colorLight };
+      if (this.scaleColorMode === "colored" && this.errors.length == 0) return { borderColor: color, fill: color, backgroundColor: null };
       return { borderColor: null, fill: null, backgroundColor: null };
     } else {
       return { borderColor: color, fill: null, backgroundColor: color };
@@ -627,7 +627,7 @@ export class QuestionRatingModel extends Question {
       .append(itemHoverClass, allowHover)
       .append(itemHighlightedClass, isHighlighted)
       .append(itemScaleColoredClass, this.scaleColorMode == "colored")
-      .append(itemRateColoredClass, this.rateColorMode == "scale")
+      .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
       .append(itemUnhighlightedClass, isUnhighlighted)
       .append(itemitemOnErrorClass, this.errors.length > 0)
       .append(this.cssClasses.itemFixedSize, hasFixedSize)
@@ -753,7 +753,7 @@ Serializer.addClass(
       default: "scale",
       choices: ["default", "scale"],
       visibleIf: function (obj: any) {
-        return obj.rateDisplayMode == "smileys";
+        return obj.rateDisplayMode == "smileys" && obj.scaleColorMode == "monochrome";
       },
       visibleIndex: 2
     },

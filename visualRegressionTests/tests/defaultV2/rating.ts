@@ -483,6 +483,18 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             width: "708px",
             isRequired: true
+          },
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            scaleColorMode: "colored",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px",
+            isRequired: true
           }
         ]
       });
@@ -490,7 +502,12 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await t.click(Selector("input[value=Complete]"));
       await focusBody();
-      await takeElementScreenshot("question-rating-smileys-required.png", questionRoot, t, comparer);
+      await takeElementScreenshot("question-rating-smileys-required.png", questionRoot.nth(0), t, comparer);
+      await t.hover(questionRoot.nth(0).find(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-required-hover.png", questionRoot.nth(0), t, comparer);
+      await takeElementScreenshot("question-rating-smileys-colored-required.png", questionRoot.nth(1), t, comparer);
+      await t.hover(questionRoot.nth(1).find(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-colored-required-hover.png", questionRoot.nth(1), t, comparer);
     });
   });
 

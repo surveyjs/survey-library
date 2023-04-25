@@ -475,19 +475,19 @@ QUnit.test("check smiley styles", (assert) => {
   q1.value = 2;
   q1.scaleColorMode = "colored";
   q1.rateColorMode = "scale";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_sc sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_sc");
   assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_sc sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_sc sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_sc sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_sc sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_sc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_sc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_sc");
 
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "scale";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
   assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "sv_q_selected sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "sv_q_rc");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "sv_q_rc");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
 
   q1.scaleColorMode = "monochrome";
   q1.rateColorMode = "default";
@@ -1131,7 +1131,7 @@ QUnit.test("rating colors", (assert) => {
 
   q1.scaleColorMode = "monochrome";
   q1.onItemMouseIn(q1.renderedRateItems[1]);
-  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { fill: "rgba(227, 117, 5, 1)", borderColor: "rgba(227, 117, 5, 1)", backgroundColor: "rgba(227, 117, 5, 0.2)" });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { fill: null, borderColor: null, backgroundColor: null });
   q1.onItemMouseOut(q1.renderedRateItems[1]);
 
   assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
@@ -1148,4 +1148,19 @@ QUnit.test("rating colors", (assert) => {
   assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
   assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
   assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+
+  q1.value = null;
+  q1.scaleColorMode = "colored";
+  q1.rateColorMode = "scale";
+  q1.isRequired = true;
+  q1.validate();
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
+
+  document.documentElement.style.setProperty("--sd-rating-bad-color", null);
+  document.documentElement.style.setProperty("--sd-rating-normal-color", null);
+  document.documentElement.style.setProperty("--sd-rating-good-color", null);
+
+  document.documentElement.style.setProperty("--sd-rating-bad-color-light", null);
+  document.documentElement.style.setProperty("--sd-rating-normal-color-light", null);
+  document.documentElement.style.setProperty("--sd-rating-good-color-light", null);
 });

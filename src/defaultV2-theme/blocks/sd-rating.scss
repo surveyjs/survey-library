@@ -125,6 +125,11 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 .sd-rating__item-smiley--error {
   background-color: $red-light;
   border-color: transparent;
+  fill: $foreground-light;
+  
+    &.sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected) {
+      opacity: initial;
+    }
 }
 
 .sd-rating__item-smiley.sd-rating__item-smiley--disabled {
@@ -138,6 +143,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-smiley--allowhover:hover {
   background-color: $background-dark;
+  border-color: $border;
 }
 
 .sd-rating__item-smiley:focus-within {
@@ -158,22 +164,18 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   opacity: 0.25;
 
   &.sd-rating__item-smiley--allowhover:hover {
-    opacity: 0.35;
+    opacity: 0.5;
   }
 }
 
 .sd-rating__item-smiley--rate-colored:not(.sd-rating__item-smiley--selected) {
   &.sd-rating__item-smiley--allowhover:hover {
-      opacity: 0.35;
+      opacity: 0.5;
   }
 }
 
 .sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected):focus-within {
   opacity: 1;
-
-  svg {
-    opacity: 0.25
-  }
 }
 .sd-rating__item-star {
   position: relative;

@@ -61,6 +61,7 @@ body {
   width: 100%;
   font-family: var(--font-family, $font-family);
   background-color: $background-dim;
+  background-repeat: no-repeat;
 
   * {
     scrollbar-width: thin;

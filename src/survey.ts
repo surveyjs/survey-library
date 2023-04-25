@@ -1902,6 +1902,7 @@ export class SurveyModel extends SurveyElementCore
   private updateRenderBackgroundImage(): void {
     this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
   }
+  @property() backgroundImageFit: string;
   /**
    * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
    * @see backgroundImage
@@ -7136,6 +7137,7 @@ Serializer.addClass("survey", [
   },
   "width",
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

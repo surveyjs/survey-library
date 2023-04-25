@@ -7,7 +7,7 @@ import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
 
-export type actionModeType = "large" | "small" | "popup";
+export type actionModeType = "large" | "small" | "popup" | "removed";
 
 /**
  * An action item.
@@ -190,6 +190,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
   public id: string;
+  public removePriority: number;
   @property() iconName: string;
   @property() iconSize: number = 24;
   @property() css?: string
@@ -233,7 +234,7 @@ export abstract class BaseAction extends Base implements IAction {
     return this.cssClassesValue || defaultActionBarCss;
   }
   public get isVisible() {
-    return this.visible && this.mode !== "popup";
+    return this.visible && this.mode !== "popup" && this.mode !== "removed";
   }
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;

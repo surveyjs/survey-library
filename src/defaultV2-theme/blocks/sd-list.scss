@@ -5,6 +5,7 @@
 
 .sd-list__item.sd-list__item {
   padding: 0;
+  min-height: 30px;
   .sd-list__item-body {
     padding-block: calcSize(1.5);
     border-radius: 3px;

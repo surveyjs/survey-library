@@ -225,6 +225,7 @@
   &.sd-panel,
   &.sd-question--paneldynamic {
     border: 1px solid $border-light;
+    border-radius: calc(var(--sjs-corner-radius, 4px) - 4px);
     box-sizing: border-box;
     padding-left: var(--sd-base-padding);
     padding-right: var(--sd-base-padding);

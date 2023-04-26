@@ -24,7 +24,7 @@
   background-clip: padding-box;
   border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: 6px;
+  border-radius: calcCornerRadius(1.5);
   -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   line-break: auto;
@@ -37,7 +37,7 @@
   font-size: calcFontSize(0.875);
   background-color: #f7f7f7;
   border-bottom: 1px solid #ebebeb;
-  border-radius: 5px 5px 0 0;
+  border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
 }
 
 .sv_window_content {

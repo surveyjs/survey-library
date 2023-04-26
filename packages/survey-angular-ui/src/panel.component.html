@@ -1,8 +1,8 @@
 <ng-template #template>
   <div *ngIf="!!model && model.isVisible" [attr.id]="model.id" [class]="model.getContainerCss()" (focusin)="model.focusIn()" #panelContainer>
-    <div *ngIf="model.showErrorsAbovePanel" [element]="model" sv-ng-errors></div>
+    <div *ngIf="model.showErrorsAbovePanel && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div *ngIf="model.hasDescription || model.hasTitle" [element]="model" sv-ng-element-header></div>
-    <div *ngIf="!model.showErrorsAbovePanel" [element]="model" sv-ng-errors></div>
+    <div *ngIf="!model.showErrorsAbovePanel && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div *ngIf="!model.isCollapsed" [style.paddingLeft]="model.innerPaddingLeft" [class]="model.cssClasses.panel.content" [attr.id]="model.contentId">
       <ng-container *ngFor="let row of model.rows; trackBy: trackRowBy">
         <ng-template [component]="{ name: $any(model.survey).getRowWrapperComponentName(row), data: { componentData: $any(model.survey).getRowWrapperComponentData(row) } }">

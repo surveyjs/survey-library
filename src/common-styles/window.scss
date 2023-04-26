@@ -5,7 +5,7 @@
   background-color: cadetblue;
   padding: 1px;
   font-family: var(--font-family, $font-family);
-  font-size: 14px;
+  font-size: calcFontSize(0.875);
   font-style: normal;
   font-weight: 400;
   line-height: 1.42857143;
@@ -34,7 +34,7 @@
 .sv_window_title {
   padding: 8px 14px;
   margin: 0;
-  font-size: 14px;
+  font-size: calcFontSize(0.875);
   background-color: #f7f7f7;
   border-bottom: 1px solid #ebebeb;
   border-radius: 5px 5px 0 0;
@@ -51,7 +51,7 @@
 .sv_window_title a:link,
 .sv_window_title a:visited {
   text-decoration: none;
-  font-size: 14px;
+  font-size: calcFontSize(0.875);
   font-style: normal;
   color: black;
 }

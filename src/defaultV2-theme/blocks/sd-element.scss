@@ -140,6 +140,10 @@
 }
 //complex (panel, paneldynamic, matrixes) styles
 .sd-element--complex {
+  &.sd-element--complex > .sd-question__erbox--above-question {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
   & > .sd-element__header--location-top {
     margin-top: 0;
     &:after {

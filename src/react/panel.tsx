@@ -49,8 +49,9 @@ export class SurveyPanel extends SurveyPanelBase {
         id={this.panelBase.id}
 
       >
+        {this.panelBase.showErrorsAbovePanel ? errors : null}
         {header}
-        {errors}
+        {this.panelBase.showErrorsAbovePanel ? null : errors}
         {content}
       </div>
     );

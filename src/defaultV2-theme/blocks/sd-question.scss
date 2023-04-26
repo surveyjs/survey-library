@@ -126,15 +126,6 @@
   padding-right: 0;
   text-align: left;
 }
-.sd-question--complex {
-  .sd-question__erbox--above-question {
-    margin-top: 0;
-    margin-bottom: calc(var(--sd-base-vertical-padding) - 1 * #{$base-unit});
-    & ~ .sd-question__header--location-top {
-      padding-top: calcSize(1);
-    }
-  }
-}
 
 .sd-question--empty.sd-question--complex {
   & > .sd-question__header--location-top {

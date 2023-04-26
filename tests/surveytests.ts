@@ -4854,6 +4854,7 @@ QUnit.test("Create custom widget from addQuestion", function (assert) {
   });
   if (!Serializer.findClass(cType)) {
     Serializer.addClass(cType, [], undefined, "text");
+    QuestionFactory.Instance.registerCustomQuestion(cType);
   }
   const survey = new SurveyModel();
   const page = survey.addNewPage("p1");
@@ -4862,6 +4863,7 @@ QUnit.test("Create custom widget from addQuestion", function (assert) {
   assert.equal(question.getType(), cType, "type is correct");
   CustomWidgetCollection.Instance.clear();
   Serializer.removeClass(cType);
+  QuestionFactory.Instance.unregisterElement(cType);
 });
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();

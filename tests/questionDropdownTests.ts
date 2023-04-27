@@ -940,6 +940,41 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   }, 550);
 });
 
+QUnit.test("lazy loading + onGetChoiceDisplayValue, selected last item", assert => {
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadPageSize": 30
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    const total = 55;
+    if (options.skip + options.take < total) {
+      options.setItems(getObjectArray(options.skip + 1, options.take), total);
+    } else {
+      options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
+    }
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if (options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)));
+    }
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value, undefined);
+  assert.equal(question.selectedItem, undefined);
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  question.value = 54;
+  assert.equal(question.choices.length, 30);
+  assert.equal(question.value, 54);
+  assert.equal(question.selectedItem.locText.calculatedText, "DisplayText_54");
+});
+
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
   const done = assert.async();
   const json = {

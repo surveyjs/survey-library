@@ -40,6 +40,10 @@ $blue-light: var(--blue-light, rgba(67, 127, 217, 0.1));
 $font-family: var(--font-family);
 $font-size: var(--sjs-font-size, calc(2 * var(--base-unit, 8px)));
 
+$corner-radius: var(--sjs-corner-radius, 4px);
+$panel-corner-radius: var(--sjs-panel-corner-radius, var(--sjs-corner-radius, 4px));
+$editor-corner-radius: var(--sjs-editor-corner-radius, var(--sjs-corner-radius, 4px));
+
 $base-unit: var(--base-unit, 8px);
 
 @function calcSize($multiplier) {
@@ -49,6 +53,11 @@ $base-unit: var(--base-unit, 8px);
 
 @function calcFontSize($multiplier) {
   $result: calc(#{$multiplier} * #{$font-size});
+  @return $result;
+}
+
+@function calcCornerRadius($multiplier) {
+  $result: calc(#{$multiplier} * #{$corner-radius});
   @return $result;
 }
 
@@ -77,5 +86,5 @@ $base-unit: var(--base-unit, 8px);
 
 @mixin borderLight {
   border: calcSize(0.25) solid $border-light;
-  border-radius: 3px;
+  border-radius: calcCornerRadius(1);
 }

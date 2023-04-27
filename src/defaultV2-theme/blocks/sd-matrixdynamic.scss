@@ -42,7 +42,7 @@
     width: calcSize(2);
     border: 1px solid $border;
     box-sizing: border-box;
-    border-radius: 10px;
+    border-radius: calcSize(1.25);
   }
 }
 

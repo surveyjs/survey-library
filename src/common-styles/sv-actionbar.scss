@@ -35,7 +35,7 @@
   padding: calcSize(1);
   box-sizing: border-box;
   border: none;
-  border-radius: 2px;
+  border-radius: calcCornerRadius(0.5);
   background-color: transparent;
   color: $foreground;
   cursor: pointer;
@@ -142,7 +142,7 @@ button.sv-action-bar-item {
   padding: calcSize(1);
   box-sizing: border-box;
   border: none;
-  border-radius: 2px;
+  border-radius: calcCornerRadius(0.5);
   background-color: transparent;
   cursor: pointer;
   line-height: calcSize(3);

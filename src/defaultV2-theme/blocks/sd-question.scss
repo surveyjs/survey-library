@@ -6,7 +6,7 @@
 }
 .sd-question__erbox {
   padding: calcSize(1) calcSize(1.5);
-  border-radius: calcSize(0.5);
+  border-radius: calcCornerRadius(1);
   font-weight: 600;
   line-height: calcSize(2);
   font-size: calcFontSize(0.75);
@@ -20,7 +20,7 @@
   box-sizing: border-box;
 }
 .sd-question__erbox--above-question {
-  border-radius: calcSize(0.5) calcSize(0.5) 0 0;
+  border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
   margin-bottom: calc(var(--sd-base-vertical-padding) - #{$base-unit});
 }
 .sd-question__erbox--below-question {
@@ -30,7 +30,7 @@
   position: relative;
   margin-top: 0;
   bottom: calc(-1 * var(--sd-base-padding));
-  border-radius: 0 0 calcSize(0.5) calcSize(0.5);
+  border-radius: 0 0 calcCornerRadius(1) calcCornerRadius(1);
 }
 .sd-root-modern--mobile .sd-question__erbox--below-question {
   margin-top: calcSize(1);

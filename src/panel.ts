@@ -1756,8 +1756,15 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get cssError(): string {
     return this.getCssError(this.cssClasses);
   }
+  public get showErrorsAbovePanel(): boolean {
+    return this.isDefaultV2Theme;
+  }
   protected getCssError(cssClasses: any): string {
-    const builder = new CssClassBuilder().append(this.cssClasses.error.root);
+    const isDefaultV2Theme = this.isDefaultV2Theme;
+    const builder = new CssClassBuilder()
+      .append(this.cssClasses.error.root)
+      .append(this.cssClasses.error.outsideQuestion, isDefaultV2Theme)
+      .append(this.cssClasses.error.aboveQuestion, isDefaultV2Theme);
     return builder.append("panel-error-root", builder.isEmpty()).toString();
   }
   protected onVisibleChanged() {

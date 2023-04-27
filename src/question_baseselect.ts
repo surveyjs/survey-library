@@ -544,7 +544,26 @@ export class QuestionSelectBase extends Question {
   }
   protected updateSelectedItemValues(): void {
     const IsMultipleValue = this.getIsMultipleValue();
-    const valueArray: Array<any> = IsMultipleValue ? this.value : [this.value];
+    if(IsMultipleValue) {
+      this.updateMultipleSelectedItemValues();
+    } else {
+      this.updateSingleSelectedItemValues();
+    }
+  }
+  protected updateSingleSelectedItemValues(): void {
+    if (!!this.survey && !this.isEmpty() && !ItemValue.getItemByValue(this.choices, this.value)) {
+      this.survey.getChoiceDisplayValue({
+        question: this,
+        values: [this.value],
+        setItems: (displayValues: Array<string>) => {
+          if (!displayValues || !displayValues.length) return;
+          this.selectedItemValues = this.createItemValue(this.value, displayValues[0]);
+        }
+      });
+    }
+  }
+  protected updateMultipleSelectedItemValues(): void {
+    const valueArray: Array<any> = this.value;
     const hasItemWithValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
 
     if (!!this.survey && !this.isEmpty() && hasItemWithValues) {
@@ -553,12 +572,7 @@ export class QuestionSelectBase extends Question {
         values: valueArray,
         setItems: (displayValues: Array<string>) => {
           if (!displayValues || !displayValues.length) return;
-
-          if (IsMultipleValue) {
-            this.selectedItemValues = displayValues.map((displayValue, index) => this.createItemValue(this.value[index], displayValue));
-          } else {
-            this.selectedItemValues = this.createItemValue(this.value, displayValues[0]);
-          }
+          this.selectedItemValues = displayValues.map((displayValue, index) => this.createItemValue(this.value[index], displayValue));
         }
       });
     }

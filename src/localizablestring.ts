@@ -344,9 +344,7 @@ export class LocalizableString implements ILocalizableString {
   }
   private deleteValue(loc: string) {
     if (!!this.sharedData) this.sharedData.deleteValue(loc);
-    else {
-      delete (<any>this).values[this.getValueLoc(loc)];
-    }
+    else delete (<any>this).values[this.getValueLoc(loc)];
   }
   private getValueLoc(loc: string): string {
     if(this.disableLocalization) return settings.defaultLocaleName;

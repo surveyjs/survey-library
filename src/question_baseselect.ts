@@ -13,7 +13,6 @@ import { Helpers, HashTable } from "./helpers";
 import { settings } from "./settings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { mergeValues } from "./utils/utils";
-import { IAction } from "./entries/core-wo-model";
 
 /**
  * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
@@ -545,7 +544,7 @@ export class QuestionSelectBase extends Question {
   }
   protected updateSelectedItemValues(): void {
     const IsMultipleValue = this.getIsMultipleValue();
-    const valueArray: Array<IAction> = IsMultipleValue ? this.value : [this.value];
+    const valueArray: Array<any> = IsMultipleValue ? this.value : [this.value];
     const hasItemWithValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
 
     if (!!this.survey && !this.isEmpty() && hasItemWithValues) {

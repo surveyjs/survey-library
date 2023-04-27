@@ -4,7 +4,6 @@ import { IElement } from "./base-interfaces";
 import { surveyLocalization } from "./surveyStrings";
 import { Serializer } from "./jsonobject";
 
-//TODO replace completely with ElementFactory
 export class QuestionFactory {
   public static Instance: QuestionFactory = new QuestionFactory();
   public static get DefaultChoices(): string[] {
@@ -26,19 +25,49 @@ export class QuestionFactory {
     var itemName = surveyLocalization.getString("multipletext_itemname");
     return [itemName + "1", itemName + "2"];
   }
-  private creatorHash: HashTable<(name: string) => Question> = {};
+  public registerQuestion(questionType: string, questionCreator: (name: string) => Question): void {
+    ElementFactory.Instance.registerElement(questionType, questionCreator);
+  }
+  public registerCustomQuestion(questionType: string) : void {
+    ElementFactory.Instance.registerCustomQuestion(questionType);
+  }
+  public unregisterElement(elementType: string, removeFromSerializer: boolean = false): void {
+    ElementFactory.Instance.unregisterElement(elementType, removeFromSerializer);
+  }
+  public clear(): void {
+    ElementFactory.Instance.clear();
+  }
+  public getAllTypes(): Array<string> {
+    return ElementFactory.Instance.getAllTypes();
+  }
+  public createQuestion(questionType: string, name: string): Question {
+    return <Question>ElementFactory.Instance.createElement(questionType, name);
+  }
+}
 
-  public registerQuestion(
-    questionType: string,
-    questionCreator: (name: string) => Question
-  ) {
-    this.creatorHash[questionType] = questionCreator;
+export class ElementFactory {
+  public static Instance: ElementFactory = new ElementFactory();
+  private creatorHash: HashTable<(name: string) => IElement> = {};
+
+  public registerElement(elementType: string, elementCreator: (name: string) => IElement): void {
+    this.creatorHash[elementType] = elementCreator;
   }
-  public unregisterElement(elementType: string) {
-    delete this.creatorHash[elementType];
+  public registerCustomQuestion(questionType: string) : void {
+    const creator = (name: string): Question => {
+      const el = Serializer.createClass(questionType);
+      if(!!el) el.name = name;
+      return el;
+    };
+    this.registerElement(questionType, creator);
   }
-  public clear() {
+  public clear(): void {
     this.creatorHash = {};
+  }
+  public unregisterElement(elementType: string, removeFromSerializer: boolean = false): void {
+    delete this.creatorHash[elementType];
+    if (removeFromSerializer) {
+      Serializer.removeClass(elementType);
+    }
   }
   public getAllTypes(): Array<string> {
     var result = new Array<string>();
@@ -47,47 +76,9 @@ export class QuestionFactory {
     }
     return result.sort();
   }
-  public createQuestion(questionType: string, name: string): Question {
-    var creator = this.creatorHash[questionType];
-    if (creator == null) return null;
-    return creator(name);
-  }
-}
-
-export class ElementFactory {
-  public static Instance: ElementFactory = new ElementFactory();
-  private creatorHash: HashTable<(name: string) => IElement> = {};
-
-  public registerElement(
-    elementType: string,
-    elementCreator: (name: string) => IElement
-  ) {
-    this.creatorHash[elementType] = elementCreator;
-  }
-  public clear() {
-    this.creatorHash = {};
-  }
-  public unregisterElement(
-    elementType: string,
-    removeFromSerializer: boolean = false
-  ) {
-    delete this.creatorHash[elementType];
-    QuestionFactory.Instance.unregisterElement(elementType);
-    if (removeFromSerializer) {
-      Serializer.removeClass(elementType);
-    }
-  }
-  public getAllTypes(): Array<string> {
-    var result = QuestionFactory.Instance.getAllTypes();
-    for (var key in this.creatorHash) {
-      result.push(key);
-    }
-    return result.sort();
-  }
   public createElement(elementType: string, name: string): IElement {
     var creator = this.creatorHash[elementType];
-    if (creator == null)
-      return QuestionFactory.Instance.createQuestion(elementType, name);
-    return creator(name);
+    if (!!creator) return creator(name);
+    return null;
   }
 }

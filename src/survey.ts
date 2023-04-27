@@ -5180,7 +5180,7 @@ export class SurveyModel extends SurveyElementCore
       values[name] = this.getValue(name);
     }
     this.addCalculatedValuesIntoFilteredValues(values);
-    this.checkTriggers(values, true);
+    this.checkTriggers(values, true, isOnComplete);
   }
   private getCurrentPageQuestions(
     includeInvsible: boolean = false

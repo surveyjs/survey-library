@@ -239,7 +239,7 @@ QUnit.test("Edit survey title property with isLocalizable=false", function (asse
   assert.equal(editableSurvey.title, "default-value", "editableSurvey.title loaded correctly");
   assert.deepEqual(editableSurvey.locTitle.getJson(), "default-value", "editableSurvey.locTitle.getJson()");
   assert.equal(editableSurvey.locTitle.text, "default-value", "editableSurvey.locTitle.text");
-  //assert.equal(Serializer.getObjPropertyValue(this.editingObj, "title"), "default-value", "Serializer.getObjPropertyValue");
+  assert.equal(Serializer.getObjPropertyValue(editableSurvey, "title"), "default-value", "Serializer.getObjPropertyValue");
   const question = survey.getQuestionByName("title");
   assert.equal(question.value, "default-value", "editor has correct value");
 

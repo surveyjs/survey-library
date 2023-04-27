@@ -782,14 +782,31 @@ QUnit.test("Do not reset values in any locale on changing the default", function
 QUnit.test("Support disableLocalization", function(assert) {
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner, true);
+  let oldStr, newStr;
+  locString.onStrChanged = (oldValue: string, newValue: string) => {
+    oldStr = oldValue;
+    newStr = newValue;
+  };
   locString.disableLocalization = true;
   locString.text = "default";
+  assert.notOk(oldStr, "onStrChanged, oldStr #1");
+  assert.equal(newStr, "default", "onStrChanged, newStr #1");
   locString.setLocaleText("de", "default-de");
+  assert.equal(oldStr, "default", "onStrChanged, oldStr #2");
+  assert.equal(newStr, "default-de", "onStrChanged, newStr #2");
   locString.setLocaleText("it", "default-it");
+  assert.equal(oldStr, "default-de", "onStrChanged, oldStr #3");
+  assert.equal(newStr, "default-it", "onStrChanged, newStr #3");
   assert.equal(locString.getJson(), "default-it", "#1");
   locString.text = "default-de";
   assert.deepEqual(locString.getJson(), "default-de", "#2");
+  assert.equal(oldStr, "default-it", "onStrChanged, oldStr #3");
+  assert.equal(newStr, "default-de", "onStrChanged, newStr #3");
   owner.locale = "fr";
+  assert.equal(locString.text, "default-de", "check text on changing locale");
   locString.text = "default-fr";
   assert.deepEqual(locString.getJson(), "default-fr", "#3");
+  assert.equal(newStr, "default-fr", "onStrChanged, newStr #4");
+  locString.setJson("default-2");
+  assert.deepEqual(locString.getJson(), "default-2", "#4");
 });

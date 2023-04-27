@@ -101,7 +101,7 @@ export class LocalizableString implements ILocalizableString {
     if (this.onGetTextCallback) res = this.onGetTextCallback(res);
     return res;
   }
-  public get pureText() {
+  public get pureText(): string {
     var loc = this.locale;
     if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);
@@ -167,9 +167,7 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   public setLocaleText(loc: string, value: string): void {
-    if(this.disableLocalization) {
-      loc = settings.defaultLocaleName;
-    }
+    loc = this.getValueLoc(loc);
     if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
       if(!!value || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;
@@ -243,7 +241,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public getJson(): any {
     if (!!this.sharedData) return this.sharedData.getJson();
-    var keys = this.getValuesKeys();
+    const keys = this.getValuesKeys();
     if (keys.length == 0) return null;
     if (
       keys.length == 1 &&
@@ -338,15 +336,21 @@ export class LocalizableString implements ILocalizableString {
   }
   private getValue(loc: string): string {
     if (!!this.sharedData) return this.sharedData.getValue(loc);
-    return (<any>this).values[loc];
+    return (<any>this).values[this.getValueLoc(loc)];
   }
   private setValue(loc: string, value: string) {
     if (!!this.sharedData) this.sharedData.setValue(loc, value);
-    else (<any>this).values[loc] = value;
+    else (<any>this).values[this.getValueLoc(loc)] = value;
   }
   private deleteValue(loc: string) {
     if (!!this.sharedData) this.sharedData.deleteValue(loc);
-    else delete (<any>this).values[loc];
+    else {
+      delete (<any>this).values[this.getValueLoc(loc)];
+    }
+  }
+  private getValueLoc(loc: string): string {
+    if(this.disableLocalization) return settings.defaultLocaleName;
+    return loc;
   }
   private getValuesKeys(): string[] {
     if (!!this.sharedData) return this.sharedData.getValuesKeys();

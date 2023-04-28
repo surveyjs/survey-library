@@ -219,6 +219,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): any;
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
+  onCorrectQuestionAnswer(question: IQuestion, options: any): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;

@@ -4033,6 +4033,26 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
 
+QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q1",
+        choices: [
+          { value: 1, imageLink: "test1" },
+          { value: 2, imageLink: "test2" },
+          { value: 3, imageLink: "test3" }]
+      },
+      { type: "imagepicker", name: "q2", choicesFromQuestion: "q1",
+        choices: [{ value: 4, imageLink: "test4" }], }
+    ]
+  });
+  const q2 = <QuestionImagePickerModel>survey.getQuestionByName("q2");
+  const choices = q2.visibleChoices;
+  assert.equal(choices.length, 3, "There are 3 values");
+  assert.equal(choices[0].getType(), "imageitemvalue", "choice item type is correct");
+  assert.equal(choices[0].imageLink, "test1", "image link is copied");
+});
+
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);
@@ -4446,6 +4466,7 @@ QUnit.test(
   "QuestionRating reset highlight on click",
   function (assert) {
     var question = new QuestionRatingModel("q");
+    question.rateDisplayMode = "stars";
     question.onItemMouseIn(question.renderedRateItems[2]);
     assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
     question.setValueFromClick("3");
@@ -5822,6 +5843,25 @@ QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert.equal(q1.visibleChoices[1].value, "item3", "bbb in fr locale");
   assert.equal(q1.visibleChoices[2].value, "item1", "ccc in fr locale");
 });
+QUnit.test("Sorting with numbers in the beginning, bug #6062", function (
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["1. bc", "12. cd", "7. k"],
+        choicesOrder: "asc",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices[0].value, "1. bc", "1. bc - 0");
+  assert.equal(q1.visibleChoices[1].value, "7. k", "7. k  - 1");
+  assert.equal(q1.visibleChoices[2].value, "12. cd", "12. - 2");
+});
 QUnit.test(
   "boolean question default value is not assign into readOnly question, bug #",
   function (assert) {
@@ -6330,6 +6370,7 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   q1.inputType = "range";
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "datetime";
+  assert.equal(q1.inputType, "datetime-local", "We do not have datetime value");
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "tel";
   assert.equal(q1.isMinMaxType, false);
@@ -6517,7 +6558,7 @@ QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function
   });
   assert.equal(cellLocStr.textOrHtml, "!!text");
 });
-QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputtype, Bug#5296", function (
+QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime-local' inputtype, Bug#5296", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -6537,10 +6578,12 @@ QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputty
   const d = new Date();
   let prefix = d.getFullYear() + "-";
   const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q1");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime has year");
-  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.inputType, "datetime-local", "inputType is correct");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime-local has time");
+  assert.equal(q2.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q2.displayValue.indexOf(":") < 0, true, "date has no time");
 });
 QUnit.test("Supporting showCommentArea property, Bug#5479", function (
   assert

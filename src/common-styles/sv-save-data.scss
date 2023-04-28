@@ -8,14 +8,14 @@
   opacity: 0;
   padding: calcSize(3) calcSize(6);
   box-shadow: 0px 2px 6px $shadow-medium;
-  border-radius: calcSize(1);
+  border-radius: calcCornerRadius(2);
   color: $foreground;
   min-width: calcSize(30);
   text-align: center;
   z-index: 1600; //todo: should overlap popup
 
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
 
   display: flex;
@@ -65,13 +65,13 @@
 
 .sv-save-data_root.sv-save-data_error .sv-save-data_button {
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   height: calcSize(5);
   color: #ffffff;
   background-color: $red;
   border: calcSize(0.25) solid #ffffff;
-  border-radius: calcSize(0.75);
+  border-radius: calcCornerRadius(1.5);
   padding: calcSize(1) calcSize(3);
   display: flex;
   align-items: center;

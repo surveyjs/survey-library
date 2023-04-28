@@ -21,6 +21,7 @@ import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { SurveyModel } from "./survey";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -788,6 +789,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return !this.isDesignMode && this.isDefaultV2Theme;
   }
 
+  protected get isCompact(): boolean {
+    return this.survey && (<SurveyModel>this.survey)["isCompact"];
+  }
+
   protected getHasFrameV2() : boolean {
     return this.shouldAddRunnerStyles() && (!this.hasParent && this.isSingleInRow);
   }
@@ -796,7 +801,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
-      .append(cssClasses.withFrame, this.getHasFrameV2())
+      .append(cssClasses.withFrame, this.getHasFrameV2() && !this.isCompact)
+      .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
       .append(cssClasses.collapsed, !!this.isCollapsed)
       .append(cssClasses.expanded, !!this.isExpanded)
       .append(cssClasses.nested, this.getIsNested())
@@ -895,6 +901,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   set paddingRight(val: string) {
     this.setPropertyValue("paddingRight", val);
+  }
+  public get isDescriptionVisible(): boolean {
+    return (!!this.description || this.isDesignMode);
   }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;

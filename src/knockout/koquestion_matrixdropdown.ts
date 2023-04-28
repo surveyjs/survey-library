@@ -65,6 +65,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
       const el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
       const cell = <QuestionMatrixDropdownRenderedCell>con;
+      if(!cell || !this.question || !this.question.survey || this.question.isDisposed) return;
       const options = {
         cell: cell.cell,
         cellQuestion: cell.question,
@@ -76,22 +77,25 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     }, 0);
   }
   private cellQuestionAfterRender(elements: any, con: any) {
-    if (!this.question.survey) return;
+    if (!this.question || !this.question.survey) return;
     setTimeout(() => {
       !!ko.tasks && ko.tasks.runEarly();
       const el = SurveyElement.GetFirstNonTextElement(elements);
       if (!el) return;
       const cell = <QuestionMatrixDropdownRenderedCell>con;
-      if (cell.question.customWidget) {
-        cell.question.customWidget.afterRender(cell.question, el);
+      if(!cell) return;
+      const question = cell.question;
+      if(!question || !question.survey || question.isDisposed) return;
+      if (question.customWidget) {
+        question.customWidget.afterRender(cell.question, el);
         ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
-          cell.question.customWidget.willUnmount(cell.question, el);
+          question.customWidget.willUnmount(cell.question, el);
         });
       }
       ko.utils.domNodeDisposal.addDisposeCallback(el, () => {
-        cell.question.beforeDestroyQuestionElement(el);
+        question.beforeDestroyQuestionElement(el);
       });
-      cell.question.afterRenderQuestionElement(el);
+      question.afterRenderQuestionElement(el);
     }, 0);
   }
   protected isAddRowTop(): boolean {

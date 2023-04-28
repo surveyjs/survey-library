@@ -141,6 +141,11 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if(this.choicesLazyLoadEnabled) { return false; }
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
+  protected needConvertRenderedOtherToDataValue(): boolean {
+    const val = this.otherValue?.trim();
+    if(!val) return false;
+    return super.hasUnknownValue(val, true, false);
+  }
 
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
@@ -186,6 +191,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
     }
+  }
+  public clearValue(): void {
+    super.clearValue();
+    this.dropdownListModel.clear();
   }
 }
 

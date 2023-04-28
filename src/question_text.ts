@@ -57,7 +57,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set inputType(val: string) {
     val = val.toLowerCase();
-    if (val == "datetime_local") val = "datetime-local";
+    if (val === "datetime_local" || val === "datetime") val = "datetime-local";
     this.setPropertyValue("inputType", val.toLowerCase());
     if (!this.isLoadingFromJson) {
       this.min = undefined;
@@ -268,8 +268,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return isValid;
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
-    let inpuType = this.inputType.replace("-local", "");
-    return Helpers.convertValToQuestionVal(val, inpuType);
+    return Helpers.convertValToQuestionVal(val, this.inputType);
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;
@@ -348,10 +347,10 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.step;
   }
   supportGoNextPageAutomatic() {
-    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
+    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
-    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
+    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   /**
    * An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
@@ -457,7 +456,6 @@ const minMaxTypes = [
   "number",
   "range",
   "date",
-  "datetime",
   "datetime-local",
   "month",
   "time",

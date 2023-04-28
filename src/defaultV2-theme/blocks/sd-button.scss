@@ -7,13 +7,13 @@
   padding: calcSize(2) calcSize(6);
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;
-  border-radius: calcSize(0.5);
+  border-radius: calcCornerRadius(1);
   cursor: pointer;
 
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   text-align: center;
   color: $primary;

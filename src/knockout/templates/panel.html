@@ -3,10 +3,16 @@
   <div
     data-bind="attr: { id: id }, css: $data.getContainerCss(), event: {focusin: focusIn}"
   >
+    <!-- ko if: showErrorsAbovePanel-->
+      <!-- ko template: { name: 'survey-question-errors', data: $data } -->
+      <!-- /ko -->
+    <!-- /ko -->
     <!-- ko if: hasDescription || hasTitle  -->
         <!--ko template: { name: 'survey-question-title', data: $data  } --><!-- /ko -->
     <!-- /ko -->
-    <!-- ko template: { name: 'survey-question-errors', data: $data } -->
+    <!-- ko ifnot: showErrorsAbovePanel-->
+      <!-- ko template: { name: 'survey-question-errors', data: $data } -->
+      <!-- /ko -->
     <!-- /ko -->
     <!-- ko if: state != "collapsed" -->
     <div

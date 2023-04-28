@@ -21,7 +21,7 @@
   .sv-list__item-body {
     padding-inline-start: 16px;
     padding-inline-end: 16px;
-    border-radius: 3px;
+    border-radius: calcCornerRadius(1);
     padding-top: 12px;
     padding-bottom: 12px;
   }

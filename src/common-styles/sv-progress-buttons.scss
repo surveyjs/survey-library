@@ -17,7 +17,7 @@
   display: inline-block;
   vertical-align: top;
   margin-top: 22px;
-  font-size: 14px;
+  font-size: calcFontSize(0.875);
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -28,7 +28,7 @@
   display: inline-block;
   vertical-align: top;
   margin-top: 22px;
-  font-size: 14px;
+  font-size: calcFontSize(0.875);
   width: 16px;
   height: 16px;
   cursor: pointer;
@@ -56,7 +56,7 @@
 
 .sv_progress-buttons__list li {
   width: 138px;
-  font-size: 14px;
+  font-size: calcFontSize(0.875);
   font-family: var(--font-family, $font-family);
   position: relative;
   text-align: center;

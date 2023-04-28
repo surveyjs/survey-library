@@ -103,8 +103,10 @@ export class QuestionSelectBase extends Question {
   protected getItemValueType(): string {
     return "itemvalue";
   }
-  public createItemValue(value: any): ItemValue {
-    return Serializer.createClass(this.getItemValueType(), value);
+  public createItemValue(value: any, text?: string): ItemValue {
+    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
+    if(!!text) res.text = text;
+    return res;
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.otherValue;
@@ -330,7 +332,7 @@ export class QuestionSelectBase extends Question {
     if(!itemValue && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
-    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : new ItemValue(this.value));
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.createItemValue(this.value));
   }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
   private setConditionalChoicesRunner() {
@@ -541,20 +543,36 @@ export class QuestionSelectBase extends Question {
     return this.hasUnknownValue(val, true, false);
   }
   protected updateSelectedItemValues(): void {
-    if (!!this.survey && !this.isEmpty() && this.choices.length === 0) {
-      const IsMultipleValue = this.getIsMultipleValue();
-
+    const IsMultipleValue = this.getIsMultipleValue();
+    if(IsMultipleValue) {
+      this.updateMultipleSelectedItemValues();
+    } else {
+      this.updateSingleSelectedItemValues();
+    }
+  }
+  protected updateSingleSelectedItemValues(): void {
+    if (!!this.survey && !this.isEmpty() && !ItemValue.getItemByValue(this.choices, this.value)) {
       this.survey.getChoiceDisplayValue({
         question: this,
-        values: IsMultipleValue ? this.value : [this.value],
+        values: [this.value],
         setItems: (displayValues: Array<string>) => {
           if (!displayValues || !displayValues.length) return;
+          this.selectedItemValues = this.createItemValue(this.value, displayValues[0]);
+        }
+      });
+    }
+  }
+  protected updateMultipleSelectedItemValues(): void {
+    const valueArray: Array<any> = this.value;
+    const hasItemWithValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
 
-          if (IsMultipleValue) {
-            this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
-          } else {
-            this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
-          }
+    if (!!this.survey && !this.isEmpty() && hasItemWithValues) {
+      this.survey.getChoiceDisplayValue({
+        question: this,
+        values: valueArray,
+        setItems: (displayValues: Array<string>) => {
+          if (!displayValues || !displayValues.length) return;
+          this.selectedItemValues = displayValues.map((displayValue, index) => this.createItemValue(this.value[index], displayValue));
         }
       });
     }
@@ -832,7 +850,7 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (isAddAll) {
       if (!this.newItemValue) {
-        this.newItemValue = new ItemValue("newitem"); //TODO
+        this.newItemValue = this.createItemValue("newitem"); //TODO
       }
       if (this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
@@ -979,12 +997,14 @@ export class QuestionSelectBase extends Question {
       }
     }
     if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
-      res.push(new ItemValue(question.otherItem.value, question.comment));
+      res.push(this.createItemValue(question.otherItem.value, question.comment));
     }
     return res;
   }
   private copyChoiceItem(item: ItemValue): ItemValue {
-    return new ItemValue(item.value, item.text);
+    const res = this.createItemValue(item.value);
+    res.setData(item);
+    return res;
   }
   protected get hasActiveChoices(): boolean {
     var choices = this.visibleChoices;
@@ -1295,9 +1315,7 @@ export class QuestionSelectBase extends Question {
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function (a, b) {
-      if (a.calculatedText < b.calculatedText) return -1 * mult;
-      if (a.calculatedText > b.calculatedText) return 1 * mult;
-      return 0;
+      return Helpers.compareStrings(a.calculatedText, b.calculatedText) * mult;
     });
   }
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {

@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, setOptions, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest } from "../../helper";
 
 const title = "Boolean Screenshot";
 
@@ -19,6 +19,40 @@ frameworks.forEach(framework => {
     await explicitErrorHandler();
     await applyTheme(theme);
   });
+
+  test("Check boolean question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "boolean",
+            name: "boolean_question",
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question--boolean");
+      await t.wait(1000);
+      await takeElementScreenshot("boolean-question-indeterminate.png", questionRoot, t, comparer);
+
+      await t.hover(".sd-boolean__thumb-ghost");
+      await takeElementScreenshot("boolean-question-indeterminate-hovered.png", questionRoot, t, comparer);
+
+      await t.click(Selector(".sv-string-viewer").withText("No"));
+      await takeElementScreenshot("boolean-question-clicked.png", questionRoot, t, comparer);
+
+      await t.hover(Selector(".sd-boolean__thumb-ghost").nth(1));
+      await takeElementScreenshot("boolean-question-clicked-hovered.png", questionRoot, t, comparer);
+
+      await t.hover(".sd-boolean__thumb-ghost");
+      await setOptions("boolean_question", { readOnly: true });
+      await takeElementScreenshot("boolean-question-clicked-disabled.png", questionRoot, t, comparer);
+
+      await setOptions("boolean_question", { value: null });
+      await takeElementScreenshot("boolean-question-disabled.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check radio boolean question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

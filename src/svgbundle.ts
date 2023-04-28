@@ -7,7 +7,6 @@ class SvgIconData {
 export class SvgIconRegistry {
   icons: SvgIconData = {};
   private iconPrefix = "icon-";
-  private environment: ISurveyEnvironment = settings.environment;
 
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {
     this.icons[iconId] = iconSymbolSvg;
@@ -55,13 +54,13 @@ export class SvgIconRegistry {
   }
   public renderIcons() {
     const containerId = "sv-icon-holder-global-container";
-    if(!this.environment.root.getElementById(containerId)) {
+    if(!settings.environment.root.getElementById(containerId)) {
       let iconsDiv = document.createElement("div");
       iconsDiv.id = containerId;
       iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";
       iconsDiv.style.display = "none";
 
-      getElement(this.environment.svgMountContainer).appendChild(iconsDiv);
+      getElement(settings.environment.svgMountContainer).appendChild(iconsDiv);
     }
   }
 }

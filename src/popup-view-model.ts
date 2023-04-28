@@ -23,7 +23,6 @@ export class PopupBaseViewModel extends Base {
 
   public container: HTMLElement;
   private createdContainer: HTMLElement;
-  private environment: ISurveyEnvironment = settings.environment
 
   public getLocale(): string {
     if(!!this.locale) return this.locale;
@@ -153,12 +152,12 @@ export class PopupBaseViewModel extends Base {
     const firstFocusableElement = focusableElements[0];
     const lastFocusableElement = focusableElements[focusableElements.length - 1];
     if (event.shiftKey) {
-      if (this.environment.root.activeElement === firstFocusableElement) {
+      if (settings.environment.root.activeElement === firstFocusableElement) {
         (<HTMLElement>lastFocusableElement).focus();
         event.preventDefault();
       }
     } else {
-      if (this.environment.root.activeElement === lastFocusableElement) {
+      if (settings.environment.root.activeElement === lastFocusableElement) {
         (<HTMLElement>firstFocusableElement).focus();
         event.preventDefault();
       }
@@ -172,7 +171,7 @@ export class PopupBaseViewModel extends Base {
   }
 
   public updateOnShowing(): void {
-    this.prevActiveElement = <HTMLElement>this.environment.root.activeElement;
+    this.prevActiveElement = <HTMLElement>settings.environment.root.activeElement;
 
     if (this.isOverlay) {
       this.resetDimensionsAndPositionStyleProperties();
@@ -215,7 +214,7 @@ export class PopupBaseViewModel extends Base {
       this.container = this.createdContainer = container;
     }
 
-    getElement(this.environment.popupMountContainer).appendChild(this.container);
+    getElement(settings.environment.popupMountContainer).appendChild(this.container);
   }
 
   public unmountPopupContainer(): void {

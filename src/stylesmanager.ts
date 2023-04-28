@@ -1,6 +1,6 @@
 import { surveyCss } from "./defaultCss/defaultV2Css";
 import { settings, ISurveyEnvironment } from "./settings";
-import { getElement, Logger } from "./utils/utils";
+import { getElement, isShadowDOM, Logger } from "./utils/utils";
 
 export const modernThemeColors: { [key: string]: string } = {
   "$main-color": "#1ab394",
@@ -285,7 +285,7 @@ export class StylesManager {
     const { rootElement }: ISurveyEnvironment = settings.environment;
     const themeMapper = StylesManager.getAvailableThemes();
 
-    const element = "host" in rootElement ? rootElement.host : rootElement;
+    const element = isShadowDOM(rootElement) ? rootElement.host : rootElement;
 
     if (!!element) {
       const styles = getComputedStyle(element);
@@ -325,7 +325,7 @@ export class StylesManager {
 
   public static applyTheme(themeName: string = "default", themeSelector?: string): void {
     const { rootElement }: ISurveyEnvironment = settings.environment;
-    const element = "host" in rootElement ? rootElement.host : rootElement;
+    const element = isShadowDOM(rootElement) ? rootElement.host : rootElement;
     surveyCss.currentType = themeName;
 
     if (StylesManager.Enabled) {

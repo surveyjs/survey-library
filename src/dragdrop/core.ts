@@ -2,7 +2,7 @@ import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
 import { IShortcutText, ISurvey } from "../base-interfaces";
 import { property } from "../jsonobject";
-import { findScrollableParent } from "../utils/utils";
+import { findScrollableParent, isShadowDOM } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { settings, ISurveyEnvironment } from "../settings";
 
@@ -57,7 +57,6 @@ export abstract class DragDropCore<T> extends Base {
   public prevDropTarget: any = null;
   protected draggedElementShortcut: any = null;
   private scrollIntervalId: number = null;
-  private environment: ISurveyEnvironment = settings.environment;
   protected allowDropHere = false;
 
   constructor(private surveyValue?: ISurvey, private creator?: any, private longTap?: boolean) {
@@ -124,7 +123,7 @@ export abstract class DragDropCore<T> extends Base {
           clip: rect(1px 1px 1px 1px);
           clip: rect(1px, 1px, 1px, 1px);
         `;
-        this.environment.rootElement.appendChild(this.savedTargetNode);
+        settings.environment.rootElement.appendChild(this.savedTargetNode);
       }
 
       this.stopLongTap();
@@ -314,12 +313,8 @@ export abstract class DragDropCore<T> extends Base {
       shortcutYOffset = shortcutHeight / 2;
     }
 
-    const documentBottom = "clientHeight" in this.environment.rootElement
-      ? this.environment.rootElement.clientHeight
-      : this.environment.rootElement.host.clientHeight;
-    const documentRight = "clientWidth" in this.environment.rootElement
-      ? this.environment.rootElement.clientWidth
-      : this.environment.rootElement.host.clientWidth;
+    const documentBottom = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientHeight;
+    const documentRight = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientWidth;
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(event.clientY, shortcutHeight, shortcutYOffset);
     const shortcutRightCoordinate = this.getShortcutRightCoordinate(event.clientX, shortcutWidth, shortcutXOffset);
 
@@ -509,7 +504,7 @@ export abstract class DragDropCore<T> extends Base {
     if (IsTouch) {
       this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
     }
-    this.environment.rootElement.removeChild(this.draggedElementShortcut);
+    settings.environment.rootElement.removeChild(this.draggedElementShortcut);
 
     this.doClear();
 
@@ -522,7 +517,7 @@ export abstract class DragDropCore<T> extends Base {
     this.scrollIntervalId = null;
 
     if (IsTouch) {
-      this.savedTargetNode && this.environment.rootElement.removeChild(this.savedTargetNode);
+      this.savedTargetNode && settings.environment.rootElement.removeChild(this.savedTargetNode);
       DragDropCore.PreventScrolling = false;
     }
     document.body.style.setProperty("touch-action", "");

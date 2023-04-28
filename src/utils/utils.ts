@@ -70,8 +70,8 @@ function isMobile() {
   );
 }
 
-const isShadowDOM = (root: Document | ShadowRoot): root is ShadowRoot => {
-  return !!("host" in root && root.host);
+const isShadowDOM = (rootElement: Document | ShadowRoot | HTMLElement): rootElement is ShadowRoot => {
+  return !!rootElement && !!("host" in rootElement && rootElement.host);
 };
 
 const getElement = (element: HTMLElement | string): HTMLElement => {

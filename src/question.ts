@@ -76,7 +76,6 @@ export class Question extends SurveyElement<Question>
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
-  private environment: ISurveyEnvironment = settings.environment
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -693,7 +692,7 @@ export class Question extends SurveyElement<Question>
     if (this.supportComment() || this.supportOther()) {
       this.commentElements = [];
       this.getCommentElementsId().forEach(id => {
-        const { root } = this.environment;
+        const { root } = settings.environment;
         let el = root.getElementById(id);
         if(el) this.commentElements.push(el);
       });

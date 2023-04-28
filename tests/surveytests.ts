@@ -16862,3 +16862,30 @@ QUnit.test("check title classes when readOnly changed", function (assert) {
   question.readOnly = false;
   assert.notOk(question.cssTitle.includes(customDisabledClass));
 });
+QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage() is called", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+      {
+        "type": "text",
+        "name": "question2"
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} = 1"
+      }
+    ]
+  });
+  let counter = 0;
+  survey.onComplete.add((sender, options) => {
+    counter ++;
+  });
+  survey.setValue("question1", 1);
+  survey.completeLastPage();
+  assert.equal(counter, 1, "onComplete called one time");
+});

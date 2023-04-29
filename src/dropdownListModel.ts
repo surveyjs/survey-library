@@ -372,7 +372,7 @@ export class DropdownListModel extends Base {
     if (this.question.value && !this.listModel.filterString && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     }
-    else if (this.question instanceof QuestionDropdownModel || !this.listModel.focusedItem.selected) {
+    else if (this.question instanceof QuestionDropdownModel || !this.listModel.focusedItem?.selected) {
       this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     } else {
       this.hintString = "";

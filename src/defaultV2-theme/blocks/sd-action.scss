@@ -8,7 +8,7 @@
   font-weight: 600;
   font-family: var(--font-family, $font-family);
   font-style: normal;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   outline: none;
 }

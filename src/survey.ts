@@ -1859,6 +1859,16 @@ export class SurveyModel extends SurveyElementCore
   private get isMobile() {
     return this._isMobile;
   }
+  @property() private _isCompact: boolean = false;
+  private set isCompact(newVal: boolean) {
+    if(newVal !== this._isCompact) {
+      this._isCompact = newVal;
+      this.updateElementCss();
+    }
+  }
+  private get isCompact() {
+    return this._isCompact;
+  }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
@@ -1892,6 +1902,7 @@ export class SurveyModel extends SurveyElementCore
   private updateRenderBackgroundImage(): void {
     this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
   }
+  @property() backgroundImageFit: string;
   /**
    * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
    * @see backgroundImage
@@ -5169,7 +5180,7 @@ export class SurveyModel extends SurveyElementCore
       values[name] = this.getValue(name);
     }
     this.addCalculatedValuesIntoFilteredValues(values);
-    this.checkTriggers(values, true);
+    this.checkTriggers(values, true, isOnComplete);
   }
   private getCurrentPageQuestions(
     includeInvsible: boolean = false
@@ -6296,6 +6307,11 @@ export class SurveyModel extends SurveyElementCore
   public getInCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
   }
+  onCorrectQuestionAnswer(question: IQuestion, options: any): void {
+    if(this.onIsAnswerCorrect.isEmpty) return;
+    options.question = question;
+    this.onIsAnswerCorrect.fire(this, options);
+  }
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();
     var counter = 0;
@@ -7121,6 +7137,7 @@ Serializer.addClass("survey", [
   },
   "width",
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

@@ -2,7 +2,13 @@
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: normal;
+  font-size: calcFontSize(1);
+  line-height: calcSize(3);
   color: $foreground-light;
   white-space: normal;
   word-break: break-word;
+}
+
+.sd-element__header .sd-description {
+  margin-top: calcSize(0.5);
 }

@@ -57,10 +57,16 @@
         <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': true } }"></div>
       <!-- /ko -->
       <!-- ko if: $data.isCheckbox -->
-        <!-- ko template: {name: 'survey-checkbox-item', templateOptions: {hideCaption: true} }  --><!-- /ko -->
+        <!-- ko let: { question: $data.matrix.getCellTemplateData($data) } -->
+          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-checkbox-item', data: { item: item, hideCaption: true } } } } -->
+          <!-- /ko -->
+        <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: $data.isRadio -->
-        <!-- ko template: {name: 'survey-radiogroup-item', templateOptions: {hideCaption: true} }  --><!-- /ko -->
+        <!-- ko let: { question: $data.matrix.getCellTemplateData($data) } -->
+          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-radiogroup-item', data: { item: item, hideCaption: true } } } } -->
+          <!-- /ko -->  
+        <!-- /ko -->   
       <!-- /ko -->
       <!-- ko ifnot: $data.isChoice -->
       <!-- ko if: question.isDefaultRendering() -->

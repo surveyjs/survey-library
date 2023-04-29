@@ -17,8 +17,8 @@ sv-brand-info {}
 
 .sv-brand-info__text {
   font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
+  font-size: calcFontSize(1);
+  line-height: calcSize(3);
   color: #161616;
 }
 
@@ -32,8 +32,8 @@ sv-brand-info {}
 
 .sv-brand-info__terms {
   font-weight: 400;
-  font-size: 12px;
-  line-height: 16px;
+  font-size: calcFontSize(0.75);
+  line-height: calcSize(2);
 
   a {
     color: #909090;

@@ -31,11 +31,18 @@ $shadow-inner: rgba(0, 0, 0, 0.15);
 
 $red: var(--red, #e60a3e);
 $red-light: var(--red-light, rgba(230, 10, 62, 0.1));
+$yellow: var(--yellow, #ff9814);
+$yellow-light: var(--yellow-light, rgba(255, 152, 20, 0.1));
 $green: var(--green, #19b394);
 $green-light: var(--green-light, rgba(25, 179, 148, 0.1));
 $blue-light: var(--blue-light, rgba(67, 127, 217, 0.1));
 
 $font-family: var(--font-family);
+$font-size: var(--sjs-font-size, calc(2 * var(--base-unit, 8px)));
+
+$corner-radius: var(--sjs-corner-radius, 4px);
+$panel-corner-radius: var(--sjs-panel-corner-radius, var(--sjs-corner-radius, 4px));
+$editor-corner-radius: var(--sjs-editor-corner-radius, var(--sjs-corner-radius, 4px));
 
 $base-unit: var(--base-unit, 8px);
 
@@ -44,11 +51,21 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
+@function calcFontSize($multiplier) {
+  $result: calc(#{$multiplier} * #{$font-size});
+  @return $result;
+}
+
+@function calcCornerRadius($multiplier) {
+  $result: calc(#{$multiplier} * #{$corner-radius});
+  @return $result;
+}
+
 @mixin smallBold {
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
-  font-size: calcSize(1.5);
+  font-size: calcFontSize(0.75);
   line-height: calcSize(2);
 }
 
@@ -56,13 +73,18 @@ $base-unit: var(--base-unit, 8px);
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
 }
 
 @mixin defaultFont {
   font-family: var(--font-family, $font-family);
   font-style: normal;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
+}
+
+@mixin borderLight {
+  border: calcSize(0.25) solid $border-light;
+  border-radius: calcCornerRadius(1);
 }

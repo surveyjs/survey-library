@@ -104,7 +104,8 @@ export class Survey extends SurveyElementBase<any, any>
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
     const rootStyle = {
-      backgroundImage: this.survey.renderBackgroundImage
+      backgroundImage: this.survey.renderBackgroundImage,
+      backgroundSize: this.survey.backgroundImageFit
     };
     const formStyle = {
       backgroundColor: this.survey.renderBackgroundOpacity

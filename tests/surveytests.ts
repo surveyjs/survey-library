@@ -4843,7 +4843,28 @@ QUnit.test("customWidgets camel name", function (assert) {
   );
   CustomWidgetCollection.Instance.clear();
 });
-
+QUnit.test("Create custom widget from addQuestion", function (assert) {
+  const cType = "newcustomwidget";
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: cType,
+    isFit: (question) => {
+      return question.getType() == cType;
+    },
+  });
+  if (!Serializer.findClass(cType)) {
+    Serializer.addClass(cType, [], undefined, "text");
+    QuestionFactory.Instance.registerCustomQuestion(cType);
+  }
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const question = page.addNewQuestion(cType, "q1");
+  assert.equal(question.name, "q1", "name is correct");
+  assert.equal(question.getType(), cType, "type is correct");
+  CustomWidgetCollection.Instance.clear();
+  Serializer.removeClass(cType);
+  QuestionFactory.Instance.unregisterElement(cType);
+});
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();
   var readOnlyCounter = 0;
@@ -7549,6 +7570,28 @@ QUnit.test(
     assert.equal(survey.getInCorrectedAnswers(), 1, "1 in matrix");
   }
 );
+QUnit.test("question.isCorrectAnswer() and onIsAnswerCorrect event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", correctAnswer: 1 },
+      { type: "text", name: "q2", correctAnswer: 2 }
+    ] });
+  survey.onIsAnswerCorrect.add((sender, options) => {
+    const q = options.question;
+    options.result = Math.abs(q.value - q.correctAnswer) < 2;
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isAnswerCorrect(), false, "Value is empty");
+  q1.value = 1;
+  assert.equal(q1.isAnswerCorrect(), true, "q1.value = 1");
+  q1.value = 5;
+  assert.equal(q1.isAnswerCorrect(), false, "q1.value = 5");
+  q1.value = 2;
+  assert.equal(q1.isAnswerCorrect(), true, "q1.value = 2");
+  q2.value = 3;
+  assert.equal(q2.isAnswerCorrect(), true, "q2.value = 3");
+});
 QUnit.test(
   "Quiz, correct, trim value on checking correct answers, https://surveyjs.answerdesk.io/ticket/details/T6569",
   function (assert) {
@@ -16797,4 +16840,52 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
+});
+
+QUnit.test("check title classes when readOnly changed", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "type": "text",
+      name: "q1"
+    }]
+  });
+  const customDisabledClass = "custom_disabled_class";
+  survey.css = {
+    question: {
+      titleDisabled: customDisabledClass
+    },
+  };
+  const question = survey.getQuestionByName("q1");
+  assert.notOk(question.cssTitle.includes(customDisabledClass));
+  question.readOnly = true;
+  assert.ok(question.cssTitle.includes(customDisabledClass));
+  question.readOnly = false;
+  assert.notOk(question.cssTitle.includes(customDisabledClass));
+});
+QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage() is called", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+      {
+        "type": "text",
+        "name": "question2"
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} = 1"
+      }
+    ]
+  });
+  let counter = 0;
+  survey.onComplete.add((sender, options) => {
+    counter ++;
+  });
+  survey.setValue("question1", 1);
+  survey.completeLastPage();
+  assert.equal(counter, 1, "onComplete called one time");
 });

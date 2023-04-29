@@ -147,7 +147,7 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["no"], () => {
+    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly"], () => {
       this.updateQuestionCss();
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
@@ -1486,9 +1486,15 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true)
-      ? 1
-      : 0;
+    return this.checkIfAnswerCorrect()? 1 : 0;
+  }
+  protected checkIfAnswerCorrect(): boolean {
+    const isEqual = this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true);
+    const options = { result: isEqual, correctAnswer: isEqual ? 1 : 0 };
+    if(!!this.survey) {
+      this.survey.onCorrectQuestionAnswer(this, options);
+    }
+    return options.result;
   }
   /**
   * Returns `true` if a question answer matches the `correctAnswer` property value.

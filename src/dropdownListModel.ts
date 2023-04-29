@@ -176,6 +176,11 @@ export class DropdownListModel extends Base {
       this.filterString = undefined;
     }
   }
+  public clear(): void {
+    this.inputString = null;
+    this.hintString = "";
+    this.resetFilterString();
+  }
   protected onSetFilterString(): void {
     if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
@@ -340,9 +345,6 @@ export class DropdownListModel extends Base {
 
   public onClear(event: any): void {
     this.question.clearValue();
-    this.inputString = null;
-    this.hintString = "";
-    this.resetFilterString();
     if (event) {
       event.preventDefault();
       event.stopPropagation();
@@ -368,10 +370,10 @@ export class DropdownListModel extends Base {
     }
     this.scrollToFocusedItem();
     if (this.question.value && !this.listModel.filterString && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
-      this.applyInputString(this.listModel.focusedItem);
+      this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     }
     else if (this.question instanceof QuestionDropdownModel || !this.listModel.focusedItem.selected) {
-      this.applyHintString(this.listModel.focusedItem);
+      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     } else {
       this.hintString = "";
     }

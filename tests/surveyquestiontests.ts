@@ -4466,6 +4466,7 @@ QUnit.test(
   "QuestionRating reset highlight on click",
   function (assert) {
     var question = new QuestionRatingModel("q");
+    question.rateDisplayMode = "stars";
     question.onItemMouseIn(question.renderedRateItems[2]);
     assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
     question.setValueFromClick("3");
@@ -5841,6 +5842,25 @@ QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert.equal(q1.visibleChoices[0].value, "item2", "aaa in fr locale");
   assert.equal(q1.visibleChoices[1].value, "item3", "bbb in fr locale");
   assert.equal(q1.visibleChoices[2].value, "item1", "ccc in fr locale");
+});
+QUnit.test("Sorting with numbers in the beginning, bug #6062", function (
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["1. bc", "12. cd", "7. k"],
+        choicesOrder: "asc",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices[0].value, "1. bc", "1. bc - 0");
+  assert.equal(q1.visibleChoices[1].value, "7. k", "7. k  - 1");
+  assert.equal(q1.visibleChoices[2].value, "12. cd", "12. - 2");
 });
 QUnit.test(
   "boolean question default value is not assign into readOnly question, bug #",

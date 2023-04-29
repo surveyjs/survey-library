@@ -57,6 +57,30 @@ export class Helpers {
     }
     return true;
   }
+  public static compareStrings(x: string, y: string): number {
+    if(!!x) x = x.trim();
+    if(!!y) y = y.trim();
+    if(!x && !y) return 0;
+    if(!x) return -1;
+    if(!y) return 1;
+    if(x === y) return 0;
+    let digitIndex = -1;
+    for(let i = 0; i < x.length && i < y.length; i ++) {
+      if(this.isCharDigit(x[i]) && this.isCharDigit(y[i])) {
+        digitIndex = i;
+        break;
+      }
+      if(x[i] !== y[i]) break;
+    }
+    if(digitIndex > -1) {
+      let nX = this.getNumberFromStr(x, digitIndex);
+      let nY = this.getNumberFromStr(y, digitIndex);
+      if(!Number.isNaN(nX) && !Number.isNaN(nY) && nX !== nY) {
+        return nX > nY ? 1 : -1;
+      }
+    }
+    return x > y ? 1 : -1;
+  }
   public static isTwoValueEquals(
     x: any,
     y: any,
@@ -255,6 +279,16 @@ export class Helpers {
   }
   public static isCharDigit(ch: string): boolean {
     return ch >= "0" && ch <= "9";
+  }
+  private static getNumberFromStr(str: string, index: number): number {
+    if(!this.isCharDigit(str[index])) return NaN;
+    let nStr = "";
+    while(index < str.length && this.isCharDigit(str[index])) {
+      nStr += str[index];
+      index ++;
+    }
+    if(!nStr) return NaN;
+    return this.getNumber(nStr);
   }
   private static countDecimals(value: number): number {
     if (Helpers.isNumber(value) && Math.floor(value) !== value) {

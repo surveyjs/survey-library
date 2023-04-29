@@ -99,6 +99,32 @@
       "Title": "UI Icons"
     },
     {
+      "Name": "customize-question-types",
+      "Title": "Customize Question Types",
+      "Items": [
+        {
+          "Name": "customize-question-types-create-specialized-question-types",
+          "Title": "Create Specialized Question Types"
+        },
+        {
+          "Name": "customize-question-types-create-composite-question-types",
+          "Title": "Create Composite Question Types"
+        },
+        {
+          "Name": "customize-question-types-create-custom-widgets",
+          "Title": "Create Custom Widgets"
+        },
+        {
+          "Name": "customize-question-types-third-party-component-integration-angular",
+          "Title": "Integrate Third-Party Angular Components"
+        },
+        {
+          "Name": "customize-question-types-third-party-component-integration-react",
+          "Title": "Integrate Third-Party React Components"
+        }
+      ]
+    },
+    {
       "Name": "Troubleshooting",
       "Title": "Troubleshooting"
     },

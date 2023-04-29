@@ -117,6 +117,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     this.question.renderedValue = newValue;
     this.updateListState();
   }
+  public clear(): void {
+    super.clear();
+    this.syncFilterStringPlaceholder();
+  }
   public onClear(event: any): void {
     super.onClear(event);
     this.updateListState();

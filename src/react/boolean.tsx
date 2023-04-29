@@ -78,12 +78,11 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             aria-invalid={this.question.ariaInvalid}
             aria-describedby={this.question.ariaDescribedBy}
           />
-          <span
-            className={this.question.getLabelCss(false)}
-            onClick={(event) => this.handleOnLabelClick(event, false)}
-          >
-            {this.renderLocString(this.question.locLabelFalse)}
-          </span>
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, false)}>
+            <span className={this.question.getLabelCss(false)}>
+              {this.renderLocString(this.question.locLabelFalse)}
+            </span>
+          </div>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
             <span className={cssClasses.slider}>
               {
@@ -93,12 +92,11 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
               }
             </span>
           </div>
-          <span
-            className={this.question.getLabelCss(true)}
-            onClick={(event) => this.handleOnLabelClick(event, true)}
-          >
-            {this.renderLocString(this.question.locLabelTrue)}
-          </span>
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, true)}>
+            <span className={this.question.getLabelCss(true)}>
+              {this.renderLocString(this.question.locLabelTrue)}
+            </span>
+          </div>
         </label>
       </div>
     );

@@ -44,6 +44,16 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
         items[index].mode = "large";
       }
     }
+    if (itemsSize > availableSize) {
+      const hidableItems = this.visibleActions.filter(a => a.removePriority);
+      hidableItems.sort((a, b) => a.removePriority - b.removePriority);
+      for (let index = 0; index < hidableItems.length; index++) {
+        if (itemsSize > availableSize) {
+          itemsSize -= items[index].disableShrink ? hidableItems[index].maxDimension : hidableItems[index].minDimension;
+          hidableItems[index].mode = "removed";
+        }
+      }
+    }
   }
 
   private static ContainerID = 1;

@@ -461,6 +461,8 @@ export class Base {
   public getPropertyValue(name: string, defaultValue: any = null): any {
     const res = this.getPropertyValueCore(this.propertyHash, name);
     if (this.isPropertyEmpty(res)) {
+      const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+      if(locStr) return locStr.text;
       if (defaultValue != null) return defaultValue;
       const propDefaultValue = this.getDefaultValueFromProperty(name);
       if(propDefaultValue !== undefined) return propDefaultValue;

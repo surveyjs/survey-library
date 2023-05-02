@@ -49,7 +49,7 @@ export class QuestionRatingModel extends Question {
     this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.createRenderedRateItems());
-    this.registerFunctionOnPropertiesValueChanged(["rateDisplayMode"],
+    this.registerFunctionOnPropertiesValueChanged(["rateType"],
       () => {
         this.setIconsToRateValues();
         this.createRenderedRateItems();
@@ -195,6 +195,8 @@ export class QuestionRatingModel extends Question {
    * If you need to specify only the `value` property, you can set the `rateValues` property to an array of numbers, for example, `[ 3, 6, 10 ]`. These values are both saved in survey results and used as display text.
    *
    * If you do not specify the `rateValues` property, rate values are generated automatically based upon the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin), [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax), [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep), and [`rateCount`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateCount) property values.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    */
   public get rateValues(): Array<any> {
     return this.getPropertyValue("rateValues");
@@ -207,6 +209,8 @@ export class QuestionRatingModel extends Question {
    * Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    * @see rateMax
    * @see rateStep
    * @see rateCount
@@ -221,6 +225,8 @@ export class QuestionRatingModel extends Question {
    * Specifies the last rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 5
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    * @see rateMin
    * @see rateStep
    * @see rateCount
@@ -235,6 +241,8 @@ export class QuestionRatingModel extends Question {
    * Specifies a step with which to generate rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    * @see rateMin
    * @see rateMax
    * @see rateCount
@@ -249,6 +257,8 @@ export class QuestionRatingModel extends Question {
    * Specifies the number of rate values you want to generate. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Set the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin) or [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax) property to specify the first or the last rate value. Use the [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep) property to specify a step with which to generate rate values.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    */
   @property({ defaultValue: 5 }) rateCount: number;
 
@@ -428,13 +438,16 @@ export class QuestionRatingModel extends Question {
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
   /**
-  * Specifies how a Rating question displays rate values.
+  * Specifies whether to display rate values as buttons or items in a drop-down list.
   *
   * Possible values:
   *
   * - `"buttons"` - Displays rate values as buttons in a row.
   * - `"dropdown"` - Displays rate values as items in a drop-down list.
   * - `"auto"` (default) - Selects between the `"buttons"` and `"dropdown"` modes based on the available width. When the width is insufficient to display buttons, the question displays a dropdown.
+  *
+  * [View Demo](/form-library/examples/ui-adaptation-modes-for-rating-scale/ (linkStyle))
+  * @see rateType
   */
   @property({
     defaultValue: "auto", onSet: (val: string, target: QuestionRatingModel) => {
@@ -448,15 +461,49 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
-  @property({ defaultValue: "labels" }) rateDisplayMode: "labels" | "stars" | "smileys";
+  /**
+   * Specifies the visual representation of rate values.
+   *
+   * Possible values:
+   *
+   * - `"labels"` (default) - Displays rate values as buttons with labels.
+   * - `"stars"` - Displays rate values as stars.
+   * - `"smileys"` - Displays rate values as smiley faces.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+   * @see scaleColorMode
+   * @see rateColorMode
+   * @see displayMode
+   */
+  @property({ defaultValue: "labels" }) rateType: "labels" | "stars" | "smileys";
 
-  public get rateType() {
-    return this.rateDisplayMode;
+  public get rateDisplayMode() {
+    return this.rateType;
   }
-  public set rateType(val: "labels" | "stars" | "smileys") {
-    this.rateDisplayMode = val;
+  public set rateDisplayMode(val: "labels" | "stars" | "smileys") {
+    this.rateType = val;
   }
+  /**
+   * Specifies how to colorize the smiley face rating scale. Applies only if [`rateType`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateType) is `"smileys"`.
+   *
+   * Possible values:
+   *
+   * - `"monochrome"` (default) - Displays emojis in monochrome.
+   * - `"colored"` - Displays emojis in color.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+   * @see rateColorMode
+   */
   @property({ defaultValue: "monochrome" }) scaleColorMode: "monochrome" | "colored";
+  /**
+   * Specifies how to colorize the selected emoji. Applies only if [`rateType`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateType) is `"smileys"`.
+   *
+   * Possible values:
+   *
+   * - `"default"` - Displays the selected emoji in default survey color.
+   * - `"scale"` (default) - Inherits the color from the scale.
+   * @see scaleColorMode
+   */
   @property({ defaultValue: "scale" }) rateColorMode: "default" | "scale";
 
   public get isStar() {
@@ -730,8 +777,8 @@ Serializer.addClass(
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
-      name: "rateDisplayMode",
-      alternativeName: "rateType",
+      name: "rateType",
+      alternativeName: "rateDisplayMode",
       default: "labels",
       category: "rateValues",
       choices: ["labels", "stars", "smileys"],
@@ -837,6 +884,9 @@ Serializer.addClass(
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
+      visibleIf: function (obj: any) {
+        return obj.rateType == "labels";
+      },
       visibleIndex: 20
     }
   ],

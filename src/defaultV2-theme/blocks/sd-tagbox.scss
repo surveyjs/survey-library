@@ -112,19 +112,19 @@
 }
 
 .sd-tagbox.sd-tagbox--empty {
-  .sd-hint,
-  .sd-hint__suffix,
+  .sd-tagbox__hint,
+    .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {
     width: 100%;
   }
 }
 
-.sd-hint {
+.sd-tagbox__hint {
   display: flex;
   flex-grow: 1;
 }
 
-.sd-hint__suffix {
+.sd-tagbox__hint-suffix-wrapper {
   position: relative;
   width: 100%;
 }

@@ -22,13 +22,13 @@
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->
-      <div class="sd-hint">
+      <div data-bind="css: question.koCss().hint">
         <!-- ko if: model.showHintPrefix -->
         <div data-bind="css: question.koCss().hintPrefix">
           <span data-bind="text: model.hintStringPrefix"></span>
         </div>
         <!-- /ko -->
-        <div class="sd-hint__suffix">
+        <div data-bind="css: question.koCss().hintSuffixWrapper">
           <!-- ko if: model.showHintString -->
           <div data-bind="css: question.koCss().hintSuffix">
             <span style="visibility: hidden" data-bind="text: model.inputStringRendered"></span>

@@ -55,25 +55,41 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     return this.model;
   }
   render(): JSX.Element {
-    return (<input type="text" autoComplete="off"
-      id={this.question.getInputId()}
-      inputMode={this.model.inputMode}
-      ref={(element) => (this.inputElement = element)}
-      className={this.question.cssClasses.filterStringInput}
-      disabled={this.question.isInputReadOnly}
-      readOnly={!this.model.searchEnabled ? true : undefined}
-      size={!this.model.inputStringRendered ? 1 : undefined}
-      role={ this.model.filterStringEnabled ? this.question.ariaRole : undefined }
-      aria-label={this.question.placeholder}
-      aria-expanded={this.question.ariaExpanded ? "true" : "false"}
-      aria-controls={this.model.listElementId}
-      aria-activedescendant={this.model.ariaActivedescendant}
-      placeholder={this.model.filterStringPlaceholder}
-      onKeyDown={(e) => { this.keyhandler(e); }}
-      onChange={(e) => { this.onChange(e); }}
-      onBlur={(e) => { this.onBlur(e); }}
-      onFocus={(e) => { this.onFocus(e); }}
-    ></input>);
+    return (
+      <div className={this.question.cssClasses.hint}>
+        {this.model.showHintPrefix ?
+          (<div className={this.question.cssClasses.hintPrefix}>
+            <span>{this.model.hintStringPrefix}</span>
+          </div>) : null}
+        <div className={this.question.cssClasses.hintSuffixWrapper}>
+          {this.model.showHintString ?
+            (<div className={this.question.cssClasses.hintSuffix}>
+              <span style={{ visibility: "hidden" }} data-bind="text: model.filterString">{this.model.inputStringRendered}</span>
+              <span>{this.model.hintStringSuffix}</span>
+            </div>) : null}
+
+          <input type="text" autoComplete="off"
+            id={this.question.getInputId()}
+            inputMode={this.model.inputMode}
+            ref={(element) => (this.inputElement = element)}
+            className={this.question.cssClasses.filterStringInput}
+            disabled={this.question.isInputReadOnly}
+            readOnly={!this.model.searchEnabled ? true : undefined}
+            size={!this.model.inputStringRendered ? 1 : undefined}
+            role={this.model.filterStringEnabled ? this.question.ariaRole : undefined}
+            aria-label={this.question.placeholder}
+            aria-expanded={this.question.ariaExpanded ? "true" : "false"}
+            aria-controls={this.model.listElementId}
+            aria-activedescendant={this.model.ariaActivedescendant}
+            placeholder={this.model.filterStringPlaceholder}
+            onKeyDown={(e) => { this.keyhandler(e); }}
+            onChange={(e) => { this.onChange(e); }}
+            onBlur={(e) => { this.onBlur(e); }}
+            onFocus={(e) => { this.onFocus(e); }}
+          ></input>
+        </div>
+      </div>
+    );
   }
 }
 

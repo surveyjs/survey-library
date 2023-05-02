@@ -643,8 +643,10 @@ export var defaultV2Css = {
     controlLabel: "sd-item__control-label",
     filterStringInput: "sd-tagbox__filter-string-input sd-dropdown__filter-string-input",
     materialDecorator: "sd-item__decorator sd-checkbox__decorator",
+    hint: "sd-tagbox__hint",
     hintPrefix: "sd-dropdown__hint-prefix sd-tagbox__hint-prefix",
-    hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix"
+    hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix",
+    hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper"
   },
 };
 

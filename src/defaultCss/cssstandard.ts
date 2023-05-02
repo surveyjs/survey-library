@@ -381,7 +381,11 @@ export var defaultStandardCss = {
     controlValue: "sv_q_tagbox__value sv_q_dropdown__value",
     controlEmpty: "sv_q_dropdown--empty sv_q_tagbox--empty",
     placeholderInput: "sv_q_tagbox__placeholder",
-    filterStringInput: "sv_q_tagbox__filter-string-input sv_q_dropdown__filter-string-input"
+    filterStringInput: "sv_q_tagbox__filter-string-input sv_q_dropdown__filter-string-input",
+    hint: "sv_q_tagbox__hint",
+    hintPrefix: "sv_q_dropdown__hint-prefix sv_q_tagbox__hint-prefix",
+    hintSuffix: "sv_q_dropdown__hint-suffix sv_q_tagbox__hint-suffix",
+    hintSuffixWrapper: "sv_q_tagbox__hint-suffix-wrapper"
   },
 };
 

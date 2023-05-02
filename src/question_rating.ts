@@ -49,7 +49,7 @@ export class QuestionRatingModel extends Question {
     this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.createRenderedRateItems());
-    this.registerFunctionOnPropertiesValueChanged(["rateDisplayMode"],
+    this.registerFunctionOnPropertiesValueChanged(["rateType"],
       () => {
         this.setIconsToRateValues();
         this.createRenderedRateItems();
@@ -448,13 +448,13 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
-  @property({ defaultValue: "labels" }) rateDisplayMode: "labels" | "stars" | "smileys";
+  @property({ defaultValue: "labels" }) rateType: "labels" | "stars" | "smileys";
 
-  public get rateType() {
-    return this.rateDisplayMode;
+  public get rateDisplayMode() {
+    return this.rateType;
   }
-  public set rateType(val: "labels" | "stars" | "smileys") {
-    this.rateDisplayMode = val;
+  public set rateDisplayMode(val: "labels" | "stars" | "smileys") {
+    this.rateType = val;
   }
   @property({ defaultValue: "monochrome" }) scaleColorMode: "monochrome" | "colored";
   @property({ defaultValue: "scale" }) rateColorMode: "default" | "scale";
@@ -730,8 +730,8 @@ Serializer.addClass(
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
-      name: "rateDisplayMode",
-      alternativeName: "rateType",
+      name: "rateType",
+      alternativeName: "rateDisplayMode",
       default: "labels",
       category: "rateValues",
       choices: ["labels", "stars", "smileys"],
@@ -837,6 +837,9 @@ Serializer.addClass(
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
+      visibleIf: function (obj: any) {
+        return obj.rateType == "labels";
+      },
       visibleIndex: 20
     }
   ],

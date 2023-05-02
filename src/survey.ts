@@ -4438,7 +4438,11 @@ export class SurveyModel extends SurveyElementCore
     this.onChoicesLazyLoad.fire(this, options);
   }
   getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
-    this.onGetChoiceDisplayValue.fire(this, options);
+    if(this.onGetChoiceDisplayValue.isEmpty) {
+      options.setItems(null);
+    } else {
+      this.onGetChoiceDisplayValue.fire(this, options);
+    }
   }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);

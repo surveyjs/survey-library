@@ -278,3 +278,76 @@ QUnit.test("tagbox keyboard tests", function (assert) {
   assert.notOk(dropdownListModel.showHintString, "showHintString");
   assert.equal(dropdownListModel.inputString, "", "inputString");
 });
+
+QUnit.test("reset placeholder on in-list focus change", function (assert) {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+
+  assert.equal(dropdownListModel.filterStringPlaceholder, "Select...");
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.filterStringPlaceholder, "");
+});
+
+QUnit.test("tagbox using space", function (assert) {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
+  assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+
+  event.keyCode = 32;
+  dropdownListModel.keyHandler(event);
+  assert.deepEqual(question.value, ["item1"]);
+
+  event.keyCode = 32;
+  dropdownListModel.keyHandler(event);
+  assert.deepEqual(question.value, []);
+
+  dropdownListModel.inputStringRendered = "item";
+  event.keyCode = 32;
+  dropdownListModel.keyHandler(event);
+  assert.deepEqual(question.value, []);
+});
+
+QUnit.test("tagbox hint after deselect", function (assert) {
+  const survey = new SurveyModel(jsonTagbox);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  assert.equal(dropdownListModel.inputString, "", "inputString default is empty");
+  assert.equal(dropdownListModel.hintString, "", "hintString default is empty");
+
+  event.keyCode = 40;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.hintString, "item1", "item3 hintString");
+
+  event.keyCode = 32;
+  dropdownListModel.keyHandler(event);
+  assert.deepEqual(question.value, ["item1"]);
+
+  event.keyCode = 32;
+  dropdownListModel.keyHandler(event);
+  assert.deepEqual(question.value, []);
+  assert.equal(dropdownListModel.hintString, "item1", "item3 hintString again");
+
+});

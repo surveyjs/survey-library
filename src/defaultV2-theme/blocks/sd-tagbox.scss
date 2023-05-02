@@ -83,7 +83,7 @@
 }
 
 .sd-tagbox__filter-string-input {
-  width: auto;
+  width: 100%;
   display: flex;
   flex-grow: 1;
   height: calcSize(5);
@@ -121,10 +121,12 @@
 
 .sd-hint {
   display: flex;
+  flex-grow: 1;
 }
 
 .sd-hint__suffix {
   position: relative;
+  width: 100%;
 }
 
 .sd-dropdown__hint-suffix.sd-tagbox__hint-suffix {

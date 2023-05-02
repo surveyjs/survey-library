@@ -229,7 +229,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  private applyHintString(item: ItemValue) {
+  protected applyHintString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
     if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
@@ -399,7 +399,7 @@ export class DropdownListModel extends Base {
       this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && !this.question.searchEnabled)) {
+    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.question.searchEnabled || !this.inputString))) {
       if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.isVisible = false;
         this.onClear(event);

@@ -21,7 +21,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   private syncFilterStringPlaceholder() {
     const selectedActions = this.getSelectedActions();
-    if (selectedActions.length || this.question.selectedItems.length) {
+    if (selectedActions.length || this.question.selectedItems.length || this.listModel.focusedItem) {
       this.filterStringPlaceholder = undefined;
     } else {
       this.filterStringPlaceholder = this.question.placeholder;
@@ -115,6 +115,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     let newValue = [].concat(this.question.renderedValue || []);
     newValue.splice(newValue.indexOf(id), 1);
     this.question.renderedValue = newValue;
+    this.applyHintString(this.listModel.focusedItem);
     this.updateListState();
   }
   public clear(): void {
@@ -153,5 +154,9 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     if (this.question.searchEnabled) {
       this.inputString = null;
     }
+  }
+  changeSelectionWithKeyboard(reverse: boolean): void {
+    super.changeSelectionWithKeyboard(reverse);
+    this.syncFilterStringPlaceholder();
   }
 }

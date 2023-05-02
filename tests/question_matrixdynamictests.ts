@@ -8167,3 +8167,22 @@ QUnit.test("Do not run total expressions if matrix is read-only, bug#5644", func
     q1: 1, q2: 2, "matrix-total": { col1: 3 },
     "matrix": [{ "col1": 1 }] }, "Data set in survey correctly.");
 });
+QUnit.test("Check rightIndents set correctly for detailElements with defaultV2 theme - 5988", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        detailPanelShowOnAdding: true,
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", startWithNewLine: false, visibleIf: "{row.q1} notempty" }],
+      },
+    ],
+  });
+  survey.css = { root: "sd-root-modern" };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  matrix.visibleRows[0].showHideDetailPanelClick();
+  assert.equal(matrix.renderedTable.rows[1].cells[1].panel.elements[0].rightIndent, 0);
+});

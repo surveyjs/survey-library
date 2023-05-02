@@ -155,8 +155,23 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       this.inputString = null;
     }
   }
-  changeSelectionWithKeyboard(reverse: boolean): void {
-    super.changeSelectionWithKeyboard(reverse);
+
+  protected focusItemOnClickAndPopup() {
+    return;
+  }
+  protected onEscape() {
+    return;
+  }
+  protected beforeScrollToFocusedItem(focusedItem: ItemValue) {
+    return;
+  }
+
+  protected afterScrollToFocusedItem() {
+    if (!this.listModel.focusedItem?.selected) {
+      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+    } else {
+      this.hintString = "";
+    }
     this.syncFilterStringPlaceholder();
   }
 }

@@ -235,6 +235,28 @@ QUnit.test("open/hide dropdown popup after start/end filtration", function (asse
   assert.equal(question.value, undefined, "question.value after onClear");
 });
 
+QUnit.test("hide dropdown on clear", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const popup = dropdownListModel.popupModel;
+
+  popup.isVisible = true;
+  dropdownListModel.onClear(new Event("click"));
+  assert.notOk(popup.isVisible, "hide popup after onClear");
+});
+
+QUnit.test("hide component on input entering symbols", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  question.inputFieldComponent = "component-name";
+  question.value = "Ford";
+  assert.ok(question.showInputFieldComponent);
+  dropdownListModel.inputStringRendered = "abc";
+  assert.notOk(question.showInputFieldComponent);
+});
+
 QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   survey.css = {

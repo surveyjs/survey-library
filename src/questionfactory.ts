@@ -52,7 +52,7 @@ export class ElementFactory {
   public registerElement(elementType: string, elementCreator: (name: string) => IElement): void {
     this.creatorHash[elementType] = elementCreator;
   }
-  public registerCustomQuestion(questionType: string) : void {
+  public registerCustomQuestion = (questionType: string) : void => {
     const creator = (name: string): Question => {
       const el = Serializer.createClass(questionType);
       if(!!el) el.name = name;

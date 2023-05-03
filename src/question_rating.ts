@@ -33,9 +33,9 @@ export class RenderedRatingItem extends Base {
 }
 
 /**
- * A Model for a rating question.
+ * A class that describes the Rating Scale question type.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-rating/ (linkStyle))
+ * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
 export class QuestionRatingModel extends Question {
   constructor(name: string) {

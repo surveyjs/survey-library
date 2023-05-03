@@ -229,6 +229,11 @@ export class DropdownListModel extends Base {
     }
   }
 
+  protected fixInputCase() {
+    const hintStringMiddle = this.hintStringMiddle;
+    if (hintStringMiddle && this.inputString != hintStringMiddle) this.inputString = hintStringMiddle;
+  }
+
   private applyHintString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
     if (hasHtml || this.question.inputFieldComponentName) {
@@ -290,6 +295,11 @@ export class DropdownListModel extends Base {
   }
   public get hintStringSuffix(): string {
     return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);
+  }
+  public get hintStringMiddle(): string {
+    const start = this.hintStringLC.indexOf(this.inputStringLC);
+    if (start == -1) return null;
+    return this.hintString.substring(start, start + this.inputStringLC.length);
   }
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
@@ -376,6 +386,7 @@ export class DropdownListModel extends Base {
       this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     }
 
+    this.fixInputCase();
     this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
   }
 

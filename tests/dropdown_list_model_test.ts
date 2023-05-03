@@ -566,3 +566,29 @@ QUnit.test("filtering on question with value", function (assert) {
   assert.equal(list.actions.filter(a => (a as any).selected).length, 0, "no selected items when filtering and move key");
 
 });
+
+QUnit.test("hintString letter case", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      hasOther: "true",
+      choices: [
+        "AbcAbc",
+        "cAbcAb",
+        "caBcaB",
+      ]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+
+  dropdownListModel.inputStringRendered = "Ab";
+  assert.equal(dropdownListModel.hintString, "AbcAbc");
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.hintString, "cAbcAb");
+  assert.equal(dropdownListModel.inputStringRendered, "Ab");
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.hintString, "caBcaB");
+  assert.equal(dropdownListModel.inputStringRendered, "aB");
+});

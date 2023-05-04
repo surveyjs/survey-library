@@ -553,18 +553,22 @@ export class QuestionRatingModel extends Question {
     this.renderedRateItems.forEach(item => item.highlight = "none");
   }
 
+  public get itemSmallMode() {
+    return this.inMatrixMode && settings.rateItemSizeInMatrices == "small";
+  }
+
   public get ratingRootCss(): string {
     const baseClass = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
       this.cssClasses.rootWrappable : this.cssClasses.root;
 
     return new CssClassBuilder()
       .append(baseClass)
-      .append(this.cssClasses.small, this.inMatrixMode && this.rateType != "labels")
+      .append(this.cssClasses.small, this.itemSmallMode && this.rateType != "labels")
       .toString();
   }
 
   public get itemStarIcon(): string {
-    return this.inMatrixMode ? "icon-rating-star-small" : "icon-rating-star";
+    return this.itemSmallMode ? "icon-rating-star-small" : "icon-rating-star";
   }
   public get itemStarIconAlt(): string {
     return this.itemStarIcon + "-2";
@@ -692,7 +696,7 @@ export class QuestionRatingModel extends Question {
       .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
       .append(itemUnhighlightedClass, isUnhighlighted)
       .append(itemitemOnErrorClass, this.errors.length > 0)
-      .append(itemSmallClass, this.inMatrixMode)
+      .append(itemSmallClass, this.itemSmallMode)
       .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
   }

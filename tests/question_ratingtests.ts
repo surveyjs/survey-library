@@ -7,6 +7,7 @@ import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { settings } from "../src/settings";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -1193,22 +1194,36 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   q1.cssClasses.small = "sv_q--small";
   q1.cssClasses.root = "sv_q";
 
-  q1.cssClasses.itemSmiley = "sv_q_item";
-  q1.cssClasses.itemStar = "sv_q_item";
+  q1.cssClasses.itemSmiley = "sv_q_item-smiley";
+  q1.cssClasses.itemStar = "sv_q_item-star";
   q1.cssClasses.itemHover = "";
   q1.cssClasses.itemSmileyHover = "";
   q1.cssClasses.itemStarHover = "";
   q1.cssClasses.itemSmileySmall = "sv_q_item-smiley--small";
   q1.cssClasses.itemStarSmall = "sv_q_item-star--small";
 
-  assert.equal(q1.itemStarIcon, "icon-rating-star-small");
-  assert.equal(q1.itemStarIconAlt, "icon-rating-star-small-2");
   assert.equal(q1.ratingRootCss, "sv_q sv_q--small");
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item sv_q_item-smiley--small");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley sv_q_item-smiley--small");
 
   q.columns[0].rateType = "stars";
-  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item sv_q_item-star--small");
+  assert.equal(q1.itemStarIcon, "icon-rating-star-small");
+  assert.equal(q1.itemStarIconAlt, "icon-rating-star-small-2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-star sv_q_item-star--small");
 
   q.columns[0].rateType = "labels";
   assert.equal(q1.ratingRootCss, "sv_q");
+
+  q.columns[0].rateType = "smileys";
+  settings.rateItemSizeInMatrices = "normal";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley");
+
+  q.columns[0].rateType = "stars";
+  assert.equal(q1.itemStarIcon, "icon-rating-star");
+  assert.equal(q1.itemStarIconAlt, "icon-rating-star-2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-star");
+
+  q.columns[0].rateType = "labels";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  settings.rateItemSizeInMatrices = "small";
 });

@@ -15,6 +15,7 @@ const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string
  */
 
 export var settings = {
+  rateItemSizeInMatrices: "small" as "small" | "normal",
   /**
    * Specifies an action to perform when users press the Enter key within a survey.
    *

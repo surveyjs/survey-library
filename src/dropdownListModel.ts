@@ -229,7 +229,7 @@ export class DropdownListModel extends Base {
     }
   }
 
-  private applyHintString(item: ItemValue) {
+  protected applyHintString(item: ItemValue) {
     const hasHtml = item?.locText.hasHtml;
     if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
@@ -334,13 +334,18 @@ export class DropdownListModel extends Base {
 
   public onClick(event: any): void {
     this._popupModel.toggleVisibility();
-    if (this._popupModel.isVisible && this.question.value && this.question instanceof QuestionDropdownModel) this.changeSelectionWithKeyboard(false);
+    this.focusItemOnClickAndPopup();
     if (this.searchEnabled && !!event && !!event.target) {
       const input = event.target.querySelector("input");
       if (!!input) {
         input.focus();
       }
     }
+  }
+
+  protected focusItemOnClickAndPopup() {
+    if (this._popupModel.isVisible && this.question.value)
+      this.changeSelectionWithKeyboard(false);
   }
 
   public onClear(event: any): void {
@@ -363,20 +368,29 @@ export class DropdownListModel extends Base {
     else {
       this.listModel.focusNextVisibleItem();
     }
-    if (this.question.value && focusedItem && this.question instanceof QuestionDropdownModel) {
+
+    this.beforeScrollToFocusedItem(focusedItem);
+    this.scrollToFocusedItem();
+    this.afterScrollToFocusedItem();
+
+    this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
+  }
+
+  protected beforeScrollToFocusedItem(focusedItem: ItemValue) {
+    if (this.question.value && focusedItem) {
       focusedItem.selectedValue = false;
       this.listModel.focusedItem.selectedValue = !this.listModel.filterString;
       this.question.suggestedItem = this.listModel.focusedItem;
     }
-    this.scrollToFocusedItem();
-    if (this.question.value && !this.listModel.filterString && this.question.searchEnabled && this.question instanceof QuestionDropdownModel) {
+  }
+
+  protected afterScrollToFocusedItem() {
+    if (this.question.value && !this.listModel.filterString && this.question.searchEnabled) {
       this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
     }
     else {
       this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
     }
-
-    this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
   }
 
   keyHandler(event: any): void {
@@ -397,7 +411,7 @@ export class DropdownListModel extends Base {
       this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && !this.question.searchEnabled)) {
+    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.question.searchEnabled || !this.inputString))) {
       if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.isVisible = false;
         this.onClear(event);
@@ -417,7 +431,7 @@ export class DropdownListModel extends Base {
     } else if (event.keyCode === 27) {
       this._popupModel.isVisible = false;
       this.hintString = "";
-      if (this.question.searchEnabled && this.question instanceof QuestionDropdownModel) this.applyInputString(this.question.selectedItem);
+      this.onEscape();
     } else {
       if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.question.searchEnabled) {
         event.preventDefault();
@@ -429,6 +443,11 @@ export class DropdownListModel extends Base {
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
     }
   }
+  protected onEscape() {
+    if (this.question.searchEnabled)
+      this.applyInputString(this.question.selectedItem);
+  }
+
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
     if ((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {

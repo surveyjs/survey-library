@@ -240,11 +240,11 @@ export class DropdownListModel extends Base {
   }
 
   public get inputStringRendered() {
-    return this.getPropertyValue("inputString") || "";
+    return this.inputString || "";
   }
 
   public set inputStringRendered(val: string) {
-    this.setPropertyValue("inputString", val);
+    this.inputString = val;
     this.filterString = val;
     this.applyHintString(this.listModel.focusedItem);
   }
@@ -350,6 +350,7 @@ export class DropdownListModel extends Base {
 
   public onClear(event: any): void {
     this.question.clearValue();
+    this._popupModel.isVisible = false;
     if (event) {
       event.preventDefault();
       event.stopPropagation();

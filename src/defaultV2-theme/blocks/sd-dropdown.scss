@@ -88,6 +88,7 @@
   display: inline-block;
   line-height: calcSize(3);
   appearance: none;
+  height: 100%;
 }
 
 .sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {

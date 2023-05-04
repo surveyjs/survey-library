@@ -1998,6 +1998,8 @@ export class Question extends SurveyElement<Question>
 
   @property() renderAs: string;
 
+  @property({ defaultValue: false }) inMatrixMode: boolean;
+
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
     if (!!this.survey) return this.survey.getSurveyErrorCustomText(this, text, error);

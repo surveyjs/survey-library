@@ -511,4 +511,48 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check rating smileys and stars in matrix", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework,
+
+        {
+          widthMode: "static",
+          questions: [
+            {
+              "type": "matrixdropdown",
+              "name": "question7",
+              "columns": [
+                {
+                  "name": "Column 1",
+                  "cellType": "rating",
+                  "rateType": "stars"
+                },
+                {
+                  "name": "Column 2",
+                  "cellType": "rating",
+                  "rateType": "smileys"
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rows": [
+                "Row 1"
+              ]
+            }
+          ]
+        }
+      );
+
+      const questionRoot = Selector(".sd-question--table");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-stars-in-matrix", questionRoot, t, comparer);
+    });
+  });
 });

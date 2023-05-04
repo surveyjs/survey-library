@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { getListItemByText } from "../../../testCafe/helper";
+import { getListItemByText, registerCustomItemComponent } from "../../../testCafe/helper";
 import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Dropdown Screenshot";
@@ -553,6 +553,46 @@ frameworks.forEach(framework => {
         .typeText(".sd-dropdown__filter-string-input", "m", { replace: true })
         .wait(100);
       await takeElementScreenshot("dropdown-search-spaces-suffix.png", popupContainer, t, comparer);
+    });
+  });
+
+  test("Check dropdown with custom component input height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await registerCustomItemComponent(framework);
+
+      const jsonWithDropDown = {
+        questions: [
+          {
+            type: "dropdown",
+            name: "cars",
+            title: "Dropdown",
+            defaultValue: "Ford",
+            itemComponent: "new-item",
+            choices: [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen"
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, jsonWithDropDown);
+
+      await t.resizeWindow(1280, 1100);
+      const questionDropdownSelect = Selector(".sd-question__content");
+      await ClientFunction(() => {
+        (<HTMLElement>document.querySelector(".sd-question__content svg")).style.height = "48px";
+        (<HTMLElement>document.querySelector(".sd-question__content input")).style.backgroundColor = "red";
+      })();
+      await takeElementScreenshot("dropdown-custom-component.png", questionDropdownSelect, t, comparer);
     });
   });
 

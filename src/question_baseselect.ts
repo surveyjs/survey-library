@@ -34,7 +34,7 @@ export class QuestionSelectBase extends Question {
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private isUsingCarrayForward: boolean;
-  private waitingGetChoiceDisplayValueResponse = false;
+  private waitingGetChoiceDisplayValueResponse: boolean;
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
   } }) protected selectedItemValues: any;

@@ -1191,7 +1191,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   var rows = q.visibleRows;
   var q1 = <QuestionRatingModel>rows[0].cells[0].question;
 
-  q1.cssClasses.small = "sv_q--small";
+  q1.cssClasses.itemSmall = "sv_q--small";
   q1.cssClasses.root = "sv_q";
 
   q1.cssClasses.itemSmiley = "sv_q_item-smiley";

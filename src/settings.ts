@@ -15,7 +15,6 @@ const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string
  */
 
 export var settings = {
-  rateItemSizeInMatrices: "small" as "small" | "normal",
   /**
    * Specifies an action to perform when users press the Enter key within a survey.
    *
@@ -482,6 +481,7 @@ export var settings = {
    * Example: `settings.matrix.columnWidthsByType = { "tagbox": { minWidth: "240px", width: "300px" } }`
    */
   matrix: {
-    columnWidthsByType: columnWidthsByType
+    columnWidthsByType: columnWidthsByType,
+    rateSize: "small" as "small" | "normal",
   }
 };

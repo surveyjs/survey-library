@@ -554,7 +554,7 @@ export class QuestionRatingModel extends Question {
   }
 
   public get itemSmallMode() {
-    return this.inMatrixMode && settings.rateItemSizeInMatrices == "small";
+    return this.inMatrixMode && settings.matrix.rateSize == "small";
   }
 
   public get ratingRootCss(): string {

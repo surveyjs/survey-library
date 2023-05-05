@@ -1214,7 +1214,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   assert.equal(q1.ratingRootCss, "sv_q");
 
   q.columns[0].rateType = "smileys";
-  settings.rateItemSizeInMatrices = "normal";
+  settings.matrix.rateSize = "normal";
   assert.equal(q1.ratingRootCss, "sv_q");
   assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley");
 
@@ -1225,5 +1225,5 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
 
   q.columns[0].rateType = "labels";
   assert.equal(q1.ratingRootCss, "sv_q");
-  settings.rateItemSizeInMatrices = "small";
+  settings.matrix.rateSize = "small";
 });

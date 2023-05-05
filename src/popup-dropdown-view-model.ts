@@ -4,6 +4,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
+import { settings } from "./settings";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {
@@ -172,7 +173,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   public updateOnShowing(): void {
-    this.prevActiveElement = <HTMLElement>document.activeElement;
+    const { root } = settings.environment;
+    this.prevActiveElement = <HTMLElement>root.activeElement;
 
     if (this.isOverlay) {
       this.resetDimensionsAndPositionStyleProperties();

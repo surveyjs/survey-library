@@ -1,5 +1,3 @@
-import { settings } from "../../src/settings";
-import { StylesManager } from "survey-core";
 import { registerMarkupTests } from "./helper";
 export * from "./etalon_components";
 export * from "./etalon_image";

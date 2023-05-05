@@ -1,9 +1,36 @@
+export type ISurveyEnvironment = {
+  root: Document | ShadowRoot,
+  rootElement: HTMLElement | ShadowRoot,
+  popupMountContainer: HTMLElement | string,
+  svgMountContainer: HTMLElement | string,
+  stylesSheetsMountContainer: HTMLElement,
+}
 
+const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> {
+  root: document,
+
+  _rootElement: document.body,
+  get rootElement(): HTMLElement | ShadowRoot {
+    return this._rootElement ?? document.body;
+  },
+  set rootElement(rootElement: HTMLElement | ShadowRoot) {
+    (this._rootElement as any) = rootElement;
+  },
+
+  _popupMountContainer: document.body,
+  get popupMountContainer(): HTMLElement | string {
+    return this._popupMountContainer ?? document.body;
+  },
+  set popupMountContainer(popupMountContainer: HTMLElement | string) {
+    (this._popupMountContainer as any) = popupMountContainer;
+  },
+  svgMountContainer: document.head,
+  stylesSheetsMountContainer: document.head,
+};
 const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } } = {
   "file": { minWidth: "240px" },
   "comment": { minWidth: "200px" }
 };
-
 /**
  * Global settings that apply to all surveys on the page. To specify one of the settings, use the code below:
  *
@@ -392,6 +419,12 @@ export var settings = {
    * - `"icon"` - Users can only use the choice item icon as a drag handle.
    */
   rankingDragHandleArea: "entireItem",
+
+  /**
+   * Specifies environment in which SurveyJS will exist
+   */
+  environment: defaultEnvironment,
+
   titleTags: {
     survey: "h3",
     page: "h4",

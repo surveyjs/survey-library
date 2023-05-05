@@ -4,6 +4,7 @@ import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
 import { QuestionRowModel } from "../panel";
+import { settings } from "../settings";
 
 export class DragDropSurveyElements extends DragDropCore<any> {
   public static newGhostPage: PageModel = null;
@@ -332,7 +333,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
   protected doDrop = (): any => {
     if (this.dropTarget) {
-      (<HTMLElement>document.activeElement).blur();
+      (<HTMLElement>settings.environment.root.activeElement).blur();
       return this.insertRealElementIntoSurvey();
     }
 

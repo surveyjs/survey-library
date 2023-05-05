@@ -1,6 +1,7 @@
 import * as React from "react";
 import QuestionDateModel from "../question_date";
 import { ReactQuestionFactory } from "../../react/reactquestionfactory";
+import { settings } from "survey-core";
 
 export default class SurveyQuestionDate extends React.Component<any, any> {
   constructor(props: any) {
@@ -27,7 +28,7 @@ export default class SurveyQuestionDate extends React.Component<any, any> {
     var scriptEl = document.createElement("script");
     scriptEl.type = "text/javascript";
     scriptEl.text = scriptText;
-    document.getElementById(rootId).appendChild(scriptEl);
+    settings.environment.root.getElementById(rootId).appendChild(scriptEl);
   }
   render(): JSX.Element {
     if (!this.question) return null;

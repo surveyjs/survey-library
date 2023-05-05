@@ -1,11 +1,12 @@
 import * as ko from "knockout";
-import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions } from "survey-core";
+import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions, settings } from "survey-core";
 import { SurveyElement } from "survey-core";
 import { koTemplate, SurveyTemplateText } from "./templateText";
 import { CustomWidgetCollection } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
+import { getElement } from "survey-core";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -70,7 +71,7 @@ export class SurveyImplementor extends ImplementorBase {
     }
     this.survey.updateElementCss(false);
     if (element && typeof element === "string") {
-      element = document.getElementById(element);
+      element = getElement(element);
     }
     if (element) {
       this.renderedElement = element;
@@ -211,11 +212,12 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
         "survey-content-" + platform
       );
       if (!templateElementRoot) {
+        const { rootElement } = settings.environment;
         templateElementRoot = document.createElement("div");
         templateElementRoot.id = "survey-content-" + SurveyModel.platform;
         templateElementRoot.style.display = "none";
         templateElementRoot.innerHTML = koTemplate;
-        document.body.appendChild(templateElementRoot);
+        rootElement.appendChild(templateElementRoot);
       }
       var elem;
       for (var i = 0; i < templateElementRoot.children.length; i++) {

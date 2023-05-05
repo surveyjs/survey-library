@@ -155,8 +155,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
-    if (!elementId || typeof document === "undefined") return false;
-    const el = document.getElementById(elementId);
+    const { root } = settings.environment;
+    if (!elementId || typeof root === "undefined") return false;
+    const el = root.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
     const elemTop: number = el.getBoundingClientRect().top;
     if (elemTop < 0) el.scrollIntoView();
@@ -190,8 +191,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return res;
   }
   private static focusElementCore(elementId: string): boolean {
-    if (!document) return false;
-    const el = document.getElementById(elementId);
+    const { root } = settings.environment;
+    if (!root) return false;
+    const el = root.getElementById(elementId);
     if (el && !(<any>el)["disabled"]) {
       el.focus();
       return true;

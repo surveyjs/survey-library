@@ -479,6 +479,9 @@ export var settings = {
    * - `columnWidthsByType`: `Object`\
    * An object that specifies fixed and minimum column width based on the column type.\
    * Example: `settings.matrix.columnWidthsByType = { "tagbox": { minWidth: "240px", width: "300px" } }`
+   *
+   * - `rateSize`: `"small"` (default) | `"normal"`\
+   * Specifies the size of rate values. Applies to [Rating Scale](https://surveyjs.io/form-library/examples/rating-scale/) questions within matrixes.
    */
   matrix: {
     columnWidthsByType: columnWidthsByType,

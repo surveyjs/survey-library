@@ -563,7 +563,7 @@ export class QuestionRatingModel extends Question {
 
     return new CssClassBuilder()
       .append(baseClass)
-      .append(this.cssClasses.small, this.itemSmallMode && this.rateType != "labels")
+      .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
       .toString();
   }
 

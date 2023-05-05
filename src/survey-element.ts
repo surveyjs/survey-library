@@ -528,6 +528,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.ensureCssClassesValue();
     return this.cssClassesValue;
   }
+  public get cssTitleNumber(): any {
+    const css = this.cssClasses;
+    if(css.number) return css.number;
+    return css.panel ? css.panel.number : undefined;
+  }
   protected calcCssClasses(css: any): any { return undefined; }
   protected updateElementCssCore(cssClasses: any) { }
   public get cssError(): string { return ""; }

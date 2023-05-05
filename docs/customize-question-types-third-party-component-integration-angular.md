@@ -173,6 +173,21 @@ import { ..., AngularComponentFactory } from "survey-angular-ui";
 AngularComponentFactory.Instance.registerComponent(CUSTOM_TYPE + "-question", ColorPickerComponent);
 ```
 
+Import your custom component into `AppComponent` as shown in the code below. Otherwise, the component may be removed from the production build by tree shaking.
+
+```js
+// app.component.ts
+import { Component } from '@angular/core';
+import { ColorPickerComponent } from './color-picker/color-picker.component';
+
+@Component({
+  // ...
+})
+export class AppComponent {
+  static declaration = [ColorPickerComponent];
+}
+```
+
 <details>
   <summary>View Full Code</summary>
 
@@ -257,6 +272,21 @@ Serializer.addClass(
 <ng-container *ngIf="model.colorPickerType === 'Compact'">
   <color-compact (onChange)="handleChange($event)"></color-compact>
 </ng-container>
+```
+
+```js
+// app.component.ts
+import { Component } from '@angular/core';
+import { ColorPickerComponent } from './color-picker/color-picker.component';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  static declaration = [ColorPickerComponent];
+}
 ```
 
 </details>
@@ -367,6 +397,22 @@ locale.pe.disableAlpha = "Disable alpha channel";
   <color-compact (onChange)="handleChange($event)"></color-compact>
 </ng-container>
 ```
+
+```js
+// app.component.ts
+import { Component } from '@angular/core';
+import { ColorPickerComponent } from './color-picker/color-picker.component';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  static declaration = [ColorPickerComponent];
+}
+```
+
 </details>
 
 ## Add an Icon
@@ -479,6 +525,21 @@ SvgRegistry.registerIconFromSvg(
 <ng-container *ngIf="model.colorPickerType === 'Compact'">
   <color-compact (onChange)="handleChange($event)"></color-compact>
 </ng-container>
+```
+
+```js
+// app.component.ts
+import { Component } from '@angular/core';
+import { ColorPickerComponent } from './color-picker/color-picker.component';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  static declaration = [ColorPickerComponent];
+}
 ```
 </details>
 
@@ -775,6 +836,20 @@ import { ColorPickerComponent } from './color-picker/color-picker.component';
 export class AppModule { }
 ```
 
+```js
+// app.component.ts
+import { Component } from '@angular/core';
+import { ColorPickerComponent } from './color-picker/color-picker.component';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  static declaration = [ColorPickerComponent];
+}
+```
 </details>
 
 [View Demo](https://surveyjs.io/survey-creator/examples/custom-colorpicker-property-editor/angular (linkStyle))

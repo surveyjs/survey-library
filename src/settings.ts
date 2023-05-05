@@ -5,8 +5,8 @@ export type ISurveyEnvironment = {
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
 }
-
-const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> {
+const document = global.document;
+const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> (!!document ? {
   root: document,
 
   _rootElement: document.body,
@@ -26,7 +26,7 @@ const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> {
   },
   svgMountContainer: document.head,
   stylesSheetsMountContainer: document.head,
-};
+} : undefined);
 const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } } = {
   "file": { minWidth: "240px" },
   "comment": { minWidth: "200px" }

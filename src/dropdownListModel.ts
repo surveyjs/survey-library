@@ -223,6 +223,7 @@ export class DropdownListModel extends Base {
     if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
       this.inputString = "";
+      this.hintString = "";
     } else {
       this.inputString = item?.title;
       this.hintString = item?.title;

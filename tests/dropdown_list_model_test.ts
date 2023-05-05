@@ -614,3 +614,28 @@ QUnit.test("hintString letter case", function (assert) {
   assert.equal(dropdownListModel.hintString, "caBcaB");
   assert.equal(dropdownListModel.inputStringRendered, "aB");
 });
+
+QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionDropdownModel("q1");
+  page.addQuestion(q1);
+  q1.choices = [
+    { value: 1, text: "text1markdown" },
+    { value: 2, text: "text2markdown" },
+  ];
+  q1.hasOther = true;
+  survey.onTextMarkdown.add(function (survey, options) {
+    options.html = options.text;
+  });
+
+  q1.value = 2;
+  const dropdownListModel = new DropdownListModel(q1);
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.hintString, "", "no hint on start");
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.hintString, "Other (describe)");
+  dropdownListModel.changeSelectionWithKeyboard(true);
+  assert.equal(dropdownListModel.hintString, "", "no hint again");
+});

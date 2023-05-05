@@ -2805,6 +2805,73 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.offsetWidth).within(395, 440);
   });
 
+  test("check dropdown after navigating between pages", async t => {
+    const json = {
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "dropdown",
+              "name": "question1",
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "dropdown",
+              "name": "question3",
+              "choices": [
+                "Item 1",
+                "Item 2",
+                "Item 3"
+              ]
+            }
+          ]
+        }
+      ],
+      "showCompletedPage": false,
+      "showQuestionNumbers": "off",
+      "showProgressBar": "top",
+      "checkErrorsMode": "onComplete"
+    };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await initSurvey(framework, json);
+
+    await t
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionDropdownSelect)
+      .expect(popupContainer.exists).ok()
+
+      .click(getListItemByText("3"))
+      .expect(popupContainer.exists).notOk()
+
+      .click(".sv_next_btn")
+      .click(".sv_prev_btn")
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionDropdownSelect)
+      .expect(popupContainer.exists).ok()
+      .pressKey("tab")
+      .expect(questionValueText.textContent).eql("3")
+      .expect(questionValueInput.getAttribute("placeholder")).eql("")
+
+      .click(".sv_q_dropdown_clean-button")
+      .expect(questionValueText.exists).notEql()
+      .expect(questionValueInput.getAttribute("placeholder")).eql("Select...");
+  });
+
   const theme = "defaultV2";
   test.page(`${url_test}${theme}/${framework}.html`)("Check rating as dropdown", async (t) => {
     await applyTheme(theme);

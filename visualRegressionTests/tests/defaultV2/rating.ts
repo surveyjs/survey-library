@@ -553,6 +553,37 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question--table");
       await focusBody();
       await takeElementScreenshot("question-rating-smileys-stars-in-matrix", questionRoot, t, comparer);
+
+      const questionStars = Selector(".sd-rating").nth(0);
+      await focusBody();
+      await takeElementScreenshot("question-rating-stars-small.png", questionStars, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-star input")).focus(); })();
+      await takeElementScreenshot("question-rating-stars-small-focus.png", questionStars, t, comparer);
+      await t.hover(Selector(".sd-rating__item-star").nth(3));
+      await takeElementScreenshot("question-rating-stars-small-focus-hovered.png", questionStars, t, comparer);
+      await t.click(Selector(".sd-rating__item-star").nth(3));
+      await takeElementScreenshot("question-rating-stars-small-focus-selected.png", questionStars, t, comparer);
+      await t.hover(Selector(".sd-rating__item-star").nth(1));
+      await takeElementScreenshot("question-rating-stars-small-unhovered.png", questionStars, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-stars-small-selected", questionStars, t, comparer);
+
+      const questionSmileys = Selector(".sd-rating").nth(1);
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-small.png", questionSmileys, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); })();
+      await takeElementScreenshot("question-rating-smileys-small-focus.png", questionSmileys, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-small-focus-hovered.png", questionSmileys, t, comparer);
+      await t.click(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-small-focus-selected.png", questionSmileys, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-small-unhovered.png", questionSmileys, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-smileys-small-selected", questionSmileys, t, comparer);
+
     });
   });
 });

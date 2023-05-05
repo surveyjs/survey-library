@@ -100,6 +100,7 @@ export class Question extends SurveyElement<Question>
   @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
     target.setIsMobile(val);
   } }) isMobile: boolean;
+  @property() forceIsInputReadOnly: boolean;
 
   constructor(name: string) {
     super(name);
@@ -1103,6 +1104,9 @@ export class Question extends SurveyElement<Question>
     return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
   }
   public get isInputReadOnly(): boolean {
+    if(this.forceIsInputReadOnly !== undefined) {
+      return this.forceIsInputReadOnly;
+    }
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
     return this.isReadOnly || isDesignModeV2;
   }

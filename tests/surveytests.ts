@@ -13945,6 +13945,28 @@ QUnit.test("Make inputs read-only in design-mode for V2", function (assert) {
   );
 });
 
+QUnit.test("forceIsInputReadOnly", function (assert) {
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [{ type: "text", name: "q2" }],
+      },
+    ],
+  });
+  assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isInputReadOnly, true, "q2");
+
+  survey.getQuestionByName("q2").forceIsInputReadOnly = false;
+  assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isInputReadOnly, false, "q2 with forceIsInputReadOnly");
+});
+
 QUnit.test("onElementContentVisibilityChanged event", function (assert) {
   var json = {
     pages: [

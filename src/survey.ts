@@ -3051,7 +3051,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
-    this.canBeCompletedByTrigger = false;
+    this.completedByTriggers = undefined;
     if (clearData) {
       this.data = null;
       this.variablesHash = {};
@@ -4181,12 +4181,23 @@ export class SurveyModel extends SurveyElementCore
   public setCompleted(): void {
     this.doComplete(true);
   }
-  canBeCompleted(): void {
+  canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.changeNavigationButtonsOnCompleteTrigger) return;
-    if (!this.canBeCompletedByTrigger) {
-      this.canBeCompletedByTrigger = true;
+    const prevCanBeCompleted = this.canBeCompletedByTrigger;
+    if(!this.completedByTriggers) this.completedByTriggers = {};
+    if(isCompleted) {
+      this.completedByTriggers[trigger.id] = true;
+    } else {
+      delete this.completedByTriggers[trigger.id];
+    }
+    if(prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();
     }
+  }
+  private completedByTriggers: HashTable<boolean>;
+  private get canBeCompletedByTrigger(): boolean {
+    if(!this.completedByTriggers) return false;
+    return Object.keys(this.completedByTriggers).length > 0;
   }
   /**
    * Returns the HTML content for the complete page.
@@ -5212,7 +5223,6 @@ export class SurveyModel extends SurveyElementCore
     this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    this.canBeCompletedByTrigger = false;
     for (var i: number = 0; i < this.triggers.length; i++) {
       this.triggers[i].checkExpression(isOnNextPage, isOnComplete,
         this.triggerKeys,

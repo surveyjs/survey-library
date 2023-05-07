@@ -34,6 +34,7 @@ export class QuestionSelectBase extends Question {
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private isUsingCarrayForward: boolean;
+  private waitingGetChoiceDisplayValueResponse: boolean;
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
   } }) protected selectedItemValues: any;
@@ -543,6 +544,8 @@ export class QuestionSelectBase extends Question {
     return this.hasUnknownValue(val, true, false);
   }
   protected updateSelectedItemValues(): void {
+    if(this.waitingGetChoiceDisplayValueResponse) return;
+
     const IsMultipleValue = this.getIsMultipleValue();
     if(IsMultipleValue) {
       this.updateMultipleSelectedItemValues();
@@ -552,10 +555,12 @@ export class QuestionSelectBase extends Question {
   }
   protected updateSingleSelectedItemValues(): void {
     if (!!this.survey && !this.isEmpty() && !ItemValue.getItemByValue(this.choices, this.value)) {
+      this.waitingGetChoiceDisplayValueResponse = true;
       this.survey.getChoiceDisplayValue({
         question: this,
         values: [this.value],
         setItems: (displayValues: Array<string>) => {
+          this.waitingGetChoiceDisplayValueResponse = false;
           if (!displayValues || !displayValues.length) return;
           this.selectedItemValues = this.createItemValue(this.value, displayValues[0]);
         }
@@ -567,10 +572,12 @@ export class QuestionSelectBase extends Question {
     const hasItemWithValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
 
     if (!!this.survey && !this.isEmpty() && hasItemWithValues) {
+      this.waitingGetChoiceDisplayValueResponse = true;
       this.survey.getChoiceDisplayValue({
         question: this,
         values: valueArray,
         setItems: (displayValues: Array<string>) => {
+          this.waitingGetChoiceDisplayValueResponse = false;
           if (!displayValues || !displayValues.length) return;
           this.selectedItemValues = displayValues.map((displayValue, index) => this.createItemValue(this.value[index], displayValue));
         }

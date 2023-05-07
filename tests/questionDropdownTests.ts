@@ -684,6 +684,63 @@ QUnit.test("lazy loading: several loading", assert => {
   }, 550);
 });
 
+QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", assert => {
+  let requestCount = 0;
+  let responseCount = 0;
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "defaultValue": 2,
+        "choicesLazyLoadEnabled": true
+      }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    requestCount++;
+    setTimeout(() => {
+      if(options.question.name == "q1") {
+        options.setItems(options.values.map(item => ("DisplayText_" + item)));
+        responseCount++;
+      }
+    }, 150);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(requestCount, 0, "requestCount #1");
+  assert.equal(responseCount, 0, "responseCount #1");
+
+  assert.equal(question.showSelectedItemLocText, true, "showSelectedItemLocText");
+  assert.equal(requestCount, 1, "requestCount #2");
+  assert.equal(responseCount, 0, "responseCount #2");
+
+  setTimeout(() => {
+    assert.equal(requestCount, 1, "requestCount #2.1");
+    assert.equal(responseCount, 0, "responseCount #2.1");
+    assert.equal(question.selectedItemLocText.calculatedText, "2");
+
+    setTimeout(() => {
+      assert.equal(requestCount, 1, "requestCount #3");
+      assert.equal(responseCount, 1, "responseCount #3");
+
+      setTimeout(() => {
+        assert.equal(requestCount, 1, "requestCount #3.1");
+        assert.equal(responseCount, 1, "responseCount #3.1");
+        assert.equal(question.selectedItemLocText.calculatedText, "DisplayText_2");
+
+        done3();
+      }, 200);
+      done2();
+    }, 100);
+    done1();
+  }, 100);
+});
+
 QUnit.test("storeOthersAsComment is false", assert => {
   const json = {
     "storeOthersAsComment": false,

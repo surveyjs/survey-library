@@ -46,6 +46,10 @@ import Popup from "./components/popup/Popup.vue";
 import PopupContainer from "./components/popup/PopupContainer.vue";
 import PopupPointer from "./components/popup/PopupPointer.vue";
 
+import Container from "./components/Container.vue";
+
+import Progress from "./components/progress/Progress.vue";
+
 import "./assets/main.css";
 import "survey-core/defaultV2.css";
 
@@ -75,6 +79,12 @@ app.component("survey-file", File);
 app.component("survey-imagepicker", ImagePicker);
 app.component("survey-imagepicker-item", ImagePickerItem);
 app.component("survey-comment", Comment);
+
+app.component("sv-components-container", Container);
+app.component("sv-progress-pages", Progress);
+app.component("sv-progress-questions", Progress);
+app.component("sv-progress-correctquestions", Progress);
+app.component("sv-progress-requiredquestions", Progress);
 
 app.component("survey-errors", Errors);
 app.component("survey-question-comment", QuestionComment);

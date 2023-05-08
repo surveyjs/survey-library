@@ -1,70 +1,66 @@
 <template>
-  <div :class="survey.getRootCss()">
-    <form onsubmit="return false;">
+  <div
+    :class="survey.getRootCss()"
+    :style="{
+      backgroundImage: vueSurvey.renderBackgroundImage,
+      backgroundSize: vueSurvey.backgroundImageFit,
+    }"
+  >
+    <form
+      onsubmit="return false;"
+      :style="{ backgroundColor: vueSurvey.renderBackgroundOpacity }"
+    >
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />
-          <component
-                v-if="vueSurvey.isShowProgressBarOnTop && !vueSurvey.isShowStartingPage"
-                :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
+        <component
+          :is="'sv-components-container'"
+          :survey="vueSurvey"
+          :container="'header'"
+        ></component>
+        <template v-if="vueSurvey.isShowingPage">
+          <div :class="vueSurvey.bodyContainerCss">
+            <component
+              :is="'sv-components-container'"
+              :survey="vueSurvey"
+              :container="'left'"
+            ></component>
+            <div
+              :class="vueSurvey.bodyCss"
+              :style="{ maxWidth: survey.renderedWidth }"
+              :id="pageId"
+            >
+              <component
+                :is="'sv-components-container'"
                 :survey="vueSurvey"
+                :container="'contentTop'"
+              ></component>
+              <survey-page
+                :key="pageKey"
+                :survey="vueSurvey"
+                :page="vueSurvey.activePage"
                 :css="css"
               />
-          <survey-timerpanel
-            v-if="vueSurvey.isTimerPanelShowingOnTop && !vueSurvey.isShowStartingPage"
-            :timerModel="vueSurvey.timerModel"
-            :css="css"
-          />
-        <template
-          v-if="vueSurvey.isShowingPage"
-        >
-          <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}">
-            <sv-action-bar
-              v-if="vueSurvey.isNavigationButtonsShowingOnTop"
-              :key="navId + 'top'"
-              :model="vueSurvey.navigationBar"
-            />
-            <survey-page
-              :key="pageId"
-              :survey="vueSurvey"
-              :page="vueSurvey.activePage"
-              :css="css"
-            />
+              <component
+                :is="'sv-components-container'"
+                :survey="vueSurvey"
+                :container="'contentBottom'"
+              ></component>
+            </div>
             <component
-              v-if="vueSurvey.isShowProgressBarOnBottom && !vueSurvey.isShowStartingPage"
-              :is="'sv-progress-' + vueSurvey.progressBarType.toLowerCase()"
+              :is="'sv-components-container'"
               :survey="vueSurvey"
-              :css="css"
-            />
-            <sv-action-bar
-              v-if="vueSurvey.isNavigationButtonsShowingOnBottom"
-              :key="navId + 'bottom'"
-              :model="vueSurvey.navigationBar"
-            />
+              :container="'right'"
+            ></component>
           </div>
         </template>
-        <survey-timerpanel
-              v-if="vueSurvey.isTimerPanelShowingOnBottom && !vueSurvey.isShowStartingPage"
-              :timerModel="vueSurvey.timerModel"
-              :css="css"
-            />
+        <component
+          :is="'sv-components-container'"
+          :survey="vueSurvey"
+          :container="'footer'"
+        ></component>
         <div v-if="hasCompletedPage">
-          <div
-            v-html="getProcessedCompletedHtml()"
-            :class="vueSurvey.completedCss"
-          ></div>
-          <div v-if="vueSurvey.completedState != ''" :class="css.saveData.root">
-            <div :class="getCompletedStateClasses()">
-              <span>{{ vueSurvey.completedStateText }}</span>
-              <input
-                type="button"
-                v-if="vueSurvey.completedState == 'error'"
-                :value="vueSurvey.getLocalizationString('saveAgainButton')"
-                @click="doTrySaveAgain"
-                :class="css.saveData.saveAgainButton"
-              />
-            </div>
-          </div>
+          <div v-html="getProcessedCompletedHtml()" :class="vueSurvey.completedCss"></div>
         </div>
         <div
           v-if="vueSurvey.state === 'completedbefore'"
@@ -82,6 +78,7 @@
       </div>
     </form>
     <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
+    <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
   </div>
 </template>
 
@@ -101,7 +98,9 @@ export default defineSurveyComponent({
     return {
       processedCompletedHtmlValue: "",
       updater: 1,
-      getModel: () => { return vm.vueSurvey; },
+      getModel: () => {
+        return vm.vueSurvey;
+      },
       getActivePageId: () => {
         const pageId = !!vm.vueSurvey.activePage ? vm.vueSurvey.activePage.id : "";
         return !!vm.vueSurvey && pageId + vm.updater.toString();
@@ -125,8 +124,8 @@ export default defineSurveyComponent({
       forceUpdate: () => {
         vm.updater += 1;
         //vm.$forceUpdate();
-      }
-    }
+      },
+    };
   },
   computed: {
     vueSurvey(): SurveyModel {
@@ -136,30 +135,30 @@ export default defineSurveyComponent({
     pageId: {
       get() {
         return "page" + this.getActivePageId();
-      }
+      },
     },
     navId: {
       get() {
         return "nav" + this.getActivePageId();
-      }
+      },
     },
     hasTitle: {
       get() {
         return !!this.vueSurvey.title && this.vueSurvey.showTitle;
-      }
+      },
     },
     hasCompletedPage: {
       get() {
         return this.vueSurvey.showCompletedPage && this.vueSurvey.state === "completed";
-      }
+      },
     },
     css(): any {
       return this.vueSurvey.css;
-    }
+    },
   },
   mounted() {
     if (!this.vueSurvey) return;
-    if(this.vueSurvey["needRenderIcons"]) {
+    if (this.vueSurvey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
     var el = this.$el;
@@ -170,7 +169,7 @@ export default defineSurveyComponent({
   unmounted() {
     this.vueSurvey.stopTimer();
     this.vueSurvey.renderCallback = undefined;
-  }
+  },
 });
 
 // TODO: make this functionality available via surveyCss in all examples
@@ -184,7 +183,6 @@ export default defineSurveyComponent({
 //  enumerable: true,
 //  configurable: false,
 //});
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

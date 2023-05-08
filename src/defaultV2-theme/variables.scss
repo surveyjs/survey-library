@@ -1,38 +1,48 @@
 $primary: var(--primary, #19b394);
 $primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
-$primary-foreground: var(--primary-foreground, #fff);
-$primary-foreground-disabled: var(--primary-foreground-disabled, rgba(#fff, 0.25));
+$primary-foreground: var(--sjs-primary-forecolor, var(--primary-foreground, #fff));
+$primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
 
 $secondary: var(--secondary, #ff9814);
 $secondary-light: var(--secondary-light, rgba(255, 152, 20, 0.25));
 
-$secondary-foreground: var(--secondary-foreground, #fff);
-
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
 $background-dim-light: var(--background-dim-light, #f9f9f9);
-$background-for-editors: $background-dim-light;
+$background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
+$background-dark: var(--sjs-general-backcolor-dark, rgb(248, 248, 248));
+$background-dim-dark: var(--sjs-general-dim-backcolor-dark, rgb(243, 243, 243));
+$primary-background-dark: var(--sjs-primary-backcolor-dark, rgb(20, 164, 139));
 
-$foreground: var(--foreground, #161616);
-$foreground-light: var(--foreground-light, #909090);
-//todo: discuss this variable
-$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-$foreground-disabled-for-editors: var(--foreground-disabled, rgba(#161616, 0.25));
+$editor-background: var(--sjs-editor-background, var(--background-dim-light, #f9f9f9));
+$question-background: var(--sjs-question-background, var(--background, #fff));
 
-$border: var(--border, #d6d6d6);
-$border-light: var(--border-light, #eaeaea);
-$border-inside: var(--border-inside, rgba(0, 0, 0, 0.16));
+$foreground: var(--sjs-general-forecolor, var(--foreground, #161616));
+$foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #909090));
+$foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
+$foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
+
+$border: var(--sjs-border-default, var(--border, #d6d6d6));
+$border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
+$border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
 
 $shadow-medium: rgba(0, 0, 0, 0.1);
 $shadow-inner: rgba(0, 0, 0, 0.15);
 
 $red: var(--red, #e60a3e);
 $red-light: var(--red-light, rgba(230, 10, 62, 0.1));
+$yellow: var(--yellow, #ff9814);
+$yellow-light: var(--yellow-light, rgba(255, 152, 20, 0.1));
 $green: var(--green, #19b394);
 $green-light: var(--green-light, rgba(25, 179, 148, 0.1));
 $blue-light: var(--blue-light, rgba(67, 127, 217, 0.1));
 
 $font-family: var(--font-family);
+$font-size: var(--sjs-font-size, calc(2 * var(--base-unit, 8px)));
+
+$corner-radius: var(--sjs-corner-radius, 4px);
+$panel-corner-radius: var(--sjs-panel-corner-radius, var(--sjs-corner-radius, 4px));
+$editor-corner-radius: var(--sjs-editor-corner-radius, var(--sjs-corner-radius, 4px));
 
 $base-unit: var(--base-unit, 8px);
 
@@ -41,11 +51,21 @@ $base-unit: var(--base-unit, 8px);
   @return $result;
 }
 
+@function calcFontSize($multiplier) {
+  $result: calc(#{$multiplier} * #{$font-size});
+  @return $result;
+}
+
+@function calcCornerRadius($multiplier) {
+  $result: calc(#{$multiplier} * #{$corner-radius});
+  @return $result;
+}
+
 @mixin smallBold {
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
-  font-size: calcSize(1.5);
+  font-size: calcFontSize(0.75);
   line-height: calcSize(2);
 }
 
@@ -53,13 +73,18 @@ $base-unit: var(--base-unit, 8px);
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
 }
 
 @mixin defaultFont {
   font-family: var(--font-family, $font-family);
   font-style: normal;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
+}
+
+@mixin borderLight {
+  border: calcSize(0.25) solid $border-light;
+  border-radius: calcCornerRadius(1);
 }

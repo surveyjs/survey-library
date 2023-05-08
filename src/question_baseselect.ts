@@ -34,7 +34,10 @@ export class QuestionSelectBase extends Question {
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private isUsingCarrayForward: boolean;
-  @property() protected selectedItemValues: any;
+  private waitingGetChoiceDisplayValueResponse: boolean;
+  @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
+    target.onSelectedItemValuesChangedHandler(newVal);
+  } }) protected selectedItemValues: any;
 
   constructor(name: string) {
     super(name);
@@ -55,7 +58,7 @@ export class QuestionSelectBase extends Question {
       }
     );
     this.registerPropertyChangedHandlers(["hideIfChoicesEmpty"], () => {
-      this.updateVisibilityBasedOnChoices();
+      this.onVisibleChanged();
     });
     this.createNewArray("visibleChoices");
     this.setNewRestfulProperty();
@@ -101,8 +104,10 @@ export class QuestionSelectBase extends Question {
   protected getItemValueType(): string {
     return "itemvalue";
   }
-  public createItemValue(value: any): ItemValue {
-    return Serializer.createClass(this.getItemValueType(), value);
+  public createItemValue(value: any, text?: string): ItemValue {
+    const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
+    if(!!text) res.text = text;
+    return res;
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.otherValue;
@@ -165,7 +170,7 @@ export class QuestionSelectBase extends Question {
    * @see noneText
    */
   public get showNoneItem(): boolean {
-    return this.getPropertyValue("showNoneItem", false);
+    return this.getPropertyValue("showNoneItem");
   }
   public set showNoneItem(val: boolean) {
     this.setPropertyValue("showNoneItem", val);
@@ -318,6 +323,19 @@ export class QuestionSelectBase extends Question {
   protected onEnableItemCallBack(item: ItemValue): boolean {
     return true;
   }
+  protected onSelectedItemValuesChangedHandler(newValue: any): void { }
+  protected getSingleSelectedItem(): ItemValue {
+    const selectedItemValues = this.selectedItemValues;
+    if (this.isEmpty()) return null;
+
+    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
+    this.onGetSingleSelectedItem(itemValue);
+    if(!itemValue && !selectedItemValues) {
+      this.updateSelectedItemValues();
+    }
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.createItemValue(this.value));
+  }
+  protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
       if (!this.conditionChoicesVisibleIfRunner) {
@@ -526,20 +544,42 @@ export class QuestionSelectBase extends Question {
     return this.hasUnknownValue(val, true, false);
   }
   protected updateSelectedItemValues(): void {
-    if (!!this.survey && !this.isEmpty() && this.choices.length === 0) {
-      const IsMultipleValue = this.getIsMultipleValue();
+    if(this.waitingGetChoiceDisplayValueResponse) return;
 
+    const IsMultipleValue = this.getIsMultipleValue();
+    if(IsMultipleValue) {
+      this.updateMultipleSelectedItemValues();
+    } else {
+      this.updateSingleSelectedItemValues();
+    }
+  }
+  protected updateSingleSelectedItemValues(): void {
+    if (!!this.survey && !this.isEmpty() && !ItemValue.getItemByValue(this.choices, this.value)) {
+      this.waitingGetChoiceDisplayValueResponse = true;
       this.survey.getChoiceDisplayValue({
         question: this,
-        values: IsMultipleValue ? this.value : [this.value],
+        values: [this.value],
         setItems: (displayValues: Array<string>) => {
+          this.waitingGetChoiceDisplayValueResponse = false;
           if (!displayValues || !displayValues.length) return;
+          this.selectedItemValues = this.createItemValue(this.value, displayValues[0]);
+        }
+      });
+    }
+  }
+  protected updateMultipleSelectedItemValues(): void {
+    const valueArray: Array<any> = this.value;
+    const hasItemWithValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
 
-          if (IsMultipleValue) {
-            this.selectedItemValues = displayValues.map((displayValue, index) => new ItemValue(this.value[index], displayValue));
-          } else {
-            this.selectedItemValues = new ItemValue(this.value, displayValues[0]);
-          }
+    if (!!this.survey && !this.isEmpty() && hasItemWithValues) {
+      this.waitingGetChoiceDisplayValueResponse = true;
+      this.survey.getChoiceDisplayValue({
+        question: this,
+        values: valueArray,
+        setItems: (displayValues: Array<string>) => {
+          this.waitingGetChoiceDisplayValueResponse = false;
+          if (!displayValues || !displayValues.length) return;
+          this.selectedItemValues = displayValues.map((displayValue, index) => this.createItemValue(this.value[index], displayValue));
         }
       });
     }
@@ -664,7 +704,7 @@ export class QuestionSelectBase extends Question {
    * This property is useful if you show or hide choice items at runtime based on a [condition](https://surveyjs.io/form-library/documentation/questionselectbase#choicesVisibleIf).
    */
   public get hideIfChoicesEmpty(): boolean {
-    return this.getPropertyValue("hideIfChoicesEmpty", false);
+    return this.getPropertyValue("hideIfChoicesEmpty");
   }
   public set hideIfChoicesEmpty(val: boolean) {
     this.setPropertyValue("hideIfChoicesEmpty", val);
@@ -729,7 +769,7 @@ export class QuestionSelectBase extends Question {
    * @see showNoneItem
    * @see showOtherItem
    */
-  @property({ defaultValue: false }) separateSpecialChoices: boolean;
+  @property() separateSpecialChoices: boolean;
   /**
    * A placeholder for the comment area. Applies when the `showOtherItem` or `showCommentArea` property is `true`.
    * @see showOtherItem
@@ -817,7 +857,7 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
     if (isAddAll) {
       if (!this.newItemValue) {
-        this.newItemValue = new ItemValue("newitem"); //TODO
+        this.newItemValue = this.createItemValue("newitem"); //TODO
       }
       if (this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
@@ -943,9 +983,7 @@ export class QuestionSelectBase extends Question {
     var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
-  protected getChoicesFromQuestion(
-    question: QuestionSelectBase
-  ): Array<ItemValue> {
+  private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
     var res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
@@ -957,17 +995,22 @@ export class QuestionSelectBase extends Question {
     for (var i = 0; i < choices.length; i++) {
       if (this.isBuiltInChoice(choices[i], question)) continue;
       if (isSelected === undefined) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
         continue;
       }
       var itemsSelected = question.isItemSelected(choices[i]);
       if ((itemsSelected && isSelected) || (!itemsSelected && !isSelected)) {
-        res.push(choices[i]);
+        res.push(this.copyChoiceItem(choices[i]));
       }
     }
     if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
-      res.push(new ItemValue(question.otherItem.value, question.comment));
+      res.push(this.createItemValue(question.otherItem.value, question.comment));
     }
+    return res;
+  }
+  private copyChoiceItem(item: ItemValue): ItemValue {
+    const res = this.createItemValue(item.value);
+    res.setData(item);
     return res;
   }
   protected get hasActiveChoices(): boolean {
@@ -1245,7 +1288,9 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
-      this.dependedQuestions[i].onVisibleChoicesChanged();
+      const q = this.dependedQuestions[i];
+      q.onVisibleChoicesChanged();
+      q.clearIncorrectValuesCore();
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }
@@ -1256,17 +1301,17 @@ export class QuestionSelectBase extends Question {
   protected onVisibleChoicesChanged() {
     if (this.isLoadingFromJson) return;
     this.updateVisibleChoices();
-    this.updateVisibilityBasedOnChoices();
+    this.onVisibleChanged();
     if (!!this.visibleChoicesChangedCallback) {
       this.visibleChoicesChangedCallback();
     }
     this.updateChoicesDependedQuestions();
   }
-  private updateVisibilityBasedOnChoices() {
-    if (this.hideIfChoicesEmpty) {
-      var filteredChoices = this.getFilteredChoices();
-      this.visible = !filteredChoices || filteredChoices.length > 0;
-    }
+  protected isVisibleCore(): boolean {
+    const superVal = super.isVisibleCore();
+    if (!this.hideIfChoicesEmpty || !superVal) return superVal;
+    var filteredChoices = this.getFilteredChoices();
+    return !filteredChoices || filteredChoices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
     var order = this.choicesOrder.toLowerCase();
@@ -1277,9 +1322,7 @@ export class QuestionSelectBase extends Question {
   }
   private sortArray(array: Array<ItemValue>, mult: number): Array<ItemValue> {
     return array.sort(function (a, b) {
-      if (a.calculatedText < b.calculatedText) return -1 * mult;
-      if (a.calculatedText > b.calculatedText) return 1 * mult;
-      return 0;
+      return Helpers.compareStrings(a.calculatedText, b.calculatedText) * mult;
     });
   }
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {

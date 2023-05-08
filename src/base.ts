@@ -464,6 +464,8 @@ export class Base {
   public getPropertyValue(name: string, defaultValue: any = null): any {
     const res = this.getPropertyValueCore(this.propertyHash, name);
     if (this.isPropertyEmpty(res)) {
+      const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+      if(locStr) return locStr.text;
       if (defaultValue != null) return defaultValue;
       const propDefaultValue = this.getDefaultValueFromProperty(name);
       if(propDefaultValue !== undefined) return propDefaultValue;
@@ -785,6 +787,8 @@ export class Base {
       this.localizableStrings = {};
     }
     this.localizableStrings[name] = locStr;
+    const prop = this.getPropertyByName(name);
+    locStr.disableLocalization = prop && prop.isLocalizable === false;
     return locStr;
   }
   public getLocalizableString(name: string): LocalizableString {

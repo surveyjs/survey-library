@@ -3171,7 +3171,26 @@ QUnit.test("Test property hideIfChoicesEmpty", function (assert) {
   survey.setValue("val1", 2);
   assert.equal(question.isVisible, true, "There is one visible item");
 });
-
+QUnit.test("Do not restore visibility for invlible question", function (assert) {
+  var survey = new SurveyModel({
+    elements: [{ type: "checkbox", name: "q1", hideIfChoicesEmpty: true }]
+  });
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.visible = false;
+  question.choices = [1, 2, 3];
+  assert.equal(question.isVisible, false, "It should be visible, since we make it invisible in code");
+});
+QUnit.test("Change hideIfChoicesEmpty property default value", function (assert) {
+  let question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #1");
+  const prop = Serializer.findProperty("selectbase", "hideIfChoicesEmpty");
+  prop.defaultValue = true;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, true, "default value #2");
+  prop.defaultValue = undefined;
+  question = new QuestionCheckboxModel("q1");
+  assert.equal(question.hideIfChoicesEmpty, false, "default value #3");
+});
 QUnit.test("Test property hideIfRowsEmpty", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
@@ -3240,6 +3259,25 @@ QUnit.test("Question Html ignore Html processing = true", function (assert) {
   question.ignoreHtmlProgressing = true;
   question.html = "text2";
   assert.equal(question.locHtml.renderedHtml, "text2", "do not proccess html");
+});
+
+QUnit.test("Survey.onProcessHtml add reason property into options", function (
+  assert
+) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var question = <QuestionHtmlModel>page.addNewQuestion("html", "q1");
+  question.html = "text";
+  survey.completedHtml = "complete survey";
+  survey.completedBeforeHtml = "complete before survey";
+  survey.loadingHtml = "loading survey";
+  survey.onProcessHtml.add(function (survey, options) {
+    options.html = options.html + "-add-" + options.reason;
+  });
+  assert.equal(question.locHtml.renderedHtml, "text-add-html-question", "#1");
+  assert.equal(survey.processedCompletedHtml, "complete survey-add-completed", "#2");
+  assert.equal(survey.processedCompletedBeforeHtml, "complete before survey-add-completed-before", "#3");
+  assert.equal(survey.processedLoadingHtml, "loading survey-add-loading", "#4");
 });
 
 QUnit.test("question.paddingLeft and question.paddingRight", function (assert) {
@@ -3995,6 +4033,26 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
 
+QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q1",
+        choices: [
+          { value: 1, imageLink: "test1" },
+          { value: 2, imageLink: "test2" },
+          { value: 3, imageLink: "test3" }]
+      },
+      { type: "imagepicker", name: "q2", choicesFromQuestion: "q1",
+        choices: [{ value: 4, imageLink: "test4" }], }
+    ]
+  });
+  const q2 = <QuestionImagePickerModel>survey.getQuestionByName("q2");
+  const choices = q2.visibleChoices;
+  assert.equal(choices.length, 3, "There are 3 values");
+  assert.equal(choices[0].getType(), "imageitemvalue", "choice item type is correct");
+  assert.equal(choices[0].imageLink, "test1", "image link is copied");
+});
+
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);
@@ -4401,6 +4459,18 @@ QUnit.test(
     question.setValueFromClick("2");
     assert.notStrictEqual(question.value, 2, "No longer 2");
     assert.strictEqual(isNaN(question.value), true, "Value is reset");
+  }
+);
+
+QUnit.test(
+  "QuestionRating reset highlight on click",
+  function (assert) {
+    var question = new QuestionRatingModel("q");
+    question.rateDisplayMode = "stars";
+    question.onItemMouseIn(question.renderedRateItems[2]);
+    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
+    question.setValueFromClick("3");
+    assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["none", "none", "none", "none", "none"]);
   }
 );
 
@@ -5192,6 +5262,38 @@ QUnit.test(
     );
   }
 );
+QUnit.test("choicesFromQuestion clear dropdown value on unselect in checkbox, Bug#5833", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3]
+      },
+      {
+        type: "dropdown",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+      {
+        type: "tagbox",
+        name: "q3",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected"
+      },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionTagboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2];
+  q2.value = 1;
+  q3.value = [1, 2];
+  q1.value = [2, 3];
+  assert.equal(q2.isEmpty(), true, "Value is cleared in dropdown");
+  assert.deepEqual(q3.value, [2], "One item is cleared in tagbox");
+});
 QUnit.test(
   "choicesFromQuestion references non-SelectBase question, Bug https://github.com/surveyjs/survey-creator/issues/3745",
   function (assert) {
@@ -5741,6 +5843,25 @@ QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert.equal(q1.visibleChoices[1].value, "item3", "bbb in fr locale");
   assert.equal(q1.visibleChoices[2].value, "item1", "ccc in fr locale");
 });
+QUnit.test("Sorting with numbers in the beginning, bug #6062", function (
+  assert
+) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["1. bc", "12. cd", "7. k"],
+        choicesOrder: "asc",
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q1.visibleChoices[0].value, "1. bc", "1. bc - 0");
+  assert.equal(q1.visibleChoices[1].value, "7. k", "7. k  - 1");
+  assert.equal(q1.visibleChoices[2].value, "12. cd", "12. - 2");
+});
 QUnit.test(
   "boolean question default value is not assign into readOnly question, bug #",
   function (assert) {
@@ -6249,6 +6370,7 @@ QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   q1.inputType = "range";
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "datetime";
+  assert.equal(q1.inputType, "datetime-local", "We do not have datetime value");
   assert.equal(q1.isMinMaxType, true);
   q1.inputType = "tel";
   assert.equal(q1.isMinMaxType, false);
@@ -6258,12 +6380,14 @@ QUnit.test("QuestionTextModel range min/max property editor type", function (ass
   const maxProperty = Serializer.findProperty("text", "max");
   const q1 = new QuestionTextModel("q1");
   q1.inputType = "range";
-  const minJson = { inputType: "text" };
+  const minJson = { inputType: "text", textUpdateMode: "" };
   minProperty.onPropertyEditorUpdate(q1, minJson);
   assert.equal(minJson.inputType, "number");
-  const maxJson = { inputType: "text" };
+  assert.equal(minJson.textUpdateMode, "onBlur");
+  const maxJson = { inputType: "text", textUpdateMode: "" };
   minProperty.onPropertyEditorUpdate(q1, maxJson);
   assert.equal(maxJson.inputType, "number");
+  assert.equal(maxJson.textUpdateMode, "onBlur");
 });
 QUnit.test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", function (assert) {
   const q1 = new QuestionTextModel("q1");
@@ -6354,14 +6478,21 @@ QUnit.test("itemComponent default values and de/serialization", function (assert
   assert.equal(json5.itemComponent, undefined, "dropdown item default");
 });
 QUnit.test("Do not allow question to start with #", function (assert) {
-  const survey = new SurveyModel({
+  let survey = new SurveyModel({
     elements: [{ type: "text", name: "q1" }, { type: "text", name: "$q1" }] });
-  const questions = survey.pages[0].questions;
+  let questions = survey.pages[0].questions;
   assert.equal(questions[1].name, "$q1", "$q1");
   questions[0].name = "#q2";
   assert.equal(questions[0].name, "q2", "change #q2 to q2");
   questions[1].valueName = "#q3";
   assert.equal(questions[1].valueName, "q3", "change #q3 to q3");
+  questions[1].valueName = "##q3";
+  assert.equal(questions[1].valueName, "q3", "change ##q3 to q3");
+  survey = new SurveyModel({
+    elements: [{ type: "text", name: "#q11" }, { type: "text", name: "##q11#" }] });
+  questions = survey.pages[0].questions;
+  assert.equal(questions[0].name, "q11", "Remove #");
+  assert.equal(questions[1].name, "q11#", "Remove ##");
 });
 QUnit.test("onGetChoiceDisplayValue and defaultValue", function (assert) {
   const survey = new SurveyModel({
@@ -6429,7 +6560,7 @@ QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function
   });
   assert.equal(cellLocStr.textOrHtml, "!!text");
 });
-QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputtype, Bug#5296", function (
+QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime-local' inputtype, Bug#5296", function (
   assert
 ) {
   const survey = new SurveyModel({
@@ -6449,10 +6580,12 @@ QUnit.test("defaultValueExpressions, currentDate() and 'date'+'datetime' inputty
   const d = new Date();
   let prefix = d.getFullYear() + "-";
   const q1 = survey.getQuestionByName("q1");
-  const q2 = survey.getQuestionByName("q1");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime has year");
-  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime has time");
-  assert.equal(q1.displayValue.indexOf(prefix), 0, "date has year");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.inputType, "datetime-local", "inputType is correct");
+  assert.equal(q1.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q1.displayValue.indexOf(":") > 0, true, "datetime-local has time");
+  assert.equal(q2.displayValue.indexOf(prefix), 0, "datetime-local has year");
+  assert.equal(q2.displayValue.indexOf(":") < 0, true, "date has no time");
 });
 QUnit.test("Supporting showCommentArea property, Bug#5479", function (
   assert

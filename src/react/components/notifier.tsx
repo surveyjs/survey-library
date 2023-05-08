@@ -17,7 +17,9 @@ export class NotifierComponent extends SurveyElementBase<INotifierComponentProps
   }
 
   renderElement(): JSX.Element | null {
-    const style = { display: this.notifier.active ? "" : "none" };
+    if(!this.notifier.isDisplayed) return null;
+
+    const style = { visibility: this.notifier.active ? "visible" : "hidden" } as React.CSSProperties;
 
     return (
       <div className={this.notifier.css} style={style}>

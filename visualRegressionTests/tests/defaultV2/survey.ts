@@ -1,6 +1,7 @@
 import { Selector, ClientFunction } from "testcafe";
 import { setData } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler, resetFocusToBody } from "../../helper";
+import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
 
@@ -219,6 +220,28 @@ frameworks.forEach(framework => {
         ]
       });
       await takeElementScreenshot("survey-title-with-logo.png", Selector(".sd-title"), t, comparer); // without title and progress
+    });
+
+  });
+  test("Check survey with backgroundImage", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await initSurvey(framework, {
+        "backgroundImage": backgroundImage,
+        "backgroundOpacity": 0.7,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("survey-with-backgroundImage.png", Selector(".sd-root-modern"), t, comparer);
     });
 
   });
@@ -760,7 +783,62 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-navigation-toc-right.png", Selector(".sv-components-row"), t, comparer);
 
+      await t.click(".sd-item__control-label");
+      await t.click(".sd-navigation__next-btn");
+      await t.click(".sd-item__control-label");
+      await t.click(".sd-navigation__next-btn");
+      await t.click(".sd-navigation__complete-btn");
+      await takeElementScreenshot("survey-completed-no-toc.png", Selector(".sd-root-modern"), t, comparer);
+
       await t.resizeWindow(1920, 1080);
     });
   });
+  test("Check survey in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        title: "Lightweight",
+        widthMode: "static",
+        showQuestionNumbers: "off",
+        width: "1000px",
+        pages: [{
+          title: "Form Library in Action",
+          description: "Form Library is extensible and allows you to change its behavior as your needs require. Take advantage of more than a hundred free demos showing functionality that includes all popular scenarios.",
+          elements: [
+            {
+              name: "q1",
+              title: "First Name",
+              type: "text"
+            },
+            {
+              name: "q2",
+              title: "Last Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q3",
+              title: "Middle Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q4",
+              title: "Address",
+              type: "comment"
+            }
+          ]
+        }
+        ]
+      };
+      await initSurvey(framework, json);
+      await resetFocusToBody();
+      await ClientFunction(() => {
+        document.body.style.setProperty("--background-dim", "#fff");
+        (<any>window).survey.isCompact = true;
+      })();
+      await takeElementScreenshot("survey-compact.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
 });
+

@@ -4,6 +4,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
+import { settings } from "./settings";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {
@@ -23,6 +24,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const visualViewport = window.visualViewport;
     document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
   }
+  private resizeWindowCallback = () => {
+    if(!this.isOverlay) {
+      this.updatePosition(true, false);
+    }
+  };
   private clientY: number = 0;
   @property() private isTablet = false;
   private touchStartEventCallback = (event: any) => {
@@ -167,7 +173,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   public updateOnShowing(): void {
-    this.prevActiveElement = <HTMLElement>document.activeElement;
+    const { root } = settings.environment;
+    this.prevActiveElement = <HTMLElement>root.activeElement;
 
     if (this.isOverlay) {
       this.resetDimensionsAndPositionStyleProperties();
@@ -176,6 +183,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
 
     this.switchFocus();
+    window.addEventListener("resize", this.resizeWindowCallback);
     if(this.shouldCreateResizeCallback) {
       window.visualViewport.addEventListener("resize", this.resizeEventCallback);
       if(this.container) {
@@ -207,6 +215,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   public updateOnHiding(): void {
     super.updateOnHiding();
+    window.removeEventListener("resize", this.resizeWindowCallback);
     if(this.shouldCreateResizeCallback) {
       window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
       if(this.container) {

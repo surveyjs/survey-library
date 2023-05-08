@@ -8,6 +8,7 @@ import { CustomError } from "./error";
 import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
+import { SurveyModel } from "./survey";
 
 /**
  * A class that describes the Text question type.
@@ -56,7 +57,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public set inputType(val: string) {
     val = val.toLowerCase();
-    if (val == "datetime_local") val = "datetime-local";
+    if (val === "datetime_local" || val === "datetime") val = "datetime-local";
     this.setPropertyValue("inputType", val.toLowerCase());
     if (!this.isLoadingFromJson) {
       this.min = undefined;
@@ -125,7 +126,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * A value passed on to the [`autocomplete`](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/autocomplete) attribute of the underlying `<input>` element.
    */
   public get autocomplete(): string {
-    return this.getPropertyValue("autocomplete", "");
+    return this.getPropertyValue("autocomplete", null);
   }
   public set autocomplete(val: string) {
     this.setPropertyValue("autocomplete", val);
@@ -267,8 +268,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return isValid;
   }
   protected convertFuncValuetoQuestionValue(val: any): any {
-    let inpuType = this.inputType.replace("-local", "");
-    return Helpers.convertValToQuestionVal(val, inpuType);
+    return Helpers.convertValToQuestionVal(val, this.inputType);
   }
   private getMinMaxErrorText(errorText: string, value: any): string {
     if (Helpers.isValueEmpty(value)) return errorText;
@@ -347,10 +347,10 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.step;
   }
   supportGoNextPageAutomatic() {
-    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
+    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
-    return ["date", "datetime", "datetime-local"].indexOf(this.inputType) < 0;
+    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   /**
    * An array of predefined options from which users can select. This property configures an HTML [`<datalist>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/datalist) element and associates it with the underlying `input` element.
@@ -429,9 +429,12 @@ export class QuestionTextModel extends QuestionTextBase {
     if(this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
+    if (event.keyCode === 13) {
+      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
+    }
   }
   public onChange = (event: any): void => {
-    if (event.target === document.activeElement) {
+    if (event.target === settings.environment.root.activeElement) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }
@@ -453,7 +456,6 @@ const minMaxTypes = [
   "number",
   "range",
   "date",
-  "datetime",
   "datetime-local",
   "month",
   "time",
@@ -502,6 +504,13 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   return val;
 }
 
+function propertyEditorMinMaxUpdate(obj: QuestionTextBase, propertyEditor: any): void {
+  if(!!obj && !!obj.inputType) {
+    propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
+    propertyEditor.textUpdateMode = "onBlur";
+  }
+}
+
 Serializer.addClass(
   "text",
   [
@@ -541,9 +550,7 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
-        }
+        propertyEditorMinMaxUpdate(obj, propertyEditor);
       },
       onSettingValue: (obj: any, val: any): any => {
         return getCorrectMinMax(obj, val, obj.max, false);
@@ -560,9 +567,7 @@ Serializer.addClass(
         return getCorrectMinMax(obj, obj.min, val, true);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
-        }
+        propertyEditorMinMaxUpdate(obj, propertyEditor);
       },
     },
     {

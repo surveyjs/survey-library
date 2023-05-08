@@ -124,21 +124,9 @@ export interface CompleteEvent extends CompleteBaseEvent {
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
    */
   showSaveInProgress: (text?: string) => void;
-  /**
-  * @deprecated Use the `showSaveInProgress()` method instead.
-  */
   showDataSaving: (text?: string) => void;
-  /**
-  * @deprecated Use the `showSaveError()` method instead.
-  */
   showDataSavingError: (text?: string) => void;
-  /**
-  * @deprecated Use the `showSaveSuccess()` method instead.
-  */
   showDataSavingSuccess: (text?: string) => void;
-  /**
-  * @deprecated Use the `clearSaveMessages()` method instead.
-  */
   showDataSavingClear: (text?: string) => void;
 }
 export interface ShowingPreviewEvent {
@@ -146,9 +134,6 @@ export interface ShowingPreviewEvent {
    * Set this property to `false` if you want to cancel the preview.
    */
   allow: boolean;
-  /**
-  * @deprecated Use the `allow` property instead.
-  */
   allowShowPreview: boolean;
 }
 export interface NavigateToUrlEvent {
@@ -163,13 +148,21 @@ export interface NavigateToUrlEvent {
 }
 export interface CurrentPageChangedEvent {
   /**
-   * Returns `true` if the respondent is going backwards, that is, `newCurrentPage` is earlier in the survey than `oldCurrentPage`.
+   * Returns `true` if the respondent is switching to the previous page.
    */
   isPrevPage: boolean;
   /**
-   * Returns `true` if the respondent is going forward along the survey.
+   * Returns `true` if the respondent is switching to the next page.
    */
   isNextPage: boolean;
+  /**
+   * Returns `true` if the respondent is going backward, that is, `newCurrentPage` is earlier in the survey than `oldCurrentPage`.
+   */
+  isGoingBackward: boolean;
+  /**
+   * Returns `true` if the respondent is going forward along the survey.
+   */
+  isGoingForward: boolean;
   /**
    * The current page.
    */
@@ -184,9 +177,6 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * Set this property to `false` if you do not want to switch the current page.
    */
   allow: boolean;
-  /**
-  * @deprecated Use the `allow` property instead.
-  */
   allowChanging: boolean;
 }
 
@@ -279,7 +269,7 @@ export interface ValidateQuestionEvent extends QuestionEventMixin {
 }
 export interface SettingQuestionErrorsEvent extends QuestionEventMixin {
   /**
-   * An array of errors. The array is empty if the validated question satisfy all validation rules.
+   * An array of errors. The array is empty if the validated question satisfies all validation rules.
    */
   errors: Array<SurveyError>;
 }
@@ -339,9 +329,13 @@ export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
 }
 export interface ProcessHtmlEvent {
   /**
-   * an HTML that you may change before text processing and then rendering. specifies the modified HTML content
+   * HTML markup. You can modify this parameter's value.
    */
   html: string;
+  /**
+   * Indicates a page, question, or message for which HTML content is intended: [`"completed"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedHtml) | [`"completed-before"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml) | [`"loading"`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#loadingHtml) | [`"html-question"`](https://surveyjs.io/form-library/documentation/api-reference/add-custom-html-to-survey#html).
+   */
+  reason: string;
 }
 export interface GetQuestionTitleEvent extends QuestionEventMixin {
   /**

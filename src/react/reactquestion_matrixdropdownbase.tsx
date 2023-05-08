@@ -113,7 +113,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
     var row = this.renderRow(
       "footer",
       table.footerRow,
-      this.question.cssClasses
+      this.question.cssClasses,
+      "row-footer"
     );
     return <tfoot>{row}</tfoot>;
   }
@@ -131,13 +132,14 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   renderRow(
     keyValue: any,
     row: QuestionMatrixDropdownRenderedRow,
-    cssClasses: any
+    cssClasses: any,
+    reason?: string
   ): JSX.Element {
     var matrixrow:Array<JSX.Element> = [];
     var cells = row.cells;
 
     for (var i = 0; i < cells.length; i++) {
-      matrixrow.push(this.renderCell(cells[i], i, cssClasses));
+      matrixrow.push(this.renderCell(cells[i], i, cssClasses, reason));
     }
     var key = "row" + keyValue;
 
@@ -151,7 +153,8 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
   renderCell(
     cell: QuestionMatrixDropdownRenderedCell,
     index: number,
-    cssClasses: any
+    cssClasses: any,
+    reason?: string
   ): JSX.Element {
     var key = "cell" + index;
     if (cell.hasQuestion) {
@@ -161,11 +164,15 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
           cssClasses={cssClasses}
           cell={cell}
           creator={this.creator}
+          reason={reason}
         />
       );
     }
-    let reason = cell.hasTitle ? "row-header" : "";
-    var cellContent = this.renderCellContent(cell, reason, cssClasses);
+    let calcReason = reason;
+    if(!calcReason) {
+      calcReason = cell.hasTitle ? "row-header" : "";
+    }
+    var cellContent = this.renderCellContent(cell, calcReason, cssClasses);
     var cellStyle: any = null;
     if (!!cell.width || !!cell.minWidth) {
       cellStyle = {};

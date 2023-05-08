@@ -20,6 +20,7 @@
   font-family: var(--font-family, $font-family);
   gap: calcSize(4);
   box-shadow: 0px 2px 0px $primary;
+  margin-bottom: 2px;
 
   .sd-logo__image {
     margin-top: calcSize(1);
@@ -33,14 +34,14 @@
   flex-grow: 1;
 
   h3 {
-    font-size: calcSize(4);
+    font-size: calcFontSize(2);
     font-weight: 700;
     line-height: calcSize(5);
     color: $primary;
   }
 
   h5 {
-    font-size: calcSize(2);
+    font-size: calcFontSize(1);
     font-weight: 400;
     line-height: calcSize(3);
   }

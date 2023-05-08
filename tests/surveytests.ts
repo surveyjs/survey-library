@@ -63,6 +63,7 @@ import { RendererFactory } from "../src/rendererFactory";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
+import { IAction } from "../src/actions/action";
 
 export default QUnit.module("Survey");
 
@@ -2611,133 +2612,80 @@ QUnit.test("survey.onCurrentPageChanging + isNextPage/isPrevPage", function (
   );
 });
 
-QUnit.test(
-  "survey.onCurrentPageChanging/Changed + isNextPage/isPrevPage",
-  function (assert) {
-    var survey = twoPageSimplestSurvey();
-    survey.addNewPage("page3");
-    survey.pages[2].addNewQuestion("test", "q5");
-    survey.addNewPage("page4");
-    survey.pages[3].addNewQuestion("test", "q6");
-    var isNextPageChangedCounter = 0;
-    var isNextPageChangingCounter = 0;
-    var isPrevPageChangedCounter = 0;
-    var isPrevPageChangingCounter = 0;
-    survey.onCurrentPageChanging.add(function (survey, options) {
-      if (options.isPrevPage) isPrevPageChangingCounter++;
-      if (options.isNextPage) isNextPageChangingCounter++;
-    });
-    survey.onCurrentPageChanged.add(function (surey, options) {
-      if (options.isPrevPage) isPrevPageChangedCounter++;
-      if (options.isNextPage) isNextPageChangedCounter++;
-    });
-    survey.nextPage();
-    assert.equal(
-      isNextPageChangedCounter,
-      1,
-      "isNextPageChangedCounter, nextPage"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      0,
-      "isPrevPageChangedCounter, nextPage"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      1,
-      "isNextPageChangingCounter, nextPage"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      0,
-      "isPrevPageChangingCounter, nextPage"
-    );
-    survey.prevPage();
-    assert.equal(
-      isNextPageChangedCounter,
-      1,
-      "isNextPageChangedCounter, nextPage/prevPage"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      1,
-      "isPrevPageChangedCounter, nextPage/prevPage"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      1,
-      "isNextPageChangingCounter, nextPage/prevPage"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      1,
-      "isPrevPageChangingCounter, nextPage/prevPage"
-    );
-    survey.currentPageNo = 2;
-    assert.equal(
-      isNextPageChangedCounter,
-      1,
-      "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      1,
-      "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      1,
-      "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      1,
-      "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=2"
-    );
-    survey.currentPageNo = 1;
-    assert.equal(
-      isNextPageChangedCounter,
-      2,
-      "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      1,
-      "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      2,
-      "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      1,
-      "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1"
-    );
-    survey.currentPageNo = 0;
-    assert.equal(
-      isNextPageChangedCounter,
-      2,
-      "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-    assert.equal(
-      isPrevPageChangedCounter,
-      2,
-      "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-    assert.equal(
-      isNextPageChangingCounter,
-      2,
-      "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-    assert.equal(
-      isPrevPageChangingCounter,
-      2,
-      "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=2/currentPageNo=1/currentPageNo=0"
-    );
-  }
-);
+QUnit.test("survey.onCurrentPageChanging/Changed + isNextPage/isPrevPage/isGoingForward/isGoingBackward", function (assert) {
+  const survey = twoPageSimplestSurvey();
+  survey.addNewPage("page3");
+  survey.pages[2].addNewQuestion("text", "q5");
+  survey.addNewPage("page4");
+  survey.pages[3].addNewQuestion("text", "q6");
+  assert.equal(survey.visiblePageCount, 4, "There are 4 pages");
+  var isNextPageChangedCounter = 0;
+  var isNextPageChangingCounter = 0;
+  var isGoingForwardPageChangingCounter = 0;
+  var isGoingBackwardPageChangingCounter = 0;
+  var isPrevPageChangedCounter = 0;
+  var isPrevPageChangingCounter = 0;
+  var isGoingForwardPageChangedCounter = 0;
+  var isGoingBackwardPageChangedCounter = 0;
+  survey.onCurrentPageChanging.add(function (survey, options) {
+    if (options.isPrevPage) isPrevPageChangingCounter++;
+    if (options.isNextPage) isNextPageChangingCounter++;
+    if (options.isGoingBackward) isGoingBackwardPageChangingCounter++;
+    if (options.isGoingForward) isGoingForwardPageChangingCounter++;
+  });
+  survey.onCurrentPageChanged.add(function (surey, options) {
+    if (options.isPrevPage) isPrevPageChangedCounter++;
+    if (options.isNextPage) isNextPageChangedCounter++;
+    if (options.isGoingBackward) isGoingBackwardPageChangedCounter++;
+    if (options.isGoingForward) isGoingForwardPageChangedCounter++;
+  });
+  survey.nextPage();
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage");
+  assert.equal(isPrevPageChangedCounter, 0, "isPrevPageChangedCounter, nextPage");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage");
+  assert.equal(isPrevPageChangingCounter, 0, "isPrevPageChangingCounter, nextPage");
+  assert.equal(isGoingForwardPageChangingCounter, 1, "isGoingForwardPageChangingCounter, nextPage");
+  assert.equal(isGoingBackwardPageChangingCounter, 0, "isGoingBackwardPageChangingCounter, nextPage");
+  assert.equal(isGoingForwardPageChangedCounter, 1, "isGoingForwardPageChangedCounter, nextPage");
+  assert.equal(isGoingBackwardPageChangedCounter, 0, "isGoingBackwardPageChangedCounter, nextPage");
+  survey.prevPage();
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage");
+  assert.equal(isPrevPageChangedCounter, 1, "isPrevPageChangedCounter, nextPage/prevPage");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage");
+  assert.equal(isPrevPageChangingCounter, 1, "isPrevPageChangingCounter, nextPage/prevPage");
+  assert.equal(isGoingForwardPageChangingCounter, 1, "isGoingForwardPageChangingCounter, nextPage/prevPage");
+  assert.equal(isGoingBackwardPageChangingCounter, 1, "isGoingBackwardPageChangingCounter, nextPage/prevPage");
+  assert.equal(isGoingForwardPageChangedCounter, 1, "isGoingForwardPageChangedCounter, nextPage/prevPage");
+  assert.equal(isGoingBackwardPageChangedCounter, 1, "isGoingBackwardPageChangedCounter, nextPage/prevPage");
+  survey.currentPageNo = 3;
+  assert.equal(survey.currentPage.name, "page4", "goes to have 3");
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isPrevPageChangedCounter, 1, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isPrevPageChangingCounter, 1, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingForwardPageChangingCounter, 2, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingBackwardPageChangingCounter, 1, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingForwardPageChangedCounter, 2, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  assert.equal(isGoingBackwardPageChangedCounter, 1, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3");
+  survey.currentPageNo = 1;
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isPrevPageChangedCounter, 1, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isPrevPageChangingCounter, 1, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingForwardPageChangingCounter, 2, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingBackwardPageChangingCounter, 2, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingForwardPageChangedCounter, 2, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  assert.equal(isGoingBackwardPageChangedCounter, 2, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1");
+  survey.currentPageNo = 0;
+  assert.equal(isNextPageChangedCounter, 1, "isNextPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isPrevPageChangedCounter, 2, "isPrevPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isNextPageChangingCounter, 1, "isNextPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isPrevPageChangingCounter, 2, "isPrevPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingForwardPageChangingCounter, 2, "isGoingForwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingBackwardPageChangingCounter, 3, "isGoingBackwardPageChangingCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingForwardPageChangedCounter, 2, "isGoingForwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+  assert.equal(isGoingBackwardPageChangedCounter, 3, "isGoingBackwardPageChangedCounter, nextPage/prevPage/currentPageNo=3/currentPageNo=1/currentPageNo=0");
+});
 
 QUnit.test("survey.onCurrentPageChanging, allowChanging option", function (
   assert
@@ -4895,7 +4843,28 @@ QUnit.test("customWidgets camel name", function (assert) {
   );
   CustomWidgetCollection.Instance.clear();
 });
-
+QUnit.test("Create custom widget from addQuestion", function (assert) {
+  const cType = "newcustomwidget";
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: cType,
+    isFit: (question) => {
+      return question.getType() == cType;
+    },
+  });
+  if (!Serializer.findClass(cType)) {
+    Serializer.addClass(cType, [], undefined, "text");
+    QuestionFactory.Instance.registerCustomQuestion(cType);
+  }
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const question = page.addNewQuestion(cType, "q1");
+  assert.equal(question.name, "q1", "name is correct");
+  assert.equal(question.getType(), cType, "type is correct");
+  CustomWidgetCollection.Instance.clear();
+  Serializer.removeClass(cType);
+  QuestionFactory.Instance.unregisterElement(cType);
+});
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();
   var readOnlyCounter = 0;
@@ -7601,6 +7570,28 @@ QUnit.test(
     assert.equal(survey.getInCorrectedAnswers(), 1, "1 in matrix");
   }
 );
+QUnit.test("question.isCorrectAnswer() and onIsAnswerCorrect event", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", correctAnswer: 1 },
+      { type: "text", name: "q2", correctAnswer: 2 }
+    ] });
+  survey.onIsAnswerCorrect.add((sender, options) => {
+    const q = options.question;
+    options.result = Math.abs(q.value - q.correctAnswer) < 2;
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isAnswerCorrect(), false, "Value is empty");
+  q1.value = 1;
+  assert.equal(q1.isAnswerCorrect(), true, "q1.value = 1");
+  q1.value = 5;
+  assert.equal(q1.isAnswerCorrect(), false, "q1.value = 5");
+  q1.value = 2;
+  assert.equal(q1.isAnswerCorrect(), true, "q1.value = 2");
+  q2.value = 3;
+  assert.equal(q2.isAnswerCorrect(), true, "q2.value = 3");
+});
 QUnit.test(
   "Quiz, correct, trim value on checking correct answers, https://surveyjs.answerdesk.io/ticket/details/T6569",
   function (assert) {
@@ -13954,6 +13945,28 @@ QUnit.test("Make inputs read-only in design-mode for V2", function (assert) {
   );
 });
 
+QUnit.test("forceIsInputReadOnly", function (assert) {
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [{ type: "text", name: "q2" }],
+      },
+    ],
+  });
+  assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isInputReadOnly, true, "q2");
+
+  survey.getQuestionByName("q2").forceIsInputReadOnly = false;
+  assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isInputReadOnly, false, "q2 with forceIsInputReadOnly");
+});
+
 QUnit.test("onElementContentVisibilityChanged event", function (assert) {
   var json = {
     pages: [
@@ -16489,6 +16502,64 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("right"), [], "default right");
 });
 
+QUnit.test("getContainerContent - do not show TOC on preview", function (assert) {
+  const json = {
+    showTOC: true,
+    "showPreviewBeforeComplete": "showAllQuestions",
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "satisfaction",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [{
+    "component": "sv-progress-toc",
+    "id": "toc-navigation"
+  }], "show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.nextPage();
+  survey.showPreview();
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "do not show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+
 const structedDataSurveyJSON = {
   pages: [
     {
@@ -16581,4 +16652,262 @@ QUnit.test("setStructuredData function", function (assert) {
   assert.deepEqual(survey.data, { q1: 103, q2: 202, q3: 302, q21: 2102, q22: 2202 }, "#4");
   survey.setStructuredData({ page1: { q1: 104 } }),
   assert.deepEqual(survey.data, { q1: 104 }, "#5");
+});
+
+QUnit.test("check titleNumInline cssClass", function (assert) {
+  const survey = new SurveyModel({
+    questionStartIndex: "1.1.1",
+    elements: [{
+      type: "panel",
+      name: "p1",
+      title: "panel",
+      showNumber: true,
+      elements: [
+        {
+          type: "html",
+          name: "html"
+        },
+      ]
+    },
+    {
+      type: "text",
+      name: "q1"
+    }
+    ]
+  });
+  const customInlineClass = "custom_inline_class";
+  survey.css = {
+    question: {
+      titleNumInline: customInlineClass
+    },
+    panel: {
+      titleNumInline: customInlineClass
+    }
+  };
+  const question = survey.getQuestionByName("q1");
+  const panel = survey.getPanelByName("p1");
+  assert.ok(question.cssTitle.includes(customInlineClass));
+  assert.ok(panel.cssTitle.includes(customInlineClass));
+  survey.questionStartIndex = "1.1";
+  assert.notOk(question.cssTitle.includes(customInlineClass));
+  assert.notOk(panel.cssTitle.includes(customInlineClass));
+});
+
+QUnit.test("Survey setDesignMode should not trigger pages regeneration if not changed", function (assert) {
+  var survey = twoPageSimplestSurvey();
+  survey.isSinglePage = true;
+  assert.equal(survey.pages.length, 1, "We should have 1 page");
+  assert.equal(survey.getAllPanels().length, 2, "We should have 2 panels");
+  survey.setDesignMode(false);
+  assert.equal(survey.pages.length, 1, "We should have 1 page");
+  assert.equal(survey.getAllPanels().length, 2, "We should have 2 panels");
+  survey.setDesignMode(true);
+  assert.equal(survey.pages.length, 2, "We should have 2 pages");
+  assert.equal(survey.getAllPanels().length, 0, "We should have 0 panels");
+});
+QUnit.test("Try again button should call onComplete", function (assert) {
+  class SurveyModelTester extends SurveyModel {
+    public doErrorAction(): void {
+      const action = this.createTryAgainAction().action;
+      if(!!action) action();
+    }
+  }
+  var survey = new SurveyModelTester({ elements: [{ type: "text", name: "q1" }] });
+  let attempts = 0;
+  survey.onComplete.add((sender, options) => {
+    attempts ++;
+    if(attempts < 3) {
+      survey.doErrorAction();
+    }
+  });
+  survey.doComplete();
+  assert.equal(survey.state, "completed", "the survey is completed");
+  assert.equal(attempts, 3, "There were 3 attempts");
+});
+QUnit.test("Use variables as default values in expression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q2",
+        title: "myB = {myB}",
+        defaultValueExpression: "{myB}",
+      },
+      {
+        type: "text",
+        name: "q1",
+        title: "myA = {myA}",
+        defaultValueExpression: "{myA}",
+      },
+
+      {
+        type: "text",
+        name: "q3",
+        title: "myC = {myC}",
+        defaultValueExpression: "{myC}",
+      },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  survey.setValue("myA", "AAA");
+  survey.setValue("myB", "BBB");
+  survey.setValue("myC", "CCC");
+  assert.equal(q1.value, "AAA", "q1.value");
+  assert.equal(q2.value, "BBB", "q2.value");
+  assert.equal(q3.value, "CCC", "q3.value");
+});
+
+QUnit.test("backgroundImage", assert => {
+  const imageUrl = "https://image.shutterstock.com/image-photo/agave-cactus-abstract-natural-pattern-600w-1056037874.jpg";
+  const survey = new SurveyModel({
+    "backgroundImage": imageUrl,
+  });
+  assert.equal(survey.backgroundImage, imageUrl, "backgroundImage");
+  assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
+});
+
+QUnit.test("backgroundOpacity", assert => {
+  const survey = new SurveyModel({
+    "backgroundOpacity": 0.6,
+  });
+  assert.equal(survey.backgroundOpacity, 0.6, "backgroundOpacity");
+  assert.equal(survey.renderBackgroundOpacity, "rgba(255, 255, 255, 0.4)", "renderBackgroundOpacity");
+
+  survey.backgroundOpacity = 1;
+  assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
+});
+QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
+  const titleProp = Serializer.findProperty("survey", "title");
+  titleProp.isLocalizable = false;
+  const survey = new SurveyModel();
+  survey.title = "val1";
+  survey.locale = "de";
+  survey.title = "val2";
+  survey.locale = "fr";
+  survey.title = "val3";
+  assert.equal(survey.locTitle.getJson(), "val3", "It supports only one locale");
+  titleProp.isLocalizable = true;
+});
+
+QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibility", function (assert) {
+  const json = {
+    pages: [
+      {
+        "navigationButtonsVisibility": "hide",
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+          {
+            required: true,
+            "type": "rating",
+            "name": "recommend friends",
+          }
+        ]
+      },
+      {
+        "navigationButtonsVisibility": "show",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+          {
+            "type": "radiogroup",
+            "name": "price",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.equal(survey.showNavigationButtons, "bottom");
+
+  assert.deepEqual(getContainerContent("header"), [], "nav none header");
+  assert.deepEqual(getContainerContent("footer"), [], "nav none footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "nav none contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "nav none contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "nav none left");
+  assert.deepEqual(getContainerContent("right"), [], "nav none right");
+
+  survey.nextPage();
+  assert.deepEqual(getContainerContent("header"), [], "default header");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+
+  survey.showNavigationButtons = "none";
+  assert.deepEqual(getContainerContent("header"), [], "default header");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+});
+
+QUnit.test("check title classes when readOnly changed", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "type": "text",
+      name: "q1"
+    }]
+  });
+  const customDisabledClass = "custom_disabled_class";
+  survey.css = {
+    question: {
+      titleDisabled: customDisabledClass
+    },
+  };
+  const question = survey.getQuestionByName("q1");
+  assert.notOk(question.cssTitle.includes(customDisabledClass));
+  question.readOnly = true;
+  assert.ok(question.cssTitle.includes(customDisabledClass));
+  question.readOnly = false;
+  assert.notOk(question.cssTitle.includes(customDisabledClass));
+});
+QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage() is called", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+      {
+        "type": "text",
+        "name": "question2"
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} = 1"
+      }
+    ]
+  });
+  let counter = 0;
+  survey.onComplete.add((sender, options) => {
+    counter ++;
+  });
+  survey.setValue("question1", 1);
+  survey.completeLastPage();
+  assert.equal(counter, 1, "onComplete called one time");
 });

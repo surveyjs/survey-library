@@ -30,7 +30,7 @@
 .sd-dropdown option {
   color: $foreground;
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
 }
 
 .sd-dropdown__value {
@@ -40,7 +40,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   color: $foreground;
 
   position: relative;
@@ -80,7 +80,7 @@
   outline: none;
   padding: 0;
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   background-color: transparent;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -88,6 +88,7 @@
   display: inline-block;
   line-height: calcSize(3);
   appearance: none;
+  height: 100%;
 }
 
 .sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
@@ -96,7 +97,7 @@
 
 .sd-dropdown__filter-string-input::placeholder {
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   color: $foreground;
   width: 100%;
   max-width: 100%;
@@ -107,7 +108,20 @@
   line-height: calcSize(3);
   appearance: none;
 }
+.sd-dropdown__hint-prefix {
+  color: $foreground-light;
+  span {
+      white-space: pre;
+    }
+}
 
+.sd-dropdown__hint-suffix {
+  display: flex;
+  color: $foreground-light;
+  span {
+      white-space: pre;
+    }
+}
 [dir="rtl"],
 [style*="direction:rtl"],
 [style*="direction: rtl"] {

@@ -51,7 +51,9 @@ export * from "../cssClassBuilderTests";
 export * from "../listModelTests";
 export * from "../dropdown_list_model_test";
 export * from "../multi_select_list_model_tests";
+export * from "../dropdown_multi_select_list_model_test";
 export * from "../notifier_tests";
+export * from "../surveyTOCTests";
 
 export * from "../renderFactoryTests";
 export * from "../components/popuptests";

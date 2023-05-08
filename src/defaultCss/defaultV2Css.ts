@@ -48,9 +48,11 @@ export var defaultV2Css = {
     edit: "",
   },
   panel: {
+    asPage: "sd-panel--as-page",
     number: "sd-element__num",
     title: "sd-title sd-element__title sd-panel__title",
     titleExpandable: "sd-element__title--expandable",
+    titleNumInline: "sd-element__title--num-inline",
     titleExpanded: "sd-element__title--expanded",
     titleCollapsed: "sd-element__title--collapsed",
     titleDisabled: "sd-element__title--disabled",
@@ -71,6 +73,7 @@ export var defaultV2Css = {
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
     navigationButton: "",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
@@ -78,6 +81,8 @@ export var defaultV2Css = {
     root: "sd-paneldynamic",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-element__title sd-question__title",
+    header: "sd-paneldynamic__header sd-element__header",
+    headerTab: "sd-paneldynamic__header-tab",
     button: "sd-action sd-paneldynamic__btn",
     buttonRemove: "sd-action--negative sd-paneldynamic__remove-btn",
     buttonAdd: "sd-paneldynamic__add-btn",
@@ -96,7 +101,8 @@ export var defaultV2Css = {
     footerButtonsContainer: "sd-paneldynamic__buttons-container",
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
-    noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder"
+    noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   progress: "sd-progress sd-body__progress",
   progressTop: "sd-body__progress--top",
@@ -128,6 +134,7 @@ export var defaultV2Css = {
   pageDescription: "sd-description sd-page__description",
   row: "sd-row sd-clearfix",
   rowMultiple: "sd-row--multiple",
+  rowCompact: "sd-row--compact",
   pageRow: "sd-page__row",
   question: {
     mainRoot: "sd-element sd-question sd-row__question",
@@ -141,6 +148,7 @@ export var defaultV2Css = {
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
     contentLeft: "sd-question__content--left",
+    titleNumInline: "sd-element__title--num-inline",
     titleLeftRoot: "sd-question--left",
     titleOnAnswer: "sd-question__title--answer",
     titleOnError: "sd-question__title--error",
@@ -247,11 +255,13 @@ export var defaultV2Css = {
     itemChecked: "sd-boolean--checked",
     itemIndeterminate: "sd-boolean--indeterminate",
     itemDisabled: "sd-boolean--disabled",
+    itemHover: "sd-boolean--allowhover",
     label: "sd-boolean__label",
     switch: "sd-boolean__switch",
     disabledLabel: "sd-checkbox__label--disabled",
     sliderText: "sd-boolean__thumb-text",
     slider: "sd-boolean__thumb",
+    sliderGhost: "sd-boolean__thumb-ghost",
     //radio
     radioItem: "sd-item",
     radioItemChecked: "sd-item--checked sd-radio--checked",
@@ -290,6 +300,7 @@ export var defaultV2Css = {
     itemLabelOnError: "sd-multipletext__item-container--error",
     item: "sd-multipletext__item",
     itemTitle: "sd-multipletext__item-title",
+    content: "sd-multipletext__content sd-question__content",
     row: "sd-multipletext__row",
     cell: "sd-multipletext__cell"
   },
@@ -317,7 +328,9 @@ export var defaultV2Css = {
     controlEmpty: "sd-dropdown--empty",
     controlLabel: "sd-item__control-label",
     filterStringInput: "sd-dropdown__filter-string-input",
-    materialDecorator: "sd-item__decorator sd-radio__decorator"
+    materialDecorator: "sd-item__decorator sd-radio__decorator",
+    hintPrefix: "sd-dropdown__hint-prefix",
+    hintSuffix: "sd-dropdown__hint-suffix"
   },
   imagepicker: {
     mainRoot: "sd-element sd-question sd-row__question",
@@ -367,7 +380,8 @@ export var defaultV2Css = {
     cellText: "sd-matrix__text",
     cellTextSelected: "sd-matrix__text--checked",
     cellTextDisabled: "sd-matrix__text--disabled",
-    cellResponsiveTitle: "sd-matrix__responsive-title"
+    cellResponsiveTitle: "sd-matrix__responsive-title",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   matrixdropdown: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -392,7 +406,8 @@ export var defaultV2Css = {
     actionsCell: "sd-table__cell sd-table__cell--actions",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
-    cellQuestionWrapper: "sd-table__question-wrapper"
+    cellQuestionWrapper: "sd-table__question-wrapper",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   matrixdynamic: {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
@@ -400,6 +415,7 @@ export var defaultV2Css = {
     empty: "sd-question--empty",
     root: "sd-table sd-matrixdynamic",
     tableWrapper: "sd-table-wrapper",
+    content: "sd-matrixdynamic__content sd-question__content",
     cell: "sd-table__cell",
     row: "sd-table__row",
     itemCell: "sd-table__cell--item",
@@ -428,7 +444,8 @@ export var defaultV2Css = {
     ghostRow: "sv-matrix-row--drag-drop-ghost-mod",
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
-    cellQuestionWrapper: "sd-table__question-wrapper"
+    cellQuestionWrapper: "sd-table__question-wrapper",
+    compact: "sd-element--with-frame sd-element--compact"
   },
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",
@@ -445,11 +462,23 @@ export var defaultV2Css = {
     itemStarDisabled: "sd-rating__item-star--disabled",
     itemStarHighlighted: "sd-rating__item-star--highlighted",
     itemStarUnhighlighted: "sd-rating__item-star--unhighlighted",
+    itemStarSmall: "sd-rating__item-star--small",
+    itemSmiley: "sd-rating__item-smiley",
+    itemSmileyOnError: "sd-rating__item-smiley--error",
+    itemSmileyHover: "sd-rating__item-smiley--allowhover",
+    itemSmileySelected: "sd-rating__item-smiley--selected",
+    itemSmileyDisabled: "sd-rating__item-smiley--disabled",
+    itemSmileyHighlighted: "sd-rating__item-star--highlighted",
+    itemSmileyScaleColored: "sd-rating__item-smiley--scale-colored",
+    itemSmileyRateColored: "sd-rating__item-smiley--rate-colored",
+    itemSmileySmall: "sd-rating__item-smiley--small",
     minText: "sd-rating__item-text sd-rating__min-text",
     itemText: "sd-rating__item-text",
     maxText: "sd-rating__item-text sd-rating__max-text",
     itemDisabled: "sd-rating__item--disabled",
+    itemFixedSize: "sd-rating__item--fixed-size",
     control: "sd-input sd-dropdown",
+    itemSmall: "sd-rating--small",
     controlValue: "sd-dropdown__value",
     controlDisabled: "sd-input--disabled",
     controlEmpty: "sd-dropdown--empty",
@@ -520,6 +549,7 @@ export var defaultV2Css = {
     error: "sv-save-data_error",
     success: "sv-save-data_success",
     button: "sv-save-data_button",
+    shown: "sv-save-data_root--shown"
   },
   window: {
     root: "sv_window",
@@ -569,7 +599,8 @@ export var defaultV2Css = {
     root: "sv-list__container sd-list",
     item: "sv-list__item sd-list__item",
     itemBody: "sv-list__item-body sd-list__item-body",
-    itemSelected: "sv-list__item--selected sd-list__item--selected"
+    itemSelected: "sv-list__item--selected sd-list__item--selected",
+    itemFocused: "sv-list__item--focused sd-list__item--focused",
   },
   actionBar: {
     root: "sd-action-bar",
@@ -614,7 +645,11 @@ export var defaultV2Css = {
     controlEmpty: "sd-dropdown--empty sd-tagbox--empty",
     controlLabel: "sd-item__control-label",
     filterStringInput: "sd-tagbox__filter-string-input sd-dropdown__filter-string-input",
-    materialDecorator: "sd-item__decorator sd-checkbox__decorator"
+    materialDecorator: "sd-item__decorator sd-checkbox__decorator",
+    hint: "sd-tagbox__hint",
+    hintPrefix: "sd-dropdown__hint-prefix sd-tagbox__hint-prefix",
+    hintSuffix: "sd-dropdown__hint-suffix sd-tagbox__hint-suffix",
+    hintSuffixWrapper: "sd-tagbox__hint-suffix-wrapper"
   },
 };
 

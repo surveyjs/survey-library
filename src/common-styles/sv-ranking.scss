@@ -1,17 +1,4 @@
-$base-unit: var(--base-unit, 8px);
-$primary: var(--primary, #19b394);
-$main-color: $primary;
-$foreground: var(--foreground, #161616);
-$foreground-light: var(--foreground-light, #909090);
-$background: var(--background, #fff);
-$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
-//todo: discuss this variable
-$foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
-
-@function calcSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$base-unit});
-  @return $result;
-}
+@import "../defaultV2-theme/variables.scss";
 
 .sv-ranking {
   outline: none;
@@ -42,11 +29,13 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
 
 .sv-ranking-item:focus .sv-ranking-item__icon--focus {
   visibility: visible;
+  top: calcSize(0.6);
+  height: calcSize(3);
 }
 
 .sv-ranking-item:focus .sv-ranking-item__index {
   background: $background;
-  border: calcSize(0.25) solid $primary;
+  outline: calcSize(0.25) solid $primary;
 }
 
 .sv-ranking-item__content.sv-ranking-item__content {
@@ -65,8 +54,6 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   flex-shrink: 0;
   width: calcSize(3);
   height: calcSize(4);
-  margin-right: calcSize(1);
-  margin-left: calcSize(1);
 }
 
 .sv-ranking-item__icon.sv-ranking-item__icon {
@@ -74,7 +61,6 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   fill: $primary;
   position: absolute;
   top: calcSize(1);
-  margin-right: calcSize(1);
   width: calcSize(1.75);
   height: calcSize(2);
 }
@@ -86,7 +72,7 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   justify-content: center;
   background-color: $primary-light;
   color: $foreground;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   border-radius: 100%;
   border: calcSize(0.25) solid transparent;
   width: calcSize(5);
@@ -94,7 +80,7 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   line-height: calcSize(3);
   box-sizing: border-box;
   font-weight: 600;
-  margin-left: calcSize(1);
+  margin-left: calcSize(0);
 
   &.sv-ranking-item__index--empty:empty {
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAArSURBVHgB7cuhEQAwDMNAtUN4//m8RMtygcE5PxMQxAKnh6Q3mWzXd4mAD4cJBAQCqfbUAAAAAElFTkSuQmCC");
@@ -109,13 +95,14 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   text-overflow: ellipsis;
   white-space: nowrap;
   color: $foreground;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   margin: 0 calcSize(2);
 }
 
 .sd-ranking--disabled .sv-ranking-item__text {
-  color: $foreground-disabled;
+  color: $foreground;
+  opacity: 0.25;
 }
 
 .sv-ranking-item__ghost.sv-ranking-item__ghost {
@@ -199,13 +186,16 @@ $foreground-disabled: var(--foreground-disabled, rgba(#161616, 0.16));
   margin-right: calcSize(4);
 }
 
-.sv-ranking-shortcut  .sv-ranking-item__icon--hover {
+.sv-ranking-shortcut .sv-ranking-item__icon--hover {
   visibility: visible;
 }
 
 .sv-ranking-shortcut .sv-ranking-item__icon {
-  margin-left: calcSize(1);
   width: calcSize(1.75);
   height: calcSize(2);
   top: calcSize(1);
+}
+
+.sv-ranking-shortcut .sv-ranking-item__icon-container {
+  margin-left: calcSize(1);
 }

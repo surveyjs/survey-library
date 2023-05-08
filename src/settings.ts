@@ -1,3 +1,36 @@
+export type ISurveyEnvironment = {
+  root: Document | ShadowRoot,
+  rootElement: HTMLElement | ShadowRoot,
+  popupMountContainer: HTMLElement | string,
+  svgMountContainer: HTMLElement | string,
+  stylesSheetsMountContainer: HTMLElement,
+}
+const document = global.document;
+const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> (!!document ? {
+  root: document,
+
+  _rootElement: document.body,
+  get rootElement(): HTMLElement | ShadowRoot {
+    return this._rootElement ?? document.body;
+  },
+  set rootElement(rootElement: HTMLElement | ShadowRoot) {
+    (this._rootElement as any) = rootElement;
+  },
+
+  _popupMountContainer: document.body,
+  get popupMountContainer(): HTMLElement | string {
+    return this._popupMountContainer ?? document.body;
+  },
+  set popupMountContainer(popupMountContainer: HTMLElement | string) {
+    (this._popupMountContainer as any) = popupMountContainer;
+  },
+  svgMountContainer: document.head,
+  stylesSheetsMountContainer: document.head,
+} : undefined);
+const columnWidthsByType: { [index: string]: { minWidth?: string, width?: string } } = {
+  "file": { minWidth: "240px" },
+  "comment": { minWidth: "200px" }
+};
 /**
  * Global settings that apply to all surveys on the page. To specify one of the settings, use the code below:
  *
@@ -7,7 +40,18 @@
  * settings.settingName = "value";
  * ```
  */
+
 export var settings = {
+  /**
+   * Specifies an action to perform when users press the Enter key within a survey.
+   *
+   * Possible values:
+   *
+   * - `"moveToNextEditor"` - Moves focus to the next editor.
+   * - `"loseFocus"` - Removes focus from the current editor.
+   * - `"default"` - Behaves as a standard `<input>` element.
+   */
+  enterKeyAction: "default" as "moveToNextEditor" | "loseFocus" | "default",
   /**
    * An object that configures string comparison.
    *
@@ -334,11 +378,11 @@ export var settings = {
     imagepicker: ["answercount"],
   },
   /**
-   * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+   * Specifies a minimum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   minDate: "",
   /**
-   * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"`, `"datetime"`, or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
+   * Specifies a maximum date that users can enter into a [Text](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model) question with [`inputType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#inputType) set to `"date"` or `"datetime-local"`. Set this property to a string with the folllowing format: `"yyyy-mm-dd"`.
    */
   maxDate: "",
   showModal: <
@@ -375,6 +419,12 @@ export var settings = {
    * - `"icon"` - Users can only use the choice item icon as a drag handle.
    */
   rankingDragHandleArea: "entireItem",
+
+  /**
+   * Specifies environment in which SurveyJS will exist
+   */
+  environment: defaultEnvironment,
+
   titleTags: {
     survey: "h3",
     page: "h4",
@@ -385,7 +435,6 @@ export var settings = {
     inputTypes: [
       "color",
       "date",
-      "datetime",
       "datetime-local",
       "email",
       "month",
@@ -454,5 +503,21 @@ export var settings = {
       "email",
       "impp",
     ]
+  },
+  /**
+   * Contains properties that apply to [Single-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multiple-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions.
+   *
+   * Nested properties:
+   *
+   * - `columnWidthsByType`: `Object`\
+   * An object that specifies fixed and minimum column width based on the column type.\
+   * Example: `settings.matrix.columnWidthsByType = { "tagbox": { minWidth: "240px", width: "300px" } }`
+   *
+   * - `rateSize`: `"small"` (default) | `"normal"`\
+   * Specifies the size of rate values. Applies to [Rating Scale](https://surveyjs.io/form-library/examples/rating-scale/) questions within matrixes.
+   */
+  matrix: {
+    columnWidthsByType: columnWidthsByType,
+    rateSize: "small" as "small" | "normal",
   }
 };

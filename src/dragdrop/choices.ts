@@ -69,6 +69,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       cursor: grabbing;
       position: absolute;
       z-index: 1000;
+      filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
       box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
       padding: 4px;
       border-radius: 4px;
@@ -90,15 +91,6 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     draggedElementShortcut.appendChild(imageNode);
 
     return draggedElementShortcut;
-  }
-
-  protected findDropTargetNodeByDragOverNode(
-    dragOverNode: HTMLElement
-  ): HTMLElement {
-    const result: HTMLElement = dragOverNode.closest(
-      this.dropTargetDataAttributeName
-    );
-    return result;
   }
 
   protected getDropTargetByDataAttributeValue(

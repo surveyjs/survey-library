@@ -177,6 +177,7 @@ export class QuestionBooleanModel extends Question {
       .append(css.item)
       .append(css.itemOnError, this.errors.length > 0)
       .append(css.itemDisabled, this.isReadOnly)
+      .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)
       .append(css.itemIndeterminate, this.booleanValue === null)
       .toString();

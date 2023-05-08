@@ -4,12 +4,16 @@
         type="checkbox"
         [attr.name]="model.name" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy"
         [class]="model.cssClasses.control" [disabled]="model.isInputReadOnly"  [indeterminate]="model.isIndeterminate" [value]="model.booleanValue" [(ngModel)]="model.booleanValue" />
-      <span [class]="model.getLabelCss(false)" (click)="model.onLabelClick($event, false)" [model]="model.locLabelFalse" sv-ng-string></span>
+      <div [class]="model.cssClasses.sliderGhost" (click)="model.onLabelClick($event, false)">
+        <span [class]="model.getLabelCss(false)" [model]="model.locLabelFalse" sv-ng-string></span>
+      </div>
       <div [class]="model.cssClasses.switch" (click)="model.onSwitchClickModel($event)">
         <span [class]="model.cssClasses.slider">
             <span *ngIf="model.cssClasses.sliderText && model.isDeterminated" [class]="model.cssClasses.sliderText" [model]="model.getCheckedLabel()" sv-ng-string></span>
         </span>
       </div>
-      <span [class]="model.getLabelCss(true)" (click)="model.onLabelClick($event, true)" [model]="model.locLabelTrue"  sv-ng-string></span>
+      <div [class]="model.cssClasses.sliderGhost" (click)="model.onLabelClick($event, true)">
+        <span [class]="model.getLabelCss(true)" [model]="model.locLabelTrue"  sv-ng-string></span>
+      </div>
     </label>
 </div>

@@ -212,7 +212,7 @@ QUnit.test(
 );
 
 QUnit.test(
-  "survey.clearIncorrectValues with parameter removeNonExisingRootKeys",
+  "survey.clearIncorrectValues with parameter removeNonExistingRootKeys",
   function(assert) {
     var json = {
       elements: [

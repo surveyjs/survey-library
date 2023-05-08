@@ -1,5 +1,6 @@
 import React from "react";
-import { Question, PanelModel } from "survey-core";
+import { Question, PanelModel, QuestionPanelDynamicModel } from "survey-core";
+import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { TitleElement } from "./components/title/title-element";
 import { SurveyElementBase } from "./reactquestion_element";
 
@@ -15,10 +16,14 @@ export class SurveyElementHeader extends React.Component<any, any> {
     const description = element.hasDescriptionUnderTitle
       ? SurveyElementBase.renderQuestionDescription(this.element)
       : null;
+
+    const additionalTitleToolbarElement = !!element.additionalTitleToolbar ? <SurveyActionBar model= {element.additionalTitleToolbar}></SurveyActionBar> : null;
+
     return (
       <div className={element.cssHeader} onClick={element.clickTitleFunction}>
         {title}
         {description}
+        {additionalTitleToolbarElement}
       </div>
     );
   }

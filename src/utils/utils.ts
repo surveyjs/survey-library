@@ -1,4 +1,4 @@
-import { settings } from "./../settings";
+import { settings, ISurveyEnvironment } from "./../settings";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -70,16 +70,30 @@ function isMobile() {
   );
 }
 
+const isShadowDOM = (rootElement: Document | ShadowRoot | HTMLElement): rootElement is ShadowRoot => {
+  return !!rootElement && !!("host" in rootElement && rootElement.host);
+};
+
+const getElement = (element: HTMLElement | string): HTMLElement => {
+  const { root }: ISurveyEnvironment = settings.environment;
+  return typeof element === "string" ? root.getElementById(element) : element;
+};
+
 function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  if (typeof document === "undefined") {
+  if (typeof settings.environment === "undefined") {
     return false;
   }
+
+  const { root }: ISurveyEnvironment = settings.environment;
+  const clientHeight = isShadowDOM(root)
+    ? root.host.clientHeight
+    : root.documentElement.clientHeight;
   const elementRect: DOMRect = element.getBoundingClientRect();
   const viewHeight: number = Math.max(
-    document.documentElement.clientHeight,
+    clientHeight,
     window.innerHeight
   );
   const topWin: number = -threshold;
@@ -93,8 +107,11 @@ function isElementVisible(
 }
 
 function findScrollableParent(element: HTMLElement): HTMLElement {
+  const { root }: ISurveyEnvironment = settings.environment;
   if (!element) {
-    return document.documentElement;
+    return isShadowDOM(root)
+      ? root.host as HTMLElement
+      : root.documentElement;
   }
   if (
     element.scrollHeight > element.clientHeight &&
@@ -116,8 +133,10 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
 }
 
 function scrollElementByChildId(id: string) {
-  if (!document) return;
-  const el = document.getElementById(id);
+  const environment : ISurveyEnvironment = settings.environment;
+  if (!environment) return;
+  const { root } = environment;
+  const el = root.getElementById(id);
   if (!el) return;
   const scrollableEl = findScrollableParent(el);
   if (!!scrollableEl) {
@@ -142,7 +161,7 @@ function createSvg(
   height: number,
   iconName: string,
   svgElem: any,
-  title: string
+  title: string,
 ): void {
   if (!svgElem) return;
   if (size !== "auto") {
@@ -334,6 +353,8 @@ export {
   detectIEBrowser,
   loadFileFromBase64,
   isMobile,
+  isShadowDOM,
+  getElement,
   isElementVisible,
   findScrollableParent,
   scrollElementByChildId,

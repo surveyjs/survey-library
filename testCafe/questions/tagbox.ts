@@ -2,6 +2,8 @@ import { frameworks, url, initSurvey, getListItemByText, applyTheme, url_test } 
 import { Selector } from "testcafe";
 const title = "tagbox";
 
+const questionOffsetTopConst = 184;
+
 const jsonCloseOnSelectIsTrue = {
   showQuestionNumbers: "off",
   questions: [
@@ -270,14 +272,14 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
   });
@@ -313,7 +315,7 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(selectedItems.count).eql(2)
       .expect(selectedItems.nth(0).textContent).contains("item23")
-      .expect(selectedItems.nth(1).textContent).contains("item25")
+      .expect(selectedItems.nth(1).textContent).contains("item20")
       .expect(popupContainer.visible).ok()
 
       .pressKey("4")
@@ -353,15 +355,79 @@ frameworks.forEach((framework) => {
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
 
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
-      .pressKey("space")
+      .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
+  });
+
+  test("check tagbox after navigating between pages", async t => {
+    const json = {
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "tagbox",
+              "name": "question1",
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "tagbox",
+              "name": "question3",
+              "choices": [
+                "Item 1",
+                "Item 2",
+                "Item 3"
+              ]
+            }
+          ]
+        }
+      ],
+      "showCompletedPage": false,
+      "showQuestionNumbers": "off",
+      "showProgressBar": "top",
+      "checkErrorsMode": "onComplete",
+    };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await initSurvey(framework, json);
+
+    await t
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionTagbox)
+      .click(getListItemByText("3"))
+      .pressKey("esc")
+      .expect(popupContainer.exists).notOk()
+
+      .click(".sv_next_btn")
+      .click(".sv_prev_btn")
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionTagbox)
+      .expect(popupContainer.exists).ok()
+      .pressKey("esc")
+      .expect(selectedItems.count).eql(1)
+
+      .click(".sv_q_dropdown_clean-button")
+      .expect(selectedItems.count).eql(0);
   });
 
   const theme = "defaultV2";
@@ -580,13 +646,13 @@ frameworks.forEach((framework) => {
       .expect(tagbox1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
@@ -808,13 +874,13 @@ frameworks.forEach((framework) => {
       .expect(tagbox1.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(475, 485)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox1.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox1.offsetTop).eql(184)
+      .expect(tagbox1.offsetTop).eql(questionOffsetTopConst)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")

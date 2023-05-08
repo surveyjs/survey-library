@@ -1,0 +1,27 @@
+@mixin page_title {
+  position: static;
+  font-size: calcFontSize(1.5);
+  line-height: calcSize(4);
+  margin: calcSize(0.5) 0px;
+  font-weight: 700;
+}
+
+@mixin page_description {
+  position: static;
+  font-size: calcFontSize(1);
+  line-height: calcSize(3);
+  margin: calcSize(0.5) 0px;
+  font-weight: 400;
+}
+@mixin num_inline {
+  float: none;
+  margin-inline-start: 0;
+  width: auto;
+  padding-inline-start: 0;
+  padding-inline-end: 0;
+
+  & + span {
+    float: none;
+    width: auto;
+  }
+}

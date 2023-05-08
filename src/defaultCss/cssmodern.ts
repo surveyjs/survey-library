@@ -213,6 +213,7 @@ export var modernCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label",
     disabledLabel: "sv-boolean__label--disabled",
+    sliderGhost: "sv-boolean__thumb-ghost",
 
     //checkbox
     rootCheckbox: "sv_qbln",
@@ -257,6 +258,8 @@ export var modernCss = {
     filterStringInput: "sv-dropdown__filter-string-input",
     controlValue: "sv-dropdown__value",
     controlInputFieldComponent: "sv_dropdown_control__input-field-component",
+    hintPrefix: "sv-dropdown__hint-prefix",
+    hintSuffix: "sv-dropdown__hint-suffix"
   },
   tagbox: {
     root: "",
@@ -366,7 +369,11 @@ export var modernCss = {
     cleanButtonSvg: "sv-dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     controlValue: "sv-dropdown__value",
-    controlInputFieldComponent: "sv_dropdown_control__input-field-component"
+    controlInputFieldComponent: "sv_dropdown_control__input-field-component",
+    itemSmiley: "sv-rating__item-smiley",
+    itemStar: "sv-rating__item-star",
+    itemSmileySelected: "sv-rating__item-smiley--selected",
+    itemStarSelected: "sv-rating__item-star--selected"
   },
   comment: {
     root: "sv-comment",
@@ -407,6 +414,7 @@ export var modernCss = {
     error: "sv-save-data_error",
     success: "sv-save-data_success",
     button: "sv-save-data_button",
+    shown: "sv-save-data_root--shown"
   },
   window: {
     root: "sv_window",

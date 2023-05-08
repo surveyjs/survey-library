@@ -1,7 +1,7 @@
 .sd-file {
   min-height: calcSize(36);
   position: relative;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   .sv-action-bar {
     padding: calcSize(1) 0;
@@ -130,7 +130,7 @@
 .sd-file__sign {
   margin-top: calcSize(1);
   text-align: center;
-  font-size: calcSize(1.5);
+  font-size: calcFontSize(0.75);
   line-height: calcSize(2);
   a {
     display: block;

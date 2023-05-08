@@ -1,4 +1,4 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, AdaptiveActionContainer } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -203,6 +203,68 @@ registerMarkupTests(
     snapshot: "paneldynamic-no-footer-2",
     removeIds: true,
     before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  }, {
+    name: "Test paneldynamic (tab) markup",
+    json: {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          renderMode: "tab",
+          panelCount: 2,
+        },
+      ]
+    },
+    snapshot: "paneldynamic-progress-tab-center",
+    removeIds: true,
+    before: () => {
+      AdaptiveActionContainer["ContainerID"] = 1;
+      StylesManager.applyTheme("defaultV2");
+    },
+    after: () => StylesManager.applyTheme("default"),
+  }, {
+    name: "Test paneldynamic (tab) tabAlign right markup",
+    json: {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          renderMode: "tab",
+          tabAlign: "right",
+          panelCount: 2,
+        },
+      ]
+    },
+    snapshot: "paneldynamic-progress-tab-right",
+    removeIds: true,
+    before: () => {
+      AdaptiveActionContainer["ContainerID"] = 1;
+      StylesManager.applyTheme("defaultV2");
+    },
+    after: () => StylesManager.applyTheme("default"),
+  }, {
+    name: "Test paneldynamic (tab) tabAlign left markup",
+    json: {
+      questions: [
+        {
+          type: "paneldynamic",
+          name: "pd",
+          titleLocation: "hidden",
+          renderMode: "tab",
+          tabAlign: "left",
+          panelCount: 2,
+        },
+      ]
+    },
+    snapshot: "paneldynamic-progress-tab-left",
+    removeIds: true,
+    before: () => {
+      AdaptiveActionContainer["ContainerID"] = 1;
+      StylesManager.applyTheme("defaultV2");
+    },
     after: () => StylesManager.applyTheme("default"),
   }
   ]

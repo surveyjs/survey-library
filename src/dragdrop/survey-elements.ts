@@ -4,6 +4,7 @@ import { JsonObject, Serializer } from "../jsonobject";
 import { PageModel } from "../page";
 import { DragDropCore } from "./core";
 import { QuestionRowModel } from "../panel";
+import { settings } from "../settings";
 
 export class DragDropSurveyElements extends DragDropCore<any> {
   public static newGhostPage: PageModel = null;
@@ -92,6 +93,24 @@ export class DragDropSurveyElements extends DragDropCore<any> {
     var newElement = Serializer.createClass(json["type"]);
     new JsonObject().toObject(json, newElement);
     return newElement;
+  }
+
+  protected findDropTargetNodeByDragOverNode(
+    dragOverNode: HTMLElement
+  ): HTMLElement {
+
+    const ghostRow = dragOverNode.closest(".svc-row--ghost");
+    if (!!ghostRow) {
+      const ghostDataAttrSelector: string = "[data-sv-drop-target-survey-element='sv-drag-drop-ghost-survey-element-name']";
+      const ghostNode: HTMLElement = dragOverNode.closest(ghostDataAttrSelector) || dragOverNode.querySelector(ghostDataAttrSelector);
+      if (!!ghostNode) {
+        return ghostNode;
+      }
+    }
+
+    const dropTargetNode: HTMLElement =
+      dragOverNode.closest(this.dropTargetDataAttributeName);
+    return dropTargetNode;
   }
 
   protected getDropTargetByDataAttributeValue(
@@ -314,7 +333,7 @@ export class DragDropSurveyElements extends DragDropCore<any> {
 
   protected doDrop = (): any => {
     if (this.dropTarget) {
-      (<HTMLElement>document.activeElement).blur();
+      (<HTMLElement>settings.environment.root.activeElement).blur();
       return this.insertRealElementIntoSurvey();
     }
 

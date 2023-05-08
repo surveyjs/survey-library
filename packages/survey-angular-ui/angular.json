@@ -63,8 +63,7 @@
               "./example/src/testCafe"
             ],
             "styles": [
-              "./example/src/styles.scss",
-              "../../build/survey-core/defaultV2.css"
+              "./example/src/styles.scss"
             ],
             "scripts": []
           },
@@ -73,12 +72,10 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "3mb"
+                  "maximumError": "3.5mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "500kb",
                   "maximumError": "500kb"
                 }
               ],

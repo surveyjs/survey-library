@@ -12,7 +12,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementNode: HTMLElement,
     event: PointerEvent
   ): HTMLElement {
-    const draggedElementShortcut:any = document.createElement("div");
+    const draggedElementShortcut: any = document.createElement("div");
     draggedElementShortcut.className = this.shortcutClass + " sv-ranking-shortcut";
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
@@ -20,6 +20,7 @@ export class DragDropRankingChoices extends DragDropChoices {
           z-index: 1000;
           border-radius: 36px;
           min-width: 100px;
+          filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
           box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
           background-color: var(--background, white);
           font-family: var(--font-family, $font-family);
@@ -60,7 +61,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     dragOverNode: HTMLElement
   ): HTMLElement {
     this.isDragOverRootNode = this.getIsDragOverRootNode(dragOverNode);
-    return dragOverNode.closest(this.dropTargetDataAttributeName);
+    return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
   private getIsDragOverRootNode(dragOverNode: HTMLElement) {

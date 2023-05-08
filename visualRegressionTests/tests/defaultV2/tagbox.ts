@@ -370,6 +370,23 @@ frameworks.forEach(async framework => {
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-small.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });
+  test("Check overlay popup (table mode) in tagbox question with long items", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(900, 900);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+      await initSurvey(framework,
+        { "elements": [{
+          "type": "tagbox",
+          "name": "q1",
+          "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
+        }]
+        });
+      await t.click(Selector(".sd-dropdown__filter-string-input"));
+      await takeElementScreenshot("tagbox-question-long-items-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+    });
+  });
   test("Check tagbox focused state", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 900);
@@ -389,7 +406,31 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-question__title"));
-      takeElementScreenshot("tagbox-focused.png", Selector(".sd-question"), t, comparer);
+      await takeElementScreenshot("tagbox-focused.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check tagbox input width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3"
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<HTMLElement>document.querySelector(".sd-question input")).style.backgroundColor = "red";
+      })();
+      await takeElementScreenshot("tagbox-contrast-input.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

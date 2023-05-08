@@ -11,7 +11,7 @@ import { LocalizableString } from "./localizablestring";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
-import { settings } from "./settings";
+import { settings, ISurveyEnvironment } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
@@ -95,7 +95,12 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
   }
 
-  @property({ defaultValue: false }) isMobile: boolean;
+  protected setIsMobile(val: boolean) { }
+
+  @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+    target.setIsMobile(val);
+  } }) isMobile: boolean;
+  @property() forceIsInputReadOnly: boolean;
 
   constructor(name: string) {
     super(name);
@@ -143,6 +148,9 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
+    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly"], () => {
+      this.updateQuestionCss();
+    });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
   }
   protected createLocTitleProperty(): LocalizableString {
@@ -281,7 +289,6 @@ export class Question extends SurveyElement<Question>
    * You can use question values as placeholders in the following places:
    *
    * - Survey element titles and descriptions
-   * - The [`expression`](https://surveyjs.io/form-library/documentation/questionexpressionmodel#expression) property of the [Expression](https://surveyjs.io/form-library/documentation/questionexpressionmodel) question
    * - The [`html`](https://surveyjs.io/form-library/documentation/questionhtmlmodel#html) property of the [HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel) question
    *
    * To use a question value as a placeholder, specify the question `name` in curly brackets: `{questionName}`. Refer to the following help topic for more information: [Dynamic Texts - Question Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#question-values).
@@ -319,7 +326,11 @@ export class Question extends SurveyElement<Question>
   public get isVisible(): boolean {
     if (this.survey && this.survey.areEmptyElementsHidden && this.isEmpty())
       return false;
-    return this.visible || this.areInvisibleElementsShowing;
+    if(this.areInvisibleElementsShowing) return true;
+    return this.isVisibleCore();
+  }
+  protected isVisibleCore(): boolean {
+    return this.visible;
   }
   /**
    * Returns the visible index of the question in the survey. It can be from 0 to all visible questions count - 1
@@ -682,7 +693,8 @@ export class Question extends SurveyElement<Question>
     if (this.supportComment() || this.supportOther()) {
       this.commentElements = [];
       this.getCommentElementsId().forEach(id => {
-        let el = document.getElementById(id);
+        const { root } = settings.environment;
+        let el = root.getElementById(id);
         if(el) this.commentElements.push(el);
       });
       this.updateCommentElements();
@@ -744,8 +756,9 @@ export class Question extends SurveyElement<Question>
   protected setCssRoot(val: string): void {
     this.setPropertyValue("cssRoot", val);
   }
-  protected getCssRoot(cssClasses: any): string {
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
+      .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot)
@@ -753,10 +766,6 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
-      .append(cssClasses.expanded, !!this.isExpanded)
-      .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.withFrame, this.hasFrameV2)
-      .append(cssClasses.nested, (this.hasParent || !this.isSingleInRow) && this.isDefaultV2Theme)
       .toString();
   }
   public get cssHeader(): string {
@@ -796,12 +805,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getCssTitle(cssClasses: any): string {
     return new CssClassBuilder()
-      .append(cssClasses.title)
-      .append(cssClasses.titleExpandable, this.state !== "default")
-      .append(cssClasses.titleExpanded, this.isExpanded)
-      .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isReadOnly)
-      .append(cssClasses.titleOnError, this.containsErrors)
+      .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
       .toString();
   }
@@ -1101,6 +1105,9 @@ export class Question extends SurveyElement<Question>
     return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
   }
   public get isInputReadOnly(): boolean {
+    if(this.forceIsInputReadOnly !== undefined) {
+      return this.forceIsInputReadOnly;
+    }
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
     return this.isReadOnly || isDesignModeV2;
   }
@@ -1484,9 +1491,15 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true)
-      ? 1
-      : 0;
+    return this.checkIfAnswerCorrect()? 1 : 0;
+  }
+  protected checkIfAnswerCorrect(): boolean {
+    const isEqual = this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true);
+    const options = { result: isEqual, correctAnswer: isEqual ? 1 : 0 };
+    if(!!this.survey) {
+      this.survey.onCorrectQuestionAnswer(this, options);
+    }
+    return options.result;
   }
   /**
   * Returns `true` if a question answer matches the `correctAnswer` property value.
@@ -1535,7 +1548,9 @@ export class Question extends SurveyElement<Question>
       this.defaultValueRunner,
       this.getUnbindValue(this.defaultValue),
       (val) => {
-        this.value = val;
+        if(!Helpers.isTwoValueEquals(this.value, val)) {
+          this.value = val;
+        }
       }
     );
   }
@@ -1567,7 +1582,11 @@ export class Question extends SurveyElement<Question>
     if (!runner || !this.data) return false;
     if (!setFunc) {
       setFunc = (val: any): void => {
-        this.runExpressionSetValue(val, (val: any): void => { this.value = val; });
+        this.runExpressionSetValue(val, (val: any): void => {
+          if(!Helpers.isTwoValueEquals(this.value, val)) {
+            this.value = val;
+          }
+        });
       };
     }
     if (!values) values = this.data.getFilteredValues();
@@ -1886,8 +1905,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   protected getValidName(name: string): string {
-    if (!name) return name;
-    return name.trim().replace(/[\{\}]+/g, "");
+    return makeNameValid(name);
   }
   //IQuestion
   updateValueFromSurvey(newValue: any): void {
@@ -1945,7 +1963,7 @@ export class Question extends SurveyElement<Question>
    *
    * Call this method after you assign new question values in code to ensure that they are acceptable.
    *
-   * > This method does not remove values that do not pass validation. Call the `validate()` method to validate newly assigned values.
+   * > This method does not remove values that fail validation. Call the `validate()` method to validate newly assigned values.
    *
    * @see validate
    */
@@ -1984,6 +2002,8 @@ export class Question extends SurveyElement<Question>
   }
 
   @property() renderAs: string;
+
+  @property({ defaultValue: false }) inMatrixMode: boolean;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {
@@ -2105,12 +2125,16 @@ export class Question extends SurveyElement<Question>
     this.destroyResizeObserver();
   }
 }
-function removeConverChar(str: string): string {
-  if (!!str && str[0] === settings.expressionDisableConversionChar) return str.substring(1);
+function makeNameValid(str: string): string {
+  if(!str) return str;
+  str = str.trim().replace(/[\{\}]+/g, "");
+  while (!!str && str[0] === settings.expressionDisableConversionChar) {
+    str = str.substring(1);
+  }
   return str;
 }
 Serializer.addClass("question", [
-  { name: "!name", onSettingValue: (obj: any, val: any): any => { return removeConverChar(val); } },
+  { name: "!name", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   {
     name: "state",
     default: "default",
@@ -2188,7 +2212,7 @@ Serializer.addClass("question", [
       );
     },
   },
-  { name: "valueName", onSettingValue: (obj: any, val: any): any => { return removeConverChar(val); } },
+  { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   "defaultValue:value",
   {

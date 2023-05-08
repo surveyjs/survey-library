@@ -1,7 +1,5 @@
 @import "../variables.scss";
 
-
-
 .sd-btn {
   appearance: none;
   -webkit-appearance: none;
@@ -9,13 +7,13 @@
   padding: calcSize(2) calcSize(6);
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;
-  border-radius: calcSize(0.5);
+  border-radius: calcCornerRadius(1);
   cursor: pointer;
 
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   text-align: center;
   color: $primary;
@@ -23,16 +21,17 @@
   outline: none;
 }
 
-.sd-btn:not(:disabled) {
+.sd-btn:not(:disabled):hover {
+  background-color: $background-dark;
+}
 
-  &:hover,
-  &:focus {
-    box-shadow: 0 0 0 2px $primary;
-  }
+.sd-btn:not(:disabled):focus {
+  box-shadow: 0 0 0 2px $primary;
 }
 
 .sd-btn:disabled {
-  color: $foreground-disabled;
+  color: $foreground;
+  opacity: 0.25;
   cursor: default;
 }
 
@@ -41,13 +40,9 @@
   color: $primary-foreground;
 }
 
-.sd-btn--action:not(:disabled) {
-
-  &:hover,
-  &:focus {
-    color: $primary;
-    background-color: $background;
-  }
+.sd-btn--action:not(:disabled):hover {
+  color: $primary-foreground;
+  background-color: $primary-background-dark;
 }
 
 .sd-btn--action:disabled {

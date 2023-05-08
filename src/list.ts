@@ -74,11 +74,22 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return !this.onFilterStringChangedCallback;
   }
   private onFilterStringChanged(text: string) {
-    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
-
     if (!!this.onFilterStringChangedCallback) {
       this.onFilterStringChangedCallback(text);
     }
+    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
+  }
+  private scrollToItem(selector: string, ms = 0): void {
+    setTimeout(() => {
+      if (!this.listContainerHtmlElement) return;
+
+      const item = this.listContainerHtmlElement.querySelector("." + selector);
+      if (item) {
+        setTimeout(() => {
+          item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
+        }, ms);
+      }
+    }, ms);
   }
 
   constructor(
@@ -86,7 +97,8 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     public onSelectionChanged: (item: T, ...params: any[]) => void,
     public allowSelection: boolean,
     selectedItem?: IAction,
-    private onFilterStringChangedCallback?: (text: string) => void
+    private onFilterStringChangedCallback?: (text: string) => void,
+    public elementId?: string
   ) {
     super();
     this.setItems(items);
@@ -95,6 +107,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
+    if(this.elementId) {
+      this.renderedActions.forEach((action: IAction) => { action.elementId = this.elementId + action.id; });
+    }
     if (!this.isAllDataLoaded && !!this.actions.length) {
       this.actions.push(this.loadingIndicator);
     }
@@ -108,7 +123,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   }
 
   public onItemClick = (itemValue: T): void => {
-    if (this.isItemDisabled(itemValue) || this.isItemSelected(itemValue)) {
+    if (this.isItemDisabled(itemValue)) {
       return;
     }
     this.isExpanded = false;
@@ -156,7 +171,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return this.getLocalizationString("filterStringPlaceholder");
   }
   public get emptyMessage(): string {
-    return this.getLocalizationString("emptyMessage");
+    return this.isAllDataLoaded ? this.getLocalizationString("emptyMessage") : this.loadingText;
   }
   public get scrollableContainer(): HTMLElement {
     return this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemsContainer);
@@ -265,14 +280,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
   public scrollToFocusedItem(): void {
-    setTimeout(() => {
-      if (!this.listContainerHtmlElement) return;
-
-      const item = this.listContainerHtmlElement.querySelector("." + this.getDefaultCssClasses().itemFocused);
-      if (item) {
-        item.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "start" });
-      }
-    }, 0);
+    this.scrollToItem(this.getDefaultCssClasses().itemFocused);
+  }
+  public scrollToSelectedItem(): void {
+    this.scrollToItem(this.getDefaultCssClasses().itemSelected, 110);
   }
 
   public addScrollEventListener(handler: (e?: any) => void): void {
@@ -286,6 +297,13 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   public removeScrollEventListener(): void {
     if (!!this.scrollHandler) {
       this.scrollableContainer.removeEventListener("scroll", this.scrollHandler);
+    }
+  }
+
+  dispose(): void {
+    super.dispose();
+    if(!!this.loadingIndicatorValue) {
+      this.loadingIndicatorValue.dispose();
     }
   }
 }

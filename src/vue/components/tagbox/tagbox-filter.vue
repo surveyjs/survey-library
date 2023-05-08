@@ -1,21 +1,43 @@
 <template>
-  <input
-    type="text"
-    autocomplete="off"
-    v-model="model.filterString"
-    v-bind:class="question.cssClasses.filterStringInput"
-    v-bind:placeholder="model.filterStringPlaceholder"
-    v-bind:disabled="question.isInputReadOnly"
-    :inputmode="model.inputMode"
-    :role="model.filterStringEnabled ? question.ariaRole : null"
-    :aria-label="question.placeholder"
-    :id="question.getInputId()"
-    :readonly="!model.searchEnabled ? true : null"
-    :size="!model.filterString ? 1 : null"
-    @change="inputChange"
-    @keydown="inputKeyHandler"
-    @blur="blur"
-  />
+        <div
+         :class="question.cssClasses.hint"
+        >
+          <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
+            <span>{{ model.hintStringPrefix }}</span>
+          </div>
+
+          <div :class="question.cssClasses.hintSuffixWrapper">
+              <survey-string
+                v-if="question.showSelectedItemLocText"
+                :locString="question.selectedItemLocText"
+              />
+              <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
+              <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
+              <span>{{ model.hintStringSuffix }}</span>
+              </div>
+              <input
+                type="text"
+                autocomplete="off"
+                v-model="model.inputStringRendered"
+                v-bind:class="question.cssClasses.filterStringInput"
+                v-bind:placeholder="model.filterStringPlaceholder"
+                v-bind:disabled="question.isInputReadOnly"
+                :inputmode="model.inputMode"
+                :role="model.filterStringEnabled ? question.ariaRole : null"
+                :aria-label="question.placeholder"
+                :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+                :aria-controls="model.listElementId"
+                :aria-activedescendant="model.ariaActivedescendant"
+                :id="question.getInputId()"
+                :readonly="!model.searchEnabled ? true : null"
+                :size="!model.inputStringRendered ? 1 : null"
+                @change="inputChange"
+                @keydown="inputKeyHandler"
+                @blur="blur"
+                @focus="focus"
+              />
+        </div>
+    </div>
 </template>
 
 <script lang="ts">
@@ -34,14 +56,16 @@ export class TagboxFilterComponent extends BaseVue {
   }
 
   inputChange(event: any) {
-    this.model.filterString = event.target.value;
+    this.model.inputStringRendered = event.target.value;
   }
   inputKeyHandler(event: any) {
-    this.model.filterString = event.target.value;
     this.model.inputKeyHandler(event);
   }
   public blur(event: any) {
     this.model.onBlur(event);
+  }
+  public focus(event: any) {
+    this.model.onFocus(event);
   }
 }
 

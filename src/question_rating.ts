@@ -12,35 +12,70 @@ import { mergeValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 
 export class RenderedRatingItem extends Base {
+  private onStringChangedCallback() {
+    this.text = this.itemValue.text;
+  }
   public get value(): number {
     return this.itemValue.getPropertyValue("value");
   }
   @property({ defaultValue: "" }) highlight: "none" | "highlighted" | "unhighlighted";
+
   public get locText(): LocalizableString {
     return this.locString || this.itemValue.locText;
   }
-  public get text(): string {
-    return this.itemValue.text;
-  }
+  @property({ defaultValue: "" }) text: string;
+  @property() style: any;
   constructor(public itemValue: ItemValue, private locString: LocalizableString = null) {
     super();
+    this.locText.onStringChanged.add(this.onStringChangedCallback.bind(this));
+    this.onStringChangedCallback();
   }
 }
 
 /**
- * A Model for a rating question.
+ * A class that describes the Rating Scale question type.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-rating/ (linkStyle))
+ * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
  */
 export class QuestionRatingModel extends Question {
   constructor(name: string) {
     super(name);
+
+    this.initColors();
+
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
-    this.registerFunctionOnPropertiesValueChanged(["rateValues", "rateMin", "rateMax",
+    this.registerFunctionOnPropertiesValueChanged(["rateMin", "rateMax",
       "minRateDescription", "maxRateDescription", "rateStep", "displayRateDescriptionsAsExtremeItems"],
     () => this.createRenderedRateItems());
+    this.registerFunctionOnPropertiesValueChanged(["rateType"],
+      () => {
+        this.setIconsToRateValues();
+        this.createRenderedRateItems();
+        this.updateRateCount();
+      });
+    this.registerFunctionOnPropertiesValueChanged(["rateValues"],
+      () => {
+        this.autoGenerate = false;
+        this.setIconsToRateValues();
+        this.createRenderedRateItems();
+      });
+    this.registerFunctionOnPropertiesValueChanged(["rateColorMode", "scaleColorMode"],
+      () => {
+        this.initColors();
+      });
+    this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
+      () => {
+        if (!this.autoGenerate && this.rateValues.length === 0) {
+          this.setPropertyValue("rateValues", this.visibleRateValues);
+        }
+        if (this.autoGenerate) {
+          this.rateValues.length = 0;
+          this.updateRateMax();
+        }
+        this.createRenderedRateItems();
+      });
     this.createLocalizableString(
       "minRateDescription",
       this,
@@ -51,13 +86,95 @@ export class QuestionRatingModel extends Question {
       this,
       true
     );
+    this.initPropertyDependencies();
   }
+  private jsonObj: any;
+  private setIconsToRateValues() {
+    if (this.rateType == "smileys") {
+      this.rateValues.map(item => item.icon = this.getItemSmiley(item));
+    }
+  }
+
+  startLoadingFromJson(jsonObj: any) {
+    super.startLoadingFromJson(jsonObj);
+    this.jsonObj = jsonObj;
+  }
+
   endLoadingFromJson() {
     super.endLoadingFromJson();
+    this.initColors();
     this.hasMinRateDescription = !!this.minRateDescription;
     this.hasMaxRateDescription = !!this.maxRateDescription;
+    if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
+      this.updateRateMax();
+    }
+    if (this.jsonObj.rateMax !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMin === undefined) {
+      this.updateRateMin();
+    }
+    if (this.jsonObj.autoGenerate === undefined && this.jsonObj.rateValues !== undefined) this.autoGenerate = !this.jsonObj.rateValues.length;
+    this.updateRateCount();
+    this.setIconsToRateValues();
     this.createRenderedRateItems();
   }
+
+  private _syncPropertiesChanging: boolean = false;
+  private registerSychProperties(names: Array<string>, func: any) {
+    this.registerFunctionOnPropertiesValueChanged(names,
+      () => {
+        if (!this._syncPropertiesChanging) {
+          this._syncPropertiesChanging = true;
+          func();
+          this._syncPropertiesChanging = false;
+        }
+      });
+  }
+  private useRateValues() {
+    return !!this.rateValues.length && !this.autoGenerate;
+  }
+  private updateRateMax() {
+    this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
+  }
+  private updateRateMin() {
+    this.rateMin = this.rateMax - this.rateStep * (this.rateCount - 1);
+  }
+  private updateRateCount() {
+    let newCount = 0;
+    if (this.useRateValues()) {
+      newCount = this.rateValues.length;
+    }
+    else {
+      newCount = Math.trunc((this.rateMax - this.rateMin) / (this.rateStep || 1)) + 1;
+    }
+    if (newCount > 10 && this.rateDisplayMode == "smileys") {
+      newCount = 10;
+    }
+    this.rateCount = newCount;
+    if (this.rateValues.length > newCount) this.rateValues.length = newCount;
+  }
+  initPropertyDependencies() {
+    this.registerSychProperties(["rateCount"],
+      () => {
+        if (!this.useRateValues()) {
+          this.rateMax = this.rateMin + this.rateStep * (this.rateCount - 1);
+        } else {
+          if (this.rateCount < this.rateValues.length) {
+            if (this.rateCount >= 10 && this.rateDisplayMode == "smileys") return;
+            this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
+          } else {
+            for (let i = this.rateValues.length; i < this.rateCount; i++) {
+              this.rateValues.push(new ItemValue(surveyLocalization.getString("choices_Item") + (i + 1)));
+            }
+          }
+        }
+      });
+    this.registerSychProperties(["rateMin", "rateMax", "rateStep", "rateValues"],
+      () => {
+        this.updateRateCount();
+      });
+  }
+
+  @property({ defaultValue: true }) autoGenerate: boolean;
+
   /**
    * A list of rate values.
    *
@@ -77,10 +194,9 @@ export class QuestionRatingModel extends Question {
    *
    * If you need to specify only the `value` property, you can set the `rateValues` property to an array of numbers, for example, `[ 3, 6, 10 ]`. These values are both saved in survey results and used as display text.
    *
-   * If you do not specify the `rateValues` property, rate values are generated automatically based upon the `rateMin`, `rateMax`, and `rateStep` property values.
-   * @see rateMin
-   * @see rateMax
-   * @see rateStep
+   * If you do not specify the `rateValues` property, rate values are generated automatically based upon the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin), [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax), [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep), and [`rateCount`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateCount) property values.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    */
   public get rateValues(): Array<any> {
     return this.getPropertyValue("rateValues");
@@ -90,12 +206,14 @@ export class QuestionRatingModel extends Question {
     this.createRenderedRateItems();
   }
   /**
-   * Specifies the first rate value in the generated sequence of rate values. Applies if the `rateValues` array is empty.
+   * Specifies the first rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
-   * @see rateValues
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    * @see rateMax
    * @see rateStep
+   * @see rateCount
    */
   public get rateMin(): number {
     return this.getPropertyValue("rateMin");
@@ -104,12 +222,14 @@ export class QuestionRatingModel extends Question {
     this.setPropertyValue("rateMin", val);
   }
   /**
-   * Specifies the last rate value in the generated sequence of rate values. Applies if the `rateValues` array is empty.
+   * Specifies the last rate value in the generated sequence of rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 5
-   * @see rateValues
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    * @see rateMin
    * @see rateStep
+   * @see rateCount
    */
   public get rateMax(): number {
     return this.getPropertyValue("rateMax");
@@ -118,12 +238,14 @@ export class QuestionRatingModel extends Question {
     this.setPropertyValue("rateMax", val);
   }
   /**
-   * Specifies a step with which to generate rate values. Applies if the `rateValues` array is empty.
+   * Specifies a step with which to generate rate values. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
    *
    * Default value: 1
-   * @see rateValues
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
    * @see rateMin
    * @see rateMax
+   * @see rateCount
    */
   public get rateStep(): number {
     return this.getPropertyValue("rateStep");
@@ -131,6 +253,54 @@ export class QuestionRatingModel extends Question {
   public set rateStep(val: number) {
     this.setPropertyValue("rateStep", val);
   }
+  /**
+   * Specifies the number of rate values you want to generate. Applies if the [`rateValues`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateValues) array is empty.
+   *
+   * Set the [`rateMin`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMin) or [`rateMax`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateMax) property to specify the first or the last rate value. Use the [`rateStep`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateStep) property to specify a step with which to generate rate values.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+   */
+  @property({ defaultValue: 5 }) rateCount: number;
+
+  private static badColor: Array<number>;
+  private static normalColor: Array<number>;
+  private static goodColor: Array<number>;
+
+  private static badColorLight: Array<number>;
+  private static normalColorLight: Array<number>;
+  private static goodColorLight: Array<number>;
+
+  private initColors() {
+    if (this.colorMode === "monochrome") return;
+    if (!document) return;
+    if (QuestionRatingModel.badColor && QuestionRatingModel.normalColor && QuestionRatingModel.goodColor) return;
+    function getRGBColor(varName: string) {
+      const style = getComputedStyle(document.documentElement);
+      const str = style.getPropertyValue && style.getPropertyValue(varName);
+      if (!str) return null;
+      var ctx = document.createElement("canvas").getContext("2d");
+      ctx.fillStyle = str;
+      const newStr = ctx.fillStyle;
+
+      if (newStr.startsWith("rgba")) {
+        return newStr.substring(5, newStr.length - 1).split(",").map(c => +(c.trim()));
+      }
+      var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(newStr);
+      return result ? [
+        parseInt(result[1], 16),
+        parseInt(result[2], 16),
+        parseInt(result[3], 16),
+        1
+      ] : null;
+    }
+    QuestionRatingModel.badColor = getRGBColor("--sd-rating-bad-color");
+    QuestionRatingModel.normalColor = getRGBColor("--sd-rating-normal-color");
+    QuestionRatingModel.goodColor = getRGBColor("--sd-rating-good-color");
+    QuestionRatingModel.badColorLight = getRGBColor("--sd-rating-bad-color-light");
+    QuestionRatingModel.normalColorLight = getRGBColor("--sd-rating-normal-color-light");
+    QuestionRatingModel.goodColorLight = getRGBColor("--sd-rating-good-color-light");
+  }
+
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
@@ -145,12 +315,12 @@ export class QuestionRatingModel extends Question {
     oldValue: any,
     newValue: any
   ) {
-    if (this.rateValues.length === 0 && newValue !== undefined) this.setPropertyValue("rateValues", this.visibleRateValues);
+    if (!this.useRateValues() && newValue !== undefined) this.autoGenerate = false;
     super.itemValuePropertyChanged(item, name, oldValue, newValue);
   }
   private createRenderedRateItems() {
     let rateValues = [];
-    if (this.rateValues.length > 0) {
+    if (this.useRateValues()) {
       rateValues = this.rateValues;
     }
     else {
@@ -170,12 +340,16 @@ export class QuestionRatingModel extends Question {
       rateValues = res;
     }
 
+    if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
+
     this.renderedRateItems = rateValues.map((v, i) => {
+      let renderedItem = null;
       if (this.displayRateDescriptionsAsExtremeItems) {
-        if (i == 0) return new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
-        if (i == rateValues.length - 1) return new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
+        if (i == 0) renderedItem = new RenderedRatingItem(v, this.minRateDescription && this.locMinRateDescription || v.locText);
+        if (i == rateValues.length - 1) renderedItem = new RenderedRatingItem(v, this.maxRateDescription && this.locMaxRateDescription || v.locText);
       }
-      return new RenderedRatingItem(v);
+      if (!renderedItem) renderedItem = new RenderedRatingItem(v);
+      return renderedItem;
     });
   }
   @propertyArray() renderedRateItems: Array<RenderedRatingItem>;
@@ -264,13 +438,16 @@ export class QuestionRatingModel extends Question {
   @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
 
   /**
-  * Specifies how a Rating question displays rate values.
+  * Specifies whether to display rate values as buttons or items in a drop-down list.
   *
   * Possible values:
   *
   * - `"buttons"` - Displays rate values as buttons in a row.
   * - `"dropdown"` - Displays rate values as items in a drop-down list.
   * - `"auto"` (default) - Selects between the `"buttons"` and `"dropdown"` modes based on the available width. When the width is insufficient to display buttons, the question displays a dropdown.
+  *
+  * [View Demo](/form-library/examples/ui-adaptation-modes-for-rating-scale/ (linkStyle))
+  * @see rateType
   */
   @property({
     defaultValue: "auto", onSet: (val: string, target: QuestionRatingModel) => {
@@ -284,18 +461,65 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
-  @property({ defaultValue: "number" }) rateType: "numbers" | "labels" | "stars" | "smileys";
-  @property({ defaultValue: "monochrome" }) smileysColorMode: "monochrome" | "colored";
+  /**
+   * Specifies the visual representation of rate values.
+   *
+   * Possible values:
+   *
+   * - `"labels"` (default) - Displays rate values as buttons with labels.
+   * - `"stars"` - Displays rate values as stars.
+   * - `"smileys"` - Displays rate values as smiley faces.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+   * @see scaleColorMode
+   * @see rateColorMode
+   * @see displayMode
+   */
+  @property({ defaultValue: "labels" }) rateType: "labels" | "stars" | "smileys";
+
+  public get rateDisplayMode() {
+    return this.rateType;
+  }
+  public set rateDisplayMode(val: "labels" | "stars" | "smileys") {
+    this.rateType = val;
+  }
+  /**
+   * Specifies how to colorize the smiley face rating scale. Applies only if [`rateType`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateType) is `"smileys"`.
+   *
+   * Possible values:
+   *
+   * - `"monochrome"` (default) - Displays emojis in monochrome.
+   * - `"colored"` - Displays emojis in color.
+   *
+   * [View Demo](/form-library/examples/rating-scale/ (linkStyle))
+   * @see rateColorMode
+   */
+  @property({ defaultValue: "monochrome" }) scaleColorMode: "monochrome" | "colored";
+  /**
+   * Specifies how to colorize the selected emoji. Applies only if [`rateType`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateType) is `"smileys"`.
+   *
+   * Possible values:
+   *
+   * - `"default"` - Displays the selected emoji in default survey color.
+   * - `"scale"` (default) - Inherits the color from the scale.
+   * @see scaleColorMode
+   */
+  @property({ defaultValue: "scale" }) rateColorMode: "default" | "scale";
+
   public get isStar() {
     return this.rateType == "stars";
   }
+  public get isSmiley() {
+    return this.rateType == "smileys";
+  }
   public get itemComponentName() {
     if (this.isStar) return "sv-rating-item-star";
+    if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
   }
 
   protected valueToData(val: any): any {
-    if (this.rateValues.length > 0) {
+    if (this.useRateValues()) {
       var item = ItemValue.getItemByValue(this.rateValues, val);
       return !!item ? item.value : val;
     }
@@ -307,11 +531,18 @@ export class QuestionRatingModel extends Question {
     } else {
       this.value = value;
     }
+    for (let i: number = 0; i < this.renderedRateItems.length; i++) {
+      this.renderedRateItems[i].highlight = "none";
+    }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
-    if (this.isReadOnly || !item.itemValue.isEnabled) return;
+    if (this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;
     let high = true;
     let selected = this.value != null;
+    if (this.rateType !== "stars") {
+      item.highlight = "highlighted";
+      return;
+    }
     for (let i: number = 0; i < this.renderedRateItems.length; i++) {
       this.renderedRateItems[i].highlight = high && !selected && "highlighted" || !high && selected && "unhighlighted" || "none";
       if (this.renderedRateItems[i] == item) high = false;
@@ -322,13 +553,91 @@ export class QuestionRatingModel extends Question {
     this.renderedRateItems.forEach(item => item.highlight = "none");
   }
 
+  public get itemSmallMode() {
+    return this.inMatrixMode && settings.matrix.rateSize == "small";
+  }
+
   public get ratingRootCss(): string {
-    return ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+    const baseClass = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
       this.cssClasses.rootWrappable : this.cssClasses.root;
+
+    return new CssClassBuilder()
+      .append(baseClass)
+      .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
+      .toString();
+  }
+
+  public get itemStarIcon(): string {
+    return this.itemSmallMode ? "icon-rating-star-small" : "icon-rating-star";
+  }
+  public get itemStarIconAlt(): string {
+    return this.itemStarIcon + "-2";
+  }
+
+  public getItemSmiley(item: ItemValue) {
+    const icons = ["terrible", "very-poor", "poor", "not-good", "average", "normal", "good", "very-good", "excellent", "perfect"];
+    const priority = ["very-good", "not-good", "normal", "good", "average", "excellent", "poor", "perfect", "very-poor", "terrible"];
+    const count = this.useRateValues() ? this.rateValues.length : this.rateMax - this.rateMin + 1;
+    const selectedPriority = priority.slice(0, count);
+    const selectedIcons = icons.filter(i => selectedPriority.indexOf(i) != -1);
+    if (!this.useRateValues()) {
+      return selectedIcons[item.value - this.rateMin];
+    } else {
+      return selectedIcons[this.rateValues.indexOf(item)];
+    }
+  }
+
+  public getItemSmileyIconName(item: ItemValue) {
+    return "icon-" + this.getItemSmiley(item);
+  }
+
+  public getItemClassByText(item: ItemValue, text: string) {
+    return this.getItemClass(item);
+  }
+
+  private getRenderedItemColor(index: number, light: boolean): string {
+    let startColor = light ? QuestionRatingModel.badColorLight : QuestionRatingModel.badColor;
+    let endColor = light ? QuestionRatingModel.goodColorLight : QuestionRatingModel.goodColor;
+    const normalIndex = (this.rateCount - 1) / 2.0;
+    const middleColor = light ? QuestionRatingModel.normalColorLight : QuestionRatingModel.normalColor;
+    if (index < normalIndex) {
+      endColor = middleColor;
+    } else {
+      startColor = middleColor;
+      index -= normalIndex;
+    }
+    if (!startColor || !endColor) return null;
+    const curColor = [0, 0, 0, 0];
+    for (let i = 0; i < 4; i++) {
+      curColor[i] = startColor[i] + (endColor[i] - startColor[i]) * index / normalIndex;
+      if (i < 3) curColor[i] = Math.trunc(curColor[i]);
+    }
+    return "rgba(" + curColor[0] + ", " + curColor[1] + ", " + curColor[2] + ", " + curColor[3] + ")";
+  }
+
+  public getItemStyle(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
+    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default") return { borderColor: null, fill: null, backgroundColor: null };
+    const index = this.visibleRateValues.indexOf(item);
+    const color = this.getRenderedItemColor(index, false);
+    if (this.value != this.renderedRateItems[index].value) {
+      const colorLight = this.getRenderedItemColor(index, true);
+      if (highlight == "highlighted" && this.scaleColorMode === "colored") return { borderColor: color, fill: color, backgroundColor: colorLight };
+      if (this.scaleColorMode === "colored" && this.errors.length == 0) return { borderColor: color, fill: color, backgroundColor: null };
+      return { borderColor: null, fill: null, backgroundColor: null };
+    } else {
+      return { borderColor: color, fill: null, backgroundColor: color };
+    }
   }
 
   public getItemClass(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
-    const isSelected = this.isStar ? this.value >= item.value : this.value == item.value;
+    let isSelected = this.value == item.value;
+    if (this.isStar) {
+      if (!this.useRateValues()) {
+        isSelected = this.value >= item.value;
+      } else {
+        isSelected = this.rateValues.indexOf(this.rateValues.filter(i => i.value == this.value)[0]) >= this.rateValues.indexOf(item);
+      }
+    }
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const allowHover = !isDisabled && (this.value != item.value) && !(!!this.survey && this.survey.isDesignMode);
     const renderedItem = this.renderedRateItems.filter(i => i.itemValue == item)[0];
@@ -341,6 +650,9 @@ export class QuestionRatingModel extends Question {
     let itemitemOnErrorClass = this.cssClasses.itemOnError;
     let itemHighlightedClass = null;
     let itemUnhighlightedClass = null;
+    let itemScaleColoredClass = null;
+    let itemRateColoredClass = null;
+    let itemSmallClass = null;
 
     if (this.isStar) {
       itemClass = this.cssClasses.itemStar;
@@ -350,7 +662,29 @@ export class QuestionRatingModel extends Question {
       itemitemOnErrorClass = this.cssClasses.itemStarOnError;
       itemHighlightedClass = this.cssClasses.itemStarHighlighted;
       itemUnhighlightedClass = this.cssClasses.itemStarUnhighlighted;
+      itemSmallClass = this.cssClasses.itemStarSmall;
     }
+    if (this.isSmiley) {
+      itemClass = this.cssClasses.itemSmiley;
+      itemSelectedClass = this.cssClasses.itemSmileySelected;
+      itemDisabledClass = this.cssClasses.itemSmileyDisabled;
+      itemHoverClass = this.cssClasses.itemSmileyHover;
+      itemitemOnErrorClass = this.cssClasses.itemSmileyOnError;
+      itemHighlightedClass = this.cssClasses.itemSmileyHighlighted;
+      itemScaleColoredClass = this.cssClasses.itemSmileyScaleColored;
+      itemRateColoredClass = this.cssClasses.itemSmileyRateColored;
+      itemSmallClass = this.cssClasses.itemSmileySmall;
+    }
+
+    const hasFixedSize =
+      !this.isStar &&
+      !this.isSmiley &&
+      (!this.displayRateDescriptionsAsExtremeItems ||
+        this.useRateValues() && item != this.rateValues[0] && item != this.rateValues[this.rateValues.length - 1] ||
+        !this.useRateValues() && item.value != this.rateMin && item.value != this.rateMax
+      ) &&
+      item.locText.calculatedText.length <= 2 &&
+      Number.isInteger(Number(item.locText.calculatedText));
 
     return new CssClassBuilder()
       .append(itemClass)
@@ -358,8 +692,12 @@ export class QuestionRatingModel extends Question {
       .append(itemDisabledClass, this.isReadOnly)
       .append(itemHoverClass, allowHover)
       .append(itemHighlightedClass, isHighlighted)
+      .append(itemScaleColoredClass, this.scaleColorMode == "colored")
+      .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
       .append(itemUnhighlightedClass, isUnhighlighted)
       .append(itemitemOnErrorClass, this.errors.length > 0)
+      .append(itemSmallClass, this.itemSmallMode)
+      .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
   }
   //methods for mobile view
@@ -447,28 +785,94 @@ export class QuestionRatingModel extends Question {
     }
     return classes;
   }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+    }
+  }
 }
 Serializer.addClass(
   "rating",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     {
+      name: "rateType",
+      alternativeName: "rateDisplayMode",
+      default: "labels",
+      category: "rateValues",
+      choices: ["labels", "stars", "smileys"],
+      visibleIndex: 0
+    },
+    {
+      name: "scaleColorMode",
+      category: "rateValues",
+      default: "monochrome",
+      choices: ["monochrome", "colored"],
+      visibleIf: function (obj: any) {
+        return obj.rateDisplayMode == "smileys";
+      },
+      visibleIndex: 1
+    },
+    {
+      name: "rateColorMode",
+      category: "rateValues",
+      default: "scale",
+      choices: ["default", "scale"],
+      visibleIf: function (obj: any) {
+        return obj.rateDisplayMode == "smileys" && obj.scaleColorMode == "monochrome";
+      },
+      visibleIndex: 2
+    },
+    {
+      name: "autoGenerate",
+      category: "rateValues",
+      default: true,
+      choices: [{ value: true, text: "Generate" }, { value: false, text: "Enter manually" }],
+      visibleIndex: 4
+    },
+    {
+      name: "rateCount:number",
+      default: 5,
+      category: "rateValues",
+      visibleIndex: 3,
+      onSettingValue: (obj: any, val: any): any => {
+        if (val < 2) return 2;
+        if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
+        if (val > 10 && obj.rateDisplayMode == "smileys") return 10;
+        return val;
+      },
+    },
+    {
       name: "rateValues:itemvalue[]",
       baseValue: function () {
         return surveyLocalization.getString("choices_Item");
       },
+      category: "rateValues",
+      visibleIf: function (obj: any) {
+        return !obj.autoGenerate;
+      },
+      visibleIndex: 5
     },
     {
       name: "rateMin:number", default: 1,
       onSettingValue: (obj: any, val: any): any => {
         return val > obj.rateMax - obj.rateStep ? obj.rateMax - obj.rateStep : val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 6
     },
     {
       name: "rateMax:number", default: 5,
       onSettingValue: (obj: any, val: any): any => {
         return val < obj.rateMin + obj.rateStep ? obj.rateMin + obj.rateStep : val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 7
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -477,29 +881,33 @@ Serializer.addClass(
         if (val > obj.rateMax - obj.rateMin)
           val = obj.rateMax - obj.rateMin;
         return val;
-      }
+      },
+      visibleIf: function (obj: any) {
+        return !!obj.autoGenerate;
+      },
+      visibleIndex: 8
     },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
       serializationProperty: "locMinRateDescription",
+      visibleIndex: 17
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
+      visibleIndex: 18
     },
-    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false },
+    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false, visibleIndex: 19 },
     {
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
-    },
-    {
-      name: "rateType",
-      visible: false,
-      default: "number",
-      choices: ["numbers", "labels", "stars", "smileys"],
+      visibleIf: function (obj: any) {
+        return obj.rateType == "labels";
+      },
+      visibleIndex: 20
     }
   ],
   function () {

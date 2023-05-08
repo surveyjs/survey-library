@@ -27,6 +27,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     const clone = <HTMLElement>(row.cloneNode(isDeepClone));
 
     clone.style.cssText = `
+      filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
       box-shadow: rgb(0 0 0 / 10%) 0px 8px 16px;
       background-color: white;
       display: flex;
@@ -95,15 +96,6 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return true;
   }
 
-  protected findDropTargetNodeByDragOverNode(
-    dragOverNode: HTMLElement
-  ): HTMLElement {
-    const result: HTMLElement = dragOverNode.closest(
-      this.dropTargetDataAttributeName
-    );
-    return result;
-  }
-
   protected calculateIsBottom(clientY: number): boolean {
     const rendreredRows = this.parentElement.renderedTable.rows;
     const rows = rendreredRows.map(rendredRow => rendredRow.row);
@@ -166,7 +158,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
   };
 
   protected doClear(): void {
-    this.parentElement["resetRenderedTable"]();
+    this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
   }

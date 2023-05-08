@@ -10,7 +10,7 @@
   width: calcSize(3);
   height: calcSize(3);
   box-sizing: border-box;
-  background: var(--sd-item-default-background, $background-for-editors);
+  background: var(--sd-item-default-background, $editor-background);
   box-shadow: inset 0px 1px 2px $shadow-inner;
   border: none;
   flex-shrink: 0;
@@ -20,15 +20,15 @@
   box-shadow: none;
 }
 
-.sd-item__control:focus + .sd-item__decorator,
-.sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
+.sd-item__control:focus + .sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
+  background: $background;
   outline: none;
 }
 
-.sd-item__control:focus + .sd-item__decorator,
 .sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {
-  background: $background;
+  background: $background-dim-dark;
+  outline: none;
 }
 
 .sd-item--checked .sd-item__decorator {
@@ -40,7 +40,7 @@
   font-style: normal;
   font-weight: normal;
   line-height: calcSize(3);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   color: $foreground;
   white-space: normal;
   word-break: break-word;
@@ -49,7 +49,8 @@
 }
 
 .sd-item--disabled .sd-item__control-label {
-  color: $foreground-disabled-for-editors;
+  color: $foreground;
+  opacity: 0.25;
 }
 
 .sd-root--readonly .sd-item--disabled .sd-item__control-label {

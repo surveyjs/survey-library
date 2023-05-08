@@ -7,7 +7,7 @@ import { IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
 
-export type actionModeType = "large" | "small" | "popup";
+export type actionModeType = "large" | "small" | "popup" | "removed";
 
 /**
  * An action item.
@@ -129,6 +129,7 @@ export interface IAction {
   ariaChecked?: boolean;
   ariaExpanded?: boolean;
   ariaRole?: string;
+  elementId?: string;
 }
 
 export interface IActionDropdownPopupOptions extends IListModel, IPopupOptionsBase {
@@ -154,9 +155,11 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: innerPopupModel,
-    action: () => {
+    action: (action:IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
+      innerPopupModel.isFocusedContent = !isUserAction || listModel.showFilter;
       innerPopupModel.toggleVisibility();
+      listModel.scrollToSelectedItem();
     },
   });
   const newAction: Action = new Action(newActionOptions);
@@ -177,7 +180,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() needSeparator: boolean;
   @property() template: string;
   @property({ defaultValue: "large" }) mode: actionModeType;
-  @property() owner: ILocalizableOwner;
+  public owner: ILocalizableOwner;
   @property() visibleIndex: number;
   @property() disableTabStop: boolean;
   @property() disableShrink: boolean;
@@ -187,6 +190,7 @@ export abstract class BaseAction extends Base implements IAction {
   @property() ariaExpanded: boolean;
   @property({ defaultValue: "button" }) ariaRole: string;
   public id: string;
+  public removePriority: number;
   @property() iconName: string;
   @property() iconSize: number = 24;
   @property() css?: string
@@ -230,7 +234,7 @@ export abstract class BaseAction extends Base implements IAction {
     return this.cssClassesValue || defaultActionBarCss;
   }
   public get isVisible() {
-    return this.visible && this.mode !== "popup";
+    return this.visible && this.mode !== "popup" && this.mode !== "removed";
   }
   public get disabled(): boolean {
     return this.enabled !== undefined && !this.enabled;
@@ -272,6 +276,12 @@ export abstract class BaseAction extends Base implements IAction {
   public getTooltip(): string {
     return this.tooltip || this.title;
   }
+  public getIsTrusted(args: any): boolean {
+    if(!!args.originalEvent) {
+      return args.originalEvent.isTrusted;
+    }
+    return args.isTrusted;
+  }
   protected abstract getEnabled(): boolean;
   protected abstract setEnabled(val: boolean): void;
   protected abstract getVisible(): boolean;
@@ -307,7 +317,6 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private createLocTitle(): LocalizableString {
     return this.createLocalizableString("title", this, true);
   }
-  public owner: ILocalizableOwner;
   location?: string;
   @property() id: string;
   @property({
@@ -321,7 +330,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     }
   }) locTooltipName?: string;
   @property() private _enabled: boolean;
-  @property() action: (context?: any) => void;
+  @property() action: (context?: any, isUserAction?: boolean) => void;
   @property() _component: string;
   @property() items: any;
   @property({

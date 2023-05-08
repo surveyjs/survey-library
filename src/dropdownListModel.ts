@@ -1,10 +1,12 @@
 import { IAction } from "./actions/action";
-import { Base, ComputedUpdater } from "./base";
+import { Base } from "./base";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
+import { QuestionDropdownModel } from "./question_dropdown";
+import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 import { doKey2ClickBlur, doKey2ClickUp } from "./utils/utils";
@@ -13,6 +15,7 @@ export class DropdownListModel extends Base {
   readonly minPageSize = 25;
   readonly loadingItemHeight = 40;
 
+  private _markdownMode = false;
   private _popupModel: PopupModel;
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
@@ -20,7 +23,7 @@ export class DropdownListModel extends Base {
   protected readonly selectedItemSelector = ".sv-list__item--selected";
   protected readonly itemSelector = ".sv-list__item";
   protected getFocusFirstInputSelector(): string {
-    if(IsTouch) {
+    if (IsTouch) {
       return this.isValueEmpty(this.question.value) ? this.itemSelector : this.selectedItemSelector;
     } else {
       return (!this.listModel.showFilter && !!this.question.value) ? this.selectedItemSelector : "";
@@ -108,6 +111,15 @@ export class DropdownListModel extends Base {
 
   private setFilterStringToListModel(newValue: string): void {
     this.listModel.filterString = newValue;
+    this.listModel.resetFocusedItem();
+    if (this.question.selectedItem && this.question.selectedItem.text.indexOf(newValue) >= 0) {
+      this.listModel.focusedItem = <any>this.getAvailableItems().filter(item => item.id == this.question.selectedItem.value)[0];
+      if (this.listModel.filterString) {
+        this.listModel.actions.map(a => a.selectedValue = false);
+      }
+
+      return;
+    }
     if (!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
       this.listModel.focusFirstVisibleItem();
     }
@@ -121,6 +133,7 @@ export class DropdownListModel extends Base {
 
   protected onHidePopup(): void {
     this.resetFilterString();
+    this.question.suggestedItem = null;
     this.listModel.refresh();
   }
 
@@ -131,12 +144,13 @@ export class DropdownListModel extends Base {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
     if (!_onSelectionChanged) {
-      _onSelectionChanged = (item: ItemValue) => {
-        this.question.value = item.value;
+      _onSelectionChanged = (item: IAction) => {
+        this.question.value = item.id;
+        if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
         this._popupModel.toggleVisibility();
       };
     }
-    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false);
+    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
     res.renderElements = false;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
@@ -162,12 +176,15 @@ export class DropdownListModel extends Base {
       this.filterString = undefined;
     }
   }
+  public clear(): void {
+    this.inputString = null;
+    this.hintString = "";
+    this.resetFilterString();
+  }
   protected onSetFilterString(): void {
     if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
-    this.setInputHasValue(!!this.filterString);
-
     const updateAfterFilterStringChanged = () => {
       this.setFilterStringToListModel(this.filterString);
       this.popupRecalculatePosition(true);
@@ -181,10 +198,6 @@ export class DropdownListModel extends Base {
     }
   }
 
-  setInputHasValue(newValue: boolean): void {
-    this.question.inputHasValue = newValue;
-  }
-
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
     defaultValue: "",
@@ -192,6 +205,64 @@ export class DropdownListModel extends Base {
       target.onSetFilterString();
     }
   }) filterString: string;
+
+  @property({
+    defaultValue: "",
+    onSet: (newValue, target: DropdownListModel) => {
+      target.question.inputHasValue = !!newValue;
+      target.showSelectedItemLocText = target.question.showSelectedItemLocText;
+    }
+  }) inputString: string;
+
+  @property({}) showSelectedItemLocText: boolean;
+  @property({}) showInputFieldComponent: boolean;
+  @property() ariaActivedescendant: string;
+
+  private applyInputString(item: ItemValue) {
+    const hasHtml = item?.locText.hasHtml;
+    if (hasHtml || this.question.inputFieldComponentName) {
+      this._markdownMode = true;
+      this.inputString = "";
+      this.hintString = "";
+    } else {
+      this.inputString = item?.title;
+      this.hintString = item?.title;
+    }
+  }
+
+  protected fixInputCase() {
+    const hintStringMiddle = this.hintStringMiddle;
+    if (hintStringMiddle && this.inputString != hintStringMiddle) this.inputString = hintStringMiddle;
+  }
+
+  protected applyHintString(item: ItemValue) {
+    const hasHtml = item?.locText.hasHtml;
+    if (hasHtml || this.question.inputFieldComponentName) {
+      this._markdownMode = true;
+      this.hintString = "";
+    } else {
+      this.hintString = item?.title;
+    }
+  }
+
+  public get inputStringRendered() {
+    return this.inputString || "";
+  }
+
+  public set inputStringRendered(val: string) {
+    this.inputString = val;
+    this.filterString = val;
+    this.applyHintString(this.listModel.focusedItem);
+  }
+
+  public get placeholderRendered() {
+    return this.hintString ? "" : this.question.readOnlyText;
+  }
+
+  public get listElementId(): string {
+    return this.question.inputId + "_list";
+  }
+
   @property({
     defaultValue: false,
     onSet: (newVal: boolean, target: DropdownListModel) => {
@@ -203,8 +274,45 @@ export class DropdownListModel extends Base {
     }
   }) hasScroll: boolean;
 
+  @property({ defaultValue: "" }) hintString: string;
+
+  private get hintStringLC(): string {
+    return this.hintString?.toLowerCase() || "";
+  }
+  private get inputStringLC(): string {
+    return this.inputString?.toLowerCase() || "";
+  }
+
+  public get showHintPrefix(): boolean {
+    return !!this.inputString && this.hintStringLC.indexOf(this.inputStringLC) > 0;
+  }
+  public get hintStringPrefix(): string {
+    if (!this.inputString) return null;
+    return this.hintString.substring(0, this.hintStringLC.indexOf(this.inputStringLC));
+  }
+  public get showHintString(): boolean {
+    return !!this.question.searchEnabled && this.hintStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0 ||
+      !this.question.searchEnabled && this.hintStringLC && !this.question.value;
+  }
+  public get hintStringSuffix(): string {
+    return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);
+  }
+  public get hintStringMiddle(): string {
+    const start = this.hintStringLC.indexOf(this.inputStringLC);
+    if (start == -1) return null;
+    return this.hintString.substring(start, start + this.inputStringLC.length);
+  }
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
+    question.onPropertyChanged.add((sender: any, options: any) => {
+      if (options.name == "value") {
+        this.showInputFieldComponent = this.question.showInputFieldComponent;
+        this.showSelectedItemLocText = this.question.showSelectedItemLocText;
+      }
+    });
+    this.showInputFieldComponent = this.question.showInputFieldComponent;
+    this.showSelectedItemLocText = this.question.showSelectedItemLocText;
+
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
     this.setSearchEnabled(this.question.searchEnabled);
@@ -222,7 +330,7 @@ export class DropdownListModel extends Base {
     return !this.question.isInputReadOnly && this.searchEnabled;
   }
   public get inputMode(): "none" | "text" {
-    return IsTouch ? "none": "text";
+    return IsTouch ? "none" : "text";
   }
 
   public setSearchEnabled(newValue: boolean) {
@@ -237,8 +345,7 @@ export class DropdownListModel extends Base {
 
   public onClick(event: any): void {
     this._popupModel.toggleVisibility();
-    this.listModel.focusNextVisibleItem();
-
+    this.focusItemOnClickAndPopup();
     if (this.searchEnabled && !!event && !!event.target) {
       const input = event.target.querySelector("input");
       if (!!input) {
@@ -247,48 +354,115 @@ export class DropdownListModel extends Base {
     }
   }
 
+  protected focusItemOnClickAndPopup() {
+    if (this._popupModel.isVisible && this.question.value)
+      this.changeSelectionWithKeyboard(false);
+  }
+
   public onClear(event: any): void {
     this.question.clearValue();
-    this.resetFilterString();
-    event.preventDefault();
-    event.stopPropagation();
+    this._popupModel.isVisible = false;
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
   }
 
   public getSelectedAction(): ItemValue {
     return this.question.selectedItem || null;
   }
 
+  changeSelectionWithKeyboard(reverse: boolean): void {
+    let focusedItem = this.listModel.focusedItem;
+    if (reverse) {
+      this.listModel.focusPrevVisibleItem();
+    }
+    else {
+      this.listModel.focusNextVisibleItem();
+    }
+
+    this.beforeScrollToFocusedItem(focusedItem);
+    this.scrollToFocusedItem();
+    this.afterScrollToFocusedItem();
+
+    this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
+  }
+
+  protected beforeScrollToFocusedItem(focusedItem: ItemValue) {
+    if (this.question.value && focusedItem) {
+      focusedItem.selectedValue = false;
+      this.listModel.focusedItem.selectedValue = !this.listModel.filterString;
+      this.question.suggestedItem = this.listModel.focusedItem;
+    }
+  }
+
+  protected afterScrollToFocusedItem() {
+    if (this.question.value && !this.listModel.filterString && this.question.searchEnabled) {
+      this.applyInputString(this.listModel.focusedItem || this.question.selectedItem);
+    }
+    else {
+      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+    }
+
+    this.fixInputCase();
+    this.ariaActivedescendant = this.listModel.focusedItem?.elementId;
+  }
+
   keyHandler(event: any): void {
     const char: number = event.which || event.keyCode;
     if (this.popupModel.isVisible && event.keyCode === 38) {
-      this.listModel.focusPrevVisibleItem();
-      this.scrollToFocusedItem();
+      this.changeSelectionWithKeyboard(true);
       event.preventDefault();
       event.stopPropagation();
     } else if (event.keyCode === 40) {
       if (!this.popupModel.isVisible) {
         this.popupModel.toggleVisibility();
       }
-      this.listModel.focusNextVisibleItem();
-      this.scrollToFocusedItem();
+      this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
-    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
-      this.listModel.selectFocusedItem();
+    } else if (!this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
+      this.popupModel.toggleVisibility();
+      this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
-    } else if (char === 46) {
-      this.onClear(event);
+    } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.question.searchEnabled || !this.inputString))) {
+      if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
+        this._popupModel.isVisible = false;
+        this.onClear(event);
+        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
+      }
+      else {
+        this.listModel.selectFocusedItem();
+        this.onFocus(event);
+        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
+      }
+      event.preventDefault();
+      event.stopPropagation();
+    } else if (char === 46 || char === 8) {
+      if (!this.searchEnabled) {
+        this.onClear(event);
+      }
     } else if (event.keyCode === 27) {
-      this.popupModel.isVisible = false;
+      this._popupModel.isVisible = false;
+      this.hintString = "";
+      this.onEscape();
     } else {
-      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32) {
+      if (event.keyCode === 38 || event.keyCode === 40 || event.keyCode === 32 && !this.question.searchEnabled) {
         event.preventDefault();
         event.stopPropagation();
+      }
+      if (event.keyCode === 32 && this.question.searchEnabled) {
+        return;
       }
       doKey2ClickUp(event, { processEsc: false, disableTabStop: this.question.isInputReadOnly });
     }
   }
+  protected onEscape() {
+    if (this.question.searchEnabled)
+      this.applyInputString(this.question.selectedItem);
+  }
+
   onScroll(event: Event): void {
     const target = event.target as HTMLElement;
     if ((target.scrollHeight - (target.scrollTop + target.offsetHeight)) <= this.loadingItemHeight) {
@@ -304,10 +478,34 @@ export class DropdownListModel extends Base {
       this.listModel.selectFocusedItem();
     }
     this.resetFilterString();
-    this._popupModel.isVisible = false;
-    this.setInputHasValue(false);
+    this.inputString = null;
+    this.hintString = "";
     doKey2ClickBlur(event);
+    this._popupModel.isVisible = false;
+    event.stopPropagation();
   }
+  onFocus(event: any): void {
+    this.setInputStringFromSelectedItem();
+  }
+
+  public setInputStringFromSelectedItem(newValue?: any): void {
+    if (this.question.searchEnabled) {
+      this.applyInputString(newValue || this.question.selectedItem);
+    } else {
+      this.inputString = null;
+    }
+  }
+
+  dispose(): void {
+    super.dispose();
+    if(!!this.listModel) {
+      this.listModel.dispose();
+    }
+    if(!!this.popupModel) {
+      this.popupModel.dispose();
+    }
+  }
+
   scrollToFocusedItem(): void {
     this.listModel.scrollToFocusedItem();
   }

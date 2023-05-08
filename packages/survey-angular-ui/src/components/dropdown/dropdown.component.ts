@@ -1,19 +1,19 @@
-import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from "@angular/core";
+import { Component, ElementRef, Input, OnInit, ViewChild } from "@angular/core";
 import { DropdownListModel, Helpers } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 
 @Component({
   selector: "sv-ng-dropdown, '[sv-ng-dropdown]'",
   templateUrl: "./dropdown.component.html"
-  })
-export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit {
+})
+export class DropdownComponent extends BaseAngular implements OnInit {
     @Input() model: any;
     @ViewChild("inputElement") inputElementRef!: ElementRef<HTMLDivElement>;
     get dropdownModel(): DropdownListModel {
       return this.model?.dropdownListModel;
     }
     protected getModel() {
-      return this.model;
+      return this.model.dropdownListModel;
     }
 
     override ngOnInit(): void {
@@ -21,11 +21,6 @@ export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit 
       if (!this.model.dropdownListModel) {
         this.model.dropdownListModel = new DropdownListModel(this.model);
       }
-    }
-
-    override ngOnDestroy() {
-      super.ngOnDestroy();
-      this.dropdownModel?.dispose();
     }
 
     click(event: any) {
@@ -41,15 +36,18 @@ export class DropdownComponent extends BaseAngular implements OnDestroy, OnInit 
       this.dropdownModel?.onBlur(event);
       this.updateInputDomElement();
     }
+    focus(event: any) {
+      this.dropdownModel?.onFocus(event);
+    }
     inputChange(event: any) {
       this.detectChanges();
     }
     updateInputDomElement() {
       if (!!this.inputElementRef?.nativeElement) {
         const control: any = this.inputElementRef.nativeElement;
-        const newValue = this.model.filterString;
+        const newValue = this.model.inputStringRendered;
         if (!Helpers.isTwoValueEquals(newValue, control.value)) {
-          control.value = this.model.filterString || "";
+          control.value = this.model.inputStringRendered || "";
         }
       }
     }

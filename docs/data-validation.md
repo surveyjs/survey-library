@@ -4,11 +4,11 @@ description: SurveyJS lets you validate user responses before users proceed to t
 ---
 # Data Validation
 
-SurveyJS Form Library allows you to validate user responses on the client or server side. Regardless of the type, validation activates before a user proceeds to the next page or completes the survey. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a user answers a question, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanging"`:
+SurveyJS Form Library allows you to validate user responses on the client or server side. Regardless of the type, validation activates before a user proceeds to the next page or completes the survey. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a user answers a question, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanged"`:
 
 ```js
 const surveyJson = {
-  "checkErrorsMode": "onValueChanging",
+  "checkErrorsMode": "onValueChanged",
   "elements": [
     // ...
   ]

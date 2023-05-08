@@ -150,9 +150,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public onComplete: EventBase<SurveyModel, CompleteEvent> = this.addEvent<SurveyModel, CompleteEvent>();
   /**
-   * An event that is raised before the survey displays a [preview](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Use this event to cancel the preview.
-   *
+   * An event that is raised before the survey displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Use this event to cancel the preview.
    * @see showPreviewBeforeComplete
+   * @see showPreview
+   * @see cancelPreview
    */
   public onShowingPreview: EventBase<SurveyModel, ShowingPreviewEvent> = this.addEvent<SurveyModel, ShowingPreviewEvent>();
   /**
@@ -355,7 +356,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
   /**
-   * Use this event to modify the HTML content before rendering, for example `completeHtml` or `loadingHtml`.
+   * An event that is raised when the survey processes HTML content. Handle this event to modify HTML content before displaying.
    * @see completedHtml
    * @see loadingHtml
    * @see QuestionHtmlModel.html
@@ -438,7 +439,6 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
-   * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles
    */
@@ -465,26 +465,36 @@ export class SurveyModel extends SurveyElementCore
   public onProcessTextValue: EventBase<SurveyModel, ProcessTextValueEvent> = this.addEvent<SurveyModel, ProcessTextValueEvent>();
 
   /**
-   * An event that is raised before rendering a question. Use it to override the default question CSS classes.
+   * An event that is raised before rendering a question. Use it to override default question CSS classes.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-cssclasses/ (linkStyle))
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a panel. Use it to override the default panel CSS classes.
+   * An event that is raised before rendering a panel. Use it to override default panel CSS classes.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdatePanelCssClasses: EventBase<SurveyModel, UpdatePanelCssClassesEvent> = this.addEvent<SurveyModel, UpdatePanelCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a page. Use it to override the default page CSS classes.
+   * An event that is raised before rendering a page. Use it to override default page CSS classes.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a choice item in radiogroup, checkbox or dropdown questions. Use it to override the default choice item css.
+   * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
 
@@ -777,6 +787,7 @@ export class SurveyModel extends SurveyElementCore
     this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack);
     this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack);
     this.createLocalizableString("logo", this, false);
+    this.createLocalizableString("backgroundImage", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
     this.createLocalizableString("pageNextText", this, false, true);
@@ -838,6 +849,7 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
     this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
+    this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -889,11 +901,7 @@ export class SurveyModel extends SurveyElementCore
     this.setCalculatedWidthModeUpdater();
 
     this.notifier = new Notifier(this.css.saveData);
-    this.notifier.addAction(<IAction>{
-      id: "save-again",
-      title: this.getLocalizationString("saveAgainButton"),
-      action: () => { this.doComplete(); }
-    }, "error");
+    this.notifier.addAction(this.createTryAgainAction(), "error");
 
     this.layoutElements.push({
       id: "timerpanel",
@@ -937,6 +945,19 @@ export class SurveyModel extends SurveyElementCore
       data: this.navigationBar
     });
   }
+  protected createTryAgainAction(): IAction {
+    return <IAction>{
+      id: "save-again",
+      title: this.getLocalizationString("saveAgainButton"),
+      action: () => {
+        if(this.isCompleted) {
+          this.saveDataOnComplete();
+        } else {
+          this.doComplete();
+        }
+      }
+    };
+  }
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
     this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
   }
@@ -956,9 +977,10 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Returns a list of all pages in the survey, including invisible pages.
+   * Returns an array of all pages in the survey.
+   *
+   * To get an array of only visible pages, use the [`visiblePages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePages) array.
    * @see PageModel
-   * @see visiblePages
    */
   public get pages(): Array<PageModel> {
     return this.getPropertyValue("pages");
@@ -1002,6 +1024,11 @@ export class SurveyModel extends SurveyElementCore
     this.updateNavigationCss();
     this.updateCompletedPageCss();
   }
+  /**
+   * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   */
   public get css(): any {
     if (!this.cssValue) {
       this.cssValue = {};
@@ -1080,7 +1107,7 @@ export class SurveyModel extends SurveyElementCore
       .append(btn).toString();
   }
   private lazyRenderingValue: boolean;
-  @property({ defaultValue: false }) showBrandInfo: boolean;
+  @property() showBrandInfo: boolean;
   /**
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
@@ -1120,11 +1147,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("triggers", val);
   }
   /**
-   * Gets or sets a list of calculated values in the survey.
-   * @see CalculatedValue
-   *
-   * For more information, refer to [Calculated Values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
-   *
+   * An array of [calculated values](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#calculated-values).
    */
   public get calculatedValues(): Array<CalculatedValue> {
     return this.getPropertyValue("calculatedValues");
@@ -1133,7 +1156,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("calculatedValues", val);
   }
   /**
-   * Gets or sets an identifier of a survey model loaded from the [api.surveyjs.io](https://api.surveyjs.io) service. When specified, the survey JSON is automatically loaded from [api.surveyjs.io](https://api.surveyjs.io) service.
+   * The identifier of a survey JSON schema to load from the [SurveyJS Service](https://api.surveyjs.io).
+   *
+   * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
    * @see loadSurveyFromService
    * @see onLoadedSurveyFromService
    */
@@ -1144,7 +1169,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyId", val);
   }
   /**
-   * Gets or sets an identifier of a survey model saved to the [api.surveyjs.io](https://api.surveyjs.io) service. When specified, the survey data is automatically saved to the [api.surveyjs.io](https://api.surveyjs.io) service.
+   * An identifier used to save survey results to the [SurveyJS Service](https://api.surveyjs.io).
+   *
+   * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
    * @see onComplete
    * @see surveyShowDataSaving
    */
@@ -1155,9 +1182,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyPostId", val);
   }
   /**
-   * Gets or sets user's identifier (e.g., e-mail or unique customer id) in your web application.
-   * If you load survey or post survey results from/to [api.surveyjs.io](https://api.surveyjs.io) service, then the library do not allow users to run the same survey the second time.
-   * On the second run, the user will see the survey complete page.
+   * A user identifier (e-mail or other unique ID).
+   *
+   * If your application works with the [SurveyJS Service](https://api.surveyjs.io), the ID ensures that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
+   * @see cookieName
    */
   public get clientId(): string {
     return this.getPropertyValue("clientId", "");
@@ -1166,9 +1194,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("clientId", val);
   }
   /**
-   * Gets or sets a cookie name used to save information about completing the survey.
-   * If the property is not empty, before starting the survey, the Survey library checks if the cookie with this name exists.
-   * If it is `true`, the survey goes to complete mode and a user sees the survey complete page. On completing the survey the cookie with this name is created.
+   * A cookie name used to save information about survey completion.
+   *
+   * When this property has a value, the survey creates a cookie with the specified name on completion. This cookie helps ensure that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
+   * @see cliendId
    */
   public get cookieName(): string {
     return this.getPropertyValue("cookieName", "");
@@ -1182,7 +1211,7 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for more information on the use case: [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete).
    */
   public get sendResultOnPageNext(): boolean {
-    return this.getPropertyValue("sendResultOnPageNext", false);
+    return this.getPropertyValue("sendResultOnPageNext");
   }
   public set sendResultOnPageNext(val: boolean) {
     this.setPropertyValue("sendResultOnPageNext", val);
@@ -1192,7 +1221,7 @@ export class SurveyModel extends SurveyElementCore
    * @see surveyPostId
    */
   public get surveyShowDataSaving(): boolean {
-    return this.getPropertyValue("surveyShowDataSaving", false);
+    return this.getPropertyValue("surveyShowDataSaving");
   }
   public set surveyShowDataSaving(val: boolean) {
     this.setPropertyValue("surveyShowDataSaving", val);
@@ -1249,6 +1278,8 @@ export class SurveyModel extends SurveyElementCore
    * Gets or sets the visibility of the table of contents.
    *
    * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see tocLocation
    */
   public get showTOC(): boolean {
@@ -1264,6 +1295,8 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"left"` (default)
    * - `"right"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/toc-feature/ (linkStyle))
    * @see showTOC
    */
   public get tocLocation(): "left" | "right" {
@@ -1445,28 +1478,26 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Gets or ses whether user proceeds to the next page without pressing the "Next" button after answering all page questions.
-   * The available options:
+   * Specifies whether the survey switches to the next page automatically after a user answers all questions on the current page.
    *
-   * - `true` - navigate to the next page and submit survey data automatically.
-   * - `autogonext` - navigate to the next page automatically but do not submit survey data.
-   * - `false` - do not navigate to the next page and do not submit survey data automatically.
+   * Default value: `false`
    *
-   * > If any of the following questions is answered last, the survey won't be switched to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
+   * If you enable this property, the survey is also completed automatically. Set the [`allowCompleteSurveyAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#allowCompleteSurveyAutomatic) property to `false` if you want to disable this behavior.
    *
-   * @see showNavigationButtons
+   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-autonextpage/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
-    return this.getPropertyValue("goNextPageAutomatic", false);
+    return this.getPropertyValue("goNextPageAutomatic");
   }
   public set goNextPageAutomatic(val: boolean | "autogonext") {
     this.setPropertyValue("goNextPageAutomatic", val);
   }
   /**
-   * Gets or sets whether a survey is automatically completed when `goNextPageAutomatic = true`. Set it to `false` if you do not want to submit survey automatically on completing the last survey page.
-   * @see goNextPageAutomatic
+   * Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is `true`.
+   *
+   * Default value: `true`
    */
   public get allowCompleteSurveyAutomatic(): boolean {
     return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
@@ -1475,14 +1506,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("allowCompleteSurveyAutomatic", val);
   }
   /**
-   * Gets or sets a value that specifies how the survey validates the question answers.
+   * Specifies when the survey validates answers.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `onNextPage` (default) - check errors on navigating to the next page or on completing the survey.
-   * - `onValueChanged` - check errors on every question value (i.e., answer) changing.
-   * - `onValueChanging` - check errors before setting value into survey. If there is an error, then survey data is not changed, but question value will be keeped.
-   * - `onComplete` - to validate all visible questions on complete button click. If there are errors on previous pages, then the page with the first error becomes the current.
+   * - `"onNextPage"` (default) - Triggers validation before the survey is switched to the next page or completed.
+   * - `"onValueChanged"` - Triggers validation each time a question value is changed.
+   * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
+   *
+   * Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
    */
   public get checkErrorsMode(): string {
     return this.getPropertyValue("checkErrorsMode");
@@ -1491,9 +1523,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether the text area of [comment](https://surveyjs.io/Documentation/Library?id=questioncommentmodel) questions/elements automatically expands its height to avoid the vertical scrollbar and to display the entire multi-line contents entered by respondents.
-   * Default value is false.
-   * @see QuestionCommentModel.autoGrow
+   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   *
+   * Default value: `false`
+   *
+   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
@@ -1518,15 +1552,17 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("textUpdateMode", val);
   }
   /**
-   * Gets or sets a value that specifies how the invisible data is included in survey data.
+   * Specifies when to remove values of invisible questions from [survey results](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data).
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `none` - include the invisible values into the survey data.
-   * - `onHidden` - clear the question value when it becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
-   * - `onHiddenContainer` - clear the question value when it or its parent (page or panel) becomes invisible. If a question has value and it was invisible initially then survey clears the value on completing.
-   * - `onComplete` (default) - clear invisible question values on survey complete. In this case, the invisible questions will not be stored on the server.
-   * @see Question.visible
+   * - `"onComplete"` (default) - Clears invisible question values when the survey is complete.
+   * - `"onHidden"` - Clears a question value when the question becomes invisible. If the question is invisible initially, its value is removed on survey completion.
+   * - `"onHiddenContainer"` - Clears a question value when the question or its containter (page or panel) becomes invisible. If the question is invisible initially, its value is removed on survey completion.
+   * - `"none"` - Keeps invisible values in survey results.
+   * - `true` - Equivalent to `"onComplete"`.
+   * - `false` - Equivalent to `"none"`.
+   * @see [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)
    * @see onComplete
    */
   public get clearInvisibleValues(): any {
@@ -1538,20 +1574,18 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("clearInvisibleValues", val);
   }
   /**
-   * Call this function to remove all question values from the survey, that end-user will not be able to enter.
-   * For example the value that doesn't exists in a radiogroup/dropdown/checkbox choices or matrix rows/columns.
-   * Please note, this function doesn't clear values for invisible questions or values that doesn't associated with questions.
-   * In fact this function just call clearIncorrectValues function of all questions in the survey
-   * @param removeNonExisingRootKeys - set this parameter to true to remove keys from survey.data that doesn't have corresponded questions and calculated values
-   * @see Question.clearIncorrectValues
-   * @see Page.clearIncorrectValues
-   * @see Panel.clearIncorrectValues
+   * Removes values that cannot be assigned to a question, for example, choices unlisted in the `choices` array.
+   *
+   * Call this method after you assign new question values in code to ensure that they are acceptable.
+   *
+   * > This method does not remove values that fail validation. Call the [`validate()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validate) method to validate newly assigned values.
+   * @param removeNonExistingRootKeys Pass `true` to remove values that do not correspond to any question or [calculated value](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values).
    */
-  public clearIncorrectValues(removeNonExisingRootKeys: boolean = false) {
+  public clearIncorrectValues(removeNonExistingRootKeys: boolean = false) {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].clearIncorrectValues();
     }
-    if (!removeNonExisingRootKeys) return;
+    if (!removeNonExistingRootKeys) return;
     var data = this.data;
     var hasChanges = false;
     for (var key in data) {
@@ -1581,13 +1615,13 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   /**
-   * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the choices array.
+   * Specifies whether to keep values that cannot be assigned to questions, for example, choices unlisted in the `choices` array.
    *
    * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    * @see clearIncorrectValues
    */
   public get keepIncorrectValues(): boolean {
-    return this.getPropertyValue("keepIncorrectValues", false);
+    return this.getPropertyValue("keepIncorrectValues");
   }
   public set keepIncorrectValues(val: boolean) {
     this.setPropertyValue("keepIncorrectValues", val);
@@ -1840,6 +1874,16 @@ export class SurveyModel extends SurveyElementCore
   private get isMobile() {
     return this._isMobile;
   }
+  @property() private _isCompact: boolean = false;
+  private set isCompact(newVal: boolean) {
+    if(newVal !== this._isCompact) {
+      this._isCompact = newVal;
+      this.updateElementCss();
+    }
+  }
+  private get isCompact() {
+    return this._isCompact;
+  }
   protected isLogoImageChoosen() {
     return this.locLogo.renderedHtml;
   }
@@ -1857,12 +1901,48 @@ export class SurveyModel extends SurveyElementCore
     return "";
   }
   /**
-   * Gets or sets the HTML content displayed on the complete page. Use this property to change the default complete page text.
+   * An image to display in the background of the survey or form. Accepts a base64 or URL string value.
+   * @see backgroundOpacity
+   */
+  public get backgroundImage(): string {
+    return this.getLocalizableStringText("backgroundImage");
+  }
+  public set backgroundImage(value: string) {
+    this.setLocalizableStringText("backgroundImage", value);
+  }
+  get locBackgroundImage(): LocalizableString {
+    return this.getLocalizableString("backgroundImage");
+  }
+  @property() renderBackgroundImage: string;
+  private updateRenderBackgroundImage(): void {
+    this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
+  }
+  @property() backgroundImageFit: string;
+  /**
+   * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
+   * @see backgroundImage
+   */
+  public get backgroundOpacity(): number {
+    return this.getPropertyValue("backgroundOpacity");
+  }
+  public set backgroundOpacity(val: number) {
+    this.setPropertyValue("backgroundOpacity", val);
+  }
+  public get renderBackgroundOpacity(): string {
+    const backgroundOpacityProperty = this.getPropertyByName("backgroundOpacity");
+    if(backgroundOpacityProperty.isDefaultValue(this.backgroundOpacity)) {
+      return "";
+    }
+
+    const alpha = 1 - this.backgroundOpacity;
+    return ["rgba(255, 255, 255, ", alpha, ")"].join("");
+  }
+  /**
+   * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/modify-survey-navigation-settings/ (linkStyle))
    * @see showCompletedPage
    * @see completedHtmlOnCondition
-   * @see locale
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get completedHtml(): string {
     return this.getLocalizableStringText("completedHtml");
@@ -1874,9 +1954,11 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completedHtml");
   }
   /**
-   * The list of HTML condition items. If the expression of this item returns `true`, then a survey will use this item HTML instead of `completedHtml`.
-   * @see HtmlConditionItem
-   * @see completeHtml
+   * An array of objects that allows you to specify different HTML content for the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   *
+   * Each object should include the [`expression`](https://surveyjs.io/form-library/documentation/api-reference/htmlconditionitem#expression) and [`html`](https://surveyjs.io/form-library/documentation/api-reference/htmlconditionitem#html) properties. When `expression` evaluates to `true`, the survey uses the corresponding HTML markup instead of [`completedHtml`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedHtml). Refer to the following help topic for more information about expressions: [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/nps-question/ (linkStyle))
    */
   public get completedHtmlOnCondition(): Array<HtmlConditionItem> {
     return this.getPropertyValue("completedHtmlOnCondition");
@@ -1931,9 +2013,10 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * The HTML content displayed to an end user that has already completed the survey.
+   * HTML content displayed to a user who has completed the survey before.
    * @see clientId
-   * @see locale
+   * @see cookieName
+   * @see processedCompletedBeforeHtml
    */
   public get completedBeforeHtml(): string {
     return this.getLocalizableStringText("completedBeforeHtml");
@@ -1945,9 +2028,9 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completedBeforeHtml");
   }
   /**
-   * The HTML that shows on loading survey Json from the [api.surveyjs.io](https://api.surveyjs.io) service.
+   * HTML content displayed while a survey JSON schema is being loaded from the [SurveyJS Service](https://api.surveyjs.io).
    * @see surveyId
-   * @see locale
+   * @see processedLoadingHtml
    */
   public get loadingHtml(): string {
     return this.getLocalizableStringText("loadingHtml");
@@ -1958,10 +2041,6 @@ export class SurveyModel extends SurveyElementCore
   get locLoadingHtml(): LocalizableString {
     return this.getLocalizableString("loadingHtml");
   }
-  /**
-   * Default value for loadingHtml property
-   * @see loadingHtml
-   */
   public get defaultLoadingHtml(): string {
     return "<h3>" + this.getLocalizationString("loadingSurvey") + "</h3>";
   }
@@ -2038,11 +2117,10 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completeText");
   }
   /**
-   *  Gets or sets the 'Preview' button caption.
-   * @see locale
+   * Gets or sets a caption for the Preview button.
    * @see showPreviewBeforeComplete
-   * @see editText
    * @see showPreview
+   * @see editText
    */
   public get previewText(): string {
     return this.getLocalizableStringText("previewText");
@@ -2054,11 +2132,10 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("previewText");
   }
   /**
-   *  Gets or sets the 'Edit' button caption.
-   * @see locale
+   * Gets or sets a caption for the Edit button displayed when the survey shows a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
    * @see showPreviewBeforeComplete
-   * @see previewText
    * @see cancelPreview
+   * @see previewText
    */
   public get editText(): string {
     return this.getLocalizableStringText("editText");
@@ -2216,7 +2293,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showPageNumbers(): boolean {
-    return this.getPropertyValue("showPageNumbers", false);
+    return this.getPropertyValue("showPageNumbers");
   }
   public set showPageNumbers(value: boolean) {
     if (value === this.showPageNumbers) return;
@@ -2672,8 +2749,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns all comments from the data.
-   * @see data
+   * An object with all comment values.
+   * @see Question.showCommentArea
+   * @see storeOthersAsComment
    */
   public get comments(): any {
     var result: { [index: string]: any } = {};
@@ -2687,10 +2765,10 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a list of visible pages. If all pages are visible, then this property returns the same list as the `pages` property.
-   * @see pages
-   * @see PageModel.visible
-   * @see PageModel.visibleIf
+   * Returns an array of visible pages without the start page.
+   *
+   * To get an array of all pages, use the [`pages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pages) property. If all pages are visible, the `pages` and `visiblePages` arrays are identical.
+   * @see [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)
    */
   public get visiblePages(): Array<PageModel> {
     if (this.isDesignMode) return this.pages;
@@ -2715,24 +2793,30 @@ export class SurveyModel extends SurveyElementCore
     return this.pageCount;
   }
   /**
-   * Returns the survey page count.
-   * @see visiblePageCount
+   * Returns a total number of survey pages.
+   *
+   * To get the number of visible pages, use the [`visiblePageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePageCount) property.
    * @see pages
    */
   public get pageCount(): number {
     return this.pages.length;
   }
   /**
-   * Returns a number of visible pages within the survey.
-   * @see pageCount
+   * Returns the number of visible survey pages.
+   *
+   * To get a total number of survey pages, use the [`pageCount`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pageCount) property.
    * @see visiblePages
+   * @see [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility)
    */
   public get visiblePageCount(): number {
     return this.visiblePages.length;
   }
   /**
-   * Returns the started page. This property works if the `firstPageIsStarted` property is set to `true`.
+   * Returns the start page. Applies only if the [`firstPageIsStarted`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#firstPageIsStarted) property is set to `true`.
+   *
+   * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
    * @see firstPageIsStarted
+   * @see activePage
    */
   public get startedPage(): PageModel {
     var page =
@@ -2744,7 +2828,17 @@ export class SurveyModel extends SurveyElementCore
     return page;
   }
   /**
-   * Gets or sets the current survey page. If a survey is rendered, then this property returns a page that a user can see/edit.
+   * Gets or sets the current page.
+   *
+   * If you want to change the current page, set this property to a `PageModel` object. You can get this object in different ways. For example, you can call the [`getPageByName()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getPageByName) method to obtain a `PageModel` object with a specific name:
+   *
+   * ```js
+   * survey.currentPage = survey.getPageByName("my-page-name");
+   * ```
+   *
+   * Alternatively, you can change the current page if you set the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property to the index of the required page.
+   *
+   * The `currentPage` property does not return the start page even if it is current. Use the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage) property instead if your survey contains a start page.
    */
   public get currentPage(): any {
     return this.getPropertyValue("currentPage", null);
@@ -2781,10 +2875,10 @@ export class SurveyModel extends SurveyElementCore
     return !!this.onContainsPageCallback && this.onContainsPageCallback(page);
   }
   /**
-   * Returns the currentPage, unless the started page is showing. In this case returns the started page.
+   * Returns [`startedPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#startedPage) if the survey currently displays a start page; otherwise, returns [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage).
+   * @see startedPage
    * @see currentPage
    * @see firstPageIsStarted
-   * @see startedPage
    */
   public get activePage(): any {
     return this.getPropertyValue("activePage");
@@ -2823,9 +2917,10 @@ export class SurveyModel extends SurveyElementCore
     return value;
   }
   /**
-   * The zero-based index of the current page in the visible pages array.
+   * A zero-based index of the current page in the [`visiblePages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#visiblePages) array.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-editprevious/ (linkStyle))
+   * @see visiblePages
    */
   public get currentPageNo(): number {
     return this.visiblePages.indexOf(this.currentPage);
@@ -2836,13 +2931,16 @@ export class SurveyModel extends SurveyElementCore
     this.currentPage = vPages[value];
   }
   /**
-   * Gets or sets the question display order. Use this property to randomize questions. You can randomize questions on a specific page.
+   * Specifies the sort order of questions in the survey.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `random` - randomize questions
-   * - `initial` - keep questions in the same order, as in a survey model.
-   * @see SurveyPage.questionsOrder
+   * - `"initial"` (default) - Preserves the original order of questions.
+   * - `"random"` - Displays questions in random order.
+   *
+   * You can override this property for individual pages and panels.
+   * @see PageModel.questionsOrder
+   * @see PanelModel.questionsOrder
    */
   public get questionsOrder() {
     return this.getPropertyValue("questionsOrder");
@@ -2957,17 +3055,14 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public notify(message: string, type: string): void {
-    this.notifier.notify(message, type);
+    this.notifier.notify(message, type, type === "error");
   }
   /**
-   * Clears the survey data and state. If the survey has a `completed` state, it will get a `running` state.
-   * @param clearData clear the data
-   * @param gotoFirstPage make the first page as a current page.
-   * @see data
-   * @see state
-   * @see currentPage
+   * Resets the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) and, optionally, [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data). If `state` is `"completed"`, it becomes `"running"`.
+   * @param clearData *Optional.* Specifies whether to clear survey data. Default value: `true`.
+   * @param goToFirstPage *Optional.* Specifies whether to switch the survey to the first page. Default value: `true`.
    */
-  public clear(clearData: boolean = true, gotoFirstPage: boolean = true) {
+  public clear(clearData: boolean = true, goToFirstPage: boolean = true) {
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
@@ -2983,7 +3078,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].passed = false;
     }
     this.onFirstPageIsStartedChanged();
-    if (gotoFirstPage) {
+    if (goToFirstPage) {
       this.currentPage = this.firstVisiblePage;
     }
     if (clearData) {
@@ -3006,15 +3101,10 @@ export class SurveyModel extends SurveyElementCore
     if (!page) return;
     page.updateCustomWidgets();
   }
-  protected currentPageChanging(newValue: PageModel, oldValue: PageModel) {
-    var options = {
-      oldCurrentPage: oldValue,
-      newCurrentPage: newValue,
-      allowChanging: true,
-      allow: true,
-      isNextPage: this.isNextPage(newValue, oldValue),
-      isPrevPage: this.isPrevPage(newValue, oldValue),
-    };
+  protected currentPageChanging(newValue: PageModel, oldValue: PageModel): boolean {
+    const options = this.createPageChangeEventOptions(newValue, oldValue);
+    options.allow = true;
+    options.allowChanging = true;
     this.onCurrentPageChanging.fire(this, options);
     const allow = options.allowChanging && options.allow;
     if (allow) {
@@ -3022,25 +3112,23 @@ export class SurveyModel extends SurveyElementCore
     }
     return allow;
   }
-  protected currentPageChanged(newValue: PageModel, oldValue: PageModel) {
-    const isNextPage: boolean = this.isNextPage(newValue, oldValue);
-    if (isNextPage) {
+  protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    const options = this.createPageChangeEventOptions(newValue, oldValue);
+    if (options.isNextPage) {
       oldValue.passed = true;
     }
-    this.onCurrentPageChanged.fire(this, {
+    this.onCurrentPageChanged.fire(this, options);
+  }
+  private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
+    const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;
+    return {
       oldCurrentPage: oldValue,
       newCurrentPage: newValue,
-      isNextPage: isNextPage,
-      isPrevPage: this.isPrevPage(newValue, oldValue),
-    });
-  }
-  private isNextPage(newValue: PageModel, oldValue: PageModel): boolean {
-    if (!newValue || !oldValue) return false;
-    return newValue.visibleIndex == oldValue.visibleIndex + 1;
-  }
-  private isPrevPage(newValue: PageModel, oldValue: PageModel): boolean {
-    if (!newValue || !oldValue) return false;
-    return newValue.visibleIndex + 1 == oldValue.visibleIndex;
+      isNextPage: diff === 1,
+      isPrevPage: diff === -1,
+      isGoingForward: diff > 0,
+      isGoingBackward: diff < 0
+    };
   }
   /**
    * Returns the progress that a user made while going through the survey.
@@ -3084,7 +3172,7 @@ export class SurveyModel extends SurveyElementCore
     var page = this.currentPage;
     if (!page) return "none";
     if (page.navigationButtonsVisibility === "show") {
-      return "bottom";
+      return this.showNavigationButtons === "none" ? "bottom" : this.showNavigationButtons;
     }
     if (page.navigationButtonsVisibility === "hide") {
       return "none";
@@ -3138,8 +3226,10 @@ export class SurveyModel extends SurveyElementCore
    * @param value use true to set the survey into the design mode.
    */
   public setDesignMode(value: boolean) {
-    this._isDesignMode = value;
-    this.onQuestionsOnPageModeChanged("standard");
+    if(!!this._isDesignMode != !!value) {
+      this._isDesignMode = !!value;
+      this.onQuestionsOnPageModeChanged("standard");
+    }
   }
   /**
    * Gets or sets whether to show all elements in the survey, regardless their visibility. The default value is `false`.
@@ -3547,11 +3637,11 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   /**
-   * Completes the survey, if the current page is the last one. It returns `false` if the last page has errors.
-   * If the last page has no errors, `completeLastPage` calls `doComplete` and returns `true`.
+   * Completes the survey if it currently displays the last page and the page contains no validation errors. If both these conditions are met, this method returns `true`; otherwise, `false`.
+   *
+   * If you want to complete the survey regardless of the current page and validation errors, use the [`doComplete()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) event.
    * @see isCurrentPageValid
    * @see nextPage
-   * @see doComplete
    */
   public completeLastPage(): boolean {
     var res = this.doCurrentPageComplete(true);
@@ -3572,21 +3662,18 @@ export class SurveyModel extends SurveyElementCore
   public nextPageUIClick() {
     if (!!this.mouseDownPage && this.mouseDownPage !== this.activePage) return;
     this.mouseDownPage = null;
-    this.nextPage();
+    return this.nextPage();
   }
   public nextPageMouseDown() {
     this.mouseDownPage = this.activePage;
     return this.navigationMouseDown();
   }
   /**
-   * Shows preview for the survey. Switches the survey to the "preview" state.
-   *
-   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
-   * @see showPreviewBeforeComplete
+   * Displays a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page). Returns `false` if the preview cannot be displayed because of validation errors.
    * @see cancelPreview
+   * @see showPreviewBeforeComplete
+   * @see onShowingPreview
    * @see state
-   * @see previewText
-   * @see editText
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
@@ -3601,12 +3688,10 @@ export class SurveyModel extends SurveyElementCore
     this.isShowingPreview = options.allowShowPreview && options.allow;
   }
   /**
-   * Cancels preview and switches back to the "running" state.
-   *
-   * Details: [Preview State](https://surveyjs.io/Documentation/Library#states-preview)
-   * @param curPage - A new current page. If the parameter is undefined then the last page becomes the current.
-   * @see showPreviewBeforeComplete
+   * Cancels a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) and switches the survey to the page specified by the `curPage` parameter.
+   * @param curPage A new current page. If you do not specify this parameter, the survey displays the last page.
    * @see showPreview
+   * @see showPreviewBeforeComplete
    * @see state
    */
   public cancelPreview(curPage: any = null) {
@@ -3644,12 +3729,13 @@ export class SurveyModel extends SurveyElementCore
     this.questionsOnPageMode = val ? "singlePage" : "standard";
   }
   /**
-   * Gets or sets a value that specifies how the survey combines questions, panels, and pages.
+   * Specifies how to distribute survey elements between pages.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `singlePage` - combine all survey pages in a single page. Pages will be converted to panels.
-   * - `questionPerPage` - show one question per page. Survey will create a separate page for every question.
+   * - `"singlePage"` - Combines all survey pages into a single page.
+   * - `"questionPerPage"` - Creates a separate page for every question.
+   * - `"standard"` (default) - Retains the original structure specified in the JSON schema.
    */
   public get questionsOnPageMode(): string {
     return this.getPropertyValue("questionsOnPageMode");
@@ -3658,11 +3744,14 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionsOnPageMode", val);
   }
   /**
-   * Gets or sets whether the first survey page is a start page. Set this property to `true`, to make the first page a starting page.
-   * An end user cannot navigate to the start page and the start page does not affect a survey progress.
+   * Gets or sets a Boolean value that specifies whether the first page is a start page.
+   *
+   * Refer to the following help topic for more information: [Start Page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
+   * @see startedPage
+   * @see activePage
    */
   public get firstPageIsStarted(): boolean {
-    return this.getPropertyValue("firstPageIsStarted", false);
+    return this.getPropertyValue("firstPageIsStarted");
   }
   public set firstPageIsStarted(val: boolean) {
     this.setPropertyValue("firstPageIsStarted", val);
@@ -3903,26 +3992,19 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Completes the survey.
    *
-   * Calling this function performs the following tasks:
+   * When you call this method, Form Library performs the following actions:
    *
-   * - writes cookie if the `cookieName` property is not empty
-   * - sets the survey into `completed` state
-   * - fires the `onComplete` event
-   * - calls `sendResult` function.
+   * 1. Saves a cookie if the [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) property is set.
+   * 1. Switches the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) to `"completed"`.
+   * 1. Raises the [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) event.
+   * 1. Navigates the user to a URL specified by the [`navigateToUrl`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrl) or [`navigateToUrlOnCondition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrlOnCondition) property.
+   * 1. Calls the [`sendResult()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResult) method if Form Library works with the [SurveyJS Service](https://api.surveyjs.io/).
    *
-   * Calling the `doComplete` function does not perform any validation, unlike the `completeLastPage` function.
-   * The function can return false, if you set options.allowComplete to false in onCompleting event. Otherwise it returns true.
-   * It calls `navigateToUrl` after calling `onComplete` event.
-   * In case calling `options.showSaveInProgress` callback in the `onComplete` event, `navigateToUrl` is used on calling `options.showSaveSuccess` callback.
-   * @see completeLastPage
-   * @see onCompleting
-   * @see cookieName
-   * @see state
-   * @see onComplete
+   * The `doComplete()` method completes the survey regardless of validation errors and the current page. If you need to ensure that survey results are valid and full, call the [`completeLastPage()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) method instead.
+   *
+   * @param isCompleteOnTrigger For internal use.
+   * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    * @see surveyPostId
-   * @see completeLastPage
-   * @see navigateToUrl
-   * @see navigateToUrlOnCondition
    */
   public doComplete(isCompleteOnTrigger: boolean = false): boolean {
     if (this.isCompleted) return;
@@ -3931,11 +4013,15 @@ export class SurveyModel extends SurveyElementCore
       return false;
     }
     this.checkOnPageTriggers(true);
-    let previousCookie = this.hasCookie;
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
     this.setCookie();
+    this.saveDataOnComplete(isCompleteOnTrigger);
+    return true;
+  }
+  private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
+    let previousCookie = this.hasCookie;
     const showSaveInProgress = (text: string) => {
       savingDataStarted = true;
       this.setCompletedState("saving", text);
@@ -3970,7 +4056,6 @@ export class SurveyModel extends SurveyElementCore
     if (!savingDataStarted) {
       this.navigateTo();
     }
-    return true;
   }
   private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
     var options = {
@@ -4124,7 +4209,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public get processedCompletedHtml(): string {
     var html = this.renderedCompletedHtml;
-    return !!html ? this.processHtml(html) : "";
+    return !!html ? this.processHtml(html, "completed") : "";
   }
   /**
    * Returns the HTML content, that is shown to a user that had completed the survey before.
@@ -4132,13 +4217,13 @@ export class SurveyModel extends SurveyElementCore
    * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
-    return this.processHtml(this.completedBeforeHtml);
+    return this.processHtml(this.completedBeforeHtml, "completed-before");
   }
   /**
    * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
-    return this.processHtml(this.loadingHtml);
+    return this.processHtml(this.loadingHtml, "loading");
   }
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;
@@ -4325,8 +4410,9 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    if (!!id && htmlElement.id !== id && typeof document !== "undefined") {
-      let el = document.getElementById(id);
+    const { root } = settings.environment;
+    if (!!id && htmlElement.id !== id && typeof root !== "undefined") {
+      let el = root.getElementById(id);
       if (!!el) {
         htmlElement = el;
       }
@@ -4368,7 +4454,11 @@ export class SurveyModel extends SurveyElementCore
     this.onChoicesLazyLoad.fire(this, options);
   }
   getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
-    this.onGetChoiceDisplayValue.fire(this, options);
+    if(this.onGetChoiceDisplayValue.isEmpty) {
+      options.setItems(null);
+    } else {
+      this.onGetChoiceDisplayValue.fire(this, options);
+    }
   }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);
@@ -4646,13 +4736,6 @@ export class SurveyModel extends SurveyElementCore
       callback: callback,
     });
   }
-  /**
-   * Clears files from server.
-   * @param question question
-   * @param name question name
-   * @param value file question value
-   * @param callback call back function to get the status of the clearing operation
-   */
   public clearFiles(
     question: QuestionFileModel,
     name: string,
@@ -4723,9 +4806,10 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Adds an existing page to the survey.
-   * @param page a newly added page
-   * @param index - a page index to where insert a page. It is -1 by default and the page will be added into the end.
+   * @param page A page to add.
+   * @param index An index at which to insert the page. If you do not specify this parameter, the page will be added to the end.
    * @see addNewPage
+   * @see createNewPage
    */
   public addPage(page: PageModel, index: number = -1) {
     if (page == null) return;
@@ -4736,10 +4820,12 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Creates a new page and adds it to a survey. Generates a new name if the `name` parameter is not specified.
-   * @param name a page name
-   * @param index - a page index to where insert a new page. It is -1 by default and the page will be added into the end.
+   * Creates a new page and adds it to the survey.
+   * @param name A page name. If you do not specify this parameter, it will be generated automatically.
+   * @param index An index at which to insert the page. If you do not specify this parameter, the page will be added to the end.
+   * @returns The created and added page.
    * @see addPage
+   * @see createNewPage
    */
   public addNewPage(name: string = null, index: number = -1) {
     var page = this.createNewPage(name);
@@ -4953,8 +5039,9 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Creates and returns a new page, but do not add it into the survey.
-   * You can use addPage(page) function to add it into survey later.
+   * Creates and returns a new page but does not add it to the survey.
+   *
+   * Call the [`addPage(page)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addPage) method to add the created page to the survey later or the [`addNewPage(name, index)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addNewPage) method to create _and_ add a page to the survey.
    * @see addPage
    * @see addNewPage
    */
@@ -5113,7 +5200,7 @@ export class SurveyModel extends SurveyElementCore
       values[name] = this.getValue(name);
     }
     this.addCalculatedValuesIntoFilteredValues(values);
-    this.checkTriggers(values, true);
+    this.checkTriggers(values, true, isOnComplete);
   }
   private getCurrentPageQuestions(
     includeInvsible: boolean = false
@@ -5450,6 +5537,7 @@ export class SurveyModel extends SurveyElementCore
     this.isEndLoadingFromJson = null;
     this.updateVisibleIndexes();
     this.updateHasLogo();
+    this.updateRenderBackgroundImage();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
     this.setCalculatedWidthModeUpdater();
@@ -5694,6 +5782,9 @@ export class SurveyModel extends SurveyElementCore
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
+    if(!!this.valuesHash) {
+      delete this.valuesHash[name];
+    }
     name = name.toLowerCase();
     this.variablesHash[name] = newValue;
     this.notifyElementsOnAnyValueOrVariableChanged(name);
@@ -5926,8 +6017,11 @@ export class SurveyModel extends SurveyElementCore
     this.setComment(name, null);
   }
   /**
-   * Gets or sets whether to clear value on disable items in checkbox, dropdown and radiogroup questions.
-   * By default, values are not cleared on disabled the corresponded items. This property is not persisted in survey JSON and you have to set it in code.
+   * Specifies whether to remove disabled choices from the value in [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), and [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model) questions.
+   *
+   * Default value: `false`
+   *
+   * > This property cannot be specified in the survey JSON schema. Use dot notation to specify it.
    */
   public get clearValueOnDisableItems(): boolean {
     return this.getPropertyValue("clearValueOnDisableItems", false);
@@ -6164,8 +6258,9 @@ export class SurveyModel extends SurveyElementCore
     this.onValidatePanel.fire(this, options);
     return options.error ? new CustomError(options.error, this) : null;
   }
-  processHtml(html: string): string {
-    var options = { html: html };
+  processHtml(html: string, reason?: string): string {
+    if(!reason) reason = "";
+    var options = { html: html, reason: reason };
     this.onProcessHtml.fire(this, options);
     return this.processText(options.html, true);
   }
@@ -6231,6 +6326,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public getInCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
+  }
+  onCorrectQuestionAnswer(question: IQuestion, options: any): void {
+    if(this.onIsAnswerCorrect.isEmpty) return;
+    options.question = question;
+    this.onIsAnswerCorrect.fire(this, options);
   }
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();
@@ -6509,11 +6609,12 @@ export class SurveyModel extends SurveyElementCore
     this.timerModel.stop();
   }
   /**
-   * Returns the time in seconds an end user spends on the survey
+   * Gets or set the time in seconds an end user spends on the survey.
    * @see startTimer
    * @see PageModel.timeSpent
    */
   public get timeSpent(): number { return this.timerModel.spent; }
+  public set timeSpent(val: number) { this.timerModel.spent = val; }
   /**
    * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
    * @see startTimer
@@ -6650,6 +6751,20 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
 
+  public questionEditFinishCallback(question: Question, event: any) {
+    if (settings.enterKeyAction == "loseFocus") event.target.blur();
+    if (settings.enterKeyAction == "moveToNextEditor") {
+      const allQuestions = this.currentPage.questions;
+      const questionIndex = allQuestions.indexOf(question);
+      if (questionIndex > -1 && questionIndex < allQuestions.length - 1) {
+        allQuestions[questionIndex + 1].focus();
+      }
+      else {
+        event.target.blur();
+      }
+    }
+  }
+
   public getElementWrapperComponentName(element: any, reason?: string): string {
     if (reason === "logo-image") {
       return "sv-logo-image";
@@ -6698,6 +6813,27 @@ export class SurveyModel extends SurveyElementCore
 
   @propertyArray() private layoutElements: Array<ISurveyLayoutElement>;
 
+  /**
+   * Adds an element to the survey layout.
+   *
+   * This method accepts an object with the following layout element properties:
+   *
+   * - `id`: `String` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"navigationbuttons"`\
+   * A layout element identifier. You can use possible values to access and relocate or customize predefined layout elements.
+   *
+   * - `container`: `"header"` | `"footer"` | `"left"` | `"right"` | `"contentTop"` | `"contentBottom"`\
+   * A layout container that holds the element. If you want to display the element within multiple containers, set this property to an array of possible values.
+   *
+   * - `component`: `String`\
+   * The name of the component that renders the layout element.
+   *
+   * - `data`: `any`\
+   * Data passed as props to `component`.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/progress-bar-with-percentage/ (linkStyle))
+   * @param layoutElement A layout element configuration.
+   * @returns The configuration of the previous layout element with the same `id`.
+   */
   public addLayoutElement(layoutElement: ISurveyLayoutElement): ISurveyLayoutElement {
     const existingLayoutElement = this.removeLayoutElement(layoutElement.id);
     this.layoutElements.push(layoutElement);
@@ -6739,16 +6875,16 @@ export class SurveyModel extends SurveyElementCore
         }
       } else if(isStrCiEqual(layoutElement.id, "navigationbuttons")) {
         if(container === "contentTop") {
-          if(["top", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnTop) {
+          if(["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
         if(container === "contentBottom") {
-          if(["bottom", "both"].indexOf(this.showNavigationButtons) !== -1 && this.isNavigationButtonsShowingOnBottom) {
+          if(["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+      } else if(!this.isShowingPreview && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
           if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
@@ -7020,5 +7156,8 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   "width",
+  { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
+  { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

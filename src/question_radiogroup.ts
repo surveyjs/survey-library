@@ -34,16 +34,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   /**
    * Returns the selected choice item. If no item is selected, returns `null`.
    */
-  public get selectedItem(): ItemValue {
-    const selectedItemValues = this.selectedItemValues;
-    if (this.isEmpty()) return null;
-
-    const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
-    if(!itemValue && !selectedItemValues) {
-      this.updateSelectedItemValues();
-    }
-    return itemValue || selectedItemValues || new ItemValue(this.value);
-  }
+  public get selectedItem(): ItemValue { return this.getSingleSelectedItem(); }
   /**
    * Specifies whether to display a button that clears the question value.
    *

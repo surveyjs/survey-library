@@ -80,7 +80,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;
   questionCountByValueName(valueName: string): number;
-  processHtml(html: string): string;
+  processHtml(html: string, reason: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
   getRendererForString(element: Base, name: string): string;
   getRendererContextForString(element: Base, locStr: LocalizableString): any;
@@ -219,6 +219,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   ): any;
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
+  onCorrectQuestionAnswer(question: IQuestion, options: any): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;
@@ -341,6 +342,14 @@ export interface IWrapperObject {
 export interface IFindElement {
   element: Base;
   str: LocalizableString;
+}
+
+export type ISurveyEnvironment = {
+  root: Document | ShadowRoot,
+  rootElement: HTMLElement | ShadowRoot,
+  popupMountContainer: HTMLElement | string,
+  svgMountContainer: HTMLElement | string,
+  stylesSheetsMountContainer: HTMLElement,
 }
 
 export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";

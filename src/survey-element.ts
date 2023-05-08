@@ -20,6 +20,8 @@ import { Helpers } from "./helpers";
 import { settings } from "./settings";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { SurveyModel } from "./survey";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -92,6 +94,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public get ariaTitleId(): string { return undefined; }
   public get titleTabIndex(): number { return undefined; }
   public get titleAriaExpanded(): any { return undefined; }
+  public get titleAriaRole(): any { return undefined; }
   public get ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }
@@ -152,8 +155,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public readOnlyChangedCallback: () => void;
 
   public static ScrollElementToTop(elementId: string): boolean {
-    if (!elementId || typeof document === "undefined") return false;
-    const el = document.getElementById(elementId);
+    const { root } = settings.environment;
+    if (!elementId || typeof root === "undefined") return false;
+    const el = root.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
     const elemTop: number = el.getBoundingClientRect().top;
     if (elemTop < 0) el.scrollIntoView();
@@ -187,8 +191,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return res;
   }
   private static focusElementCore(elementId: string): boolean {
-    if (!document) return false;
-    const el = document.getElementById(elementId);
+    const { root } = settings.environment;
+    if (!root) return false;
+    const el = root.getElementById(elementId);
     if (el && !(<any>el)["disabled"]) {
       el.focus();
       return true;
@@ -392,6 +397,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.isPage || this.state === "default") return undefined;
     return this.state === "expanded" ? "true" : "false";
   }
+
+  public get titleAriaRole(): any {
+    if (this.isPage || this.state === "default") return undefined;
+    return "button";
+  }
+
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     this.surveyImplValue = value;
     if (!this.surveyImplValue) {
@@ -510,14 +521,20 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    *
    * Use the following events of the [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) object to override CSS classes:
    *
-   * - [`onUpdatePageCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePageCssClasses)
-   * - [`onUpdatePanelCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePanelCssClasses)
    * - [`onUpdateQuestionCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdateQuestionCssClasses)
+   * - [`onUpdatePanelCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePanelCssClasses)
+   * - [`onUpdatePageCssClasses`](https://surveyjs.io/form-library/documentation/surveymodel#onUpdatePageCssClasses)
+   * - [`onUpdateChoiceItemCss`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUpdateChoiceItemCss)
    */
   public get cssClasses(): any {
     if (!this.survey) return this.calcCssClasses(this.css);
     this.ensureCssClassesValue();
     return this.cssClassesValue;
+  }
+  public get cssTitleNumber(): any {
+    const css = this.cssClasses;
+    if(css.number) return css.number;
+    return css.panel ? css.panel.number : undefined;
   }
   protected calcCssClasses(css: any): any { return undefined; }
   protected updateElementCssCore(cssClasses: any) { }
@@ -770,11 +787,32 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   public get hasParent() {
-    return (this.parent && !this.parent.isPage) || (this.parent === undefined);
+    return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage || (<any>this.survey).isShowingPreview)) || (this.parent === undefined);
   }
   @property({ defaultValue: true }) isSingleInRow: boolean = true;
-  protected get hasFrameV2() {
-    return !this.hasParent && this.isDefaultV2Theme && !this.isDesignMode && this.isSingleInRow;
+
+  private shouldAddRunnerStyles(): boolean {
+    return !this.isDesignMode && this.isDefaultV2Theme;
+  }
+
+  protected get isCompact(): boolean {
+    return this.survey && (<SurveyModel>this.survey)["isCompact"];
+  }
+
+  protected getHasFrameV2() : boolean {
+    return this.shouldAddRunnerStyles() && (!this.hasParent && this.isSingleInRow);
+  }
+  protected getIsNested(): boolean {
+    return this.shouldAddRunnerStyles() && (this.hasParent || !this.isSingleInRow);
+  }
+  protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    return new CssClassBuilder()
+      .append(cssClasses.withFrame, this.getHasFrameV2() && !this.isCompact)
+      .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
+      .append(cssClasses.collapsed, !!this.isCollapsed)
+      .append(cssClasses.expanded, !!this.isExpanded)
+      .append(cssClasses.nested, this.getIsNested())
+      .toString();
   }
 
   /**
@@ -870,6 +908,9 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   set paddingRight(val: string) {
     this.setPropertyValue("paddingRight", val);
   }
+  public get isDescriptionVisible(): boolean {
+    return (!!this.description || this.isDesignMode);
+  }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;
   get rootStyle() {
@@ -899,6 +940,24 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (this.state !== "default") {
       this.toggleState();
     }
+  }
+  public get additionalTitleToolbar(): ActionContainer {
+    return this.getAdditionalTitleToolbar();
+  }
+  protected getAdditionalTitleToolbar() : ActionContainer | null {
+    return null;
+  }
+  protected getCssTitle(cssClasses: any) {
+    const isExpandable = this.state !== "default";
+    const numInlineLimit = 4;
+    return new CssClassBuilder()
+      .append(cssClasses.title)
+      .append(cssClasses.titleNumInline, ((<any>this).no || "").length > numInlineLimit || isExpandable)
+      .append(cssClasses.titleExpandable, isExpandable)
+      .append(cssClasses.titleExpanded, this.isExpanded)
+      .append(cssClasses.titleCollapsed, this.isCollapsed)
+      .append(cssClasses.titleDisabled, this.isReadOnly)
+      .append(cssClasses.titleOnError, this.containsErrors).toString();
   }
   public localeChanged() {
     super.localeChanged();

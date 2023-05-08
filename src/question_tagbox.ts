@@ -42,7 +42,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   /**
    * Specifies whether to display a button that clears the selected value.
    */
-  @property({ defaultValue: true }) allowClear: boolean;
+  @property() allowClear: boolean;
   /**
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
@@ -59,7 +59,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * Specifies whether to remove selected items from the drop-down list.
    */
   @property({
-    defaultValue: false,
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
       if (!!target.dropdownListModel) {
         target.dropdownListModel.setHideSelectedItems(newValue);
@@ -72,7 +71,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * @see choicesLazyLoadPageSize
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property({ defaultValue: false }) choicesLazyLoadEnabled: boolean;
+  @property() choicesLazyLoadEnabled: boolean;
   /**
    * Specifies the number of choice items to load at a time when choices are loaded on demand.
    * @see choicesLazyLoadEnabled
@@ -116,6 +115,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }
+  public get ariaExpanded(): boolean {
+    return this.popupModel.isVisible;
+  }
 
   public getControlClass(): string {
     return new CssClassBuilder()
@@ -138,6 +140,11 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   ): boolean {
     if(this.choicesLazyLoadEnabled) { return false; }
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
+  }
+  protected needConvertRenderedOtherToDataValue(): boolean {
+    const val = this.otherValue?.trim();
+    if(!val) return false;
+    return super.hasUnknownValue(val, true, false);
   }
 
   protected onVisibleChoicesChanged(): void {
@@ -178,6 +185,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   public getInputId() {
     return this.inputId + "_0";
+  }
+  public dispose(): void {
+    super.dispose();
+    if(!!this.dropdownListModelValue) {
+      this.dropdownListModelValue.dispose();
+    }
+  }
+  public clearValue(): void {
+    super.clearValue();
+    this.dropdownListModel.clear();
   }
 }
 

@@ -1,48 +1,63 @@
-$primary: var(--primary, #19b394);
-$background: var(--background, #fff);
-$foreground: var(--foreground, #161616);
-$red: var(--red, #e60a3e);
-$shadow-medium: rgba(0, 0, 0, 0.1);
-
-$font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
-
-$base-unit: var(--base-unit, 8px);
-
-@function calcSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$base-unit});
-  @return $result;
-}
+@import "../defaultV2-theme/variables.scss";
 
 .sv-save-data_root {
   position: absolute;
   left: 50%;
   bottom: calcSize(3);
-  transform: translate(-50%, 0);
   background: $background;
-  opacity: 0.75;
+  opacity: 0;
   padding: calcSize(3) calcSize(6);
   box-shadow: 0px 2px 6px $shadow-medium;
-  border-radius: calcSize(1);
+  border-radius: calcCornerRadius(2);
   color: $foreground;
   min-width: calcSize(30);
   text-align: center;
   z-index: 1600; //todo: should overlap popup
 
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
-  white-space: nowrap;
 
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
+
+  transform: translateX(-50%) translateY(calcSize(3));
+  transition-timing-function: ease-in;
+  transition-property: transform, opacity;
+  transition-delay: 0.25s;
+  transition: 0.5s;
+}
+
+.sv-save-data_root.sv-save-data_root--shown {
+  transition-timing-function: ease-out;
+  transition-property: transform, opacity;
+  transform: translateX(-50%) translateY(0);
+  transition-delay: 0.25s;
+  opacity: 0.75;
+}
+
+.sv-save-data_root {
+  span {
+    display: flex;
+    flex-grow: 1;
+  }
+
+  .sv-action-bar {
+    display: flex;
+    flex-grow: 0;
+    flex-shrink: 0;
+  }
+}
+.sv-save-data_root--shown.sv-save-data_success,
+.sv-save-data_root--shown.sv-save-data_error {
+  opacity: 1;
 }
 
 .sv-save-data_root.sv-save-data_error {
   background-color: $red;
   color: $background;
-  opacity: 1;
   font-weight: 600;
   padding: calcSize(2) calcSize(2) calcSize(2) calcSize(6);
   gap: calcSize(6);
@@ -50,13 +65,13 @@ $base-unit: var(--base-unit, 8px);
 
 .sv-save-data_root.sv-save-data_error .sv-save-data_button {
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   height: calcSize(5);
   color: #ffffff;
   background-color: $red;
   border: calcSize(0.25) solid #ffffff;
-  border-radius: calcSize(0.75);
+  border-radius: calcCornerRadius(1.5);
   padding: calcSize(1) calcSize(3);
   display: flex;
   align-items: center;
@@ -70,6 +85,5 @@ $base-unit: var(--base-unit, 8px);
 .sv-save-data_root.sv-save-data_success {
   background-color: $primary;
   color: #ffffff;
-  opacity: 1;
   font-weight: 600;
 }

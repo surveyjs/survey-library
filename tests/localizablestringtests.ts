@@ -432,8 +432,7 @@ QUnit.test(
     assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
   }
 );
-QUnit.test(
-  "Call changed on setting value for non-default locale",
+QUnit.test("Call changed on setting value for non-default locale. It used in Creator",
   function(assert) {
     var owner = new LocalizableOwnerTester("");
 
@@ -752,4 +751,62 @@ QUnit.test("Do not reset values in any locale", function(assert) {
     "pt-br": "default-pt",
   }, "Do not reset any locale value");
   settings.storeDuplicatedTranslations = false;
+});
+QUnit.test("Do not reset values in any locale on changing the default", function(assert) {
+  settings.storeDuplicatedTranslations = true;
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.text = "default";
+  locString.setLocaleText("de", "default-de");
+  locString.setLocaleText("it", "default-it");
+  assert.deepEqual(locString.getJson(), {
+    default: "default",
+    de: "default-de",
+    it: "default-it"
+  }, "Default values");
+  locString.text = "default-de";
+  assert.deepEqual(locString.getJson(), {
+    default: "default-de",
+    de: "default-de",
+    it: "default-it"
+  }, "Do not remove keys, #1");
+  owner.locale = "it";
+  locString.text = "default-de";
+  assert.deepEqual(locString.getJson(), {
+    default: "default-de",
+    de: "default-de",
+    it: "default-de"
+  }, "Do not remove keys, #2");
+  settings.storeDuplicatedTranslations = false;
+});
+QUnit.test("Support disableLocalization", function(assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  let oldStr, newStr;
+  locString.onStrChanged = (oldValue: string, newValue: string) => {
+    oldStr = oldValue;
+    newStr = newValue;
+  };
+  locString.disableLocalization = true;
+  locString.text = "default";
+  assert.notOk(oldStr, "onStrChanged, oldStr #1");
+  assert.equal(newStr, "default", "onStrChanged, newStr #1");
+  locString.setLocaleText("de", "default-de");
+  assert.equal(oldStr, "default", "onStrChanged, oldStr #2");
+  assert.equal(newStr, "default-de", "onStrChanged, newStr #2");
+  locString.setLocaleText("it", "default-it");
+  assert.equal(oldStr, "default-de", "onStrChanged, oldStr #3");
+  assert.equal(newStr, "default-it", "onStrChanged, newStr #3");
+  assert.equal(locString.getJson(), "default-it", "#1");
+  locString.text = "default-de";
+  assert.deepEqual(locString.getJson(), "default-de", "#2");
+  assert.equal(oldStr, "default-it", "onStrChanged, oldStr #3");
+  assert.equal(newStr, "default-de", "onStrChanged, newStr #3");
+  owner.locale = "fr";
+  assert.equal(locString.text, "default-de", "check text on changing locale");
+  locString.text = "default-fr";
+  assert.deepEqual(locString.getJson(), "default-fr", "#3");
+  assert.equal(newStr, "default-fr", "onStrChanged, newStr #4");
+  locString.setJson("default-2");
+  assert.deepEqual(locString.getJson(), "default-2", "#4");
 });

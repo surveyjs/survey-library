@@ -22,8 +22,8 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
  *
  * Refer to the following articles for more information:
  *
- * - [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types)
- * - [Create Composite Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types)
+ * - [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types)
+ * - [Create Composite Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types)
  */
 export interface ICustomQuestionTypeConfiguration {
   /**
@@ -43,7 +43,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   icon?: string;
   /**
-   * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types#override-base-question-properties)).
+   * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types#override-base-question-properties)).
    */
   onInit?(): void;
   /**
@@ -55,7 +55,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   showInToolbox?: boolean;
   /**
-   * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
+   * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    *
    * Parameters:
    *
@@ -84,7 +84,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onAfterRender?(question: Question, htmlElement: any): void;
   /**
-   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) is rendered.
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types) is rendered.
    *
    * Parameters:
    *
@@ -101,7 +101,7 @@ export interface ICustomQuestionTypeConfiguration {
     htmlElement: any
   ): void;
   /**
-   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types) requires an update of its CSS classes.
+   * A function that is called each time a question nested within a [composite question](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types) requires an update of its CSS classes.
    *
    * Parameters:
    *
@@ -131,7 +131,7 @@ export interface ICustomQuestionTypeConfiguration {
     newValue: any
   ): void;
   /**
-   * A function that is called when the question value is changed.
+   * A function that is called after the question value is changed.
    *
    * Parameters:
    *
@@ -143,6 +143,21 @@ export interface ICustomQuestionTypeConfiguration {
    * A new value for the question.
    */
   onValueChanged?(question: Question, name: string, newValue: any): void;
+  /**
+   * A function that is called before a question value is changed.
+   *
+   * This function should return the value you want to save: `newValue`, a custom value, or `undefined` if you want to clear the question value.
+   *
+   * Parameters:
+   *
+   * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
+   * A custom question.
+   * - `name`: `String`\
+   * The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
+   * - `newValue`: `any`\
+   * A new value for the question.
+   */
+  onValueChanging?(question: Question, name: string, newValue: any): any;
   /**
    * A function that is called when an [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue) property is changed.
    *
@@ -168,7 +183,7 @@ export interface ICustomQuestionTypeConfiguration {
    */
   getDisplayValue?: ((keyAsText: boolean, value: any) => any) | ((question: Question) => any);
   /**
-   * JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/Documentation/Survey-Creator?id=create-composite-question-types).
+   * JSON schemas of nested questions. Specify this property to create a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    */
   elementsJSON?: any;
   /**
@@ -180,7 +195,7 @@ export interface ICustomQuestionTypeConfiguration {
   /**
    * A JSON schema for a built-in question type on which the custom question type is based.
    *
-   * Refer to the [Create Specialized Question Types](https://surveyjs.io/Documentation/Survey-Creator?id=create-specialized-question-types) help topic for more information.
+   * Refer to the [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types) help topic for more information.
    */
   questionJSON?: any;
   /**
@@ -243,9 +258,13 @@ export class ComponentQuestionJSON {
     if (!this.json.onPropertyChanged) return;
     this.json.onPropertyChanged(question, propertyName, newValue);
   }
-  public onValueChanged(question: Question, name: string, newValue: any) {
+  public onValueChanged(question: Question, name: string, newValue: any): void {
     if (!this.json.onValueChanged) return;
     this.json.onValueChanged(question, name, newValue);
+  }
+  public onValueChanging(question: Question, name: string, newValue: any): any {
+    if (!this.json.onValueChanging) return newValue;
+    return this.json.onValueChanging(question, name, newValue);
   }
   public onItemValuePropertyChanged(
     question: Question,
@@ -452,9 +471,6 @@ export abstract class QuestionCustomModelBase extends Question
   getSurveyData(): ISurveyData {
     return this;
   }
-  // getSurvey(): ISurvey {
-  //   return this.survey;
-  // }
   getTextProcessor(): ITextProcessor {
     return this.textProcessor;
   }
@@ -462,12 +478,7 @@ export abstract class QuestionCustomModelBase extends Question
   getValue(name: string): any {
     return this.value;
   }
-  setValue(
-    name: string,
-    newValue: any,
-    locNotification: any,
-    allowNotifyValueChanged?: boolean
-  ): any {
+  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
     var newName = this.convertDataName(name);
     this.data.setValue(
@@ -481,6 +492,23 @@ export abstract class QuestionCustomModelBase extends Question
     if (!!this.customQuestion) {
       this.customQuestion.onValueChanged(this, name, newValue);
     }
+  }
+  protected getQuestionByName(name: string): IQuestion {
+    return undefined;
+  }
+  protected isValueChanging(name: string, newValue: any): boolean {
+    if (!!this.customQuestion) {
+      const qValue = newValue;
+      newValue = this.customQuestion.onValueChanging(this, name, newValue);
+      if(!Helpers.isTwoValueEquals(newValue, qValue)) {
+        const q = this.getQuestionByName(name);
+        if(!!q) {
+          q.value = newValue;
+          return true;
+        }
+      }
+    }
+    return false;
   }
   protected convertDataName(name: string): string {
     return this.getValueName();
@@ -559,6 +587,19 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     super.onAnyValueChanged(name);
     if (!!this.contentQuestion) {
       this.contentQuestion.onAnyValueChanged(name);
+    }
+  }
+  protected getQuestionByName(name: string): IQuestion {
+    return this.contentQuestion;
+  }
+  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
+    if(this.isValueChanging(name, newValue)) return;
+    super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
+  }
+  protected onSetData(): void {
+    super.onSetData();
+    if (!!this.survey && !this.isEmpty()) {
+      this.setValue(this.name, this.value, false, this.allowNotifyValueChanged);
     }
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
@@ -847,14 +888,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     var val = this.value;
     return !!val ? val[name] : null;
   }
+  protected getQuestionByName(name: string): IQuestion {
+    return !!this.contentPanel ? this.contentPanel.getQuestionByName(name) : undefined;
+  }
   private settingNewValue: boolean = false;
-  setValue(
-    name: string,
-    newValue: any,
-    locNotification: any,
-    allowNotifyValueChanged?: boolean
-  ): any {
+  setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (this.settingNewValue) return;
+    if(this.isValueChanging(name, newValue)) return;
     this.settingNewValue = true;
     if (!this.isEditingSurveyElement && !!this.contentPanel) {
       const panelValue = this.contentPanel.getValue();
@@ -902,8 +942,12 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.settingNewValue = true;
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      var key = questions[i].getValueName();
-      questions[i].value = !!newValue ? newValue[key] : undefined;
+      const key = questions[i].getValueName();
+      const val = !!newValue ? newValue[key] : undefined;
+      const q = questions[i];
+      if(!this.isTwoValueEquals(q.value, val)) {
+        q.value = val;
+      }
     }
     this.settingNewValue = false;
   }

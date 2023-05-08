@@ -110,6 +110,7 @@ export var defaultStandardCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
+    sliderGhost: "sv-boolean__thumb-ghost",
     //checkbox
     rootCheckbox: "sv_qcbc sv_qbln",
     checkboxItem: "sv-boolean",
@@ -170,7 +171,9 @@ export var defaultStandardCss = {
     cleanButtonSvg: "sv_q_dropdown_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     controlValue: "sv_q_dropdown__value",
-    filterStringInput: "sv_q_dropdown__filter-string-input"
+    filterStringInput: "sv_q_dropdown__filter-string-input",
+    hintPrefix: "sv_q_dropdown__hint-prefix",
+    hintSuffix: "sv_q_dropdown__hint-suffix"
   },
   html: { root: "" },
   image: {
@@ -235,6 +238,8 @@ export var defaultStandardCss = {
   paneldynamic: {
     root: "sv_panel_dynamic",
     title: "sv_p_title",
+    header: "sv-paneldynamic__header sv_header",
+    headerTab: "sv-paneldynamic__header-tab",
     button: "",
     buttonAdd: "sv-paneldynamic__add-btn",
     buttonRemove: "sv_p_remove_btn",
@@ -303,10 +308,15 @@ export var defaultStandardCss = {
   rating: {
     root: "sv_q_rating",
     item: "sv_q_rating_item",
+    itemFixedSize: "sv_q_rating_item_fixed",
     selected: "active",
     minText: "sv_q_rating_min_text",
     itemText: "sv_q_rating_item_text",
     maxText: "sv_q_rating_max_text",
+    itemStar: "sv_q_rating__item-star",
+    itemStarSelected: "sv_q_rating__item-star--selected",
+    itemSmiley: "sv_q_rating__item-smiley",
+    itemSmileySelected: "sv_q_rating__item-smiley--selected",
   },
   text: {
     root: "sv_q_text_root",
@@ -339,6 +349,7 @@ export var defaultStandardCss = {
     error: "sv-save-data_error",
     success: "sv-save-data_success",
     button: "sv-save-data_button",
+    shown: "sv-save-data_root--shown"
   },
   window: {
     root: "sv_window",
@@ -370,7 +381,11 @@ export var defaultStandardCss = {
     controlValue: "sv_q_tagbox__value sv_q_dropdown__value",
     controlEmpty: "sv_q_dropdown--empty sv_q_tagbox--empty",
     placeholderInput: "sv_q_tagbox__placeholder",
-    filterStringInput: "sv_q_tagbox__filter-string-input sv_q_dropdown__filter-string-input"
+    filterStringInput: "sv_q_tagbox__filter-string-input sv_q_dropdown__filter-string-input",
+    hint: "sv_q_tagbox__hint",
+    hintPrefix: "sv_q_dropdown__hint-prefix sv_q_tagbox__hint-prefix",
+    hintSuffix: "sv_q_dropdown__hint-suffix sv_q_tagbox__hint-suffix",
+    hintSuffixWrapper: "sv_q_tagbox__hint-suffix-wrapper"
   },
 };
 

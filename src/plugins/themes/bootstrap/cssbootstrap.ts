@@ -104,6 +104,7 @@ export var defaultCss = {
     slider: "sv-boolean__slider",
     label: "sv-boolean__label ",
     disabledLabel: "sv-boolean__label--disabled",
+    sliderGhost: "sv-boolean__thumb-ghost",
     materialDecorator: "sv-item__decorator sv-boolean__decorator",
     itemDecorator: "sv-item__svg sv-boolean__svg",
     checkedPath: "sv-boolean__checked-path",
@@ -158,6 +159,8 @@ export var defaultCss = {
     cleanButtonSvg: "sv_q_dd_clean-button-svg",
     cleanButtonIconId: "icon-clear_16x16",
     filterStringInput: "sv_q_dd_filter-string-input",
+    hintPrefix: "sv_q_dd_hint-prefix",
+    hintSuffix: "sv_q_dd_hint-suffix"
   },
   tagbox: {
     root: "sv_q_dd_root",

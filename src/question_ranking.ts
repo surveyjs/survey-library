@@ -140,15 +140,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private removeFromValueByVisibleChoices() {
     const newValue = this.value.slice();
-
-    this.value.forEach((valueItem: string, index: number) => {
-      let isValueItemToRemove = true;
-      this.visibleChoices.forEach((choice) => {
-        if (choice.value === valueItem) isValueItemToRemove = false;
-      });
-      isValueItemToRemove && newValue.splice(index, 1);
-    });
-
+    const choices = this.visibleChoices;
+    for(let i = this.value.length - 1; i >= 0; i --) {
+      if(!ItemValue.getItemByValue(choices, this.value[i])) {
+        newValue.splice(i, 1);
+      }
+    }
     this.value = newValue;
   }
 

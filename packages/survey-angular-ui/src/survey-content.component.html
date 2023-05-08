@@ -1,13 +1,13 @@
 <ng-template #template>
-  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()">
-    <form onsubmit="return false;">
+  <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style.backgroundImage]="model.renderBackgroundImage" [style.backgroundSize]="model.backgroundImageFit">
+    <form onsubmit="return false;" [style.backgroundColor]="model.renderBackgroundOpacity">
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">
         <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
         <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'header', needRenderWrapper: false } }"></ng-template>
-        <div [class]="model.bodyContainerCss">
+        <div *ngIf="model.isShowingPage" [class]="model.bodyContainerCss">
           <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'left' } }"></ng-template>
-          <div *ngIf="model.isShowingPage" [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
+          <div [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
             <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentTop' } }"></ng-template>
             <!-- ko if: activePage -->
               <ng-container *ngIf="model.activePage">

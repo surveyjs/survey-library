@@ -103,10 +103,17 @@ export class Survey extends SurveyElementBase<any, any>
     }
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
+    const rootStyle = {
+      backgroundImage: this.survey.renderBackgroundImage,
+      backgroundSize: this.survey.backgroundImageFit
+    };
+    const formStyle = {
+      backgroundColor: this.survey.renderBackgroundOpacity
+    };
 
     return (
-      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses}>
-        <form onSubmit={onSubmit}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={rootStyle}>
+        <form onSubmit={onSubmit} style={formStyle}>
           {customHeader}
           <div className={this.css.container}>
             {header}
@@ -269,10 +276,7 @@ export class Survey extends SurveyElementBase<any, any>
 
   //ISurveyCreator
   public createQuestionElement(question: Question): JSX.Element | null {
-    return ReactQuestionFactory.Instance.createQuestion(
-      !question.isDefaultRendering || question.isDefaultRendering()
-        ? question.getTemplate()
-        : question.getComponentName(),
+    return ReactQuestionFactory.Instance.createQuestion(question.isDefaultRendering() ? question.getTemplate() : question.getComponentName(),
       {
         question: question,
         isDisplayMode: question.isInputReadOnly,

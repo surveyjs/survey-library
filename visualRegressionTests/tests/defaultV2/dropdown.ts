@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { getListItemByText } from "../../../testCafe/helper";
+import { getListItemByText, registerCustomItemComponent } from "../../../testCafe/helper";
 import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Dropdown Screenshot";
@@ -97,6 +97,43 @@ frameworks.forEach(framework => {
         .pressKey("G r e e c e")
         .wait(500);
       await takeElementScreenshot("dropdown-input-position.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("item focused state for keyboard navigation", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            title: "Where are you living?",
+            name: "dropdown_question",
+            optionsCaption: "Select country here...",
+            allowClear: false,
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10"
+            ]
+          },
+        ]
+      });
+
+      const popupContainer = Selector(".sv-popup__container").filterVisible();
+      await t
+        .pressKey("down")
+        .pressKey("down")
+        .wait(500);
+      await takeElementScreenshot("dropdown-item-focused-state.png", popupContainer, t, comparer);
     });
   });
 
@@ -487,6 +524,76 @@ frameworks.forEach(framework => {
       })();
     });
 
+  });
+
+  test("Dropdown search with spaces", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            name: "q1",
+            hasOther: "true",
+            choices: [
+              "item abc",
+              "item def",
+            ]
+          }
+        ]
+      });
+
+      const popupContainer = Selector(".sd-dropdown").filterVisible();
+      await t
+        .typeText(".sd-dropdown__filter-string-input", "a")
+        .wait(100);
+      await takeElementScreenshot("dropdown-search-spaces-prefix.png", popupContainer, t, comparer);
+      await t
+        .typeText(".sd-dropdown__filter-string-input", "m", { replace: true })
+        .wait(100);
+      await takeElementScreenshot("dropdown-search-spaces-suffix.png", popupContainer, t, comparer);
+    });
+  });
+
+  test("Check dropdown with custom component input height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await registerCustomItemComponent(framework);
+
+      const jsonWithDropDown = {
+        questions: [
+          {
+            type: "dropdown",
+            name: "cars",
+            title: "Dropdown",
+            defaultValue: "Ford",
+            itemComponent: "new-item",
+            choices: [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen"
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, jsonWithDropDown);
+
+      await t.resizeWindow(1280, 1100);
+      const questionDropdownSelect = Selector(".sd-question__content");
+      await ClientFunction(() => {
+        (<HTMLElement>document.querySelector(".sd-question__content svg")).style.height = "48px";
+        (<HTMLElement>document.querySelector(".sd-question__content input")).style.backgroundColor = "red";
+      })();
+      await takeElementScreenshot("dropdown-custom-component.png", questionDropdownSelect, t, comparer);
+    });
   });
 
 });

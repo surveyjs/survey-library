@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "text";
@@ -132,7 +132,6 @@ frameworks.forEach((framework) => {
     const types = [
       "color",
       "date",
-      "datetime",
       "datetime-local",
       "email",
       "month",

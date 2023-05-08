@@ -10,7 +10,7 @@ export function tryNavigateToPage (survey: SurveyModel, index: number) {
   }
   else if (index > survey.currentPageNo) {
     for (let i = survey.currentPageNo; i < index; i++) {
-      if (!survey.nextPage()) return false;
+      if (!survey.nextPageUIClick()) return false;
     }
   }
   return true;
@@ -22,6 +22,9 @@ export function createTOCListModel(survey: SurveyModel) {
       id: page.name,
       title: page.navigationTitle || page.title || page.name,
       action: () => {
+        if(typeof document !== undefined && !!document.activeElement) {
+          !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
+        }
         return tryNavigateToPage(survey, index);
       }
     });
@@ -42,4 +45,8 @@ export function createTOCListModel(survey: SurveyModel) {
     listModel.selectedItem = items.filter(i => i.id === survey.currentPage.name)[0];
   });
   return listModel;
+}
+
+export function getTocRootCss(survey: SurveyModel): string {
+  return "sv_progress-toc" + (" sv_progress-toc--" + (survey.tocLocation || "").toLowerCase());
 }

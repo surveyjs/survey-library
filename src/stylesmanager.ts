@@ -1,5 +1,6 @@
 import { surveyCss } from "./defaultCss/defaultV2Css";
-import { Logger } from "./utils/utils";
+import { settings, ISurveyEnvironment } from "./settings";
+import { getElement, isShadowDOM, Logger } from "./utils/utils";
 
 export const modernThemeColors: { [key: string]: string } = {
   "$main-color": "#1ab394",
@@ -28,6 +29,7 @@ export const modernThemeColors: { [key: string]: string } = {
   "$clean-button-color": "#1948b3",
   "$body-background-color": "#ffffff",
   "$foreground-light": "#909090",
+  "$font-family": "Raleway",
 };
 export const defaultThemeColors: { [key: string]: string } = {
   "$header-background-color": "#e7e7e7",
@@ -280,10 +282,13 @@ export class StylesManager {
     return themeMapper;
   }
   static getIncludedThemeCss(): Array<any> {
+    const { rootElement }: ISurveyEnvironment = settings.environment;
     const themeMapper = StylesManager.getAvailableThemes();
 
-    if (!!document && !!document.body) {
-      const styles = getComputedStyle(document.body);
+    const element = isShadowDOM(rootElement) ? rootElement.host : rootElement;
+
+    if (!!element) {
+      const styles = getComputedStyle(element);
       if(styles.length) {
         return themeMapper.filter(item => item.theme.variables && styles.getPropertyValue(item.theme.variables.themeMark));
       }
@@ -292,23 +297,26 @@ export class StylesManager {
   }
 
   static findSheet(styleSheetId: string): any {
-    if (typeof document === "undefined") return null;
-    for (let i = 0; i < document.styleSheets.length; i++) {
-      if (!!document.styleSheets[i].ownerNode && (<any>document).styleSheets[i].ownerNode["id"] === styleSheetId) {
-        return <CSSStyleSheet>document.styleSheets[i];
+    if (typeof settings.environment === "undefined") return null;
+    const { root: { styleSheets } }: ISurveyEnvironment = settings.environment;
+    for (let i = 0; i < styleSheets.length; i++) {
+      if (!!styleSheets[i].ownerNode && (<any> styleSheets)[i].ownerNode["id"] === styleSheetId) {
+        return <CSSStyleSheet>styleSheets[i];
       }
     }
     return null;
   }
 
   static createSheet(styleSheetId: string): any {
+    const { stylesSheetsMountContainer }: ISurveyEnvironment = settings.environment;
+
     let style = document.createElement("style");
     style.id = styleSheetId;
     // Add a media (and/or media query) here if you'd like!
     // style.setAttribute("media", "screen")
     // style.setAttribute("media", "only screen and (max-width : 1024px)")
     style.appendChild(document.createTextNode(""));
-    document.head.appendChild(style);
+    getElement(stylesSheetsMountContainer).appendChild(style);
     if (!!StylesManager.Logger) {
       StylesManager.Logger.log("style sheet " + styleSheetId + " created");
     }
@@ -316,12 +324,14 @@ export class StylesManager {
   }
 
   public static applyTheme(themeName: string = "default", themeSelector?: string): void {
+    const { rootElement }: ISurveyEnvironment = settings.environment;
+    const element = isShadowDOM(rootElement) ? rootElement.host : rootElement;
     surveyCss.currentType = themeName;
 
     if (StylesManager.Enabled) {
 
       if(themeName !== "bootstrap" && themeName !== "bootstrapmaterial") {
-        setCssVariables(StylesManager.ThemeColors[themeName], document.body);
+        setCssVariables(StylesManager.ThemeColors[themeName], element as HTMLElement);
         if (!!StylesManager.Logger) {
           StylesManager.Logger.log("apply theme " + themeName + " completed");
         }

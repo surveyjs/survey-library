@@ -23,7 +23,7 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     if(!!prevProps.locStr) {
-      this.locStr.onStringChanged.remove(this.onChangedHandler);
+      prevProps.locStr.onStringChanged.remove(this.onChangedHandler);
     }
     this.reactOnStrChanged();
   }

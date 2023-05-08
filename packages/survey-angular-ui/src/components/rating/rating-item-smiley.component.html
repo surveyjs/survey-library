@@ -1,0 +1,10 @@
+<ng-template #template>
+  <label [style]="model.getItemStyle(item.itemValue, item.highlight)" [class]="model.getItemClass(item.itemValue, item.highlight)" (mouseover)="model.onItemMouseIn(item)" (mouseout)="model.onItemMouseOut(item)">
+    <input type="radio"
+      class="sv-visuallyhidden"
+      [attr.name]="model.name" [attr.id]="model.getInputId(index)" [value]="item.value" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy"
+      [disabled]="model.isInputReadOnly" [checked]="model.value === item.value" (click)="onClick($event)"
+      />
+      <svg [iconName]="model.getItemSmileyIconName(item.itemValue)" [size]="'auto'" [title]="item.text" sv-ng-svg-icon></svg>
+  </label>
+</ng-template>

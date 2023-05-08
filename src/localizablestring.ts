@@ -45,6 +45,7 @@ export class LocalizableString implements ILocalizableString {
   public sharedData: LocalizableString;
   public searchText: string;
   public searchIndex: number;
+  public disableLocalization: boolean;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false,
@@ -100,7 +101,7 @@ export class LocalizableString implements ILocalizableString {
     if (this.onGetTextCallback) res = this.onGetTextCallback(res);
     return res;
   }
-  public get pureText() {
+  public get pureText(): string {
     var loc = this.locale;
     if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);
@@ -166,13 +167,14 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   public setLocaleText(loc: string, value: string): void {
+    loc = this.getValueLoc(loc);
     if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
       if(!!value || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;
       let oldValue = this.getValue(dl);
       if(!!dl && !!oldValue) {
         this.setValue(dl, value);
-        this.fireStrChanged(oldValue, value);
+        this.fireStrChanged(dl, oldValue);
       }
       return;
     }
@@ -184,9 +186,8 @@ export class LocalizableString implements ILocalizableString {
       value == this.getLocaleText(this.defaultLoc)
     )
       return;
-    var curLoc = this.locale;
+    var curLoc = this.curLocale;
     if (!loc) loc = this.defaultLoc;
-    if (!curLoc) curLoc = this.defaultLoc;
     var oldValue = this.onStrChanged && loc === curLoc ? this.pureText : undefined;
     delete (<any>this).htmlValues[loc];
     if (!value) {
@@ -203,7 +204,10 @@ export class LocalizableString implements ILocalizableString {
         }
       }
     }
-    this.fireStrChanged(oldValue, value);
+    this.fireStrChanged(loc, oldValue);
+  }
+  private get curLocale(): string {
+    return !!this.locale ? this.locale : this.defaultLoc;
   }
   private canRemoveLocValue(loc: string, val: string): boolean {
     if(settings.storeDuplicatedTranslations) return false;
@@ -217,9 +221,11 @@ export class LocalizableString implements ILocalizableString {
       return val == this.getLocaleText(this.defaultLoc);
     }
   }
-  private fireStrChanged(oldValue: string, value: string) {
+  private fireStrChanged(loc: string, oldValue: string) {
     this.strChanged();
-    if (!!this.onStrChanged && oldValue !== value) {
+    if(!this.onStrChanged) return;
+    const value = this.pureText;
+    if (loc !== this.curLocale || oldValue !== value) {
       this.onStrChanged(oldValue, value);
     }
   }
@@ -235,7 +241,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public getJson(): any {
     if (!!this.sharedData) return this.sharedData.getJson();
-    var keys = this.getValuesKeys();
+    const keys = this.getValuesKeys();
     if (keys.length == 0) return null;
     if (
       keys.length == 1 &&
@@ -319,6 +325,7 @@ export class LocalizableString implements ILocalizableString {
     return (<any>this).htmlValues[loc];
   }
   private deleteValuesEqualsToDefault(defaultValue: string) {
+    if(settings.storeDuplicatedTranslations) return;
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       if (keys[i] == this.defaultLoc) continue;
@@ -329,15 +336,19 @@ export class LocalizableString implements ILocalizableString {
   }
   private getValue(loc: string): string {
     if (!!this.sharedData) return this.sharedData.getValue(loc);
-    return (<any>this).values[loc];
+    return (<any>this).values[this.getValueLoc(loc)];
   }
   private setValue(loc: string, value: string) {
     if (!!this.sharedData) this.sharedData.setValue(loc, value);
-    else (<any>this).values[loc] = value;
+    else (<any>this).values[this.getValueLoc(loc)] = value;
   }
   private deleteValue(loc: string) {
     if (!!this.sharedData) this.sharedData.deleteValue(loc);
-    else delete (<any>this).values[loc];
+    else delete (<any>this).values[this.getValueLoc(loc)];
+  }
+  private getValueLoc(loc: string): string {
+    if(this.disableLocalization) return settings.defaultLocaleName;
+    return loc;
   }
   private getValuesKeys(): string[] {
     if (!!this.sharedData) return this.sharedData.getValuesKeys();

@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { BaseAngular } from "src/base-angular";
 import { SurveyContentComponent } from "src/survey-content.component";
-import { Base, ExpressionExecutor, QuestionTextModel } from "survey-core";
+import { Base, QuestionTextModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-test-base",

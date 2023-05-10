@@ -6,6 +6,8 @@ import { RendererFactory } from "../src/rendererFactory";
 import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
 import { ItemValue } from "../src/itemvalue";
+import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
+import { settings } from "../src/settings";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -1163,4 +1165,65 @@ QUnit.test("rating colors", (assert) => {
   document.documentElement.style.setProperty("--sd-rating-bad-color-light", null);
   document.documentElement.style.setProperty("--sd-rating-normal-color-light", null);
   document.documentElement.style.setProperty("--sd-rating-good-color-light", null);
+});
+
+QUnit.test("check rating in-matrix mode styles", (assert) => {
+  var json = {
+    elements: [
+      {
+        "type": "matrixdropdown",
+        "name": "q",
+        "columns": [
+          {
+            "name": "Column 1",
+            "cellType": "rating",
+            "rateType": "smileys"
+          }
+        ],
+        "rows": [
+          "Row 1"
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const q = survey.getQuestionByName("q") as QuestionRatingModel;
+  var rows = q.visibleRows;
+  var q1 = <QuestionRatingModel>rows[0].cells[0].question;
+
+  q1.cssClasses.itemSmall = "sv_q--small";
+  q1.cssClasses.root = "sv_q";
+
+  q1.cssClasses.itemSmiley = "sv_q_item-smiley";
+  q1.cssClasses.itemStar = "sv_q_item-star";
+  q1.cssClasses.itemHover = "";
+  q1.cssClasses.itemSmileyHover = "";
+  q1.cssClasses.itemStarHover = "";
+  q1.cssClasses.itemSmileySmall = "sv_q_item-smiley--small";
+  q1.cssClasses.itemStarSmall = "sv_q_item-star--small";
+
+  assert.equal(q1.ratingRootCss, "sv_q sv_q--small");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley sv_q_item-smiley--small");
+
+  q.columns[0].rateType = "stars";
+  assert.equal(q1.itemStarIcon, "icon-rating-star-small");
+  assert.equal(q1.itemStarIconAlt, "icon-rating-star-small-2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-star sv_q_item-star--small");
+
+  q.columns[0].rateType = "labels";
+  assert.equal(q1.ratingRootCss, "sv_q");
+
+  q.columns[0].rateType = "smileys";
+  settings.matrix.rateSize = "normal";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-smiley");
+
+  q.columns[0].rateType = "stars";
+  assert.equal(q1.itemStarIcon, "icon-rating-star");
+  assert.equal(q1.itemStarIconAlt, "icon-rating-star-2");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "sv_q_item-star");
+
+  q.columns[0].rateType = "labels";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  settings.matrix.rateSize = "small";
 });

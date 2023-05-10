@@ -7,6 +7,7 @@ import { PopupDropdownViewModel } from "../../src/popup-dropdown-view-model";
 import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
+import { settings, ISurveyEnvironment } from "../../src/settings";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -111,6 +112,48 @@ QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   assert.equal(viewModel.footerToolbar.actions[0].title, viewModel.cancelButtonText);
 
   viewModel.dispose();
+});
+
+QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
+  const data = {};
+  const model: PopupModel = new PopupModel("sv-list", data);
+
+  const shadowRootWrapper = document.createElement("div");
+  const shadowRoot = shadowRootWrapper.attachShadow({ mode: "open" });
+
+  const popupMountContainer = document.createElement("div");
+  popupMountContainer.setAttribute("id", "shadowElement");
+  shadowRoot.appendChild(popupMountContainer);
+
+  const environment: ISurveyEnvironment = {
+    ...settings.environment,
+    root: shadowRoot,
+    rootElement: shadowRoot,
+    popupMountContainer
+  };
+
+  settings.environment = environment as any;
+
+  const targetElement: HTMLElement = document.createElement("div");
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  const container: HTMLElement = viewModel.container;
+  assert.equal(!!container, true);
+  assert.equal(container.tagName, "DIV");
+  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+
+  assert.equal(container.parentElement?.tagName, "DIV");
+  assert.equal(container.parentElement?.id, "shadowElement");
+
+  viewModel.dispose();
+  settings.environment = {
+    ...settings.environment,
+    root: document,
+    rootElement: document.body,
+    popupMountContainer: document.body,
+  };
 });
 
 QUnit.test("PopupModalViewModel defaults", (assert) => {

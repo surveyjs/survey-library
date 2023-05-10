@@ -434,7 +434,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public onChange = (event: any): void => {
-    if (event.target === document.activeElement) {
+    if (event.target === settings.environment.root.activeElement) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }

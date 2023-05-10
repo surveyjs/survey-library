@@ -11,7 +11,7 @@ import { LocalizableString } from "./localizablestring";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
-import { settings } from "./settings";
+import { settings, ISurveyEnvironment } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
@@ -693,7 +693,8 @@ export class Question extends SurveyElement<Question>
     if (this.supportComment() || this.supportOther()) {
       this.commentElements = [];
       this.getCommentElementsId().forEach(id => {
-        let el = document.getElementById(id);
+        const { root } = settings.environment;
+        let el = root.getElementById(id);
         if(el) this.commentElements.push(el);
       });
       this.updateCommentElements();
@@ -2001,6 +2002,8 @@ export class Question extends SurveyElement<Question>
   }
 
   @property() renderAs: string;
+
+  @property({ defaultValue: false }) inMatrixMode: boolean;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

@@ -2,9 +2,10 @@ import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
 import { IShortcutText, ISurvey, ISurveyElement } from "../base-interfaces";
 import { property } from "../jsonobject";
-import { findScrollableParent } from "../utils/utils";
+import { findScrollableParent, isShadowDOM } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { DragTypeOverMeEnum } from "../survey-element";
+import { settings, ISurveyEnvironment } from "../settings";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
@@ -123,7 +124,7 @@ export abstract class DragDropCore<T> extends Base {
           clip: rect(1px 1px 1px 1px);
           clip: rect(1px, 1px, 1px, 1px);
         `;
-        document.body.appendChild(this.savedTargetNode);
+        settings.environment.rootElement.appendChild(this.savedTargetNode);
       }
 
       this.stopLongTap();
@@ -356,8 +357,8 @@ export abstract class DragDropCore<T> extends Base {
       shortcutYOffset = shortcutHeight / 2;
     }
 
-    const documentBottom = document.documentElement.clientHeight;
-    const documentRight = document.documentElement.clientWidth;
+    const documentBottom = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientHeight;
+    const documentRight = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientWidth;
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(event.clientY, shortcutHeight, shortcutYOffset);
     const shortcutRightCoordinate = this.getShortcutRightCoordinate(event.clientX, shortcutWidth, shortcutXOffset);
 
@@ -547,7 +548,7 @@ export abstract class DragDropCore<T> extends Base {
     if (IsTouch) {
       this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
     }
-    document.body.removeChild(this.draggedElementShortcut);
+    settings.environment.rootElement.removeChild(this.draggedElementShortcut);
 
     this.doClear();
 
@@ -560,7 +561,7 @@ export abstract class DragDropCore<T> extends Base {
     this.scrollIntervalId = null;
 
     if (IsTouch) {
-      this.savedTargetNode && document.body.removeChild(this.savedTargetNode);
+      this.savedTargetNode && settings.environment.rootElement.removeChild(this.savedTargetNode);
       DragDropCore.PreventScrolling = false;
     }
     document.body.style.setProperty("touch-action", "");

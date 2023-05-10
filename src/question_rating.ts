@@ -553,9 +553,25 @@ export class QuestionRatingModel extends Question {
     this.renderedRateItems.forEach(item => item.highlight = "none");
   }
 
+  public get itemSmallMode() {
+    return this.inMatrixMode && settings.matrix.rateSize == "small";
+  }
+
   public get ratingRootCss(): string {
-    return ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+    const baseClass = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
       this.cssClasses.rootWrappable : this.cssClasses.root;
+
+    return new CssClassBuilder()
+      .append(baseClass)
+      .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
+      .toString();
+  }
+
+  public get itemStarIcon(): string {
+    return this.itemSmallMode ? "icon-rating-star-small" : "icon-rating-star";
+  }
+  public get itemStarIconAlt(): string {
+    return this.itemStarIcon + "-2";
   }
 
   public getItemSmiley(item: ItemValue) {
@@ -636,6 +652,7 @@ export class QuestionRatingModel extends Question {
     let itemUnhighlightedClass = null;
     let itemScaleColoredClass = null;
     let itemRateColoredClass = null;
+    let itemSmallClass = null;
 
     if (this.isStar) {
       itemClass = this.cssClasses.itemStar;
@@ -645,6 +662,7 @@ export class QuestionRatingModel extends Question {
       itemitemOnErrorClass = this.cssClasses.itemStarOnError;
       itemHighlightedClass = this.cssClasses.itemStarHighlighted;
       itemUnhighlightedClass = this.cssClasses.itemStarUnhighlighted;
+      itemSmallClass = this.cssClasses.itemStarSmall;
     }
     if (this.isSmiley) {
       itemClass = this.cssClasses.itemSmiley;
@@ -655,6 +673,7 @@ export class QuestionRatingModel extends Question {
       itemHighlightedClass = this.cssClasses.itemSmileyHighlighted;
       itemScaleColoredClass = this.cssClasses.itemSmileyScaleColored;
       itemRateColoredClass = this.cssClasses.itemSmileyRateColored;
+      itemSmallClass = this.cssClasses.itemSmileySmall;
     }
 
     const hasFixedSize =
@@ -677,6 +696,7 @@ export class QuestionRatingModel extends Question {
       .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
       .append(itemUnhighlightedClass, isUnhighlighted)
       .append(itemitemOnErrorClass, this.errors.length > 0)
+      .append(itemSmallClass, this.itemSmallMode)
       .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
   }

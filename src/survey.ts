@@ -465,26 +465,36 @@ export class SurveyModel extends SurveyElementCore
   public onProcessTextValue: EventBase<SurveyModel, ProcessTextValueEvent> = this.addEvent<SurveyModel, ProcessTextValueEvent>();
 
   /**
-   * An event that is raised before rendering a question. Use it to override the default question CSS classes.
+   * An event that is raised before rendering a question. Use it to override default question CSS classes.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-cssclasses/ (linkStyle))
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a panel. Use it to override the default panel CSS classes.
+   * An event that is raised before rendering a panel. Use it to override default panel CSS classes.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdatePanelCssClasses: EventBase<SurveyModel, UpdatePanelCssClassesEvent> = this.addEvent<SurveyModel, UpdatePanelCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a page. Use it to override the default page CSS classes.
+   * An event that is raised before rendering a page. Use it to override default page CSS classes.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a choice item in radiogroup, checkbox or dropdown questions. Use it to override the default choice item css.
+   * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
 
@@ -1014,6 +1024,11 @@ export class SurveyModel extends SurveyElementCore
     this.updateNavigationCss();
     this.updateCompletedPageCss();
   }
+  /**
+   * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   */
   public get css(): any {
     if (!this.cssValue) {
       this.cssValue = {};
@@ -4395,8 +4410,9 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    if (!!id && htmlElement.id !== id && typeof document !== "undefined") {
-      let el = document.getElementById(id);
+    const { root } = settings.environment;
+    if (!!id && htmlElement.id !== id && typeof root !== "undefined") {
+      let el = root.getElementById(id);
       if (!!el) {
         htmlElement = el;
       }
@@ -4438,7 +4454,11 @@ export class SurveyModel extends SurveyElementCore
     this.onChoicesLazyLoad.fire(this, options);
   }
   getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
-    this.onGetChoiceDisplayValue.fire(this, options);
+    if(this.onGetChoiceDisplayValue.isEmpty) {
+      options.setItems(null);
+    } else {
+      this.onGetChoiceDisplayValue.fire(this, options);
+    }
   }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);

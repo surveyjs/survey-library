@@ -763,7 +763,8 @@ export class QuestionRatingModel extends Question {
   }
   public get ariaExpanded(): string {
     const popupModel = this.dropdownListModel?.popupModel;
-    return !!popupModel && popupModel.isVisible ? "true" : "false";
+    if (!popupModel) return null;
+    return popupModel.isVisible ? "true" : "false";
   }
   private dropdownListModelValue: DropdownListModel;
   public set dropdownListModel(val: DropdownListModel) {

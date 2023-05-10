@@ -1,9 +1,10 @@
 import { SurveyModel } from "../survey";
 import { Base, EventBase } from "../base";
-import { IShortcutText, ISurvey } from "../base-interfaces";
+import { IShortcutText, ISurvey, ISurveyElement } from "../base-interfaces";
 import { property } from "../jsonobject";
 import { findScrollableParent } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
+import { DragTypeOverMeEnum } from "../survey-element";
 
 // WebKit requires cancelable `touchmove` events to be added as early as possible
 // see https://bugs.webkit.org/show_bug.cgi?id=184250
@@ -197,6 +198,42 @@ export abstract class DragDropCore<T> extends Base {
     event.stopPropagation();
   }
 
+  protected calculateDragOverLocation(
+    clientX: number,
+    clientY: number,
+    dropTargetNode: HTMLElement
+  ): DragTypeOverMeEnum {
+    const rect = dropTargetNode.getBoundingClientRect();
+    const tg = rect.height / rect.width;
+    const dx = clientX - rect.x;
+    const dy = clientY - rect.y;
+
+    if(dy >= tg * dx) {
+      if(dy >= - tg * dx + rect.height) {
+        return DragTypeOverMeEnum.Bottom;
+      }
+      else {
+        return DragTypeOverMeEnum.Left;
+      }
+    }
+    else {
+      if(dy >= - tg * dx + rect.height) {
+        return DragTypeOverMeEnum.Right;
+      }
+      else {
+        return DragTypeOverMeEnum.Top;
+      }
+    }
+  }
+
+  protected removeDragOverMarker(dropTarget: { dragTypeOverMe: boolean }): void {
+    if (!!dropTarget) {
+      dropTarget.dragTypeOverMe = null;
+    }
+  }
+
+  protected dragOverLocation: DragTypeOverMeEnum;
+
   private dragOver = (event: PointerEvent) => {
     this.moveShortcutElement(event);
     this.draggedElementShortcut.style.cursor = "grabbing";
@@ -211,6 +248,7 @@ export abstract class DragDropCore<T> extends Base {
       return;
     }
 
+    this.removeDragOverMarker(this.dropTarget);
     this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
     const isDropTargetValid = this.isDropTargetValid(
@@ -226,12 +264,17 @@ export abstract class DragDropCore<T> extends Base {
     }
 
     let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
+    this.dragOverLocation = this.calculateDragOverLocation(event.clientX, event.clientY, dropTargetNode);
 
     this.allowDropHere = true;
+
+    this.duringDragOver(dropTargetNode, event);
+
     if (this.isDropTargetDoesntChanged(isBottom)) return;
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
+
     this.afterDragOver(dropTargetNode, event);
     this.prevDropTarget = this.dropTarget;
   };
@@ -275,6 +318,7 @@ export abstract class DragDropCore<T> extends Base {
   }
 
   protected doDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
+  protected duringDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
   protected afterDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
 
   public getGhostPosition(item: any): string {

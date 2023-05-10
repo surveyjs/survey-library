@@ -38,7 +38,8 @@ export {
   IPanel,
   ISurveyData,
   ITitleOwner,
-  ISurveyLayoutElement
+  ISurveyLayoutElement,
+  IShortcutText
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";
@@ -218,5 +219,5 @@ export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/de
 //Uncomment to include the "date" question type.
 //export {default as QuestionDateModel} from "../../plugins/question_date";
 
-export { DragDropSurveyElements } from "../../dragdrop/survey-elements";
+export { DragDropCore } from "../../dragdrop/core";
 export { DragDropChoices } from "../../dragdrop/choices";

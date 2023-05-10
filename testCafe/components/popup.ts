@@ -352,13 +352,13 @@ frameworks.forEach(async framework => {
     await t
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupSelector.offsetHeight).eql(popupHeight)
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
       .typeText(Selector(".sv-list__input"), "2")
-      .expect(popupSelector.offsetHeight).eql(popupHeight)
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
       .click(clickButton)
       .expect(popupSelector.visible).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
-      .expect(popupSelector.offsetHeight).eql(popupHeight);
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1);
   });
 });

@@ -48,10 +48,10 @@ frameworks.forEach(framework => {
       .navigateTo(url + framework);
     await initSurvey(framework, json);
 
-    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey").visible).ok();
+    await t.expect(Selector(".sv_body h3").withText("Our records show that you have already completed this survey.").visible).ok();
     await deleteCookie();
     await t.hover("input[type=checkbox]");
 
-    await t.expect(Selector(".sv_completed_page h3").withText("Thank you for completing the survey").exist).notOk();
+    await t.expect(Selector(".sv_body h3").withText("Our records show that you have already completed this survey.").exist).notOk();
   });
 });

@@ -11,7 +11,7 @@
   font-family: var(--font-family, $font-family);
   font-size: calcFontSize(1);
   color: $foreground;
-  background-color: $editor-background;
+  background-color: transparent;
   box-shadow: inset 0px 1px 2px $shadow-inner;
   border: none;
   border-radius: $editor-corner-radius;
@@ -23,7 +23,6 @@
 }
 
 .sd-input--disabled {
-  background-color: $editor-background;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -59,6 +58,12 @@
 
 .sd-text__content {
   position: relative;
+}
+
+.sd-text__content,
+.sd-multipletext__content,
+.sd-comment__content {
+  background-color: $editor-background;
 }
 
 .sd-remaining-character-counter {

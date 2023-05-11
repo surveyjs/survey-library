@@ -4,7 +4,7 @@
   appearance: none;
   padding-inline-end: calcSize(6); //padding-right
   padding-inline-start: calcSize(2); //padding-left
-
+  background-color: $editor-background;
   background-position: right calcSize(1.5) top 50%, 0 0;
   background-repeat: no-repeat;
   background-size: calcSize(3) calcSize(3);

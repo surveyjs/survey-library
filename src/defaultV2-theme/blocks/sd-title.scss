@@ -33,11 +33,14 @@
   gap: calcSize(1);
   flex-grow: 1;
 
+  .sd-title {
+    color: $primary;
+  }
+
   h3 {
     font-size: calcFontSize(2);
     font-weight: 700;
     line-height: calcSize(5);
-    color: $primary;
   }
 
   h5 {

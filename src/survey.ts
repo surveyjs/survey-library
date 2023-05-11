@@ -3266,7 +3266,7 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   /**
-   * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completed` state if the function returns `true`.
+   * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completedbefore` state if the function returns `true`.
    * @see cookieName
    * @see setCookie
    * @see deleteCookie
@@ -5538,7 +5538,7 @@ export class SurveyModel extends SurveyElementCore
     this.onQuestionsOnPageModeChanged("standard");
     super.endLoadingFromJson();
     if (this.hasCookie) {
-      this.doComplete();
+      this.isCompletedBefore = true;
     }
     this.doElementsOnLoad();
     this.isEndLoadingFromJson = "conditions";

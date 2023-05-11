@@ -7,9 +7,6 @@ export class SurveyQuestionTagboxItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
   }
-  protected getStateElement(): Base {
-    return this.item;
-  }
   protected get question(): QuestionTagboxModel {
     return this.props.question;
   }

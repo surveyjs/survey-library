@@ -833,7 +833,7 @@ Serializer.addClass(
       name: "autoGenerate",
       category: "rateValues",
       default: true,
-      choices: [{ value: true, text: "Generate" }, { value: false, text: "Enter manually" }],
+      choices: [true, false],
       visibleIndex: 4
     },
     {

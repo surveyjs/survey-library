@@ -79,7 +79,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
             size={!this.model.inputStringRendered ? 1 : undefined}
             role={this.model.filterStringEnabled ? this.question.ariaRole : undefined}
             aria-label={this.question.placeholder}
-            aria-expanded={this.question.ariaExpanded}
+            aria-expanded={this.question.ariaExpanded === "true"}
             aria-controls={this.model.listElementId}
             aria-activedescendant={this.model.ariaActivedescendant}
             placeholder={this.model.filterStringPlaceholder}

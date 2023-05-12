@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div *ngIf="!!model" #elementContainer [class]="model.getRootCss()" [style]="model.getRootStyle()" [id]="model.id" [attr.data-name]="model.name" [attr.role]="model.ariaRole" [attr.aria-required]="model.ariaRequired" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-labelledby]="model.ariaLabelledBy" [attr.aria-expanded]="mode.ariaExpanded">
+  <div *ngIf="!!model" #elementContainer [class]="model.getRootCss()" [style]="model.getRootStyle()" [id]="model.id" [attr.data-name]="model.name" [attr.role]="model.ariaRole" [attr.aria-required]="model.ariaRequired" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-labelledby]="model.ariaLabelledBy" [attr.aria-expanded]="model.ariaExpanded">
     <div *ngIf="model.showErrorsAboveQuestion && model.hasVisibleErrors" [element]="model" sv-ng-errors></div>
     <div [element]="model" *ngIf="model.hasTitleOnLeftTop" sv-ng-element-header></div>
     <div [class]="model.cssContent" role="presentation" [visible]="!model.isCollapsed">

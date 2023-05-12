@@ -151,6 +151,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     let rootStyle = question.getRootStyle();
     let questionContent = this.wrapQuestionContent(this.renderQuestionContent());
+
     return (
       <>
         <div
@@ -162,7 +163,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-required={this.question.ariaRequired}
           aria-invalid={this.question.ariaInvalid}
           aria-labelledby={question.ariaLabelledBy}
-          aria-expanded={question.ariaExpanded}
+          aria-expanded={question.ariaExpanded === "true"}
         >
           {errorsAboveQuestion}
           {headerTop}

@@ -333,7 +333,7 @@ function sortInlineStyles(str: string) {
   div.querySelectorAll("*").forEach(el => {
     if(!!el.getAttribute("style")) {
       const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(";");
-      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).join("; ") + ";");
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1"))).join("; ") + ";");
     }
   });
   return div.innerHTML;

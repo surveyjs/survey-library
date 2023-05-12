@@ -1,5 +1,6 @@
-$primary: var(--primary, #19b394);
-$primary-light: var(--primary-light, rgba(25, 179, 148, 0.1));
+$primary: var(--sjs-primary-backcolor, var(--primary, #19b394));
+$primary-light: var(--sjs-primary-backcolor-light, var(--primary-light, rgba(25, 179, 148, 0.1)));
+$primary-background-dark: var(--sjs-primary-backcolor-dark, rgb(20, 164, 139));
 $primary-foreground: var(--sjs-primary-forecolor, var(--primary-foreground, #fff));
 $primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
 
@@ -12,7 +13,6 @@ $background-dim-light: var(--background-dim-light, #f9f9f9);
 $background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
 $background-dark: var(--sjs-general-backcolor-dark, rgb(248, 248, 248));
 $background-dim-dark: var(--sjs-general-dim-backcolor-dark, rgb(243, 243, 243));
-$primary-background-dark: var(--sjs-primary-backcolor-dark, rgb(20, 164, 139));
 
 $editor-background: var(--sjs-editor-background, var(--background-dim-light, #f9f9f9));
 $question-background: var(--sjs-question-background, var(--background, #fff));
@@ -39,6 +39,10 @@ $blue-light: var(--blue-light, rgba(67, 127, 217, 0.1));
 
 $font-family: var(--font-family);
 $font-size: var(--sjs-font-size, calc(2 * var(--base-unit, 8px)));
+
+$font-surveytitle-family: var(--sjs-font-surveytitle-family, var(--font-family));
+$font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);
+$font-surveytitle-size: var(--sjs-font-surveytitle-size, calc(2 * var(--sjs-font-size, $font-size)));
 
 $corner-radius: var(--sjs-corner-radius, 4px);
 $panel-corner-radius: var(--sjs-panel-corner-radius, var(--sjs-corner-radius, 4px));

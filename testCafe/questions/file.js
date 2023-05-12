@@ -46,6 +46,23 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("choose file keyboard click", async t => {
+    let surveyResult;
+
+    await ClientFunction(() => {
+      document.querySelector("label[aria-label=\"Choose file\"]").click = () => { window.chooseFileClickedTest = "yes"; };
+    })();
+    await t.pressKey("tab");
+    await t.pressKey("enter");
+
+    surveyResult = await getSurveyResult();
+    await t.expect(ClientFunction(() => {
+      var a = window.chooseFileClickedTest;
+      window.chooseFileClickedTest = undefined;
+      return a;
+    })()).eql("yes");
+  });
+
   test("choose multiple files", async t => {
     let surveyResult;
 

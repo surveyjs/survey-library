@@ -227,7 +227,7 @@ export abstract class DragDropCore<T> extends Base {
     }
   }
 
-  protected removeDragOverMarker(dropTarget: { dragTypeOverMe: boolean }): void {
+  protected removeDragOverMarker(dropTarget: { dragTypeOverMe: any }): void {
     if (!!dropTarget) {
       dropTarget.dragTypeOverMe = null;
     }

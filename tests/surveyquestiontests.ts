@@ -2341,12 +2341,14 @@ QUnit.test("question.getConditionJson", function (assert) {
 
   var qCheckbox = new QuestionCheckboxModel("qCheckbox");
   qCheckbox.choices = [1, 2, 3, 4, 5];
+  qCheckbox.maxSelectedChoices = 3;
   json = qCheckbox.getConditionJson("equals");
   assert.deepEqual(
     json.choices,
     [1, 2, 3, 4, 5],
     "checkbox: choices correctly converted"
   );
+  assert.notOk(json.maxSelectedChoices);
   assert.equal(json.type, "checkbox", "checkbox: type set correctly");
   json = qCheckbox.getConditionJson("contains");
   assert.equal(

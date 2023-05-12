@@ -52,7 +52,7 @@
   box-shadow: 0 0 0 2px $primary;
 }
 
-.sd-input--error {
+.sd-input.sd-input--error {
   background-color: $red-light;
 }
 
@@ -61,8 +61,8 @@
 }
 
 .sd-text__content,
-.sd-multipletext__content,
-.sd-comment__content {
+.sd-multipletext__item-container,
+.sd-comment {
   background-color: $editor-background;
 }
 

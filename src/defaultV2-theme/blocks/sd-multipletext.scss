@@ -51,7 +51,7 @@
 }
 .sd-multipletext__item-container--error {
   background-color: $red-light;
-  .sd-input--error {
+  .sd-input.sd-input--error {
     background-color: transparent;
   }
 }

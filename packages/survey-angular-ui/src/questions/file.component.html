@@ -40,6 +40,7 @@
           [class]="model.getChooseFileCss()"
           [attr.for]="model.inputId"
           [attr.aria-label]="model.chooseButtonCaption"
+          [key2click]
           >
           <span>{{ model.chooseButtonCaption }}</span>
           <svg *ngIf="model.cssClasses.chooseFileIconId" [title]="model.chooseButtonCaption" [iconName]="model.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>

@@ -240,7 +240,10 @@ export class QuestionPanelDynamicModel extends Question
 
   constructor(name: string) {
     super(name);
-    this.createNewArray("panels");
+    this.createNewArray("panels",
+      (panel: PanelModel) => { this.onPanelAdded(panel); },
+      (panel: PanelModel) => { this.onPanelRemoved(panel); });
+    this.createNewArray("visiblePanels");
     this.templateValue = this.createAndSetupNewPanelObject();
     this.template.renderWidth = "100%";
     this.template.selectedElementInDesign = this;
@@ -409,7 +412,12 @@ export class QuestionPanelDynamicModel extends Question
   get locTemplateDescription(): LocalizableString {
     return this.template.locDescription;
   }
-
+  public get templateVisibleIf(): string {
+    return this.template.visibleIf;
+  }
+  public set templateVisibleIf(val: string) {
+    this.template.visibleIf = val;
+  }
   protected get items(): Array<ISurveyData> {
     var res = [];
     for (var i = 0; i < this.panels.length; i++) {
@@ -425,6 +433,27 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get panels(): Array<PanelModel> {
     return this.getPropertyValue("panels");
+  }
+  public get visiblePanels(): Array<PanelModel> {
+    return this.getPropertyValue("visiblePanels");
+  }
+  private onPanelAdded(panel: PanelModel): void {
+    this.onPanelRemoved(panel);
+    if(!panel.isVisible) return;
+    let index = 0;
+    const panels = this.panels;
+    for(var i = 0; i < panels.length; i ++) {
+      if(panels[i] === panel) break;
+      if(panels[i].isVisible) index++;
+    }
+    this.visiblePanels.splice(index, 0, panel);
+  }
+  private onPanelRemoved(panel: PanelModel): void {
+    const visPanels = this.visiblePanels;
+    const index = visPanels.indexOf(panel);
+    if(index > -1) {
+      visPanels.splice(index, 1);
+    }
   }
   /**
    * A zero-based index of the currently displayed panel.
@@ -1646,6 +1675,10 @@ export class QuestionPanelDynamicModel extends Question
       return this.getPanelActions(panel);
     };
     panel.footerToolbarCss = this.cssClasses.panelFooter;
+    panel.registerPropertyChangedHandlers(["isVisible"], () => {
+      if(panel.isVisible) this.onPanelAdded(panel);
+      else this.onPanelRemoved(panel);
+    });
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {
@@ -2160,6 +2193,10 @@ Serializer.addClass(
       name: "templateTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
+    },
+    {
+      name: "templateVisibleIf:condition",
+      category: "logic"
     },
     {
       name: "panelRemoveButtonLocation",

@@ -5586,3 +5586,38 @@ QUnit.test("templateVisibleIf", function (assert) {
   assert.equal(panel.panels[2].isVisible, false, "panel2 invisible #2");
   assert.equal(panel.visiblePanels.length, 1, "There is 1 visible panels");
 });
+QUnit.test("templateVisibleIf && currentPanelIndex", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 3,
+        renderMode: "tab",
+        templateVisibleIf: "{panel.q1}='a'"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.panels.length, 3, "There are two panels");
+  assert.equal(panel.visiblePanelCount, 0, "There are 0 visible panels");
+  assert.equal(panel.currentIndex, -1, "currentIndex #1");
+  panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+  assert.equal(panel.visiblePanelCount, 3, "There are three panels");
+  assert.equal(panel.currentIndex, 0, "currentIndex #2");
+  panel.currentIndex = -1;
+  assert.equal(panel.currentIndex, 0, "currentIndex #3");
+  panel.currentIndex = 100;
+  assert.equal(panel.currentIndex, 2, "currentIndex #4");
+  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
+  assert.equal(panel.currentIndex, 1, "currentIndex #5");
+  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "c" }];
+  assert.equal(panel.currentIndex, 0, "currentIndex #6");
+  panel.value = [{ q1: "b" }, { q1: "d" }, { q1: "c" }];
+  assert.equal(panel.currentIndex, -1, "currentIndex #7");
+  panel.value = [{ q1: "b" }, { q1: "d" }, { q1: "a" }];
+  assert.equal(panel.visiblePanelCount, 1, "There is one panel");
+  assert.equal(panel.currentIndex, 0, "currentIndex #8");
+});

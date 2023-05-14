@@ -438,7 +438,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.getPropertyValue("visiblePanels");
   }
   private onPanelAdded(panel: PanelModel): void {
-    this.onPanelRemoved(panel);
+    this.onPanelRemovedCore(panel);
     if(!panel.isVisible) return;
     let index = 0;
     const panels = this.panels;
@@ -447,13 +447,25 @@ export class QuestionPanelDynamicModel extends Question
       if(panels[i].isVisible) index++;
     }
     this.visiblePanels.splice(index, 0, panel);
+    if(!this.currentPanel) {
+      this.currentPanel = panel;
+    }
   }
   private onPanelRemoved(panel: PanelModel): void {
+    let index = this.onPanelRemovedCore(panel);
+    if(this.currentPanel === panel) {
+      const visPanels = this.visiblePanels;
+      if(index >= visPanels.length) index = visPanels.length - 1;
+      this.currentPanel = index >= 0 ? visPanels[index] : null;
+    }
+  }
+  private onPanelRemovedCore(panel: PanelModel): number {
     const visPanels = this.visiblePanels;
-    const index = visPanels.indexOf(panel);
+    let index = visPanels.indexOf(panel);
     if(index > -1) {
       visPanels.splice(index, 1);
     }
+    return index;
   }
   /**
    * A zero-based index of the currently displayed panel.
@@ -467,25 +479,13 @@ export class QuestionPanelDynamicModel extends Question
   public get currentIndex(): number {
     if (this.isRenderModeList) return -1;
     if (this.useTemplatePanel) return 0;
-    if (this.currentIndexValue < 0 && this.panelCount > 0) {
-      this.currentIndexValue = 0;
-    }
-    if (this.currentIndexValue >= this.panelCount) {
-      this.currentIndexValue = this.panelCount - 1;
-    }
-    return this.currentIndexValue;
+    return this.visiblePanels.indexOf(this.currentPanel);
   }
   public set currentIndex(val: number) {
-    if (this.currentIndexValue !== val) {
-      if (val >= this.panelCount) val = this.panelCount - 1;
-      this.currentIndexValue = val;
-      this.updateFooterActions();
-      this.updateTabToolbarItemsPressedState();
-      this.fireCallback(this.currentIndexChangedCallback);
-    }
+    if(val < 0 || this.visiblePanelCount < 1) return;
+    if(val >= this.visiblePanelCount) val = this.visiblePanelCount - 1;
+    this.currentPanel = this.visiblePanels[val];
   }
-  private get currentIndexValue(): number { return this.getPropertyValue("currentIndexValue", -1); }
-  private set currentIndexValue(val: number) { this.setPropertyValue("currentIndexValue", val); }
   /**
    * A `PanelModel` object that is the currently displayed panel.
    *
@@ -496,9 +496,21 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get currentPanel(): PanelModel {
-    var index = this.currentIndex;
-    if (index < 0 || index >= this.panels.length) return null;
-    return this.panels[index];
+    if(this.isRenderModeList || this.useTemplatePanel) return null;
+    let res = this.getPropertyValue("currentPanel", null);
+    if(!res && this.visiblePanelCount > 0) {
+      res = this.visiblePanels[0];
+      this.currentPanel = res;
+    }
+    return res;
+  }
+  public set currentPanel(val: PanelModel) {
+    if(this.isRenderModeList || this.useTemplatePanel) return;
+    if(!!val && this.visiblePanels.indexOf(val) < 0 || val === this.getPropertyValue("currentPanel")) return;
+    this.setPropertyValue("currentPanel", val);
+    this.updateFooterActions();
+    this.updateTabToolbarItemsPressedState();
+    this.fireCallback(this.currentIndexChangedCallback);
   }
   /**
    * Specifies whether to display a confirmation dialog when a respondent wants to delete a panel.
@@ -723,6 +735,7 @@ export class QuestionPanelDynamicModel extends Question
     this.fireCallback(this.panelCountChangedCallback);
     (removedPanels.length > 0) && this.removeTabFromToolbar(removedPanels);
   }
+  public get visiblePanelCount(): number { return this.visiblePanels.length; }
   /**
    * Specifies whether users can expand and collapse panels. Applies if `renderMode` is `"list"` and the `templateTitle` property is specified.
    *
@@ -2195,7 +2208,7 @@ Serializer.addClass(
       choices: ["default", "top", "bottom", "left"],
     },
     {
-      name: "templateVisibleIf:condition",
+      name: "templateVisibleIf:expression",
       category: "logic"
     },
     {

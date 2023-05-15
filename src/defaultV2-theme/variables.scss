@@ -44,6 +44,16 @@ $font-surveytitle-family: var(--sjs-font-surveytitle-family, var(--font-family))
 $font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);
 $font-surveytitle-size: var(--sjs-font-surveytitle-size, calc(2 * var(--sjs-font-size, $font-size)));
 
+$font-pagetitle-family: var(--sjs-font-pagetitle-family, var(--font-family));
+$font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);
+$font-pagetitle-color: var(--sjs-font-pagetitle-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
+$font-pagetitle-size: var(--sjs-font-pagetitle-size, calc(1.5 * var(--sjs-font-size, $font-size)));
+
+$font-pagedescription-family: var(--sjs-font-pagedescription-family, var(--font-family));
+$font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
+$font-pagedescription-color: var(--sjs-font-pagedescription-color, var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
+$font-pagedescription-size: var(--sjs-font-pagedescription-size, calc(1 * var(--sjs-font-size, $font-size)));
+
 $corner-radius: var(--sjs-corner-radius, 4px);
 $panel-corner-radius: var(--sjs-panel-corner-radius, var(--sjs-corner-radius, 4px));
 $editor-corner-radius: var(--sjs-editor-corner-radius, var(--sjs-corner-radius, 4px));

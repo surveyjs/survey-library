@@ -24,14 +24,18 @@ if(typeof window !== "undefined") {
   );
 }
 
-export abstract class DragDropCore<T> extends Base {
-  @property({
-    defaultValue: null,
-    onSet: (val, target: DragDropCore<T>) => {
-      target.ghostPositionChanged();
-    },
-  })
-  isBottom: boolean; //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+export abstract class DragDropCore<T> {
+  private _isBottom: boolean = null;
+  public get isBottom(): boolean { //TODO rename isBottom to isShowGhostAtBottomOfDropTarget
+    return !!this._isBottom;
+  }
+  public set isBottom(val: boolean) {
+    if(this._isBottom === val) {
+      return;
+    }
+    this._isBottom = val;
+    this.ghostPositionChanged();
+  }
   public onGhostPositionChanged: EventBase<{}> = new EventBase<{}>();
   protected ghostPositionChanged(): void {
     this.onGhostPositionChanged.fire(<any>{}, {});
@@ -61,7 +65,6 @@ export abstract class DragDropCore<T> extends Base {
   protected allowDropHere = false;
 
   constructor(private surveyValue?: ISurvey, private creator?: any, private longTap?: boolean) {
-    super();
   }
 
   public startDrag(
@@ -322,11 +325,11 @@ export abstract class DragDropCore<T> extends Base {
   protected duringDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
   protected afterDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
 
-  public getGhostPosition(item: any): string {
-    if (this.dropTarget !== item) return null;
-    if (this.isBottom) return "bottom";
-    return "top";
-  }
+  // public getGhostPosition(item: any): string {
+  //   if (this.dropTarget !== item) return null;
+  //   if (this.isBottom) return "bottom";
+  //   return "top";
+  // }
 
   protected abstract isDropTargetValid(
     dropTarget: any,

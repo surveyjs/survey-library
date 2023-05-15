@@ -11,8 +11,8 @@
     (change)="model.onChange($event)" [value]="value" [disabled]="model.isInputReadOnly" name="user" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder || ''"
     (keyup)="model.onKeyUp($event)" (keydown)="model.onKeyDown($event)" (blur)="model.onBlur($event)" (focus)="model.onFocus($event)" (compositionupdate)="model.onCompositionUpdate($event)" 
     [attr.size] = "model.renderedInputSize" [attr.maxlength]= "model.getMaxLength()" [attr.min]="model.renderedMin"
-    [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.aria-required]="model.ariaRequired"
-    [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy" [attr.autocomplete]="model.autocomplete" #contentElement/>
+    [attr.max]="model.renderedMax" [attr.step]="model.renderedStep" [attr.max]="model.renderedMax" [attr.a11y_input_aria-required]="model.a11y_input_ariaRequired"
+    [attr.a11y_input_aria-label]="model.a11y_input_ariaLabel" [attr.a11y_input_aria-labelledby]="model.a11y_input_ariaLabelledBy" [attr.a11y_input_aria-invalid]="model.a11y_input_ariaInvalid" [attr.a11y_input_aria-describedby]="model.a11y_input_ariaDescribedBy" [attr.autocomplete]="model.autocomplete" #contentElement/>
     <sv-ng-character-counter *ngIf="model.getMaxLength()" 
     [counter]="model.characterCounter"
     [remainingCharacterCounter]="model.cssClasses.remainingCharacterCounter">

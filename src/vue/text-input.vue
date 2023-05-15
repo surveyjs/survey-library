@@ -20,10 +20,11 @@
     @composition-update="question.onCompositionUpdate"
     @blur="question.onBlur"
     @focus="question.onFocus"
-    :aria-required="question.ariaRequired"
-    :aria-label="question.ariaLabel"
-    :aria-invalid="question.ariaInvalid"
-    :aria-describedby="question.ariaDescribedBy"
+    :aria-required="question.a11y_input_ariaRequired"
+    :aria-label="question.a11y_input_ariaLabel"
+    :aria-labelledby="question.a11y_input_ariaLabelledby"
+    :aria-invalid="question.a11y_input_ariaInvalid"
+    :aria-describedby="question.a11y_input_ariaDescribedBy"
   />
     <div v-else>
       <input
@@ -47,10 +48,10 @@
         @composition-update="question.onCompositionUpdate"
         @blur="question.onBlur"
         @focus="question.onFocus"
-        :aria-required="question.ariaRequired"
-        :aria-label="question.ariaLabel"
-        :aria-invalid="question.ariaInvalid"
-        :aria-describedby="question.ariaDescribedBy"
+        :aria-required="question.a11y_input_ariaRequired"
+        :aria-label="question.a11y_input_ariaLabel"
+        :aria-invalid="question.a11y_input_ariaInvalid"
+        :aria-describedby="question.a11y_input_ariaDescribedBy"
       />
       <sv-character-counter :counter="question.characterCounter" :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"></sv-character-counter>
     </div>

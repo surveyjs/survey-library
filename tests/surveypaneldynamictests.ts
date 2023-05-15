@@ -5641,27 +5641,29 @@ QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", f
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const panelTabToolbar = panel.additionalTitleToolbar;
-  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+  const getAddBtn = () => {
+    return panel.footerToolbar.getActionById("sv-pd-add-btn");
+  };
   assert.equal(panelTabToolbar.actions.length, 0, "All tabs are invisible");
   panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
   assert.equal(panelTabToolbar.actions.length, 1, "One tab is visible");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-3 a");
-  assert.equal(addBtn.visible, true, "add button is visible #1");
+  assert.equal(getAddBtn().visible, true, "add button is visible #1");
 
   panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
   assert.equal(panelTabToolbar.actions.length, 2, "Two tabs are visible");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-2 a");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-3 a");
-  assert.equal(addBtn.visible, true, "add button is visible #2");
+  assert.equal(getAddBtn().visible, true, "add button is visible #2");
   panel.currentIndex = 0;
-  assert.equal(addBtn.visible, false, "add button is invisible #3");
+  assert.equal(getAddBtn().visible, false, "add button is invisible #3");
   panel.currentIndex = 1;
-  assert.equal(addBtn.visible, true, "add button is visible #4");
+  assert.equal(getAddBtn().visible, true, "add button is visible #4");
 
   panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
   assert.equal(panelTabToolbar.actions.length, 3, "Three tabs are visible");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-1 a");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-2 a");
   assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3-3 a");
-  assert.equal(addBtn.visible, true, "add button is visible #5");
+  assert.equal(getAddBtn().visible, true, "add button is visible #5");
 });

@@ -1709,6 +1709,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.registerPropertyChangedHandlers(["visible"], () => {
       if(panel.visible) this.onPanelAdded(panel);
       else this.onPanelRemoved(panel);
+      this.updateFooterActions();
     });
     return panel;
   }

@@ -5624,7 +5624,7 @@ QUnit.test("templateVisibleIf && currentPanelIndex", function (assert) {
   assert.equal(panel.visiblePanelCount, 1, "There is one panel");
   assert.equal(panel.currentIndex, 0, "currentIndex #8");
 });
-QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
+QUnit.test("templateVisibleIf & renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",
@@ -5641,19 +5641,44 @@ QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", f
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const panelTabToolbar = panel.additionalTitleToolbar;
-  const getAddBtn = () => {
-    return panel.footerToolbar.getActionById("sv-pd-add-btn");
-  };
   assert.equal(panelTabToolbar.actions.length, 0, "All tabs are invisible");
   panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
   assert.equal(panelTabToolbar.actions.length, 1, "One tab is visible");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-3 a");
-  assert.equal(getAddBtn().visible, true, "add button is visible #1");
 
   panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
   assert.equal(panelTabToolbar.actions.length, 2, "Two tabs are visible");
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-2 a");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-3 a");
+
+  panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+  assert.equal(panelTabToolbar.actions.length, 3, "Three tabs are visible");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-1 a");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-2 a");
+  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3-3 a");
+});
+QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 3,
+        templateVisibleIf: "{panel.q1}='a'",
+        renderMode: "progressTopBottom"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const getAddBtn = () => {
+    return panel.footerToolbar.getActionById("sv-pd-add-btn");
+  };
+  panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
+  assert.equal(getAddBtn().visible, true, "add button is visible #1");
+
+  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
   assert.equal(getAddBtn().visible, true, "add button is visible #2");
   panel.currentIndex = 0;
   assert.equal(getAddBtn().visible, false, "add button is invisible #3");
@@ -5661,9 +5686,7 @@ QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", f
   assert.equal(getAddBtn().visible, true, "add button is visible #4");
 
   panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
-  assert.equal(panelTabToolbar.actions.length, 3, "Three tabs are visible");
-  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-1 a");
-  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-2 a");
-  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3-3 a");
   assert.equal(getAddBtn().visible, true, "add button is visible #5");
+  panel.currentIndex = 1;
+  assert.equal(getAddBtn().visible, false, "add button is invisible #6");
 });

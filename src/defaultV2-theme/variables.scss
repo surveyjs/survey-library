@@ -7,15 +7,22 @@ $primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-f
 $secondary: var(--secondary, #ff9814);
 $secondary-light: var(--secondary-light, rgba(255, 152, 20, 0.25));
 
+$editor-background: var(--sjs-editorpanel-backcolor, var(--sjs-editor-background, var(--background-dim-light, #f9f9f9)));
+$question-background: var(--sjs-questionpanel-backcolor, var(--sjs-question-background, var(--background, #fff)));
+
 $background: var(--background, #fff);
 $background-dim: var(--background-dim, #f3f3f3);
 $background-dim-light: var(--background-dim-light, #f9f9f9);
 $background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
-$background-dark: var(--sjs-general-backcolor-dark, rgb(248, 248, 248));
-$background-dim-dark: var(--sjs-general-dim-backcolor-dark, rgb(243, 243, 243));
+$background-dark: var(--sjs-questionpanel-hovercolor, var(--sjs-general-backcolor-dark, rgb(248, 248, 248)));
+$background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-dim-backcolor-dark, rgb(243, 243, 243)));
 
-$editor-background: var(--sjs-editor-background, var(--background-dim-light, #f9f9f9));
-$question-background: var(--sjs-question-background, var(--background, #fff));
+$corner-radius: var(--sjs-corner-radius, 4px);
+$editor-corner-radius: var(--sjs-editorpanel-cornerRadius, var(--sjs-corner-radius, 4px));
+$panel-corner-radius: var(--sjs-questionpanel-cornerRadius, var(--sjs-corner-radius, 4px));
+
+// $questionpanel-border: var(--sjs-questionpanel-border);
+// $editorpanel-border: var(--sjs-editorpanel-border);
 
 $foreground: var(--sjs-general-forecolor, var(--foreground, #161616));
 $foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #909090));
@@ -51,12 +58,23 @@ $font-pagetitle-size: var(--sjs-font-pagetitle-size, calc(1.5 * var(--sjs-font-s
 
 $font-pagedescription-family: var(--sjs-font-pagedescription-family, var(--font-family));
 $font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
-$font-pagedescription-color: var(--sjs-font-pagedescription-color, var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
+$font-pagedescription-color: var( --sjs-font-pagedescription-color, var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
 $font-pagedescription-size: var(--sjs-font-pagedescription-size, calc(1 * var(--sjs-font-size, $font-size)));
 
-$corner-radius: var(--sjs-corner-radius, 4px);
-$panel-corner-radius: var(--sjs-panel-corner-radius, var(--sjs-corner-radius, 4px));
-$editor-corner-radius: var(--sjs-editor-corner-radius, var(--sjs-corner-radius, 4px));
+$font-questiontitle-family: var(--sjs-font-questiontitle-family, var(--font-family));
+$font-questiontitle-weight: var(--sjs-font-questiontitle-weight, 600);
+$font-questiontitle-color: var(--sjs-font-questiontitle-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
+$font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(1 * var(--sjs-font-size, $font-size)));
+
+$font-questiondescription-family: var(--sjs-font-questiondescription-family, var(--font-family));
+$font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
+$font-questiondescription-color: var(--sjs-font-questiondescription-color, var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
+$font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 * var(--sjs-font-size, $font-size)));
+
+$font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
+$font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
+$font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
+$font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
 
 $base-unit: var(--base-unit, 8px);
 

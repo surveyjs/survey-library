@@ -32,7 +32,10 @@
   }
 
   span {
-    font-size: calcFontSize(1);
+    font-family: $font-questiontitle-family;
+    font-weight: $font-questiontitle-weight;
+    font-size: $font-questiontitle-size;
+    color: $font-questiontitle-color;
     line-height: calcSize(3);
   }
 

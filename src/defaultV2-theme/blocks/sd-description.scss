@@ -1,10 +1,10 @@
 .sd-description {
-  font-family: var(--font-family, $font-family);
   font-style: normal;
-  font-weight: normal;
-  font-size: calcFontSize(1);
+  font-family: $font-questiondescription-family;
+  font-weight: $font-questiondescription-weight;
+  color: $font-questiondescription-color;
+  font-size: $font-questiondescription-size;
   line-height: calcSize(3);
-  color: $foreground-light;
   white-space: normal;
   word-break: break-word;
 }

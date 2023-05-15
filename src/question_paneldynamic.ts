@@ -2060,7 +2060,6 @@ export class QuestionPanelDynamicModel extends Question
     const addBtn = new Action({
       id: "sv-pd-add-btn",
       component: "sv-paneldynamic-add-btn",
-      visible: <any>new ComputedUpdater(() => this.canAddPanel),
       data: { question: this }
     });
     const prevBtnIcon = new Action({
@@ -2087,6 +2086,7 @@ export class QuestionPanelDynamicModel extends Question
       prevTextBtn.visible = showNavigation && this.currentIndex > 0;
       nextTextBtn.visible = showNavigation && this.currentIndex < this.visiblePanelCount - 1;
       nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
+      addBtn.visible = this.canAddPanel;
       addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
       progressText.visible = !this.isRenderModeList && !isMobile;
       progressText.needSpace = !isLegacyNavigation && !this.isMobile;

@@ -5367,6 +5367,9 @@ QUnit.test("question.hasTitleOnLeftTop class", function (assert) {
   assert.equal(panel.hasTitleOnLeftTop, false, "renderMode is tab");
 
   panel.addPanel();
+  assert.equal(panel.panels.length, 1, "There is one panel");
+  assert.equal(panel.panels[0].visible, true, "There is one visiblePanel");
+  assert.equal(panel.visiblePanelCount, 1, "There is one visible panel count");
   assert.equal(panel.hasTitleOnLeftTop, true, "panelCount is 1");
 
   panel.renderMode = undefined;
@@ -5620,4 +5623,37 @@ QUnit.test("templateVisibleIf && currentPanelIndex", function (assert) {
   panel.value = [{ q1: "b" }, { q1: "d" }, { q1: "a" }];
   assert.equal(panel.visiblePanelCount, 1, "There is one panel");
   assert.equal(panel.currentIndex, 0, "currentIndex #8");
+});
+QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 3,
+        templateVisibleIf: "{panel.q1}='a'",
+        renderMode: "tab",
+        templateTabTitle: "#{visiblePanelIndex}-{panelIndex} {panel.q1}"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.equal(panelTabToolbar.actions.length, 0, "All tabs are invisible");
+  panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
+  assert.equal(panelTabToolbar.actions.length, 1, "One tab is visible");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-3 a");
+
+  panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
+  assert.equal(panelTabToolbar.actions.length, 2, "Two tabs are visible");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-2 a");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-3 a");
+
+  panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
+  assert.equal(panelTabToolbar.actions.length, 3, "Three tabs are visible");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1-1 a");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2-2 a");
+  assert.equal(panelTabToolbar.actions[2].locTitle.textOrHtml, "#3-3 a");
 });

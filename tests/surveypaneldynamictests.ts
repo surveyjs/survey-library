@@ -5668,25 +5668,41 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
         ],
         panelCount: 3,
         templateVisibleIf: "{panel.q1}='a'",
-        renderMode: "progressTopBottom"
+        renderMode: "progressTop"
       }],
   });
+  survey.css = { root: "sd-root-modern" };
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   const getAddBtn = () => {
     return panel.footerToolbar.getActionById("sv-pd-add-btn");
   };
+  const getNextBtn = () => {
+    return panel.footerToolbar.getActionById("sv-pd-next-btn");
+  };
   panel.value = [{ q1: "b" }, { q1: "c" }, { q1: "a" }];
   assert.equal(getAddBtn().visible, true, "add button is visible #1");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #1");
+  assert.equal(getNextBtn().visible, false, "nextButton #1");
 
   panel.value = [{ q1: "b" }, { q1: "a" }, { q1: "a" }];
   assert.equal(getAddBtn().visible, true, "add button is visible #2");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #2");
+  assert.equal(getNextBtn().visible, false, "nextButton #2");
   panel.currentIndex = 0;
   assert.equal(getAddBtn().visible, false, "add button is invisible #3");
+  assert.equal(panel.canAddPanel, false, "canAddPanel #3");
+  assert.equal(getNextBtn().visible, true, "nextButton #3");
   panel.currentIndex = 1;
   assert.equal(getAddBtn().visible, true, "add button is visible #4");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #4");
+  assert.equal(getNextBtn().visible, false, "nextButton #4");
 
   panel.value = [{ q1: "a" }, { q1: "a" }, { q1: "a" }];
   assert.equal(getAddBtn().visible, true, "add button is visible #5");
+  assert.equal(panel.canAddPanel, true, "canAddPanel #5");
+  assert.equal(getNextBtn().visible, false, "nextButton #5");
   panel.currentIndex = 1;
   assert.equal(getAddBtn().visible, false, "add button is invisible #6");
+  assert.equal(panel.canAddPanel, false, "canAddPanel #6");
+  assert.equal(getNextBtn().visible, true, "nextButton #6");
 });

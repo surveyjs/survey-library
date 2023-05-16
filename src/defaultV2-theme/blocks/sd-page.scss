@@ -21,22 +21,8 @@
   box-sizing: border-box;
 }
 .sd-page .sd-page__title {
-  font-family: $font-pagetitle-family;
-  font-weight: $font-pagetitle-weight;
-  font-size: $font-pagetitle-size;
-  color: $font-pagetitle-color;
-  // @include page_description();
-  position: static;
-  line-height: calcSize(4);
-  margin: calcSize(0.5) 0px;
+  @include page_title();
 }
 .sd-page .sd-page__description {
-  font-family: $font-pagedescription-family;
-  font-weight: $font-pagedescription-weight;
-  font-size: $font-pagedescription-size;
-  color: $font-pagedescription-color;
-  // @include page_description();
-  position: static;
-  line-height: calcSize(3);
-  margin: calcSize(0.5) 0px;
+  @include page_description();
 }

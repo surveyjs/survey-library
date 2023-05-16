@@ -58,12 +58,12 @@ export class PopupUtils {
     return { left: Math.round(currentLeft), top: Math.round(currentTop) };
   }
 
-  public static updateVerticalDimensions(
+  public static getCorrectedVerticalDimensions(
     top: number,
     height: number,
     windowHeight: number
   ) {
-    let result;
+    let result = { height: height, top: top };
     if (top < 0) {
       result = { height: height + top, top: 0 };
     } else if (height + top > windowHeight) {

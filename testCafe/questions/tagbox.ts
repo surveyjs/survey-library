@@ -119,6 +119,41 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.count).eql(0);
   });
 
+  test("tagbox selected list items", async (t) => {
+    await initSurvey(framework, jsonCloseOnSelectIsDefault);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const selectedListItem = Selector(".sv-list__item--selected");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .click(questionTagbox)
+      .expect(popupContainer.visible).ok()
+
+      .click(getListItemByText("item1"))
+      .click(getListItemByText("item2"))
+      .click(getListItemByText("item3"))
+      .expect(selectedItems.count).eql(3)
+      .expect(selectedListItem.count).eql(3)
+      .expect(selectedListItem.nth(0).textContent).contains("item1")
+      .expect(selectedListItem.nth(1).textContent).contains("item2")
+      .expect(selectedListItem.nth(2).textContent).contains("item3")
+
+      .click(getListItemByText("item1"))
+      .click(getListItemByText("item2"))
+      .click(getListItemByText("item3"))
+      .expect(selectedItems.count).eql(0)
+      .expect(selectedListItem.count).eql(0)
+
+      .click(getListItemByText("item1"))
+      .click(getListItemByText("item2"))
+      .click(getListItemByText("item3"))
+      .expect(selectedItems.count).eql(3)
+      .expect(selectedListItem.count).eql(3)
+      .expect(selectedListItem.nth(0).textContent).contains("item1")
+      .expect(selectedListItem.nth(1).textContent).contains("item2")
+      .expect(selectedListItem.nth(2).textContent).contains("item3");
+  });
+
   test("tagbox editing. CloseOnSelect is default", async (t) => {
     await initSurvey(framework, jsonCloseOnSelectIsDefault);
     await t

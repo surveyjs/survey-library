@@ -6,6 +6,7 @@ import { PanelModel } from "../src/panel";
 import { QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
 import { QuestionHtmlModel } from "../src/question_html";
+import { QuestionImageModel } from "../src/question_image";
 import {
   SurveyTriggerVisible,
   SurveyTriggerComplete,
@@ -99,6 +100,28 @@ QUnit.test("merge data property", function (assert) {
     { strVal: "item1", intVal: 7, boolVal: false },
     "do nothing"
   );
+});
+QUnit.test("merge data for image question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        "name": "image",
+        "showPreview": true
+      }
+    ]
+  });
+  const imageData = [
+    {
+      name: "maxresdefault.jpg",
+      type: "image/jpeg",
+      content:
+        "data:image/jpeg;base64,=123test"
+    }
+  ];
+  survey.mergeData({ image: imageData });
+  const question = <QuestionImageModel>survey.getQuestionByName("image");
+  assert.deepEqual(question.value, imageData, "value set correctly");
 });
 QUnit.test("Add two pages", function (assert) {
   var survey = new SurveyModel();

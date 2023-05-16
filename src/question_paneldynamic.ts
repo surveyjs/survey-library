@@ -382,6 +382,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * A template for panel titles.
+   *
+   * The template can contain the following placeholders:
+   *
+   * - `{panelIndex}` - A zero-based index of a panel in the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
+   * - `{visiblePanelIndex}` - A zero-based index of a panel in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array.
    * @see template
    * @see templateDescription
    * @see templateElements
@@ -399,6 +404,11 @@ export class QuestionPanelDynamicModel extends Question
   }
   /**
    * A template for tab titles. Applies when [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`.
+   *
+   * The template can contain the following placeholders:
+   *
+   * - `{panelIndex}` - A zero-based index of a panel in the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
+   * - `{visiblePanelIndex}` - A zero-based index of a panel in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array.
    * @see templateTitle
    * @see renderMode
    */
@@ -428,6 +438,17 @@ export class QuestionPanelDynamicModel extends Question
   get locTemplateDescription(): LocalizableString {
     return this.template.locDescription;
   }
+  /**
+   * A Boolean expression that is evaluated against each panel. If the expression evaluates to `false`, the panel becomes hidden.
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * Use the `{panel}` placeholder to reference the current panel in the expression.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
+   * @see visibleIf
+   * @see visiblePanels
+   */
   public get templateVisibleIf(): string {
     return this.template.visibleIf;
   }
@@ -450,6 +471,10 @@ export class QuestionPanelDynamicModel extends Question
   public get panels(): Array<PanelModel> {
     return this.getPropertyValue("panels");
   }
+  /**
+   * An array of currently visible panels ([`PanelModel`](https://surveyjs.io/form-library/documentation/api-reference/panel-model) objects).
+   * @see templateVisibleIf
+   */
   public get visiblePanels(): Array<PanelModel> {
     return this.getPropertyValue("visiblePanels");
   }
@@ -751,6 +776,10 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
   }
+  /**
+   * Returns the number of visible panels in Dynamic Panel.
+   * @see templateVisibleIf
+   */
   public get visiblePanelCount(): number { return this.visiblePanels.length; }
   /**
    * Specifies whether users can expand and collapse panels. Applies if `renderMode` is `"list"` and the `templateTitle` property is specified.

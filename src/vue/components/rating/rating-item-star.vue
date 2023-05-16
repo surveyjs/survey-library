@@ -15,7 +15,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { RenderedRatingItem, QuestionRatingModel, Action } from "survey-core";
-import { BaseVue, attachKey2click } from "../../base";
+import { BaseVue } from "../../base";
 
 
 @Component

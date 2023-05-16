@@ -8,7 +8,7 @@
     :key="item.id"
     v-bind:class="model.getItemClass(item)"
     v-on:click="click"
-    v-on:keyup="keyUp"
+    v-key2click
   >
     <div 
       v-if="item.needSeparator"
@@ -35,8 +35,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Base, ListModel, Action, IAction } from "survey-core";
-import { BaseVue, attachKey2click } from "../../base";
-
+import { BaseVue } from "../../base";
 export * from "./list.vue";
 
 @Component
@@ -51,9 +50,6 @@ export class ListItem extends BaseVue {
   }
   get elementId() {
     return (this.item as IAction)?.elementId;
-  }
-  public keyUp(event: any) {
-    attachKey2click(event);
   }
   public click(event: any) {
     this.model.onItemClick(this.item as any);

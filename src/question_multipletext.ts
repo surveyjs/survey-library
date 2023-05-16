@@ -31,7 +31,7 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getIsRequiredText(): string;
 }
 
-class MultipleTextEditorModel extends QuestionTextModel {
+export class MultipleTextEditorModel extends QuestionTextModel {
   public get a11y_input_ariaLabel(): string {
     return this.locTitle.renderedHtml;
   }

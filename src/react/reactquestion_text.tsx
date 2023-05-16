@@ -46,7 +46,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}
           aria-required={this.question.a11y_input_ariaRequired}
           aria-label={this.question.a11y_input_ariaLabel}
-          aria-labelledby={this.question.a11y_input_ariaLabelledby}
+          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
           aria-invalid={this.question.a11y_input_ariaInvalid}
           aria-describedby={this.question.a11y_input_ariaDescribedBy}
         />

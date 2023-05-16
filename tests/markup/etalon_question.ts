@@ -1,6 +1,27 @@
 import { StylesManager } from "survey-core";
 import { registerMarkupTest } from "./helper";
-
+registerMarkupTest(
+  {
+    name: "Test question title with html markup",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          descriptionLocation: "hidden",
+          title: "<span style='font-size:12px'><strong><span style='font-family:Comic Sans MS,cursive'><span style='color:#f1c40f'>HI</span></span></strong></span>",
+        }
+      ]
+    },
+    snapshot: "question-title-with-html",
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    initSurvey: survey => survey.onTextMarkdown.add(function (survey, options) {
+      let str = options.text;
+      options.html = str;
+    }),
+  },
+);
 registerMarkupTest(
   {
     name: "Test question with errors above v2",

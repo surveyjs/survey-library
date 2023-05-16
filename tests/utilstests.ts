@@ -1,7 +1,7 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
 import { Question } from "../src/question";
-import { createSvg, sanitizeEditableContent } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent } from "../src/utils/utils";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
@@ -97,5 +97,20 @@ QUnit.test(
     assert.equal(element.querySelector("title")?.innerHTML, "titletext2");
 
     element.remove();
+  }
+);
+
+QUnit.test(
+  "utils: keytoclick - skip UP if there was no DOWN",
+  function (assert) {
+    var clicked = false;
+    var event = { target: { keyCode: 13, click: () => { clicked = true; } } };
+
+    var options = {};
+
+    doKey2ClickUp(event as any, options);
+    assert.notOk(clicked);
+    doKey2ClickDown(event as any, options);
+    doKey2ClickUp(event as any, options);
   }
 );

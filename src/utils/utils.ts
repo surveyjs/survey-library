@@ -229,7 +229,7 @@ export function doKey2ClickBlur(evt: KeyboardEvent): void {
 }
 
 export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): void {
-  if (!options.__keyDownReceived) return;
+  if (options && !options.__keyDownReceived) return;
   options.__keyDownReceived = false;
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
@@ -249,7 +249,7 @@ export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOpti
 }
 
 export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
-  options.__keyDownReceived = true;
+  if (options) options.__keyDownReceived = true;
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }

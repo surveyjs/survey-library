@@ -4016,8 +4016,8 @@ export class SurveyModel extends SurveyElementCore
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
-    this.setCookie();
     this.saveDataOnComplete(isCompleteOnTrigger);
+    this.setCookie();
     return true;
   }
   private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {

@@ -34,6 +34,7 @@ import { element } from "angular";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
+  getVisibleItemIndex(item: ISurveyData): number;
   getPanelItemData(item: ISurveyData): any;
   setPanelItemData(item: ISurveyData, name: string, val: any): any;
   getSharedQuestionFromArray(name: string, panelIndex: number): Question;
@@ -59,6 +60,9 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
   private get panelIndex(): number {
     return !!this.data ? this.data.getItemIndex(this.panelItem) : -1;
   }
+  private get visiblePanelIndex(): number {
+    return !!this.data ? this.data.getVisibleItemIndex(this.panelItem) : -1;
+  }
   protected getValues(): any {
     return this.panelItem.getAllValues();
   }
@@ -80,6 +84,14 @@ class QuestionPanelDynamicItemTextProcessor extends QuestionTextProcessor {
   protected onCustomProcessText(textValue: TextPreProcessorValue): boolean {
     if (textValue.name == QuestionPanelDynamicItem.IndexVariableName) {
       var index = this.panelIndex;
+      if (index > -1) {
+        textValue.isExists = true;
+        textValue.value = index + 1;
+        return true;
+      }
+    }
+    if (textValue.name == QuestionPanelDynamicItem.VisibleIndexVariableName) {
+      var index = this.visiblePanelIndex;
       if (index > -1) {
         textValue.isExists = true;
         textValue.value = index + 1;
@@ -114,6 +126,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public static ItemVariableName = "panel";
   public static ParentItemVariableName = "parentpanel";
   public static IndexVariableName = "panelIndex";
+  public static VisibleIndexVariableName = "visiblePanelIndex";
   private panelValue: PanelModel;
   private data: IQuestionPanelDynamicData;
   private textPreProcessor: QuestionPanelDynamicItemTextProcessor;
@@ -183,8 +196,11 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
     values[QuestionPanelDynamicItem.ItemVariableName] = this.getAllValues();
     if (!!this.data) {
       const indexStr = QuestionPanelDynamicItem.IndexVariableName;
+      const visibleIndexStr = QuestionPanelDynamicItem.VisibleIndexVariableName;
       delete values[indexStr];
+      delete values[visibleIndexStr];
       values[indexStr.toLowerCase()] = this.data.getItemIndex(this);
+      values[visibleIndexStr.toLowerCase()] = this.data.getVisibleItemIndex(this);
       const q = <Question>(<any>this.data);
       if (!!q && !!q.parentQuestion && !!q.parent) {
         values[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>q.parent).getValue();
@@ -240,7 +256,10 @@ export class QuestionPanelDynamicModel extends Question
 
   constructor(name: string) {
     super(name);
-    this.createNewArray("panels");
+    this.createNewArray("panels",
+      (panel: PanelModel) => { this.onPanelAdded(panel); },
+      (panel: PanelModel) => { this.onPanelRemoved(panel); });
+    this.createNewArray("visiblePanels");
     this.templateValue = this.createAndSetupNewPanelObject();
     this.template.renderWidth = "100%";
     this.template.selectedElementInDesign = this;
@@ -273,8 +292,8 @@ export class QuestionPanelDynamicModel extends Question
     return false;
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
-    for (var i = 0; i < this.panels.length; i++) {
-      const res = this.panels[i].getFirstQuestionToFocus(withError);
+    for (var i = 0; i < this.visiblePanels.length; i++) {
+      const res = this.visiblePanels[i].getFirstQuestionToFocus(withError);
       if (!!res) return res;
     }
     return null;
@@ -409,7 +428,12 @@ export class QuestionPanelDynamicModel extends Question
   get locTemplateDescription(): LocalizableString {
     return this.template.locDescription;
   }
-
+  public get templateVisibleIf(): string {
+    return this.template.visibleIf;
+  }
+  public set templateVisibleIf(val: string) {
+    this.template.visibleIf = val;
+  }
   protected get items(): Array<ISurveyData> {
     var res = [];
     for (var i = 0; i < this.panels.length; i++) {
@@ -426,6 +450,41 @@ export class QuestionPanelDynamicModel extends Question
   public get panels(): Array<PanelModel> {
     return this.getPropertyValue("panels");
   }
+  public get visiblePanels(): Array<PanelModel> {
+    return this.getPropertyValue("visiblePanels");
+  }
+  private onPanelAdded(panel: PanelModel): void {
+    this.onPanelRemovedCore(panel);
+    if(!panel.visible) return;
+    let index = 0;
+    const panels = this.panels;
+    for(var i = 0; i < panels.length; i ++) {
+      if(panels[i] === panel) break;
+      if(panels[i].visible) index++;
+    }
+    this.visiblePanels.splice(index, 0, panel);
+    this.addTabFromToolbar(panel, index);
+    if(!this.currentPanel) {
+      this.currentPanel = panel;
+    }
+  }
+  private onPanelRemoved(panel: PanelModel): void {
+    let index = this.onPanelRemovedCore(panel);
+    if(this.currentPanel === panel) {
+      const visPanels = this.visiblePanels;
+      if(index >= visPanels.length) index = visPanels.length - 1;
+      this.currentPanel = index >= 0 ? visPanels[index] : null;
+    }
+  }
+  private onPanelRemovedCore(panel: PanelModel): number {
+    const visPanels = this.visiblePanels;
+    let index = visPanels.indexOf(panel);
+    if(index > -1) {
+      visPanels.splice(index, 1);
+      this.removeTabFromToolbar(panel);
+    }
+    return index;
+  }
   /**
    * A zero-based index of the currently displayed panel.
    *
@@ -438,25 +497,13 @@ export class QuestionPanelDynamicModel extends Question
   public get currentIndex(): number {
     if (this.isRenderModeList) return -1;
     if (this.useTemplatePanel) return 0;
-    if (this.currentIndexValue < 0 && this.panelCount > 0) {
-      this.currentIndexValue = 0;
-    }
-    if (this.currentIndexValue >= this.panelCount) {
-      this.currentIndexValue = this.panelCount - 1;
-    }
-    return this.currentIndexValue;
+    return this.visiblePanels.indexOf(this.currentPanel);
   }
   public set currentIndex(val: number) {
-    if (this.currentIndexValue !== val) {
-      if (val >= this.panelCount) val = this.panelCount - 1;
-      this.currentIndexValue = val;
-      this.updateFooterActions();
-      this.updateTabToolbarItemsPressedState();
-      this.fireCallback(this.currentIndexChangedCallback);
-    }
+    if(val < 0 || this.visiblePanelCount < 1) return;
+    if(val >= this.visiblePanelCount) val = this.visiblePanelCount - 1;
+    this.currentPanel = this.visiblePanels[val];
   }
-  private get currentIndexValue(): number { return this.getPropertyValue("currentIndexValue", -1); }
-  private set currentIndexValue(val: number) { this.setPropertyValue("currentIndexValue", val); }
   /**
    * A `PanelModel` object that is the currently displayed panel.
    *
@@ -467,9 +514,21 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get currentPanel(): PanelModel {
-    var index = this.currentIndex;
-    if (index < 0 || index >= this.panels.length) return null;
-    return this.panels[index];
+    if(this.isRenderModeList || this.useTemplatePanel) return null;
+    let res = this.getPropertyValue("currentPanel", null);
+    if(!res && this.visiblePanelCount > 0) {
+      res = this.visiblePanels[0];
+      this.currentPanel = res;
+    }
+    return res;
+  }
+  public set currentPanel(val: PanelModel) {
+    if(this.isRenderModeList || this.useTemplatePanel) return;
+    if(!!val && this.visiblePanels.indexOf(val) < 0 || val === this.getPropertyValue("currentPanel")) return;
+    this.setPropertyValue("currentPanel", val);
+    this.updateFooterActions();
+    this.updateTabToolbarItemsPressedState();
+    this.fireCallback(this.currentIndexChangedCallback);
   }
   /**
    * Specifies whether to display a confirmation dialog when a respondent wants to delete a panel.
@@ -599,15 +658,15 @@ export class QuestionPanelDynamicModel extends Question
    * @see panelNextText
    */
   public get isNextButtonVisible(): boolean {
-    return this.currentIndex >= 0 && this.currentIndex < this.panelCount - 1;
+    return this.currentIndex >= 0 && this.currentIndex < this.visiblePanelCount - 1;
   }
   public get isNextButtonShowing(): boolean { return this.isNextButtonVisible; }
   /**
-   * Returns true when showRangeInProgress equals to true, renderMode doesn't equal to "list" and panelCount is >= 2.
+   * Returns true when showRangeInProgress equals to true, renderMode doesn't equal to "list" and visiblePanelCount is >= 2.
    */
   public get isRangeShowing(): boolean {
     return (
-      this.showRangeInProgress && this.currentIndex >= 0 && this.panelCount > 1
+      this.showRangeInProgress && this.currentIndex >= 0 && this.visiblePanelCount > 1
     );
   }
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
@@ -672,7 +731,6 @@ export class QuestionPanelDynamicModel extends Question
     for (let i = this.panelCount; i < val; i++) {
       var panel = this.createNewPanel();
       this.panels.push(panel);
-      this.addTabFromToolbar(panel);
       if (this.renderMode == "list" && this.panelsState != "default") {
         if (this.panelsState === "expand") {
           panel.expand();
@@ -692,8 +750,8 @@ export class QuestionPanelDynamicModel extends Question
     this.reRunCondition();
     this.updateFooterActions();
     this.fireCallback(this.panelCountChangedCallback);
-    (removedPanels.length > 0) && this.removeTabFromToolbar(removedPanels);
   }
+  public get visiblePanelCount(): number { return this.visiblePanels.length; }
   /**
    * Specifies whether users can expand and collapse panels. Applies if `renderMode` is `"list"` and the `templateTitle` property is specified.
    *
@@ -905,7 +963,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.renderMode === "tab";
   }
   get hasTitleOnLeftTop(): boolean {
-    if(this.isRenderModeTab && !!this.panelCount) return true;
+    if(this.isRenderModeTab && this.visiblePanelCount > 0) return true;
     if(!this.hasTitle) return false;
     const location = this.getTitleLocation();
     return location === "left" || location === "top";
@@ -913,9 +971,9 @@ export class QuestionPanelDynamicModel extends Question
   public setVisibleIndex(value: number): number {
     if (!this.isVisible) return 0;
     var startIndex = this.showQuestionNumbers == "onSurvey" ? value : 0;
-    for (var i = 0; i < this.panels.length; i++) {
+    for (var i = 0; i < this.visiblePanels.length; i++) {
       var counter = this.setPanelVisibleIndex(
-        this.panels[i],
+        this.visiblePanels[i],
         startIndex,
         this.showQuestionNumbers != "off"
       );
@@ -954,7 +1012,7 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.panelCount - 1) {
+    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.visiblePanelCount - 1) {
       return false;
     }
     return (
@@ -1060,7 +1118,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getProgressInfo(): IProgressInfo {
     return SurveyElement.getProgressInfoByElements(
-      this.panels,
+      this.visiblePanels,
       this.isRequired
     );
   }
@@ -1178,9 +1236,11 @@ export class QuestionPanelDynamicModel extends Question
    * @see template
    */
   public removePanel(value: any): void {
-    var index = this.getPanelIndex(value);
-    if (index < 0 || index >= this.panelCount) return;
-    var panel = this.panels[index];
+    const visIndex = this.getVisualPanelIndex(value);
+    if (visIndex < 0 || visIndex >= this.visiblePanelCount) return;
+    const panel = this.visiblePanels[visIndex];
+    const index = this.panels.indexOf(panel);
+    if(index < 0) return;
     if (this.survey && !this.survey.dynamicPanelRemoving(this, index, panel)) return;
     this.panels.splice(index, 1);
     this.updateBindings("panelCount", this.panelCount);
@@ -1193,13 +1253,12 @@ export class QuestionPanelDynamicModel extends Question
     this.fireCallback(this.panelCountChangedCallback);
     if (this.survey) this.survey.dynamicPanelRemoved(this, index, panel);
     this.isValueChangingInternally = false;
-    this.removeTabFromToolbar([panel]);
   }
-  private getPanelIndex(val: any): number {
+  private getVisualPanelIndex(val: any): number {
     if (Helpers.isNumber(val)) return val;
-    var items = this.items;
-    for (var i = 0; i < this.panels.length; i++) {
-      if (this.panels[i] === val || items[i] === val) return i;
+    const visPanels = this.visiblePanels;
+    for (var i = 0; i < visPanels.length; i++) {
+      if (visPanels[i] === val || visPanels[i].data === val) return i;
     }
     return -1;
   }
@@ -1471,7 +1530,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   protected getIsAnswered(): boolean {
     if (!super.getIsAnswered()) return false;
-    var panels = this.panels;
+    var panels = this.visiblePanels;
     for (var i = 0; i < panels.length; i++) {
       var visibleQuestions = <Array<any>>[];
       panels[i].addQuestionsToList(visibleQuestions, true);
@@ -1506,8 +1565,9 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getAllErrors(): Array<SurveyError> {
     var result = super.getAllErrors();
-    for (var i = 0; i < this.panels.length; i++) {
-      var questions = this.panels[i].questions;
+    const panels = this.visiblePanels;
+    for (var i = 0; i < panels.length; i++) {
+      var questions = panels[i].questions;
       for (var j = 0; j < questions.length; j++) {
         var errors = questions[j].getAllErrors();
         if (errors && errors.length > 0) {
@@ -1555,7 +1615,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   private hasErrorInPanels(fireCallback: boolean, rec: any): boolean {
     var res = false;
-    var panels = this.panels;
+    var panels = this.visiblePanels;
     var keyValues: Array<any> = [];
     for (var i = 0; i < panels.length; i++) {
       this.setOnCompleteAsyncInPanel(panels[i]);
@@ -1646,6 +1706,11 @@ export class QuestionPanelDynamicModel extends Question
       return this.getPanelActions(panel);
     };
     panel.footerToolbarCss = this.cssClasses.panelFooter;
+    panel.registerPropertyChangedHandlers(["visible"], () => {
+      if(panel.visible) this.onPanelAdded(panel);
+      else this.onPanelRemoved(panel);
+      this.updateFooterActions();
+    });
     return panel;
   }
   protected createAndSetupNewPanelObject(): PanelModel {
@@ -1757,6 +1822,13 @@ export class QuestionPanelDynamicModel extends Question
     var res = this.items.indexOf(item);
     return res > -1 ? res : this.items.length;
   }
+  getVisibleItemIndex(item: ISurveyData): number {
+    const visPanels = this.visiblePanels;
+    for(var i = 0; i < visPanels.length; i ++) {
+      if(visPanels[i].data === item) return i;
+    }
+    return visPanels.length;
+  }
   getPanelItemData(item: ISurveyData): any {
     var items = this.items;
     var index = items.indexOf(item);
@@ -1867,11 +1939,11 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   public get progressText(): string {
-    var rangeMax = this.panelCount;
+    var rangeMax = this.visiblePanelCount;
     return this.getLocalizationFormatString("panelDynamicProgressText", this.currentIndex + 1, rangeMax);
   }
   public get progress(): string {
-    return ((this.currentIndex + 1) / this.panelCount) * 100 + "%";
+    return ((this.currentIndex + 1) / this.visiblePanelCount) * 100 + "%";
   }
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.empty, this.getShowNoEntriesPlaceholder()).toString();
@@ -1929,7 +2001,7 @@ export class QuestionPanelDynamicModel extends Question
     return this.getLocalizableString("noEntriesText");
   }
   public getShowNoEntriesPlaceholder(): boolean {
-    return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.panelCount === 0;
+    return !!this.cssClasses.noEntriesPlaceholder && !this.isDesignMode && this.visiblePanelCount === 0;
   }
   public needResponsiveWidth(): boolean {
     const panel = <PanelModel>this.getPanel();
@@ -1989,7 +2061,6 @@ export class QuestionPanelDynamicModel extends Question
     const addBtn = new Action({
       id: "sv-pd-add-btn",
       component: "sv-paneldynamic-add-btn",
-      visible: <any>new ComputedUpdater(() => this.canAddPanel),
       data: { question: this }
     });
     const prevBtnIcon = new Action({
@@ -2014,8 +2085,9 @@ export class QuestionPanelDynamicModel extends Question
       const isMobile = this.isMobile;
       const showNavigation = !isLegacyNavigation && !isRenderModeList;
       prevTextBtn.visible = showNavigation && this.currentIndex > 0;
-      nextTextBtn.visible = showNavigation && this.currentIndex < this.panelCount - 1;
+      nextTextBtn.visible = showNavigation && this.currentIndex < this.visiblePanelCount - 1;
       nextTextBtn.needSpace = isMobile && nextTextBtn.visible && prevTextBtn.visible;
+      addBtn.visible = this.canAddPanel;
       addBtn.needSpace = this.isMobile && !nextTextBtn.visible && prevTextBtn.visible;
       progressText.visible = !this.isRenderModeList && !isMobile;
       progressText.needSpace = !isLegacyNavigation && !this.isMobile;
@@ -2055,31 +2127,29 @@ export class QuestionPanelDynamicModel extends Question
   }
   private updateTabToolbarItemsPressedState() {
     if(!this.isRenderModeTab) return;
-    if(this.currentIndex < 0 || this.currentIndex >= this.panels.length) return;
-    const panel = this.panels[this.currentIndex];
+    if(this.currentIndex < 0 || this.currentIndex >= this.visiblePanelCount) return;
+    const panel = this.visiblePanels[this.currentIndex];
     this.additionalTitleToolbar.renderedActions.forEach(action => action.pressed = action.id === panel.id);
   }
   private updateTabToolbar() {
     if(!this.isRenderModeTab) return;
 
     const items: Array<Action> = [];
-    this.panels.forEach(panel => items.push(this.createTabByPanel(panel)));
+    this.visiblePanels.forEach(panel => items.push(this.createTabByPanel(panel)));
     this.additionalTitleToolbar.setItems(items);
   }
-  private addTabFromToolbar(panel: PanelModel) {
+  private addTabFromToolbar(panel: PanelModel, index: number) {
     if(!this.isRenderModeTab) return;
 
     const newItem = this.createTabByPanel(panel);
-    this.additionalTitleToolbar.actions.push(newItem);
+    this.additionalTitleToolbar.actions.splice(index, 0, newItem);
     this.updateTabToolbarItemsPressedState();
   }
-  private removeTabFromToolbar(panels: PanelModel[]) {
+  private removeTabFromToolbar(panel: PanelModel) {
     if(!this.isRenderModeTab) return;
-
-    panels.forEach(panel => {
-      const removedItem = this.additionalTitleToolbar.getActionById(panel.id);
-      this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
-    });
+    const removedItem = this.additionalTitleToolbar.getActionById(panel.id);
+    if(!removedItem) return;
+    this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
     this.updateTabToolbarItemsPressedState();
   }
   private get showLegacyNavigation() {
@@ -2160,6 +2230,10 @@ Serializer.addClass(
       name: "templateTitleLocation",
       default: "default",
       choices: ["default", "top", "bottom", "left"],
+    },
+    {
+      name: "templateVisibleIf:expression",
+      category: "logic"
     },
     {
       name: "panelRemoveButtonLocation",

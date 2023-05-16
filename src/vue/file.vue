@@ -43,6 +43,7 @@
             :class="question.getChooseFileCss()"
             :for="question.inputId"
             v-bind:aria-label="question.chooseButtonCaption"
+              v-on:keyup="keyUp"
             >
             <span>{{ question.chooseButtonCaption }}</span>
             <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.chooseButtonCaption" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
@@ -128,6 +129,7 @@ import Vue from "vue";
 import { Component } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionFileModel } from "survey-core";
+import { attachKey2click } from "./base";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
   doRemoveFile(data: any) {
@@ -135,6 +137,9 @@ export class File extends QuestionVue<QuestionFileModel> {
   }
   isPreviewVisible(index: any) {
     return this.question.isPreviewVisible(index);
+  }
+  public keyUp(event: any) {
+    attachKey2click(event);
   }
 
 }

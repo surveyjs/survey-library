@@ -11,12 +11,16 @@ export type actionModeType = "large" | "small" | "popup" | "removed";
 
 /**
  * An action item.
+ *
  * Action items are used in the Toolbar, matrix rows, titles of pages, panels, questions, and other survey elements.
-
+ *
+ * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
  */
 export interface IAction {
   /**
    * A unique action item identifier.
+   *
+   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   id?: string;
   /**
@@ -27,6 +31,8 @@ export interface IAction {
   visible?: boolean;
   /**
    * The action item's title.
+   *
+   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
    * @see showTitle
    * @see disableShrink
    */
@@ -52,19 +58,29 @@ export interface IAction {
   showTitle?: boolean;
   /**
    * A function that is executed when users click the action item.
+   *
+   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   action?: (context?: any) => void;
   /**
    * One or several CSS classes that you want to apply to the outer `<div>` element.
+   *
    * In the markup, an action item is rendered as an `<input>` wrapped in a `<div>`. The `css` property applies classes to the `<div>`.
-   * To apply several classes, separate them with a space character: "myclass1 myclass2".
+   *
+   * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
+   *
+   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
    * @see innerCss
    */
   css?: string;
   /**
    * One or several CSS classes that you want to apply to the inner `<input>` element.
+   *
    * In the markup, an action item is rendered as an `<input>` wrapped in a `<div>`. The `innerCss` property applies classes to the `<input>`.
-   * To apply several classes, separate them with a space character: "myclass1 myclass2".
+   *
+   * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
+   *
+   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
    * @see css
    */
   innerCss?: string;
@@ -76,7 +92,8 @@ export interface IAction {
   needSeparator?: boolean; //TODO: temp
   /**
    * Specifies whether the action item is active.
-   * Use it as a flag to specify different action item appearances in different states.
+   *
+   * Use this property as a flag to specify different action item appearances in different states.
    * @see enabled
    * @see visible
    */
@@ -124,6 +141,11 @@ export interface IAction {
   disableShrink?: boolean;
   disableHide?: boolean;
   mode?: actionModeType;
+  /**
+   * A number that specifies the action's position relative to other actions.
+   *
+   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+   */
   visibleIndex?: number;
   needSpace?: boolean;
   ariaChecked?: boolean;

@@ -31,7 +31,7 @@ const subscribedQuestion = survey.getQuestionByName("subscribed");
 subscribedQuestion.value = true;
 ```
 
-Alternatively, you can call the Survey's [`setValue(questionName, newValue)`]() method:
+Alternatively, you can call the Survey's [`setValue(questionName, newValue)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#setValue) method:
 
 ```js
 import { Model } from "survey-core";

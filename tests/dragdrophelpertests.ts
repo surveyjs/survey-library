@@ -191,18 +191,21 @@ QUnit.test("LongTap", function (assert) {
     ],
   });
   let dndRanking: any = new DragDropRankingChoices(null);
-  let parentElement = survey.getQuestionByName("q");
-  dndRanking.parentElement = parentElement;
+  dndRanking.parentElement = survey.getQuestionByName("q");
 
   dndRanking.parentElement.registerPropertyChangedHandlers(["rankingChoices"], () => { count++; });
-  dndRanking.clear();
 
-  assert.equal(count, 2, "After first clear");
+  dndRanking.parentElement.dropTargetNodeMove = null;
+  dndRanking.parentElement.updateRankingChoices(true);
+
+  assert.equal(count, 2, "After update w/o longs tap");
   count = 0;
 
-  parentElement.longTap = true;
-  dndRanking.clear();
-  assert.equal(count, 0, "After cleared clear");
+  dndRanking.parentElement.longTap = true;
+  dndRanking.parentElement.dropTargetNodeMove = null;
+  dndRanking.parentElement.updateRankingChoices(true);
+
+  assert.equal(count, 2, "After update with longs tap");
 });
 
 QUnit.test("DragDrop shortcutCoordinates", function (assert) {

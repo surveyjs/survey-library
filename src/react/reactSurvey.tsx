@@ -314,6 +314,7 @@ export function attachKey2click(element: JSX.Element, viewModel?: any, options: 
   if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
     return React.cloneElement(element, { tabIndex: -1 });
   }
+  options = { ...options };
   return React.cloneElement(
     element,
     {

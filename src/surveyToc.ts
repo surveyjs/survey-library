@@ -1,4 +1,5 @@
 import { Action } from "./actions/action";
+import { ComputedUpdater } from "./base";
 import { ListModel } from "./list";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -26,7 +27,8 @@ export function createTOCListModel(survey: SurveyModel) {
           !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
         }
         return tryNavigateToPage(survey, index);
-      }
+      },
+      visible: <any>new ComputedUpdater(() => page.isVisible)
     });
   });
   var listModel = new ListModel(

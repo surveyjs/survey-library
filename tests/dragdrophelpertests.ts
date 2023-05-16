@@ -197,12 +197,12 @@ QUnit.test("LongTap", function (assert) {
   dndRanking.parentElement.registerPropertyChangedHandlers(["rankingChoices"], () => { count++; });
   dndRanking.clear();
 
-  assert.equal(count, 2);
+  assert.equal(count, 2, "After first clear");
   count = 0;
 
   parentElement.longTap = true;
   dndRanking.clear();
-  assert.equal(count, 2);
+  assert.equal(count, 0, "After cleared clear");
 });
 
 QUnit.test("DragDrop shortcutCoordinates", function (assert) {

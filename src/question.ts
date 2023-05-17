@@ -225,6 +225,9 @@ export class Question extends SurveyElement<Question>
       return null;
     }
   }
+  public get ariaExpanded(): string {
+    return null;
+  }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }

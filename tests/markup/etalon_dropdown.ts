@@ -331,7 +331,7 @@ registerMarkupTests(
       before: () => { Question["questionCounter"] = 100; },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
-        dropdown.popupModel.isVisible = true;
+        dropdown["popupModel"].isVisible = true;
       },
       snapshot: "dropdown-aria-expanded"
     }

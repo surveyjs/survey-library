@@ -330,7 +330,7 @@ function mergeValues(src: any, dest: any) {
   if (typeof dest !== "object") return;
   for (var key in src) {
     var value = src[key];
-    if (value && typeof value === "object") {
+    if (!Array.isArray(value) && value && typeof value === "object") {
       if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};
       mergeValues(value, dest[key]);
     } else {

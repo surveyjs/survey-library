@@ -9,7 +9,7 @@ import { AngularComponentFactory } from "../component-factory";
 })
 export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanelDynamicModel | any> implements OnInit {
   get renderedPanels(): PanelModel[] {
-    if (this.model.isRenderModeList) return this.model.panels;
+    if (this.model.isRenderModeList) return this.model.visiblePanels;
     const panels = [];
     if (this.model.currentPanel) {
       panels.push(this.model.currentPanel);

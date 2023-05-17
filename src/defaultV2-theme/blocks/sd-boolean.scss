@@ -11,9 +11,10 @@
 .sd-boolean__thumb,
 .sd-boolean__label {
   display: block;
-  color: $foreground-light;
-  font-family: var(--font-family, $font-family);
-  font-size: calcFontSize(1);
+  font-family: $font-editorfont-family;
+  font-weight: $font-editorfont-weight;
+  color: $font-editorfont-color;
+  font-size: $font-editorfont-size;
   line-height: calcSize(3);
   padding: calcSize(1) calcSize(3);
 }

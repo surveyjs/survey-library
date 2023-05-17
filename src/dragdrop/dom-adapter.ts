@@ -225,25 +225,10 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     };
     this.scrollIntervalId = requestAnimationFrame(repeat);
   }
-  private findDropTargetNodeFromPoint(clientX: number, clientY: number): HTMLElement {
-    this.draggedElementShortcut.hidden = true;
-    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    this.draggedElementShortcut.hidden = false;
-
-    if (!dragOverNode) return null;
-
-    return this.dd.findDropTargetNodeByDragOverNode(dragOverNode);
-  }
   private dragOver = (event: PointerEvent) => {
     this.moveShortcutElement(event);
     this.draggedElementShortcut.style.cursor = "grabbing";
-
-    const dropTargetNode = this.findDropTargetNodeFromPoint(
-      event.clientX,
-      event.clientY
-    );
-
-    this.dd.dragOver(dropTargetNode, event);
+    this.dd.dragOver(event);
   };
   private clear = () => {
     cancelAnimationFrame(this.scrollIntervalId);

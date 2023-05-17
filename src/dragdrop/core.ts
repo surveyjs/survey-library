@@ -50,51 +50,6 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     this.domAdapter.startDrag(event, draggedElement, parentElement, draggedElementNode, preventSaveTargetNode);
   }
 
-  protected calculateDragOverLocation(
-    clientX: number,
-    clientY: number,
-    dropTargetNode: HTMLElement
-  ): DragTypeOverMeEnum {
-    const rect = dropTargetNode.getBoundingClientRect();
-    const tg = rect.height / rect.width;
-    const dx = clientX - rect.x;
-    const dy = clientY - rect.y;
-
-    if(dy >= tg * dx) {
-      if(dy >= - tg * dx + rect.height) {
-        return DragTypeOverMeEnum.Bottom;
-      }
-      else {
-        return DragTypeOverMeEnum.Left;
-      }
-    }
-    else {
-      if(dy >= - tg * dx + rect.height) {
-        return DragTypeOverMeEnum.Right;
-      }
-      else {
-        return DragTypeOverMeEnum.Top;
-      }
-    }
-  }
-
-  protected removeDragOverMarker(dropTarget: { dragTypeOverMe: any }): void {
-    if (!!dropTarget) {
-      dropTarget.dragTypeOverMe = null;
-    }
-  }
-
-  protected dragOverLocation: DragTypeOverMeEnum;
-
-  protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
-    return (
-      this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
-    );
-  }
-
-  protected onStartDrag(): void {
-  }
-
   public dragInit(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement): void {
     this.draggedElement = draggedElement;
     this.parentElement = parentElement;
@@ -105,6 +60,15 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       event
     );
     this.onStartDrag();
+  }
+
+  protected onStartDrag(): void {
+  }
+
+  protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
+    return (
+      this.dropTarget === this.prevDropTarget && newIsBottom === this.isBottom
+    );
   }
 
   protected getShortcutText(draggedElement: IShortcutText): string {
@@ -126,9 +90,8 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     return "sv-dragged-element-shortcut";
   }
 
-  protected doDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
-  protected duringDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
-  protected afterDragOver(dropTargetNode?: HTMLElement, event?: PointerEvent): void { }
+  protected doDragOver(): void { }
+  protected afterDragOver(dropTargetNode: HTMLElement): void { }
 
   // public getGhostPosition(item: any): string {
   //   if (this.dropTarget !== item) return null;
@@ -150,6 +113,16 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   };
 
   protected doBanDropHere = (): void => { };
+
+  protected findDropTargetNodeFromPoint(clientX: number, clientY: number): HTMLElement {
+    this.domAdapter.draggedElementShortcut.hidden = true;
+    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+    this.domAdapter.draggedElementShortcut.hidden = false;
+
+    if (!dragOverNode) return null;
+
+    return this.findDropTargetNodeByDragOverNode(dragOverNode);
+  }
 
   protected getDataAttributeValueByNode(node: HTMLElement) {
     let datasetName = "svDropTarget";
@@ -194,25 +167,26 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     return rect.x + rect.width / 2;
   }
 
-  protected abstract calculateIsBottom(
-    clientY: number,
-    dropTargetNode?: HTMLElement
-  ): boolean;
+  protected calculateIsBottom(clientY: number, dropTargetNode?: HTMLElement): boolean {
+    return false;
+  }
 
-  public findDropTargetNodeByDragOverNode(
-    dragOverNode: HTMLElement
-  ): HTMLElement {
+  protected findDropTargetNodeByDragOverNode(dragOverNode: HTMLElement): HTMLElement {
     const dropTargetNode: HTMLElement = dragOverNode.closest(this.dropTargetDataAttributeName);
     return dropTargetNode;
   }
 
-  public dragOver(dropTargetNode: HTMLElement, event: PointerEvent) {
+  public dragOver(event: PointerEvent): void {
+    const dropTargetNode = this.findDropTargetNodeFromPoint(
+      event.clientX,
+      event.clientY
+    );
+
     if (!dropTargetNode) {
       this.banDropHere();
       return;
     }
 
-    this.removeDragOverMarker(this.dropTarget);
     this.dropTarget = this.getDropTargetByNode(dropTargetNode, event);
 
     const isDropTargetValid = this.isDropTargetValid(
@@ -220,7 +194,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       dropTargetNode
     );
 
-    this.doDragOver(dropTargetNode, event);
+    this.doDragOver();
 
     if (!isDropTargetValid) {
       this.banDropHere();
@@ -228,18 +202,15 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     }
 
     let isBottom = this.calculateIsBottom(event.clientY, dropTargetNode);
-    this.dragOverLocation = this.calculateDragOverLocation(event.clientX, event.clientY, dropTargetNode);
 
     this.allowDropHere = true;
-
-    this.duringDragOver(dropTargetNode, event);
 
     if (this.isDropTargetDoesntChanged(isBottom)) return;
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
 
-    this.afterDragOver(dropTargetNode, event);
+    this.afterDragOver(dropTargetNode);
     this.prevDropTarget = this.dropTarget;
   }
 

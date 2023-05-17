@@ -54,7 +54,7 @@ export class DragDropRankingChoices extends DragDropChoices {
 
   private isDragOverRootNode: boolean = false;
 
-  public findDropTargetNodeByDragOverNode(dragOverNode: HTMLElement): HTMLElement {
+  protected findDropTargetNodeByDragOverNode(dragOverNode: HTMLElement): HTMLElement {
     this.isDragOverRootNode = this.getIsDragOverRootNode(dragOverNode);
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }

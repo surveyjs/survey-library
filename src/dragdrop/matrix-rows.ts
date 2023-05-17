@@ -91,7 +91,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return dropTargetRenderedRow.row;
   }
 
-  protected isDropTargetValid(dropTarget: any): boolean {
+  protected isDropTargetValid(dropTarget: any, dropTargetNode?: HTMLElement): boolean {
     return true;
   }
 
@@ -156,9 +156,10 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return this.parentElement;
   };
 
-  protected doClear(): void {
+  public clear(): void {
     this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
+    super.clear();
   }
 }

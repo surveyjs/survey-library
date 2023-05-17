@@ -104,13 +104,33 @@ QUnit.test(
   "utils: keytoclick - skip UP if there was no DOWN",
   function (assert) {
     var clicked = false;
-    var event = { target: { keyCode: 13, click: () => { clicked = true; } } };
+    var event = {
+      keyCode: 13,
+      target: { click: () => { clicked = true; } },
+      preventDefault: () => { }
+    };
+
+    doKey2ClickUp(event as any);
+    assert.ok(clicked);
+    clicked = false;
+    doKey2ClickDown(event as any);
+    doKey2ClickUp(event as any);
+    assert.ok(clicked);
+    clicked = false;
+
+    doKey2ClickUp(event as any, undefined);
+    assert.ok(clicked);
+    clicked = false;
+    doKey2ClickDown(event as any, undefined);
+    doKey2ClickUp(event as any, undefined);
+    assert.ok(clicked);
+    clicked = false;
 
     var options = {};
-
     doKey2ClickUp(event as any, options);
     assert.notOk(clicked);
     doKey2ClickDown(event as any, options);
     doKey2ClickUp(event as any, options);
+    assert.ok(clicked);
   }
 );

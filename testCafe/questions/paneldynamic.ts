@@ -287,3 +287,49 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult.panel).eql([{ q1: "1" }, { q1: "2" }, { q1: "3" }, { q1: "4" }, { q1: "5" }]);
   });
 });
+
+const json3 = {
+  elements: [
+    {
+      type: "matrixdynamic",
+      name: "matrix",
+      valueName: "a",
+      columns: [
+        { cellType: "text", name: "col1" }
+      ]
+    },
+    {
+      type: "paneldynamic",
+      name: "panel",
+      valueName: "a",
+      templateElements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+      templateVisibleIf: "{panel.col1}='a'",
+      renderMode: "tab",
+      templateTabTitle: "#{visiblePanelIndex}-{panelIndex}"
+    },
+  ],
+};
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(
+    async (t) => {
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json3);
+    }
+  );
+
+  test("templateVisibleIf", async (t) => {
+    const addNewSelector = Selector("span").withText("Add new");
+    const textSelector = Selector("input[type='text']");
+    await t
+      .expect(Selector("span").withText("#1-2").visible).notOk()
+      .pressKey("b")
+      .pressKey("tab")
+      .pressKey("tab")
+      .pressKey("a")
+      .pressKey("tab")
+      .expect(Selector("span").withText("#1-2").visible).ok();
+  });
+});

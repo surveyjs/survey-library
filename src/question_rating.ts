@@ -761,6 +761,11 @@ export class QuestionRatingModel extends Question {
   protected getDesktopRenderAs(): string {
     return (this.displayMode == "dropdown") ? "dropdown" : "default";
   }
+  public get ariaExpanded(): string {
+    const popupModel = this.dropdownListModel?.popupModel;
+    if (!popupModel) return null;
+    return popupModel.isVisible ? "true" : "false";
+  }
   private dropdownListModelValue: DropdownListModel;
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;

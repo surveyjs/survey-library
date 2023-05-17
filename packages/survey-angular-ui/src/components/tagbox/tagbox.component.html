@@ -5,7 +5,7 @@
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
         [attr.aria-controls]="dropdownModel.listElementId"
-        [attr.aria-expanded]="model.ariaExpanded ? 'true' : 'false'"
+        [attr.aria-expanded]="model.ariaExpanded"
         [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant">
         <div [class]="model.cssClasses.controlValue">
             <ng-container *ngIf="!model.isEmpty()">

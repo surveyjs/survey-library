@@ -218,6 +218,7 @@ export function getSize(value: any) {
 export interface IAttachKey2clickOptions {
   processEsc?: boolean;
   disableTabStop?: boolean;
+  __keyDownReceived?: boolean;
 }
 
 const keyFocusedClassName = "sv-focused--by-key";
@@ -228,6 +229,10 @@ export function doKey2ClickBlur(evt: KeyboardEvent): void {
 }
 
 export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): void {
+  if (options) {
+    if (!options.__keyDownReceived) return;
+    options.__keyDownReceived = false;
+  }
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -246,6 +251,7 @@ export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOpti
 }
 
 export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
+  if (options) options.__keyDownReceived = true;
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -258,6 +264,7 @@ export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOpt
     evt.preventDefault();
   }
 }
+
 function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
   if (!element) return;
   if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };

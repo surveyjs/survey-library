@@ -50,6 +50,11 @@ export class PopupModel<T = any> extends Base {
   public onFooterActionsCreated: EventBase<Base> = this.addEvent<Base>();
   public onRecalculatePosition: EventBase<Base> = this.addEvent<Base>();
 
+  private refreshInnerModel(): void {
+    const innerModel = (this.contentComponentData as any)["model"];
+    innerModel && innerModel.refresh && innerModel.refresh();
+  }
+
   constructor(
     contentComponentName: string,
     contentComponentData: T,
@@ -87,9 +92,8 @@ export class PopupModel<T = any> extends Base {
     }
     this.setPropertyValue("isVisible", value);
     this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
+    this.refreshInnerModel();
     if (this.isVisible) {
-      const innerModel = (this.contentComponentData as any)["model"];
-      innerModel && innerModel.refresh && innerModel.refresh();
       this.onShow();
     } else {
       this.onHide();

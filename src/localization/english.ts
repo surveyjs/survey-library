@@ -52,7 +52,7 @@ export var englishStrings = {
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",
   noFileChosen: "No file chosen",
-  fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload.",
   confirmDelete: "Do you want to delete the record?",
   keyDuplicationError: "This value should be unique.",
   addColumn: "Add Column",

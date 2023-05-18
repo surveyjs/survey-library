@@ -28,7 +28,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
       <div
         id={this.question.inputId}
         className={this.question.getControlClass()}
-        tabIndex={ dropdownListModel.inputReadOnly ? undefined : 0}
+        tabIndex={dropdownListModel.inputReadOnly ? undefined : 0}
         onClick={this.click}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
@@ -41,7 +41,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}
         aria-describedby={this.question.ariaDescribedBy}
-        aria-expanded={this.question.ariaExpanded ? "true" : "false"}
+        aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
         aria-controls={dropdownListModel.listElementId}
         aria-activedescendant={dropdownListModel.ariaActivedescendant}
       >

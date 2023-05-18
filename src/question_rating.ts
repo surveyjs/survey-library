@@ -761,6 +761,11 @@ export class QuestionRatingModel extends Question {
   protected getDesktopRenderAs(): string {
     return (this.displayMode == "dropdown") ? "dropdown" : "default";
   }
+  public get ariaExpanded(): string {
+    const popupModel = this.dropdownListModel?.popupModel;
+    if (!popupModel) return null;
+    return popupModel.isVisible ? "true" : "false";
+  }
   private dropdownListModelValue: DropdownListModel;
   public set dropdownListModel(val: DropdownListModel) {
     this.dropdownListModelValue = val;
@@ -899,14 +904,18 @@ Serializer.addClass(
       serializationProperty: "locMaxRateDescription",
       visibleIndex: 18
     },
-    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false, visibleIndex: 19 },
+    {
+      name: "displayRateDescriptionsAsExtremeItems:boolean",
+      default: false,
+      visibleIndex: 19,
+      visibleIf: function (obj: any) {
+        return obj.rateType == "labels";
+      }
+    },
     {
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
-      visibleIf: function (obj: any) {
-        return obj.rateType == "labels";
-      },
       visibleIndex: 20
     }
   ],

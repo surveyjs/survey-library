@@ -14,7 +14,10 @@
     .sd-panel__title {
       @include page_title();
       span {
+        font-family: inherit;
         font-size: inherit;
+        font-weight: inherit;
+        color: inherit;
         line-height: inherit;
       }
     }

@@ -111,6 +111,10 @@ export class QuestionTextBase extends Question {
     super.setNewValue(newValue);
     this.updateRemainingCharacterCounter(newValue);
   }
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    super.setQuestionValue(newValue, updateIsAnswered);
+    this.updateRemainingCharacterCounter(newValue);
+  }
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)

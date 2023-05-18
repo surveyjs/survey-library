@@ -13,8 +13,8 @@
   display: block;
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
-  color: $font-editorfont-color;
   font-size: $font-editorfont-size;
+  color: $foreground-light;
   line-height: calcSize(3);
   padding: calcSize(1) calcSize(3);
 }

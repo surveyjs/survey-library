@@ -1,4 +1,4 @@
-import { Base } from "survey-core";
+import { Base, Question } from "survey-core";
 import {
   ref,
   defineComponent,
@@ -52,4 +52,39 @@ export function defineSurveyComponent(componentDefinition: ComponentOptions) {
     }
   };
   return defineComponent(componentDefinition);
+}
+
+export function defineQuestionComponent(componentDefinition: ComponentOptions) {
+  componentDefinition.data = (vm: any) => {
+    return {
+      getModel: () => {
+        return vm.question;
+      },
+    };
+  };
+  const mounted = componentDefinition.mounted;
+  componentDefinition.mounted = function () {
+    if (this.question) {
+      this.question.afterRenderQuestionElement(this.$el);
+    }
+    if (mounted) mounted.call(this);
+  };
+  const beforeUnmount = componentDefinition.beforeUnmount;
+  componentDefinition.beforeUnmount = function () {
+    if (this.question) {
+      this.question.beforeDestroyQuestionElement(this.$el);
+    }
+    if (beforeUnmount) beforeUnmount.call(this);
+  };
+  return defineSurveyComponent(componentDefinition);
+}
+
+export function getComponentName(question: Question): string {
+  if (question.customWidget) return "survey-customwidget";
+  if (
+    (question.isDefaultRendering && question.isDefaultRendering()) ||
+    question.isPanel
+  )
+    return "survey-" + question.getTemplate();
+  return question.getComponentName();
 }

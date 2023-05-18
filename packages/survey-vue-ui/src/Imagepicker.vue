@@ -37,22 +37,12 @@ export default defineSurveyComponent({
   data: (vm: any) => {
     return {
       getModel: () => { return vm.question; },
-      getItemClass(item: any) {
-        return vm.question.getItemClass(item);
-      }
-    }
+    };
   },
-  mounted() {
-    if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el as HTMLElement);
-    }
+  methods: {
+    getItemClass(item: any) {
+      return this.question.getItemClass(item);
+    },
   },
-  unmounted() {
-    if (this.question) {
-      this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
-    }
-  }
 });
-
 </script>
-

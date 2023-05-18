@@ -11,30 +11,15 @@
 
 <script lang="ts">
 import { QuestionTextModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
+import { defineQuestionComponent } from "./base";
 
-export default defineSurveyComponent({
+export default defineQuestionComponent({
   // eslint-disable-next-line
   name: "survey-text",
   props: {
     question: QuestionTextModel,
     css: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.question; }
-    }
-  },
-  mounted() {
-    if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el as HTMLElement);
-    }
-  },
-  unmounted() {
-    if (this.question) {
-      this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
-    }
-  }
 });
 
 </script>

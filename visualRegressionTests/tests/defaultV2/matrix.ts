@@ -344,4 +344,36 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix with boolean column", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "elements": [
+          {
+            "type": "matrixdropdown",
+            "name": "question1",
+            "columns": [
+              {
+                "name": "Column 1"
+              },
+              {
+                "name": "Column 3",
+                "title": "Column 2",
+                "cellType": "boolean"
+              }
+            ],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "1000"
+      });
+      const questionRoot = Selector(".sd-table");
+      await takeElementScreenshot("question-matrix-with-boolean-column.png", questionRoot, t, comparer);
+    });
+  });
+
 });

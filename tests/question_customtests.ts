@@ -2095,3 +2095,55 @@ QUnit.test("Composite: Change css rules for content questions", function (assert
   assert.equal(q.contentPanel.questions[1].cssClasses.root, "css_question2", "Set the css correctly, #2");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with expression", function (assert) {
+  const json = {
+    name: "elementsettings",
+    elementsJSON: [
+      {
+        name: "corner",
+        type: "text",
+        inputType: "number",
+        defaultValue: 0
+      },
+      {
+        type: "expression",
+        name: "cornerRadius",
+        expression: "{composite.corner}+'px'",
+        visible: false
+      }
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "elementsettings", name: "q1" }] });
+  let _data = {};
+  let onValueChangedCounter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    onValueChangedCounter++;
+    _data = {};
+    if (options.question?.getType() === "elementsettings") {
+      Object.keys(options.value).forEach(key => {
+        if (key === "corner") return;
+        _data[`${options.name.toLocaleLowerCase()}-${key}`] = options.value[key];
+      });
+    }
+  });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+
+  assert.equal(_data["q1-corner"], undefined);
+  assert.equal(_data["q1-cornerRadius"], undefined);
+  assert.equal(onValueChangedCounter, 0);
+
+  q.value = { corner: 4 };
+  assert.equal(_data["q1-corner"], undefined);
+  assert.equal(_data["q1-cornerRadius"], "4px");
+  assert.deepEqual(q.value, { corner: 4, cornerRadius: "4px" });
+  assert.equal(onValueChangedCounter, 1);
+
+  q.contentPanel.getQuestionByName("corner").value = 5;
+  assert.deepEqual(q.value, { corner: 5, cornerRadius: "5px" });
+  assert.equal(_data["q1-corner"], undefined);
+  assert.equal(_data["q1-cornerRadius"], "5px");
+  assert.equal(onValueChangedCounter, 2);
+
+  ComponentCollection.Instance.clear();
+});

@@ -2181,8 +2181,14 @@ export class QuestionPanelDynamicModel extends Question
     this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
     this.updateTabToolbarItemsPressedState();
   }
-  private get showLegacyNavigation() {
+  get showLegacyNavigation(): boolean {
     return !this.isDefaultV2Theme;
+  }
+  get showNavigation(): boolean {
+    return this.visiblePanelCount > 0 && !this.showLegacyNavigation && !!this.cssClasses.footer;
+  }
+  showSeparator(index: number): boolean {
+    return this.isRenderModeList && index < this.visiblePanelCount - 1;
   }
 }
 

@@ -904,14 +904,18 @@ Serializer.addClass(
       serializationProperty: "locMaxRateDescription",
       visibleIndex: 18
     },
-    { name: "displayRateDescriptionsAsExtremeItems:boolean", default: false, visibleIndex: 19 },
+    {
+      name: "displayRateDescriptionsAsExtremeItems:boolean",
+      default: false,
+      visibleIndex: 19,
+      visibleIf: function (obj: any) {
+        return obj.rateType == "labels";
+      }
+    },
     {
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
-      visibleIf: function (obj: any) {
-        return obj.rateType == "labels";
-      },
       visibleIndex: 20
     }
   ],

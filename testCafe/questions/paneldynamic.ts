@@ -320,7 +320,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test.only("templateVisibleIf", async (t) => {
+  test("templateVisibleIf", async (t) => {
     const addNewSelector = Selector("span").withText("Add new");
     await t
       .expect(addNewSelector.count).eql(1)

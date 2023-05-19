@@ -11,9 +11,6 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     return !!this._isBottom;
   }
   public set isBottom(val: boolean) {
-    if(this._isBottom === val) {
-      return;
-    }
     this._isBottom = val;
     this.ghostPositionChanged();
   }

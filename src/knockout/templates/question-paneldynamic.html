@@ -22,7 +22,7 @@
           <!-- /ko -->
           
         </div>
-        <!-- ko if: $index() < question.panelCount - 1 -->
+        <!-- ko if: question.showSeparator($index()) -->
         <hr data-bind="css: question.koCss().separator"/>
         <!-- /ko -->
       <!-- /ko -->
@@ -62,7 +62,7 @@
       </div>
       <!-- /ko -->
     <!-- /ko -->
-    <!-- ko if: !question.showLegacyNavigation && !!question.panelCount != 0 -->
+    <!-- ko if: question.showNavigation -->
     <div data-bind="css: question.koCss().footer">
       <hr data-bind="css: question.koCss().separator"/>
       <!-- ko if: question.koIsRange() && question.koIsProgressBottom -->

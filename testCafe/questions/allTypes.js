@@ -164,21 +164,21 @@ var json = {
 
       await t.typeText(
         Selector("span").withText("text_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("input"),
         "test text"
       );
 
       await t.click(
         Selector("span").withText("checkbox_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("span")
           .withText("item1")
       );
 
       await t.click(
         Selector("span").withText("radiogroup_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("span")
           .withText("item1")
       );
@@ -189,21 +189,21 @@ var json = {
 
       await t.typeText(
         Selector("span").withText("comment_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("textarea"),
         "test comment"
       );
 
       await t.click(
         Selector("span").withText("rating_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("span")
           .withText("3")
       );
 
       await t.click(
         Selector("span").withText("imagepicker_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("img")
           .withAttribute("alt", "item1")
           .parent()
@@ -211,7 +211,7 @@ var json = {
 
       await t.click(
         Selector("span").withText("boolean_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("span")
           .withText("Yes")
       );
@@ -222,21 +222,21 @@ var json = {
 
       await t.click(
         Selector("span").withText("signature_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("button")
           .withAttribute("title", "Clear")
       );
 
       await t.hover(
         Selector("span").withText("expression_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("div")
           .withText("1")
       );
 
       await t.click(
         Selector("span").withText("file_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("button")
           .withText("Clear")
           .filterVisible()
@@ -244,7 +244,7 @@ var json = {
 
       await t.click(
         Selector("span").withText("matrix_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("tr")
           .withText("Row 1")
           .find("input[type='radio']")
@@ -252,7 +252,7 @@ var json = {
       );
 
       const matrixDropdownRow = Selector("span").withText("matrixdropdown_question")
-        .parent("[aria-labelledby]")
+        .parent("[data-name]")
         .find("tr").withText("Row 1");
       await t
         .click(matrixDropdownRow.find("div[aria-label='Column 1']"))
@@ -260,14 +260,14 @@ var json = {
 
       await t.click(
         Selector("span").withText("matrixdynamic_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("span")
           .withText("Remove")
       );
 
       await t.typeText(
         Selector("span").withText("multipletext_question")
-          .parent("[aria-labelledby]")
+          .parent("[data-name]")
           .find("input"),
         "test multiple text"
       );
@@ -277,12 +277,12 @@ var json = {
       await t.click(getDynamicPanelRemoveButton("paneldynamic", "Remove"));
 
       // const rankItem1 = Selector("span").withText('ranking_question')
-      //   .parent("[aria-labelledby]")
+      //   .parent("[data-name]")
       //   .find("div")W
       //   .withText("item1");
 
       // const rankItem2 = Selector("span").withText('ranking_question')
-      //   .parent("[aria-labelledby]")
+      //   .parent("[data-name]")
       //   .find("div")
       //   .withText("item2");
       // await t.dragToElement(rankItem1, rankItem2, { destinationOffsetY: -1, speed: 0.1 });

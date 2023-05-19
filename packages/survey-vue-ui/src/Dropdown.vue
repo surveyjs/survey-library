@@ -7,10 +7,12 @@
 
 <script lang="ts">
 import { QuestionDropdownModel } from "survey-core";
-import { defineQuestionComponent } from "./base";
+import { QuestionVue } from "./base";
+import { defineComponent } from "vue";
 
-export default defineQuestionComponent({
+export default defineComponent({
   // eslint-disable-next-line
+  mixins: [QuestionVue],
   name: "survey-dropdown",
   props: {
     question: QuestionDropdownModel,

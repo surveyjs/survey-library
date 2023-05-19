@@ -36,9 +36,11 @@
 
 <script lang="ts">
 import { QuestionSignaturePadModel } from "survey-core";
-import { defineQuestionComponent } from "./base";
+import { QuestionVue } from "./base";
+import { defineComponent } from "vue";
 
-export default defineQuestionComponent({
+export default defineComponent({
+  mixins: [QuestionVue],
   // eslint-disable-next-line
   name: "survey-signaturepad",
   props: {

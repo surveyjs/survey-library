@@ -70,10 +70,12 @@
 
 <script lang="ts">
 import { QuestionCheckboxModel } from "survey-core";
-import { defineQuestionComponent } from "./base";
+import { QuestionVue } from "./base";
+import { defineComponent } from "vue";
 
-export default defineQuestionComponent({
+export default defineComponent({
   // eslint-disable-next-line
+  mixins: [QuestionVue],
   name: "survey-checkbox",
   props: {
     question: QuestionCheckboxModel,

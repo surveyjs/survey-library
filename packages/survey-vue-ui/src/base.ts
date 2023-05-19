@@ -41,6 +41,34 @@ function makeReactive(surveyElement: Base) {
 }
 // by convention, composable function names start with "use"
 
+export const BaseVue: ComponentOptions = {
+  mounted: function () {
+    if (this.getModel == "function") {
+      makeReactive(this.getModel());
+    }
+  },
+};
+export const QuestionVue: ComponentOptions = {
+  mixins: [BaseVue],
+  data(vm: any) {
+    return {
+      getModel: () => {
+        return vm.question;
+      },
+    };
+  },
+  mounted() {
+    if (this.question) {
+      this.question.afterRenderQuestionElement(this.$el);
+    }
+  },
+  beforeUnmount() {
+    if (this.question) {
+      this.question.beforeDestroyQuestionElement(this.$el);
+    }
+  },
+};
+
 export function defineSurveyComponent(componentDefinition: ComponentOptions) {
   const mounted = componentDefinition.mounted;
   componentDefinition.mounted = function () {
@@ -52,31 +80,6 @@ export function defineSurveyComponent(componentDefinition: ComponentOptions) {
     }
   };
   return defineComponent(componentDefinition);
-}
-
-export function defineQuestionComponent(componentDefinition: ComponentOptions) {
-  componentDefinition.data = (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.question;
-      },
-    };
-  };
-  const mounted = componentDefinition.mounted;
-  componentDefinition.mounted = function () {
-    if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el);
-    }
-    if (mounted) mounted.call(this);
-  };
-  const beforeUnmount = componentDefinition.beforeUnmount;
-  componentDefinition.beforeUnmount = function () {
-    if (this.question) {
-      this.question.beforeDestroyQuestionElement(this.$el);
-    }
-    if (beforeUnmount) beforeUnmount.call(this);
-  };
-  return defineSurveyComponent(componentDefinition);
 }
 
 export function getComponentName(question: Question): string {

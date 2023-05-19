@@ -24,6 +24,8 @@ import File from "./File.vue";
 import ImagePicker from "./Imagepicker.vue";
 import ImagePickerItem from "./ImagepickerItem.vue";
 import Comment from "./Comment.vue";
+import Dropdown from "./Dropdown.vue";
+import DropdownInput from "./components/dropdown/Dropdown.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -79,6 +81,8 @@ app.component("survey-file", File);
 app.component("survey-imagepicker", ImagePicker);
 app.component("survey-imagepicker-item", ImagePickerItem);
 app.component("survey-comment", Comment);
+app.component("survey-dropdown", Dropdown);
+app.component("sv-dropdown", DropdownInput);
 
 app.component("sv-components-container", Container);
 app.component("sv-progress-pages", Progress);

@@ -134,3 +134,24 @@ QUnit.test(
     assert.ok(clicked);
   }
 );
+
+QUnit.test(
+  "utils: keytoclick - support tab keyup",
+  function (assert) {
+    var classAdded = "";
+    var event = {
+      keyCode: 9,
+      target: {
+        classList: {
+          contains: () => false,
+          add: (cl) => classAdded = cl
+        }
+      },
+      preventDefault: () => { }
+    };
+
+    var options = {};
+    doKey2ClickUp(event as any, options);
+    assert.equal(classAdded, "sv-focused--by-key");
+  }
+);

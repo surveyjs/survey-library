@@ -229,10 +229,6 @@ export function doKey2ClickBlur(evt: KeyboardEvent): void {
 }
 
 export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOptions): void {
-  if (options) {
-    if (!options.__keyDownReceived) return;
-    options.__keyDownReceived = false;
-  }
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -243,7 +239,15 @@ export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOpti
     if (!!element.classList && !element.classList.contains(keyFocusedClassName)) {
       element.classList.add(keyFocusedClassName);
     }
-  } else if (char === 13 || char === 32) {
+    return;
+  }
+
+  if (options) {
+    if (!options.__keyDownReceived) return;
+    options.__keyDownReceived = false;
+  }
+
+  if (char === 13 || char === 32) {
     if (element.click) element.click();
   } else if ((!options || options.processEsc) && char === 27) {
     if (element.blur) element.blur();

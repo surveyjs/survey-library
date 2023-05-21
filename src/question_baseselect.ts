@@ -1723,7 +1723,7 @@ Serializer.addClass(
     },
     {
       name: "choicesByUrl:restfull",
-      className: "ChoicesRestful",
+      className: "choicesByUrl",
       onGetValue: function (obj: any) {
         return obj.choicesByUrl.getData();
       },

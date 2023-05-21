@@ -447,10 +447,17 @@ export class JsonObjectProperty implements IObject {
     return !!this.dependedProperties ? this.dependedProperties : [];
   }
   public schemaType(): string {
+    if(this.className === "choicesByUrl") return undefined;
+    if(this.className === "string") return this.className;
     if (!!this.className) return "array";
     if (!!this.baseClassName) return "array";
+    if (this.type == "switch") return "boolean";
     if (this.type == "boolean" || this.type == "number") return this.type;
     return "string";
+  }
+  public schemaRef(): string {
+    if (!!this.className) return this.className;
+    return undefined;
   }
   private mergeValue(prop: JsonObjectProperty, valueName: string) {
     if (this[valueName] == null && prop[valueName] != null) {
@@ -1244,36 +1251,53 @@ export class JsonMetadata {
       title: "SurveyJS Library json schema",
       type: "object",
       properties: {},
-      definitions: {},
+      definitions: { locstring: this.generateLocStrClass() },
     };
-    this.generateSchemaProperties(classInfo, res.properties, res.definitions);
+    this.generateSchemaProperties(classInfo, res.properties, res.definitions, true);
     return res;
   }
-  private generateSchemaProperties(
-    classInfo: JsonMetadataClass,
-    schemaProperties: any,
-    schemaDef: any
-  ): void {
+  private generateLocStrClass(): any {
+    return {
+      $id: "locstring"
+    };
+  }
+  private generateSchemaProperties(classInfo: JsonMetadataClass, schemaProperties: any, schemaDef: any, isRoot: boolean): void {
     if (!classInfo) return;
     for (var i = 0; i < classInfo.properties.length; i++) {
       var prop = classInfo.properties[i];
-      schemaProperties[prop.name] = this.generateSchemaProperty(
-        prop,
-        schemaDef
-      );
+      schemaProperties[prop.name] = this.generateSchemaProperty(prop, schemaDef, isRoot);
     }
   }
-  private generateSchemaProperty(
-    prop: JsonObjectProperty,
-    schemaDef: any
-  ): any {
-    var res: any = { type: prop.schemaType() };
-    if (prop.hasChoices) {
-      res.enum = prop.getChoices(null);
+  private generateSchemaProperty(prop: JsonObjectProperty, schemaDef: any, isRoot: boolean): any {
+    if(prop.isLocalizable) {
+      return { oneOf: [
+        { "type": "string" },
+        { "$ref": this.getChemeRefName("locstring", isRoot) }
+      ] };
     }
-    if (!!prop.className) {
-      res.items = { $ref: "#" + prop.className };
-      this.generateChemaClass(prop.className, schemaDef);
+    const propType = prop.schemaType();
+    const refType = prop.schemaRef();
+    var res: any = { };
+    if(!!propType) {
+      res.type = propType;
+    }
+    if (prop.hasChoices) {
+      const enumRes = prop.getChoices(null);
+      if(Array.isArray(enumRes) && enumRes.length > 0) {
+        res.enum = enumRes;
+      }
+    }
+    if(!!refType) {
+      if(propType === "array") {
+        if(prop.className === "string") {
+          res.items = { type: prop.className };
+        } else {
+          res.items = { $ref: this.getChemeRefName(prop.className, isRoot) };
+        }
+      } else {
+        res["$ref"] = this.getChemeRefName(refType, isRoot);
+      }
+      this.generateChemaClass(prop.className, schemaDef, false);
     }
     if (!!prop.baseClassName) {
       var usedClasses = this.getChildrenClasses(prop.baseClassName, true);
@@ -1283,68 +1307,36 @@ export class JsonMetadata {
       res.items = [];
       for (var i = 0; i < usedClasses.length; i++) {
         var className = usedClasses[i].name;
-        res.items.push({ $ref: "#" + className });
-        this.generateChemaClass(className, schemaDef);
+        res.items.push({ $ref: this.getChemeRefName(className, isRoot) });
+        this.generateChemaClass(className, schemaDef, false);
       }
     }
     return res;
   }
-  private generateChemaClass(className: string, schemaDef: any) {
+  private getChemeRefName(className: string, isRoot: boolean): string {
+    return isRoot ? "#/definitions/" + className : className + "#";
+  }
+  private generateChemaClass(className: string, schemaDef: any, isRoot: boolean) {
     if (!!schemaDef[className]) return;
     var classInfo = this.findClass(className);
     if (!classInfo) return;
     var hasParent = !!classInfo.parentName && classInfo.parentName != "base";
     if (hasParent) {
-      this.generateChemaClass(classInfo.parentName, schemaDef);
+      this.generateChemaClass(classInfo.parentName, schemaDef, isRoot);
     }
-    var res: any = { type: "object", $id: "#" + className };
+    const id = isRoot ? className : "#" + className;
+    const res: any = { type: "object", $id: id };
     schemaDef[className] = res;
     var props = {};
-    this.generateSchemaProperties(classInfo, props, schemaDef);
+    this.generateSchemaProperties(classInfo, props, schemaDef, isRoot);
     if (hasParent) {
       res.allOf = [
-        { $ref: "#" + classInfo.parentName },
+        { $ref: this.getChemeRefName(classInfo.parentName, isRoot) },
         { properties: props },
       ];
     } else {
       res.properties = props;
     }
-  }
-  private fillProperties(
-    name: string,
-    list: Array<JsonObjectProperty>,
-    hash: HashTable<JsonObjectProperty>
-  ) {
-    var metaDataClass = this.findClass(name);
-    if (!metaDataClass) return;
-    if (metaDataClass.parentName) {
-      this.fillProperties(metaDataClass.parentName, list, hash);
-    }
-    for (var i = 0; i < metaDataClass.properties.length; i++) {
-      var prop = metaDataClass.properties[i];
-      this.addPropertyCore(prop, list, hash);
-      hash[prop.name] = prop;
-      if (prop.alternativeName) hash[prop.alternativeName] = prop;
-    }
-  }
-  private addPropertyCore(
-    property: JsonObjectProperty,
-    list: Array<JsonObjectProperty>,
-    hash: HashTable<JsonObjectProperty>
-  ) {
-    if (!hash[property.name]) {
-      list.push(property);
-      return;
-    }
-    var index = -1;
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].name == property.name || list[i].alternativeName == property.name) {
-        index = i;
-        break;
-      }
-    }
-    property.mergeWith(list[index]);
-    list[index] = property;
   }
 }
 export class JsonError {

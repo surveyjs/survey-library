@@ -177,8 +177,14 @@ QUnit.test("generate survey schema", function (assert) {
   assert.ok(schema.definitions.question.properties.visible, "question visible is here");
   assert.equal(schema.definitions.question.properties.visible.type, "boolean", "question visible type is boolean");
   assert.equal(schema.definitions.question.$id, "#question", "question id is correct");
-
-  assert.deepEqual(schema.definitions.locstring, {
-    $id: "locstring"
-  }, "locstring class");
+  const locString = schema.definitions.locstring;
+  assert.equal(locString.type, "object", "locString type");
+  assert.equal(locString.$id, "#locstring", "locString $id");
+  const lostStringProp = locString.properties;
+  assert.ok(lostStringProp.default, "locale default is here");
+  assert.ok(lostStringProp.en, "locale en is here");
+  assert.ok(lostStringProp.fr, "locale fr is here");
+  assert.equal(lostStringProp.default.type, "string", "has default in locString properties");
+  assert.equal(lostStringProp.en.type, "string", "has en in locString properties");
+  assert.equal(lostStringProp.fr.type, "string", "has fr in locString properties");
 });

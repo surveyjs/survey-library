@@ -1257,8 +1257,22 @@ export class JsonMetadata {
     return res;
   }
   private generateLocStrClass(): any {
+    const props: any = {};
+    const locProp = Serializer.findProperty("survey", "locale");
+    if(!!locProp) {
+      const choices = locProp.getChoices(null);
+      if(Array.isArray(choices)) {
+        if(choices.indexOf("en") < 0) {
+          choices.splice(0, 0, "en");
+        }
+        choices.splice(0, 0, "default");
+        choices.forEach(l => { if(!!l) { props[l] = { type: "string" }; } });
+      }
+    }
     return {
-      $id: "locstring"
+      $id: "#locstring",
+      type: "object",
+      properties: props
     };
   }
   private generateSchemaProperties(classInfo: JsonMetadataClass, schemaProperties: any, schemaDef: any, isRoot: boolean): void {

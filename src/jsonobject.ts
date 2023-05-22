@@ -1277,8 +1277,9 @@ export class JsonMetadata {
   }
   private generateSchemaProperties(classInfo: JsonMetadataClass, schemaProperties: any, schemaDef: any, isRoot: boolean): void {
     if (!classInfo) return;
-    for (var i = 0; i < classInfo.properties.length; i++) {
-      var prop = classInfo.properties[i];
+    for (let i = 0; i < classInfo.properties.length; i++) {
+      const prop = classInfo.properties[i];
+      if(!!classInfo.parentName && !!Serializer.findProperty(classInfo.parentName, prop.name)) continue;
       schemaProperties[prop.name] = this.generateSchemaProperty(prop, schemaDef, isRoot);
     }
   }

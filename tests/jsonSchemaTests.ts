@@ -159,7 +159,8 @@ QUnit.test("generate survey schema", function (assert) {
   assert.ok(propChoices, "selectbase class and it's choices is here");
   assert.equal(propChoices.type, "array", "choices is array");
   assert.equal(propChoices.items.$ref, "itemvalue#", "item is  itemvalue");
-  assert.notOk(selectBaseProps.name, "This property should be in question");
+  assert.notOk(selectBaseProps.name, "The property name should be in question");
+  assert.notOk(selectBaseProps.showCommentArea, "The property showCommentArea should be in question");
 
   assert.deepEqual(
     schema.definitions.itemvalue.properties.text,

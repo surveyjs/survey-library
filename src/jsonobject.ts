@@ -1253,7 +1253,7 @@ export class JsonMetadata {
       properties: {},
       definitions: { locstring: this.generateLocStrClass() },
     };
-    this.generateSchemaProperties(classInfo, res.properties, res.definitions, true);
+    this.generateSchemaProperties(classInfo, res, res.definitions, true);
     return res;
   }
   private generateLocStrClass(): any {
@@ -1275,12 +1275,22 @@ export class JsonMetadata {
       properties: props
     };
   }
-  private generateSchemaProperties(classInfo: JsonMetadataClass, schemaProperties: any, schemaDef: any, isRoot: boolean): void {
+  private generateSchemaProperties(classInfo: JsonMetadataClass, classSchema: any, schemaDef: any, isRoot: boolean): void {
     if (!classInfo) return;
+    const schemaProperties = classSchema.properties;
+    const requiredProps = [];
+    if(classInfo.name === "question" || classInfo.name === "panel") {
+      schemaProperties.type = { type: "string" };
+      requiredProps.push("type");
+    }
     for (let i = 0; i < classInfo.properties.length; i++) {
       const prop = classInfo.properties[i];
       if(!!classInfo.parentName && !!Serializer.findProperty(classInfo.parentName, prop.name)) continue;
       schemaProperties[prop.name] = this.generateSchemaProperty(prop, schemaDef, isRoot);
+      if(prop.isRequired) requiredProps.push(prop.name);
+    }
+    if(requiredProps.length > 0) {
+      classSchema.required = requiredProps;
     }
   }
   private generateSchemaProperty(prop: JsonObjectProperty, schemaDef: any, isRoot: boolean): any {
@@ -1342,15 +1352,18 @@ export class JsonMetadata {
     const id = isRoot ? className : "#" + className;
     const res: any = { type: "object", $id: id };
     schemaDef[className] = res;
-    var props = {};
-    this.generateSchemaProperties(classInfo, props, schemaDef, isRoot);
+    const chemaProps: any = { properties: {} };
+    this.generateSchemaProperties(classInfo, chemaProps, schemaDef, isRoot);
     if (hasParent) {
       res.allOf = [
         { $ref: this.getChemeRefName(classInfo.parentName, isRoot) },
-        { properties: props },
+        { properties: chemaProps.properties },
       ];
     } else {
-      res.properties = props;
+      res.properties = chemaProps.properties;
+    }
+    if(Array.isArray(chemaProps.required)) {
+      res.required = chemaProps.required;
     }
   }
 }

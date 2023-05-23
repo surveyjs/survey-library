@@ -13,11 +13,10 @@
 .sd-image__no-image {
   background: $background-dim-light;
   min-width: calcSize(5);
-  min-height: calcSize(5);
+  min-height: calcSize(27.5);
   width: 100%;
   height: 100%;
-  position: absolute;
-  inset-block-start: 0;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;

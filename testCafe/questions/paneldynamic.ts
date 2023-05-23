@@ -322,14 +322,16 @@ frameworks.forEach((framework) => {
 
   test("templateVisibleIf", async (t) => {
     const addNewSelector = Selector("span").withText("Add new");
-    const textSelector = Selector("input[type='text']");
     await t
+      .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).notOk()
       .pressKey("b")
       .pressKey("tab")
+      .expect(addNewSelector.count).eql(1)
       .pressKey("tab")
       .pressKey("a")
       .pressKey("tab")
+      .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).ok();
   });
 });

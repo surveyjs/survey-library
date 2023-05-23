@@ -1,5 +1,5 @@
 import Vue from "vue";
-import { Base, IAttachKey2clickOptions, doKey2ClickUp } from "survey-core";
+import { Base, IAttachKey2clickOptions, doKey2ClickBlur, doKey2ClickDown, doKey2ClickUp } from "survey-core";
 import { Component } from "vue-property-decorator";
 
 @Component
@@ -64,10 +64,25 @@ export class BaseVue extends Vue {
   }
 }
 
-export function attachKey2click(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
-  evt.preventDefault();
-  evt.stopPropagation();
-  doKey2ClickUp(evt, options);
-}
+Vue.directive("key2click", {
+  // When the bound element is inserted into the DOM...
+  inserted: function (el, binding) {
+    const options: IAttachKey2clickOptions = { ...binding.value } || { processEsc: true };
+    if(!options.disableTabStop) el.tabIndex = 0;
+    el.addEventListener("keyup", (evt: any) => {
+      evt.preventDefault();
+      evt.stopPropagation();
+      doKey2ClickUp(evt, options);
+      return false;
+    });
+    el.addEventListener("keydown", (evt: any) => {
+      doKey2ClickDown(evt, options);
+    }
+    );
+    el.addEventListener("blur", (evt: any) => {
+      doKey2ClickBlur(evt);
+    });
+  }
+});
 
 export default BaseVue;

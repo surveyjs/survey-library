@@ -164,10 +164,7 @@ export class SurveyQuestionPanelDynamic extends SurveyQuestionElementBase {
     });
   }
   protected renderNavigatorV2(): JSX.Element | null {
-    if (this.question.panelCount === 0 || this.question["showLegacyNavigation"]) return null;
-    if (!this.question.cssClasses.footer) {
-      return null;
-    }
+    if (!this.question.showNavigation) return null;
     const range: JSX.Element | null = this.question.isRangeShowing && this.question.isProgressBottomShowing ? this.renderRange() : null;
     return (<div className={this.question.cssClasses.footer}>
       <hr className={this.question.cssClasses.separator} />
@@ -207,7 +204,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
   public render() {
     const panel = super.render();
     const removeButton = this.renderButton();
-    const separator: JSX.Element | null = this.question.isRenderModeList && this.index < this.question.panelCount - 1 ?
+    const separator: JSX.Element | null = this.question.showSeparator(this.index) ?
       (<hr className={this.question.cssClasses.separator} />) : null;
     return (
       <>

@@ -112,7 +112,8 @@ export {
 export { QuestionMatrixBaseModel } from "../../martixBase";
 export {
   MultipleTextItemModel,
-  QuestionMultipleTextModel
+  QuestionMultipleTextModel,
+  MultipleTextEditorModel
 } from "../../question_multipletext";
 export { PanelModel, PanelModelBase, QuestionRowModel } from "../../panel";
 export { FlowPanelModel } from "../../flowpanel";

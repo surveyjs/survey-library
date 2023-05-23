@@ -20,7 +20,7 @@
   <input
   data-bind="disable: question.isInputReadOnly, 
     style: question.inputStyle, 
-    attr: { type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, autocomplete: question.autocomplete, list:question.dataListId }, 
+    attr: { type: question.inputType, size: question.renderedInputSize, id: question.inputId, placeholder: question.renderedPlaceholder, maxLength: question.getMaxLength(), min: question.renderedMin, max: question.renderedMax, step: question.renderedStep, 'aria-required': question.a11y_input_ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-label': question.a11y_input_ariaLabel, 'aria-labelledby': question.a11y_input_ariaLabelledBy, 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, autocomplete: question.autocomplete, list:question.dataListId }, 
     event: { keydown: koOnKeyDown, keyup: koOnKeyUp, change: koOnChange, compositionupdate: koOnCompositeUpdate, blur: koOnBlur, focus: koOnFocus },
     value: question.koReadOnlyValue,
     css: question.getControlClass()"/>

@@ -22,9 +22,7 @@
 }
 .sd-page .sd-page__title {
   @include page_title();
-  color: $foreground-dim;
 }
 .sd-page .sd-page__description {
   @include page_description();
-  color: $foreground-dim-light;
 }

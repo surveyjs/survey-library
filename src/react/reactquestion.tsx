@@ -279,7 +279,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     this.tooltipManager = undefined;
   }
   protected renderElement(): JSX.Element {
-    const errors:Array<JSX.Element> = [];
+    const errors: Array<JSX.Element> = [];
     for (let i = 0; i < this.element.errors.length; i++) {
       const key: string = "error" + i;
       errors.push(

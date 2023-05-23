@@ -539,6 +539,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get currentPanel(): PanelModel {
+    if(this.isDesignMode) return this.template;
     if(this.isRenderModeList || this.useTemplatePanel) return null;
     let res = this.getPropertyValue("currentPanel", null);
     if(!res && this.visiblePanelCount > 0) {

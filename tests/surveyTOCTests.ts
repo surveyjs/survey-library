@@ -95,3 +95,45 @@ QUnit.test("TOC pages visibility", function(assert) {
   assert.equal(tocListModel.visibleItems.length, 2, "only 2 pages are visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
 });
+QUnit.test("TOC pages visibility, do not include start page into TOC, bug#6192", function(assert) {
+  let json: any = {
+    "firstPageIsStarted": true,
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ]
+  };
+  let survey: SurveyModel = new SurveyModel(json);
+  let tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.visibleItems.length, 2, "First page is not visible");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
+  survey.firstPageIsStarted = false;
+  assert.equal(tocListModel.visibleItems.length, 3, "First page is visible");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible, page 1 is the first");
+});

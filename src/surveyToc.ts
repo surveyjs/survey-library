@@ -28,7 +28,7 @@ export function createTOCListModel(survey: SurveyModel) {
         }
         return tryNavigateToPage(survey, index);
       },
-      visible: <any>new ComputedUpdater(() => page.isVisible)
+      visible: <any>new ComputedUpdater(() => page.isVisible && !page.isStartPage)
     });
   });
   var listModel = new ListModel(

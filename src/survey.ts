@@ -6894,7 +6894,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(!this.isShowingPreview && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
           if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);

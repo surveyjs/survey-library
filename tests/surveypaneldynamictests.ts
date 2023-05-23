@@ -3847,6 +3847,30 @@ QUnit.test(
     assert.equal(q.panelCount, 0, "The panel count is 0");
   }
 );
+QUnit.test("currentPanel is templatePanel in design-mode", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "measurements",
+        renderMode: "tab",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+        ],
+        panelCount: 0,
+      },
+    ],
+  };
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  var q = <QuestionPanelDynamicModel>survey.getQuestionByName("measurements");
+  assert.ok(q.currentPanel, "Current panel exists");
+  assert.equal(q.currentPanel.id, q.template.id, "Current panel equals to tempalte");
+});
 
 QUnit.test("getProgressInfo()", function(assert) {
   var survey = new SurveyModel({

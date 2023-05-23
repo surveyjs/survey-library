@@ -1,6 +1,7 @@
 <div [class]="model.cssClasses.root" #contentElement>
   <img
     *ngIf="model.renderedMode === 'image'"
+    [visible]="model.locImageLink.renderedHtml && !model.contentNotLoaded"
     [class]="model.getImageCss()"
     [attr.src]="model.locImageLink.renderedHtml"
     [attr.alt]="model.altText || model.title"
@@ -12,6 +13,7 @@
   /><video
     controls
     *ngIf="model.renderedMode === 'video'"
+    [visible]="model.locImageLink.renderedHtml && !model.contentNotLoaded"
     [class]="model.getImageCss()"
     [attr.src]="model.locImageLink.renderedHtml"
     [attr.width]="model.renderedWidth"

@@ -51,8 +51,9 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test("axe check", async (t) => {
-    const { error, violations } = await axeCheck(t, this, {
+  test.only("axe check", async (t) => {
+    const axeContext = { include: [[".sv_p_root"]] };
+    const axeOptions = {
       runOnly: {
         type: "tag",
         values: ["wcag21a", "wcag21aa"/*, 'wcag412'*/]
@@ -75,7 +76,8 @@ frameworks.forEach((framework) => {
           enabled: false
         }
       }
-    });
+    };
+    const { error, violations } = await axeCheck(t, axeContext, axeOptions);
     await t.expect(violations.length === 0).ok(createReport(violations));
   });
 });

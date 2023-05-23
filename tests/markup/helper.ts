@@ -289,6 +289,9 @@ function clearAttributes(el: Element, removeIds = false) {
   if(el.getAttribute("style") === "") {
     el.removeAttribute("style");
   }
+  if(el.getAttribute("src") === "") {
+    el.removeAttribute("src");
+  }
   if(el.getAttribute("name") !== "name")
     el.removeAttribute("name");
   if((<any>el).checked) {

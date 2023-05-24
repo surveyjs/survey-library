@@ -110,10 +110,12 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   public abstract getProcessedText(text: string): string;
 }
 
+// TODO: rename
 export enum DragTypeOverMeEnum {
   InsideEmptyPanel = 1,
   MultilineRight,
-  MultilineLeft
+  MultilineLeft,
+  Top, Right, Bottom, Left
 }
 
 /**

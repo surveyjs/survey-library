@@ -15,7 +15,7 @@ import {
   ISurvey,
   IFindElement
 } from "./base-interfaces";
-import { SurveyElement } from "./survey-element";
+import { DragTypeOverMeEnum, SurveyElement } from "./survey-element";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
@@ -235,6 +235,7 @@ export class QuestionRowModel extends Base {
     }
     return false;
   }
+  @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose() {
     super.dispose();
     this.stopLazyRendering();

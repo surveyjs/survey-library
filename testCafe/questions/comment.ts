@@ -18,7 +18,7 @@ frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {
     await initSurvey(framework, {
       "autoGrowComment": true,
-      "allowResizeComment": true,
+      "allowResizeComment": false,
       "pages": [
         {
           "name": "page1",

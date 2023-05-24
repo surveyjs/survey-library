@@ -1523,11 +1523,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
    *
    * Default value: `false`
    *
-   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * @see allowResizeComment
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
@@ -1535,6 +1536,14 @@ export class SurveyModel extends SurveyElementCore
   public set autoGrowComment(val: boolean) {
     this.setPropertyValue("autoGrowComment", val);
   }
+  /**
+   * Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
+   *
+   * Default value: `true`
+   *
+   * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
+   * @see autoGrowComment
+   */
   public get allowResizeComment(): boolean {
     return this.getPropertyValue("allowResizeComment");
   }

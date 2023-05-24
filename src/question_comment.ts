@@ -52,6 +52,7 @@ export class QuestionCommentModel extends QuestionTextBase {
    * Specifies whether the comment area automatically increases its height to accomodate multi-line content.
    *
    * Default value: `false` (inherited from `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
+   * @see allowResize
    */
   public get autoGrow(): boolean {
     return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
@@ -59,7 +60,13 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set autoGrow(val: boolean) {
     this.setPropertyValue("autoGrow", val);
   }
-  public get allowResize (): boolean {
+  /**
+   * Specifies whether to display a resize handle for the comment area.
+   *
+   * Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
+   * @see autoGrow
+   */
+  public get allowResize(): boolean {
     return this.getPropertyValue("allowResize") && (this.survey && this.survey.allowResizeComment);
   }
   public set allowResize(val: boolean) {

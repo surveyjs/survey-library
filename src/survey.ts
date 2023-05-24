@@ -1535,6 +1535,12 @@ export class SurveyModel extends SurveyElementCore
   public set autoGrowComment(val: boolean) {
     this.setPropertyValue("autoGrowComment", val);
   }
+  public get allowResizeComment(): boolean {
+    return this.getPropertyValue("allowResizeComment");
+  }
+  public set allowResizeComment(val: boolean) {
+    this.setPropertyValue("allowResizeComment", val);
+  }
   /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
    *
@@ -7102,6 +7108,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
+  { name: "allowResizeComment:boolean", default: false },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },

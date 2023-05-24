@@ -59,6 +59,15 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set autoGrow(val: boolean) {
     this.setPropertyValue("autoGrow", val);
   }
+  public get allowResize (): boolean {
+    return this.getPropertyValue("allowResize") || (this.survey && this.survey.allowResizeComment);
+  }
+  public set allowResize(val: boolean) {
+    this.setPropertyValue("allowResize", val);
+  }
+  public get resizeStyle() {
+    return this.allowResize ? "none" : "both";
+  }
   public getType(): string {
     return "comment";
   }
@@ -121,6 +130,7 @@ Serializer.addClass(
       choices: ["default", "onBlur", "onTyping"],
     },
     { name: "autoGrow:boolean" },
+    { name: "allowResize:boolean" },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

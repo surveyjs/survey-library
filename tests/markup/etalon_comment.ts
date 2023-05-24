@@ -53,7 +53,7 @@ registerMarkupTests(
     snapshot: "comment-div",
   },
   {
-    name: "Test Comment question allowResize is true",
+    name: "Test Comment question allowResize is false",
     json: {
       questions: [
         {
@@ -61,7 +61,7 @@ registerMarkupTests(
           type: "comment",
           title: "Question title",
           placeholder: "placeholder text",
-          allowResize: true,
+          allowResize: false,
           titleLocation: "hidden"
         }
       ]
@@ -69,9 +69,9 @@ registerMarkupTests(
     snapshot: "comment-allowResize",
   },
   {
-    name: "Test Survey allowResizeComment is true",
+    name: "Test Survey allowResizeComment is false",
     json: {
-      allowResizeComment: true,
+      allowResizeComment: false,
       pages: [
         {
           name: "page1",

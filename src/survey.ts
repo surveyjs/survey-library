@@ -7108,7 +7108,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
-  { name: "allowResizeComment:boolean", default: false },
+  { name: "allowResizeComment:boolean", default: true },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },

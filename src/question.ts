@@ -1401,7 +1401,7 @@ export class Question extends SurveyElement<Question>
     this.updateValueWithDefaults();
   }
   public get resizeStyle() {
-    return this.allowResizeComment ? "none" : "both";
+    return this.allowResizeComment ? "both" : "none";
   }
   /**
    * Returns the question value as an object in which the question name, title, value, and other parameters are stored as individual properties.

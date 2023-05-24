@@ -14760,7 +14760,7 @@ QUnit.test("survey.autoGrowComment", function (assert) {
 });
 QUnit.test("survey.allowResizeComment", function (assert) {
   let json = {
-    allowResizeComment: true,
+    allowResizeComment: false,
     pages: [
       {
         elements: [
@@ -14771,7 +14771,7 @@ QUnit.test("survey.allowResizeComment", function (assert) {
           {
             type: "comment",
             name: "comment2",
-            allowResize: true
+            allowResize: false
           }
         ]
       }
@@ -14781,13 +14781,13 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   let comment1 = survey.getQuestionByName("comment1");
   let comment2 = survey.getQuestionByName("comment2");
 
-  assert.equal(survey.allowResizeComment, true);
-  assert.equal(comment1.allowResize, true);
-  assert.equal(comment2.allowResize, true);
-
-  survey.allowResizeComment = false;
+  assert.equal(survey.allowResizeComment, false);
   assert.equal(comment1.allowResize, false);
-  assert.equal(comment2.allowResize, true);
+  assert.equal(comment2.allowResize, false);
+
+  survey.allowResizeComment = true;
+  assert.equal(comment1.allowResize, true);
+  assert.equal(comment2.allowResize, false);
 });
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {

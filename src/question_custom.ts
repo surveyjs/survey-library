@@ -481,9 +481,13 @@ export abstract class QuestionCustomModelBase extends Question
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
     var newName = this.convertDataName(name);
+    let valueForSurvey = this.convertDataValue(name, newValue);
+    if(this.valueToDataCallback) {
+      valueForSurvey = this.valueToDataCallback(valueForSurvey);
+    }
     this.data.setValue(
       newName,
-      this.convertDataValue(name, newValue),
+      valueForSurvey,
       locNotification,
       allowNotifyValueChanged
     );

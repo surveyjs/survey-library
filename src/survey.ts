@@ -538,13 +538,17 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderPanel: EventBase<SurveyModel, AfterRenderPanelEvent> = this.addEvent<SurveyModel, AfterRenderPanelEvent>();
 
   /**
-   * The event occurs when an element within a question gets focus.
+   * An event that is raised when an element (input field, checkbox, radio button) within a question gets focus.
    * @see onFocusInPanel
+   * @see focusFirstQuestionAutomatic
+   * @see focusQuestion
    */
   public onFocusInQuestion: EventBase<SurveyModel, FocusInQuestionEvent> = this.addEvent<SurveyModel, FocusInQuestionEvent>();
   /**
-   * The event occurs when an element within a panel gets focus.
+   * An event that is raised when an element within a panel gets focus.
    * @see onFocusInQuestion
+   * @see focusFirstQuestionAutomatic
+   * @see focusQuestion
    */
   public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
 
@@ -1227,7 +1231,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyShowDataSaving", val);
   }
   /**
-   * Gets or sets whether the first input is focused on showing a next or a previous page.
+   * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
+   *
+   * Default value: `true`
+   * @see focusOnFirstError
+   * @see focusFirstQuestion
+   * @see focusQuestion
    */
   public get focusFirstQuestionAutomatic(): boolean {
     return this.getPropertyValue("focusFirstQuestionAutomatic");
@@ -1236,8 +1245,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
   }
   /**
-   * Gets or sets whether the first input is focused if the current page has errors.
-   * Set this property to `false` (the default value is `true`) if you do not want to bring the focus to the first question that has error on the page.
+   * Specifies whether to focus the first question with a validation error on the current page.
+   *
+   * Default value: `true`
+   * @see validate
+   * @see focusFirstQuestionAutomatic
    */
   public get focusOnFirstError(): boolean {
     return this.getPropertyValue("focusOnFirstError");
@@ -2950,7 +2962,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Sets the input focus to the first question with the input field.
+   * Focuses the first question on the current page.
+   * @see focusQuestion
+   * @see focusFirstQuestionAutomatic
    */
   public focusFirstQuestion() {
     if (this.isFocusingQuestion) return;
@@ -6737,9 +6751,11 @@ export class SurveyModel extends SurveyElementCore
   private skippedPages: Array<{ from: any, to: any }> = [];
 
   /**
-   * Focus question by its name. If needed change the current page on the page where question is located.
-   * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.
-   * @param name question name
+   * Focuses a question with a specified name. Switches the current page if needed.
+   * @param name A question name.
+   * @returns `false` if the survey does not contain a question with a specified name or this question is hidden; otherwise, `true`.
+   * @see focusFirstQuestion
+   * @see focusFirstQuestionAutomatic
    */
   public focusQuestion(name: string): boolean {
     var question = this.getQuestionByName(name, true);

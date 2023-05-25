@@ -74,7 +74,7 @@ export var greekSurveyStrings = {
   timerLimitPage: "Έχετε ξοδέψει {0} από {1} σε αυτήν τη σελίδα.",
   timerLimitSurvey: "Έχετε ξοδέψει {0} από {1} συνολικά.",
   clearCaption: "Εκκαθάριση",
-  signaturePlaceHolder: "Υπόγραψε εδώ",
+  signaturePlaceHolder: "Υπογράψτε εδώ",
   chooseFileCaption: "Επιλέξτε αρχείο",
   removeFileCaption: "Διαγράψτε αυτό το αρχείο",
   booleanCheckedLabel: "Ναι",

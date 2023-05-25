@@ -6781,3 +6781,8 @@ QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   assert.equal(q2.isRequired, false, "q2 is not required");
   assert.equal(q2.errors.length, 0, "Errors are cleaned");
 });
+QUnit.test("cols property is invisible and non-serializable", function (assert) {
+  const prop = Serializer.findProperty("comment", "cols");
+  assert.equal(prop.visible, false, "property is invisible");
+  assert.equal(prop.isSerializable, false, "property is non-serializable");
+});

@@ -7,7 +7,10 @@ $primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-f
 $secondary: var(--secondary, #ff9814);
 $secondary-light: var(--secondary-light, rgba(255, 152, 20, 0.25));
 
-$editor-background: var(--sjs-editorpanel-backcolor, var(--sjs-editor-background, var(--background-dim-light, #f9f9f9)));
+$editor-background: var(
+  --sjs-editorpanel-backcolor,
+  var(--sjs-editor-background, var(--background-dim-light, #f9f9f9))
+);
 $question-background: var(--sjs-questionpanel-backcolor, var(--sjs-question-background, var(--background, #fff)));
 
 $background: var(--background, #fff);
@@ -58,7 +61,10 @@ $font-pagetitle-size: var(--sjs-font-pagetitle-size, calc(1.5 * var(--sjs-font-s
 
 $font-pagedescription-family: var(--sjs-font-pagedescription-family, var(--font-family));
 $font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
-$font-pagedescription-color: var( --sjs-font-pagedescription-color, var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
+$font-pagedescription-color: var(
+  --sjs-font-pagedescription-color,
+  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
+);
 $font-pagedescription-size: var(--sjs-font-pagedescription-size, calc(1 * var(--sjs-font-size, $font-size)));
 
 $font-questiontitle-family: var(--sjs-font-questiontitle-family, var(--font-family));
@@ -68,14 +74,18 @@ $font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(1 * var(--sjs-
 
 $font-questiondescription-family: var(--sjs-font-questiondescription-family, var(--font-family));
 $font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
-$font-questiondescription-color: var(--sjs-font-questiondescription-color, var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
+$font-questiondescription-color: var(
+  --sjs-font-questiondescription-color,
+  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
+);
 $font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 * var(--sjs-font-size, $font-size)));
 
 $font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
 $font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
 $font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
 $font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
-
+$questionpanel-boxshadow: var(--sjs-general-shadow-small, 0px 1px 2px 0px $shadow-inner);
+$editor-boxshadow: var(--sjs-general-shadow-inner, inset 0px 1px 2px $shadow-inner);
 $base-unit: var(--base-unit, 8px);
 
 @function calcSize($multiplier) {

@@ -2147,3 +2147,28 @@ QUnit.test("Composite: with expression", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: check valueToData and valueFromData callbacks", function (assert) {
+  const json = {
+    name: "test",
+    questionJSON:
+      {
+        type: "text",
+        name: "test"
+      }
+    ,
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "test", name: "q1" }] });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  q.valueToDataCallback = (newValue: string) => {
+    return newValue.split(" ");
+  };
+  q.valueFromDataCallback = (newValue: Array<string>) => {
+    return !!newValue ? newValue.join(" ") : "";
+  };
+  survey.data = { "q1": ["a", "b", "c"] };
+  assert.equal(q.value, "a b c");
+  q.value = "a b c d";
+  assert.deepEqual(survey.data["q1"], ["a", "b", "c", "d"]);
+  ComponentCollection.Instance.clear();
+});

@@ -14758,6 +14758,37 @@ QUnit.test("survey.autoGrowComment", function (assert) {
   assert.equal(comment1.autoGrow, false);
   assert.equal(comment2.autoGrow, true);
 });
+QUnit.test("survey.allowResizeComment", function (assert) {
+  let json = {
+    allowResizeComment: false,
+    pages: [
+      {
+        elements: [
+          {
+            type: "comment",
+            name: "comment1",
+          },
+          {
+            type: "comment",
+            name: "comment2",
+            allowResize: false
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let comment1 = survey.getQuestionByName("comment1");
+  let comment2 = survey.getQuestionByName("comment2");
+
+  assert.equal(survey.allowResizeComment, false);
+  assert.equal(comment1.allowResize, false);
+  assert.equal(comment2.allowResize, false);
+
+  survey.allowResizeComment = true;
+  assert.equal(comment1.allowResize, true);
+  assert.equal(comment2.allowResize, false);
+});
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },

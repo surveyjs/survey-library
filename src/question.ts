@@ -1217,6 +1217,9 @@ export class Question extends SurveyElement<Question>
   private get autoGrowComment(): boolean {
     return this.survey && this.survey.autoGrowComment;
   }
+  private get allowResizeComment(): boolean {
+    return this.survey && this.survey.allowResizeComment;
+  }
   private get questionValue(): any {
     return this.getPropertyValue("value");
   }
@@ -1398,7 +1401,7 @@ export class Question extends SurveyElement<Question>
     this.updateValueWithDefaults();
   }
   public get resizeStyle() {
-    return this.autoGrowComment ? "none" : "both";
+    return this.allowResizeComment ? "both" : "none";
   }
   /**
    * Returns the question value as an object in which the question name, title, value, and other parameters are stored as individual properties.

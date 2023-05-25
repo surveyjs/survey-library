@@ -1523,17 +1523,32 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
    *
    * Default value: `false`
    *
-   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * @see allowResizeComment
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
   }
   public set autoGrowComment(val: boolean) {
     this.setPropertyValue("autoGrowComment", val);
+  }
+  /**
+   * Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
+   *
+   * Default value: `true`
+   *
+   * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
+   * @see autoGrowComment
+   */
+  public get allowResizeComment(): boolean {
+    return this.getPropertyValue("allowResizeComment");
+  }
+  public set allowResizeComment(val: boolean) {
+    this.setPropertyValue("allowResizeComment", val);
   }
   /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
@@ -7102,6 +7117,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
+  { name: "allowResizeComment:boolean", default: true },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },

@@ -57,46 +57,35 @@ export class DragDropRankingChooseChoices extends DragDropRankingChoices {
       return;
     }
 
-    // if (this.isDraggedElementOrdered) {
+    if (this.isDraggedElementOrdered) {
+      choices.splice(draggedElementIndex, 1);
+    }
 
-    //   // TODO
-    //   const choices = rankingChoices;
-    //   const dropTargetIndex = choices.indexOf(this.dropTarget);
-    //   const draggedElementIndex = choices.indexOf(this.draggedElement);
+    choices.splice(dropTargetIndex, 0, this.draggedElement);
+    this.parentElement.setPropertyValue("rankingChoices", choices);
+    //return;
+    this.updateDraggedElementShortcut(dropTargetIndex + 1);
 
-    //   choices.splice(draggedElementIndex, 1);
-    //   choices.splice(dropTargetIndex, 0, this.draggedElement);
-    //   choices.splice(dropTargetIndex + 1, 0, this.dropTarget);
-    //   rankingModel.setPropertyValue("rankingChoices", choices);
-    //   //return;
-    //   super.updateDraggedElementShortcut(dropTargetIndex + 1);
+    if (draggedElementIndex !== dropTargetIndex) {
+      dropTargetNode.classList.remove("sv-dragdrop-moveup");
+      dropTargetNode.classList.remove("sv-dragdrop-movedown");
+      this.parentElement.dropTargetNodeMove = null;
+    }
 
-    //   if (draggedElementIndex !== dropTargetIndex) {
-    //     dropTargetNode.classList.remove("sv-dragdrop-moveup");
-    //     dropTargetNode.classList.remove("sv-dragdrop-movedown");
-    //     rankingModel.dropTargetNodeMove = null;
-    //   }
+    if (draggedElementIndex > dropTargetIndex) {
+      this.parentElement.dropTargetNodeMove = "down";
+    }
 
-    //   if (draggedElementIndex > dropTargetIndex) {
-    //     rankingModel.dropTargetNodeMove = "down";
-    //   }
-
-    //   if (draggedElementIndex < dropTargetIndex) {
-    //     rankingModel.dropTargetNodeMove = "up";
-    //   }
-
-    //   return;
-
-    //   //EO TODO
-
-    // }
+    if (draggedElementIndex < dropTargetIndex) {
+      this.parentElement.dropTargetNodeMove = "up";
+    }
   }
 
-  private isDraggedElementOrdered() {
+  private get isDraggedElementOrdered() {
     return this.parentElement.rankingChoices.indexOf(this.draggedElement) !== -1;
   }
 
-  private isDraggedElementUnordered() {
+  private get isDraggedElementUnordered() {
     return !this.isDraggedElementOrdered;
   }
 

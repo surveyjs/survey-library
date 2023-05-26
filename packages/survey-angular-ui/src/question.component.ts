@@ -20,7 +20,9 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
     }
   }
   ngOnDestroy() {
-    this.model.destroyResizeObserver();
+    if(!!this.model) {
+      this.model.destroyResizeObserver();
+    }
   }
   public getComponentName(): string { return getComponentName(this.model); }
   public getQuestionContentWrapperComponentName(): string {

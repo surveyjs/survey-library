@@ -90,7 +90,6 @@ frameworks.forEach((framework) => {
       return window.survey.getAllQuestions()[1].renderAs;
     });
     await t.resizeWindow(500, 1080)
-      .debug()
       .click(Selector(".sd-navigation__next-btn"))
       .expect(getQuestionRenderAs()).eql("dropdown")
       .click(Selector(".sd-navigation__next-btn"))

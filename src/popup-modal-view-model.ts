@@ -18,7 +18,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
       id: "apply",
       visibleIndex: 20,
       title: this.applyButtonText,
-      innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--apply",
+      innerCss: "sv-popup__body-footer-item sv-popup__button sv-popup__button--apply sd-btn sd-btn--action",
       action: () => { this.apply(); }
     });
   }

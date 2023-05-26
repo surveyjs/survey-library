@@ -92,7 +92,9 @@ const survey = new Survey.Model(surveyJson);
 
 ### Create or Change a Survey Model Dynamically
 
-SurveyJS allows you to create or modify a survey model at runtime. Call different methods to add or remove survey elements; specify properties using dot notation to configure the elements. For example, the following code adds survey elements using the [addNewPage(name)](https://surveyjs.io/Documentation/Library?id=surveymodel#addNewPage), [addNewPanel(name)](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewPanel), and [addNewQuestion(type, name)](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewQuestion) methods. The [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and [state](https://surveyjs.io/Documentation/Library?id=panelmodel#state) properties configure the added elements. Refer to the [API](https://surveyjs.io/Documentation/Library?id=surveymodel) help section for a full list of supported methods and properties.
+SurveyJS allows you to create or modify a survey model at runtime. Call different methods to add or remove survey elements; specify properties using dot notation to configure the elements. 
+
+For example, the following code adds survey elements using the [addNewPage(name)](https://surveyjs.io/Documentation/Library?id=surveymodel#addNewPage), [addNewPanel(name)](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewPanel), and [addNewQuestion(type, name)](https://surveyjs.io/Documentation/Library?id=pagemodel#addNewQuestion) methods. The [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and [state](https://surveyjs.io/Documentation/Library?id=panelmodel#state) properties configure the added elements. 
 
 ```js
 // Create an empty model
@@ -120,6 +122,25 @@ telegram.title = "Telegram:"
 const github = panel.addNewQuestion("text", "GitHub");
 github.title = "GitHub username:"
 ```
+
+To insert a page at a specified position, you can use the [`survey.addNewPage(name, index)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#addNewPage) method and pass the required page index as the second parameter. The following code demonstrates how to programmatically add a page at index 0:
+```js
+const firstPage = survey.addNewPage("Intro", 0);
+let htmlQuestion = firstPage.addNewQuestion("html", "introMsg");
+htmlQuestion.html = 'We kindly request you to provide the following information to help us better understand and serve you. Thank you for your cooperation!';
+```
+When you add a page at index `0`, it becomes the first page in the [survey.pages](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#pages) collection. However, the survey does not automatically start with the newly added page. To begin the survey from the newly added page, you need to update the survey.[survey.currentPageNo](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property and set it to `0`:
+
+```js
+survey.currentPageNo = 0;
+```
+Alternatively, set [`survey.currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage) to the newly added page:
+```js
+survey.currentPage = firstPage;
+```
+By using either of these approaches, the survey will start from the newly added page.
+
+Refer to the [API](https://surveyjs.io/Documentation/Library?id=surveymodel) help section for a full list of supported methods and properties.
 
 You can combine both approaches to survey model configuration. The following example shows how to define a survey model in JSON, and then change it using methods and properties:
 

@@ -4852,6 +4852,9 @@ export class SurveyModel extends SurveyElementCore
    * @returns The created and added page.
    * @see addPage
    * @see createNewPage
+   *
+   * If you want to switch a survey to the newly added page, assign its index to the [currentPageNo](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property.
+   * Another option is to assign the newly added page directly to the [survey.currentPage](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage) property.
    */
   public addNewPage(name: string = null, index: number = -1) {
     var page = this.createNewPage(name);

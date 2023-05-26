@@ -1270,7 +1270,7 @@ export class JsonMetadata {
       }
     }
     return {
-      $id: "#locstring",
+      $id: "locstring",
       type: "object",
       properties: props
     };
@@ -1349,8 +1349,7 @@ export class JsonMetadata {
     if (hasParent) {
       this.generateChemaClass(classInfo.parentName, schemaDef, isRoot);
     }
-    const id = isRoot ? className : "#" + className;
-    const res: any = { type: "object", $id: id };
+    const res: any = { type: "object", $id: className };
     schemaDef[className] = res;
     const chemaProps: any = { properties: {} };
     this.generateSchemaProperties(classInfo, chemaProps, schemaDef, isRoot);

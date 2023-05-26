@@ -19,6 +19,9 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
       this.model.afterRender(this.rootEl?.nativeElement);
     }
   }
+  ngOnDestroy() {
+    this.model.destroyResizeObserver();
+  }
   public getComponentName(): string { return getComponentName(this.model); }
   public getQuestionContentWrapperComponentName(): string {
     return (<any>this.model.survey).getQuestionContentWrapperComponentName(this.model) || this.getComponentName();

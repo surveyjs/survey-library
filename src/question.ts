@@ -2115,7 +2115,7 @@ export class Question extends SurveyElement<Question>
     }
     return false;
   }
-  private destroyResizeObserver() {
+  public destroyResizeObserver(): void {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;

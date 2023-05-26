@@ -102,7 +102,7 @@ QUnit.test("generate survey schema", function (assert) {
 
   assert.equal(schema.properties.triggers.type, "array", "triggers is array");
   assert.deepEqual(
-    schema.properties.triggers.items,
+    schema.properties.triggers.items.anyOf,
     [
       {
         $ref: "#/definitions/visibletrigger",
@@ -123,7 +123,7 @@ QUnit.test("generate survey schema", function (assert) {
         $ref: "#/definitions/runexpressiontrigger",
       },
     ],
-    "triggers.items"
+    "triggers.items.anyOf"
   );
 
   assert.equal(
@@ -131,10 +131,10 @@ QUnit.test("generate survey schema", function (assert) {
     "array",
     "panelbase.elements type is array"
   );
-  var panelElements = schema.definitions.panelbase.properties.elements.items;
+  var panelElements = schema.definitions.panelbase.properties.elements.items.anyOf;
   assert.ok(
     panelElements.length > 5,
-    "There are many elements in panelbase.elements.items"
+    "There are many elements in panelbase.elements.items.anyOf"
   );
   function findInElements(elType: string): boolean {
     elType += "#";

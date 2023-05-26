@@ -1329,10 +1329,10 @@ export class JsonMetadata {
       if (prop.baseClassName == "question") {
         usedClasses.push(this.findClass("panel"));
       }
-      res.items = [];
+      res.items = { anyOf: [] };
       for (var i = 0; i < usedClasses.length; i++) {
         var className = usedClasses[i].name;
-        res.items.push({ $ref: this.getChemeRefName(className, isRoot) });
+        res.items.anyOf.push({ $ref: this.getChemeRefName(className, isRoot) });
         this.generateChemaClass(className, schemaDef, false);
       }
     }

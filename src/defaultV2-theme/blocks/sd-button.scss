@@ -4,8 +4,7 @@
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
-  padding: calcSize(1.75) calcSize(6);
-  margin: calcSize(0.25);
+  padding: calcSize(2) calcSize(6);
   background: $background;
   box-shadow: 0px 1px 2px $shadow-inner;
   border-radius: calcCornerRadius(1);
@@ -18,7 +17,7 @@
   line-height: calcSize(3);
   text-align: center;
   color: $primary;
-  border: 2px solid transparent;
+  border: none;
   outline: none;
 }
 

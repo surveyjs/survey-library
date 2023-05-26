@@ -213,6 +213,10 @@ sv-popup {
   gap: calcSize(1.5);
 }
 
+.sv-popup__button {
+  margin: calcSize(0.25);
+}
+
 .sv-popup--modal,
 .sv-popup--overlay {
   .sv-list__filter {

@@ -13,6 +13,7 @@ import { settings } from "./settings";
  * Please note, it runs only one changing the expression result.
  */
 export class Trigger extends Base {
+  static idCounter: number = 1;
   static operatorsValue: HashTable<Function> = null;
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
@@ -55,6 +56,7 @@ export class Trigger extends Base {
   private conditionRunner: ConditionRunner;
   private usedNames: Array<string>;
   private hasFunction: boolean;
+  private idValue: number = (Trigger.idCounter ++);
   constructor() {
     super();
     this.usedNames = [];
@@ -63,6 +65,7 @@ export class Trigger extends Base {
     });
     this.registerPropertyChangedHandlers(["expression"], () => { this.onExpressionChanged(); });
   }
+  public get id(): number { return this.idValue; }
   public getType(): string {
     return "triggerbase";
   }
@@ -218,7 +221,7 @@ export class Trigger extends Base {
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
   setCompleted(): void;
-  canBeCompleted(): void;
+  canBeCompleted(trigger: Trigger, isCompleted: boolean): void;
   triggerExecuted(trigger: Trigger): void;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
   copyTriggerValue(name: string, fromName: string): any;
@@ -304,8 +307,11 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     if(this.isRealExecution()) {
       this.owner.setCompleted();
     } else {
-      this.owner.canBeCompleted();
+      this.owner.canBeCompleted(this, true);
     }
+  }
+  protected onFailure(): void {
+    this.owner.canBeCompleted(this, false);
   }
 }
 /**

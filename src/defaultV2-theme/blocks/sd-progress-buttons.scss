@@ -34,7 +34,7 @@
 
 .sd-progress-buttons__list-element--nonclickable {
   .sd-progress-buttons__page-title {
-    color: $foreground-light;  
+    color: $foreground-light;
   }
 }
 
@@ -46,13 +46,13 @@
 }
 .sd-progress-buttons__page-title {
   width: 100%;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   font-weight: 600;
   line-height: calcSize(3);
 }
 .sd-progress-buttons__page-description {
   width: 100%;
-  font-size: calcSize(1.5);
+  font-size: calcFontSize(0.75);
   line-height: calcSize(2);
   font-weight: 600;
   color: $foreground-light;

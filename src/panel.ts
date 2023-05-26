@@ -15,7 +15,7 @@ import {
   ISurvey,
   IFindElement
 } from "./base-interfaces";
-import { SurveyElement } from "./survey-element";
+import { DragTypeOverMeEnum, SurveyElement } from "./survey-element";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
@@ -158,8 +158,10 @@ export class QuestionRowModel extends Base {
           el.renderWidth = this.getRenderedWidthFromWidth(width);
           preSetWidthElements.push(el);
         }
-        if (!(this.panel.isDefaultV2Theme || this.panel.parentQuestion?.isDefaultV2Theme)) {
-          el.rightIndent = counter < visCount - 1 ? 1 : 0;
+        if(counter < visCount - 1 && !(this.panel.isDefaultV2Theme || this.panel.parentQuestion?.isDefaultV2Theme)) {
+          el.rightIndent = 1;
+        } else {
+          el.rightIndent = 0;
         }
         counter++;
       } else {
@@ -233,6 +235,7 @@ export class QuestionRowModel extends Base {
     }
     return false;
   }
+  @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose() {
     super.dispose();
     this.stopLazyRendering();
@@ -1756,8 +1759,15 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get cssError(): string {
     return this.getCssError(this.cssClasses);
   }
+  public get showErrorsAbovePanel(): boolean {
+    return this.isDefaultV2Theme;
+  }
   protected getCssError(cssClasses: any): string {
-    const builder = new CssClassBuilder().append(this.cssClasses.error.root);
+    const isDefaultV2Theme = this.isDefaultV2Theme;
+    const builder = new CssClassBuilder()
+      .append(this.cssClasses.error.root)
+      .append(this.cssClasses.error.outsideQuestion, isDefaultV2Theme)
+      .append(this.cssClasses.error.aboveQuestion, isDefaultV2Theme);
     return builder.append("panel-error-root", builder.isEmpty()).toString();
   }
   protected onVisibleChanged() {

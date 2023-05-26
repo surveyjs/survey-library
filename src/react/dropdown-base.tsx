@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Helpers, Question, DropdownListModel } from "survey-core";
+import { Helpers, Question, DropdownListModel, settings } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
@@ -72,9 +72,10 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
   protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
     let valueElement: JSX.Element | null = this.renderValueElement(dropdownListModel);
+    const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
-      if (e.target === document.activeElement) {
+      if (e.target === root.activeElement) {
         dropdownListModel.inputStringRendered = e.target.value;
       }
     };
@@ -94,7 +95,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       aria-label={this.question.ariaLabel}
       aria-invalid={this.question.ariaInvalid}
       aria-describedby={this.question.ariaDescribedBy}
-      aria-expanded={this.question.ariaExpanded ? "true" : "false"}
+      aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
       aria-controls={dropdownListModel.listElementId}
       aria-activedescendant={dropdownListModel.ariaActivedescendant}
     >
@@ -115,7 +116,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           className={this.question.cssClasses.filterStringInput}
           role={dropdownListModel.filterStringEnabled ? this.question.ariaRole : undefined}
           aria-label={this.question.placeholder}
-          aria-expanded={this.question.ariaExpanded ? "true" : "false"}
+          aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
           aria-controls={dropdownListModel.listElementId}
           aria-activedescendant={dropdownListModel.ariaActivedescendant}
           placeholder={dropdownListModel.placeholderRendered}

@@ -222,6 +222,29 @@ QUnit.test("Edit question title property", function (assert) {
     "Update text on changing locTitle.text"
   );
 });
+QUnit.test("Edit survey title property with isLocalizable=false", function (assert) {
+  const prop = Serializer.findProperty("survey", "title");
+  prop.isLocalizable = false;
+
+  const editableSurvey = new SurveyModel({
+    locale: "de",
+    title: "default-value"
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "comment", name: "title" },
+    ],
+  });
+  survey.editingObj = editableSurvey;
+  assert.equal(editableSurvey.title, "default-value", "editableSurvey.title loaded correctly");
+  assert.deepEqual(editableSurvey.locTitle.getJson(), "default-value", "editableSurvey.locTitle.getJson()");
+  assert.equal(editableSurvey.locTitle.text, "default-value", "editableSurvey.locTitle.text");
+  assert.equal(Serializer.getObjPropertyValue(editableSurvey, "title"), "default-value", "Serializer.getObjPropertyValue");
+  const question = survey.getQuestionByName("title");
+  assert.equal(question.value, "default-value", "editor has correct value");
+
+  prop.isLocalizable = true;
+});
 QUnit.test("Edit question title property, setup initial value", function (
   assert
 ) {

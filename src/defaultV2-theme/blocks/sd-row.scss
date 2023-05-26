@@ -18,7 +18,7 @@
 .svc-row > .sd-row--multiple {
   background: $question-background;
   box-shadow: 0px 1px 2px $shadow-inner;
-  border-radius: calcSize(0.5);
+  border-radius: calcCornerRadius(1);
 }
 
 :not(.svc-row) > .sd-row--multiple {

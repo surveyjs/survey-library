@@ -31,12 +31,12 @@ sv-popup {
 .sv-popup__shadow {
   width: 100%;
   height: 100%;
-  border-radius: calcSize(1);
+  border-radius: calcCornerRadius(2);
 }
 
 .sv-popup__body-content {
   background-color: $background;
-  border-radius: calcSize(0.5);
+  border-radius: calcCornerRadius(1);
 
   width: 100%;
   height: 100%;
@@ -44,7 +44,7 @@ sv-popup {
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  max-width: 90vw;
+  max-width: 100vw;
 }
 
 .sv-popup.sv-popup--modal {
@@ -83,7 +83,7 @@ sv-popup {
   .sv-popup__body-content {
     max-height: $popup-overlay-height;
     max-width: 100vw;
-    border-radius: calcSize(2) calcSize(2) 0px 0px;
+    border-radius: calcCornerRadius(4) calcCornerRadius(4) 0px 0px;
     background: $background;
     box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
     padding: calcSize(3) calcSize(2) calcSize(2);
@@ -196,7 +196,7 @@ sv-popup {
 
 .sv-popup__body-header {
   font-family: Open Sans;
-  font-size: calcSize(3);
+  font-size: calcFontSize(1.5);
   line-height: calcSize(4);
   font-style: normal;
   font-weight: 700;
@@ -217,14 +217,14 @@ sv-popup {
   padding: calcSize(2) calcSize(6);
   background: $background;
   box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
+  border-radius: calcCornerRadius(1);
   margin: 2px;
   cursor: pointer;
 
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: 600;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   line-height: calcSize(3);
   text-align: center;
   color: $primary;
@@ -376,7 +376,7 @@ sv-popup {
 
   .sv-list__input {
     color: $foreground-light;
-    font-size: calcSize(2);
+    font-size: calcFontSize(1);
     line-height: calcSize(3);
     font-family: $font-family;
     padding: calcSize(0.5) 0 calcSize(0.5) calcSize(1);
@@ -418,10 +418,9 @@ sv-popup {
     width: auto;
     min-width: min(calcSize(40), var(--sv-popup-overlay-max-width));
     max-width: var(--sv-popup-overlay-max-width);
-    border-radius: calcSize(0.5);
+    border-radius: calcCornerRadius(1);
     overflow: hidden;
     margin: 0;
-    border-radius: 4px;
   }
 
   .sv-popup__content,

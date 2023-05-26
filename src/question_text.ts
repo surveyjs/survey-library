@@ -434,7 +434,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public onChange = (event: any): void => {
-    if (event.target === document.activeElement) {
+    if (event.target === settings.environment.root.activeElement) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }
@@ -504,6 +504,13 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   return val;
 }
 
+function propertyEditorMinMaxUpdate(obj: QuestionTextBase, propertyEditor: any): void {
+  if(!!obj && !!obj.inputType) {
+    propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
+    propertyEditor.textUpdateMode = "onBlur";
+  }
+}
+
 Serializer.addClass(
   "text",
   [
@@ -543,9 +550,7 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
-        }
+        propertyEditorMinMaxUpdate(obj, propertyEditor);
       },
       onSettingValue: (obj: any, val: any): any => {
         return getCorrectMinMax(obj, val, obj.max, false);
@@ -562,9 +567,7 @@ Serializer.addClass(
         return getCorrectMinMax(obj, obj.min, val, true);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
-        }
+        propertyEditorMinMaxUpdate(obj, propertyEditor);
       },
     },
     {

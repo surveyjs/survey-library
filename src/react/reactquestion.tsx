@@ -151,6 +151,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
 
     let rootStyle = question.getRootStyle();
     let questionContent = this.wrapQuestionContent(this.renderQuestionContent());
+
     return (
       <>
         <div
@@ -162,6 +163,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           aria-required={this.question.ariaRequired}
           aria-invalid={this.question.ariaInvalid}
           aria-labelledby={question.ariaLabelledBy}
+          aria-expanded={question.ariaExpanded === null ? undefined : question.ariaExpanded === "true"}
         >
           {errorsAboveQuestion}
           {headerTop}
@@ -277,7 +279,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     this.tooltipManager = undefined;
   }
   protected renderElement(): JSX.Element {
-    const errors:Array<JSX.Element> = [];
+    const errors: Array<JSX.Element> = [];
     for (let i = 0; i < this.element.errors.length; i++) {
       const key: string = "error" + i;
       errors.push(

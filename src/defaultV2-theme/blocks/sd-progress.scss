@@ -14,7 +14,7 @@
   margin-top: calcSize(1);
   right: calcSize(3);
   color: $foreground-light;
-  font-size: calcSize(1.5);
+  font-size: calcFontSize(0.75);
   line-height: calcSize(2);
   font-weight: 600;
   @media only screen and (min-width: calcSize(125)) {

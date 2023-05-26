@@ -39,9 +39,9 @@
       flex-direction: column;
     }
     .sd-multipletext__item-title {
-      font-size: 12px;
-      line-height: 16px;
-      height: 16px;
+      font-size: calcFontSize(0.75);
+      line-height: calcSize(2);
+      height: calcSize(2);
       padding-right: 0;
       border-right: none;
       margin-bottom: 0;

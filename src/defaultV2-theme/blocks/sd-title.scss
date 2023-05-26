@@ -33,15 +33,19 @@
   gap: calcSize(1);
   flex-grow: 1;
 
-  h3 {
-    font-size: calcSize(4);
-    font-weight: 700;
-    line-height: calcSize(5);
+  .sd-title {
     color: $primary;
+    font-family: $font-surveytitle-family;
+    font-size: $font-surveytitle-size;
+    font-weight: $font-surveytitle-weight;
+  }
+
+  h3 {
+    line-height: calcSize(5);
   }
 
   h5 {
-    font-size: calcSize(2);
+    font-size: calcFontSize(1);
     font-weight: 400;
     line-height: calcSize(3);
   }

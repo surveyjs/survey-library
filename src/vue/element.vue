@@ -7,6 +7,7 @@
         :aria-required="element.ariaRequired"
         :aria-invalid="element.ariaInvalid"
         :aria-labelledby="element.ariaLabelledBy"
+        :aria-expanded="element.ariaExpanded"
         :data-name="element.name">
     <survey-errors
       v-if="!element.isPanel && element.showErrorsAboveQuestion"

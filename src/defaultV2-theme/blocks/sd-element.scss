@@ -27,12 +27,15 @@
   margin: 0;
 
   .sd-element__num {
-    font-size: calcSize(1.5);
+    font-size: calcFontSize(0.75);
     line-height: calcSize(2);
   }
 
   span {
-    font-size: calcSize(2);
+    font-family: $font-questiontitle-family;
+    font-weight: $font-questiontitle-weight;
+    font-size: $font-questiontitle-size;
+    color: $font-questiontitle-color;
     line-height: calcSize(3);
   }
 
@@ -67,7 +70,7 @@
   padding-inline-start: 0;
   padding-inline-end: calcSize(1);
   width: calcSize(5);
-  font-size: calcSize(1.5);
+  font-size: calcFontSize(0.75);
   line-height: calcSize(2);
   color: $foreground-light;
   margin-inline-start: calcSize(-5); // margin-left
@@ -120,14 +123,14 @@
 //with borders styles
 .svc-logic-question-value,
 .sd-element--with-frame {
-  border-radius: calcSize(0.5);
+  border-radius: $panel-corner-radius;
   box-sizing: border-box;
   padding-top: var(--sd-base-padding);
   padding-left: calc(var(--sd-base-padding) + var(--sv-element-add-padding-left, 0px));
   padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
   background: $question-background;
-  box-shadow: 0px 1px 2px $shadow-inner;
+  box-shadow: $questionpanel-boxshadow;
 
   &.sd-question--paneldynamic {
     padding-bottom: 0;
@@ -140,6 +143,10 @@
 }
 //complex (panel, paneldynamic, matrixes) styles
 .sd-element--complex {
+  &.sd-element--complex > .sd-question__erbox--above-question {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
   & > .sd-element__header--location-top {
     margin-top: 0;
     &:after {
@@ -190,7 +197,7 @@
     & > .sd-element__header {
       padding-top: calcSize(2);
       padding-bottom: calcSize(2);
-      border-radius: calcSize(0.5);
+      border-radius: $panel-corner-radius;
     }
     & > .sd-element__header--location-top {
       margin-top: 0;
@@ -225,6 +232,7 @@
   &.sd-panel,
   &.sd-question--paneldynamic {
     border: 1px solid $border-light;
+    border-radius: calc(var(--sjs-corner-radius, 4px) - 4px);
     box-sizing: border-box;
     padding-left: var(--sd-base-padding);
     padding-right: var(--sd-base-padding);
@@ -270,7 +278,7 @@
 //compact styles
 .sd-element--with-frame.sd-element--compact {
   border: 1px solid $border-inside;
-  border-radius: 4px;
+  border-radius: $panel-corner-radius;
   box-shadow: none;
 }
 

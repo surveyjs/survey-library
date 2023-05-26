@@ -1,22 +1,33 @@
 <ng-template #template>
-  <input
-    type="text"
-    autocomplete="off"
-    [(ngModel)]="model.inputStringRendered"
-    [attr.id]="question.getInputId()"
-    [class]="question.cssClasses.filterStringInput"
-    [attr.inputmode]="model.inputMode"
-    [attr.role]="model.filterStringEnabled ? question.ariaRole : null"
-    [attr.readonly]="!model.searchEnabled ? true : null"
-    [attr.disabled]="question.isInputReadOnly ? true : null"
-    [attr.size]="!model.inputStringRendered ? 1 : null"
-    [attr.aria-label]="question.placeholder"
-    [attr.aria-controls]="model.listElementId"
-    [attr.aria-expanded]="question.ariaExpanded ? 'true' : 'false'"
-    [attr.aria-activedescendant]="model.ariaActivedescendant"
-    [attr.placeholder]="model.filterStringPlaceholder"
-    (keydown)="model.inputKeyHandler($event)"
-    (blur)="model.onBlur($event)"
-    (focus)="model.onFocus($event)"
-  />
+  <div [class]="question.cssClasses.hint">
+    <div *ngIf="model.showHintPrefix" [class]="question.cssClasses.hintPrefix">
+        <span>{{ model.hintStringPrefix }}</span>
+    </div>
+    <div [class]="question.cssClasses.hintSuffixWrapper">
+        <div *ngIf="model.showHintString" [class]="question.cssClasses.hintSuffix">
+            <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
+            <span>{{ model.hintStringSuffix }}</span>
+        </div>
+    <input
+      type="text"
+      autocomplete="off"
+      [(ngModel)]="model.inputStringRendered"
+      [attr.id]="question.getInputId()"
+      [class]="question.cssClasses.filterStringInput"
+      [attr.inputmode]="model.inputMode"
+      [attr.role]="model.filterStringEnabled ? question.ariaRole : null"
+      [attr.readonly]="!model.searchEnabled ? true : null"
+      [attr.disabled]="question.isInputReadOnly ? true : null"
+      [attr.size]="!model.inputStringRendered ? 1 : null"
+      [attr.aria-label]="question.placeholder"
+      [attr.aria-controls]="model.listElementId"
+      [attr.aria-expanded]="question.ariaExpanded"
+      [attr.aria-activedescendant]="model.ariaActivedescendant"
+      [attr.placeholder]="model.filterStringPlaceholder"
+      (keydown)="model.inputKeyHandler($event)"
+      (blur)="model.onBlur($event)"
+      (focus)="model.onFocus($event)"
+    />
+    </div>
+  </div>
 </ng-template>

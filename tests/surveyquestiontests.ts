@@ -2341,12 +2341,14 @@ QUnit.test("question.getConditionJson", function (assert) {
 
   var qCheckbox = new QuestionCheckboxModel("qCheckbox");
   qCheckbox.choices = [1, 2, 3, 4, 5];
+  qCheckbox.maxSelectedChoices = 3;
   json = qCheckbox.getConditionJson("equals");
   assert.deepEqual(
     json.choices,
     [1, 2, 3, 4, 5],
     "checkbox: choices correctly converted"
   );
+  assert.notOk(json.maxSelectedChoices);
   assert.equal(json.type, "checkbox", "checkbox: type set correctly");
   json = qCheckbox.getConditionJson("contains");
   assert.equal(
@@ -2439,9 +2441,9 @@ QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is 
   const page = survey.addNewPage("p1");
   const qText = new QuestionTextModel("q1");
   page.addElement(qText);
-  assert.equal(qText.characterCounter.remainingCharacterCounter, undefined, "By default it is undefined");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string #1");
   qText.updateRemainingCharacterCounter("Test");
-  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string #2");
   qText.maxLength = 10;
   qText.updateRemainingCharacterCounter("Test");
   assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10");
@@ -2453,6 +2455,30 @@ QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is 
   assert.equal(qText.characterCounter.remainingCharacterCounter, "4/5");
   qText.updateRemainingCharacterCounter("");
   assert.equal(qText.characterCounter.remainingCharacterCounter, "0/5");
+});
+
+QUnit.test("set json into survey: Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "comment",
+            "name": "q1",
+            "maxLength": 255
+          }
+        ]
+      }
+    ]
+  });
+
+  const qText = survey.getQuestionByName("q1");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "0/255");
+
+  survey.data = { q1: "Test2" };
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "5/255");
 });
 
 QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields and there is defaultValue", function (assert) {
@@ -4466,6 +4492,7 @@ QUnit.test(
   "QuestionRating reset highlight on click",
   function (assert) {
     var question = new QuestionRatingModel("q");
+    question.rateDisplayMode = "stars";
     question.onItemMouseIn(question.renderedRateItems[2]);
     assert.deepEqual(question.renderedRateItems.map(i => i.highlight), ["highlighted", "highlighted", "highlighted", "none", "none"]);
     question.setValueFromClick("3");
@@ -6379,12 +6406,14 @@ QUnit.test("QuestionTextModel range min/max property editor type", function (ass
   const maxProperty = Serializer.findProperty("text", "max");
   const q1 = new QuestionTextModel("q1");
   q1.inputType = "range";
-  const minJson = { inputType: "text" };
+  const minJson = { inputType: "text", textUpdateMode: "" };
   minProperty.onPropertyEditorUpdate(q1, minJson);
   assert.equal(minJson.inputType, "number");
-  const maxJson = { inputType: "text" };
+  assert.equal(minJson.textUpdateMode, "onBlur");
+  const maxJson = { inputType: "text", textUpdateMode: "" };
   minProperty.onPropertyEditorUpdate(q1, maxJson);
   assert.equal(maxJson.inputType, "number");
+  assert.equal(maxJson.textUpdateMode, "onBlur");
 });
 QUnit.test("QuestionTextModel inputStyle for empty inputWidth - https://github.com/surveyjs/survey-creator/issues/3755", function (assert) {
   const q1 = new QuestionTextModel("q1");

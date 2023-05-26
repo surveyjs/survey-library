@@ -4,7 +4,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-core";
+import { PopupBaseViewModel, PopupModel, createPopupViewModel, settings } from "survey-core";
 import { PopupContainer } from "./popup-container.vue";
 import { BaseVue } from "../../base";
 @Component

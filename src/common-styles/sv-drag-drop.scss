@@ -11,7 +11,7 @@
   z-index: 1000;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   padding-left: calcSize(2.5);
   line-height: calcSize(3);
 }

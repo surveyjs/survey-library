@@ -406,7 +406,31 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-question__title"));
-      takeElementScreenshot("tagbox-focused.png", Selector(".sd-question"), t, comparer);
+      await takeElementScreenshot("tagbox-focused.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check tagbox input width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3"
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<HTMLElement>document.querySelector(".sd-question input")).style.backgroundColor = "red";
+      })();
+      await takeElementScreenshot("tagbox-contrast-input.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

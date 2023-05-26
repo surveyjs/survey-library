@@ -2009,6 +2009,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var question = column.createCellQuestion(row);
     question.setSurveyImpl(row);
     question.setParentQuestion(this);
+    question.inMatrixMode = true;
     return question;
   }
   protected deleteRowValue(

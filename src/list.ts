@@ -74,11 +74,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return !this.onFilterStringChangedCallback;
   }
   private onFilterStringChanged(text: string) {
-    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
-
     if (!!this.onFilterStringChangedCallback) {
       this.onFilterStringChangedCallback(text);
     }
+    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
   }
   private scrollToItem(selector: string, ms = 0): void {
     setTimeout(() => {

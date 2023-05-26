@@ -129,6 +129,49 @@ QUnit.test("Fit items", function (assert) {
 
 });
 
+QUnit.test("Fit items - hide if needed", function (assert) {
+  const itemSmallWidth = 50;
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+
+  const item1 = new Action(<any>{});
+  item1.minDimension = 0;
+  item1.disableShrink = true;
+  item1.maxDimension = itemSmallWidth;
+  item1.removePriority = 2;
+  model.actions.push(item1);
+  const item2 = new Action(<any>{});
+  item2.minDimension = 0;
+  item2.disableShrink = true;
+  item2.maxDimension = itemSmallWidth;
+  item2.removePriority = 1;
+  model.actions.push(item2);
+  const item3 = new Action(<any>{});
+  item3.minDimension = 0;
+  item3.disableShrink = true;
+  item3.maxDimension = itemSmallWidth;
+  model.actions.push(item3);
+
+  assert.equal(model.actions.length, 3);
+  assert.equal(model.visibleActions.length, 3);
+
+  model.fit(300, itemSmallWidth);
+  assert.equal(model.visibleActions.length, 3, "dimension 300");
+  assert.equal(model.visibleActions[0].isVisible, true, "300 - visible 1");
+  assert.equal(model.visibleActions[1].isVisible, true, "300 - visible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "300 - visible 3");
+
+  model.fit(120, itemSmallWidth);
+  assert.equal(model.visibleActions.length, 3, "dimension 120");
+  assert.equal(model.visibleActions[0].isVisible, true, "120 - visible 1");
+  assert.equal(model.visibleActions[1].isVisible, false, "120 - invisible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "120 - visible 3");
+  model.fit(70, itemSmallWidth);
+  assert.equal(model.visibleActions.length, 3, "dimension 70");
+  assert.equal(model.visibleActions[0].isVisible, false, "70 - invisible 1");
+  assert.equal(model.visibleActions[1].isVisible, false, "70 - invisible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "70 - visible 3");
+});
+
 QUnit.test("getAvailableSpace with content-box test", function (assert) {
   const itemSmallWidth = 48;
   const container: SimpleContainer = new SimpleContainer({

@@ -163,7 +163,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onNavigateToUrl: EventBase<SurveyModel, NavigateToUrlEvent> = this.addEvent<SurveyModel, NavigateToUrlEvent>();
   /**
-   * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes from `"starting"` to `"running"`. This occurs only if your survey includes a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
+   * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes to `"running"`.
    * @see firstPageIsStarted
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
@@ -465,26 +465,36 @@ export class SurveyModel extends SurveyElementCore
   public onProcessTextValue: EventBase<SurveyModel, ProcessTextValueEvent> = this.addEvent<SurveyModel, ProcessTextValueEvent>();
 
   /**
-   * An event that is raised before rendering a question. Use it to override the default question CSS classes.
+   * An event that is raised before rendering a question. Use it to override default question CSS classes.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-cssclasses/ (linkStyle))
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a panel. Use it to override the default panel CSS classes.
+   * An event that is raised before rendering a panel. Use it to override default panel CSS classes.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdatePanelCssClasses: EventBase<SurveyModel, UpdatePanelCssClassesEvent> = this.addEvent<SurveyModel, UpdatePanelCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a page. Use it to override the default page CSS classes.
+   * An event that is raised before rendering a page. Use it to override default page CSS classes.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a choice item in radiogroup, checkbox or dropdown questions. Use it to override the default choice item css.
+   * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
 
@@ -1014,6 +1024,11 @@ export class SurveyModel extends SurveyElementCore
     this.updateNavigationCss();
     this.updateCompletedPageCss();
   }
+  /**
+   * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
+   *
+   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   */
   public get css(): any {
     if (!this.cssValue) {
       this.cssValue = {};
@@ -1508,17 +1523,32 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
    *
    * Default value: `false`
    *
-   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * @see allowResizeComment
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
   }
   public set autoGrowComment(val: boolean) {
     this.setPropertyValue("autoGrowComment", val);
+  }
+  /**
+   * Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
+   *
+   * Default value: `true`
+   *
+   * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
+   * @see autoGrowComment
+   */
+  public get allowResizeComment(): boolean {
+    return this.getPropertyValue("allowResizeComment");
+  }
+  public set allowResizeComment(val: boolean) {
+    this.setPropertyValue("allowResizeComment", val);
   }
   /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
@@ -1902,6 +1932,7 @@ export class SurveyModel extends SurveyElementCore
   private updateRenderBackgroundImage(): void {
     this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
   }
+  @property() backgroundImageFit: string;
   /**
    * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
    * @see backgroundImage
@@ -3050,7 +3081,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCompleted = false;
     this.isCompletedBefore = false;
     this.isLoading = false;
-    this.canBeCompletedByTrigger = false;
+    this.completedByTriggers = undefined;
     if (clearData) {
       this.data = null;
       this.variablesHash = {};
@@ -3250,7 +3281,7 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   /**
-   * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completed` state if the function returns `true`.
+   * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completedbefore` state if the function returns `true`.
    * @see cookieName
    * @see setCookie
    * @see deleteCookie
@@ -4000,8 +4031,8 @@ export class SurveyModel extends SurveyElementCore
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
-    this.setCookie();
     this.saveDataOnComplete(isCompleteOnTrigger);
+    this.setCookie();
     return true;
   }
   private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
@@ -4180,12 +4211,23 @@ export class SurveyModel extends SurveyElementCore
   public setCompleted(): void {
     this.doComplete(true);
   }
-  canBeCompleted(): void {
+  canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.changeNavigationButtonsOnCompleteTrigger) return;
-    if (!this.canBeCompletedByTrigger) {
-      this.canBeCompletedByTrigger = true;
+    const prevCanBeCompleted = this.canBeCompletedByTrigger;
+    if(!this.completedByTriggers) this.completedByTriggers = {};
+    if(isCompleted) {
+      this.completedByTriggers[trigger.id] = true;
+    } else {
+      delete this.completedByTriggers[trigger.id];
+    }
+    if(prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();
     }
+  }
+  private completedByTriggers: HashTable<boolean>;
+  private get canBeCompletedByTrigger(): boolean {
+    if(!this.completedByTriggers) return false;
+    return Object.keys(this.completedByTriggers).length > 0;
   }
   /**
    * Returns the HTML content for the complete page.
@@ -4394,8 +4436,9 @@ export class SurveyModel extends SurveyElementCore
   afterRenderQuestionInput(question: Question, htmlElement: HTMLElement) {
     if (this.onAfterRenderQuestionInput.isEmpty) return;
     let id = (<Question>question).inputId;
-    if (!!id && htmlElement.id !== id && typeof document !== "undefined") {
-      let el = document.getElementById(id);
+    const { root } = settings.environment;
+    if (!!id && htmlElement.id !== id && typeof root !== "undefined") {
+      let el = root.getElementById(id);
       if (!!el) {
         htmlElement = el;
       }
@@ -4437,7 +4480,11 @@ export class SurveyModel extends SurveyElementCore
     this.onChoicesLazyLoad.fire(this, options);
   }
   getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
-    this.onGetChoiceDisplayValue.fire(this, options);
+    if(this.onGetChoiceDisplayValue.isEmpty) {
+      options.setItems(null);
+    } else {
+      this.onGetChoiceDisplayValue.fire(this, options);
+    }
   }
   matrixBeforeRowAdded(options: any) {
     this.onMatrixBeforeRowAdded.fire(this, options);
@@ -5179,7 +5226,7 @@ export class SurveyModel extends SurveyElementCore
       values[name] = this.getValue(name);
     }
     this.addCalculatedValuesIntoFilteredValues(values);
-    this.checkTriggers(values, true);
+    this.checkTriggers(values, true, isOnComplete);
   }
   private getCurrentPageQuestions(
     includeInvsible: boolean = false
@@ -5211,7 +5258,6 @@ export class SurveyModel extends SurveyElementCore
     this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    this.canBeCompletedByTrigger = false;
     for (var i: number = 0; i < this.triggers.length; i++) {
       this.triggers[i].checkExpression(isOnNextPage, isOnComplete,
         this.triggerKeys,
@@ -5507,7 +5553,7 @@ export class SurveyModel extends SurveyElementCore
     this.onQuestionsOnPageModeChanged("standard");
     super.endLoadingFromJson();
     if (this.hasCookie) {
-      this.doComplete();
+      this.isCompletedBefore = true;
     }
     this.doElementsOnLoad();
     this.isEndLoadingFromJson = "conditions";
@@ -6863,7 +6909,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(!this.isShowingPreview && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
           if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
@@ -7071,6 +7117,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
+  { name: "allowResizeComment:boolean", default: true },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },
@@ -7136,6 +7183,7 @@ Serializer.addClass("survey", [
   },
   "width",
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

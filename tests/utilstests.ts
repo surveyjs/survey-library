@@ -1,7 +1,7 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
 import { Question } from "../src/question";
-import { createSvg, sanitizeEditableContent } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent } from "../src/utils/utils";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
@@ -97,5 +97,61 @@ QUnit.test(
     assert.equal(element.querySelector("title")?.innerHTML, "titletext2");
 
     element.remove();
+  }
+);
+
+QUnit.test(
+  "utils: keytoclick - skip UP if there was no DOWN",
+  function (assert) {
+    var clicked = false;
+    var event = {
+      keyCode: 13,
+      target: { click: () => { clicked = true; } },
+      preventDefault: () => { }
+    };
+
+    doKey2ClickUp(event as any);
+    assert.ok(clicked);
+    clicked = false;
+    doKey2ClickDown(event as any);
+    doKey2ClickUp(event as any);
+    assert.ok(clicked);
+    clicked = false;
+
+    doKey2ClickUp(event as any, undefined);
+    assert.ok(clicked);
+    clicked = false;
+    doKey2ClickDown(event as any, undefined);
+    doKey2ClickUp(event as any, undefined);
+    assert.ok(clicked);
+    clicked = false;
+
+    var options = {};
+    doKey2ClickUp(event as any, options);
+    assert.notOk(clicked);
+    doKey2ClickDown(event as any, options);
+    doKey2ClickUp(event as any, options);
+    assert.ok(clicked);
+  }
+);
+
+QUnit.test(
+  "utils: keytoclick - support tab keyup",
+  function (assert) {
+    var classAdded = "";
+    var event = {
+      keyCode: 9,
+      target: {
+        classList: {
+          contains: () => false,
+          add: (cl) => classAdded = cl
+        }
+      },
+      preventDefault: () => { }
+    };
+
+    var options = {};
+    doKey2ClickUp(event as any, options);
+    assert.equal(classAdded, "sv-focused--by-key");
   }
 );

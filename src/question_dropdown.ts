@@ -255,8 +255,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }
-  public get ariaExpanded(): boolean {
-    return this.popupModel.isVisible;
+  public get ariaExpanded(): string {
+    const popupModel = this.popupModel;
+    return !!popupModel && popupModel.isVisible ? "true" : "false";
   }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();
@@ -275,6 +276,11 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if(this.choicesLazyLoadEnabled) { return false; }
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
   }
+  protected needConvertRenderedOtherToDataValue(): boolean {
+    const val = this.otherValue?.trim();
+    if(!val) return false;
+    return super.hasUnknownValue(val, true, false);
+  }
 
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
@@ -290,9 +296,10 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public getInputId() {
     return this.inputId + "_0";
   }
-  public clearValue() {
+  public clearValue(): void {
     super.clearValue();
     this.lastSelectedItemValue = null;
+    this.dropdownListModel?.clear();
   }
 
   onClick(e: any): void {

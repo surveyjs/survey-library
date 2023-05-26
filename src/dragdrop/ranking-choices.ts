@@ -20,8 +20,7 @@ export class DragDropRankingChoices extends DragDropChoices {
           z-index: 1000;
           border-radius: 36px;
           min-width: 100px;
-          filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
-          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
           background-color: var(--background, white);
           font-family: var(--font-family, $font-family);
         `;
@@ -49,17 +48,13 @@ export class DragDropRankingChoices extends DragDropChoices {
       .toString();
   }
 
-  protected getDropTargetByDataAttributeValue(
-    dataAttributeValue: string
-  ): ItemValue {
+  protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {
     return this.parentElement.rankingChoices[dataAttributeValue];
   }
 
   private isDragOverRootNode: boolean = false;
 
-  protected findDropTargetNodeByDragOverNode(
-    dragOverNode: HTMLElement
-  ): HTMLElement {
+  protected findDropTargetNodeByDragOverNode(dragOverNode: HTMLElement): HTMLElement {
     this.isDragOverRootNode = this.getIsDragOverRootNode(dragOverNode);
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
@@ -105,7 +100,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   }
 
   protected doDragOver = (): any => {
-    const node = this.draggedElementShortcut.querySelector(".sv-ranking-item");
+    const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".sv-ranking-item");
     node.style.cursor = "grabbing";
   };
 
@@ -138,7 +133,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   protected updateDraggedElementShortcut(newIndex: number) {
     const newIndexText = newIndex + "";
     // TODO should avoid direct DOM manipulation, do through the frameworks instead
-    const indexNode: HTMLElement = this.draggedElementShortcut.querySelector(
+    const indexNode: HTMLElement = this.domAdapter.draggedElementShortcut.querySelector(
       ".sv-ranking-item__index"
     );
     indexNode.innerText = newIndexText;
@@ -155,7 +150,7 @@ export class DragDropRankingChoices extends DragDropChoices {
       return;
     }
 
-    const node = this.draggedElementShortcut.querySelector(".sv-ranking-item");
+    const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".sv-ranking-item");
     node.style.cursor = "not-allowed";
   };
 
@@ -164,8 +159,11 @@ export class DragDropRankingChoices extends DragDropChoices {
     return this.parentElement;
   };
 
-  protected doClear = (): void => {
-    this.parentElement.dropTargetNodeMove = null;
-    this.parentElement.updateRankingChoices(true);
-  };
+  public clear(): void {
+    if(!!this.parentElement) {
+      this.parentElement.dropTargetNodeMove = null;
+      this.parentElement.updateRankingChoices(true);
+    }
+    super.clear();
+  }
 }

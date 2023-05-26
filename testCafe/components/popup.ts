@@ -309,4 +309,56 @@ frameworks.forEach(async framework => {
       .expect(popupSelector.visible).ok()
       .expect(popupSelector.offsetHeight).eql(346);
   });
+  test("check popup with filter", async t => {
+    const currentAddDropdownTitleAction = (_, opt) => {
+      if(opt.question.name !== "actions_question") return;
+
+      let items: Array<any> = [];
+      for (let index = 0; index < 20; index++) {
+        items[index] = new window["Survey"].Action({ title: "item" + index });
+      }
+      const item = window["Survey"].createDropdownActionModel(
+        { title: "Click", showTitle: true },
+        { items: items }
+      );
+      opt.titleActions = [item];
+    };
+    const insertContainer = ClientFunction(() => {
+      const container = document.createElement("div");
+      container.style.height = "200px";
+      const surveyEl = document.getElementById("surveyElement");
+      surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
+    });
+
+    await insertContainer();
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "text",
+          name: "q1"
+        },
+        {
+          type: "text",
+          name: "q2"
+        },
+        {
+          type: "text",
+          name: "actions_question"
+        }
+      ]
+    }, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
+
+    const popupHeight = 455;
+    await t
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
+      .typeText(Selector(".sv-list__input"), "2")
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
+      .click(clickButton)
+      .expect(popupSelector.visible).notOk()
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1);
+  });
 });

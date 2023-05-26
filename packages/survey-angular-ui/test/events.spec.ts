@@ -11,7 +11,7 @@ describe("event tests", () => {
     }).compileComponents();
     TestBed;
   });
-  it("Check that that surveyAfterRender is called", (done: any) => {
+  it("Check that surveyAfterRender is called", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);
     const component = fixture.componentInstance;
     component.model = new SurveyModel({});
@@ -20,6 +20,18 @@ describe("event tests", () => {
       done();
     });
     fixture.detectChanges();
+  });
+  it("Check that startTimerFromUI is called", (done: any) => {
+    const fixture = TestBed.createComponent(SurveyComponent);
+    const component = fixture.componentInstance;
+    component.model = new SurveyModel({});
+    let log = "";
+    component.model.startTimerFromUI = () => {
+      log += "->called";
+    };
+    fixture.detectChanges();
+    expect(log).toBe("->called");
+    done();
   });
   it("Check that that question afterRender is called", (done: any) => {
     const fixture = TestBed.createComponent(SurveyComponent);

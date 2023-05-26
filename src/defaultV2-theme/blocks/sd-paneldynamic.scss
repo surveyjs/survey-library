@@ -80,7 +80,7 @@
     margin-right: calcSize(-1);
 }
 .sd-paneldynamic__progress-text {
-    font-size: calcSize(2);
+    font-size: calcFontSize(1);
     color: $foreground-light;
     margin: 0;
     margin-right: calcSize(3);
@@ -166,7 +166,7 @@
     cursor: pointer;
 
     font-family: var(--font-family, $font-family);
-    font-size: calcSize(2);
+    font-size: calcFontSize(1);
     color: $foreground-light;
     overflow-x: hidden;
     white-space: nowrap;

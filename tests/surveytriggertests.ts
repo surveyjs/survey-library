@@ -35,7 +35,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
     return this.items;
   }
   setCompleted() {}
-  canBeCompleted() {}
+  canBeCompleted(trigger: Trigger, isCompleted: boolean) {}
   triggerExecuted(trigger: Trigger): void {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
   copyTriggerValue(name: string, fromName: string) {}
@@ -408,4 +408,56 @@ QUnit.test("Trigger with simple matrix", function(assert) {
   assert.equal(q2.value, 8, "#4");
   q1.value = { b: 2, c: 3 };
   assert.equal(q2.value, 8, "#5");
+});
+QUnit.test("Show complete button instead of next for single matrix, bug#6152", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "matrix",
+            name: "q1",
+            columns: [1, 2, 3],
+            rows: ["row1", "row2", "row3"]
+          }
+        ]
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      }
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression:
+          "{q1.row2} = 1"
+      }
+    ]
+  });
+  assert.equal(survey.isShowNextButton, true, "#1-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#1-complete");
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = { row2: 1 };
+  assert.equal(survey.isShowNextButton, false, "#2-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#2-complete");
+  q1.value = { row1: 1, row2: 1 };
+  assert.equal(survey.isShowNextButton, false, "#3-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#3-complete");
+  q1.value = { row1: 1 };
+  assert.equal(survey.isShowNextButton, true, "#4-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#4-complete");
+  q1.value = { row1: 1, row2: 2 };
+  assert.equal(survey.isShowNextButton, true, "#5-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#5-complete");
+  q1.value = { row1: 1, row2: 1 };
+  assert.equal(survey.isShowNextButton, false, "#6-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#6-complete");
+  q1.value = { row1: 2, row2: 1, row3: 2 };
+  assert.equal(survey.isShowNextButton, false, "#7-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#7-complete");
 });

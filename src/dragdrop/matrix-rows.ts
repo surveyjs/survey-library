@@ -27,8 +27,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     const clone = <HTMLElement>(row.cloneNode(isDeepClone));
 
     clone.style.cssText = `
-      filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
-      box-shadow: rgb(0 0 0 / 10%) 0px 8px 16px;
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
       background-color: white;
       display: flex;
       flex-grow: 0;
@@ -92,7 +91,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return dropTargetRenderedRow.row;
   }
 
-  protected isDropTargetValid(dropTarget: any): boolean {
+  protected isDropTargetValid(dropTarget: any, dropTargetNode?: HTMLElement): boolean {
     return true;
   }
 
@@ -157,9 +156,10 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return this.parentElement;
   };
 
-  protected doClear(): void {
+  public clear(): void {
     this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
+    super.clear();
   }
 }

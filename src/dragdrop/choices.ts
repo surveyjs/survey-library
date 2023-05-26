@@ -69,8 +69,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       cursor: grabbing;
       position: absolute;
       z-index: 1000;
-      filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
       padding: 4px;
       border-radius: 4px;
       background: white;
@@ -113,12 +112,13 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doDragOver = (): any => {
     if (this.parentElement.getType() === "imagepicker") return;
-    const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
+    const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".svc-item-value-controls__button");
     node.style.cursor = "grabbing";
   };
 
   protected isDropTargetValid(
-    dropTarget: ItemValue
+    dropTarget: ItemValue,
+    dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.getVisibleChoices();
 
@@ -145,7 +145,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doBanDropHere = (): any => {
     if (this.parentElement.getType() === "imagepicker") return;
-    const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
+    const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".svc-item-value-controls__button");
     node.style.cursor = "not-allowed";
   };
 
@@ -202,13 +202,15 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return this.parentElement;
   }
 
-  protected doClear(): void {
-    this.updateVisibleChoices();
+  public clear(): void {
+    if(!!this.parentElement) {
+      this.updateVisibleChoices(this.parentElement);
+    }
+    super.clear();
   }
 
-  private updateVisibleChoices() {
-    const parent = this.parentElement;
-    this.parentElement.getType() === "ranking" ?
+  private updateVisibleChoices(parent: any) {
+    parent.getType() === "ranking" ?
       parent.updateRankingChoices() :
       parent["updateVisibleChoices"]();
   }

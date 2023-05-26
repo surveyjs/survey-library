@@ -435,6 +435,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (operator == "contains" || operator == "notcontains") {
       json["type"] = "radiogroup";
     }
+    json["maxSelectedChoices"] = 0;
     return json;
   }
   public isAnswerCorrect(): boolean {

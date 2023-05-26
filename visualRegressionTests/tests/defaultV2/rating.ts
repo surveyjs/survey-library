@@ -337,6 +337,7 @@ frameworks.forEach(framework => {
             name: "satisfaction",
             title: "Rating",
             rateType: "smileys",
+            rateColorMode: "default",
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
@@ -359,6 +360,81 @@ frameworks.forEach(framework => {
       await focusBody();
       await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
       await takeElementScreenshot("question-rating-smileys-selected", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating smileys rate colored question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-rate-colored.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); })();
+      await takeElementScreenshot("question-rating-smileys-rate-colored-focus.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-rate-colored-focus-hovered.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-rate-colored-focus-selected.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-rate-colored-unhovered.png", questionRoot, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-smileys-rate-colored-selected", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating smileys scale colored question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            scaleColorMode: "colored",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-scale-colored.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); })();
+      await takeElementScreenshot("question-rating-smileys-scale-colored-focus.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-scale-colored-focus-hovered.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-scale-colored-focus-selected.png", questionRoot, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-scale-colored-unhovered.png", questionRoot, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-smileys-scale-colored-selected", questionRoot, t, comparer);
     });
   });
 
@@ -407,6 +483,18 @@ frameworks.forEach(framework => {
             maxRateDescription: "Completely satisfied",
             width: "708px",
             isRequired: true
+          },
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            scaleColorMode: "colored",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            width: "708px",
+            isRequired: true
           }
         ]
       });
@@ -414,8 +502,88 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await t.click(Selector("input[value=Complete]"));
       await focusBody();
-      await takeElementScreenshot("question-rating-smileys-required.png", questionRoot, t, comparer);
+      await takeElementScreenshot("question-rating-smileys-required.png", questionRoot.nth(0), t, comparer);
+      await t.hover(questionRoot.nth(0).find(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-required-hover.png", questionRoot.nth(0), t, comparer);
+      await takeElementScreenshot("question-rating-smileys-colored-required.png", questionRoot.nth(1), t, comparer);
+      await t.hover(questionRoot.nth(1).find(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-colored-required-hover.png", questionRoot.nth(1), t, comparer);
     });
   });
 
+  test("Check rating smileys and stars in matrix", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+      await initSurvey(framework,
+
+        {
+          widthMode: "static",
+          questions: [
+            {
+              "type": "matrixdropdown",
+              "name": "question7",
+              "columns": [
+                {
+                  "name": "Column 1",
+                  "cellType": "rating",
+                  "rateType": "stars"
+                },
+                {
+                  "name": "Column 2",
+                  "cellType": "rating",
+                  "rateType": "smileys"
+                }
+              ],
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ],
+              "rows": [
+                "Row 1"
+              ]
+            }
+          ]
+        }
+      );
+
+      const questionRoot = Selector(".sd-question--table");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-stars-in-matrix", questionRoot, t, comparer);
+
+      const questionStars = Selector(".sd-rating").nth(0);
+      await focusBody();
+      await takeElementScreenshot("question-rating-stars-small.png", questionStars, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-star input")).focus(); })();
+      await takeElementScreenshot("question-rating-stars-small-focus.png", questionStars, t, comparer);
+      await t.hover(Selector(".sd-rating__item-star").nth(3));
+      await takeElementScreenshot("question-rating-stars-small-focus-hovered.png", questionStars, t, comparer);
+      await t.click(Selector(".sd-rating__item-star").nth(3));
+      await takeElementScreenshot("question-rating-stars-small-focus-selected.png", questionStars, t, comparer);
+      await t.hover(Selector(".sd-rating__item-star").nth(1));
+      await takeElementScreenshot("question-rating-stars-small-unhovered.png", questionStars, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-stars-small-selected", questionStars, t, comparer);
+
+      const questionSmileys = Selector(".sd-rating").nth(1);
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-small.png", questionSmileys, t, comparer);
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item-smiley input")).focus(); })();
+      await takeElementScreenshot("question-rating-smileys-small-focus.png", questionSmileys, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-small-focus-hovered.png", questionSmileys, t, comparer);
+      await t.click(Selector(".sd-rating__item-smiley").nth(3));
+      await takeElementScreenshot("question-rating-smileys-small-focus-selected.png", questionSmileys, t, comparer);
+      await t.hover(Selector(".sd-rating__item-smiley").nth(1));
+      await takeElementScreenshot("question-rating-smileys-small-unhovered.png", questionSmileys, t, comparer);
+      await focusBody();
+      await t.hover(Selector(".sd-body"), { offsetX: 0, offsetY: 0 });
+      await takeElementScreenshot("question-rating-smileys-small-selected", questionSmileys, t, comparer);
+
+    });
+  });
 });

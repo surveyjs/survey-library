@@ -96,6 +96,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
+  allowResizeComment: boolean;
 
   state: string;
   isLazyRendering: boolean;
@@ -342,6 +343,14 @@ export interface IWrapperObject {
 export interface IFindElement {
   element: Base;
   str: LocalizableString;
+}
+
+export type ISurveyEnvironment = {
+  root: Document | ShadowRoot,
+  rootElement: HTMLElement | ShadowRoot,
+  popupMountContainer: HTMLElement | string,
+  svgMountContainer: HTMLElement | string,
+  stylesSheetsMountContainer: HTMLElement,
 }
 
 export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";

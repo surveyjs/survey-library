@@ -119,6 +119,41 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.count).eql(0);
   });
 
+  test("tagbox selected list items", async (t) => {
+    await initSurvey(framework, jsonCloseOnSelectIsDefault);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const selectedListItem = Selector(".sv-list__item--selected");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .click(questionTagbox)
+      .expect(popupContainer.visible).ok()
+
+      .click(getListItemByText("item1"))
+      .click(getListItemByText("item2"))
+      .click(getListItemByText("item3"))
+      .expect(selectedItems.count).eql(3)
+      .expect(selectedListItem.count).eql(3)
+      .expect(selectedListItem.nth(0).textContent).contains("item1")
+      .expect(selectedListItem.nth(1).textContent).contains("item2")
+      .expect(selectedListItem.nth(2).textContent).contains("item3")
+
+      .click(getListItemByText("item1"))
+      .click(getListItemByText("item2"))
+      .click(getListItemByText("item3"))
+      .expect(selectedItems.count).eql(0)
+      .expect(selectedListItem.count).eql(0)
+
+      .click(getListItemByText("item1"))
+      .click(getListItemByText("item2"))
+      .click(getListItemByText("item3"))
+      .expect(selectedItems.count).eql(3)
+      .expect(selectedListItem.count).eql(3)
+      .expect(selectedListItem.nth(0).textContent).contains("item1")
+      .expect(selectedListItem.nth(1).textContent).contains("item2")
+      .expect(selectedListItem.nth(2).textContent).contains("item3");
+  });
+
   test("tagbox editing. CloseOnSelect is default", async (t) => {
     await initSurvey(framework, jsonCloseOnSelectIsDefault);
     await t
@@ -364,6 +399,70 @@ frameworks.forEach((framework) => {
       .pressKey("enter")
       .expect(selectedItems.nth(0).textContent).contains("item4")
       .expect(selectedItems.nth(1).textContent).contains("item7");
+  });
+
+  test("check tagbox after navigating between pages", async t => {
+    const json = {
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "tagbox",
+              "name": "question1",
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "tagbox",
+              "name": "question3",
+              "choices": [
+                "Item 1",
+                "Item 2",
+                "Item 3"
+              ]
+            }
+          ]
+        }
+      ],
+      "showCompletedPage": false,
+      "showQuestionNumbers": "off",
+      "showProgressBar": "top",
+      "checkErrorsMode": "onComplete",
+    };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await initSurvey(framework, json);
+
+    await t
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionTagbox)
+      .click(getListItemByText("3"))
+      .pressKey("esc")
+      .expect(popupContainer.exists).notOk()
+
+      .click(".sv_next_btn")
+      .click(".sv_prev_btn")
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionTagbox)
+      .expect(popupContainer.exists).ok()
+      .pressKey("esc")
+      .expect(selectedItems.count).eql(1)
+
+      .click(".sv_q_dropdown_clean-button")
+      .expect(selectedItems.count).eql(0);
   });
 
   const theme = "defaultV2";

@@ -115,8 +115,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }
-  public get ariaExpanded(): boolean {
-    return this.popupModel.isVisible;
+  public get ariaExpanded(): string {
+    const popupModel = this.popupModel;
+    return !!popupModel && popupModel.isVisible ? "true" : "false";
   }
 
   public getControlClass(): string {
@@ -140,6 +141,11 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   ): boolean {
     if(this.choicesLazyLoadEnabled) { return false; }
     return super.hasUnknownValue(val, includeOther, isFilteredChoices, checkEmptyValue);
+  }
+  protected needConvertRenderedOtherToDataValue(): boolean {
+    const val = this.otherValue?.trim();
+    if(!val) return false;
+    return super.hasUnknownValue(val, true, false);
   }
 
   protected onVisibleChoicesChanged(): void {
@@ -186,6 +192,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
     }
+  }
+  public clearValue(): void {
+    super.clearValue();
+    this.dropdownListModel.clear();
   }
 }
 

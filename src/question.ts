@@ -11,7 +11,7 @@ import { LocalizableString } from "./localizablestring";
 import { ConditionRunner, ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
-import { settings } from "./settings";
+import { settings, ISurveyEnvironment } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
@@ -100,6 +100,7 @@ export class Question extends SurveyElement<Question>
   @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
     target.setIsMobile(val);
   } }) isMobile: boolean;
+  @property() forceIsInputReadOnly: boolean;
 
   constructor(name: string) {
     super(name);
@@ -223,6 +224,9 @@ export class Question extends SurveyElement<Question>
     } else {
       return null;
     }
+  }
+  public get ariaExpanded(): string {
+    return null;
   }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
@@ -692,7 +696,8 @@ export class Question extends SurveyElement<Question>
     if (this.supportComment() || this.supportOther()) {
       this.commentElements = [];
       this.getCommentElementsId().forEach(id => {
-        let el = document.getElementById(id);
+        const { root } = settings.environment;
+        let el = root.getElementById(id);
         if(el) this.commentElements.push(el);
       });
       this.updateCommentElements();
@@ -1103,6 +1108,9 @@ export class Question extends SurveyElement<Question>
     return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
   }
   public get isInputReadOnly(): boolean {
+    if(this.forceIsInputReadOnly !== undefined) {
+      return this.forceIsInputReadOnly;
+    }
     var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
     return this.isReadOnly || isDesignModeV2;
   }
@@ -1208,6 +1216,9 @@ export class Question extends SurveyElement<Question>
   }
   private get autoGrowComment(): boolean {
     return this.survey && this.survey.autoGrowComment;
+  }
+  private get allowResizeComment(): boolean {
+    return this.survey && this.survey.allowResizeComment;
   }
   private get questionValue(): any {
     return this.getPropertyValue("value");
@@ -1390,7 +1401,7 @@ export class Question extends SurveyElement<Question>
     this.updateValueWithDefaults();
   }
   public get resizeStyle() {
-    return this.autoGrowComment ? "none" : "both";
+    return this.allowResizeComment ? "both" : "none";
   }
   /**
    * Returns the question value as an object in which the question name, title, value, and other parameters are stored as individual properties.
@@ -1997,6 +2008,8 @@ export class Question extends SurveyElement<Question>
   }
 
   @property() renderAs: string;
+
+  @property({ defaultValue: false }) inMatrixMode: boolean;
 
   //ISurveyErrorOwner
   getErrorCustomText(text: string, error: SurveyError): string {

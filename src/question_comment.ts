@@ -4,6 +4,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { QuestionTextBase } from "./question_textbase";
 import { increaseHeightByContent } from "./utils/utils";
+import { settings } from "./settings";
 
 /**
  * A class that describes the Comment question type.
@@ -51,6 +52,7 @@ export class QuestionCommentModel extends QuestionTextBase {
    * Specifies whether the comment area automatically increases its height to accomodate multi-line content.
    *
    * Default value: `false` (inherited from `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
+   * @see allowResize
    */
   public get autoGrow(): boolean {
     return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
@@ -58,11 +60,27 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set autoGrow(val: boolean) {
     this.setPropertyValue("autoGrow", val);
   }
+  /**
+   * Specifies whether to display a resize handle for the comment area.
+   *
+   * Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
+   * @see autoGrow
+   */
+  public get allowResize(): boolean {
+    return this.getPropertyValue("allowResize") && (this.survey && this.survey.allowResizeComment);
+  }
+  public set allowResize(val: boolean) {
+    this.setPropertyValue("allowResize", val);
+  }
+  public get resizeStyle() {
+    return this.allowResize ? "both" : "none";
+  }
   public getType(): string {
     return "comment";
   }
   public afterRenderQuestionElement(el: HTMLElement): void {
-    this.element = document.getElementById(this.inputId) || el;
+    const { root } = settings.environment;
+    this.element = root.getElementById(this.inputId) || el;
     this.updateElement();
     super.afterRenderQuestionElement(el);
   }
@@ -119,6 +137,7 @@ Serializer.addClass(
       choices: ["default", "onBlur", "onTyping"],
     },
     { name: "autoGrow:boolean" },
+    { name: "allowResize:boolean", default: true },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

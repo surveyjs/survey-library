@@ -8,13 +8,14 @@
   box-sizing: border-box;
   padding: calcSize(1.5) calcSize(2);
   line-height: calcSize(3);
-  font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
-  color: $foreground;
+  font-family: $font-editorfont-family;
+  font-weight: $font-editorfont-weight;
+  color: $font-editorfont-color;
+  font-size: $font-editorfont-size;
   background-color: $editor-background;
-  box-shadow: inset 0px 1px 2px $shadow-inner;
+  box-shadow: $editor-boxshadow;
   border: none;
-  border-radius: 3px;
+  border-radius: $editor-corner-radius;
   text-align: start;
 }
 
@@ -69,7 +70,7 @@
   padding: 0px;
   font-family: $font-family;
   line-height: calcSize(3);
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   color: $foreground-light;
   position: absolute;
   inset-inline-end: calcSize(2);

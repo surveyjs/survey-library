@@ -1,4 +1,4 @@
-import { settings } from "./../settings";
+import { settings, ISurveyEnvironment } from "./../settings";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -70,16 +70,30 @@ function isMobile() {
   );
 }
 
+const isShadowDOM = (rootElement: Document | ShadowRoot | HTMLElement): rootElement is ShadowRoot => {
+  return !!rootElement && !!("host" in rootElement && rootElement.host);
+};
+
+const getElement = (element: HTMLElement | string): HTMLElement => {
+  const { root }: ISurveyEnvironment = settings.environment;
+  return typeof element === "string" ? root.getElementById(element) : element;
+};
+
 function isElementVisible(
   element: HTMLElement,
   threshold: number = 0
 ): boolean {
-  if (typeof document === "undefined") {
+  if (typeof settings.environment === "undefined") {
     return false;
   }
+
+  const { root }: ISurveyEnvironment = settings.environment;
+  const clientHeight = isShadowDOM(root)
+    ? root.host.clientHeight
+    : root.documentElement.clientHeight;
   const elementRect: DOMRect = element.getBoundingClientRect();
   const viewHeight: number = Math.max(
-    document.documentElement.clientHeight,
+    clientHeight,
     window.innerHeight
   );
   const topWin: number = -threshold;
@@ -93,8 +107,11 @@ function isElementVisible(
 }
 
 function findScrollableParent(element: HTMLElement): HTMLElement {
+  const { root }: ISurveyEnvironment = settings.environment;
   if (!element) {
-    return document.documentElement;
+    return isShadowDOM(root)
+      ? root.host as HTMLElement
+      : root.documentElement;
   }
   if (
     element.scrollHeight > element.clientHeight &&
@@ -116,8 +133,10 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
 }
 
 function scrollElementByChildId(id: string) {
-  if (!document) return;
-  const el = document.getElementById(id);
+  const environment : ISurveyEnvironment = settings.environment;
+  if (!environment) return;
+  const { root } = environment;
+  const el = root.getElementById(id);
   if (!el) return;
   const scrollableEl = findScrollableParent(el);
   if (!!scrollableEl) {
@@ -142,7 +161,7 @@ function createSvg(
   height: number,
   iconName: string,
   svgElem: any,
-  title: string
+  title: string,
 ): void {
   if (!svgElem) return;
   if (size !== "auto") {
@@ -199,6 +218,7 @@ export function getSize(value: any) {
 export interface IAttachKey2clickOptions {
   processEsc?: boolean;
   disableTabStop?: boolean;
+  __keyDownReceived?: boolean;
 }
 
 const keyFocusedClassName = "sv-focused--by-key";
@@ -219,7 +239,15 @@ export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOpti
     if (!!element.classList && !element.classList.contains(keyFocusedClassName)) {
       element.classList.add(keyFocusedClassName);
     }
-  } else if (char === 13 || char === 32) {
+    return;
+  }
+
+  if (options) {
+    if (!options.__keyDownReceived) return;
+    options.__keyDownReceived = false;
+  }
+
+  if (char === 13 || char === 32) {
     if (element.click) element.click();
   } else if ((!options || options.processEsc) && char === 27) {
     if (element.blur) element.blur();
@@ -227,6 +255,7 @@ export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOpti
 }
 
 export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
+  if (options) options.__keyDownReceived = true;
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -239,6 +268,7 @@ export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOpt
     evt.preventDefault();
   }
 }
+
 function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
   if (!element) return;
   if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };
@@ -304,7 +334,7 @@ function mergeValues(src: any, dest: any) {
   if (typeof dest !== "object") return;
   for (var key in src) {
     var value = src[key];
-    if (value && typeof value === "object") {
+    if (!Array.isArray(value) && value && typeof value === "object") {
       if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};
       mergeValues(value, dest[key]);
     } else {
@@ -334,6 +364,8 @@ export {
   detectIEBrowser,
   loadFileFromBase64,
   isMobile,
+  isShadowDOM,
+  getElement,
   isElementVisible,
   findScrollableParent,
   scrollElementByChildId,

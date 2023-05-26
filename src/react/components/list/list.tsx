@@ -1,5 +1,5 @@
 import React from "react";
-import { IAction, ListModel } from "survey-core";
+import { IAction, ListModel, settings } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { SvgIcon } from "../svg-icon/svg-icon";
@@ -86,7 +86,8 @@ export class List extends SurveyElementBase<IListProps, any> {
     if (!this.model.showFilter) return null;
     else {
       const onChange = (e: any) => {
-        if (e.target === document.activeElement) {
+        const { root } = settings.environment;
+        if (e.target === root.activeElement) {
           this.model.filterString = e.target.value;
         }
       };

@@ -100,4 +100,19 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   //   this.parentElement.updateRankingChoices(true);
   //   this.parentElement["updateVisibleChoices"]();
   // };
+
+  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+    const rankingChoices = questionModel.rankingChoices;
+    const unRankingChoices = questionModel.unRankingChoices;
+    const item = unRankingChoices[fromIndex];
+
+    rankingChoices.splice(toIndex, 0, item);
+    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+  }
+
+  public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number) {
+    const rankingChoices = questionModel.rankingChoices;
+    rankingChoices.splice(fromIndex, 1);
+    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+  }
 }

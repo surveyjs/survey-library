@@ -314,3 +314,37 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.deepEqual(q2.value, ["a", "b"], "value is correct");
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
+
+function createRankingQuestionModel(selectToRank = false, withDefaultValue = false) {
+  const json = {
+    "choices": [
+      "11",
+      "22",
+      "33"
+    ]
+  };
+
+  if (selectToRank) {
+    json["selectToRank"] = true;
+  }
+
+  if (withDefaultValue) {
+    json["defaultValue"] = ["33", "22"];
+  }
+
+  const model = new QuestionRankingModel("qr1");
+  model.fromJSON(json);
+  return model;
+}
+
+QUnit.test("selectToRank : initial", function (assert) {
+  const questionModel = createRankingQuestionModel(true);
+  assert.equal(questionModel.unRankingChoices.length, 3, "unRankingChoices count");
+  assert.equal(questionModel.rankingChoices.length, 0, "rankingChoices count");
+});
+
+QUnit.test("selectToRank : defaultValue", function (assert) {
+  const questionWithDefaultValueModel = createRankingQuestionModel(true, true);
+  assert.equal(questionWithDefaultValueModel.unRankingChoices.length, 1, "unRankingChoices count");
+  assert.equal(questionWithDefaultValueModel.rankingChoices.length, 2, "rankingChoices count");
+});

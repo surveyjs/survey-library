@@ -116,6 +116,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       return;
     }
 
+    if (this.selectToRank) {
+      this.updateRankingChoices();
+      return;
+    }
+
     if (this.visibleChoices.length > this.value.length)
       this.addToValueByVisibleChoices();
     if (this.visibleChoices.length < this.value.length)
@@ -161,9 +166,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       unRankingChoices.push(choice);
     });
 
-    this.value.forEach((valueItem: string) => {
+    this.rankingChoices.forEach((rankingChoice: ItemValue) => {
       unRankingChoices.forEach((choice, index) => {
-        if (choice.value === valueItem) unRankingChoices.splice(index, 1);
+        if (choice.value === rankingChoice.value) unRankingChoices.splice(index, 1);
       });
     });
 
@@ -205,14 +210,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       return;
     }
 
-    // const newRankingChoices: ItemValue[] = [];
+    const newRankingChoices: ItemValue[] = [];
 
-    // this.value.forEach((valueItem: string) => {
-    //   this.visibleChoices.forEach((choice) => {
-    //     if (choice.value === valueItem) newRankingChoices.push(choice);
-    //   });
-    // });
-    // this.setPropertyValue("rankingChoices", newRankingChoices);
+    this.value.forEach((valueItem: string) => {
+      this.visibleChoices.forEach((choice) => {
+        if (choice.value === valueItem) newRankingChoices.push(choice);
+      });
+    });
+    this.setPropertyValue("rankingChoices", newRankingChoices);
   }
 
   public dragDropRankingChoices: DragDropRankingChoices;
@@ -398,7 +403,7 @@ Serializer.addClass(
       name: "selectToRank",
       default: false,
       visible: false,
-      isSerializable: false,
+      isSerializable: true,
     },
     { name: "itemComponent", visible: false, default: "" }
   ],

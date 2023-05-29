@@ -1,6 +1,7 @@
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { DragDropChoices } from "../src/dragdrop/choices";
 import { DragDropRankingChoices } from "../src/dragdrop/ranking-choices";
+import { DragDropRankingSelectToRank } from "../src/dragdrop/ranking-select-to-rank";
 import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { ImageItemValue } from "../src/question_imagepicker";
@@ -8,6 +9,7 @@ import { Question } from "../src/question";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { DragDropCore } from "../src/dragdrop/core";
 import { DragDropDOMAdapter } from "../src/dragdrop/dom-adapter";
+import { QuestionRankingModel } from "../src/question_ranking";
 
 export default QUnit.module("DragDropHelper Tests");
 
@@ -241,3 +243,42 @@ QUnit.test("createImagePickerShortcut", function (assert) {
   let result2 = createImagePickerShortcut(item, "", draggedElement2, null);
   assert.equal(result2.querySelectorAll("img").length, 1);
 });
+
+// SelectToRank
+function createRankingQuestionModel(withDefaultValue = false) {
+  const json = {
+    "selectToRank": true,
+    "choices": [
+      "11",
+      "22",
+      "33"
+    ]
+  };
+
+  if (withDefaultValue) {
+    json["defaultValue"] = ["33", "22"];
+  }
+
+  const model = new QuestionRankingModel("qr1");
+  model.fromJSON(json);
+  return model;
+}
+
+QUnit.test("DragDropRankingSelectToRank : selectToRank", function (assert) {
+  const dndModel = new DragDropRankingSelectToRank();
+  const questionModel = createRankingQuestionModel();
+
+  dndModel.selectToRank(questionModel, 1, 0);
+  assert.equal(questionModel.unRankingChoices.length, 2, "unRankingChoices count");
+  assert.equal(questionModel.rankingChoices.length, 1, "rankingChoices count");
+});
+
+QUnit.test("DragDropRankingSelectToRank unselectFromRank", function (assert) {
+  const dndModel = new DragDropRankingSelectToRank();
+  const questionModel = createRankingQuestionModel(true);
+
+  dndModel.unselectFromRank(questionModel, 1);
+  assert.equal(questionModel.unRankingChoices.length, 2, "unRankingChoices count");
+  assert.equal(questionModel.rankingChoices.length, 1, "rankingChoices count");
+});
+// EO SelectToRank

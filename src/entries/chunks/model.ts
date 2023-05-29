@@ -222,3 +222,4 @@ export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/de
 
 export { DragDropCore } from "../../dragdrop/core";
 export { DragDropChoices } from "../../dragdrop/choices";
+export { DragDropRankingSelectToRank } from "../../dragdrop/ranking-select-to-rank";

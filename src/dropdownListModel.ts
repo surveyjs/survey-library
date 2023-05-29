@@ -485,12 +485,12 @@ export class DropdownListModel extends Base {
     event.stopPropagation();
   }
   onFocus(event: any): void {
-    this.setInputStringFromSelectedItem();
+    this.setInputStringFromSelectedItem(this.question.selectedItem);
   }
 
-  public setInputStringFromSelectedItem(newValue?: any): void {
-    if (this.question.searchEnabled) {
-      this.applyInputString(newValue || this.question.selectedItem);
+  public setInputStringFromSelectedItem(newValue: any): void {
+    if (this.question.searchEnabled && !!newValue) {
+      this.applyInputString(newValue);
     } else {
       this.inputString = null;
     }

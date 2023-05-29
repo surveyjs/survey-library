@@ -161,12 +161,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public get unRankingChoices(): Array<ItemValue> {
     const unRankingChoices: ItemValue[] = [];
+    const rankingChoices = this.rankingChoices;
 
     this.visibleChoices.forEach((choice) => {
       unRankingChoices.push(choice);
     });
 
-    this.rankingChoices.forEach((rankingChoice: ItemValue) => {
+    rankingChoices.forEach((rankingChoice: ItemValue) => {
       unRankingChoices.forEach((choice, index) => {
         if (choice.value === rankingChoice.value) unRankingChoices.splice(index, 1);
       });

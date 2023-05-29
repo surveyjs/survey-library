@@ -40,49 +40,62 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    let choices = this.parentElement.rankingChoices;
-    const unRankingChoices = this.parentElement.unRankingChoices;
-    let dropTargetIndex = choices.indexOf(this.dropTarget);
-    const draggedElementIndex = choices.indexOf(this.draggedElement);
+    const questionModel: any = this.parentElement;
 
-    // visibleChoices.splice(visibleChoices.indexOf(this.draggedElement), 1);
-    // rankingChoices.splice(0, 0, this.draggedElement);
-    // parentElement.setPropertyValue("rankingChoices", rankingChoices);
+    let rankingChoices = this.parentElement.rankingChoices;
+    let unRankingChoices = this.parentElement.unRankingChoices;
+    let fromIndex;
+    let toIndex;
 
-    if (this.dropTarget === "to-container" && choices.length === 0) {
-      unRankingChoices.splice(unRankingChoices.indexOf(this.draggedElement), 1);
-      dropTargetIndex = 0;
-      // choices.splice(1, 0, this.draggedElement);
-      //this.parentElement.setPropertyValue("rankingChoices", choices);
-      //this.updateDraggedElementShortcut(1);
-      //return;
+    if (this.dropTarget === "to-container" && rankingChoices.length === 0) {
+      fromIndex = unRankingChoices.indexOf(this.draggedElement);
+      toIndex = 0;
+      this.selectToRank(questionModel, fromIndex, toIndex);
+      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+      return;
     }
 
-    if (this.isDraggedElementOrdered || this.dropTarget === "from-container") {
-      choices.splice(draggedElementIndex, 1);
+    if (!this.isDraggedElementOrdered && this.isDropTargetElementOrdered) {
+      fromIndex = unRankingChoices.indexOf(this.draggedElement);
+      toIndex = rankingChoices.indexOf(this.dropTarget);
+      this.selectToRank(questionModel, fromIndex, toIndex);
+      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+      return;
     }
 
-    if (this.dropTarget === "to-container") {
-      choices.splice(dropTargetIndex, 0, this.draggedElement);
-    } else {
-      unRankingChoices.splice(dropTargetIndex, 0, this.draggedElement);
+    if (this.isDraggedElementOrdered && this.isDropTargetElementOrdered) {
+      fromIndex = rankingChoices.indexOf(this.draggedElement);
+      toIndex = rankingChoices.indexOf(this.dropTarget);
+      unRankingChoices.splice(fromIndex, 1);
+      rankingChoices.splice(toIndex, 0, this.draggedElement);
+      this.parentElement.setPropertyValue("rankingChoices", rankingChoices);
+      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+      return;
     }
 
-    this.parentElement.setPropertyValue("rankingChoices", choices);
-    //return;
-    this.updateDraggedElementShortcut(dropTargetIndex + 1);
+    if (this.isDraggedElementOrdered && !this.isDropTargetElementOrdered) {
+      fromIndex = rankingChoices.indexOf(this.draggedElement);
+      toIndex = unRankingChoices.indexOf(this.dropTarget);
+      this.unselectFromRank(questionModel, fromIndex);
+      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+      return;
+    }
+  }
 
-    if (draggedElementIndex !== dropTargetIndex) {
+  private doUIEffects(dropTargetNode: HTMLElement, fromIndex: number, toIndex:number) {
+    this.updateDraggedElementShortcut(toIndex + 1);
+
+    if (fromIndex !== toIndex) {
       dropTargetNode.classList.remove("sv-dragdrop-moveup");
       dropTargetNode.classList.remove("sv-dragdrop-movedown");
       this.parentElement.dropTargetNodeMove = null;
     }
 
-    if (draggedElementIndex > dropTargetIndex) {
+    if (fromIndex > toIndex) {
       this.parentElement.dropTargetNodeMove = "down";
     }
 
-    if (draggedElementIndex < dropTargetIndex) {
+    if (fromIndex < toIndex) {
       this.parentElement.dropTargetNodeMove = "up";
     }
   }
@@ -91,8 +104,8 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return this.parentElement.rankingChoices.indexOf(this.draggedElement) !== -1;
   }
 
-  private get isDraggedElementUnordered() {
-    return !this.isDraggedElementOrdered;
+  private get isDropTargetElementOrdered() {
+    return this.parentElement.rankingChoices.indexOf(this.dropTarget) !== -1;
   }
 
   // protected doClear = (): void => {

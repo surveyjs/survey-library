@@ -1,6 +1,6 @@
 import { ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
-import { DragDropRankingChooseChoices } from "./dragdrop/ranking-choose-choices";
+import { DragDropRankingSelectToRank } from "./dragdrop/ranking-select-to-rank";
 import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -223,7 +223,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     super.endLoadingFromJson();
 
     if (this.selectToRank) {
-      this.dragDropRankingChoices = new DragDropRankingChooseChoices(this.survey, null, this.longTap);
+      this.dragDropRankingChoices = new DragDropRankingSelectToRank(this.survey, null, this.longTap);
     } else {
       this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
     }

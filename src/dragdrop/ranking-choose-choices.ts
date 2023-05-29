@@ -40,9 +40,9 @@ export class DragDropRankingChooseChoices extends DragDropRankingChoices {
   }
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
-    const choices = this.parentElement.rankingChoices;
+    let choices = this.parentElement.rankingChoices;
     const unRankingChoices = this.parentElement.unRankingChoices;
-    const dropTargetIndex = choices.indexOf(this.dropTarget);
+    let dropTargetIndex = choices.indexOf(this.dropTarget);
     const draggedElementIndex = choices.indexOf(this.draggedElement);
 
     // visibleChoices.splice(visibleChoices.indexOf(this.draggedElement), 1);
@@ -51,17 +51,23 @@ export class DragDropRankingChooseChoices extends DragDropRankingChoices {
 
     if (this.dropTarget === "to-container" && choices.length === 0) {
       unRankingChoices.splice(unRankingChoices.indexOf(this.draggedElement), 1);
-      choices.splice(1, 0, this.draggedElement);
-      this.parentElement.setPropertyValue("rankingChoices", choices);
-      this.updateDraggedElementShortcut(1);
-      return;
+      dropTargetIndex = 0;
+      // choices.splice(1, 0, this.draggedElement);
+      //this.parentElement.setPropertyValue("rankingChoices", choices);
+      //this.updateDraggedElementShortcut(1);
+      //return;
     }
 
-    if (this.isDraggedElementOrdered) {
+    if (this.isDraggedElementOrdered || this.dropTarget === "from-container") {
       choices.splice(draggedElementIndex, 1);
     }
 
-    choices.splice(dropTargetIndex, 0, this.draggedElement);
+    if (this.dropTarget === "to-container") {
+      choices.splice(dropTargetIndex, 0, this.draggedElement);
+    } else {
+      unRankingChoices.splice(dropTargetIndex, 0, this.draggedElement);
+    }
+
     this.parentElement.setPropertyValue("rankingChoices", choices);
     //return;
     this.updateDraggedElementShortcut(dropTargetIndex + 1);

@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-ranking">
-   <!-- ko ifnot: question.chooseItemsToOrderMode -->
+   <!-- ko ifnot: question.selectToRank -->
   <div data-bind="css: question.rootClass">
     <!-- ko foreach: { data: question.rankingChoices, as: 'item', afterRender: question.koAfterRender } -->
       <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
@@ -8,7 +8,7 @@
   </div>
   <!-- /ko -->
 
-  <!-- ko if: question.chooseItemsToOrderMode -->
+  <!-- ko if: question.selectToRank -->
   <div data-bind="css: question.rootClass">
     <div data-bind="css: cssClasses.fromContainerClass" data-ranking="from-container">
       <!-- ko foreach: { data: question.unRankingChoices, as: 'item', afterRender: question.koAfterRender } -->

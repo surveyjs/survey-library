@@ -43,7 +43,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
-      .append(this.cssClasses.rootChooseItemsToOrderMod, this.chooseItemsToOrderMode)
+      .append(this.cssClasses.rootChooseItemsToOrderMod, this.selectToRank)
       .toString();
   }
 
@@ -171,8 +171,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private updateRankingChoices(forceUpdate = false): ItemValue[] {
-    if (this.chooseItemsToOrderMode) {
-      this.updateRankingChoicesChooseItemsToOrderMode(forceUpdate);
+    if (this.selectToRank) {
+      this.updateRankingChoicesSelectToRankMode(forceUpdate);
       return;
     }
 
@@ -199,7 +199,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("rankingChoices", newRankingChoices);
   }
 
-  private updateRankingChoicesChooseItemsToOrderMode(forceUpdate:boolean) {
+  private updateRankingChoicesSelectToRankMode(forceUpdate:boolean) {
     if (this.isEmpty()) {
       this.setPropertyValue("rankingChoices", []);
       return;
@@ -222,7 +222,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
 
-    if (this.chooseItemsToOrderMode) {
+    if (this.selectToRank) {
       this.dragDropRankingChoices = new DragDropRankingChooseChoices(this.survey, null, this.longTap);
     } else {
       this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
@@ -359,11 +359,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    *
    * Default value: `false`
   */
-  public get chooseItemsToOrderMode(): boolean {
-    return this.getPropertyValue("chooseItemsToOrderMode");
+  public get selectToRank(): boolean {
+    return this.getPropertyValue("selectToRank");
   }
-  public set chooseItemsToOrderMode(val: boolean) {
-    this.setPropertyValue("chooseItemsToOrderMode", val);
+  public set selectToRank(val: boolean) {
+    this.setPropertyValue("selectToRank", val);
   }
 
   public get useFullItemSizeForShortcut(): boolean {
@@ -395,7 +395,7 @@ Serializer.addClass(
       isSerializable: false,
     },
     {
-      name: "chooseItemsToOrderMode",
+      name: "selectToRank",
       default: false,
       visible: false,
       isSerializable: false,

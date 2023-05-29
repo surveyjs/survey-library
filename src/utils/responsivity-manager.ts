@@ -1,4 +1,3 @@
-import { setTimeout } from "timers";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { isContainerVisible } from "./utils";

@@ -499,7 +499,6 @@ export class QuestionSelectBase extends Question {
     }
   }
   protected setNewValue(newValue: any) {
-    this.resetSelectedItemValues();
     newValue = this.valueFromData(newValue);
     if (
       (!this.choicesByUrl.isRunning &&
@@ -583,9 +582,6 @@ export class QuestionSelectBase extends Question {
         }
       });
     }
-  }
-  protected resetSelectedItemValues(): void {
-    this.selectedItemValues = null;
   }
   protected hasUnknownValue(
     val: any,

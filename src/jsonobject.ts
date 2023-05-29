@@ -1270,7 +1270,7 @@ export class JsonMetadata {
       }
     }
     return {
-      $id: "#locstring",
+      $id: "locstring",
       type: "object",
       properties: props
     };
@@ -1329,10 +1329,10 @@ export class JsonMetadata {
       if (prop.baseClassName == "question") {
         usedClasses.push(this.findClass("panel"));
       }
-      res.items = [];
+      res.items = { anyOf: [] };
       for (var i = 0; i < usedClasses.length; i++) {
         var className = usedClasses[i].name;
-        res.items.push({ $ref: this.getChemeRefName(className, isRoot) });
+        res.items.anyOf.push({ $ref: this.getChemeRefName(className, isRoot) });
         this.generateChemaClass(className, schemaDef, false);
       }
     }
@@ -1349,8 +1349,7 @@ export class JsonMetadata {
     if (hasParent) {
       this.generateChemaClass(classInfo.parentName, schemaDef, isRoot);
     }
-    const id = isRoot ? className : "#" + className;
-    const res: any = { type: "object", $id: id };
+    const res: any = { type: "object", $id: className };
     schemaDef[className] = res;
     const chemaProps: any = { properties: {} };
     this.generateSchemaProperties(classInfo, chemaProps, schemaDef, isRoot);

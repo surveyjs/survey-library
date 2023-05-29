@@ -17,7 +17,6 @@ export class QuestionCommentModel extends QuestionTextBase {
    * Specifies the visible height of the comment area, measured in lines.
    *
    * The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
-   * @see cols
    */
   public get rows(): number {
     return this.getPropertyValue("rows");
@@ -25,12 +24,6 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set rows(val: number) {
     this.setPropertyValue("rows", val);
   }
-  /**
-   * Specifies the visible width of the comment area, measured in average character width.
-   *
-   * The value of this property is passed on to the `cols` attribute of the underlying `<textarea>` element.
-   * @see rows
-   */
   public get cols(): number {
     return this.getPropertyValue("cols");
   }
@@ -126,7 +119,7 @@ Serializer.addClass(
   "comment",
   [
     { name: "maxLength:number", default: -1 },
-    { name: "cols:number", default: 50 },
+    { name: "cols:number", default: 50, visible: false, isSerializable: false },
     { name: "rows:number", default: 4 },
     { name: "placeholder",
       alternativeName: "placeHolder",

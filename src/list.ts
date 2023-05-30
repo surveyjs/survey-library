@@ -41,6 +41,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }) searchEnabled: boolean;
   @property({ defaultValue: false }) showFilter: boolean;
+  @property({ defaultValue: false }) forceShowFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property({}) selectedItem: IAction;
   @property() focusedItem: T;
@@ -115,7 +116,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
   protected onSet(): void {
-    this.showFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.showFilter = this.searchEnabled && (this.forceShowFilter || (this.actions || []).length > ListModel.MINELEMENTCOUNT);
     super.onSet();
   }
   protected getDefaultCssClasses() {

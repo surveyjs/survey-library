@@ -1535,17 +1535,32 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
    *
    * Default value: `false`
    *
-   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * @see allowResizeComment
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
   }
   public set autoGrowComment(val: boolean) {
     this.setPropertyValue("autoGrowComment", val);
+  }
+  /**
+   * Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
+   *
+   * Default value: `true`
+   *
+   * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
+   * @see autoGrowComment
+   */
+  public get allowResizeComment(): boolean {
+    return this.getPropertyValue("allowResizeComment");
+  }
+  public set allowResizeComment(val: boolean) {
+    this.setPropertyValue("allowResizeComment", val);
   }
   /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
@@ -4846,6 +4861,9 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Creates a new page and adds it to the survey.
+   *
+   * If you want to switch a survey to the newly added page, assign its index to the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property or assign the entire page to the [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage) property.
+   *
    * @param name A page name. If you do not specify this parameter, it will be generated automatically.
    * @param index An index at which to insert the page. If you do not specify this parameter, the page will be added to the end.
    * @returns The created and added page.
@@ -7118,6 +7136,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
+  { name: "allowResizeComment:boolean", default: true },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },

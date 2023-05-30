@@ -58,12 +58,12 @@ QUnit.test("generate survey schema", function (assert) {
   );
   assert.equal(
     schema.definitions.htmlconditionitem.$id,
-    "#htmlconditionitem",
+    "htmlconditionitem",
     "htmlconditionitem id is here"
   );
   assert.ok(schema.definitions.page, "page object is here");
   assert.equal(schema.definitions.page.type, "object", "page type is object");
-  assert.equal(schema.definitions.page.$id, "#page", "page id is here");
+  assert.equal(schema.definitions.page.$id, "page", "page id is here");
   assert.ok(schema.definitions.page.allOf, "page has allOf");
   assert.equal(
     schema.definitions.page.allOf.length,
@@ -88,7 +88,7 @@ QUnit.test("generate survey schema", function (assert) {
   );
   assert.equal(
     schema.definitions.panelbase.$id,
-    "#panelbase",
+    "panelbase",
     "panelbase id is here"
   );
   assert.deepEqual(
@@ -102,7 +102,7 @@ QUnit.test("generate survey schema", function (assert) {
 
   assert.equal(schema.properties.triggers.type, "array", "triggers is array");
   assert.deepEqual(
-    schema.properties.triggers.items,
+    schema.properties.triggers.items.anyOf,
     [
       {
         $ref: "#/definitions/visibletrigger",
@@ -123,7 +123,7 @@ QUnit.test("generate survey schema", function (assert) {
         $ref: "#/definitions/runexpressiontrigger",
       },
     ],
-    "triggers.items"
+    "triggers.items.anyOf"
   );
 
   assert.equal(
@@ -131,10 +131,10 @@ QUnit.test("generate survey schema", function (assert) {
     "array",
     "panelbase.elements type is array"
   );
-  var panelElements = schema.definitions.panelbase.properties.elements.items;
+  var panelElements = schema.definitions.panelbase.properties.elements.items.anyOf;
   assert.ok(
     panelElements.length > 5,
-    "There are many elements in panelbase.elements.items"
+    "There are many elements in panelbase.elements.items.anyOf"
   );
   function findInElements(elType: string): boolean {
     elType += "#";
@@ -177,14 +177,14 @@ QUnit.test("generate survey schema", function (assert) {
 
   assert.ok(schema.definitions.question.properties.visible, "question visible is here");
   assert.equal(schema.definitions.question.properties.visible.type, "boolean", "question visible type is boolean");
-  assert.equal(schema.definitions.question.$id, "#question", "question id is correct");
+  assert.equal(schema.definitions.question.$id, "question", "question id is correct");
   assert.ok(schema.definitions.question.properties.type, "question type is here");
   assert.equal(schema.definitions.question.properties.type.type, "string", "question type is string");
   assert.deepEqual(schema.definitions.question.required, ["type", "name"], "question required");
 
   const locString = schema.definitions.locstring;
   assert.equal(locString.type, "object", "locString type");
-  assert.equal(locString.$id, "#locstring", "locString $id");
+  assert.equal(locString.$id, "locstring", "locString $id");
   const lostStringProp = locString.properties;
   assert.ok(lostStringProp.default, "locale default is here");
   assert.ok(lostStringProp.en, "locale en is here");

@@ -214,45 +214,7 @@ sv-popup {
 }
 
 .sv-popup__button {
-  padding: calcSize(2) calcSize(6);
-  background: $background;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
-  border-radius: calcCornerRadius(1);
-  margin: 2px;
-  cursor: pointer;
-
-  font-family: var(--font-family, $font-family);
-  font-style: normal;
-  font-weight: 600;
-  font-size: calcFontSize(1);
-  line-height: calcSize(3);
-  text-align: center;
-  color: $primary;
-  border: none;
-  outline: none;
-}
-
-.sv-popup__button:hover {
-  box-shadow: 0 0 0 2px $primary;
-}
-
-.sv-popup__button:disabled {
-  color: $foreground;
-  opacity: 0.25;
-  cursor: default;
-}
-
-.sv-popup__button:disabled:hover {
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
-}
-
-.sv-popup__button--apply {
-  background-color: $primary;
-  color: $primary-foreground;
-}
-
-.sv-popup__button--apply:disabled {
-  background-color: $background-dim;
+  margin: calcSize(0.25);
 }
 
 .sv-popup--modal,

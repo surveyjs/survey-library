@@ -13,7 +13,7 @@ import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
 import { QuestionSelectBase } from "./question_baseselect";
-import { QuestionRatingModel } from "./question_rating";
+import { Question } from "./question";
 
 /**
  * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
@@ -412,10 +412,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   }
   private componentValue: string;
   public getComponent(): string {
-    if(this._locOwner instanceof QuestionSelectBase) {
+    if(this._locOwner instanceof Question) {
       return this.componentValue || this._locOwner.itemComponent;
     }
-    return "";
+    return this.componentValue;
   }
   public setComponent(val: string): void {
     this.componentValue = val;

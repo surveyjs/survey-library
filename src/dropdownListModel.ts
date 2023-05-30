@@ -481,7 +481,7 @@ export class DropdownListModel extends Base {
     this.inputString = null;
     this.hintString = "";
     doKey2ClickBlur(event);
-    this._popupModel.isVisible = false;
+    this._popupModel.lazyToggleVisibility(false);
     event.stopPropagation();
   }
   onFocus(event: any): void {

@@ -100,7 +100,12 @@ export class PopupModel<T = any> extends Base {
     }
   }
   public toggleVisibility(): void {
-    this.isVisible = !this.isVisible;
+    this.lazyToggleVisibility(!this.isVisible);
+  }
+  private _timer: any;
+  public lazyToggleVisibility(val: boolean): void {
+    clearTimeout(this._timer);
+    this._timer = setTimeout(() => this.isVisible = val, 150);
   }
   public recalculatePosition(isResetHeight: boolean): void {
     this.onRecalculatePosition.fire(this, { isResetHeight: isResetHeight });

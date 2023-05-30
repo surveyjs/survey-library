@@ -17,12 +17,20 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
 
+  protected getDropTargetByDataAttributeValue(dataAttributeValue: string): ItemValue {
+    return this.parentElement.rankingChoices[dataAttributeValue] || this.parentElement.unRankingChoices[dataAttributeValue];
+  }
+
   protected getDropTargetByNode(
     dropTargetNode: HTMLElement,
     event: PointerEvent
   ): any {
     if (dropTargetNode.dataset.ranking === "to-container") {
       return "to-container";
+    }
+
+    if (dropTargetNode.closest("[data-ranking='from-container']")) {
+      return "from-container";
     }
 
     return super.getDropTargetByNode(dropTargetNode, event);
@@ -32,7 +40,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     dropTarget: ItemValue | string,
     dropTargetNode?: HTMLElement
   ): boolean {
-    if (dropTarget === "to-container") {
+    if (dropTarget === "to-container" || dropTarget === "from-container") {
       return true;
     } else {
       return super.isDropTargetValid(<ItemValue>dropTarget, dropTargetNode);
@@ -47,35 +55,33 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     let fromIndex;
     let toIndex;
 
-    if (this.dropTarget === "to-container" && rankingChoices.length === 0) {
+    if (this.isDraggedElementUnranked) {
       fromIndex = unRankingChoices.indexOf(this.draggedElement);
-      toIndex = 0;
+      if (rankingChoices.length === 0) {
+        toIndex = 0;
+      } else {
+        toIndex = rankingChoices.indexOf(this.dropTarget);
+      }
       this.selectToRank(questionModel, fromIndex, toIndex);
       this.doUIEffects(dropTargetNode, fromIndex, toIndex);
       return;
     }
 
-    if (!this.isDraggedElementOrdered && this.isDropTargetElementOrdered) {
-      fromIndex = unRankingChoices.indexOf(this.draggedElement);
+    if (this.isDraggedElementRanked && this.isDropTargetRanked) {
+      fromIndex = rankingChoices.indexOf(this.draggedElement);
       toIndex = rankingChoices.indexOf(this.dropTarget);
-      this.selectToRank(questionModel, fromIndex, toIndex);
+      this.reorderRankedItem(questionModel, fromIndex, toIndex);
       this.doUIEffects(dropTargetNode, fromIndex, toIndex);
       return;
     }
 
-    if (this.isDraggedElementOrdered && this.isDropTargetElementOrdered) {
+    if (this.isDraggedElementRanked && !this.isDropTargetRanked) {
       fromIndex = rankingChoices.indexOf(this.draggedElement);
-      toIndex = rankingChoices.indexOf(this.dropTarget);
-      unRankingChoices.splice(fromIndex, 1);
-      rankingChoices.splice(toIndex, 0, this.draggedElement);
-      this.parentElement.setPropertyValue("rankingChoices", rankingChoices);
-      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
-      return;
-    }
-
-    if (this.isDraggedElementOrdered && !this.isDropTargetElementOrdered) {
-      fromIndex = rankingChoices.indexOf(this.draggedElement);
-      toIndex = unRankingChoices.indexOf(this.dropTarget);
+      if (unRankingChoices.length === 0) {
+        toIndex = 0;
+      } else {
+        toIndex = unRankingChoices.indexOf(this.dropTarget);
+      }
       this.unselectFromRank(questionModel, fromIndex);
       this.doUIEffects(dropTargetNode, fromIndex, toIndex);
       return;
@@ -100,12 +106,20 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     }
   }
 
-  private get isDraggedElementOrdered() {
+  private get isDraggedElementRanked() {
     return this.parentElement.rankingChoices.indexOf(this.draggedElement) !== -1;
   }
 
-  private get isDropTargetElementOrdered() {
+  private get isDropTargetRanked() {
     return this.parentElement.rankingChoices.indexOf(this.dropTarget) !== -1;
+  }
+
+  private get isDraggedElementUnranked() {
+    return !this.isDraggedElementRanked;
+  }
+
+  private get isDropTargetUnranked() {
+    return !this.isDropTargetRanked;
   }
 
   // protected doClear = (): void => {
@@ -126,6 +140,15 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number) {
     const rankingChoices = questionModel.rankingChoices;
     rankingChoices.splice(fromIndex, 1);
+    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+  }
+
+  public reorderRankedItem(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+    const rankingChoices = questionModel.rankingChoices;
+    const item = rankingChoices[fromIndex];
+
+    rankingChoices.splice(fromIndex, 1);
+    rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
   }
 }

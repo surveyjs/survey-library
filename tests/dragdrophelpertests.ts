@@ -274,11 +274,23 @@ QUnit.test("DragDropRankingSelectToRank : selectToRank", function (assert) {
 });
 
 QUnit.test("DragDropRankingSelectToRank unselectFromRank", function (assert) {
+  const withDefaultValue = true;
   const dndModel = new DragDropRankingSelectToRank();
-  const questionModel = createRankingQuestionModel(true);
+  const questionModel = createRankingQuestionModel(withDefaultValue);
 
   dndModel.unselectFromRank(questionModel, 1);
   assert.equal(questionModel.unRankingChoices.length, 2, "unRankingChoices count");
   assert.equal(questionModel.rankingChoices.length, 1, "rankingChoices count");
+});
+
+QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
+  const withDefaultValue = true;
+  const dndModel = new DragDropRankingSelectToRank();
+  const questionModel = createRankingQuestionModel(withDefaultValue);
+
+  dndModel.reorderRankedItem(questionModel, 0, 1);
+  assert.equal(questionModel.rankingChoices[0].value, "22", "item 1 is correct");
+  assert.equal(questionModel.rankingChoices[1].value, "33", "item 2 is correct");
+  assert.equal(questionModel.rankingChoices.length, 2, "rankingChoices count");
 });
 // EO SelectToRank

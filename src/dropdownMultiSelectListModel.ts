@@ -58,7 +58,9 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         }
       };
     }
-    return new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
+    const res = new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
+    res.forceShowFilter = true;
+    return res;
   }
   protected resetFilterString(): void {
     super.resetFilterString();

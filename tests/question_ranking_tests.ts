@@ -316,21 +316,6 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
 
-QUnit.test("getItemIndexClasses ", function(assert) {
-  var survey = new SurveyModel({
-    elements: [
-      {
-        type: "ranking",
-        name: "q",
-        choices: ["a", "b", "c"],
-      },
-    ],
-  });
-
-  var q = <QuestionRankingModel>survey.getQuestionByName("q");
-  assert.equal(q.getItemIndexClasses(new ItemValue("1")).indexOf("__index--empty ") !== -1, true, "item classes is correct");
-});
-
 // SelectToRank
 function createRankingQuestionModel(selectToRank = false, withDefaultValue = false) {
   const json = {

@@ -1761,6 +1761,7 @@ export class QuestionPanelDynamicModel extends Question
   protected createNewPanelObject(): PanelModel {
     return Serializer.createClass("panel");
   }
+  private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue() {
     if (this.isValueChangingInternally || this.useTemplatePanel) return;
     var val = this.value;
@@ -1768,9 +1769,12 @@ export class QuestionPanelDynamicModel extends Question
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
       newPanelCount = this.getPropertyValue("panelCount");
     }
+    this.settingPanelCountBasedOnValue = true;
     this.panelCount = newPanelCount;
+    this.settingPanelCountBasedOnValue = false;
   }
   public setQuestionValue(newValue: any) {
+    if(this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
     for (var i = 0; i < this.panels.length; i++) {

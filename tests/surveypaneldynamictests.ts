@@ -5730,3 +5730,28 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
 });
+QUnit.test("defaultValue in questions and set data", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        },
+        {
+          "name": "q2",
+          "type": "text",
+          "defaultValue": 2
+        }
+      ]
+    }
+    ] });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  survey.data = { panel: [{ q1: "foo" }] };
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  assert.equal(q1.value, "foo", "q1 is correct");
+  assert.notOk(q2.value, "q2 is empty");
+});

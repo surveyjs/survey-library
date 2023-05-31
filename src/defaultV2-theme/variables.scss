@@ -4,8 +4,11 @@ $primary-background-dark: var(--sjs-primary-backcolor-dark, rgb(20, 164, 139));
 $primary-foreground: var(--sjs-primary-forecolor, var(--primary-foreground, #fff));
 $primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-foreground-disabled, rgba(#fff, 0.25)));
 
-$secondary: var(--secondary, #ff9814);
-$secondary-light: var(--secondary-light, rgba(255, 152, 20, 0.25));
+$secondary: var(--sjs-secondary-backcolor, var(--secondary, #ff9814));
+$secondary-light: var(--sjs-secondary-backcolor-light, var(--secondary-light, rgba(255, 152, 20, 0.25)));
+$secondary-backcolor-semi-light: var(--sjs-secondary-backcolor-semi-light, rgba(255, 152, 20, 0.1));
+$secondary: var(--sjs-secondary-forecolor, #fff);
+$secondary: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
 
 $editor-background: var(
   --sjs-editorpanel-backcolor,
@@ -39,13 +42,18 @@ $border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16
 $shadow-medium: rgba(0, 0, 0, 0.1);
 $shadow-inner: rgba(0, 0, 0, 0.15);
 
-$red: var(--red, #e60a3e);
-$red-light: var(--red-light, rgba(230, 10, 62, 0.1));
-$yellow: var(--yellow, #ff9814);
-$yellow-light: var(--yellow-light, rgba(255, 152, 20, 0.1));
-$green: var(--green, #19b394);
-$green-light: var(--green-light, rgba(25, 179, 148, 0.1));
-$blue-light: var(--blue-light, rgba(67, 127, 217, 0.1));
+$red: var(--sjs-special-red, var(--red, #e60a3e));
+$red-light: var(--sjs-special-red-light, var(--red-light, rgba(230, 10, 62, 0.1)));
+$red-forecolor: var(--sjs-special-red-forecolor, #ffffff);
+$yellow: var(--sjs-special-yellow, var(--yellow, #ff9814));
+$yellow-light: var(--sjs-special-yellow-light, var(--yellow-light, rgba(255, 152, 20, 0.1)));
+$yellow-forecolor: var(--sjs-special-yellow-forecolor, #ffffff);
+$green: var(--sjs-special-green, var(--green, #19b394));
+$green-light: var(--sjs-special-green-light, var(--green-light, rgba(25, 179, 148, 0.1)));
+$green-forecolor: var(--sjs-special-green-forecolor, #ffffff);
+$blue: var(--sjs-special-blue, #437fd9);
+$blue-light: var(--sjs-special-blue-light, var(--blue-light, rgba(67, 127, 217, 0.1)));
+$blue-forecolor: var(--sjs-special-blue-forecolor, #ffffff);
 
 $font-family: var(--font-family);
 $font-size: var(--sjs-font-size, calc(2 * var(--base-unit, 8px)));
@@ -84,8 +92,8 @@ $font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
 $font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
 $font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
 $font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
-$questionpanel-boxshadow: var(--sjs-general-shadow-small, 0px 1px 2px 0px $shadow-inner);
-$editor-boxshadow: var(--sjs-general-shadow-inner, inset 0px 1px 2px $shadow-inner);
+$questionpanel-boxshadow: var(--sjs-shadow-small, 0px 1px 2px 0px $shadow-inner);
+$editor-boxshadow: var(--sjs-shadow-inner, inset 0px 1px 2px $shadow-inner);
 $base-unit: var(--base-unit, 8px);
 
 @function calcSize($multiplier) {

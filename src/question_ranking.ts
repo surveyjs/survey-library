@@ -77,10 +77,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "";
   }
 
-  public getItemIndexClasses() {
+  public getItemIndexClasses(item: ItemValue) {
+    let noNumber;
+
+    if (this.selectToRank) {
+      noNumber = this.unRankingChoices.indexOf(item) !== -1;
+    } else {
+      noNumber = this.isEmpty();
+    }
+
     return new CssClassBuilder()
       .append(this.cssClasses.itemIndex)
-      .append(this.cssClasses.itemIndexEmptyMode, this.isEmpty())
+      .append(this.cssClasses.itemIndexEmptyMode, noNumber)
       .toString();
   }
 

@@ -3,6 +3,7 @@ import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
 import { settings as Settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("question ranking");
 
@@ -315,6 +316,22 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
 
+QUnit.test("getItemIndexClasses ", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q",
+        choices: ["a", "b", "c"],
+      },
+    ],
+  });
+
+  var q = <QuestionRankingModel>survey.getQuestionByName("q");
+  assert.equal(q.getItemIndexClasses(new ItemValue("1")).indexOf("__index--empty ") !== -1, true, "item classes is correct");
+});
+
+// SelectToRank
 function createRankingQuestionModel(selectToRank = false, withDefaultValue = false) {
   const json = {
     "choices": [
@@ -338,13 +355,17 @@ function createRankingQuestionModel(selectToRank = false, withDefaultValue = fal
 }
 
 QUnit.test("selectToRank : initial", function (assert) {
-  const questionModel = createRankingQuestionModel(true);
+  const selectToRank = true;
+  const questionModel = createRankingQuestionModel(selectToRank);
   assert.equal(questionModel.unRankingChoices.length, 3, "unRankingChoices count");
   assert.equal(questionModel.rankingChoices.length, 0, "rankingChoices count");
 });
 
 QUnit.test("selectToRank : defaultValue", function (assert) {
-  const questionWithDefaultValueModel = createRankingQuestionModel(true, true);
+  const selectToRank = true;
+  const withDefaultValue = true;
+  const questionWithDefaultValueModel = createRankingQuestionModel(selectToRank, withDefaultValue);
   assert.equal(questionWithDefaultValueModel.unRankingChoices.length, 1, "unRankingChoices count");
   assert.equal(questionWithDefaultValueModel.rankingChoices.length, 2, "rankingChoices count");
 });
+// EO SelectToRank

@@ -1068,7 +1068,9 @@ export class QuestionSelectBase extends Question {
     errors.push(otherEmptyError);
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    this.isRunningChoices = true;
     super.setSurveyImpl(value, isLight);
+    this.isRunningChoices = false;
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();

@@ -529,6 +529,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * - [`onUpdateChoiceItemCss`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUpdateChoiceItemCss)
    */
   public get cssClasses(): any {
+    const _dummy = this.cssClassesValue;
     if (!this.survey) return this.calcCssClasses(this.css);
     this.ensureCssClassesValue();
     return this.cssClassesValue;

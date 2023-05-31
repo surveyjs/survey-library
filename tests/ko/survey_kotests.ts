@@ -2571,3 +2571,19 @@ QUnit.test("Use variables as default values in expression", function (assert) {
   assert.equal(q2.koValue(), "BBB", "q2.value");
   assert.equal(q3.koValue(), "CCC", "q3.value");
 });
+
+QUnit.test("Check koCss is still depends on cssClasses  without survey", function (assert) {
+  const q: QuestionText = new QuestionText("q1");
+  assert.deepEqual(q["koCss"](), {
+    "error": {}
+  });
+  const survey = new Survey({});
+  survey["css"] = {
+    text: {
+      root: "test"
+    }
+  };
+  q["setSurveyImpl"](survey);
+  const _dummy = q["cssClasses"];
+  assert.equal(q["koCss"]().root, "test");
+});

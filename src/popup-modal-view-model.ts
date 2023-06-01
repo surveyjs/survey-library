@@ -23,8 +23,8 @@ export class PopupModalViewModel extends PopupBaseViewModel {
     });
   }
 
-  constructor(model: PopupModel) {
-    super(model);
+  constructor(model: PopupModel, containerElement?: HTMLElement) {
+    super(model, containerElement);
   }
 
   public get applyButtonText(): string {

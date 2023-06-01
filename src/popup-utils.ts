@@ -24,10 +24,10 @@ export function createPopupModalViewModel(options: IDialogOptions): PopupBaseVie
   return popupViewModel;
 }
 
-export function createPopupViewModel(model: PopupModel, targetElement?: HTMLElement): PopupBaseViewModel {
+export function createPopupViewModel(model: PopupModel, targetElement?: HTMLElement, containerElement?: HTMLElement): PopupBaseViewModel {
   if(model.isModal) {
-    return new PopupModalViewModel(model);
+    return new PopupModalViewModel(model, containerElement);
   } else {
-    return new PopupDropdownViewModel(model, targetElement);
+    return new PopupDropdownViewModel(model, targetElement, containerElement);
   }
 }

@@ -159,12 +159,15 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   protected getPopupHeaderTemplate(): string {
     return "popup-pointer";
   }
+  protected getPopupMountContainer(): HTMLElement {
+    return this.targetElement.parentElement;
+  }
 
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: IPosition;
 
-  constructor(model: PopupModel, public targetElement?: HTMLElement) {
-    super(model);
+  constructor(model: PopupModel, public targetElement?: HTMLElement, containerElement?: HTMLElement) {
+    super(model, containerElement);
     this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
       if(!this.isOverlay) {
         this.updatePosition(options.isResetHeight);

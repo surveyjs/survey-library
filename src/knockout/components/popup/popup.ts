@@ -64,10 +64,18 @@ ko.components.register("sv-popup", {
     createViewModel: (params: any, componentInfo: any) => {
       const viewModel = createPopupViewModel(
         ko.unwrap(params.model),
-        componentInfo.element.parentElement
+        componentInfo.element.parentElement,
+        componentInfo.element.nodeType === Node.COMMENT_NODE ? componentInfo.element.nextElementSibling.children[0] : componentInfo.element.children[0].children[0]
       );
       return new PopupViewModel(viewModel);
     },
   },
-  template: "<div></div>",
+  template: "<div data-bind='allowBindings: false'><div></div></div>",
 });
+
+ko.bindingHandlers.allowBindings = {
+  init: function(elem, valueAccessor) {
+    var shouldAllowBindings = ko.unwrap(valueAccessor());
+    return { controlsDescendantBindings: !shouldAllowBindings };
+  }
+};

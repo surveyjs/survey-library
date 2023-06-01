@@ -95,7 +95,7 @@ export class PopupBaseViewModel extends Base {
     this.setupModel(model);
   }
 
-  constructor(model: PopupModel) {
+  constructor(model: PopupModel, private containerElement?: HTMLElement) {
     super();
     this.model = model;
   }
@@ -208,13 +208,16 @@ export class PopupBaseViewModel extends Base {
       this.footerToolbarValue.dispose();
     }
   }
+  protected getPopupMountContainer(): HTMLElement {
+    return this.containerElement?.parentElement;
+  }
   public initializePopupContainer(): void {
     if (!this.createdContainer) {
       const container: HTMLElement = document.createElement("div");
       this.container = this.createdContainer = container;
     }
 
-    getElement(settings.environment.popupMountContainer).appendChild(this.container);
+    getElement(this.getPopupMountContainer() || settings.environment.popupMountContainer).appendChild(this.container);
   }
 
   public unmountPopupContainer(): void {

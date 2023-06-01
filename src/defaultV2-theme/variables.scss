@@ -7,8 +7,8 @@ $primary-foreground-disabled: var(--sjs-primary-forecolor-light, var(--primary-f
 $secondary: var(--sjs-secondary-backcolor, var(--secondary, #ff9814));
 $secondary-light: var(--sjs-secondary-backcolor-light, var(--secondary-light, rgba(255, 152, 20, 0.25)));
 $secondary-backcolor-semi-light: var(--sjs-secondary-backcolor-semi-light, rgba(255, 152, 20, 0.1));
-$secondary: var(--sjs-secondary-forecolor, #fff);
-$secondary: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
+$secondary-forecolor: var(--sjs-secondary-forecolor, #fff);
+$secondary-forecolor-light: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
 
 $editor-background: var(
   --sjs-editorpanel-backcolor,

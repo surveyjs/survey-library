@@ -3746,7 +3746,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      return this.doComplete();
+      return this.doComplete(this.canBeCompletedByTrigger);
     }
     this.doNextPage();
     return true;

@@ -2494,17 +2494,19 @@ QUnit.test(
     trigger.name = "question1";
     trigger.value = "Hello";
     var isCompleteOnTrigger_Completing = false;
-    var isCompleteOnTrigger_Completed = false;
+    var isCompleteOnTrigger_Complete = false;
     survey.onCompleting.add(function (sender, options) {
       isCompleteOnTrigger_Completing = options.isCompleteOnTrigger;
     });
-    survey.onCompleting.add(function (sender, options) {
-      isCompleteOnTrigger_Completed = options.isCompleteOnTrigger;
+    survey.onComplete.add(function (sender, options) {
+      isCompleteOnTrigger_Complete = options.isCompleteOnTrigger;
     });
 
     survey.setValue("question1", "Hello");
     assert.equal(survey.state, "running");
-    survey.nextPage();
+    assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible");
+    assert.equal(survey.isShowNextButton, false, "next button is invisible");
+    survey.completeLastPage();
     assert.equal(survey.state, "completed");
     assert.equal(
       isCompleteOnTrigger_Completing,
@@ -2512,7 +2514,7 @@ QUnit.test(
       "isCompleteOnTrigger property works for onCompleting event"
     );
     assert.equal(
-      isCompleteOnTrigger_Completed,
+      isCompleteOnTrigger_Complete,
       true,
       "isCompleteOnTrigger property works for onCompleted event"
     );
@@ -2525,7 +2527,7 @@ QUnit.test(
       "isCompleteOnTrigger property works for onCompleting event, #2"
     );
     assert.equal(
-      isCompleteOnTrigger_Completed,
+      isCompleteOnTrigger_Complete,
       false,
       "isCompleteOnTrigger property works for onCompleted event, #2"
     );

@@ -16,9 +16,9 @@ $editor-background: var(
 );
 $question-background: var(--sjs-questionpanel-backcolor, var(--sjs-question-background, var(--background, #fff)));
 
-$background: var(--background, #fff);
-$background-dim: var(--background-dim, #f3f3f3);
-$background-dim-light: var(--background-dim-light, #f9f9f9);
+$background: var(--sjs-general-backcolor, var(--background, #fff));
+$background-dim: var(--sjs-general-backcolor-dim, var(--background-dim, #f3f3f3));
+$background-dim-light: var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9));
 $background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
 $background-dark: var(--sjs-questionpanel-hovercolor, var(--sjs-general-backcolor-dark, rgb(248, 248, 248)));
 $background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-dim-backcolor-dark, rgb(243, 243, 243)));
@@ -26,9 +26,6 @@ $background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-dim-ba
 $corner-radius: var(--sjs-corner-radius, 4px);
 $editor-corner-radius: var(--sjs-editorpanel-cornerRadius, var(--sjs-corner-radius, 4px));
 $panel-corner-radius: var(--sjs-questionpanel-cornerRadius, var(--sjs-corner-radius, 4px));
-
-// $questionpanel-border: var(--sjs-questionpanel-border);
-// $editorpanel-border: var(--sjs-editorpanel-border);
 
 $foreground: var(--sjs-general-forecolor, var(--foreground, #161616));
 $foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #909090));
@@ -56,7 +53,7 @@ $blue-light: var(--sjs-special-blue-light, var(--blue-light, rgba(67, 127, 217, 
 $blue-forecolor: var(--sjs-special-blue-forecolor, #ffffff);
 
 $font-family: var(--font-family);
-$font-size: var(--sjs-font-size, calc(2 * var(--base-unit, 8px)));
+$font-size: var(--sjs-font-size, calc(2 * var(--sjs-base-unit, 8px)));
 
 $font-surveytitle-family: var(--sjs-font-surveytitle-family, var(--font-family));
 $font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);
@@ -94,7 +91,7 @@ $font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-f
 $font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
 $questionpanel-boxshadow: var(--sjs-shadow-small, 0px 1px 2px 0px $shadow-inner);
 $editor-boxshadow: var(--sjs-shadow-inner, inset 0px 1px 2px $shadow-inner);
-$base-unit: var(--base-unit, 8px);
+$base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 
 @function calcSize($multiplier) {
   $result: calc(#{$multiplier} * #{$base-unit});

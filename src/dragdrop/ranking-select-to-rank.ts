@@ -7,8 +7,11 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   ): HTMLElement {
     if (this.parentElement.isEmpty()) {
       const toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
+      const fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
       if (!!toContainer) {
         return toContainer;
+      } else if (!!fromContainer) {
+        return fromContainer;
       } else {
         return null;
       }
@@ -29,7 +32,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       return "to-container";
     }
 
-    if (dropTargetNode.closest("[data-ranking='from-container']")) {
+    if (dropTargetNode.dataset.ranking === "from-container" || dropTargetNode.closest("[data-ranking='from-container']")) {
       return "from-container";
     }
 
@@ -49,13 +52,13 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     const questionModel: any = this.parentElement;
+    const rankingChoices = questionModel.rankingChoices;
+    const unRankingChoices = questionModel.unRankingChoices;
 
-    let rankingChoices = this.parentElement.rankingChoices;
-    let unRankingChoices = this.parentElement.unRankingChoices;
     let fromIndex;
     let toIndex;
 
-    if (this.isDraggedElementUnranked) {
+    if (this.isDraggedElementUnranked && this.isDropTargetRanked) {
       fromIndex = unRankingChoices.indexOf(this.draggedElement);
       if (rankingChoices.length === 0) {
         toIndex = 0;
@@ -89,20 +92,25 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   }
 
   private doUIEffects(dropTargetNode: HTMLElement, fromIndex: number, toIndex:number) {
-    this.updateDraggedElementShortcut(toIndex + 1);
+    const questionModel: any = this.parentElement;
+    const isDropToEmptyRankedContainer = this.dropTarget === "to-container" && questionModel.isEmpty();
+    const isNeedToShowIndexAtShortcut = !this.isDropTargetUnranked || isDropToEmptyRankedContainer;
+    const shortcutIndex = isNeedToShowIndexAtShortcut ? toIndex + 1 : null;
+
+    this.updateDraggedElementShortcut(shortcutIndex);
 
     if (fromIndex !== toIndex) {
       dropTargetNode.classList.remove("sv-dragdrop-moveup");
       dropTargetNode.classList.remove("sv-dragdrop-movedown");
-      this.parentElement.dropTargetNodeMove = null;
+      questionModel.dropTargetNodeMove = null;
     }
 
     if (fromIndex > toIndex) {
-      this.parentElement.dropTargetNodeMove = "down";
+      questionModel.dropTargetNodeMove = "down";
     }
 
     if (fromIndex < toIndex) {
-      this.parentElement.dropTargetNodeMove = "up";
+      questionModel.dropTargetNodeMove = "up";
     }
   }
 
@@ -111,6 +119,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   }
 
   private get isDropTargetRanked() {
+    if (this.dropTarget === "to-container") return true;
     return this.parentElement.rankingChoices.indexOf(this.dropTarget) !== -1;
   }
 
@@ -121,12 +130,6 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   private get isDropTargetUnranked() {
     return !this.isDropTargetRanked;
   }
-
-  // protected doClear = (): void => {
-  //   this.parentElement.dropTargetNodeMove = null;
-  //   this.parentElement.updateRankingChoices(true);
-  //   this.parentElement["updateVisibleChoices"]();
-  // };
 
   public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
     const rankingChoices = questionModel.rankingChoices;

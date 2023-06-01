@@ -1,16 +1,31 @@
 import * as ko from "knockout";
-import { QuestionImagePickerModel } from "survey-core";
+import { ItemValue, QuestionImagePickerModel } from "survey-core";
 import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
 import { Question } from "survey-core";
 
 class QuestionImagePickerImplementor extends QuestionCheckboxBaseImplementor {
-  constructor(question: Question) {
+  private koRecalc: any;
+  constructor(public question: QuestionImagePicker) {
     super(question);
+    this.koRecalc = ko.observable(0);
+    this.setCallbackFunc("koGetItemClass", (item: ItemValue) => {
+      this.koRecalc();
+      return question.getItemClass(item);
+    });
+    this.question.registerFunctionOnPropertyValueChanged("value", () => {
+      if(this.question.multiSelect && this.question.isDesignMode) {
+        this.koRecalc(this.koRecalc() + 1);
+      }
+    }, "__koOnValueChangeTrigger");
   }
   protected getKoValue() {
     return this.question.renderedValue;
+  }
+  public dispose(): void {
+    this.question.unRegisterFunctionOnPropertyValueChanged("value", "__koOnValueChangeTrigger");
+    super.dispose();
   }
 }
 

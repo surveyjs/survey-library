@@ -20,7 +20,7 @@
     </fieldset>
 </script>
 <script type="text/html" id="survey-imagepicker-item">
-    <div data-bind="css: question.getItemClass(item)">
+    <div data-bind="css: question.koGetItemClass(item)">
         <label data-bind="css: question.koCss().label">
             <input data-bind="attr: {type: question.inputType, name: question.questionName, value: item.value, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
             />

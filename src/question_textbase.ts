@@ -153,14 +153,14 @@ export class QuestionTextBase extends Question {
     return this.errors.length > 0 ? "true" : "false";
   }
   public get a11y_input_ariaLabel(): string {
-    if (this.hasTitle) {
+    if (this.hasTitle && !this.parentQuestion) {
       return null;
     } else {
       return this.locTitle.renderedHtml;
     }
   }
   public get a11y_input_ariaLabelledBy(): string {
-    if (this.hasTitle) {
+    if (this.hasTitle && !this.parentQuestion) {
       return this.ariaTitleId;
     } else {
       return null;

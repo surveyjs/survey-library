@@ -943,3 +943,14 @@ QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
   assert.equal(q1.value, "no value", "question value is correct");
   assert.deepEqual(survey.data, { q1: "no value" }, "survey.data is correct");
 });
+QUnit.test("SelectBase visibleChoices order", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "dropdown", name: "q1", choicesOrder: "asc", choices: ["B", "A", "D", "C"] }
+  ] });
+  const question = <QuestionSelectBase>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 4, "There are 4 items");
+  assert.equal(question.visibleChoices[0].value, "B", "the first item");
+  assert.equal(question.visibleChoices[3].value, "C", "the last item");
+});

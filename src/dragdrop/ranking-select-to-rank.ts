@@ -5,9 +5,14 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   protected findDropTargetNodeByDragOverNode(
     dragOverNode: HTMLElement
   ): HTMLElement {
+    if (dragOverNode.dataset.ranking === "from-container" || dragOverNode.dataset.ranking === "to-container") {
+      return dragOverNode;
+    }
+
     if (this.parentElement.isEmpty()) {
-      const toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
-      const fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
+      let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
+      let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
+
       if (!!toContainer) {
         return toContainer;
       } else if (!!fromContainer) {

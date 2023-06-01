@@ -82,7 +82,7 @@
   font-weight: 600;
   margin-left: calcSize(0);
 
-  &.sv-ranking-item__index--empty:empty {
+  &:empty {
     background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAArSURBVHgB7cuhEQAwDMNAtUN4//m8RMtygcE5PxMQxAKnh6Q3mWzXd4mAD4cJBAQCqfbUAAAAAElFTkSuQmCC");
     background-position: center;
     background-repeat: no-repeat;
@@ -202,11 +202,16 @@
 
 .sv-ranking__containers-divider {
   border: 1px solid black;
-  width: 100%; 
+  width: 100%;
   margin: 20px 0;
 }
 
 .sv-ranking__to-container {
   min-height: 100px;
   border: 1px solid tomato;
+}
+
+.sv-ranking__from-container {
+  min-height: 100px;
+  border: 1px solid gold;
 }

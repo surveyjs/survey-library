@@ -17027,3 +17027,31 @@ QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage
   survey.completeLastPage();
   assert.equal(counter, 1, "onComplete called one time");
 });
+
+QUnit.test("Check readOnly flag", function (assert) {
+  let survey = new SurveyModel({
+    readOnly: true,
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+    ],
+  });
+  assert.equal(survey.mode, "edit");
+  assert.ok(survey.readOnly);
+  survey.readOnly = false;
+  assert.notOk(survey.readOnly);
+  survey = new SurveyModel({
+    mode: "display",
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+    ],
+  });
+  assert.ok(survey.readOnly);
+  survey.mode = "edit";
+  assert.notOk(survey.readOnly);
+});

@@ -33,6 +33,11 @@ export class DropdownListModel extends Base {
   private isRunningLoadQuestionChoices = false;
   protected listModel: ListModel<ItemValue>;
   protected popupCssClasses = "sv-single-select-list";
+  protected listModelFilterStringChanged = (newValue: string) => {
+    if(this.filterString !== newValue) {
+      this.filterString = newValue;
+    }
+  }
 
   private resetItemsSettings() {
     this.itemsSettings.skip = 0;
@@ -150,8 +155,9 @@ export class DropdownListModel extends Base {
         this._popupModel.toggleVisibility();
       };
     }
-    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
+    const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
     res.renderElements = false;
+    res.forceShowFilter = true;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
       return item1 === item2;
     };
@@ -485,12 +491,12 @@ export class DropdownListModel extends Base {
     event.stopPropagation();
   }
   onFocus(event: any): void {
-    this.setInputStringFromSelectedItem();
+    this.setInputStringFromSelectedItem(this.question.selectedItem);
   }
 
-  public setInputStringFromSelectedItem(newValue?: any): void {
-    if (this.question.searchEnabled) {
-      this.applyInputString(newValue || this.question.selectedItem);
+  public setInputStringFromSelectedItem(newValue: any): void {
+    if (this.question.searchEnabled && !!newValue) {
+      this.applyInputString(newValue);
     } else {
       this.inputString = null;
     }

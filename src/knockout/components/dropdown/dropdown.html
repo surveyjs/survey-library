@@ -13,7 +13,7 @@
       'aria-label': question.ariaLabel, 
       'aria-invalid': question.ariaInvalid, 
       'aria-describedby': question.ariaDescribedBy,
-      'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+      'aria-expanded': question.ariaExpanded,
       'aria-controls': model.listElementId,
       'aria-activedescendant': model.ariaActivedescendant,
     },">
@@ -42,7 +42,7 @@
       css: question.cssClasses.filterStringInput, 
       attr: { 
         'aria-label': question.placeholder,
-        'aria-expanded': question.ariaExpanded ? 'true' : 'false',
+        'aria-expanded': question.ariaExpanded,
         'aria-controls': model.listElementId,
         'aria-activedescendant': model.ariaActivedescendant,
         placeholder: model.placeholderRendered, 

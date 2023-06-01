@@ -11,7 +11,7 @@
   height: calcSize(3);
   box-sizing: border-box;
   background: var(--sd-item-default-background, $editor-background);
-  box-shadow: inset 0px 1px 2px $shadow-inner;
+  box-shadow: $editor-boxshadow;
   border: none;
   flex-shrink: 0;
 }

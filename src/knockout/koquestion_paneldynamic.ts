@@ -95,7 +95,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
       "koRangeMax",
       ko.pureComputed(() => {
         this.koRecalc();
-        return this.question.panelCount - 1;
+        return this.question.visiblePanelCount - 1;
       })
     );
 

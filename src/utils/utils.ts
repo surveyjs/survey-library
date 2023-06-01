@@ -218,6 +218,7 @@ export function getSize(value: any) {
 export interface IAttachKey2clickOptions {
   processEsc?: boolean;
   disableTabStop?: boolean;
+  __keyDownReceived?: boolean;
 }
 
 const keyFocusedClassName = "sv-focused--by-key";
@@ -238,7 +239,15 @@ export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOpti
     if (!!element.classList && !element.classList.contains(keyFocusedClassName)) {
       element.classList.add(keyFocusedClassName);
     }
-  } else if (char === 13 || char === 32) {
+    return;
+  }
+
+  if (options) {
+    if (!options.__keyDownReceived) return;
+    options.__keyDownReceived = false;
+  }
+
+  if (char === 13 || char === 32) {
     if (element.click) element.click();
   } else if ((!options || options.processEsc) && char === 27) {
     if (element.blur) element.blur();
@@ -246,6 +255,7 @@ export function doKey2ClickUp(evt: KeyboardEvent, options?: IAttachKey2clickOpti
 }
 
 export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOptions = { processEsc: true }): void {
+  if (options) options.__keyDownReceived = true;
   if (!!evt.target && (<any>evt.target)["contentEditable"] === "true") {
     return;
   }
@@ -258,6 +268,7 @@ export function doKey2ClickDown(evt: KeyboardEvent, options: IAttachKey2clickOpt
     evt.preventDefault();
   }
 }
+
 function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: Element) => any) {
   if (!element) return;
   if (!getComputedStyle) getComputedStyle = (elt: Element) => { return window.getComputedStyle(elt); };
@@ -323,7 +334,7 @@ function mergeValues(src: any, dest: any) {
   if (typeof dest !== "object") return;
   for (var key in src) {
     var value = src[key];
-    if (value && typeof value === "object") {
+    if (!Array.isArray(value) && value && typeof value === "object") {
       if (!dest[key] || typeof dest[key] !== "object") dest[key] = {};
       mergeValues(value, dest[key]);
     } else {

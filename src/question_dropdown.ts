@@ -255,8 +255,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public get popupModel(): PopupModel {
     return this.dropdownListModel?.popupModel;
   }
-  public get ariaExpanded(): boolean {
-    return this.popupModel.isVisible;
+  public get ariaExpanded(): string {
+    const popupModel = this.popupModel;
+    return !!popupModel && popupModel.isVisible ? "true" : "false";
   }
 
   public onOpened: EventBase<QuestionDropdownModel> = this.addEvent<QuestionDropdownModel>();

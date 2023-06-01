@@ -8,7 +8,7 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
   static defaultOptions: IAttachKey2clickOptions = { processEsc: true, disableTabStop: false };
   private isSubscribed = false;
 
-  options?: IAttachKey2clickOptions = Key2ClickDirective.defaultOptions;
+  options?: IAttachKey2clickOptions = { ...Key2ClickDirective.defaultOptions };
   @Input() key2click?: IAttachKey2clickOptions;
 
   private onkeydown (evt: any) {
@@ -35,8 +35,8 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     if(this.isSubscribed) return;
 
     this.element.tabIndex = 0;
-    this.element.addEventListener("keyup", this.onkeyup);
-    this.element.addEventListener("keydown", this.onkeydown);
+    this.element.addEventListener("keyup", this.onkeyup.bind(this));
+    this.element.addEventListener("keydown", this.onkeydown.bind(this));
     this.element.addEventListener("blur", this.blur);
 
     this.isSubscribed = true;
@@ -45,8 +45,8 @@ export class Key2ClickDirective implements OnChanges, OnDestroy {
     if(!this.isSubscribed) return;
 
     this.element.tabIndex = -1;
-    this.element.removeEventListener("keyup", this.onkeyup);
-    this.element.removeEventListener("keydown", this.onkeydown);
+    this.element.removeEventListener("keyup", this.onkeyup.bind(this));
+    this.element.removeEventListener("keydown", this.onkeydown.bind(this));
     this.element.removeEventListener("blur", this.blur);
 
     this.isSubscribed = false;

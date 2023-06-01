@@ -35,11 +35,12 @@
 
   .sd-title {
     color: $primary;
+    font-family: $font-surveytitle-family;
+    font-size: $font-surveytitle-size;
+    font-weight: $font-surveytitle-weight;
   }
 
   h3 {
-    font-size: calcFontSize(2);
-    font-weight: 700;
     line-height: calcSize(5);
   }
 

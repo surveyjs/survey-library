@@ -30,7 +30,6 @@ export * from "../surveytimertests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";
-export * from "../dragdrop_v2_tests";
 export * from "../dragdrophelpertests";
 export * from "../expressions/expressionsTest"; //
 export * from "../expressions/expressionParserTest"; //
@@ -54,6 +53,7 @@ export * from "../multi_select_list_model_tests";
 export * from "../dropdown_multi_select_list_model_test";
 export * from "../notifier_tests";
 export * from "../surveyTOCTests";
+export * from "../dragDropMatrixTests";
 
 export * from "../renderFactoryTests";
 export * from "../components/popuptests";

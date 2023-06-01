@@ -163,7 +163,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onNavigateToUrl: EventBase<SurveyModel, NavigateToUrlEvent> = this.addEvent<SurveyModel, NavigateToUrlEvent>();
   /**
-   * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes from `"starting"` to `"running"`. This occurs only if your survey includes a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
+   * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes to `"running"`.
    * @see firstPageIsStarted
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
@@ -538,13 +538,17 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderPanel: EventBase<SurveyModel, AfterRenderPanelEvent> = this.addEvent<SurveyModel, AfterRenderPanelEvent>();
 
   /**
-   * The event occurs when an element within a question gets focus.
+   * An event that is raised when an element (input field, checkbox, radio button) within a question gets focus.
    * @see onFocusInPanel
+   * @see focusFirstQuestionAutomatic
+   * @see focusQuestion
    */
   public onFocusInQuestion: EventBase<SurveyModel, FocusInQuestionEvent> = this.addEvent<SurveyModel, FocusInQuestionEvent>();
   /**
-   * The event occurs when an element within a panel gets focus.
+   * An event that is raised when an element within a panel gets focus.
    * @see onFocusInQuestion
+   * @see focusFirstQuestionAutomatic
+   * @see focusQuestion
    */
   public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
 
@@ -1227,7 +1231,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyShowDataSaving", val);
   }
   /**
-   * Gets or sets whether the first input is focused on showing a next or a previous page.
+   * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
+   *
+   * Default value: `true`
+   * @see focusOnFirstError
+   * @see focusFirstQuestion
+   * @see focusQuestion
    */
   public get focusFirstQuestionAutomatic(): boolean {
     return this.getPropertyValue("focusFirstQuestionAutomatic");
@@ -1236,8 +1245,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
   }
   /**
-   * Gets or sets whether the first input is focused if the current page has errors.
-   * Set this property to `false` (the default value is `true`) if you do not want to bring the focus to the first question that has error on the page.
+   * Specifies whether to focus the first question with a validation error on the current page.
+   *
+   * Default value: `true`
+   * @see validate
+   * @see focusFirstQuestionAutomatic
    */
   public get focusOnFirstError(): boolean {
     return this.getPropertyValue("focusOnFirstError");
@@ -1523,17 +1535,32 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
    *
    * Default value: `false`
    *
-   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * @see allowResizeComment
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
   }
   public set autoGrowComment(val: boolean) {
     this.setPropertyValue("autoGrowComment", val);
+  }
+  /**
+   * Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
+   *
+   * Default value: `true`
+   *
+   * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
+   * @see autoGrowComment
+   */
+  public get allowResizeComment(): boolean {
+    return this.getPropertyValue("allowResizeComment");
+  }
+  public set allowResizeComment(val: boolean) {
+    this.setPropertyValue("allowResizeComment", val);
   }
   /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
@@ -2950,7 +2977,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Sets the input focus to the first question with the input field.
+   * Focuses the first question on the current page.
+   * @see focusQuestion
+   * @see focusFirstQuestionAutomatic
    */
   public focusFirstQuestion() {
     if (this.isFocusingQuestion) return;
@@ -4016,8 +4045,8 @@ export class SurveyModel extends SurveyElementCore
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
-    this.setCookie();
     this.saveDataOnComplete(isCompleteOnTrigger);
+    this.setCookie();
     return true;
   }
   private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
@@ -4832,6 +4861,9 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Creates a new page and adds it to the survey.
+   *
+   * If you want to switch a survey to the newly added page, assign its index to the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property or assign the entire page to the [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage) property.
+   *
    * @param name A page name. If you do not specify this parameter, it will be generated automatically.
    * @param index An index at which to insert the page. If you do not specify this parameter, the page will be added to the end.
    * @returns The created and added page.
@@ -6737,9 +6769,11 @@ export class SurveyModel extends SurveyElementCore
   private skippedPages: Array<{ from: any, to: any }> = [];
 
   /**
-   * Focus question by its name. If needed change the current page on the page where question is located.
-   * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.
-   * @param name question name
+   * Focuses a question with a specified name. Switches the current page if needed.
+   * @param name A question name.
+   * @returns `false` if the survey does not contain a question with a specified name or this question is hidden; otherwise, `true`.
+   * @see focusFirstQuestion
+   * @see focusFirstQuestionAutomatic
    */
   public focusQuestion(name: string): boolean {
     var question = this.getQuestionByName(name, true);
@@ -6894,7 +6928,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(!this.isShowingPreview && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
           if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
@@ -7102,6 +7136,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
+  { name: "allowResizeComment:boolean", default: true },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },

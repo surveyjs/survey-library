@@ -22,14 +22,14 @@
         <survey-panel :question="panel" :css="css" />
         <sv-paneldynamic-remove-btn v-if="question.panelRemoveButtonLocation === 'right' && question.canRemovePanel && panel.state !== 'collapsed'" :data="{ question, panel }" />
       </div>
-      <hr :class="question.cssClasses.separator" v-if="question.isRenderModeList && index < question.panelCount - 1" :key="'separator' + panel.id" />
+      <hr :class="question.cssClasses.separator" v-if="question.isRenderModeList && index < question.visiblePanelCount - 1" :key="'separator' + panel.id" />
     </template>
     <survey-paneldynamicprogress
       v-if="showLegacyNavigation && question.isProgressBottomShowing"
       :question="question"
     />
     <sv-paneldynamic-add-btn v-if="showLegacyNavigation && question.isRenderModeList" :data="{ question }" />
-    <survey-paneldynamicprogress-v2 v-if="question.panelCount !== 0 && !showLegacyNavigation" :question="question" />
+    <survey-paneldynamicprogress-v2 v-if="question.showNavigation" :question="question" />
   </div>
 </template>
 

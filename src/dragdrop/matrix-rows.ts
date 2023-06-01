@@ -22,31 +22,33 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     const isDeepClone = true;
 
-    const row = <HTMLElement>(draggedElementNode
-      .closest("[data-sv-drop-target-matrix-row]"));
-    const clone = <HTMLElement>(row.cloneNode(isDeepClone));
+    if(!!draggedElementNode) {
+      const row = <HTMLElement>(draggedElementNode
+        .closest("[data-sv-drop-target-matrix-row]"));
+      const clone = <HTMLElement>(row.cloneNode(isDeepClone));
 
-    clone.style.cssText = `
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
-      background-color: white;
-      display: flex;
-      flex-grow: 0;
-      flex-shrink: 0;
-      align-items: center;
-      line-height: 0;
-      width: ${row.offsetWidth}px;
-    `;
+      clone.style.cssText = `
+        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
+        background-color: white;
+        display: flex;
+        flex-grow: 0;
+        flex-shrink: 0;
+        align-items: center;
+        line-height: 0;
+        width: ${row.offsetWidth}px;
+      `;
 
-    clone.classList.remove("sv-matrix__drag-drop--moveup");
-    clone.classList.remove("sv-matrix__drag-drop--movedown");
-    this.draggedElement.isDragDropMoveDown = false;
-    this.draggedElement.isDragDropMoveUp = false;
+      clone.classList.remove("sv-matrix__drag-drop--moveup");
+      clone.classList.remove("sv-matrix__drag-drop--movedown");
+      this.draggedElement.isDragDropMoveDown = false;
+      this.draggedElement.isDragDropMoveUp = false;
 
-    draggedElementShortcut.appendChild(clone);
+      draggedElementShortcut.appendChild(clone);
 
-    const rect = draggedElementNode.getBoundingClientRect();
-    draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
-    draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
+      const rect = draggedElementNode.getBoundingClientRect();
+      draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
+      draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
+    }
 
     //this.isBottom = null;
 
@@ -91,7 +93,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return dropTargetRenderedRow.row;
   }
 
-  protected isDropTargetValid(dropTarget: any): boolean {
+  protected isDropTargetValid(dropTarget: any, dropTargetNode?: HTMLElement): boolean {
     return true;
   }
 
@@ -156,9 +158,14 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return this.parentElement;
   };
 
-  protected doClear(): void {
+  public clear(): void {
+    const renderedRows = this.parentElement.renderedTable.rows;
+    renderedRows.forEach((renderedRow) => {
+      renderedRow.isGhostRow = false;
+    });
     this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
+    super.clear();
   }
 }

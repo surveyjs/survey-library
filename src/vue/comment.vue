@@ -13,10 +13,11 @@
       @change="change"
       @input="(e) => { question.onInput(e) }"
       @keydown="(e) => { question.onKeyDown(e) }"
-      :aria-required="question.ariaRequired"
-      :aria-label="question.ariaLabel"
-      :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy"
+      :aria-required="question.a11y_input_ariaRequired"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
+      :aria-invalid="question.a11y_input_ariaInvalid"
+      :aria-describedby="question.a11y_input_ariaDescribedBy"
       v-bind:style="{ resize: question.resizeStyle }"
     ></textarea>
     <div v-else-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()">
@@ -33,10 +34,11 @@
         @change="change"
         @input="(e) => { question.onInput(e) }"
         @keydown="(e) => { question.onKeyDown(e) }"
-        :aria-required="question.ariaRequired"
-        :aria-label="question.ariaLabel"
-        :aria-invalid="question.ariaInvalid"
-        :aria-describedby="question.ariaDescribedBy"
+        :aria-required="question.a11y_input_ariaRequired"
+        :aria-label="question.a11y_input_ariaLabel"
+        :aria-labelledby="question.a11y_input_ariaLabelledBy"
+        :aria-invalid="question.a11y_input_ariaInvalid"
+        :aria-describedby="question.a11y_input_ariaDescribedBy"
         v-bind:style="{ resize: question.resizeStyle }"
       ></textarea>
       <sv-character-counter :counter="question.characterCounter" :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"></sv-character-counter>

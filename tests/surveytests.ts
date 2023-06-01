@@ -6,6 +6,7 @@ import { PanelModel } from "../src/panel";
 import { QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
 import { QuestionHtmlModel } from "../src/question_html";
+import { QuestionImageModel } from "../src/question_image";
 import {
   SurveyTriggerVisible,
   SurveyTriggerComplete,
@@ -99,6 +100,28 @@ QUnit.test("merge data property", function (assert) {
     { strVal: "item1", intVal: 7, boolVal: false },
     "do nothing"
   );
+});
+QUnit.test("merge data for image question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        "name": "image",
+        "showPreview": true
+      }
+    ]
+  });
+  const imageData = [
+    {
+      name: "maxresdefault.jpg",
+      type: "image/jpeg",
+      content:
+        "data:image/jpeg;base64,=123test"
+    }
+  ];
+  survey.mergeData({ image: imageData });
+  const question = <QuestionImageModel>survey.getQuestionByName("image");
+  assert.deepEqual(question.value, imageData, "value set correctly");
 });
 QUnit.test("Add two pages", function (assert) {
   var survey = new SurveyModel();
@@ -14735,6 +14758,37 @@ QUnit.test("survey.autoGrowComment", function (assert) {
   assert.equal(comment1.autoGrow, false);
   assert.equal(comment2.autoGrow, true);
 });
+QUnit.test("survey.allowResizeComment", function (assert) {
+  let json = {
+    allowResizeComment: false,
+    pages: [
+      {
+        elements: [
+          {
+            type: "comment",
+            name: "comment1",
+          },
+          {
+            type: "comment",
+            name: "comment2",
+            allowResize: false
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let comment1 = survey.getQuestionByName("comment1");
+  let comment2 = survey.getQuestionByName("comment2");
+
+  assert.equal(survey.allowResizeComment, false);
+  assert.equal(comment1.allowResize, false);
+  assert.equal(comment2.allowResize, false);
+
+  survey.allowResizeComment = true;
+  assert.equal(comment1.allowResize, true);
+  assert.equal(comment2.allowResize, false);
+});
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
@@ -16557,6 +16611,68 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
     "id": "navigationbuttons"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "do not show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+QUnit.test("getContainerContent - do not show TOC on start page", function (assert) {
+  const json = {
+    showTOC: true,
+    firstPageIsStarted: true,
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q3",
+          },
+        ]
+      }
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "empty on the start page");
+
+  survey.start();
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [{
+    "component": "sv-progress-toc",
+    "id": "toc-navigation"
+  }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
 

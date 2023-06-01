@@ -2,17 +2,34 @@ import * as ko from "knockout";
 import { QuestionMultipleTextModel, MultipleTextItemModel } from "survey-core";
 import { QuestionTextModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionText } from "./koquestion_text";
+import { QuestionText, QuestionTextImplementor } from "./koquestion_text";
 import { Question } from "survey-core";
 import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
+import { MultipleTextEditorModel } from "survey-core";
+
+export class koMultipleTextEditorModel extends MultipleTextEditorModel {
+  private _implementor: QuestionTextImplementor;
+  constructor(name: string) {
+    super(name);
+  }
+  protected onBaseCreating() {
+    super.onBaseCreating();
+    this._implementor = new QuestionTextImplementor(this);
+  }
+  public dispose() {
+    this._implementor.dispose();
+    this._implementor = undefined;
+    super.dispose();
+  }
+}
 
 export class MultipleTextItem extends MultipleTextItemModel {
   constructor(name: any = null, title: string = null) {
     super(name, title);
   }
   protected createEditor(name: string): QuestionTextModel {
-    return new QuestionText(name);
+    return new koMultipleTextEditorModel(name);
   }
 }
 

@@ -481,9 +481,13 @@ export abstract class QuestionCustomModelBase extends Question
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
     var newName = this.convertDataName(name);
+    let valueForSurvey = this.convertDataValue(name, newValue);
+    if(this.valueToDataCallback) {
+      valueForSurvey = this.valueToDataCallback(valueForSurvey);
+    }
     this.data.setValue(
       newName,
-      this.convertDataValue(name, newValue),
+      valueForSurvey,
       locNotification,
       allowNotifyValueChanged
     );
@@ -793,10 +797,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return this.textProcessing;
   }
   findQuestionByName(name: string): IQuestion {
-    if(!!this.contentPanel) {
-      const res = this.contentPanel.getQuestionByName(name);
-      if(!!res) return res;
-    }
+    const res = this.getQuestionByName(name);
+    if(!!res) return res;
     return super.findQuestionByName(name);
   }
   protected clearValueIfInvisibleCore(): void {
@@ -902,14 +904,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         this.setValueCore(panelValue);
       }
     }
+    this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
-    if (!!this.contentPanel) {
-      var q = this.contentPanel.getQuestionByName(name);
-      if (!!q && !this.isTwoValueEquals(newValue, q.value)) {
-        q.value = newValue;
-      }
-    }
     this.settingNewValue = false;
+  }
+  private setNewValueIntoQuestion(name: string, newValue: any): void {
+    var q = this.getQuestionByName(name);
+    if (!!q && !this.isTwoValueEquals(newValue, q.value)) {
+      q.value = newValue;
+    }
   }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
@@ -937,8 +940,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return val;
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    this.setValuesIntoQuestions(newValue);
+    if (!this.isEditingSurveyElement && !!this.contentPanel) {
+      newValue = this.contentPanel.getValue();
+    }
     super.setQuestionValue(newValue, updateIsAnswered);
+  }
+  private setValuesIntoQuestions(newValue: any): void {
+    if(!this.contentPanel) return;
     this.settingNewValue = true;
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
@@ -949,6 +959,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         q.value = val;
       }
     }
+    this.runCondition(this.getDataFilteredValues(), this.getDataFilteredProperties());
     this.settingNewValue = false;
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {

@@ -17,22 +17,22 @@
   line-height: calcSize(3);
   text-align: center;
   color: $primary;
-  border: 2px solid transparent;
+  border: none;
   outline: none;
 }
 
-.sd-btn:not(:disabled):hover {
+.sd-btn:hover {
   background-color: $background-dark;
 }
 
-.sd-btn:not(:disabled):focus {
+.sd-btn:focus {
   box-shadow: 0 0 0 2px $primary;
 }
 
 .sd-btn:disabled {
   color: $foreground;
   opacity: 0.25;
-  cursor: default;
+  pointer-events: none;
 }
 
 .sd-btn--action {
@@ -40,11 +40,12 @@
   color: $primary-foreground;
 }
 
-.sd-btn--action:not(:disabled):hover {
+.sd-btn--action:hover {
   color: $primary-foreground;
   background-color: $primary-background-dark;
 }
 
 .sd-btn--action:disabled {
   color: $primary-foreground-disabled;
+  pointer-events: none;
 }

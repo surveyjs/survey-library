@@ -2489,6 +2489,17 @@ export class SurveyModel extends SurveyElementCore
     if (value != "edit" && value != "display") return;
     this.setPropertyValue("mode", value);
   }
+
+  public get readOnly(): boolean {
+    const mode = this.mode;
+    const readOnly = this.getPropertyValue("readOnly");
+    return mode === "display" || readOnly;
+  }
+
+  public set readOnly(val: boolean) {
+    this.setPropertyValue("readOnly", val);
+  }
+
   private onModeChanged() {
     for (var i = 0; i < this.pages.length; i++) {
       var page = this.pages[i];
@@ -3229,7 +3240,7 @@ export class SurveyModel extends SurveyElementCore
    * @see mode
    */
   public get isEditMode(): boolean {
-    return this.mode == "edit";
+    return !this.readOnly;
   }
   /**
    * Returns `true` if the survey is in display mode or in preview mode.
@@ -3237,7 +3248,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showPreviewBeforeComplete
    */
   public get isDisplayMode(): boolean {
-    return this.mode == "display" || this.state == "preview";
+    return this.readOnly || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
@@ -4352,7 +4363,7 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder()
       .append(this.css.root)
       .append(this.css.rootMobile, this.isMobile)
-      .append(this.css.rootReadOnly, this.mode === "display")
+      .append(this.css.rootReadOnly, this.readOnly)
       .toString();
   }
   private resizeObserver: ResizeObserver;
@@ -7107,6 +7118,7 @@ Serializer.addClass("survey", [
     default: "left",
     choices: ["left", "right"],
   },
+  { name: "readOnly:boolean", default: false },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
   { name: "maxTextLength:number", default: 0, minValue: 0 },

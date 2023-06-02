@@ -53,7 +53,7 @@ $blue-light: var(--sjs-special-blue-light, var(--blue-light, rgba(67, 127, 217, 
 $blue-forecolor: var(--sjs-special-blue-forecolor, #ffffff);
 
 $font-family: var(--font-family);
-$font-size: var(--sjs-font-size, calc(2 * var(--sjs-base-unit, 8px)));
+$font-size: var(--sjs-font-size, calc(2 * var(--sjs-base-unit, var(--base-unit, 8px))));
 
 $font-surveytitle-family: var(--sjs-font-surveytitle-family, var(--font-family));
 $font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);

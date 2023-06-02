@@ -114,6 +114,9 @@ export class PopupBaseViewModel extends Base {
   public get isFocusedContent(): boolean {
     return this.model.isFocusedContent;
   }
+  public get isFocusedContainer(): boolean {
+    return this.model.isFocusedContainer;
+  }
   public get showFooter(): boolean {
     return this.getShowFooter();
   }
@@ -167,7 +170,7 @@ export class PopupBaseViewModel extends Base {
   public switchFocus(): void {
     if(this.isFocusedContent) {
       this.focusFirstInput();
-    } else {
+    } else if(this.isFocusedContainer) {
       this.focusContainer();
     }
   }

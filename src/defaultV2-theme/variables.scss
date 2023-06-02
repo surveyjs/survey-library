@@ -74,7 +74,7 @@ $font-pagedescription-size: var(--sjs-font-pagedescription-size, calc(1 * var(--
 
 $font-questiontitle-family: var(--sjs-font-questiontitle-family, var(--font-family));
 $font-questiontitle-weight: var(--sjs-font-questiontitle-weight, 600);
-$font-questiontitle-color: var(--sjs-font-questiontitle-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
+$font-questiontitle-color: var(--sjs-font-questiontitle-color, var(--sjs-general-forecolor, var(--foreground, #161616)));
 $font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(1 * var(--sjs-font-size, $font-size)));
 
 $font-questiondescription-family: var(--sjs-font-questiondescription-family, var(--font-family));

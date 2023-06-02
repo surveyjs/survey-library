@@ -14,7 +14,7 @@ $editor-background: var(
   --sjs-editorpanel-backcolor,
   var(--sjs-editor-background, var(--background-dim-light, #f9f9f9))
 );
-$question-background: var(--sjs-questionpanel-backcolor, var(--sjs-question-background, var(--background, #fff)));
+$question-background: var(--sjs-questionpanel-backcolor, var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff))));
 
 $background: var(--sjs-general-backcolor, var(--background, #fff));
 $background-dim: var(--sjs-general-backcolor-dim, var(--background-dim, #f3f3f3));

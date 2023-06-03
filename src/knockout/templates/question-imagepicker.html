@@ -21,11 +21,11 @@
 </script>
 <script type="text/html" id="survey-imagepicker-item">
     <div data-bind="css: question.koGetItemClass(item)">
-        <label data-bind="css: question.koCss().label">
-            <input data-bind="attr: {type: question.inputType, name: question.questionName, value: item.value, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.koValue, enable: question.getItemEnabled(item), css: question.koCss().itemControl"
+        <label data-bind="css: question.cssClasses.label">
+            <input data-bind="attr: {type: question.inputType, name: question.questionName, value: item.value, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.koValue, enable: question.getItemEnabled(item), css: question.cssClasses.itemControl"
             />
-            <div data-bind="css: question.koCss().itemDecorator">
-                <div data-bind="css: question.koCss().imageContainer">
+            <div data-bind="css: question.cssClasses.itemDecorator">
+                <div data-bind="css: question.cssClasses.imageContainer">
                   <!-- ko if: question.cssClasses.checkedItemDecorator -->
                   <span data-bind="css: question.cssClasses.checkedItemDecorator">
                     <!-- ko if: question.cssClasses.checkedItemSvgIconId -->
@@ -35,20 +35,20 @@
                    </span>
                   <!-- /ko -->
                   <!-- ko if: ($data.locImageLink.koRenderedHtml() && !$data.contentNotLoaded && question.contentMode === "image") -->
-                  <img data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }, event: { load: question.onContentLoaded, error: $data.onErrorHandler }"/>
+                  <img data-bind="css: question.cssClasses.image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight, alt: item.locText.koRenderedHtml }, style: { objectFit: question.imageFit }, event: { load: question.onContentLoaded, error: $data.onErrorHandler }"/>
                   <!-- /ko -->
                   <!-- ko if: ($data.locImageLink.koRenderedHtml() && !$data.contentNotLoaded && question.contentMode === "video") -->
-                  <video controls data-bind="css: question.koCss().image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight }, style: { objectFit: question.imageFit }, event: { loadedmetadata: question.onContentLoaded, error: $data.onErrorHandler }"></video>
+                  <video controls data-bind="css: question.cssClasses.image, attr: { src: $data.locImageLink.koRenderedHtml, width: question.renderedImageWidth, height: question.renderedImageHeight }, style: { objectFit: question.imageFit }, event: { loadedmetadata: question.onContentLoaded, error: $data.onErrorHandler }"></video>
                   <!-- /ko -->
                   <!-- ko if: !$data.imageLink || $data.contentNotLoaded -->
-                  <div data-bind="css: question.koCss().itemNoImage, style: { width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit}">
-                    <!-- ko component: { name: 'sv-svg-icon', params: { css: question.koCss().itemNoImageSvgIcon, iconName: question.koCss().itemNoImageSvgIconId, size: 48 } } --><!-- /ko -->
+                  <div data-bind="css: question.cssClasses.itemNoImage, style: { width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit}">
+                    <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.itemNoImageSvgIcon, iconName: question.cssClasses.itemNoImageSvgIconId, size: 48 } } --><!-- /ko -->
                   </div>
                   <!-- /ko -->
                   
                 </div>
                 <!-- ko if: question.showLabel -->
-                <span data-bind="css: question.koCss().itemText">
+                <span data-bind="css: question.cssClasses.itemText">
                   <!-- ko template: { name: 'survey-string', data: item.locText } -->
                   <!-- /ko -->
                 </span>

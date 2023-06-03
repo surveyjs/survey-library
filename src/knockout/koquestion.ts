@@ -45,18 +45,6 @@ export class QuestionImplementor extends ImplementorBase {
     );
     this.setObservaleObj("koElementType", ko.observable("survey-question"));
     this.setObservaleObj(
-      "koCss",
-      ko.pureComputed(() => {
-        return this.question.cssClasses;
-      })
-    );
-    this.setObservaleObj(
-      "koRootCss",
-      ko.pureComputed(() => {
-        return this.question.getRootCss();
-      })
-    );
-    this.setObservaleObj(
       "koErrorClass",
       ko.pureComputed(() => {
         return this.question.cssError;

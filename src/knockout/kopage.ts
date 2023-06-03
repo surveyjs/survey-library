@@ -70,16 +70,12 @@ export class PanelImplementorBase extends ImplementorBase {
 export class Panel extends PanelModel {
   private _implementor: ImplementorBase;
   koElementType: any;
-  koCss: any;
   koErrorClass: any;
   constructor(name: string = "") {
     super(name);
     this.onCreating();
     var self = this;
     this.koElementType = ko.observable("survey-panel");
-    this.koCss = ko.pureComputed(function () {
-      return self.cssClasses;
-    });
     this.koErrorClass = ko.pureComputed(function () {
       return self.cssError;
     });
@@ -96,7 +92,6 @@ export class Panel extends PanelModel {
     this.locTitle.strChanged();
   }
   public dispose() {
-    this.koCss.dispose();
     this.koErrorClass.dispose();
     this._implementor.dispose();
     this._implementor = undefined;

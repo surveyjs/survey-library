@@ -115,6 +115,10 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         });
       });
     }
+    if(q.getType() == "matrix" && platform.name == "Knockout") {
+      //need to update rows full names
+      q.onRowsChanged();
+    }
     if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
       q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
         row.row.idValue = `${q.id}row${rowIndex}`;
@@ -292,8 +296,6 @@ function clearAttributes(el: Element, removeIds = false) {
   if(el.getAttribute("src") === "") {
     el.removeAttribute("src");
   }
-  if(el.getAttribute("name") !== "name")
-    el.removeAttribute("name");
   if((<any>el).checked) {
     el.setAttribute("checked", "");
   }

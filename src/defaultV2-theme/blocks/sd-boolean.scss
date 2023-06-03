@@ -55,6 +55,7 @@
   font-weight: 600;
   margin-left: 0%;
   transform: translateX(0);
+  white-space: nowrap;
   z-index: 2;
 }
 
@@ -80,21 +81,6 @@
 .sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover {
   background-color: $background-dim-dark;
   border-radius: calcSize(12.5);
-}
-
-.svc-question__content {
-  .sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate) .sd-boolean__label:nth-of-type(1),
-  .sd-boolean--checked .sd-boolean__label:nth-of-type(2) {
-    color: $primary;
-    font-weight: 600;
-    background: $background;
-    box-shadow: 0px 1px 2px $shadow-inner;
-    border-radius: calcSize(12.5);
-  }
-
-  .sd-boolean__switch {
-    display: none;
-  }
 }
 
 .sd-boolean--error {

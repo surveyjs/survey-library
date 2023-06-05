@@ -262,7 +262,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("two-panels-one-row-small-screen.png", panelRoot, t, comparer);
     });
   });
-  test.only("Check panel with errors above", async (t) => {
+  test("Check panel with errors above", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {

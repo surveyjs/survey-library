@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, takeElementScreenshot, resetHoverToBody } from "../../helper";
 
 const title = "Panel Screenshot";
 
@@ -293,7 +293,7 @@ frameworks.forEach(framework => {
       const panelRoot = Selector(".sd-panel");
       await resetFocusToBody();
       await t.click(Selector("input[value='Complete']"));
-      await t.hover(Selector("body"), { offsetX: 0, offsetY: 0 });
+      await resetHoverToBody(t);
       await takeElementScreenshot("panel-with-question-errors-above.png", panelRoot, t, comparer);
     });
   });

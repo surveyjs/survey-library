@@ -6786,3 +6786,6 @@ QUnit.test("cols property is invisible and non-serializable", function (assert) 
   assert.equal(prop.visible, false, "property is invisible");
   assert.equal(prop.isSerializable, false, "property is non-serializable");
 });
+QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
+  assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
+});

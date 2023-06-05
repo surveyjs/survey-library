@@ -262,7 +262,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("two-panels-one-row-small-screen.png", panelRoot, t, comparer);
     });
   });
-  test("Check panel with errors above", async (t) => {
+  test.only("Check panel with errors above", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -293,6 +293,7 @@ frameworks.forEach(framework => {
       const panelRoot = Selector(".sd-panel");
       await resetFocusToBody();
       await t.click(Selector("input[value='Complete']"));
+      await t.hover(Selector("body"), { offsetX: 0, offsetY: 0 });
       await takeElementScreenshot("panel-with-question-errors-above.png", panelRoot, t, comparer);
     });
   });

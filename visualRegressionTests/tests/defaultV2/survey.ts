@@ -458,6 +458,7 @@ frameworks.forEach(framework => {
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
+      await t.hover(Selector("body"), { offsetX: 0, offsetY: 0 });
       await takeElementScreenshot("survey-timer.png", Selector("body"), t, comparer);
     });
   });
@@ -526,6 +527,7 @@ frameworks.forEach(framework => {
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
+      await t.hover(Selector("body"), { offsetX: 0, offsetY: 0 });
       await takeElementScreenshot("survey-timer-without-progress.png", Selector("body"), t, comparer);
     });
   });

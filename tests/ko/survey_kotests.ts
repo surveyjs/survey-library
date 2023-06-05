@@ -2572,7 +2572,7 @@ QUnit.test("Use variables as default values in expression", function (assert) {
   assert.equal(q3.koValue(), "CCC", "q3.value");
 });
 
-QUnit.test("Check koCss is still depends on cssClasses  without survey", function (assert) {
+QUnit.test("Check koCss still depends on cssClasses without survey", function (assert) {
   const q: QuestionText = new QuestionText("q1");
   assert.deepEqual(q["koCss"](), {
     "error": {}
@@ -2586,4 +2586,44 @@ QUnit.test("Check koCss is still depends on cssClasses  without survey", functio
   q["setSurveyImpl"](survey);
   const _dummy = q["cssClasses"];
   assert.equal(q["koCss"]().root, "test");
+});
+
+QUnit.test("Check imagepicker's koGetItemClass method (designMode, multiSelect) - #6286", function (assert) {
+  const survey: any = new Survey({
+    elements: [
+      {
+        type: "imagepicker",
+        name: "q1",
+        choices: [
+          {
+            imageLink: "test_image",
+            value: "test"
+          }
+        ]
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("q1");
+  survey.setDesignMode(true);
+  survey.css = {
+    imagepicker: {
+      item: "",
+      itemInline: "",
+      itemChecked: "checked"
+    }
+  };
+  const computed = ko.computed(() => {
+    return q.koGetItemClass(q.choices[0]);
+  });
+  assert.equal(computed(), "");
+  q.multiSelect = true;
+  let log = "";
+  computed.subscribe((value) => {
+    log += `->${value}`;
+  });
+  q.defaultValue = ["test"];
+  assert.equal(log, "->checked");
+  q.defaultValue = [];
+  assert.equal(log, "->checked->");
+  q.defaultValue = ["->checked->->checked"];
 });

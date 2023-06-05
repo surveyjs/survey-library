@@ -1068,7 +1068,9 @@ export class QuestionSelectBase extends Question {
     errors.push(otherEmptyError);
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    this.isRunningChoices = true;
     super.setSurveyImpl(value, isLight);
+    this.isRunningChoices = false;
     this.runChoicesByUrl();
     if (this.isAddDefaultItems) {
       this.updateVisibleChoices();
@@ -1310,6 +1312,7 @@ export class QuestionSelectBase extends Question {
     return !filteredChoices || filteredChoices.length > 0;
   }
   private sortVisibleChoices(array: Array<ItemValue>): Array<ItemValue> {
+    if(this.isDesignMode) return array;
     var order = this.choicesOrder.toLowerCase();
     if (order == "asc") return this.sortArray(array, 1);
     if (order == "desc") return this.sortArray(array, -1);

@@ -81,4 +81,24 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("boolean-radio-question-unfocused.png", questionRoot, t, comparer);
     });
   });
+  test("Check boolean question word-wrap", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "boolean",
+            name: "boolean_question",
+            "labelTrue": "On-site",
+            "labelFalse": "Remote",
+            defaultValue: true
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question--boolean");
+      await t.wait(1000);
+      await takeElementScreenshot("boolean-question-word-wrap.png", questionRoot, t, comparer);
+    });
+  });
 });
+

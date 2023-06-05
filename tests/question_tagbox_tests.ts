@@ -1197,3 +1197,66 @@ QUnit.test("reset filterstring after select item", (assert) => {
   assert.equal(dropdownListModel.inputStringRendered, "");
   assert.equal(dropdownListModel.filterString, "");
 });
+
+QUnit.test("TagBox displays a value which doesn't exist in a list of choices #6293", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["value1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.selectedChoices.length, 0);
+  assert.deepEqual(survey.data, {
+    "question1": ["value1"],
+  });
+});
+
+QUnit.test("TagBox displays a value as Other if it doesn't exist in a list of choices", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      showOtherItem: true,
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["value1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.selectedChoices[0].id, "other");
+  assert.deepEqual(survey.data, {
+    question1: ["value1"],
+    "question1-Comment": "value1"
+  });
+});
+QUnit.test("TagBox displays a value if list of choices is empty", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["Item 1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.value[0], "Item 1");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0].id, "Item 1");
+
+  question.setPropertyValue("visibleChoices", []);
+  assert.equal(question.value.length, 1);
+  assert.equal(question.value[0], "Item 1");
+  assert.equal(question.selectedItems.length, 0);
+});

@@ -859,6 +859,29 @@ QUnit.test(
   }
 );
 
+QUnit.test("loaded empty array", function(assert) {
+  const json = {
+    elements: [
+      {
+        type: "radiogroup",
+        name: "test",
+        defaultValue: {
+          id: 1023,
+        },
+        choicesByUrl: {
+          url: "",
+          valueName: "identity",
+          titleName: "localizedData.id",
+        },
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("test");
+  question["onLoadChoicesFromUrl"]([]);
+  assert.equal(question.value, null, "Value is empty");
+});
+
 QUnit.test(
   "Set value before loading data where value is a complex value, bug https://surveyjs.answerdesk.io/ticket/details/T2055",
   function(assert) {

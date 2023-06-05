@@ -203,6 +203,9 @@ export class DropdownListModel extends Base {
       updateAfterFilterStringChanged();
     }
   }
+  public get isAllDataLoaded(): boolean {
+    return !!this.itemsSettings.totalCount && this.itemsSettings.items.length == this.itemsSettings.totalCount;
+  }
 
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({

@@ -280,13 +280,3 @@
   border-radius: $panel-corner-radius;
   box-shadow: none;
 }
-
-//creator styles
-.svc-question__content .sd-element--complex > .sd-element__header--location-top {
-  padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-  padding-top: 0;
-
-  &:after {
-    display: none;
-  }
-}

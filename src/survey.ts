@@ -2917,7 +2917,7 @@ export class SurveyModel extends SurveyElementCore
     return this.state === "starting";
   }
   /**
-   * Specifies which part of a choice item responds to a drag gesture in Ranking questions.
+   * Specifies which part of a choice item responds to a drag gesture in MatrixDynamic questions.
    *
    * Possible values:
    *

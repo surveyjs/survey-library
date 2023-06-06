@@ -338,6 +338,7 @@ QUnit.test("readOnlyText default", assert => {
         "name": "q1",
         "placeholder": "click",
         "hasOther": true,
+        "hasNone": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -556,6 +557,66 @@ QUnit.test("hasScroll property", assert => {
   assert.equal(question.dropdownListModel.hasScroll, true);
 
   document.body.removeChild(element);
+});
+
+QUnit.test("Dropdown doesn't displays a value which doesn't exist in a list of choices", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: "value1"
+  };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.value, "value1");
+  assert.equal(question.selectedItem, null);
+  assert.deepEqual(survey.data, {
+    "question1": "value1",
+  });
+});
+
+QUnit.test("Dropdown displays a value as Other if it doesn't exist in a list of choices", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      showOtherItem: true,
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: "value1"
+  };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.value, "other");
+  assert.equal(question.selectedItem.id, "other");
+  assert.deepEqual(survey.data, {
+    "question1": "value1",
+    "question1-Comment": "value1"
+  });
+});
+
+QUnit.test("Dropdown displays a value if list of choices is empty", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: "Item 1"
+  };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.value, "Item 1");
+  assert.equal(question.selectedItem.id, "Item 1");
+
+  question.setPropertyValue("visibleChoices", []);
+  assert.equal(question.value, "Item 1");
+  assert.equal(question.selectedItem, null);
 });
 
 function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
@@ -877,7 +938,7 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
 
   assert.equal(question.readOnlyText, "Select...");
   question.value = "i3";
-  assert.equal(question.readOnlyText, "");
+  assert.equal(question.readOnlyText, "Select...");
   question.choices = ["i1", "i2", "i3"];
   assert.equal(question.readOnlyText, "");
 });

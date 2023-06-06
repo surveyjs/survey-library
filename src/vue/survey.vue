@@ -1,6 +1,6 @@
 <template>
   <div :class="survey.getRootCss()"
-    :style="{ backgroundImage: vueSurvey.renderBackgroundImage, backgroundSize: vueSurvey.backgroundImageFit }"
+    :style="vueSurvey.themeVariables"
     >
     <form onsubmit="return false;"
     :style="{ backgroundColor: vueSurvey.renderBackgroundOpacity }"

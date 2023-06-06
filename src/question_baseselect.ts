@@ -324,6 +324,13 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected onSelectedItemValuesChangedHandler(newValue: any): void { }
+  protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
+    if(!this.isReady) {
+      return this.createItemValue(value, text);
+    } else {
+      return null;
+    }
+  }
   protected getSingleSelectedItem(): ItemValue {
     const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return null;
@@ -333,7 +340,7 @@ export class QuestionSelectBase extends Question {
     if(!itemValue && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
-    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.createItemValue(this.value));
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.getItemIfChoicesNotContainThisValue(this.value));
   }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
   private setConditionalChoicesRunner() {

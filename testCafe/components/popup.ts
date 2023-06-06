@@ -91,8 +91,8 @@ frameworks.forEach(async framework => {
     const itemClientRect = await getElementClientRect(".sv-action-bar-item");
 
     await t
-      .expect(itemClientRect.left - 8 - popupClientRect.width).eql(popupClientRect.left)
-      .expect(itemClientRect.top).eql(popupClientRect.top)
+      .expect(Math.round(itemClientRect.left) - 8 - Math.round(popupClientRect.width)).eql(Math.round(popupClientRect.left))
+      .expect(Math.round(itemClientRect.top)).eql(Math.round(popupClientRect.top))
       .click(clickButton)
       .expect(popupSelector.exists).ok()
       .expect(popupSelector.visible).notOk()
@@ -101,8 +101,8 @@ frameworks.forEach(async framework => {
       .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).ok()
       .pressKey("esc")
       .expect(popupSelector.exists).ok()
-      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).notOk()
       .expect(popupSelector.visible).notOk()
+      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
       .click(Selector("body"), {
@@ -260,7 +260,8 @@ frameworks.forEach(async framework => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
 
     await t
-      .click(clickButton)
+      .pressKey("shift+tab shift+tab")
+      .pressKey("enter")
       .expect(popupSelector.visible).ok()
 
       .expect(listItems.count).eql(10)

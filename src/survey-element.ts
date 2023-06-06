@@ -424,7 +424,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return super.canRunConditions() && !!this.data;
   }
   public getDataFilteredValues(): any {
-    return !!this.data ? this.data.getFilteredValues() : null;
+    return !!this.data ? this.data.getFilteredValues() : {};
   }
   public getDataFilteredProperties(): any {
     var props = !!this.data ? this.data.getFilteredProperties() : {};

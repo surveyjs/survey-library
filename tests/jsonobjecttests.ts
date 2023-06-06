@@ -2972,3 +2972,8 @@ QUnit.test("Ignore type for typed array elements", function (assert) {
   assert.equal(htmls.length, 1, "completedHtmlOnCondition is loaded");
   assert.equal(htmls[0].getType(), "htmlconditionitem", "It has corrected type");
 });
+QUnit.test("overridingProperty test", function (assert) {
+  assert.equal(Serializer.findProperty("question", "visible").overridingProperty, "visibleIf", "visible property check");
+  assert.equal(Serializer.findProperty("question", "readOnly").overridingProperty, "enableIf", "readOnly property check");
+  assert.equal(Serializer.findProperty("question", "isRequired").overridingProperty, "requiredIf", "isRequired property check");
+});

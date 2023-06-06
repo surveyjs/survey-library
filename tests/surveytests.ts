@@ -12466,7 +12466,7 @@ QUnit.test("Remove errors on settings correct values, multipletext", function (
     "There is required error in item1"
   );
   assert.equal(
-    question1.items[0].editor.errors.length,
+    question1.items[1].editor.errors.length,
     1,
     "There is required error in item2"
   );

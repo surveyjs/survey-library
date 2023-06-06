@@ -1,5 +1,5 @@
 <div data-bind="css: question.renderCssRoot">
-  <div data-bind="css: question.koCss().selectWrapper">
+  <div data-bind="css: question.cssClasses.selectWrapper">
     <!-- ko ifnot: question.isReadOnly -->
     <select data-bind="options: question.visibleChoices, 
     optionsValue: 'value', 

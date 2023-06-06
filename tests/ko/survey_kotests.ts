@@ -2198,20 +2198,13 @@ QUnit.test(
     var survey = new Survey();
     var page = survey.addNewPage("page1");
     var panel = <Panel>page.addNewPanel("panel1");
-    assert.ok(panel.koCss, "correct panel is created");
     var nestedPanel = <Panel>panel.addNewPanel("panel2");
-    assert.ok(nestedPanel.koCss, "correct nested panel is created");
 
     //Dynamic panel question
     var dynamicPanel = <QuestionPanelDynamic>(
       page.addNewQuestion("paneldynamic", "q1")
     );
     dynamicPanel.panelCount = 2;
-    assert.ok(
-      (<Panel>dynamicPanel.panels[0]).koCss,
-      "correct dynamic panel is created"
-    );
-
     //Detail panel in matrix dynamic
     var matrix = <QuestionMatrixDynamic>(
       page.addNewQuestion("matrixdynamic", "q2")
@@ -2226,10 +2219,6 @@ QUnit.test(
       "The panel has been created"
     );
     matrix.visibleRows[0].showDetailPanel();
-    assert.ok(
-      (<Panel>matrix.visibleRows[0].detailPanel).koCss,
-      "correct detail panel is created"
-    );
   }
 );
 QUnit.test(
@@ -2570,22 +2559,6 @@ QUnit.test("Use variables as default values in expression", function (assert) {
   assert.equal(q1.koValue(), "AAA", "q1.value");
   assert.equal(q2.koValue(), "BBB", "q2.value");
   assert.equal(q3.koValue(), "CCC", "q3.value");
-});
-
-QUnit.test("Check koCss still depends on cssClasses without survey", function (assert) {
-  const q: QuestionText = new QuestionText("q1");
-  assert.deepEqual(q["koCss"](), {
-    "error": {}
-  });
-  const survey = new Survey({});
-  survey["css"] = {
-    text: {
-      root: "test"
-    }
-  };
-  q["setSurveyImpl"](survey);
-  const _dummy = q["cssClasses"];
-  assert.equal(q["koCss"]().root, "test");
 });
 
 QUnit.test("Check imagepicker's koGetItemClass method (designMode, multiSelect) - #6286", function (assert) {

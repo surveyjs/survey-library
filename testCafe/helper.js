@@ -1,6 +1,4 @@
 import { ClientFunction, Selector } from "testcafe";
-import { waitForAngular } from "testcafe-angular-selectors";
-
 // eslint-disable-next-line no-undef
 const minimist = require("minimist");
 

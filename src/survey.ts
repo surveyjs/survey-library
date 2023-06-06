@@ -2917,6 +2917,20 @@ export class SurveyModel extends SurveyElementCore
     return this.state === "starting";
   }
   /**
+   * Specifies which part of a choice item responds to a drag gesture in Ranking questions.
+   *
+   * Possible values:
+   *
+   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
+   * - `"icon"` - Users can only use the choice item icon as a drag handle.
+   */
+  public get matrixDragHandleArea():string {
+    return this.getPropertyValue("matrixDragHandleArea", "entireItem");
+  }
+  public set matrixDragHandleArea(val: string) {
+    this.setPropertyValue("matrixDragHandleArea", val);
+  }
+  /**
    * Survey is showing a page right now. It is in "running", "preview" or starting state.
    */
   public get isShowingPage(): boolean {
@@ -7064,6 +7078,10 @@ Serializer.addClass("survey", [
     name: "questionsOrder",
     default: "initial",
     choices: ["initial", "random"],
+  },
+  {
+    name: "matrixDragHandleArea",
+    default: "entireItem"
   },
   "showPageNumbers:boolean",
   {

@@ -89,7 +89,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private draggedRow: MatrixDropdownRowModelBase;
   private isBanStartDrag(pointerDownEvent: PointerEvent): boolean {
     const target = (<HTMLElement>pointerDownEvent.target);
-    return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT";
+    return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT" || !this.isDragHandleAreaValid(target);
+  }
+  public isDragHandleAreaValid(node:HTMLElement): boolean {
+    if (this.survey.matrixDragHandleArea === "icon") {
+      return node.classList.contains(this.cssClasses.dragElementDecorator);
+    }
+    return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
     if (!row || !this.allowRowsDragAndDrop) return;

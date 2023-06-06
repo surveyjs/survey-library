@@ -1221,13 +1221,13 @@ export class Question extends SurveyElement<Question>
     return this.survey && this.survey.allowResizeComment;
   }
   private get questionValue(): any {
-    return this.getPropertyValue("value");
+    return this.getPropertyValueWithoutDefault("value");
   }
   private set questionValue(val: any) {
     this.setPropertyValue("value", val);
   }
   private get questionComment(): string {
-    return this.getPropertyValue("comment");
+    return this.getPropertyValueWithoutDefault("comment");
   }
   private set questionComment(val: string) {
     this.setPropertyValue("comment", val);
@@ -1849,12 +1849,19 @@ export class Question extends SurveyElement<Question>
   private isValueChangedInSurvey = false;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
+    if(this.isNewValueEqualsToValue(newValue)) return;
     var oldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
     if (this.isAnswered != oldAnswered) {
       this.updateQuestionCss();
     }
+  }
+  protected isNewValueEqualsToValue(newValue: any): boolean {
+    const val = this.value;
+    if(!this.isTwoValueEquals(newValue, val)) return false;
+    const isObj = newValue === val && !!val && (Array.isArray(val) || typeof val === "object");
+    return !isObj;
   }
   protected isTextValue(): boolean {
     return false;

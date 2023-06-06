@@ -17029,3 +17029,26 @@ QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage
   survey.completeLastPage();
   assert.equal(counter, 1, "onComplete called one time");
 });
+QUnit.test("Expression with dates & defaultValueExpression & expression question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "startdate",
+        "defaultValueExpression": "today(2)",
+        "inputType": "date"
+      },
+      {
+        "type": "expression",
+        "name": "check",
+        "expression": "{startdate} <= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "enddate",
+        "expression": "today(15)"
+      }
+    ]
+  });
+  assert.equal(survey.getValue("check"), true, "Calculated correctly");
+});

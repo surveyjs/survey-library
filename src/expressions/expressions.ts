@@ -515,10 +515,14 @@ static unaryFunctions: HashTable<Function> = {
     },
     greater: function(left: any, right: any): boolean {
       if (left == null || right == null) return false;
+      left = convertValForLessGreater(left, right);
+      right = convertValForLessGreater(right, left);
       return left > right;
     },
     less: function(left: any, right: any): boolean {
       if (left == null || right == null) return false;
+      left = convertValForLessGreater(left, right);
+      right = convertValForLessGreater(right, left);
       return left < right;
     },
     greaterorequal: function(left: any, right: any): boolean {
@@ -626,4 +630,8 @@ static unaryFunctions: HashTable<Function> = {
     mod: "%",
     negate: "!",
   };
+}
+function convertValForLessGreater(val: any, second: any): any {
+  if(second instanceof Date && typeof val === "string") return new Date(val);
+  return val;
 }

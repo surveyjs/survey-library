@@ -17035,20 +17035,56 @@ QUnit.test("Expression with dates & defaultValueExpression & expression question
       {
         "type": "text",
         "name": "startdate",
-        "defaultValueExpression": "today(2)",
+        "defaultValueExpression": "today(-2)",
         "inputType": "date"
       },
       {
         "type": "expression",
-        "name": "check",
+        "name": "enddate",
+        "expression": "today()"
+      },
+      {
+        "type": "expression",
+        "name": "check1",
         "expression": "{startdate} <= {enddate}"
       },
       {
         "type": "expression",
-        "name": "enddate",
-        "expression": "today(15)"
+        "name": "check2",
+        "expression": "{startdate} >= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check3",
+        "expression": "{startdate} < {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check4",
+        "expression": "{startdate} > {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check5",
+        "expression": "{startdate} = {enddate}"
       }
     ]
   });
-  assert.equal(survey.getValue("check"), true, "Calculated correctly");
+  const checkFunc= function(res: Array<boolean>, no: number) {
+    for(var i = 0; i < res.length; i ++) {
+      const name = "check" + (i + 1).toString();
+      const val = survey.getValue(name);
+      assert.equal(val, res[i], "check no: " + no + ", value name: " + name);
+    }
+  };
+  checkFunc([true, false, true, false, false], 1);
+
+  const startQ = survey.getQuestionByName("startdate");
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  startQ.value = Helpers.convertDateToString(date);
+  checkFunc([false, true, false, true, false], 2);
+
+  startQ.value = Helpers.convertDateToString(new Date());
+  checkFunc([true, true, false, false, true], 3);
 });

@@ -84,6 +84,7 @@ export class DropdownListModel extends Base {
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
     this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
+    this._popupModel.isFocusedContainer = false;
     this._popupModel.isFocusedContent = IsTouch;
     this._popupModel.setWidthByTarget = !IsTouch;
     this.updatePopupFocusFirstInputSelector();

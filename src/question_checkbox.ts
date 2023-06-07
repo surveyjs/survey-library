@@ -200,6 +200,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.validateItemValues(itemValues);
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
+  protected getMultipleSelectedItems(): Array<ItemValue> {
+    return this.selectedChoices;
+  }
   protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
     if(!!itemValues.length) return itemValues;
 

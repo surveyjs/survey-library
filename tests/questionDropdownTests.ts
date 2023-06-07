@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { ListModel } from "../src/list";
 import { createListContainerHtmlElement } from "./utilstests";
+import { Question } from "../src/question";
 import { settings } from "../src/settings";
 
 export default QUnit.module("choicesRestful");
@@ -1049,7 +1050,13 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       "name": "q1",
       "defaultValue": 55,
       "choicesLazyLoadEnabled": true
-    }]
+    },
+    {
+      "type": "text",
+      "name": "q2",
+      "title": "{q1}"
+    }
+    ]
   };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add((sender, options) => {
@@ -1069,11 +1076,13 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   });
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const questionTitle = <Question>survey.getAllQuestions()[1];
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
   assert.equal(question.value, 55);
   assert.equal(question.selectedItem.value, 55);
   assert.equal(question.selectedItem.text, "DisplayText_55");
+  assert.equal(questionTitle.locTitle.textOrHtml, "DisplayText_55", "display text is correct");
 
   question.dropdownListModel.popupModel.isVisible = true;
   setTimeout(() => {

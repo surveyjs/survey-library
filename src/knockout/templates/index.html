@@ -4,7 +4,7 @@
 </script>
 
 <script type="text/html" id="survey-content-template">
-  <div data-bind="css: rootCss, style: { backgroundImage: renderBackgroundImage, backgroundSize: backgroundImageFit }">
+  <div data-bind="css: rootCss, style: themeVariables">
       <form onsubmit="return false;" data-bind="style: { backgroundColor: renderBackgroundOpacity }">
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: containerCss">

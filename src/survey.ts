@@ -7081,6 +7081,7 @@ Serializer.addClass("survey", [
   },
   {
     name: "matrixDragHandleArea",
+    visible: false,
     default: "entireItem",
     choices: ["entireItem", "icon"]
   },

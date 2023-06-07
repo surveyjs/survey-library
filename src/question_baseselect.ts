@@ -345,6 +345,9 @@ export class QuestionSelectBase extends Question {
     return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.getItemIfChoicesNotContainThisValue(this.value));
   }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
+  protected getMultipleSelectedItems(): Array<ItemValue> {
+    return [];
+  }
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
       if (!this.conditionChoicesVisibleIfRunner) {
@@ -962,11 +965,19 @@ export class QuestionSelectBase extends Question {
     onGetValueCallback?: (index: number) => any): string {
     var items = this.visibleChoices;
     var strs = [];
+    const vals = [];
     for (var i = 0; i < value.length; i++) {
-      let val = !onGetValueCallback ? value[i] : onGetValueCallback(i);
-      let valStr = this.getChoicesDisplayValue(items, val);
-      if (valStr) {
-        strs.push(valStr);
+      vals.push(!onGetValueCallback ? value[i] : onGetValueCallback(i));
+    }
+    if(Helpers.isTwoValueEquals(this.value, vals)) {
+      this.getMultipleSelectedItems().forEach(item => strs.push(item.locText.textOrHtml));
+    }
+    if(strs.length === 0) {
+      for (var i = 0; i < vals.length; i++) {
+        let valStr = this.getChoicesDisplayValue(items, vals[i]);
+        if (valStr) {
+          strs.push(valStr);
+        }
       }
     }
     return strs.join(", ");

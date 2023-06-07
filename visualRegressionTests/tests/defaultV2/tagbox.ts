@@ -310,7 +310,7 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item1", { paste: true });
+        .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });
@@ -357,16 +357,16 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item1", { paste: true });
+        .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item", { paste: true, replace: true });
+        .typeText(Selector(".sv-list__input"), "item", { replace: true });
 
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-big.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item3", { paste: true, replace: true });
+        .typeText(Selector(".sv-list__input"), "item3", { replace: true });
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-small.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });

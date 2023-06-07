@@ -156,6 +156,7 @@ export { SurveyTimerModel } from "../../surveyTimerModel";
 export * from "../../surveyToc";
 export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
+export * from "../../themes";
 export { SurveyModel } from "../../survey";
 export {
   SurveyTrigger,

@@ -17,7 +17,7 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
-          z-index: 1000;
+          z-index: 10000;
           border-radius: 36px;
           min-width: 100px;
           box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);

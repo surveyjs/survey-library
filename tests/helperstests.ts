@@ -295,6 +295,9 @@ QUnit.test("isTwoValueEquals, undefined vs 'undefined', Bug# ", function(
     "undefined not equals 'undefined'"
   );
 });
+QUnit.test("isTwoValueEquals, Arrays with empty objects", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals([{ a: "a" }], [{ a: "a" }, {}]), false, "arrays are not equal");
+});
 QUnit.test("Helpers.isNumber", function(assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");

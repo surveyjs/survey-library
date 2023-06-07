@@ -272,7 +272,7 @@ export class QuestionRatingModel extends Question {
 
   private initColors() {
     if (this.colorMode === "monochrome") return;
-    if (!document) return;
+    if (typeof document === "undefined" || !document) return;
     if (QuestionRatingModel.badColor && QuestionRatingModel.normalColor && QuestionRatingModel.goodColor) return;
     function getRGBColor(varName: string) {
       const style = getComputedStyle(document.documentElement);

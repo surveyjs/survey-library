@@ -8,8 +8,8 @@
       <!-- /ko -->
       <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     
         <div data-bind="css: question.getFileDecoratorCss()">
-          <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
-          <div data-bind="css: question.koCss().wrapper">
+          <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
+          <div data-bind="css: question.cssClasses.wrapper">
             <label tabindex="0" role="button" data-bind="css: question.koChooseFileCss, key2click, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
               <span data-bind="text: question.chooseButtonCaption"></span>
               <!-- ko if: question.cssClasses.chooseFileIconId -->
@@ -17,7 +17,7 @@
               <!-- /ko -->
             </label>
             <!-- ko if: !question.koHasValue() -->
-            <span data-bind="css: question.koCss().noFileChosen, text: question.noFileChosenCaption"></span>
+            <span data-bind="css: question.cssClasses.noFileChosen, text: question.noFileChosenCaption"></span>
             <!-- /ko -->
           </div>
         </div>

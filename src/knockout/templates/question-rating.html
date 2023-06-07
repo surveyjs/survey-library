@@ -3,7 +3,7 @@
         <fieldset role="radiogroup">
             <legend role="presentation" class="sv-hidden"></legend>
             <!-- ko if: question.hasMinLabel-->
-            <span data-bind="css: question.koCss().minText">
+            <span data-bind="css: question.cssClasses.minText">
               <!-- ko template: { name: 'survey-string', data: question.locMinRateDescription } -->
               <!-- /ko -->
               </span>
@@ -14,7 +14,7 @@
               
             <!-- /ko -->
             <!-- ko if: question.hasMaxLabel-->
-            <span data-bind="css: question.koCss().maxText">
+            <span data-bind="css: question.cssClasses.maxText">
               <!-- ko template: { name: 'survey-string', data: question.locMaxRateDescription } -->
               <!-- /ko -->
               </span>

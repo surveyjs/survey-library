@@ -1,5 +1,5 @@
 import { Selector } from "testcafe";
-import { frameworks, initSurvey, url, url_test, takeElementScreenshot, applyTheme, explicitErrorHandler, wrapVisualTest } from "../../helper";
+import { frameworks, initSurvey, url, url_test, takeElementScreenshot, applyTheme, explicitErrorHandler, wrapVisualTest, resetHoverToBody } from "../../helper";
 
 const title = "Popup Screenshot";
 fixture`${title}`.page`${url}`;
@@ -310,6 +310,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupShortList });
       await t.click(clickButton.withText("Overlay"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-short-list.png", null, t, comparer);
 
       await t
@@ -324,6 +325,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1000, 600);
       await initSurvey(framework, json, { onGetQuestionTitleActions: addActionsWithOverlayPopupLongList });
       await t.click(clickButton.withText("Overlay"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("popup-overlay-long-list.png", null, t, comparer);
 
       await t

@@ -53,6 +53,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
+import { ITheme } from "./themes";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1890,6 +1891,14 @@ export class SurveyModel extends SurveyElementCore
   }
   //#endregion
 
+  @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
+  public get themeVariables() {
+    const result = Object.assign({}, this.cssVariables);
+    result.backgroundImage = this.renderBackgroundImage;
+    result.backgroundSize = this.backgroundImageFit;
+    return result;
+  }
+  @property() backgroundImagePosition: string;
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
     if (this.isMobile !== newVal) {
@@ -6946,6 +6955,14 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     return containerLayoutElements;
+  }
+
+  public applyTheme(theme: ITheme): void {
+    if(!theme) return;
+
+    Object.keys(theme).forEach((key: keyof ITheme) => {
+      (this as any)[key] = theme[key];
+    });
   }
 
   /**

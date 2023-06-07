@@ -323,7 +323,9 @@ export class QuestionSelectBase extends Question {
   protected onEnableItemCallBack(item: ItemValue): boolean {
     return true;
   }
-  protected onSelectedItemValuesChangedHandler(newValue: any): void { }
+  protected onSelectedItemValuesChangedHandler(newValue: any): void {
+    this.survey?.loadedChoicesFromServer(this);
+  }
   protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
     if(!this.isReady) {
       return this.createItemValue(value, text);
@@ -951,6 +953,8 @@ export class QuestionSelectBase extends Question {
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
+    const selItem = this.getSingleSelectedItem();
+    if(!!selItem && selItem.value === val) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }

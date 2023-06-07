@@ -1180,12 +1180,11 @@ export class QuestionSelectBase extends Question {
     if (this.enableOnLoadingChoices) {
       this.readOnly = false;
     }
+    const errors = [];
     if (!this.isReadOnly) {
-      var errors = [];
       if (this.choicesByUrl && this.choicesByUrl.error) {
         errors.push(this.choicesByUrl.error);
       }
-      this.errors = errors;
     }
     var newChoices = null;
     var checkCachedValuesOnExisting = true;
@@ -1240,6 +1239,10 @@ export class QuestionSelectBase extends Question {
         }
       }
     }
+    if(!this.isReadOnly && !newChoices && !this.isFirstLoadChoicesFromUrl) {
+      this.value = null;
+    }
+    this.errors = errors;
     this.choicesLoaded();
   }
   private createCachedValueForUrlRequests(

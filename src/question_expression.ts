@@ -74,9 +74,7 @@ export class QuestionExpressionModel extends Question {
       this.expressionRunner = new ExpressionRunner(this.expression);
     }
     this.expressionRunner.onRunComplete = (newValue) => {
-      if (!Helpers.isTwoValueEquals(newValue, this.value)) {
-        this.value = newValue;
-      }
+      this.value = newValue;
       this.unlocCalculation();
     };
     this.expressionRunner.run(values, properties);

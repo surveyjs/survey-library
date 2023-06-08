@@ -53,6 +53,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
+import { ITheme } from "./themes";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -163,7 +164,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onNavigateToUrl: EventBase<SurveyModel, NavigateToUrlEvent> = this.addEvent<SurveyModel, NavigateToUrlEvent>();
   /**
-   * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes from `"starting"` to `"running"`. This occurs only if your survey includes a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
+   * An event that is raised when the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) changes to `"running"`.
    * @see firstPageIsStarted
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
@@ -538,13 +539,17 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderPanel: EventBase<SurveyModel, AfterRenderPanelEvent> = this.addEvent<SurveyModel, AfterRenderPanelEvent>();
 
   /**
-   * The event occurs when an element within a question gets focus.
+   * An event that is raised when an element (input field, checkbox, radio button) within a question gets focus.
    * @see onFocusInPanel
+   * @see focusFirstQuestionAutomatic
+   * @see focusQuestion
    */
   public onFocusInQuestion: EventBase<SurveyModel, FocusInQuestionEvent> = this.addEvent<SurveyModel, FocusInQuestionEvent>();
   /**
-   * The event occurs when an element within a panel gets focus.
+   * An event that is raised when an element within a panel gets focus.
    * @see onFocusInQuestion
+   * @see focusFirstQuestionAutomatic
+   * @see focusQuestion
    */
   public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
 
@@ -1227,7 +1232,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyShowDataSaving", val);
   }
   /**
-   * Gets or sets whether the first input is focused on showing a next or a previous page.
+   * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
+   *
+   * Default value: `true`
+   * @see focusOnFirstError
+   * @see focusFirstQuestion
+   * @see focusQuestion
    */
   public get focusFirstQuestionAutomatic(): boolean {
     return this.getPropertyValue("focusFirstQuestionAutomatic");
@@ -1236,8 +1246,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("focusFirstQuestionAutomatic", val);
   }
   /**
-   * Gets or sets whether the first input is focused if the current page has errors.
-   * Set this property to `false` (the default value is `true`) if you do not want to bring the focus to the first question that has error on the page.
+   * Specifies whether to focus the first question with a validation error on the current page.
+   *
+   * Default value: `true`
+   * @see validate
+   * @see focusFirstQuestionAutomatic
    */
   public get focusOnFirstError(): boolean {
     return this.getPropertyValue("focusOnFirstError");
@@ -1523,17 +1536,32 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("checkErrorsMode", val);
   }
   /**
-   * Specifies whether to increase the height of text areas to accommodate multi-line comments.
+   * Specifies whether to increase the height of [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas to accommodate multi-line text content.
    *
    * Default value: `false`
    *
-   * You can override this property for individual Comment questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * You can override this property for individual Long Text questions: [`autoGrow`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#autoGrow).
+   * @see allowResizeComment
    */
   public get autoGrowComment(): boolean {
     return this.getPropertyValue("autoGrowComment");
   }
   public set autoGrowComment(val: boolean) {
     this.setPropertyValue("autoGrowComment", val);
+  }
+  /**
+   * Specifies whether to display a resize handle for [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/) questions and other text areas intended for multi-line text content.
+   *
+   * Default value: `true`
+   *
+   * You can override this property for individual Long Text questions: [`allowResize`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model#allowResize).
+   * @see autoGrowComment
+   */
+  public get allowResizeComment(): boolean {
+    return this.getPropertyValue("allowResizeComment");
+  }
+  public set allowResizeComment(val: boolean) {
+    this.setPropertyValue("allowResizeComment", val);
   }
   /**
    * Gets or sets a value that specifies how the survey updates its questions' text values.
@@ -1863,6 +1891,14 @@ export class SurveyModel extends SurveyElementCore
   }
   //#endregion
 
+  @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
+  public get themeVariables() {
+    const result = Object.assign({}, this.cssVariables);
+    result.backgroundImage = this.renderBackgroundImage;
+    result.backgroundSize = this.backgroundImageFit;
+    return result;
+  }
+  @property() backgroundImagePosition: string;
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
     if (this.isMobile !== newVal) {
@@ -2890,6 +2926,20 @@ export class SurveyModel extends SurveyElementCore
     return this.state === "starting";
   }
   /**
+   * Specifies which part of a choice item responds to a drag gesture in MatrixDynamic questions.
+   *
+   * Possible values:
+   *
+   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
+   * - `"icon"` - Users can only use the choice item icon as a drag handle.
+   */
+  public get matrixDragHandleArea():string {
+    return this.getPropertyValue("matrixDragHandleArea", "entireItem");
+  }
+  public set matrixDragHandleArea(val: string) {
+    this.setPropertyValue("matrixDragHandleArea", val);
+  }
+  /**
    * Survey is showing a page right now. It is in "running", "preview" or starting state.
    */
   public get isShowingPage(): boolean {
@@ -2950,7 +3000,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Sets the input focus to the first question with the input field.
+   * Focuses the first question on the current page.
+   * @see focusQuestion
+   * @see focusFirstQuestionAutomatic
    */
   public focusFirstQuestion() {
     if (this.isFocusingQuestion) return;
@@ -3717,7 +3769,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      return this.doComplete();
+      return this.doComplete(this.canBeCompletedByTrigger);
     }
     this.doNextPage();
     return true;
@@ -4832,6 +4884,9 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Creates a new page and adds it to the survey.
+   *
+   * If you want to switch a survey to the newly added page, assign its index to the [`currentPageNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPageNo) property or assign the entire page to the [`currentPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#currentPage) property.
+   *
    * @param name A page name. If you do not specify this parameter, it will be generated automatically.
    * @param index An index at which to insert the page. If you do not specify this parameter, the page will be added to the end.
    * @returns The created and added page.
@@ -6737,9 +6792,11 @@ export class SurveyModel extends SurveyElementCore
   private skippedPages: Array<{ from: any, to: any }> = [];
 
   /**
-   * Focus question by its name. If needed change the current page on the page where question is located.
-   * Function returns false if there is no question with this name or question is invisible, otherwise it returns true.
-   * @param name question name
+   * Focuses a question with a specified name. Switches the current page if needed.
+   * @param name A question name.
+   * @returns `false` if the survey does not contain a question with a specified name or this question is hidden; otherwise, `true`.
+   * @see focusFirstQuestion
+   * @see focusFirstQuestionAutomatic
    */
   public focusQuestion(name: string): boolean {
     var question = this.getQuestionByName(name, true);
@@ -6894,7 +6951,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(!this.isShowingPreview && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
         if(container === "left") {
           if(["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
@@ -6912,6 +6969,14 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     return containerLayoutElements;
+  }
+
+  public applyTheme(theme: ITheme): void {
+    if(!theme) return;
+
+    Object.keys(theme).forEach((key: keyof ITheme) => {
+      (this as any)[key] = theme[key];
+    });
   }
 
   /**
@@ -7031,6 +7096,12 @@ Serializer.addClass("survey", [
     default: "initial",
     choices: ["initial", "random"],
   },
+  {
+    name: "matrixDragHandleArea",
+    visible: false,
+    default: "entireItem",
+    choices: ["entireItem", "icon"]
+  },
   "showPageNumbers:boolean",
   {
     name: "showQuestionNumbers",
@@ -7102,6 +7173,7 @@ Serializer.addClass("survey", [
     choices: ["onBlur", "onTyping"],
   },
   { name: "autoGrowComment:boolean", default: false },
+  { name: "allowResizeComment:boolean", default: true },
   { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
   { name: "pagePrevText", serializationProperty: "locPagePrevText" },
   { name: "pageNextText", serializationProperty: "locPageNextText" },

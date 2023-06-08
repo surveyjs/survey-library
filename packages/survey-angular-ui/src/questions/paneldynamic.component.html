@@ -20,11 +20,11 @@
       </ng-container>
     </div>
     <!-- add track by [key]="'separator' + panel.id" -->
-    <hr [class]="model.cssClasses.separator" *ngIf="model.isRenderModeList && index < model.panelCount - 1"/>
+    <hr [class]="model.cssClasses.separator" *ngIf="model.showSeparator(index)"/>
   </ng-container>
   <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showLegacyNavigation && model.isProgressBottomShowing"></ng-container>
   <sv-ng-paneldynamic-add-btn *ngIf="model.showLegacyNavigation && model.isRenderModeList" [data]="{ question: model }"></sv-ng-paneldynamic-add-btn>
-  <ng-container [ngTemplateOutlet]="progressV2" *ngIf="model.panelCount !== 0 && !model.showLegacyNavigation"></ng-container>
+  <ng-container [ngTemplateOutlet]="progressV2" *ngIf="model.showNavigation"></ng-container>
 </div>
 
 <ng-template #progressV2>

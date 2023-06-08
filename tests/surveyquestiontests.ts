@@ -2441,9 +2441,9 @@ QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is 
   const page = survey.addNewPage("p1");
   const qText = new QuestionTextModel("q1");
   page.addElement(qText);
-  assert.equal(qText.characterCounter.remainingCharacterCounter, undefined, "By default it is undefined");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string #1");
   qText.updateRemainingCharacterCounter("Test");
-  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "", "By default it is empty string #2");
   qText.maxLength = 10;
   qText.updateRemainingCharacterCounter("Test");
   assert.equal(qText.characterCounter.remainingCharacterCounter, "4/10");
@@ -2455,6 +2455,30 @@ QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is 
   assert.equal(qText.characterCounter.remainingCharacterCounter, "4/5");
   qText.updateRemainingCharacterCounter("");
   assert.equal(qText.characterCounter.remainingCharacterCounter, "0/5");
+});
+
+QUnit.test("set json into survey: Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "comment",
+            "name": "q1",
+            "maxLength": 255
+          }
+        ]
+      }
+    ]
+  });
+
+  const qText = survey.getQuestionByName("q1");
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "0/255");
+
+  survey.data = { q1: "Test2" };
+  assert.equal(qText.characterCounter.remainingCharacterCounter, "5/255");
 });
 
 QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields and there is defaultValue", function (assert) {
@@ -6756,4 +6780,12 @@ QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   q1.value = "no";
   assert.equal(q2.isRequired, false, "q2 is not required");
   assert.equal(q2.errors.length, 0, "Errors are cleaned");
+});
+QUnit.test("cols property is invisible and non-serializable", function (assert) {
+  const prop = Serializer.findProperty("comment", "cols");
+  assert.equal(prop.visible, false, "property is invisible");
+  assert.equal(prop.isSerializable, false, "property is non-serializable");
+});
+QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
+  assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
 });

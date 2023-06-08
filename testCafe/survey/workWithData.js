@@ -8,7 +8,6 @@ const set_data = ClientFunction(() => {
     email: "johndoe@nobody.com",
     car: ["Ford"]
   };
-  window["survey"].render();
 });
 
 const add_value_changed_listener = ClientFunction(() => {

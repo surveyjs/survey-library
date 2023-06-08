@@ -32,7 +32,10 @@
   }
 
   span {
-    font-size: calcFontSize(1);
+    font-family: $font-questiontitle-family;
+    font-weight: $font-questiontitle-weight;
+    font-size: $font-questiontitle-size;
+    color: $font-questiontitle-color;
     line-height: calcSize(3);
   }
 
@@ -127,7 +130,7 @@
   padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
   background: $question-background;
-  box-shadow: 0px 1px 2px $shadow-inner;
+  box-shadow: $questionpanel-boxshadow;
 
   &.sd-question--paneldynamic {
     padding-bottom: 0;

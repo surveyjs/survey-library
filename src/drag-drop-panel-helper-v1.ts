@@ -65,16 +65,16 @@ export class DragDropPanelHelperV1 {
     var destRow = this.dragDropFindRow(dest);
     if (!destRow) return true;
 
-    if (settings.supportCreatorV2 && this.panel.isDesignMode) {
-      if (destRow.elements.length > 1)
-        return this.dragDropAddTargetToExistingRow(
-          dragDropInfo,
-          destRow,
-          prevRow
-        );
-      else
-        return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
-    }
+    // if (settings.supportCreatorV2 && this.panel.isDesignMode) {
+    //   if (destRow.elements.length > 1)
+    //     return this.dragDropAddTargetToExistingRow(
+    //       dragDropInfo,
+    //       destRow,
+    //       prevRow
+    //     );
+    //   else
+    //     return this.dragDropAddTargetToNewRow(dragDropInfo, destRow, prevRow);
+    // }
     if (!dragDropInfo.target.startWithNewLine)
       return this.dragDropAddTargetToExistingRow(
         dragDropInfo,

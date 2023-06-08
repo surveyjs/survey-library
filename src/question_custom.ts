@@ -434,9 +434,12 @@ export abstract class QuestionCustomModelBase extends Question
     el.setSurveyImpl(this);
     el.disableDesignActions = true;
   }
+  protected isSettingValOnLoading: boolean;
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    this.isSettingValOnLoading = true;
     super.setSurveyImpl(value, isLight);
     this.initElement(this.getElement());
+    this.isSettingValOnLoading = false;
   }
   public onSurveyLoad() {
     super.onSurveyLoad();
@@ -481,9 +484,13 @@ export abstract class QuestionCustomModelBase extends Question
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if (!this.data) return;
     var newName = this.convertDataName(name);
+    let valueForSurvey = this.convertDataValue(name, newValue);
+    if(this.valueToDataCallback) {
+      valueForSurvey = this.valueToDataCallback(valueForSurvey);
+    }
     this.data.setValue(
       newName,
-      this.convertDataValue(name, newValue),
+      valueForSurvey,
       locNotification,
       allowNotifyValueChanged
     );
@@ -793,10 +800,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     return this.textProcessing;
   }
   findQuestionByName(name: string): IQuestion {
-    if(!!this.contentPanel) {
-      const res = this.contentPanel.getQuestionByName(name);
-      if(!!res) return res;
-    }
+    const res = this.getQuestionByName(name);
+    if(!!res) return res;
     return super.findQuestionByName(name);
   }
   protected clearValueIfInvisibleCore(): void {
@@ -839,6 +844,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.onReadOnlyChanged();
   }
   public onSurveyLoad() {
+    this.isSettingValOnLoading = true;
     if (!!this.contentPanel) {
       this.contentPanel.readOnly = this.isReadOnly;
       this.setIsContentElement(this.contentPanel);
@@ -850,6 +856,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         this.value = val;
       }
     }
+    this.isSettingValOnLoading = false;
   }
   private setIsContentElement(panel: PanelModel) {
     panel.isContentElement = true;
@@ -870,7 +877,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return res;
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
     if (!!this.contentPanel) {
       var oldComposite = values[QuestionCompositeModel.ItemVariableName];
@@ -893,23 +900,32 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   private settingNewValue: boolean = false;
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
-    if (this.settingNewValue) return;
+    if (this.settingNewValue) {
+      this.setNewValueIntoQuestion(name, newValue);
+      return;
+    }
     if(this.isValueChanging(name, newValue)) return;
     this.settingNewValue = true;
     if (!this.isEditingSurveyElement && !!this.contentPanel) {
-      const panelValue = this.contentPanel.getValue();
-      if(!this.isTwoValueEquals(this.getValueCore(), panelValue)) {
-        this.setValueCore(panelValue);
-      }
+      let index = 0;
+      const maxTimes = this.contentPanel.questions.length + 1;
+      while(index < maxTimes && this.updateValueCoreWithPanelValue()) index ++;
     }
+    this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
-    if (!!this.contentPanel) {
-      var q = this.contentPanel.getQuestionByName(name);
-      if (!!q && !this.isTwoValueEquals(newValue, q.value)) {
-        q.value = newValue;
-      }
-    }
     this.settingNewValue = false;
+  }
+  private updateValueCoreWithPanelValue(): boolean {
+    const panelValue = this.contentPanel.getValue();
+    if(this.isTwoValueEquals(this.getValueCore(), panelValue)) return false;
+    this.setValueCore(panelValue);
+    return true;
+  }
+  private setNewValueIntoQuestion(name: string, newValue: any): void {
+    var q = this.getQuestionByName(name);
+    if (!!q && !this.isTwoValueEquals(newValue, q.value)) {
+      q.value = newValue;
+    }
   }
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
@@ -937,10 +953,18 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     }
     return val;
   }
-  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    this.setValuesIntoQuestions(newValue);
+    if (!this.isEditingSurveyElement && !!this.contentPanel) {
+      newValue = this.contentPanel.getValue();
+    }
     super.setQuestionValue(newValue, updateIsAnswered);
+  }
+  private setValuesIntoQuestions(newValue: any): void {
+    if(!this.contentPanel) return;
+    const oldSettingNewValue = this.settingNewValue;
     this.settingNewValue = true;
-    var questions = this.contentPanel.questions;
+    const questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
       const key = questions[i].getValueName();
       const val = !!newValue ? newValue[key] : undefined;
@@ -949,7 +973,7 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
         q.value = val;
       }
     }
-    this.settingNewValue = false;
+    this.settingNewValue = oldSettingNewValue;
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
     return super.getContentDisplayValueCore(keyAsText, value, <any>this.contentPanel);

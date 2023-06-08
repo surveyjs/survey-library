@@ -5,7 +5,7 @@
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
         [attr.aria-controls]="dropdownModel.listElementId"
-        [attr.aria-expanded]="model.ariaExpanded ? 'true' : 'false'"
+        [attr.aria-expanded]="model.ariaExpanded"
         [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant">
         <div *ngIf="dropdownModel.showHintPrefix" [class]="model.cssClasses.hintPrefix">
             <span>{{ dropdownModel.hintStringPrefix }}</span>
@@ -18,7 +18,7 @@
             <ng-container *ngIf="dropdownModel.showInputFieldComponent">
                 <ng-template [component]="{ name: model.inputFieldComponentName, data: { model: dropdownModel.getSelectedAction(), question: model } }"></ng-template>
             </ng-container>
-            <sv-ng-string *ngIf="dropdownModel.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
+            <sv-ng-string *ngIf="model.showSelectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
             <input #inputElement type="text" autocomplete="off" [(ngModel)]="dropdownModel.inputStringRendered" [class]="model.cssClasses.filterStringInput"
             [attr.role]="dropdownModel.filterStringEnabled ? model.ariaRole : null"
             [attr.id]="model.getInputId()"
@@ -27,7 +27,7 @@
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.aria-label]="model.placeholder"
             [attr.aria-controls]="dropdownModel.listElementId"
-            [attr.aria-expanded]="model.ariaExpanded ? 'true' : 'false'"
+            [attr.aria-expanded]="model.ariaExpanded"
             [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant"
             [attr.placeholder]="dropdownModel.placeholderRendered" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>

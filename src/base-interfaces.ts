@@ -55,6 +55,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isClearValueOnHidden: boolean;
   isClearValueOnHiddenContainer: boolean;
   questionsOrder: string;
+  matrixDragHandleArea: string;
   keepIncorrectValues: boolean;
   questionCreated(question: IQuestion): any;
   questionAdded(
@@ -96,6 +97,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
+  allowResizeComment: boolean;
 
   state: string;
   isLazyRendering: boolean;

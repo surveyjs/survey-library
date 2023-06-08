@@ -2,22 +2,22 @@
     <div>
       <!-- ko if: question.koTable().showAddRowOnTop -->
       <div
-        data-bind="css: question.koCss().footer"
+        data-bind="css: question.cssClasses.footer"
       >
         <button
           type="button"
           data-bind="click: question.isDesignMode ? undefined : question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly"
         >
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
-          <span data-bind="css: question.koCss().iconAdd"></span>
+          <span data-bind="css: question.cssClasses.iconAdd"></span>
         </button>
       </div>
       <!-- /ko -->
       <!-- ko template: { name: 'survey-matrixtable' } -->
       <!--/ko-->
       <!-- ko ifnot: question.koTable().showTable -->
-      <div data-bind="css: question.koCss().emptyRowsSection">
-        <div data-bind="css: question.koCss().emptyRowsText">
+      <div data-bind="css: question.cssClasses.emptyRowsSection">
+        <div data-bind="css: question.cssClasses.emptyRowsText">
           <!-- ko template: { name: 'survey-string', data: question.locEmptyRowsText } --><!-- /ko -->
         </div>
         <button
@@ -25,20 +25,20 @@
           data-bind="click:question.koAddRowClick, css: question.getAddRowButtonCss(true), disable: question.isInputReadOnly"
         >
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
-          <span data-bind="css: question.koCss().iconAdd"></span>
+          <span data-bind="css: question.cssClasses.iconAdd"></span>
         </button>
       </div>
       <!-- /ko -->
       <!-- ko if: question.koTable().showAddRowOnBottom -->
       <div
-        data-bind="css: question.koCss().footer"
+        data-bind="css: question.cssClasses.footer"
       >
         <button
           type="button"
           data-bind="click: question.koAddRowClick, css: question.getAddRowButtonCss(), disable: question.isInputReadOnly"
         >
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
-          <span data-bind="css: question.koCss().iconAdd"></span>
+          <span data-bind="css: question.cssClasses.iconAdd"></span>
         </button>
       </div>
       <!-- /ko -->
@@ -93,7 +93,7 @@
 </script>
 <script type="text/html" id="survey-matrixtable">
 <div
-  data-bind="visible: question.koTable().showTable, css: question.koCss().tableWrapper, style: { overflowX: question.showHorizontalScroll ? 'scroll': '' }"
+  data-bind="visible: question.koTable().showTable, css: question.cssClasses.tableWrapper, style: { overflowX: question.showHorizontalScroll ? 'scroll': '' }"
 >
   <table data-bind="css: question.getTableCss()">
     <!-- ko if: question.koTable().showHeader -->
@@ -107,7 +107,7 @@
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
                 <!-- ko if: $data.column && $data.column.isRenderedRequired -->
-                <span data-bind="css: question.koCss().cellRequiredText, text: $data.column.requiredText"></span>
+                <span data-bind="css: question.cssClasses.cellRequiredText, text: $data.column.requiredText"></span>
                 <!-- /ko -->
               <!-- /ko -->
             </th>
@@ -158,7 +158,7 @@
           <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
           <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
           <!-- ko if: $data.requiredText -->
-          <span data-bind="css: question.koCss().cellRequiredText, text: $data.requiredText"></span>
+          <span data-bind="css: question.cssClasses.cellRequiredText, text: $data.requiredText"></span>
           <!-- /ko -->
           <!-- /ko -->
         </td>

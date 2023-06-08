@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { ListModel } from "../src/list";
 import { createListContainerHtmlElement } from "./utilstests";
+import { Question } from "../src/question";
 import { settings } from "../src/settings";
 
 export default QUnit.module("choicesRestful");
@@ -338,6 +339,7 @@ QUnit.test("readOnlyText default", assert => {
         "name": "q1",
         "placeholder": "click",
         "hasOther": true,
+        "hasNone": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };
@@ -558,6 +560,66 @@ QUnit.test("hasScroll property", assert => {
   document.body.removeChild(element);
 });
 
+QUnit.test("Dropdown doesn't displays a value which doesn't exist in a list of choices", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: "value1"
+  };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.value, "value1");
+  assert.equal(question.selectedItem, null);
+  assert.deepEqual(survey.data, {
+    "question1": "value1",
+  });
+});
+
+QUnit.test("Dropdown displays a value as Other if it doesn't exist in a list of choices", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      showOtherItem: true,
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: "value1"
+  };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.value, "other");
+  assert.equal(question.selectedItem.id, "other");
+  assert.deepEqual(survey.data, {
+    "question1": "value1",
+    "question1-Comment": "value1"
+  });
+});
+
+QUnit.test("Dropdown displays a value if list of choices is empty", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: "Item 1"
+  };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.value, "Item 1");
+  assert.equal(question.selectedItem.id, "Item 1");
+
+  question.setPropertyValue("visibleChoices", []);
+  assert.equal(question.value, "Item 1");
+  assert.equal(question.selectedItem, null);
+});
+
 function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   const result: Array<number> = [];
   let index = skip;
@@ -575,6 +637,9 @@ function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   return result;
 }
 
+const onChoicesLazyLoadCallbackTimeOut = 300;
+const callbackTimeOutDelta = 30;
+
 const callback = (_, opt) => {
   const total = 55;
   setTimeout(() => {
@@ -583,7 +648,7 @@ const callback = (_, opt) => {
     } else {
       opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);
     }
-  }, 500);
+  }, onChoicesLazyLoadCallbackTimeOut);
 };
 
 QUnit.test("lazy loading: first loading", assert => {
@@ -609,7 +674,7 @@ QUnit.test("lazy loading: first loading", assert => {
     assert.equal(question.choices[0].value, 1);
     assert.equal(question.choices[29].value, 30);
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("lazy loading: first loading - default value", assert => {
@@ -635,7 +700,7 @@ QUnit.test("lazy loading: first loading - default value", assert => {
     assert.equal(question.choices.length, 30);
     assert.equal(question.dropdownListModel.inputStringRendered, "1");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("lazy loading: several loading", assert => {
@@ -675,13 +740,13 @@ QUnit.test("lazy loading: several loading", assert => {
         assert.equal(question.choices[54].value, 55);
 
         done3();
-      }, 550);
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
       done2();
-    }, 550);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
     done1();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", assert => {
@@ -806,7 +871,7 @@ QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
     assert.deepEqual(question.value, "text1", "#2");
     assert.deepEqual(survey.data, { q1: "text1" }, "#3");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("itemsSettings property", assert => {
@@ -853,10 +918,10 @@ QUnit.test("itemsSettings property", assert => {
       assert.equal(listModel.actions.length, 0, "listModel.actions");
 
       done2();
-    }, 550);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
     done1();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("Test dropdown choices change should update strings", function (assert) {
@@ -874,7 +939,7 @@ QUnit.test("Test dropdown choices change should update strings", function (asser
 
   assert.equal(question.readOnlyText, "Select...");
   question.value = "i3";
-  assert.equal(question.readOnlyText, "");
+  assert.equal(question.readOnlyText, "Select...");
   question.choices = ["i1", "i2", "i3"];
   assert.equal(question.readOnlyText, "");
 });
@@ -911,7 +976,7 @@ QUnit.test("min page size", assert => {
     assert.equal(itemsSettings.items.length, 25);
 
     done1();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("selectedItem until all data is loaded", assert => {
@@ -960,13 +1025,13 @@ QUnit.test("selectedItem until all data is loaded", assert => {
         assert.equal(question.selectedItem, null);
 
         done();
-      }, 550);
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
       done();
-    }, 550);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
 });
 function getObjectArray(skip = 1, count = 25): Array<{value: number, text: string}> {
@@ -985,7 +1050,13 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       "name": "q1",
       "defaultValue": 55,
       "choicesLazyLoadEnabled": true
-    }]
+    },
+    {
+      "type": "text",
+      "name": "q2",
+      "title": "{q1}"
+    }
+    ]
   };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add((sender, options) => {
@@ -1005,11 +1076,13 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   });
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const questionTitle = <Question>survey.getAllQuestions()[1];
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
   assert.equal(question.value, 55);
   assert.equal(question.selectedItem.value, 55);
   assert.equal(question.selectedItem.text, "DisplayText_55");
+  assert.equal(questionTitle.locTitle.textOrHtml, "DisplayText_55", "display text is correct");
 
   question.dropdownListModel.popupModel.isVisible = true;
   setTimeout(() => {
@@ -1302,14 +1375,80 @@ QUnit.test("lazy loading + change filter string", assert => {
         assert.equal(itemsSettings.items.length, 25);
 
         done3();
-      }, 550);
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
       done2();
-    }, 550);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
     done1();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
+
+QUnit.test("lazy loading + change listModel filter string", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+  const listModel: ListModel = question.dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(itemsSettings.skip, 0);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 0);
+  assert.equal(itemsSettings.items.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+    assert.equal(itemsSettings.skip, 25);
+    assert.equal(itemsSettings.take, 25);
+    assert.equal(itemsSettings.totalCount, 55);
+    assert.equal(itemsSettings.items.length, 25);
+
+    listModel.filterString = "2";
+    setTimeout(() => {
+      assert.equal(question.choices.length, 25);
+      assert.equal(question.choices[0].value, 2);
+      assert.equal(question.choices[24].value, 123);
+      assert.equal(itemsSettings.skip, 25);
+      assert.equal(itemsSettings.take, 25);
+      assert.equal(itemsSettings.totalCount, 55);
+      assert.equal(itemsSettings.items.length, 25);
+
+      listModel.filterString = "22";
+      setTimeout(() => {
+        assert.equal(question.choices.length, 25);
+        assert.equal(question.choices[0].value, 22);
+        assert.equal(question.choices[24].value, 1223);
+        assert.equal(itemsSettings.skip, 25);
+        assert.equal(itemsSettings.take, 25);
+        assert.equal(itemsSettings.totalCount, 55);
+        assert.equal(itemsSettings.items.length, 25);
+
+        done3();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+
 QUnit.test("show comment and show other together", assert => {
   const json = {
     questions: [{

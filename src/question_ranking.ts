@@ -355,8 +355,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     if (key === " " && isMovedElementRanked) {
       fromIndex = rankingChoices.indexOf(movedElement);
-      toIndex = unRankingChoices.length -1;
       dnd.unselectFromRank(this, fromIndex);
+      toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
       this.setValueAfterKeydown(toIndex, "from-container");
       return;
     }

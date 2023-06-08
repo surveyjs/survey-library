@@ -349,7 +349,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       fromIndex = unRankingChoices.indexOf(movedElement);
       toIndex = 0;
       dnd.selectToRank(this, fromIndex, toIndex);
-      this.setValueAfterKeydown(toIndex);
+      this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }
 
@@ -357,7 +357,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       fromIndex = rankingChoices.indexOf(movedElement);
       toIndex = unRankingChoices.length -1;
       dnd.unselectFromRank(this, fromIndex);
-      this.setValueAfterKeydown(toIndex);
+      this.setValueAfterKeydown(toIndex, "from-container");
       return;
     }
 
@@ -368,7 +368,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       if (fromIndex < 0) return;
 
       dnd.reorderRankedItem(this, fromIndex, toIndex);
-      this.setValueAfterKeydown(toIndex);
+      this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }
 
@@ -379,24 +379,32 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       if (toIndex >= rankingChoices.length) return;
 
       dnd.reorderRankedItem(this, fromIndex, toIndex);
-      this.setValueAfterKeydown(toIndex);
+      this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }
   }
 
-  private setValueAfterKeydown(index: number) {
+  private setValueAfterKeydown(index: number, container: string) {
     this.setValue();
     setTimeout(() => {
-      this.focusItem(index + 1);
+      this.focusItem(index, container);
     }, 1);
     event.preventDefault();
   }
 
-  private focusItem = (index: number) => {
-    const itemsNodes: any = this.domNode.querySelectorAll(
-      "." + this.cssClasses.item
-    );
-    itemsNodes[index].focus();
+  private focusItem = (index: number, container?: string) => {
+    if (this.selectToRank && container) {
+      const containerSelector = "[data-ranking='" + container + "']";
+      const itemsNodes: any = this.domNode.querySelectorAll(
+        containerSelector + " " + "." + this.cssClasses.item
+      );
+      itemsNodes[index].focus();
+    } else {
+      const itemsNodes: any = this.domNode.querySelectorAll(
+        "." + this.cssClasses.item
+      );
+      itemsNodes[index].focus();
+    }
   };
 
   public setValue = (): void => {

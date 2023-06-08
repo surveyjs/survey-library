@@ -283,7 +283,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
     if (!this.isDesignMode) {
       const key: any = event.key;
-      const index = this.rankingChoices.indexOf(choice);
+      let index = this.rankingChoices.indexOf(choice);
+
+      if (this.selectToRank) {
+        this.handleKeydownSelectToRank(event, choice);
+        return;
+      }
 
       if (key === "ArrowUp" && index) {
         this.handleArrowUp(index, choice);
@@ -325,6 +330,67 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       this.focusItem(index + 1);
     }, 1);
   };
+
+  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue) {
+    if (this.isDesignMode) return;
+
+    const dnd:any = this.dragDropRankingChoices; //????
+    const key: any = event.key;
+    const rankingChoices = this.rankingChoices;
+    const unRankingChoices = this.unRankingChoices;
+
+    const isMovedElementRanked = rankingChoices.indexOf(movedElement) !== -1;
+    const isMovedElementUnRanked = !isMovedElementRanked;
+
+    let fromIndex;
+    let toIndex;
+
+    if (key === " " && isMovedElementUnRanked) {
+      fromIndex = unRankingChoices.indexOf(movedElement);
+      toIndex = 0;
+      dnd.selectToRank(this, fromIndex, toIndex);
+      this.setValueAfterKeydown(toIndex);
+      return;
+    }
+
+    if (key === " " && isMovedElementRanked) {
+      fromIndex = rankingChoices.indexOf(movedElement);
+      toIndex = unRankingChoices.length -1;
+      dnd.unselectFromRank(this, fromIndex);
+      this.setValueAfterKeydown(toIndex);
+      return;
+    }
+
+    if (key === "ArrowUp" && isMovedElementRanked) {
+      fromIndex = rankingChoices.indexOf(movedElement);
+      toIndex = fromIndex - 1;
+
+      if (fromIndex < 0) return;
+
+      dnd.reorderRankedItem(this, fromIndex, toIndex);
+      this.setValueAfterKeydown(toIndex);
+      return;
+    }
+
+    if (key === "ArrowDown" && isMovedElementRanked) {
+      fromIndex = rankingChoices.indexOf(movedElement);
+      toIndex = fromIndex + 1;
+
+      if (toIndex >= rankingChoices.length) return;
+
+      dnd.reorderRankedItem(this, fromIndex, toIndex);
+      this.setValueAfterKeydown(toIndex);
+      return;
+    }
+  }
+
+  private setValueAfterKeydown(index: number) {
+    this.setValue();
+    setTimeout(() => {
+      this.focusItem(index + 1);
+    }, 1);
+    event.preventDefault();
+  }
 
   private focusItem = (index: number) => {
     const itemsNodes: any = this.domNode.querySelectorAll(

@@ -1307,8 +1307,9 @@ export class QuestionSelectBase extends Question {
     return { value: value };
   }
   private isUpdatingChoicesDependedQuestions = false;
-  protected updateChoicesDependedQuestions() {
-    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
+  protected updateChoicesDependedQuestions(): void {
+    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
+      !this.allowNotifyValueChanged || this.choicesByUrl.isRunning) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       const q = this.dependedQuestions[i];

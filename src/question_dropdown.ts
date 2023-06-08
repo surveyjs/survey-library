@@ -266,6 +266,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   protected onSelectedItemValuesChangedHandler(newValue: any): void {
     this.dropdownListModel?.setInputStringFromSelectedItem(newValue);
+    super.onSelectedItemValuesChangedHandler(newValue);
   }
   protected hasUnknownValue(
     val: any,

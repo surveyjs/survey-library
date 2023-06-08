@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getListItemByText, completeButton, getData } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getListItemByText, completeButton, getData, setData } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "dropdownRestful";
 

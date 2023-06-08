@@ -867,7 +867,7 @@ export class QuestionSelectBase extends Question {
       if (!this.newItemValue) {
         this.newItemValue = this.createItemValue("newitem"); //TODO
       }
-      if (this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      if (!this.isUsingCarrayForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
       }
     }
@@ -1002,6 +1002,7 @@ export class QuestionSelectBase extends Question {
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
   private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
+    if (this.isDesignMode) return [];
     var res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"

@@ -37,6 +37,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: true }) isFocusedContent: boolean;
+  @property({ defaultValue: true }) isFocusedContainer: boolean;
   @property({ defaultValue: () => { } }) onCancel: () => void;
   @property({ defaultValue: () => { return true; } }) onApply: () => boolean;
   @property({ defaultValue: () => { } }) onHide: () => void;

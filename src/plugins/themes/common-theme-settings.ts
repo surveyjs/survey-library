@@ -269,7 +269,7 @@ export function setStyles(): void {
     // EO ranking
 
     // drag drop
-    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: var(--font-family, $font-family); font-size: 16px; padding-left: 20px;line-height: 24px;",
+    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 10000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: var(--font-family, $font-family); font-size: 16px; padding-left: 20px;line-height: 24px;",
 
     ".sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv-matrixdynamic__drag-icon:after": "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid #e7e7e7; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",

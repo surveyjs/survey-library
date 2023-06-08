@@ -16,7 +16,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
-          z-index: 1000;
+          z-index: 10000;
           font-family: var(--font-family, $font-family);
         `;
 

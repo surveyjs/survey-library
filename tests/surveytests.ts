@@ -2494,17 +2494,19 @@ QUnit.test(
     trigger.name = "question1";
     trigger.value = "Hello";
     var isCompleteOnTrigger_Completing = false;
-    var isCompleteOnTrigger_Completed = false;
+    var isCompleteOnTrigger_Complete = false;
     survey.onCompleting.add(function (sender, options) {
       isCompleteOnTrigger_Completing = options.isCompleteOnTrigger;
     });
-    survey.onCompleting.add(function (sender, options) {
-      isCompleteOnTrigger_Completed = options.isCompleteOnTrigger;
+    survey.onComplete.add(function (sender, options) {
+      isCompleteOnTrigger_Complete = options.isCompleteOnTrigger;
     });
 
     survey.setValue("question1", "Hello");
     assert.equal(survey.state, "running");
-    survey.nextPage();
+    assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible");
+    assert.equal(survey.isShowNextButton, false, "next button is invisible");
+    survey.completeLastPage();
     assert.equal(survey.state, "completed");
     assert.equal(
       isCompleteOnTrigger_Completing,
@@ -2512,7 +2514,7 @@ QUnit.test(
       "isCompleteOnTrigger property works for onCompleting event"
     );
     assert.equal(
-      isCompleteOnTrigger_Completed,
+      isCompleteOnTrigger_Complete,
       true,
       "isCompleteOnTrigger property works for onCompleted event"
     );
@@ -2525,7 +2527,7 @@ QUnit.test(
       "isCompleteOnTrigger property works for onCompleting event, #2"
     );
     assert.equal(
-      isCompleteOnTrigger_Completed,
+      isCompleteOnTrigger_Complete,
       false,
       "isCompleteOnTrigger property works for onCompleted event, #2"
     );
@@ -12464,7 +12466,7 @@ QUnit.test("Remove errors on settings correct values, multipletext", function (
     "There is required error in item1"
   );
   assert.equal(
-    question1.items[0].editor.errors.length,
+    question1.items[1].editor.errors.length,
     1,
     "There is required error in item2"
   );
@@ -17026,4 +17028,63 @@ QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage
   survey.setValue("question1", 1);
   survey.completeLastPage();
   assert.equal(counter, 1, "onComplete called one time");
+});
+QUnit.test("Expression with dates & defaultValueExpression & expression question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "startdate",
+        "defaultValueExpression": "today(-2)",
+        "inputType": "date"
+      },
+      {
+        "type": "expression",
+        "name": "enddate",
+        "expression": "today()"
+      },
+      {
+        "type": "expression",
+        "name": "check1",
+        "expression": "{startdate} <= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check2",
+        "expression": "{startdate} >= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check3",
+        "expression": "{startdate} < {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check4",
+        "expression": "{startdate} > {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check5",
+        "expression": "{startdate} = {enddate}"
+      }
+    ]
+  });
+  const checkFunc= function(res: Array<boolean>, no: number) {
+    for(var i = 0; i < res.length; i ++) {
+      const name = "check" + (i + 1).toString();
+      const val = survey.getValue(name);
+      assert.equal(val, res[i], "check no: " + no + ", value name: " + name);
+    }
+  };
+  checkFunc([true, false, true, false, false], 1);
+
+  const startQ = survey.getQuestionByName("startdate");
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  startQ.value = Helpers.convertDateToString(date);
+  checkFunc([false, true, false, true, false], 2);
+
+  startQ.value = Helpers.convertDateToString(new Date());
+  checkFunc([true, true, false, false, true], 3);
 });

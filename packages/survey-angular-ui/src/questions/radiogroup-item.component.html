@@ -1,4 +1,4 @@
-<input type="radio" [name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-describedby]="question.ariaDescribedBy" [class]="question.cssClasses.itemControl"
+<input type="radio" [name]="question.questionName" [attr.name]="question.questionName" [id]="question.getItemId(model)" [attr.aria-describedby]="question.ariaDescribedBy" [class]="question.cssClasses.itemControl"
   [disabled]="!question.getItemEnabled(model)" [(ngModel)]="question.renderedValue" [attr.value]="model.value" [value]="model.value"
 />
 <ng-content></ng-content>

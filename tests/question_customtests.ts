@@ -2115,35 +2115,26 @@ QUnit.test("Composite: with expression", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   const survey = new SurveyModel({ elements: [{ type: "elementsettings", name: "q1" }] });
-  let _data = {};
+  let _data = new Array<any>();
   let onValueChangedCounter = 0;
   survey.onValueChanged.add((sender, options) => {
     onValueChangedCounter++;
-    _data = {};
-    if (options.question?.getType() === "elementsettings") {
-      Object.keys(options.value).forEach(key => {
-        if (key === "corner") return;
-        _data[`${options.name.toLocaleLowerCase()}-${key}`] = options.value[key];
-      });
-    }
+    _data.push(options.value);
   });
   const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
 
-  assert.equal(_data["q1-corner"], undefined);
-  assert.equal(_data["q1-cornerRadius"], undefined);
-  assert.equal(onValueChangedCounter, 0);
-
-  q.value = { corner: 4 };
-  assert.equal(_data["q1-corner"], undefined);
-  assert.equal(_data["q1-cornerRadius"], "4px");
-  assert.deepEqual(q.value, { corner: 4, cornerRadius: "4px" });
-  assert.equal(onValueChangedCounter, 1);
+  assert.equal(_data.length, 0, "#1");
+  assert.equal(onValueChangedCounter, 0, "#2");
+  assert.deepEqual(q.value, { corner: 0, cornerRadius: "0px" }, "#3");
 
   q.contentPanel.getQuestionByName("corner").value = 5;
-  assert.deepEqual(q.value, { corner: 5, cornerRadius: "5px" });
-  assert.equal(_data["q1-corner"], undefined);
-  assert.equal(_data["q1-cornerRadius"], "5px");
-  assert.equal(onValueChangedCounter, 2);
+  assert.equal(onValueChangedCounter, 2, "#4");
+  assert.deepEqual(q.value, { corner: 5, cornerRadius: "5px" }, "#5");
+  assert.deepEqual(_data[0], { corner: 5, cornerRadius: "0px" }, "#6");
+  assert.deepEqual(_data[1], { corner: 5, cornerRadius: "5px" }, "#7");
+
+  q.value = { corner: 4 };
+  assert.deepEqual(q.value, { corner: 4, cornerRadius: "4px" }, "#8");
 
   ComponentCollection.Instance.clear();
 });
@@ -2217,7 +2208,7 @@ QUnit.test("Composite & onValueChanged", function (assert) {
     onValueChangedCounter++;
   });
   q.value = { backcolor: "#ffffff", hovercolor: "#f8f8f8", corner: 4, border: "0 1 2 rgba(0, 0, 0, 0.15)" };
-  assert.equal(onValueChangedCounter, 1);
+  assert.equal(onValueChangedCounter, 1 + 1); //+ runCondition to chagne the value
   assert.deepEqual(survey.data, { q1: { backcolor: "#ffffff", hovercolor: "#f8f8f8", corner: 4, cornerRadius: "4px", border: "0 1 2 rgba(0, 0, 0, 0.15)" } });
 
   ComponentCollection.Instance.clear();

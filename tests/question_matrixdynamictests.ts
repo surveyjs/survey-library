@@ -8186,3 +8186,36 @@ QUnit.test("Check rightIndents set correctly for detailElements with defaultV2 t
   matrix.visibleRows[0].showHideDetailPanelClick();
   assert.equal(matrix.renderedTable.rows[1].cells[1].panel.elements[0].rightIndent, 0);
 });
+
+QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
+  const survey = new SurveyModel({
+    matrixDragHandleArea: "icon",
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: "true",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        detailPanelShowOnAdding: true,
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", startWithNewLine: false, visibleIf: "{row.q1} notempty" }],
+      },
+    ],
+  });
+  survey.css = { root: "sd-root-modern" };
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let nodeMock = document.createElement("div");
+  assert.equal(matrix.isDragHandleAreaValid(nodeMock), false);
+
+  nodeMock.classList.add("some-class");
+  assert.equal(matrix.isDragHandleAreaValid(nodeMock), false);
+
+  nodeMock.classList.add(matrix.cssClasses.dragElementDecorator);
+  assert.equal(matrix.isDragHandleAreaValid(nodeMock), true);
+
+  survey.matrixDragHandleArea = "entireItem";
+
+  nodeMock.classList.remove(matrix.cssClasses.dragElementDecorator);
+  assert.equal(matrix.isDragHandleAreaValid(nodeMock), true);
+});

@@ -53,6 +53,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
+import { ITheme } from "./themes";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1890,6 +1891,14 @@ export class SurveyModel extends SurveyElementCore
   }
   //#endregion
 
+  @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
+  public get themeVariables() {
+    const result = Object.assign({}, this.cssVariables);
+    result.backgroundImage = this.renderBackgroundImage;
+    result.backgroundSize = this.backgroundImageFit;
+    return result;
+  }
+  @property() backgroundImagePosition: string;
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
     if (this.isMobile !== newVal) {
@@ -2917,6 +2926,20 @@ export class SurveyModel extends SurveyElementCore
     return this.state === "starting";
   }
   /**
+   * Specifies which part of a choice item responds to a drag gesture in MatrixDynamic questions.
+   *
+   * Possible values:
+   *
+   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
+   * - `"icon"` - Users can only use the choice item icon as a drag handle.
+   */
+  public get matrixDragHandleArea():string {
+    return this.getPropertyValue("matrixDragHandleArea", "entireItem");
+  }
+  public set matrixDragHandleArea(val: string) {
+    this.setPropertyValue("matrixDragHandleArea", val);
+  }
+  /**
    * Survey is showing a page right now. It is in "running", "preview" or starting state.
    */
   public get isShowingPage(): boolean {
@@ -3746,7 +3769,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      return this.doComplete();
+      return this.doComplete(this.canBeCompletedByTrigger);
     }
     this.doNextPage();
     return true;
@@ -6948,6 +6971,14 @@ export class SurveyModel extends SurveyElementCore
     return containerLayoutElements;
   }
 
+  public applyTheme(theme: ITheme): void {
+    if(!theme) return;
+
+    Object.keys(theme).forEach((key: keyof ITheme) => {
+      (this as any)[key] = theme[key];
+    });
+  }
+
   /**
    * Use this method to dispose survey model properly.
    */
@@ -7064,6 +7095,12 @@ Serializer.addClass("survey", [
     name: "questionsOrder",
     default: "initial",
     choices: ["initial", "random"],
+  },
+  {
+    name: "matrixDragHandleArea",
+    visible: false,
+    default: "entireItem",
+    choices: ["entireItem", "icon"]
   },
   "showPageNumbers:boolean",
   {

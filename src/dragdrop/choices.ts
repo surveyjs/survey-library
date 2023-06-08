@@ -22,7 +22,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
-          z-index: 1000;
+          z-index: 10000;
           font-family: var(--font-family, $font-family);
         `;
 
@@ -68,7 +68,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     draggedElementShortcut.style.cssText = ` 
       cursor: grabbing;
       position: absolute;
-      z-index: 1000;
+      z-index: 10000;
       box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
       padding: 4px;
       border-radius: 4px;

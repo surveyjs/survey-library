@@ -12,6 +12,7 @@ export interface MarkupTestDescriptor {
   removeIds?: boolean;
   initSurvey?: (survey: Model) => void;
   getElement?: (element?: HTMLElement) => HTMLElement | undefined | null;
+  getSnapshot?: (element: HTMLElement) => string;
   timeout?: number;
 }
 
@@ -115,6 +116,10 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         });
       });
     }
+    if(q.getType() == "matrix" && platform.name == "Knockout") {
+      //need to update rows full names
+      q.onRowsChanged();
+    }
     if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
       q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
         row.row.idValue = `${q.id}row${rowIndex}`;
@@ -146,8 +151,11 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       }
       sortAttributes(all);
       const newEl = document.createElement("div");
-      newEl.innerHTML = crearExtraElements(htmlElement.innerHTML);
+      newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
       let str = newEl.children[0].innerHTML;
+      if(!!test.getSnapshot) {
+        str = test.getSnapshot(htmlElement);
+      }
 
       var re = /(<!--[\s\S]*?-->)/g;
       var newstr = str.replace(re, "");
@@ -236,7 +244,7 @@ const removeExtraElementsConditions: Array<(htmlElement: HTMLElement) => boolean
   (HTMLElement: HTMLElement) => HTMLElement.tagName.toLowerCase().search(/^sv-/) > -1
 ];
 
-function crearExtraElements(innerHTML: string): string {
+function clearExtraElements(innerHTML: string): string {
   const container = document.createElement("div");
   container.innerHTML = innerHTML;
   container.querySelectorAll("*").forEach((el)=>{
@@ -292,8 +300,6 @@ function clearAttributes(el: Element, removeIds = false) {
   if(el.getAttribute("src") === "") {
     el.removeAttribute("src");
   }
-  if(el.getAttribute("name") !== "name")
-    el.removeAttribute("name");
   if((<any>el).checked) {
     el.setAttribute("checked", "");
   }

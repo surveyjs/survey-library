@@ -2198,20 +2198,13 @@ QUnit.test(
     var survey = new Survey();
     var page = survey.addNewPage("page1");
     var panel = <Panel>page.addNewPanel("panel1");
-    assert.ok(panel.koCss, "correct panel is created");
     var nestedPanel = <Panel>panel.addNewPanel("panel2");
-    assert.ok(nestedPanel.koCss, "correct nested panel is created");
 
     //Dynamic panel question
     var dynamicPanel = <QuestionPanelDynamic>(
       page.addNewQuestion("paneldynamic", "q1")
     );
     dynamicPanel.panelCount = 2;
-    assert.ok(
-      (<Panel>dynamicPanel.panels[0]).koCss,
-      "correct dynamic panel is created"
-    );
-
     //Detail panel in matrix dynamic
     var matrix = <QuestionMatrixDynamic>(
       page.addNewQuestion("matrixdynamic", "q2")
@@ -2226,10 +2219,6 @@ QUnit.test(
       "The panel has been created"
     );
     matrix.visibleRows[0].showDetailPanel();
-    assert.ok(
-      (<Panel>matrix.visibleRows[0].detailPanel).koCss,
-      "correct detail panel is created"
-    );
   }
 );
 QUnit.test(
@@ -2570,4 +2559,44 @@ QUnit.test("Use variables as default values in expression", function (assert) {
   assert.equal(q1.koValue(), "AAA", "q1.value");
   assert.equal(q2.koValue(), "BBB", "q2.value");
   assert.equal(q3.koValue(), "CCC", "q3.value");
+});
+
+QUnit.test("Check imagepicker's koGetItemClass method (designMode, multiSelect) - #6286", function (assert) {
+  const survey: any = new Survey({
+    elements: [
+      {
+        type: "imagepicker",
+        name: "q1",
+        choices: [
+          {
+            imageLink: "test_image",
+            value: "test"
+          }
+        ]
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("q1");
+  survey.setDesignMode(true);
+  survey.css = {
+    imagepicker: {
+      item: "",
+      itemInline: "",
+      itemChecked: "checked"
+    }
+  };
+  const computed = ko.computed(() => {
+    return q.koGetItemClass(q.choices[0]);
+  });
+  assert.equal(computed(), "");
+  q.multiSelect = true;
+  let log = "";
+  computed.subscribe((value) => {
+    log += `->${value}`;
+  });
+  q.defaultValue = ["test"];
+  assert.equal(log, "->checked");
+  q.defaultValue = [];
+  assert.equal(log, "->checked->");
+  q.defaultValue = ["->checked->->checked"];
 });

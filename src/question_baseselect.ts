@@ -676,10 +676,12 @@ export class QuestionSelectBase extends Question {
   }
   public set choicesFromQuestion(val: string) {
     var question = this.getQuestionWithChoices();
-    if (!!question) {
+    this.isLockVisibleChoices = !!question && question.name === val;
+    if (!!question && question.name !== val) {
       question.removeFromDependedQuestion(this);
     }
     this.setPropertyValue("choicesFromQuestion", val);
+    this.isLockVisibleChoices = false;
   }
   private addIntoDependedQuestion(question: QuestionSelectBase) {
     if (!question || question.dependedQuestions.indexOf(this) > -1) return;
@@ -1329,7 +1331,7 @@ export class QuestionSelectBase extends Question {
     this.updateChoicesDependedQuestions();
   }
   protected onVisibleChoicesChanged() {
-    if (this.isLoadingFromJson) return;
+    if (this.isLoadingFromJson || this.isLockVisibleChoices) return;
     this.updateVisibleChoices();
     this.onVisibleChanged();
     if (!!this.visibleChoicesChangedCallback) {

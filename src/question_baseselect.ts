@@ -33,7 +33,6 @@ export class QuestionSelectBase extends Question {
   private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
-  private isUsingCarrayForward: boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
@@ -108,6 +107,12 @@ export class QuestionSelectBase extends Question {
     const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
     if(!!text) res.text = text;
     return res;
+  }
+  public get isUsingCarrayForward(): boolean {
+    return this.getPropertyValue("isUsingCarrayForward", false);
+  }
+  private setIsUsingCarrayForward(val: boolean): void {
+    this.setPropertyValue("isUsingCarrayForward", val);
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.otherValue;
@@ -989,7 +994,7 @@ export class QuestionSelectBase extends Question {
   }
   protected get activeChoices(): Array<ItemValue> {
     const question = this.getQuestionWithChoices();
-    this.isUsingCarrayForward = !!question;
+    this.setIsUsingCarrayForward(!!question);
     if (this.isUsingCarrayForward) {
       this.addIntoDependedQuestion(question);
       return this.getChoicesFromQuestion(question);

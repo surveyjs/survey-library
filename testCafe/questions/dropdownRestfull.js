@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getListItemByText, completeButton, getData } from "../helper";
+import { frameworks, url, initSurvey, getSurveyResult, checkSurveyWithEmptyQuestion, getListItemByText, completeButton, getData, setData } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 const title = "dropdownRestful";
 
@@ -129,5 +129,43 @@ frameworks.forEach(framework => {
     await t.click(completeButton);
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.country).eql("CU");
+  });
+});
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "tagbox",
+            name: "q1",
+            choicesByUrl: {
+              //url: "http://services.groupkt.com/country/get/all",
+              url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+              path: "RestResponse;result",
+              valueName: "name",
+            },
+          },
+          {
+            type: "dropdown",
+            name: "q2",
+            choicesFromQuestion: "q1",
+            choicesFromQuestionMode: "selected"
+          }
+        ],
+      });
+    }
+  );
+  test("Carry forward for choicesByUrl", async t => {
+    const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    await setData({ q1: ["United States", "Romania"], q2: "Romania" });
+    await t
+      .wait(1000)
+      .click(questionDropdownSelect)
+      .expect(getListItemByText("Romania").exists).ok()
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.q2).eql("Romania");
   });
 });

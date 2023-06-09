@@ -5,7 +5,7 @@
       :id="question.inputId"
       v-bind:disabled="question.isInputReadOnly"
       :tabindex="model.inputReadOnly ? undefined : 0"
-      @click="click"
+      @pointerdown="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"

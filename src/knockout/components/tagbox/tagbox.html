@@ -1,8 +1,7 @@
 <div data-bind="css: question.cssClasses.selectWrapper">
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.getControlClass(),
-    click: click, 
-    event: { keydown: keyhandler, blur: blur },
+    event: { keydown: keyhandler, blur: blur, pointerdown: click },
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 

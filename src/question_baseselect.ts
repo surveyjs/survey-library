@@ -33,7 +33,6 @@ export class QuestionSelectBase extends Question {
   private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
-  private isUsingCarrayForward: boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
@@ -108,6 +107,12 @@ export class QuestionSelectBase extends Question {
     const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
     if(!!text) res.text = text;
     return res;
+  }
+  public get isUsingCarrayForward(): boolean {
+    return this.getPropertyValue("isUsingCarrayForward", false);
+  }
+  private setIsUsingCarrayForward(val: boolean): void {
+    this.setPropertyValue("isUsingCarrayForward", val);
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.otherValue;
@@ -867,7 +872,7 @@ export class QuestionSelectBase extends Question {
       if (!this.newItemValue) {
         this.newItemValue = this.createItemValue("newitem"); //TODO
       }
-      if (this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      if (!this.isUsingCarrayForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
       }
     }
@@ -989,7 +994,7 @@ export class QuestionSelectBase extends Question {
   }
   protected get activeChoices(): Array<ItemValue> {
     const question = this.getQuestionWithChoices();
-    this.isUsingCarrayForward = !!question;
+    this.setIsUsingCarrayForward(!!question);
     if (this.isUsingCarrayForward) {
       this.addIntoDependedQuestion(question);
       return this.getChoicesFromQuestion(question);
@@ -1002,6 +1007,7 @@ export class QuestionSelectBase extends Question {
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
   private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
+    if (this.isDesignMode) return [];
     var res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
@@ -1307,8 +1313,9 @@ export class QuestionSelectBase extends Question {
     return { value: value };
   }
   private isUpdatingChoicesDependedQuestions = false;
-  protected updateChoicesDependedQuestions() {
-    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
+  protected updateChoicesDependedQuestions(): void {
+    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
+      !this.allowNotifyValueChanged || this.choicesByUrl.isRunning) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       const q = this.dependedQuestions[i];

@@ -108,11 +108,11 @@ export class QuestionSelectBase extends Question {
     if(!!text) res.text = text;
     return res;
   }
-  public get isUsingCarrayForward(): boolean {
-    return this.getPropertyValue("isUsingCarrayForward", false);
+  public get isUsingCarryForward(): boolean {
+    return this.getPropertyValue("isUsingCarryForward", false);
   }
-  private setIsUsingCarrayForward(val: boolean): void {
-    this.setPropertyValue("isUsingCarrayForward", val);
+  private setIsUsingCarryForward(val: boolean): void {
+    this.setPropertyValue("isUsingCarryForward", val);
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.otherValue;
@@ -247,7 +247,7 @@ export class QuestionSelectBase extends Question {
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
-    if(this.isUsingCarrayForward) return;
+    if(this.isUsingCarryForward) return;
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -874,7 +874,7 @@ export class QuestionSelectBase extends Question {
       if (!this.newItemValue) {
         this.newItemValue = this.createItemValue("newitem"); //TODO
       }
-      if (!this.isUsingCarrayForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
       }
     }
@@ -996,8 +996,8 @@ export class QuestionSelectBase extends Question {
   }
   protected get activeChoices(): Array<ItemValue> {
     const question = this.getQuestionWithChoices();
-    this.setIsUsingCarrayForward(!!question);
-    if (this.isUsingCarrayForward) {
+    this.setIsUsingCarryForward(!!question);
+    if (this.isUsingCarryForward) {
       this.addIntoDependedQuestion(question);
       return this.getChoicesFromQuestion(question);
     }

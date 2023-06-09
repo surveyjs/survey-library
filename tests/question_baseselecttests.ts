@@ -954,7 +954,7 @@ QUnit.test("SelectBase visibleChoices order", function (assert) {
   assert.equal(question.visibleChoices[0].value, "B", "the first item");
   assert.equal(question.visibleChoices[3].value, "C", "the last item");
 });
-QUnit.test("Check isUsingCarrayForward on changing question name", function (assert) {
+QUnit.test("Check isUsingCarryForward on changing question name", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.fromJSON({ elements: [
@@ -968,8 +968,8 @@ QUnit.test("Check isUsingCarrayForward on changing question name", function (ass
       q2.choicesFromQuestion = newValue;
     }
   };
-  assert.equal(q2.isUsingCarrayForward, true, "Carryforward flag is set, #1");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set, #1");
   q1.name = "q111";
   assert.equal(q2.choicesFromQuestion, "q111", "property is updated with new question name");
-  assert.equal(q2.isUsingCarrayForward, true, "Carryforward flag is set, #2");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set, #2");
 });

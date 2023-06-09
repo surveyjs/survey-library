@@ -629,6 +629,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!this.survey) {
       this.onSurveyLoad();
     }
+    this.hasDescription = !!this.description;
   }
   public setVisibleIndex(index: number): number {
     return 0;
@@ -910,9 +911,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   set paddingRight(val: string) {
     this.setPropertyValue("paddingRight", val);
-  }
-  public get isDescriptionVisible(): boolean {
-    return (!!this.description || this.isDesignMode);
   }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;

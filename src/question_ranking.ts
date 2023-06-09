@@ -43,7 +43,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
-      .append(this.cssClasses.rootChooseItemsToOrderMod, this.selectToRank)
+      .append(this.cssClasses.rootSelectToRankMod, this.selectToRank)
+      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankAlign === "horizontal")
+      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankAlign === "vertical")
       .toString();
   }
 
@@ -62,6 +64,27 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         "sv-dragdrop-moveup",
         itemIndex === dropTargetIndex - 1 && this.dropTargetNodeMove === "up"
       )
+      .toString();
+  }
+
+  public getContainerClasses(containerType?: string) {
+    let isEmpty = false;
+    let isToContainer = false;
+    let isFromContainer = false;
+
+    if (containerType === "to") {
+      isToContainer = true;
+      isEmpty = this.rankingChoices.length === 0;
+    } else if (containerType === "from") {
+      isFromContainer = true;
+      isEmpty = this.unRankingChoices.length === 0;
+    }
+
+    return new CssClassBuilder()
+      .append(this.cssClasses.container)
+      .append(this.cssClasses.containerToMode, isToContainer)
+      .append(this.cssClasses.containerFromMode, isFromContainer)
+      .append(this.cssClasses.containerEmptyMode, isEmpty)
       .toString();
   }
 
@@ -448,10 +471,27 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * Default value: `false`
   */
   public get selectToRank(): boolean {
-    return this.getPropertyValue("selectToRank");
+    return this.getPropertyValue("selectToRank", false);
   }
   public set selectToRank(val: boolean) {
     this.setPropertyValue("selectToRank", val);
+  }
+
+  /**
+   * Set alignment for the selectToRank mode
+   *
+   * Possible values:
+   *
+   * - `"horizontal"`
+   * - `"vertical"`
+   *
+   * Default value: `horizontal`
+  */
+  public get selectToRankAlign(): string {
+    return this.getPropertyValue("selectToRankAlign", "horizontal");
+  }
+  public set selectToRankAlign(val: string) {
+    this.setPropertyValue("selectToRankAlign", val);
   }
 
   public get useFullItemSizeForShortcut(): boolean {
@@ -485,6 +525,12 @@ Serializer.addClass(
     {
       name: "selectToRank",
       default: false,
+      visible: false,
+      isSerializable: true,
+    },
+    {
+      name: "selectToRankAlign",
+      default: "horizontal",
       visible: false,
       isSerializable: true,
     },

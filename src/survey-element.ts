@@ -1,4 +1,4 @@
-import { property } from "./jsonobject";
+import { JsonObjectProperty, Serializer, property } from "./jsonobject";
 import { RendererFactory } from "./rendererFactory";
 import { Base } from "./base";
 import { Action, IAction } from "./actions/action";
@@ -61,11 +61,16 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    */
   @property({
     localizable: true, onSet: (newDescription, self) => {
-      self.updateDescriptionVisibility(self, newDescription);
+      self.updateDescriptionVisibility(newDescription);
     }
   }) description: string;
   public updateDescriptionVisibility(newDescription: any) {
-    this.hasDescription = !!newDescription;
+    let showPlaceholder = false;
+    if(this.isDesignMode) {
+      const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
+      showPlaceholder = !!(property?.placeholder);
+    }
+    this.hasDescription = !!newDescription || showPlaceholder;
   }
 
   get locDescription(): LocalizableString {
@@ -629,7 +634,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!this.survey) {
       this.onSurveyLoad();
     }
-    this.hasDescription = !!this.description;
+    this.updateDescriptionVisibility(this.description);
   }
   public setVisibleIndex(index: number): number {
     return 0;

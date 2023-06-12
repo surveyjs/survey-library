@@ -13,21 +13,43 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
   }
 
   protected renderElement(): JSX.Element {
-    return (
-      <div
-        className={this.question.rootClass}
-        ref={(root) => (this.setControl(root))}
-      >
-        {this.getItems()}
-      </div>
-    );
+
+    if (!this.question.selectToRank) {
+      return (
+        <div
+          className={this.question.rootClass}
+          ref={(root) => (this.setControl(root))}
+        >
+          {this.getItems()}
+        </div>
+      );
+    } else {
+      const unrankedItem = true;
+      return (
+        <div
+          className={this.question.rootClass}
+          ref={(root) => (this.setControl(root))}
+        >
+          <div className={this.question.getContainerClasses("from")} data-ranking="from-container">
+            {this.getItems(this.question.unRankingChoices, unrankedItem)}
+            {this.question.unRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.question.selectToRankFromContainerPlaceholder} </div>: null }
+          </div>
+
+          <div className={this.question.cssClasses.containersDivider}></div>
+
+          <div className={this.question.getContainerClasses("to")} data-ranking="to-container">
+            {this.getItems()}
+            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.question.selectToRankToContainerPlaceholder} </div>: null }
+          </div>
+        </div>
+      );
+    }
   }
 
-  protected getItems(): Array<any> {
+  protected getItems(choices:any = this.question.rankingChoices, unrankedItem?: boolean): Array<any> {
     const items: Array<JSX.Element> = [];
-    const rankingChoices = this.question.rankingChoices;
-    for (let i = 0; i < rankingChoices.length; i++) {
-      const item = rankingChoices[i];
+    for (let i = 0; i < choices.length; i++) {
+      const item = choices[i];
       items.push(
         this.renderItem(
           item,
@@ -47,7 +69,8 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
           },
           this.question.cssClasses,
           this.question.getItemClass(item),
-          this.question
+          this.question,
+          unrankedItem
         )
       );
     }
@@ -61,7 +84,8 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
     handlePointerDown: (event: PointerEvent) => void,
     cssClasses: any,
     itemClass: string,
-    question: QuestionRankingModel
+    question: QuestionRankingModel,
+    unrankedItem?: boolean
   ): JSX.Element {
     const key: string = item.value + "-" + i + "-item";
     const text: JSX.Element = this.renderLocString(item.locText);
@@ -80,6 +104,8 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
         cssClasses={cssClasses}
         itemClass={itemClass}
         question={question}
+        unrankedItem={unrankedItem}
+        item={item}
       />
     );
     const survey = this.question.survey as SurveyModel;
@@ -119,6 +145,12 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
   protected get question(): any {
     return this.props.question;
   }
+  protected get unrankedItem(): any {
+    return this.props.unrankedItem;
+  }
+  protected get item(): any {
+    return this.props.item;
+  }
 
   protected renderElement(): JSX.Element {
     return (
@@ -154,7 +186,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
 
-            <div className={this.question.getItemIndexClasses()}>{this.indexText}</div>
+            <div className={this.question.getItemIndexClasses(this.item)}>{this.unrankedItem? "" : this.indexText}</div>
             <div className={this.cssClasses.controlLabel}>{this.text}</div>
           </div>
         </div>

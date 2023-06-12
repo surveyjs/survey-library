@@ -44,8 +44,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
       .append(this.cssClasses.rootSelectToRankMod, this.selectToRank)
-      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankAlign === "horizontal")
-      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankAlign === "vertical")
+      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRank && this.selectToRankAlign === "horizontal")
+      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRank && this.selectToRankAlign === "vertical")
       .toString();
   }
 
@@ -493,6 +493,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public set selectToRankAlign(val: string) {
     this.setPropertyValue("selectToRankAlign", val);
   }
+  /**
+   * Set empty text placeholder for the "from" container with selectToRank mode
+   */
+  @property({ localizable: { defaultStr: "selectToRankFromContainerPlaceholder" } }) selectToRankFromContainerPlaceholder: string;
+
+  /**
+   * Set empty text placeholder for the "to" container with selectToRank mode
+   */
+  @property({ localizable: { defaultStr: "selectToRankToContainerPlaceholder" } }) selectToRankToContainerPlaceholder: string;
 
   public get useFullItemSizeForShortcut(): boolean {
     return this.getPropertyValue("useFullItemSizeForShortcut");

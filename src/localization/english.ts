@@ -94,7 +94,9 @@ export var englishStrings = {
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
   noEntriesReadonlyText: "There are no entries.",
   more: "More",
-  tagboxDoneButtonCaption: "OK"
+  tagboxDoneButtonCaption: "OK",
+  selectToRankFromContainerPlaceholder: "All items are ranked.",
+  selectToRankToContainerPlaceholder: "Drop the items which you like not to be selected here.",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

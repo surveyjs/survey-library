@@ -15907,6 +15907,35 @@ QUnit.test("hasDescription is not updated on changing locale", function (assert)
   assert.equal(question.hasDescription, true, "Question description is shown for 'de'");
   survey.locale = "";
 });
+QUnit.test("hasDescription is isDesignMode", function (assert) {
+  const commentDescriptionProperty = Serializer.getProperty("comment", "description");
+  const oldValue = commentDescriptionProperty.placeholder;
+  commentDescriptionProperty.placeholder = "Q placeholder";
+
+  const survey = new SurveyModel({});
+  survey["_isDesignMode"] = true;
+  settings.supportCreatorV2 = true;
+  survey.fromJSON({
+    pages: [{
+      name: "page1",
+      title: "Page title",
+      elements: [{
+        type: "text",
+        name: "q1",
+      }, {
+        type: "comment",
+        name: "q2",
+      }]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.notOk(q1.hasDescription, "text description is not shown");
+  assert.ok(q2.hasDescription, "comment description is shown");
+
+  commentDescriptionProperty.placeholder = oldValue;
+  settings.supportCreatorV2 = false;
+});
 QUnit.test("Test survey with custom type", function (assert) {
   JsonObject.metaData.addClass(
     "sortablelist",

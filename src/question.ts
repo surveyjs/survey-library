@@ -225,6 +225,9 @@ export class Question extends SurveyElement<Question>
       return null;
     }
   }
+  public get ariaExpanded(): string {
+    return null;
+  }
   public get ariaDescribedBy(): string {
     return this.errors.length > 0 ? this.id + "_errors" : null;
   }
@@ -1214,14 +1217,17 @@ export class Question extends SurveyElement<Question>
   private get autoGrowComment(): boolean {
     return this.survey && this.survey.autoGrowComment;
   }
+  private get allowResizeComment(): boolean {
+    return this.survey && this.survey.allowResizeComment;
+  }
   private get questionValue(): any {
-    return this.getPropertyValue("value");
+    return this.getPropertyValueWithoutDefault("value");
   }
   private set questionValue(val: any) {
     this.setPropertyValue("value", val);
   }
   private get questionComment(): string {
-    return this.getPropertyValue("comment");
+    return this.getPropertyValueWithoutDefault("comment");
   }
   private set questionComment(val: string) {
     this.setPropertyValue("comment", val);
@@ -1395,7 +1401,7 @@ export class Question extends SurveyElement<Question>
     this.updateValueWithDefaults();
   }
   public get resizeStyle() {
-    return this.autoGrowComment ? "none" : "both";
+    return this.allowResizeComment ? "both" : "none";
   }
   /**
    * Returns the question value as an object in which the question name, title, value, and other parameters are stored as individual properties.
@@ -1843,12 +1849,19 @@ export class Question extends SurveyElement<Question>
   private isValueChangedInSurvey = false;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
+    if(this.isNewValueEqualsToValue(newValue)) return;
     var oldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
     if (this.isAnswered != oldAnswered) {
       this.updateQuestionCss();
     }
+  }
+  protected isNewValueEqualsToValue(newValue: any): boolean {
+    const val = this.value;
+    if(!this.isTwoValueEquals(newValue, val)) return false;
+    const isObj = newValue === val && !!val && (Array.isArray(val) || typeof val === "object");
+    return !isObj;
   }
   protected isTextValue(): boolean {
     return false;
@@ -2112,7 +2125,7 @@ export class Question extends SurveyElement<Question>
     }
     return false;
   }
-  private destroyResizeObserver() {
+  public destroyResizeObserver(): void {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
@@ -2140,7 +2153,7 @@ Serializer.addClass("question", [
     default: "default",
     choices: ["default", "collapsed", "expanded"],
   },
-  { name: "visible:switch", default: true },
+  { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
   { name: "useDisplayValuesInDynamicTexts:boolean", alternativeName: "useDisplayValuesInTitle", default: true, layout: "row" },
   "visibleIf:condition",
   { name: "width" },
@@ -2225,13 +2238,13 @@ Serializer.addClass("question", [
     default: "default",
     choices: ["default", "none", "onComplete", "onHidden"],
   },
-  "isRequired:switch",
+  { name: "isRequired:switch", overridingProperty: "requiredIf" },
   "requiredIf:condition",
   {
     name: "requiredErrorText:text",
     serializationProperty: "locRequiredErrorText",
   },
-  "readOnly:switch",
+  { name: "readOnly:switch", overridingProperty: "enableIf" },
   {
     name: "validators:validators",
     baseClassName: "surveyvalidator",

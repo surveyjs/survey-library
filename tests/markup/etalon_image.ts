@@ -22,6 +22,20 @@ registerMarkupTest(
 );
 registerMarkupTest(
   {
+    name: "Test Image question empty",
+    json: {
+      questions: [
+        {
+          "type": "image",
+          "name": "banner",
+        }
+      ]
+    },
+    snapshot: "image-empty"
+  }
+);
+registerMarkupTest(
+  {
     name: "Test Image Video question markup",
     json: {
       questions: [
@@ -55,7 +69,8 @@ registerMarkupTest(
     },
     timeout: 500,
     initSurvey: survey => {
-      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = false; };
+      survey.getAllQuestions()[0]["contentNotLoaded"] = true;
+      survey.getAllQuestions()[0]["onErrorHandler"] = function() { this["contentNotLoaded"] = true; };
     },
     snapshot: "image-not-load-content"
   }

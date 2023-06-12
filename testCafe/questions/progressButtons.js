@@ -44,11 +44,11 @@ const json = {
       await initSurvey(framework, json);
     });
     test("check progress buttons", async (t) => {
-      await t.hover(Selector("[aria-label='question1']"));
+      await t.hover(Selector("[data-name='question1']"));
       await t.click(Selector("[title='page3']"));
-      await t.hover(Selector("[aria-label='question3']"));
+      await t.hover(Selector("[data-name='question3']"));
       await t.click(Selector("[title='page2']"));
-      await t.hover(Selector("[aria-label='question2']"));
+      await t.hover(Selector("[data-name='question2']"));
     });
   });
 });

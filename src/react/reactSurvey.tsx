@@ -103,16 +103,12 @@ export class Survey extends SurveyElementBase<any, any>
     }
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
-    const rootStyle = {
-      backgroundImage: this.survey.renderBackgroundImage,
-      backgroundSize: this.survey.backgroundImageFit
-    };
     const formStyle = {
       backgroundColor: this.survey.renderBackgroundOpacity
     };
 
     return (
-      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={rootStyle}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
         <form onSubmit={onSubmit} style={formStyle}>
           {customHeader}
           <div className={this.css.container}>
@@ -314,6 +310,7 @@ export function attachKey2click(element: JSX.Element, viewModel?: any, options: 
   if ((!!viewModel && viewModel.disableTabStop) || (!!options && options.disableTabStop)) {
     return React.cloneElement(element, { tabIndex: -1 });
   }
+  options = { ...options };
   return React.cloneElement(
     element,
     {

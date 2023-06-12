@@ -31,6 +31,15 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getIsRequiredText(): string;
 }
 
+export class MultipleTextEditorModel extends QuestionTextModel {
+  public get a11y_input_ariaLabel(): string {
+    return this.locTitle.renderedHtml;
+  }
+  public get a11y_input_ariaLabelledBy(): string {
+    return null;
+  }
+}
+
 /**
  * A class that describes an item in a [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
  *
@@ -38,7 +47,7 @@ export interface IMultipleTextData extends ILocalizableOwner, IPanel {
  */
 export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
-  private editorValue: QuestionTextModel;
+  private editorValue: MultipleTextEditorModel;
   private data: IMultipleTextData;
 
   valueChangedCallback: (newValue: any) => void;
@@ -46,7 +55,7 @@ export class MultipleTextItemModel extends Base
   constructor(name: any = null, title: string = null) {
     super();
     this.editorValue = this.createEditor(name);
-    this.editor.questionTitleTemplateCallback = function() {
+    this.editor.questionTitleTemplateCallback = function () {
       return "";
     };
     this.editor.titleLocation = "left";
@@ -75,11 +84,11 @@ export class MultipleTextItemModel extends Base
   public get question(): Question {
     return <Question>(<any>this.data);
   }
-  public get editor(): QuestionTextModel {
+  public get editor(): MultipleTextEditorModel {
     return this.editorValue;
   }
-  protected createEditor(name: string): QuestionTextModel {
-    return new QuestionTextModel(name);
+  protected createEditor(name: string): MultipleTextEditorModel {
+    return new MultipleTextEditorModel(name);
   }
   public addUsedLocales(locales: Array<string>) {
     super.addUsedLocales(locales);
@@ -247,11 +256,11 @@ export class MultipleTextItemModel extends Base
   getVariable(name: string): any {
     return undefined;
   }
-  setVariable(name: string, newValue: any) {}
+  setVariable(name: string, newValue: any) { }
   getComment(name: string): string {
     return null;
   }
-  setComment(name: string, newValue: string) {}
+  setComment(name: string, newValue: string) { }
   getAllValues(): any {
     if (this.data) return this.data.getAllValues();
     return this.value;
@@ -264,7 +273,7 @@ export class MultipleTextItemModel extends Base
   }
   findQuestionByName(name: string): IQuestion {
     const survey = this.getSurvey();
-    return !!survey ? survey.getQuestionByName(name): null;
+    return !!survey ? survey.getQuestionByName(name) : null;
   }
   //IValidatorOwner
   getValidatorTitle(): string {
@@ -301,7 +310,7 @@ export class QuestionMultipleTextModel extends Question
     super(name);
     this.createNewArray("items", (item: any) => {
       item.setData(this);
-      if(this.survey) {
+      if (this.survey) {
         this.survey.multipleTextItemAdded(this, item);
       }
     });
@@ -612,7 +621,7 @@ export class QuestionMultipleTextModel extends Question
     return this.survey ? this.survey.requiredText : "";
   }
   //IPanel
-  addElement(element: IElement, index: number) {}
+  addElement(element: IElement, index: number) { }
   removeElement(element: IElement): boolean {
     return false;
   }
@@ -625,7 +634,7 @@ export class QuestionMultipleTextModel extends Question
   getChildrenLayoutType(): string {
     return "row";
   }
-  elementWidthChanged(el: IElement) {}
+  elementWidthChanged(el: IElement) { }
   get elements(): Array<IElement> {
     return [];
   }
@@ -673,7 +682,7 @@ Serializer.addClass(
       classNamePart: "validator",
     },
   ],
-  function() {
+  function () {
     return new MultipleTextItemModel("");
   }
 );
@@ -685,7 +694,7 @@ Serializer.addClass(
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
   ],
-  function() {
+  function () {
     return new QuestionMultipleTextModel("");
   },
   "question"

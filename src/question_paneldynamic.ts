@@ -539,6 +539,7 @@ export class QuestionPanelDynamicModel extends Question
    * @see renderMode
    */
   public get currentPanel(): PanelModel {
+    if(this.isDesignMode) return this.template;
     if(this.isRenderModeList || this.useTemplatePanel) return null;
     let res = this.getPropertyValue("currentPanel", null);
     if(!res && this.visiblePanelCount > 0) {
@@ -1760,6 +1761,7 @@ export class QuestionPanelDynamicModel extends Question
   protected createNewPanelObject(): PanelModel {
     return Serializer.createClass("panel");
   }
+  private settingPanelCountBasedOnValue: boolean;
   private setPanelCountBasedOnValue() {
     if (this.isValueChangingInternally || this.useTemplatePanel) return;
     var val = this.value;
@@ -1767,9 +1769,12 @@ export class QuestionPanelDynamicModel extends Question
     if (newPanelCount == 0 && this.getPropertyValue("panelCount") > 0) {
       newPanelCount = this.getPropertyValue("panelCount");
     }
+    this.settingPanelCountBasedOnValue = true;
     this.panelCount = newPanelCount;
+    this.settingPanelCountBasedOnValue = false;
   }
   public setQuestionValue(newValue: any) {
+    if(this.settingPanelCountBasedOnValue) return;
     super.setQuestionValue(newValue, false);
     this.setPanelCountBasedOnValue();
     for (var i = 0; i < this.panels.length; i++) {
@@ -2181,8 +2186,14 @@ export class QuestionPanelDynamicModel extends Question
     this.additionalTitleToolbar.actions.splice(this.additionalTitleToolbar.actions.indexOf(removedItem), 1);
     this.updateTabToolbarItemsPressedState();
   }
-  private get showLegacyNavigation() {
+  get showLegacyNavigation(): boolean {
     return !this.isDefaultV2Theme;
+  }
+  get showNavigation(): boolean {
+    return this.visiblePanelCount > 0 && !this.showLegacyNavigation && !!this.cssClasses.footer;
+  }
+  showSeparator(index: number): boolean {
+    return this.isRenderModeList && index < this.visiblePanelCount - 1;
   }
 }
 

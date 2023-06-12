@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { setData } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler, resetFocusToBody, resetHoverToBody } from "../../helper";
 import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
@@ -458,6 +458,7 @@ frameworks.forEach(framework => {
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("survey-timer.png", Selector("body"), t, comparer);
     });
   });
@@ -526,6 +527,7 @@ frameworks.forEach(framework => {
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("survey-timer-without-progress.png", Selector("body"), t, comparer);
     });
   });

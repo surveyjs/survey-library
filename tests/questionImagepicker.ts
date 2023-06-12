@@ -1,5 +1,5 @@
 import { SurveyModel } from "../src/survey";
-import { QuestionImagePickerModel } from "../src/question_imagepicker";
+import { ImageItemValue, QuestionImagePickerModel } from "../src/question_imagepicker";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("imagepicker");
@@ -301,4 +301,35 @@ QUnit.test("check resizeObserver not process if container is not visible", funct
   (<any>q["resizeObserver"]).call();
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
+});
+
+QUnit.test("check contentNotLoaded and contentMode flags behavior", function(assert) {
+  const survey = new SurveyModel(
+    {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question2",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": "test"
+            },
+          ],
+        }
+      ]
+    }
+  );
+  const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
+  const choice = <ImageItemValue> question.visibleChoices[0];
+  assert.notOk(choice.contentNotLoaded);
+  question.onContentLoaded(choice, { target: {} });
+  assert.notOk(choice.contentNotLoaded);
+  question.contentMode = "video";
+  choice.onErrorHandler();
+  assert.ok(choice.contentNotLoaded);
+  question.contentMode = "image";
+  assert.notOk(choice.contentNotLoaded);
+  question.contentMode = "video";
+  assert.ok(choice.contentNotLoaded);
 });

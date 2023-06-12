@@ -1,4 +1,4 @@
-import { _setIsTouch } from "survey-core";
+import { _setIsTouch, Question } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -311,5 +311,29 @@ registerMarkupTests(
       timeout: 300,
       snapshot: "dropdown-input-string",
     },
+    {
+      name: "Test dropdown aria-expanded",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      before: () => { Question["questionCounter"] = 100; },
+      initSurvey: (survey) => {
+        const dropdown = survey.getQuestionByName("name");
+        dropdown["popupModel"].isVisible = true;
+      },
+      snapshot: "dropdown-aria-expanded"
+    }
   ]
 );

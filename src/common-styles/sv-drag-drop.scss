@@ -8,7 +8,7 @@
   padding: calcSize(2);
   cursor: grabbing;
   position: absolute;
-  z-index: 1000;
+  z-index: 10000;
   box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
   font-family: var(--font-family, $font-family);
   font-size: calcFontSize(1);

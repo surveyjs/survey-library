@@ -261,7 +261,7 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
 
 ko.bindingHandlers["key2click"] = {
   init: function (element: HTMLElement, valueAccessor, allBindingsAccessor, viewModel: any) {
-    const options: IAttachKey2clickOptions = valueAccessor() || {
+    const options: IAttachKey2clickOptions = { ...valueAccessor() } || {
       processEsc: true,
       disableTabStop: false
     };

@@ -462,7 +462,7 @@ export class Base {
    * @param defaultValue (Optional) A value to return if the property is not found or does not have a value.
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
-    const res = this.getPropertyValueCore(this.propertyHash, name);
+    const res = this.getPropertyValueWithoutDefault(name);
     if (this.isPropertyEmpty(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if(locStr) return locStr.text;
@@ -480,6 +480,9 @@ export class Base {
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;
+  }
+  protected getPropertyValueWithoutDefault(name: string): any {
+    return this.getPropertyValueCore(this.propertyHash, name);
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
     if(!this.isLoadingFromJson) {

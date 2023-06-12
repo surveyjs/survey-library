@@ -24,12 +24,32 @@ QUnit.test(
           type: "text",
           title: "Title",
           name: "q1",
+          titleLocation: "hidden"
         },
       ],
     };
     var survey = new SurveyModel(json);
     var question = survey.getQuestionByName("q1");
-    assert.equal(question.ariaLabel, "Title", "aria-label is correct");
+    assert.equal(question.a11y_input_ariaLabel, "Title", "aria-label is correct");
+  }
+);
+
+QUnit.test(
+  "a11y: aria-labelledby",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          title: "Title",
+          name: "q1"
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    assert.equal(question.a11y_input_ariaLabel, null, "aria-label does not exist");
+    assert.equal(question.a11y_input_ariaLabelledBy.indexOf("_ariaTitle") !== -1, true, "aria-labelledby is correct");
   }
 );
 

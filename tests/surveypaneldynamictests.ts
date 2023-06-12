@@ -3847,6 +3847,30 @@ QUnit.test(
     assert.equal(q.panelCount, 0, "The panel count is 0");
   }
 );
+QUnit.test("currentPanel is templatePanel in design-mode", function(assert) {
+  var json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "measurements",
+        renderMode: "tab",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+        ],
+        panelCount: 0,
+      },
+    ],
+  };
+  var survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  var q = <QuestionPanelDynamicModel>survey.getQuestionByName("measurements");
+  assert.ok(q.currentPanel, "Current panel exists");
+  assert.equal(q.currentPanel.id, q.template.id, "Current panel equals to tempalte");
+});
 
 QUnit.test("getProgressInfo()", function(assert) {
   var survey = new SurveyModel({
@@ -5705,4 +5729,29 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(getAddBtn().visible, false, "add button is invisible #6");
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
+});
+QUnit.test("defaultValue in questions and set data", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        },
+        {
+          "name": "q2",
+          "type": "text",
+          "defaultValue": 2
+        }
+      ]
+    }
+    ] });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  survey.data = { panel: [{ q1: "foo" }] };
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  assert.equal(q1.value, "foo", "q1 is correct");
+  assert.notOk(q2.value, "q2 is empty");
 });

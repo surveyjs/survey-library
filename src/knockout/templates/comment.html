@@ -6,7 +6,7 @@
         visible: $data.visible,
         disable: $data.question.isInputReadOnly,
         style: { resize: question.resizeStyle },
-        css: $data.question.koCss().other"></textarea>
+        css: $data.question.cssClasses.other"></textarea>
 <!--/ko-->
 
 <!--ko if: question.isReadOnlyRenderDiv() -->
@@ -21,7 +21,7 @@
         visible: $data.visible,
         disable: $data.question.isInputReadOnly,
         style: { resize: question.resizeStyle },
-        css: $data.question.koCss().other"></textarea>
+        css: $data.question.cssClasses.other"></textarea>
 <!--/ko-->
 
 <!--ko if: question.isReadOnlyRenderDiv() -->

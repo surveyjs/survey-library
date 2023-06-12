@@ -17,7 +17,6 @@ export class QuestionCommentModel extends QuestionTextBase {
    * Specifies the visible height of the comment area, measured in lines.
    *
    * The value of this property is passed on to the `rows` attribute of the underlying `<textarea>` element.
-   * @see cols
    */
   public get rows(): number {
     return this.getPropertyValue("rows");
@@ -25,12 +24,6 @@ export class QuestionCommentModel extends QuestionTextBase {
   public set rows(val: number) {
     this.setPropertyValue("rows", val);
   }
-  /**
-   * Specifies the visible width of the comment area, measured in average character width.
-   *
-   * The value of this property is passed on to the `cols` attribute of the underlying `<textarea>` element.
-   * @see rows
-   */
   public get cols(): number {
     return this.getPropertyValue("cols");
   }
@@ -52,12 +45,28 @@ export class QuestionCommentModel extends QuestionTextBase {
    * Specifies whether the comment area automatically increases its height to accomodate multi-line content.
    *
    * Default value: `false` (inherited from `SurveyModel`'s [`autoGrowComment`](https://surveyjs.io/form-library/documentation/surveymodel#autoGrowComment) property)
+   * @see allowResize
    */
   public get autoGrow(): boolean {
     return this.getPropertyValue("autoGrow") || (this.survey && this.survey.autoGrowComment);
   }
   public set autoGrow(val: boolean) {
     this.setPropertyValue("autoGrow", val);
+  }
+  /**
+   * Specifies whether to display a resize handle for the comment area.
+   *
+   * Default value: `true` (inherited from `SurveyModel`'s [`allowResizeComment`](https://surveyjs.io/form-library/documentation/surveymodel#allowResizeComment) property)
+   * @see autoGrow
+   */
+  public get allowResize(): boolean {
+    return this.getPropertyValue("allowResize") && (this.survey && this.survey.allowResizeComment);
+  }
+  public set allowResize(val: boolean) {
+    this.setPropertyValue("allowResize", val);
+  }
+  public get resizeStyle() {
+    return this.allowResize ? "both" : "none";
   }
   public getType(): string {
     return "comment";
@@ -110,7 +119,7 @@ Serializer.addClass(
   "comment",
   [
     { name: "maxLength:number", default: -1 },
-    { name: "cols:number", default: 50 },
+    { name: "cols:number", default: 50, visible: false, isSerializable: false },
     { name: "rows:number", default: 4 },
     { name: "placeholder",
       alternativeName: "placeHolder",
@@ -121,6 +130,7 @@ Serializer.addClass(
       choices: ["default", "onBlur", "onTyping"],
     },
     { name: "autoGrow:boolean" },
+    { name: "allowResize:boolean", default: true },
     { name: "acceptCarriageReturn:boolean", default: true, visible: false }
   ],
   function () {

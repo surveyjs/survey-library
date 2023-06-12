@@ -9,7 +9,7 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
     super(props);
   }
   protected renderElement(): JSX.Element {
-    var onBlur:((e: any) => void) | undefined = !this.question.isInputTextUpdate ? this.updateValueOnEvent : undefined;
+    var onBlur: ((e: any) => void) | undefined = !this.question.isInputTextUpdate ? this.updateValueOnEvent : undefined;
     var onInput = (event: any) => {
       if (this.question.isInputTextUpdate) {
         this.updateValueOnEvent(event);
@@ -30,8 +30,8 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
         <textarea
           id={this.question.inputId}
           className={this.question.className}
-          disabled={ this.question.isInputReadOnly }
-          readOnly={ this.question.isInputReadOnly }
+          disabled={this.question.isInputReadOnly}
+          readOnly={this.question.isInputReadOnly}
           ref={(textarea) => (this.setControl(textarea))}
           maxLength={this.question.getMaxLength()}
           placeholder={placeholder}
@@ -40,10 +40,11 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
           onKeyDown={(event) => { this.question.onKeyDown(event); }}
           cols={this.question.cols}
           rows={this.question.rows}
-          aria-required={this.question.ariaRequired}
-          aria-label={this.question.ariaLabel}
-          aria-invalid={this.question.ariaInvalid}
-          aria-describedby={this.question.ariaDescribedBy}
+          aria-required={this.question.a11y_input_ariaRequired}
+          aria-label={this.question.a11y_input_ariaLabel}
+          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+          aria-invalid={this.question.a11y_input_ariaInvalid}
+          aria-describedby={this.question.a11y_input_ariaDescribedBy}
           style={{ resize: this.question.resizeStyle }}
         />
         {counter}
@@ -80,7 +81,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     };
     const questionComment = this.getComment();
     let stateComment: string = !!this.state ? this.state.comment : undefined;
-    if(stateComment !== undefined && stateComment.trim() !== questionComment) {
+    if (stateComment !== undefined && stateComment.trim() !== questionComment) {
       stateComment = questionComment;
     }
     let comment = stateComment !== undefined ? stateComment : questionComment || "";
@@ -97,7 +98,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         maxLength={question.getOthersMaxLength()}
         placeholder={this.getPlaceholder()}
         onChange={handleOnChange}
-        onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); } }
+        onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); }}
         onInput={(e) => this.onCommentInput(e)}
         aria-required={question.isRequired}
         aria-label={question.locTitle.renderedHtml}

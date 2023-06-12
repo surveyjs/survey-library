@@ -44,24 +44,6 @@ export class QuestionImplementor extends ImplementorBase {
       })
     );
     this.setObservaleObj("koElementType", ko.observable("survey-question"));
-    this.setObservaleObj(
-      "koCss",
-      ko.pureComputed(() => {
-        return this.question.cssClasses;
-      })
-    );
-    this.setObservaleObj(
-      "koRootCss",
-      ko.pureComputed(() => {
-        return this.question.getRootCss();
-      })
-    );
-    this.setObservaleObj(
-      "koErrorClass",
-      ko.pureComputed(() => {
-        return this.question.cssError;
-      })
-    );
     this.koDummy = ko.observable(0);
     this.setCallbackFunc("koQuestionAfterRender", (el: any, con: any) => {
       this.koQuestionAfterRender(el, con);

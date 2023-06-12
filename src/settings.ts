@@ -5,7 +5,7 @@ export type ISurveyEnvironment = {
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
 }
-const document = global.document;
+const document = globalThis.document;
 const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> (!!document ? {
   root: document,
 

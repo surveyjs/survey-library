@@ -1,5 +1,6 @@
-import { ItemValue, QuestionRankingModel } from "survey-core";
+import { ItemValue } from "../itemvalue";
 import { DragDropRankingChoices } from "./ranking-choices";
+import { QuestionRankingModel } from "../question_ranking";
 
 export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   protected findDropTargetNodeByDragOverNode(

@@ -50,14 +50,7 @@
   }
 }
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  position: relative;
-  font-weight: normal;
-}
+
 
 body {
   min-height: 100vh;

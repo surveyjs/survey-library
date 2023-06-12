@@ -26,6 +26,10 @@ import ImagePickerItem from "./ImagepickerItem.vue";
 import Comment from "./Comment.vue";
 import Dropdown from "./Dropdown.vue";
 import DropdownInput from "./components/dropdown/Dropdown.vue";
+import Tagbox from "./Tagbox.vue";
+import TagboxInput from "./components/tagbox/Tagbox.vue";
+import TagboxFilter from "./components/tagbox/TagboxFilter.vue";
+import TagboxItem from "./components/tagbox/TagboxItem.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -83,6 +87,10 @@ app.component("survey-imagepicker-item", ImagePickerItem);
 app.component("survey-comment", Comment);
 app.component("survey-dropdown", Dropdown);
 app.component("sv-dropdown", DropdownInput);
+app.component("survey-tagbox", Tagbox);
+app.component("sv-tagbox", TagboxInput);
+app.component("sv-tagbox-item", TagboxItem);
+app.component("sv-tagbox-filter", TagboxFilter);
 
 app.component("sv-components-container", Container);
 app.component("sv-progress-pages", Progress);

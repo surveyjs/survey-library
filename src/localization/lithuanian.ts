@@ -21,7 +21,7 @@ export var lithuaniaSurveyStrings = {
   completingSurveyBefore: "Mūsų įrašai rodo, kad jau atlikote šią apklausą.",
   loadingSurvey: "Prašome palaukti...",
   placeholder: "Pasirinkti...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "reikšmė",
   requiredError: "Būtina atsakyti į šį klausimą.",
   requiredErrorInPanel: "Būtina atsakyti bent į vieną klausimą.",

@@ -21,7 +21,7 @@ export var catalanSurveyStrings = {
   // completingSurveyBefore: "Our records show that you have already completed this survey.",
   loadingSurvey: "L'enquesta s'està carregant ...",
   placeholder: "Selecciona ...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   // value: "value",
   requiredError: "Si us plau contesti la pregunta.",
   // requiredErrorInPanel: "Response required: answer at least one question.",

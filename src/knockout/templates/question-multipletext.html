@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
-  <table data-bind="css: question.koCss().root">
+  <table data-bind="css: question.cssClasses.root">
     <tbody data-bind="foreach: { data:  question.koRows, as: 'row' }">
-      <tr data-bind="foreach: { data: row, as: 'item' }, css: question.koCss().row">
+      <tr data-bind="foreach: { data: row, as: 'item' }, css: question.cssClasses.row">
         <td data-bind="css: question.cssClasses.cell">  
           <label data-bind="css: question.getItemLabelCss(item)">
               <span data-bind="css: question.koItemTitleCss">

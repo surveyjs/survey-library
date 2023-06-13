@@ -1,6 +1,6 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
-const title = "matrixdynamic";
+const title = "matrixdynamic totals";
 
 const json2 = {
   "pages": [

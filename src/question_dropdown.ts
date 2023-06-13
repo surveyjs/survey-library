@@ -266,6 +266,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   protected onSelectedItemValuesChangedHandler(newValue: any): void {
     this.dropdownListModel?.setInputStringFromSelectedItem(newValue);
+    super.onSelectedItemValuesChangedHandler(newValue);
   }
   protected hasUnknownValue(
     val: any,
@@ -281,7 +282,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     if(!val) return false;
     return super.hasUnknownValue(val, true, false);
   }
-
+  protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
+    if(this.choicesLazyLoadEnabled && !this.dropdownListModel.isAllDataLoaded) {
+      return this.createItemValue(value, text);
+    } else {
+      return super.getItemIfChoicesNotContainThisValue(value, text);
+    }
+  }
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 

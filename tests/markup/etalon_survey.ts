@@ -23,5 +23,26 @@ registerMarkupTests(
         });
       },
       snapshot: "survey-navigation"
+    }, {
+      name: "Test Survey theme css variables",
+      json: {
+        questions: [
+          {
+            "type": "html",
+            "name": "q1",
+            "html": "<div></div>"
+          }
+        ]
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: (survey) => {
+        survey.applyTheme({ cssVariables: { "--sjs-test": "val" } });
+      },
+      getSnapshot: el => {
+        el.innerHTML = "";
+        el.removeAttribute("data-bind");
+        return el.outerHTML;
+      },
+      snapshot: "survey-theme-variables"
     }
   ]);

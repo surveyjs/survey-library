@@ -5625,7 +5625,44 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
-
+QUnit.test("Creator V2: do not add choices from carry-forward in design mode", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["A", "B", "C", "D"]
+      },
+      {
+        type: "radiogroup",
+        name: "q2",
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "checkbox",
+        name: "q3",
+        choices: ["item1", "item2", "item3"]
+      }
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  assert.equal(q2.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+  assert.equal(q3.visibleChoices.length, 7, "Show SelectAll+None+hasOther+new: 3+4");
+  q2.choicesFromQuestion = "q1";
+  q3.choicesFromQuestion = "q1";
+  assert.equal(q2.visibleChoices.length, 2, "Show None+hasOther: 2+0");
+  assert.equal(q3.visibleChoices.length, 3, "Show SelectAll+None+hasOther: 3+0");
+  q2.choicesFromQuestion = "";
+  q3.choicesFromQuestion = "";
+  assert.equal(q2.visibleChoices.length, 6, "radiogroup = clear carry-forward");
+  assert.equal(q3.visibleChoices.length, 7, "checkbox = clear carry-forward");
+  settings.supportCreatorV2 = false;
+});
 QUnit.test(
   "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
   function (assert) {
@@ -6785,4 +6822,7 @@ QUnit.test("cols property is invisible and non-serializable", function (assert) 
   const prop = Serializer.findProperty("comment", "cols");
   assert.equal(prop.visible, false, "property is invisible");
   assert.equal(prop.isSerializable, false, "property is non-serializable");
+});
+QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
+  assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
 });

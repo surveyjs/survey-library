@@ -45,6 +45,23 @@ registerMarkupTests(
       snapshot: "checkbox-other",
     },
     {
+      name: "Test checkbox question markup Other option with maxOthersLength",
+      json: {
+        "maxOthersLength": 15,
+        questions: [
+          {
+            "type": "checkbox",
+            "name": "name",
+            "hasOther": true,
+            "defaultValue": "other",
+            "otherText": "Other (describe)",
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "checkbox-other-maxlength",
+    },
+    {
       name: "Test checkbox question markup Other option (defaultV2)",
       json: {
         questions: [

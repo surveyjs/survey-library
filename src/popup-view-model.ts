@@ -114,6 +114,9 @@ export class PopupBaseViewModel extends Base {
   public get isFocusedContent(): boolean {
     return this.model.isFocusedContent;
   }
+  public get isFocusedContainer(): boolean {
+    return this.model.isFocusedContainer;
+  }
   public get showFooter(): boolean {
     return this.getShowFooter();
   }
@@ -167,6 +170,8 @@ export class PopupBaseViewModel extends Base {
   public switchFocus(): void {
     if(this.isFocusedContent) {
       this.focusFirstInput();
+    } else if(this.isFocusedContainer) {
+      this.focusContainer();
     }
   }
 
@@ -185,12 +190,16 @@ export class PopupBaseViewModel extends Base {
       this.prevActiveElement.focus();
     }
   }
+  private focusContainer() {
+    if (!this.container) return;
+    (<HTMLElement>this.container.children[0]).focus();
+  }
   private focusFirstInput() {
     setTimeout(() => {
       if (!this.container) return;
       var el = this.container.querySelector(this.model.focusFirstInputSelector || FOCUS_INPUT_SELECTOR);
       if (!!el) (<HTMLElement>el).focus();
-      else (<HTMLElement>this.container.children[0]).focus();
+      else this.focusContainer();
     }, 100);
   }
   public clickOutside(): void {

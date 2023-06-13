@@ -131,7 +131,7 @@ frameworks.forEach((framework) => {
     var innerSelector = ".sv-string-editor";
     await t
       .click(outerSelector)
-      .selectEditableContent(outerSelector + " " + innerSelector)
+      .selectEditableContent(outerSelector + " " + innerSelector, outerSelector + " " + innerSelector)
       .typeText(outerSelector + " " + innerSelector, newTitle)
       .click("body");
 

@@ -1,20 +1,20 @@
-<div data-bind="css: question.koCss().rootCheckbox">
+<div data-bind="css: question.cssClasses.rootCheckbox">
   <div data-bind="css: question.getCheckboxItemCss()">
-    <label data-bind="css: question.koCss().checkboxLabel">
+    <label data-bind="css: question.cssClasses.checkboxLabel">
       <input
         type="checkbox"
-        data-bind="value: question.booleanValue, css: question.koCss().controlCheckbox, attr: {name: question.name, id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.booleanValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isInputReadOnly"
+        data-bind="value: question.booleanValue, css: question.cssClasses.controlCheckbox, attr: {name: question.name, id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.booleanValue, surveyProp: {indeterminate: question.isIndeterminate}, enable: !question.isInputReadOnly"
       />
-      <span data-bind="css: question.koCss().checkboxMaterialDecorator">
+      <span data-bind="css: question.cssClasses.checkboxMaterialDecorator">
         <!-- ko if: question.svgIcon -->
-        <svg data-bind="css:question.koCss().checkboxItemDecorator">
+        <svg data-bind="css:question.cssClasses.checkboxItemDecorator">
           <use data-bind="attr:{'xlink:href':question.svgIcon}" xlink:href=''></use>
         </svg>
         <!-- /ko -->
         <span class="check"></span>
       </span>
       <span
-        data-bind="if: question.isLabelRendered, css: question.koCss().checkboxControlLabel, attr: {id: question.labelRenderedAriaID}"
+        data-bind="if: question.isLabelRendered, css: question.cssClasses.checkboxControlLabel, attr: {id: question.labelRenderedAriaID}"
       >
         <!-- ko component: { name: 'sv-title-actions', params: {element: question } } --><!-- /ko -->
       </span>

@@ -5,17 +5,12 @@ const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
-    popupViewModel.initializePopupContainer();
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
-    popupViewModel.container.innerHTML = template;
     popupViewModel.model.onVisibilityChanged.add(this.visibilityChangedHandler);
-    ko.applyBindings(popupViewModel, popupViewModel.container);
   }
   dispose() {
-    ko.cleanNode(this.popupViewModel.container);
     this.popupViewModel.model.onVisibilityChanged.remove(this.visibilityChangedHandler);
-    this.popupViewModel.unmountPopupContainer();
     this.popupViewModel.container = undefined;
   }
   visibilityChangedHandler = (s: any, option: { isVisible: boolean }) => {
@@ -65,12 +60,12 @@ ko.components.register("sv-popup", {
       const viewModel = createPopupViewModel(
         ko.unwrap(params.model),
         componentInfo.element.parentElement,
-        componentInfo.element.nodeType === Node.COMMENT_NODE ? componentInfo.element.nextElementSibling.children[0] : componentInfo.element.children[0].children[0]
+        componentInfo.element.nodeType === Node.COMMENT_NODE ? componentInfo.element.nextElementSibling.children[0] : componentInfo.element.children[0]
       );
       return new PopupViewModel(viewModel);
     },
   },
-  template: "<div data-bind='allowBindings: false'><div></div></div>",
+  template: template
 });
 
 ko.bindingHandlers.allowBindings = {

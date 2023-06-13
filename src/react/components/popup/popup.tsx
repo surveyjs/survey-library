@@ -25,29 +25,19 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
   private createModel(): void {
     this.popup = createPopupViewModel(this.props.model, undefined as any);
-    this.popup.initializePopupContainer();
+    // this.popup.initializePopupContainer();
   }
   private setTargetElement(): void {
-    if(!!this.containerRef.current && !this.popup.isModal) {
-      const popupDropdownModel = this.popup as PopupDropdownViewModel;
-      if(!popupDropdownModel) return;
-
-      if(!!this.containerRef.current.parentElement) {
-        popupDropdownModel.targetElement = this.containerRef.current.parentElement;
-      }
-    }
+    this.popup.setComponentElement(this.containerRef.current as HTMLElement);
   }
   componentDidMount(): void {
     super.componentDidMount();
-    this.popup.initializePopupContainer();
+    // this.popup.initializePopupContainer();
     this.setTargetElement();
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
     this.setTargetElement();
-  }
-  componentWillUnmount(): void {
-    this.popup.unmountPopupContainer();
   }
   shouldComponentUpdate(nextProps: IPopupProps, nextState: any) {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
@@ -62,9 +52,9 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     this.popup.model = this.model;
     let popupContainer;
     if(this.model.isModal) {
-      popupContainer = ReactDOM.createPortal(<PopupContainer model={this.popup}></PopupContainer>, this.popup.container);
+      popupContainer = <PopupContainer model={this.popup}></PopupContainer>;
     } else {
-      popupContainer = ReactDOM.createPortal(<PopupDropdownContainer model={this.popup}></PopupDropdownContainer>, this.popup.container);
+      popupContainer = <PopupDropdownContainer model={this.popup}></PopupDropdownContainer>;
     }
     return <div ref={this.containerRef}>{popupContainer}</div>;
   }
@@ -221,7 +211,6 @@ export function showModal(
 export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
   dialogOptions.onHide = () => { {
     ReactDOM.unmountComponentAtNode(popupViewModel.container);
-    popupViewModel.unmountPopupContainer();
   } };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);

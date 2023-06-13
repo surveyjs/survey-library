@@ -22,7 +22,6 @@ export class PopupBaseViewModel extends Base {
   @property() locale: string;
 
   public container: HTMLElement;
-  private createdContainer: HTMLElement;
 
   public getLocale(): string {
     if(!!this.locale) return this.locale;
@@ -98,6 +97,7 @@ export class PopupBaseViewModel extends Base {
   constructor(model: PopupModel, private containerElement?: HTMLElement) {
     super();
     this.model = model;
+    this.container = containerElement;
   }
   public get title(): string {
     return this.model.title;
@@ -211,25 +211,22 @@ export class PopupBaseViewModel extends Base {
   }
   public dispose(): void {
     super.dispose();
-    this.unmountPopupContainer();
     this.container = undefined;
     if(!!this.footerToolbarValue) {
       this.footerToolbarValue.dispose();
     }
   }
-  protected getPopupMountContainer(): HTMLElement {
-    return this.containerElement?.parentElement;
-  }
   public initializePopupContainer(): void {
-    if (!this.createdContainer) {
+    if (!this.container) {
       const container: HTMLElement = document.createElement("div");
-      this.container = this.createdContainer = container;
+      this.container = container;
     }
 
-    getElement(this.getPopupMountContainer() || settings.environment.popupMountContainer).appendChild(this.container);
+    getElement(this.containerElement?.parentElement || settings.environment.popupMountContainer).appendChild(this.container);
   }
-
-  public unmountPopupContainer(): void {
-    this.createdContainer.remove();
+  public setComponentElement(componentRoot: HTMLElement): void {
+    if(!!componentRoot) {
+      this.container = componentRoot.children[0] as HTMLElement;
+    }
   }
 }

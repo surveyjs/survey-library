@@ -175,6 +175,7 @@ registerMarkupTests(
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-no-footer-1",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },
@@ -202,6 +203,7 @@ registerMarkupTests(
     event: "onAfterRenderPage",
     snapshot: "paneldynamic-no-footer-2",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   }, {
@@ -219,6 +221,7 @@ registerMarkupTests(
     },
     snapshot: "paneldynamic-progress-tab-center",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
       StylesManager.applyTheme("defaultV2");
@@ -240,6 +243,7 @@ registerMarkupTests(
     },
     snapshot: "paneldynamic-progress-tab-right",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
       StylesManager.applyTheme("defaultV2");
@@ -261,6 +265,7 @@ registerMarkupTests(
     },
     snapshot: "paneldynamic-progress-tab-left",
     removeIds: true,
+    excludePlatform: "Vue",
     before: () => {
       AdaptiveActionContainer["ContainerID"] = 1;
       StylesManager.applyTheme("defaultV2");

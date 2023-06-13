@@ -159,9 +159,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   protected getPopupHeaderTemplate(): string {
     return "popup-pointer";
   }
-  protected getPopupMountContainer(): HTMLElement {
-    return this.targetElement.parentElement;
-  }
 
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: IPosition;
@@ -174,7 +171,13 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       }
     });
   }
+  public setComponentElement(componentRoot: HTMLElement): void {
+    super.setComponentElement(componentRoot);
 
+    if(!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
+      this.targetElement = componentRoot.parentElement;
+    }
+  }
   public updateOnShowing(): void {
     const { root } = settings.environment;
     this.prevActiveElement = <HTMLElement>root.activeElement;

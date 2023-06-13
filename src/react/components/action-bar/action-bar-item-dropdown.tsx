@@ -10,11 +10,11 @@ export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
     super(props);
     this.viewModel = new ActionDropdownViewModel(this.item);
   }
-  renderButtonContent() {
-    const buttonContent = super.renderButtonContent();
+  renderInnerButton() {
+    const button = super.renderInnerButton();
     return (
       <>
-        {buttonContent}
+        {button}
         <Popup model={this.item.popupModel}></Popup>
       </>
     );

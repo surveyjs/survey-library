@@ -22,7 +22,6 @@ export class ModalComponent {
     this.model.initializePopupContainer();
     this.model.model.onHide = () => {
       this.portalHost.detach();
-      this.model.unmountPopupContainer();
     };
     this.portalHost = this.popupService.createComponent(this.model);
     this.model.model.isVisible = true;

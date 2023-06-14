@@ -6153,7 +6153,7 @@ QUnit.test("Question title equals to name", (assert) => {
   assert.equal(question.locTitle.getLocaleText(""), "q1", "Question title is not empty # 2");
   assert.equal(question.locTitle.renderedHtml, "q1");
 });
-QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
+QUnit.test("Checkbox item, defaultValue and visibleIf bug, #3634", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6181,7 +6181,7 @@ QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
   survey.data = { question2: "item1", question1: ["item3"] };
   assert.deepEqual(question.value, ["item3"], "value from data is set");
 });
-QUnit.test("Checkox item, others  and visibleIf bug, #3694", (assert) => {
+QUnit.test("Checkbox item, others  and visibleIf bug, #3694", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {

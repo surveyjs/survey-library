@@ -134,7 +134,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   public initResponsivityManager(container: HTMLDivElement): void {
     this.responsivityManager = new ResponsivityManager(
       container, this,
-      ".sv-action:not(.sv-dots)>.sv-action__content"
+      ".sd-action-bar > .sv-action:not(.sv-dots) > .sv-action__content"
     );
   }
   public resetResponsivityManager(): void {

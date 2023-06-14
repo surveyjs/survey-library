@@ -105,6 +105,7 @@ export class QuestionSelectBase extends Question {
   }
   public createItemValue(value: any, text?: string): ItemValue {
     const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
+    res.locOwner = this;
     if(!!text) res.text = text;
     return res;
   }

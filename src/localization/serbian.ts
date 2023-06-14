@@ -21,7 +21,7 @@ export var serbianStrings = {
   completingSurveyBefore: "Prema našim podacima, već ste popunili ovu anketu.",
   loadingSurvey: "Učitavam anketu...",
   placeholder: "Izaberi...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "vrednost",
   requiredError: "Molimo odgovorite na ovo pitanje.",
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",

@@ -1278,7 +1278,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    const ratingAsDropdownPlaceHolder = "Tap to rate here...";
+    const ratingAsDropdownPlaceHolder = "Select...";
     const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
     const ratingAsDropdownText = ratingAsDropdown.find("input");
     await initSurvey(framework, jsonWithDropDown);
@@ -2887,7 +2887,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    const ratingAsDropdownPlaceHolder = "Tap to rate here...";
+    const ratingAsDropdownPlaceHolder = "Select...";
     const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
     const ratingAsDropdownText = ratingAsDropdown.find("input");
     await initSurvey(framework, jsonWithDropDown);

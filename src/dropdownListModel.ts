@@ -17,6 +17,7 @@ export class DropdownListModel extends Base {
 
   private _markdownMode = false;
   private _popupModel: PopupModel;
+  focused: boolean;
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
   }
@@ -260,7 +261,7 @@ export class DropdownListModel extends Base {
   public set inputStringRendered(val: string) {
     this.inputString = val;
     this.filterString = val;
-    this.applyHintString(this.listModel.focusedItem);
+    this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
   }
 
   public get placeholderRendered() {
@@ -380,11 +381,18 @@ export class DropdownListModel extends Base {
 
   changeSelectionWithKeyboard(reverse: boolean): void {
     let focusedItem = this.listModel.focusedItem;
-    if (reverse) {
-      this.listModel.focusPrevVisibleItem();
+    if (!focusedItem && this.question.selectedItem) {
+      if (ItemValue.getItemByValue(this.question.choices, this.question.value)) {
+        this.listModel.focusedItem = this.question.selectedItem;
+      }
     }
     else {
-      this.listModel.focusNextVisibleItem();
+      if (reverse) {
+        this.listModel.focusPrevVisibleItem();
+      }
+      else {
+        this.listModel.focusNextVisibleItem();
+      }
     }
 
     this.beforeScrollToFocusedItem(focusedItem);
@@ -476,12 +484,10 @@ export class DropdownListModel extends Base {
     }
   }
   onBlur(event: any): void {
+    this.focused = false;
     if (this.popupModel.isVisible && IsTouch) {
       this._popupModel.isVisible = true;
       return;
-    }
-    if (this.popupModel.isVisible && !!this.filterString) {
-      this.listModel.selectFocusedItem();
     }
     this.resetFilterString();
     this.inputString = null;
@@ -491,10 +497,12 @@ export class DropdownListModel extends Base {
     event.stopPropagation();
   }
   onFocus(event: any): void {
+    this.focused = true;
     this.setInputStringFromSelectedItem(this.question.selectedItem);
   }
 
   public setInputStringFromSelectedItem(newValue: any): void {
+    if (!this.focused) return;
     if (this.question.searchEnabled && !!newValue) {
       this.applyInputString(newValue);
     } else {

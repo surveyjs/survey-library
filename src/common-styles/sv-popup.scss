@@ -102,10 +102,6 @@ sv-popup {
     width: 100%;
   }
 
-  .sv-popup__body-footer .sv-action {
-    flex: 1 0 auto;
-  }
-
   .sv-popup__body-footer-item {
     width: 100%;
   }
@@ -114,6 +110,11 @@ sv-popup {
     background-color: $primary;
     border: 2px solid $primary;
     color: $primary-foreground;
+  }
+}
+.sv-popup--overlay.sv-popup--overlay:not(.sv-popup--tablet) {
+  .sv-popup__body-footer .sv-action {
+    flex: 1 0 0;
   }
 }
 

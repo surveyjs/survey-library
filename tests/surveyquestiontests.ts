@@ -6313,6 +6313,27 @@ QUnit.test("multipletext placeholder localization", function (assert) {
   assert.equal(editor.placeholder, "placeholder default", "default locale, #2");
   assert.equal(editor.renderedPlaceholder, "placeholder default", "default locale");
 });
+QUnit.test("placeholder localization, question in run-time", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1"
+      }]
+  });
+  survey.locale = "de";
+  const q2 = new QuestionTextModel("q2");
+  q2.fromJSON({
+    "name": "q2",
+    "placeholder": {
+      "de": "placeholder de",
+      "default": "placeholder default"
+    }
+  });
+  survey.pages[0].addQuestion(q2);
+  assert.equal(q2.placeholder, "placeholder de", "placeholder is correct");
+  assert.equal(q2.renderedPlaceholder, "placeholder de", "renderedPlaceholder is correct");
+});
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({
     questions: [

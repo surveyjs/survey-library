@@ -89,6 +89,8 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`;
 
   const questionTagbox = Selector(".sv_q_input.sv_q_tagbox");
+  const questionValueInput = Selector(".sv_q_tagbox__value input");
+  const questionHint = Selector(".sv_q_tagbox__hint");
   const deleteItemButton = Selector(".sv_q_tagbox-item_clean-button");
   const selectedItems = Selector(".sv-tagbox__item");
   const popupContainer = Selector(".sv-popup__container").filterVisible();
@@ -286,11 +288,14 @@ frameworks.forEach((framework) => {
 
       .pressKey("1")
       .pressKey("4")
+      .expect(questionHint.innerText).eql("item")
+      .expect(questionValueInput.value).eql("14")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
-      .expect(selectedItems.count).eql(2)
-      .expect(selectedItems.nth(0).textContent).contains("item23")
-      .expect(selectedItems.nth(1).textContent).contains("item14");
+      .expect(questionHint.innerText).eql("")
+      .expect(questionValueInput.value).eql("")
+      .expect(selectedItems.count).eql(1)
+      .expect(selectedItems.nth(0).textContent).contains("item23");
   });
 
   test("Check tagbox key press", async (t) => {
@@ -369,11 +374,15 @@ frameworks.forEach((framework) => {
 
       .pressKey("1")
       .pressKey("4")
+      .expect(questionHint.innerText).eql("item")
+      .expect(questionValueInput.value).eql("14")
+
       .pressKey("tab")
+      .expect(questionHint.innerText).eql("")
+      .expect(questionValueInput.value).eql("")
       .expect(popupContainer.visible).notOk()
-      .expect(selectedItems.count).eql(2)
-      .expect(selectedItems.nth(0).textContent).contains("item23")
-      .expect(selectedItems.nth(1).textContent).contains("item14");
+      .expect(selectedItems.count).eql(1)
+      .expect(selectedItems.nth(0).textContent).contains("item23");
   });
 
   test("Check tagbox key press. CloseOnSelect is default", async (t) => {

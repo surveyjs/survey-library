@@ -128,9 +128,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         marginLeft,
         marginRight
       );
+      this.pointerTarget.top += "px";
+      this.pointerTarget.left += "px";
     }
-    this.pointerTarget.top += "px";
-    this.pointerTarget.left += "px";
   }
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {

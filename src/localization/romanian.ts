@@ -21,7 +21,7 @@ export var romanianSurveyStrings: any = {
   completingSurveyBefore: "Din înregistrările noastre reiese că ați completat deja acest chestionar.",
   loadingSurvey: "Chestionarul se încarcă...",
   placeholder: "Alegeţi...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "valoare",
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
   requiredErrorInPanel: "Vă rugăm să răspundeți la cel puțin o întrebare.",

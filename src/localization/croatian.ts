@@ -21,7 +21,7 @@ export var croatianStrings = {
   completingSurveyBefore: "Naši zapisi pokazuju da ste već završili ovu anketu.",
   loadingSurvey: "Anketa o učitavanje...",
   placeholder: "Odaberite...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "vrijednost",
   requiredError: "Molim vas odgovorite na pitanje.",
   requiredErrorInPanel: "Molim vas odgovorite na barem jedno pitanje.",

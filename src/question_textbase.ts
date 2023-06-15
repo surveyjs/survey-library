@@ -4,6 +4,7 @@ import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { Base } from "./base";
+import { ISurveyImpl } from "./base-interfaces";
 
 export class CharacterCounter extends Base {
   @property() remainingCharacterCounter: string;
@@ -95,6 +96,10 @@ export class QuestionTextBase extends Question {
   }
   public localeChanged() {
     super.localeChanged();
+    this.calcRenderedPlaceholder();
+  }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    super.setSurveyImpl(value, isLight);
     this.calcRenderedPlaceholder();
   }
   protected calcRenderedPlaceholder() {

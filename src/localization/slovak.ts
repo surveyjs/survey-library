@@ -21,7 +21,7 @@ export var slovakSurveyStrings = {
   completingSurveyBefore: "Podľa našich záznamov ste už tento prieskum dokončili.",
   loadingSurvey: "Načítanie prieskumu...",
   placeholder: "Vybrať...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "hodnota",
   requiredError: "Požaduje sa odozva.",
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",

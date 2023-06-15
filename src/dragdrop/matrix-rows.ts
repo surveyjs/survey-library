@@ -6,7 +6,10 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return "matrix-row";
   }
 
+  protected restoreUserSelectValue: string;
+
   protected onStartDrag(): void {
+    this.restoreUserSelectValue = document.body.style.userSelect;
     document.body.style.userSelect = "none";
   }
 
@@ -170,7 +173,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
-    document.body.style.userSelect = "initial";
+    document.body.style.userSelect = this.restoreUserSelectValue || "initial";
     super.clear();
   }
 }

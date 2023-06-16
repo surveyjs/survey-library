@@ -1,4 +1,4 @@
-import { property } from "./jsonobject";
+import { JsonObjectProperty, Serializer, property } from "./jsonobject";
 import { RendererFactory } from "./rendererFactory";
 import { Base } from "./base";
 import { Action, IAction } from "./actions/action";
@@ -61,11 +61,16 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
    */
   @property({
     localizable: true, onSet: (newDescription, self) => {
-      self.updateDescriptionVisibility(self, newDescription);
+      self.updateDescriptionVisibility(newDescription);
     }
   }) description: string;
   public updateDescriptionVisibility(newDescription: any) {
-    this.hasDescription = !!newDescription;
+    let showPlaceholder = false;
+    if(this.isDesignMode) {
+      const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
+      showPlaceholder = !!(property?.placeholder);
+    }
+    this.hasDescription = !!newDescription || showPlaceholder;
   }
 
   get locDescription(): LocalizableString {
@@ -424,7 +429,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return super.canRunConditions() && !!this.data;
   }
   public getDataFilteredValues(): any {
-    return !!this.data ? this.data.getFilteredValues() : null;
+    return !!this.data ? this.data.getFilteredValues() : {};
   }
   public getDataFilteredProperties(): any {
     var props = !!this.data ? this.data.getFilteredProperties() : {};
@@ -529,6 +534,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * - [`onUpdateChoiceItemCss`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onUpdateChoiceItemCss)
    */
   public get cssClasses(): any {
+    const _dummy = this.cssClassesValue;
     if (!this.survey) return this.calcCssClasses(this.css);
     this.ensureCssClassesValue();
     return this.cssClassesValue;
@@ -628,6 +634,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     if (!this.survey) {
       this.onSurveyLoad();
     }
+    this.updateDescriptionVisibility(this.description);
   }
   public setVisibleIndex(index: number): number {
     return 0;
@@ -909,9 +916,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   set paddingRight(val: string) {
     this.setPropertyValue("paddingRight", val);
-  }
-  public get isDescriptionVisible(): boolean {
-    return (!!this.description || this.isDesignMode);
   }
 
   @property({ defaultValue: true }) allowRootStyle: boolean;

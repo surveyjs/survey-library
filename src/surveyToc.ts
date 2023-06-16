@@ -1,11 +1,13 @@
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ListModel } from "./list";
+import { PageModel } from "./page";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 
-export function tryNavigateToPage (survey: SurveyModel, index: number) {
+export function tryNavigateToPage (survey: SurveyModel, page: PageModel) {
   if (survey.isDesignMode) return;
+  const index = survey.visiblePages.indexOf(page);
   if (index < survey.currentPageNo) {
     survey.currentPageNo = index;
   }
@@ -18,7 +20,7 @@ export function tryNavigateToPage (survey: SurveyModel, index: number) {
 }
 
 export function createTOCListModel(survey: SurveyModel) {
-  var items = survey.pages.map((page, index) => {
+  var items = survey.pages.map(page => {
     return new Action({
       id: page.name,
       title: page.navigationTitle || page.title || page.name,
@@ -26,7 +28,7 @@ export function createTOCListModel(survey: SurveyModel) {
         if(typeof document !== undefined && !!document.activeElement) {
           !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
         }
-        return tryNavigateToPage(survey, index);
+        return tryNavigateToPage(survey, page);
       },
       visible: <any>new ComputedUpdater(() => page.isVisible && !page.isStartPage)
     });

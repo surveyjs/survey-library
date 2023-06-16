@@ -21,7 +21,7 @@ export var bulgarianStrings = {
   completingSurveyBefore: "Изглежда, че вие вече сте попълнили анкетата.",
   loadingSurvey: "Зареждане на анкетата...",
   placeholder: "Изберете...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "value",
   requiredError: "Моля, отговорете на следния въпрос.",
   requiredErrorInPanel: "Моля, отговорете поне на един от въпросите.",

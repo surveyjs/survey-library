@@ -842,7 +842,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   /**
-   * Sets focus on the input of the first question in this panel/page.
+   * Focuses the first question in this panel/page.
+   * @see focusFirstErrorQuestion
    */
   public focusFirstQuestion() {
     var q = this.getFirstQuestionToFocus();
@@ -851,8 +852,9 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Sets focus on the input of the first question in this panel/page that has an error.
+   * Focuses the first question with a validation error in this panel/page.
    * @see validate
+   * @see focusFirstQuestion
    */
   public focusFirstErrorQuestion() {
     var q = this.getFirstQuestionToFocus(true);

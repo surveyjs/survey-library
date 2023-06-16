@@ -515,10 +515,14 @@ static unaryFunctions: HashTable<Function> = {
     },
     greater: function(left: any, right: any): boolean {
       if (left == null || right == null) return false;
+      left = OperandMaker.convertValForDateCompare(left, right);
+      right = OperandMaker.convertValForDateCompare(right, left);
       return left > right;
     },
     less: function(left: any, right: any): boolean {
       if (left == null || right == null) return false;
+      left = OperandMaker.convertValForDateCompare(left, right);
+      right = OperandMaker.convertValForDateCompare(right, left);
       return left < right;
     },
     greaterorequal: function(left: any, right: any): boolean {
@@ -530,6 +534,8 @@ static unaryFunctions: HashTable<Function> = {
       return OperandMaker.binaryFunctions.less(left, right);
     },
     equal: function(left: any, right: any): boolean {
+      left = OperandMaker.convertValForDateCompare(left, right);
+      right = OperandMaker.convertValForDateCompare(right, left);
       return OperandMaker.isTwoValueEquals(left, right);
     },
     notequal: function(left: any, right: any): boolean {
@@ -608,7 +614,14 @@ static unaryFunctions: HashTable<Function> = {
     let opStr = OperandMaker.signs[operatorName];
     return opStr == null ? operatorName : opStr;
   }
-
+  static convertValForDateCompare(val: any, second: any): any {
+    if(second instanceof Date && typeof val === "string") {
+      let res = new Date(val);
+      res.setHours(0, 0, 0);
+      return res;
+    }
+    return val;
+  }
   static signs: HashTable<string> = {
     less: "<",
     lessorequal: "<=",

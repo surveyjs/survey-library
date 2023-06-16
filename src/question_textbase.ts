@@ -4,6 +4,7 @@ import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { Base } from "./base";
+import { ISurveyImpl } from "./base-interfaces";
 
 export class CharacterCounter extends Base {
   @property() remainingCharacterCounter: string;
@@ -97,6 +98,10 @@ export class QuestionTextBase extends Question {
     super.localeChanged();
     this.calcRenderedPlaceholder();
   }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    super.setSurveyImpl(value, isLight);
+    this.calcRenderedPlaceholder();
+  }
   protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
     if(!!res && !this.hasPlaceHolder()) {
@@ -153,14 +158,14 @@ export class QuestionTextBase extends Question {
     return this.errors.length > 0 ? "true" : "false";
   }
   public get a11y_input_ariaLabel(): string {
-    if (this.hasTitle) {
+    if (this.hasTitle && !this.parentQuestion) {
       return null;
     } else {
       return this.locTitle.renderedHtml;
     }
   }
   public get a11y_input_ariaLabelledBy(): string {
-    if (this.hasTitle) {
+    if (this.hasTitle && !this.parentQuestion) {
       return this.ariaTitleId;
     } else {
       return null;

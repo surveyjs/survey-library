@@ -8,6 +8,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { IAction } from "../src/actions/action";
+import { surveyLocalization } from "../src/surveyStrings";
 
 export default QUnit.module("baseselect");
 
@@ -942,4 +943,46 @@ QUnit.test("selectbase, otherValue&question-Comment", (assert) => {
   survey.clearIncorrectValues();
   assert.equal(q1.value, "no value", "question value is correct");
   assert.deepEqual(survey.data, { q1: "no value" }, "survey.data is correct");
+});
+QUnit.test("SelectBase visibleChoices order", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "dropdown", name: "q1", choicesOrder: "asc", choices: ["B", "A", "D", "C"] }
+  ] });
+  const question = <QuestionSelectBase>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 4, "There are 4 items");
+  assert.equal(question.visibleChoices[0].value, "B", "the first item");
+  assert.equal(question.visibleChoices[3].value, "C", "the last item");
+});
+QUnit.test("Check isUsingCarryForward on changing question name", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "dropdown", name: "q1", choices: ["B", "A", "D", "C"] },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, target: any, arrayChanges: any) => {
+    if(target === q1 && name === "name") {
+      q2.choicesFromQuestion = newValue;
+    }
+  };
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set, #1");
+  q1.name = "q111";
+  assert.equal(q2.choicesFromQuestion, "q111", "property is updated with new question name");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set, #2");
+});
+QUnit.test("Carry Forward and localization, bug#6352", function (assert) {
+  surveyLocalization.defaultLocale = "de";
+  const survey = new SurveyModel({ locale: "en", elements: [
+    { type: "dropdown", name: "q1", choices: [{ value: "A", text: { default: "A de", en: "A en" } }] },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.visibleChoices.length, 1);
+  assert.deepEqual(q2.visibleChoices[0].locText.getJson(), { default: "A de", en: "A en" });
+  assert.equal(q2.visibleChoices[0].text, "A en");
+  surveyLocalization.defaultLocale = "en";
 });

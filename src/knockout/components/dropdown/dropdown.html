@@ -1,4 +1,4 @@
-<div data-bind="css: question.koCss().selectWrapper">
+<div data-bind="css: question.cssClasses.selectWrapper">
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.getControlClass(),
     click: click, 
@@ -18,13 +18,13 @@
       'aria-activedescendant': model.ariaActivedescendant,
     },">
     <!-- ko if: model.showHintPrefix -->
-    <div data-bind="css: question.koCss().hintPrefix">
+    <div data-bind="css: question.cssClasses.hintPrefix">
       <span data-bind="text: model.hintStringPrefix"></span>
     </div>
     <!-- /ko -->
-    <div data-bind="css: question.koCss().controlValue">
+    <div data-bind="css: question.cssClasses.controlValue">
       <!-- ko if: model.showHintString -->
-      <div data-bind="css: question.koCss().hintSuffix">
+      <div data-bind="css: question.cssClasses.hintSuffix">
       <span style="visibility: hidden" data-bind="text: model.inputStringRendered"></span>
       <span data-bind="text: model.hintStringSuffix"></span>
       </div>
@@ -56,7 +56,7 @@
       event: { blur: blur, focus: focus }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
-    <div data-bind="css: question.koCss().cleanButton, click: clear, visible: !question.isEmpty() ">
+    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: !question.isEmpty() ">
       <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.clearCaption } } -->
       <!-- /ko -->
     </div>

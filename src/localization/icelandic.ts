@@ -21,7 +21,7 @@ export var icelandicSurveyStrings = {
   completingSurveyBefore: "Skrár okkar sýna að þú hefur þegar lokið þessari könnun.",
   loadingSurvey: "Könnunin er að hlaða...",
   placeholder: "Veldu...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "gildi",
   requiredError: "Vinsamlegast svarið spurningunni.",
   requiredErrorInPanel: "Vinsamlegast svaraðu að minnsta kosti einni spurningu.",

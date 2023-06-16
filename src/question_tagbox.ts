@@ -147,12 +147,18 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     if(!val) return false;
     return super.hasUnknownValue(val, true, false);
   }
-
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
     if (this.popupModel) {
       this.dropdownListModel.updateItems();
+    }
+  }
+  protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
+    if(this.choicesLazyLoadEnabled && !this.dropdownListModel?.isAllDataLoaded) {
+      return this.createItemValue(value, text);
+    } else {
+      return super.getItemIfChoicesNotContainThisValue(value, text);
     }
   }
   protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
@@ -168,7 +174,10 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
 
     const itemValueValues = itemValues.map(iV => iV.value);
     val.filter(item => { return itemValueValues.indexOf(item) === -1; }).forEach(item => {
-      itemValues.push(new ItemValue(item, this.itemDisplayNameMap[item]));
+      const newItem = this.getItemIfChoicesNotContainThisValue(item, this.itemDisplayNameMap[item]);
+      if(newItem) {
+        itemValues.push(newItem);
+      }
     });
     itemValues.sort((a, b) => { return val.indexOf(a.value) - val.indexOf(b.value); });
     return itemValues;

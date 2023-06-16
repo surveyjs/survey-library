@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-matrix">
-  <div data-bind="css: question.koCss().tableWrapper">
+  <div data-bind="css: question.cssClasses.tableWrapper">
     <fieldset>
       <legend
         data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
@@ -12,7 +12,7 @@
             <td data-bind="visible: question.hasRows"></td>
             <!-- /ko -->
             <!-- ko foreach: question.koVisibleColumns -->
-            <th data-bind="css: question.koCss().headerCell, style: { minWidth: question.columnMinWidth, width: question.columnMinWidth }">
+            <th data-bind="css: question.cssClasses.headerCell, style: { minWidth: question.columnMinWidth, width: question.columnMinWidth }">
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
               <!-- /ko -->
@@ -25,7 +25,7 @@
           <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
           <tr data-bind="css: row.rowClasses">
             <td
-              data-bind="visible: question.hasRows, css: question.koCss().rowTextCell, style: {  minWidth: question.rowTitleWidth, width: question.rowTitleWidth }"
+              data-bind="visible: question.hasRows, css: question.cssClasses.rowTextCell, style: {  minWidth: question.rowTitleWidth, width: question.rowTitleWidth }"
             >
               <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: row.locText } -->
@@ -43,21 +43,21 @@
             <!-- /ko -->
             <!-- ko if: !question.hasCellText -->
             <td
-              data-bind="attr: { 'data-responsive-title': $data.locText.renderedHtml }, css: question.koCss().cell"
+              data-bind="attr: { 'data-responsive-title': $data.locText.renderedHtml }, css: question.cssClasses.cell"
             >
               <label data-bind="css: question.getItemClass(row, $data)">
                 <input
                   type="radio"
-                  data-bind="css: question.koCss().itemValue, attr: { name: row.fullName, 'aria-required': question.ariaRequired, 'aria-label': $data.locText.renderedHtml, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"
+                  data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.ariaRequired, 'aria-label': $data.locText.renderedHtml, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"
                 />
-                <span data-bind="css: question.koCss().materialDecorator">
+                <span data-bind="css: question.cssClasses.materialDecorator">
                     <!-- ko if: question.itemSvgIcon -->
-                      <svg data-bind="css:question.koCss().itemDecorator">
+                      <svg data-bind="css:question.cssClasses.itemDecorator">
                         <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
                       </svg>  
                     <!-- /ko -->
                 </span>
-                <span data-bind="visible: question.isMobile, css: question.koCss().cellResponsiveTitle">
+                <span data-bind="visible: question.isMobile, css: question.cssClasses.cellResponsiveTitle">
                   <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
                 </span>
               </label>

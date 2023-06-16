@@ -178,7 +178,7 @@
     justify-content: center;
 }
 
-.sv-action + .sv-action:not(.sv-action--hidden) {
+.sv-action ~ .sv-action:not(.sv-action--hidden) {
     .sd-tab-item {
         margin-left: calcSize(4);
     }

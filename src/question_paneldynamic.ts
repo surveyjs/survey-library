@@ -23,7 +23,7 @@ import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { confirmAction } from "./utils/utils";
+import { confirmAction, mergeValues } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
@@ -2042,12 +2042,15 @@ export class QuestionPanelDynamicModel extends Question
     if (!!panel && panel.needResponsiveWidth()) return true;
     return false;
   }
-  private additionalTitleToolbarValue: ActionContainer;
-  protected getAdditionalTitleToolbar() : ActionContainer | null {
+  private additionalTitleToolbarValue: AdaptiveActionContainer;
+  protected getAdditionalTitleToolbar() : AdaptiveActionContainer | null {
     if(!this.isRenderModeTab) return null;
 
     if (!this.additionalTitleToolbarValue) {
       this.additionalTitleToolbarValue = new AdaptiveActionContainer();
+      this.additionalTitleToolbarValue.dotsItem.popupModel.showPointer = false;
+      this.additionalTitleToolbarValue.dotsItem.popupModel.verticalPosition = "bottom";
+      this.additionalTitleToolbarValue.dotsItem.popupModel.horizontalPosition = "center";
       this.additionalTitleToolbarValue.containerCss = this.getAdditionalTitleToolbarCss();
       this.additionalTitleToolbarValue.cssClasses = {
         item: "sv-tab-item",
@@ -2139,11 +2142,13 @@ export class QuestionPanelDynamicModel extends Question
 
     const locTitle = new LocalizableString(panel, true);
     locTitle.sharedData = this.locTemplateTabTitle;
+    const isActive = this.getPanelIndexById(panel.id) === this.currentIndex;
     const newItem = new Action({
       id: panel.id,
       css: "sv-tab-item__root",
-      pressed: this.getPanelIndexById(panel.id) === this.currentIndex,
+      pressed: isActive,
       locTitle: locTitle,
+      disableHide: isActive,
       action: () => {
         this.currentIndex = this.getPanelIndexById(newItem.id);
         this.updateTabToolbarItemsPressedState();
@@ -2163,7 +2168,15 @@ export class QuestionPanelDynamicModel extends Question
     if(!this.isRenderModeTab) return;
     if(this.currentIndex < 0 || this.currentIndex >= this.visiblePanelCount) return;
     const panel = this.visiblePanels[this.currentIndex];
-    this.additionalTitleToolbar.renderedActions.forEach(action => action.pressed = action.id === panel.id);
+    this.additionalTitleToolbar.renderedActions.forEach(action => {
+      const isActive = action.id === panel.id;
+      action.pressed = isActive;
+      action.disableHide = isActive;
+      //should raise update if dimensions are not changed but action is active now
+      if(action.mode === "popup" && action.disableHide) {
+        action["raiseUpdate"]();
+      }
+    });
   }
   private updateTabToolbar() {
     if(!this.isRenderModeTab) return;
@@ -2194,6 +2207,15 @@ export class QuestionPanelDynamicModel extends Question
   }
   showSeparator(index: number): boolean {
     return this.isRenderModeList && index < this.visiblePanelCount - 1;
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    const additionalTitleToolbar = <AdaptiveActionContainer>this.additionalTitleToolbar;
+    if(!!additionalTitleToolbar) {
+      additionalTitleToolbar.dotsItem.cssClasses = css.actionBar;
+      additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
+    }
+    return classes;
   }
 }
 

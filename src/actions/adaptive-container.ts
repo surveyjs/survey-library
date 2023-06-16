@@ -5,7 +5,7 @@ import { ActionContainer } from "./container";
 import { surveyLocalization } from "../surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
-  protected dotsItem: Action;
+  public dotsItem: Action;
   private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
   public isResponsivenessDisabled = false;

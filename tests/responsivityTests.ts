@@ -1,6 +1,7 @@
 import { Action } from "../src/actions/action";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
+import { LocalizableString } from "../src/localizablestring";
 import { ResponsivityManager, VerticalResponsivityManager } from "../src/utils/responsivity-manager";
 
 export default QUnit.module("ResponsivityManager");
@@ -453,4 +454,22 @@ QUnit.test("check disableHide property", function (assert) {
   assert.ok(item1.isVisible);
   assert.ok(item2.isVisible);
   assert.ok(item3.isVisible);
+});
+
+QUnit.test("check title change calls raise update", function (assert) {
+  const itemSmallWidth = 48;
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  let log = "";
+  model.updateCallback = (isResetInitialized: boolean) => {
+    log += `->called: ${isResetInitialized}`;
+  };
+  const item1 = new Action(<any>{});
+  item1.minDimension = itemSmallWidth;
+  item1.maxDimension = itemSmallWidth;
+  model.actions.push(item1);
+  assert.equal(log, "->called: true", "called from push");
+  item1.title = "Test";
+  assert.equal(log, "->called: true->called: true", "called from title change");
+  item1.title = "Test";
+  assert.equal(log, "->called: true->called: true");
 });

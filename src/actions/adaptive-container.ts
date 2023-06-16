@@ -87,12 +87,12 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   protected onSet() {
-    this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));
+    this.actions.forEach(action => action.updateCallback = (isResetInitialized: boolean) => this.raiseUpdate(isResetInitialized));
     super.onSet();
   }
 
   protected onPush(item: T) {
-    item.updateCallback = () => this.raiseUpdate(false);
+    item.updateCallback = (isResetInitialized: boolean) => this.raiseUpdate(isResetInitialized);
     super.onPush(item);
   }
 

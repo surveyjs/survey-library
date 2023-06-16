@@ -2142,7 +2142,6 @@ export class QuestionPanelDynamicModel extends Question
       disableHide: isActive,
       action: () => {
         this.currentIndex = this.getPanelIndexById(newItem.id);
-        this.updateTabToolbarItemsPressedState();
       }
     });
     return newItem;

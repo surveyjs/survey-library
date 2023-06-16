@@ -2045,20 +2045,12 @@ export class QuestionPanelDynamicModel extends Question
   private additionalTitleToolbarValue: AdaptiveActionContainer;
   protected getAdditionalTitleToolbar() : AdaptiveActionContainer | null {
     if(!this.isRenderModeTab) return null;
-
     if (!this.additionalTitleToolbarValue) {
       this.additionalTitleToolbarValue = new AdaptiveActionContainer();
       this.additionalTitleToolbarValue.dotsItem.popupModel.showPointer = false;
       this.additionalTitleToolbarValue.dotsItem.popupModel.verticalPosition = "bottom";
       this.additionalTitleToolbarValue.dotsItem.popupModel.horizontalPosition = "center";
-      this.additionalTitleToolbarValue.containerCss = this.getAdditionalTitleToolbarCss();
-      this.additionalTitleToolbarValue.cssClasses = {
-        item: "sv-tab-item",
-        itemPressed: "sv-tab-item--pressed",
-        itemAsIcon: "sv-tab-item--icon",
-        itemIcon: "sv-tab-item__icon",
-        itemTitle: "sv-tab-item__title"
-      };
+      this.updateElementCss(false);
     }
     return this.additionalTitleToolbarValue;
   }
@@ -2145,7 +2137,6 @@ export class QuestionPanelDynamicModel extends Question
     const isActive = this.getPanelIndexById(panel.id) === this.currentIndex;
     const newItem = new Action({
       id: panel.id,
-      css: "sv-tab-item__root",
       pressed: isActive,
       locTitle: locTitle,
       disableHide: isActive,
@@ -2156,12 +2147,13 @@ export class QuestionPanelDynamicModel extends Question
     });
     return newItem;
   }
-  private getAdditionalTitleToolbarCss(): string {
+  private getAdditionalTitleToolbarCss(cssClasses?: any): string {
+    const css = cssClasses ?? this.cssClasses;
     return new CssClassBuilder()
-      .append("sv-tabs-toolbar")
-      .append("sv-tabs-toolbar--left", this.tabAlign === "left")
-      .append("sv-tabs-toolbar--right", this.tabAlign === "right")
-      .append("sv-tabs-toolbar--center", this.tabAlign === "center")
+      .append(css.tabsRoot)
+      .append(css.tabsLeft, this.tabAlign === "left")
+      .append(css.tabsRight, this.tabAlign === "right")
+      .append(css.tabsCenter, this.tabAlign === "center")
       .toString();
   }
   private updateTabToolbarItemsPressedState() {
@@ -2212,7 +2204,9 @@ export class QuestionPanelDynamicModel extends Question
     const classes = super.calcCssClasses(css);
     const additionalTitleToolbar = <AdaptiveActionContainer>this.additionalTitleToolbar;
     if(!!additionalTitleToolbar) {
-      additionalTitleToolbar.dotsItem.cssClasses = css.actionBar;
+      additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss(classes);
+      additionalTitleToolbar.cssClasses = classes.tabs;
+      additionalTitleToolbar.dotsItem.cssClasses = classes.tabs;
       additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
     }
     return classes;

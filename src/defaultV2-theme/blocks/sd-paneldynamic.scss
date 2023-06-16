@@ -159,36 +159,32 @@
     }
 }
 
-.sv-tabs-toolbar.sv-action-bar {
+.sd-tabs-toolbar.sv-action-bar {
     align-items: start;
-    margin-top: 8px;
+    margin-top: calcSize(1);
     margin-bottom: -1px;
     z-index: 1;
 }
 
-.sv-tabs-toolbar.sv-tabs-toolbar--left {
+.sd-tabs-toolbar.sd-tabs-toolbar--left {
     justify-content: flex-start;
 }
 
-.sv-tabs-toolbar.sv-tabs-toolbar--right {
+.sd-tabs-toolbar.sd-tabs-toolbar--right {
     justify-content: flex-end;
 }
 
-.sv-tabs-toolbar.sv-tabs-toolbar--center {
+.sd-tabs-toolbar.sd-tabs-toolbar--center {
     justify-content: center;
 }
 
-.sv-tab-item__root {
-    display: flex;
-}
-
 .sv-action + .sv-action:not(.sv-action--hidden) {
-    .sv-tab-item {
+    .sd-tab-item {
         margin-left: calcSize(4);
     }
 }
 
-.sv-tab-item {
+.sd-tab-item {
     padding: calcSize(1) 0 calcSize(2);
     display: flex;
     -webkit-appearance: none;
@@ -211,61 +207,50 @@
     }
 }
 
-.sv-tabs-toolbar .sv-dots {
-    width: 72px;
-    min-width: 72px;
-
-    .sd-action {
-        width: auto;
-
-        use {
-            opacity: 0.5;
-        }
-
-        &:not(.sd-action--pressed):hover,
-        &:not(.sd-action--pressed):focus {
-            background-color: $primary-light;
-
-            use {
-                opacity: 1;
-                fill: $primary;
-            }
-        }
-
-        &.sd-action--pressed {
-            background-color: $primary-light;
-            opacity: 1;
-
-            use {
-                fill: $primary;
-            }
-        }
-    }
-
-    .sv-action__content {
-        justify-content: end;
-    }
-
-    &.sv-action--hidden {
-        width: 0;
-        min-width: 0;
-    }
-}
-
-.sv-tab-item.sv-tab-item--pressed {
+.sd-tab-item.sd-tab-item--pressed {
     color: $foreground;
     box-shadow: inset 0px -2px 0px $primary;
 }
 
-.sv-tab-item__title {
+.sd-tab-item--icon {
+    padding: calcSize(1);
+    width: auto;
+    border-radius: calcSize(12.5);
+    use {
+        fill: $foreground-light;
+        opacity: 0.5;
+    }
+}
+.sd-tab-item--icon:hover,
+.sd-tab-item--icon.sd-tab-item--pressed {
+    background-color: $primary-light;
+    box-shadow: none;
+    use {
+        fill: $primary;
+    }
+}
+.sd-tab-item--icon:hover {
+    use {
+        opacity: 1;
+    }
+}
+
+.sd-tabs-toolbar .sv-dots {
+    width: auto;
+}
+.sd-tabs-toolbar .sv-dots.sv-action--hidden {
+    width: 0;
+}
+
+.sd-tab-item__title {
     line-height: calcSize(3);
     height: calcSize(3);
     display: flex;
     align-items: center;
 }
 
-.sd-question__title ~ .sv-tabs-toolbar {
-    margin-top: 24px;
+.sd-question__title ~ .sd-tabs-toolbar {
+    margin-top: calcSize(3);
 }
 
 .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab {

@@ -271,7 +271,7 @@ frameworks.forEach(framework => {
         document.body.focus();
       })();
       await takeElementScreenshot("paneldynamic-tabs-with-title", Selector(".sd-question--paneldynamic"), t, comparer);
-      await t.hover(Selector(".sv-tab-item").withText("Panel 2"));
+      await t.hover(Selector(".sd-tab-item").withText("Panel 2"));
       await takeElementScreenshot("paneldynamic-tabs-hover-tab", Selector(".sd-question--paneldynamic"), t, comparer);
       await ClientFunction(() => {
         (<any>window).survey.getQuestionByName("relatives").titleLocation = "hidden";

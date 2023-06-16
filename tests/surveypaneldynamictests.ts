@@ -5329,13 +5329,13 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
   const panelTabToolbar = panel.additionalTitleToolbar;
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--left", "tabAlign value is left");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--left", "tabAlign value is left");
 
   panel.tabAlign = "right";
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--right", "tabAlign value is right");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--right", "tabAlign value is right");
 
   panel.tabAlign = "center";
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--center", "tabAlign default value is center");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--center", "tabAlign default value is center");
 });
 
 QUnit.test("renderMode: tab check disableHide property", function (assert) {

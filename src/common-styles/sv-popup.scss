@@ -112,7 +112,7 @@ sv-popup {
     color: $primary-foreground;
   }
 }
-.sv-popup--overlay.sv-popup--overlay:not(.sv-popup--tablet) {
+.sv-popup--overlay.sv-popup--overlay:not(.sv-dropdown-popup) {
   .sv-popup__body-footer .sv-action {
     flex: 1 0 0;
   }

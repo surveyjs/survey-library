@@ -89,14 +89,17 @@ export class QuestionSignaturePadModel extends Question {
 
     signaturePad.penColor = this.penColor;
     signaturePad.backgroundColor = this.backgroundColor;
-    signaturePad.onBegin = () => {
+
+    signaturePad.addEventListener("beginStroke", () => {
       this.isDrawingValue = true;
       canvas.focus();
-    };
-    signaturePad.onEnd = () => {
+    }, { once: true });
+
+    signaturePad.addEventListener("endStroke", () => {
       this.isDrawingValue = false;
       this.updateValue();
-    };
+    }, { once: true });
+
     var updateValueHandler = () => {
       var data = this.value;
       canvas.width = this.signatureWidth || defaultWidth;

@@ -14,7 +14,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
   protected renderElement(): JSX.Element {
 
-    if (!this.question.selectToRank) {
+    if (!this.question.selectToRankEnabled) {
       return (
         <div
           className={this.question.rootClass}

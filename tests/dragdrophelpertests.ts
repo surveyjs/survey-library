@@ -244,10 +244,10 @@ QUnit.test("createImagePickerShortcut", function (assert) {
   assert.equal(result2.querySelectorAll("img").length, 1);
 });
 
-// SelectToRank
+// selectToRankEnabled
 function createRankingQuestionModel(withDefaultValue = false) {
   const json = {
-    "selectToRank": true,
+    "selectToRankEnabled": true,
     "choices": [
       "11",
       "22",
@@ -264,11 +264,11 @@ function createRankingQuestionModel(withDefaultValue = false) {
   return model;
 }
 
-QUnit.test("DragDropRankingSelectToRank : selectToRank", function (assert) {
+QUnit.test("DragDropRankingSelectToRank : selectToRankEnabled", function (assert) {
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel();
 
-  dndModel.selectToRank(questionModel, 1, 0);
+  dndModel.selectToRankEnabled(questionModel, 1, 0);
   assert.equal(questionModel.unRankingChoices.length, 2, "unRankingChoices count");
   assert.equal(questionModel.rankingChoices.length, 1, "rankingChoices count");
 });
@@ -293,4 +293,4 @@ QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
   assert.equal(questionModel.rankingChoices[1].value, "33", "item 2 is correct");
   assert.equal(questionModel.rankingChoices.length, 2, "rankingChoices count");
 });
-// EO SelectToRank
+// EO selectToRankEnabled

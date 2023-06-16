@@ -316,8 +316,8 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
 
-// SelectToRank
-function createRankingQuestionModel(selectToRank = false, withDefaultValue = false) {
+// selectToRankEnabled
+function createRankingQuestionModel(selectToRankEnabled = false, withDefaultValue = false) {
   const json = {
     "choices": [
       "11",
@@ -326,8 +326,8 @@ function createRankingQuestionModel(selectToRank = false, withDefaultValue = fal
     ]
   };
 
-  if (selectToRank) {
-    json["selectToRank"] = true;
+  if (selectToRankEnabled) {
+    json["selectToRankEnabled"] = true;
   }
 
   if (withDefaultValue) {
@@ -339,18 +339,18 @@ function createRankingQuestionModel(selectToRank = false, withDefaultValue = fal
   return model;
 }
 
-QUnit.test("selectToRank : initial", function (assert) {
-  const selectToRank = true;
-  const questionModel = createRankingQuestionModel(selectToRank);
+QUnit.test("selectToRankEnabled : initial", function (assert) {
+  const selectToRankEnabled = true;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled);
   assert.equal(questionModel.unRankingChoices.length, 3, "unRankingChoices count");
   assert.equal(questionModel.rankingChoices.length, 0, "rankingChoices count");
 });
 
-QUnit.test("selectToRank : defaultValue", function (assert) {
-  const selectToRank = true;
+QUnit.test("selectToRankEnabled : defaultValue", function (assert) {
+  const selectToRankEnabled = true;
   const withDefaultValue = true;
-  const questionWithDefaultValueModel = createRankingQuestionModel(selectToRank, withDefaultValue);
+  const questionWithDefaultValueModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
   assert.equal(questionWithDefaultValueModel.unRankingChoices.length, 1, "unRankingChoices count");
   assert.equal(questionWithDefaultValueModel.rankingChoices.length, 2, "rankingChoices count");
 });
-// EO SelectToRank
+// EO selectToRankEnabled

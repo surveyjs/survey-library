@@ -43,9 +43,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
-      .append(this.cssClasses.rootSelectToRankMod, this.selectToRank)
-      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRank && this.selectToRankAlign === "horizontal")
-      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRank && this.selectToRankAlign === "vertical")
+      .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
+      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.selectToRankAreasLayout === "horizontal")
+      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.selectToRankAreasLayout === "vertical")
       .toString();
   }
 
@@ -103,7 +103,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public getItemIndexClasses(item: ItemValue) {
     let noNumber;
 
-    if (this.selectToRank) {
+    if (this.selectToRankEnabled) {
       noNumber = this.unRankingChoices.indexOf(item) !== -1;
     } else {
       noNumber = this.isEmpty();
@@ -147,7 +147,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       return;
     }
 
-    if (this.selectToRank) {
+    if (this.selectToRankEnabled) {
       this.updateRankingChoices();
       return;
     }
@@ -208,7 +208,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private updateRankingChoices(forceUpdate = false): ItemValue[] {
-    if (this.selectToRank) {
+    if (this.selectToRankEnabled) {
       this.updateRankingChoicesSelectToRankMode(forceUpdate);
       return;
     }
@@ -259,7 +259,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
 
-    if (this.selectToRank) {
+    if (this.selectToRankEnabled) {
       this.dragDropRankingChoices = new DragDropRankingSelectToRank(this.survey, null, this.longTap);
     } else {
       this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
@@ -308,7 +308,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       const key: any = event.key;
       let index = this.rankingChoices.indexOf(choice);
 
-      if (this.selectToRank) {
+      if (this.selectToRankEnabled) {
         this.handleKeydownSelectToRank(event, choice);
         return;
       }
@@ -371,7 +371,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (key === " " && isMovedElementUnRanked) {
       fromIndex = unRankingChoices.indexOf(movedElement);
       toIndex = 0;
-      dnd.selectToRank(this, fromIndex, toIndex);
+      dnd.selectToRankEnabled(this, fromIndex, toIndex);
       this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }
@@ -416,7 +416,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   private focusItem = (index: number, container?: string) => {
-    if (this.selectToRank && container) {
+    if (this.selectToRankEnabled && container) {
       const containerSelector = "[data-ranking='" + container + "']";
       const itemsNodes: any = this.domNode.querySelectorAll(
         containerSelector + " " + "." + this.cssClasses.item
@@ -470,15 +470,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    *
    * Default value: `false`
   */
-  public get selectToRank(): boolean {
-    return this.getPropertyValue("selectToRank", false);
+  public get selectToRankEnabled(): boolean {
+    return this.getPropertyValue("selectToRankEnabled", false);
   }
-  public set selectToRank(val: boolean) {
-    this.setPropertyValue("selectToRank", val);
+  public set selectToRankEnabled(val: boolean) {
+    this.setPropertyValue("selectToRankEnabled", val);
   }
 
   /**
-   * Set alignment for the selectToRank mode
+   * Set alignment for the selectToRankEnabled mode
    *
    * Possible values:
    *
@@ -487,11 +487,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    *
    * Default value: `horizontal`
   */
-  public get selectToRankAlign(): string {
-    return this.getPropertyValue("selectToRankAlign", "horizontal");
+  public get selectToRankAreasLayout(): string {
+    return this.getPropertyValue("selectToRankAreasLayout", "horizontal");
   }
-  public set selectToRankAlign(val: string) {
-    this.setPropertyValue("selectToRankAlign", val);
+  public set selectToRankAreasLayout(val: string) {
+    this.setPropertyValue("selectToRankAreasLayout", val);
   }
 
   @property({ localizable: { defaultStr: "selectToRankFromContainerPlaceholder" } }) selectToRankFromContainerPlaceholder: string;
@@ -526,13 +526,13 @@ Serializer.addClass(
       isSerializable: false,
     },
     {
-      name: "selectToRank",
+      name: "selectToRankEnabled",
       default: false,
       visible: false,
       isSerializable: true,
     },
     {
-      name: "selectToRankAlign",
+      name: "selectToRankAreasLayout",
       default: "horizontal",
       visible: false,
       isSerializable: true,

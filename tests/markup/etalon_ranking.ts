@@ -42,13 +42,13 @@ registerMarkupTests(
       snapshot: "ranking-design",
     },
     {
-      name: "Ranking selectToRank empty",
+      name: "Ranking selectToRankEnabled empty",
       json: {
         questions: [
           {
             "type": "ranking",
             "name": "name",
-            "selectToRank": true,
+            "selectToRankEnabled": true,
             "title": "Question title",
             "choices": [
               "item1",
@@ -59,17 +59,17 @@ registerMarkupTests(
           }
         ]
       },
-      snapshot: "ranking-selecttorank-empty",
+      snapshot: "ranking-selectToRankEnabled-empty",
     },
     {
-      name: "Ranking selectToRank selectToRankAlign Vertical",
+      name: "Ranking selectToRankEnabled selectToRankAreasLayout Vertical",
       json: {
         questions: [
           {
             "type": "ranking",
             "name": "name",
-            "selectToRank": true,
-            "selectToRankAlign": "vertical",
+            "selectToRankEnabled": true,
+            "selectToRankAreasLayout": "vertical",
             "title": "Question title",
             "choices": [
               "item1",
@@ -80,7 +80,7 @@ registerMarkupTests(
           }
         ]
       },
-      snapshot: "ranking-selecttorank-vertical",
+      snapshot: "ranking-selectToRankEnabled-vertical",
     },
   ]
 );

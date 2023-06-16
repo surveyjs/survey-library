@@ -1,6 +1,6 @@
 <template>
   <div :class="question.rootClass">
-    <survey-ranking-item v-if="!question.selectToRank"
+    <survey-ranking-item v-if="!question.selectToRankEnabled"
       v-for="(item, index) in (question.rankingChoices)"
       :key="item.value + '-' + index + '-item'"
       :class="question.getItemClass(item)"
@@ -12,7 +12,7 @@
       :item="item"
     ></survey-ranking-item>
 
-    <div v-if="question.selectToRank" :class='question.getContainerClasses("from")' data-ranking="from-container">
+    <div v-if="question.selectToRankEnabled" :class='question.getContainerClasses("from")' data-ranking="from-container">
       <survey-ranking-item
         v-for="(item, index) in (question.unRankingChoices)"
         :key="item.value + '-' + index + '-item'"
@@ -29,9 +29,9 @@
       <div v-if="question.unRankingChoices.length === 0" :class="question.cssClasses.containerPlaceholder"> {{question.selectToRankFromContainerPlaceholder}} </div>
     </div>
 
-    <div v-if="question.selectToRank" :class="question.cssClasses.containersDivider"></div>
+    <div v-if="question.selectToRankEnabled" :class="question.cssClasses.containersDivider"></div>
 
-    <div v-if="question.selectToRank" :class='question.getContainerClasses("to")' data-ranking="to-container">
+    <div v-if="question.selectToRankEnabled" :class='question.getContainerClasses("to")' data-ranking="to-container">
       <survey-ranking-item
         v-for="(item, index) in (question.rankingChoices)"
         :key="item.value + '-' + index + '-item'"

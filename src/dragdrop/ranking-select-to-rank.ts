@@ -71,7 +71,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       } else {
         toIndex = rankingChoices.indexOf(this.dropTarget);
       }
-      this.selectToRank(questionModel, fromIndex, toIndex);
+      this.selectToRankEnabled(questionModel, fromIndex, toIndex);
       this.doUIEffects(dropTargetNode, fromIndex, toIndex);
       return;
     }
@@ -137,7 +137,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return !this.isDropTargetRanked;
   }
 
-  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+  public selectToRankEnabled(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];

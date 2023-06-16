@@ -77,7 +77,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check ranking question selectToRank", async (t) => {
+  test("Check ranking question selectToRankEnabled", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -88,7 +88,7 @@ frameworks.forEach(framework => {
             title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
             name: "ranking_question",
             choices: ["item1", "item2", "item3", "item4"],
-            selectToRank: true
+            selectToRankEnabled: true
           }
         ]
       });
@@ -96,7 +96,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check ranking question selectToRank vertical mode", async (t) => {
+  test("Check ranking question selectToRankEnabled vertical mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -107,8 +107,8 @@ frameworks.forEach(framework => {
             title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
             name: "ranking_question",
             choices: ["item1", "item2", "item3", "item4"],
-            selectToRank: true,
-            selectToRankAlign: "vertical"
+            selectToRankEnabled: true,
+            selectToRankAreasLayout: "vertical"
           }
         ]
       });

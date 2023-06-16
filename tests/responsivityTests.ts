@@ -456,6 +456,40 @@ QUnit.test("check disableHide property", function (assert) {
   assert.ok(item3.isVisible);
 });
 
+QUnit.test("check disableHide property in case of different widths", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const item1 = new Action(<any>{});
+  item1.minDimension = 50;
+  item1.maxDimension = 50;
+  model.actions.push(item1);
+
+  const item2 = new Action(<any>{});
+  item2.minDimension = 75;
+  item2.maxDimension = 75;
+  model.actions.push(item2);
+
+  const item3 = new Action(<any>{});
+  item3.minDimension = 100;
+  item3.maxDimension = 100;
+  item3.disableHide = true;
+  model.actions.push(item3);
+
+  model.fit(125, 0);
+  assert.notOk(item1.isVisible);
+  assert.notOk(item2.isVisible);
+  assert.ok(item3.isVisible);
+
+  model.fit(150, 0);
+  assert.ok(item1.isVisible);
+  assert.notOk(item2.isVisible);
+  assert.ok(item3.isVisible);
+
+  model.fit(225, 0);
+  assert.ok(item1.isVisible);
+  assert.ok(item2.isVisible);
+  assert.ok(item3.isVisible);
+});
+
 QUnit.test("check title change calls raise update", function (assert) {
   const itemSmallWidth = 48;
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();

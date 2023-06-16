@@ -208,14 +208,15 @@ export function showModal(
   );
   return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-  dialogOptions.onHide = () => { {
+export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+  dialogOptions.onHide = () => {
     ReactDOM.unmountComponentAtNode(popupViewModel.container);
-  } };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
+    popupViewModel.dispose();
+  };
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
+  popupViewModel.model.isVisible = true;
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
 
-  popupViewModel.model.isVisible = true;
   return popupViewModel;
 }
 

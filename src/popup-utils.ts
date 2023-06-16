@@ -3,7 +3,7 @@ import { PopupDropdownViewModel } from "./popup-dropdown-view-model";
 import { PopupModalViewModel } from "./popup-modal-view-model";
 import { PopupBaseViewModel } from "./popup-view-model";
 
-export function createPopupModalViewModel(options: IDialogOptions): PopupBaseViewModel {
+export function createPopupModalViewModel(options: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
   const popupModel = new PopupModel(
     options.componentName,
     options.data,
@@ -19,8 +19,10 @@ export function createPopupModalViewModel(options: IDialogOptions): PopupBaseVie
     options.title
   );
   popupModel.displayMode = options.displayMode || "popup";
-  const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
-  popupViewModel.initializePopupContainer();
+  const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel, container);
+  if(!container) {
+    popupViewModel.initializePopupContainer();
+  }
   return popupViewModel;
 }
 

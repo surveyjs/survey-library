@@ -21,7 +21,10 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: false }) isVisible: boolean;
   @property() locale: string;
 
-  public container: HTMLElement;
+  public get container(): HTMLElement {
+    return this.containerElement || this.createdContainer;
+  }
+  private createdContainer: HTMLElement;
 
   public getLocale(): string {
     if(!!this.locale) return this.locale;
@@ -97,7 +100,6 @@ export class PopupBaseViewModel extends Base {
   constructor(model: PopupModel, private containerElement?: HTMLElement) {
     super();
     this.model = model;
-    this.container = containerElement;
   }
   public get title(): string {
     return this.model.title;
@@ -211,7 +213,10 @@ export class PopupBaseViewModel extends Base {
   }
   public dispose(): void {
     super.dispose();
-    this.container = undefined;
+    if(!!this.createdContainer) {
+      this.createdContainer.remove();
+      this.createdContainer = undefined;
+    }
     if(!!this.footerToolbarValue) {
       this.footerToolbarValue.dispose();
     }
@@ -219,14 +224,13 @@ export class PopupBaseViewModel extends Base {
   public initializePopupContainer(): void {
     if (!this.container) {
       const container: HTMLElement = document.createElement("div");
-      this.container = container;
+      this.createdContainer = container;
+      getElement(settings.environment.popupMountContainer).appendChild(container);
     }
-
-    getElement(this.containerElement?.parentElement || settings.environment.popupMountContainer).appendChild(this.container);
   }
   public setComponentElement(componentRoot: HTMLElement): void {
     if(!!componentRoot) {
-      this.container = componentRoot.children[0] as HTMLElement;
+      this.containerElement = componentRoot.children[0] as HTMLElement;
     }
   }
 }

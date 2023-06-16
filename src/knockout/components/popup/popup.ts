@@ -11,7 +11,6 @@ export class PopupViewModel {
   }
   dispose() {
     this.popupViewModel.model.onVisibilityChanged.remove(this.visibilityChangedHandler);
-    this.popupViewModel.container = undefined;
   }
   visibilityChangedHandler = (s: any, option: { isVisible: boolean }) => {
     if (option.isVisible) {
@@ -29,7 +28,8 @@ export function showModal(
   onCancel?: () => void,
   cssClass?: string,
   title?: string,
-  displayMode: "popup" | "overlay" = "popup"
+  displayMode: "popup" | "overlay" = "popup",
+  container?: HTMLElement
 ): PopupBaseViewModel {
   const options = createDialogOptions(
     componentName,
@@ -42,13 +42,19 @@ export function showModal(
     title,
     displayMode
   );
-  return showDialog(options);
+  return showDialog(options, container);
 }
-export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-  dialogOptions.onHide = () => { viewModel.dispose(); };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
+export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+  dialogOptions.onHide = () => {
+    viewModel.dispose();
+    ko.cleanNode(popupViewModel.container);
+    popupViewModel.dispose();
+  };
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
   var viewModel = new PopupViewModel(popupViewModel);
+  popupViewModel.container.innerHTML = template;
   popupViewModel.model.isVisible = true;
+  ko.applyBindings(viewModel, popupViewModel.container);
   return popupViewModel;
 }
 
@@ -67,10 +73,3 @@ ko.components.register("sv-popup", {
   },
   template: template
 });
-
-ko.bindingHandlers.allowBindings = {
-  init: function(elem, valueAccessor) {
-    var shouldAllowBindings = ko.unwrap(valueAccessor());
-    return { controlsDescendantBindings: !shouldAllowBindings };
-  }
-};

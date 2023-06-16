@@ -22,7 +22,7 @@ export var englishStrings = {
     "Our records show that you have already completed this survey.",
   loadingSurvey: "Loading Survey...",
   placeholder: "Select...",
-  ratingOptionsCaption: "Tap to rate here...",
+  ratingOptionsCaption: "Select...",
   value: "value",
   requiredError: "Response required.",
   requiredErrorInPanel: "Response required: answer at least one question.",

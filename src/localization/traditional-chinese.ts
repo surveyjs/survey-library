@@ -21,7 +21,7 @@ export var traditionalChineseSurveyStrings = {
   // completingSurveyBefore: "Our records show that you have already completed this survey.",
   loadingSurvey: "問卷載入中...",
   placeholder: "請選擇...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   // value: "value",
   requiredError: "請填寫此問題",
   // requiredErrorInPanel: "Response required: answer at least one question.",

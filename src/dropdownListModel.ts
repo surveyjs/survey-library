@@ -260,7 +260,7 @@ export class DropdownListModel extends Base {
   public set inputStringRendered(val: string) {
     this.inputString = val;
     this.filterString = val;
-    this.applyHintString(this.listModel.focusedItem);
+    this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
   }
 
   public get placeholderRendered() {

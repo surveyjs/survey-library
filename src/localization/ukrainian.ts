@@ -21,7 +21,7 @@ export var ukrainianSurveyStrings = {
   completingSurveyBefore: "Ви вже проходили це опитування.",
   loadingSurvey: "Завантаження опитування...",
   placeholder: "Вибрати...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "значення",
   requiredError: "Будь ласка, дайте відповідь.",
   requiredErrorInPanel: "Будь ласка, дайте відповідь хоча б на одне питання.",

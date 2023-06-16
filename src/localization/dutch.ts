@@ -21,7 +21,7 @@ export var dutchSurveyStrings = {
   completingSurveyBefore: "Onze gegevens tonen aan dat je deze vragenlijst reeds beantwoord hebt.",
   loadingSurvey: "De vragenlijst is aan het laden...",
   placeholder: "Kies...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "waarde",
   requiredError: "Dit is een vereiste vraag",
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",

@@ -5328,6 +5328,8 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  survey.css = defaultV2Css;
+  panel.cssClasses;
   const panelTabToolbar = panel.additionalTitleToolbar;
   assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--left", "tabAlign value is left");
 

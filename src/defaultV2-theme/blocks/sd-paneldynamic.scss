@@ -160,9 +160,9 @@
 }
 
 .sd-tabs-toolbar.sv-action-bar {
-    align-items: start;
-    margin-top: calcSize(1);
-    margin-bottom: -1px;
+    align-items: flex-start;
+    margin: calcSize(1) 0 -1px calcSize(-2);
+    width: calc(100% + 4 * #{$base-unit});
     z-index: 1;
 }
 
@@ -178,10 +178,8 @@
     justify-content: center;
 }
 
-.sv-action ~ .sv-action:not(.sv-action--hidden) {
-    .sd-tab-item {
-        margin-left: calcSize(4);
-    }
+.sd-tab-item {
+    margin: 0 calcSize(2);
 }
 
 .sd-tab-item {

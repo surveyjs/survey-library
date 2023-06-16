@@ -39,7 +39,7 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
 
           <div className={this.question.getContainerClasses("to")} data-ranking="to-container">
             {this.getItems()}
-            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.question.selectToRankToContainerPlaceholder} </div>: null }
+            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}>{this.question.selectToRankToContainerPlaceholder}</div>: null }
           </div>
         </div>
       );

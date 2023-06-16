@@ -10,7 +10,7 @@
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item, index, true) }"></ng-template>
     </ng-container>
 
-    <div *ngIf="model.unRankingChoices.length === 0" [class]="model.cssClasses.containerPlaceholder"> {{model.selectToRankFromContainerPlaceholder}} </div>
+    <div *ngIf="model.unRankingChoices.length === 0" [class]="model.cssClasses.containerPlaceholder">{{model.selectToRankFromContainerPlaceholder}}</div>
   </div>
 
   <div [class]="model.cssClasses.containersDivider"></div>
@@ -20,6 +20,6 @@
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item, index) }"></ng-template>
     </ng-container>
 
-    <div *ngIf="model.rankingChoices.length === 0" [class]="model.cssClasses.containerPlaceholder"> {{model.selectToRankToContainerPlaceholder}} </div>
+    <div *ngIf="model.rankingChoices.length === 0" [class]="model.cssClasses.containerPlaceholder">{{model.selectToRankToContainerPlaceholder}}</div>
   </div>
 </div>

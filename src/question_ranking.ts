@@ -493,14 +493,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public set selectToRankAlign(val: string) {
     this.setPropertyValue("selectToRankAlign", val);
   }
-  /**
-   * Set empty text placeholder for the "from" container with selectToRank mode
-   */
-  @property({ localizable: { defaultStr: "selectToRankFromContainerPlaceholder" } }) selectToRankFromContainerPlaceholder: string;
 
-  /**
-   * Set empty text placeholder for the "to" container with selectToRank mode
-   */
+  @property({ localizable: { defaultStr: "selectToRankFromContainerPlaceholder" } }) selectToRankFromContainerPlaceholder: string;
   @property({ localizable: { defaultStr: "selectToRankToContainerPlaceholder" } }) selectToRankToContainerPlaceholder: string;
 
   public get useFullItemSizeForShortcut(): boolean {

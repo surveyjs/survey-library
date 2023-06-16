@@ -44,7 +44,7 @@
         :item="item"
       ></survey-ranking-item>
 
-      <div v-if="question.rankingChoices.length === 0" :class="question.cssClasses.containerPlaceholder"> {{question.selectToRankToContainerPlaceholder}} </div>
+      <div v-if="question.rankingChoices.length === 0" :class="question.cssClasses.containerPlaceholder">{{question.selectToRankToContainerPlaceholder}}</div>
     </div>
   </div>
 </template>

@@ -23,8 +23,8 @@ export class ModalComponent {
       this.portalHost.detach();
       this.model.dispose();
     };
-    this.model.model.isVisible = true;
     this.portalHost = this.popupService.createComponent(this.model);
+    this.model.model.isVisible = true;
     return this.model;
   }
   ngOnInit(): void {

@@ -214,8 +214,8 @@ export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElemen
     popupViewModel.dispose();
   };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
-  popupViewModel.model.isVisible = true;
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
+  popupViewModel.model.isVisible = true;
 
   return popupViewModel;
 }

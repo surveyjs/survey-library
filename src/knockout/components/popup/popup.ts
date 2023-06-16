@@ -53,8 +53,8 @@ export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElemen
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.container.innerHTML = template;
-  popupViewModel.model.isVisible = true;
   ko.applyBindings(viewModel, popupViewModel.container);
+  popupViewModel.model.isVisible = true;
   return popupViewModel;
 }
 

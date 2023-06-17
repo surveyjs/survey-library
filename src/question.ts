@@ -92,7 +92,7 @@ export class Question extends SurveyElement<Question>
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
   public isReadOnlyRenderDiv(): boolean {
-    return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
+    return this.isReadOnly && settings.readOnly.commentRenderMode === "div";
   }
 
   protected setIsMobile(val: boolean) { }
@@ -1953,8 +1953,8 @@ export class Question extends SurveyElement<Question>
   public setVisibleIndex(val: number): number {
     if (
       !this.isVisible ||
-      (!this.hasTitle && !settings.setQuestionVisibleIndexForHiddenTitle) ||
-      (this.hideNumber && !settings.setQuestionVisibleIndexForHiddenNumber)
+      (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
+      (this.hideNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
     ) {
       val = -1;
     }

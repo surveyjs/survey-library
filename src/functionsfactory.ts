@@ -279,7 +279,7 @@ FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
   var res = new Date();
-  if(settings.useLocalTimeZone) {
+  if(settings.localization.useLocalTimeZone) {
     res.setHours(0, 0, 0, 0);
   } else {
     res.setUTCHours(0, 0, 0, 0);

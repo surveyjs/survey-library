@@ -300,7 +300,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     return "completetrigger";
   }
   protected isRealExecution(): boolean {
-    return !settings.executeCompleteTriggerOnValueChanged === this.isExecutingOnNextPage;
+    return !settings.triggers.executeCompleteOnValueChanged === this.isExecutingOnNextPage;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.owner) return;
@@ -375,7 +375,7 @@ export class SurveyTriggerSkip extends SurveyTrigger {
     this.setPropertyValue("gotoName", val);
   }
   protected canBeExecuted(isOnNextPage: boolean): boolean {
-    return isOnNextPage === !settings.executeSkipTriggerOnValueChanged;
+    return isOnNextPage === !settings.triggers.executeSkipOnValueChanged;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.gotoName || !this.owner) return;

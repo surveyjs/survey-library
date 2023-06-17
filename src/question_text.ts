@@ -389,7 +389,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public isReadOnlyRenderDiv(): boolean {
-    return this.isReadOnly && settings.readOnlyTextRenderMode === "div";
+    return this.isReadOnly && settings.readOnly.textRenderMode === "div";
   }
   get inputStyle(): any {
     var style: any = {};

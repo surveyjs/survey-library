@@ -465,7 +465,7 @@ export class MatrixDropdownColumn extends Base
     if (!cellType) cellType = this.cellType;
     if (cellType !== "default") return cellType;
     if (this.colOwner) return this.colOwner.getCellType();
-    return settings.matrixDefaultCellType;
+    return settings.matrix.defaultCellType;
   }
   protected updateTemplateQuestion(newCellType?: string): void {
     const curCellType = this.getDefaultCellQuestionType(newCellType);

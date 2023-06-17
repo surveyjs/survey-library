@@ -858,7 +858,7 @@ export class QuestionPanelDynamicModel extends Question
   /**
    * A maximum number of panels in Dynamic Panel. Users cannot add new panels if `panelCount` equals `maxPanelCount`.
    *
-   * Default value: 100 (inherited from [`settings.panelMaximumPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
+   * Default value: 100 (inherited from [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/settings#panelMaximumPanelCount))
    * @see panelCount
    * @see minPanelCount
    * @see allowAddPanel
@@ -868,8 +868,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set maxPanelCount(val: number) {
     if (val <= 0) return;
-    if (val > settings.panelMaximumPanelCount)
-      val = settings.panelMaximumPanelCount;
+    if (val > settings.panel.maxPanelCount)
+      val = settings.panel.maxPanelCount;
     if (val == this.maxPanelCount) return;
     this.setPropertyValue("maxPanelCount", val);
     if (val < this.minPanelCount) this.minPanelCount = val;
@@ -1339,7 +1339,7 @@ export class QuestionPanelDynamicModel extends Question
         this.iscorrectValueWithPostPrefix(
           panel,
           key,
-          settings.matrixTotalValuePostFix
+          settings.matrix.totalsSuffix
         )
       )
         continue;
@@ -1383,7 +1383,7 @@ export class QuestionPanelDynamicModel extends Question
     for (var i = 0; i < questions.length; i++) {
       questions[i].addConditionObjectsByContext(panelObjs, context);
     }
-    for(var index = 0; index < settings.panelDynamicMaxPanelCountInCondition; index++) {
+    for(var index = 0; index < settings.panel.maxPanelCountInCondition; index++) {
       const indexStr = "[" + index + "].";
       const prefixName = this.getValueName() + indexStr;
       const prefixText = this.processedTitle + indexStr;
@@ -2228,7 +2228,7 @@ Serializer.addClass(
     { name: "minPanelCount:number", default: 0, minValue: 0 },
     {
       name: "maxPanelCount:number",
-      default: settings.panelMaximumPanelCount,
+      default: settings.panel.maxPanelCount,
     },
     "defaultPanelValue:panelvalue",
     "defaultValueFromLastPanel:boolean",

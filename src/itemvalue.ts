@@ -302,10 +302,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     if (Helpers.isValueEmpty(json.value)) return json;
     const canSerializeVal = this.canSerializeValue();
-    const canSerializeAsContant = !canSerializeVal || !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
+    const canSerializeAsContant = !canSerializeVal || !settings.serialization.itemValueSerializeAsObject && !settings.serialization.itemValueSerializeDisplayText;
     if (canSerializeAsContant && Object.keys(json).length == 1)
       return this.value;
-    if (settings.itemValueAlwaysSerializeText && json.text === undefined && canSerializeVal) {
+    if (settings.serialization.itemValueSerializeDisplayText && json.text === undefined && canSerializeVal) {
       json.text = this.value.toString();
     }
     return json;

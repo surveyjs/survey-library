@@ -1132,7 +1132,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public get isLazyRendering(): boolean {
-    return this.lazyRendering || settings.lazyRowsRendering;
+    return this.lazyRendering || settings.lazyRender.enabled;
   }
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
@@ -1620,7 +1620,7 @@ export class SurveyModel extends SurveyElementCore
       if (!!this.getQuestionByValueName(key)) continue;
       if (
         this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(key, settings.matrixTotalValuePostFix)
+        this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)
       )
         continue;
       var calcValue = this.getCalculatedValueByName(key);
@@ -4249,7 +4249,7 @@ export class SurveyModel extends SurveyElementCore
     this.doComplete(true);
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
-    if (!settings.changeNavigationButtonsOnCompleteTrigger) return;
+    if (!settings.triggers.changeNavigationButtonsOnComplete) return;
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if(!this.completedByTriggers) this.completedByTriggers = {};
     if(isCompleted) {

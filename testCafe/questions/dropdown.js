@@ -754,7 +754,7 @@ frameworks.forEach((framework) => {
       .pressKey("u")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
-      .expect(questionValueText.textContent).eql("Vauxhall");
+      .expect(questionValueInput.value).eql("Vauxhall");
   });
 
   test("Check dropdown key press without searchEnabled", async (t) => {

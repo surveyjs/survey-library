@@ -286,6 +286,14 @@ frameworks.forEach((framework) => {
 
       .pressKey("1")
       .pressKey("4")
+      .pressKey("enter")
+      .expect(popupContainer.visible).notOk()
+      .expect(selectedItems.count).eql(2)
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+      .expect(selectedItems.nth(1).textContent).contains("item14")
+
+      .pressKey("1")
+      .pressKey("5")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
       .expect(selectedItems.count).eql(2)
@@ -369,6 +377,14 @@ frameworks.forEach((framework) => {
 
       .pressKey("1")
       .pressKey("4")
+      .pressKey("enter")
+      .expect(popupContainer.visible).notOk()
+      .expect(selectedItems.count).eql(2)
+      .expect(selectedItems.nth(0).textContent).contains("item23")
+      .expect(selectedItems.nth(1).textContent).contains("item14")
+
+      .pressKey("1")
+      .pressKey("5")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
       .expect(selectedItems.count).eql(2)

@@ -725,3 +725,38 @@ QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
   dropdownListModel.changeSelectionWithKeyboard(true);
   assert.equal(dropdownListModel.hintString, "", "no hint again");
 });
+
+QUnit.test("lazy loading clear value", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      "type": "dropdown",
+      "name": "country",
+      "title": "Select a country",
+      "isRequired": true,
+      "defaultValue": "FRA",
+      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadPageSize": 40
+    }]
+  });
+
+  survey.onGetChoiceDisplayValue.add((_, options) => {
+    options.setItems(["France"]);
+  });
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  assert.equal(question.showSelectedItemLocText, true, "showSelectedItemLocText");
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+
+  assert.equal(dropdownListModel.inputStringRendered, "France", "inputString");
+
+  dropdownListModel.inputStringRendered = "";
+
+  assert.equal(dropdownListModel.hintString, "France", "hintString");
+  assert.equal(dropdownListModel.inputStringRendered, "");
+});

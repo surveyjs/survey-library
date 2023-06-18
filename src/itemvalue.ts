@@ -472,7 +472,7 @@ JsonObjectProperty.getItemValuesDefaultValue = (val: any, type: string): Array<I
 Serializer.addClass(
   "itemvalue",
   [
-    "!value",
+    { name: "!value", isUnique: true },
     {
       name: "text",
       serializationProperty: "locText",

@@ -20,6 +20,7 @@ import { englishStrings } from "../src/localization/english";
 import { SurveyModel } from "../src/survey";
 import { CalculatedValue } from "../src/calculatedValue";
 import { QuestionHtmlModel } from "../src/question_html";
+import { ImageItemValue } from "../src/question_imagepicker";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -2971,6 +2972,14 @@ QUnit.test("Ignore type for typed array elements", function (assert) {
   const htmls = survey.completedHtmlOnCondition;
   assert.equal(htmls.length, 1, "completedHtmlOnCondition is loaded");
   assert.equal(htmls[0].getType(), "htmlconditionitem", "It has corrected type");
+});
+QUnit.test("ImageItemValue get imageLink property", function (assert) {
+  const prop = new ImageItemValue("val1").getPropertyByName("imageLink");
+  assert.ok(prop, "property is return correctly");
+  assert.equal(new ImageItemValue("val1").locImageLink.disableLocalization, false, "image link is localizable");
+  prop.isLocalizable = false;
+  assert.equal(new ImageItemValue("val1").locImageLink.disableLocalization, true, "image link is not localizable");
+  prop.isLocalizable = true;
 });
 QUnit.test("overridingProperty test", function (assert) {
   assert.equal(Serializer.findProperty("question", "visible").overridingProperty, "visibleIf", "visible property check");

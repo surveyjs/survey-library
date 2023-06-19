@@ -812,6 +812,11 @@ QUnit.test(
     );
   }
 );
+QUnit.test("itemvalue.value is required and unique", function (assert) {
+  const prop = Serializer.findProperty("itemvalue", "value");
+  assert.equal(prop.isRequired, true, "itemvalue.value is required");
+  assert.equal(prop.isUnique, true, "itemvalue.value is unique");
+});
 QUnit.test(
   "defaultValue and defaultRowValue deserialization, remove pos",
   function (assert) {

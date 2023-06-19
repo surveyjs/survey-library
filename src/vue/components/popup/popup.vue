@@ -21,15 +21,6 @@ export class Popup extends BaseVue {
   }
   onMounted() {
     this.popupViewModel.setComponentElement(this.$el as HTMLElement);
-    //  this.popupViewModel.container = this.$el.children[0] as HTMLElement;
-    //  if(!this.model.isModal) {
-    //   const popupDropdownModel = this.popupViewModel as PopupDropdownViewModel;
-    //   if(!popupDropdownModel) return;
-
-    //   if(!!this.$el.previousElementSibling) {
-    //     popupDropdownModel.targetElement = this.$el.previousElementSibling as HTMLElement;
-    //   }
-    // }
   }
   destroyed() {
     this.popupViewModel.dispose();

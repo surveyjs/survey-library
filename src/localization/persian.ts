@@ -21,7 +21,7 @@ export var persianSurveyStrings = {
   completingSurveyBefore: "به نظر می رسد هم هم اکنون پرسشنامه را تکمیل کرده اید.",
   loadingSurvey: "درحال ایجاد پرسشنامه",
   placeholder: "انتخاب کنید...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "مقدار",
   requiredError: "لطفا به سوال پاسخ دهید",
   requiredErrorInPanel: "لطفا حداقل به یک سوال پاسخ دهید.",

@@ -661,7 +661,7 @@ export class QuestionMultipleTextModel extends Question
 Serializer.addClass(
   "multipletextitem",
   [
-    "name",
+    { name: "!name", isUnique: true },
     "isRequired:boolean",
     { name: "placeholder", alternativeName: "placeHolder", serializationProperty: "locPlaceholder" },
     {

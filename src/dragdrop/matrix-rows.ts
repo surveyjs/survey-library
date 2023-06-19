@@ -6,6 +6,13 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return "matrix-row";
   }
 
+  protected restoreUserSelectValue: string;
+
+  protected onStartDrag(): void {
+    this.restoreUserSelectValue = document.body.style.userSelect;
+    document.body.style.userSelect = "none";
+  }
+
   protected createDraggedElementShortcut(
     text: string,
     draggedElementNode: HTMLElement,
@@ -16,7 +23,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
-          z-index: 1000;
+          z-index: 10000;
           font-family: var(--font-family, $font-family);
         `;
 
@@ -166,6 +173,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
+    document.body.style.userSelect = this.restoreUserSelectValue || "initial";
     super.clear();
   }
 }

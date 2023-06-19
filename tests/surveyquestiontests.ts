@@ -5625,7 +5625,44 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
-
+QUnit.test("Creator V2: do not add choices from carry-forward in design mode", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["A", "B", "C", "D"]
+      },
+      {
+        type: "radiogroup",
+        name: "q2",
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "checkbox",
+        name: "q3",
+        choices: ["item1", "item2", "item3"]
+      }
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  assert.equal(q2.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+  assert.equal(q3.visibleChoices.length, 7, "Show SelectAll+None+hasOther+new: 3+4");
+  q2.choicesFromQuestion = "q1";
+  q3.choicesFromQuestion = "q1";
+  assert.equal(q2.visibleChoices.length, 2, "Show None+hasOther: 2+0");
+  assert.equal(q3.visibleChoices.length, 3, "Show SelectAll+None+hasOther: 3+0");
+  q2.choicesFromQuestion = "";
+  q3.choicesFromQuestion = "";
+  assert.equal(q2.visibleChoices.length, 6, "radiogroup = clear carry-forward");
+  assert.equal(q3.visibleChoices.length, 7, "checkbox = clear carry-forward");
+  settings.supportCreatorV2 = false;
+});
 QUnit.test(
   "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
   function (assert) {
@@ -6116,7 +6153,7 @@ QUnit.test("Question title equals to name", (assert) => {
   assert.equal(question.locTitle.getLocaleText(""), "q1", "Question title is not empty # 2");
   assert.equal(question.locTitle.renderedHtml, "q1");
 });
-QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
+QUnit.test("Checkbox item, defaultValue and visibleIf bug, #3634", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6144,7 +6181,7 @@ QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
   survey.data = { question2: "item1", question1: ["item3"] };
   assert.deepEqual(question.value, ["item3"], "value from data is set");
 });
-QUnit.test("Checkox item, others  and visibleIf bug, #3694", (assert) => {
+QUnit.test("Checkbox item, others  and visibleIf bug, #3694", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6275,6 +6312,27 @@ QUnit.test("multipletext placeholder localization", function (assert) {
   assert.equal(counter, 2, "Changed second time");
   assert.equal(editor.placeholder, "placeholder default", "default locale, #2");
   assert.equal(editor.renderedPlaceholder, "placeholder default", "default locale");
+});
+QUnit.test("placeholder localization, question in run-time", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1"
+      }]
+  });
+  survey.locale = "de";
+  const q2 = new QuestionTextModel("q2");
+  q2.fromJSON({
+    "name": "q2",
+    "placeholder": {
+      "de": "placeholder de",
+      "default": "placeholder default"
+    }
+  });
+  survey.pages[0].addQuestion(q2);
+  assert.equal(q2.placeholder, "placeholder de", "placeholder is correct");
+  assert.equal(q2.renderedPlaceholder, "placeholder de", "renderedPlaceholder is correct");
 });
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({

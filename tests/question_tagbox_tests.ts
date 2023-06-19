@@ -547,8 +547,12 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       "name": "q1",
       "defaultValue": [52, 55],
       "choicesLazyLoadEnabled": true
-    }]
-  };
+    },
+    {
+      "type": "text",
+      "name": "q2",
+      "title": "{q1}"
+    }] };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
@@ -567,6 +571,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const questionTitle = <QuestionTagboxModel>survey.getAllQuestions()[1];
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
   assert.deepEqual(question.value, [52, 55]);
@@ -575,6 +580,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
   assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
   assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
+  assert.equal(questionTitle.locTitle.textOrHtml, "DisplayText_52, DisplayText_55", "display text is correct");
 
   question.dropdownListModel.popupModel.isVisible = true;
   setTimeout(() => {
@@ -1196,4 +1202,67 @@ QUnit.test("reset filterstring after select item", (assert) => {
   list.onItemClick(list.renderedActions.filter(item => list.isItemVisible(item))[0]);
   assert.equal(dropdownListModel.inputStringRendered, "");
   assert.equal(dropdownListModel.filterString, "");
+});
+
+QUnit.test("TagBox displays a value which doesn't exist in a list of choices #6293", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["value1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.selectedChoices.length, 0);
+  assert.deepEqual(survey.data, {
+    "question1": ["value1"],
+  });
+});
+
+QUnit.test("TagBox displays a value as Other if it doesn't exist in a list of choices", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      showOtherItem: true,
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["value1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.selectedChoices[0].id, "other");
+  assert.deepEqual(survey.data, {
+    question1: ["value1"],
+    "question1-Comment": "value1"
+  });
+});
+QUnit.test("TagBox displays a value if list of choices is empty", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["Item 1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.value[0], "Item 1");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0].id, "Item 1");
+
+  question.setPropertyValue("visibleChoices", []);
+  assert.equal(question.value.length, 1);
+  assert.equal(question.value[0], "Item 1");
+  assert.equal(question.selectedItems.length, 0);
 });

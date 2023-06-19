@@ -33,7 +33,6 @@ export class QuestionSelectBase extends Question {
   private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
-  private isUsingCarrayForward: boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
@@ -106,8 +105,15 @@ export class QuestionSelectBase extends Question {
   }
   public createItemValue(value: any, text?: string): ItemValue {
     const res = <ItemValue>Serializer.createClass(this.getItemValueType(), value);
+    res.locOwner = this;
     if(!!text) res.text = text;
     return res;
+  }
+  public get isUsingCarryForward(): boolean {
+    return this.getPropertyValue("isUsingCarrayForward", false);
+  }
+  private setIsUsingCarrayForward(val: boolean): void {
+    this.setPropertyValue("isUsingCarrayForward", val);
   }
   public supportGoNextPageError() {
     return !this.isOtherSelected || !!this.otherValue;
@@ -242,7 +248,7 @@ export class QuestionSelectBase extends Question {
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
-    if(this.isUsingCarrayForward) return;
+    if(this.isUsingCarryForward) return;
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -323,7 +329,16 @@ export class QuestionSelectBase extends Question {
   protected onEnableItemCallBack(item: ItemValue): boolean {
     return true;
   }
-  protected onSelectedItemValuesChangedHandler(newValue: any): void { }
+  protected onSelectedItemValuesChangedHandler(newValue: any): void {
+    this.survey?.loadedChoicesFromServer(this);
+  }
+  protected getItemIfChoicesNotContainThisValue(value: any, text?: string): any {
+    if(!this.isReady) {
+      return this.createItemValue(value, text);
+    } else {
+      return null;
+    }
+  }
   protected getSingleSelectedItem(): ItemValue {
     const selectedItemValues = this.selectedItemValues;
     if (this.isEmpty()) return null;
@@ -333,9 +348,12 @@ export class QuestionSelectBase extends Question {
     if(!itemValue && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
-    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.createItemValue(this.value));
+    return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.getItemIfChoicesNotContainThisValue(this.value));
   }
   protected onGetSingleSelectedItem(selectedItemByValue: ItemValue): void {}
+  protected getMultipleSelectedItems(): Array<ItemValue> {
+    return [];
+  }
   private setConditionalChoicesRunner() {
     if (this.choicesVisibleIf) {
       if (!this.conditionChoicesVisibleIfRunner) {
@@ -659,11 +677,14 @@ export class QuestionSelectBase extends Question {
   }
   public set choicesFromQuestion(val: string) {
     var question = this.getQuestionWithChoices();
-    if (!!question) {
+    this.isLockVisibleChoices = !!question && question.name === val;
+    if (!!question && question.name !== val) {
       question.removeFromDependedQuestion(this);
     }
     this.setPropertyValue("choicesFromQuestion", val);
+    this.isLockVisibleChoices = false;
   }
+  private isLockVisibleChoices: boolean;
   private addIntoDependedQuestion(question: QuestionSelectBase) {
     if (!question || question.dependedQuestions.indexOf(this) > -1) return;
     question.dependedQuestions.push(this);
@@ -855,7 +876,7 @@ export class QuestionSelectBase extends Question {
       if (!this.newItemValue) {
         this.newItemValue = this.createItemValue("newitem"); //TODO
       }
-      if (this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);
       }
     }
@@ -944,6 +965,8 @@ export class QuestionSelectBase extends Question {
   protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
+    const selItem = this.getSingleSelectedItem();
+    if(!!selItem && selItem.value === val) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
@@ -951,11 +974,19 @@ export class QuestionSelectBase extends Question {
     onGetValueCallback?: (index: number) => any): string {
     var items = this.visibleChoices;
     var strs = [];
+    const vals = [];
     for (var i = 0; i < value.length; i++) {
-      let val = !onGetValueCallback ? value[i] : onGetValueCallback(i);
-      let valStr = this.getChoicesDisplayValue(items, val);
-      if (valStr) {
-        strs.push(valStr);
+      vals.push(!onGetValueCallback ? value[i] : onGetValueCallback(i));
+    }
+    if(Helpers.isTwoValueEquals(this.value, vals)) {
+      this.getMultipleSelectedItems().forEach(item => strs.push(item.locText.textOrHtml));
+    }
+    if(strs.length === 0) {
+      for (var i = 0; i < vals.length; i++) {
+        let valStr = this.getChoicesDisplayValue(items, vals[i]);
+        if (valStr) {
+          strs.push(valStr);
+        }
       }
     }
     return strs.join(", ");
@@ -967,8 +998,8 @@ export class QuestionSelectBase extends Question {
   }
   protected get activeChoices(): Array<ItemValue> {
     const question = this.getQuestionWithChoices();
-    this.isUsingCarrayForward = !!question;
-    if (this.isUsingCarrayForward) {
+    this.setIsUsingCarrayForward(!!question);
+    if (this.isUsingCarryForward) {
       this.addIntoDependedQuestion(question);
       return this.getChoicesFromQuestion(question);
     }
@@ -980,6 +1011,7 @@ export class QuestionSelectBase extends Question {
     return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
   }
   private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
+    if (this.isDesignMode) return [];
     var res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
@@ -1173,12 +1205,11 @@ export class QuestionSelectBase extends Question {
     if (this.enableOnLoadingChoices) {
       this.readOnly = false;
     }
+    const errors = [];
     if (!this.isReadOnly) {
-      var errors = [];
       if (this.choicesByUrl && this.choicesByUrl.error) {
         errors.push(this.choicesByUrl.error);
       }
-      this.errors = errors;
     }
     var newChoices = null;
     var checkCachedValuesOnExisting = true;
@@ -1233,6 +1264,10 @@ export class QuestionSelectBase extends Question {
         }
       }
     }
+    if(!this.isReadOnly && !newChoices && !this.isFirstLoadChoicesFromUrl) {
+      this.value = null;
+    }
+    this.errors = errors;
     this.choicesLoaded();
   }
   private createCachedValueForUrlRequests(
@@ -1282,8 +1317,9 @@ export class QuestionSelectBase extends Question {
     return { value: value };
   }
   private isUpdatingChoicesDependedQuestions = false;
-  protected updateChoicesDependedQuestions() {
-    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions) return;
+  protected updateChoicesDependedQuestions(): void {
+    if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
+      !this.allowNotifyValueChanged || this.choicesByUrl.isRunning) return;
     this.isUpdatingChoicesDependedQuestions = true;
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       const q = this.dependedQuestions[i];
@@ -1296,8 +1332,8 @@ export class QuestionSelectBase extends Question {
     super.onSurveyValueChanged(newValue);
     this.updateChoicesDependedQuestions();
   }
-  protected onVisibleChoicesChanged() {
-    if (this.isLoadingFromJson) return;
+  protected onVisibleChoicesChanged(): void {
+    if (this.isLoadingFromJson || this.isLockVisibleChoices) return;
     this.updateVisibleChoices();
     this.onVisibleChanged();
     if (!!this.visibleChoicesChangedCallback) {

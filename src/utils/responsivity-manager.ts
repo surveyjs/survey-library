@@ -30,8 +30,7 @@ export class ResponsivityManager {
     this.model.updateCallback = (isResetInitialized: boolean) => {
       if(isResetInitialized)
         this.isInitialized = false;
-      else
-        setTimeout(() => { this.process(); }, 1);
+      setTimeout(() => { this.process(); }, 1);
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((_) => this.process());

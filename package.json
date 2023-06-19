@@ -81,7 +81,7 @@
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.90",
+  "version": "1.9.92",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -182,7 +182,7 @@
     }
   },
   "dependencies": {
-    "signature_pad": "^2.3.2",
+    "signature_pad": "^4.1.5",
     "vite": "^3.1.8"
   }
 }

@@ -15907,6 +15907,35 @@ QUnit.test("hasDescription is not updated on changing locale", function (assert)
   assert.equal(question.hasDescription, true, "Question description is shown for 'de'");
   survey.locale = "";
 });
+QUnit.test("hasDescription is isDesignMode", function (assert) {
+  const commentDescriptionProperty = Serializer.getProperty("comment", "description");
+  const oldValue = commentDescriptionProperty.placeholder;
+  commentDescriptionProperty.placeholder = "Q placeholder";
+
+  const survey = new SurveyModel({});
+  survey["_isDesignMode"] = true;
+  settings.supportCreatorV2 = true;
+  survey.fromJSON({
+    pages: [{
+      name: "page1",
+      title: "Page title",
+      elements: [{
+        type: "text",
+        name: "q1",
+      }, {
+        type: "comment",
+        name: "q2",
+      }]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.notOk(q1.hasDescription, "text description is not shown");
+  assert.ok(q2.hasDescription, "comment description is shown");
+
+  commentDescriptionProperty.placeholder = oldValue;
+  settings.supportCreatorV2 = false;
+});
 QUnit.test("Test survey with custom type", function (assert) {
   JsonObject.metaData.addClass(
     "sortablelist",
@@ -17028,4 +17057,63 @@ QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage
   survey.setValue("question1", 1);
   survey.completeLastPage();
   assert.equal(counter, 1, "onComplete called one time");
+});
+QUnit.test("Expression with dates & defaultValueExpression & expression question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "startdate",
+        "defaultValueExpression": "today(-2)",
+        "inputType": "date"
+      },
+      {
+        "type": "expression",
+        "name": "enddate",
+        "expression": "today()"
+      },
+      {
+        "type": "expression",
+        "name": "check1",
+        "expression": "{startdate} <= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check2",
+        "expression": "{startdate} >= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check3",
+        "expression": "{startdate} < {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check4",
+        "expression": "{startdate} > {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check5",
+        "expression": "{startdate} = {enddate}"
+      }
+    ]
+  });
+  const checkFunc= function(res: Array<boolean>, no: number) {
+    for(var i = 0; i < res.length; i ++) {
+      const name = "check" + (i + 1).toString();
+      const val = survey.getValue(name);
+      assert.equal(val, res[i], "check no: " + no + ", value name: " + name);
+    }
+  };
+  checkFunc([true, false, true, false, false], 1);
+
+  const startQ = survey.getQuestionByName("startdate");
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  startQ.value = Helpers.convertDateToString(date);
+  checkFunc([false, true, false, true, false], 2);
+
+  startQ.value = Helpers.convertDateToString(new Date());
+  checkFunc([true, true, false, false, true], 3);
 });

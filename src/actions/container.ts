@@ -52,7 +52,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
   }
 
   public updateCallback: (isResetInitialized: boolean) => void;
-  public containerCss: string;
+  @property({}) containerCss: string;
   public sizeMode: "default" | "small" = "default";
   public locOwner: ILocalizableOwner;
   @property({ defaultValue: false }) isEmpty: boolean;

@@ -21,7 +21,7 @@ export var thaiStrings = {
   completingSurveyBefore: "รายการของเราแสดงว่าคุณได้ทำ survey เสร็จเรียบร้อยแล้ว",
   loadingSurvey: "กำลังโหลด Survey...",
   placeholder: "เลือก...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "ข้อมูล",
   requiredError: "กรุณาตอบคำถาม",
   requiredErrorInPanel: "กรุณาตอบขั้นต่ำหนึ่งคำถาม",

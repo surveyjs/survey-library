@@ -23,19 +23,19 @@
   font-size: 0;
   line-height: 0;
   position: static;
-  font-weight: 600;
+  font-family: $font-questiontitle-family;
+  font-weight: $font-questiontitle-weight;
+  color: $font-questiontitle-color;
   margin: 0;
 
   .sd-element__num {
     font-size: calcFontSize(0.75);
     line-height: calcSize(2);
+    color: $foreground-light;
   }
 
   span {
-    font-family: $font-questiontitle-family;
-    font-weight: $font-questiontitle-weight;
     font-size: $font-questiontitle-size;
-    color: $font-questiontitle-color;
     line-height: calcSize(3);
   }
 

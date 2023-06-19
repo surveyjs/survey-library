@@ -51,7 +51,7 @@ function getVisibleActionByIndex(list: ListModel, index: number) {
 QUnit.test("DropdownListModel with ListModel", (assert) => {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   assert.ok(dropdownListModel.popupModel.contentComponentData.model instanceof ListModel);
 
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
@@ -74,7 +74,7 @@ QUnit.test("DropdownListModel with ListModel", (assert) => {
 QUnit.test("DropdownListModel focusFirstInputSelector", (assert) => {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const popupModel = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   list.showFilter = true;
@@ -123,7 +123,7 @@ QUnit.test("DropdownListModel focusFirstInputSelector mobile", (assert) => {
   _setIsTouch(true);
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const popupModel = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
@@ -192,7 +192,7 @@ QUnit.test("DropdownListModel with ListModel & searchEnabled false", (assert) =>
 QUnit.test("filterString test", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   assert.equal(dropdownListModel.inputMode, "text");
@@ -215,7 +215,7 @@ QUnit.test("filterString test", function (assert) {
 QUnit.test("open/hide dropdown popup after start/end filtration", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const popup = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
@@ -238,7 +238,7 @@ QUnit.test("open/hide dropdown popup after start/end filtration", function (asse
 QUnit.test("hide dropdown on clear", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const popup = dropdownListModel.popupModel;
 
   popup.isVisible = true;
@@ -249,7 +249,7 @@ QUnit.test("hide dropdown on clear", function (assert) {
 QUnit.test("hide component on input entering symbols", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   question.inputFieldComponent = "component-name";
   question.value = "Ford";
   assert.ok(question.showInputFieldComponent);
@@ -277,7 +277,7 @@ QUnit.test("Check list classes with onUpdateQuestionCssClasses", function (asser
     };
   });
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   question.dropdownListModel = dropdownListModel;
   question.onFirstRendering();
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
@@ -289,7 +289,7 @@ QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
   _setIsTouch(true);
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const popup: PopupModel = dropdownListModel.popupModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   assert.equal(dropdownListModel.inputMode, "none");
@@ -307,7 +307,7 @@ QUnit.test("Check overlay popup when IsTouch is true", function (assert) {
 QUnit.test("Check dropdown list model is updated from value", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   question.value = "item1";
   assert.ok(list.isItemSelected(list.actions.filter(item => item.id === "item1")[0]));
@@ -318,7 +318,7 @@ QUnit.test("Check dropdown list model is updated from value", function (assert) 
 QUnit.test("filterString and focusedItem", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   assert.equal(dropdownListModel.inputMode, "text");
@@ -337,7 +337,7 @@ QUnit.test("filterString and focusedItem", function (assert) {
 QUnit.test("hintString test", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   assert.equal(dropdownListModel.inputMode, "text");
@@ -370,7 +370,7 @@ QUnit.test("hintString test", function (assert) {
 QUnit.test("hintString test - no search", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   question.searchEnabled = false;
 
@@ -381,7 +381,7 @@ QUnit.test("hintString test - no search", function (assert) {
 QUnit.test("dropdown keyboard tests", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   const event = {
@@ -463,7 +463,7 @@ QUnit.test("dropdown keyboard tests", function (assert) {
 QUnit.test("dropdown keyboard tests - empty question, search disabled", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   const event = {
@@ -514,7 +514,7 @@ QUnit.test("dropdown keyboard tests - empty question, search disabled", function
 QUnit.test("always show invisible hint part", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   question.value = "item1";
@@ -534,7 +534,7 @@ QUnit.test("always show invisible hint part", function (assert) {
 QUnit.test("change selection on keyboard", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   dropdownListModel.onClick(null);
@@ -569,7 +569,7 @@ QUnit.test("change selection on keyboard", function (assert) {
 QUnit.test("filtering on question with value", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   question.value = "item1";
@@ -603,7 +603,7 @@ QUnit.test("hintString letter case", function (assert) {
     }]
   });
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
 
   dropdownListModel.inputStringRendered = "Ab";
   assert.equal(dropdownListModel.hintString, "AbcAbc");
@@ -630,7 +630,7 @@ QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
   });
 
   q1.value = 2;
-  const dropdownListModel = new DropdownListModel(q1);
+  const dropdownListModel = q1.dropdownListModel;
 
   dropdownListModel.changeSelectionWithKeyboard(false);
   assert.equal(dropdownListModel.hintString, "", "no hint on start");
@@ -662,7 +662,7 @@ QUnit.test("lazy loading clear value", function (assert) {
     stopPropagation: () => { }
   };
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   assert.equal(question.showSelectedItemLocText, true, "showSelectedItemLocText");
   event.keyCode = 13;
   dropdownListModel.keyHandler(event);

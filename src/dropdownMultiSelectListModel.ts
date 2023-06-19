@@ -176,4 +176,11 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     }
     this.syncFilterStringPlaceholder();
   }
+
+  protected onPropertyChangedHandler(sender: any, options: any) {
+    super.onPropertyChangedHandler(sender, options);
+    if (options.name === "value" || options.name === "renderedValue") {
+      this.syncFilterStringPlaceholder();
+    }
+  }
 }

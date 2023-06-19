@@ -314,9 +314,7 @@ export class DropdownListModel extends Base {
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
     question.onPropertyChanged.add((sender: any, options: any) => {
-      if (options.name == "value") {
-        this.showInputFieldComponent = this.question.showInputFieldComponent;
-      }
+      this.onPropertyChangedHandler(sender, options);
     });
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
@@ -361,6 +359,11 @@ export class DropdownListModel extends Base {
     }
   }
 
+  protected onPropertyChangedHandler(sender: any, options: any) {
+    if (options.name == "value") {
+      this.showInputFieldComponent = this.question.showInputFieldComponent;
+    }
+  }
   protected focusItemOnClickAndPopup() {
     if (this._popupModel.isVisible && this.question.value)
       this.changeSelectionWithKeyboard(false);

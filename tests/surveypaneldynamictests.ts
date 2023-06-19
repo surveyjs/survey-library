@@ -5328,14 +5328,69 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  survey.css = defaultV2Css;
+  panel.cssClasses;
   const panelTabToolbar = panel.additionalTitleToolbar;
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--left", "tabAlign value is left");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--left", "tabAlign value is left");
 
   panel.tabAlign = "right";
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--right", "tabAlign value is right");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--right", "tabAlign value is right");
 
   panel.tabAlign = "center";
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--center", "tabAlign default value is center");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--center", "tabAlign default value is center");
+});
+
+QUnit.test("renderMode: tab check disableHide property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        renderMode: "tab",
+        templateTitle: "Information about: {panel.relativeType}",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ],
+        panelCount: 2,
+        panelAddText: "Add a blood relative",
+        panelRemoveText: "Remove the relative"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.equal(panelTabToolbar.actions[0].disableHide, true);
+  assert.equal(panelTabToolbar.actions[1].disableHide, false);
+
+  panel.addPanel();
+  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
+  assert.equal(panelTabToolbar.actions[0].disableHide, false);
+  assert.equal(panelTabToolbar.actions[1].disableHide, false);
+  assert.equal(panelTabToolbar.actions[2].disableHide, true);
+
+  let log = "";
+  panelTabToolbar.updateCallback = () => {
+    log += "->raised";
+  };
+  panelTabToolbar.actions[1].mode = "popup";
+  assert.equal(log, "");
+  panel.currentIndex = 1;
+  assert.ok(panelTabToolbar.actions[1].disableHide);
+  assert.equal(log, "->raised");
+  panel.currentIndex = 0;
+  assert.notOk(panelTabToolbar.actions[1].disableHide);
+  assert.ok(panelTabToolbar.actions[0].disableHide);
+  assert.equal(log, "->raised");
+  panelTabToolbar.actions[2].mode = "popup";
+  panel.currentIndex = 2;
+  assert.notOk(panelTabToolbar.actions[0].disableHide);
+  assert.notOk(panelTabToolbar.actions[1].disableHide);
+  assert.ok(panelTabToolbar.actions[2].disableHide);
+  assert.equal(log, "->raised->raised");
 });
 
 QUnit.test("question.cssHeader class", function (assert) {

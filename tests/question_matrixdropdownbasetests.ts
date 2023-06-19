@@ -484,3 +484,20 @@ QUnit.test("getCellWrapper name and data", function (assert) {
   matrix.getCellWrapperComponentData(ordinaryCell);
   assert.equal(survey.reason, "data->cell", "Ordinary cell component data");
 });
+QUnit.test("Rows with value = 0, Bug#6370", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: [0, 1, 2]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleRows.length, 3, "Three rows has been created");
+  assert.equal(matrix.visibleRows[0].rowName, 0, "The rowName is 0");
+  matrix.visibleRows[0].cells[0].question.value = "val1";
+  assert.deepEqual(survey.data, { q1: { 0: { col1: "val1" } } }, "Set row value correctly");
+});

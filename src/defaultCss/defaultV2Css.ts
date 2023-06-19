@@ -102,7 +102,18 @@ export var defaultV2Css = {
     panelWrapperInRow: "sd-paneldynamic__panel-wrapper--in-row",
     progressBtnIcon: "icon-progressbuttonv2",
     noEntriesPlaceholder: "sd-paneldynamic__placeholder sd-question__placeholder",
-    compact: "sd-element--with-frame sd-element--compact"
+    compact: "sd-element--with-frame sd-element--compact",
+    tabsRoot: "sd-tabs-toolbar",
+    tabsLeft: "sd-tabs-toolbar--left",
+    tabsRight: "sd-tabs-toolbar--right",
+    tabsCenter: "sd-tabs-toolbar--center",
+    tabs: {
+      item: "sd-tab-item",
+      itemPressed: "sd-tab-item--pressed",
+      itemAsIcon: "sd-tab-item--icon",
+      itemIcon: "sd-tab-item__icon",
+      itemTitle: "sd-tab-item__title"
+    }
   },
   progress: "sd-progress sd-body__progress",
   progressTop: "sd-body__progress--top",

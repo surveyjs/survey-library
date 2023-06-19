@@ -2982,3 +2982,8 @@ QUnit.test("overridingProperty test", function (assert) {
   assert.equal(Serializer.findProperty("question", "readOnly").overridingProperty, "enableIf", "readOnly property check");
   assert.equal(Serializer.findProperty("question", "isRequired").overridingProperty, "requiredIf", "isRequired property check");
 });
+QUnit.test("multipletextitem, name property should be required and unique", function (assert) {
+  const prop = Serializer.findProperty("multipletextitem", "name");
+  assert.equal(prop.isRequired, true, "name property is required");
+  assert.equal(prop.isUnique, true, "name property is unique");
+});

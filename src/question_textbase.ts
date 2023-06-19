@@ -120,6 +120,14 @@ export class QuestionTextBase extends Question {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateRemainingCharacterCounter(newValue);
   }
+  public disableNativeUndoRedo = false;
+  protected checkForUndo(event: KeyboardEvent) {
+    if (this.disableNativeUndoRedo && this.isInputTextUpdate && (event.ctrlKey || event.metaKey)) {
+      if ([89, 90].indexOf(event.keyCode) !== -1) {
+        event.preventDefault();
+      }
+    }
+  }
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)

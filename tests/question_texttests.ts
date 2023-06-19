@@ -298,6 +298,65 @@ QUnit.test("Test event handlers with on typing text update mode", function(asser
   assert.equal(q.value, "test5", "value should be updated on key up if is waiting for enter and key is enter");
 });
 
+QUnit.test("Test event prevent default on typing text update mode", function(assert) {
+  const testInput = document.createElement("input");
+  const fakeInput = document.createElement("input");
+  document.body.appendChild(testInput);
+  document.body.appendChild(fakeInput);
+  let survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "comment", name: "q2" },
+    ]
+  });
+  let q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  let q2 = <QuestionTextModel>survey.getQuestionByName("q2");
+  q1.disableNativeUndoRedo = true;
+  q2.disableNativeUndoRedo = true;
+  const eventCtrlZ = {
+    target: testInput,
+    keyCode: 90,
+    ctrlKey: true,
+    preventDefault: ()=>{ defaultPrevented = true; }
+  };
+  const eventCtrlY = {
+    target: testInput,
+    keyCode: 89,
+    ctrlKey: true,
+    preventDefault: ()=>{ defaultPrevented = true; }
+  };
+
+  let defaultPrevented = false;
+  q1.onKeyDown(eventCtrlZ);
+  assert.notOk(defaultPrevented, "text ctrl+Z");
+
+  q1.onKeyDown(eventCtrlY);
+  assert.notOk(defaultPrevented, "text ctrl+Y");
+
+  q2.onKeyDown(eventCtrlZ);
+  assert.notOk(defaultPrevented, "comment ctrl+Z");
+
+  q2.onKeyDown(eventCtrlY);
+  assert.notOk(defaultPrevented, "comment ctrl+Y");
+
+  survey.textUpdateMode = "onTyping";
+
+  q1.onKeyDown(eventCtrlZ);
+  assert.ok(defaultPrevented, "text onTyping ctrl+Z");
+
+  defaultPrevented = false;
+  q1.onKeyDown(eventCtrlY);
+  assert.ok(defaultPrevented, "text onTyping ctrl+Y");
+
+  survey.textUpdateMode = "onTyping";
+  q2.onKeyDown(eventCtrlZ);
+  assert.ok(defaultPrevented, "comment onTyping ctrl+Z");
+
+  defaultPrevented = false;
+  q2.onKeyDown(eventCtrlY);
+  assert.ok(defaultPrevented, "comment onTyping ctrl+Y");
+});
+
 QUnit.test("Test event handlers do not change question'value if newValue is same", function(assert) {
   let log = "";
   const testInput = document.createElement("input");

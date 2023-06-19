@@ -426,6 +426,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyDown = (event: any) => {
+    this.checkForUndo(event);
     if(this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }

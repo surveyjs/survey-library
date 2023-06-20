@@ -69,14 +69,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public getContainerClasses(containerType?: string) {
     let isEmpty = false;
-    let isToContainer = false;
-    let isFromContainer = false;
+    const isToContainer = containerType === "to";
+    const isFromContainer = containerType === "from";
 
-    if (containerType === "to") {
-      isToContainer = true;
+    if (isToContainer) {
       isEmpty = this.rankingChoices.length === 0;
-    } else if (containerType === "from") {
-      isFromContainer = true;
+    } else if (isFromContainer) {
       isEmpty = this.unRankingChoices.length === 0;
     }
 

@@ -14,13 +14,9 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
       let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
 
-      if (!!toContainer) {
-        return toContainer;
-      } else if (!!fromContainer) {
-        return fromContainer;
-      } else {
-        return null;
-      }
+      if (!!toContainer) return toContainer;
+      if (!!fromContainer) return fromContainer;
+      return null;
     }
 
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
@@ -66,11 +62,8 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
 
     if (this.isDraggedElementUnranked && this.isDropTargetRanked) {
       fromIndex = unRankingChoices.indexOf(this.draggedElement);
-      if (rankingChoices.length === 0) {
-        toIndex = 0;
-      } else {
-        toIndex = rankingChoices.indexOf(this.dropTarget);
-      }
+      toIndex = rankingChoices.indexOf(this.dropTarget);
+      if(toIndex === -1) toIndex = 0;
       this.selectToRankEnabled(questionModel, fromIndex, toIndex);
       this.doUIEffects(dropTargetNode, fromIndex, toIndex);
       return;
@@ -86,11 +79,8 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
 
     if (this.isDraggedElementRanked && !this.isDropTargetRanked) {
       fromIndex = rankingChoices.indexOf(this.draggedElement);
-      if (unRankingChoices.length === 0) {
-        toIndex = 0;
-      } else {
-        toIndex = unRankingChoices.indexOf(this.dropTarget);
-      }
+      toIndex = unRankingChoices.indexOf(this.dropTarget);
+      if(toIndex === -1) toIndex = 0;
       this.unselectFromRank(questionModel, fromIndex);
       this.doUIEffects(dropTargetNode, fromIndex, toIndex);
       return;

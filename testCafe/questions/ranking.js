@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getData, setData } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "ranking";
 
 const json = {
@@ -235,6 +235,38 @@ frameworks.forEach((framework) => {
       "Durability",
       "Processor power",
       "Price",
+    ]);
+  });
+
+  test("ranking: run-time creation ", async (t) => {
+    const newName = "ranking-new";
+
+    const addNewRankingQuestion = ClientFunction((newName) => {
+      const qr = new window["Survey"].QuestionRanking(newName);
+      qr.choices = ["one", "two"];
+      window["survey"].currentPage.addQuestion(qr);
+    });
+
+    await addNewRankingQuestion(newName);
+
+    const FirstItem = Selector("span")
+      .withText(newName)
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("one");
+
+    const SecondItem = Selector("span")
+      .withText(newName)
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("two");
+
+    await t.dragToElement(FirstItem, SecondItem);
+
+    let data = await getData();
+    await t.expect(data[newName]).eql([
+      "two",
+      "one"
     ]);
   });
 });

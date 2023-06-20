@@ -21,6 +21,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("rankingChoices");
+    this.registerFunctionOnPropertyValueChanged("selectToRankEnabled", () => {
+      this.clearValue();
+      this.setDragDropRankingChoices();
+      this.updateRankingChoices();
+    });
   }
 
   protected getDefaultItemComponent(): string {
@@ -119,6 +124,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
+    this.setDragDropRankingChoices();
     this.updateRankingChoices();
   }
   public isAnswerCorrect(): boolean {
@@ -127,6 +133,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;
+    this.setDragDropRankingChoices();
     this.updateRankingChoices();
   }
 
@@ -257,11 +264,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
 
-    if (this.selectToRankEnabled) {
-      this.dragDropRankingChoices = new DragDropRankingSelectToRank(this.survey, null, this.longTap);
-    } else {
-      this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
-    }
+    this.setDragDropRankingChoices();
+  }
+
+  private setDragDropRankingChoices() {
+    this.dragDropRankingChoices = this.createDragDropRankingChoices();
+  }
+  protected createDragDropRankingChoices() {
+    if (this.selectToRankEnabled)
+      return new DragDropRankingSelectToRank(this.survey, null, this.longTap);
+    return new DragDropRankingChoices(this.survey, null, this.longTap);
   }
 
   public handlePointerDown = (

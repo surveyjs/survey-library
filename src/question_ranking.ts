@@ -133,7 +133,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;
-    this.setDragDropRankingChoices();
     this.updateRankingChoices();
   }
 

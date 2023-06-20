@@ -577,6 +577,9 @@ export class Question extends SurveyElement<Question>
   get hasDescriptionUnderInput(): boolean {
     return this.getDescriptionLocation() == "underInput";
   }
+  get hasDescriptionUnderTitleAndInput(): boolean {
+    return this.getDescriptionLocation() == "underTitleAndInput";
+  }
   private getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
     return !!this.survey
@@ -2212,7 +2215,7 @@ Serializer.addClass("question", [
   {
     name: "descriptionLocation",
     default: "default",
-    choices: ["default", "underInput", "underTitle"],
+    choices: ["default", "underInput", "underTitle", "underTitleAndInput"],
   },
   {
     name: "hideNumber:boolean",

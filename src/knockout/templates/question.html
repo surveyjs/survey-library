@@ -10,6 +10,12 @@
   <!-- /ko -->
   <!-- ko component: { name: question.survey.getQuestionContentWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: 'survey-question-content', data: question } } } -->
   <!-- /ko -->
+  <!-- ko if: question.hasDescriptionUnderTitleAndInput -->
+  <div data-bind="css: cssClasses.descriptionUnderTitleAndInput">
+    <!-- ko template: { name: 'survey-string', data: locDescription } -->
+    <!-- /ko -->
+  </div>
+  <!-- /ko -->
   <!-- ko if: question.showErrorsBelowQuestion -->
     <!-- ko template: { name: 'survey-question-errors', data: question } -->
     <!-- /ko -->

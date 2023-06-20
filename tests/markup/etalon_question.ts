@@ -85,6 +85,28 @@ registerMarkupTest(
 );
 registerMarkupTest(
   {
+    name: "Test question with description under title and input",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          description: "Under title and input",
+          descriptionLocation: "underTitleAndInput",
+          titleLocation: "left"
+        }
+      ],
+      questionErrorLocation: "bottom"
+    },
+    snapshot: "question-description-under-title-and-input",
+    event: "onAfterRenderPage",
+    initSurvey: survey => survey.getQuestionByName("name").allowRootStyle = false,
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
+);
+registerMarkupTest(
+  {
     name: "Test question with indent",
     json: {
       questions: [

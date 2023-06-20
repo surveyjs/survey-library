@@ -4079,6 +4079,24 @@ QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
   assert.equal(choices[0].imageLink, "test1", "image link is copied");
 });
 
+QUnit.test("QuestionImagePickerModel and disable imageLink localization", function (assert) {
+  const prop = Serializer.findProperty("imageitemvalue", "imageLink");
+  prop.isLocalizable = false;
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q1",
+        choices: [
+          { value: 1, imageLink: "test1" }]
+      }]
+  });
+  const q1 = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+  survey.locale = "de";
+  q1.choices[0].imageLink = "test2";
+  assert.deepEqual(q1.toJSON(), { name: "q1",
+    choices: [{ value: 1, imageLink: "test2" }] }, "no localization in imageLink");
+  prop.isLocalizable = true;
+});
+
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
   var json = { title: "title", questions: [{ type: "text", name: "q" }] };
   var survey = new SurveyModel(json);

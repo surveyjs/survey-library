@@ -18,12 +18,16 @@
     gap: calcSize(1);
     margin-inline-start: 0;
     align-items: center;
+    margin-bottom: calcSize(-2);
   }
 
   &.sd-rating--wrappable {
     fieldset {
       flex-wrap: wrap;
     }
+  }
+  &.sd-scrollable-container:not(.sd-scrollable-container--compact) {
+    overflow: visible;
   }
 }
 

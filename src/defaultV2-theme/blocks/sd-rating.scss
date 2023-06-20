@@ -8,18 +8,16 @@
 }
 .sd-rating {
   overflow-x: auto;
-  min-height: calcSize(8);
+  min-height: calcSize(6);
 
   fieldset {
     display: flex;
     border: none;
-    padding: calcSize(2) 0;
+    padding: 0 0 2px 0;
     flex-wrap: nowrap;
     gap: calcSize(1);
     margin-inline-start: 0;
     align-items: center;
-    margin-top: calcSize(-2);
-    margin-bottom: calcSize(-2);
   }
 
   &.sd-rating--wrappable {

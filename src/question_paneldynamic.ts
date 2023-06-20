@@ -1570,18 +1570,29 @@ export class QuestionPanelDynamicModel extends Question
     }
     return true;
   }
-  protected clearValueIfInvisibleCore(): void {
+  protected clearValueOnHidding(isClearOnHidden: boolean): void {
+    if(!isClearOnHidden) {
+      if(!!this.survey && this.survey.getQuestionClearIfInvisible("onHidden") === "none") return;
+      this.clearValueInPanelsIfInvisible("onHiddenContainer");
+    }
+    super.clearValueOnHidding(isClearOnHidden);
+  }
+  public clearValueIfInvisible(reason: string = "onHidden"): void {
+    const panelReason = reason === "onHidden" ? "onHiddenContainer": reason;
+    this.clearValueInPanelsIfInvisible(panelReason);
+    super.clearValueIfInvisible(reason);
+  }
+  private clearValueInPanelsIfInvisible(reason: string): void {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
       this.isSetPanelItemData = {};
       for (var j = 0; j < questions.length; j++) {
         const q = questions[j];
-        q.clearValueIfInvisible();
+        q.clearValueIfInvisible(reason);
         this.isSetPanelItemData[q.getValueName()] = this.maxCheckCount + 1;
       }
     }
     this.isSetPanelItemData = {};
-    super.clearValueIfInvisibleCore();
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;

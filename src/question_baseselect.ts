@@ -1386,8 +1386,8 @@ export class QuestionSelectBase extends Question {
     if(!!this.survey && this.survey.keepIncorrectValues) return false;
     return !this.keepIncorrectValues && !this.isEmpty();
   }
-  protected clearValueIfInvisibleCore(): void {
-    super.clearValueIfInvisibleCore();
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
     this.clearIncorrectValues();
   }
   /**

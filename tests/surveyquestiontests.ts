@@ -6418,7 +6418,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
       { type: "text", name: "q5", clearIfInvisible: "onComplete" }
     ]
   });
-  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
   for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
@@ -6451,7 +6451,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
       }
     ]
   });
-  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
   for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
@@ -6459,11 +6459,38 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
   (<PanelModel>survey.getPanelByName("panel")).visible = false;
   assert.equal(q.q1.value, undefined, "q1: default/invisible");
   assert.equal(q.q2.value, "q2", "q2: none/invisible");
-  assert.equal(q.q3.value, undefined, "q3: onHidden/invisible");
-  assert.equal(q.q4.value, undefined, "q4: onHidden/defaultValue/invisible");
+  assert.equal(q.q3.value, "q3", "q3: onHidden/invisible");
+  assert.equal(q.q4.value, "q4", "q4: onHidden/defaultValue/invisible");
   assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
+});
+QUnit.test("Test question.clearIfInvisible='onHiddenContainer'", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "panel", name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", clearIfInvisible: "none" },
+          { type: "text", name: "q3", clearIfInvisible: "onHidden" },
+          { type: "text", name: "q4", clearIfInvisible: "onHiddenContainer" },
+          { type: "text", name: "q5", clearIfInvisible: "onComplete" }
+        ]
+      },
+      { type: "text", name: "q6", clearIfInvisible: "onHiddenContainer" },
+    ]
+  });
+  for(let i = 1; i < 7; i ++) {
+    survey.setValue("q" + i, i);
+  }
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 6 }, "initial");
+  survey.getQuestionByName("q6").visible = false;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5 }, "q6 invisible");
+  (<PanelModel>survey.getPanelByName("panel")).visible = false;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q5: 5 }, "panel invisible");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q2: 2 }, "state is completed");
 });
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");

@@ -6094,18 +6094,10 @@ export class SurveyModel extends SurveyElementCore
   public set clearValueOnDisableItems(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
-  get isClearValueOnHidden(): boolean {
-    return (
-      this.clearInvisibleValues == "onHidden" ||
-      this.isClearValueOnHiddenContainer
-    );
-  }
-  get isClearValueOnHiddenContainer(): boolean {
-    return (
-      this.clearInvisibleValues == "onHiddenContainer" &&
-      !this.isShowingPreview &&
-      !this.runningPages
-    );
+  getQuestionClearIfInvisible(questionClearIf: string): string {
+    if(this.isShowingPreview || this.runningPages) return "none";
+    if(questionClearIf !== "default") return questionClearIf;
+    return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean) {
     this.updateVisibleIndexes();

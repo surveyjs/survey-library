@@ -3684,6 +3684,88 @@ QUnit.test(
     assert.equal(counter, 1, "clear files was called");
   }
 );
+QUnit.test("call clear value on hidden dynamic panel, Bug #6336", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        visibleIf: "{q1} = 1",
+        templateElements: [
+          {
+            type: "text",
+            name: "q2",
+            clearIfInvisible: "onHiddenContainer",
+          },
+        ],
+        panelCount: 1
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.setValue("q1", 1);
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const textQuestion = (<QuestionTextModel>panel.panels[0].getQuestionByName("q2"));
+  textQuestion.value = "val1";
+  assert.equal(textQuestion.isParentVisible, true, "file question parent is visible");
+  survey.setValue("q1", 2);
+  assert.equal(panel.isVisible, false, "panel is invisible");
+  assert.equal(textQuestion.isParentVisible, false, "file question parent is invisible");
+  assert.equal(textQuestion.isEmpty(), true, "question value is empty, #1");
+  survey.setValue("q1", 1);
+  assert.equal(textQuestion.isEmpty(), true, "question value is empty, #2");
+});
+
+QUnit.test("call clearFiles for QuestionFile on clearing panel value, Bug #6336", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        visibleIf: "{q1} = 1",
+        templateElements: [
+          {
+            type: "file",
+            name: "q2",
+            clearIfInvisible: "onHiddenContainer",
+          },
+        ],
+        panelCount: 1
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  var counter = 0;
+  survey.onClearFiles.add(function(sender, options) {
+    counter++;
+    options.callback("success");
+    assert.equal(
+      options.question.name,
+      "q2",
+      "Question is passed in options"
+    );
+  });
+  survey.setValue("q1", 1);
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const fileQuestion = (<QuestionFileModel>panel.panels[0].getQuestionByName("q2"));
+  fileQuestion.value = "data:image/jpeg;base64,FILECONTENT";
+  assert.equal(fileQuestion.isParentVisible, true, "file question parent is visible");
+  survey.setValue("q1", 2);
+  assert.equal(panel.isVisible, false, "panel is invisible");
+  assert.equal(fileQuestion.isParentVisible, false, "file question parent is invisible");
+  assert.equal(fileQuestion.isEmpty(), true, "question value is empty, #1");
+  assert.equal(counter, 1, "clear files was called");
+  survey.setValue("q1", 1);
+  assert.equal(fileQuestion.isEmpty(), true, "question value is empty, #2");
+});
 
 QUnit.test(
   "Question padding right inside panel - https://github.com/surveyjs/survey-library/issues/1977",

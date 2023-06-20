@@ -1202,18 +1202,18 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("isVisible", this.isVisible);
     if (!this.isLoadingFromJson) this.onVisibleChanged();
   }
-  protected onVisibleChanged() {
+  protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);
     if (
-      !!this.survey &&
-      this.survey.isClearValueOnHiddenContainer &&
+      !!this.survey && this.survey.getQuestionClearIfInvisible("default") !== "none" &&
       !this.isLoadingFromJson
     ) {
-      var questions = this.questions;
+      const questions = this.questions;
+      const isVisible = this.isVisible;
       for (var i = 0; i < questions.length; i++) {
-        if (!this.isVisible) {
-          questions[i].clearValueIfInvisible();
+        if (!isVisible) {
+          questions[i].clearValueIfInvisible("onHiddenContainer");
         } else {
           questions[i].updateValueWithDefaults();
         }

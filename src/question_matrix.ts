@@ -548,8 +548,8 @@ export class QuestionMatrixModel
     json["type"] = question.getType();
     return json;
   }
-  protected clearValueIfInvisibleCore(): void {
-    super.clearValueIfInvisibleCore();
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
     if (this.hasRows) {
       this.clearInvisibleValuesInRows();
     }

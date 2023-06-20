@@ -634,13 +634,13 @@ export class SurveyModel extends SurveyElementCore
   public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
 
   /**
-   * An event that is raised after a cell value is changed a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
+   * An event that is raised after a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    * @see onMatrixBeforeRowAdded
    */
   public onMatrixCellValueChanged: EventBase<SurveyModel, MatrixCellValueChangedEvent> = this.addEvent<SurveyModel, MatrixCellValueChangedEvent>();
 
   /**
-   * An event that is raised before a cell value is changed a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to change the cell value.
+   * An event that is raised before a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to change the cell value.
    * @see onMatrixBeforeRowAdded
    */
   public onMatrixCellValueChanging: EventBase<SurveyModel, MatrixCellValueChangingEvent> = this.addEvent<SurveyModel, MatrixCellValueChangingEvent>();
@@ -740,22 +740,6 @@ export class SurveyModel extends SurveyElementCore
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
   /**
    * An event that allows you to add, delete, or modify actions in rows of a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
-   *
-   * The following code shows how to delete the Remove action for all matrix rows:
-   *
-   * ```js
-   * import { Model } from "survey-core";
-   * const surveyJson = { ... };
-   * const survey = new Model(surveyJson);
-   *
-   * survey.onGetMatrixRowActions.add((_, { actions }) => {
-   *   for (let i = 0; i < actions.length; i++) {
-   *     if (actions[i].title === "Remove") {
-   *       actions.splice(i, 1);
-   *     }
-   *   }
-   * });
-   * ```
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *

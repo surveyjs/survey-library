@@ -13,11 +13,12 @@
   fieldset {
     display: flex;
     border: none;
-    padding: 0 0 calcSize(2) 0;
+    padding: calcSize(2) 0;
     flex-wrap: nowrap;
     gap: calcSize(1);
     margin-inline-start: 0;
     align-items: center;
+    margin-top: calcSize(-2);
     margin-bottom: calcSize(-2);
   }
 

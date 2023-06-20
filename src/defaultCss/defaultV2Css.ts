@@ -173,6 +173,7 @@ export var defaultV2Css = {
     number: "sd-element__num",
     description: "sd-description sd-question__description",
     descriptionUnderInput: "sd-description sd-question__description sd-question__description--under-input",
+    descriptionUnderTitleAndInput: "sd-description sd-question__description sd-question__description--under-title-and-input",
     comment: "sd-input sd-comment",
     other: "sd-input sd-comment",
     required: "sd-question--required",

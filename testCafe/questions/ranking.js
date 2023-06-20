@@ -242,7 +242,7 @@ frameworks.forEach((framework) => {
     const newName = "ranking-new";
 
     const addNewRankingQuestion = ClientFunction((newName) => {
-      const qr = new window["Survey"].QuestionRanking(newName);
+      const qr = new window["Survey"].QuestionRankingModel(newName);
       qr.choices = ["one", "two"];
       window["survey"].currentPage.addQuestion(qr);
     });

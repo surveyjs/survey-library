@@ -4,6 +4,7 @@ const title = "dropdown";
 
 const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
+const questionValue = Selector(".sv_q_dropdown__value");
 const questionValueInput = Selector(".sv_q_dropdown__value input");
 const questionValueText = Selector(".sv_q_dropdown__value .sv-string-viewer");
 const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
@@ -754,7 +755,17 @@ frameworks.forEach((framework) => {
       .pressKey("u")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
-      .expect(questionValueText.textContent).eql("Vauxhall");
+      .expect(questionValue.innerText).eql("")
+
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Nissan"))
+      .expect(questionValueInput.value).eql("Nissan")
+
+      .pressKey("ctrl+a backspace")
+      .pressKey("a u")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValue.innerText).eql("Nissan");
   });
 
   test("Check dropdown key press without searchEnabled", async (t) => {

@@ -92,6 +92,10 @@ export class QuestionFileModel extends Question {
   public getType(): string {
     return "file";
   }
+  public clearValue(): void {
+    this.clearOnDeletingContainer();
+    super.clearValue();
+  }
   public clearOnDeletingContainer() {
     if (!this.survey) return;
     this.survey.clearFiles(this, this.name, this.value, null, () => { });

@@ -576,19 +576,20 @@ export interface MatrixRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * An added matrix row.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
 }
 export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * A Boolean property that you can set to `false` if you do not want to add the row.
    */
+  allow: boolean;
   canAddRow: boolean;
 }
 export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * A matrix row to be deleted. If you want to clear row data, set the `options.row.value` property to `undefined`.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
   /**
    * A zero-based index of the matrix row to be deleted.
    */
@@ -602,7 +603,7 @@ export interface MatrixRowRemovedEvent extends MatrixDynamicQuestionEventMixin {
   /**
    * A deleted matrix row.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
   /**
    * A zero-based index of the deleted row.
    */
@@ -612,7 +613,7 @@ export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMix
   /**
    * A matrix row for which the event is raised.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
   /**
    * A zero-based row index.
    */
@@ -683,9 +684,17 @@ export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMix
    */
   row: MatrixDropdownRowModelBase;
   /**
+   * A matrix column to which the cell belongs.
+   */
+  column: MatrixDropdownColumn;
+  /**
    * The name of a matrix column to which the cell belongs.
    */
   columnName: string;
+  /**
+   * A Question instance within the matrix cell. You can use the properties and methods exposed by the instance to customize it.
+   */
+  cellQuestion: Question;
   /**
    * A method that returns a Question instance within the matrix cell given a column name.
    */
@@ -822,7 +831,7 @@ export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActions
   /**
    * A matrix row for which the event is raised.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
 }
 export interface ElementContentVisibilityChangedEvent {
   /**

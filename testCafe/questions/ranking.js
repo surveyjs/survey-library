@@ -67,10 +67,15 @@ const json = {
 //   frameworks.push("knockout");
 // }
 
+const setSjsFramework = ClientFunction((framework) => {
+  window["sjsFramework"] = framework;
+});
+
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
       await t.resizeWindow(1920, 1080);
+      await setSjsFramework(framework);
       await initSurvey(framework, json);
     }
   );
@@ -242,7 +247,14 @@ frameworks.forEach((framework) => {
     const newName = "ranking-new";
 
     const addNewRankingQuestion = ClientFunction((newName) => {
-      const qr = new window["Survey"].QuestionRankingModel(newName);
+      let qr;
+
+      if (window["sjsFramework"] === "knockout") { //see https://github.com/surveyjs/survey-library/issues/6396
+        qr = new window["Survey"].QuestionRanking(newName);
+      } else {
+        qr = new window["Survey"].QuestionRankingModel(newName);
+      }
+
       qr.choices = ["one", "two"];
       window["survey"].currentPage.addQuestion(qr);
     });

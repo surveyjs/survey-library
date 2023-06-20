@@ -52,8 +52,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
   isEditingSurveyElement: boolean;
-  isClearValueOnHidden: boolean;
-  isClearValueOnHiddenContainer: boolean;
+  getQuestionClearIfInvisible(questionClearIf: string): string;
   questionsOrder: string;
   matrixDragHandleArea: string;
   keepIncorrectValues: boolean;

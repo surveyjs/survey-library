@@ -6094,18 +6094,10 @@ export class SurveyModel extends SurveyElementCore
   public set clearValueOnDisableItems(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
-  get isClearValueOnHidden(): boolean {
-    return (
-      this.clearInvisibleValues == "onHidden" ||
-      this.isClearValueOnHiddenContainer
-    );
-  }
-  get isClearValueOnHiddenContainer(): boolean {
-    return (
-      this.clearInvisibleValues == "onHiddenContainer" &&
-      !this.isShowingPreview &&
-      !this.runningPages
-    );
+  getQuestionClearIfInvisible(questionClearIf: string): string {
+    if(this.isShowingPreview || this.runningPages) return "none";
+    if(questionClearIf !== "default") return questionClearIf;
+    return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean) {
     this.updateVisibleIndexes();
@@ -7237,7 +7229,7 @@ Serializer.addClass("survey", [
     default: "auto",
     choices: ["auto", "static", "responsive"],
   },
-  "width",
+  { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

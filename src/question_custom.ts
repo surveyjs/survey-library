@@ -804,11 +804,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     if(!!res) return res;
     return super.findQuestionByName(name);
   }
-  protected clearValueIfInvisibleCore(): void {
-    super.clearValueIfInvisibleCore();
-    var questions = this.contentPanel.questions;
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
+    const questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].clearValueIfInvisible();
+      questions[i].clearValueIfInvisible(reason);
     }
   }
   onAnyValueChanged(name: string) {

@@ -1164,6 +1164,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
   assert.equal(question.value.id, 55);
   assert.equal(question.selectedItem.value.id, 55);
   assert.equal(question.selectedItem.text, "DisplayText_55");
+  question.dropdownListModel.onFocus(null);
   assert.equal(question.dropdownListModel.inputString, "DisplayText_55");
 
   question.dropdownListModel.popupModel.isVisible = true;

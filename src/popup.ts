@@ -93,10 +93,10 @@ export class PopupModel<T = any> extends Base {
     }
     this.setPropertyValue("isVisible", value);
     this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
-    this.refreshInnerModel();
     if (this.isVisible) {
       this.onShow();
     } else {
+      this.refreshInnerModel();
       this.onHide();
     }
   }

@@ -268,7 +268,7 @@ QUnit.test("DragDropRankingSelectToRank : selectToRankEnabled", function (assert
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel();
 
-  dndModel.selectToRankEnabled(questionModel, 1, 0);
+  dndModel.selectToRank(questionModel, 1, 0);
   assert.equal(questionModel.unRankingChoices.length, 2, "unRankingChoices count");
   assert.equal(questionModel.rankingChoices.length, 1, "rankingChoices count");
 });

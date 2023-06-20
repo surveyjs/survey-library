@@ -57,34 +57,37 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
 
-    let fromIndex;
-    let toIndex;
-
     if (this.isDraggedElementUnranked && this.isDropTargetRanked) {
-      fromIndex = unRankingChoices.indexOf(this.draggedElement);
-      toIndex = rankingChoices.indexOf(this.dropTarget);
-      if(toIndex === -1) toIndex = 0;
-      this.selectToRankEnabled(questionModel, fromIndex, toIndex);
-      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+      this.doRankBetween(dropTargetNode, unRankingChoices, rankingChoices, this.selectToRank);
       return;
     }
 
     if (this.isDraggedElementRanked && this.isDropTargetRanked) {
-      fromIndex = rankingChoices.indexOf(this.draggedElement);
-      toIndex = rankingChoices.indexOf(this.dropTarget);
-      this.reorderRankedItem(questionModel, fromIndex, toIndex);
-      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+      this.doRankBetween(dropTargetNode, rankingChoices, rankingChoices, this.reorderRankedItem);
       return;
     }
 
     if (this.isDraggedElementRanked && !this.isDropTargetRanked) {
-      fromIndex = rankingChoices.indexOf(this.draggedElement);
-      toIndex = unRankingChoices.indexOf(this.dropTarget);
-      if(toIndex === -1) toIndex = 0;
-      this.unselectFromRank(questionModel, fromIndex);
-      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+      this.doRankBetween(dropTargetNode, rankingChoices, unRankingChoices, this.unselectFromRank);
       return;
     }
+  }
+
+  public doRankBetween(
+    dropTargetNode: HTMLElement,
+    fromChoicesArray: Array<ItemValue>,
+    toChoicesArray: Array<ItemValue>,
+    rankFunction: Function
+  ): void {
+    const questionModel: any = this.parentElement;
+
+    let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
+    let toIndex = toChoicesArray.indexOf(this.dropTarget);
+
+    if(toIndex === -1) toIndex = 0;
+
+    rankFunction(questionModel, fromIndex, toIndex);
+    this.doUIEffects(dropTargetNode, fromIndex, toIndex);
   }
 
   private doUIEffects(dropTargetNode: HTMLElement, fromIndex: number, toIndex:number) {
@@ -127,7 +130,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return !this.isDropTargetRanked;
   }
 
-  public selectToRankEnabled(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
@@ -136,7 +139,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
   }
 
-  public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number) {
+  public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void {
     const rankingChoices = questionModel.rankingChoices;
     rankingChoices.splice(fromIndex, 1);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);

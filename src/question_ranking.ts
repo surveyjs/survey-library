@@ -380,7 +380,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (key === " " && isMovedElementUnRanked) {
       fromIndex = unRankingChoices.indexOf(movedElement);
       toIndex = 0;
-      dnd.selectToRankEnabled(this, fromIndex, toIndex);
+      dnd.selectToRank(this, fromIndex, toIndex);
       this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }

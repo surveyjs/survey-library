@@ -5,7 +5,7 @@ export var surveyCss: any = {
     if (!loc) loc = defaultV2Css;
     return loc;
   },
-  getAvailableThemes: function() {
+  getAvailableThemes: function () {
     return Object.keys(this).filter(propertyName => ["currentType", "getCss", "getAvailableThemes"].indexOf(propertyName) === -1);
   }
 };
@@ -580,6 +580,9 @@ export var defaultV2Css = {
     rootDisabled: "sd-ranking--disabled",
     rootDesignMode: "sv-ranking--design-mode",
     rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
+    rootSelectToRankMod: "sv-ranking--select-to-rank",
+    rootSelectToRankAlignVertical: "sv-ranking--select-to-rank-vertical",
+    rootSelectToRankAlignHorizontal: "sv-ranking--select-to-rank-horizontal",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content sd-ranking-item__content",
     itemIndex: "sv-ranking-item__index sd-ranking-item__index",
@@ -594,6 +597,12 @@ export var defaultV2Css = {
     itemGhostMod: "sv-ranking-item--ghost",
     itemDragMod: "sv-ranking--drag",
     itemOnError: "sv-ranking-item--error",
+    container: "sv-ranking__container",
+    containerEmptyMode: "sv-ranking__container--empty",
+    containerFromMode: "sv-ranking__container--from",
+    containerToMode: "sv-ranking__container--to",
+    containerPlaceholder: "sv-ranking__container-placeholder",
+    containersDivider: "sv-ranking__containers-divider",
   },
   buttongroup: {
     root: "sv-button-group",

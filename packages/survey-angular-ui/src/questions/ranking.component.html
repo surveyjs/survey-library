@@ -1,5 +1,25 @@
-<div [class]="model.rootClass" #contentElement>
+<div *ngIf="!model.selectToRankEnabled" [class]="model.rootClass" #contentElement>
   <ng-container *ngFor="let item of model.rankingChoices; index as index; trackBy: trackItemBy">
     <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item, index) }"></ng-template>
   </ng-container>
+</div>
+
+<div *ngIf="model.selectToRankEnabled" [class]="model.rootClass" #contentElement>
+  <div [class]='model.getContainerClasses("from")' data-ranking="from-container">
+    <ng-container *ngFor="let item of model.unRankingChoices; index as index; trackBy: trackItemBy">
+      <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item, index, true) }"></ng-template>
+    </ng-container>
+
+    <div *ngIf="model.unRankingChoices.length === 0" [class]="model.cssClasses.containerPlaceholder">{{model.selectToRankFromContainerPlaceholder}}</div>
+  </div>
+
+  <div [class]="model.cssClasses.containersDivider"></div>
+
+  <div [class]='model.getContainerClasses("to")' data-ranking="to-container">
+    <ng-container *ngFor="let item of model.rankingChoices; index as index; trackBy: trackItemBy">
+      <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item, index) }"></ng-template>
+    </ng-container>
+
+    <div *ngIf="model.rankingChoices.length === 0" [class]="model.cssClasses.containerPlaceholder">{{model.selectToRankToContainerPlaceholder}}</div>
+  </div>
 </div>

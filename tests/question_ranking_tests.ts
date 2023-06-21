@@ -3,6 +3,7 @@ import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
 import { settings as Settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("question ranking");
 
@@ -314,3 +315,42 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.deepEqual(q2.value, ["a", "b"], "value is correct");
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
+
+// selectToRankEnabled
+function createRankingQuestionModel(selectToRankEnabled = false, withDefaultValue = false) {
+  const json = {
+    "choices": [
+      "11",
+      "22",
+      "33"
+    ]
+  };
+
+  if (selectToRankEnabled) {
+    json["selectToRankEnabled"] = true;
+  }
+
+  if (withDefaultValue) {
+    json["defaultValue"] = ["33", "22"];
+  }
+
+  const model = new QuestionRankingModel("qr1");
+  model.fromJSON(json);
+  return model;
+}
+
+QUnit.test("selectToRankEnabled : initial", function (assert) {
+  const selectToRankEnabled = true;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled);
+  assert.equal(questionModel.unRankingChoices.length, 3, "unRankingChoices count");
+  assert.equal(questionModel.rankingChoices.length, 0, "rankingChoices count");
+});
+
+QUnit.test("selectToRankEnabled : defaultValue", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = true;
+  const questionWithDefaultValueModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+  assert.equal(questionWithDefaultValueModel.unRankingChoices.length, 1, "unRankingChoices count");
+  assert.equal(questionWithDefaultValueModel.rankingChoices.length, 2, "rankingChoices count");
+});
+// EO selectToRankEnabled

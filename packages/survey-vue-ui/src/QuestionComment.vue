@@ -1,7 +1,6 @@
 <template>
-  <div class="form-group">
-    <textarea
-      v-if="!question.isReadOnlyRenderDiv()"
+   <div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
+    <textarea v-else
       :id="question.commentId"
       :readonly="question.isInputReadOnly"
       :disabled="question.isInputReadOnly"
@@ -14,8 +13,7 @@
       v-bind:style="{ resize: question.resizeStyle }"
       @change="(e) => { question.onCommentChange(e) }"
       @input="(e) => { question.onCommentInput(e) }"
-    /><div v-if="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>
-  </div>
+    />
 </template>
 
 <script lang="ts">

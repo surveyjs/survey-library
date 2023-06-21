@@ -33,8 +33,10 @@
         :question="element"
         :css="css"
       />
-      <div v-if="element.hasComment" :class="element.cssClasses.formGroup">
-        <div>{{ element.commentText }}</div>
+      <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
+        <div>
+          <survey-string :locString="element.locCommentText" />
+        </div>
         <survey-question-comment :commentClass="css.comment" :question="element" />
       </div>
       <survey-errors

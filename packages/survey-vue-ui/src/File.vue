@@ -126,11 +126,13 @@
 <script lang="ts">
 import { QuestionFileModel } from "survey-core";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
-import { defineSurveyComponent } from "./base";
+import { QuestionVue } from "./base";
+import { defineComponent } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-file",
+  mixins: [QuestionVue],
   props: {
     question: QuestionFileModel,
     css: Object,
@@ -143,16 +145,6 @@ export default defineSurveyComponent({
       }
     }
   },
-  mounted() {
-    if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el as HTMLElement);
-    }
-  },
-  unmounted() {
-    if (this.question) {
-      this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
-    }
-  }
 });
 
 </script>

@@ -1321,7 +1321,7 @@ export class Question extends SurveyElement<Question>
    *
    * - `"default"` (default) - Inherits the setting from the Survey's [`clearInvisibleValues`](https://surveyjs.io/form-library/documentation/surveymodel#clearInvisibleValues) property.
    * - `"onHidden"` - Clears the value when the question becomes invisible. If a question is invisible on startup and has an initial value, this value will be cleared when the survey is complete.
-   * - `"onHiddenContainer"` - Clears the value when the question or its containter (page or panel) becomes invisible. If the question is invisible initially, its value is removed on survey completion.
+   * - `"onHiddenContainer"` - Clears the value when the question or its container (page or panel) becomes invisible. If a question is invisible on startup and has an initial value, this value will be cleared when the survey is complete.
    * - `"onComplete"` - Clears the value when the survey is complete.
    * - `"none"` - Never clears the value of an invisible question.
    * @see SurveyModel.clearInvisibleValues

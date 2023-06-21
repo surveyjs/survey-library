@@ -53,7 +53,6 @@ describe("etalon tests", () => {
         markupTest.name,
         () =>
           new Promise<void>((done) => {
-            // expect("3434").to.eql("3244");
             testQuestionMarkup(
               new ExpectAssertAdapter(expect, done),
               markupTest,

@@ -30,7 +30,6 @@ import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
-import { element } from "angular";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;

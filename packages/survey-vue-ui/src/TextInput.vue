@@ -18,10 +18,11 @@
   @keydown="question.onKeyDown"
   @composition-update="question.onCompositionUpdate"
   @blur="question.onBlur"
-  :aria-required="question.ariaRequired"
-  :aria-label="question.ariaLabel"
-  :aria-invalid="question.ariaInvalid"
-  :aria-describedby="question.ariaDescribedBy"
+  :aria-required="question.a11y_input_ariaRequired"
+  :aria-label="question.a11y_input_ariaLabel"
+  :aria-labelledby="question.a11y_input_ariaLabelledBy"
+  :aria-invalid="question.a11y_input_ariaInvalid"
+  :aria-describedby="question.a11y_input_ariaDescribedBy"
 />
 </template>
 

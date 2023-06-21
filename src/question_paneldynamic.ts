@@ -23,7 +23,7 @@ import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { confirmAction } from "./utils/utils";
+import { confirmAction, mergeValues } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
@@ -1570,18 +1570,29 @@ export class QuestionPanelDynamicModel extends Question
     }
     return true;
   }
-  protected clearValueIfInvisibleCore(): void {
+  protected clearValueOnHidding(isClearOnHidden: boolean): void {
+    if(!isClearOnHidden) {
+      if(!!this.survey && this.survey.getQuestionClearIfInvisible("onHidden") === "none") return;
+      this.clearValueInPanelsIfInvisible("onHiddenContainer");
+    }
+    super.clearValueOnHidding(isClearOnHidden);
+  }
+  public clearValueIfInvisible(reason: string = "onHidden"): void {
+    const panelReason = reason === "onHidden" ? "onHiddenContainer": reason;
+    this.clearValueInPanelsIfInvisible(panelReason);
+    super.clearValueIfInvisible(reason);
+  }
+  private clearValueInPanelsIfInvisible(reason: string): void {
     for (var i = 0; i < this.panels.length; i++) {
       var questions = this.panels[i].questions;
       this.isSetPanelItemData = {};
       for (var j = 0; j < questions.length; j++) {
         const q = questions[j];
-        q.clearValueIfInvisible();
+        q.clearValueIfInvisible(reason);
         this.isSetPanelItemData[q.getValueName()] = this.maxCheckCount + 1;
       }
     }
     this.isSetPanelItemData = {};
-    super.clearValueIfInvisibleCore();
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
@@ -2042,20 +2053,15 @@ export class QuestionPanelDynamicModel extends Question
     if (!!panel && panel.needResponsiveWidth()) return true;
     return false;
   }
-  private additionalTitleToolbarValue: ActionContainer;
-  protected getAdditionalTitleToolbar() : ActionContainer | null {
+  private additionalTitleToolbarValue: AdaptiveActionContainer;
+  protected getAdditionalTitleToolbar() : AdaptiveActionContainer | null {
     if(!this.isRenderModeTab) return null;
-
     if (!this.additionalTitleToolbarValue) {
       this.additionalTitleToolbarValue = new AdaptiveActionContainer();
-      this.additionalTitleToolbarValue.containerCss = this.getAdditionalTitleToolbarCss();
-      this.additionalTitleToolbarValue.cssClasses = {
-        item: "sv-tab-item",
-        itemPressed: "sv-tab-item--pressed",
-        itemAsIcon: "sv-tab-item--icon",
-        itemIcon: "sv-tab-item__icon",
-        itemTitle: "sv-tab-item__title"
-      };
+      this.additionalTitleToolbarValue.dotsItem.popupModel.showPointer = false;
+      this.additionalTitleToolbarValue.dotsItem.popupModel.verticalPosition = "bottom";
+      this.additionalTitleToolbarValue.dotsItem.popupModel.horizontalPosition = "center";
+      this.updateElementCss(false);
     }
     return this.additionalTitleToolbarValue;
   }
@@ -2139,31 +2145,40 @@ export class QuestionPanelDynamicModel extends Question
 
     const locTitle = new LocalizableString(panel, true);
     locTitle.sharedData = this.locTemplateTabTitle;
+    const isActive = this.getPanelIndexById(panel.id) === this.currentIndex;
     const newItem = new Action({
       id: panel.id,
-      css: "sv-tab-item__root",
-      pressed: this.getPanelIndexById(panel.id) === this.currentIndex,
+      pressed: isActive,
       locTitle: locTitle,
+      disableHide: isActive,
       action: () => {
         this.currentIndex = this.getPanelIndexById(newItem.id);
-        this.updateTabToolbarItemsPressedState();
       }
     });
     return newItem;
   }
-  private getAdditionalTitleToolbarCss(): string {
+  private getAdditionalTitleToolbarCss(cssClasses?: any): string {
+    const css = cssClasses ?? this.cssClasses;
     return new CssClassBuilder()
-      .append("sv-tabs-toolbar")
-      .append("sv-tabs-toolbar--left", this.tabAlign === "left")
-      .append("sv-tabs-toolbar--right", this.tabAlign === "right")
-      .append("sv-tabs-toolbar--center", this.tabAlign === "center")
+      .append(css.tabsRoot)
+      .append(css.tabsLeft, this.tabAlign === "left")
+      .append(css.tabsRight, this.tabAlign === "right")
+      .append(css.tabsCenter, this.tabAlign === "center")
       .toString();
   }
   private updateTabToolbarItemsPressedState() {
     if(!this.isRenderModeTab) return;
     if(this.currentIndex < 0 || this.currentIndex >= this.visiblePanelCount) return;
     const panel = this.visiblePanels[this.currentIndex];
-    this.additionalTitleToolbar.renderedActions.forEach(action => action.pressed = action.id === panel.id);
+    this.additionalTitleToolbar.renderedActions.forEach(action => {
+      const isActive = action.id === panel.id;
+      action.pressed = isActive;
+      action.disableHide = isActive;
+      //should raise update if dimensions are not changed but action is active now
+      if(action.mode === "popup" && action.disableHide) {
+        action["raiseUpdate"]();
+      }
+    });
   }
   private updateTabToolbar() {
     if(!this.isRenderModeTab) return;
@@ -2194,6 +2209,17 @@ export class QuestionPanelDynamicModel extends Question
   }
   showSeparator(index: number): boolean {
     return this.isRenderModeList && index < this.visiblePanelCount - 1;
+  }
+  protected calcCssClasses(css: any): any {
+    const classes = super.calcCssClasses(css);
+    const additionalTitleToolbar = <AdaptiveActionContainer>this.additionalTitleToolbar;
+    if(!!additionalTitleToolbar) {
+      additionalTitleToolbar.containerCss = this.getAdditionalTitleToolbarCss(classes);
+      additionalTitleToolbar.cssClasses = classes.tabs;
+      additionalTitleToolbar.dotsItem.cssClasses = classes.tabs;
+      additionalTitleToolbar.dotsItem.popupModel.contentComponentData.model.cssClasses = css.list;
+    }
+    return classes;
   }
 }
 

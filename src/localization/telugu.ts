@@ -21,7 +21,7 @@ export var teluguStrings = {
   completingSurveyBefore: " మీరు ఇప్పటికే సర్వేను ముగించినట్లు మా రికార్డులు చూపిస్తున్నాయి",
   loadingSurvey: "సర్వే లోడ్ అవుతుంది",
   placeholder: "ఎన్నుకోండి",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "విలువ",
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",

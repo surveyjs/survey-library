@@ -142,8 +142,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     super.clearIncorrectValues();
   }
-  protected clearValueIfInvisibleCore(): void {
-    super.clearValueIfInvisibleCore();
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
     this.clearInvisibleValuesInRows();
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {
@@ -153,7 +153,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     var val = this.value;
     if (!val) val = {};
     for (var i = 0; i < rows.length; i++) {
-      if (!rows[i].value) continue;
+      if (this.isValueEmpty(rows[i].value)) continue;
       result.push(this.createMatrixRow(rows[i], val[rows[i].value]));
     }
     return result;

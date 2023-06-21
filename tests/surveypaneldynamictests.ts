@@ -3684,6 +3684,88 @@ QUnit.test(
     assert.equal(counter, 1, "clear files was called");
   }
 );
+QUnit.test("call clear value on hidden dynamic panel, Bug #6336", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        visibleIf: "{q1} = 1",
+        templateElements: [
+          {
+            type: "text",
+            name: "q2",
+            clearIfInvisible: "onHiddenContainer",
+          },
+        ],
+        panelCount: 1
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.setValue("q1", 1);
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const textQuestion = (<QuestionTextModel>panel.panels[0].getQuestionByName("q2"));
+  textQuestion.value = "val1";
+  assert.equal(textQuestion.isParentVisible, true, "file question parent is visible");
+  survey.setValue("q1", 2);
+  assert.equal(panel.isVisible, false, "panel is invisible");
+  assert.equal(textQuestion.isParentVisible, false, "file question parent is invisible");
+  assert.equal(textQuestion.isEmpty(), true, "question value is empty, #1");
+  survey.setValue("q1", 1);
+  assert.equal(textQuestion.isEmpty(), true, "question value is empty, #2");
+});
+
+QUnit.test("call clearFiles for QuestionFile on clearing panel value, Bug #6336", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        visibleIf: "{q1} = 1",
+        templateElements: [
+          {
+            type: "file",
+            name: "q2",
+            clearIfInvisible: "onHiddenContainer",
+          },
+        ],
+        panelCount: 1
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  var counter = 0;
+  survey.onClearFiles.add(function(sender, options) {
+    counter++;
+    options.callback("success");
+    assert.equal(
+      options.question.name,
+      "q2",
+      "Question is passed in options"
+    );
+  });
+  survey.setValue("q1", 1);
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const fileQuestion = (<QuestionFileModel>panel.panels[0].getQuestionByName("q2"));
+  fileQuestion.value = "data:image/jpeg;base64,FILECONTENT";
+  assert.equal(fileQuestion.isParentVisible, true, "file question parent is visible");
+  survey.setValue("q1", 2);
+  assert.equal(panel.isVisible, false, "panel is invisible");
+  assert.equal(fileQuestion.isParentVisible, false, "file question parent is invisible");
+  assert.equal(fileQuestion.isEmpty(), true, "question value is empty, #1");
+  assert.equal(counter, 1, "clear files was called");
+  survey.setValue("q1", 1);
+  assert.equal(fileQuestion.isEmpty(), true, "question value is empty, #2");
+});
 
 QUnit.test(
   "Question padding right inside panel - https://github.com/surveyjs/survey-library/issues/1977",
@@ -5328,14 +5410,69 @@ QUnit.test("renderMode: tab, check panelTabToolbar containerCss issue#5829", fun
     ],
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  survey.css = defaultV2Css;
+  panel.cssClasses;
   const panelTabToolbar = panel.additionalTitleToolbar;
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--left", "tabAlign value is left");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--left", "tabAlign value is left");
 
   panel.tabAlign = "right";
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--right", "tabAlign value is right");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--right", "tabAlign value is right");
 
   panel.tabAlign = "center";
-  assert.equal(panelTabToolbar.containerCss, "sv-tabs-toolbar sv-tabs-toolbar--center", "tabAlign default value is center");
+  assert.equal(panelTabToolbar.containerCss, "sd-tabs-toolbar sd-tabs-toolbar--center", "tabAlign default value is center");
+});
+
+QUnit.test("renderMode: tab check disableHide property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "relatives",
+        title: "Panel Dynamic",
+        renderMode: "tab",
+        templateTitle: "Information about: {panel.relativeType}",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ],
+        panelCount: 2,
+        panelAddText: "Add a blood relative",
+        panelRemoveText: "Remove the relative"
+      }
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("relatives");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.equal(panelTabToolbar.actions[0].disableHide, true);
+  assert.equal(panelTabToolbar.actions[1].disableHide, false);
+
+  panel.addPanel();
+  assert.equal(panel.currentIndex, 2, "currentIndex is 2");
+  assert.equal(panelTabToolbar.actions[0].disableHide, false);
+  assert.equal(panelTabToolbar.actions[1].disableHide, false);
+  assert.equal(panelTabToolbar.actions[2].disableHide, true);
+
+  let log = "";
+  panelTabToolbar.updateCallback = () => {
+    log += "->raised";
+  };
+  panelTabToolbar.actions[1].mode = "popup";
+  assert.equal(log, "");
+  panel.currentIndex = 1;
+  assert.ok(panelTabToolbar.actions[1].disableHide);
+  assert.equal(log, "->raised");
+  panel.currentIndex = 0;
+  assert.notOk(panelTabToolbar.actions[1].disableHide);
+  assert.ok(panelTabToolbar.actions[0].disableHide);
+  assert.equal(log, "->raised");
+  panelTabToolbar.actions[2].mode = "popup";
+  panel.currentIndex = 2;
+  assert.notOk(panelTabToolbar.actions[0].disableHide);
+  assert.notOk(panelTabToolbar.actions[1].disableHide);
+  assert.ok(panelTabToolbar.actions[2].disableHide);
+  assert.equal(log, "->raised->raised");
 });
 
 QUnit.test("question.cssHeader class", function (assert) {

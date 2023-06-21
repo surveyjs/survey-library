@@ -81,7 +81,12 @@ survey.locale = "customlocale";
 If any translation strings are missing in your custom locale, they will be taken from the default English locale. You can specify the `defaultLocale` property to use another locale as default:
 
 ```js
+import { Model, surveyLocalization } from "survey-core";
+
 surveyLocalization.defaultLocale = "fr";
+
+const surveyJson = { ... };
+const survey = new Model(surveyJson);
 ```
 
 [View Demo](https://surveyjs.io/Examples/Library/survey-localization/ (linkStyle))

@@ -229,7 +229,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) private responsiveImageHeight: number;
   public get renderedImageHeight() {
     const height = this.isResponsive ? this.responsiveImageHeight : this.imageHeight;
-    return (height ? height : 150) + "px";
+    return (height ? height : 150);
   }
   /**
    * Specifies the width of containers for images or videos. Accepts positive numbers and CSS values.
@@ -250,7 +250,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   @property({}) private responsiveImageWidth: number;
   public get renderedImageWidth() {
     const width = this.isResponsive ? this.responsiveImageWidth : this.imageWidth;
-    return (width ? width : 200) + "px";
+    return (width ? width : 200);
   }
   /**
    * Specifies how to resize images or videos to fit them into their containers.
@@ -410,14 +410,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 }
 Serializer.addClass(
   "imageitemvalue",
-  [],
+  [{ name: "imageLink", serializationProperty: "locImageLink" }],
   (value: any) => new ImageItemValue(value),
   "itemvalue"
 );
-Serializer.addProperty("imageitemvalue", {
-  name: "imageLink",
-  serializationProperty: "locImageLink",
-});
 Serializer.addClass(
   "responsiveImageSize",
   [],

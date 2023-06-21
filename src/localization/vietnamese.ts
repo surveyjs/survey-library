@@ -21,7 +21,7 @@ export var vietnameseSurveyStrings = {
   completingSurveyBefore: "Hồ sơ chúng tôi cho thấy rằng bạn đã hoàn thành cuộc khảo sát này.",
   loadingSurvey: "Đang tải khảo sát...",
   placeholder: "Chọn...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "Giá trị",
   requiredError: "Vui lòng trả lời câu hỏi.",
   requiredErrorInPanel: "Vui lòng trả lời ít nhất một câu hỏi.",

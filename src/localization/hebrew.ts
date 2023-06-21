@@ -21,7 +21,7 @@ export var hebrewSurveyStrings = {
   completingSurveyBefore: "הרשומות שלנו מראות שכבר סיימת את הסקר הזה.",
   loadingSurvey: "טעינה מהשרת...",
   placeholder: "בחר...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "ערך",
   requiredError: "אנא השב על השאלה",
   requiredErrorInPanel: "אנא ענה לפחות על שאלה אחת.",

@@ -414,8 +414,9 @@ export class Base {
    * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
-    if(!this.classMetaData) {
-      this.classMetaData = Serializer.findClass(this.getType());
+    const type = this.getType();
+    if(!this.classMetaData || this.classMetaData.name !== type) {
+      this.classMetaData = Serializer.findClass(type);
     }
     return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
   }

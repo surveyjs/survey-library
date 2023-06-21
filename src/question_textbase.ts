@@ -4,6 +4,7 @@ import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { Base } from "./base";
+import { ISurveyImpl } from "./base-interfaces";
 
 export class CharacterCounter extends Base {
   @property() remainingCharacterCounter: string;
@@ -97,6 +98,10 @@ export class QuestionTextBase extends Question {
     super.localeChanged();
     this.calcRenderedPlaceholder();
   }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    super.setSurveyImpl(value, isLight);
+    this.calcRenderedPlaceholder();
+  }
   protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
     if(!!res && !this.hasPlaceHolder()) {
@@ -114,6 +119,14 @@ export class QuestionTextBase extends Question {
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateRemainingCharacterCounter(newValue);
+  }
+  public disableNativeUndoRedo = false;
+  protected checkForUndo(event: KeyboardEvent) {
+    if (this.disableNativeUndoRedo && this.isInputTextUpdate && (event.ctrlKey || event.metaKey)) {
+      if ([89, 90].indexOf(event.keyCode) !== -1) {
+        event.preventDefault();
+      }
+    }
   }
   public getControlClass(): string {
     return new CssClassBuilder()

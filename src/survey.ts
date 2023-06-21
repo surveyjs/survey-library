@@ -476,7 +476,9 @@ export class SurveyModel extends SurveyElementCore
   public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a panel. Use it to override default panel CSS classes.
+   * An event that is raised before rendering a standalone panel and panels within [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/). Use it to override default panel CSS classes.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
@@ -486,6 +488,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before rendering a page. Use it to override default page CSS classes.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
@@ -493,6 +497,8 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
@@ -581,102 +587,72 @@ export class SurveyModel extends SurveyElementCore
   public onGetChoiceDisplayValue: EventBase<SurveyModel, GetChoiceDisplayValueEvent> = this.addEvent<SurveyModel, GetChoiceDisplayValueEvent>();
 
   /**
-   * An event that is raised on adding a new row in Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDynamicModel.visibleRows
+   * An event that is raised after a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    */
   public onMatrixRowAdded: EventBase<SurveyModel, MatrixRowAddedEvent> = this.addEvent<SurveyModel, MatrixRowAddedEvent>();
 
   /**
-   * An event that is raised before adding a new row in Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDynamicModel.visibleRows
+   * An event that is raised before a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    */
   public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
 
   /**
-   * An event that is raised before removing a row from Matrix Dynamic question. You can disable removing and clear the data instead.
-   * @see QuestionMatrixDynamicModel
-   * @see onMatrixRowRemoved
+   * An event that is raised before a row is deleted from a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). You can cancel row deletion and clear row data instead.
    * @see onMatrixAllowRemoveRow
    */
   public onMatrixRowRemoving: EventBase<SurveyModel, MatrixRowRemovingEvent> = this.addEvent<SurveyModel, MatrixRowRemovingEvent>();
 
   /**
-   * An event that is raised on removing a row from Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDynamicModel.visibleRows
-   * @see onMatrixRowRemoving
+   * An event that is raised after a row is deleted from a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    * @see onMatrixAllowRemoveRow
    */
   public onMatrixRowRemoved: EventBase<SurveyModel, MatrixRowRemovedEvent> = this.addEvent<SurveyModel, MatrixRowRemovedEvent>();
 
   /**
-   * An event that is raised before rendering "Remove" button for removing a row from Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
+   * An event that is raised before rendering the Remove button in a row of a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to hide the Remove button for individual matrix rows.
    * @see onMatrixRowRemoving
    * @see onMatrixRowRemoved
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
 
   /**
-   * An event that is raised before creating cell question in the matrix. You can change the cell question type by setting different options.cellType.
-   * @see onMatrixBeforeRowAdded
-   * @see onMatrixCellCreated
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
+   * An event that is raised before a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created. Use this event to change the type of individual matrix cells.
+   * @see onMatrixAfterCellRender
    */
   public onMatrixCellCreating: EventBase<SurveyModel, MatrixCellCreatingEvent> = this.addEvent<SurveyModel, MatrixCellCreatingEvent>();
 
   /**
-    * An event that is raised for every cell created in Matrix Dynamic and Matrix Dropdown questions.
-    * @see onMatrixBeforeRowAdded
-    * @see onMatrixCellCreating
-    * @see onMatrixRowAdded
-    * @see QuestionMatrixDynamicModel
-    * @see QuestionMatrixDropdownModel
+    * An event that is raised after a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created.
+    * @see onMatrixAfterCellRender
     */
   public onMatrixCellCreated: EventBase<SurveyModel, MatrixCellCreatedEvent> = this.addEvent<SurveyModel, MatrixCellCreatedEvent>();
 
   /**
-   * An event that is raised for every cell after is has been rendered in DOM.
+   * An event that is raised for every matrix cell after it is rendered to the DOM.
    * @see onMatrixCellCreated
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
    */
   public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
 
   /**
-   * An event that is raised when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
-   * @see onMatrixCellValueChanging
+   * An event that is raised after a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    * @see onMatrixBeforeRowAdded
-   * @see onMatrixRowAdded
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
    */
   public onMatrixCellValueChanged: EventBase<SurveyModel, MatrixCellValueChangedEvent> = this.addEvent<SurveyModel, MatrixCellValueChangedEvent>();
 
   /**
-   * An event that is raised on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
-   * @see onMatrixCellValueChanged
+   * An event that is raised before a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to change the cell value.
    * @see onMatrixBeforeRowAdded
-   * @see onMatrixRowAdded
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
    */
   public onMatrixCellValueChanging: EventBase<SurveyModel, MatrixCellValueChangingEvent> = this.addEvent<SurveyModel, MatrixCellValueChangingEvent>();
 
   /**
-   * An event that is raised when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
+   * An event that is raised for [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) and [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) questions when they validate a cell value. Use this event to display a custom error message based on a condition.
    * @see onMatrixBeforeRowAdded
-   * @see onMatrixRowAdded
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
    */
   public onMatrixCellValidate: EventBase<SurveyModel, MatrixCellValidateEvent> = this.addEvent<SurveyModel, MatrixCellValidateEvent>();
 
   /**
-   * An event that is raised on adding a new column in Matrix Dynamic or Matrix Dropdown question.
+   * An event that is raised after a new column is added to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    */
   public onMatrixColumnAdded: EventBase<SurveyModel, MatrixColumnAddedEvent> = this.addEvent<SurveyModel, MatrixColumnAddedEvent>();
   /**
@@ -763,9 +739,12 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
   /**
-   * Use this event to create/customize actions to be displayed in a matrix question's row.
+   * An event that allows you to add, delete, or modify actions in rows of a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/employee-information-form/ (linkStyle))
    * @see IAction
-   * @see QuestionMatrixDropdownModelBase
    */
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
@@ -1787,8 +1766,11 @@ export class SurveyModel extends SurveyElementCore
 
   //#region Title/Header options
   /**
-   * Gets or sets a survey logo.
-   * @see title
+   * An image URL or a Base64-encoded image to use as a survey logo.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+   * @see logoPosition
+   * @see logoFit
    */
   public get logo(): string {
     return this.getLocalizableStringText("logo");
@@ -1800,8 +1782,15 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("logo");
   }
   /**
-   * Gets or sets a survey logo width.
+   * A logo width in CSS-accepted values.
+   *
+   * Default value: `300px`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+   * @see logoHeight
    * @see logo
+   * @see logoPosition
+   * @see logoFit
    */
   public get logoWidth(): any {
     var width = this.getPropertyValue("logoWidth");
@@ -1811,8 +1800,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("logoWidth", value);
   }
   /**
-   * Gets or sets a survey logo height.
+   * A logo height in CSS-accepted values.
+   *
+   * Default value: `200px`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+   * @see logoHeight
    * @see logo
+   * @see logoPosition
+   * @see logoFit
    */
   public get logoHeight(): any {
     var height = this.getPropertyValue("logoHeight");
@@ -1822,8 +1818,17 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("logoHeight", value);
   }
   /**
-   * Gets or sets a survey logo position.
+   * A logo position relative to the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
+   *
+   * Possible values:
+   *
+   * - `"left"` (default) - Places the logo to the left of the survey title.
+   * - `"right"` - Places the logo to the right of the survey title.
+   * - `"none"` - Hides the logo.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
    * @see logo
+   * @see logoFit
    */
   public get logoPosition(): string {
     return this.getPropertyValue("logoPosition");
@@ -1880,8 +1885,20 @@ export class SurveyModel extends SurveyElementCore
     return this.renderedHasTitle || this.renderedHasLogo;
   }
   /**
-   * The logo fit mode.
+   * Specifies how to resize a logo to fit it into its container.
+   *
+   * Possible values:
+   *
+   * - `"contain"` (default)
+   * - `"cover"`
+   * - `"fill"`
+   * - `"none"`
+   *
+   * Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on the possible values.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
    * @see logo
+   * @see logoPosition
    */
   public get logoFit(): string {
     return this.getPropertyValue("logoFit");
@@ -2926,12 +2943,12 @@ export class SurveyModel extends SurveyElementCore
     return this.state === "starting";
   }
   /**
-   * Specifies which part of a choice item responds to a drag gesture in MatrixDynamic questions.
+   * Specifies which part of a matrix row responds to a drag gesture in [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) questions.
    *
    * Possible values:
    *
-   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
-   * - `"icon"` - Users can only use the choice item icon as a drag handle.
+   * - `"entireItem"` (default) - Users can use the entire matrix row as a drag handle.
+   * - `"icon"` - Users can only use a drag icon as a drag handle.
    */
   public get matrixDragHandleArea():string {
     return this.getPropertyValue("matrixDragHandleArea", "entireItem");
@@ -6094,18 +6111,10 @@ export class SurveyModel extends SurveyElementCore
   public set clearValueOnDisableItems(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
-  get isClearValueOnHidden(): boolean {
-    return (
-      this.clearInvisibleValues == "onHidden" ||
-      this.isClearValueOnHiddenContainer
-    );
-  }
-  get isClearValueOnHiddenContainer(): boolean {
-    return (
-      this.clearInvisibleValues == "onHiddenContainer" &&
-      !this.isShowingPreview &&
-      !this.runningPages
-    );
+  getQuestionClearIfInvisible(questionClearIf: string): string {
+    if(this.isShowingPreview || this.runningPages) return "none";
+    if(questionClearIf !== "default") return questionClearIf;
+    return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean) {
     this.updateVisibleIndexes();
@@ -7237,7 +7246,7 @@ Serializer.addClass("survey", [
     default: "auto",
     choices: ["auto", "static", "responsive"],
   },
-  "width",
+  { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

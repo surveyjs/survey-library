@@ -21,7 +21,7 @@ export var norwegianSurveyStrings = {
   completingSurveyBefore: "Våre data viser at du allerede har gjennomført denne undersøkelsen.",
   loadingSurvey: "Undersøkelsen laster...",
   placeholder: "Velg...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "verdi",
   requiredError: "Vennligst svar på spørsmålet.",
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",

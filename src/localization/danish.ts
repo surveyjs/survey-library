@@ -21,7 +21,7 @@ export var danishSurveyStrings = {
   completingSurveyBefore: "Vores data viser at du allerede har gennemført dette spørgeskema.",
   loadingSurvey: "Spørgeskemaet hentes fra serveren...",
   placeholder: "Vælg...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "værdi",
   requiredError: "Besvar venligst spørgsmålet.",
   requiredErrorInPanel: "Besvar venligst mindst ét spørgsmål.",

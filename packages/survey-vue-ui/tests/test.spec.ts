@@ -44,7 +44,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const whiteList = ["text"];
+const whiteList = ["comment"];
 
 describe("etalon tests", () => {
   markupTests.forEach((markupTest) => {

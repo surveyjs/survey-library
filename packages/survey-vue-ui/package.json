@@ -8,25 +8,30 @@
     "build": "vite build && npm run build:types",
     "build:types": "vue-tsc --project tsconfig.types.json",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
+    "test": "vitest --no-threads tests/test.spec.ts",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "devDependencies": {
-    "vue": "^3.2.41",
-    "survey-core": "^1.9.59",
     "@babel/types": "^7.20.2",
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/node": "^16.11.68",
     "@vitejs/plugin-vue": "^3.1.2",
+    "@vitest/browser": "latest",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.0",
+    "@vue/test-utils": "latest",
     "@vue/tsconfig": "^0.1.3",
     "eslint": "^8.22.0",
     "eslint-plugin-vue": "^9.3.0",
     "npm-run-all": "^4.1.5",
     "prettier": "^2.7.1",
     "rollup-plugin-generate-package-json": "^3.2.0",
+    "survey-core": "../../build/survey-core",
     "typescript": "~4.7.4",
     "vite": "^3.1.8",
-    "vue-tsc": "^1.0.8"
+    "vitest": "^0.32.2",
+    "vue": "^3.2.41",
+    "vue-tsc": "^1.0.8",
+    "happy-dom": "^9.20.3"
   }
 }

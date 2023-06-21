@@ -9,12 +9,12 @@
 
 .sd-rating {
   overflow-x: auto;
-  min-height: calcSize(8);
+  min-height: calcSize(6);
 
   fieldset {
     display: flex;
     border: none;
-    padding: 0 0 calcSize(2) 0;
+    padding: 0 0 2px 0;
     flex-wrap: nowrap;
     gap: calcSize(1);
     margin-inline-start: 0;
@@ -25,6 +25,9 @@
     fieldset {
       flex-wrap: wrap;
     }
+  }
+  &.sd-scrollable-container:not(.sd-scrollable-container--compact) {
+    overflow: visible;
   }
 }
 

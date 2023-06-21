@@ -228,9 +228,9 @@ export class PopupBaseViewModel extends Base {
       getElement(settings.environment.popupMountContainer).appendChild(container);
     }
   }
-  public setComponentElement(componentRoot: HTMLElement): void {
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
     if(!!componentRoot) {
-      this.containerElement = componentRoot.children[0] as HTMLElement;
+      this.containerElement = componentRoot;
     }
   }
 }

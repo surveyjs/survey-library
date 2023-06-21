@@ -7,6 +7,7 @@ import { SurveyActionBar } from "../action-bar/action-bar";
 
 interface IPopupProps {
   model: PopupModel;
+  targetElement?: React.RefObject<any>;
 }
 
 export class Popup extends SurveyElementBase<IPopupProps, any> {
@@ -25,14 +26,12 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
   private createModel(): void {
     this.popup = createPopupViewModel(this.props.model, undefined as any);
-    // this.popup.initializePopupContainer();
   }
   private setTargetElement(): void {
-    this.popup.setComponentElement(this.containerRef.current as HTMLElement);
+    this.popup.setComponentElement(this.containerRef.current as HTMLElement, this.props.targetElement?.current);
   }
   componentDidMount(): void {
     super.componentDidMount();
-    // this.popup.initializePopupContainer();
     this.setTargetElement();
   }
   componentDidUpdate(prevProps: any, prevState: any) {

@@ -1107,7 +1107,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
   popupContainer.style.width = "200px";
   popupContainer.style.height = "400px";
   popupContainer.style.margin = "8px";
@@ -1273,7 +1273,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
   popupContainer.style.width = "550px";
   popupContainer.style.height = "400px";
 

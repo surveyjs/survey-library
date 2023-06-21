@@ -7,6 +7,9 @@ import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
+  private containerSelector = ".sv-popup__container";
+  private scrollingContentSelector = ".sv-popup__scrolling-content";
+
   private scrollEventCallBack = (event: any) => {
     if(this.isOverlay && IsTouch) {
       event.stopPropagation();
@@ -52,11 +55,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   private _updatePosition() {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
-    const background = <HTMLElement>this.container.children[0];
-    if(!background) return;
-    const popupContainer = <HTMLElement>background.children[0];
+    const popupContainer = <HTMLElement>this.container.querySelector(this.containerSelector);
     if(!popupContainer) return;
-    const scrollContent = <HTMLElement>popupContainer.querySelector(".sv-popup__scrolling-content");
+    const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
@@ -171,11 +172,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       }
     });
   }
-  public setComponentElement(componentRoot: HTMLElement): void {
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
     super.setComponentElement(componentRoot);
 
     if(!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
-      this.targetElement = componentRoot.parentElement;
+      this.targetElement = targetElement || componentRoot.parentElement;
     }
   }
   public updateOnShowing(): void {

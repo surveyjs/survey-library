@@ -63,11 +63,10 @@ settings.showModal = showModal;
 ko.components.register("sv-popup", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const viewModel = createPopupViewModel(
-        ko.unwrap(params.model),
-        componentInfo.element.parentElement,
-        componentInfo.element.nodeType === Node.COMMENT_NODE ? componentInfo.element.nextElementSibling.children[0] : componentInfo.element.children[0].children[0]
-      );
+      const parentElement = componentInfo.element.parentElement;
+      const target = ko.unwrap(params.targetElement) ? parentElement.querySelector(ko.unwrap(params.targetElement)) : parentElement;
+      const container = componentInfo.element.nodeType === Node.COMMENT_NODE ? componentInfo.element.nextElementSibling : componentInfo.element;
+      const viewModel = createPopupViewModel(ko.unwrap(params.model), target, container);
       return new PopupViewModel(viewModel);
     },
   },

@@ -81,7 +81,10 @@ export class SurveyActionBarItem extends SurveyElementBase<
     );
   }
 
-  renderInnerButton() {
+  renderInnerButton(elementRef?: React.RefObject<any>) {
+    if(!elementRef) {
+      elementRef = React.createRef();
+    }
     const className = this.item.getActionBarItemCss();
     const title = this.item.tooltip || this.item.title;
     const buttonContent = this.renderButtonContent();
@@ -97,6 +100,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         aria-checked={this.item.ariaChecked}
         aria-expanded={this.item.ariaExpanded}
         role={this.item.ariaRole}
+        ref={elementRef}
       >
         {buttonContent}
       </button>, null, { processEsc: false });

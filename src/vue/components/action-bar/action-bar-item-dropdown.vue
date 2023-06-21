@@ -1,6 +1,7 @@
 <template>
   <div style="width: 100%">
     <button
+      ref="targetRef"
       type="button"
       :class="item.getActionBarItemCss()"
       v-on:click="
@@ -32,7 +33,9 @@
         >{{ item.title }}</span
       >
     </button>
-    <sv-popup :model="item.popupModel"></sv-popup>
+    <sv-popup 
+      :model="item.popupModel" 
+      :targetElement="targetElementRef"></sv-popup>
   </div>
 </template>
 
@@ -45,9 +48,13 @@ import { ActionDropdownViewModel } from "survey-core";
 @Component
 export class ActionBarItemDropdownViewModel extends ActionBarItemViewModel {
   private viewModel: ActionDropdownViewModel;
+  public targetElementRef: { setCurrent?: (currentEl: HTMLElement) => void } = { };
   constructor() {
     super();
     this.viewModel = new ActionDropdownViewModel(this.item);
+  }
+  onMounted() {
+    this.targetElementRef.setCurrent && this.targetElementRef.setCurrent(this.$refs.targetRef as any);
   }
   onDestroyed() {
     this.viewModel.dispose();

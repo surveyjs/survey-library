@@ -11,11 +11,12 @@ export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
     this.viewModel = new ActionDropdownViewModel(this.item);
   }
   renderInnerButton() {
-    const button = super.renderInnerButton();
+    const targetRef = React.createRef();
+    const button = super.renderInnerButton(targetRef);
     return (
       <>
         {button}
-        <Popup model={this.item.popupModel}></Popup>
+        <Popup model={this.item.popupModel} targetElement={targetRef}></Popup>
       </>
     );
   }

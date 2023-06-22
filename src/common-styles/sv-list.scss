@@ -118,6 +118,12 @@
   background-color: $border;
 }
 
+.sv-list--filtering {
+  .sv-list__item-separator {
+    display: none;
+  }
+}
+
 .sv-list__item.sv-list__item--selected,
 .sv-list__item.sv-list__item--selected:hover,
 .sv-list__item.sv-list__item--selected.sv-list__item--focused,

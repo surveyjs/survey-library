@@ -17,6 +17,7 @@ export let defaultListCss = {
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",
   itemsContainer: "sv-list",
+  itemsContainerFiltering: "sv-list--filtering",
   filter: "sv-list__filter",
   filterIcon: "sv-list__filter-icon",
   filterInput: "sv-list__input",
@@ -152,6 +153,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return !!item1 && !!item2 && item1.id == item2.id;
   }
 
+  public getListClass: () => string = () => {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemsContainer)
+      .append(this.cssClasses.itemsContainerFiltering, !!this.filterString && this.visibleActions.length !== this.visibleItems.length)
+      .toString();
+  }
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     return new CssClassBuilder()
       .append(this.cssClasses.item)

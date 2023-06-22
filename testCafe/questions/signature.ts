@@ -5,7 +5,7 @@ const title = "Signature";
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {});
 
-  test.only("Signature: show/hide elements", async (t) => {
+  test("Signature: show/hide elements", async (t) => {
     await t.resizeWindow(1920, 1080);
     await initSurvey(framework, {
       "elements": [

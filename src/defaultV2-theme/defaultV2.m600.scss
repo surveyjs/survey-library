@@ -1,11 +1,9 @@
-.sd-root-modern,
-.svc-logic-question-value {
+.sd-root-modern {
   --sd-base-padding: calc(5 * #{$base-unit});
   --sd-base-vertical-padding: calc(4 * #{$base-unit});
   --sd-page-vertical-padding: calc(3 * #{$base-unit});
 }
 
-.svc-creator--mobile .sd-root-modern,
 .sd-root-modern.sd-root-modern--mobile {
   --sd-base-padding: calc(3 * #{$base-unit});
   --sd-base-vertical-padding: calc(2 * #{$base-unit});

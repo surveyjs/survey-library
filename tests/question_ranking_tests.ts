@@ -226,8 +226,10 @@ QUnit.test("Ranking: design mode", function (assert) {
 
   var upCalled = 0, downCalled = 0, preventDefaultCalled = 0;
   var q = <QuestionRankingModel>survey.getQuestionByName("q");
-  q["handleArrowUp"] = () => { upCalled++; };
-  q["handleArrowDown"] = () => { downCalled++; };
+  q["handleArrowKeys"] = (index, choice, isDown) => {
+    if(isDown) downCalled++;
+    else upCalled++;
+  };
   function preventDefault() { preventDefaultCalled++; }
 
   q.handleKeydown(<any>{ key: "ArrowUp", preventDefault: preventDefault }, q.choices[1]);

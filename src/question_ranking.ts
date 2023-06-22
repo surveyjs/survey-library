@@ -323,11 +323,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       }
 
       if (key === "ArrowUp" && index) {
-        this.handleArrowUp(index, choice);
+        this.handleArrowKeys(index, choice, false);
         event.preventDefault();
       }
       if (key === "ArrowDown" && index !== this.rankingChoices.length - 1) {
-        this.handleArrowDown(index, choice);
+        this.handleArrowKeys(index, choice, true);
         event.preventDefault();
       }
     }
@@ -343,77 +343,49 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return false;
   }
 
-  private handleArrowUp = (index: number, choice: ItemValue) => {
+  private handleArrowKeys(index: number, choice: ItemValue, isDown: boolean): void {
+    const delta = isDown ? 1 : -1;
     const choices = this.rankingChoices;
     choices.splice(index, 1);
-    choices.splice(index - 1, 0, choice);
+    choices.splice(index + delta, 0, choice);
     this.setValue();
     setTimeout(() => {
-      this.focusItem(index - 1);
+      this.focusItem(index + delta);
     }, 1);
-  };
+  }
 
-  private handleArrowDown = (index: number, choice: ItemValue) => {
-    const choices = this.rankingChoices;
-    choices.splice(index, 1);
-    choices.splice(index + 1, 0, choice);
-    this.setValue();
-    setTimeout(() => {
-      this.focusItem(index + 1);
-    }, 1);
-  };
-
-  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue) {
+  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue): void {
     if (this.isDesignMode) return;
+    const key: any = event.key;
+    if(key !== " " && key !== "ArrowUp" && key !== "ArrowDown") return;
 
     const dnd:any = this.dragDropRankingChoices; //????
-    const key: any = event.key;
     const rankingChoices = this.rankingChoices;
-    const unRankingChoices = this.unRankingChoices;
-
     const isMovedElementRanked = rankingChoices.indexOf(movedElement) !== -1;
-    const isMovedElementUnRanked = !isMovedElementRanked;
-
-    let fromIndex;
+    const choices = isMovedElementRanked ? rankingChoices : this.unRankingChoices;
+    const fromIndex = choices.indexOf(movedElement);
+    if(fromIndex < 0) return;
     let toIndex;
 
-    if (key === " " && isMovedElementUnRanked) {
-      fromIndex = unRankingChoices.indexOf(movedElement);
+    if (key === " " && !isMovedElementRanked) {
       toIndex = 0;
       dnd.selectToRank(this, fromIndex, toIndex);
       this.setValueAfterKeydown(toIndex, "to-container");
       return;
     }
-
-    if (key === " " && isMovedElementRanked) {
-      fromIndex = rankingChoices.indexOf(movedElement);
+    if(isMovedElementRanked) return;
+    if (key === " ") {
       dnd.unselectFromRank(this, fromIndex);
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
       this.setValueAfterKeydown(toIndex, "from-container");
       return;
     }
-
-    if (key === "ArrowUp" && isMovedElementRanked) {
-      fromIndex = rankingChoices.indexOf(movedElement);
-      toIndex = fromIndex - 1;
-
-      if (fromIndex < 0) return;
-
-      dnd.reorderRankedItem(this, fromIndex, toIndex);
-      this.setValueAfterKeydown(toIndex, "to-container");
-      return;
-    }
-
-    if (key === "ArrowDown" && isMovedElementRanked) {
-      fromIndex = rankingChoices.indexOf(movedElement);
-      toIndex = fromIndex + 1;
-
-      if (toIndex >= rankingChoices.length) return;
-
-      dnd.reorderRankedItem(this, fromIndex, toIndex);
-      this.setValueAfterKeydown(toIndex, "to-container");
-      return;
-    }
+    const delta = key === "ArrowUp" ? -1 : (key === "ArrowDown" ? 1 : 0);
+    if(delta === 0) return;
+    toIndex = fromIndex + delta;
+    if(toIndex < 0 || toIndex >= rankingChoices.length) return;
+    dnd.reorderRankedItem(this, fromIndex, toIndex);
+    this.setValueAfterKeydown(toIndex, "to-container");
   }
 
   private setValueAfterKeydown(index: number, container: string) {

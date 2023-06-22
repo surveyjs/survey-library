@@ -548,7 +548,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       } else {
         if (
           !this.getSharedQuestionByName(key) &&
-          key.indexOf(settings.matrixTotalValuePostFix) < 0
+          key.indexOf(settings.matrix.totalsSuffix) < 0
         ) {
           this.setValue(key, null);
         }
@@ -780,10 +780,10 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<MatrixDropdownRowModelBase, MatrixDropdownColumn> implements IMatrixDropdownData {
   public static get defaultCellType() {
-    return settings.matrixDefaultCellType;
+    return settings.matrix.defaultCellType;
   }
   public static set defaultCellType(val: string) {
-    settings.matrixDefaultCellType = val;
+    settings.matrix.defaultCellType = val;
   }
   public static addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
     var colNames = QuestionFactory.DefaultColums;
@@ -1119,10 +1119,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"expression"`
    * - `"rating"`
    *
-   * Default value: `"dropdown"` (inherited from [`settings.matrixDefaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    */
   public get cellType(): string {
-    return this.getPropertyValue("cellType", settings.matrixDefaultCellType);
+    return this.getPropertyValue("cellType", settings.matrix.defaultCellType);
   }
   public set cellType(val: string) {
     val = val.toLowerCase();
@@ -2278,7 +2278,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       !this.isSett
     ) {
       this.data.setValue(
-        this.getValueName() + settings.matrixTotalValuePostFix,
+        this.getValueName() + settings.matrix.totalsSuffix,
         this.totalValue,
         false
       );

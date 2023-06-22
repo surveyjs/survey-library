@@ -1196,7 +1196,7 @@ export class QuestionSelectBase extends Question {
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onBeforeSendRequest() {
-    if (settings.disableOnGettingChoicesFromWeb === true && !this.isReadOnly) {
+    if (settings.web.disableQuestionWhileLoadingChoices === true && !this.isReadOnly) {
       this.enableOnLoadingChoices = true;
       this.readOnly = true;
     }

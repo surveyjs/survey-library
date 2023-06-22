@@ -93,12 +93,12 @@ export class QuestionSignaturePadModel extends Question {
     signaturePad.addEventListener("beginStroke", () => {
       this.isDrawingValue = true;
       canvas.focus();
-    }, { once: true });
+    }, { once: false });
 
     signaturePad.addEventListener("endStroke", () => {
       this.isDrawingValue = false;
       this.updateValue();
-    }, { once: true });
+    }, { once: false });
 
     var updateValueHandler = () => {
       var data = this.value;

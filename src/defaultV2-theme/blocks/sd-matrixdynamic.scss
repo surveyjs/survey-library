@@ -21,7 +21,7 @@
   appearance: none;
   background: transparent;
   border: none;
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
   font-family: var(--font-family, $font-family);
   font-weight: 600;

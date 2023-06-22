@@ -20,7 +20,7 @@
   box-shadow: none;
 }
 
-.sd-item__control:focus + .sd-item__decorator {
+.sd-item__control:focus+.sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
   background: $background;
   outline: none;
@@ -39,7 +39,7 @@
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-weight: normal;
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
   color: $foreground;
   white-space: normal;

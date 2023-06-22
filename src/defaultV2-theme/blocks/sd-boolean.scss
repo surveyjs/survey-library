@@ -15,7 +15,7 @@
   font-weight: $font-editorfont-weight;
   font-size: $font-editorfont-size;
   color: $foreground-light;
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   padding: calcSize(1) calcSize(3);
 }
 
@@ -32,7 +32,7 @@
   border-radius: calcSize(12.5);
 }
 
-.sd-boolean__control:focus ~ .sd-boolean__switch {
+.sd-boolean__control:focus~.sd-boolean__switch {
   box-shadow: inset 0 0 0 2px $primary;
 }
 

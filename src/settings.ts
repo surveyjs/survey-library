@@ -506,7 +506,7 @@ export var settings = {
    *
    * Default value: 10
    */
-  maximumConditionRunCountOnValueChanged: 10,
+  maxConditionRunCountOnValueChanged: 10,
   /**
    * An object that configures notifications.
    *

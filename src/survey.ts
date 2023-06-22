@@ -5339,7 +5339,7 @@ export class SurveyModel extends SurveyElementCore
     if (
       this.isValueChangedOnRunningCondition &&
       this.conditionRunnerCounter <
-      settings.maximumConditionRunCountOnValueChanged
+      settings.maxConditionRunCountOnValueChanged
     ) {
       this.isValueChangedOnRunningCondition = false;
       this.conditionRunnerCounter++;

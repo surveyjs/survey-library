@@ -591,6 +591,8 @@ export var settings = {
    */
   environment: defaultEnvironment,
 
+  showMaxLengthIndicator: true,
+
   titleTags: {
     survey: "h3",
     page: "h4",

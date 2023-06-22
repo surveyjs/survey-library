@@ -89,18 +89,6 @@
   .sv-action-bar {
     overflow: visible;
   }
-  .svc-string-editor__button--done {
-    width: calcSize(2);
-  }
-}
-.svc-question__content .sd-table__cell--actions {
-  .sv-action-bar-item:disabled {
-    background: $background;
-    opacity: 1;
-    use {
-      fill: $foreground-light;
-    }
-  }
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical) {
@@ -348,6 +336,6 @@
 }
 .sd-table__question-wrapper {
   .sd-boolean-root {
-      margin: auto;
-    }
+    margin: auto;
+  }
 }

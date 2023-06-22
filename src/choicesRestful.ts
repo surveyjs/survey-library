@@ -66,10 +66,10 @@ export class ChoicesRestful extends Base {
   private static cacheText = "{CACHE}";
   private static noCacheText = "{NOCACHE}";
   public static get EncodeParameters(): boolean {
-    return settings.webserviceEncodeParameters;
+    return settings.web.encodeUrlParams;
   }
   public static set EncodeParameters(val: boolean) {
-    settings.webserviceEncodeParameters = val;
+    settings.web.encodeUrlParams = val;
   }
   public static clearCache() {
     ChoicesRestful.itemsResult = {};
@@ -158,7 +158,7 @@ export class ChoicesRestful extends Base {
   public get isUsingCache(): boolean {
     if (this.isUsingCacheFromUrl === true) return true;
     if (this.isUsingCacheFromUrl === false) return false;
-    return settings.useCachingForChoicesRestful;
+    return settings.web.cacheLoadedChoices;
   }
   public get isRunning(): boolean {
     return this.getIsRunning();
@@ -191,12 +191,12 @@ export class ChoicesRestful extends Base {
       var pUrl = textProcessor.processTextEx(
         urlText,
         false,
-        settings.webserviceEncodeParameters
+        settings.web.encodeUrlParams
       );
       var pPath = textProcessor.processTextEx(
         this.path,
         false,
-        settings.webserviceEncodeParameters
+        settings.web.encodeUrlParams
       );
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";

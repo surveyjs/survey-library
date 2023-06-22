@@ -2,18 +2,21 @@
   min-height: calcSize(36);
   position: relative;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
+
   .sv-action-bar {
     padding: calcSize(1) 0;
     justify-content: center;
     position: absolute;
     width: 100%;
     bottom: 0;
+
     .sv-action-bar-item {
       height: calcSize(4);
       color: $foreground-light;
       border-radius: calcSize(2);
     }
+
     #fileIndex {
       .sv-action-bar-item {
         padding: calcSize(0.5) 0;
@@ -21,6 +24,7 @@
         &:hover {
           background-color: $background;
         }
+
         &:disabled {
           opacity: initial;
         }
@@ -28,6 +32,7 @@
     }
   }
 }
+
 .sd-file__decorator {
   display: flex;
   flex-direction: column;
@@ -39,15 +44,18 @@
   justify-content: center;
   align-items: center;
 }
+
 .sd-file__decorator--drag {
   border: 1px solid $primary;
   box-shadow: inset 0 0 0 1px $primary;
   background: $primary-light;
   z-index: 1;
 }
+
 .sd-file__no-file-chosen {
   display: none;
 }
+
 .sd-file__drag-area-placeholder {
   padding: 0 calcSize(8);
   text-align: center;
@@ -55,6 +63,7 @@
   white-space: normal;
   color: $foreground-light;
 }
+
 .sd-file__choose-btn--text {
   display: block;
   margin-top: calcSize(1);
@@ -62,37 +71,46 @@
   color: $primary;
   cursor: pointer;
 }
+
 .sd-question--answered {
   .sd-file__drag-area-placeholder {
     display: none;
   }
 }
+
 .sd-file__choose-btn--text {
   svg {
     display: none;
   }
 }
+
 .sd-file__choose-btn--icon {
   z-index: 2;
+
   span:first-child {
     display: none;
   }
 }
+
 .sd-file__choose-btn--icon,
 .sd-file__clean-btn {
   top: calcSize(1);
   position: absolute;
 }
+
 .sd-file__clean-btn {
   z-index: 2;
   right: calcSize(1);
+
   span:first-child {
     display: none;
   }
 }
+
 .sd-file__choose-btn--icon {
   right: calcSize(8);
 }
+
 .sd-file__list {
   overflow: auto;
   display: flex;
@@ -106,6 +124,7 @@
   position: absolute;
   width: 100%;
 }
+
 .sd-file__preview {
   position: relative;
   display: flex;
@@ -113,12 +132,14 @@
   flex-direction: column;
   min-height: 100%;
   margin: 0 auto;
+
   .sd-file__default-image {
     width: calcSize(7);
     height: 90px;
   }
-  img:hover + .sd-file__remove-file-button,
-  svg:hover + .sd-file__remove-file-button,
+
+  img:hover+.sd-file__remove-file-button,
+  svg:hover+.sd-file__remove-file-button,
   .sd-file__remove-file-button:hover {
     display: block;
     position: absolute;
@@ -127,11 +148,13 @@
     transform: translate(-50%, -50%);
   }
 }
+
 .sd-file__sign {
   margin-top: calcSize(1);
   text-align: center;
   font-size: calcFontSize(0.75);
-  line-height: calcSize(2);
+  line-height: calcLineHeight(1);
+
   a {
     display: block;
     text-decoration: none;
@@ -142,23 +165,27 @@
     overflow: hidden;
     max-height: calcSize(6);
     text-overflow: ellipsis;
-    line-height: calcSize(2);
+    line-height: calcLineHeight(1);
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
   }
 }
+
 .sd-file__remove-file-button {
   display: none;
 }
+
 .sd-file__decorator--error {
   background-color: $red-light;
 }
+
 .sd-file__image-wrapper {
   position: relative;
   text-align: center;
   min-width: calcSize(12);
   min-height: calcSize(12);
+
   img:not(.sd-file__default-image) {
     display: block;
     width: calcSize(12);
@@ -167,8 +194,9 @@
     background: $background-dim;
   }
 }
+
 .sd-file--single {
-  img:hover + .sd-file__remove-file-button {
+  img:hover+.sd-file__remove-file-button {
     display: none;
   }
 }
@@ -178,32 +206,39 @@
     height: calc(100% - 4 * #{$base-unit});
   }
 }
+
 .sd-file--single-image {
   height: calc(36 * #{$base-unit});
+
   .sd-file__preview {
     width: 100%;
     margin: 0;
   }
+
   .sd-file__list {
     padding: 0;
     height: 100%;
     max-height: 100%;
     width: 100%;
   }
+
   .sd-file__image-wrapper {
     min-height: 100%;
     min-width: 100%;
+
     img {
       width: 100%;
       height: 100%;
       background-color: $background-dim-light;
     }
   }
+
   .sd-file__sign {
     position: absolute;
     margin: 0;
     width: 100%;
     min-height: 100%;
+
     a {
       color: transparent;
       width: 100%;
@@ -212,16 +247,19 @@
     }
   }
 }
-.sd-file > input:focus + .sd-file__decorator .sd-file__choose-btn {
+
+.sd-file>input:focus+.sd-file__decorator .sd-file__choose-btn {
   &.sd-file__choose-btn--icon {
     use {
       fill: $primary;
     }
   }
+
   &:not(.sd-file__choose-btn--icon) {
     background-color: $primary-light;
   }
 }
+
 .sd-file__drag-area {
   position: absolute;
   width: 100%;

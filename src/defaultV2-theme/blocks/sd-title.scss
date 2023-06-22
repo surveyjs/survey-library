@@ -37,13 +37,13 @@
   }
 
   h3 {
-    line-height: calcSize(5);
+    line-height: calcLineHeight(2.5);
   }
 
   h5 {
     font-size: calcFontSize(1);
     font-weight: 400;
-    line-height: calcSize(3);
+    line-height: calcLineHeight(1.5);
   }
 }
 

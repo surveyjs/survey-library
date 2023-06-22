@@ -97,6 +97,11 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   @return $result;
 }
 
+@function calcLineHeight($multiplier) {
+  $result: calc(#{$multiplier} * #{$font-size});
+  @return $result;
+}
+
 @function calcCornerRadius($multiplier) {
   $result: calc(#{$multiplier} * #{$corner-radius});
   @return $result;
@@ -107,7 +112,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(0.75);
-  line-height: calcSize(2);
+  line-height: calcLineHeight(1);
 }
 
 @mixin defaultBold {
@@ -115,14 +120,14 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
 
 @mixin defaultFont {
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
 
 @mixin borderLight {

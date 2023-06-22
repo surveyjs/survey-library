@@ -750,7 +750,7 @@ const json = {
     {
       type: "ranking",
       name: "smartphone-features",
-      title: "Please rank the following smartphone features in order of importance:",
+      title: "Ranking",
       choices: [
         "Battery life",
         "Screen size",

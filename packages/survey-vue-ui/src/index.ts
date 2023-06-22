@@ -34,6 +34,8 @@ import Tagbox from "./Tagbox.vue";
 import TagboxInput from "./components/tagbox/Tagbox.vue";
 import TagboxFilter from "./components/tagbox/TagboxFilter.vue";
 import TagboxItem from "./components/tagbox/TagboxItem.vue";
+import Ranking from "./Ranking.vue";
+import RankingItem from "./RankingItem.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -90,6 +92,8 @@ export function registerComponents(app: any) {
   app.component("sv-tagbox", TagboxInput);
   app.component("sv-tagbox-item", TagboxItem);
   app.component("sv-tagbox-filter", TagboxFilter);
+  app.component("survey-ranking", Ranking);
+  app.component("survey-ranking-item", RankingItem);
 
   app.component("sv-components-container", Container);
   app.component("sv-progress-pages", Progress);

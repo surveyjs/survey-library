@@ -10,7 +10,7 @@ import { BaseVue } from "../../base";
 @Component
 export class Popup extends BaseVue {
   @Prop() model: PopupModel;
-  @Prop() targetElement?: { setCurrent: (currentEl: HTMLElement) => void };
+  @Prop() getTarget?: (container: HTMLElement) => HTMLElement;
   popupViewModel: PopupBaseViewModel;
   protected getModel() {
     return this.model;
@@ -20,10 +20,8 @@ export class Popup extends BaseVue {
     this.popupViewModel = createPopupViewModel(this.model, undefined as any);
   }
   onMounted() {
-    this.popupViewModel.setComponentElement(this.$el as HTMLElement);
-    if(!!this.targetElement) {
-      this.targetElement.setCurrent = (currentEl: HTMLElement) => this.popupViewModel.setComponentElement(this.$el as HTMLElement, currentEl);
-    }
+    const container = (this.$el as HTMLElement) as HTMLElement;
+    this.popupViewModel.setComponentElement(container, this.getTarget ? this.getTarget(container) : undefined);
   }
   destroyed() {
     this.popupViewModel.dispose();

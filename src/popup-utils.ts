@@ -19,17 +19,18 @@ export function createPopupModalViewModel(options: IDialogOptions, container?: H
     options.title
   );
   popupModel.displayMode = options.displayMode || "popup";
-  const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel, container);
+  const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
+  popupViewModel.setComponentElement(container);
   if(!container) {
     popupViewModel.initializePopupContainer();
   }
   return popupViewModel;
 }
 
-export function createPopupViewModel(model: PopupModel, targetElement?: HTMLElement, containerElement?: HTMLElement): PopupBaseViewModel {
+export function createPopupViewModel(model: PopupModel, targetElement?: HTMLElement): PopupBaseViewModel {
   if(model.isModal) {
-    return new PopupModalViewModel(model, containerElement);
+    return new PopupModalViewModel(model);
   } else {
-    return new PopupDropdownViewModel(model, targetElement, containerElement);
+    return new PopupDropdownViewModel(model, targetElement);
   }
 }

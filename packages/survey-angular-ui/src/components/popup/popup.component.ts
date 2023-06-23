@@ -9,7 +9,7 @@ import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-cor
 
 export class PopupComponent extends BaseAngular<PopupModel> {
   @Input() popupModel!: PopupModel;
-  @Input() targetElement?: { setCurrent: (currentEl: HTMLElement) => void };
+  @Input() getTarget?: (container: HTMLElement) => HTMLElement;
   @ViewChild("containerRef") containerRef!: ElementRef<HTMLDivElement>;
 
   public model!: PopupBaseViewModel;
@@ -26,10 +26,8 @@ export class PopupComponent extends BaseAngular<PopupModel> {
   }
   ngAfterViewInit(): void {
     if(!!this.containerRef?.nativeElement) {
-      this.model.setComponentElement(this.containerRef.nativeElement, this.containerRef?.nativeElement?.parentElement?.parentElement);
-    }
-    if(!!this.targetElement) {
-      this.targetElement.setCurrent = (currentEl: HTMLElement) => this.model.setComponentElement(this.containerRef?.nativeElement, currentEl);
+      const container = this.containerRef.nativeElement as HTMLElement;
+      this.model.setComponentElement(container, this.getTarget ? this.getTarget(container.parentElement as HTMLElement) : container?.parentElement?.parentElement);
     }
   }
   override ngOnInit() {

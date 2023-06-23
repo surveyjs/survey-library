@@ -10,6 +10,9 @@ import { getElement } from "./utils/utils";
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  protected popupSelector = ".sv-popup";
+  protected containerSelector = ".sv-popup__container";
+  protected scrollingContentSelector = ".sv-popup__scrolling-content";
   protected prevActiveElement: HTMLElement;
   protected footerToolbarValue: ActionContainer;
 
@@ -24,6 +27,7 @@ export class PopupBaseViewModel extends Base {
   public get container(): HTMLElement {
     return this.containerElement || this.createdContainer;
   }
+  private containerElement: HTMLElement;
   private createdContainer: HTMLElement;
 
   public getLocale(): string {
@@ -97,7 +101,7 @@ export class PopupBaseViewModel extends Base {
     this.setupModel(model);
   }
 
-  constructor(model: PopupModel, private containerElement?: HTMLElement) {
+  constructor(model: PopupModel) {
     super();
     this.model = model;
   }
@@ -194,7 +198,7 @@ export class PopupBaseViewModel extends Base {
   }
   private focusContainer() {
     if (!this.container) return;
-    (<HTMLElement>this.container).focus();
+    (<HTMLElement>this.container.querySelector(this.popupSelector)).focus();
   }
   private focusFirstInput() {
     setTimeout(() => {

@@ -7,9 +7,6 @@ import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
-  private containerSelector = ".sv-popup__container";
-  private scrollingContentSelector = ".sv-popup__scrolling-content";
-
   private scrollEventCallBack = (event: any) => {
     if(this.isOverlay && IsTouch) {
       event.stopPropagation();
@@ -55,7 +52,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   private _updatePosition() {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
-    const popupContainer = <HTMLElement>this.container.querySelector(this.containerSelector);
+    const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if(!popupContainer) return;
     const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = window.getComputedStyle(popupContainer);
@@ -164,8 +161,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: IPosition;
 
-  constructor(model: PopupModel, public targetElement?: HTMLElement, containerElement?: HTMLElement) {
-    super(model, containerElement);
+  constructor(model: PopupModel, public targetElement?: HTMLElement) {
+    super(model);
     this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
       if(!this.isOverlay) {
         this.updatePosition(options.isResetHeight);

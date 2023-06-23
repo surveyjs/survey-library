@@ -1,7 +1,6 @@
 <template>
   <div style="width: 100%">
     <button
-      ref="targetRef"
       type="button"
       :class="item.getActionBarItemCss()"
       v-on:click="
@@ -35,7 +34,7 @@
     </button>
     <sv-popup 
       :model="item.popupModel" 
-      :targetElement="targetElementRef"></sv-popup>
+      :getTarget="getTarget"></sv-popup>
   </div>
 </template>
 
@@ -43,18 +42,15 @@
 import { Component } from "vue-property-decorator";
 import Vue from "vue";
 import ActionBarItemViewModel from "./action-bar-item.vue";
-import { ActionDropdownViewModel } from "survey-core";
+import { ActionDropdownViewModel, getActionDropdownButtonTarget } from "survey-core";
 
 @Component
 export class ActionBarItemDropdownViewModel extends ActionBarItemViewModel {
   private viewModel: ActionDropdownViewModel;
-  public targetElementRef: { setCurrent?: (currentEl: HTMLElement) => void } = { };
+  public getTarget: (container: HTMLElement) => HTMLElement = getActionDropdownButtonTarget;
   constructor() {
     super();
     this.viewModel = new ActionDropdownViewModel(this.item);
-  }
-  onMounted() {
-    this.targetElementRef.setCurrent && this.targetElementRef.setCurrent(this.$refs.targetRef as any);
   }
   onDestroyed() {
     this.viewModel.dispose();

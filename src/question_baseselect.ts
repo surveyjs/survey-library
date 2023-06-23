@@ -94,6 +94,7 @@ export class QuestionSelectBase extends Question {
     }
     this.removeFromDependedQuestion(this.getQuestionWithChoices());
   }
+  onMouseDown(): void {}
   public get otherId(): string {
     return this.id + "_other";
   }

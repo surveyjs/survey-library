@@ -8,7 +8,6 @@ const json = {
   title: "American History",
   showProgressBar: "bottom",
   goNextPageAutomatic: true,
-  showNavigationButtons: false,
   pages: [
     {
       questions: [
@@ -84,6 +83,35 @@ frameworks.forEach(framework => {
       civilwar: "1750-1800",
       libertyordeath: "John Hancock",
       magnacarta: "The foundation of the British parliamentary system"
+    });
+  });
+  test("check auto next page with keyboard", async t => {
+    const getProgressTextPosition = ClientFunction(index =>
+      document.documentElement.innerHTML.indexOf("Page " + index + " of 3")
+    );
+    let surveyResult;
+    assert.notEqual(await getProgressTextPosition(1), -1);
+    await t
+      .pressKey("down")
+      .pressKey("tab")
+      .pressKey("enter");
+    assert.notEqual(await getProgressTextPosition(2), -1);
+    await t
+      .pressKey("down")
+      .pressKey("tab")
+      .pressKey("tab")
+      .pressKey("enter");
+    assert.notEqual(await getProgressTextPosition(3), -1);
+    await t
+      .pressKey("down")
+      .pressKey("tab")
+      .pressKey("tab")
+      .pressKey("enter");
+    surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({
+      civilwar: "1800-1850",
+      libertyordeath: "James Madison",
+      magnacarta: "The Great Seal of the monarchs of England"
     });
   });
 });

@@ -53,7 +53,20 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return this.getLocalizationString("clearCaption");
   }
   supportGoNextPageAutomatic() {
-    return true;
+    return this.isMouseDown === true;
+  }
+  private isMouseDown: boolean;
+  onMouseDown(): void {
+    this.isMouseDown = true;
+  }
+  protected setNewComment(newValue: string): void {
+    this.isMouseDown = true;
+    super.setNewComment(newValue);
+    this.isMouseDown = false;
+  }
+  protected setValueCore(newValue: any): void {
+    super.setValueCore(newValue);
+    this.isMouseDown = false;
   }
   public get showClearButtonInContent(): boolean {
     return !this.isDefaultV2Theme && this.canShowClearButton;

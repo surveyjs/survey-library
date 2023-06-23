@@ -77,7 +77,7 @@
   border: calcSize(0.25) solid transparent;
   width: calcSize(5);
   height: calcSize(5);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   box-sizing: border-box;
   font-weight: 600;
   margin-left: calcSize(0);
@@ -96,7 +96,7 @@
   white-space: nowrap;
   color: $foreground;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   margin: 0 calcSize(2);
 }
 

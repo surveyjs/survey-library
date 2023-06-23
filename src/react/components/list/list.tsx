@@ -54,7 +54,7 @@ export class List extends SurveyElementBase<IListProps, any> {
 
     return (
       <ul
-        className={this.model.cssClasses.itemsContainer}
+        className={this.model.getListClass()}
         style={ulStyle as any}
         role="listbox"
         id={this.model.elementId}

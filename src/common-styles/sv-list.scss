@@ -20,7 +20,7 @@
 }
 
 .sv-list__empty-text {
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
   font-weight: 400;
   text-align: center;
@@ -48,7 +48,7 @@
   padding-inline-start: calcSize(2);
   color: $foreground;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   cursor: pointer;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -116,6 +116,12 @@
   margin: calcSize(1) 0;
   height: 1px;
   background-color: $border;
+}
+
+.sv-list--filtering {
+  .sv-list__item-separator {
+    display: none;
+  }
 }
 
 .sv-list__item.sv-list__item--selected,
@@ -198,7 +204,7 @@ li:focus .sv-list__item.sv-list__item--selected {
   color: $foreground;
   padding: calcSize(1.5) calcSize(3);
   padding-inline-start: calcSize(7);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   border: none;
 }
 

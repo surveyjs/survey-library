@@ -15,12 +15,15 @@
     .sd-element__num {
       @include num_inline();
     }
+
     .sd-element__title--expandable:before {
       left: calcSize(-2.5);
     }
+
     .sd-title.sd-container-modern__title {
       flex-direction: column;
     }
+
     .sd-header__text {
       min-width: 100%;
     }
@@ -28,17 +31,20 @@
     //multipletext responsiveness
     .sd-multipletext__cell {
       display: block;
+
       &:not(:last-child) {
         padding-right: 0;
         padding-bottom: calcSize(2);
       }
     }
+
     .sd-multipletext__item-container {
       flex-direction: column;
     }
+
     .sd-multipletext__item-title {
       font-size: calcFontSize(0.75);
-      line-height: calcSize(2);
+      line-height: calcLineHeight(1);
       height: calcSize(2);
       padding-right: 0;
       border-right: none;
@@ -47,22 +53,27 @@
       width: 100%;
       max-width: none;
     }
+
     .sd-multipletext__item {
       width: 100%;
     }
+
     .sd-multipletext__item .sd-input {
       padding-right: 0;
       padding-left: 0;
       margin-top: 0;
       margin-bottom: calcSize(1);
     }
+
     //eo multipletext responsiveness
     .sd-selectbase--multi-column {
       flex-direction: column;
+
       .sd-selectbase__column:not(:last-child) {
         padding-right: 0;
       }
     }
+
     @include table_responsive();
     @include ranking_responsive();
   }

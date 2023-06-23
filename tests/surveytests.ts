@@ -16224,7 +16224,7 @@ QUnit.test("no scrolling to page top after focus a question on another page - ht
   setTimeout(() => {
     assert.equal(log, "->" + qName, "no scrolling after page changed and focused a question, scroll to the question only");
     done();
-  }, 100);
+  }, 2);
 });
 
 QUnit.test("check descriptionLocation change css classes", function (assert) {

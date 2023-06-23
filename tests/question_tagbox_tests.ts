@@ -320,8 +320,8 @@ function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   return result;
 }
 
-const onChoicesLazyLoadCallbackTimeOut = 300;
-const callbackTimeOutDelta = 30;
+const onChoicesLazyLoadCallbackTimeOut = 5;
+const callbackTimeOutDelta = 1;
 
 const callback = (_, opt) => {
   const total = 70;
@@ -562,7 +562,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -594,7 +594,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
     assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
@@ -616,7 +616,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -646,7 +646,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
     assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
     assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
@@ -667,7 +667,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -708,7 +708,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     assert.equal(question.selectedItems[2].value, 10, "question.selectedItems[2] value");
     assert.equal(question.selectedItems[2].text, "DisplayText_10", "question.selectedItems[2] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading data is lost: defaultValue", assert => {
@@ -730,7 +730,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -757,7 +757,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
     assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {
@@ -778,7 +778,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -806,7 +806,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
     assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + change filter string", assert => {

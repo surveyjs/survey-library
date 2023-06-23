@@ -1049,7 +1049,7 @@ const json = {
 
 StylesManager.applyTheme("defaultV2");
 
-window.survey = new SurveyModel(json);
+//window.survey = new SurveyModel(json);
 
 export default defineComponent({
   name: "App",
@@ -1058,7 +1058,7 @@ export default defineComponent({
     Survey,
   },
   data() {
-    const survey = window.survey;
+    const survey = new SurveyModel(json);
     survey.title = "It works!";
     survey.description = "This is the first survey in Vue3";
     survey.surveyId = "Survey1";

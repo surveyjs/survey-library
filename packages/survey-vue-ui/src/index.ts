@@ -13,6 +13,7 @@ import Panel from "./Panel.vue";
 import ElementHeader from "./ElementHeader.vue";
 import String from "./String.vue";
 import StringViewer from "./StringViewer.vue";
+import StringEditor from "./StringEditor.vue";
 import Skeleton from "./components/Skeleton.vue";
 import QuestionText from "./Text.vue";
 import QuestionTextInput from "./TextInput.vue";
@@ -71,6 +72,7 @@ export function registerComponents(app: any) {
   app.component("survey-element-header", ElementHeader);
   app.component("survey-string", String);
   app.component("sv-string-viewer", StringViewer);
+  app.component("sv-string-editor", StringEditor);
   app.component("sv-skeleton", Skeleton);
   app.component("survey-text", QuestionText);
   app.component("survey-text-input", QuestionTextInput);

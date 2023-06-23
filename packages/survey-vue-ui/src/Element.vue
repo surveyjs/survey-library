@@ -31,7 +31,6 @@
         :is="getComponentName(element)"
         v-if="element.isPanel || !element.isCollapsed"
         :question="element"
-        :css="css"
       />
       <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
         <div>

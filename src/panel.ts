@@ -320,7 +320,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.title.length > 0) ||
-      (this.showTitle && this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+      (this.showTitle && this.isDesignMode && settings.designMode.showEmptyTitles)
     );
   }
   protected canShowTitle(): boolean { return true; }
@@ -328,8 +328,8 @@ export class PanelModelBase extends SurveyElement<Question>
   get _showDescription(): boolean {
     return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
       (this.showDescription && this.isDesignMode &&
-        settings.allowShowEmptyTitleInDesignMode &&
-        settings.allowShowEmptyDescriptionInDesignMode);
+        settings.designMode.showEmptyTitles &&
+        settings.designMode.showEmptyDescriptions);
   }
   public localeChanged() {
     super.localeChanged();
@@ -1129,7 +1129,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private isLazyRenderInRow(rowIndex: number): boolean {
     if (!this.survey || !this.survey.isLazyRendering) return false;
     return (
-      rowIndex >= settings.lazyRowsRenderingStartRow ||
+      rowIndex >= settings.lazyRender.firstBatchSize ||
       !this.canRenderFirstRows()
     );
   }

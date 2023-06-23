@@ -1,7 +1,8 @@
 import { QuestionTextModel } from "../src/question_text";
 import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
-import { QuestionTextBase } from "../src/question_textbase";
+import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
+import { settings } from "../src/settings";
 
 QUnit.test("check dropdown disabled class", function(assert) {
   var json = {
@@ -386,4 +387,16 @@ QUnit.test("min/max numeric, non required, bug#5758", function(assert) {
   q.value = "";
   q.validate();
   assert.equal(q.errors.length, 0, "There is no errors");
+});
+QUnit.test("CharacterCounter + settings.showMaxLengthIndicator", function(assert) {
+  const ch = new CharacterCounter();
+  assert.notOk(ch.remainingCharacterCounter, "#1");
+  ch.updateRemainingCharacterCounter("abc", 5);
+  assert.equal(ch.remainingCharacterCounter, "3/5", "#2");
+  settings.showMaxLengthIndicator = false;
+  ch.updateRemainingCharacterCounter("abcd", 7);
+  assert.equal(ch.remainingCharacterCounter, "", "#3");
+  settings.showMaxLengthIndicator = true;
+  ch.updateRemainingCharacterCounter("abcd", 7);
+  assert.equal(ch.remainingCharacterCounter, "4/7", "#4");
 });

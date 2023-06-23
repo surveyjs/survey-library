@@ -92,7 +92,7 @@ export class Question extends SurveyElement<Question>
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
   public isReadOnlyRenderDiv(): boolean {
-    return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
+    return this.isReadOnly && settings.readOnly.commentRenderMode === "div";
   }
 
   protected setIsMobile(val: boolean) { }
@@ -347,7 +347,7 @@ export class Question extends SurveyElement<Question>
   /**
    * Hides the question number from the title and excludes the question from numbering.
    *
-   * If you want to disable question numbering in the entire survey, set SurveyModel's `showQuestionNumbers` property to `false`.
+   * If you want to disable question numbering in the entire survey, set `SurveyModel`'s `showQuestionNumbers` property to `false`.
    * @see SurveyModel.showQuestionNumbers
    */
   public get hideNumber(): boolean {
@@ -1321,7 +1321,7 @@ export class Question extends SurveyElement<Question>
    *
    * - `"default"` (default) - Inherits the setting from the Survey's [`clearInvisibleValues`](https://surveyjs.io/form-library/documentation/surveymodel#clearInvisibleValues) property.
    * - `"onHidden"` - Clears the value when the question becomes invisible. If a question is invisible on startup and has an initial value, this value will be cleared when the survey is complete.
-   * - `"onHiddenContainer"` - Clears the value when the question or its containter (page or panel) becomes invisible. If the question is invisible initially, its value is removed on survey completion.
+   * - `"onHiddenContainer"` - Clears the value when the question or its container (page or panel) becomes invisible. If a question is invisible on startup and has an initial value, this value will be cleared when the survey is complete.
    * - `"onComplete"` - Clears the value when the survey is complete.
    * - `"none"` - Never clears the value of an invisible question.
    * @see SurveyModel.clearInvisibleValues
@@ -1966,8 +1966,8 @@ export class Question extends SurveyElement<Question>
   public setVisibleIndex(val: number): number {
     if (
       !this.isVisible ||
-      (!this.hasTitle && !settings.setQuestionVisibleIndexForHiddenTitle) ||
-      (this.hideNumber && !settings.setQuestionVisibleIndexForHiddenNumber)
+      (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
+      (this.hideNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
     ) {
       val = -1;
     }

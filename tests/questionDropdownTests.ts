@@ -637,8 +637,8 @@ function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   return result;
 }
 
-const onChoicesLazyLoadCallbackTimeOut = 300;
-const callbackTimeOutDelta = 30;
+const onChoicesLazyLoadCallbackTimeOut = 5;
+const callbackTimeOutDelta = 1;
 
 const callback = (_, opt) => {
   const total = 55;
@@ -773,7 +773,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
         options.setItems(options.values.map(item => ("DisplayText_" + item)));
         responseCount++;
       }
-    }, 150);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
   });
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -797,13 +797,15 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
         assert.equal(requestCount, 1, "requestCount #3.1");
         assert.equal(responseCount, 1, "responseCount #3.1");
         assert.equal(question.selectedItemLocText.calculatedText, "DisplayText_2");
+        assert.equal(question.selectedItem.locText.calculatedText, "DisplayText_2", "locText.calculatedText");
+        assert.equal(question.displayValue, "DisplayText_2", "question.displayValue");
 
         done3();
-      }, 200);
+      }, onChoicesLazyLoadCallbackTimeOut + 2 * callbackTimeOutDelta);
       done2();
-    }, 100);
+    }, onChoicesLazyLoadCallbackTimeOut);
     done1();
-  }, 100);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("storeOthersAsComment is false", assert => {
@@ -1067,7 +1069,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if(options.question.name == "q1") {
@@ -1093,7 +1095,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     assert.equal(question.selectedItem.value, 55);
     assert.equal(question.selectedItem.text, "DisplayText_55");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue, selected last item", assert => {
@@ -1150,7 +1152,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if(options.question.name == "q1") {
@@ -1174,10 +1176,11 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
     assert.equal(question.choices[24].value, 25);
     assert.equal(question.value.id, 55);
     assert.equal(question.selectedItem.value.id, 55);
-    assert.equal(question.selectedItem.text, "DisplayText_55");
+    assert.equal(question.selectedItem.text, "DisplayText_55", "selectedItem.text");
+    assert.equal(question.displayValue, "DisplayText_55", "displayValue");
     assert.equal(question.dropdownListModel.inputString, "DisplayText_55");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
@@ -1198,7 +1201,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if(options.question.name == "q1") {
@@ -1223,7 +1226,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     assert.equal(question.selectedItem.value, 55);
     assert.equal(question.selectedItem.text, "DisplayText_55");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("lazy loading data is lost: defaultValue", assert => {
@@ -1245,7 +1248,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if(options.question.name == "q1") {
@@ -1271,7 +1274,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
     assert.deepEqual(survey.data, { "q1": 55 }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {
@@ -1292,7 +1295,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if(options.question.name == "q1") {
@@ -1318,7 +1321,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
     assert.deepEqual(survey.data, { "q1": 55 }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("lazy loading + change filter string", assert => {
@@ -1512,7 +1515,7 @@ QUnit.test("lazy loading placeholder", assert => {
   };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add((_, opt) => {
-    setTimeout(() => { opt.setItems([], 0); }, 500);
+    setTimeout(() => { opt.setItems([], 0); }, onChoicesLazyLoadCallbackTimeOut);
   });
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -1531,8 +1534,8 @@ QUnit.test("lazy loading placeholder", assert => {
     setTimeout(() => {
 
       done();
-    }, 550);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });

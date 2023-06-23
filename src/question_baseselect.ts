@@ -966,7 +966,7 @@ export class QuestionSelectBase extends Question {
     if (val == this.otherItemValue.value)
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     const selItem = this.getSingleSelectedItem();
-    if(!!selItem && selItem.value === val) return selItem.locText.textOrHtml;
+    if(!!selItem && this.isTwoValueEquals(selItem.value, val)) return selItem.locText.textOrHtml;
     var str = ItemValue.getTextOrHtmlByValue(items, val);
     return str == "" && val ? val : str;
   }
@@ -1196,7 +1196,7 @@ export class QuestionSelectBase extends Question {
   }
   private isFirstLoadChoicesFromUrl = true;
   protected onBeforeSendRequest() {
-    if (settings.disableOnGettingChoicesFromWeb === true && !this.isReadOnly) {
+    if (settings.web.disableQuestionWhileLoadingChoices === true && !this.isReadOnly) {
       this.enableOnLoadingChoices = true;
       this.readOnly = true;
     }

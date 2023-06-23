@@ -279,7 +279,7 @@ QUnit.test("QuestionFile upload files", function(assert) {
             return { file: file, content: file.name + "_url" };
           })
         ),
-      10
+      2
     );
   });
 
@@ -517,8 +517,8 @@ QUnit.test(
         assert.equal(stateSec, "->loading->error->loading->loaded");
         assert.equal(state, "loaded");
         done();
-      }, 10);
-    }, 10);
+      }, 2);
+    }, 2);
   }
 );
 
@@ -849,7 +849,7 @@ QUnit.test("QuestionFile inside a panel set value", async function(assert) {
     downloadCallCount++;
     setTimeout(() => {
       options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
-    }, 10);
+    }, 1);
   });
 
   q.value = [{
@@ -863,7 +863,7 @@ QUnit.test("QuestionFile inside a panel set value", async function(assert) {
     assert.equal(q.previewValue.length, 1);
     assert.deepEqual(q.previewValue, [downloadedFile]);
     done();
-  }, 25);
+  }, 2);
 });
 
 QUnit.test("preview item index on last file removed", (assert) => {

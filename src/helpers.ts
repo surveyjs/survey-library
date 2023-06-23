@@ -215,7 +215,7 @@ export class Helpers {
     return maxLength > 0 ? maxLength : null;
   }
   public static getRemainingCharacterCounterText(newValue: string | undefined, maxLength: number | null): string {
-    if(!maxLength || maxLength <= 0) {
+    if(!maxLength || maxLength <= 0 || !settings.showMaxLengthIndicator) {
       return "";
     }
     const value = newValue ? newValue.length : "0";

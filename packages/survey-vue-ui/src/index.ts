@@ -37,6 +37,11 @@ import TagboxFilter from "./components/tagbox/TagboxFilter.vue";
 import TagboxItem from "./components/tagbox/TagboxItem.vue";
 import Ranking from "./Ranking.vue";
 import RankingItem from "./RankingItem.vue";
+import Rating from "./Rating.vue";
+import RatingItem from "./components/rating/RatingItem.vue";
+import RatingItemSmiley from "./components/rating/RatingItemSmiley.vue";
+import RatingItemStar from "./components/rating/RatingItemStar.vue";
+import RatingDropdown from "./RatingDropdown.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -96,6 +101,11 @@ export function registerComponents(app: any) {
   app.component("sv-tagbox-filter", TagboxFilter);
   app.component("survey-ranking", Ranking);
   app.component("survey-ranking-item", RankingItem);
+  app.component("survey-rating", Rating);
+  app.component("sv-rating-item", RatingItem);
+  app.component("sv-rating-item-smiley", RatingItemSmiley);
+  app.component("sv-rating-item-star", RatingItemStar);
+  app.component("sv-rating-dropdown", RatingDropdown);
 
   app.component("sv-components-container", Container);
   app.component("sv-progress-pages", Progress);

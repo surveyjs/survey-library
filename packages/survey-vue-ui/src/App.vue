@@ -748,6 +748,37 @@ const json = {
       maxRateDescription: "Completely satisfied"
     },
     {
+      "type": "rating",
+      "name": "satisfaction-stars",
+      "title": "Rating Stars",
+      "description": "Star rating scale",
+      "rateType": "stars",
+      "rateCount": 10,
+      "rateMax": 10,
+      "displayMode": "buttons"
+    },
+    {
+      "type": "rating",
+      "name": "satisfaction-smileys-monochrome",
+      "title": "Rating Smileys",
+      "description": "Smiley rating with monochrome scale",
+      "rateType": "smileys",
+      "rateCount": 10,
+      "rateMax": 10,
+      "displayMode": "buttons"
+    },
+    {
+      "type": "rating",
+      "name": "satisfaction-smileys-colored",
+      "title": "Rating Smileys Colored",
+      "description": "Smiley rating with colored scale",
+      "rateType": "smileys",
+      "scaleColorMode": "colored",
+      "rateCount": 10,
+      "rateMax": 10,
+      "displayMode": "buttons"
+    },
+    {
       type: "ranking",
       name: "smartphone-features",
       title: "Ranking",

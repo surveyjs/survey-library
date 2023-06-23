@@ -3,6 +3,7 @@ import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
+import { getFirstVisibleChild } from "./utils/utils";
 
 export let defaultListCss = {
   root: "sv-list__container",
@@ -203,8 +204,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (event.key === "ArrowDown" || event.keyCode === 40) {
       const currentElement = (<HTMLElement>event.target).parentElement;
       const listElement = currentElement.parentElement.querySelector("ul");
-      if (!!listElement && !!listElement.firstElementChild) {
-        ElementHelper.focusElement(listElement.firstElementChild);
+      const firstChild = getFirstVisibleChild(listElement);
+      if (!!listElement && !!firstChild) {
+        ElementHelper.focusElement(firstChild);
         event.preventDefault();
       }
     }

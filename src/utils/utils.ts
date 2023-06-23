@@ -301,6 +301,15 @@ function isContainerVisible(el: HTMLElement) {
   );
 }
 
+function getFirstVisibleChild(el: HTMLElement) {
+  let result;
+  for(let index = 0; index < el.children.length; index++) {
+    if(!result && getComputedStyle(el.children[index]).display !== "none") {
+      result = el.children[index];
+    }
+  }
+  return result;
+}
 function findParentByClassNames(element: HTMLElement, classNames: Array<string>): Element {
   if (!!element) {
     if (classNames.every(className => !className || element.classList.contains(className))) {
@@ -376,4 +385,5 @@ export {
   getOriginalEvent,
   preventDefaults,
   findParentByClassNames,
+  getFirstVisibleChild,
 };

@@ -803,7 +803,7 @@ QUnit.test("The onGetChoiceDisplayValue callback fires multiple times, #6078", a
         done3();
       }, onChoicesLazyLoadCallbackTimeOut + 2 * callbackTimeOutDelta);
       done2();
-    }, onChoicesLazyLoadCallbackTimeOut);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
     done1();
   }, onChoicesLazyLoadCallbackTimeOut);
 });

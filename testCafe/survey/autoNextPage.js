@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { ClientFunction, fixture, test } from "testcafe";
+import { ClientFunction, fixture, test, Selector } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
 const title = "autoNextPage";
@@ -10,7 +10,7 @@ const json = {
   goNextPageAutomatic: true,
   pages: [
     {
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           name: "civilwar",
@@ -26,7 +26,7 @@ const json = {
       ]
     },
     {
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           name: "libertyordeath",
@@ -41,7 +41,7 @@ const json = {
       ]
     },
     {
-      questions: [
+      elements: [
         {
           type: "radiogroup",
           name: "magnacarta",
@@ -63,12 +63,25 @@ const json2 = {
   goNextPageAutomatic: true,
   pages: [
     {
-      questions: [
+      elements: [
         {
           type: "matrix",
           name: "q1",
           columns: [1, 2, 3],
           rows: ["A", "B", "C"]
+        }
+      ]
+    }
+  ]
+};
+const json3 = {
+  goNextPageAutomatic: true,
+  pages: [
+    {
+      elements: [
+        {
+          type: "rating",
+          name: "q1"
         }
       ]
     }
@@ -162,5 +175,33 @@ frameworks.forEach(framework => {
 
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.q1, { A: 1, B: 2, C: 3 });
+  });
+});
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json3);
+    }
+  );
+  test("check auto next page with rating", async (t) => {
+    let surveyResult;
+    const label3 = Selector("label").withText("3");
+    await t
+      .click(label3);
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.q1, 3);
+  });
+  test("check auto next page with rating + keyboard", async (t) => {
+    let surveyResult;
+
+    await t
+      .pressKey("right")
+      .pressKey("right")
+      .pressKey("tab")
+      .pressKey("enter");
+
+    surveyResult = await getSurveyResult();
+    assert.equal(surveyResult.q1, 3);
   });
 });

@@ -3937,9 +3937,7 @@ QUnit.test(
       page.addQuestion(q.question);
       survey.goNextPageAutomatic = true;
       if (q.value) {
-        if(q.question.getType() === "radiogroup") {
-          q.question.onMouseDown();
-        }
+        q.question.onMouseDown();
         q.question.value = q.value;
       }
       var state = q.auto ? "completed" : "running";

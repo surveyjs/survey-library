@@ -544,13 +544,16 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+  matrix.onMouseDown();
   matrix.value = { row1: "col1" };
   assert.equal(
     matrix.supportGoNextPageAutomatic(),
     false,
     "The second row is not set"
   );
+  matrix.onMouseDown();
   matrix.value = { row1: "col1", row2: "col1" };
+  matrix.onMouseDown();
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 

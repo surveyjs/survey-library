@@ -407,7 +407,7 @@ export class QuestionMatrixModel
     return loc ? loc : this.emptyLocalizableString;
   }
   supportGoNextPageAutomatic(): boolean {
-    return this.isMouseDown && this.hasValuesInAllRows();
+    return this.isMouseDown === true && this.hasValuesInAllRows();
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,

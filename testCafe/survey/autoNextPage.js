@@ -82,7 +82,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test.only("check auto next page", async t => {
+  test("check auto next page", async t => {
     const getProgressTextPosition = ClientFunction(index =>
       document.documentElement.innerHTML.indexOf("Page " + index + " of 3")
     );

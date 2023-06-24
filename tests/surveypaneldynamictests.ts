@@ -5867,7 +5867,7 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
 });
-QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
+QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "paneldynamic",

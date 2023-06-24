@@ -6892,3 +6892,22 @@ QUnit.test("cols property is invisible and non-serializable", function (assert) 
 QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
 });
+QUnit.test("question.getRootCss apply disable css correctly", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "q1",
+        "type": "text"
+      }]
+  });
+  const q = survey.getQuestionByName("q1");
+  survey.setCss({ question: { titleDisabled: "css-disabled" } });
+  q.updateElementCss(true);
+  const disableCss = q.cssClasses.titleDisabled;
+  assert.equal(disableCss, "css-disabled", "#1");
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #2");
+  q.readOnly = true;
+  assert.ok(q.cssTitle.indexOf(disableCss) > -1, "disableCss is in the title, #3");
+  q.readOnly = false;
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #4");
+});

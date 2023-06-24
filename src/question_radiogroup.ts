@@ -52,20 +52,12 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public get clearButtonCaption() {
     return this.getLocalizationString("clearCaption");
   }
-  supportGoNextPageAutomatic() {
+  supportGoNextPageAutomatic(): boolean {
     return this.isMouseDown === true;
-  }
-  private isMouseDown: boolean;
-  onMouseDown(): void {
-    this.isMouseDown = true;
   }
   protected setNewComment(newValue: string): void {
     this.isMouseDown = true;
     super.setNewComment(newValue);
-    this.isMouseDown = false;
-  }
-  protected setValueCore(newValue: any): void {
-    super.setValueCore(newValue);
     this.isMouseDown = false;
   }
   public get showClearButtonInContent(): boolean {

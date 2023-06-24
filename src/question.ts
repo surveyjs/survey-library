@@ -1908,6 +1908,7 @@ export class Question extends SurveyElement<Question>
         this.allowNotifyValueChanged
       );
     }
+    this.isMouseDown = false;
   }
   protected canSetValueToSurvey(): boolean {
     return true;
@@ -1919,6 +1920,11 @@ export class Question extends SurveyElement<Question>
     return val;
   }
   protected onValueChanged(): void { }
+  protected isMouseDown: boolean;
+  onMouseDown(): boolean {
+    this.isMouseDown = true;
+    return true;
+  }
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
     this.questionComment = newValue;

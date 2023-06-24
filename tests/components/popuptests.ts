@@ -1408,3 +1408,55 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
 
   viewModel.dispose();
 });
+
+QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {});
+  model.isModal = true;
+  const viewModel: PopupModalViewModel = createPopupViewModel(model) as PopupModalViewModel;
+  let log = "";
+  let eventLog = "";
+  const container: any = {
+    listeners: {},
+    querySelector: () => {},
+    addEventListener (event: string, callback: () => {}) {
+      this.listeners[event] = [callback].concat(this.listeners[event] || []);
+      log += "->added";
+    },
+    removeEventListener (event: string, callback: () => {}) {
+      const array = this.listeners[event];
+      const index = array.indexOf(callback);
+      if (index > -1) {
+        array.splice(index, 1);
+      }
+      log += "->removed";
+    },
+    fireEvent (event: string) {
+      this.listeners[event].forEach(callback => {
+        log += "->fired";
+        callback({
+          stopPropagation() {
+            eventLog += "->stopedPropagation";
+          },
+          preventDefault() {
+            eventLog += "->preventedDefault";
+          }
+        });
+      });
+    }
+  };
+  viewModel.container = container;
+  model.isVisible = true;
+  viewModel.updateOnShowing();
+  assert.equal(log, "->added");
+  assert.equal(eventLog, "");
+  assert.equal(container.listeners["wheel"].length, 1);
+  container.fireEvent("wheel");
+  assert.equal(log, "->added->fired");
+  assert.equal(eventLog, "->preventedDefault->stopedPropagation");
+
+  eventLog = "";
+  model.toggleVisibility();
+  assert.equal(log, "->added->fired->removed");
+  assert.equal(eventLog, "");
+  assert.equal(container.listeners["wheel"].length, 0);
+});

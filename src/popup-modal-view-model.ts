@@ -2,8 +2,9 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IAction } from "./actions/action";
-export class PopupModalViewModel extends PopupBaseViewModel {
+import { preventDefaults } from "./utils/utils";
 
+export class PopupModalViewModel extends PopupBaseViewModel {
   protected getStyleClass(): CssClassBuilder {
     return super.getStyleClass()
       .append("sv-popup--modal", !this.isOverlay);
@@ -43,5 +44,22 @@ export class PopupModalViewModel extends PopupBaseViewModel {
       this.model.onCancel();
     }
     super.onKeyDown(event);
+  }
+
+  private onScrollOutsideCallback = (event: WheelEvent) => {
+    preventDefaults(event);
+  }
+
+  public updateOnShowing(): void {
+    if(this.container) {
+      this.container.addEventListener("wheel", this.onScrollOutsideCallback, { passive: false });
+    }
+    super.updateOnShowing();
+  }
+  public updateOnHiding(): void {
+    if(this.container) {
+      this.container.removeEventListener("wheel", this.onScrollOutsideCallback);
+    }
+    super.updateOnHiding();
   }
 }

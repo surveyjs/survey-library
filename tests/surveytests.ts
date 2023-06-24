@@ -17117,3 +17117,28 @@ QUnit.test("Expression with dates & defaultValueExpression & expression question
   startQ.value = Helpers.convertDateToString(new Date());
   checkFunc([true, true, false, false, true], 3);
 });
+
+QUnit.test("Check onPopupVisibilityChanged events", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "choices": ["Item1", "Item2", "Item3"]
+      },
+    ]
+  });
+  let log = "";
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  survey.onPopupVisibilityChanged.add((_, options) => {
+    assert.equal(options.question, question);
+    assert.equal(options.popup, popup);
+    log += `->${options.visible}`;
+  });
+  popup.toggleVisibility();
+  assert.equal(log, "->true");
+  popup.toggleVisibility();
+  assert.equal(log, "->true->false");
+});
+

@@ -4,6 +4,7 @@ import { IElement, ISurveyElement } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
+import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionFileModel } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
@@ -854,4 +855,9 @@ export interface MatrixColumnAddedEvent extends QuestionEventMixin {
    * An added matrix column.
    */
   column: any;
+}
+
+export interface onPopupVisibilityChanged extends QuestionEventMixin {
+  popup: PopupModel;
+  visible: boolean;
 }

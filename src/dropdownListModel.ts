@@ -113,6 +113,7 @@ export class DropdownListModel extends Base {
           this.resetItemsSettings();
         }
       }
+      this.question.processPopupVisiblilityChanged(this.popupModel, option.isVisible);
     });
   }
 

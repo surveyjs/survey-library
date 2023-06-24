@@ -406,8 +406,8 @@ export class QuestionMatrixModel
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  supportGoNextPageAutomatic() {
-    return this.hasValuesInAllRows();
+  supportGoNextPageAutomatic(): boolean {
+    return this.isMouseDown && this.hasValuesInAllRows();
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,

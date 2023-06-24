@@ -133,7 +133,34 @@ frameworks.forEach(framework => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
-      await initSurvey(framework, json);
+      await initSurvey(framework, json2);
     }
   );
+  test("check auto next page with matrix", async (t) => {
+    let surveyResult;
+
+    await t
+      .click("input[name=\"sq_100_A\"][value=\"1\"]")
+      .click("input[name=\"sq_100_B\"][value=\"2\"]")
+      .click("input[name=\"sq_100_C\"][value=\"3\"]");
+
+    surveyResult = await getSurveyResult();
+    assert.deepEqual(surveyResult.q1, { A: 1, B: 2, C: 3 });
+  });
+  test("check auto next page with matrix + keyboard", async (t) => {
+    let surveyResult;
+
+    await t
+      .pressKey("space")
+      .pressKey("tab")
+      .pressKey("right")
+      .pressKey("tab")
+      .pressKey("right")
+      .pressKey("right")
+      .pressKey("tab")
+      .pressKey("enter");
+
+    surveyResult = await getSurveyResult();
+    assert.deepEqual(surveyResult.q1, { A: 1, B: 2, C: 3 });
+  });
 });

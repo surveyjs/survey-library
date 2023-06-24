@@ -1803,7 +1803,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }
-  supportGoNextPageAutomatic() {
+  supportGoNextPageAutomatic(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;

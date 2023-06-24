@@ -4061,6 +4061,18 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   q.multiSelect = false;
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
+QUnit.test("QuestionTextModel.supportGoNextPageAutomatic", function (assert) {
+  const q = new QuestionTextModel("q");
+  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  q.inputType = "date";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "Do not support for date");
+  q.inputType = "text";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "Default inputType again");
+  q.textUpdateMode = "onTyping";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "textUpdateMode = 'onTyping'");
+  q.textUpdateMode = "onBlur";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "textUpdateMode = 'onBlur'");
+});
 
 QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
   const survey = new SurveyModel({

@@ -346,8 +346,9 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return this.step;
   }
-  supportGoNextPageAutomatic() {
-    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
+  supportGoNextPageAutomatic(): boolean {
+    return !this.isSurveyInputTextUpdate &&
+      ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
     return ["date", "datetime-local"].indexOf(this.inputType) < 0;

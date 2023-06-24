@@ -1921,9 +1921,8 @@ export class Question extends SurveyElement<Question>
   }
   protected onValueChanged(): void { }
   protected isMouseDown: boolean;
-  onMouseDown(): boolean {
+  onMouseDown(): void {
     this.isMouseDown = true;
-    return true;
   }
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;

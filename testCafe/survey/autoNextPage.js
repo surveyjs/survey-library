@@ -59,6 +59,21 @@ const json = {
   completedHtml:
     "<p>Your anwers are:</p><p>When was the Civil War?: <b>{civilwar}</b>. The correct is: <b>1850-1900</b></p><p>Who said 'Give me liberty or give me death?': <b>{libertyordeath}</b>. The correct is: <b>Patrick Henry</b></p><p>What is the Magna Carta?: <b>{magnacarta}</b>. The correct is: <b>The foundation of the British parliamentary system</b></p>"
 };
+const json2 = {
+  goNextPageAutomatic: true,
+  pages: [
+    {
+      questions: [
+        {
+          type: "matrix",
+          name: "q1",
+          columns: [1, 2, 3],
+          rows: ["A", "B", "C"]
+        }
+      ]
+    }
+  ]
+};
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
@@ -67,7 +82,7 @@ frameworks.forEach(framework => {
     }
   );
 
-  test("check auto next page", async t => {
+  test.only("check auto next page", async t => {
     const getProgressTextPosition = ClientFunction(index =>
       document.documentElement.innerHTML.indexOf("Page " + index + " of 3")
     );
@@ -114,4 +129,11 @@ frameworks.forEach(framework => {
       magnacarta: "The Great Seal of the monarchs of England"
     });
   });
+});
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json);
+    }
+  );
 });

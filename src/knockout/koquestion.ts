@@ -48,6 +48,10 @@ export class QuestionImplementor extends ImplementorBase {
     this.setCallbackFunc("koQuestionAfterRender", (el: any, con: any) => {
       this.koQuestionAfterRender(el, con);
     });
+    this.setCallbackFunc("koMouseDown", () => {
+      this.question.onMouseDown();
+      return true;
+    });
   }
   protected setObservaleObj(
     name: string,

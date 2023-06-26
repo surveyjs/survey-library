@@ -683,7 +683,7 @@ export class SurveyModel extends SurveyElementCore
   /**
   * An event that is raised every second while the timer is running.
   *
-  * Use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeSpent) property to find out how many seconds has elapsed.
+  * Use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeSpent) property to find out how many seconds have elapsed.
   * @see maxTimeToFinish
   * @see maxTimeToFinishPage
   * @see showTimerPanel

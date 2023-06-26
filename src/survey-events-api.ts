@@ -858,6 +858,12 @@ export interface MatrixColumnAddedEvent extends QuestionEventMixin {
 }
 
 export interface onPopupVisibilityChanged extends QuestionEventMixin {
+  /**
+   * An object that describes the popup.
+   */
   popup: PopupModel;
+  /**
+   * Indicates whether the popup is visible now.
+   */
   visible: boolean;
 }

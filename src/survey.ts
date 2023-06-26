@@ -760,6 +760,9 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetExpressionDisplayValue: EventBase<SurveyModel, GetExpressionDisplayValueEvent> = this.addEvent<SurveyModel, GetExpressionDisplayValueEvent>();
 
+  /**
+   * An event that is raised after the visibility of a popup is changed. This event can be raised for [Single-](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) and [Multi-Select Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model) questions and [Rating](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model) questions [rendered as drop-down menus](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#displayMode).
+   */
   public onPopupVisibilityChanged: EventBase<SurveyModel, PopupVisibilityChangedEvent> = this.addEvent<SurveyModel, PopupVisibilityChangedEvent>();
 
   //#endregion

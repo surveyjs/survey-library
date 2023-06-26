@@ -544,13 +544,16 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+  matrix.onMouseDown();
   matrix.value = { row1: "col1" };
   assert.equal(
     matrix.supportGoNextPageAutomatic(),
     false,
     "The second row is not set"
   );
+  matrix.onMouseDown();
   matrix.value = { row1: "col1", row2: "col1" };
+  matrix.onMouseDown();
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
@@ -4058,6 +4061,18 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   q.multiSelect = false;
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
+QUnit.test("QuestionTextModel.supportGoNextPageAutomatic", function (assert) {
+  const q = new QuestionTextModel("q");
+  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  q.inputType = "date";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "Do not support for date");
+  q.inputType = "text";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "Default inputType again");
+  q.textUpdateMode = "onTyping";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "textUpdateMode = 'onTyping'");
+  q.textUpdateMode = "onBlur";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "textUpdateMode = 'onBlur'");
+});
 
 QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
   const survey = new SurveyModel({
@@ -6891,4 +6906,23 @@ QUnit.test("cols property is invisible and non-serializable", function (assert) 
 });
 QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
+});
+QUnit.test("question.getRootCss apply disable css correctly", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "q1",
+        "type": "text"
+      }]
+  });
+  const q = survey.getQuestionByName("q1");
+  survey.setCss({ question: { titleDisabled: "css-disabled" } });
+  q.updateElementCss(true);
+  const disableCss = q.cssClasses.titleDisabled;
+  assert.equal(disableCss, "css-disabled", "#1");
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #2");
+  q.readOnly = true;
+  assert.ok(q.cssTitle.indexOf(disableCss) > -1, "disableCss is in the title, #3");
+  q.readOnly = false;
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #4");
 });

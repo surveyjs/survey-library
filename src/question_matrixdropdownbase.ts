@@ -1803,7 +1803,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }
-  supportGoNextPageAutomatic() {
+  supportGoNextPageAutomatic(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
@@ -2049,14 +2049,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     columnName: string,
     rowValue: any
   ): any {
-    var getQuestion = (colName: any) => {
-      for (var i = 0; i < row.cells.length; i++) {
-        var col = row.cells[i].column;
-        if (!!col && col.name === colName) {
-          return row.cells[i].question;
-        }
-      }
-      return null;
+    const getQuestion = (colName: any) => {
+      return row.getQuestionByName(colName);
     };
     return {
       row: row,
@@ -2064,6 +2058,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       rowValue: rowValue,
       value: !!rowValue ? rowValue[columnName] : null,
       getCellQuestion: getQuestion,
+      cellQuestion: row.getQuestionByName(columnName),
+      column: this.getColumnByName(columnName)
     };
   }
   protected onCellValueChanged(

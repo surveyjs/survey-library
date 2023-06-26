@@ -199,7 +199,7 @@ export class PageModel extends PanelModelBase implements IPage {
     }
   }
   /**
-   * A time period that a respondent spent on this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   * A time period that a respondent has spent on this page so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see maxTimeToFinish
    */
   public timeSpent = 0;

@@ -95,6 +95,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
   }
   private get question(): QuestionMatrixModel {
     return this.props.question;
@@ -105,6 +106,9 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   handleOnChange(event: any) {
     this.row.value = event.target.value;
     this.setState({ value: this.row.value });
+  }
+  handleOnMouseDown(event: any) {
+    this.question.onMouseDown();
   }
   protected wrapCell(cell: any, element: JSX.Element, reason: string): JSX.Element {
     if(!reason) {
@@ -179,7 +183,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
             data-responsive-title={column.locText.renderedHtml}
             className={this.question.cssClasses.cell}
           >
-            <label className={itemClass}>
+            <label onMouseDown={this.handleOnMouseDown} className={itemClass}>
               <input
                 id={inputId}
                 type="radio"

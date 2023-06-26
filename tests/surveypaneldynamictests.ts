@@ -5867,6 +5867,27 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
 });
+QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ],
+        enableIf: "{var1}='a'"
+      }],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(panel.isReadOnly, true, "Panel is readonly, #1");
+  assert.equal(panel.canAddPanel, false, "Panel is readonly, #2");
+  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+  assert.equal(addBtn.isVisible, false, "Add button is invisible, #3");
+  survey.setValue("var1", "a");
+  assert.equal(panel.isReadOnly, false, "Panel is editable, #4");
+  assert.equal(panel.canAddPanel, true, "Panel is not readonly, #5");
+  assert.equal(addBtn.isVisible, true, "Add button is visible, #6");
+});
 QUnit.test("defaultValue in questions and set data", function (assert) {
   const survey = new SurveyModel({
     "elements": [{

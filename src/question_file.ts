@@ -14,7 +14,7 @@ import { Helpers } from "./helpers";
 /**
  * A class that describes the File question type.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
+ * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;

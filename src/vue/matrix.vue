@@ -45,7 +45,7 @@
               :class="question.cssClasses.cell"
               v-on:click="cellClick(row, column)"
             >
-              <label :class="question.getItemClass(row, column)">
+              <label @mousedown="question.onMouseDown()" :class="question.getItemClass(row, column)">
                 <input
                   type="radio"
                   :class="question.cssClasses.itemValue"

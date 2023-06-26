@@ -626,7 +626,7 @@ QUnit.test(
           "elements": [
             {
               "type": "radiogroup",
-              "name": "question1",
+              "name": "q1",
               "choices": ["item1", "item2", "item3"]
             }
           ]
@@ -636,7 +636,7 @@ QUnit.test(
           "elements": [
             {
               "type": "radiogroup",
-              "name": "question2",
+              "name": "q2",
               "choices": ["item1", "item2", "item3"]
             }
           ]
@@ -645,10 +645,14 @@ QUnit.test(
       "goNextPageAutomatic": true,
       "showPreviewBeforeComplete": "showAnsweredQuestions"
     });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
     assert.equal(survey.currentPageNo, 0, "The first page");
-    survey.setValue("question1", "item1");
+    q1.onMouseDown();
+    q1.value = "item1";
     assert.equal(survey.currentPageNo, 1, "The second page");
-    survey.setValue("question2", "item1");
+    q2.onMouseDown();
+    q2.value = "item2";
     assert.equal(survey.state, "preview", "We are in preview mode");
   }
 );

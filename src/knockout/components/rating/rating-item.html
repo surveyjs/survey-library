@@ -1,4 +1,4 @@
-<label data-bind="css: question.getItemClassByText(item.itemValue, item.text)">
+<label data-bind="css: question.getItemClassByText(item.itemValue, item.text),  event: { mousedown: question.koMouseDown }">
   <input
   type="radio"
   class="sv-visuallyhidden"

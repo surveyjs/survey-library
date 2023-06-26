@@ -3937,6 +3937,7 @@ QUnit.test(
       page.addQuestion(q.question);
       survey.goNextPageAutomatic = true;
       if (q.value) {
+        q.question.onMouseDown();
         q.question.value = q.value;
       }
       var state = q.auto ? "completed" : "running";
@@ -5858,19 +5859,16 @@ QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
   assert.notOk(q1.value[2]["col1"], "clear value for this column");
 });
 
-QUnit.test("onMatrixBeforeRowAdded", function (assert) {
+QUnit.test("onMatrixBeforeRowAdded -> obsolete", function (assert) {
   var survey = new SurveyModel();
   survey.onMatrixBeforeRowAdded.add(function (sender, options) {
-    if (options.question.rowCount >= 1) options.canAddRow = false;
-    return;
+    options.canAddRow = options.question.rowCount < 1;
   });
 
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
   page.addElement(q1);
   q1.addColumn("col1");
-  q1.addColumn("col2");
-  q1.addColumn("col3");
   q1.rowCount = 0;
 
   q1.addRow();
@@ -5881,6 +5879,72 @@ QUnit.test("onMatrixBeforeRowAdded", function (assert) {
     1,
     "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'"
   );
+});
+QUnit.test("onMatrixRowAdding -> replace onMatrixBeforeRowAdded", function (assert) {
+  var survey = new SurveyModel();
+  survey.onMatrixRowAdding.add(function (sender, options) {
+    options.allow = options.question.rowCount < 1;
+  });
+
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
+  page.addElement(q1);
+  q1.addColumn("col1");
+  q1.rowCount = 0;
+
+  q1.addRow();
+  assert.equal(q1.rowCount, 1, "there is one row");
+  q1.addRow();
+  assert.equal(
+    q1.rowCount,
+    1,
+    "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'"
+  );
+});
+QUnit.test("onMatrixRowAdding, support options.canAddRow & options.allow", function (assert) {
+  const survey = new SurveyModel();
+  let allow: any = undefined;
+  let canAddRow: any = undefined;
+  survey.onMatrixRowAdding.add(function (sender, options) {
+    if(allow !== undefined) options.allow = allow;
+    if(canAddRow !== undefined) options.canAddRow = canAddRow;
+  });
+  const page = survey.addNewPage("Page 1");
+  const matrix = new QuestionMatrixDynamicModel("matrixdynamic");
+  page.addElement(matrix);
+  matrix.addColumn("col1");
+  matrix.rowCount = 0;
+  matrix.allowAddRows = false;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 0, "rowCount=0, #1");
+  allow = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 1, "rowCount=1, #2");
+  allow = undefined;
+  canAddRow = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 2, "rowCount=2, #3");
+  canAddRow = undefined;
+
+  matrix.allowAddRows = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 3, "rowCount=3, #4");
+  allow = undefined;
+  canAddRow = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 4, "rowCount=4, #5");
+  canAddRow = undefined;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 5, "rowCount=5, #6");
+
+  allow = undefined;
+  canAddRow = false;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 5, "rowCount=5, #7");
+  canAddRow = undefined;
+  allow = false;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 5, "rowCount=5, #8");
 });
 
 QUnit.test("onMatrixRowRemoved. Added a case for Bug#2557", function (assert) {
@@ -8280,7 +8344,7 @@ QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (
   question.clearValue();
   question.inputType = "email";
   question.value = "a@a.com";
-  assert.equal(survey.currentPageNo, 1, "Move to the second page");
+  assert.equal(survey.currentPageNo, 0, "Stay on the first page");
 });
 QUnit.test("textUpdateMode=onTyping and visibleIf", function (assert) {
   var json = {

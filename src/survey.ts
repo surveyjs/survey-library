@@ -416,7 +416,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    * @see onDownloadFile
@@ -428,7 +428,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    * @see downloadFile
    * @see onClearFiles
    * @see onUploadFiles
@@ -506,17 +506,18 @@ export class SurveyModel extends SurveyElementCore
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
 
   /**
-   * An event that is raised right after survey is rendered in DOM.
+   * An event that is raised after the survey is rendered to the DOM. Use this event to modify survey markup.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-animation/ (linkStyle))
    */
   public onAfterRenderSurvey: EventBase<SurveyModel, AfterRenderSurveyEvent> = this.addEvent<SurveyModel, AfterRenderSurveyEvent>();
 
-  /**
-   * An event that is raised right after a page is rendered in DOM. Use it to modify HTML elements.
-   */
   public onAfterRenderHeader: EventBase<SurveyModel, AfterRenderHeaderEvent> = this.addEvent<SurveyModel, AfterRenderHeaderEvent>();
 
   /**
-   * An event that is raised right after a page is rendered in DOM. Use it to modify HTML elements.
+   * An event that is raised after a page is rendered to the DOM. Use it to modify page markup.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -525,7 +526,7 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderPage: EventBase<SurveyModel, AfterRenderPageEvent> = this.addEvent<SurveyModel, AfterRenderPageEvent>();
 
   /**
-   * An event that is raised right after a question is rendered in DOM. Use it to modify HTML elements.
+   * An event that is raised after a question is rendered to the DOM. Use it to modify question markup.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -534,13 +535,20 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderQuestion: EventBase<SurveyModel, AfterRenderQuestionEvent> = this.addEvent<SurveyModel, AfterRenderQuestionEvent>();
 
   /**
-   * An event that is raised right after a non-composite question (text, comment, dropdown, radiogroup, checkbox) is rendered in DOM. Use it to modify HTML elements.
-   * This event is not fired for matrices, panels, multiple text and image picker.
+   * An event that is raised after a question with a single input field is rendered to the DOM. Use it to modify question markup.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * > This event is not raised for questions without input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel)) or questions with multiple input fields ([Matrix](https://surveyjs.io/form-library/documentation/questionmatrixmodel), [Multiple Text](https://surveyjs.io/form-library/documentation/questionmultipletextmodel)).
    */
   public onAfterRenderQuestionInput: EventBase<SurveyModel, AfterRenderQuestionInputEvent> = this.addEvent<SurveyModel, AfterRenderQuestionInputEvent>();
 
   /**
-   * An event that is raised right after a panel is rendered in DOM. Use it to modify HTML elements.
+   * An event that is raised after a panel is rendered to the DOM. Use it to modify panel markup.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * > This event is raised for static [Panels](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/) as well as panels within a [Dynamic Panel](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/).
    */
   public onAfterRenderPanel: EventBase<SurveyModel, AfterRenderPanelEvent> = this.addEvent<SurveyModel, AfterRenderPanelEvent>();
 
@@ -673,15 +681,16 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDynamicPanelRemoving: EventBase<SurveyModel, DynamicPanelRemovingEvent> = this.addEvent<SurveyModel, DynamicPanelRemovingEvent>();
   /**
-  * An event that is raised every second if the method `startTimer` has been called.
+  * An event that is raised every second while the timer is running.
+  *
+  * Use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeSpent) property to find out how many seconds have elapsed.
+  * @see maxTimeToFinish
+  * @see maxTimeToFinishPage
+  * @see showTimerPanel
   * @see startTimer
-  * @see timeSpent
-  * @see Page.timeSpent
   */
   public onTimer: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
-  /**
-   * An event that is raised before displaying a new information in the Timer Panel. Use it to change the default text.
-   */
+
   public onTimerPanelInfoText: EventBase<SurveyModel, TimerPanelInfoTextEvent> = this.addEvent<SurveyModel, TimerPanelInfoTextEvent>();
 
   /**
@@ -6444,17 +6453,21 @@ export class SurveyModel extends SurveyElementCore
     return this.getInCorrectedAnswerCount();
   }
   /**
-   * Gets or sets a timer panel position. The timer panel displays information about how much time an end user spends on a survey/page.
+   * Displays the timer panel and specifies its position. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * The available options:
-   * - `top` - display timer panel in the top.
-   * - `bottom` - display timer panel in the bottom.
-   * - `none` - do not display a timer panel.
+   * Possible values:
    *
-   * If the value is not equal to 'none', the survey calls the `startTimer()` method on survey rendering.
-   * @see showTimerPanelMode
+   * - `"top"` - Displays the timer panel at the top of the survey.
+   * - `"bottom"` - Displays the timer panel at the bottom of the survey.
+   * - `"none"` (default) - Hides the timer panel.
+   *
+   * If the timer panel is displayed, the timer starts automatically when the survey begins. To specify time limits, use the [`maxTimeToFinish`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxTimeToFinish) and [`maxTimeToFinishPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxTimeToFinishPage) properties.
+   *
+   * The timer panel displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`showTimerPanelMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimerPanelMode) property to `"page"` or `"survey"`.
    * @see startTimer
    * @see stopTimer
+   * @see timeSpent
+   * @see onTimer
    */
   public get showTimerPanel(): string {
     return this.getPropertyValue("showTimerPanel");
@@ -6469,16 +6482,17 @@ export class SurveyModel extends SurveyElementCore
     return this.showTimerPanel == "bottom";
   }
   /**
-   * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey.
+   * Specifies whether the timer panel displays timers for the current page, the entire survey, or both. Applies only if the timer panel is [visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimerPanel).
    *
-   * The available options:
+   * Possible values:
    *
-   * - `page` - show timer information for page
-   * - `survey` - show timer information for survey
-   *
-   * Use the `onTimerPanelInfoText` event to change the default text.
-   * @see showTimerPanel
-   * @see onTimerPanelInfoText
+   * - `"survey"` - Displays only the survey timer.
+   * - `"page"` - Displays only the page timer.
+   * - `"all"` (default) - Displays both the survey and page timers.
+   * @see timeSpent
+   * @see onTimer
+   * @see startTimer
+   * @see stopTimer
    */
   public get showTimerPanelMode(): string {
     return this.getPropertyValue("showTimerPanelMode");
@@ -6662,9 +6676,12 @@ export class SurveyModel extends SurveyElementCore
   }
   public get timerModel(): SurveyTimerModel { return this.timerModelValue; }
   /**
-   * Starts a timer that will calculate how much time end-user spends on the survey or on pages.
+   * Starts a timer that calculates how many seconds a respondent has spent on the survey. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see stopTimer
+   * @see maxTimeToFinish
+   * @see maxTimeToFinishPage
    * @see timeSpent
+   * @see onTimer
    */
   public startTimer() {
     this.timerModel.start();
@@ -6675,24 +6692,37 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Stops the timer.
+   * Stops the timer. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see startTimer
+   * @see maxTimeToFinish
+   * @see maxTimeToFinishPage
    * @see timeSpent
+   * @see onTimer
    */
   public stopTimer() {
     this.timerModel.stop();
   }
   /**
-   * Gets or set the time in seconds an end user spends on the survey.
+   * A time period that a respondent has spent on the survey so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * Assign a number to this property if you need to start the quiz timer from a specific time (for instance, if you want to continue an interrupted quiz).
+   *
+   * You can also find out how many seconds a respondent has spent on an individual survey page. To do this, use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeSpent) property of a [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) object.
+   * @see maxTimeToFinish
+   * @see maxTimeToFinishPage
    * @see startTimer
-   * @see PageModel.timeSpent
    */
   public get timeSpent(): number { return this.timerModel.spent; }
   public set timeSpent(val: number) { this.timerModel.spent = val; }
   /**
-   * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
-   * @see startTimer
+   * A time period that a respondent has to complete the survey; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * A negative value or 0 sets an unlimited time period.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see maxTimeToFinishPage
+   * @see startTimer
+   * @see timeSpent
    */
   public get maxTimeToFinish(): number {
     return this.getPropertyValue("maxTimeToFinish", 0);
@@ -6701,12 +6731,16 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("maxTimeToFinish", val);
   }
   /**
-   * Gets or sets the maximum time in seconds that end user has to complete a page in the survey. If the value is 0 or less, an end user has no time limit.
+   * A time period that a respondent has to complete each survey page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * You may override this value for every page.
-   * @see startTimer
+   * A negative value or 0 sets an unlimited time period.
+   *
+   * You can also use `PageModel`'s [`maxTimeToFinish`](https://surveyjs.io/form-library/documentation/api-reference/page-model#maxTimeToFinish) property to specify a time period for an individual survey page.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see maxTimeToFinish
-   * @see PageModel.maxTimeToFinish
+   * @see startTimer
+   * @see timeSpent
    */
   public get maxTimeToFinishPage(): number {
     return this.getPropertyValue("maxTimeToFinishPage", 0);

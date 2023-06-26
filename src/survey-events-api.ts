@@ -70,7 +70,7 @@ export interface GetActionsEventMixin {
 }
 export interface AfterRenderElementEventMixin {
   /**
-   * The rendered HTML element.
+   * A rendered HTML element.
    */
   htmlElement: HTMLElement;
 }

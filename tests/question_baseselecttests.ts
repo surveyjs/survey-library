@@ -9,6 +9,7 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
+import { Base } from "../src/base";
 
 export default QUnit.module("baseselect");
 
@@ -985,4 +986,34 @@ QUnit.test("Carry Forward and localization, bug#6352", function (assert) {
   assert.deepEqual(q2.visibleChoices[0].locText.getJson(), { default: "A de", en: "A en" });
   assert.equal(q2.visibleChoices[0].text, "A en");
   surveyLocalization.defaultLocale = "en";
+});
+QUnit.test("Do not notify survey on changing newItem.value", function (
+  assert
+) {
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [{ type: "checkbox", name: "q", choices: [1] }]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q");
+  assert.equal(q.visibleChoices.length, 1 + 4, "#0");
+  let counter = 0;
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: any
+  ) => {
+    counter++;
+  };
+  assert.equal(counter, 0, "#1");
+  q.choices[0].value = 2;
+  assert.equal(counter, 1, "#2");
+  q.selectAllItem.text = "Sel";
+  assert.equal(counter, 2, "#3");
+  q.newItem.text = "item 2";
+  assert.equal(counter, 2, "Do not react on newItem properties changes, #4");
+  settings.supportCreatorV2 = false;
 });

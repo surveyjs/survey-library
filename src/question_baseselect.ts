@@ -875,6 +875,7 @@ export class QuestionSelectBase extends Question {
     if (isAddAll) {
       if (!this.newItemValue) {
         this.newItemValue = this.createItemValue("newitem"); //TODO
+        this.newItemValue.isGhost = true;
       }
       if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
         items.push(this.newItemValue);

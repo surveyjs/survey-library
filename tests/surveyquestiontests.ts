@@ -544,13 +544,16 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+  matrix.onMouseDown();
   matrix.value = { row1: "col1" };
   assert.equal(
     matrix.supportGoNextPageAutomatic(),
     false,
     "The second row is not set"
   );
+  matrix.onMouseDown();
   matrix.value = { row1: "col1", row2: "col1" };
+  matrix.onMouseDown();
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
@@ -4057,6 +4060,18 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   assert.equal(q.supportGoNextPageAutomatic(), false, "It doesn't support it for multiselect");
   q.multiSelect = false;
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
+});
+QUnit.test("QuestionTextModel.supportGoNextPageAutomatic", function (assert) {
+  const q = new QuestionTextModel("q");
+  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  q.inputType = "date";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "Do not support for date");
+  q.inputType = "text";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "Default inputType again");
+  q.textUpdateMode = "onTyping";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "textUpdateMode = 'onTyping'");
+  q.textUpdateMode = "onBlur";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "textUpdateMode = 'onBlur'");
 });
 
 QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {

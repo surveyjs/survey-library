@@ -3937,6 +3937,7 @@ QUnit.test(
       page.addQuestion(q.question);
       survey.goNextPageAutomatic = true;
       if (q.value) {
+        q.question.onMouseDown();
         q.question.value = q.value;
       }
       var state = q.auto ? "completed" : "running";
@@ -8280,7 +8281,7 @@ QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (
   question.clearValue();
   question.inputType = "email";
   question.value = "a@a.com";
-  assert.equal(survey.currentPageNo, 1, "Move to the second page");
+  assert.equal(survey.currentPageNo, 0, "Stay on the first page");
 });
 QUnit.test("textUpdateMode=onTyping and visibleIf", function (assert) {
   var json = {

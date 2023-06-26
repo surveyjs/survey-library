@@ -701,7 +701,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  public supportGoNextPageAutomatic() {
+  public supportGoNextPageAutomatic(): boolean {
     return false;
   }
   public get hasRowText(): boolean {

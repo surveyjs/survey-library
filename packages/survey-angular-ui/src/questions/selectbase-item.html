@@ -4,7 +4,7 @@
       <label *ngSwitchCase="'checkbox'" [class]="question.getLabelClass(model)"  [attr.aria-label]="question.getAriaItemLabel(model)" [model]="model" [question]="question" sv-ng-checkbox-item>
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
-      <label *ngSwitchCase="'radio'" [class]="question.getLabelClass(model)"  [attr.aria-label]="question.getAriaItemLabel(model)" [model]="model" [question]="question" sv-ng-radiogroup-item>
+      <label *ngSwitchCase="'radio'" (mousedown)="question.onMouseDown()" [class]="question.getLabelClass(model)"  [attr.aria-label]="question.getAriaItemLabel(model)" [model]="model" [question]="question" sv-ng-radiogroup-item>
         <ng-container *ngTemplateOutlet="itemDecorator"></ng-container>
       </label>
     </ng-container>

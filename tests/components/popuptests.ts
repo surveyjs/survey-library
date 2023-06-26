@@ -1428,7 +1428,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
       });
     }
   };
-  viewModel.container = container;
+  viewModel.setComponentElement(container);
   model.isVisible = true;
   viewModel.updateOnShowing();
   assert.equal(log, "->added");

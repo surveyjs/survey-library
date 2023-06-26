@@ -71,12 +71,11 @@ export class ResponsivityManager {
 
   private calcItemsSizes() {
     const actions = this.model.actions;
-    this.container
-      .querySelectorAll(this.itemsSelector)
-      .forEach((item: HTMLDivElement, index: number) => {
-        let currentAction = actions[index];
-        this.calcActionDimensions(currentAction, item);
-      });
+    const items = this.container.querySelectorAll(this.itemsSelector) || [];
+    items.forEach((item: HTMLDivElement, index: number) => {
+      let currentAction = actions[index];
+      this.calcActionDimensions(currentAction, item);
+    });
   }
   protected calcActionDimensions(currentAction: Action, item: HTMLDivElement) {
     currentAction.maxDimension = this.calcItemSize(item);

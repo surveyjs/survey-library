@@ -1423,13 +1423,14 @@ export class QuestionPanelDynamicModel extends Question
     if (!question) return null;
     return question.getConditionJson(operator, path);
   }
-  protected onReadOnlyChanged() {
+  protected onReadOnlyChanged(): void {
     var readOnly = this.isReadOnly;
     this.template.readOnly = readOnly;
     for (var i = 0; i < this.panels.length; i++) {
       this.panels[i].readOnly = readOnly;
     }
     this.updateNoEntriesTextDefaultLoc();
+    this.updateFooterActions();
     super.onReadOnlyChanged();
   }
   private updateNoEntriesTextDefaultLoc(): void {

@@ -1127,6 +1127,7 @@ export class Question extends SurveyElement<Question>
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();
+    this.updateQuestionCss();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.

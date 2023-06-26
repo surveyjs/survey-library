@@ -17,12 +17,11 @@ export class ModalComponent {
 
   constructor(private popupService: PopupService) {
   }
-  showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-    this.model = createPopupModalViewModel(dialogOptions);
-    this.model.initializePopupContainer();
+  showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+    this.model = createPopupModalViewModel(dialogOptions, container);
     this.model.model.onHide = () => {
       this.portalHost.detach();
-      this.model.unmountPopupContainer();
+      this.model.dispose();
     };
     this.portalHost = this.popupService.createComponent(this.model);
     this.model.model.isVisible = true;

@@ -438,6 +438,8 @@ export class DropdownListModel extends Base {
       this.changeSelectionWithKeyboard(false);
       event.preventDefault();
       event.stopPropagation();
+    } if (event.keyCode === 9) {
+      this.popupModel.isVisible = false;
     } else if (!this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
       this.popupModel.toggleVisibility();
       this.changeSelectionWithKeyboard(false);

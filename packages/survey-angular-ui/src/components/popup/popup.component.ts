@@ -1,43 +1,36 @@
-import { ChangeDetectorRef, Component, Input, ViewContainerRef } from "@angular/core";
+import { ChangeDetectorRef, Component, ElementRef, Input, ViewChild, ViewContainerRef } from "@angular/core";
 import { BaseAngular } from "../../base-angular";
 import { PopupBaseViewModel, PopupModel, createPopupViewModel } from "survey-core";
-import { DomPortalOutlet } from "@angular/cdk/portal";
-import { PopupService } from "./popup.service";
 
 @Component({
   selector: "sv-ng-popup, '[sv-ng-popup]'",
-  template: "<div></div>"
+  template: "<div #containerRef><sv-ng-popup-container [model]='model' ></sv-ng-popup-container></div>"
 })
 
 export class PopupComponent extends BaseAngular<PopupModel> {
   @Input() popupModel!: PopupModel;
+  @Input() getTarget?: (container: HTMLElement) => HTMLElement;
+  @ViewChild("containerRef") containerRef!: ElementRef<HTMLDivElement>;
 
   public model!: PopupBaseViewModel;
-  private portalHost!: DomPortalOutlet;
 
   protected getModel(): PopupModel {
     return this.popupModel;
   }
 
-  constructor(viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef, private popupService: PopupService) {
+  constructor(viewContainerRef: ViewContainerRef, changeDetectorRef: ChangeDetectorRef) {
     super(changeDetectorRef, viewContainerRef);
   }
   protected override onModelChanged(): void {
-    this.destroyModel();
-    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement.parentElement);
-    this.model.initializePopupContainer();
-    this.portalHost = this.popupService.createComponent(this.model);
+    this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement);
+  }
+  ngAfterViewInit(): void {
+    if(!!this.containerRef?.nativeElement) {
+      const container = this.containerRef.nativeElement as HTMLElement;
+      this.model.setComponentElement(container, this.getTarget ? this.getTarget(container.parentElement as HTMLElement) : container?.parentElement?.parentElement);
+    }
   }
   override ngOnInit() {
     this.onModelChanged();
-  }
-  public destroyModel(): void {
-    this.portalHost?.detach();
-    this.model?.unmountPopupContainer();
-  }
-
-  override ngOnDestroy() {
-    super.ngOnDestroy();
-    this.destroyModel();
   }
 }

@@ -68,6 +68,7 @@ export { TitleActions } from "../vue/components/title/title-actions.vue";
 export { ActionBarViewModel } from "../vue/components/action-bar/action-bar.vue";
 export { SvgIcon } from "../vue/components/svg-icon/svg-icon.vue";
 export { PopupPointer } from "../vue/components/popup/popup-pointer.vue";
+export { PopupContainer } from "../vue/components/popup/popup-container.vue";
 export { Popup } from "../vue/components/popup/popup.vue";
 export { List } from "../vue/components/list/list.vue";
 export { DropdownOptionItem } from "../vue/components/dropdown/option-item.vue";

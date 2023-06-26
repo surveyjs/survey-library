@@ -14,6 +14,7 @@ const json = {
 const disposeSurvey = ClientFunction(framework => {
   if (framework === "vue") {
     window["vueApp"].$destroy();
+    window["vueApp"].$el.parentNode.removeChild(window["vueApp"].$el);
   }
   if (framework === "react") {
     window["ReactDOM"].unmountComponentAtNode(document.getElementById("surveyElement"));

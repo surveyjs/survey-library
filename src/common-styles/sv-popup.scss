@@ -55,15 +55,14 @@ sv-popup {
 
   padding: calcSize(11) calcSize(15);
   box-sizing: border-box;
+}
+.sv-popup.sv-popup--modal > .sv-popup__container {
+  position: static;
+}
 
-  .sv-popup__container {
-    position: static;
-  }
-
-  .sv-popup__body-content {
-    padding: calcSize(4);
-    height: auto;
-  }
+.sv-popup.sv-popup--modal > .sv-popup__body-content {
+  padding: calcSize(4);
+  height: auto;
 }
 
 .sv-popup--overlay.sv-popup--overlay {

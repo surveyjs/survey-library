@@ -42,6 +42,10 @@ import RatingItem from "./components/rating/RatingItem.vue";
 import RatingItemSmiley from "./components/rating/RatingItemSmiley.vue";
 import RatingItemStar from "./components/rating/RatingItemStar.vue";
 import RatingDropdown from "./RatingDropdown.vue";
+import BooleanSwitch from "./BooleanSwitch.vue";
+import BooleanRadio from "./BooleanRadio.vue";
+import BooleanRadioItem from "./BooleanRadioItem.vue";
+import BooleanCheckbox from "./BooleanCheckbox.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -106,6 +110,10 @@ export function registerComponents(app: any) {
   app.component("sv-rating-item-smiley", RatingItemSmiley);
   app.component("sv-rating-item-star", RatingItemStar);
   app.component("sv-rating-dropdown", RatingDropdown);
+  app.component("survey-boolean", BooleanSwitch);
+  app.component("sv-boolean-radio", BooleanRadio);
+  app.component("sv-boolean-radio-item", BooleanRadioItem);
+  app.component("sv-boolean-checkbox", BooleanCheckbox);
 
   app.component("sv-components-container", Container);
   app.component("sv-progress-pages", Progress);

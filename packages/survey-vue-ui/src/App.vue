@@ -199,9 +199,28 @@ const json = {
     {
       type: "boolean",
       name: "bool",
-      title: "Boolean",
+      title: "Boolean Switch",
       label: "Are you 21 or older?",
       isRequired: true
+    },
+    {
+      type: "boolean",
+      name: "bool-radio",
+      title: "Boolean Radio",
+      label: "Are you 21 or older?",
+      isRequired: true,
+      "valueTrue": "Yes",
+      "valueFalse": "No",
+      "renderAs": "radio"
+    },
+    {
+      type: "boolean",
+      name: "bool-checkbox",
+      title: "Boolean Checkbox",
+      label: "Are you 21 or older?",
+      "valueTrue": "Yes",
+      "valueFalse": "No",
+      "renderAs": "checkbox"
     },
     {
       type: "matrix",

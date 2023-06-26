@@ -71,8 +71,8 @@ export class ResponsivityManager {
 
   private calcItemsSizes() {
     const actions = this.model.actions;
-    const items = this.container.querySelectorAll(this.itemsSelector) || [];
-    items.forEach((item: HTMLDivElement, index: number) => {
+    const _items = this.container.querySelectorAll(this.itemsSelector);
+    (_items || []).forEach((item: HTMLDivElement, index: number) => {
       let currentAction = actions[index];
       this.calcActionDimensions(currentAction, item);
     });

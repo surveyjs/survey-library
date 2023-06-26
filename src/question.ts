@@ -209,6 +209,17 @@ export class Question extends SurveyElement<Question>
       this.valueName ? this.valueName : oldValue
     );
   }
+  public set isReady(val: boolean) {
+    const oldIsReady = this.isReadyValue;
+    this.isReadyValue = val;
+    if(oldIsReady != val) {
+      this.onReadyChanged.fire(this, {
+        question: this,
+        isReady: val,
+        oldIsReady: oldIsReady,
+      });
+    }
+  }
   public get isReady(): boolean {
     return this.isReadyValue;
   }

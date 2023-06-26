@@ -235,6 +235,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public getLocale(): string {
     return !!this.locOwner && this.locOwner.getLocale ? this.locOwner.getLocale() : "";
   }
+  public isGhost: boolean;
+  protected get isInternal(): boolean {
+    return this.isGhost === true;
+  }
   public get locText(): LocalizableString {
     return this.locTextValue;
   }

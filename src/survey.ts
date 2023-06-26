@@ -602,17 +602,21 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    */
-  public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
+  public onMatrixRowAdding: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
+  /**
+   * An event that is raised before a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
+   */
+  public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.onMatrixRowAdding;
 
   /**
    * An event that is raised before a row is deleted from a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). You can cancel row deletion and clear row data instead.
-   * @see onMatrixAllowRemoveRow
+   * @see onMatrixRenderRemoveButton
    */
   public onMatrixRowRemoving: EventBase<SurveyModel, MatrixRowRemovingEvent> = this.addEvent<SurveyModel, MatrixRowRemovingEvent>();
 
   /**
    * An event that is raised after a row is deleted from a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
-   * @see onMatrixAllowRemoveRow
+   * @see onMatrixRenderRemoveButton
    */
   public onMatrixRowRemoved: EventBase<SurveyModel, MatrixRowRemovedEvent> = this.addEvent<SurveyModel, MatrixRowRemovedEvent>();
 
@@ -621,17 +625,18 @@ export class SurveyModel extends SurveyElementCore
    * @see onMatrixRowRemoving
    * @see onMatrixRowRemoved
    */
-  public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
+  public onMatrixRenderRemoveButton: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
+  public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
 
   /**
    * An event that is raised before a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created. Use this event to change the type of individual matrix cells.
-   * @see onMatrixAfterCellRender
+   * @see onAfterRenderMatrixCell
    */
   public onMatrixCellCreating: EventBase<SurveyModel, MatrixCellCreatingEvent> = this.addEvent<SurveyModel, MatrixCellCreatingEvent>();
 
   /**
     * An event that is raised after a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created.
-    * @see onMatrixAfterCellRender
+    * @see onAfterRenderMatrixCell
     */
   public onMatrixCellCreated: EventBase<SurveyModel, MatrixCellCreatedEvent> = this.addEvent<SurveyModel, MatrixCellCreatedEvent>();
 
@@ -639,23 +644,24 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised for every matrix cell after it is rendered to the DOM.
    * @see onMatrixCellCreated
    */
-  public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
+  public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
+  public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.onAfterRenderMatrixCell;
 
   /**
    * An event that is raised after a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
-   * @see onMatrixBeforeRowAdded
+   * @see onMatrixRowAdding
    */
   public onMatrixCellValueChanged: EventBase<SurveyModel, MatrixCellValueChangedEvent> = this.addEvent<SurveyModel, MatrixCellValueChangedEvent>();
 
   /**
    * An event that is raised before a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to change the cell value.
-   * @see onMatrixBeforeRowAdded
+   * @see onMatrixRowAdding
    */
   public onMatrixCellValueChanging: EventBase<SurveyModel, MatrixCellValueChangingEvent> = this.addEvent<SurveyModel, MatrixCellValueChangingEvent>();
 
   /**
    * An event that is raised for [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) and [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) questions when they validate a cell value. Use this event to display a custom error message based on a condition.
-   * @see onMatrixBeforeRowAdded
+   * @see onMatrixRowAdding
    */
   public onMatrixCellValidate: EventBase<SurveyModel, MatrixCellValidateEvent> = this.addEvent<SurveyModel, MatrixCellValidateEvent>();
 
@@ -4550,7 +4556,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   matrixBeforeRowAdded(options: any) {
-    this.onMatrixBeforeRowAdded.fire(this, options);
+    this.onMatrixRowAdding.fire(this, options);
   }
   matrixRowAdded(question: QuestionMatrixDynamicModel, row: any) {
     this.onMatrixRowAdded.fire(this, { question: question, row: row });
@@ -4602,7 +4608,7 @@ export class SurveyModel extends SurveyElementCore
       row: row,
       allow: true,
     };
-    this.onMatrixAllowRemoveRow.fire(this, options);
+    this.onMatrixRenderRemoveButton.fire(this, options);
     return options.allow;
   }
   matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any) {
@@ -4615,7 +4621,7 @@ export class SurveyModel extends SurveyElementCore
   }
   matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any) {
     options.question = question;
-    this.onMatrixAfterCellRender.fire(this, options);
+    this.onAfterRenderMatrixCell.fire(this, options);
   }
   matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any) {
     options.question = question;

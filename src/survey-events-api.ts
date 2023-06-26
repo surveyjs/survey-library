@@ -125,8 +125,17 @@ export interface CompleteEvent extends CompleteBaseEvent {
    */
   showSaveInProgress: (text?: string) => void;
   showDataSaving: (text?: string) => void;
+  /**
+   * Obsolete. Use showSaveError instead.
+   */
   showDataSavingError: (text?: string) => void;
+  /**
+   * Obsolete. Use showSaveSuccess instead.
+   */
   showDataSavingSuccess: (text?: string) => void;
+  /**
+   * Obsolete. Use clearSaveMessages instead.
+   */
   showDataSavingClear: (text?: string) => void;
 }
 export interface ShowingPreviewEvent {

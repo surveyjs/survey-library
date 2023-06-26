@@ -5,7 +5,7 @@
         <input
           type="checkbox"
           :name="question.name"
-          :value="question.booleanValue"
+          :value="question.booleanValue ?? ''"
           v-model="question.booleanValue"
           :class="question.cssClasses.controlCheckbox"
           :id="question.inputId"

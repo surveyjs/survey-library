@@ -1078,6 +1078,7 @@ export default defineComponent({
   },
   data() {
     const survey = new SurveyModel(json);
+    (<any>window)["survey"] = survey;
     survey.title = "It works!";
     survey.description = "This is the first survey in Vue3";
     survey.surveyId = "Survey1";

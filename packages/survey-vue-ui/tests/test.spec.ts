@@ -10,6 +10,13 @@ import path from "path";
 
 beforeAll(() => {
   config.global.plugins.push(SurveyPlugin);
+  (<any>window).ResizeObserver = function () {
+    return {
+      observe: () => {},
+      disconnect: () => {},
+      unobserve: () => {},
+    };
+  };
 });
 const platformDescriptor = {
   name: "Vue3",
@@ -44,7 +51,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const whiteList = ["comment"];
+const whiteList = ["boolean"];
 
 describe("etalon tests", () => {
   markupTests.forEach((markupTest) => {

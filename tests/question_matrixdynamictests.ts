@@ -625,7 +625,11 @@ QUnit.test("Matrixdynamic customize cell editors", function (assert) {
       options.cellQuestion.visible = options.rowValue["col1"] ? true : false;
     }
   });
+  let columnName;
+  let cellQuestionName;
   survey.onMatrixCellValueChanged.add(function (survey, options) {
+    columnName = options.column.name;
+    cellQuestionName = options.cellQuestion.name;
     if (options.columnName != "col1") return;
     var question = options.getCellQuestion("col2");
     question.visible = options.value ? true : false;
@@ -638,6 +642,8 @@ QUnit.test("Matrixdynamic customize cell editors", function (assert) {
   var q2 = <QuestionDropdownModel>rows[0].cells[1].question;
   assert.equal(q2.visible, false, "col2 is invisible if col1 is empty");
   q1.value = 1;
+  assert.equal(columnName, "col1", "options.column, #1");
+  assert.equal(cellQuestionName, "col1", "options.cellQuestion, #1");
   assert.equal(
     q2.choices[0].value,
     "item1",

@@ -413,11 +413,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    */
   public addRow(setFocus?: boolean): void {
     const oldRowCount = this.rowCount;
-    var options = { question: this, canAddRow: this.canAddRow };
+    const allow = this.canAddRow;
+    var options = { question: this, canAddRow: allow, allow: allow };
     if (!!this.survey) {
       this.survey.matrixBeforeRowAdded(options);
     }
-    if (!options.canAddRow) return;
+    const newAllow = allow !== options.allow ? options.allow :
+      (allow !== options.canAddRow ? options.canAddRow : allow);
+    if (!newAllow) return;
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
@@ -701,7 +704,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     }
     return res;
   }
-  public supportGoNextPageAutomatic() {
+  public supportGoNextPageAutomatic(): boolean {
     return false;
   }
   public get hasRowText(): boolean {

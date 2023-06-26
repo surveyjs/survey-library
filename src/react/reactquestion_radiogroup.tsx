@@ -141,6 +141,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.handleOnChange = this.handleOnChange.bind(this);
+    this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
   }
   protected getStateElement(): Base {
     return this.item;
@@ -176,6 +177,9 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   handleOnChange(event: any) {
     this.question.clickItemHandler(this.item);
   }
+  handleOnMouseDown(event: any) {
+    this.question.onMouseDown();
+  }
   protected canRender(): boolean {
     return !!this.question && !!this.item;
   }
@@ -189,7 +193,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         className={itemClass}
         role="presentation"
       >
-        <label className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
+        <label onMouseDown={this.handleOnMouseDown} className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
           <input
             aria-describedby={this.question.ariaDescribedBy}
             className={this.cssClasses.itemControl}

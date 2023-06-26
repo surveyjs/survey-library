@@ -857,7 +857,7 @@ export interface MatrixColumnAddedEvent extends QuestionEventMixin {
   column: any;
 }
 
-export interface onPopupVisibilityChanged extends QuestionEventMixin {
+export interface PopupVisibleChangedEvent extends QuestionEventMixin {
   /**
    * An object that describes the popup.
    */

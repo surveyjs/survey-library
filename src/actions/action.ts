@@ -191,7 +191,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
 }
 
 export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
-  return container.previousElementSibling as HTMLElement;
+  return container?.previousElementSibling as HTMLElement;
 }
 
 export abstract class BaseAction extends Base implements IAction {

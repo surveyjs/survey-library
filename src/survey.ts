@@ -600,7 +600,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRowAdding: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
   /**
-   * An event that is raised before a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
+   * This event is obsolete. Use the [`onMatrixRowAdding`](/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
    */
   public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.onMatrixRowAdding;
 
@@ -622,6 +622,9 @@ export class SurveyModel extends SurveyElementCore
    * @see onMatrixRowRemoved
    */
   public onMatrixRenderRemoveButton: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
+  /**
+   * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+   */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
 
   /**
@@ -641,6 +644,9 @@ export class SurveyModel extends SurveyElementCore
    * @see onMatrixCellCreated
    */
   public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
+  /**
+   * This event is obsolete. Use the [`onAfterRenderMatrixCell`](/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+   */
   public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.onAfterRenderMatrixCell;
 
   /**

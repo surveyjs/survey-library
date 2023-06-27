@@ -120,7 +120,7 @@ export { FlowPanelModel } from "../../flowpanel";
 export { PageModel } from "../../page";
 export * from "../../template-renderer";
 export { DefaultTitleModel } from "../../defaultTitle";
-export { Question } from "../../question";
+export { Question, getComponentName } from "../../question";
 export { QuestionNonValue } from "../../questionnonvalue";
 export { QuestionEmptyModel } from "../../question_empty";
 export {

@@ -747,7 +747,6 @@ const json = {
       type: "multipletext",
       name: "pricelimit",
       title: "Multipletext",
-      colCount: 2,
       items: [
         {
           name: "mostamount",

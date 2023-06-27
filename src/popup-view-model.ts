@@ -209,8 +209,9 @@ export class PopupBaseViewModel extends Base {
       else this.focusContainer();
     }, 100);
   }
-  public clickOutside(): void {
+  public clickOutside(event?: Event): void {
     this.hidePopup();
+    event?.stopPropagation();
   }
   public cancel(): void {
     this.model.onCancel();

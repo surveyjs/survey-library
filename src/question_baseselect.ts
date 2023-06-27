@@ -214,7 +214,7 @@ export class QuestionSelectBase extends Question {
     return this.getLocalizableString("noneText");
   }
   /**
-   * A Boolean expression that is evaluated against each choice fitem. If the expression evaluates to `false`, the choice item becomes hidden.
+   * A Boolean expression that is evaluated against each choice item. If the expression evaluates to `false`, the choice item becomes hidden.
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *

@@ -221,10 +221,6 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
   public onQuestionVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.addEvent<SurveyModel, QuestionVisibleChangedEvent>();
-  /**
-   * Obsolete. Please use onQuestionVisibleChanged event.
-   * @see onQuestionVisibleChanged
-   */
   public onVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.

@@ -1155,6 +1155,9 @@ export class QuestionSelectBase extends Question {
       }
     }
     super.updateValueFromSurvey(newValue);
+    if((this.isRunningChoices || this.choicesByUrl.isRunning) && !this.isEmpty()) {
+      this.cachedValueForUrlRequests = this.value;
+    }
     if (!!newComment) {
       this.setNewComment(newComment);
     }

@@ -157,8 +157,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
         className={className}
         style={style}
         onClick={(e: any) => {
-          this.model.clickOutside();
-          e.stopPropagation();
+          this.model.clickOutside(e);
         }}
         onKeyDown={this.handleKeydown}
       >

@@ -10,8 +10,8 @@
       }
     "
     v-on:click="
-      () => {
-        model.clickOutside();
+      (event) => {
+        model.clickOutside(event);
       }
     "
   >

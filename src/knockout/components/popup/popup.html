@@ -1,7 +1,7 @@
 <div>
   <!-- ko with: popupViewModel -->
   <div class="sv-popup" tabindex="-1"
-    data-bind="visible: isVisible, click: clickOutside, class: styleClass, event: { keydown: function(data, event) { onKeyDown(event); return true; } }">
+    data-bind="visible: isVisible, click: function(data, event) { clickOutside(event); return true; }, class: styleClass, event: { keydown: function(data, event) { onKeyDown(event); return true; } }">
     <div class="sv-popup__container"
       data-bind="style: { left: left, top: top, height: height, minWidth: minWidth, width: width }, click: function() { return true; }, clickBubble: false">
       <div class="sv-popup__shadow">

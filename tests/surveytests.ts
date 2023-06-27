@@ -17118,7 +17118,7 @@ QUnit.test("Expression with dates & defaultValueExpression & expression question
   checkFunc([true, true, false, false, true], 3);
 });
 
-QUnit.test("Check onPopupVisibilityChanged events", function (assert) {
+QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -17131,7 +17131,7 @@ QUnit.test("Check onPopupVisibilityChanged events", function (assert) {
   let log = "";
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const popup = question.dropdownListModel.popupModel;
-  survey.onPopupVisibilityChanged.add((_, options) => {
+  survey.onPopupVisibleChanged.add((_, options) => {
     assert.equal(options.question, question);
     assert.equal(options.popup, popup);
     log += `->${options.visible}`;

@@ -36,12 +36,12 @@
 }
 
 .sd-item__control-label {
-  font-family: var(--font-family, $font-family);
+  font-family: $font-editorfont-family;
   font-style: normal;
   font-weight: normal;
   line-height: calcLineHeight(1.5);
-  font-size: calcFontSize(1);
-  color: $foreground;
+  font-size: $font-editorfont-size;
+  color: $font-editorfont-color;
   white-space: normal;
   word-break: break-word;
   width: 100%;

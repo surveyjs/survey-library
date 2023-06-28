@@ -43,6 +43,7 @@ $font-family: var(--font-family);
   min-width: auto;
   height: auto;
   background-color: transparent;
+  z-index: 15;
   border-radius: calcSize(3);
 
   &>div {

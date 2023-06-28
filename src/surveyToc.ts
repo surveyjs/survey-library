@@ -7,7 +7,7 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 
-export function tryNavigateToPage (survey: SurveyModel, page: PageModel) {
+export function tryNavigateToPage(survey: SurveyModel, page: PageModel) {
   if (survey.isDesignMode) return;
   const index = survey.visiblePages.indexOf(page);
   if (index < survey.currentPageNo) {
@@ -21,15 +21,16 @@ export function tryNavigateToPage (survey: SurveyModel, page: PageModel) {
   return true;
 }
 
-export function createTOCListModel(survey: SurveyModel) {
+export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
   var items = survey.pages.map(page => {
     return new Action({
       id: page.name,
       title: page.navigationTitle || page.title || page.name,
       action: () => {
-        if(typeof document !== undefined && !!document.activeElement) {
+        if (typeof document !== undefined && !!document.activeElement) {
           !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
         }
+        !!onAction && onAction();
         return tryNavigateToPage(survey, page);
       },
       visible: <any>new ComputedUpdater(() => page.isVisible && !page.isStartPage)
@@ -54,7 +55,7 @@ export function createTOCListModel(survey: SurveyModel) {
 }
 
 export function getTocRootCss(survey: SurveyModel, isMobile = false): string {
-  if(isMobile) {
+  if (isMobile) {
     return "sv_progress-toc sv_progress-toc--mobile";
   }
   return "sv_progress-toc" + (" sv_progress-toc--" + (survey.tocLocation || "").toLowerCase());
@@ -62,7 +63,7 @@ export function getTocRootCss(survey: SurveyModel, isMobile = false): string {
 
 export class TOCModel {
   constructor(public survey: SurveyModel) {
-    this.listModel = createTOCListModel(survey);
+    this.listModel = createTOCListModel(survey, () => { this.popupModel.isVisible = false; });
     this.popupModel = new PopupModel("sv-list", { model: this.listModel });
   }
 

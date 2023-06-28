@@ -341,7 +341,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   }
   getFilteredValues(): any {
     var allValues = this.getAllValues();
-    var values: { [key: string]: any } = { row: allValues };
+    var values: any = this.validationValues;
+    if(!values) values = {};
+    values.row = allValues;
     for (var key in allValues) {
       values[key] = allValues[key];
     }
@@ -616,6 +618,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       this.detailPanel.readOnly = parentIsReadOnly;
     }
   }
+  private validationValues: any;
   public hasErrors(
     fireCallback: boolean,
     rec: any,
@@ -624,6 +627,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
+    this.validationValues = rec.validationValues;
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
@@ -646,6 +650,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       }
       res = panelHasError || res;
     }
+    this.validationValues = undefined;
     return res;
   }
 
@@ -1905,6 +1910,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var res = false;
     if (!rec) rec = {};
     if (!rows) return rec;
+    rec.validationValues = this.getDataFilteredValues();
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       res = rows[i].hasErrors(fireCallback, rec, () => {

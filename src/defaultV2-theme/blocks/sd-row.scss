@@ -33,7 +33,7 @@
   width: 100%;
   &:not(.sd-row--compact) {
     background: $question-background;
-    box-shadow: 0px 1px 2px $shadow-inner;
+    box-shadow: $shadow-inner;
     border-radius: calcCornerRadius(1);
   }
   &.sd-row--compact {

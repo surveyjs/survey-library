@@ -9,6 +9,8 @@
   position: relative;
   padding: calcSize(0.5);
   background-color: $editor-background;
+  box-shadow: $shadow-inner;
+  border-radius: calcSize(12.5);
 }
 
 .sd-boolean__thumb,

@@ -18,6 +18,7 @@ import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
+import { PopupModel } from "./popup";
 
 export interface IConditionObject {
   name: string;
@@ -2066,6 +2067,11 @@ export class Question extends SurveyElement<Question>
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
+
+  public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
+    this.survey.processPopupVisiblityChanged(this, popupModel, visible);
+  }
+
   public transformToMobileView(): void { }
   public transformToDesktopView(): void { }
   public needResponsiveWidth() {

@@ -190,6 +190,10 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   return newAction;
 }
 
+export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
+  return container?.previousElementSibling as HTMLElement;
+}
+
 export abstract class BaseAction extends Base implements IAction {
   private cssClassesValue: any;
   @property() tooltip: string;

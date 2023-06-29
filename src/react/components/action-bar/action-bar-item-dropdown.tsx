@@ -1,5 +1,5 @@
 import React from "react";
-import { ActionDropdownViewModel } from "survey-core";
+import { ActionDropdownViewModel, getActionDropdownButtonTarget } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { Popup } from "../popup/popup";
 import { SurveyActionBarItem } from "./action-bar-item";
@@ -10,12 +10,12 @@ export class SurveyActionBarItemDropdown extends SurveyActionBarItem {
     super(props);
     this.viewModel = new ActionDropdownViewModel(this.item);
   }
-  renderButtonContent() {
-    const buttonContent = super.renderButtonContent();
+  renderInnerButton() {
+    const button = super.renderInnerButton();
     return (
       <>
-        {buttonContent}
-        <Popup model={this.item.popupModel}></Popup>
+        {button}
+        <Popup model={this.item.popupModel} getTarget={getActionDropdownButtonTarget}></Popup>
       </>
     );
   }

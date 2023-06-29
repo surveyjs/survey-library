@@ -4,6 +4,7 @@ import { IElement, ISurveyElement } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
+import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionFileModel } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
@@ -105,6 +106,9 @@ export interface CompletingEvent extends CompleteBaseEvent {
    * A Boolean property that you can set to `false` if you want to prevent survey completion.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
+   */
   allowComplete: boolean;
 }
 export interface CompleteEvent extends CompleteBaseEvent {
@@ -124,17 +128,20 @@ export interface CompleteEvent extends CompleteBaseEvent {
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
    */
   showSaveInProgress: (text?: string) => void;
+  /**
+   * Obsolete. Use `showSaveInProgress` instead.
+   */
   showDataSaving: (text?: string) => void;
   /**
-   * Obsolete. Use showSaveError instead.
+   * Obsolete. Use `showSaveError` instead.
    */
   showDataSavingError: (text?: string) => void;
   /**
-   * Obsolete. Use showSaveSuccess instead.
+   * Obsolete. Use `showSaveSuccess` instead.
    */
   showDataSavingSuccess: (text?: string) => void;
   /**
-   * Obsolete. Use clearSaveMessages instead.
+   * Obsolete. Use `clearSaveMessages` instead.
    */
   showDataSavingClear: (text?: string) => void;
 }
@@ -143,6 +150,9 @@ export interface ShowingPreviewEvent {
    * A Boolean property that you can set to `false` if you want to cancel the preview.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
+   */
   allowShowPreview: boolean;
 }
 export interface NavigateToUrlEvent {
@@ -186,6 +196,9 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    * A Boolean property that you can set to `false` if you do not want to switch the current page.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
+   */
   allowChanging: boolean;
 }
 
@@ -240,7 +253,13 @@ export interface ElementAddedEvent {
    * The parent container (panel or page).
    */
   parent: PanelModelBase;
+  /**
+   * Obsolete. Use `page` instead.
+   */
   rootPanel: any;
+  /**
+   * Obsolete. Use `parent` instead.
+   */
   parentPanel: any;
   /**
    * The element's index within the parent container (panel or page).
@@ -533,6 +552,9 @@ export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
   css: string;
 }
 export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {
+  /**
+   * Obsolete. Use the `sender` parameter instead.
+   */
   survey: SurveyModel;
 }
 export interface AfterRenderHeaderEvent extends AfterRenderElementEventMixin { }
@@ -592,6 +614,9 @@ export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMix
    * A Boolean property that you can set to `false` if you do not want to add the row.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
+   */
   canAddRow: boolean;
 }
 export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin {
@@ -872,4 +897,15 @@ export interface MatrixColumnAddedEvent extends QuestionEventMixin {
    * An added matrix column.
    */
   column: any;
+}
+
+export interface PopupVisibleChangedEvent extends QuestionEventMixin {
+  /**
+   * An object that describes the popup.
+   */
+  popup: PopupModel;
+  /**
+   * Indicates whether the popup is visible now.
+   */
+  visible: boolean;
 }

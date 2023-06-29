@@ -8225,3 +8225,36 @@ QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
   nodeMock.classList.remove(matrix.cssClasses.dragElementDecorator);
   assert.equal(matrix.isDragHandleAreaValid(nodeMock), true);
 });
+QUnit.test("column validation, bug#6449", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "age"
+      },
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "validators": [
+              {
+                "type": "expression",
+                "expression": "{row.col1} < {age}"
+              }
+            ]
+          }
+        ],
+        "rows": ["Row1"]
+      }] });
+  survey.setValue("age", 50);
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion.name, "col1", "question is correct");
+  cellQuestion.value = 51;
+  assert.equal(survey.hasErrors(), true, "51<50");
+  cellQuestion.value = 41;
+  assert.equal(survey.hasErrors(), false, "41<50");
+});

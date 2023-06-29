@@ -369,13 +369,7 @@ export class QuestionFileModel extends Question {
             this.previewValue.push(val);
           });
         }
-        this.isReadyValue = true;
-        this.onReadyChanged &&
-        this.onReadyChanged.fire(this, {
-          question: this,
-          isReady: true,
-          oldIsReady: false,
-        });
+        this.isReady = true;
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });

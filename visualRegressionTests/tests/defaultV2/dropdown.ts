@@ -596,4 +596,42 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check overlay popup in dropdown question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 700);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            name: "dropdown",
+            hasOther: "true",
+            closeOnSelect: false,
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+            ]
+          }
+        ]
+      });
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .click(Selector(".sd-list__item span").withText("item1"))
+        .click(Selector(".sd-dropdown__filter-string-input"));
+      await takeElementScreenshot("dropdown-question-overlay-popup-selected.png", Selector(".sv-popup.sv-single-select-list"), t, comparer);
+    });
+  });
+
 });

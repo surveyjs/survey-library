@@ -107,7 +107,7 @@ export class MatrixCells {
     this.valuesChanged();
   }
   public setDefaultCellText(column: any, val: string) {
-    this.setCellText(settings.matrixDefaultRowName, column, val);
+    this.setCellText(settings.matrix.defaultRowName, column, val);
   }
   public getCellLocText(row: any, column: any): LocalizableString {
     row = this.getCellRowColumnValue(row, this.rows);
@@ -118,12 +118,12 @@ export class MatrixCells {
     return this.values[row][column];
   }
   public getDefaultCellLocText(column: any, val: string): LocalizableString {
-    return this.getCellLocText(settings.matrixDefaultRowName, column);
+    return this.getCellLocText(settings.matrix.defaultRowName, column);
   }
   public getCellDisplayLocText(row: any, column: any): LocalizableString {
     var cellText = this.getCellLocText(row, column);
     if (cellText && !cellText.isEmpty) return cellText;
-    cellText = this.getCellLocText(settings.matrixDefaultRowName, column);
+    cellText = this.getCellLocText(settings.matrix.defaultRowName, column);
     if (cellText && !cellText.isEmpty) return cellText;
     if (typeof column == "number") {
       column =
@@ -139,7 +139,7 @@ export class MatrixCells {
     return loc ? loc.calculatedText : null;
   }
   public getDefaultCellText(column: any): string {
-    var loc = this.getCellLocText(settings.matrixDefaultRowName, column);
+    var loc = this.getCellLocText(settings.matrix.defaultRowName, column);
     return loc ? loc.calculatedText : null;
   }
   public getCellDisplayText(row: any, column: any): string {
@@ -406,8 +406,8 @@ export class QuestionMatrixModel
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  supportGoNextPageAutomatic() {
-    return this.hasValuesInAllRows();
+  supportGoNextPageAutomatic(): boolean {
+    return this.isMouseDown === true && this.hasValuesInAllRows();
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -548,8 +548,8 @@ export class QuestionMatrixModel
     json["type"] = question.getType();
     return json;
   }
-  protected clearValueIfInvisibleCore(): void {
-    super.clearValueIfInvisibleCore();
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
     if (this.hasRows) {
       this.clearInvisibleValuesInRows();
     }

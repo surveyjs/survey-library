@@ -373,8 +373,8 @@ export class QuestionRatingModel extends Question {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
-  supportGoNextPageAutomatic() {
-    return true;
+  supportGoNextPageAutomatic(): boolean {
+    return this.isMouseDown === true;
   }
   public supportOther(): boolean {
     return false;

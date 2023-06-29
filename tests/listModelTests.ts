@@ -360,6 +360,18 @@ QUnit.test("getItemClass", (assert) => {
   assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled custom-css");
 });
 
+QUnit.test("getListClass", (assert) => {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  assert.equal(list.getListClass(), "sv-list");
+
+  list.filterString = "test";
+  assert.equal(list.getListClass(), "sv-list");
+
+  list.filterString = "test1";
+  assert.equal(list.getListClass(), "sv-list sv-list--filtering");
+});
+
 QUnit.test("allow show selected item with disabled selection", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel(items, () => { }, false);

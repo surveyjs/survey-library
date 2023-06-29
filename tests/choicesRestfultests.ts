@@ -724,6 +724,24 @@ QUnit.test("Set value before loading data, bug #1089", function(assert) {
   assert.equal(question.value, "CA", "'CA' value is still here");
   assert.equal(question.selectedItem.value, "CA", "selectedItem is correct");
 });
+QUnit.test("Set value before loading data + defaultValue", function(assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("1");
+  const question = new QuestionDropdownModelTester("q1");
+  question.defaultValue = "CA";
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  question.hasItemsCallbackDelay = true;
+  question.onSurveyLoad();
+  question.restFulTest.isRequestRunning = true;
+  assert.equal(question.restFulTest.isRunning, true, "request should be running");
+  assert.equal(question.value, "CA", "Set default Value");
+  survey.mergeData({ "q1": "TX" });
+  question.restFulTest.isRequestRunning = false;
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+  assert.equal(question.value, "TX", "'TX' value is here");
+  assert.equal(question.selectedItem.value, "TX", "selectedItem is correct");
+});
 QUnit.test("Clear value on getting empty array, bug #6251", function(assert) {
   var survey = new SurveyModel();
   survey.addNewPage("1");

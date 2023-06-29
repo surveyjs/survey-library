@@ -346,8 +346,9 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return this.step;
   }
-  supportGoNextPageAutomatic() {
-    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
+  supportGoNextPageAutomatic(): boolean {
+    return !this.isSurveyInputTextUpdate &&
+      ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
     return ["date", "datetime-local"].indexOf(this.inputType) < 0;
@@ -389,7 +390,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public isReadOnlyRenderDiv(): boolean {
-    return this.isReadOnly && settings.readOnlyTextRenderMode === "div";
+    return this.isReadOnly && settings.readOnly.textRenderMode === "div";
   }
   get inputStyle(): any {
     var style: any = {};
@@ -426,6 +427,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyDown = (event: any) => {
+    this.checkForUndo(event);
     if(this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }

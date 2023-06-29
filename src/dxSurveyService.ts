@@ -4,10 +4,10 @@ import { settings } from "./settings";
  */
 export class dxSurveyService {
   public static get serviceUrl(): string {
-    return settings.surveyServiceUrl;
+    return settings.web.surveyServiceUrl;
   }
   public static set serviceUrl(val: string) {
-    settings.surveyServiceUrl = val;
+    settings.web.surveyServiceUrl = val;
   }
   constructor() {}
   public loadSurvey(

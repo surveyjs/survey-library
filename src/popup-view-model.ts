@@ -10,6 +10,9 @@ import { getElement } from "./utils/utils";
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  protected popupSelector = ".sv-popup";
+  protected containerSelector = ".sv-popup__container";
+  protected scrollingContentSelector = ".sv-popup__scrolling-content";
   protected prevActiveElement: HTMLElement;
   protected footerToolbarValue: ActionContainer;
 
@@ -21,7 +24,10 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: false }) isVisible: boolean;
   @property() locale: string;
 
-  public container: HTMLElement;
+  public get container(): HTMLElement {
+    return this.containerElement || this.createdContainer;
+  }
+  private containerElement: HTMLElement;
   private createdContainer: HTMLElement;
 
   public getLocale(): string {
@@ -192,7 +198,8 @@ export class PopupBaseViewModel extends Base {
   }
   private focusContainer() {
     if (!this.container) return;
-    (<HTMLElement>this.container.children[0]).focus();
+    const popup = (<HTMLElement>this.container.querySelector(this.popupSelector));
+    popup?.focus();
   }
   private focusFirstInput() {
     setTimeout(() => {
@@ -202,8 +209,9 @@ export class PopupBaseViewModel extends Base {
       else this.focusContainer();
     }, 100);
   }
-  public clickOutside(): void {
+  public clickOutside(event?: Event): void {
     this.hidePopup();
+    event?.stopPropagation();
   }
   public cancel(): void {
     this.model.onCancel();
@@ -211,22 +219,37 @@ export class PopupBaseViewModel extends Base {
   }
   public dispose(): void {
     super.dispose();
-    this.unmountPopupContainer();
-    this.container = undefined;
+    if(!!this.createdContainer) {
+      this.createdContainer.remove();
+      this.createdContainer = undefined;
+    }
     if(!!this.footerToolbarValue) {
       this.footerToolbarValue.dispose();
     }
   }
   public initializePopupContainer(): void {
-    if (!this.createdContainer) {
+    if (!this.container) {
       const container: HTMLElement = document.createElement("div");
-      this.container = this.createdContainer = container;
+      this.createdContainer = container;
+      getElement(settings.environment.popupMountContainer).appendChild(container);
     }
-
-    getElement(settings.environment.popupMountContainer).appendChild(this.container);
   }
-
-  public unmountPopupContainer(): void {
-    this.createdContainer.remove();
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
+    if(!!componentRoot) {
+      this.containerElement = componentRoot;
+    }
+  }
+  protected preventScrollOuside(event: any, deltaY: number): void {
+    let currentElement = event.target;
+    while (currentElement !== this.container) {
+      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+        const { scrollHeight, scrollTop, clientHeight } = currentElement;
+        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
+          return;
+        }
+      }
+      currentElement = currentElement.parentElement;
+    }
+    event.preventDefault();
   }
 }

@@ -625,7 +625,11 @@ QUnit.test("Matrixdynamic customize cell editors", function (assert) {
       options.cellQuestion.visible = options.rowValue["col1"] ? true : false;
     }
   });
+  let columnName;
+  let cellQuestionName;
   survey.onMatrixCellValueChanged.add(function (survey, options) {
+    columnName = options.column.name;
+    cellQuestionName = options.cellQuestion.name;
     if (options.columnName != "col1") return;
     var question = options.getCellQuestion("col2");
     question.visible = options.value ? true : false;
@@ -638,6 +642,8 @@ QUnit.test("Matrixdynamic customize cell editors", function (assert) {
   var q2 = <QuestionDropdownModel>rows[0].cells[1].question;
   assert.equal(q2.visible, false, "col2 is invisible if col1 is empty");
   q1.value = 1;
+  assert.equal(columnName, "col1", "options.column, #1");
+  assert.equal(cellQuestionName, "col1", "options.cellQuestion, #1");
   assert.equal(
     q2.choices[0].value,
     "item1",
@@ -8218,4 +8224,37 @@ QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
 
   nodeMock.classList.remove(matrix.cssClasses.dragElementDecorator);
   assert.equal(matrix.isDragHandleAreaValid(nodeMock), true);
+});
+QUnit.test("column validation, bug#6449", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "age"
+      },
+      {
+        "type": "matrixdropdown",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text",
+            "validators": [
+              {
+                "type": "expression",
+                "expression": "{row.col1} < {age}"
+              }
+            ]
+          }
+        ],
+        "rows": ["Row1"]
+      }] });
+  survey.setValue("age", 50);
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion.name, "col1", "question is correct");
+  cellQuestion.value = 51;
+  assert.equal(survey.hasErrors(), true, "51<50");
+  cellQuestion.value = 41;
+  assert.equal(survey.hasErrors(), false, "41<50");
 });

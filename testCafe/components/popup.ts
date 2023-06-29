@@ -1,4 +1,4 @@
-import { url, initSurvey, frameworks } from "../helper";
+import { url, initSurvey, frameworks, getListItemByText } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "popup";
 
@@ -14,6 +14,7 @@ const json = {
 const disposeSurvey = ClientFunction(framework => {
   if (framework === "vue") {
     window["vueApp"].$destroy();
+    window["vueApp"].$el.parentNode.removeChild(window["vueApp"].$el);
   }
   if (framework === "react") {
     window["ReactDOM"].unmountComponentAtNode(document.getElementById("surveyElement"));
@@ -361,5 +362,35 @@ frameworks.forEach(async framework => {
       .click(clickButton)
       .expect(popupSelector.visible).ok()
       .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1);
+  });
+
+  test("list model", async t => {
+    await initSurvey(framework, json, { onGetQuestionTitleActions: (_, opt) => {
+      const getItems = (count, startIndex = 0) => {
+        const list = [];
+        for (let index = startIndex; index < count; index++) {
+          list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
+        }
+        return list;
+      };
+      const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+        { title: "Long List", showTitle: true },
+        { items: getItems(40), showPointer: true }
+      );
+      opt.titleActions = [dropdownWithSearchAction];
+    } });
+
+    const listItems = Selector(".sv-list__item").filterVisible();
+
+    await t
+      .click(Selector(".sv-action-bar-item"))
+      .expect(listItems.count).eql(40)
+
+      .pressKey("1")
+      .expect(listItems.count).eql(13)
+      .expect(getListItemByText("item1").focused).notOk()
+
+      .pressKey("down")
+      .expect(getListItemByText("item1").focused).ok();
   });
 });

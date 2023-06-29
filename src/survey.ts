@@ -48,12 +48,13 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
-import { TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent, ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent, QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent, ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, ProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent, AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent, ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent, MatrixAllowRemoveRowEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent } from "./survey-events-api";
+import { TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent, ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent, QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent, ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, ProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent, AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent, ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent, MatrixAllowRemoveRowEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme } from "./themes";
+import { PopupModel } from "./popup";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -221,10 +222,6 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
   public onQuestionVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.addEvent<SurveyModel, QuestionVisibleChangedEvent>();
-  /**
-   * Obsolete. Please use onQuestionVisibleChanged event.
-   * @see onQuestionVisibleChanged
-   */
   public onVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.
@@ -416,7 +413,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    * @see uploadFiles
    * @see QuestionFileModel.storeDataAsText
    * @see onDownloadFile
@@ -428,7 +425,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    * @see downloadFile
    * @see onClearFiles
    * @see onUploadFiles
@@ -476,7 +473,9 @@ export class SurveyModel extends SurveyElementCore
   public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a panel. Use it to override default panel CSS classes.
+   * An event that is raised before rendering a standalone panel and panels within [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/). Use it to override default panel CSS classes.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
@@ -486,6 +485,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before rendering a page. Use it to override default page CSS classes.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
@@ -494,23 +495,26 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised before rendering a choice item in Radio Button Group, Checkboxes, and Dropdown questions. Use it to override default CSS classes applied to choice items.
    *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
    * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
 
   /**
-   * An event that is raised right after survey is rendered in DOM.
+   * An event that is raised after the survey is rendered to the DOM. Use this event to modify survey markup.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-animation/ (linkStyle))
    */
   public onAfterRenderSurvey: EventBase<SurveyModel, AfterRenderSurveyEvent> = this.addEvent<SurveyModel, AfterRenderSurveyEvent>();
 
-  /**
-   * An event that is raised right after a page is rendered in DOM. Use it to modify HTML elements.
-   */
   public onAfterRenderHeader: EventBase<SurveyModel, AfterRenderHeaderEvent> = this.addEvent<SurveyModel, AfterRenderHeaderEvent>();
 
   /**
-   * An event that is raised right after a page is rendered in DOM. Use it to modify HTML elements.
+   * An event that is raised after a page is rendered to the DOM. Use it to modify page markup.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -519,7 +523,7 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderPage: EventBase<SurveyModel, AfterRenderPageEvent> = this.addEvent<SurveyModel, AfterRenderPageEvent>();
 
   /**
-   * An event that is raised right after a question is rendered in DOM. Use it to modify HTML elements.
+   * An event that is raised after a question is rendered to the DOM. Use it to modify question markup.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -528,13 +532,20 @@ export class SurveyModel extends SurveyElementCore
   public onAfterRenderQuestion: EventBase<SurveyModel, AfterRenderQuestionEvent> = this.addEvent<SurveyModel, AfterRenderQuestionEvent>();
 
   /**
-   * An event that is raised right after a non-composite question (text, comment, dropdown, radiogroup, checkbox) is rendered in DOM. Use it to modify HTML elements.
-   * This event is not fired for matrices, panels, multiple text and image picker.
+   * An event that is raised after a question with a single input field is rendered to the DOM. Use it to modify question markup.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * > This event is not raised for questions without input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel)) or questions with multiple input fields ([Matrix](https://surveyjs.io/form-library/documentation/questionmatrixmodel), [Multiple Text](https://surveyjs.io/form-library/documentation/questionmultipletextmodel)).
    */
   public onAfterRenderQuestionInput: EventBase<SurveyModel, AfterRenderQuestionInputEvent> = this.addEvent<SurveyModel, AfterRenderQuestionInputEvent>();
 
   /**
-   * An event that is raised right after a panel is rendered in DOM. Use it to modify HTML elements.
+   * An event that is raised after a panel is rendered to the DOM. Use it to modify panel markup.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * > This event is raised for static [Panels](https://surveyjs.io/form-library/examples/set-properties-on-multiple-questions-using-panel/) as well as panels within a [Dynamic Panel](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/).
    */
   public onAfterRenderPanel: EventBase<SurveyModel, AfterRenderPanelEvent> = this.addEvent<SurveyModel, AfterRenderPanelEvent>();
 
@@ -581,102 +592,84 @@ export class SurveyModel extends SurveyElementCore
   public onGetChoiceDisplayValue: EventBase<SurveyModel, GetChoiceDisplayValueEvent> = this.addEvent<SurveyModel, GetChoiceDisplayValueEvent>();
 
   /**
-   * An event that is raised on adding a new row in Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDynamicModel.visibleRows
+   * An event that is raised after a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    */
   public onMatrixRowAdded: EventBase<SurveyModel, MatrixRowAddedEvent> = this.addEvent<SurveyModel, MatrixRowAddedEvent>();
 
   /**
-   * An event that is raised before adding a new row in Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDynamicModel.visibleRows
+   * An event that is raised before a new row is added to a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    */
-  public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
+  public onMatrixRowAdding: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
+  /**
+   * This event is obsolete. Use the [`onMatrixRowAdding`](/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
+   */
+  public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.onMatrixRowAdding;
 
   /**
-   * An event that is raised before removing a row from Matrix Dynamic question. You can disable removing and clear the data instead.
-   * @see QuestionMatrixDynamicModel
-   * @see onMatrixRowRemoved
-   * @see onMatrixAllowRemoveRow
+   * An event that is raised before a row is deleted from a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). You can cancel row deletion and clear row data instead.
+   * @see onMatrixRenderRemoveButton
    */
   public onMatrixRowRemoving: EventBase<SurveyModel, MatrixRowRemovingEvent> = this.addEvent<SurveyModel, MatrixRowRemovingEvent>();
 
   /**
-   * An event that is raised on removing a row from Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDynamicModel.visibleRows
-   * @see onMatrixRowRemoving
-   * @see onMatrixAllowRemoveRow
+   * An event that is raised after a row is deleted from a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
+   * @see onMatrixRenderRemoveButton
    */
   public onMatrixRowRemoved: EventBase<SurveyModel, MatrixRowRemovedEvent> = this.addEvent<SurveyModel, MatrixRowRemovedEvent>();
 
   /**
-   * An event that is raised before rendering "Remove" button for removing a row from Matrix Dynamic question.
-   * @see QuestionMatrixDynamicModel
+   * An event that is raised before rendering the Remove button in a row of a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to hide the Remove button for individual matrix rows.
    * @see onMatrixRowRemoving
    * @see onMatrixRowRemoved
    */
-  public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
+  public onMatrixRenderRemoveButton: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
+  /**
+   * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+   */
+  public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
 
   /**
-   * An event that is raised before creating cell question in the matrix. You can change the cell question type by setting different options.cellType.
-   * @see onMatrixBeforeRowAdded
-   * @see onMatrixCellCreated
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
+   * An event that is raised before a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created. Use this event to change the type of individual matrix cells.
+   * @see onAfterRenderMatrixCell
    */
   public onMatrixCellCreating: EventBase<SurveyModel, MatrixCellCreatingEvent> = this.addEvent<SurveyModel, MatrixCellCreatingEvent>();
 
   /**
-    * An event that is raised for every cell created in Matrix Dynamic and Matrix Dropdown questions.
-    * @see onMatrixBeforeRowAdded
-    * @see onMatrixCellCreating
-    * @see onMatrixRowAdded
-    * @see QuestionMatrixDynamicModel
-    * @see QuestionMatrixDropdownModel
+    * An event that is raised after a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created.
+    * @see onAfterRenderMatrixCell
     */
   public onMatrixCellCreated: EventBase<SurveyModel, MatrixCellCreatedEvent> = this.addEvent<SurveyModel, MatrixCellCreatedEvent>();
 
   /**
-   * An event that is raised for every cell after is has been rendered in DOM.
+   * An event that is raised for every matrix cell after it is rendered to the DOM.
    * @see onMatrixCellCreated
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
    */
-  public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
+  public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
+  /**
+   * This event is obsolete. Use the [`onAfterRenderMatrixCell`](/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+   */
+  public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.onAfterRenderMatrixCell;
 
   /**
-   * An event that is raised when cell value is changed in Matrix Dynamic and Matrix Dropdown questions.
-   * @see onMatrixCellValueChanging
-   * @see onMatrixBeforeRowAdded
-   * @see onMatrixRowAdded
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
+   * An event that is raised after a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
+   * @see onMatrixRowAdding
    */
   public onMatrixCellValueChanged: EventBase<SurveyModel, MatrixCellValueChangedEvent> = this.addEvent<SurveyModel, MatrixCellValueChangedEvent>();
 
   /**
-   * An event that is raised on changing cell value in Matrix Dynamic and Matrix Dropdown questions. You may change the `options.value` property to change a cell value.
-   * @see onMatrixCellValueChanged
-   * @see onMatrixBeforeRowAdded
-   * @see onMatrixRowAdded
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
+   * An event that is raised before a cell value is changed in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/). Use this event to change the cell value.
+   * @see onMatrixRowAdding
    */
   public onMatrixCellValueChanging: EventBase<SurveyModel, MatrixCellValueChangingEvent> = this.addEvent<SurveyModel, MatrixCellValueChangingEvent>();
 
   /**
-   * An event that is raised when Matrix Dynamic and Matrix Dropdown questions validate the cell value.
-   * @see onMatrixBeforeRowAdded
-   * @see onMatrixRowAdded
-   * @see QuestionMatrixDynamicModel
-   * @see QuestionMatrixDropdownModel
+   * An event that is raised for [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) and [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) questions when they validate a cell value. Use this event to display a custom error message based on a condition.
+   * @see onMatrixRowAdding
    */
   public onMatrixCellValidate: EventBase<SurveyModel, MatrixCellValidateEvent> = this.addEvent<SurveyModel, MatrixCellValidateEvent>();
 
   /**
-   * An event that is raised on adding a new column in Matrix Dynamic or Matrix Dropdown question.
+   * An event that is raised after a new column is added to a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
    */
   public onMatrixColumnAdded: EventBase<SurveyModel, MatrixColumnAddedEvent> = this.addEvent<SurveyModel, MatrixColumnAddedEvent>();
   /**
@@ -697,15 +690,16 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDynamicPanelRemoving: EventBase<SurveyModel, DynamicPanelRemovingEvent> = this.addEvent<SurveyModel, DynamicPanelRemovingEvent>();
   /**
-  * An event that is raised every second if the method `startTimer` has been called.
+  * An event that is raised every second while the timer is running.
+  *
+  * Use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#timeSpent) property to find out how many seconds have elapsed.
+  * @see maxTimeToFinish
+  * @see maxTimeToFinishPage
+  * @see showTimerPanel
   * @see startTimer
-  * @see timeSpent
-  * @see Page.timeSpent
   */
   public onTimer: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
-  /**
-   * An event that is raised before displaying a new information in the Timer Panel. Use it to change the default text.
-   */
+
   public onTimerPanelInfoText: EventBase<SurveyModel, TimerPanelInfoTextEvent> = this.addEvent<SurveyModel, TimerPanelInfoTextEvent>();
 
   /**
@@ -763,9 +757,12 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
   /**
-   * Use this event to create/customize actions to be displayed in a matrix question's row.
+   * An event that allows you to add, delete, or modify actions in rows of a [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/).
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/employee-information-form/ (linkStyle))
    * @see IAction
-   * @see QuestionMatrixDropdownModelBase
    */
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
@@ -779,6 +776,11 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised before expression question convert it's value into display value for rendering.
    */
   public onGetExpressionDisplayValue: EventBase<SurveyModel, GetExpressionDisplayValueEvent> = this.addEvent<SurveyModel, GetExpressionDisplayValueEvent>();
+
+  /**
+   * An event that is raised after the visibility of a popup is changed. This event can be raised for [Single-](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) and [Multi-Select Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model) questions and [Rating](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model) questions [rendered as drop-down menus](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#displayMode).
+   */
+  public onPopupVisibleChanged: EventBase<SurveyModel, PopupVisibleChangedEvent> = this.addEvent<SurveyModel, PopupVisibleChangedEvent>();
 
   //#endregion
 
@@ -949,6 +951,9 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-action-bar",
       data: this.navigationBar
     });
+  }
+  processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
+    throw new Error("Method not implemented.");
   }
   protected createTryAgainAction(): IAction {
     return <IAction>{
@@ -1132,7 +1137,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   public get isLazyRendering(): boolean {
-    return this.lazyRendering || settings.lazyRowsRendering;
+    return this.lazyRendering || settings.lazyRender.enabled;
   }
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
@@ -1620,7 +1625,7 @@ export class SurveyModel extends SurveyElementCore
       if (!!this.getQuestionByValueName(key)) continue;
       if (
         this.iscorrectValueWithPostPrefix(key, settings.commentSuffix) ||
-        this.iscorrectValueWithPostPrefix(key, settings.matrixTotalValuePostFix)
+        this.iscorrectValueWithPostPrefix(key, settings.matrix.totalsSuffix)
       )
         continue;
       var calcValue = this.getCalculatedValueByName(key);
@@ -1787,8 +1792,11 @@ export class SurveyModel extends SurveyElementCore
 
   //#region Title/Header options
   /**
-   * Gets or sets a survey logo.
-   * @see title
+   * An image URL or a Base64-encoded image to use as a survey logo.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+   * @see logoPosition
+   * @see logoFit
    */
   public get logo(): string {
     return this.getLocalizableStringText("logo");
@@ -1800,8 +1808,15 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("logo");
   }
   /**
-   * Gets or sets a survey logo width.
+   * A logo width in CSS-accepted values.
+   *
+   * Default value: `300px`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+   * @see logoHeight
    * @see logo
+   * @see logoPosition
+   * @see logoFit
    */
   public get logoWidth(): any {
     var width = this.getPropertyValue("logoWidth");
@@ -1811,8 +1826,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("logoWidth", value);
   }
   /**
-   * Gets or sets a survey logo height.
+   * A logo height in CSS-accepted values.
+   *
+   * Default value: `200px`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
+   * @see logoHeight
    * @see logo
+   * @see logoPosition
+   * @see logoFit
    */
   public get logoHeight(): any {
     var height = this.getPropertyValue("logoHeight");
@@ -1822,8 +1844,17 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("logoHeight", value);
   }
   /**
-   * Gets or sets a survey logo position.
+   * A logo position relative to the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
+   *
+   * Possible values:
+   *
+   * - `"left"` (default) - Places the logo to the left of the survey title.
+   * - `"right"` - Places the logo to the right of the survey title.
+   * - `"none"` - Hides the logo.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
    * @see logo
+   * @see logoFit
    */
   public get logoPosition(): string {
     return this.getPropertyValue("logoPosition");
@@ -1880,8 +1911,20 @@ export class SurveyModel extends SurveyElementCore
     return this.renderedHasTitle || this.renderedHasLogo;
   }
   /**
-   * The logo fit mode.
+   * Specifies how to resize a logo to fit it into its container.
+   *
+   * Possible values:
+   *
+   * - `"contain"` (default)
+   * - `"cover"`
+   * - `"fill"`
+   * - `"none"`
+   *
+   * Refer to the [`object-fit`](https://developer.mozilla.org/en-US/docs/Web/CSS/object-fit) CSS property description for information on the possible values.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-logo/ (linkStyle))
    * @see logo
+   * @see logoPosition
    */
   public get logoFit(): string {
     return this.getPropertyValue("logoFit");
@@ -1951,7 +1994,8 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() renderBackgroundImage: string;
   private updateRenderBackgroundImage(): void {
-    this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
+    const path = this.getLocalizableString("backgroundImage").renderedHtml;
+    this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
   @property() backgroundImageFit: string;
   /**
@@ -2926,12 +2970,12 @@ export class SurveyModel extends SurveyElementCore
     return this.state === "starting";
   }
   /**
-   * Specifies which part of a choice item responds to a drag gesture in MatrixDynamic questions.
+   * Specifies which part of a matrix row responds to a drag gesture in [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) questions.
    *
    * Possible values:
    *
-   * - `"entireItem"` (default) - Users can use the entire choice item as a drag handle.
-   * - `"icon"` - Users can only use the choice item icon as a drag handle.
+   * - `"entireItem"` (default) - Users can use the entire matrix row as a drag handle.
+   * - `"icon"` - Users can only use a drag icon as a drag handle.
    */
   public get matrixDragHandleArea():string {
     return this.getPropertyValue("matrixDragHandleArea", "entireItem");
@@ -4249,7 +4293,7 @@ export class SurveyModel extends SurveyElementCore
     this.doComplete(true);
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
-    if (!settings.changeNavigationButtonsOnCompleteTrigger) return;
+    if (!settings.triggers.changeNavigationButtonsOnComplete) return;
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if(!this.completedByTriggers) this.completedByTriggers = {};
     if(isCompleted) {
@@ -4524,7 +4568,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   matrixBeforeRowAdded(options: any) {
-    this.onMatrixBeforeRowAdded.fire(this, options);
+    this.onMatrixRowAdding.fire(this, options);
   }
   matrixRowAdded(question: QuestionMatrixDynamicModel, row: any) {
     this.onMatrixRowAdded.fire(this, { question: question, row: row });
@@ -4576,7 +4620,7 @@ export class SurveyModel extends SurveyElementCore
       row: row,
       allow: true,
     };
-    this.onMatrixAllowRemoveRow.fire(this, options);
+    this.onMatrixRenderRemoveButton.fire(this, options);
     return options.allow;
   }
   matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any) {
@@ -4589,7 +4633,7 @@ export class SurveyModel extends SurveyElementCore
   }
   matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any) {
     options.question = question;
-    this.onMatrixAfterCellRender.fire(this, options);
+    this.onAfterRenderMatrixCell.fire(this, options);
   }
   matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any) {
     options.question = question;
@@ -5339,7 +5383,7 @@ export class SurveyModel extends SurveyElementCore
     if (
       this.isValueChangedOnRunningCondition &&
       this.conditionRunnerCounter <
-      settings.maximumConditionRunCountOnValueChanged
+      settings.maxConditionRunCountOnValueChanged
     ) {
       this.isValueChangedOnRunningCondition = false;
       this.conditionRunnerCounter++;
@@ -6094,18 +6138,10 @@ export class SurveyModel extends SurveyElementCore
   public set clearValueOnDisableItems(val: boolean) {
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
-  get isClearValueOnHidden(): boolean {
-    return (
-      this.clearInvisibleValues == "onHidden" ||
-      this.isClearValueOnHiddenContainer
-    );
-  }
-  get isClearValueOnHiddenContainer(): boolean {
-    return (
-      this.clearInvisibleValues == "onHiddenContainer" &&
-      !this.isShowingPreview &&
-      !this.runningPages
-    );
+  getQuestionClearIfInvisible(questionClearIf: string): string {
+    if(this.isShowingPreview || this.runningPages) return "none";
+    if(questionClearIf !== "default") return questionClearIf;
+    return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean) {
     this.updateVisibleIndexes();
@@ -6435,17 +6471,21 @@ export class SurveyModel extends SurveyElementCore
     return this.getInCorrectedAnswerCount();
   }
   /**
-   * Gets or sets a timer panel position. The timer panel displays information about how much time an end user spends on a survey/page.
+   * Displays the timer panel and specifies its position. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * The available options:
-   * - `top` - display timer panel in the top.
-   * - `bottom` - display timer panel in the bottom.
-   * - `none` - do not display a timer panel.
+   * Possible values:
    *
-   * If the value is not equal to 'none', the survey calls the `startTimer()` method on survey rendering.
-   * @see showTimerPanelMode
+   * - `"top"` - Displays the timer panel at the top of the survey.
+   * - `"bottom"` - Displays the timer panel at the bottom of the survey.
+   * - `"none"` (default) - Hides the timer panel.
+   *
+   * If the timer panel is displayed, the timer starts automatically when the survey begins. To specify time limits, use the [`maxTimeToFinish`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxTimeToFinish) and [`maxTimeToFinishPage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxTimeToFinishPage) properties.
+   *
+   * The timer panel displays information about time spent on an individual page and the entire survey. If you want to display only the page timer or the survey timer, set the [`showTimerPanelMode`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimerPanelMode) property to `"page"` or `"survey"`.
    * @see startTimer
    * @see stopTimer
+   * @see timeSpent
+   * @see onTimer
    */
   public get showTimerPanel(): string {
     return this.getPropertyValue("showTimerPanel");
@@ -6460,16 +6500,17 @@ export class SurveyModel extends SurveyElementCore
     return this.showTimerPanel == "bottom";
   }
   /**
-   * Gets or set a value that specifies whether the timer displays information for the page or for the entire survey.
+   * Specifies whether the timer panel displays timers for the current page, the entire survey, or both. Applies only if the timer panel is [visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTimerPanel).
    *
-   * The available options:
+   * Possible values:
    *
-   * - `page` - show timer information for page
-   * - `survey` - show timer information for survey
-   *
-   * Use the `onTimerPanelInfoText` event to change the default text.
-   * @see showTimerPanel
-   * @see onTimerPanelInfoText
+   * - `"survey"` - Displays only the survey timer.
+   * - `"page"` - Displays only the page timer.
+   * - `"all"` (default) - Displays both the survey and page timers.
+   * @see timeSpent
+   * @see onTimer
+   * @see startTimer
+   * @see stopTimer
    */
   public get showTimerPanelMode(): string {
     return this.getPropertyValue("showTimerPanelMode");
@@ -6653,9 +6694,12 @@ export class SurveyModel extends SurveyElementCore
   }
   public get timerModel(): SurveyTimerModel { return this.timerModelValue; }
   /**
-   * Starts a timer that will calculate how much time end-user spends on the survey or on pages.
+   * Starts a timer that calculates how many seconds a respondent has spent on the survey. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see stopTimer
+   * @see maxTimeToFinish
+   * @see maxTimeToFinishPage
    * @see timeSpent
+   * @see onTimer
    */
   public startTimer() {
     this.timerModel.start();
@@ -6666,24 +6710,37 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Stops the timer.
+   * Stops the timer. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see startTimer
+   * @see maxTimeToFinish
+   * @see maxTimeToFinishPage
    * @see timeSpent
+   * @see onTimer
    */
   public stopTimer() {
     this.timerModel.stop();
   }
   /**
-   * Gets or set the time in seconds an end user spends on the survey.
+   * A time period that a respondent has spent on the survey so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * Assign a number to this property if you need to start the quiz timer from a specific time (for instance, if you want to continue an interrupted quiz).
+   *
+   * You can also find out how many seconds a respondent has spent on an individual survey page. To do this, use the [`timeSpent`](https://surveyjs.io/form-library/documentation/api-reference/page-model#timeSpent) property of a [`PageModel`](https://surveyjs.io/form-library/documentation/api-reference/page-model) object.
+   * @see maxTimeToFinish
+   * @see maxTimeToFinishPage
    * @see startTimer
-   * @see PageModel.timeSpent
    */
   public get timeSpent(): number { return this.timerModel.spent; }
   public set timeSpent(val: number) { this.timerModel.spent = val; }
   /**
-   * Gets or sets the maximum time in seconds that end user has to complete a survey. If the value is 0 or less, an end user has no time limit to finish a survey.
-   * @see startTimer
+   * A time period that a respondent has to complete the survey; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   *
+   * A negative value or 0 sets an unlimited time period.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see maxTimeToFinishPage
+   * @see startTimer
+   * @see timeSpent
    */
   public get maxTimeToFinish(): number {
     return this.getPropertyValue("maxTimeToFinish", 0);
@@ -6692,12 +6749,16 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("maxTimeToFinish", val);
   }
   /**
-   * Gets or sets the maximum time in seconds that end user has to complete a page in the survey. If the value is 0 or less, an end user has no time limit.
+   * A time period that a respondent has to complete each survey page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    *
-   * You may override this value for every page.
-   * @see startTimer
+   * A negative value or 0 sets an unlimited time period.
+   *
+   * You can also use `PageModel`'s [`maxTimeToFinish`](https://surveyjs.io/form-library/documentation/api-reference/page-model#maxTimeToFinish) property to specify a time period for an individual survey page.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/make-quiz-javascript/ (linkStyle))
    * @see maxTimeToFinish
-   * @see PageModel.maxTimeToFinish
+   * @see startTimer
+   * @see timeSpent
    */
   public get maxTimeToFinishPage(): number {
     return this.getPropertyValue("maxTimeToFinishPage", 0);
@@ -6970,6 +7031,9 @@ export class SurveyModel extends SurveyElementCore
     }
     return containerLayoutElements;
   }
+  public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
+    this.onPopupVisibleChanged.fire(this, { question, popup, visible });
+  }
 
   public applyTheme(theme: ITheme): void {
     if(!theme) return;
@@ -7237,7 +7301,7 @@ Serializer.addClass("survey", [
     default: "auto",
     choices: ["auto", "static", "responsive"],
   },
-  "width",
+  { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

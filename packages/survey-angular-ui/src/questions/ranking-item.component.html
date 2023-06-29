@@ -29,7 +29,7 @@
         </svg>
       </div>
 
-      <div [class]="question.getItemIndexClasses()">{{ question.getNumberByIndex(index) }}</div>
+      <div [class]="question.getItemIndexClasses(model)">{{ unrankedItem ? "" : question.getNumberByIndex(index) }}</div>
       <div [class]="question.cssClasses.controlLabel">
         <sv-ng-string [model]="model.locText"></sv-ng-string>
       </div>

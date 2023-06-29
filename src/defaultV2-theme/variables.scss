@@ -10,10 +10,8 @@ $secondary-backcolor-semi-light: var(--sjs-secondary-backcolor-semi-light, rgba(
 $secondary-forecolor: var(--sjs-secondary-forecolor, #fff);
 $secondary-forecolor-light: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
 
-$editor-background: var(
-  --sjs-editorpanel-backcolor,
-  var(--sjs-editor-background, var(--background-dim-light, #f9f9f9))
-);
+$editor-background: var(--sjs-editorpanel-backcolor,
+    var(--sjs-editor-background, var(--background-dim-light, #f9f9f9)));
 $question-background: var(--sjs-questionpanel-backcolor, var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff))));
 
 $background: var(--sjs-general-backcolor, var(--background, #fff));
@@ -66,10 +64,8 @@ $font-pagetitle-size: var(--sjs-font-pagetitle-size, calc(1.5 * var(--sjs-font-s
 
 $font-pagedescription-family: var(--sjs-font-pagedescription-family, var(--font-family));
 $font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
-$font-pagedescription-color: var(
-  --sjs-font-pagedescription-color,
-  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
-);
+$font-pagedescription-color: var(--sjs-font-pagedescription-color,
+    var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
 $font-pagedescription-size: var(--sjs-font-pagedescription-size, calc(1 * var(--sjs-font-size, $font-size)));
 
 $font-questiontitle-family: var(--sjs-font-questiontitle-family, var(--font-family));
@@ -79,10 +75,8 @@ $font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(1 * var(--sjs-
 
 $font-questiondescription-family: var(--sjs-font-questiondescription-family, var(--font-family));
 $font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
-$font-questiondescription-color: var(
-  --sjs-font-questiondescription-color,
-  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
-);
+$font-questiondescription-color: var(--sjs-font-questiondescription-color,
+    var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
 $font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 * var(--sjs-font-size, $font-size)));
 
 $font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
@@ -103,6 +97,11 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   @return $result;
 }
 
+@function calcLineHeight($multiplier) {
+  $result: calc(#{$multiplier} * #{$font-size});
+  @return $result;
+}
+
 @function calcCornerRadius($multiplier) {
   $result: calc(#{$multiplier} * #{$corner-radius});
   @return $result;
@@ -113,7 +112,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(0.75);
-  line-height: calcSize(2);
+  line-height: calcLineHeight(1);
 }
 
 @mixin defaultBold {
@@ -121,14 +120,14 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
 
 @mixin defaultFont {
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
 
 @mixin borderLight {

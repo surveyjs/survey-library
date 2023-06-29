@@ -4,6 +4,7 @@ const title = "dropdown";
 
 const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
+const questionValue = Selector(".sv_q_dropdown__value");
 const questionValueInput = Selector(".sv_q_dropdown__value input");
 const questionValueText = Selector(".sv_q_dropdown__value .sv-string-viewer");
 const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
@@ -793,7 +794,17 @@ frameworks.forEach((framework) => {
       .pressKey("u")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
-      .expect(questionValueText.textContent).eql("Vauxhall");
+      .expect(questionValue.innerText).eql("")
+
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Nissan"))
+      .expect(questionValueInput.value).eql("Nissan")
+
+      .pressKey("ctrl+a backspace")
+      .pressKey("a u")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValue.innerText).eql("Nissan");
   });
 
   test("Check dropdown key press without searchEnabled", async (t) => {
@@ -1317,7 +1328,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    const ratingAsDropdownPlaceHolder = "Tap to rate here...";
+    const ratingAsDropdownPlaceHolder = "Select...";
     const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
     const ratingAsDropdownText = ratingAsDropdown.find("input");
     await initSurvey(framework, jsonWithDropDown);
@@ -1371,7 +1382,7 @@ frameworks.forEach((framework) => {
   function choicesLazyLoad(_, opt) {
     var getNumberArray = (skip = 1, count = 25) => {
       const result = [];
-      for(let index = skip; index < (skip + count); index++) {
+      for (let index = skip; index < (skip + count); index++) {
         result.push(index);
       }
       return result;
@@ -1379,7 +1390,7 @@ frameworks.forEach((framework) => {
 
     const total = 55;
     setTimeout(() => {
-      if(opt.skip + opt.take < total) {
+      if (opt.skip + opt.take < total) {
         opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
       } else {
         opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);

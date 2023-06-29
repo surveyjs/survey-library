@@ -1,4 +1,4 @@
-<div class="sv-popup" tabindex="-1" [class]="model.styleClass" [visible]="model.isVisible" (click)="model.clickOutside()" (keydown)="model.onKeyDown($event)">
+<div class="sv-popup" tabindex="-1" [class]="model.styleClass" [visible]="model.isVisible" (click)="model.clickOutside($event)" (keydown)="model.onKeyDown($event)">
     <div class="sv-popup__container" [style]="{ left: model.left, top: model.top, height: model.height, minWidth: model.minWidth, width: model.width }" (click)="clickInside($event)">
         <div class="sv-popup__shadow">
             <ng-container *ngIf="model.showHeader">

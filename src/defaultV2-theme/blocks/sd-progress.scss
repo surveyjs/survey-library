@@ -3,23 +3,27 @@
   background-color: $border-light;
   position: relative;
 }
+
 .sd-progress__bar {
   position: relative;
   height: 100%;
   background-color: $primary;
   overflow: hidden;
 }
+
 .sd-progress__text {
   position: absolute;
   margin-top: calcSize(1);
   right: calcSize(3);
   color: $foreground-light;
   font-size: calcFontSize(0.75);
-  line-height: calcSize(2);
+  line-height: calcLineHeight(1);
   font-weight: 600;
+
   @media only screen and (min-width: calcSize(125)) {
     margin-left: 5%;
   }
+
   @media only screen and (max-width: calcSize(125)) {
     margin-left: 10px;
   }

@@ -1,31 +1,29 @@
 <template>
-  <div></div>
+  <div><sv-popup-container :model="popupViewModel"></sv-popup-container></div>
 </template>
 <script lang="ts">
 import Vue from "vue";
 import { Prop, Component } from "vue-property-decorator";
-import { PopupBaseViewModel, PopupModel, createPopupViewModel, settings } from "survey-core";
+import { PopupBaseViewModel, PopupModel, PopupDropdownViewModel, createPopupViewModel, settings } from "survey-core";
 import { PopupContainer } from "./popup-container.vue";
 import { BaseVue } from "../../base";
 @Component
 export class Popup extends BaseVue {
   @Prop() model: PopupModel;
-  @Prop() targetElement: HTMLElement;
-  private popupContainer: any;
-  private popupViewModel: PopupBaseViewModel;
+  @Prop() getTarget?: (container: HTMLElement) => HTMLElement;
+  popupViewModel: PopupBaseViewModel;
   protected getModel() {
     return this.model;
   }
+  constructor(props: any) {
+    super(props);
+    this.popupViewModel = createPopupViewModel(this.model, undefined as any);
+  }
   onMounted() {
-    this.popupViewModel = createPopupViewModel(this.model, this.$el.parentElement);
-    this.popupViewModel.initializePopupContainer();
-    this.popupContainer = new PopupContainer({
-      el: this.popupViewModel.container.appendChild(document.createElement("div")),
-      propsData: { model: this.popupViewModel },
-    });
+    const container = (this.$el as HTMLElement) as HTMLElement;
+    this.popupViewModel.setComponentElement(container, this.getTarget ? this.getTarget(container) : undefined);
   }
   destroyed() {
-    this.popupContainer.$destroy();
     this.popupViewModel.dispose();
   }
 }

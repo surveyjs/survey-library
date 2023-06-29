@@ -59,14 +59,14 @@ export class dxSurveyService {
     result: JSON,
     onSendResult: (success: boolean, response: any, request?: any) => void,
     clientId: string = null,
-    isPartial: boolean = false
+    isPartialCompleted: boolean = false
   ) {
     var xhr = new XMLHttpRequest();
     xhr.open("POST", dxSurveyService.serviceUrl + "/post/");
     xhr.setRequestHeader("Content-Type", "application/json; charset=utf-8");
     var data = { postId: postId, surveyResult: JSON.stringify(result) };
     if (clientId) (<any>data)["clientId"] = clientId;
-    if (isPartial) (<any>data)["isPartial"] = true;
+    if (isPartialCompleted) (<any>data)["isPartialCompleted"] = true;
     var dataStringify: string = JSON.stringify(data);
     var self = this;
     xhr.onload = xhr.onerror = function () {

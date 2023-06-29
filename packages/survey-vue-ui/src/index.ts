@@ -48,6 +48,7 @@ import BooleanRadioItem from "./BooleanRadioItem.vue";
 import BooleanCheckbox from "./BooleanCheckbox.vue";
 import MultipleText from "./Multipletext.vue";
 import MultipletextItem from "./MultipletextItem.vue";
+import Matrix from "./Matrix.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -118,6 +119,7 @@ export function registerComponents(app: any) {
   app.component("sv-boolean-checkbox", BooleanCheckbox);
   app.component("survey-multipletext", MultipleText);
   app.component("survey-multipletext-item", MultipletextItem);
+  app.component("survey-matrix", Matrix);
 
   app.component("sv-components-container", Container);
   app.component("sv-progress-pages", Progress);

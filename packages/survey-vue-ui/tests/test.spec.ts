@@ -51,7 +51,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const whiteList = ["boolean"];
+const whiteList = ["matrix"];
 
 describe("etalon tests", () => {
   markupTests.forEach((markupTest) => {

@@ -462,7 +462,7 @@ export interface GetResultEvent {
    * ```js
    * {
    *   AnswersCount: Number, // A total number of posted answers to the question
-   *   QuestionResult: Object // All unique answers to the question and their counts
+   *   QuestionResult: Object // All unique answers to the question and their number
    * }
    * ```
    */

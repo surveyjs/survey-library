@@ -1985,7 +1985,9 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() renderBackgroundImage: string;
   private updateRenderBackgroundImage(): void {
-    this.renderBackgroundImage = ["url(", this.getLocalizableString("backgroundImage").renderedHtml, ")"].join("");
+    const path = this.getLocalizableString("backgroundImage").renderedHtml;
+    if(!path) return;
+    this.renderBackgroundImage = ["url(", path, ")"].join("");
   }
   @property() backgroundImageFit: string;
   /**

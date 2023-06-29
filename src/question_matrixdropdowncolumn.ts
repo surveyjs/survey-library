@@ -51,7 +51,7 @@ function onUpdateSelectBaseCellQuestion(
     cellQuestion.choicesByUrl.run(data.getTextProcessor());
   }
 }
-export var matrixDropdownColumnTypes = {
+export var matrixDropdownColumnTypes: any = {
   dropdown: {
     onCellQuestionUpdate: (
       cellQuestion: any,

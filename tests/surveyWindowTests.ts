@@ -1,4 +1,5 @@
 import { PopupSurveyModel } from "../src/popup-survey";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 import { surveyCss } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("PopupSurvey");
@@ -88,4 +89,16 @@ QUnit.test("cssStyles", function (assert) {
   css.window.header.root = oldCssHeaderRoot;
   css.window.header.title = oldCssHeaderTitle;
   css.window.body = oldCssBody;
+});
+
+QUnit.test("Check that popups inside survey are closed when scrolling container", (assert): any => {
+  const model = new PopupSurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] }] });
+  const question = <QuestionDropdownModel>model.survey.getAllQuestions()[0];
+  question.dropdownListModel.popupModel.toggleVisibility();
+  assert.ok(model["onScrollCallback"]);
+  assert.ok(question.dropdownListModel.popupModel.isVisible);
+  model.onScroll();
+  assert.notOk(question.dropdownListModel.popupModel.isVisible);
+  assert.notOk(model["onScrollCallback"]);
+  model.onScroll();
 });

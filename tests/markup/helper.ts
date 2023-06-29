@@ -297,8 +297,14 @@ function clearAttributes(el: Element, removeIds = false) {
   if(el.getAttribute("style") === "") {
     el.removeAttribute("style");
   }
+  if((el.classList.contains("sv-popup__container") || el.classList.contains("sv-popup__pointer")) && el.hasAttribute("style")) {
+    el.removeAttribute("style");
+  }
   if(el.getAttribute("src") === "") {
     el.removeAttribute("src");
+  }
+  if(el.classList.contains("sv-list__input") && el.getAttribute("value") === "") {
+    el.removeAttribute("value");
   }
   if((<any>el).checked) {
     el.setAttribute("checked", "");

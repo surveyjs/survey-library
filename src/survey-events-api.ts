@@ -4,6 +4,7 @@ import { IElement, ISurveyElement } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
+import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionFileModel } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
@@ -34,7 +35,7 @@ export interface PanelDynamicQuestionEventMixin {
 }
 export interface MatrixDropdownQuestionEventMixin {
   /**
-   * A Multiple-Choice Matrix question instance for which the event is raised.
+   * A Multi-Select Matrix question instance for which the event is raised.
    */
   question: QuestionMatrixDropdownModelBase;
 }
@@ -70,7 +71,7 @@ export interface GetActionsEventMixin {
 }
 export interface AfterRenderElementEventMixin {
   /**
-   * The rendered HTML element.
+   * A rendered HTML element.
    */
   htmlElement: HTMLElement;
 }
@@ -102,9 +103,12 @@ export interface CompleteBaseEvent {
 }
 export interface CompletingEvent extends CompleteBaseEvent {
   /**
-   * Set this property to `false` if you want to prevent survey completion.
+   * A Boolean property that you can set to `false` if you want to prevent survey completion.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
+   */
   allowComplete: boolean;
 }
 export interface CompleteEvent extends CompleteBaseEvent {
@@ -124,21 +128,36 @@ export interface CompleteEvent extends CompleteBaseEvent {
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
    */
   showSaveInProgress: (text?: string) => void;
+  /**
+   * Obsolete. Use `showSaveInProgress` instead.
+   */
   showDataSaving: (text?: string) => void;
+  /**
+   * Obsolete. Use `showSaveError` instead.
+   */
   showDataSavingError: (text?: string) => void;
+  /**
+   * Obsolete. Use `showSaveSuccess` instead.
+   */
   showDataSavingSuccess: (text?: string) => void;
+  /**
+   * Obsolete. Use `clearSaveMessages` instead.
+   */
   showDataSavingClear: (text?: string) => void;
 }
 export interface ShowingPreviewEvent {
   /**
-   * Set this property to `false` if you want to cancel the preview.
+   * A Boolean property that you can set to `false` if you want to cancel the preview.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
+   */
   allowShowPreview: boolean;
 }
 export interface NavigateToUrlEvent {
   /**
-   * Set this property to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   * A Boolean property that you can set to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    */
   allow: boolean;
   /**
@@ -174,9 +193,12 @@ export interface CurrentPageChangedEvent {
 }
 export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**
-   * Set this property to `false` if you do not want to switch the current page.
+   * A Boolean property that you can set to `false` if you do not want to switch the current page.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
+   */
   allowChanging: boolean;
 }
 
@@ -231,7 +253,13 @@ export interface ElementAddedEvent {
    * The parent container (panel or page).
    */
   parent: PanelModelBase;
+  /**
+   * Obsolete. Use `page` instead.
+   */
   rootPanel: any;
+  /**
+   * Obsolete. Use `parent` instead.
+   */
   parentPanel: any;
   /**
    * The element's index within the parent container (panel or page).
@@ -515,15 +543,18 @@ export interface UpdatePanelCssClassesEvent extends PanelEventMixin, UpdateEleme
 export interface UpdatePageCssClassesEvent extends PageEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
   /**
-   * a string with css classes divided by space. You can change it
-   */
-  css: string;
-  /**
-   * a choice item of ItemValue type. You can get value or text choice properties as options.item.value or options.choice.text
+   * A choice item. To access its value and display text, use the `options.item.value` and `options.item.text` properties.
    */
   item: ItemValue;
+  /**
+   * A string with CSS classes applied to the choice item. The CSS classes are separated by a space character. You can modify this string to apply custom CSS classes.
+   */
+  css: string;
 }
 export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {
+  /**
+   * Obsolete. Use the `sender` parameter instead.
+   */
   survey: SurveyModel;
 }
 export interface AfterRenderHeaderEvent extends AfterRenderElementEventMixin { }
@@ -574,137 +605,151 @@ export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
 }
 export interface MatrixRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a new added row
+   * An added matrix row.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
 }
 export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * specifies whether a new row can be added
+   * A Boolean property that you can set to `false` if you do not want to add the row.
+   */
+  allow: boolean;
+  /**
+   * Obsolete. Use `allow` instead.
    */
   canAddRow: boolean;
 }
 export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a boolean property. Set it to `false` to disable the row removing
+   * A matrix row to be deleted. If you want to clear row data, set the `options.row.value` property to `undefined`.
    */
-  allow: boolean;
+  row: MatrixDropdownRowModelBase;
   /**
-   * a row object
-   */
-  row: any;
-  /**
-   * a row index
+   * A zero-based index of the matrix row to be deleted.
    */
   rowIndex: number;
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel row deletion.
+   */
+  allow: boolean;
 }
 export interface MatrixRowRemovedEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a removed row object
+   * A deleted matrix row.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
   /**
-   * a removed row index
+   * A zero-based index of the deleted row.
    */
   rowIndex: number;
 }
 export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a boolean property. Set it to `false` to disable the row removing
+   * A matrix row for which the event is raised.
    */
-  allow: boolean;
+  row: MatrixDropdownRowModelBase;
   /**
-   * a row object
-   */
-  row: any;
-  /**
-   * a row index
+   * A zero-based row index.
    */
   rowIndex: number;
+  /**
+   * A Boolean property that you can set to `false` if you want to hide the Remove button for this row.
+   */
+  allow: boolean;
 }
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
-   * the matrix row object
-   */
-  row: MatrixDropdownRowModelBase;
-  /**
-   * the matrix column name
-   */
-  columnName: string;
-  /**
-   * the matrix column object
+   * A matrix column to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**
-   * the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`
+   * The name of the matrix column to which the cell belongs.
+   */
+  columnName: string;
+  /**
+   * A matrix row to which the cell belongs.
+   */
+  row: MatrixDropdownRowModelBase;
+  /**
+   * The values of this matrix row.\
+   * To access a particular column's value, use the following code: `options.rowValue["columnName"]`
    */
   rowValue: any;
 }
 export interface MatrixCellCreatingEvent extends MatrixCellCreatingBaseEvent {
   /**
-   * the cell question type. You can change it
+   * The type of this matrix cell. You can change this property value to one of the values described in the [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#cellType) documentation.
    */
   cellType: string;
 }
 export interface MatrixCellCreatedEvent extends MatrixCellCreatingBaseEvent {
   /**
-   * the question/editor in the cell. You may customize it, change it's properties, like choices or visible
-   */
-  cellQuestion: Question;
-  /**
-   * the matrix cell
+   * A matrix cell for which the event is raised.
    */
   cell: MatrixDropdownCell;
+  /**
+   * A Question instance within the matrix cell. You can use the properties and methods exposed by the instance to customize it.
+   */
+  cellQuestion: Question;
 }
 export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRenderElementEventMixin {
   /**
-   * the matrix row object
+   * A matrix cell for which the event is raised.
    */
-  row: MatrixDropdownRowModelBase;
+  cell: MatrixDropdownCell;
   /**
-   * the matrix column object
-   */
-  column: MatrixDropdownColumn | MatrixDropdownCell;
-  /**
-   * the question/editor in the cell
+   * A Question instance within the matrix cell.
    */
   cellQuestion: Question;
   /**
-   * the matrix cell
+   * A matrix row to which the cell belongs.
    */
-  cell: MatrixDropdownCell;
+  row: MatrixDropdownRowModelBase;
+  /**
+   * A matrix column to which the cell belongs.
+   */
+  column: MatrixDropdownColumn | MatrixDropdownCell;
 }
 
 export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
-   * the function that returns the cell question by column name
-   */
-  getCellQuestion: (columnName: string) => Question;
-  /**
-   * the matrix row object
+   * A matrix row to which the cell belongs.
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * a new value
+   * A matrix column to which the cell belongs.
    */
-  value: any;
+  column: MatrixDropdownColumn;
   /**
-   * the matrix column name
+   * The name of a matrix column to which the cell belongs.
    */
   columnName: string;
+  /**
+   * A Question instance within the matrix cell. You can use the properties and methods exposed by the instance to customize it.
+   */
+  cellQuestion: Question;
+  /**
+   * A method that returns a Question instance within the matrix cell given a column name.
+   */
+  getCellQuestion: (columnName: string) => Question;
+  /**
+   * A new cell value.
+   */
+  value: any;
+
 }
 
 export interface MatrixCellValueChangedEvent extends MatrixCellValueBaseEvent {}
 export interface MatrixCellValueChangingEvent extends MatrixCellValueBaseEvent {
   /**
-   * the old value
+   * A previous cell value.
    */
   oldValue: any;
 }
 export interface MatrixCellValidateEvent extends MatrixCellValueBaseEvent {
   /**
-   * an error string. It is empty by default
+   * A field for your custom error message. Default value: `undefined`.
    */
   error?: string;
 }
@@ -716,7 +761,7 @@ export interface DynamicPanelModifiedEvent extends PanelDynamicQuestionEventMixi
 }
 export interface DynamicPanelRemovingEvent extends DynamicPanelModifiedEvent {
   /**
-   * Set this property to `false` if you want to cancel the panel deletion.
+   * A Boolean property that you can set to `false` if you want to cancel panel deletion.
    */
   allow: boolean;
 }
@@ -812,15 +857,15 @@ export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActi
 export interface GetPageTitleActionsEvent extends PageEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelFooterActionsEvent extends GetActionsEventMixin, PanelEventMixin {
   /**
-   * A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel
+   * A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel.
    */
   question?: QuestionPanelDynamicModel;
 }
 export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActionsEventMixin {
   /**
-   * A matrix row for which the event is fired
+   * A matrix row for which the event is raised.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
 }
 export interface ElementContentVisibilityChangedEvent {
   /**
@@ -849,7 +894,18 @@ export interface MultipleTextItemAddedEvent extends QuestionEventMixin {
 }
 export interface MatrixColumnAddedEvent extends QuestionEventMixin {
   /**
-   * A new added column.
+   * An added matrix column.
    */
   column: any;
+}
+
+export interface PopupVisibleChangedEvent extends QuestionEventMixin {
+  /**
+   * An object that describes the popup.
+   */
+  popup: PopupModel;
+  /**
+   * Indicates whether the popup is visible now.
+   */
+  visible: boolean;
 }

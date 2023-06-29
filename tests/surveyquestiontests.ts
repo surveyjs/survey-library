@@ -544,13 +544,16 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+  matrix.onMouseDown();
   matrix.value = { row1: "col1" };
   assert.equal(
     matrix.supportGoNextPageAutomatic(),
     false,
     "The second row is not set"
   );
+  matrix.onMouseDown();
   matrix.value = { row1: "col1", row2: "col1" };
+  matrix.onMouseDown();
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
@@ -4058,6 +4061,18 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   q.multiSelect = false;
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
+QUnit.test("QuestionTextModel.supportGoNextPageAutomatic", function (assert) {
+  const q = new QuestionTextModel("q");
+  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  q.inputType = "date";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "Do not support for date");
+  q.inputType = "text";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "Default inputType again");
+  q.textUpdateMode = "onTyping";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "textUpdateMode = 'onTyping'");
+  q.textUpdateMode = "onBlur";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "textUpdateMode = 'onBlur'");
+});
 
 QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
   const survey = new SurveyModel({
@@ -4077,6 +4092,24 @@ QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
   assert.equal(choices.length, 3, "There are 3 values");
   assert.equal(choices[0].getType(), "imageitemvalue", "choice item type is correct");
   assert.equal(choices[0].imageLink, "test1", "image link is copied");
+});
+
+QUnit.test("QuestionImagePickerModel and disable imageLink localization", function (assert) {
+  const prop = Serializer.findProperty("imageitemvalue", "imageLink");
+  prop.isLocalizable = false;
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q1",
+        choices: [
+          { value: 1, imageLink: "test1" }]
+      }]
+  });
+  const q1 = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+  survey.locale = "de";
+  q1.choices[0].imageLink = "test2";
+  assert.deepEqual(q1.toJSON(), { name: "q1",
+    choices: [{ value: 1, imageLink: "test2" }] }, "no localization in imageLink");
+  prop.isLocalizable = true;
 });
 
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
@@ -5625,7 +5658,44 @@ QUnit.test(
     settings.supportCreatorV2 = false;
   }
 );
-
+QUnit.test("Creator V2: do not add choices from carry-forward in design mode", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["A", "B", "C", "D"]
+      },
+      {
+        type: "radiogroup",
+        name: "q2",
+        choices: ["item1", "item2", "item3"]
+      },
+      {
+        type: "checkbox",
+        name: "q3",
+        choices: ["item1", "item2", "item3"]
+      }
+    ],
+  };
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const q2 = <QuestionRadiogroupModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  assert.equal(q2.visibleChoices.length, 6, "Show None+hasOther+new: 3+3");
+  assert.equal(q3.visibleChoices.length, 7, "Show SelectAll+None+hasOther+new: 3+4");
+  q2.choicesFromQuestion = "q1";
+  q3.choicesFromQuestion = "q1";
+  assert.equal(q2.visibleChoices.length, 2, "Show None+hasOther: 2+0");
+  assert.equal(q3.visibleChoices.length, 3, "Show SelectAll+None+hasOther: 3+0");
+  q2.choicesFromQuestion = "";
+  q3.choicesFromQuestion = "";
+  assert.equal(q2.visibleChoices.length, 6, "radiogroup = clear carry-forward");
+  assert.equal(q3.visibleChoices.length, 7, "checkbox = clear carry-forward");
+  settings.supportCreatorV2 = false;
+});
 QUnit.test(
   "Creator V2: Hide selectAll, hasNone and hasOther if this properties are invisible",
   function (assert) {
@@ -6116,7 +6186,7 @@ QUnit.test("Question title equals to name", (assert) => {
   assert.equal(question.locTitle.getLocaleText(""), "q1", "Question title is not empty # 2");
   assert.equal(question.locTitle.renderedHtml, "q1");
 });
-QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
+QUnit.test("Checkbox item, defaultValue and visibleIf bug, #3634", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6144,7 +6214,7 @@ QUnit.test("Checkox item, defaultValue and visibleIf bug, #3634", (assert) => {
   survey.data = { question2: "item1", question1: ["item3"] };
   assert.deepEqual(question.value, ["item3"], "value from data is set");
 });
-QUnit.test("Checkox item, others  and visibleIf bug, #3694", (assert) => {
+QUnit.test("Checkbox item, others  and visibleIf bug, #3694", (assert) => {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6276,6 +6346,27 @@ QUnit.test("multipletext placeholder localization", function (assert) {
   assert.equal(editor.placeholder, "placeholder default", "default locale, #2");
   assert.equal(editor.renderedPlaceholder, "placeholder default", "default locale");
 });
+QUnit.test("placeholder localization, question in run-time", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "q1"
+      }]
+  });
+  survey.locale = "de";
+  const q2 = new QuestionTextModel("q2");
+  q2.fromJSON({
+    "name": "q2",
+    "placeholder": {
+      "de": "placeholder de",
+      "default": "placeholder default"
+    }
+  });
+  survey.pages[0].addQuestion(q2);
+  assert.equal(q2.placeholder, "placeholder de", "placeholder is correct");
+  assert.equal(q2.renderedPlaceholder, "placeholder de", "renderedPlaceholder is correct");
+});
 QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onComplete' (default)", function (assert) {
   var survey = new SurveyModel({
     questions: [
@@ -6342,7 +6433,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
       { type: "text", name: "q5", clearIfInvisible: "onComplete" }
     ]
   });
-  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
   for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
@@ -6375,7 +6466,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
       }
     ]
   });
-  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
   for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
@@ -6383,11 +6474,38 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
   (<PanelModel>survey.getPanelByName("panel")).visible = false;
   assert.equal(q.q1.value, undefined, "q1: default/invisible");
   assert.equal(q.q2.value, "q2", "q2: none/invisible");
-  assert.equal(q.q3.value, undefined, "q3: onHidden/invisible");
-  assert.equal(q.q4.value, undefined, "q4: onHidden/defaultValue/invisible");
+  assert.equal(q.q3.value, "q3", "q3: onHidden/invisible");
+  assert.equal(q.q4.value, "q4", "q4: onHidden/defaultValue/invisible");
   assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
+});
+QUnit.test("Test question.clearIfInvisible='onHiddenContainer'", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "panel", name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", clearIfInvisible: "none" },
+          { type: "text", name: "q3", clearIfInvisible: "onHidden" },
+          { type: "text", name: "q4", clearIfInvisible: "onHiddenContainer" },
+          { type: "text", name: "q5", clearIfInvisible: "onComplete" }
+        ]
+      },
+      { type: "text", name: "q6", clearIfInvisible: "onHiddenContainer" },
+    ]
+  });
+  for(let i = 1; i < 7; i ++) {
+    survey.setValue("q" + i, i);
+  }
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 6 }, "initial");
+  survey.getQuestionByName("q6").visible = false;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5 }, "q6 invisible");
+  (<PanelModel>survey.getPanelByName("panel")).visible = false;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q5: 5 }, "panel invisible");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q2: 2 }, "state is completed");
 });
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
@@ -6788,4 +6906,23 @@ QUnit.test("cols property is invisible and non-serializable", function (assert) 
 });
 QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
+});
+QUnit.test("question.getRootCss apply disable css correctly", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "q1",
+        "type": "text"
+      }]
+  });
+  const q = survey.getQuestionByName("q1");
+  survey.setCss({ question: { titleDisabled: "css-disabled" } });
+  q.updateElementCss(true);
+  const disableCss = q.cssClasses.titleDisabled;
+  assert.equal(disableCss, "css-disabled", "#1");
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #2");
+  q.readOnly = true;
+  assert.ok(q.cssTitle.indexOf(disableCss) > -1, "disableCss is in the title, #3");
+  q.readOnly = false;
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #4");
 });

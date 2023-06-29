@@ -95,7 +95,8 @@ QUnit.test("TOC pages visibility", function(assert) {
   assert.equal(tocListModel.visibleItems.length, 2, "only 2 pages are visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[1].name, "Page 1 is invisible, page 2 is the first");
 });
-QUnit.test("TOC pages visibility, do not include start page into TOC, bug#6192", function(assert) {
+
+QUnit.test("TOC pages visibility, do not include start page into TOC, bug #6192", function(assert) {
   let json: any = {
     "firstPageIsStarted": true,
     "pages": [
@@ -136,4 +137,54 @@ QUnit.test("TOC pages visibility, do not include start page into TOC, bug#6192",
   survey.firstPageIsStarted = false;
   assert.equal(tocListModel.visibleItems.length, 3, "First page is visible");
   assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].name, "Page 1 is visible, page 1 is the first");
+});
+
+QUnit.test("TOC pages navigation with start page, bug #6327", function(assert) {
+  let json: any = {
+    "firstPageIsStarted": true,
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "html",
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      },
+      {
+        "name": "page4",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question4"
+          }
+        ]
+      }
+    ]
+  };
+  let survey: SurveyModel = new SurveyModel(json);
+  let tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.visibleItems.length, 3, "First page is not visible");
+  assert.equal(survey.currentPage.name, "page2", "Current page is 2");
+  tocListModel.visibleItems[1].action();
+  assert.equal(survey.currentPage.name, "page3", "Current page is 3");
 });

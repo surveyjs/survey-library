@@ -35,28 +35,15 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.clientY = event.touches[0].clientY;
   }
   private touchMoveEventCallback = (event: any) => {
-    let currentElement = event.target;
-    while (currentElement !== this.container) {
-      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
-        const { scrollHeight, scrollTop, clientHeight } = currentElement;
-        const deltaY = this.clientY - event.changedTouches[0].clientY;
-        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
-          return;
-        }
-      }
-      currentElement = currentElement.parentElement;
-    }
-    event.preventDefault();
+    this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
   }
 
   private _updatePosition() {
     if(!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
-    const background = <HTMLElement>this.container.children[0];
-    if(!background) return;
-    const popupContainer = <HTMLElement>background.children[0];
+    const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if(!popupContainer) return;
-    const scrollContent = <HTMLElement>popupContainer.querySelector(".sv-popup__scrolling-content");
+    const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
@@ -128,9 +115,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         marginLeft,
         marginRight
       );
+      this.pointerTarget.top += "px";
+      this.pointerTarget.left += "px";
     }
-    this.pointerTarget.top += "px";
-    this.pointerTarget.left += "px";
   }
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {
@@ -171,7 +158,13 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       }
     });
   }
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
+    super.setComponentElement(componentRoot);
 
+    if(!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
+      this.targetElement = targetElement || componentRoot.parentElement;
+    }
+  }
   public updateOnShowing(): void {
     const { root } = settings.environment;
     this.prevActiveElement = <HTMLElement>root.activeElement;

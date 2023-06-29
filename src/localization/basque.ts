@@ -21,7 +21,7 @@ export var basqueSurveyStrings = {
   completingSurveyBefore: "Gure datuek diote dagoeneko galdetegia erantzun duzula.",
   loadingSurvey: "Galdetegia kargatzen...",
   placeholder: "Hautatu...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "balioa",
   requiredError: "Mesedez, galdera erantzun.",
   requiredErrorInPanel: "Mesedez, gutxienez galdera bat erantzun.",

@@ -11,6 +11,7 @@ export class RankingItemComponent extends BaseAngular<ItemValue> {
   @Input() question!: QuestionRankingModel;
   @Input() model!: ItemValue;
   @Input() index!: number;
+  @Input() unrankedItem!: boolean;
   protected getModel(): ItemValue {
     return this.model;
   }

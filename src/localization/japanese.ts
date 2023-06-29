@@ -21,7 +21,7 @@ export var japaneseSurveyStrings = {
   completingSurveyBefore: "当社の記録によると、この調査はすでに完了しています。",
   loadingSurvey: "調査をダウンロード中",
   placeholder: "選択",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "値打ち",
   requiredError: "質問にお答え下さい",
   requiredErrorInPanel: "最低でも1つの質問に答えてください。",

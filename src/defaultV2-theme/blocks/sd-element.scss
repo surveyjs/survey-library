@@ -23,30 +23,25 @@
   font-size: 0;
   line-height: 0;
   position: static;
-  font-weight: 600;
+  font-family: $font-questiontitle-family;
+  font-weight: $font-questiontitle-weight;
+  color: $font-questiontitle-color;
   margin: 0;
 
   .sd-element__num {
     font-size: calcFontSize(0.75);
-    line-height: calcSize(2);
+    line-height: calcLineHeight(1);
+    color: $foreground-light;
   }
 
   span {
-    font-family: $font-questiontitle-family;
-    font-weight: $font-questiontitle-weight;
     font-size: $font-questiontitle-size;
-    color: $font-questiontitle-color;
-    line-height: calcSize(3);
+    line-height: calcLineHeight(1.5);
   }
 
   .sv-title-actions__title {
     font-size: 0;
     line-height: 0;
-  }
-
-  .svc-string-editor {
-    display: inline-block;
-    max-width: 100%;
   }
 
   .sv-string-editor {
@@ -71,7 +66,7 @@
   padding-inline-end: calcSize(1);
   width: calcSize(5);
   font-size: calcFontSize(0.75);
-  line-height: calcSize(2);
+  line-height: calcLineHeight(1);
   color: $foreground-light;
   margin-inline-start: calcSize(-5); // margin-left
   text-align: end;
@@ -79,7 +74,7 @@
   white-space: nowrap;
   flex-shrink: 0;
 
-  & + span {
+  &+span {
     float: left;
     width: 0;
   }
@@ -120,8 +115,8 @@
 .sd-element__title--expandable.sd-element__title--expanded:before {
   transform: rotate(90deg);
 }
+
 //with borders styles
-.svc-logic-question-value,
 .sd-element--with-frame {
   border-radius: $panel-corner-radius;
   box-sizing: border-box;
@@ -135,20 +130,23 @@
   &.sd-question--paneldynamic {
     padding-bottom: 0;
 
-    & > .sd-question__erbox--below-question {
+    &>.sd-question__erbox--below-question {
       bottom: 0;
       margin-top: 0;
     }
   }
 }
+
 //complex (panel, paneldynamic, matrixes) styles
 .sd-element--complex {
-  &.sd-element--complex > .sd-question__erbox--above-question {
+  &.sd-element--complex>.sd-question__erbox--above-question {
     margin-top: 0;
     margin-bottom: 0;
   }
-  & > .sd-element__header--location-top {
+
+  &>.sd-element__header--location-top {
     margin-top: 0;
+
     &:after {
       content: " ";
       display: block;
@@ -158,12 +156,15 @@
       bottom: 0;
     }
   }
+
   &.sd-element--with-frame {
     padding-top: 0;
-    & > .sd-element__header--location-top {
+
+    &>.sd-element__header--location-top {
       margin-top: 0;
       padding-top: var(--sd-base-vertical-padding);
       padding-bottom: var(--sd-base-vertical-padding);
+
       &:after {
         bottom: calc(-1 * var(--sd-base-vertical-padding));
         left: calc(-1 * var(--sd-base-padding));
@@ -172,44 +173,50 @@
     }
   }
 }
+
 //collapsed styles
 .sd-element--expanded,
 .sd-element--collapsed {
-  & > .sd-element__header {
+  &>.sd-element__header {
     cursor: pointer;
   }
 }
 
 .sd-element--collapsed {
-  & > .sd-element__header {
+  &>.sd-element__header {
     padding: calcSize(0) var(--sd-base-padding);
     box-sizing: border-box;
     background-color: $background;
   }
-  &.sd-element--complex > .sd-element__header--location-top {
+
+  &.sd-element--complex>.sd-element__header--location-top {
     &:after {
       display: none;
     }
   }
+
   &.sd-element--with-frame {
     padding-top: 0;
     padding-bottom: 0;
-    & > .sd-element__header {
+
+    &>.sd-element__header {
       padding-top: calcSize(2);
       padding-bottom: calcSize(2);
       border-radius: $panel-corner-radius;
     }
-    & > .sd-element__header--location-top {
+
+    &>.sd-element__header--location-top {
       margin-top: 0;
     }
   }
 
-  & > .sd-element__header:focus-within,
-  & > .sd-element__header:hover {
+  &>.sd-element__header:focus-within,
+  &>.sd-element__header:hover {
     background-color: $background-dim-light;
   }
 }
-.sd-element--collapsed > .sd-element__header {
+
+.sd-element--collapsed>.sd-element__header {
   margin-left: calc(-1 * var(--sd-base-padding));
   width: calc(100% + 2 * var(--sd-base-padding));
 }
@@ -217,18 +224,21 @@
 //nested styles
 .sd-element--nested {
   &.sd-element--complex {
-    & > .sd-element__header--location-top {
+    &>.sd-element__header--location-top {
       &:after {
         bottom: calc(-0.5 * var(--sd-base-vertical-padding));
       }
     }
   }
+
   &.sd-element--collapsed {
-    & > .sd-element__header:hover,
-    & > .sd-element__header:focus-within {
+
+    &>.sd-element__header:hover,
+    &>.sd-element__header:focus-within {
       box-shadow: 0 calcSize(-2) 0 0 $background-dim-light, 0 calcSize(2) 0 $background-dim-light;
     }
   }
+
   &.sd-panel,
   &.sd-question--paneldynamic {
     border: 1px solid $border-light;
@@ -237,7 +247,7 @@
     padding-left: var(--sd-base-padding);
     padding-right: var(--sd-base-padding);
 
-    & > .sd-element__header--location-top {
+    &>.sd-element__header--location-top {
       padding-top: calc(0.5 * var(--sd-base-vertical-padding));
       padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
 
@@ -248,21 +258,23 @@
       }
     }
 
-    & > .sd-question__erbox--outside-question {
+    &>.sd-question__erbox--outside-question {
       margin-left: calc(-1 * var(--sd-base-padding));
       margin-right: calc(-1 * var(--sd-base-padding));
       width: calc(100% + 2 * var(--sd-base-padding));
     }
 
-    & > .sd-question__erbox--below-question {
+    &>.sd-question__erbox--below-question {
       bottom: 0;
       margin-top: 0;
     }
+
     &.sd-element--collapsed {
-      & > .sd-element__header--location-top {
+      &>.sd-element__header--location-top {
         &:after {
           display: none;
         }
+
         &:hover,
         &:focus-within {
           box-shadow: none;
@@ -271,10 +283,11 @@
     }
   }
 
-  & > .sd-panel__content {
+  &>.sd-panel__content {
     padding-bottom: var(--sd-base-padding);
   }
 }
+
 //compact styles
 .sd-element--with-frame.sd-element--compact {
   border: 1px solid $border-inside;
@@ -282,12 +295,3 @@
   box-shadow: none;
 }
 
-//creator styles
-.svc-question__content .sd-element--complex > .sd-element__header--location-top {
-  padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
-  padding-top: 0;
-
-  &:after {
-    display: none;
-  }
-}

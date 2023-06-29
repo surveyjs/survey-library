@@ -8,7 +8,7 @@
           <span style="padding-right:10px" [class]="popup.cssHeaderTitle">X</span>
       </span>
   </div>
-  <div *ngIf="popup.isExpanded" [class]="popup.cssBody">
+  <div *ngIf="popup.isExpanded" [class]="popup.cssBody" (scroll)="popup.onScroll()">
     <survey [model]="popup.survey"></survey>
   </div>
 </div>

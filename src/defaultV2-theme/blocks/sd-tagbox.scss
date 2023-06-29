@@ -112,8 +112,9 @@
 }
 
 .sd-tagbox.sd-tagbox--empty {
+
   .sd-tagbox__hint,
-    .sd-tagbox__hint-suffix-wrapper,
+  .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {
     width: 100%;
   }
@@ -131,10 +132,10 @@
 
 .sd-dropdown__hint-suffix.sd-tagbox__hint-suffix {
   height: calcSize(5);
-  line-height: calcSize(5);
+  line-height: calcLineHeight(2.5);
 }
 
 .sd-dropdown__hint-prefix.sd-tagbox__hint-prefix {
   height: calcSize(5);
-  line-height: calcSize(5);
+  line-height: calcLineHeight(2.5);
 }

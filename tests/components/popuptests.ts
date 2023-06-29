@@ -105,7 +105,7 @@ QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   const container: HTMLElement = viewModel.container;
   assert.equal(!!container, true);
   assert.equal(container.tagName, "DIV");
-  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+  assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
   assert.equal(container.parentElement.tagName, "BODY");
 
   assert.equal(viewModel.footerToolbar.actions.length, 1);
@@ -142,7 +142,7 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   const container: HTMLElement = viewModel.container;
   assert.equal(!!container, true);
   assert.equal(container.tagName, "DIV");
-  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+  assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
 
   assert.equal(container.parentElement?.tagName, "DIV");
   assert.equal(container.parentElement?.id, "shadowElement");
@@ -181,7 +181,7 @@ QUnit.test("PopupModalViewModel defaults", (assert) => {
   const container: HTMLElement = viewModel.container;
   assert.equal(!!container, true);
   assert.equal(container.tagName, "DIV");
-  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+  assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
   assert.equal(container.parentElement.tagName, "BODY");
 
   assert.equal(viewModel.applyButtonText, "Apply");
@@ -544,11 +544,10 @@ QUnit.test("PopupViewModel dispose", (assert) => {
 
   assert.equal(!!viewModel.container, false);
   assert.equal(container.tagName, "DIV");
-  assert.equal(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
-  assert.equal(container.parentElement, undefined);
+  assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
 });
 
-QUnit.test("PopupViewModel initialize/unmount/dispose", (assert) => {
+QUnit.test("PopupViewModel initialize/dispose", (assert) => {
   const data = {};
   const model: PopupModel = new PopupModel("sv-list", data);
 
@@ -560,9 +559,6 @@ QUnit.test("PopupViewModel initialize/unmount/dispose", (assert) => {
 
   assert.equal(!!viewModel.container, false);
   viewModel.initializePopupContainer();
-  assert.equal(!!viewModel.container, true);
-
-  viewModel.unmountPopupContainer();
   assert.equal(!!viewModel.container, true);
 
   viewModel.dispose();
@@ -1110,7 +1106,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
   popupContainer.style.width = "200px";
   popupContainer.style.height = "400px";
   popupContainer.style.margin = "8px";
@@ -1276,7 +1272,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
   popupContainer.style.width = "550px";
   popupContainer.style.height = "400px";
 
@@ -1316,18 +1312,6 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   assert.equal(viewModel.width, "auto", "onHide width");
 
   viewModel.dispose();
-});
-
-QUnit.test("PopupViewModel remove correct div even if container is changed", (assert) => {
-  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
-  const targetElement: HTMLElement = document.createElement("button");
-  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
-  viewModel.initializePopupContainer();
-  const container = viewModel.container;
-  viewModel.container.appendChild(document.createElement("div"));
-  viewModel.container = <HTMLElement>viewModel.container.children[0];
-  viewModel.unmountPopupContainer();
-  assert.notOk(container.isConnected);
 });
 
 QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
@@ -1406,4 +1390,85 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   assert.equal(viewModel.width, "auto", "onHide width");
 
   viewModel.dispose();
+});
+
+QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
+  let eventLog = "";
+  let subscribeLog = "";
+  const wrapEvent = (event) => {
+    event.preventDefault = () => {
+      eventLog +="->prevented";
+    };
+  };
+  const wrapContainer = (element) => {
+    const oldAddEventListener = element.addEventListener;
+    element.addEventListener = function (name, callback) {
+      oldAddEventListener.call(element, name, callback);
+      subscribeLog += "->subscribed";
+    };
+    const oldRemoveEventListener = element.removeEventListener;
+    element.removeEventListener = function (name, callback) {
+      oldRemoveEventListener.call(element, name, callback);
+      subscribeLog += "->unsubscribed";
+    };
+  };
+
+  const model: PopupModel = new PopupModel("sv-list", {});
+  model.isModal = true;
+  const viewModel: PopupModalViewModel = createPopupViewModel(model) as PopupModalViewModel;
+
+  const container = document.createElement("div");
+  container.innerHTML = `<div style="height: 200px; overflow: auto;">
+    <div style="height: 400px;"></div>
+  </div>`;
+  wrapContainer(container);
+  document.body.appendChild(container);
+  viewModel.setComponentElement(container);
+  model.isVisible = true;
+  viewModel.updateOnShowing();
+  assert.equal(subscribeLog, "->subscribed");
+
+  let event = new WheelEvent("wheel", { deltaY: 20 });
+  wrapEvent(event);
+  container.dispatchEvent(event);
+  assert.equal(eventLog, "->prevented", "prevented scroll when not scrolling inside");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "", "scroll inside (not prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 20);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "", "scroll inside (not prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 150);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "", "scroll inside (not prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 0);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "->prevented", "overscroll inside (prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 200);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "->prevented", "overscroll inside (prevented)");
+
+  model.toggleVisibility();
+  assert.equal(subscribeLog, "->subscribed->unsubscribed");
+
+  container.remove();
 });

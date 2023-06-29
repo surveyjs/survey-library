@@ -1,6 +1,7 @@
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { DragDropChoices } from "../src/dragdrop/choices";
 import { DragDropRankingChoices } from "../src/dragdrop/ranking-choices";
+import { DragDropRankingSelectToRank } from "../src/dragdrop/ranking-select-to-rank";
 import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { ImageItemValue } from "../src/question_imagepicker";
@@ -8,6 +9,7 @@ import { Question } from "../src/question";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { DragDropCore } from "../src/dragdrop/core";
 import { DragDropDOMAdapter } from "../src/dragdrop/dom-adapter";
+import { QuestionRankingModel } from "../src/question_ranking";
 
 export default QUnit.module("DragDropHelper Tests");
 
@@ -241,3 +243,54 @@ QUnit.test("createImagePickerShortcut", function (assert) {
   let result2 = createImagePickerShortcut(item, "", draggedElement2, null);
   assert.equal(result2.querySelectorAll("img").length, 1);
 });
+
+// selectToRankEnabled
+function createRankingQuestionModel(withDefaultValue = false) {
+  const json = {
+    "selectToRankEnabled": true,
+    "choices": [
+      "11",
+      "22",
+      "33"
+    ]
+  };
+
+  if (withDefaultValue) {
+    json["defaultValue"] = ["33", "22"];
+  }
+
+  const model = new QuestionRankingModel("qr1");
+  model.fromJSON(json);
+  return model;
+}
+
+QUnit.test("DragDropRankingSelectToRank : selectToRankEnabled", function (assert) {
+  const dndModel = new DragDropRankingSelectToRank();
+  const questionModel = createRankingQuestionModel();
+
+  dndModel.selectToRank(questionModel, 1, 0);
+  assert.equal(questionModel.unRankingChoices.length, 2, "unRankingChoices count");
+  assert.equal(questionModel.rankingChoices.length, 1, "rankingChoices count");
+});
+
+QUnit.test("DragDropRankingSelectToRank unselectFromRank", function (assert) {
+  const withDefaultValue = true;
+  const dndModel = new DragDropRankingSelectToRank();
+  const questionModel = createRankingQuestionModel(withDefaultValue);
+
+  dndModel.unselectFromRank(questionModel, 1);
+  assert.equal(questionModel.unRankingChoices.length, 2, "unRankingChoices count");
+  assert.equal(questionModel.rankingChoices.length, 1, "rankingChoices count");
+});
+
+QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
+  const withDefaultValue = true;
+  const dndModel = new DragDropRankingSelectToRank();
+  const questionModel = createRankingQuestionModel(withDefaultValue);
+
+  dndModel.reorderRankedItem(questionModel, 0, 1);
+  assert.equal(questionModel.rankingChoices[0].value, "22", "item 1 is correct");
+  assert.equal(questionModel.rankingChoices[1].value, "33", "item 2 is correct");
+  assert.equal(questionModel.rankingChoices.length, 2, "rankingChoices count");
+});
+// EO selectToRankEnabled

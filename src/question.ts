@@ -18,6 +18,7 @@ import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
+import { PopupModel } from "./popup";
 
 export interface IConditionObject {
   name: string;
@@ -92,7 +93,7 @@ export class Question extends SurveyElement<Question>
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
 
   public isReadOnlyRenderDiv(): boolean {
-    return this.isReadOnly && settings.readOnlyCommentRenderMode === "div";
+    return this.isReadOnly && settings.readOnly.commentRenderMode === "div";
   }
 
   protected setIsMobile(val: boolean) { }
@@ -208,6 +209,17 @@ export class Question extends SurveyElement<Question>
       oldValue,
       this.valueName ? this.valueName : oldValue
     );
+  }
+  public set isReady(val: boolean) {
+    const oldIsReady = this.isReadyValue;
+    this.isReadyValue = val;
+    if(oldIsReady != val) {
+      this.onReadyChanged.fire(this, {
+        question: this,
+        isReady: val,
+        oldIsReady: oldIsReady,
+      });
+    }
   }
   public get isReady(): boolean {
     return this.isReadyValue;
@@ -347,7 +359,7 @@ export class Question extends SurveyElement<Question>
   /**
    * Hides the question number from the title and excludes the question from numbering.
    *
-   * If you want to disable question numbering in the entire survey, set SurveyModel's `showQuestionNumbers` property to `false`.
+   * If you want to disable question numbering in the entire survey, set `SurveyModel`'s `showQuestionNumbers` property to `false`.
    * @see SurveyModel.showQuestionNumbers
    */
   public get hideNumber(): boolean {
@@ -485,13 +497,17 @@ export class Question extends SurveyElement<Question>
   private notifySurveyVisibilityChanged() {
     if (!this.survey || this.isLoadingFromJson) return;
     this.survey.questionVisibilityChanged(this, this.isVisible);
-    if (this.isClearValueOnHidden) {
-      if (!this.visible) {
-        this.clearValueIfInvisible();
-      }
-      if (this.isVisible) {
-        this.updateValueWithDefaults();
-      }
+    const isClearOnHidden = this.isClearValueOnHidden;
+    if (!this.visible) {
+      this.clearValueOnHidding(isClearOnHidden);
+    }
+    if (isClearOnHidden && this.isVisible) {
+      this.updateValueWithDefaults();
+    }
+  }
+  protected clearValueOnHidding(isClearOnHidden: boolean): void {
+    if(isClearOnHidden) {
+      this.clearValueIfInvisible();
     }
   }
   /**
@@ -1123,6 +1139,7 @@ export class Question extends SurveyElement<Question>
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();
+    this.updateQuestionCss();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -1279,7 +1296,8 @@ export class Question extends SurveyElement<Question>
       return val.length > 0 ? this.isValueSurveyElement(val[0]) : false;
     return !!val.getType && !!val.onPropertyChanged;
   }
-  private canClearValueAsInvisible(): boolean {
+  private canClearValueAsInvisible(reason: string): boolean {
+    if(reason === "onHiddenContainer" && !this.isParentVisible) return true;
     if (this.isVisible && this.isParentVisible) return false;
     if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey || !this.valueName) return true;
@@ -1289,6 +1307,7 @@ export class Question extends SurveyElement<Question>
    * Returns `true` if a parent element (page or panel) is visible.
    */
   public get isParentVisible(): boolean {
+    if(this.parentQuestion && !this.parentQuestion.isVisible) return false;
     var parent = this.parent;
     while (parent) {
       if (!parent.isVisible) return false;
@@ -1297,13 +1316,14 @@ export class Question extends SurveyElement<Question>
     return true;
   }
   public clearValueIfInvisible(reason: string = "onHidden"): void {
-    if (this.clearIfInvisible === "none") return;
-    if (reason === "onHidden" && this.clearIfInvisible === "onComplete") return;
-    if (reason === "none" && (this.clearIfInvisible === "default" || this.clearIfInvisible === "none")) return;
-    this.clearValueIfInvisibleCore();
+    const clearIf = this.getClearIfInvisible();
+    if (clearIf === "none") return;
+    if (reason === "onHidden" && clearIf === "onComplete") return;
+    if(reason === "onHiddenContainer" && clearIf !== reason) return;
+    this.clearValueIfInvisibleCore(reason);
   }
-  protected clearValueIfInvisibleCore(): void {
-    if (this.canClearValueAsInvisible()) {
+  protected clearValueIfInvisibleCore(reason: string): void {
+    if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
     }
   }
@@ -1314,6 +1334,7 @@ export class Question extends SurveyElement<Question>
    *
    * - `"default"` (default) - Inherits the setting from the Survey's [`clearInvisibleValues`](https://surveyjs.io/form-library/documentation/surveymodel#clearInvisibleValues) property.
    * - `"onHidden"` - Clears the value when the question becomes invisible. If a question is invisible on startup and has an initial value, this value will be cleared when the survey is complete.
+   * - `"onHiddenContainer"` - Clears the value when the question or its container (page or panel) becomes invisible. If a question is invisible on startup and has an initial value, this value will be cleared when the survey is complete.
    * - `"onComplete"` - Clears the value when the survey is complete.
    * - `"none"` - Never clears the value of an invisible question.
    * @see SurveyModel.clearInvisibleValues
@@ -1325,6 +1346,11 @@ export class Question extends SurveyElement<Question>
   }
   public set clearIfInvisible(val: string) {
     this.setPropertyValue("clearIfInvisible", val);
+  }
+  protected getClearIfInvisible(): string {
+    const res = this.clearIfInvisible;
+    if(!!this.survey) return this.survey.getQuestionClearIfInvisible(res);
+    return res !== "default" ? res : "onComplete";
   }
   public get displayValue(): any {
     if (this.isLoadingFromJson) return "";
@@ -1526,9 +1552,9 @@ export class Question extends SurveyElement<Question>
     this.setDefaultValue();
   }
   protected get isClearValueOnHidden(): boolean {
-    if (this.clearIfInvisible === "none" || this.clearIfInvisible === "onComplete") return false;
-    if (this.clearIfInvisible === "onHidden") return true;
-    return !!this.survey && this.survey.isClearValueOnHidden;
+    const clearIf = this.getClearIfInvisible();
+    if (clearIf === "none" || clearIf === "onComplete") return false;
+    return clearIf === "onHidden" || clearIf === "onHiddenContainer";
   }
   getQuestionFromArray(name: string, index: number): IQuestion {
     return null;
@@ -1895,6 +1921,7 @@ export class Question extends SurveyElement<Question>
         this.allowNotifyValueChanged
       );
     }
+    this.isMouseDown = false;
   }
   protected canSetValueToSurvey(): boolean {
     return true;
@@ -1906,6 +1933,10 @@ export class Question extends SurveyElement<Question>
     return val;
   }
   protected onValueChanged(): void { }
+  protected isMouseDown: boolean;
+  onMouseDown(): void {
+    this.isMouseDown = true;
+  }
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
     this.questionComment = newValue;
@@ -1953,8 +1984,8 @@ export class Question extends SurveyElement<Question>
   public setVisibleIndex(val: number): number {
     if (
       !this.isVisible ||
-      (!this.hasTitle && !settings.setQuestionVisibleIndexForHiddenTitle) ||
-      (this.hideNumber && !settings.setQuestionVisibleIndexForHiddenNumber)
+      (!this.hasTitle && !settings.numbering.includeQuestionsWithHiddenTitle) ||
+      (this.hideNumber && !settings.numbering.includeQuestionsWithHiddenNumber)
     ) {
       val = -1;
     }
@@ -2036,6 +2067,11 @@ export class Question extends SurveyElement<Question>
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
+
+  public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
+    this.survey.processPopupVisiblityChanged(this, popupModel, visible);
+  }
+
   public transformToMobileView(): void { }
   public transformToDesktopView(): void { }
   public needResponsiveWidth() {
@@ -2236,7 +2272,7 @@ Serializer.addClass("question", [
   {
     name: "clearIfInvisible",
     default: "default",
-    choices: ["default", "none", "onComplete", "onHidden"],
+    choices: ["default", "none", "onComplete", "onHidden", "onHiddenContainer"],
   },
   { name: "isRequired:switch", overridingProperty: "requiredIf" },
   "requiredIf:condition",

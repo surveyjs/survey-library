@@ -23,7 +23,7 @@ export var portugueseBrSurveyStrings = {
   completingSurveyBefore: "Nossos registros mostram que você já finalizou a pesquisa.",
   loadingSurvey: "A pesquisa está carregando...",
   // placeholder: "Select...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   // value: "value",
   requiredError: "Por favor, responda a pergunta.",
   requiredErrorInPanel: "Por favor, responda pelo menos uma pergunta.",

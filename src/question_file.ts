@@ -14,7 +14,7 @@ import { Helpers } from "./helpers";
 /**
  * A class that describes the File question type.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
+ * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
@@ -91,6 +91,10 @@ export class QuestionFileModel extends Question {
 
   public getType(): string {
     return "file";
+  }
+  public clearValue(): void {
+    this.clearOnDeletingContainer();
+    super.clearValue();
   }
   public clearOnDeletingContainer() {
     if (!this.survey) return;
@@ -365,13 +369,7 @@ export class QuestionFileModel extends Question {
             this.previewValue.push(val);
           });
         }
-        this.isReadyValue = true;
-        this.onReadyChanged &&
-        this.onReadyChanged.fire(this, {
-          question: this,
-          isReady: true,
-          oldIsReady: false,
-        });
+        this.isReady = true;
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });

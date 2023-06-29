@@ -5,7 +5,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 sv-popup {
   display: block;
   position: absolute;
-  z-index: -1;
+  // z-index: -1;
 }
 
 .sv-popup {
@@ -56,14 +56,13 @@ sv-popup {
   padding: calcSize(11) calcSize(15);
   box-sizing: border-box;
 
-  .sv-popup__container {
-    position: static;
-  }
-
   .sv-popup__body-content {
     padding: calcSize(4);
     height: auto;
   }
+}
+.sv-popup.sv-popup--modal > .sv-popup__container {
+  position: static;
 }
 
 .sv-popup--overlay.sv-popup--overlay {
@@ -102,10 +101,6 @@ sv-popup {
     width: 100%;
   }
 
-  .sv-popup__body-footer .sv-action {
-    width: 100%;
-  }
-
   .sv-popup__body-footer-item {
     width: 100%;
   }
@@ -114,6 +109,11 @@ sv-popup {
     background-color: $primary;
     border: 2px solid $primary;
     color: $primary-foreground;
+  }
+}
+.sv-popup--overlay.sv-popup--overlay:not(.sv-dropdown-popup) {
+  .sv-popup__body-footer .sv-action {
+    flex: 1 0 0;
   }
 }
 
@@ -197,7 +197,7 @@ sv-popup {
 .sv-popup__body-header {
   font-family: Open Sans;
   font-size: calcFontSize(1.5);
-  line-height: calcSize(4);
+  line-height: calcLineHeight(2);
   font-style: normal;
   font-weight: 700;
   margin-bottom: calcSize(2);
@@ -339,7 +339,7 @@ sv-popup {
   .sv-list__input {
     color: $foreground-light;
     font-size: calcFontSize(1);
-    line-height: calcSize(3);
+    line-height: calcLineHeight(1.5);
     font-family: $font-family;
     padding: calcSize(0.5) 0 calcSize(0.5) calcSize(1);
   }

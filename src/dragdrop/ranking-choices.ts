@@ -130,8 +130,8 @@ export class DragDropRankingChoices extends DragDropChoices {
     }
   }
 
-  private updateDraggedElementShortcut(newIndex: number) {
-    const newIndexText = newIndex + "";
+  protected updateDraggedElementShortcut(newIndex: number) {
+    const newIndexText = newIndex !== null ? newIndex + "" : "";
     // TODO should avoid direct DOM manipulation, do through the frameworks instead
     const indexNode: HTMLElement = this.domAdapter.draggedElementShortcut.querySelector(
       ".sv-ranking-item__index"

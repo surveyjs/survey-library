@@ -190,6 +190,10 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   return newAction;
 }
 
+export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
+  return container?.previousElementSibling as HTMLElement;
+}
+
 export abstract class BaseAction extends Base implements IAction {
   private cssClassesValue: any;
   @property() tooltip: string;
@@ -318,9 +322,9 @@ export abstract class BaseAction extends Base implements IAction {
 
 export class Action extends BaseAction implements IAction, ILocalizableOwner {
   private locTitleValue: LocalizableString;
-  public updateCallback: () => void;
-  private raiseUpdate() {
-    this.updateCallback && this.updateCallback();
+  public updateCallback: (isResetInitialized: boolean) => void;
+  private raiseUpdate(isResetInitialized: boolean = false) {
+    this.updateCallback && this.updateCallback(isResetInitialized);
   }
   constructor(public innerItem: IAction) {
     super();
@@ -334,6 +338,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     if (!!this.locTitleName) {
       this.locTitleChanged();
     }
+    this.registerFunctionOnPropertyValueChanged("_title", () => {
+      this.raiseUpdate(true);
+    });
     this.locStrChangedInPopupModel();
   }
   private createLocTitle(): LocalizableString {

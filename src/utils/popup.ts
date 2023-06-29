@@ -1,5 +1,3 @@
-import { PopupModel } from "survey-core";
-
 export type VerticalPosition = "top" | "bottom" | "middle";
 export type HorizontalPosition = "left" | "right" | "center";
 export type PositionMode = "flex" | "fixed";

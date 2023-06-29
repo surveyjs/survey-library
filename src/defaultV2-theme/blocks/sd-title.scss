@@ -1,7 +1,3 @@
-.svc-tab-designer .sd-title {
-  display: flex;
-}
-
 .sd-title {
   display: block;
   font-family: var(--font-family, $font-family);
@@ -41,13 +37,13 @@
   }
 
   h3 {
-    line-height: calcSize(5);
+    line-height: calcLineHeight(2.5);
   }
 
   h5 {
     font-size: calcFontSize(1);
     font-weight: 400;
-    line-height: calcSize(3);
+    line-height: calcLineHeight(1.5);
   }
 }
 
@@ -59,7 +55,7 @@
   }
 }
 
-.sd-root-modern:not(.svc-tab-designer) {
+.sd-root-modern {
   .sd-container-modern__title {
     background-color: $background;
   }

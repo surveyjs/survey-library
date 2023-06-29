@@ -10,8 +10,7 @@
   display: flex;
   border-radius: 100%;
   padding: calc(var(--sd-timer-size) / 144 * 8);
-  filter: drop-shadow($shadow-large);
-  box-shadow: 0 2px 6px #0000001a;
+  box-shadow: $shadow-large, $shadow-medium;
   box-sizing: border-box;
 }
 

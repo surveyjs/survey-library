@@ -1543,11 +1543,10 @@ export class QuestionPanelDynamicModel extends Question
       var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
       res = this.hasKeysDuplicated(fireCallback, rec) || res;
       this.updatePanelsContainsErrors();
-      return res;
     } else {
-      var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
-      return super.hasErrors(fireCallback) || errosInPanels;
+      res= this.hasErrorInPanels(fireCallback, rec);
     }
+    return super.hasErrors(fireCallback, rec) || res;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();

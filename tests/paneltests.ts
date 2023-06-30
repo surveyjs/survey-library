@@ -229,7 +229,7 @@ QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
     "There is error, but it is invisible"
   );
 });
-QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged'", function (assert) {
+QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", function (assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",
     elements: [

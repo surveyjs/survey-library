@@ -39,9 +39,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-family: var(--font-family, $font-family);
-  font-size: calcFontSize(1);
-  color: $foreground;
+  line-height: calcLineHeight(1.5);
+  font-family: $font-editorfont-family;
+  font-weight: $font-editorfont-weight;
+  color: $font-editorfont-color;
+  font-size: $font-editorfont-size;
 
   position: relative;
 }

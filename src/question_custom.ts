@@ -573,6 +573,9 @@ export abstract class QuestionCustomModelBase extends Question
   ensureRowsVisibility(): void {
     // do nothing
   }
+  validateContainerOnly(): void {
+    // do nothing
+  }
   protected getContentDisplayValueCore(keyAsText: boolean, value: any, question: Question): any {
     if (!question) return super.getDisplayValueCore(keyAsText, value);
     return this.customQuestion.getDisplayValue(keyAsText, value, question);

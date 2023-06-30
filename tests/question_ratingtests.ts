@@ -334,6 +334,36 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
 });
+QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        "rateCount": 10,
+        "rateValues": [1, 2],
+      }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.notOk(list.isItemSelected(list.actions[0]));
+  assert.notOk(list.isItemSelected(list.actions[1]));
+
+  question.value = 1;
+
+  assert.ok(list.isItemSelected(list.actions[0]));
+  assert.notOk(list.isItemSelected(list.actions[1]));
+
+  question.value = 2;
+
+  assert.notOk(list.isItemSelected(list.actions[0]));
+  assert.ok(list.isItemSelected(list.actions[1]));
+
+});
 QUnit.test("check stars highlighting", (assert) => {
   var json = {
     questions: [

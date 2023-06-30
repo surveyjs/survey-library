@@ -7,7 +7,7 @@
   background: $background;
   opacity: 0;
   padding: calcSize(3) calcSize(6);
-  box-shadow: 0px 2px 6px $shadow-medium;
+  box-shadow: $shadow-medium;
   border-radius: calcCornerRadius(2);
   color: $foreground;
   min-width: calcSize(30);

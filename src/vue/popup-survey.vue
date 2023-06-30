@@ -19,7 +19,7 @@
         <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">X</span>
       </span>
     </div>
-    <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody">
+    <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody" @scroll="doScroll">
       <component :is="getSurveyComponentName()" :survey="windowSurvey"> </component>
     </div>
   </div>
@@ -84,6 +84,9 @@ export class PopupSurvey extends BaseVue {
   }
   getSurveyComponentName() {
     return "survey";
+  }
+  doScroll() {
+    this.surveyWindow.onScroll();
   }
 }
 

@@ -310,6 +310,12 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .click(Selector(".sd-list__item span").withText("item1"));
+      await takeElementScreenshot("tagbox-question-overlay-popup-selected.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+
+      await t.click(Selector("span").withText("Cancel"));
+
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
         .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });

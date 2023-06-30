@@ -340,9 +340,9 @@ const json = {
       }
     },
     {
-      type: "matrix Dropdown",
+      type: "matrixdropdown",
       name: "frameworksRate",
-      title: "Matrixdropdown",
+      title: "Matrix Dropdown",
       choices: ["Excelent", "Good", "Average", "Fair", "Poor"],
       columns: [
         {

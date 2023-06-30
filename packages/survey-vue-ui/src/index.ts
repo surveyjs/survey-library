@@ -49,6 +49,9 @@ import BooleanCheckbox from "./BooleanCheckbox.vue";
 import MultipleText from "./Multipletext.vue";
 import MultipletextItem from "./MultipletextItem.vue";
 import Matrix from "./Matrix.vue";
+import MatrixDropdown from "./MatrixDropdown.vue";
+import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
+import MatrixCell from "./MatrixCell.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -120,6 +123,9 @@ export function registerComponents(app: any) {
   app.component("survey-multipletext", MultipleText);
   app.component("survey-multipletext-item", MultipletextItem);
   app.component("survey-matrix", Matrix);
+  app.component("survey-matrixdropdown", MatrixDropdown);
+  app.component("survey-matrixheaderrequired", MatrixHeaderRequired);
+  app.component("survey-matrixcell", MatrixCell);
 
   app.component("sv-components-container", Container);
   app.component("sv-progress-pages", Progress);

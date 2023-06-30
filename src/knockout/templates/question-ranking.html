@@ -16,7 +16,7 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.unRankingChoices.length === 0 -->
-        <div data-bind="css: cssClasses.containerPlaceholder, text: question.selectToRankFromContainerPlaceholder"></div>
+        <div data-bind="css: cssClasses.containerPlaceholder, text: question.selectToRankEmptyRankedAreaText"></div>
       <!-- /ko -->
     </div>
     <div data-bind="css: cssClasses.containersDivider"></div>
@@ -26,7 +26,7 @@
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.rankingChoices.length === 0 -->
-      <div data-bind="css: cssClasses.containerPlaceholder, text: question.selectToRankToContainerPlaceholder"></div>
+      <div data-bind="css: cssClasses.containerPlaceholder, text: question.selectToRankEmptyUnrankedAreaText"></div>
       <!-- /ko -->
     </div>
   </div>

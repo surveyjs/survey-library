@@ -95,8 +95,8 @@ export var englishStrings = {
   noEntriesReadonlyText: "There are no entries.",
   more: "More",
   tagboxDoneButtonCaption: "OK",
-  selectToRankFromContainerPlaceholder: "All items are ranked.",
-  selectToRankToContainerPlaceholder: "Drop the items which you like not to be selected here.",
+  selectToRankEmptyRankedAreaText: "All choices are ranked",
+  selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

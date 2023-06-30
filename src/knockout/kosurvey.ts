@@ -259,6 +259,25 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
   ko.setTemplateEngine(surveyTemplateEngineInstance);
 };
 
+ko.bindingHandlers["elementStyle"] = {
+  update: function(element, valueAccessor, allBindings) {
+    const removedStyles = [];
+    if(element && element.style.length) {
+      for(let index = 0; index < element.style.length; index++) {
+        const style = element.style[index] as string;
+        if(style && style.indexOf("--sjs-") === 0) {
+          removedStyles.push(style);
+        }
+      }
+    }
+    removedStyles.forEach(st => element.style.removeProperty(st));
+    var value = ko.utils.unwrapObservable(valueAccessor()) || {};
+    Object.keys(value).forEach(key => {
+      element.style.setProperty(key, value[key]);
+    });
+  }
+};
+
 ko.bindingHandlers["key2click"] = {
   init: function (element: HTMLElement, valueAccessor, allBindingsAccessor, viewModel: any) {
     const options: IAttachKey2clickOptions = { ...valueAccessor() } || {

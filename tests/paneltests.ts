@@ -229,6 +229,56 @@ QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
     "There is error, but it is invisible"
   );
 });
+QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged'", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+        ],
+        isRequired: true,
+      },
+      {
+        type: "panel",
+        name: "panel2",
+        elements: [
+          {
+            type: "panel",
+            name: "panel3",
+            elements: [
+              {
+                type: "text",
+                name: "q2",
+              },
+            ],
+          },
+        ],
+        isRequired: true,
+      }
+    ]
+  });
+  const panel1 = survey.getPanelByName("panel1");
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(panel1.errors.length, 0, "There is no errors in panel, #1");
+  panel1.hasErrors();
+  assert.equal(panel1.errors.length, 1, "There is an error in panel, #2");
+  q1.value = "abc";
+  assert.equal(panel1.errors.length, 0, "There is no errors in panel, #3");
+
+  const panel2 = survey.getPanelByName("panel2");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(panel2.errors.length, 0, "There is no errors in panel, #4");
+  panel2.hasErrors();
+  assert.equal(panel2.errors.length, 1, "There is an error in panel, #5");
+  q2.value = "abc";
+  assert.equal(panel2.errors.length, 0, "There is no errors in panel, #6");
+});
 
 QUnit.test("Panel with paneldynamic error focus", function (assert) {
   const json = {

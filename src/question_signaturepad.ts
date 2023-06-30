@@ -4,6 +4,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Question } from "./question";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { SurveyModel } from "./survey";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -40,6 +41,12 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
  */
 export class QuestionSignaturePadModel extends Question {
   @property({ defaultValue: false }) isDrawingValue: boolean;
+
+  private getPenColorFromTheme(): string {
+    const _survey = this.survey as SurveyModel;
+    return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
+  }
+
   protected getCssRoot(cssClasses: any): string {
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
@@ -188,7 +195,7 @@ export class QuestionSignaturePadModel extends Question {
    * @see backgroundColor
    */
   public get penColor(): string {
-    return this.getPropertyValue("penColor");
+    return this.getPropertyValue("penColor", this.getPenColorFromTheme());
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);

@@ -1,10 +1,15 @@
+.sd-boolean-root {
+  box-shadow: $shadow-inner;
+  border-radius: calcSize(12.5);
+}
+
 .sd-boolean {
   display: flex;
   width: max-content;
   position: relative;
   padding: calcSize(0.5);
-  background: $editor-background;
-  box-shadow: $editor-boxshadow;
+  background-color: $editor-background;
+  box-shadow: $shadow-inner;
   border-radius: calcSize(12.5);
 }
 
@@ -45,8 +50,8 @@
 }
 
 .sd-boolean__thumb {
-  background: $background;
-  box-shadow: 0px 1px 2px $shadow-inner;
+  background-color: $background;
+  box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   transition-duration: 0.2s;
   transition-property: margin-left, transform;

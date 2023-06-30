@@ -134,3 +134,23 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
   assert.equal(signaturepad.signatureHeight, 300);
   assert.equal(canvas.height, 300);
 });
+
+QUnit.test("check penColor", (assert) => {
+  const json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  assert.equal(signaturepad.penColor, "#1ab394", "penColor default");
+
+  survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
+  assert.equal(signaturepad.penColor, "rgba(103, 58, 176, 1)", "penColor from theme");
+
+  survey.applyTheme({ "cssVariables": { } });
+  assert.equal(signaturepad.penColor, "#1ab394", "penColor default");
+});

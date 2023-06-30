@@ -19,7 +19,7 @@
   opacity: 0.35;
 }
 
-.sd-element__title {
+.sd-title.sd-element__title {
   font-size: 0;
   line-height: 0;
   position: static;
@@ -125,7 +125,7 @@
   padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
   background: $question-background;
-  box-shadow: $questionpanel-boxshadow;
+  box-shadow: $shadow-small;
 
   &.sd-question--paneldynamic {
     padding-bottom: 0;

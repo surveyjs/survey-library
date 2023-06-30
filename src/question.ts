@@ -1761,6 +1761,11 @@ export class Question extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, rec: any = null): boolean {
+    if(!!rec && rec.isOnValueChanged) {
+      if(!!this.parent) {
+        this.parent.validateContainerOnly();
+      }
+    }
     return !this.hasErrors(fireCallback, rec);
   }
   public get currentErrorCount(): number {

@@ -23,6 +23,7 @@ if(typeof window !== "undefined") {
 export interface IDragDropDOMAdapter {
   startDrag(event: PointerEvent, draggedElement: any, parentElement: any, draggedElementNode: HTMLElement, preventSaveTargetNode: boolean): void;
   draggedElementShortcut: HTMLElement;
+  rootContainer: HTMLElement;
 }
 
 export class DragDropDOMAdapter implements IDragDropDOMAdapter {
@@ -38,6 +39,13 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private scrollIntervalId: number = null;
 
   constructor(private dd: IDragDropEngine, private longTap?: boolean) {
+  }
+  private get rootElement() {
+    if(isShadowDOM(settings.environment.root)) {
+      return settings.environment.root.host;
+    } else {
+      return this.rootContainer || settings.environment.root.documentElement || document.body;
+    }
   }
   private stopLongTapIfMoveEnough = (pointerMoveEvent: PointerEvent) => {
     pointerMoveEvent.preventDefault();
@@ -93,7 +101,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
           clip: rect(1px 1px 1px 1px);
           clip: rect(1px, 1px, 1px, 1px);
         `;
-        settings.environment.rootElement.appendChild(this.savedTargetNode);
+        this.rootElement.appendChild(this.savedTargetNode);
       }
 
       this.stopLongTap();
@@ -128,8 +136,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       shortcutYOffset = shortcutHeight / 2;
     }
 
-    const documentBottom = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientHeight;
-    const documentRight = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientWidth;
+    const documentBottom = this.rootElement.clientHeight;
+    const documentRight = this.rootElement.clientWidth;
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(event.clientY, shortcutHeight, shortcutYOffset);
     const shortcutRightCoordinate = this.getShortcutRightCoordinate(event.clientX, shortcutWidth, shortcutXOffset);
 
@@ -241,14 +249,14 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     if (IsTouch) {
       this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
     }
-    settings.environment.rootElement.removeChild(this.draggedElementShortcut);
+    this.draggedElementShortcut.parentElement.removeChild(this.draggedElementShortcut);
 
     this.dd.clear();
     this.draggedElementShortcut = null;
     this.scrollIntervalId = null;
 
     if (IsTouch) {
-      this.savedTargetNode && settings.environment.rootElement.removeChild(this.savedTargetNode);
+      this.savedTargetNode && this.savedTargetNode.parentElement.removeChild(this.savedTargetNode);
       DragDropDOMAdapter.PreventScrolling = false;
     }
     document.body.style.setProperty("touch-action", "");
@@ -272,7 +280,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     this.dd.dragInit(event, draggedElement, parentElement, draggedElementNode);
 
-    document.body.append(this.draggedElementShortcut);
+    this.rootElement.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
     document.addEventListener("pointermove", this.dragOver);
@@ -287,6 +295,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   }
 
   public draggedElementShortcut: any = null;
+  public rootContainer: HTMLElement;
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
     if (IsTouch) {

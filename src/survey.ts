@@ -84,6 +84,7 @@ export class SurveyModel extends SurveyElementCore
     return SurveyModel.platform;
   }
   public notifier: Notifier;
+  public rootElement: HTMLElement;
   /**
    * A suffix added to the name of the property that stores comments.
    *
@@ -4438,6 +4439,7 @@ export class SurveyModel extends SurveyElementCore
       survey: this,
       htmlElement: htmlElement,
     });
+    this.rootElement = htmlElement;
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;

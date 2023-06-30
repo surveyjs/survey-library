@@ -65,7 +65,7 @@ export class PopupSurvey extends Survey {
     );
   }
   protected renderBody(): JSX.Element {
-    return <div className={this.popup.cssBody}>{this.doRender()}</div>;
+    return <div className={this.popup.cssBody} onScroll={() => this.popup.onScroll()}>{this.doRender()}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};

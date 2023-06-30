@@ -1834,7 +1834,6 @@ export class QuestionPanelDynamicModel extends Question
     this.recalculateIsReadyValue();
   };
   recalculateIsReadyValue(): void {
-    let oldIsReady = this.isReadyValue;
     let isReady: boolean = true;
     this.panels.forEach(panel => {
       panel.questions.forEach(q => {
@@ -1846,14 +1845,7 @@ export class QuestionPanelDynamicModel extends Question
         }
       });
     });
-    this.isReadyValue = isReady;
-    if(oldIsReady != this.isReadyValue) {
-      this.onReadyChanged.fire(this, {
-        question: this,
-        oldIsReady: oldIsReady,
-        isReady: this.isReadyValue
-      });
-    }
+    this.isReady = isReady;
   }
   protected onSetData() {
     super.onSetData();

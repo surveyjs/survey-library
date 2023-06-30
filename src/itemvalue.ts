@@ -12,7 +12,6 @@ import { Base, ComputedUpdater } from "./base";
 import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
-import { QuestionSelectBase } from "./question_baseselect";
 import { Question } from "./question";
 
 /**
@@ -409,8 +408,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   //base action
   @property() selectedValue: boolean;
   public get selected(): boolean {
-    if(this._locOwner instanceof QuestionSelectBase && this.selectedValue === undefined) {
-      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => (<QuestionSelectBase>this._locOwner).isItemSelected(this)));
+    const locOwner = this._locOwner;
+    if(locOwner instanceof Question && locOwner.isItemSelected && this.selectedValue === undefined) {
+      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => locOwner.isItemSelected(this)));
     }
     return this.selectedValue;
   }

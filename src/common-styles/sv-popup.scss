@@ -357,14 +357,23 @@ sv-popup {
         color: $primary-foreground;
         font-weight: 600;
       }
-
-      .sd-list__item-body {
+    }
+  }
+}
+.sv-dropdown-popup.sv-popup--overlay.sv-multi-select-list {
+  .sv-list__item:hover,
+  .sv-list__item:focus,
+  .sv-list__item--focused {
+    &.sv-list__item--selected {
+      .sv-list__item-body {
         background: $primary-light;
         color: $foreground;
+        font-weight: 400;
       }
     }
   }
 }
+
 
 .sv-dropdown-popup.sv-popup--overlay.sv-popup--tablet {
   .sv-popup__body-content {

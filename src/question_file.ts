@@ -40,6 +40,7 @@ export class QuestionFileModel extends Question {
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
+  @property() supportCamera: boolean;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -239,6 +240,9 @@ export class QuestionFileModel extends Question {
         }
       }
     );
+  }
+  public get renderCapture(): string {
+    return this.supportCamera ? "camera" : undefined;
   }
 
   get multipleRendered() {
@@ -608,6 +612,7 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
+    { name: "supportCamera:switch", visible: false }
   ],
   function () {
     return new QuestionFileModel("");

@@ -66,7 +66,7 @@ export class SurveyImplementor extends ImplementorBase {
     if (typeof ko === "undefined")
       throw new Error("knockoutjs library is not loaded.");
     const page = this.survey.activePage;
-    if(!!page) {
+    if (!!page) {
       page.updateCustomWidgets();
     }
     this.survey.updateElementCss(false);
@@ -85,12 +85,12 @@ export class SurveyImplementor extends ImplementorBase {
     ko.renderTemplate(
       "survey-content",
       this.survey,
-      { },
+      {},
       this.renderedElement
     );
   }
   public koEventAfterRender(element: any, survey: any) {
-    if(survey["needRenderIcons"]) {
+    if (survey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
     survey.afterRenderSurvey(element);
@@ -155,7 +155,7 @@ LocalizableString.prototype["onCreating"] = function () {
   var self = this;
   this.koHasHtml = ko.observable(this.hasHtml);
   this.koRenderedHtml = ko.observable(this.renderedHtml);
-  this.onStringChanged.add(function() {
+  this.onStringChanged.add(function () {
     const hasHtml = self.hasHtml;
     self.koHasHtml(hasHtml);
     self.koRenderedHtml(hasHtml ? self.getHtmlValue() : self.calculatedText);
@@ -260,17 +260,15 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
 };
 
 ko.bindingHandlers["elementStyle"] = {
-  update: function(element, valueAccessor, allBindings) {
-    const removedStyles = [];
-    if(element && element.style.length) {
-      for(let index = 0; index < element.style.length; index++) {
+  update: function (element, valueAccessor, allBindings) {
+    if (element && element.style.length) {
+      for (let index = element.style.length - 1; index >= 0; index--) {
         const style = element.style[index] as string;
-        if(style && style.indexOf("--sjs-") === 0) {
-          removedStyles.push(style);
+        if (style && style.indexOf("--sjs-") === 0) {
+          element.style.removeProperty(style);
         }
       }
     }
-    removedStyles.forEach(st => element.style.removeProperty(st));
     var value = ko.utils.unwrapObservable(valueAccessor()) || {};
     Object.keys(value).forEach(key => {
       element.style.setProperty(key, value[key]);

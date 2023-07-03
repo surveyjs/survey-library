@@ -21,9 +21,15 @@
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"
                 [size]="'auto'" sv-ng-svg-icon></svg>
         </div>
+        <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+            <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="24" sv-ng-svg-icon></svg>
+        </div>
     </div>
     <sv-ng-popup *ngIf="!model.isReadOnly" [popupModel]="model.popupModel"></sv-ng-popup>
     <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
         <div>{{ model.readOnlyText }}</div>
+        <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+            <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="24" sv-ng-svg-icon></svg>
+        </div>
     </div>
 </div>

@@ -74,6 +74,17 @@
         >
         </sv-svg-icon>
       </div>
+      <div
+        :class="question.cssClasses.chevronButton"
+        v-if="question.cssClasses.chevronButtonIconId"
+      >
+        <sv-svg-icon
+          :class="question.cssClasses.chevronButtonSvg"
+          :iconName="question.cssClasses.chevronButtonIconId"
+          size="24"
+        >
+        </sv-svg-icon>
+      </div>
     </div>
     <sv-popup
       v-if="!question.isReadOnly"
@@ -85,6 +96,17 @@
         :locString="question.selectedItemLocText"
       />
       <div>{{ question.readOnlyText }}</div>
+      <div
+        :class="question.cssClasses.chevronButton"
+        v-if="question.cssClasses.chevronButtonIconId"
+      >
+        <sv-svg-icon
+          :class="question.cssClasses.chevronButtonSvg"
+          :iconName="question.cssClasses.chevronButtonIconId"
+          size="24"
+        >
+        </sv-svg-icon>
+      </div>
     </div>
   </div>
 </template>

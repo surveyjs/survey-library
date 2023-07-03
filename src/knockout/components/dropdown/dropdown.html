@@ -61,6 +61,12 @@
       <!-- /ko -->
     </div>
     <!-- /ko -->
+    <!-- ko if: question.cssClasses.chevronButtonIconId -->
+    <div data-bind="css: question.cssClasses.chevronButton">
+      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: '24' } } -->
+      <!-- /ko -->
+    </div>
+    <!-- /ko -->
   </div>
   <!-- ko component: { name: "sv-popup", params: { model: model.popupModel }} -->
   <!-- /ko -->
@@ -72,6 +78,12 @@
     <!-- /ko -->
     <!-- /ko -->
     <div data-bind="text: question.readOnlyText"></div>
+    <!-- ko if: question.cssClasses.chevronButtonIconId -->
+    <div data-bind="css: question.cssClasses.chevronButton">
+      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: '24' } } -->
+      <!-- /ko -->
+    </div>
+    <!-- /ko -->
   </div>
   <!-- /ko -->
 </div>

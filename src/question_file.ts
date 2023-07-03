@@ -623,19 +623,22 @@ export class FileLoader {
   }
   loaded: any[] = [];
   load(files: Array<any>): void {
-    files.forEach((value) => {
+    let downloadedCount = 0;
+    this.loaded = new Array(files.length);
+    files.forEach((value, index) => {
       if (this.fileQuestion.survey) {
         this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
           if (!this.fileQuestion || !this.callback) {
             return;
           }
           if (status === "success") {
-            this.loaded.push({
+            this.loaded[index] = {
               content: data,
               name: value.name,
               type: value.type,
-            });
-            if (this.loaded.length === files.length) {
+            };
+            downloadedCount ++;
+            if (downloadedCount === files.length) {
               this.callback("loaded", this.loaded);
             }
           } else {

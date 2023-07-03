@@ -518,7 +518,7 @@ registerMarkupTests(
           type: "file",
           title: "Question title",
           titleLocation: "hidden",
-          supportCamera: true
+          allowCameraAccess: true
         }
       ]
     },

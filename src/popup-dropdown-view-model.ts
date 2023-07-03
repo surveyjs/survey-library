@@ -35,18 +35,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.clientY = event.touches[0].clientY;
   }
   private touchMoveEventCallback = (event: any) => {
-    let currentElement = event.target;
-    while (currentElement !== this.container) {
-      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
-        const { scrollHeight, scrollTop, clientHeight } = currentElement;
-        const deltaY = this.clientY - event.changedTouches[0].clientY;
-        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
-          return;
-        }
-      }
-      currentElement = currentElement.parentElement;
-    }
-    event.preventDefault();
+    this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
   }
 
   private _updatePosition() {

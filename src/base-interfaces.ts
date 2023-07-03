@@ -11,6 +11,7 @@ import { IAction } from "./actions/action";
 import { PanelModel } from "./panel";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { DragDropAllowEvent } from "./survey-events-api";
+import { PopupModel } from "./popup";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -221,6 +222,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
+  processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;
@@ -315,6 +317,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   indexOf(el: IElement): number;
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
+  validateContainerOnly(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;

@@ -1539,3 +1539,84 @@ QUnit.test("lazy loading placeholder", assert => {
     done();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
+
+QUnit.test("isReady flag + onGetChoiceDisplayValue", assert => {
+  const done = assert.async();
+
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  let log = "";
+  survey.onGetChoiceDisplayValue.add((_, opt) => {
+    setTimeout(() => {
+      log += "->onGetChoiceDisplayValue";
+      opt.setItems(["Ford"]);
+    }, 1);
+  });
+  question.onReadyChanged.add((_, opt) => {
+    log += `->onReadyChanged: ${opt.isReady}`;
+    if(opt.isReady) {
+      assert.ok(question.isReady);
+      assert.notOk(question["waitingAcyncOperations"]);
+      assert.notOk(question["waitingChoicesByURL"]);
+      assert.notOk(question["waitingGetChoiceDisplayValueResponse"]);
+      assert.equal(log, "->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
+      assert.equal(question.displayValue, "Ford");
+      done();
+    }
+  });
+  survey.data = { "q1": "ford" };
+  assert.notOk(question.isReady);
+  assert.ok(question["waitingAcyncOperations"]);
+  assert.notOk(question["waitingChoicesByURL"]);
+  assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
+});
+
+QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert => {
+  const done = assert.async();
+
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  let log = "";
+  survey.onGetChoiceDisplayValue.add((_, opt) => {
+    setTimeout(() => {
+      log += "->onGetChoiceDisplayValue";
+      opt.setItems(["Ford"]);
+    }, 1);
+  });
+  question.onReadyChanged.add((_, opt) => {
+    log += `->onReadyChanged: ${opt.isReady}`;
+    if(opt.isReady) {
+      assert.ok(question.isReady);
+      assert.notOk(question["waitingAcyncOperations"]);
+      assert.notOk(question["waitingChoicesByURL"]);
+      assert.notOk(question["waitingGetChoiceDisplayValueResponse"]);
+      assert.equal(log, "->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
+      done();
+    }
+  });
+  question.choicesByUrl.url = "some url";
+  survey.data = { "q1": "ford" };
+  assert.notOk(question.isReady);
+  assert.ok(question["waitingAcyncOperations"]);
+  assert.ok(question["waitingChoicesByURL"]);
+  assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
+  question.choicesLoaded();
+  assert.notOk(question.isReady);
+  assert.ok(question["waitingAcyncOperations"]);
+  assert.notOk(question["waitingChoicesByURL"]);
+  assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
+});

@@ -6,7 +6,7 @@
   -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
   background: $background;
-  box-shadow: 0px 1px 2px $shadow-inner;
+  box-shadow: $shadow-small;
   border-radius: calcCornerRadius(1);
   cursor: pointer;
 

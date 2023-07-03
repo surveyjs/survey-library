@@ -18,6 +18,7 @@ import { RendererFactory } from "./rendererFactory";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
+import { PopupModel } from "./popup";
 
 export interface IConditionObject {
   name: string;
@@ -208,6 +209,17 @@ export class Question extends SurveyElement<Question>
       oldValue,
       this.valueName ? this.valueName : oldValue
     );
+  }
+  public set isReady(val: boolean) {
+    const oldIsReady = this.isReadyValue;
+    this.isReadyValue = val;
+    if(oldIsReady != val) {
+      this.onReadyChanged.fire(this, {
+        question: this,
+        isReady: val,
+        oldIsReady: oldIsReady,
+      });
+    }
   }
   public get isReady(): boolean {
     return this.isReadyValue;
@@ -1749,6 +1761,11 @@ export class Question extends SurveyElement<Question>
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, rec: any = null): boolean {
+    if(!!rec && rec.isOnValueChanged) {
+      if(!!this.parent) {
+        this.parent.validateContainerOnly();
+      }
+    }
     return !this.hasErrors(fireCallback, rec);
   }
   public get currentErrorCount(): number {
@@ -2055,6 +2072,11 @@ export class Question extends SurveyElement<Question>
   getAllValues(): any {
     return !!this.data ? this.data.getAllValues() : null;
   }
+
+  public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
+    this.survey.processPopupVisiblityChanged(this, popupModel, visible);
+  }
+
   public transformToMobileView(): void { }
   public transformToDesktopView(): void { }
   public needResponsiveWidth() {

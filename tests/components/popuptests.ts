@@ -1394,53 +1394,82 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
 });
 
 QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
+  let eventLog = "";
+  let subscribeLog = "";
+  const wrapEvent = (event) => {
+    event.preventDefault = () => {
+      eventLog +="->prevented";
+    };
+  };
+  const wrapContainer = (element) => {
+    const oldAddEventListener = element.addEventListener;
+    element.addEventListener = function (name, callback) {
+      oldAddEventListener.call(element, name, callback);
+      subscribeLog += "->subscribed";
+    };
+    const oldRemoveEventListener = element.removeEventListener;
+    element.removeEventListener = function (name, callback) {
+      oldRemoveEventListener.call(element, name, callback);
+      subscribeLog += "->unsubscribed";
+    };
+  };
+
   const model: PopupModel = new PopupModel("sv-list", {});
   model.isModal = true;
   const viewModel: PopupModalViewModel = createPopupViewModel(model) as PopupModalViewModel;
-  let log = "";
-  let eventLog = "";
-  const container: any = {
-    listeners: {},
-    querySelector: () => {},
-    addEventListener (event: string, callback: () => {}) {
-      this.listeners[event] = [callback].concat(this.listeners[event] || []);
-      log += "->added";
-    },
-    removeEventListener (event: string, callback: () => {}) {
-      const array = this.listeners[event];
-      const index = array.indexOf(callback);
-      if (index > -1) {
-        array.splice(index, 1);
-      }
-      log += "->removed";
-    },
-    fireEvent (event: string) {
-      this.listeners[event].forEach(callback => {
-        log += "->fired";
-        callback({
-          stopPropagation() {
-            eventLog += "->stopedPropagation";
-          },
-          preventDefault() {
-            eventLog += "->preventedDefault";
-          }
-        });
-      });
-    }
-  };
+
+  const container = document.createElement("div");
+  container.innerHTML = `<div style="height: 200px; overflow: auto;">
+    <div style="height: 400px;"></div>
+  </div>`;
+  wrapContainer(container);
+  document.body.appendChild(container);
   viewModel.setComponentElement(container);
   model.isVisible = true;
   viewModel.updateOnShowing();
-  assert.equal(log, "->added");
-  assert.equal(eventLog, "");
-  assert.equal(container.listeners["wheel"].length, 1);
-  container.fireEvent("wheel");
-  assert.equal(log, "->added->fired");
-  assert.equal(eventLog, "->preventedDefault->stopedPropagation");
+  assert.equal(subscribeLog, "->subscribed");
+
+  let event = new WheelEvent("wheel", { deltaY: 20 });
+  wrapEvent(event);
+  container.dispatchEvent(event);
+  assert.equal(eventLog, "->prevented", "prevented scroll when not scrolling inside");
 
   eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "", "scroll inside (not prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 20);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "", "scroll inside (not prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 150);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "", "scroll inside (not prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 0);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "->prevented", "overscroll inside (prevented)");
+
+  eventLog = "";
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  wrapEvent(event);
+  container.children[0].scrollTo(0, 200);
+  container.children[0].children[0].dispatchEvent(event);
+  assert.equal(eventLog, "->prevented", "overscroll inside (prevented)");
+
   model.toggleVisibility();
-  assert.equal(log, "->added->fired->removed");
-  assert.equal(eventLog, "");
-  assert.equal(container.listeners["wheel"].length, 0);
+  assert.equal(subscribeLog, "->subscribed->unsubscribed");
+
+  container.remove();
 });

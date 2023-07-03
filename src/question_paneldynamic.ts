@@ -1543,11 +1543,10 @@ export class QuestionPanelDynamicModel extends Question
       var res = this.changingValueQuestion.hasErrors(fireCallback, rec);
       res = this.hasKeysDuplicated(fireCallback, rec) || res;
       this.updatePanelsContainsErrors();
-      return res;
     } else {
-      var errosInPanels = this.hasErrorInPanels(fireCallback, rec);
-      return super.hasErrors(fireCallback) || errosInPanels;
+      res= this.hasErrorInPanels(fireCallback, rec);
     }
+    return super.hasErrors(fireCallback, rec) || res;
   }
   protected getContainsErrors(): boolean {
     var res = super.getContainsErrors();
@@ -1834,7 +1833,6 @@ export class QuestionPanelDynamicModel extends Question
     this.recalculateIsReadyValue();
   };
   recalculateIsReadyValue(): void {
-    let oldIsReady = this.isReadyValue;
     let isReady: boolean = true;
     this.panels.forEach(panel => {
       panel.questions.forEach(q => {
@@ -1846,14 +1844,7 @@ export class QuestionPanelDynamicModel extends Question
         }
       });
     });
-    this.isReadyValue = isReady;
-    if(oldIsReady != this.isReadyValue) {
-      this.onReadyChanged.fire(this, {
-        question: this,
-        oldIsReady: oldIsReady,
-        isReady: this.isReadyValue
-      });
-    }
+    this.isReady = isReady;
   }
   protected onSetData() {
     super.onSetData();

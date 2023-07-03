@@ -47,7 +47,7 @@ export class PopupModalViewModel extends PopupBaseViewModel {
   }
 
   private onScrollOutsideCallback = (event: WheelEvent) => {
-    preventDefaults(event);
+    this.preventScrollOuside(event, event.deltaY);
   }
 
   public updateOnShowing(): void {

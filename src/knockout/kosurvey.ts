@@ -271,7 +271,11 @@ ko.bindingHandlers["elementStyle"] = {
     }
     var value = ko.utils.unwrapObservable(valueAccessor()) || {};
     Object.keys(value).forEach(key => {
-      element.style.setProperty(key, value[key]);
+      if(key.indexOf("--") === 0) {
+        element.style.setProperty(key, value[key]);
+      } else {
+        element.style[key] = value[key];
+      }
     });
   }
 };

@@ -53,6 +53,7 @@ import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
 import MatrixCell from "./MatrixCell.vue";
+import MatrixDynamic from "./MatrixDynamic.vue";
 
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
@@ -128,6 +129,7 @@ export function registerComponents(app: any) {
   app.component("survey-matrixtable", MatrixTable);
   app.component("survey-matrixheaderrequired", MatrixHeaderRequired);
   app.component("survey-matrixcell", MatrixCell);
+  app.component("survey-matrixdynamic", MatrixDynamic);
 
   app.component("sv-components-container", Container);
   app.component("sv-progress-pages", Progress);

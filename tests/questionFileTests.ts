@@ -1123,3 +1123,37 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
 
   assert.equal(downloadLog, "->f1->f1");
 });
+
+QUnit.test("Check previewValue order is correct", (assert) => {
+  const json = {
+    showPreviewBeforeComplete: "showAnsweredQuestions",
+    elements: [
+      {
+        type: "file",
+        name: "file",
+        storeDataAsText: false
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+
+  survey.onDownloadFile.add(function (survey, options) {
+    const timers = {
+      f2: 10,
+      f3: 20,
+      f1: 30
+    };
+    setTimeout(() => {
+      options.callback("success", "");
+    }, timers[options.fileValue.name]);
+  });
+  survey.data = {
+    file: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }, { name: "f3", content: "data" }],
+  };
+  const done = assert.async();
+  setTimeout(() => {
+    assert.deepEqual(question.previewValue.map(val => val.name), ["f1", "f2", "f3"]);
+    done();
+  }, 100);
+});

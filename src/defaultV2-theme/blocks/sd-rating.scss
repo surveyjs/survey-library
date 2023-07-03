@@ -116,7 +116,6 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item-smiley {
   position: relative;
-  background: $background;
   border-radius: calcSize(12.5);
   white-space: nowrap;
   padding: calcSize(1.25);
@@ -213,7 +212,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-star {
   position: relative;
-  background: $background;
   width: calcSize(6);
   height: calcSize(6);
 

@@ -56,7 +56,9 @@ export class QuestionSignaturePadModel extends Question {
 
   protected updateValue() {
     if (this.signaturePad) {
-      var data = this.signaturePad.toDataURL(this.dataFormat);
+      const format = this.dataFormat === "jpeg" ? "image/jpeg" :
+        (this.dataFormat === "svg" ? "image/svg+xml" : "");
+      var data = this.signaturePad.toDataURL(format);
       this.value = data;
     }
   }
@@ -143,12 +145,16 @@ export class QuestionSignaturePadModel extends Question {
    *
    * Possible values:
    *
-   * - `""` (default) - PNG
-   * - `"image/jpeg"` - JPEG
-   * - `"image/svg+xml"` - SVG
+   * - `"png"` (default) - PNG
+   * - `"jpeg"` - JPEG
+   * - `"svg"` - SVG
    */
-  @property({ defaultValue: "" }) dataFormat: string;
-
+  public get dataFormat(): string {
+    return this.getPropertyValue("dataFormat");
+  }
+  public set dataFormat(val: string) {
+    this.setPropertyValue("dataFormat", correctFormatData(val));
+  }
   /**
    * Specifies the width of the signature area. Accepts positive integer numbers.
    */
@@ -239,6 +245,13 @@ export class QuestionSignaturePadModel extends Question {
   }
 }
 
+function correctFormatData(val: string): string {
+  if(!val) val = "png";
+  val = val.replace("image/", "").replace("+xml", "");
+  if(val !== "jpeg" && val !== "svg") val = "png";
+  return val;
+}
+
 Serializer.addClass(
   "signaturepad",
   [
@@ -276,12 +289,15 @@ Serializer.addClass(
     {
       name: "dataFormat",
       category: "general",
-      default: "",
+      default: "png",
       choices: [
-        { value: "", text: "PNG" },
+        { value: "png", text: "PNG" },
         { value: "image/jpeg", text: "JPEG" },
         { value: "image/svg+xml", text: "SVG" },
       ],
+      onSettingValue: (obj: any, val: any): any => {
+        return correctFormatData(val);
+      }
     },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },

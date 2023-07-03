@@ -3,6 +3,14 @@ import { DragDropRankingChoices } from "./ranking-choices";
 import { QuestionRankingModel } from "../question_ranking";
 
 export class DragDropRankingSelectToRank extends DragDropRankingChoices {
+  protected onStartDrag(event: PointerEvent): void {
+    const target = <HTMLElement>event.target;
+    const fromContainerNode = <HTMLElement>target.closest(".sv-ranking__container--from");
+    if (!!fromContainerNode) {
+      fromContainerNode.style.minHeight = fromContainerNode.offsetHeight + "px";
+    }
+  }
+
   protected findDropTargetNodeByDragOverNode(
     dragOverNode: HTMLElement
   ): HTMLElement {
@@ -84,7 +92,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     let toIndex = toChoicesArray.indexOf(this.dropTarget);
 
-    if(toIndex === -1) toIndex = 0;
+    if(toIndex === -1) toIndex = toChoicesArray.length;
 
     rankFunction(questionModel, fromIndex, toIndex);
     this.doUIEffects(dropTargetNode, fromIndex, toIndex);

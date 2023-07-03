@@ -71,12 +71,11 @@
 
 <script lang="ts">
 import { Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder } from "survey-core";
-import { QuestionVue, getComponentName } from "./base";
+import { getComponentName } from "./base";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
-  mixins: [QuestionVue],
   name: "survey-matrixcell",
   props: {
     question: Question,

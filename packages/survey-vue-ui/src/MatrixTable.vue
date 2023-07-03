@@ -53,12 +53,12 @@
 
 <script lang="ts">
 import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } from "survey-core";
-import { QuestionVue } from "./base";
+import { BaseVue } from "./base";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
-  mixins: [QuestionVue],
+  mixins: [BaseVue],
   name: "survey-matrixtable",
   props: {
     question: QuestionMatrixDropdownModelBase,

@@ -4,12 +4,12 @@
 
 <script lang="ts">
 import { Question, MatrixDropdownColumn } from "survey-core";
-import { QuestionVue } from "./base";
+import { BaseVue } from "./base";
 import { defineComponent } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
-  mixins: [QuestionVue],
+  mixins: [BaseVue],
   name: "survey-matrixheaderrequired",
   props: {
     question: Question,

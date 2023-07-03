@@ -20,12 +20,15 @@
 }
 
 .sd-title.sd-element__title {
-  font-size: 0;
-  line-height: 0;
-  position: static;
   font-family: $font-questiontitle-family;
   font-weight: $font-questiontitle-weight;
   color: $font-questiontitle-color;
+}
+
+.sd-element__title {
+  font-size: 0;
+  line-height: 0;
+  position: static;
   margin: 0;
 
   .sd-element__num {

@@ -61,3 +61,6 @@
 .sd-multipletext tr:not(:last-child) .sd-multipletext__cell {
   padding-bottom: calcSize(2);
 }
+.sd-multipletext .sd-input .sd-input {
+  background: transparent;
+}

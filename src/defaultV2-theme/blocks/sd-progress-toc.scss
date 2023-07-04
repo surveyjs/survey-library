@@ -34,3 +34,24 @@ $font-family: var(--font-family);
 .sv_progress-toc--right {
   border-left: 1px solid $border;
 }
+
+.sv_progress-toc--mobile {
+  position: fixed;
+  top: calcSize(4);
+  right: calcSize(4);
+  width: auto;
+  min-width: auto;
+  height: auto;
+  background-color: transparent;
+  z-index: 15;
+  border-radius: calcSize(3);
+
+  &>div {
+    width: calcSize(3);
+    height: calcSize(3);
+  }
+
+  &:hover {
+    background-color: $background-dim;
+  }
+}

@@ -145,9 +145,9 @@ export class QuestionSignaturePadModel extends Question {
    *
    * Possible values:
    *
-   * - `"png"` (default) - PNG
-   * - `"jpeg"` - JPEG
-   * - `"svg"` - SVG
+   * - `"png"` (default)
+   * - `"jpeg"`
+   * - `"svg"`
    */
   public get dataFormat(): string {
     return this.getPropertyValue("dataFormat");

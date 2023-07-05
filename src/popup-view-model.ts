@@ -11,6 +11,7 @@ export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([t
 
 export class PopupBaseViewModel extends Base {
   protected popupSelector = ".sv-popup";
+  protected fixedPopupContainer = ".sv-popup";
   protected containerSelector = ".sv-popup__container";
   protected scrollingContentSelector = ".sv-popup__scrolling-content";
   protected prevActiveElement: HTMLElement;

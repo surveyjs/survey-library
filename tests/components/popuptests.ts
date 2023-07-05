@@ -13,6 +13,14 @@ const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knoc
 
 export default QUnit.module("Popup");
 
+function addElementIntoBody(element: HTMLElement) {
+  document.body.style.margin = "0px";
+  document.body.appendChild(element);
+}
+function getPopupContainer(root: HTMLElement) {
+  return <HTMLElement>root?.querySelector(".sv-popup__container");
+}
+
 const targetRect = {
   left: 20,
   top: 20,
@@ -1100,7 +1108,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
   targetElement.style.left = "1000px";
   targetElement.style.width = "32px";
   targetElement.style.height = "24px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
@@ -1130,14 +1138,14 @@ QUnit.test("PopupModel top+left position calculate", (assert) => {
   targetElement.style.left = "1000px";
   targetElement.style.width = "32px";
   targetElement.style.height = "24px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "200px";
   popupContainer.style.height = "400px";
   popupContainer.style.margin = "8px";
@@ -1162,14 +1170,14 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "700px";
   popupContainer.style.height = "400px";
 
@@ -1197,14 +1205,14 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "200px";
   popupContainer.style.height = "400px";
 
@@ -1232,14 +1240,14 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "1500px";
   popupContainer.style.height = "400px";
 
@@ -1266,7 +1274,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
@@ -1341,14 +1349,14 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "550px";
   popupContainer.style.height = "400px";
 
@@ -1423,7 +1431,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
     <div style="height: 400px;"></div>
   </div>`;
   wrapContainer(container);
-  document.body.appendChild(container);
+  addElementIntoBody(container);
   viewModel.setComponentElement(container);
   model.isVisible = true;
   viewModel.updateOnShowing();
@@ -1472,4 +1480,39 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
   assert.equal(subscribeLog, "->subscribed->unsubscribed");
 
   container.remove();
+});
+QUnit.test("PopupModel into modal window with translate/transform", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "350px";
+  targetElement.style.left = "250px";
+  targetElement.style.width = "32px";
+  targetElement.style.height = "24px";
+  addElementIntoBody(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "400px";
+
+  let fixedPopupContainer = viewModel.container.querySelector(".sv-popup") as HTMLElement;
+  fixedPopupContainer.getBoundingClientRect = () => {
+    return <DOMRect>{ "x": 100, "y": 200, "width": 1920, "height": 0, "top": 200, "right": 2097, "bottom": 200, "left": 100 };
+  };
+
+  (<any>window).innerHeight = 2000;
+  (<any>window).innerWidth = 2000;
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.top, 174 + "px", "top");
+  assert.equal(viewModel.left, 66 + "px", "left");
+
+  viewModel.dispose();
+  document.body.removeChild(targetElement);
 });

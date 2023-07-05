@@ -1946,12 +1946,9 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
   public get themeVariables() {
-    const result = Object.assign({}, this.cssVariables);
-    result.backgroundImage = this.renderBackgroundImage;
-    result.backgroundSize = this.backgroundImageFit;
-    return result;
+    return Object.assign({}, this.cssVariables);
   }
-  @property() backgroundImagePosition: string;
+
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
     if (this.isMobile !== newVal) {
@@ -2008,6 +2005,7 @@ export class SurveyModel extends SurveyElementCore
     this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
   @property() backgroundImageFit: string;
+  @property() backgroundImagePosition: string;
   /**
    * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
    * @see backgroundImage
@@ -2018,14 +2016,13 @@ export class SurveyModel extends SurveyElementCore
   public set backgroundOpacity(val: number) {
     this.setPropertyValue("backgroundOpacity", val);
   }
-  public get renderBackgroundOpacity(): string {
-    const backgroundOpacityProperty = this.getPropertyByName("backgroundOpacity");
-    if(backgroundOpacityProperty.isDefaultValue(this.backgroundOpacity)) {
-      return "";
-    }
-
-    const alpha = 1 - this.backgroundOpacity;
-    return ["rgba(255, 255, 255, ", alpha, ")"].join("");
+  public get backgroundImageStyle() {
+    return {
+      opacity: this.backgroundOpacity,
+      backgroundImage: this.renderBackgroundImage,
+      backgroundSize: this.backgroundImageFit,
+      backgroundAttachment: this.backgroundImagePosition
+    };
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).

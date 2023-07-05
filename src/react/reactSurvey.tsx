@@ -103,13 +103,11 @@ export class Survey extends SurveyElementBase<any, any>
     }
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
-    const formStyle = {
-      backgroundColor: this.survey.renderBackgroundOpacity
-    };
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
-        <form onSubmit={onSubmit} style={formStyle}>
+        <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div>
+        <form onSubmit={onSubmit}>
           {customHeader}
           <div className={this.css.container}>
             {header}

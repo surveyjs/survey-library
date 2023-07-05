@@ -16979,16 +16979,6 @@ QUnit.test("backgroundImage", assert => {
   assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
 });
 
-QUnit.test("backgroundOpacity", assert => {
-  const survey = new SurveyModel({
-    "backgroundOpacity": 0.6,
-  });
-  assert.equal(survey.backgroundOpacity, 0.6, "backgroundOpacity");
-  assert.equal(survey.renderBackgroundOpacity, "rgba(255, 255, 255, 0.4)", "renderBackgroundOpacity");
-
-  survey.backgroundOpacity = 1;
-  assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
-});
 QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
   const titleProp = Serializer.findProperty("survey", "title");
   titleProp.isLocalizable = false;

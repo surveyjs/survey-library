@@ -1373,7 +1373,7 @@ export class JsonMetadata {
 }
 export class JsonError {
   public description: string = "";
-  public at: Number = -1;
+  public at: number = -1;
   constructor(public type: string, public message: string) { }
   public getFullDescription(): string {
     return this.message + (this.description ? "\n" + this.description : "");

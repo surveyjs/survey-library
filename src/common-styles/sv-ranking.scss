@@ -109,12 +109,12 @@
   display: none;
   background-color: $background-dim;
   border-radius: calcSize(12.5);
-  padding: calcSize(0.5) 0px;
-  width: calcSize(25);
+  width: calcSize(31);
   height: calcSize(5);
   z-index: 1;
   position: absolute;
-  left: calcSize(5);
+  left: 0;
+  top: calcSize(0.5);
 }
 
 [dir="rtl"] .sv-ranking-item__ghost {

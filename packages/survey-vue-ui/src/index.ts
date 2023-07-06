@@ -55,6 +55,15 @@ import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
 import MatrixCell from "./MatrixCell.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 
+import PanelDynamic from "./PanelDynamic.vue";
+import PanelDynamicProgress from "./PanelDynamicProgress.vue";
+import PanelDynamicProgressV2 from "./PanelDynamicProgressV2.vue";
+import PaneldynamicAddBtn from "./components/paneldynamic-actions/PaneldynamicAddBtn.vue";
+import PaneldynamicNextBtn from "./components/paneldynamic-actions/PaneldynamicNextBtn.vue";
+import PaneldynamicPrevBtn from "./components/paneldynamic-actions/PaneldynamicPrevBtn.vue";
+import PaneldynamicRemoveBtn from "./components/paneldynamic-actions/PaneldynamicRemoveBtn.vue";
+import PaneldynamicProgressText from "./components/paneldynamic-actions/PaneldynamicProgressText.vue";
+
 import Errors from "./Errors.vue";
 import QuestionComment from "./QuestionComment.vue";
 import TitleElement from "./components/title/TitleElement.vue";
@@ -124,12 +133,22 @@ export function registerComponents(app: any) {
   app.component("sv-boolean-checkbox", BooleanCheckbox);
   app.component("survey-multipletext", MultipleText);
   app.component("survey-multipletext-item", MultipletextItem);
+
   app.component("survey-matrix", Matrix);
   app.component("survey-matrixdropdown", MatrixDropdown);
   app.component("survey-matrixtable", MatrixTable);
   app.component("survey-matrixheaderrequired", MatrixHeaderRequired);
   app.component("survey-matrixcell", MatrixCell);
   app.component("survey-matrixdynamic", MatrixDynamic);
+
+  app.component("survey-paneldynamic", PanelDynamic);
+  app.component("survey-paneldynamicprogress", PanelDynamicProgress);
+  app.component("survey-paneldynamicprogress-v2", PanelDynamicProgressV2);
+  app.component("sv-paneldynamic-add-btn", PaneldynamicAddBtn);
+  app.component("sv-paneldynamic-next-btn", PaneldynamicNextBtn);
+  app.component("sv-paneldynamic-prev-btn", PaneldynamicPrevBtn);
+  app.component("sv-paneldynamic-remove-btn", PaneldynamicRemoveBtn);
+  app.component("sv-paneldynamic-progress-text", PaneldynamicProgressText);
 
   app.component("sv-components-container", Container);
   app.component("sv-progress-pages", Progress);

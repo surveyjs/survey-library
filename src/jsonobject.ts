@@ -1375,6 +1375,7 @@ export class JsonError {
   public description: string = "";
   public at: Number = -1;
   public end: Number = -1;
+  public jsonObj: any;
   public element: Base;
   constructor(public type: string, public message: string) { }
   public getFullDescription(): string {
@@ -1715,6 +1716,7 @@ export class JsonObject {
     return null;
   }
   private addNewError(error: JsonError, jsonObj: any, element?: Base) {
+    error.jsonObj = jsonObj;
     error.element = element;
     this.errors.push(error);
     if(!jsonObj) return;

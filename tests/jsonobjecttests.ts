@@ -982,11 +982,13 @@ QUnit.test("Unknown property error on deserialization", function (assert) {
   const error1 = <JsonUnknownPropertyError>jsonObj.errors[0];
   assert.equal(error1.propertyName, "unknown1", "the property Name in the first error");
   assert.equal(error1.element.getType(), "LongNamesOwner", "element is set correctly in first error");
+  assert.ok(error1.jsonObj, "jsonObj is here");
   assert.equal(error1.className, "LongNamesOwner", "the class Name in the first error");
   const error2 = <JsonUnknownPropertyError>jsonObj.errors[1];
   assert.equal(error2.propertyName, "unknown2", "the property Name in the second error");
   assert.equal(error2.className, "itemB_thelongpart", "the class Name in the second error");
   assert.equal(error2.element.getType(), "itemB_thelongpart", "the element property in the second error");
+  assert.equal(error2.jsonObj["B"], 15, "jsonObj is correct");
 });
 QUnit.test("Having 'pos' property for objects with errors", function (assert) {
   var owner = new LongNamesOwner();

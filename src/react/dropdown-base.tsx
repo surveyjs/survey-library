@@ -57,6 +57,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     return (
       <div className={cssClasses.selectWrapper}>
         {selectElement}
+        {this.createChevronButton()}
       </div>
     );
   }
@@ -130,7 +131,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         ></input>
       </div>
       {this.createClearButton()}
-      {this.createChevronButton()}
     </div>);
   }
 

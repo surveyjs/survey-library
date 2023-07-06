@@ -43,32 +43,21 @@
         >
         </sv-svg-icon>
       </div>
-      <div
-        :class="question.cssClasses.chevronButton"
-        v-if="question.cssClasses.chevronButtonIconId"
-      >
-        <sv-svg-icon
-          :class="question.cssClasses.chevronButtonSvg"
-          :iconName="question.cssClasses.chevronButtonIconId"
-          size="24"
-        >
-        </sv-svg-icon>
-      </div>
     </div>
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
       <div>{{ question.readOnlyText }}</div>
-      <div
-        :class="question.cssClasses.chevronButton"
-        v-if="question.cssClasses.chevronButtonIconId"
+    </div>
+    <div
+      :class="question.cssClasses.chevronButton"
+      v-if="question.cssClasses.chevronButtonIconId"
+    >
+      <sv-svg-icon
+        :class="question.cssClasses.chevronButtonSvg"
+        :iconName="question.cssClasses.chevronButtonIconId"
+        size="24"
       >
-        <sv-svg-icon
-          :class="question.cssClasses.chevronButtonSvg"
-          :iconName="question.cssClasses.chevronButtonIconId"
-          size="24"
-        >
-        </sv-svg-icon>
-      </div>
+      </sv-svg-icon>
     </div>
   </div>
 </template>

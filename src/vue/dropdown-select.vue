@@ -23,6 +23,17 @@
         ></sv-dropdown-option-item>
       </select>
       <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
+      <div
+        :class="question.cssClasses.chevronButton"
+        v-if="question.cssClasses.chevronButtonIconId"
+      >
+        <sv-svg-icon
+          :class="question.cssClasses.chevronButtonSvg"
+          :iconName="question.cssClasses.chevronButtonIconId"
+          size="24"
+        >
+        </sv-svg-icon>
+      </div>
     </div>
     <survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>

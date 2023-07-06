@@ -71,10 +71,6 @@
   fill: $primary-foreground;
 }
 
-.sd-tagbox .sd-dropdown_chevron-button {
-  padding-block-start: calcSize(1);
-}
-
 .sd-tagbox__value.sd-dropdown__value {
   position: relative;
   gap: calcSize(0.5);

@@ -1,3 +1,11 @@
+.sv-dropdown_select-wrapper {
+  position: relative;
+}
+
+.sv-dropdown_select-wrapper use {
+  fill: $foreground-light;
+}
+
 .sd-dropdown {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -8,7 +16,6 @@
   opacity: 1;
   display: flex;
   justify-content: space-between;
-  position: relative;
 }
 
 .sd-dropdown[disabled] {
@@ -53,15 +60,12 @@
 .sd-dropdown_chevron-button {
   position: absolute;
   inset-inline-end: calcSize(1.5);
+  inset-block-start: calcSize(1.5);
 }
 
 .sd-dropdown_clean-button-svg {
   width: calcSize(3);
   height: calcSize(3);
-}
-
-.sd-dropdown use {
-  fill: $foreground-light;
 }
 
 .sd-input.sd-dropdown:focus-within {

@@ -4,6 +4,7 @@
   JsonUnknownPropertyError,
   property,
   JsonObjectProperty,
+  JsonRequiredPropertyError,
 } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { Base } from "../src/base";
@@ -977,39 +978,27 @@ QUnit.test("Unknown property error on deserialization", function (assert) {
     },
     owner
   );
-  assert.equal(jsonObj.errors.length, 2, "it should be two errors");
-  assert.equal(
-    (<JsonUnknownPropertyError>jsonObj.errors[0]).propertyName,
-    "unknown1",
-    "the property Name in the first error"
-  );
-  assert.equal(
-    (<JsonUnknownPropertyError>jsonObj.errors[0]).className,
-    "LongNamesOwner",
-    "the class Name in the first error"
-  );
-  assert.equal(
-    (<JsonUnknownPropertyError>jsonObj.errors[1]).propertyName,
-    "unknown2",
-    "the property Name in the second error"
-  );
-  assert.equal(
-    (<JsonUnknownPropertyError>jsonObj.errors[1]).className,
-    "itemB_thelongpart",
-    "the class Name in the second error"
-  );
+  assert.equal(jsonObj.errors.length, 2, "it has two errors");
+  const error1 = <JsonUnknownPropertyError>jsonObj.errors[0];
+  assert.equal(error1.propertyName, "unknown1", "the property Name in the first error");
+  assert.equal(error1.element.getType(), "LongNamesOwner", "element is set correctly in first error");
+  assert.equal(error1.className, "LongNamesOwner", "the class Name in the first error");
+  const error2 = <JsonUnknownPropertyError>jsonObj.errors[1];
+  assert.equal(error2.propertyName, "unknown2", "the property Name in the second error");
+  assert.equal(error2.className, "itemB_thelongpart", "the class Name in the second error");
+  assert.equal(error2.element.getType(), "itemB_thelongpart", "the element property in the second error");
 });
 QUnit.test("Having 'pos' property for objects with errors", function (assert) {
   var owner = new LongNamesOwner();
   var jsonObj = new JsonObject();
   jsonObj.toObject(
     {
-      pos: { start: 20 },
+      pos: { start: 20, end: 29 },
       unknown1: 4,
       items: [
-        { pos: { start: 30, end: 50 }, type: "itemA", A: 5 },
+        { pos: { start: 30, end: 40 }, type: "itemA", A: 5 },
         {
-          pos: { start: 30, end: 50 },
+          pos: { start: 41, end: 50 },
           unknown2: 5,
           type: "itemB_thelongpart",
           B: 15,
@@ -1019,8 +1008,12 @@ QUnit.test("Having 'pos' property for objects with errors", function (assert) {
     owner
   );
   assert.equal(jsonObj.errors.length, 2, "it should be two errors");
-  assert.equal((<JsonUnknownPropertyError>jsonObj.errors[0]).at, 20);
-  assert.equal((<JsonUnknownPropertyError>jsonObj.errors[1]).at, 30);
+  const error1 = jsonObj.errors[0];
+  const error2 = jsonObj.errors[1];
+  assert.equal(error1.at, 20);
+  assert.equal(error1.end, 29);
+  assert.equal(error2.at, 41);
+  assert.equal(error2.end, 50);
 });
 QUnit.test("Do not remove 'pos' property from objects", function (assert) {
   var dealer = new Dealer();
@@ -1093,16 +1086,11 @@ QUnit.test("Deserialization - required property with default value should not pr
   var jsonObj = new JsonObject();
   jsonObj.toObject({ cars: [{ type: "sport" }] }, dealer);
   assert.equal(dealer.cars.length, 1, "One object is deserialized");
-  assert.equal(
-    jsonObj.errors.length,
-    1,
-    "there should be one error about required property"
-  );
-  assert.equal(
-    jsonObj.errors[0].type,
-    "requiredproperty",
-    "The required property error"
-  );
+  assert.equal(jsonObj.errors.length, 1, "there should be one error about required property");
+  let error1 = <JsonRequiredPropertyError>jsonObj.errors[0];
+  assert.equal(error1.type, "requiredproperty", "The required property error, #1");
+  assert.equal(error1.propertyName, "maxSpeed", "propertyName is set, #1");
+  assert.equal(error1.element.getType(), "sport", "element is set into error, #1");
 
   Serializer.addProperty("dealer", "!foo");
   jsonObj = new JsonObject();
@@ -1112,16 +1100,11 @@ QUnit.test("Deserialization - required property with default value should not pr
     1,
     "dealer: there should be one error about required property"
   );
-  assert.equal(
-    jsonObj.errors[0].type,
-    "requiredproperty",
-    "dealer: The required property error"
-  );
-  assert.equal(
-    jsonObj.errors[0].message.indexOf("foo") > -1,
-    true,
-    "dealer: show that 'foo' is missing:" + jsonObj.errors[0].message
-  );
+  error1 = <JsonRequiredPropertyError>jsonObj.errors[0];
+  assert.equal(error1.type, "requiredproperty", "dealer: The required property error, #2");
+  assert.equal(error1.propertyName, "foo", "property name is set, #2");
+  assert.equal(error1.element.getType(), "dealer", "element is set into error, #2");
+  assert.equal(error1.message.indexOf("foo") > -1, true, "dealer: show that 'foo' is missing:" + error1.message);
   Serializer.removeProperty("dealer", "foo");
 });
 QUnit.test("Deserialization - required property error", function (assert) {

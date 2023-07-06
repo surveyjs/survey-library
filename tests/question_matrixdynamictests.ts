@@ -8224,6 +8224,8 @@ QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
 
   nodeMock.classList.remove(matrix.cssClasses.dragElementDecorator);
   assert.equal(matrix.isDragHandleAreaValid(nodeMock), true);
+
+  nodeMock.remove();
 });
 QUnit.test("column validation, bug#6449", function (assert) {
   const survey = new SurveyModel({

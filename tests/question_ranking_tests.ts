@@ -284,6 +284,8 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   Settings.rankingDragHandleArea = "some"; // 3
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
   assert.equal(result, true);
+
+  dragStartTargetNode.remove();
 });
 
 QUnit.test("Ranking: separateSpecialChoices ", function (assert) {

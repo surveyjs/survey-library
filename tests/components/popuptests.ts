@@ -120,6 +120,7 @@ QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   assert.equal(viewModel.footerToolbar.actions[0].title, viewModel.cancelButtonText);
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
@@ -156,6 +157,10 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   assert.equal(container.parentElement?.id, "shadowElement");
 
   viewModel.dispose();
+  targetElement.remove();
+  popupMountContainer.remove();
+  shadowRootWrapper.remove();
+
   settings.environment = {
     ...settings.environment,
     root: document,
@@ -199,6 +204,7 @@ QUnit.test("PopupModalViewModel defaults", (assert) => {
   assert.equal(viewModel.footerToolbar.actions[1].title, viewModel.applyButtonText);
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModalViewModel getActualHorizontalPosition", (assert) => {
@@ -218,6 +224,7 @@ QUnit.test("PopupModalViewModel getActualHorizontalPosition", (assert) => {
   assert.equal(viewModel["getActualHorizontalPosition"](), "left");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel styleClass", (assert) => {
@@ -238,6 +245,7 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
   assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel isVisible", (assert) => {
@@ -284,6 +292,7 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   assert.equal(viewModel.pointerTarget.top, "0px");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
@@ -330,6 +339,7 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(viewModel.pointerTarget.top, "0px");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
@@ -375,6 +385,7 @@ QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
@@ -403,6 +414,7 @@ QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel cancel", (assert) => {
@@ -449,6 +461,7 @@ QUnit.test("PopupModel cancel", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel apply", (assert) => {
@@ -494,6 +507,7 @@ QUnit.test("PopupModel apply", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel apply when not allow", (assert) => {
@@ -520,6 +534,7 @@ QUnit.test("PopupModel apply when not allow", (assert) => {
   assert.equal(viewModel.isVisible, false);
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel dispose", (assert) => {
@@ -553,6 +568,8 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   assert.equal(!!viewModel.container, false);
   assert.equal(container.tagName, "DIV");
   assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel initialize/dispose", (assert) => {
@@ -571,6 +588,8 @@ QUnit.test("PopupViewModel initialize/dispose", (assert) => {
 
   viewModel.dispose();
   assert.equal(!!viewModel.container, false);
+
+  targetElement.remove();
 });
 
 QUnit.test("Check calculatePosition method", (assert) => {
@@ -1071,6 +1090,7 @@ QUnit.test("PopupModel dropdown displayMode", (assert) => {
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel isModal displayMode", (assert) => {
@@ -1086,6 +1106,7 @@ QUnit.test("PopupModel isModal displayMode", (assert) => {
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel and locale", (assert) => {
@@ -1097,6 +1118,7 @@ QUnit.test("PopupModel and locale", (assert) => {
   viewModel.locale = "de";
   assert.equal(viewModel.getLocalizationString("modalApplyButtonText"), germanSurveyStrings.modalApplyButtonText, "de Apply text");
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel top+center position calculate", (assert) => {
@@ -1126,7 +1148,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
   assert.equal(viewModel.left, (1000 - 200 / 2 - 8 + 32 / 2) + "px");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel top+left position calculate", (assert) => {
@@ -1156,7 +1178,7 @@ QUnit.test("PopupModel top+left position calculate", (assert) => {
   assert.equal(viewModel.pointerTarget.left, "200px");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("Fixed PopupModel width calculate", (assert) => {
@@ -1191,7 +1213,7 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
   assert.equal(viewModel.top, "178px", "top");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
@@ -1226,7 +1248,7 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
   assert.equal(viewModel.top, "178px", "top");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("Fixed PopupModel width calculate and overflow content position calculate", (assert) => {
@@ -1261,7 +1283,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
   assert.equal(viewModel.top, "178px", "top");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel updateOnHiding", (assert) => {
@@ -1321,6 +1343,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   assert.equal(viewModel.width, "auto", "onHide width");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
@@ -1339,6 +1362,8 @@ QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
   assert.ok(viewModel["isTablet"]);
   viewModel["calculateIsTablet"](700, 700);
   assert.ok(viewModel["isTablet"]);
+
+  targetElement.remove();
 });
 QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
@@ -1399,6 +1424,7 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   assert.equal(viewModel.width, "auto", "onHide width");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
@@ -1514,5 +1540,5 @@ QUnit.test("PopupModel into modal window with translate/transform", (assert) => 
   assert.equal(viewModel.left, 66 + "px", "left");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });

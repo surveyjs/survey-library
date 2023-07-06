@@ -56,6 +56,9 @@ QUnit.test("svg import in the custom environment", function (assert) {
   svg.registerIconFromSvgViaElement("a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>", "sprite-");
   assert.equal(svg.iconsRenderedHtml(), "<symbol viewBox=\"0 0 100 100\" id=\"sprite-a\"><circle></circle></symbol>");
 
+  svgMountContainer.remove();
+  shadowRootWrapper.remove();
+
   settings.environment = {
     ...settings.environment,
     root: document,

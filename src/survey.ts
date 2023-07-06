@@ -2009,8 +2009,7 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() backgroundImageFit: string;
   /**
-   * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
-   * @see backgroundImage
+   * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
   public get backgroundOpacity(): number {
     return this.getPropertyValue("backgroundOpacity");
@@ -7000,7 +6999,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
         if(container === "header") {
           if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);

@@ -16708,6 +16708,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   assert.deepEqual(getContainerContent("left"), [], "do not show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
+
 QUnit.test("getContainerContent - do not show TOC on start page", function (assert) {
   const json = {
     showTOC: true,
@@ -16768,6 +16769,71 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
     "component": "sv-progress-toc",
     "id": "toc-navigation"
   }], "show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+
+QUnit.test("getContainerContent - do not show buttons progress on completed page", function (assert) {
+  const json = {
+    "progressBarType": "buttons",
+    "showProgressBar": "top",
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q3",
+          },
+        ]
+      }
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.doComplete();
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
 

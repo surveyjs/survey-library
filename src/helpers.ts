@@ -170,17 +170,15 @@ export class Helpers {
       return res;
     }
     if (!!value && value instanceof Object && !(value instanceof Date)) {
-      const res: any = {};
-      const keys = Object.keys(value);
-      keys.forEach(key => {
-        const val = Helpers.getUnbindValue(value[key]);
-        if(val !== undefined) {
-          res[key] = val;
-        }
-      });
-      return res;
+      return JSON.parse(JSON.stringify(value));
     }
     return value;
+  }
+  private static getObjectLevel(objects: Array<any>, obj: any): number {
+    for(let i = 0; i < objects.length; i ++) {
+      if(objects[i].obj === obj) return objects[i].level;
+    }
+    return -1;
   }
   public static createCopy(obj: any): any {
     var res: any = {};

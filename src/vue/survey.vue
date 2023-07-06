@@ -2,7 +2,7 @@
   <div :class="survey.getRootCss()"
     :style="vueSurvey.themeVariables"
     >
-    <div :class="css.rootBackgroundImage" :style="vueSurvey.backgroundImageStyle"></div>
+    <div v-if="vueSurvey.renderBackgroundImage" :class="css.rootBackgroundImage" :style="vueSurvey.backgroundImageStyle"></div>
     <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">

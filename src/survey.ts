@@ -53,7 +53,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { ITheme } from "./themes";
+import { ITheme, ImageFit, ImagePosition } from "./themes";
 import { PopupModel } from "./popup";
 
 /**
@@ -2004,8 +2004,8 @@ export class SurveyModel extends SurveyElementCore
     const path = this.getLocalizableString("backgroundImage").renderedHtml;
     this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
-  @property() backgroundImageFit: string;
-  @property() backgroundImagePosition: string;
+  @property() backgroundImageFit: ImageFit;
+  @property() backgroundImagePosition: ImagePosition;
   /**
    * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
@@ -7310,6 +7310,7 @@ Serializer.addClass("survey", [
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
+  { name: "backgroundImagePosition", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

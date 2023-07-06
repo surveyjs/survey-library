@@ -1,6 +1,6 @@
 <ng-template #template>
   <div #surveyContainer *ngIf="!!model" [class]="model.getRootCss()" [style]="model.themeVariables">
-    <div [class]="model.css.rootBackgroundImage" [style]="model.backgroundImageStyle"></div>
+    <div *ngIf="!!model.renderBackgroundImage" [class]="model.css.rootBackgroundImage" [style]="model.backgroundImageStyle"></div>
     <form onsubmit="return false;">
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">

@@ -196,8 +196,14 @@
   top: calcSize(1);
 }
 
-.sv-ranking-shortcut .sv-ranking-item__icon-container {
-  margin-left: calcSize(1);
+.sv-ranking-shortcut {
+  .sv-ranking-item__content {
+    padding-left: calcSize(0.5);
+  }
+
+  .sv-ranking-item__icon-container {
+    margin-left: calcSize(1);
+  }
 }
 
 .sv-ranking--select-to-rank {
@@ -208,8 +214,13 @@
   flex-direction: column-reverse;
 
   .sv-ranking__containers-divider {
-    margin: calcSize(5) 0;
+    margin: calcSize(3) 0;
     height: 1px;
+  }
+
+  .sv-ranking__container--empty {
+    padding-top: calcSize(1);
+    padding-bottom: calcSize(1);
   }
 }
 
@@ -220,7 +231,7 @@
 
   .sv-ranking__container--to {
     .sv-ranking-item {
-      left: initial;
+      left: calcSize(1);
     }
   }
 

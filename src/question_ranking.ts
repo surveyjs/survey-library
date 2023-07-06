@@ -499,6 +499,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * @see selectToRankAreasLayout
   */
   public get selectToRankAreasLayout(): string {
+    if (IsMobile) return "vertical";
     return this.getPropertyValue("selectToRankAreasLayout", "horizontal");
   }
   public set selectToRankAreasLayout(val: string) {

@@ -668,6 +668,7 @@ frameworks.forEach(framework => {
   test("Check survey notifier info type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 5000; })();
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
@@ -687,6 +688,7 @@ frameworks.forEach(framework => {
 
   test("Check survey notifier error type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
@@ -704,6 +706,7 @@ frameworks.forEach(framework => {
   });
 
   test("Check survey notifier success type", async (t) => {
+    await t.resizeWindow(1920, 1080);
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;

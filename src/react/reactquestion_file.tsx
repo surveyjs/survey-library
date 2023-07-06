@@ -56,6 +56,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           multiple={this.question.allowMultiple}
           title={this.question.inputTitle}
           accept={this.question.acceptedTypes}
+          capture={this.question.renderCapture}
         />
     );
     return (

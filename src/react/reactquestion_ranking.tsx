@@ -32,21 +32,21 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
         >
           <div className={this.question.getContainerClasses("from")} data-ranking="from-container">
             {this.getItems(this.question.unRankingChoices, unrankedItem)}
-            {this.question.unRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.question.selectToRankFromContainerPlaceholder} </div>: null }
+            {this.question.unRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.question.selectToRankEmptyRankedAreaText} </div> : null}
           </div>
 
           <div className={this.question.cssClasses.containersDivider}></div>
 
           <div className={this.question.getContainerClasses("to")} data-ranking="to-container">
             {this.getItems()}
-            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}>{this.question.selectToRankToContainerPlaceholder}</div>: null }
+            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}>{this.question.selectToRankEmptyUnrankedAreaText}</div> : null}
           </div>
         </div>
       );
     }
   }
 
-  protected getItems(choices:any = this.question.rankingChoices, unrankedItem?: boolean): Array<any> {
+  protected getItems(choices: any = this.question.rankingChoices, unrankedItem?: boolean): Array<any> {
     const items: Array<JSX.Element> = [];
     for (let i = 0; i < choices.length; i++) {
       const item = choices[i];
@@ -186,7 +186,7 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
 
-            <div className={this.question.getItemIndexClasses(this.item)}>{this.unrankedItem? "" : this.indexText}</div>
+            <div className={this.question.getItemIndexClasses(this.item)}>{this.unrankedItem ? "" : this.indexText}</div>
             <div className={this.cssClasses.controlLabel}>{this.text}</div>
           </div>
         </div>

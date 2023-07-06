@@ -506,8 +506,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("selectToRankAreasLayout", val);
   }
 
-  @property({ localizable: { defaultStr: "selectToRankFromContainerPlaceholder" } }) selectToRankFromContainerPlaceholder: string;
-  @property({ localizable: { defaultStr: "selectToRankToContainerPlaceholder" } }) selectToRankToContainerPlaceholder: string;
+  @property({ localizable: { defaultStr: "selectToRankEmptyRankedAreaText" } }) selectToRankEmptyRankedAreaText: string;
+  @property({ localizable: { defaultStr: "selectToRankEmptyUnrankedAreaText" } }) selectToRankEmptyUnrankedAreaText: string;
 
   public get useFullItemSizeForShortcut(): boolean {
     return this.getPropertyValue("useFullItemSizeForShortcut");

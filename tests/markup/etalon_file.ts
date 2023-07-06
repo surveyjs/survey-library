@@ -508,6 +508,21 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-image-size",
+  },
+  {
+    name: "Test file question empty (default)",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+          allowCameraAccess: true
+        }
+      ]
+    },
+    snapshot: "file-camera",
   }
   ]
 );

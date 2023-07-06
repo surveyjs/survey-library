@@ -466,15 +466,6 @@ QUnit.test("getUnbindValue function", function(assert) {
   assert.notStrictEqual(arr[2], unbindArr[2], "nested object in new array are not strict equal");
   assert.deepEqual(arr, unbindArr, "Arrays are equals");
 });
-QUnit.test("getUnbindValue function, do not serialize cycle references", function(assert) {
-  const obj1: any = { a: 1 };
-  const obj2: any = { b: 2, obj1: obj1 };
-  obj1.obj2 = obj2;
-  const res1 = Helpers.getUnbindValue(obj1);
-  assert.deepEqual(res1, { a: 1, obj2: { b: 2 } }, "obj1->obj2->obj1");
-  const res2 = Helpers.getUnbindValue(obj2);
-  assert.deepEqual(res2, { b: 2, obj1: { a: 1 } }, "obj2->obj1->obj2");
-});
 QUnit.test("convertDateToString/convertDateTimeToString functions", function(assert) {
   const d = new Date(2022, 11, 24, 10, 55, 33, 3);
   assert.equal(Helpers.convertDateToString(d), "2022-12-24", "convertDateToString");

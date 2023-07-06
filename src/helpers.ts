@@ -162,29 +162,15 @@ export class Helpers {
     return array;
   }
   public static getUnbindValue(value: any): any {
-    return Helpers.getUnbindValueCore(value, [], 1);
-  }
-  private static getUnbindValueCore(value: any, objects: Array<any>, level: number): any {
     if(Array.isArray(value)) {
       const res = [];
       for(let i = 0; i < value.length; i ++) {
-        res.push(Helpers.getUnbindValueCore(value[i], [], 1));
+        res.push(Helpers.getUnbindValue(value[i]));
       }
       return res;
     }
     if (!!value && value instanceof Object && !(value instanceof Date)) {
-      const valLevel = Helpers.getObjectLevel(objects, value);
-      if(valLevel > -1 && valLevel < level) return undefined;
-      objects.push({ obj: value, level: level });
-      const res: any = {};
-      const keys = Object.keys(value);
-      keys.forEach(key => {
-        const val = Helpers.getUnbindValueCore(value[key], objects, level + 1);
-        if(val !== undefined) {
-          res[key] = val;
-        }
-      });
-      return res;
+      return JSON.parse(JSON.stringify(value));
     }
     return value;
   }

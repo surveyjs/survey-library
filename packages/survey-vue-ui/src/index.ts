@@ -1,11 +1,4 @@
-import App from "./App.vue";
-import Survey from "./Survey.vue";
 import Page from "./Page.vue";
-
-export { App };
-export { Survey };
-export { Page };
-
 import Header from "./Header.vue";
 import Row from "./Row.vue";
 import Element from "./Element.vue";
@@ -88,8 +81,10 @@ import PopupPointer from "./components/popup/PopupPointer.vue";
 import Container from "./components/Container.vue";
 
 import Progress from "./components/progress/Progress.vue";
+import SurveyVue from "./Survey.vue";
 
-export function registerComponents(app: any) {
+function registerComponents(app: any) {
+  app.component("SurveyRoot", SurveyVue);
   app.component("survey-header", Header);
   app.component("survey-page", Page);
   app.component("survey-row", Row);

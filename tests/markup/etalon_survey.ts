@@ -61,9 +61,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getSnapshot: el => {
-        el.removeAttribute("data-bind");
-        el.children[1]?.remove();
-        return el.outerHTML;
+        return el.children[0].outerHTML;
       },
       snapshot: "survey-theme-backgroundImage"
     }

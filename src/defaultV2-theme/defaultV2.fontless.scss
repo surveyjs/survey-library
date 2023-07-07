@@ -61,6 +61,12 @@ body {
   width: 100%;
   font-family: var(--font-family, $font-family);
   background-color: $background-dim;
+  position: relative;
+
+  form {
+    z-index: 1;
+    position: relative;
+  }
 
   * {
     scrollbar-width: thin;

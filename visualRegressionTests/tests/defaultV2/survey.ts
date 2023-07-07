@@ -590,7 +590,6 @@ frameworks.forEach(framework => {
             document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
           }
         })();
-        //t.debug();
         await takeElementScreenshot("survey-progress-top-freeze.png", Selector("body"), t, comparer);
       });
     }

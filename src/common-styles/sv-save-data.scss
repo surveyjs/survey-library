@@ -1,7 +1,7 @@
 @import "../defaultV2-theme/variables.scss";
 
 .sv-save-data_root {
-  position: absolute;
+  position: fixed;
   left: 50%;
   bottom: calcSize(3);
   background: $background;

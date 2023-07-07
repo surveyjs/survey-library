@@ -1373,7 +1373,10 @@ export class JsonMetadata {
 }
 export class JsonError {
   public description: string = "";
-  public at: Number = -1;
+  public at: number = -1;
+  public end: number = -1;
+  public jsonObj: any;
+  public element: Base;
   constructor(public type: string, public message: string) { }
   public getFullDescription(): string {
     return this.message + (this.description ? "\n" + this.description : "");
@@ -1467,7 +1470,7 @@ export class JsonObject {
     this.toObjectCore(jsonObj, obj);
     var error = this.getRequiredError(obj, jsonObj);
     if (!!error) {
-      this.addNewError(error, jsonObj);
+      this.addNewError(error, jsonObj, obj);
     }
   }
   public toObjectCore(jsonObj: any, obj: any) {
@@ -1495,10 +1498,7 @@ export class JsonObject {
       var property = this.findProperty(properties, key);
       if (!property) {
         if (needAddErrors) {
-          this.addNewError(
-            new JsonUnknownPropertyError(key.toString(), objType),
-            jsonObj
-          );
+          this.addNewError(new JsonUnknownPropertyError(key.toString(), objType), jsonObj, obj);
         }
         continue;
       }
@@ -1695,7 +1695,7 @@ export class JsonObject {
       }
     }
     if (error) {
-      this.addNewError(error, value);
+      this.addNewError(error, value, newObj);
     }
     return error;
   }
@@ -1715,11 +1715,15 @@ export class JsonObject {
     }
     return null;
   }
-  private addNewError(error: JsonError, jsonObj: any) {
-    if (jsonObj && jsonObj[JsonObject.positionPropertyName]) {
-      error.at = jsonObj[JsonObject.positionPropertyName].start;
-    }
+  private addNewError(error: JsonError, jsonObj: any, element?: Base) {
+    error.jsonObj = jsonObj;
+    error.element = element;
     this.errors.push(error);
+    if(!jsonObj) return;
+    const posObj = jsonObj[JsonObject.positionPropertyName];
+    if(!posObj) return;
+    error.at = posObj.start;
+    error.end = posObj.end;
   }
   private valueToArray(
     value: Array<any>,

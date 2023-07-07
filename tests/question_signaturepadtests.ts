@@ -49,6 +49,8 @@ QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
   assert.equal(question.dataFormat, "png", "png format");
   question["updateValue"]();
   assert.equal(question.value.substring(0, 15), "data:image/png;", "png#3");
+
+  el.remove();
 });
 QUnit.test("QuestionSignaturePadModel dataFormat converters", function (assert) {
   var question = new QuestionSignaturePadModel("q");
@@ -108,6 +110,9 @@ QUnit.test("Check signaturepad signauteWidth/Height properties", (assert) => {
   signaturepad.signatureHeight = 300;
   assert.equal(canvas.width, 400);
   assert.equal(canvas.height, 300);
+
+  canvas.remove();
+  containerEl.remove();
 });
 //todo: need to remove this test after code modification
 QUnit.test("Check width/height influence on signageWidth/Height properties", (assert) => {
@@ -166,6 +171,9 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
   assert.equal(canvas.width, 400);
   assert.equal(signaturepad.signatureHeight, 300);
   assert.equal(canvas.height, 300);
+
+  canvas.remove();
+  containerEl.remove();
 });
 
 QUnit.test("check penColor", (assert) => {

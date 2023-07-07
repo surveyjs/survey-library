@@ -13,6 +13,14 @@ const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knoc
 
 export default QUnit.module("Popup");
 
+function addElementIntoBody(element: HTMLElement) {
+  document.body.style.margin = "0px";
+  document.body.appendChild(element);
+}
+function getPopupContainer(root: HTMLElement) {
+  return <HTMLElement>root?.querySelector(".sv-popup__container");
+}
+
 const targetRect = {
   left: 20,
   top: 20,
@@ -112,6 +120,7 @@ QUnit.test("PopupDropdownViewModel defaults", (assert) => {
   assert.equal(viewModel.footerToolbar.actions[0].title, viewModel.cancelButtonText);
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
@@ -148,6 +157,10 @@ QUnit.test("PopupDropdownViewModel custom environment", (assert) => {
   assert.equal(container.parentElement?.id, "shadowElement");
 
   viewModel.dispose();
+  targetElement.remove();
+  popupMountContainer.remove();
+  shadowRootWrapper.remove();
+
   settings.environment = {
     ...settings.environment,
     root: document,
@@ -191,6 +204,7 @@ QUnit.test("PopupModalViewModel defaults", (assert) => {
   assert.equal(viewModel.footerToolbar.actions[1].title, viewModel.applyButtonText);
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModalViewModel getActualHorizontalPosition", (assert) => {
@@ -210,6 +224,7 @@ QUnit.test("PopupModalViewModel getActualHorizontalPosition", (assert) => {
   assert.equal(viewModel["getActualHorizontalPosition"](), "left");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel styleClass", (assert) => {
@@ -230,6 +245,7 @@ QUnit.test("PopupViewModel styleClass", (assert) => {
   assert.equal(viewModel.styleClass, "my-css-class sv-popup--dropdown");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel isVisible", (assert) => {
@@ -276,6 +292,7 @@ QUnit.test("PopupViewModel isVisible", (assert) => {
   assert.equal(viewModel.pointerTarget.top, "0px");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel toggleVisibility", (assert) => {
@@ -322,6 +339,7 @@ QUnit.test("PopupModel toggleVisibility", (assert) => {
   assert.equal(viewModel.pointerTarget.top, "0px");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
@@ -367,6 +385,7 @@ QUnit.test("PopupModel PopupDropdownViewModel clickOutside", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
@@ -395,6 +414,7 @@ QUnit.test("PopupModel PopupModalViewModel clickOutside", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel cancel", (assert) => {
@@ -441,6 +461,7 @@ QUnit.test("PopupModel cancel", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel apply", (assert) => {
@@ -486,6 +507,7 @@ QUnit.test("PopupModel apply", (assert) => {
   trace = "";
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel apply when not allow", (assert) => {
@@ -512,6 +534,7 @@ QUnit.test("PopupModel apply when not allow", (assert) => {
   assert.equal(viewModel.isVisible, false);
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel dispose", (assert) => {
@@ -545,6 +568,8 @@ QUnit.test("PopupViewModel dispose", (assert) => {
   assert.equal(!!viewModel.container, false);
   assert.equal(container.tagName, "DIV");
   assert.notEqual(container.innerHTML.indexOf('<div class="sv-popup"'), 0);
+
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel initialize/dispose", (assert) => {
@@ -563,6 +588,8 @@ QUnit.test("PopupViewModel initialize/dispose", (assert) => {
 
   viewModel.dispose();
   assert.equal(!!viewModel.container, false);
+
+  targetElement.remove();
 });
 
 QUnit.test("Check calculatePosition method", (assert) => {
@@ -1063,6 +1090,7 @@ QUnit.test("PopupModel dropdown displayMode", (assert) => {
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel isModal displayMode", (assert) => {
@@ -1078,6 +1106,7 @@ QUnit.test("PopupModel isModal displayMode", (assert) => {
   assert.equal(viewModel.styleClass, "sv-popup--overlay");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel and locale", (assert) => {
@@ -1089,6 +1118,7 @@ QUnit.test("PopupModel and locale", (assert) => {
   viewModel.locale = "de";
   assert.equal(viewModel.getLocalizationString("modalApplyButtonText"), germanSurveyStrings.modalApplyButtonText, "de Apply text");
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel top+center position calculate", (assert) => {
@@ -1100,7 +1130,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
   targetElement.style.left = "1000px";
   targetElement.style.width = "32px";
   targetElement.style.height = "24px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
@@ -1118,7 +1148,7 @@ QUnit.test("PopupModel top+center position calculate", (assert) => {
   assert.equal(viewModel.left, (1000 - 200 / 2 - 8 + 32 / 2) + "px");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("PopupModel top+left position calculate", (assert) => {
@@ -1130,14 +1160,14 @@ QUnit.test("PopupModel top+left position calculate", (assert) => {
   targetElement.style.left = "1000px";
   targetElement.style.width = "32px";
   targetElement.style.height = "24px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "200px";
   popupContainer.style.height = "400px";
   popupContainer.style.margin = "8px";
@@ -1148,7 +1178,7 @@ QUnit.test("PopupModel top+left position calculate", (assert) => {
   assert.equal(viewModel.pointerTarget.left, "200px");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("Fixed PopupModel width calculate", (assert) => {
@@ -1162,14 +1192,14 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "700px";
   popupContainer.style.height = "400px";
 
@@ -1183,7 +1213,7 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
   assert.equal(viewModel.top, "178px", "top");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
@@ -1197,14 +1227,14 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "200px";
   popupContainer.style.height = "400px";
 
@@ -1218,7 +1248,7 @@ QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
   assert.equal(viewModel.top, "178px", "top");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("Fixed PopupModel width calculate and overflow content position calculate", (assert) => {
@@ -1232,14 +1262,14 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "1500px";
   popupContainer.style.height = "400px";
 
@@ -1253,7 +1283,7 @@ QUnit.test("Fixed PopupModel width calculate and overflow content position calcu
   assert.equal(viewModel.top, "178px", "top");
 
   viewModel.dispose();
-  document.body.removeChild(targetElement);
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel updateOnHiding", (assert) => {
@@ -1266,7 +1296,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
@@ -1313,6 +1343,7 @@ QUnit.test("PopupViewModel updateOnHiding", (assert) => {
   assert.equal(viewModel.width, "auto", "onHide width");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
@@ -1331,6 +1362,8 @@ QUnit.test("PopupViewModel calculate tablet mode", (assert) => {
   assert.ok(viewModel["isTablet"]);
   viewModel["calculateIsTablet"](700, 700);
   assert.ok(viewModel["isTablet"]);
+
+  targetElement.remove();
 });
 QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
@@ -1341,14 +1374,14 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   targetElement.style.left = "200px";
   targetElement.style.width = "560px";
   targetElement.style.height = "48px";
-  document.body.appendChild(targetElement);
+  addElementIntoBody(targetElement);
   targetElement.parentElement.scrollTop = 0;
   targetElement.parentElement.scrollLeft = 0;
 
   const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
   viewModel.initializePopupContainer();
   viewModel.container.innerHTML = popupTemplate;
-  let popupContainer = viewModel.container.children[0].children[0] as HTMLElement;
+  let popupContainer = getPopupContainer(viewModel.container);
   popupContainer.style.width = "550px";
   popupContainer.style.height = "400px";
 
@@ -1391,6 +1424,7 @@ QUnit.test("PopupViewModel updateOnHiding displayMode = overlay", (assert) => {
   assert.equal(viewModel.width, "auto", "onHide width");
 
   viewModel.dispose();
+  targetElement.remove();
 });
 
 QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
@@ -1423,7 +1457,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
     <div style="height: 400px;"></div>
   </div>`;
   wrapContainer(container);
-  document.body.appendChild(container);
+  addElementIntoBody(container);
   viewModel.setComponentElement(container);
   model.isVisible = true;
   viewModel.updateOnShowing();
@@ -1472,4 +1506,39 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
   assert.equal(subscribeLog, "->subscribed->unsubscribed");
 
   container.remove();
+});
+QUnit.test("PopupModel into modal window with translate/transform", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "350px";
+  targetElement.style.left = "250px";
+  targetElement.style.width = "32px";
+  targetElement.style.height = "24px";
+  addElementIntoBody(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+
+  let popupContainer = viewModel.container.querySelector(".sv-popup__container") as HTMLElement;
+  popupContainer.style.width = "200px";
+  popupContainer.style.height = "400px";
+
+  let fixedPopupContainer = viewModel.container.querySelector(".sv-popup") as HTMLElement;
+  fixedPopupContainer.getBoundingClientRect = () => {
+    return <DOMRect>{ "x": 100, "y": 200, "width": 1920, "height": 0, "top": 200, "right": 2097, "bottom": 200, "left": 100 };
+  };
+
+  (<any>window).innerHeight = 2000;
+  (<any>window).innerWidth = 2000;
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.top, 174 + "px", "top");
+  assert.equal(viewModel.left, 66 + "px", "left");
+
+  viewModel.dispose();
+  targetElement.remove();
 });

@@ -259,6 +259,9 @@ QUnit.test("check resizeObserver behavior", function(assert) {
   assert.equal(trace, "->processed->processed->processed", "always process when isMobile changed");
   window.ResizeObserver = ResizeObserver;
   window.setTimeout = setTimeout;
+
+  contentEl.remove();
+  rootEl.remove();
 });
 
 QUnit.test("check resizeObserver not process if container is not visible", function(assert) {
@@ -301,6 +304,9 @@ QUnit.test("check resizeObserver not process if container is not visible", funct
   (<any>q["resizeObserver"]).call();
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
+
+  contentEl.remove();
+  rootEl.remove();
 });
 
 QUnit.test("check contentNotLoaded and contentMode flags behavior", function(assert) {

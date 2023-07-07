@@ -15400,6 +15400,7 @@ QUnit.test("Check survey resize observer", function (assert) {
   survey.dispose();
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 class CustomResizeObserver {
@@ -15444,6 +15445,7 @@ QUnit.test("Check survey resize observer double process", function (assert) {
   assert.equal(trace, "->processed->processed");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check survey resize observer do not process if container is not visible", function (assert) {
@@ -15478,6 +15480,7 @@ QUnit.test("Check survey resize observer do not process if container is not visi
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {

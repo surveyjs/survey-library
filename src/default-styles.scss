@@ -1258,7 +1258,7 @@ sv-popup {
   transform: translate(calc(-1 * var(--base-unit, 8px)), calc(-1 * var(--base-unit, 8px)));
 }
 
-.sv-popup--show-pointer.sv-popup--right {
+.sv-popup--show-pointer.sv-popup--right .sv-popup__container {
   transform: translate(calc(1 * var(--base-unit, 8px)));
 }
 
@@ -1266,7 +1266,7 @@ sv-popup {
   transform: translate(-12px, -4px) rotate(-90deg);
 }
 
-.sv-popup--show-pointer.sv-popup--left {
+.sv-popup--show-pointer.sv-popup--left .sv-popup__container {
   transform: translate(calc(-1 * var(--base-unit, 8px)));
 }
 

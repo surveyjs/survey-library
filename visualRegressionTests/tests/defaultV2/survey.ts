@@ -673,7 +673,7 @@ frameworks.forEach(framework => {
         options.showDataSaving();
         let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
+        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 10000); }).then(
           () => { options.showDataSavingSuccess(); },
           () => { options.showDataSavingError(); }
         );

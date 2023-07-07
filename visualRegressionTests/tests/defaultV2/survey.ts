@@ -666,8 +666,8 @@ frameworks.forEach(framework => {
   };
   test("Check survey notifier info type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 5000; })();
-      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+      await t.resizeWindow(1920, 900);
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
@@ -687,7 +687,7 @@ frameworks.forEach(framework => {
 
   test("Check survey notifier error type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(1920, 1080);
+      await t.resizeWindow(1920, 900);
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
@@ -705,7 +705,8 @@ frameworks.forEach(framework => {
   });
 
   test("Check survey notifier success type", async (t) => {
-    await t.resizeWindow(1920, 1080);
+    await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+    await t.resizeWindow(1920, 900);
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
@@ -720,6 +721,7 @@ frameworks.forEach(framework => {
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });
   test("TOC survey navigation", async (t) => {

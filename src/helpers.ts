@@ -174,12 +174,6 @@ export class Helpers {
     }
     return value;
   }
-  private static getObjectLevel(objects: Array<any>, obj: any): number {
-    for(let i = 0; i < objects.length; i ++) {
-      if(objects[i].obj === obj) return objects[i].level;
-    }
-    return -1;
-  }
   public static createCopy(obj: any): any {
     var res: any = {};
     if (!obj) return res;

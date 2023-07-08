@@ -527,3 +527,18 @@ QUnit.test("survey.onPropertyValueChangedCallback on column property changed", f
   assert.equal(counter, 2, "callback called, #3");
   assert.equal(propertyName, "expression", "expression is changed, #4");
 });
+QUnit.test("Column width is not loaded, bug in Creator #4303", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", width: "222px" }],
+        rows: [0, 1, 2]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  assert.equal(matrix.columns.length, 1, "There is one column");
+  assert.equal(matrix.columns[0].width, "222px", "column width is loaded correctly");
+});

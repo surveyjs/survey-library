@@ -5,6 +5,7 @@
     :aria-selected="model.isItemSelected(item)"
     v-show="model.isItemVisible(item)"
     :key="item.id"
+    :id="elementId"
     v-bind:class="model.getItemClass(item)"
     v-on:click="click"
     v-on:keyup="keyUp"
@@ -31,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import { ListModel, Action } from "survey-core";
+import { ListModel, Action, IAction } from "survey-core";
 import { defineSurveyComponent } from "../../base";
 import type { PropType } from "vue";
 
@@ -61,6 +62,11 @@ export default defineSurveyComponent({
         return vm.item;
       },
     };
+  },
+  computed: {
+    elementId() {
+      return (this.item as IAction)?.elementId;
+    }
   },
   mounted() {
     this.model.onLastItemRended(<any>this.item);

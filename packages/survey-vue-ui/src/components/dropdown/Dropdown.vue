@@ -14,10 +14,10 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+      :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
-      :required="question.isRequired"
+      :required="question.isRequired ? true : null"
     >
       <div v-if="model.showHintPrefix" :class="question.cssClasses.hintPrefix">
         <span>{{ model.hintStringPrefix }}</span>
@@ -51,7 +51,7 @@
           :tabindex="model.inputReadOnly ? undefined : -1"
           :readonly="!model.searchEnabled ? true : null"
           :aria-label="question.placeholder"
-          :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+          :aria-expanded="question.ariaExpanded"
           :aria-controls="model.listElementId"
           :aria-activedescendant="model.ariaActivedescendant"
           :placeholder="model.placeholderRendered"
@@ -103,15 +103,15 @@ export default defineSurveyComponent({
     return {
       inputElement: undefined,
       getModel: () => {
-        if (!vm.question.dropdownListModel) {
-          vm.question.dropdownListModel = new DropdownListModel(vm.question);
-        }
         return vm.model;
       },
     };
   },
   computed: {
     model() {
+      if (!this.question.dropdownListModel) {
+        this.question.dropdownListModel = new DropdownListModel(this.question);
+      }
       return this.question.dropdownListModel;
     },
   },

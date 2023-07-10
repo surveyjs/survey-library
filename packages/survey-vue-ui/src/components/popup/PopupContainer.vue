@@ -28,12 +28,12 @@
     >
       <div class="sv-popup__shadow">
         <component
-          v-show="model.showHeader"
+          v-if="model.showHeader"
           :is="model.popupHeaderTemplate"
           :model="model"
         ></component>
         <div class="sv-popup__body-content">
-          <div class="sv-popup__body-header" v-show="!!model.title">{{ model.title }}</div>
+          <div class="sv-popup__body-header" v-if="!!model.title">{{ model.title }}</div>
           <div class="sv-popup__scrolling-content">
             <div class="sv-popup__content">
               <component

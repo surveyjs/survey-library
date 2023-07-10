@@ -1,20 +1,10 @@
 <template>
-  <div>
-    <Teleport :to="popupViewModel.container">
-      <sv-popup-container :model="popupViewModel"></sv-popup-container>
-    </Teleport>
-  </div>
+  <div><sv-popup-container :model="popupViewModel"></sv-popup-container></div>
 </template>
 <script lang="ts">
-import { PopupModel, createPopupViewModel, PopupBaseViewModel } from "survey-core";
-import { reactive, ref, watch, type PropType } from "vue";
+import { PopupModel, createPopupViewModel } from "survey-core";
+import { reactive, type PropType } from "vue";
 import { defineSurveyComponent } from "../../base";
-
-function initializePopupViewModel(model: PopupModel): PopupBaseViewModel {
-  const res = createPopupViewModel(model);
-  res.initializePopupContainer();
-  return res;
-}
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
@@ -24,11 +14,17 @@ export default defineSurveyComponent({
   },
   setup(props: any) {
     return {
-      popupViewModel: reactive(initializePopupViewModel(props.model)),
+      popupViewModel: reactive(
+        createPopupViewModel(props.model, undefined as any)
+      ),
     };
   },
   mounted() {
-    this.popupViewModel.targetElement = this.$el.parentElement;
+    const container = (this.$el as HTMLElement) as HTMLElement;
+    this.popupViewModel.setComponentElement(
+      container,
+      this.getTarget ? this.getTarget(container) : undefined
+    );
   },
   destroyed() {
     this.popupViewModel.dispose();
@@ -43,7 +39,9 @@ export default defineSurveyComponent({
   watch: {
     model(newValue: PopupModel) {
       this.popupViewModel.dispose();
-      this.popupViewModel = reactive(initializePopupViewModel(newValue));
+      this.popupViewModel = reactive(
+        createPopupViewModel(newValue, undefined as any)
+      );
       this.popupViewModel = this.$el.parentElement;
     },
   },

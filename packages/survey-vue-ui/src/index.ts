@@ -23,6 +23,8 @@ import ImagePicker from "./Imagepicker.vue";
 import ImagePickerItem from "./ImagepickerItem.vue";
 import Comment from "./Comment.vue";
 import Dropdown from "./Dropdown.vue";
+import DropdownSelect from "./DropdownSelect.vue";
+import DropdownOptionItem from "./components/dropdown/OptionItem.vue";
 import DropdownInput from "./components/dropdown/Dropdown.vue";
 import Tagbox from "./Tagbox.vue";
 import TagboxInput from "./components/tagbox/Tagbox.vue";
@@ -112,6 +114,8 @@ function registerComponents(app: any) {
   app.component("survey-imagepicker-item", ImagePickerItem);
   app.component("survey-comment", Comment);
   app.component("survey-dropdown", Dropdown);
+  app.component("sv-dropdown-select", DropdownSelect);
+  app.component("sv-dropdown-option-item", DropdownOptionItem);
   app.component("sv-dropdown", DropdownInput);
   app.component("survey-tagbox", Tagbox);
   app.component("sv-tagbox", TagboxInput);

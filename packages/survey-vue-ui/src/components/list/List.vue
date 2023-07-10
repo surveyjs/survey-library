@@ -1,5 +1,5 @@
 <template>
-  <div v-bind:class="model.cssClasses.root" ref="listContainerElement">
+   <div v-bind:class="model.cssClasses.root" ref="listContainerElement">
     <div v-bind:class="model.cssClasses.filter" v-if="model.showFilter">
       <div v-bind:class="model.cssClasses.filterIcon">
         <sv-svg-icon :iconName="'icon-search'" :size="'auto'"> </sv-svg-icon>
@@ -21,9 +21,11 @@
       <div v-bind:class="model.cssClasses.emptyText" :aria-label="model.emptyMessage">{{ model.emptyMessage }}</div>
     </div>
     <ul
-      v-bind:class="model.cssClasses.itemsContainer"
+      v-if="model.renderElements"
+      v-bind:class="model.getListClass()"
       v-show="!model.isEmpty"
       role="listbox"
+      :id="model.elementId"
       @mousedown="
         (event) => {
           event.preventDefault();

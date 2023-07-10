@@ -51,7 +51,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const whiteList = ["paneldynamic"];
+const whiteList = ["matrix"];
 
 describe("etalon tests", () => {
   markupTests.forEach((markupTest) => {
@@ -65,8 +65,9 @@ describe("etalon tests", () => {
               markupTest,
               platformDescriptor
             );
-          })
+          }),
+        1000
       );
     }
   });
-}, 10000);
+});

@@ -14,15 +14,15 @@
 <script lang="ts">
 import { RenderedRatingItem, QuestionRatingModel } from "survey-core";
 import { QuestionVue } from "../../base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "sv-rating-item-star",
   props: {
-    item: RenderedRatingItem,
-    question: QuestionRatingModel,
+    item: Object as PropType<RenderedRatingItem>,
+    question: Object as PropType<QuestionRatingModel>,
     index: Number,
   },
   data: (vm: any) => {

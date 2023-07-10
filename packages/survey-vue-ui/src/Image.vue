@@ -30,13 +30,13 @@
 
 <script lang="ts">
 import { QuestionImageModel } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref } from "vue";
+import { ref, defineComponent, type ComponentOptions, unref, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-image",
   props: {
-    question: QuestionImageModel,
+    question: Object as PropType<QuestionImageModel>,
     css: Object,
   },
   data: (vm: any) => {

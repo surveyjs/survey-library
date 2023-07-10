@@ -12,12 +12,13 @@
 <script lang="ts">
 import { Action } from "survey-core";
 import { defineSurveyComponent } from "../../base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-action",
   props: {
-    item: Action,
+    item: Object as PropType<Action>,
   },
   computed: {
     componentName() {

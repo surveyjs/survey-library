@@ -21,13 +21,14 @@ import { SurveyModel } from "survey-core";
 import { PageModel } from "survey-core";
 import { Base } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-page",
   props: {
-    survey: SurveyModel,
-    page: PageModel,
+    survey: Object as PropType<SurveyModel>,
+    page: Object as PropType<PageModel>,
     css: Object
   },
   data: (vm: any) => {

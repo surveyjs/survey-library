@@ -12,14 +12,14 @@
 <script lang="ts">
 import { QuestionTextModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   mixins: [QuestionVue],
   // eslint-disable-next-line
   name: "survey-text",
   props: {
-    question: QuestionTextModel,
+    question: Object as PropType<QuestionTextModel>,
     css: Object,
   },
 });

@@ -26,12 +26,13 @@
 <script lang="ts">
 import { QuestionImagePickerModel } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-imagepicker",
   props: {
-    question: QuestionImagePickerModel,
+    question: Object as PropType<QuestionImagePickerModel>,
     css: Object,
   },
   data: (vm: any) => {

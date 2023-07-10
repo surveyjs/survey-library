@@ -7,14 +7,14 @@
 <script lang="ts">
 import { QuestionRatingModel, RendererFactory } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "sv-rating-dropdown",
   props: {
-    question: QuestionRatingModel,
+    question: Object as PropType<QuestionRatingModel>,
   },
 });
 

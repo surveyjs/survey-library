@@ -22,13 +22,14 @@
 <script lang="ts">
 import { ItemValue, Base } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-checkbox-item",
   props: {
     question: Object,
-    item: ItemValue,
+    item: Object as PropType<ItemValue>,
     index: Object,
     hideLabel: Boolean,
   },

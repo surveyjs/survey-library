@@ -52,14 +52,14 @@
 <script lang="ts">
 import { QuestionMatrixDynamicModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "survey-matrixdynamic",
   props: {
-    question: QuestionMatrixDynamicModel,
+    question: Object as PropType<QuestionMatrixDynamicModel>,
   },
   data: (vm: any) => {
     return {

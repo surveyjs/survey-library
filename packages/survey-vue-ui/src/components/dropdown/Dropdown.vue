@@ -90,12 +90,13 @@
 </template>
 
 <script lang="ts">
+import type { PropType } from "vue";
 import { defineSurveyComponent } from "../../base";
 import { DropdownListModel, QuestionDropdownModel, Helpers } from "survey-core";
 
 export default defineSurveyComponent({
   props: {
-    question: QuestionDropdownModel,
+    question: Object as PropType<QuestionDropdownModel>,
   },
   name: "sv-dropdown",
   data: (vm: any) => {

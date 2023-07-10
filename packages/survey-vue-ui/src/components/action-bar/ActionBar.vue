@@ -20,12 +20,13 @@
 <script lang="ts">
 import { ActionContainer } from "survey-core";
 import { defineSurveyComponent } from "../../base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-action-bar",
   props: {
-    model: ActionContainer,
+    model: Object as PropType<ActionContainer>,
     handleClick: Boolean
   },
   computed: {

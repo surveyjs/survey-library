@@ -35,12 +35,12 @@
 
 <script lang="ts">
 import { QuestionRankingModel, ItemValue } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { BaseVue, QuestionVue } from "./base";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
-  mixins: [QuestionVue],
+  mixins: [BaseVue],
   name: "survey-ranking-item",
   props: {
     //question: QuestionRankingModel,
@@ -49,9 +49,14 @@ export default defineComponent({
     text: String,
     handleKeydown: ()=>{},
     cssClasses: Object,
-    question: QuestionRankingModel,
-    item: ItemValue,
+    question: Object as PropType<QuestionRankingModel>,
+    item: Object as PropType<ItemValue>,
     unrankedItem: Boolean,
+  },
+  data: (vm: any) => {
+    return {
+      getModel: () => { return vm.item; }
+    }
   },
 });
 </script>

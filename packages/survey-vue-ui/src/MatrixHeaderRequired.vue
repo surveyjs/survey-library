@@ -5,15 +5,15 @@
 <script lang="ts">
 import { Question, MatrixDropdownColumn } from "survey-core";
 import { BaseVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [BaseVue],
   name: "survey-matrixheaderrequired",
   props: {
-    question: Question,
-    column: MatrixDropdownColumn,
+    question: Object as PropType<Question>,
+    column: Object as PropType<MatrixDropdownColumn>,
   },
   data: (vm: any) => {
     return {

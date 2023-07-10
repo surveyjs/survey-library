@@ -37,12 +37,13 @@
 <script lang="ts">
 import { Action, ActionDropdownViewModel } from "survey-core";
 import { defineSurveyComponent } from "../../base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-action-bar-item-dropdown",
   props: {
-    item: Action,
+    item: Object as PropType<Action>,
   },
   beforeCreate() {
     this.viewModel = new ActionDropdownViewModel(this.item);

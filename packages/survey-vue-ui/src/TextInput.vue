@@ -29,12 +29,13 @@
 <script lang="ts">
 import { QuestionTextModel } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-text-input",
   props: {
-    question: QuestionTextModel,
+    question: Object as PropType<QuestionTextModel>,
   },
   data: (vm: any) => {
     return {

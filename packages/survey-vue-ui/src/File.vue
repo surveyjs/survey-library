@@ -127,14 +127,14 @@
 import { QuestionFileModel } from "survey-core";
 import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-file",
   mixins: [QuestionVue],
   props: {
-    question: QuestionFileModel,
+    question: Object as PropType<QuestionFileModel>,
     css: Object,
   },
   data: (vm: any) => {

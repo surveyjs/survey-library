@@ -1,10 +1,10 @@
-import type { ComponentOptions } from "vue";
+import type { ComponentOptions, PropType } from "vue";
 import { Action, QuestionPanelDynamicModel } from "survey-core";
 
 export const PaneldynamicActionMixin: ComponentOptions = {
   props: {
-    data: Object,
-    item: Action,
+    data: Object as PropType<Object>,
+    item: Object as PropType<Action>,
   },
   computed: {
     // readonly

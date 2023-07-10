@@ -11,14 +11,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 import { SurveyModel, Action } from "survey-core";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "sv-components-container",
   props: {
-    survey: SurveyModel,
+    survey: Object as PropType<SurveyModel>,
     container: String,
   },
   computed: {

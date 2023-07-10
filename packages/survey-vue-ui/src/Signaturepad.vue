@@ -37,14 +37,14 @@
 <script lang="ts">
 import { QuestionSignaturePadModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   mixins: [QuestionVue],
   // eslint-disable-next-line
   name: "survey-signaturepad",
   props: {
-    question: QuestionSignaturePadModel,
+    question: Object as PropType<QuestionSignaturePadModel>,
     css: Object,
   },
 });

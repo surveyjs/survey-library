@@ -16,14 +16,14 @@
 
 <script lang="ts">
 import { QuestionPanelDynamicModel } from "survey-core";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 import PanelDynamicProgress from "./PanelDynamicProgress.vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-paneldynamicprogress-v2",
   props: {
-    question: QuestionPanelDynamicModel,
+    question: Object as PropType<QuestionPanelDynamicModel>,
   },
   mixins: [PanelDynamicProgress],
 });

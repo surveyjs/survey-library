@@ -33,13 +33,14 @@
 <script lang="ts">
 import { ItemValue, Base } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-radiogroup-item",
   props: {
     question: Object,
-    item: ItemValue,
+    item: Object as PropType<ItemValue>,
     index: Object,
     hideLabel: Boolean,
   },

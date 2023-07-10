@@ -84,15 +84,16 @@
 
 <script lang="ts">
 import { SvgRegistry, SurveyModel } from "survey-core";
-import { reactive, isReactive } from "vue";
+
+import { reactive, isReactive, type PropType } from "vue";
 import { defineSurveyComponent } from "./base";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey",
   props: {
-    model: SurveyModel,
-    survey: SurveyModel,
+    model: Object as PropType<SurveyModel>,
+    survey: Object as PropType<SurveyModel>
   },
   data: (vm: any) => {
     return {

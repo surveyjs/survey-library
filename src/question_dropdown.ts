@@ -39,7 +39,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices"], () => {
+    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
       this.updateReadOnlyText();
     });
     this.updateReadOnlyText();

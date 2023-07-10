@@ -44,14 +44,14 @@ const platformDescriptor = {
 class ExpectAssertAdapter {
   constructor(private expect: any, private done: any) {}
   public equal(actual: any, expected: any, msg: string) {
-    this.expect.soft(expected, msg).toBe(actual);
+    this.expect.soft(actual, msg).toBe(expected);
   }
   public async() {
     return this.done;
   }
 }
 
-const whiteList = ["matrix"];
+const whiteList = ["dropdown"];
 
 describe("etalon tests", () => {
   markupTests.forEach((markupTest) => {

@@ -82,6 +82,7 @@ import Container from "./components/Container.vue";
 
 import Progress from "./components/progress/Progress.vue";
 import SurveyVue from "./Survey.vue";
+import Notifier from "./Notifier.vue";
 
 function registerComponents(app: any) {
   app.component("SurveyRoot", SurveyVue);
@@ -171,6 +172,8 @@ function registerComponents(app: any) {
   app.component("sv-popup", Popup);
   app.component("sv-popup-container", PopupContainer);
   app.component("popup-pointer", PopupPointer);
+
+  app.component("sv-notifier", Notifier);
 }
 
 export default {

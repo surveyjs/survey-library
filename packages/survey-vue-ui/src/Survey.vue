@@ -156,6 +156,9 @@ export default defineSurveyComponent({
     css(): any {
       return this.vueSurvey.css;
     },
+    pageKey(): string {
+      return "page" + this.getActivePageId();
+    }
   },
   mounted() {
     if (!this.vueSurvey) return;

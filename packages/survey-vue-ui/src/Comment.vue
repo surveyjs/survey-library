@@ -26,12 +26,13 @@
 <script lang="ts">
 import { QuestionCommentModel } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-comment",
   props: {
-    question: QuestionCommentModel,
+    question: Object as PropType<QuestionCommentModel>,
     css: Object,
   },
   data: (vm: any) => {

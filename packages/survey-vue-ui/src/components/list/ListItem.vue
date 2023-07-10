@@ -33,6 +33,7 @@
 <script lang="ts">
 import { ListModel, Action } from "survey-core";
 import { defineSurveyComponent } from "../../base";
+import type { PropType } from "vue";
 
 //todo
 function attachKey2click(event: any) {
@@ -42,8 +43,8 @@ export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-list-item",
   props: {
-    model: ListModel,
-    item: Action,
+    model: Object as PropType<ListModel>,
+    item: Object as PropType<Action>,
   },
   methods: {
     click(event: any) {

@@ -26,12 +26,13 @@
 <script lang="ts">
 import { PanelModel, Base, doKey2ClickUp, ISurvey, QuestionRowModel } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-panel",
   props: {
-    question: PanelModel,
+    question: Object as PropType<PanelModel>,
     isEditMode: Boolean,
     css: Object,
   },

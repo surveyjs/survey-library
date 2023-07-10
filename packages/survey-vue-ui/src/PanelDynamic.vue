@@ -36,14 +36,14 @@
 <script lang="ts">
 import { PanelModel, QuestionPanelDynamicModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "survey-paneldynamic",
   props: {
-    question: QuestionPanelDynamicModel,
+    question: Object as PropType<QuestionPanelDynamicModel>,
   },
   data: (vm: any) => {
     return {

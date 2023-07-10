@@ -53,12 +53,13 @@
 <script lang="ts">
 import { PopupBaseViewModel } from "survey-core";
 import { defineSurveyComponent } from "../../base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-popup-container",
   props: {
-    model: PopupBaseViewModel,
+    model: Object as PropType<PopupBaseViewModel>,
   },
   setup() {
     return {

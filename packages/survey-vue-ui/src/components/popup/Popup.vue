@@ -7,7 +7,7 @@
 </template>
 <script lang="ts">
 import { PopupModel, createPopupViewModel, PopupBaseViewModel } from "survey-core";
-import { reactive, ref, watch } from "vue";
+import { reactive, ref, watch, type PropType } from "vue";
 import { defineSurveyComponent } from "../../base";
 
 function initializePopupViewModel(model: PopupModel): PopupBaseViewModel {
@@ -20,7 +20,7 @@ export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-popup",
   props: {
-    model: PopupModel,
+    model: Object as PropType<PopupModel>,
   },
   setup(props: any) {
     return {

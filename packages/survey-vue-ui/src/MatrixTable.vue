@@ -54,14 +54,14 @@
 <script lang="ts">
 import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } from "survey-core";
 import { BaseVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [BaseVue],
   name: "survey-matrixtable",
   props: {
-    question: QuestionMatrixDropdownModelBase,
+    question: Object as PropType<QuestionMatrixDropdownModelBase>,
   },
   data: (vm: any) => {
     return {

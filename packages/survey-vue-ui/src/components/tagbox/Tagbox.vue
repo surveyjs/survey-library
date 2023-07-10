@@ -51,13 +51,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 import { BaseVue } from "../../base";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 
 export default defineComponent({
   props: {
-    question: QuestionTagboxModel,
+    question: Object as PropType<QuestionTagboxModel>,
   },
   mixins: [BaseVue],
   name: "sv-tagbox",

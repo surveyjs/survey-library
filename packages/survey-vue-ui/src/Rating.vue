@@ -25,14 +25,14 @@
 <script lang="ts">
 import { QuestionRatingModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "survey-rating",
   props: {
-    question: QuestionRatingModel,
+    question: Object as PropType<QuestionRatingModel>,
   },
   data: (vm: any) => {
     return {

@@ -50,12 +50,13 @@
 <script lang="ts">
 import { ListModel } from "survey-core";
 import { defineSurveyComponent } from "../../base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "sv-list",
   props: {
-    model: ListModel,
+    model: Object as PropType<ListModel>,
   },
   methods: {
     change(event: any) {

@@ -9,12 +9,12 @@
 </template>
 <script lang="ts">
 import { PopupDropdownViewModel } from 'survey-core';
-import { defineComponent } from 'vue';
+import { defineComponent, type PropType } from 'vue';
 
 export default defineComponent({
   name: "popup-pointer",
   props: {
-    model: PopupDropdownViewModel,
+    model: Object as PropType<PopupDropdownViewModel>,
   },
 });
 </script>

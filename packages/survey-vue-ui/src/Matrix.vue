@@ -79,14 +79,14 @@
 <script lang="ts">
 import { QuestionMatrixModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "survey-matrix",
   props: {
-    question: QuestionMatrixModel,
+    question: Object as PropType<QuestionMatrixModel>,
   },
   data: (vm: any) => {
     return {

@@ -10,11 +10,10 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "sv-svg-icon",
   props: {
-    size: Number,
+    size: { type: [String, Number] },
     width: Number,
     height: Number,
     iconName: String,
-    svgIconElement: Object,
     title: String,
   },
   data: (vm: any) => {
@@ -34,9 +33,9 @@ export default defineComponent({
     }
   },
   mounted() {
-    this.svgIconElement = this.$refs["svgIcon"];
+    this.svgIconElement = this.$refs["svgIcon"] as any;
     this.onUpdated();
-  }
+  },
 });
 
 </script>

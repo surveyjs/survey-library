@@ -1,9 +1,9 @@
-import type { ComponentOptions } from "vue";
+import type { ComponentOptions, PropType } from "vue";
 import { QuestionBooleanModel } from "survey-core";
 
 export const BooleanBaseMixin: ComponentOptions = {
   props: {
-    question: QuestionBooleanModel,
+    question: Object as PropType<QuestionBooleanModel>,
   },
   data(vm: any) {
     return {

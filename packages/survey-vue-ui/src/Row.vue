@@ -30,14 +30,15 @@ import { SurveyModel } from "survey-core";
 import { QuestionRowModel } from "survey-core";
 import { Base } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-row",
   props: {
-    row: QuestionRowModel,
+    row: Object as PropType<QuestionRowModel>,
     css: Object,
-    survey: SurveyModel,
+    survey: Object as PropType<SurveyModel>,
   },
   data: (vm: any) => {
     return {

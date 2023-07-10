@@ -4,13 +4,13 @@
 
 <script lang="ts">
 import { Action } from "survey-core";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "sv-action-bar-separator",
   props: {
-    item: Action,
+    item: Object as PropType<Action>,
   },
   computed: {
     innerCss() {

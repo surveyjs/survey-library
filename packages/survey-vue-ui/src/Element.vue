@@ -78,15 +78,16 @@
 <script lang="ts">
 import { Base, SurveyModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-element",
   props: {
     css: Object,
-    survey: SurveyModel,
-    element: SurveyElement,
-    row: QuestionRowModel,
+    survey: Object as PropType<SurveyModel>,
+    element: Object as PropType<SurveyElement>,
+    row: Object as PropType<QuestionRowModel>,
   },
   data: (vm: any) => {
     return {

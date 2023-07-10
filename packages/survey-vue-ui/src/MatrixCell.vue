@@ -72,14 +72,14 @@
 <script lang="ts">
 import { Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder } from "survey-core";
 import { getComponentName } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-matrixcell",
   props: {
-    question: Question,
-    cell: QuestionMatrixDropdownRenderedCell,
+    question: Object as PropType<Question>,
+    cell: Object as PropType<QuestionMatrixDropdownRenderedCell>,
   },
   data: (vm: any) => {
     return {

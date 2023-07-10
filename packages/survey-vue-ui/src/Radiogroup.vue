@@ -71,14 +71,14 @@
 <script lang="ts">
 import { QuestionRadiogroupModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "survey-radiogroup",
   props: {
-    question: QuestionRadiogroupModel,
+    question: Object as PropType<QuestionRadiogroupModel>,
     css: Object,
   },
 });

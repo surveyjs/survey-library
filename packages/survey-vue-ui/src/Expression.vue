@@ -5,12 +5,13 @@
 <script lang="ts">
 import { QuestionExpressionModel } from "survey-core";
 import { defineSurveyComponent } from "./base";
+import type { PropType } from "vue";
 
 export default defineSurveyComponent({
   // eslint-disable-next-line
   name: "survey-expression",
   props: {
-    question: QuestionExpressionModel,
+    question: Object as PropType<QuestionExpressionModel>,
     css: Object,
   },
   data: (vm: any) => {

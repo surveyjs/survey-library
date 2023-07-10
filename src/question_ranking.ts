@@ -377,7 +377,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     let fromIndex;
     let toIndex;
 
-    if (key === " " && isMovedElementUnRanked) {
+    if ((key === " " || key === "Enter") && isMovedElementUnRanked) {
       fromIndex = unRankingChoices.indexOf(movedElement);
       toIndex = 0;
       dnd.selectToRank(this, fromIndex, toIndex);
@@ -385,7 +385,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       return;
     }
 
-    if (key === " " && isMovedElementRanked) {
+    if ((key === " " || key === "Enter") && isMovedElementRanked) {
       fromIndex = rankingChoices.indexOf(movedElement);
       dnd.unselectFromRank(this, fromIndex);
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
@@ -499,6 +499,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * @see selectToRankAreasLayout
   */
   public get selectToRankAreasLayout(): string {
+    if (IsMobile) return "vertical";
     return this.getPropertyValue("selectToRankAreasLayout", "horizontal");
   }
   public set selectToRankAreasLayout(val: string) {

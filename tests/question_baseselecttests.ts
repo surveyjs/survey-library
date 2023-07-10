@@ -987,6 +987,20 @@ QUnit.test("Carry Forward and localization, bug#6352", function (assert) {
   assert.equal(q2.visibleChoices[0].text, "A en");
   surveyLocalization.defaultLocale = "en";
 });
+QUnit.test("Carry Forward and keepIncorrectValues, bug#6490", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choices: ["A", "B", "C", "D"] },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  survey.keepIncorrectValues = true;
+  survey.data = { q1: "A", q2: "X" };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  q1.value = "B";
+  assert.equal(q2.value, "X", "keep value");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: "B", q2: "X" }, "keep value on compete");
+});
 QUnit.test("Do not notify survey on changing newItem.value", function (
   assert
 ) {

@@ -41,7 +41,7 @@ export default defineSurveyComponent({
   props: {
     question: Object,
     item: Object as PropType<ItemValue>,
-    index: Object,
+    index: [String, Number],
     hideLabel: Boolean,
   },
   data: (vm: any) => {

@@ -12,6 +12,7 @@ export default defineConfig({
     preserveSymlinks: true,
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
+      "survey-core": fileURLToPath(new URL('./node_modules/survey-core', import.meta.url)),
     }
   }
 })

@@ -51,7 +51,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const whiteList = ["dropdown"];
+const whiteList = [/.*/];
 
 describe("etalon tests", () => {
   markupTests.forEach((markupTest) => {

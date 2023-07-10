@@ -3588,7 +3588,7 @@ QUnit.test(
     }
     assert.equal(
       page.questions[1].renderWidth,
-      "20.000000%",
+      "20%",
       "the width is 20%"
     );
     page.questions[1].width = "100";
@@ -3682,7 +3682,7 @@ QUnit.test(
 
     assert.equal(
       question.renderWidth,
-      "100.000000%",
+      "100%",
       "the render width is 100%"
     );
   }

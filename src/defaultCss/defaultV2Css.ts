@@ -589,6 +589,7 @@ export var defaultV2Css = {
     itemIndex: "sv-ranking-item__index sd-ranking-item__index",
     itemIndexEmptyMode: "sv-ranking-item__index--empty sd-ranking-item__index--empty",
     // itemText: "sv-ranking-item__text",
+    itemDisabled: "sv-ranking-item--disabled",
     controlLabel: "sv-ranking-item__text",
     itemGhostNode: "sv-ranking-item__ghost",
     itemIconContainer: "sv-ranking-item__icon-container",

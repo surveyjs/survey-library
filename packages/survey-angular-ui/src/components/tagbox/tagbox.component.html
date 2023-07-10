@@ -26,4 +26,7 @@
     <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
         <div>{{ model.readOnlyText }}</div>
     </div>
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+        <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="24" sv-ng-svg-icon></svg>
+    </div>
 </div>

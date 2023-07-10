@@ -105,6 +105,11 @@
   opacity: 0.25;
 }
 
+.sv-ranking-item--disabled .sv-ranking-item__text {
+  color: $foreground;
+  opacity: 0.25;
+}
+
 .sv-ranking-item__ghost.sv-ranking-item__ghost {
   display: none;
   background-color: $background-dim;

@@ -50,7 +50,6 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
           <TagboxFilterString model={dropdownMultiSelectListModel} question={this.question}></TagboxFilterString>
         </div>
         {this.createClearButton()}
-        {this.createChevronButton()}
       </div>);
   }
 

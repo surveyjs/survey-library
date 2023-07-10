@@ -83,6 +83,7 @@ import Container from "./components/Container.vue";
 import Progress from "./components/progress/Progress.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
+import OtherChoice from "./QuestionOther.vue";
 
 function registerComponents(app: any) {
   app.component("SurveyRoot", SurveyVue);
@@ -174,6 +175,7 @@ function registerComponents(app: any) {
   app.component("popup-pointer", PopupPointer);
 
   app.component("sv-notifier", Notifier);
+  app.component("survey-other-choice", OtherChoice);
 }
 
 export default {

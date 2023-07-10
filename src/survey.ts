@@ -4111,9 +4111,9 @@ export class SurveyModel extends SurveyElementCore
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    * @see surveyPostId
    */
-  public doComplete(isCompleteOnTrigger: boolean = false): boolean {
+  public doComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): boolean {
     if (this.isCompleted) return;
-    if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
+    if (!this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger)) {
       this.isCompleted = false;
       return false;
     }
@@ -4121,11 +4121,11 @@ export class SurveyModel extends SurveyElementCore
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
-    this.saveDataOnComplete(isCompleteOnTrigger);
+    this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
     this.setCookie();
     return true;
   }
-  private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
+  private saveDataOnComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger) {
     let previousCookie = this.hasCookie;
     const showSaveInProgress = (text: string) => {
       savingDataStarted = true;
@@ -4144,6 +4144,7 @@ export class SurveyModel extends SurveyElementCore
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
+      completeTrigger: completeTrigger,
       showSaveInProgress: showSaveInProgress,
       showSaveError: showSaveError,
       showSaveSuccess: showSaveSuccess,
@@ -4162,11 +4163,12 @@ export class SurveyModel extends SurveyElementCore
       this.navigateTo();
     }
   }
-  private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
+  private checkOnCompletingEvent(isCompleteOnTrigger: boolean, completeTrigger?: Trigger): boolean {
     var options = {
       allowComplete: true,
       allow: true,
       isCompleteOnTrigger: isCompleteOnTrigger,
+      completeTrigger: completeTrigger
     };
     this.onCompleting.fire(this, options);
     return options.allowComplete && options.allow;
@@ -4298,8 +4300,8 @@ export class SurveyModel extends SurveyElementCore
       this.doComplete(true);
     }
   }
-  public setCompleted(): void {
-    this.doComplete(true);
+  public setCompleted(trigger: Trigger): void {
+    this.doComplete(true, trigger);
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.triggers.changeNavigationButtonsOnComplete) return;

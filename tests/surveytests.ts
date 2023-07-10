@@ -15400,6 +15400,7 @@ QUnit.test("Check survey resize observer", function (assert) {
   survey.dispose();
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 class CustomResizeObserver {
@@ -15444,6 +15445,7 @@ QUnit.test("Check survey resize observer double process", function (assert) {
   assert.equal(trace, "->processed->processed");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check survey resize observer do not process if container is not visible", function (assert) {
@@ -15478,6 +15480,7 @@ QUnit.test("Check survey resize observer do not process if container is not visi
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {
@@ -17045,16 +17048,6 @@ QUnit.test("backgroundImage", assert => {
   assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
 });
 
-QUnit.test("backgroundOpacity", assert => {
-  const survey = new SurveyModel({
-    "backgroundOpacity": 0.6,
-  });
-  assert.equal(survey.backgroundOpacity, 0.6, "backgroundOpacity");
-  assert.equal(survey.renderBackgroundOpacity, "rgba(255, 255, 255, 0.4)", "renderBackgroundOpacity");
-
-  survey.backgroundOpacity = 1;
-  assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
-});
 QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
   const titleProp = Serializer.findProperty("survey", "title");
   titleProp.isLocalizable = false;

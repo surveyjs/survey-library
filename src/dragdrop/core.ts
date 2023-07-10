@@ -56,10 +56,10 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       draggedElementNode,
       event
     );
-    this.onStartDrag();
+    this.onStartDrag(event);
   }
 
-  protected onStartDrag(): void {
+  protected onStartDrag(event?: PointerEvent): void {
   }
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {

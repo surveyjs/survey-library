@@ -393,10 +393,10 @@ export class MatrixDropdownColumn extends Base
     this.setPropertyValue("minWidth", val);
   }
   public get width(): string {
-    return this.getPropertyValue("width", "");
+    return this.templateQuestion.width;
   }
   public set width(val: string) {
-    this.setPropertyValue("width", val);
+    this.templateQuestion.width = val;
   }
   public get colCount(): number {
     return this.getPropertyValue("colCount");

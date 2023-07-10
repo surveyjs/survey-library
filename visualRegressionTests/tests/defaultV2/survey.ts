@@ -590,7 +590,6 @@ frameworks.forEach(framework => {
             document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
           }
         })();
-        //t.debug();
         await takeElementScreenshot("survey-progress-top-freeze.png", Selector("body"), t, comparer);
       });
     }
@@ -667,13 +666,14 @@ frameworks.forEach(framework => {
   };
   test("Check survey notifier info type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 5000; })();
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+      await t.resizeWindow(1920, 900);
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
         let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
+        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 10000); }).then(
           () => { options.showDataSavingSuccess(); },
           () => { options.showDataSavingError(); }
         );
@@ -687,6 +687,7 @@ frameworks.forEach(framework => {
 
   test("Check survey notifier error type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 900);
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
@@ -704,6 +705,8 @@ frameworks.forEach(framework => {
   });
 
   test("Check survey notifier success type", async (t) => {
+    await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+    await t.resizeWindow(1920, 900);
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
@@ -718,6 +721,7 @@ frameworks.forEach(framework => {
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });
   test("TOC survey navigation", async (t) => {
@@ -840,6 +844,41 @@ frameworks.forEach(framework => {
         (<any>window).survey.isCompact = true;
       })();
       await takeElementScreenshot("survey-compact.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
+  test("Check survey with panels in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "panel",
+            name: "delivery_details",
+            title: "Please, specify the delivery details.",
+            width: "708px",
+            elements: [
+              {
+                type: "radiogroup",
+                name: "delivery_agent",
+                title: "Delivery agent",
+                choices: ["DHL", "Pony Express", "FedEx"]
+              },
+              {
+                type: "boolean",
+                name: "delivery_speed",
+                title: "Do you like to get the order as fast as it possible?"
+              }
+            ]
+          },
+        ]
+      });
+      await resetFocusToBody();
+      await ClientFunction(() => {
+        document.body.style.setProperty("--background-dim", "#f3f3f3");
+        (<any>window).survey.isCompact = true;
+      })();
+      await takeElementScreenshot("survey-with-panel-compact.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
   test("TOC survey navigation mobile", async (t) => {

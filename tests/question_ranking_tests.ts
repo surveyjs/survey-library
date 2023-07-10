@@ -284,6 +284,8 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   Settings.rankingDragHandleArea = "some"; // 3
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
   assert.equal(result, true);
+
+  dragStartTargetNode.remove();
 });
 
 QUnit.test("Ranking: separateSpecialChoices ", function (assert) {
@@ -352,5 +354,17 @@ QUnit.test("selectToRankEnabled : defaultValue", function (assert) {
   const questionWithDefaultValueModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
   assert.equal(questionWithDefaultValueModel.unRankingChoices.length, 1, "unRankingChoices count");
   assert.equal(questionWithDefaultValueModel.rankingChoices.length, 2, "rankingChoices count");
+});
+
+QUnit.test("selectToRankEnabled : checkMaxSelectedChoicesUnreached", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = false;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+
+  assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), true, "without MaxSelectedChoices");
+
+  questionModel.maxSelectedChoices = 2;
+  questionModel.value = ["11", "22"];
+  assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), false, "MaxSelectedChoices limit reached");
 });
 // EO selectToRankEnabled

@@ -79,6 +79,9 @@ QUnit.test("check rating initResponsiveness", (assert) => {
   assert.ok(q1["resizeObserver"]);
   q1.dispose();
   assert.notOk(q1["resizeObserver"]);
+
+  contentElement.remove();
+  rootElement.remove();
 });
 
 QUnit.test("check rating resize observer behavior", (assert) => {
@@ -141,6 +144,9 @@ QUnit.test("check rating resize observer behavior", (assert) => {
   assert.equal(q1.renderAs, "default", "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state");
   window.getComputedStyle = getComputedStyle;
   window.ResizeObserver = ResizeObserver;
+
+  contentElement.remove();
+  rootElement.remove();
 });
 
 QUnit.test("check rating in case of state 'collapsed'", (assert) => {
@@ -243,6 +249,8 @@ QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set ren
   assert.equal(q1.renderAs, "default");
   assert.equal(q1.isDefaultRendering(), true);
   RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
+
+  container.remove();
 });
 QUnit.test("check getItemClass in display mode", (assert) => {
   var json = {

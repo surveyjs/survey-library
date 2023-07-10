@@ -153,6 +153,9 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       const newEl = document.createElement("div");
       newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
       let str = newEl.children[0].innerHTML;
+      if(newEl.getElementsByTagName("form").length) {
+        str = newEl.getElementsByTagName("form")[0].innerHTML;
+      }
       if(!!test.getSnapshot) {
         str = test.getSnapshot(htmlElement);
       }

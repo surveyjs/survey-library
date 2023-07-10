@@ -162,7 +162,7 @@ sv-popup {
   }
 }
 
-.sv-popup--show-pointer.sv-popup--right {
+.sv-popup--show-pointer.sv-popup--right .sv-popup__container {
   transform: translate(calcSize(1));
 
   .sv-popup__pointer {
@@ -170,7 +170,7 @@ sv-popup {
   }
 }
 
-.sv-popup--show-pointer.sv-popup--left {
+.sv-popup--show-pointer.sv-popup--left .sv-popup__container {
   transform: translate(calcSize(-1));
 
   .sv-popup__pointer {

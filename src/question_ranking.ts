@@ -285,7 +285,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     if (!this.isDragStartNodeValid(target)) return;
 
-    if (this.allowStartDrag) {
+    if (this.allowStartDrag && this.canStartDragDueMaxSelectedChoices(target)) {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };
@@ -300,6 +300,23 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   private get allowStartDrag() {
     return !this.isReadOnly && !this.isDesignMode;
+  }
+
+  private canStartDragDueMaxSelectedChoices(target: HTMLElement):boolean {
+    if (!this.selectToRankEnabled) return true;
+
+    let fromContainer: HTMLElement = target.closest("[data-ranking='from-container']");
+    if (fromContainer) {
+      return this.checkMaxSelectedChoicesUnreached();
+    }
+    return true;
+  }
+
+  public checkMaxSelectedChoicesUnreached() {
+    if (this.maxSelectedChoices < 1) return true;
+    var val = this.value;
+    var len = !Array.isArray(val) ? 0 : val.length;
+    return len < this.maxSelectedChoices;
   }
 
   //cross framework initialization
@@ -377,7 +394,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     let fromIndex;
     let toIndex;
 
-    if (key === " " && isMovedElementUnRanked) {
+    if ((key === " " || key === "Enter") && isMovedElementUnRanked) {
       fromIndex = unRankingChoices.indexOf(movedElement);
       toIndex = 0;
       dnd.selectToRank(this, fromIndex, toIndex);
@@ -385,7 +402,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       return;
     }
 
-    if (key === " " && isMovedElementRanked) {
+    if ((key === " " || key === "Enter") && isMovedElementRanked) {
       fromIndex = rankingChoices.indexOf(movedElement);
       dnd.unselectFromRank(this, fromIndex);
       toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
@@ -499,6 +516,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * @see selectToRankAreasLayout
   */
   public get selectToRankAreasLayout(): string {
+    if (IsMobile) return "vertical";
     return this.getPropertyValue("selectToRankAreasLayout", "horizontal");
   }
   public set selectToRankAreasLayout(val: string) {

@@ -899,6 +899,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
   };
 
   const prevLazyRowsRenderingStartRow = settings.lazyRowsRenderingStartRow;
+  const createdDivs: Array<HTMLElement> = [];
   try {
     settings.lazyRowsRenderingStartRow = 0;
     const survey = new SurveyModel(json);
@@ -912,6 +913,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
       const div = document.createElement("div");
+      createdDivs.push(div);
       row.startLazyRendering(div, () => {
         return <any>{ scrollHeight: 200, clientHeight: 300 };
       });
@@ -926,6 +928,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
     });
   } finally {
     settings.lazyRowsRenderingStartRow = prevLazyRowsRenderingStartRow;
+    createdDivs.forEach(div => div?.remove());
   }
 });
 
@@ -960,6 +963,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
   const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
   settings.lazyRowsRendering = true;
   settings.lazyRowsRenderingStartRow = 0;
+  const createdDivs: Array<HTMLElement> = [];
   try {
     const survey = new SurveyModel(json);
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
@@ -971,6 +975,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
       const div = document.createElement("div");
+      createdDivs.push(div);
       row.startLazyRendering(div, () => {
         return <any>{ scrollHeight: 200, clientHeight: 100 };
       });
@@ -986,6 +991,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
   } finally {
     settings.lazyRowsRendering = prevLazyRowsRendering;
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+    createdDivs.forEach(div => div?.remove());
   }
 });
 QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (

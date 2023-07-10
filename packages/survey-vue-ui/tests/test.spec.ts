@@ -17,6 +17,14 @@ beforeAll(() => {
       unobserve: () => {},
     };
   };
+  (<any>window).visualViewport = {
+    get height() {
+      return window.innerHeight;
+    },
+    get width() {
+      return window.innerWidth;
+    },
+  };
 });
 const platformDescriptor = {
   name: "Vue3",

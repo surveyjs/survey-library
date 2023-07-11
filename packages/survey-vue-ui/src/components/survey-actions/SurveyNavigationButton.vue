@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { PropType, defineComponent } from "vue";
+import { type PropType, defineComponent } from "vue";
 import { Action } from "survey-core";
 import { BaseVue } from "../../base";
 

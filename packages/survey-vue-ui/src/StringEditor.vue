@@ -23,19 +23,18 @@ export default defineComponent({
   // eslint-disable-next-line
   name: LocalizableString.editableRenderer,
   props: {
-    locString: Object as PropType<LocalizableString>,
+    locString: { type: Object as PropType<LocalizableString>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      onInput: (event: any) => {
-        vm.locString.text = event.target.innerText;
-      },
-      onClick: (event: any) => {
-        event.preventDefault();
-        event.stopPropagation();
-      }
-    }
-  }
+  methods: {
+    onInput(event: any) {
+      const locString = this.locString;
+      locString.text = event.target.innerText;
+    },
+    onClick(event: any) {
+      event.preventDefault();
+      event.stopPropagation();
+    },
+  },
 });
 
 // Vue.component(LocalizableString.editableRenderer, SurveyStringEditor);

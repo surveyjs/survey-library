@@ -39,27 +39,17 @@
 
 <script lang="ts">
 import { SurveyModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-header",
   props: {
     survey: Object as PropType<SurveyModel>,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.survey; }
-    }
-  },
   mounted() {
-    // var el = this.$el;
-    // if (el && this.survey) this.survey.afterRenderHeader(<any>el);
-  }
+    var el = this.$el;
+    if (el && this.survey) this.survey.afterRenderHeader(el as any);
+  },
 });
-
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>

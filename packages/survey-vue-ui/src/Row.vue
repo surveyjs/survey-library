@@ -25,22 +25,22 @@
 <script lang="ts">
 import { SurveyModel } from "survey-core";
 import { QuestionRowModel } from "survey-core";
-import { Base } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { BaseVue } from "./base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-row",
+  mixins: [BaseVue],
   props: {
-    row: Object as PropType<QuestionRowModel>,
+    row: { type: Object as PropType<QuestionRowModel>, required: true },
     css: Object,
     survey: Object as PropType<SurveyModel>,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.row; }
-    }
+  methods: {
+    getModel() { 
+      return this.row;
+    },
   },
   computed: {
     elements(): Array<any> {
@@ -48,7 +48,7 @@ export default defineSurveyComponent({
     }
   },
   mounted() {
-    if (!!this.row) {
+    if (this.row) {
       if (!this.row.isNeedRender) {
         var rowContainerDiv = this.$el;
         setTimeout(() => {
@@ -58,8 +58,9 @@ export default defineSurveyComponent({
     }
   },
   unmounted() {
-    if (!!this.row) {
-      this.row.isNeedRender = !this.row.isLazyRendering();
+    const row = this.row;
+    if (row) {
+      row.isNeedRender = !this.row.isLazyRendering();
     }
   }
 });

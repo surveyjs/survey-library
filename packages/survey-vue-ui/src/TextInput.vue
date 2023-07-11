@@ -28,25 +28,20 @@
 
 <script lang="ts">
 import { QuestionTextModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { QuestionVue } from "./base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-text-input",
+  mixins: [QuestionVue],
   props: {
-    question: Object as PropType<QuestionTextModel>,
-  },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.question; }
-    }
+    question: { type: Object as PropType<QuestionTextModel>, required: true },
   },
   computed: {
     inputStyle(): any {
       return this.question.inputStyle;
-    }
-  }
+    },
+  },
 });
-
 </script>

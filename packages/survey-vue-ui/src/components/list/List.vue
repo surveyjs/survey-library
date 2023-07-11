@@ -51,37 +51,36 @@
 
 <script lang="ts">
 import { ListModel } from "survey-core";
-import { defineSurveyComponent } from "../../base";
-import type { PropType } from "vue";
+import { BaseVue } from "../../base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-list",
   props: {
-    model: Object as PropType<ListModel>,
+    model: { type: Object as PropType<ListModel>, required: true },
   },
+  mixins: [BaseVue],
   methods: {
     change(event: any) {
-      this.model.filterString = event.target.value;
+      const model = this.model;
+      model.filterString = event.target.value;
     },
     keyup(event: any) {
-      this.model.filterString = event.target.value;
+      const model = this.model;
+      model.filterString = event.target.value;
       this.model.goToItems(event);
     },
     mouseMove(event: any) {
       this.model.onMouseMove(event);
     },
+    getModel() {
+      return this.model;
+    },
   },
   mounted() {
     const listContainerElement: any = this.$refs["listContainerElement"];
     this.model.initListContainerHtmlElement(listContainerElement);
-  },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.model;
-      },
-    };
   },
 });
 </script>

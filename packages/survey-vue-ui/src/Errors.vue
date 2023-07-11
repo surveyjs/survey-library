@@ -21,26 +21,25 @@
 </template>
 
 <script lang="ts">
-import { SurveyElement, TooltipManager, Base, Question, PanelModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
+import { TooltipManager } from "survey-core";
+import { defineComponent } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-errors",
   props: {
-    element: Object,
+    element: { type: Object, required: true },
     location: String,
   },
-  data: (vm: any) => {
+  setup() {
     return {
-      tooltipManager: undefined,
-      getModel: () => { return vm.element; }
-    }
+      tooltipManager: (undefined as any as TooltipManager),
+    };
   },
   updated() {
     if (this.location == "tooltip" && this.$el instanceof HTMLElement) {
       if (!this.tooltipManager || this.$el !== this.tooltipManager.tooltipElement) {
-        this.tooltipManager = new TooltipManager(<HTMLElement>this.$el);
+        this.tooltipManager = new TooltipManager(this.$el as HTMLElement);
       }
     }
     if (!(this.$el instanceof HTMLElement) && !!this.tooltipManager) {
@@ -48,11 +47,9 @@ export default defineSurveyComponent({
     }
   },
   unmounted() {
-    if (!!this.tooltipManager) {
+    if (this.tooltipManager) {
       this.tooltipManager.dispose();
     }
-  }
-
+  },
 });
-
 </script>

@@ -18,12 +18,12 @@
         </thead>
         <tbody>
           <tr
-            v-for="(row, rowIndex) in question.visibleRows"
+            v-for="(row, rowIndex) in visibleRows"
             :key="'row_' + row.name + '_' + rowIndex"
             :class="row.rowClasses || undefined"
           >
             <td :class="question.cssClasses.rowTextCell" v-show="question.hasRows"
-              :style="{minWidth: question.rowTitleWidth, width: question.rowTitleWidth}"> 
+              :style="{ minWidth: question.rowTitleWidth, width: question.rowTitleWidth}"> 
               <survey-string :locString="row.locText" />
             </td>
             <td
@@ -77,24 +77,41 @@
 </template>
 
 <script lang="ts">
-import { QuestionMatrixModel } from "survey-core";
+import {  QuestionMatrixModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
+import { defineComponent, type PropType, shallowRef, ref, watch } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue],
   name: "survey-matrix",
   props: {
-    question: Object as PropType<QuestionMatrixModel>,
+    question: { type: Object as PropType<QuestionMatrixModel>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      cellClick(row: any, column: any): void {
-        if (vm.question.isInputReadOnly) return;
-        row.value = column.value;
-      },
+  setup(props) {
+    const visibleRows = shallowRef(props.question.visibleRows);
+    const setupVisibleRowsChangedCallback = (question: QuestionMatrixModel) => {
+      question.visibleRowsChangedCallback = () => {
+        visibleRows.value = question.visibleRows;
+      };
     };
+    watch(() => props.question, (oldValue, newValue) => {
+        oldValue.visibleRowsChangedCallback = () => {};
+        setupVisibleRowsChangedCallback(newValue);
+    });
+    setupVisibleRowsChangedCallback(props.question);
+    return {
+      visibleRows,
+    };
+  },
+  methods: {
+    getModel() {
+      return this.question;
+    },
+    cellClick(row: any, column: any): void {
+      if (this.question.isInputReadOnly) return;
+      row.value = column.value;
+    },
   },
 });
 </script>

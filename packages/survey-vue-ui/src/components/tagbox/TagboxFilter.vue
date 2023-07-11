@@ -44,20 +44,15 @@ import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 
 export default defineComponent({
   props: {
-    model: Object as PropType<DropdownMultiSelectListModel>,
+    model: { type: Object as PropType<DropdownMultiSelectListModel>, required: true },
     question: Object as PropType<QuestionTagboxModel>,
   },
   mixins: [BaseVue],
   name: "sv-tagbox-filter",
-  data: (vm: any) => {
-    return {
-      inputElement: undefined,
-      getModel: () => {
-        return vm.model;
-      },
-    };
-  },
   methods: {
+    getModel() {
+      return this.model;
+    },
     inputChange(event: any) {
       // eslint-disable-next-line vue/no-mutating-props
       this.model.inputStringRendered = event.target.value;

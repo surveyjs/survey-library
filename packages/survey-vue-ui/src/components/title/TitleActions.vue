@@ -26,20 +26,14 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "survey-element-title",
   props: {
-    element: Object,
+    element: { type: Object, required: true },
     css: Object,
-  },
-  data: (vm: any) => {
-    return {
-    }
   },
   computed: {
     toolbar(): AdaptiveActionContainer<Action> {
       return this.element.getTitleToolbar();
-    }
-  }
+    },
+  },
 });
-
 RendererFactory.Instance.registerRenderer("element", "title-actions", "sv-title-actions");
-
 </script>

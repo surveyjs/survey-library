@@ -20,20 +20,15 @@ import { ItemValue, QuestionTagboxModel } from "survey-core";
 
 export default defineComponent({
   props: {
-    item: Object as PropType<ItemValue>,
-    question: Object as PropType<QuestionTagboxModel>,
+    item: { type: Object as PropType<ItemValue>, required: true },
+    question: { type: Object as PropType<QuestionTagboxModel>, required: true },
   },
   mixins: [BaseVue],
   name: "sv-tagbox-item",
-  data: (vm: any) => {
-    return {
-      inputElement: undefined,
-      getModel: () => {
-        return vm.item;
-      },
-    };
-  },
   methods: {
+    getModel() {
+      return this.item;
+    },
     removeItem(event: any) {
       this.question.dropdownListModel.deselectItem(this.item.value);
       event.stopPropagation();

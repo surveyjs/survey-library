@@ -9,23 +9,28 @@
 
 <script lang="ts">
 import { LocalizableString } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, type PropType } from "vue";
+import { ref, defineComponent, type PropType, watch } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: LocalizableString.defaultRenderer,
   props: {
-    locString: Object as PropType<LocalizableString>,
+    locString: { type: Object as PropType<LocalizableString>, required: true },
   },
-  data: (vm: any) => {
-    if (vm.locString) {
-      vm.locString.onChanged = () => {
-        vm.renderedHtml = vm.locString.renderedHtml;
-      };
-      vm.locString.onChanged();
-    }
+  setup(props) {
+    const renderedHtml = ref(props.locString?.renderedHtml);
+    const setupOnChangedCallback = (locString: LocalizableString) => {
+      locString.onChanged = () => {
+        renderedHtml.value = locString.renderedHtml;
+      }
+    };
+    watch(() => props.locString, (oldValue, newValue) => {
+      oldValue.onChanged = () => {};
+      setupOnChangedCallback(newValue);
+    });
+    setupOnChangedCallback(props.locString);
     return {
-      renderedHtml: vm.locString.renderedHtml,
+      renderedHtml,
     };
   },
 });

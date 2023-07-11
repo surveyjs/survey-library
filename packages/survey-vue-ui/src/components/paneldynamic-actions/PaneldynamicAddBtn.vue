@@ -19,12 +19,10 @@ export default defineComponent({
   // eslint-disable-next-line
   mixins: [PaneldynamicActionMixin],
   name: "sv-paneldynamic-add-btn",
-  data: (vm: any) => {
-    return {
-      addPanelClick() {
-        vm.question.addPanelUI();
-      },
-    };
+  methods: {
+    addPanelClick() {
+      this.question.addPanelUI();
+    },
   },
 });
 </script>

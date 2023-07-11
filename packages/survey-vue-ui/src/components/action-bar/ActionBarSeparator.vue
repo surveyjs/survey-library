@@ -17,13 +17,5 @@ export default defineComponent({
       return this.item && this.item.innerCss;
     },
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.question;
-      },
-    };
-  },
 });
-
 </script>

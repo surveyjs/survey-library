@@ -42,25 +42,23 @@
 
 <script lang="ts">
 import { Question, MultipleTextItemModel, QuestionMultipleTextModel } from "survey-core";
-import { defineSurveyComponent, getComponentName } from "./base";
-import type { PropType } from "vue";
+import { getComponentName } from "./base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-multipletext-item",
   props: {
     question: Object as PropType<QuestionMultipleTextModel>,
-    item: Object as PropType<MultipleTextItemModel>,
+    item: { type: Object as PropType<MultipleTextItemModel>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.item.editor;
-      },
-      getComponentName: (question: Question) => {
-        return getComponentName(question);
-      },
-    };
+  methods: {
+    getModel() {
+      return this.item.editor;
+    },
+    getComponentName: (question: Question) => {
+      return getComponentName(question);
+    },
   },
 });
 </script>

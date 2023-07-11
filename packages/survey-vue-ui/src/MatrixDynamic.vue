@@ -59,14 +59,12 @@ export default defineComponent({
   mixins: [QuestionVue],
   name: "survey-matrixdynamic",
   props: {
-    question: Object as PropType<QuestionMatrixDynamicModel>,
+    question: { type: Object as PropType<QuestionMatrixDynamicModel>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      addRowClick(): void {
-        vm.question.addRowUI();
-      },
-    };
+  methods: {
+    addRowClick(): void {
+      this.question.addRowUI();
+    },
   },
 });
 </script>

@@ -15,12 +15,10 @@ export default defineComponent({
     question: Object as PropType<Question>,
     column: Object as PropType<MatrixDropdownColumn>,
   },
-  data: (vm: any) => {
-    return {
-      getModel(): any {
-        return vm.column;
-      }
-    };
+  methods: {
+    getModel(): any {
+      return this.column;
+    },
   },
 });
 </script>

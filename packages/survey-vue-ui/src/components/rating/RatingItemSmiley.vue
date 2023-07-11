@@ -12,24 +12,22 @@
 
 <script lang="ts">
 import { RenderedRatingItem, QuestionRatingModel } from "survey-core";
-import { QuestionVue } from "../../base";
+import { BaseVue, QuestionVue } from "../../base";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
-  mixins: [QuestionVue],
+  mixins: [BaseVue],
   name: "sv-rating-item-smiley",
   props: {
     item: Object as PropType<RenderedRatingItem>,
     question: Object as PropType<QuestionRatingModel>,
     index: Number,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.item;
-      },
-    };
+  methods: {
+    getModel() {
+      return this.item;
+    },
   },
 });
 </script>

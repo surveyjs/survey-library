@@ -3,13 +3,13 @@ import { Action, QuestionPanelDynamicModel } from "survey-core";
 
 export const PaneldynamicActionMixin: ComponentOptions = {
   props: {
-    data: Object as PropType<Object>,
-    item: Object as PropType<Action>,
+    data: { type: Object as PropType<Object>, required: false },
+    item: { type: Object as PropType<Action>, required: false },
   },
   computed: {
     // readonly
-    question(vm: any): QuestionPanelDynamicModel {
-      return (vm.item && vm.item.data.question) || vm.data.question;
+    question(): QuestionPanelDynamicModel {
+      return (this.item && this.item.data.question) || this.data.question;
     },
   },
 };

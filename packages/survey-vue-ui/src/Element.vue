@@ -76,32 +76,31 @@
 </template>
 
 <script lang="ts">
-import { Base, SurveyModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { SurveyModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
+import { BaseVue } from "./base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-element",
   props: {
     css: Object,
-    survey: Object as PropType<SurveyModel>,
-    element: Object as PropType<SurveyElement>,
+    survey: { type: Object as PropType<SurveyModel>, required: true },
+    element: { type: Object as PropType<SurveyElement>, required: true },
     row: Object as PropType<QuestionRowModel>,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.element; },
-      getComponentName: (element: Question) => {
+  mixins: [BaseVue],
+  methods: {
+    getModel () { return this.element; },
+    getComponentName: (element: Question) => {
         if (element.customWidget) return "survey-customwidget";
         if (element.getType() === "panel" || element.isDefaultRendering()) {
           return "survey-" + element.getTemplate();
         }
         return element.getComponentName();
       },
-      getContentClass: (element: Question) => {
-        return element.cssContent;
-      }
+    getContentClass: (element: Question) => {
+      return element.cssContent;
     }
   },
   computed: {
@@ -118,9 +117,5 @@ export default defineSurveyComponent({
     }
   }
 });
-
-//export default SurveyElementVue;
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped></style>

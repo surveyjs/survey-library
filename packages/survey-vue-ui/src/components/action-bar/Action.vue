@@ -10,27 +10,26 @@
   </div>
 </template>
 <script lang="ts">
+import { BaseVue } from "@/base";
 import { Action } from "survey-core";
-import { defineSurveyComponent } from "../../base";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-action",
+  mixins: [BaseVue],
   props: {
-    item: Object as PropType<Action>,
+    item: { type: Object as PropType<Action>, required: true },
   },
   computed: {
     componentName() {
       return this.item.component || "sv-action-bar-item";
     },
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.item;
-      },
-    };
+  methods: {
+    getModel() {
+      return this.item;
+    },
   },
 });
 

@@ -57,24 +57,19 @@ import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 
 export default defineComponent({
   props: {
-    question: Object as PropType<QuestionTagboxModel>,
+    question: { type: Object as PropType<QuestionTagboxModel>, required: true },
   },
   mixins: [BaseVue],
   name: "sv-tagbox",
-  data: (vm: any) => {
-    return {
-      inputElement: undefined,
-      getModel: () => {
-        return vm.question.dropdownListModel;
-      },
-    };
-  },
   computed: {
     model() {
       return this.question.dropdownListModel;
     },
   },
   methods: {
+    getModel() {
+      return this.model;
+    },
     inputChange(event: any) {
       this.model.filterString = event.target.value;
     },
@@ -92,9 +87,9 @@ export default defineComponent({
     },
   },
   created() {
-    if (!this.question.dropdownListModel) {
-      // eslint-disable-next-line vue/no-mutating-props
-      this.question.dropdownListModel = new DropdownMultiSelectListModel(this.question);
+    const question = this.question;
+    if (!question.dropdownListModel) {
+      question.dropdownListModel = new DropdownMultiSelectListModel(this.question);
     }
   },
 });

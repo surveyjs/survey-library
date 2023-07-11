@@ -43,22 +43,20 @@ export default defineComponent({
   mixins: [QuestionVue],
   name: "survey-paneldynamic",
   props: {
-    question: Object as PropType<QuestionPanelDynamicModel>,
+    question: { type: Object as PropType<QuestionPanelDynamicModel>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      getRenderedPanels(): PanelModel[] {
-        if (vm.question.isRenderModeList) return vm.question.panels;
-        const panels = [];
-        if (vm.question.currentPanel) {
-          panels.push(vm.question.currentPanel);
-        }
-        return panels;
-      },
-      getShowLegacyNavigation() {
-        return vm.question["showLegacyNavigation"];
-      },
-    };
-  },
+  methods: {
+    getRenderedPanels(): PanelModel[] {
+      if (this.question.isRenderModeList) return this.question.panels;
+      const panels = [];
+      if (this.question.currentPanel) {
+        panels.push(this.question.currentPanel);
+      }
+      return panels;
+    },
+    getShowLegacyNavigation() {
+      return this.question["showLegacyNavigation"];
+    },
+  }
 });
 </script>

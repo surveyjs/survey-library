@@ -12,12 +12,10 @@ export default defineComponent({
   // eslint-disable-next-line
   mixins: [PaneldynamicActionMixin],
   name: "sv-paneldynamic-next-btn",
-  data: (vm: any) => {
-    return {
-      nextPanelClick() {
-        vm.question.goToNextPanel();
-      },
-    };
+  methods: {
+    nextPanelClick() {
+      this.question.goToNextPanel();
+    },
   },
 });
 </script>

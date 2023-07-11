@@ -1,61 +1,46 @@
 import { Base, Question } from "survey-core";
 import {
-  ref,
   defineComponent,
   type ComponentOptions,
-  unref,
+  shallowReactive,
+  ref,
   isRef,
-  markRaw,
+  isReactive,
 } from "vue";
 Base.createPropertiesHash = () => {
-  const res = {};
-  markRaw(res);
+  const res = shallowReactive({});
+  // markRaw(res);
   return res;
 };
 function makeReactive(surveyElement: Base) {
-  surveyElement.iteratePropertiesHash((propertiesHash: any, name: any) => {
-    // (<any>Vue.util).defineReactive(propertiesHash, name, propertiesHash[name]);
-    propertiesHash[name] = ref(propertiesHash[name]);
-  });
-  surveyElement.getPropertyValueCoreHandler = (
-    propertiesHash: any,
-    name: string
-  ) => {
-    // eslint-disable-next-line no-prototype-builtins
-    if (!propertiesHash.hasOwnProperty(name)) {
-      // (<any>Vue.util).defineReactive(propertiesHash, name, propertiesHash[name]);
-      propertiesHash[name] = ref(propertiesHash[name]);
+  surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
+    const arrayRef = shallowReactive(hash[key]);
+    hash[key] = arrayRef;
+    return hash[key];
+  };
+  surveyElement.iteratePropertiesHash((hash, key) => {
+    if (Array.isArray(hash[key])) {
+      const arrayRef = shallowReactive(hash[key]);
+      hash[key] = arrayRef;
+      return hash[key];
     }
-    return unref(propertiesHash[name]);
-  };
-  surveyElement.setPropertyValueCoreHandler = (
-    propertiesHash: any,
-    name: string,
-    val: any
-  ) => {
-    // eslint-disable-next-line no-prototype-builtins
-    if (!isRef(propertiesHash[name])) {
-      propertiesHash[name] = ref(propertiesHash[name]);
-    } else propertiesHash[name].value = val;
-  };
+  });
 }
 // by convention, composable function names start with "use"
 
 export const BaseVue: ComponentOptions = {
   mounted: function () {
-    if (this.getModel == "function") {
+    if (typeof this.getModel == "function") {
       makeReactive(this.getModel());
     }
   },
 };
 export const QuestionVue: ComponentOptions = {
   mixins: [BaseVue],
-  data(vm: any) {
-    return {
-      getModel: () => {
-        return vm.question;
-      },
-    };
+  methods: {
+    getModel() {
+      return this.question;
+    },
   },
   mounted() {
     if (this.question) {
@@ -68,19 +53,6 @@ export const QuestionVue: ComponentOptions = {
     }
   },
 };
-
-export function defineSurveyComponent(componentDefinition: ComponentOptions) {
-  const mounted = componentDefinition.mounted;
-  componentDefinition.mounted = function () {
-    if (typeof this.getModel === "function") {
-      makeReactive(this.getModel());
-    }
-    if (mounted) {
-      mounted.call(this);
-    }
-  };
-  return defineComponent(componentDefinition);
-}
 
 export function getComponentName(question: Question): string {
   if (question.customWidget) return "survey-customwidget";

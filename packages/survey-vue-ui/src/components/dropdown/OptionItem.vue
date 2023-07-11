@@ -11,10 +11,10 @@ export default defineComponent({
   props: {
     item: { type: Object as PropType<ItemValue>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.item; }
-    }
+  methods: {
+    getModel() {
+      return this.item;
+    },
   },
   watch: {
     item(newValue: ItemValue) {
@@ -23,6 +23,6 @@ export default defineComponent({
       };
       newValue.locText.onChanged();
     },
-  }
+  },
 });
 </script>

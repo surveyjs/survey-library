@@ -2,21 +2,21 @@
   <div><sv-popup-container :model="popupViewModel"></sv-popup-container></div>
 </template>
 <script lang="ts">
+import { BaseVue } from "@/base";
 import { PopupModel, createPopupViewModel } from "survey-core";
-import { reactive, type PropType } from "vue";
-import { defineSurveyComponent } from "../../base";
+import { type PropType, shallowRef, defineComponent } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-popup",
   props: {
-    model: Object as PropType<PopupModel>,
+    model: { type: Object as PropType<PopupModel>, required: true },
+    getTarget: { type: Function, required: false },
   },
-  setup(props: any) {
+  mixins: [BaseVue],
+  setup(props) {
     return {
-      popupViewModel: reactive(
-        createPopupViewModel(props.model, undefined as any)
-      ),
+      popupViewModel: shallowRef(createPopupViewModel(props.model, undefined as any)),
     };
   },
   mounted() {
@@ -26,22 +26,18 @@ export default defineSurveyComponent({
       this.getTarget ? this.getTarget(container) : undefined
     );
   },
-  destroyed() {
+  unmounted() {
     this.popupViewModel.dispose();
   },
-  data(vm: any) {
-    return {
-      getModel: () => {
-        return vm.model;
-      },
-    };
+  methods: {
+    getModel() {
+      return this.model;
+    },
   },
   watch: {
     model(newValue: PopupModel) {
       this.popupViewModel.dispose();
-      this.popupViewModel = reactive(
-        createPopupViewModel(newValue, undefined as any)
-      );
+      this.popupViewModel = createPopupViewModel(newValue, undefined as any);
       this.popupViewModel = this.$el.parentElement;
     },
   },

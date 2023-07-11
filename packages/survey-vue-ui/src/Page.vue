@@ -19,22 +19,22 @@
 <script lang="ts">
 import { SurveyModel } from "survey-core";
 import { PageModel } from "survey-core";
-import { Base } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
+import { BaseVue } from "./base";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-page",
   props: {
-    survey: Object as PropType<SurveyModel>,
-    page: Object as PropType<PageModel>,
-    css: Object
+    survey: { type: Object as PropType<SurveyModel>, required: true },
+    page: { type: Object as PropType<PageModel>, required: true },
+    css: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.page; }
-    }
+  mixins: [BaseVue],
+  methods: {
+    getModel() { 
+      return this.page;
+    },
   },
   computed: {
     showDescription() {
@@ -54,10 +54,6 @@ export default defineSurveyComponent({
   },
   updated() {
     this.survey.afterRenderPage(this.$el as HTMLElement);
-  }
+  },
 });
-
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>

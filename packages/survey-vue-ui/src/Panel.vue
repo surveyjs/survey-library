@@ -25,36 +25,42 @@
 
 <script lang="ts">
 import { PanelModel, Base, doKey2ClickUp, ISurvey, QuestionRowModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { type PropType, ref, defineComponent } from "vue";
+import { BaseVue } from "./base";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-panel",
   props: {
-    question: Object as PropType<PanelModel>,
+    question: { type: Object as PropType<PanelModel>, required: true },
     isEditMode: Boolean,
     css: Object,
   },
-  data: (vm: any) => {
+
+  mixins: [BaseVue],
+  setup() {
     return {
-      isCollapsedValue: false,
-      getModel: () => { return vm.question; },
-      cancelPreview: () => {
-        vm.question.cancelPreview();
-      }
+      isCollapsedValue: ref(false),
+    };
+  },
+  methods: {
+    getModel() { 
+      return this.question;
+    },
+    cancelPreview () {
+      this.question.cancelPreview();
     }
   },
   computed: {
     rootStyle() {
       var result = {};
       if (this.question.renderWidth) {
-        (<any>result)["flexBasis"] = this.question.renderWidth;
-        (<any>result)["flexGrow"] = 1;
-        (<any>result)["flexShrink"] = 1;
-        (<any>result)["width"] = this.question.renderWidth;
-        (<any>result)["minWidth"] = this.question.minWidth;
-        (<any>result)["maxWidth"] = this.question.maxWidth;
+        (result as any)["flexBasis"] = this.question.renderWidth;
+        (result as any)["flexGrow"] = 1;
+        (result as any)["flexShrink"] = 1;
+        (result as any)["width"] = this.question.renderWidth;
+        (result as any)["minWidth"] = this.question.minWidth;
+        (result as any)["maxWidth"] = this.question.maxWidth;
       }
       return result;
     },
@@ -81,16 +87,16 @@ export default defineSurveyComponent({
       this.question.survey.afterRenderPanel(this.question, this.$el as HTMLElement);
     }
     this.isCollapsedValue = this.question.isCollapsed;
-
-    this.question.stateChangedCallback = () => {
+    const question = this.question;
+    question.stateChangedCallback = () => {
       this.isCollapsedValue = this.question.isCollapsed;
     };
   },
   unmounted() {
-    this.question.stateChangedCallback = null;
-  }
+    const question = this.question;
+    question.stateChangedCallback = null as any;
+  },
 });
-
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

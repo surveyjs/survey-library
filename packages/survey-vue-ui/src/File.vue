@@ -134,17 +134,16 @@ export default defineComponent({
   name: "survey-file",
   mixins: [QuestionVue],
   props: {
-    question: Object as PropType<QuestionFileModel>,
+    question: { type: Object as PropType<QuestionFileModel>, required: true },
     css: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.question; },
-      doRemoveFile(data: any) {
-        this.question.doRemoveFile(data);
-      }
-    }
+  methods: {
+    getModel() {
+      return this.question;
+    },
+    doRemoveFile(data: any) {
+      this.question.doRemoveFile(data);
+    },
   },
 });
-
 </script>

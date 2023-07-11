@@ -1,10 +1,10 @@
 <template>
-    <svg ref="svgIcon" class="sv-svg-icon" role="img" :aria-label="title"><use></use></svg>
+    <svg ref="svgIconElement" class="sv-svg-icon" role="img" :aria-label="title"><use></use></svg>
 </template>
 
 <script lang="ts">
 import { createSvg } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref } from "vue";
+import { ref, defineComponent, type ComponentOptions, unref, onUpdated, onMounted } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
@@ -16,25 +16,27 @@ export default defineComponent({
     iconName: String,
     title: String,
   },
-  data: (vm: any) => {
+  setup(props) {
+    const svgIconElement = ref();
+    const updateCallback = () => {
+      createSvg(
+        props.size,
+        props.width,
+        props.height,
+        props.iconName,
+        svgIconElement.value,
+        props.title
+      );
+    };
+    onUpdated(() => {
+      updateCallback();
+    });
+    onMounted(() => {
+      updateCallback();
+    });
     return {
-      svgIconElement: undefined,
-      onUpdated() {
-        createSvg(
-          vm.size,
-          vm.width,
-          vm.height,
-          vm.iconName,
-          vm.svgIconElement,
-          vm.title
-        );
-      }
-
-    }
-  },
-  mounted() {
-    this.svgIconElement = this.$refs["svgIcon"] as any;
-    this.onUpdated();
+      svgIconElement: svgIconElement,
+    };
   },
 });
 

@@ -72,38 +72,39 @@
 <script lang="ts">
 import { Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder } from "survey-core";
 import { getComponentName } from "./base";
-import { defineComponent, type PropType } from "vue";
+import { defineComponent, type PropType, ref } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-matrixcell",
   props: {
-    question: Object as PropType<Question>,
-    cell: Object as PropType<QuestionMatrixDropdownRenderedCell>,
+    question: { type: Object as PropType<Question>, required: true },
+    cell: { type: Object as PropType<QuestionMatrixDropdownRenderedCell>, required: true },
   },
-  data: (vm: any) => {
+  setup() {
     return {
-      isVisible: false,
-      getComponentName(element: Question | any) {
-        return getComponentName(element);
-      },
-      getHeaders(): string {
-        return vm.cell.headers;
-      },
-      getCellStyle(): any {
-        if (!!vm.cell.width || !!vm.cell.minWidth)
-          return { width: vm.cell.width, minWidth: vm.cell.minWidth };
-        return null;
-      },
-      getCellIndex(): string {
-        return (vm.cell as any).index || "";
-      },
-      onVisibilityChanged: () => {
-        vm.isVisible = vm.cell.question.isVisible;
-      },
+      isVisible: ref(false),
     };
   },
-
+  methods: {
+    getComponentName(element: Question | any) {
+      return getComponentName(element);
+    },
+    getHeaders(): string {
+      return this.cell.headers;
+    },
+    getCellStyle(): any {
+      if (!!this.cell.width || !!this.cell.minWidth)
+        return { width: this.cell.width, minWidth: this.cell.minWidth };
+      return null;
+    },
+    getCellIndex(): string {
+      return (this.cell as any).index || "";
+    },
+    onVisibilityChanged(): void {
+      this.isVisible = this.cell.question.isVisible;
+    },
+  },
   mounted() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
     this.onVisibilityChanged();

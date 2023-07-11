@@ -7,17 +7,10 @@
 </template>
 
 <script lang="ts">
-import { ref, defineComponent, type ComponentOptions, unref } from "vue";
+import { defineComponent } from "vue";
 
 export default defineComponent({
-  // eslint-disable-next-line
   name: "sv-brand-info",
-  props: {
-  },
-  data: (vm: any) => {
-    return {
-    }
-  }
 });
 
 </script>

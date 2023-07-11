@@ -18,20 +18,16 @@
 
 <script lang="ts">
 import { Question } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, type PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
+import { QuestionVue } from "./base";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-question-comment",
   props: {
-    question: Object as PropType<Question>,
+    question: { type: Object as PropType<Question>, required: true },
     commentClass: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.question; },
-    }
-  }
+  mixins: [QuestionVue],
 });
-
 </script>

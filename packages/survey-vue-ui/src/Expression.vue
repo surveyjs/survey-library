@@ -4,20 +4,19 @@
 
 <script lang="ts">
 import { QuestionExpressionModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
+import { BaseVue } from "./base";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-expression",
   props: {
-    question: Object as PropType<QuestionExpressionModel>,
+    question: { type: Object as PropType<QuestionExpressionModel>, required: true },
     css: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.question; }
-    }
+  mixins: [BaseVue],
+  methods: {
+    getModel() { return this.question; }
   },
   mounted() {
     if (this.question) {
@@ -28,7 +27,6 @@ export default defineSurveyComponent({
     if (this.question) {
       this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
     }
-  }
+  },
 });
-
 </script>

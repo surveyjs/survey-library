@@ -86,6 +86,8 @@ import Progress from "./components/progress/Progress.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
 import OtherChoice from "./QuestionOther.vue";
+import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
+
 
 function registerComponents(app: any) {
   app.component("SurveyRoot", SurveyVue);
@@ -180,6 +182,7 @@ function registerComponents(app: any) {
 
   app.component("sv-notifier", Notifier);
   app.component("survey-other-choice", OtherChoice);
+  app.component("sv-nav-btn", SurveyNavigationButton);
 }
 
 export default {

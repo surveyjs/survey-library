@@ -206,6 +206,8 @@ export interface ICustomQuestionTypeConfiguration {
   createQuestion?: any;
   valueToQuestion?: (val: any) => any;
   valueFromQuestion?: (val: any) => any;
+  getValue?: (val: any) => any;
+  setValue?: (val: any) => any;
 }
 
 export class ComponentQuestionJSON {
@@ -287,13 +289,13 @@ export class ComponentQuestionJSON {
     if (!this.json.getDisplayValue) return question.getDisplayValue(keyAsText, value);
     return (this.json as any).getDisplayValue(question);
   }
-  public valueToQuestion(val: any): any {
-    if (!this.json.valueToQuestion) return val;
-    return this.json.valueToQuestion(val);
+  public setValueToQuestion(val: any): any {
+    const converter = this.json.valueToQuestion || this.json.setValue;
+    return !!converter ? converter(val): val;
   }
-  public valueFromQuestion(val: any): any {
-    if (!this.json.valueFromQuestion) return val;
-    return this.json.valueFromQuestion(val);
+  public getValueFromQuestion(val: any): any {
+    const converter = this.json.valueFromQuestion || this.json.getValue;
+    return !!converter ? converter(val): val;
   }
   public get isComposite(): boolean {
     return !!this.json.elementsJSON || !!this.json.createElements;
@@ -677,7 +679,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     super.onSurveyLoad();
     if (!this.contentQuestion) return;
     if (this.isEmpty() && !this.contentQuestion.isEmpty()) {
-      this.value = this.contentQuestion.value;
+      this.value = this.getContentQuestionValue();
     }
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
@@ -698,8 +700,19 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected convertDataValue(name: string, newValue: any): any {
     return this.convertDataName(name) == super.convertDataName(name)
-      ? this.contentQuestion.value
+      ? this.getContentQuestionValue()
       : newValue;
+  }
+  protected getContentQuestionValue(): any {
+    if(!this.contentQuestion) return undefined;
+    let val = this.contentQuestion.value;
+    if(!!this.customQuestion) val = this.customQuestion.getValueFromQuestion(val);
+    return val;
+  }
+  protected setContentQuestionValue(val: any): void {
+    if(!this.contentQuestion) return;
+    if(!!this.customQuestion) val = this.customQuestion.setValueToQuestion(val);
+    this.contentQuestion.value = val;
   }
   protected canSetValueToSurvey(): boolean {
     return false;
@@ -707,9 +720,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
     if (!this.isLoadingFromJson && !!this.contentQuestion &&
-      !this.isTwoValueEquals(this.contentQuestion.value, newValue)
+      !this.isTwoValueEquals(this.getContentQuestionValue(), newValue)
     ) {
-      this.contentQuestion.value = this.getUnbindValue(newValue);
+      this.setContentQuestionValue(this.getUnbindValue(newValue));
     }
   }
   onSurveyValueChanged(newValue: any) {
@@ -719,7 +732,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     }
   }
   protected getValueCore() {
-    if (!!this.contentQuestion) return this.contentQuestion.value;
+    if (!!this.contentQuestion) return this.getContentQuestionValue();
     return super.getValueCore();
   }
   protected initElement(el: SurveyElement) {
@@ -936,10 +949,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
   }
   private getContentPanelValue(val?: any): any {
     if(!val) val = this.contentPanel.getValue();
-    return this.customQuestion.valueToQuestion(val);
+    return this.customQuestion.setValueToQuestion(val);
   }
   private getValueForContentPanel(val: any): any {
-    return this.customQuestion.valueFromQuestion(val);
+    return this.customQuestion.getValueFromQuestion(val);
   }
   private setNewValueIntoQuestion(name: string, newValue: any): void {
     var q = this.getQuestionByName(name);

@@ -2118,6 +2118,12 @@ export class Question extends SurveyElement<Question>
 
   private onMobileChangedCallback: () => void;
 
+  public triggerResponsiveness(hard: boolean = true): void {
+    if(this.triggerResponsivenessCallback) {
+      this.triggerResponsivenessCallback(hard);
+    }
+  }
+  private triggerResponsivenessCallback: (hard: boolean) => void;
   private initResponsiveness(el: HTMLElement) {
     this.destroyResizeObserver();
     if (!!el && this.isDefaultRendering()) {
@@ -2127,16 +2133,32 @@ export class Question extends SurveyElement<Question>
       if (!defaultRootEl) return;
       let isProcessed = false;
       let requiredWidth: number = undefined;
-      this.resizeObserver = new ResizeObserver(() => {
-        const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-        if (!requiredWidth && this.isDefaultRendering()) {
-          requiredWidth = rootEl.scrollWidth;
-        }
-        if (isProcessed || !isContainerVisible(rootEl)) {
+      this.triggerResponsivenessCallback = (hard: boolean) => {
+        if(hard) {
+          requiredWidth = undefined;
+          this.renderAs = "default";
           isProcessed = false;
-        } else {
-          isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
         }
+        const callback = () => {
+          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+          if (!requiredWidth && this.isDefaultRendering()) {
+            requiredWidth = rootEl.scrollWidth;
+          }
+          if (isProcessed || !isContainerVisible(rootEl)) {
+            isProcessed = false;
+          } else {
+            isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+          }
+        };
+        if(hard) {
+          setTimeout(callback, 1);
+        } else {
+          callback();
+        }
+
+      };
+      this.resizeObserver = new ResizeObserver(() => {
+        this.triggerResponsiveness(false);
       });
       this.onMobileChangedCallback = () => {
         setTimeout(() => {
@@ -2171,6 +2193,7 @@ export class Question extends SurveyElement<Question>
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
       this.onMobileChangedCallback = undefined;
+      this.triggerResponsivenessCallback = undefined;
       this.renderAs = this.getDesktopRenderAs();
     }
   }

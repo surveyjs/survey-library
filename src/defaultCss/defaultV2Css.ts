@@ -635,7 +635,6 @@ export var defaultV2Css = {
   },
   variables: {
     mobileWidth: "--sd-mobile-width",
-    imagepickerGapBetweenItems: "--sd-imagepicker-gap",
     themeMark: "--sv-defaultV2-mark"
   },
   tagbox: {

@@ -4467,6 +4467,13 @@ export class SurveyModel extends SurveyElementCore
       return true;
     }
   }
+
+  public triggerResponsiveness(hard: boolean) {
+    this.getAllQuestions().forEach(question => {
+      question.triggerResponsiveness(hard);
+    });
+  }
+
   public destroyResizeObserver(): void {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();

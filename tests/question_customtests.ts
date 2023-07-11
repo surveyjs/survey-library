@@ -2297,3 +2297,29 @@ QUnit.test("Composite & valueToQuestion/valueFromQuestion, #6475", function (ass
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single & getValue/setValue, #6475", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "singleq",
+    showInToolbox: false,
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
+    getValue(val: any): any {
+      if(!val) return val;
+      return "val:" + val.toString();
+    },
+    setValue(val: any): any {
+      if(!val) return val;
+      val = val.replace("val:", "");
+      return Number.parseInt(val);
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "singleq", name: "q1" }
+    ] });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  q1.contentQuestion.value = 2;
+  assert.equal(q1.value, "val:2", "#1");
+  q1.value = "val:4";
+  assert.equal(q1.contentQuestion.value, 4, "#2");
+  ComponentCollection.Instance.clear();
+});

@@ -357,6 +357,7 @@ $header-background-color: #e7e7e7;
   background-color: transparent;
   position: absolute;
   inset-inline-start: 0;
+  inset-block-start: 0;
 }
 
 .sv_q_dropdown_clean-button {
@@ -1136,7 +1137,7 @@ sv-popup {
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  max-width: 90vw;
+  max-width: 100vw;
 }
 
 .sv-popup--modal .sv-list__filter {

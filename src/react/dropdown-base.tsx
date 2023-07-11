@@ -55,7 +55,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     }
 
     return (
-      <div className={cssClasses.selectWrapper}>
+      <div className={cssClasses.selectWrapper} onClick={this.click}>
         {selectElement}
         {this.createChevronButton()}
       </div>
@@ -84,7 +84,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       id={this.question.inputId}
       className={this.question.getControlClass()}
       tabIndex={dropdownListModel.inputReadOnly ? undefined : 0}
-      onClick={this.click}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       disabled={this.question.isInputReadOnly}

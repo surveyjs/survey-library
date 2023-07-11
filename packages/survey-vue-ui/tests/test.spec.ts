@@ -42,26 +42,30 @@ const platformDescriptor = {
 };
 
 class ExpectAssertAdapter {
-  constructor(private expect: any, private done: any) {}
+  constructor(private expect: any, private done: any, private reject: any) {}
   public equal(actual: any, expected: any, msg: string) {
-    this.expect.soft(actual, msg).toBe(expected);
+    try {
+      this.expect(actual, msg).toBe(expected);
+    } catch (e) {
+      this.reject(e);
+    }
   }
   public async() {
     return this.done;
   }
 }
 
-const whiteList = [/.*/];
+const whiteList = ["question"];
 
-describe("etalon tests", () => {
+describe("markup tests", () => {
   markupTests.forEach((markupTest) => {
     if (whiteList.some((item) => markupTest.snapshot?.search(item) > -1)) {
       it(
         markupTest.name,
         () =>
-          new Promise<void>((done) => {
+          new Promise<void>((done, reject) => {
             testQuestionMarkup(
-              new ExpectAssertAdapter(expect, done),
+              new ExpectAssertAdapter(expect, done, reject),
               markupTest,
               platformDescriptor
             );

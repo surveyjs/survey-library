@@ -1,12 +1,11 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper">
+  <div :class="question.cssClasses.selectWrapper" @click="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
       :tabindex="model.inputReadOnly ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
-      @click="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"

@@ -5938,3 +5938,32 @@ QUnit.test("defaultValue in questions and set data", function (assert) {
   assert.equal(q1.value, "foo", "q1 is correct");
   assert.notOk(q2.value, "q2 is empty");
 });
+QUnit.test("Make sure that panel is not collapsed on focusing the question", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "name": "q1",
+            "type": "text",
+          }
+        ]
+      },
+      {
+        "elements": [{
+          "name": "panel",
+          "type": "paneldynamic",
+          "panelCount": 2,
+          "templateElements": [
+            {
+              "name": "q2",
+              "type": "text",
+            }
+          ]
+        }] }] });
+  assert.equal(survey.currentPageNo, 0);
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  q2.focus();
+  assert.equal(survey.currentPageNo, 1);
+});

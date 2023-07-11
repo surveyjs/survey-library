@@ -34,6 +34,7 @@ const platformDescriptor = {
     ),
   render: (survey: SurveyModel, element: HTMLElement) => {
     mount(Survey, {
+      attachTo: element,
       propsData: {
         survey: survey,
       },
@@ -55,7 +56,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const whiteList = ["question"];
+const whiteList = ["list-component"];
 
 describe("markup tests", () => {
   markupTests.forEach((markupTest) => {

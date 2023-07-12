@@ -26,16 +26,14 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "survey-paneldynamicprogress",
   props: {
-    question: Object as PropType<QuestionPanelDynamicModel>,
+    question: { type: Object as PropType<QuestionPanelDynamicModel>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      getСssClass() {
-        return vm.question.isProgressTopShowing
-          ? vm.question.cssClasses.progressTop
-          : vm.question.cssClasses.progressBottom;
-      },
-    };
+  methods: {
+    getСssClass() {
+      return this.question.isProgressTopShowing
+        ? this.question.cssClasses.progressTop
+        : this.question.cssClasses.progressBottom;
+    },
   },
 });
 </script>

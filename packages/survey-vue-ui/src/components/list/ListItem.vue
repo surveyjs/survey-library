@@ -32,21 +32,22 @@
 </template>
 
 <script lang="ts">
+import { BaseVue } from "@/base";
 import { ListModel, Action, IAction } from "survey-core";
-import { defineSurveyComponent } from "../../base";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 //todo
 function attachKey2click(event: any) {
 
 }
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-list-item",
   props: {
-    model: Object as PropType<ListModel>,
+    model: { type: Object as PropType<ListModel>, required: true },
     item: Object as PropType<Action>,
   },
+  mixins: [BaseVue],
   methods: {
     click(event: any) {
       this.model.onItemClick(this.item as any);
@@ -54,14 +55,10 @@ export default defineSurveyComponent({
     },
     keyup(event: any) {
       attachKey2click(event);
-    }
-  },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.item;
-      },
-    };
+    },
+    getModel() {
+      return this.item;
+    },
   },
   computed: {
     elementId() {
@@ -69,7 +66,7 @@ export default defineSurveyComponent({
     }
   },
   mounted() {
-    this.model.onLastItemRended(<any>this.item);
+    this.model.onLastItemRended(this.item as any);
   },
 });
 </script>

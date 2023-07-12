@@ -20,34 +20,35 @@
 </template>
 
 <script lang="ts">
-import { ItemValue, Base } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { ItemValue } from "survey-core";
+import { defineComponent, type PropType } from "vue";
+import { BaseVue } from "./base";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
+  mixins: [BaseVue],
   name: "survey-checkbox-item",
   props: {
-    question: Object,
-    item: Object as PropType<ItemValue>,
+    question: { type: Object, required: true },
+    item: { type: Object as PropType<ItemValue>, required: true },
     index: [String, Number],
     hideLabel: Boolean,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.item; }
-    }
+  methods: {
+    getModel() {
+      return this.item;
+    },
   },
   computed: {
     isAllSelected: {
-      get () {
+      get() {
         return this.question.isAllSelected || "";
       },
-      set (val: boolean) {
-        this.question.isAllSelected = val;
-      }
-    }
-  }
+      set(val: boolean) {
+        const question = this.question;
+        question.isAllSelected = val;
+      },
+    },
+  },
 });
-
 </script>

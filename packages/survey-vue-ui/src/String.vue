@@ -4,19 +4,13 @@
 
 <script lang="ts">
 import { LocalizableString } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, type PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-string",
   props: {
-    locString: Object as PropType<LocalizableString>
+    locString: Object as PropType<LocalizableString>,
   },
-  data: (vm: any) => {
-    return {
-    }
-  }
 });
-
-// export default SurveyString;
 </script>

@@ -37,22 +37,20 @@
 
 <script lang="ts">
 import { Action } from "survey-core";
-import { defineSurveyComponent } from "../../base";
-import type { PropType } from "vue";
+import { BaseVue } from "../../base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-action-bar-item",
+  mixins: [BaseVue],
   props: {
     item: Object as PropType<Action>,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.item;
-      },
-    };
+  methods: {
+    getModel() {
+      return this.item;
+    },
   },
 });
-
 </script>

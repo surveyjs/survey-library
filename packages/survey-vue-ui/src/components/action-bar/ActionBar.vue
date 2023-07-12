@@ -19,21 +19,17 @@
 
 <script lang="ts">
 import { ActionContainer } from "survey-core";
-import { defineSurveyComponent } from "../../base";
-import type { PropType } from "vue";
+import { BaseVue } from "../../base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-action-bar",
   props: {
-    model: Object as PropType<ActionContainer>,
-    handleClick: Boolean
+    model: { type: Object as PropType<ActionContainer>, required: true },
+    handleClick: Boolean,
   },
-  computed: {
-    componentName() {
-      return this.item.component || "sv-action-bar-item";
-    },
-  },
+  mixins: [BaseVue],
   mounted() {
     if (!this.model.hasActions) return;
     const container = this.$el;
@@ -42,12 +38,10 @@ export default defineSurveyComponent({
   beforeUnmount() {
     this.model.resetResponsivityManager();
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.model;
-      },
-    };
+  methods: {
+    getModel() {
+      return this.model;
+    },
   },
 });
 </script>

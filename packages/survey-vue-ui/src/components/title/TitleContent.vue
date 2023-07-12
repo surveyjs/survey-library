@@ -44,10 +44,5 @@ export default defineComponent({
     element: { type: Object, required: true },
     css: Object,
   },
-  data: (vm: any) => {
-    return {
-    }
-  }
 });
-
 </script>

@@ -3,19 +3,18 @@
 </template>
 
 <script lang="ts">
-import { SurveyElement, Question, PanelModel } from "survey-core";
-import { defineSurveyComponent } from "../base";
+import { BaseVue } from "@/base";
+import { defineComponent } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-skeleton",
   props: {
     element: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.model; }
-    }
+  mixins: [BaseVue],
+  methods: {
+    getModel() { return this.element; }
   }
 });
 </script>

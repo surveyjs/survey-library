@@ -61,19 +61,17 @@ export default defineComponent({
   mixins: [BaseVue],
   name: "survey-matrixtable",
   props: {
-    question: Object as PropType<QuestionMatrixDropdownModelBase>,
+    question: { type: Object as PropType<QuestionMatrixDropdownModelBase>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      getModel(): QuestionMatrixDropdownRenderedTable {
-        return vm.question.renderedTable;
-      },
-    };
+  methods: {
+    getModel(): QuestionMatrixDropdownRenderedTable {
+      return this.question.renderedTable;
+    },
   },
   computed: {
     // readonly
-    table(vm: any): QuestionMatrixDropdownRenderedTable {
-      return vm.question.renderedTable;
+    table(): QuestionMatrixDropdownRenderedTable {
+      return this.question.renderedTable;
     },
   },
 });

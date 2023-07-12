@@ -19,18 +19,15 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "sv-brand-info",
   props: {
-    element: Object,
+    element: { type: Object, required: true },
     css: Object,
   },
-  data: (vm: any) => {
-    return {
-      clickTitleFunction: () => {
-        if(typeof (vm.element).clickTitleFunction === "function") {
-          (vm.element).clickTitleFunction();
-        }
+  methods: {
+    clickTitleFunction() {
+      if(typeof (this.element).clickTitleFunction === "function") {
+        (this.element).clickTitleFunction();
       }
-    }
-  }
+    },
+  },
 });
-
 </script>

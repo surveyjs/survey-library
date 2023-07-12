@@ -51,29 +51,26 @@
   </div>
 </template>
 <script lang="ts">
+import { BaseVue } from "@/base";
 import { PopupBaseViewModel } from "survey-core";
-import { defineSurveyComponent } from "../../base";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-popup-container",
   props: {
-    model: Object as PropType<PopupBaseViewModel>,
+    model: { type: Object as PropType<PopupBaseViewModel>, required: true },
   },
+  mixins: [BaseVue],
   setup() {
     return {
       prevIsVisible: false,
     };
   },
-  data(vm: any) {
-    return {
-      getModel: () => {
-        return vm.model;
-      },
-    };
-  },
   methods: {
+    getModel() {
+      return this.model;
+    },
     clickInside: (event: any) => {
       event.stopPropagation();
     },

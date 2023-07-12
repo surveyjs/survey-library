@@ -32,14 +32,12 @@ export default defineComponent({
   mixins: [QuestionVue],
   name: "survey-rating",
   props: {
-    question: Object as PropType<QuestionRatingModel>,
+    question: { type: Object as PropType<QuestionRatingModel>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      getInputId(index: any):number {
-        return this.question.getInputId(index);
-      }
-    }
+  methods: {
+    getInputId(index: any): string {
+      return this.question.getInputId(index);
+    },
   },
 });
 </script>

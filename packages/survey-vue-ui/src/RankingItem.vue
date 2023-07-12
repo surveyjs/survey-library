@@ -53,10 +53,10 @@ export default defineComponent({
     item: Object as PropType<ItemValue>,
     unrankedItem: Boolean,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.item; }
-    }
+  methods: {
+    getModel() {
+      return this.item;
+    },
   },
 });
 </script>

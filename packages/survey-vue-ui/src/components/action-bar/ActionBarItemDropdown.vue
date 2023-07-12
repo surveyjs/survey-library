@@ -36,14 +36,18 @@
 
 <script lang="ts">
 import { Action, ActionDropdownViewModel } from "survey-core";
-import { defineSurveyComponent } from "../../base";
-import type { PropType } from "vue";
+import { BaseVue } from "../../base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "sv-action-bar-item-dropdown",
   props: {
-    item: Object as PropType<Action>,
+    item: { type: Object as PropType<Action>, required: true },
+  },
+  mixins: [BaseVue],
+  setup() {
+    return { viewModel: undefined as any as ActionDropdownViewModel };
   },
   beforeCreate() {
     this.viewModel = new ActionDropdownViewModel(this.item);
@@ -51,12 +55,10 @@ export default defineSurveyComponent({
   beforeUnmount() {
     this.viewModel.dispose();
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => {
-        return vm.item;
-      },
-    };
+  methods: {
+    getModel() {
+      return this.item;
+    },
   },
 });
 </script>

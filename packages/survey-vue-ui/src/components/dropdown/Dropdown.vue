@@ -90,27 +90,26 @@
 </template>
 
 <script lang="ts">
-import type { PropType } from "vue";
-import { defineSurveyComponent } from "../../base";
+import { defineComponent, type PropType } from "vue";
 import { DropdownListModel, QuestionDropdownModel, Helpers } from "survey-core";
+import { BaseVue } from "@/base";
 
-export default defineSurveyComponent({
+export default defineComponent({
   props: {
-    question: Object as PropType<QuestionDropdownModel>,
+    question: { type: Object as PropType<QuestionDropdownModel>, required: true },
   },
   name: "sv-dropdown",
-  data: (vm: any) => {
+  setup(props){
     return {
-      inputElement: undefined,
-      getModel: () => {
-        return vm.model;
-      },
+      inputElement: undefined as any,
     };
   },
+  mixins: [BaseVue],
   computed: {
     model() {
-      if (!this.question.dropdownListModel) {
-        this.question.dropdownListModel = new DropdownListModel(this.question);
+      const question = this.question;
+      if (!question.dropdownListModel) {
+        question.dropdownListModel = new DropdownListModel(this.question);
       }
       return this.question.dropdownListModel;
     },
@@ -123,6 +122,9 @@ export default defineSurveyComponent({
     this.updateInputDomElement();
   },
   methods: {
+    getModel() {
+      return this.model;
+    },
     inputChange(event: any) {
       this.model.inputStringRendered = event.target.value;
     },

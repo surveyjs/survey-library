@@ -25,23 +25,25 @@
 
 <script lang="ts">
 import { QuestionCommentModel } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { QuestionVue } from "./base";
+import { defineComponent, type PropType } from "vue";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-comment",
   props: {
-    question: Object as PropType<QuestionCommentModel>,
+    question: {
+      type: Object as PropType<QuestionCommentModel>,
+      required: true,
+    },
     css: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.question; },
-      change(event: any) {
-        vm.question.value = event.target.value;
-      }
-    }
+  mixins: [QuestionVue],
+  methods: {
+    change(event: any) {
+      const question = this.question;
+      question.value = event.target.value;
+    },
   },
   mounted() {
     if (this.question) {

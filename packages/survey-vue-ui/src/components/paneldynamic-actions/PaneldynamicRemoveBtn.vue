@@ -19,19 +19,17 @@ export default defineComponent({
   // eslint-disable-next-line
   mixins: [PaneldynamicActionMixin],
   name: "sv-paneldynamic-remove-btn",
-  data: (vm: any) => {
-    return {
-      removePanelClick(panel: any) {
-        if (!vm.question.isInputReadOnly) {
-          vm.question.removePanelUI(panel);
-        }
-      },
-    };
+  methods: {
+    removePanelClick(panel: any) {
+      if (!this.question.isInputReadOnly) {
+        this.question.removePanelUI(panel);
+      }
+    },
   },
   computed: {
     // readonly
-    panel(vm: any): any {
-      return (vm.item && vm.item.data.panel) || vm.data.panel;
+    panel(): any {
+      return (this.item && this.item.data.panel) || this.data.panel;
     },
   },
 });

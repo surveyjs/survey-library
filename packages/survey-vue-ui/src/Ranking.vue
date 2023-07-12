@@ -60,15 +60,12 @@ export default defineComponent({
   mixins: [QuestionVue],
   name: "survey-ranking",
   props: {
-    question: Object as PropType<QuestionRankingModel>,
+    question: { type: Object as PropType<QuestionRankingModel>, required: true },
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.question; },
-      getNumberByIndex(index: any):number {
-        return this.question.getNumberByIndex(index)
-      }
-    }
-  },
+  methods: {
+    getNumberByIndex(index: any): string {
+      return this.question.getNumberByIndex(index);
+    },
+  }
 });
 </script>

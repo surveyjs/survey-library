@@ -5,14 +5,12 @@ export const BooleanBaseMixin: ComponentOptions = {
   props: {
     question: Object as PropType<QuestionBooleanModel>,
   },
-  data(vm: any) {
-    return {
-      onLabelClick: (event: any, value: boolean) => {
-        vm.question.onLabelClick(event, value);
-      },
-      onSwitchClick: (event: any) => {
-        vm.question.onSwitchClickModel(event);
-      },
-    };
+  methods: {
+    onLabelClick(event: any, value: boolean) {
+      this.question.onLabelClick(event, value);
+    },
+    onSwitchClick(event: any) {
+      this.question.onSwitchClickModel(event);
+    },
   },
 };

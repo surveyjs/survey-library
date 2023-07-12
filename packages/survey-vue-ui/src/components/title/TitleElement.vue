@@ -29,23 +29,19 @@
 
 <script lang="ts">
 import { SurveyElementCore, doKey2ClickUp } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, type PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
   name: "survey-element-title",
   props: {
-    element: Object as PropType<SurveyElementCore>,
+    element: { type: Object as PropType<SurveyElementCore>, required: true },
     css: Object,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.model; },
-      keyup(evt: any) {
-        doKey2ClickUp(evt);
-      }
-    }
-  }
+  methods: {
+    keyup(evt: any) {
+      doKey2ClickUp(evt);
+    },
+  },
 });
-
 </script>

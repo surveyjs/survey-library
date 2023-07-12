@@ -32,29 +32,27 @@
 
 <script lang="ts">
 import { ItemValue, Base } from "survey-core";
-import { defineSurveyComponent } from "./base";
-import type { PropType } from "vue";
+import { defineComponent, type PropType } from "vue";
+import { BaseVue } from "./base";
 
-export default defineSurveyComponent({
+export default defineComponent({
   // eslint-disable-next-line
   name: "survey-radiogroup-item",
   props: {
-    question: Object,
+    question: { type: Object, required: true },
     item: Object as PropType<ItemValue>,
     index: [String, Number],
     hideLabel: Boolean,
   },
-  data: (vm: any) => {
-    return {
-      getModel: () => { return vm.item; },
-      getLabelClass: (item: any) => {
-        return vm.question.getLabelClass(item);
-      },
-      getControlLabelClass: (item: any) => {
-        return vm.question.getControlLabelClass(item);
-      }
-    }
+  mixins: [BaseVue],
+  methods: {
+    getModel() { return this.item; },
+    getLabelClass(item: any) {
+      return this.question.getLabelClass(item);
+    },
+    getControlLabelClass(item: any) {
+      return this.question.getControlLabelClass(item);
+    },
   },
 });
-
 </script>

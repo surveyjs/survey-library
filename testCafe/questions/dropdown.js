@@ -14,7 +14,7 @@ const clearButton = Selector(".sv_q_dropdown_clean-button");
 const questionOffsetTopConst = 184;
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       const json = {
         questions: [
@@ -241,7 +241,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("open popup and blur", async (t) => {
     const json = {
@@ -1275,7 +1275,7 @@ frameworks.forEach((framework) => {
   });
 
   const theme = "defaultV2";
-  test.page(`${url_test}${theme}/${framework}.html`)("Check rating as dropdown", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check rating as dropdown", async (t) => {
     await applyTheme(theme);
 
     const jsonWithDropDown = {
@@ -1302,7 +1302,7 @@ frameworks.forEach((framework) => {
       .pressKey("delete")
       .expect(ratingAsDropdownText.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
   });
-  test.page(`${url_test}${theme}/${framework}.html`)("Check dropdown popup width", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup width", async (t) => {
     await applyTheme(theme);
     const json = {
       "elements": [
@@ -1359,7 +1359,7 @@ frameworks.forEach((framework) => {
     }, 500);
   }
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -1452,7 +1452,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -1612,7 +1612,7 @@ frameworks.forEach((framework) => {
       .expect(listSelector.exists).ok();
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("choicesFromQuestion, bug#5818", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("choicesFromQuestion, bug#5818", async (t) => {
     await applyTheme(theme);
 
     const json = {

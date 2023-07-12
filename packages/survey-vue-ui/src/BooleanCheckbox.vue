@@ -56,6 +56,7 @@ import { defineComponent } from "vue";
 export default defineComponent({
   // eslint-disable-next-line
   mixins: [QuestionVue, BooleanBaseMixin],
+  props: { css: Object },
   name: "sv-boolean-checkbox",
 });
 

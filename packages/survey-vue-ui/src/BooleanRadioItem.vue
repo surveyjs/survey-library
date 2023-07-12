@@ -1,11 +1,27 @@
 <template>
-  <div role="presentation" :class="question.getRadioItemClass(question.cssClasses, value)">
+  <div
+    role="presentation"
+    :class="question.getRadioItemClass(question.cssClasses, value)"
+  >
     <label :class="question.cssClasses.radioLabel">
-      <input type="radio" :name="question.name" :value="value" :checked="value === question.booleanValueRendered"
-        :aria-describedby="question.ariaDescribedBy" :disabled="question.isInputReadOnly"
-        :class="question.cssClasses.itemRadioControl" @change="handleChange" />
-      <span v-if="question.cssClasses.materialRadioDecorator" :class="question.cssClasses.materialRadioDecorator">
-        <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemRadioDecorator">
+      <input
+        type="radio"
+        :name="question.name"
+        :value="value"
+        :checked="value === question.booleanValueRendered"
+        :aria-describedby="question.ariaDescribedBy"
+        :disabled="question.isInputReadOnly"
+        :class="question.cssClasses.itemRadioControl"
+        @change="handleChange"
+      />
+      <span
+        v-if="question.cssClasses.materialRadioDecorator"
+        :class="question.cssClasses.materialRadioDecorator"
+      >
+        <svg
+          v-if="question.itemSvgIcon"
+          :class="question.cssClasses.itemRadioDecorator"
+        >
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg>
       </span>
@@ -24,9 +40,12 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "sv-boolean-radio-item",
   props: {
-    question: { type: Object as PropType<QuestionBooleanModel>, required: true },
+    question: {
+      type: Object as PropType<QuestionBooleanModel>,
+      required: true,
+    },
     locText: Object,
-    value: Object,
+    value: [Boolean],
   },
   methods: {
     handleChange(event: any) {
@@ -36,4 +55,3 @@ export default defineComponent({
   },
 });
 </script>
-

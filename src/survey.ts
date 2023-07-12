@@ -3367,8 +3367,15 @@ export class SurveyModel extends SurveyElementCore
   public get areEmptyElementsHidden(): boolean {
     return (
       this.isShowingPreview &&
-      this.showPreviewBeforeComplete == "showAnsweredQuestions"
+      this.showPreviewBeforeComplete == "showAnsweredQuestions" && this.isAnyQuestionAnswered
     );
+  }
+  private get isAnyQuestionAnswered(): boolean {
+    const questions = this.getAllQuestions(true);
+    for(let i = 0; i < questions.length; i ++) {
+      if(!questions[i].isEmpty()) return true;
+    }
+    return false;
   }
   /**
    * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completedbefore` state if the function returns `true`.

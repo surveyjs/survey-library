@@ -18,13 +18,14 @@ export default defineComponent({
     locString: { type: Object as PropType<LocalizableString>, required: true },
   },
   setup(props) {
-    const renderedHtml = ref(props.locString?.renderedHtml);
+    const renderedHtml = ref();
     const setupOnChangedCallback = (locString: LocalizableString) => {
+      renderedHtml.value = locString.renderedHtml;
       locString.onChanged = () => {
         renderedHtml.value = locString.renderedHtml;
       }
     };
-    watch(() => props.locString, (oldValue, newValue) => {
+    watch(() => props.locString, (newValue, oldValue) => {
       oldValue.onChanged = () => {};
       setupOnChangedCallback(newValue);
     });

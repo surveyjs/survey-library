@@ -9,5 +9,8 @@ const survey = shallowRef();
 }
 </script>
 <template>
-    <SurveyRoot v-if="survey" :survey="survey"></SurveyRoot>
+    <div id="surveyElement">
+        <SurveyRoot v-if="survey" :survey="survey"></SurveyRoot>
+    </div>
+    <div id="surveyResultElement"></div>
 </template>

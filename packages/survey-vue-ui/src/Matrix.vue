@@ -89,13 +89,14 @@ export default defineComponent({
     question: { type: Object as PropType<QuestionMatrixModel>, required: true },
   },
   setup(props) {
-    const visibleRows = shallowRef(props.question.visibleRows);
+    const visibleRows = shallowRef();
     const setupVisibleRowsChangedCallback = (question: QuestionMatrixModel) => {
+      visibleRows.value = question.visibleRows;
       question.visibleRowsChangedCallback = () => {
         visibleRows.value = question.visibleRows;
       };
     };
-    watch(() => props.question, (oldValue, newValue) => {
+    watch(() => props.question, (newValue, oldValue) => {
         oldValue.visibleRowsChangedCallback = () => {};
         setupVisibleRowsChangedCallback(newValue);
     });

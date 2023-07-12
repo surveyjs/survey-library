@@ -77,6 +77,8 @@
     "visual-regression-tests:ci:react": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react",
     "visual-regression-tests:ci:vue": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue",
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
+    "testcafe:ci:vue3": "testcafe -c 4 -q attemptLimit=2,successThreshold=1 chrome:headless testCafe/ --app \"npm run preview --prefix ./packages/survey-vue-ui/example\" --selector-timeout 1500 --reporter minimal --env=vue3",
+    "testcafe:vue3": "testcafe chrome testCafe/ --app \"npm run preview --prefix ./packages/survey-vue-ui/example \" --selector-timeout 1500 -reporter minimal --env=vue3",
     "testcafe:angular": "testcafe chrome testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"

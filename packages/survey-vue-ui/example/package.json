@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check build-only",
-    "preview": "vite preview",
+    "preview": "vite preview --host 0.0.0.0 --port 8080",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
@@ -14,7 +14,9 @@
     "vue": "^3.3.4",
     "survey-core": "../../../build/survey-core",
     "survey-vue-ui": "../../../build/survey-vue3-ui",
-    "vue-router": "^4.2.2"
+    "vue-router": "^4.2.2",
+    "surveyjs-widgets": "^1.9.40",
+    "bootstrap": "^3.3.7"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",

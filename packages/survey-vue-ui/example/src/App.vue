@@ -2,8 +2,8 @@
 import Example from './components/example/Example.vue';
 import Test from "./components/test/Test.vue"
 
-const isTest = !!(window as any)["%hammerhead%"];
-// const isTest = true;
+// const isTest = !!(window as any)["%hammerhead%"];
+const isTest = true;
 
 </script>
 

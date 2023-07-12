@@ -72,7 +72,7 @@ export const initSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
-    } else if (framework === "angular") {
+    } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model);
     }
     window["survey"] = model;

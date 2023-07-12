@@ -1,11 +1,10 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper">
+  <div :class="question.cssClasses.selectWrapper" @click="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
       :disabled="question.isInputReadOnly ? true : null"
       :tabindex="model.inputReadOnly ? undefined : 0"
-      @click="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -28,8 +27,13 @@
           v-if="question.showSelectedItemLocText"
           :locString="question.selectedItemLocText"
         />
-        <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
-          <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
+        <div
+          v-if="model.showHintString"
+          :class="question.cssClasses.hintSuffix"
+        >
+          <span style="visibility: hidden">{{
+            model.inputStringRendered
+          }}</span>
           <span>{{ model.hintStringSuffix }}</span>
         </div>
         <component
@@ -79,12 +83,28 @@
       v-if="!question.isReadOnly"
       :model="question.dropdownListModel.popupModel"
     ></sv-popup>
-    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
+    <div
+      disabled
+      v-else
+      :id="question.inputId"
+      :class="question.getControlClass()"
+    >
       <survey-string
         v-if="question.selectedItemLocText"
         :locString="question.selectedItemLocText"
       />
       <div>{{ question.readOnlyText }}</div>
+    </div>
+    <div
+      :class="question.cssClasses.chevronButton"
+      v-if="question.cssClasses.chevronButtonIconId"
+    >
+      <sv-svg-icon
+        :class="question.cssClasses.chevronButtonSvg"
+        :iconName="question.cssClasses.chevronButtonIconId"
+        size="24"
+      >
+      </sv-svg-icon>
     </div>
   </div>
 </template>
@@ -96,10 +116,13 @@ import { BaseVue } from "@/base";
 
 export default defineComponent({
   props: {
-    question: { type: Object as PropType<QuestionDropdownModel>, required: true },
+    question: {
+      type: Object as PropType<QuestionDropdownModel>,
+      required: true,
+    },
   },
   name: "sv-dropdown",
-  setup(props){
+  setup(props) {
     return {
       inputElement: undefined as any,
     };

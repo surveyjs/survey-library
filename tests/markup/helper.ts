@@ -367,7 +367,7 @@ function sortInlineStyles(str: string) {
           return match ? match[1] : "";
         })).join(" ")}`);
       }
-      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1"))).join("; ") + ";");
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1").replace(/url\(([^"].*[^"])\)/, "url(\"$1\")"))).join("; ") + ";");
     }
   });
   return div.innerHTML;

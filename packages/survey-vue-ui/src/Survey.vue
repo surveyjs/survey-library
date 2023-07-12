@@ -1,28 +1,76 @@
 <template>
   <div :class="vueSurvey.getRootCss()" :style="vueSurvey.themeVariables">
-    <form onsubmit="return false;" :style="{ backgroundColor: vueSurvey.renderBackgroundOpacity }">
+    <div
+      v-if="vueSurvey.renderBackgroundImage"
+      :class="css.rootBackgroundImage"
+      :style="vueSurvey.backgroundImageStyle"
+    ></div>
+    <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />
-        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'header'"></component>
+        <component
+          :is="'sv-components-container'"
+          :survey="vueSurvey"
+          :container="'header'"
+        ></component>
         <template v-if="vueSurvey.isShowingPage">
           <div :class="vueSurvey.bodyContainerCss">
-            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'left'"></component>
-            <div :class="vueSurvey.bodyCss" :style="{ maxWidth: survey.renderedWidth }" :id="pageId">
-              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentTop'"></component>
-              <survey-page :key="pageKey" :survey="vueSurvey" :page="vueSurvey.activePage" :css="css" />
-              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentBottom'"></component>
+            <component
+              :is="'sv-components-container'"
+              :survey="vueSurvey"
+              :container="'left'"
+            ></component>
+            <div
+              :class="vueSurvey.bodyCss"
+              :style="{ maxWidth: survey.renderedWidth }"
+              :id="pageId"
+            >
+              <component
+                :is="'sv-components-container'"
+                :survey="vueSurvey"
+                :container="'contentTop'"
+              ></component>
+              <survey-page
+                :key="pageKey"
+                :survey="vueSurvey"
+                :page="vueSurvey.activePage"
+                :css="css"
+              />
+              <component
+                :is="'sv-components-container'"
+                :survey="vueSurvey"
+                :container="'contentBottom'"
+              ></component>
             </div>
-            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
+            <component
+              :is="'sv-components-container'"
+              :survey="vueSurvey"
+              :container="'right'"
+            ></component>
           </div>
         </template>
-        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'footer'"></component>
+        <component
+          :is="'sv-components-container'"
+          :survey="vueSurvey"
+          :container="'footer'"
+        ></component>
         <div v-if="hasCompletedPage">
-          <div v-html="getProcessedCompletedHtml()" :class="vueSurvey.completedCss"></div>
+          <div
+            v-html="getProcessedCompletedHtml()"
+            :class="vueSurvey.completedCss"
+          ></div>
         </div>
-        <div v-if="vueSurvey.state === 'completedbefore'" :class="css.body"
-          v-html="vueSurvey.processedCompletedBeforeHtml"></div>
-        <div v-if="vueSurvey.state === 'loading'" :class="css.body" v-html="vueSurvey.processedLoadingHtml"></div>
+        <div
+          v-if="vueSurvey.state === 'completedbefore'"
+          :class="css.body"
+          v-html="vueSurvey.processedCompletedBeforeHtml"
+        ></div>
+        <div
+          v-if="vueSurvey.state === 'loading'"
+          :class="css.body"
+          v-html="vueSurvey.processedLoadingHtml"
+        ></div>
         <div v-if="vueSurvey.state === 'empty'" :class="css.bodyEmpty">
           {{ vueSurvey.emptySurveyText }}
         </div>
@@ -67,7 +115,9 @@ export default defineComponent({
       return !!this.vueSurvey.title && this.vueSurvey.showTitle;
     },
     hasCompletedPage() {
-      return this.vueSurvey.showCompletedPage && this.vueSurvey.state === "completed";
+      return (
+        this.vueSurvey.showCompletedPage && this.vueSurvey.state === "completed"
+      );
     },
     css(): any {
       return this.vueSurvey.css;
@@ -77,14 +127,15 @@ export default defineComponent({
     },
   },
   methods: {
-    getActivePageId () {
+    getActivePageId() {
       const pageId = this.pageId;
       return !!this.vueSurvey && pageId + this.updater.toString();
     },
     getProcessedCompletedHtml() {
       if (!this.hasCompletedPage) return "";
       if (!this.processedCompletedHtmlValue) {
-        this.processedCompletedHtmlValue = this.vueSurvey.processedCompletedHtml;
+        this.processedCompletedHtmlValue =
+          this.vueSurvey.processedCompletedHtml;
       }
       return this.processedCompletedHtmlValue;
     },

@@ -23,6 +23,8 @@ import ImagePicker from "./Imagepicker.vue";
 import ImagePickerItem from "./ImagepickerItem.vue";
 import Comment from "./Comment.vue";
 import Dropdown from "./Dropdown.vue";
+import DropdownSelect from "./DropdownSelect.vue";
+import DropdownOptionItem from "./components/dropdown/OptionItem.vue";
 import DropdownInput from "./components/dropdown/Dropdown.vue";
 import Tagbox from "./Tagbox.vue";
 import TagboxInput from "./components/tagbox/Tagbox.vue";
@@ -84,6 +86,8 @@ import Progress from "./components/progress/Progress.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
 import OtherChoice from "./QuestionOther.vue";
+import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
+
 
 function registerComponents(app: any) {
   app.component("SurveyRoot", SurveyVue);
@@ -112,6 +116,8 @@ function registerComponents(app: any) {
   app.component("survey-imagepicker-item", ImagePickerItem);
   app.component("survey-comment", Comment);
   app.component("survey-dropdown", Dropdown);
+  app.component("sv-dropdown-select", DropdownSelect);
+  app.component("sv-dropdown-option-item", DropdownOptionItem);
   app.component("sv-dropdown", DropdownInput);
   app.component("survey-tagbox", Tagbox);
   app.component("sv-tagbox", TagboxInput);
@@ -176,6 +182,7 @@ function registerComponents(app: any) {
 
   app.component("sv-notifier", Notifier);
   app.component("survey-other-choice", OtherChoice);
+  app.component("sv-nav-btn", SurveyNavigationButton);
 }
 
 export default {

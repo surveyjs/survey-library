@@ -304,7 +304,7 @@ QUnit.test("allowRootStyle", function (assert) {
   const q1 = survey.getQuestionByName("q1");
   assert.ok(q1.allowRootStyle);
   assert.deepEqual(q1.rootStyle, {
-    "flexBasis": "100.000000%",
+    "flexBasis": "100%",
     "flexGrow": 1,
     "flexShrink": 1,
     "maxWidth": "100%",

@@ -17,7 +17,7 @@
       :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
-      :required="question.isRequired"
+      :required="question.isRequired ? true : null"
     >
       <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item

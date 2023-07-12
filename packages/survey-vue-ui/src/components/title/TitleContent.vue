@@ -10,7 +10,7 @@
     <span
       v-if="!element.isTitleRenderedAsString && element.no"
       style="position: static"
-      :class="element.cssClasses.number"
+      :class="element.cssTitleNumber"
       :aria-hidden="true"
       >{{ element.no }}</span
     >
@@ -41,7 +41,7 @@ export default defineComponent({
   // eslint-disable-next-line
   name: "survey-element-title",
   props: {
-    element: Object,
+    element: { type: Object, required: true },
     css: Object,
   },
   data: (vm: any) => {

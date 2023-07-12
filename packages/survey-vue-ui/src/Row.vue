@@ -8,10 +8,7 @@
       :survey="survey"
       :css="css"
       :row="row"
-      :style="{
-          paddingLeft: element.paddingLeft,
-          paddingRight: element.paddingRight,
-        }"
+      :style="element.getRootStyle()"
     >
     </survey-element>
     <survey-panel

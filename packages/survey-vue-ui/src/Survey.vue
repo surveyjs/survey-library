@@ -1,66 +1,38 @@
 <template>
-  <div
-    :class="survey.getRootCss()"
-    :style="{
-      backgroundImage: vueSurvey.renderBackgroundImage,
-      backgroundSize: vueSurvey.backgroundImageFit,
-    }"
-  >
-    <form
-      onsubmit="return false;"
-      :style="{ backgroundColor: vueSurvey.renderBackgroundOpacity }"
+ <div :class="survey.getRootCss()"
+    :style="vueSurvey.themeVariables"
+    >
+    <form onsubmit="return false;"
+    :style="{ backgroundColor: vueSurvey.renderBackgroundOpacity }"
     >
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
         <survey-header :survey="vueSurvey" />
-        <component
-          :is="'sv-components-container'"
-          :survey="vueSurvey"
-          :container="'header'"
-        ></component>
-        <template v-if="vueSurvey.isShowingPage">
+        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'header'"></component>
+        <template
+          v-if="vueSurvey.isShowingPage"
+        >
           <div :class="vueSurvey.bodyContainerCss">
-            <component
-              :is="'sv-components-container'"
-              :survey="vueSurvey"
-              :container="'left'"
-            ></component>
-            <div
-              :class="vueSurvey.bodyCss"
-              :style="{ maxWidth: survey.renderedWidth }"
-              :id="pageId"
-            >
-              <component
-                :is="'sv-components-container'"
-                :survey="vueSurvey"
-                :container="'contentTop'"
-              ></component>
+            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'left'"></component>
+            <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
+              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentTop'"></component>
               <survey-page
                 :key="pageKey"
                 :survey="vueSurvey"
                 :page="vueSurvey.activePage"
                 :css="css"
               />
-              <component
-                :is="'sv-components-container'"
-                :survey="vueSurvey"
-                :container="'contentBottom'"
-              ></component>
+              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentBottom'"></component>
             </div>
-            <component
-              :is="'sv-components-container'"
-              :survey="vueSurvey"
-              :container="'right'"
-            ></component>
+            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
           </div>
         </template>
-        <component
-          :is="'sv-components-container'"
-          :survey="vueSurvey"
-          :container="'footer'"
-        ></component>
+        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'footer'"></component>
         <div v-if="hasCompletedPage">
-          <div v-html="getProcessedCompletedHtml()" :class="vueSurvey.completedCss"></div>
+          <div
+            v-html="getProcessedCompletedHtml()"
+            :class="vueSurvey.completedCss"
+          ></div>
         </div>
         <div
           v-if="vueSurvey.state === 'completedbefore'"
@@ -103,7 +75,7 @@ export default defineSurveyComponent({
         return vm.vueSurvey;
       },
       getActivePageId: () => {
-        const pageId = !!vm.vueSurvey.activePage ? vm.vueSurvey.activePage.id : "";
+        const pageId = vm.pageId;
         return !!vm.vueSurvey && pageId + vm.updater.toString();
       },
       getProcessedCompletedHtml: () => {
@@ -135,7 +107,7 @@ export default defineSurveyComponent({
     },
     pageId: {
       get() {
-        return "page" + this.getActivePageId();
+        return !!this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
       },
     },
     navId: {

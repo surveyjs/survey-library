@@ -7,7 +7,7 @@
     v-bind:id="element.ariaTitleId"
     v-bind:tabindex="element.titleTabIndex"
     v-bind:aria-expanded="element.titleAriaExpanded"
-    role="columnheader"
+    v-bind:role="element.titleAriaRole"
     v-on:keyup="
       ($event) => {
         keyup($event);

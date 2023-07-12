@@ -350,7 +350,7 @@ function sortInlineStyles(str: string) {
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
     if(!!el.getAttribute("style")) {
-      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(";");
+      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(/;(?![^(]*\))/);
       const flexRules = ["flex-grow", "flex-shrink", "flex-basis"];
       const flexStyles: Array<string> = [];
       flexRules.forEach(rule => {

@@ -40,6 +40,11 @@ export class QuestionFileModel extends Question {
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
+  /**
+   * Specifies whether users can capture and upload a photo. Applies only to mobile devices.
+   *
+   * Default value: `false`
+   */
   @property() allowCameraAccess: boolean;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();

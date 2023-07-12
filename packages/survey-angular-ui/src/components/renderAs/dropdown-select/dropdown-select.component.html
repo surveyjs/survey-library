@@ -9,6 +9,9 @@
       <ng-template *ngFor="let item of model.visibleChoices" [component]="{ name: 'sv-dropdown-option-item', data: { item } }"></ng-template>
     </select>
     <div *ngIf="model.isReadOnly" disabled [class]="model.getControlClass()" [attr.id]="model.inputId">{{ model.readOnlyText }}</div>
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+      <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="24" sv-ng-svg-icon></svg>
+    </div>
   </div>
   <div *ngIf="model.isOtherSelected" [class]="model.getCommentAreaCss(true)"
     [style.display]="model.isFlowLayout ? 'inline': '' " [question]="model" sv-ng-comment-other></div>

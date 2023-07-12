@@ -1,3 +1,11 @@
+.sv-dropdown_select-wrapper {
+  position: relative;
+}
+
+.sv-dropdown_select-wrapper use {
+  fill: $foreground-light;
+}
+
 .sd-dropdown {
   -webkit-appearance: none;
   -moz-appearance: none;
@@ -5,10 +13,6 @@
   padding-inline-end: calcSize(6); //padding-right
   padding-inline-start: calcSize(2); //padding-left
 
-  background-position: right calcSize(1.5) top 50%, 0 0;
-  background-repeat: no-repeat;
-  background-size: calcSize(3) calcSize(3);
-  background-image: url("data:image/svg+xml,%3Csvg width='24' height='24' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12 15L17 10H7L12 15Z' fill='%23909090'/%3E%3C/svg%3E%0A");
   opacity: 1;
   display: flex;
   justify-content: space-between;
@@ -53,13 +57,16 @@
   margin: auto 0;
 }
 
+.sd-dropdown_chevron-button {
+  position: absolute;
+  height: calcSize(3);
+  inset-inline-end: calcSize(1.5);
+  inset-block-start: calc(50% - calcSize(1.5));
+}
+
 .sd-dropdown_clean-button-svg {
   width: calcSize(3);
   height: calcSize(3);
-}
-
-.sd-dropdown use {
-  fill: $foreground-light;
 }
 
 .sd-input.sd-dropdown:focus-within {

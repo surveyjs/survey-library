@@ -351,7 +351,7 @@ export class QuestionSelectBase extends Question {
 
     const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
     this.onGetSingleSelectedItem(itemValue);
-    if(!itemValue && !selectedItemValues) {
+    if (!itemValue && (!selectedItemValues || this.value != selectedItemValues.id)) {
       this.updateSelectedItemValues();
     }
     return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.getItemIfChoicesNotContainThisValue(this.value));

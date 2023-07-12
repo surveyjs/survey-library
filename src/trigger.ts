@@ -220,7 +220,7 @@ export class Trigger extends Base {
 
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
-  setCompleted(): void;
+  setCompleted(trigger: Trigger): void;
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void;
   triggerExecuted(trigger: Trigger): void;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
@@ -305,7 +305,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.owner) return;
     if(this.isRealExecution()) {
-      this.owner.setCompleted();
+      this.owner.setCompleted(this);
     } else {
       this.owner.canBeCompleted(this, true);
     }

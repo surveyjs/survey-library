@@ -1344,7 +1344,9 @@ export class JsonMetadata {
     return res;
   }
   private getChemeRefName(className: string, isRoot: boolean): string {
-    return isRoot ? "#/definitions/" + className : className + "#";
+    //Fix for #6486, according to https://niem.github.io/json/reference/json-schema/references/#:~:text=In%20a%20JSON%20schema%2C%20a,%2C%20an%20in%2Dschema%20reference
+    return "#/definitions/" + className;
+    //return isRoot ? "#/definitions/" + className : className + "#";
   }
   private generateChemaClass(className: string, schemaDef: any, isRoot: boolean) {
     if (!!schemaDef[className]) return;

@@ -85,11 +85,32 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
   }
-  private getRenderedSize(val: string): string {
-    return isNaN(Number(val)) ? val : val + "px";
+  private getRenderedSize(val: string): number {
+    if(typeof val == "string") {
+      if(!isNaN(Number(val))) {
+        return Number(val);
+      }
+      else if(val.includes("px")) {
+        return parseFloat(val);
+      }
+    }
+    if(typeof val == "number") {
+      return val;
+    }
+    return undefined;
+  }
+  private getRenderedStyleSize(val: string): string {
+    if(this.getRenderedSize(val) !== undefined) {
+      return undefined;
+    }
+    return val;
   }
 
-  public get renderedHeight(): string {
+  public get renderedStyleHeight(): string {
+    return this.imageHeight ? this.getRenderedStyleSize(this.imageHeight) : undefined;
+  }
+
+  public get renderedHeight(): number {
     return this.imageHeight ? this.getRenderedSize(this.imageHeight) : undefined;
   }
   /**
@@ -107,7 +128,10 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
   }
-  public get renderedWidth(): string {
+  public get renderedStyleWidth(): string {
+    return this.imageWidth ? this.getRenderedStyleSize(this.imageWidth) : undefined;
+  }
+  public get renderedWidth(): number {
     return this.imageWidth ? this.getRenderedSize(this.imageWidth) : undefined;
   }
   /**

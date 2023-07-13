@@ -7,7 +7,7 @@
     [attr.alt]="model.altText || model.title"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
-    [style]="{ objectFit: model.imageFit }"
+    [style]="{ objectFit: model.imageFit,  width: model.renderedStyleWidth, height: model.renderedStyleHeight }"
     (load)="model.onLoadHandler()"
     (error)="model.onErrorHandler()"
   /><video
@@ -18,7 +18,7 @@
     [attr.src]="model.locImageLink.renderedHtml"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
-    [style]="{ objectFit: model.imageFit }"
+    [style]="{ objectFit: model.imageFit,  width: model.renderedStyleWidth, height: model.renderedStyleHeight }"
     (loadedmetadata)="model.onLoadHandler()"
     (error)="model.onErrorHandler()"
   ></video>
@@ -28,7 +28,7 @@
     [attr.src]="model.locImageLink.renderedHtml | safeResourceUrl"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
-    [style]="{ objectFit: model.imageFit }"
+    [style]="{ objectFit: model.imageFit,  width: model.renderedStyleWidth, height: model.renderedStyleHeight }"
     ></iframe>
     <div *ngIf="!model.locImageLink.renderedHtml || model.contentNotLoaded" [class]="model.cssClasses.noImage">
       <svg [iconName]="model.cssClasses.noImageSvgIconId" [size]="48" sv-ng-svg-icon></svg>

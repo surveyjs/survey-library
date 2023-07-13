@@ -13479,6 +13479,24 @@ QUnit.test("Update progressText on changing locale, Bug#2453", function (
   assert.equal(survey.progressText, "Seite 1 von 2", "in de");
   survey.locale = oldLocale;
 });
+QUnit.test("Update preview edit button on changing locale, Bug#6523", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  survey.showPreview();
+  const panel = <PanelModel>survey.getAllPanels()[0];
+  assert.equal(survey.locEditText.textOrHtml, "Edit", "Edit - en");
+  const editAction = panel.getFooterToolbar().getActionById("cancel-preview");
+  assert.equal(editAction.locTitle.textOrHtml, "Edit", "Action - en");
+  survey.locale = "de";
+  assert.equal(survey.locEditText.textOrHtml, "Bearbeiten", "Edit - de");
+  assert.equal(editAction.locTitle.textOrHtml, "Bearbeiten", "Action - de");
+  survey.locale = "";
+});
 QUnit.test(
   "Focus question on Survey onServerValidateQuestions event, Bug#2464",
   function (assert) {

@@ -43,6 +43,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     const targetElementRect = this.targetElement.getBoundingClientRect();
     const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
     if(!popupContainer) return;
+    const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
     const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
@@ -55,7 +56,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     let actualHorizontalPosition = this.getActualHorizontalPosition();
 
     if (!!window) {
-      height = Math.ceil(Math.min(height, window.innerHeight * 0.9, window.visualViewport.height));
+      const heightValues = [height, window.innerHeight * 0.9, window.visualViewport?.height];
+      height = Math.ceil(Math.min(...heightValues.filter((each) => typeof each === "number")));
       verticalPosition = PopupUtils.updateVerticalPosition(
         targetElementRect,
         height,
@@ -101,6 +103,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
         pos.left = newHorizontalDimensions.left;
       }
+    }
+    if(!!fixedPopupContainer) {
+      const rect = fixedPopupContainer.getBoundingClientRect();
+      pos.top -= rect.top;
+      pos.left -= rect.left;
     }
     this.left = pos.left + "px";
     this.top = pos.top + "px";

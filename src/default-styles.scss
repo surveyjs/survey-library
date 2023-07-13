@@ -357,6 +357,7 @@ $header-background-color: #e7e7e7;
   background-color: transparent;
   position: absolute;
   inset-inline-start: 0;
+  inset-block-start: 0;
 }
 
 .sv_q_dropdown_clean-button {
@@ -1136,7 +1137,7 @@ sv-popup {
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  max-width: 90vw;
+  max-width: 100vw;
 }
 
 .sv-popup--modal .sv-list__filter {
@@ -1258,7 +1259,7 @@ sv-popup {
   transform: translate(calc(-1 * var(--base-unit, 8px)), calc(-1 * var(--base-unit, 8px)));
 }
 
-.sv-popup--show-pointer.sv-popup--right {
+.sv-popup--show-pointer.sv-popup--right .sv-popup__container {
   transform: translate(calc(1 * var(--base-unit, 8px)));
 }
 
@@ -1266,7 +1267,7 @@ sv-popup {
   transform: translate(-12px, -4px) rotate(-90deg);
 }
 
-.sv-popup--show-pointer.sv-popup--left {
+.sv-popup--show-pointer.sv-popup--left .sv-popup__container {
   transform: translate(calc(-1 * var(--base-unit, 8px)));
 }
 
@@ -1384,6 +1385,7 @@ sv-popup {
   padding-inline-start: calc(2 * var(--base-unit, 8px));
   cursor: pointer;
   overflow: hidden;
+  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
   display: flex;

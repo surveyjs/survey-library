@@ -239,6 +239,9 @@ QUnit.test("Test event handlers", function(assert) {
     keyCode: 13
   });
   assert.equal(q.value, "test3", "value should be updated after 'enter' press");
+
+  testInput.remove();
+  fakeInput.remove();
 });
 
 QUnit.test("Test event handlers with on typing text update mode", function(assert) {
@@ -297,6 +300,9 @@ QUnit.test("Test event handlers with on typing text update mode", function(asser
   });
   assert.equal(q["_isWaitingForEnter"], false);
   assert.equal(q.value, "test5", "value should be updated on key up if is waiting for enter and key is enter");
+
+  testInput.remove();
+  fakeInput.remove();
 });
 
 QUnit.test("Test event prevent default on typing text update mode", function(assert) {
@@ -356,6 +362,9 @@ QUnit.test("Test event prevent default on typing text update mode", function(ass
   defaultPrevented = false;
   q2.onKeyDown(eventCtrlY);
   assert.ok(defaultPrevented, "comment onTyping ctrl+Y");
+
+  testInput.remove();
+  fakeInput.remove();
 });
 
 QUnit.test("Test event handlers do not change question'value if newValue is same", function(assert) {
@@ -375,6 +384,8 @@ QUnit.test("Test event handlers do not change question'value if newValue is same
     target: testInput
   });
   assert.equal(log, "->changedValue", "Value should be changed only one time");
+
+  testInput.remove();
 });
 QUnit.test("min/max numeric, non required, bug#5758", function(assert) {
   const survey = new SurveyModel({

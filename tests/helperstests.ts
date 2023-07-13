@@ -460,6 +460,11 @@ QUnit.test("getUnbindValue function", function(assert) {
   assert.deepEqual(obj, unbindObj, "objects are deep equal");
   const dateVal = new Date(2004, 5, 7);
   assert.strictEqual(Helpers.getUnbindValue(dateVal), dateVal, "do not convert date");
+  const arr = [1, "abc", { val: 1 }];
+  const unbindArr = Helpers.getUnbindValue(arr);
+  assert.notStrictEqual(arr, unbindArr, "new array are not strict equal");
+  assert.notStrictEqual(arr[2], unbindArr[2], "nested object in new array are not strict equal");
+  assert.deepEqual(arr, unbindArr, "Arrays are equals");
 });
 QUnit.test("convertDateToString/convertDateTimeToString functions", function(assert) {
   const d = new Date(2022, 11, 24, 10, 55, 33, 3);

@@ -55,8 +55,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     }
 
     return (
-      <div className={cssClasses.selectWrapper}>
+      <div className={cssClasses.selectWrapper} onClick={this.click}>
         {selectElement}
+        {this.createChevronButton()}
       </div>
     );
   }
@@ -83,7 +84,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       id={this.question.inputId}
       className={this.question.getControlClass()}
       tabIndex={dropdownListModel.inputReadOnly ? undefined : 0}
-      onClick={this.click}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       disabled={this.question.isInputReadOnly}
@@ -153,6 +153,20 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     );
   }
 
+  createChevronButton(): JSX.Element | null {
+    if (!this.question.cssClasses.chevronButtonIconId) return null;
+
+    return (
+      <div className={this.question.cssClasses.chevronButton}>
+        <SvgIcon
+          className={this.question.cssClasses.chevronButtonSvg}
+          iconName={this.question.cssClasses.chevronButtonIconId}
+          size={24}
+        ></SvgIcon>
+      </div>
+    );
+  }
+
   protected renderOther(cssClasses: any): JSX.Element {
     return (
       <div className={this.question.getCommentAreaCss(true)}>
@@ -179,7 +193,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.question.dropdownListModel.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true)) {
         control.value = this.question.dropdownListModel.inputStringRendered;
       }
     }

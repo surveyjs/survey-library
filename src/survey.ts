@@ -53,7 +53,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { ITheme } from "./themes";
+import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
 
 /**
@@ -1947,12 +1947,9 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
   public get themeVariables() {
-    const result = Object.assign({}, this.cssVariables);
-    result.backgroundImage = this.renderBackgroundImage;
-    result.backgroundSize = this.backgroundImageFit;
-    return result;
+    return Object.assign({}, this.cssVariables);
   }
-  @property() backgroundImagePosition: string;
+
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
     if (this.isMobile !== newVal) {
@@ -2008,10 +2005,10 @@ export class SurveyModel extends SurveyElementCore
     const path = this.getLocalizableString("backgroundImage").renderedHtml;
     this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
-  @property() backgroundImageFit: string;
+  @property() backgroundImageFit: ImageFit;
+  @property() backgroundImageAttachment: ImageAttachment;
   /**
-   * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
-   * @see backgroundImage
+   * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
   public get backgroundOpacity(): number {
     return this.getPropertyValue("backgroundOpacity");
@@ -2019,14 +2016,13 @@ export class SurveyModel extends SurveyElementCore
   public set backgroundOpacity(val: number) {
     this.setPropertyValue("backgroundOpacity", val);
   }
-  public get renderBackgroundOpacity(): string {
-    const backgroundOpacityProperty = this.getPropertyByName("backgroundOpacity");
-    if(backgroundOpacityProperty.isDefaultValue(this.backgroundOpacity)) {
-      return "";
-    }
-
-    const alpha = 1 - this.backgroundOpacity;
-    return ["rgba(255, 255, 255, ", alpha, ")"].join("");
+  public get backgroundImageStyle() {
+    return {
+      opacity: this.backgroundOpacity,
+      backgroundImage: this.renderBackgroundImage,
+      backgroundSize: this.backgroundImageFit,
+      backgroundAttachment: this.backgroundImageAttachment
+    };
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -3372,8 +3368,15 @@ export class SurveyModel extends SurveyElementCore
   public get areEmptyElementsHidden(): boolean {
     return (
       this.isShowingPreview &&
-      this.showPreviewBeforeComplete == "showAnsweredQuestions"
+      this.showPreviewBeforeComplete == "showAnsweredQuestions" && this.isAnyQuestionAnswered
     );
+  }
+  private get isAnyQuestionAnswered(): boolean {
+    const questions = this.getAllQuestions(true);
+    for(let i = 0; i < questions.length; i ++) {
+      if(!questions[i].isEmpty()) return true;
+    }
+    return false;
   }
   /**
    * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completedbefore` state if the function returns `true`.
@@ -4116,9 +4119,9 @@ export class SurveyModel extends SurveyElementCore
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    * @see surveyPostId
    */
-  public doComplete(isCompleteOnTrigger: boolean = false): boolean {
+  public doComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): boolean {
     if (this.isCompleted) return;
-    if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
+    if (!this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger)) {
       this.isCompleted = false;
       return false;
     }
@@ -4126,11 +4129,11 @@ export class SurveyModel extends SurveyElementCore
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
-    this.saveDataOnComplete(isCompleteOnTrigger);
+    this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
     this.setCookie();
     return true;
   }
-  private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
+  private saveDataOnComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger) {
     let previousCookie = this.hasCookie;
     const showSaveInProgress = (text: string) => {
       savingDataStarted = true;
@@ -4149,6 +4152,7 @@ export class SurveyModel extends SurveyElementCore
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
+      completeTrigger: completeTrigger,
       showSaveInProgress: showSaveInProgress,
       showSaveError: showSaveError,
       showSaveSuccess: showSaveSuccess,
@@ -4167,11 +4171,12 @@ export class SurveyModel extends SurveyElementCore
       this.navigateTo();
     }
   }
-  private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
+  private checkOnCompletingEvent(isCompleteOnTrigger: boolean, completeTrigger?: Trigger): boolean {
     var options = {
       allowComplete: true,
       allow: true,
       isCompleteOnTrigger: isCompleteOnTrigger,
+      completeTrigger: completeTrigger
     };
     this.onCompleting.fire(this, options);
     return options.allowComplete && options.allow;
@@ -4303,8 +4308,8 @@ export class SurveyModel extends SurveyElementCore
       this.doComplete(true);
     }
   }
-  public setCompleted(): void {
-    this.doComplete(true);
+  public setCompleted(trigger: Trigger): void {
+    this.doComplete(true, trigger);
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.triggers.changeNavigationButtonsOnComplete) return;
@@ -7002,7 +7007,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
         if(container === "header") {
           if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
@@ -7316,6 +7321,7 @@ Serializer.addClass("survey", [
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
+  { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

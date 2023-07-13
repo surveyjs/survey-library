@@ -644,6 +644,9 @@ export class QuestionMultipleTextModel extends Question
   ensureRowsVisibility(): void {
     // do nothing
   }
+  validateContainerOnly(): void {
+    // do nothing
+  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
     return new CssClassBuilder().append(this.cssClasses.itemLabel).append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0).toString();
   }

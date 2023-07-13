@@ -238,16 +238,19 @@ QUnit.test("On trigger executed && executeCompleteTriggerOnValueChanged=true", f
   });
   const triggers = [];
   let isCompleteEvent = false;
+  let completeTrigger;
   survey.onTriggerExecuted.add((sender, options) => {
     triggers.push(options.trigger.getType());
   });
   survey.onComplete.add((sender, options) => {
     isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
   });
   survey.setValue("q1", 3);
   assert.equal(survey.state, "completed");
   assert.deepEqual(triggers, ["completetrigger"]);
   assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.getType(), "completetrigger");
   settings.executeCompleteTriggerOnValueChanged = false;
 });
 QUnit.test("Show complete button instead of next if complete trigger is going to be executed", function(

@@ -72,7 +72,7 @@ QUnit.test("generate survey schema", function (assert) {
   );
   assert.equal(
     schema.definitions.page.allOf[0].$ref,
-    "panelbase#",
+    "#/definitions/panelbase",
     "page parent is here"
   );
   assert.ok(
@@ -95,7 +95,7 @@ QUnit.test("generate survey schema", function (assert) {
     schema.definitions.panelbase.properties.title,
     { "oneOf": [
       { "type": "string" },
-      { "$ref": "locstring#" }
+      { "$ref": "#/definitions/locstring" }
     ] },
     "panelbase.title type is string"
   );
@@ -137,7 +137,7 @@ QUnit.test("generate survey schema", function (assert) {
     "There are many elements in panelbase.elements.items.anyOf"
   );
   function findInElements(elType: string): boolean {
-    elType += "#";
+    elType = "#/definitions/" + elType;
     for (var i = 0; i < panelElements.length; i++)
       if (panelElements[i].$ref == elType) return true;
     return false;
@@ -158,7 +158,7 @@ QUnit.test("generate survey schema", function (assert) {
   const propChoices = selectBaseProps.choices;
   assert.ok(propChoices, "selectbase class and it's choices is here");
   assert.equal(propChoices.type, "array", "choices is array");
-  assert.equal(propChoices.items.$ref, "itemvalue#", "item is  itemvalue");
+  assert.equal(propChoices.items.$ref, "#/definitions/itemvalue", "item is  itemvalue");
   assert.notOk(selectBaseProps.name, "The property name should be in question");
   assert.notOk(selectBaseProps.showCommentArea, "The property showCommentArea should be in question");
 
@@ -166,14 +166,14 @@ QUnit.test("generate survey schema", function (assert) {
     schema.definitions.itemvalue.properties.text,
     { "oneOf": [
       { "type": "string" },
-      { "$ref": "locstring#" }
+      { "$ref": "#/definitions/locstring" }
     ] },
     "itemvalue text is localizable string"
   );
   assert.ok(schema.properties.questionTitlePattern, "exists schema.properties.questionTitlePattern");
   assert.notOk(schema.properties.questionTitlePattern.enum, "not exists schema.properties.questionTitlePattern.enum");
   assert.notOk(selectBaseProps.choicesByUrl.type, "selectbase.choicesByUrl doesn't have type");
-  assert.equal(selectBaseProps.choicesByUrl.$ref, "choicesByUrl#", "selectbase.choicesByUrl $ref");
+  assert.equal(selectBaseProps.choicesByUrl.$ref, "#/definitions/choicesByUrl", "selectbase.choicesByUrl $ref");
 
   assert.ok(schema.definitions.question.properties.visible, "question visible is here");
   assert.equal(schema.definitions.question.properties.visible.type, "boolean", "question visible type is boolean");

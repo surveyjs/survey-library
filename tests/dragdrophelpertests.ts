@@ -101,6 +101,8 @@ QUnit.test("drop", function (assert) {
     question.choices.map((c) => c.value),
     ["item2", "item1", "item3", "item4"]
   );
+
+  dropTargetNode.remove();
 });
 
 QUnit.test("dropTargetDataAttributeName for choices", function (assert) {
@@ -171,13 +173,17 @@ QUnit.test("DragDropRankingChoices getIsDragOverRootNode", function (assert) {
   let dndRanking: any = new DragDropRankingChoices(null);
   let result;
 
-  result = dndRanking.getIsDragOverRootNode(document.createElement("path"));
+  let pathElement = document.createElement("path");
+  result = dndRanking.getIsDragOverRootNode(pathElement);
   assert.equal(result, false);
 
   const rootNode = document.createElement("div");
   rootNode.className = "someclass sv-ranking someclass2";
   result = dndRanking.getIsDragOverRootNode(rootNode);
   assert.equal(result, true);
+
+  pathElement.remove();
+  rootNode.remove();
 });
 
 QUnit.test("LongTap", function (assert) {
@@ -231,7 +237,8 @@ QUnit.test("createImagePickerShortcut", function (assert) {
   let item = new ImageItemValue("a");
 
   const createImagePickerShortcut = ddHelper["createImagePickerShortcut"];
-  const testElement = document.body.appendChild(document.createElement("div"));
+  const element = document.createElement("div");
+  const testElement = document.body.appendChild(element);
   testElement.innerHTML = "<div data-sv-drop-target-item-value=\"camel\"><div class=\"sd-imagepicker__image-container\"><div class=\"sd-imagepicker__no-image\"></div><div class=\"svc-image-item-value-controls\"></div>";
   const draggedElement1 = testElement.querySelector(".sd-imagepicker__image-container") as HTMLElement;
   let result1 = createImagePickerShortcut(item, "", draggedElement1, null);
@@ -242,6 +249,7 @@ QUnit.test("createImagePickerShortcut", function (assert) {
   const draggedElement2 = testElement.querySelector(".sd-imagepicker__image-container") as HTMLElement;
   let result2 = createImagePickerShortcut(item, "", draggedElement2, null);
   assert.equal(result2.querySelectorAll("img").length, 1);
+  element.remove();
 });
 
 // selectToRankEnabled

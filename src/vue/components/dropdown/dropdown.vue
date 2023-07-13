@@ -1,11 +1,10 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper">
+  <div :class="question.cssClasses.selectWrapper" @click="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-bind:disabled="question.isInputReadOnly"
       :tabindex="model.inputReadOnly ? undefined : 0"
-      @click="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -85,6 +84,17 @@
         :locString="question.selectedItemLocText"
       />
       <div>{{ question.readOnlyText }}</div>
+    </div>
+    <div
+      :class="question.cssClasses.chevronButton"
+      v-if="question.cssClasses.chevronButtonIconId"
+    >
+      <sv-svg-icon
+        :class="question.cssClasses.chevronButtonSvg"
+        :iconName="question.cssClasses.chevronButtonIconId"
+        size="24"
+      >
+      </sv-svg-icon>
     </div>
   </div>
 </template>

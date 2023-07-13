@@ -6681,6 +6681,8 @@ QUnit.test("remove reference to DOM elements", function (assert) {
   assert.equal(question["element"], el);
   question.beforeDestroyQuestionElement(el);
   assert.equal(question["element"], undefined);
+
+  el.remove();
 });
 QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function (
   assert

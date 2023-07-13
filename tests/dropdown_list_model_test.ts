@@ -546,6 +546,57 @@ QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
   assert.equal(dropdownListModel.inputString, "item20", "inputString is item22 on Enter again");
 });
 
+QUnit.test("dropdown incorrect popup open test: lazy load, many items", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "dropdown",
+      name: "question1",
+      defaultValue: "item500",
+      choicesLazyLoadEnabled: true
+    }
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    var result: any = [];
+    for (let index = 3; index < 1000; index++) {
+      result.push({ value: "item" + index, text: "item" + index });
+    }
+    result = result.filter(i => i.text.indexOf(options.filter) != -1);
+    var res1 = result.slice(options.skip, options.take + options.skip);
+    options.setItems(res1, result.length);
+  });
+  survey.onGetChoiceDisplayValue.add((_, options) => {
+    options.setItems(options.values);
+  });
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  question.showSelectedItemLocText;
+  assert.equal(question.showSelectedItemLocText, true, "check showSelectedItemLocText to raise onGetChoiceDisplayValue event");
+  dropdownListModel.onFocus(null);
+
+  assert.equal(dropdownListModel.inputString, "item500", "inputString is item500");
+
+  dropdownListModel.inputStringRendered = "item900";
+  assert.equal(dropdownListModel.inputString, "item900", "inputString is item900");
+  assert.equal(dropdownListModel.hintString, "item900", "hintString is item900");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item900", "inputString is item900 on Enter");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item900", "inputString is item900 on Enter again");
+});
+
 QUnit.test("dropdown keyboard tests - empty question, search disabled", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];

@@ -1,7 +1,6 @@
-<div data-bind="css: question.cssClasses.selectWrapper">
+<div data-bind="css: question.cssClasses.selectWrapper, click: click">
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.getControlClass(),
-    click: click, 
     event: { keydown: keyhandler, blur: blur },
     attr: { 
       id: question.inputId, 
@@ -67,6 +66,12 @@
   <!-- ko if: question.isReadOnly -->
   <div disabled data-bind="css: question.getControlClass(), attr: { id: question.inputId }, ">
     <div data-bind="text: question.readOnlyText"></div>
+  </div>
+  <!-- /ko -->
+  <!-- ko if: question.cssClasses.chevronButtonIconId -->
+  <div data-bind="css: question.cssClasses.chevronButton">
+    <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: '24' } } -->
+    <!-- /ko -->
   </div>
   <!-- /ko -->
 </div>

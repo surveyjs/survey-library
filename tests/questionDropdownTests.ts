@@ -356,6 +356,42 @@ QUnit.test("readOnlyText default", assert => {
   question.value = 2;
   assert.equal(question.readOnlyText, "", "use choice text");
 });
+QUnit.test("readOnlyText visibleChoices changed", assert => {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "dropdown",
+            "name": "q1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "dropdown",
+            "name": "q2",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ],
+            "choicesVisibleIf": "{q1} = 'Item 1'"
+          }
+        ]
+      }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.data = { "q1": "Item 1", "q2": "Item 1" };
+
+  const q2 = <QuestionDropdownModel>survey.getQuestionByName("q2");
+  assert.equal(q2.readOnlyText, "");
+  assert.equal(q2.selectedItem.id, "Item 1");
+});
 QUnit.test("readOnlyText render as select", assert => {
   const json = {
     questions: [

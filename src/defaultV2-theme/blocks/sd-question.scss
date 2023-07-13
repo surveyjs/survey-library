@@ -123,7 +123,7 @@
   background-color: $background;
   color: $foreground;
   opacity: 0.75;
-  box-shadow: 0px 2px 6px $shadow-medium;
+  box-shadow: $shadow-medium;
   z-index: 1000;
 }
 

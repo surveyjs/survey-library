@@ -401,7 +401,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private _isWaitingForEnter = false;
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
-    if (!Helpers.isTwoValueEquals(this.value, newValue)) {
+    if (!this.isTwoValueEquals(this.value, newValue)) {
       this.value = newValue;
     }
   }

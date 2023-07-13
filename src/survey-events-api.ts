@@ -100,6 +100,7 @@ export interface CompleteBaseEvent {
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    */
   isCompleteOnTrigger: boolean;
+  completeTrigger?: Trigger;
 }
 export interface CompletingEvent extends CompleteBaseEvent {
   /**

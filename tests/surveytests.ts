@@ -15400,6 +15400,7 @@ QUnit.test("Check survey resize observer", function (assert) {
   survey.dispose();
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 class CustomResizeObserver {
@@ -15444,6 +15445,7 @@ QUnit.test("Check survey resize observer double process", function (assert) {
   assert.equal(trace, "->processed->processed");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check survey resize observer do not process if container is not visible", function (assert) {
@@ -15478,6 +15480,7 @@ QUnit.test("Check survey resize observer do not process if container is not visi
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {
@@ -16708,6 +16711,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   assert.deepEqual(getContainerContent("left"), [], "do not show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
+
 QUnit.test("getContainerContent - do not show TOC on start page", function (assert) {
   const json = {
     showTOC: true,
@@ -16768,6 +16772,71 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
     "component": "sv-progress-toc",
     "id": "toc-navigation"
   }], "show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+
+QUnit.test("getContainerContent - do not show buttons progress on completed page", function (assert) {
+  const json = {
+    "progressBarType": "buttons",
+    "showProgressBar": "top",
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q3",
+          },
+        ]
+      }
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.doComplete();
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
 });
 
@@ -16979,16 +17048,6 @@ QUnit.test("backgroundImage", assert => {
   assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
 });
 
-QUnit.test("backgroundOpacity", assert => {
-  const survey = new SurveyModel({
-    "backgroundOpacity": 0.6,
-  });
-  assert.equal(survey.backgroundOpacity, 0.6, "backgroundOpacity");
-  assert.equal(survey.renderBackgroundOpacity, "rgba(255, 255, 255, 0.4)", "renderBackgroundOpacity");
-
-  survey.backgroundOpacity = 1;
-  assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
-});
 QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
   const titleProp = Serializer.findProperty("survey", "title");
   titleProp.isLocalizable = false;
@@ -17205,4 +17264,13 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   popup.toggleVisibility();
   assert.equal(log, "->true->false");
 });
-
+QUnit.test("Check onPopupVisibleChanged events", function (assert) {
+  assert.equal(settings.comparator.caseSensitive, false, "comparator.caseSensitive is false");
+  const survey = new SurveyModel({ elements: [{ "type": "text", "name": "q1" }] });
+  const q = survey.getQuestionByName("q1");
+  survey.onValueChanging.add((sender, options) => {
+    options.value = options.value.toUpperCase();
+  });
+  q.value = "abc";
+  assert.equal(q.value, "ABC", "Convert to upper case");
+});

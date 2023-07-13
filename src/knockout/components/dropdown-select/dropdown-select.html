@@ -20,6 +20,12 @@
       data-bind="attr: {id: question.inputId}, text: question.readOnlyText, css: question.getControlClass()">
     </div>
     <!-- /ko -->
+    <!-- ko if: question.cssClasses.chevronButtonIconId -->
+    <div data-bind="css: question.cssClasses.chevronButton">
+      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: '24' } } -->
+      <!-- /ko -->
+    </div>
+    <!-- /ko -->
   </div>
   <!-- ko if: question.isOtherSelected -->
   <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': question.isOtherSelected } }, style: {display: question.isFlowLayout ? 'inline': ''}">

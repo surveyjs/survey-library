@@ -46,7 +46,7 @@ export class DropdownComponent extends BaseAngular implements OnInit {
       if (!!this.inputElementRef?.nativeElement) {
         const control: any = this.inputElementRef.nativeElement;
         const newValue = this.model.inputStringRendered;
-        if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+        if (!Helpers.isTwoValueEquals(newValue, control.value, false, true)) {
           control.value = this.model.inputStringRendered || "";
         }
       }

@@ -116,7 +116,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test.only("Shortcut position due container layout", async (t) => {
+  test("Shortcut position due container layout", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -150,8 +150,6 @@ frameworks.forEach(framework => {
       });
 
       await patchDragDropToShowGhostElementAfterDrop();
-
-      await t.debug();
 
       await t.dragToElement(item1, qustion);
 

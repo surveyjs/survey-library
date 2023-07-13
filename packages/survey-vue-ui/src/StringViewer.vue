@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import { LocalizableString } from "survey-core";
-import { ref, defineComponent, type PropType, watch } from "vue";
+import { ref, defineComponent, type PropType, watch, onUnmounted } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
@@ -23,17 +23,22 @@ export default defineComponent({
       renderedHtml.value = locString.renderedHtml;
       locString.onChanged = () => {
         renderedHtml.value = locString.renderedHtml;
-      }
+      };
     };
-    watch(() => props.locString, (newValue, oldValue) => {
-      oldValue.onChanged = () => {};
-      setupOnChangedCallback(newValue);
-    });
     setupOnChangedCallback(props.locString);
+    const stopWatch = watch(
+      () => props.locString,
+      (newValue, oldValue) => {
+        oldValue.onChanged = () => {};
+        setupOnChangedCallback(newValue);
+      }
+    );
+    onUnmounted(() => {
+      stopWatch();
+    });
     return {
       renderedHtml,
     };
   },
 });
-
 </script>

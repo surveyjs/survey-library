@@ -10,7 +10,10 @@
               v-for="(column, columnIndex) in question.visibleColumns"
               :key="columnIndex"
               :class="question.cssClasses.headerCell"
-              :style="{minWidth: question.columnMinWidth, width: question.columnMinWidth}"
+              :style="{
+                minWidth: question.columnMinWidth,
+                width: question.columnMinWidth,
+              }"
             >
               <survey-string :locString="column.locText" />
             </th>
@@ -22,8 +25,14 @@
             :key="'row_' + row.name + '_' + rowIndex"
             :class="row.rowClasses || undefined"
           >
-            <td :class="question.cssClasses.rowTextCell" v-show="question.hasRows"
-              :style="{ minWidth: question.rowTitleWidth, width: question.rowTitleWidth}"> 
+            <td
+              :class="question.cssClasses.rowTextCell"
+              v-show="question.hasRows"
+              :style="{
+                minWidth: question.rowTitleWidth,
+                width: question.rowTitleWidth,
+              }"
+            >
               <survey-string :locString="row.locText" />
             </td>
             <td
@@ -45,7 +54,10 @@
               :class="question.cssClasses.cell"
               v-on:click="cellClick(row, column)"
             >
-              <label @mousedown="question.onMouseDown()" :class="question.getItemClass(row, column)">
+              <label
+                @mousedown="question.onMouseDown()"
+                :class="question.getItemClass(row, column)"
+              >
                 <input
                   type="radio"
                   :class="question.cssClasses.itemValue"
@@ -60,11 +72,17 @@
                   :aria-describedby="question.ariaDescribedBy"
                 />
                 <span :class="question.cssClasses.materialDecorator">
-                    <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
-                      <use :xlink:href="question.itemSvgIcon"></use>
-                    </svg>
+                  <svg
+                    v-if="question.itemSvgIcon"
+                    :class="question.cssClasses.itemDecorator"
+                  >
+                    <use :xlink:href="question.itemSvgIcon"></use>
+                  </svg>
                 </span>
-                <span v-show="question.isMobile" :class="question.cssClasses.cellResponsiveTitle">
+                <span
+                  v-show="question.isMobile"
+                  :class="question.cssClasses.cellResponsiveTitle"
+                >
                   <survey-string :locString="column.locText"></survey-string>
                 </span>
               </label>
@@ -77,9 +95,16 @@
 </template>
 
 <script lang="ts">
-import {  QuestionMatrixModel } from "survey-core";
+import { QuestionMatrixModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent, type PropType, shallowRef, ref, watch } from "vue";
+import {
+  defineComponent,
+  type PropType,
+  shallowRef,
+  ref,
+  watch,
+  onUnmounted,
+} from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
@@ -96,11 +121,17 @@ export default defineComponent({
         visibleRows.value = question.visibleRows;
       };
     };
-    watch(() => props.question, (newValue, oldValue) => {
+    setupVisibleRowsChangedCallback(props.question);
+    const stopWatch = watch(
+      () => props.question,
+      (newValue, oldValue) => {
         oldValue.visibleRowsChangedCallback = () => {};
         setupVisibleRowsChangedCallback(newValue);
+      }
+    );
+    onUnmounted(() => {
+      stopWatch();
     });
-    setupVisibleRowsChangedCallback(props.question);
     return {
       visibleRows,
     };

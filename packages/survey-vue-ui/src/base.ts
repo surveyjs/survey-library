@@ -6,6 +6,9 @@ import {
   ref,
   isRef,
   isReactive,
+  watch,
+  watchEffect,
+  onUnmounted,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -29,9 +32,20 @@ function makeReactive(surveyElement: Base) {
 // by convention, composable function names start with "use"
 
 export const BaseVue: ComponentOptions = {
-  mounted: function () {
+  mounted() {
     if (typeof this.getModel == "function") {
-      makeReactive(this.getModel());
+      const stopWatch = watch(
+        () => this.getModel(),
+        (value) => {
+          makeReactive(value);
+        },
+        {
+          immediate: true,
+        }
+      );
+      onUnmounted(() => {
+        stopWatch();
+      });
     }
   },
 };

@@ -123,6 +123,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.stopPropagation();
   }
   private moveShortcutElement(event: PointerEvent) {
+    const rootElementX= this.rootElement.getBoundingClientRect().x;
+    const rootElementY = this.rootElement.getBoundingClientRect().y;
+
     this.doScroll(event.clientY, event.clientX);
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
@@ -136,55 +139,64 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       shortcutYOffset = shortcutHeight / 2;
     }
 
-    const documentBottom = this.rootElement.clientHeight;
-    const documentRight = this.rootElement.clientWidth;
-    const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(event.clientY, shortcutHeight, shortcutYOffset);
-    const shortcutRightCoordinate = this.getShortcutRightCoordinate(event.clientX, shortcutWidth, shortcutXOffset);
+    const documentBottom = document.documentElement.clientHeight;
+    const documentRight = document.documentElement.clientWidth;
 
-    if (shortcutRightCoordinate >= documentRight) {
+    const pageX = event.pageX;
+    const pageY = event.pageY;
+
+    const clientX = event.clientX;
+    const clientY = event.clientY;
+
+    const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);
+    const shortcutRightCoordinate = this.getShortcutRightCoordinate(clientX, shortcutWidth, shortcutXOffset);
+
+    if (shortcutRightCoordinate >= documentRight) { // right boundary
       this.draggedElementShortcut.style.left =
-        event.pageX -
-        event.clientX +
+        // pageX -
+        // clientX +
         documentRight -
-        shortcutWidth +
+        shortcutWidth -
+        rootElementX +
         "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYOffset + "px";
+        /*pageY*/ clientY - shortcutYOffset - rootElementY + "px";
       return;
     }
 
-    if (event.clientX - shortcutXOffset <= 0) {
+    if (clientX - shortcutXOffset <= 0) { // left boundary
       this.draggedElementShortcut.style.left =
-        event.pageX - event.clientX + "px";
+        pageX - clientX - rootElementX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYOffset + "px";
+        /*pageY*/ clientY - rootElementY - shortcutYOffset + "px";
       return;
     }
 
-    if (shortcutBottomCoordinate >= documentBottom) {
+    if (shortcutBottomCoordinate >= documentBottom) { // bottom boundary
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXOffset + "px";
+        /*pageX*/ clientX - shortcutXOffset - rootElementX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY -
-        event.clientY +
+        // pageY -
+        // clientY +
         documentBottom -
-        shortcutHeight +
+        shortcutHeight -
+        rootElementY +
         "px";
       return;
     }
 
-    if (event.clientY - shortcutYOffset <= 0) {
+    if (clientY - shortcutYOffset <= 0) { // top  boundary
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXOffset + "px";
+        clientX - shortcutXOffset - rootElementX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - event.clientY + "px";
+        pageY - clientY - rootElementY + "px";
       return;
     }
 
     this.draggedElementShortcut.style.left =
-      event.pageX - shortcutXOffset + "px";
+      clientX - rootElementX - shortcutXOffset + "px";
     this.draggedElementShortcut.style.top =
-      event.pageY - shortcutYOffset + "px";
+      clientY - rootElementY - shortcutYOffset + "px";
   }
   private getShortcutBottomCoordinate(currentY: number, shortcutHeight: number, shortcutYOffset: number):number {
     return currentY + shortcutHeight - shortcutYOffset;
@@ -194,7 +206,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   }
   private doScroll(clientY: number, clientX: number) {
     cancelAnimationFrame(this.scrollIntervalId);
-    const startScrollBoundary = 50;
+    const startScrollBoundary = 100;
 
     this.draggedElementShortcut.hidden = true;
     let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);

@@ -1,21 +1,27 @@
 <template>
-  <div :class="question.cssClasses.root">
+    <div :class="question.cssClasses.root">
     <img
       v-if="question.renderedMode === 'image'"
+      v-show="question.imageLink && !question.contentNotLoaded"
       :class="question.getImageCss()"
       :src="question.locImageLink.renderedHtml"
       :alt="question.altText || question.title"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{ objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
+      @load="(event) => { question.onLoadHandler() }"
+      @error="(event) => { question.onErrorHandler() }"
     /><video
       controls
       v-if="question.renderedMode === 'video'"
+      v-show="question.imageLink && !question.contentNotLoaded"
       :class="question.getImageCss()"
       :src="question.locImageLink.renderedHtml"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{ objectFit: question.imageFit, width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
+      @loadedmetadata="(event) => { question.onLoadHandler() }"
+      @error="(event) => { question.onErrorHandler() }"
     ></video>
     <iframe
       v-if="question.renderedMode === 'youtube'"
@@ -23,8 +29,12 @@
       :src="question.locImageLink.renderedHtml"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{ objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
     ></iframe>
+    <div v-if="!question.imageLink || question.contentNotLoaded"
+      :class="question.cssClasses.noImage">
+      <sv-svg-icon :iconName="question.cssClasses.noImageSvgIconId" :size="48"></sv-svg-icon>
+    </div>
   </div>
 </template>
 

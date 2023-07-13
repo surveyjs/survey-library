@@ -1385,6 +1385,7 @@ sv-popup {
   padding-inline-start: calc(2 * var(--base-unit, 8px));
   cursor: pointer;
   overflow: hidden;
+  text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
   display: flex;

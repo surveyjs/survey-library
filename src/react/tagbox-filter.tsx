@@ -29,7 +29,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.model.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true)) {
         control.value = this.model.inputStringRendered;
       }
     }

@@ -9,6 +9,7 @@ import {
   watch,
   watchEffect,
   onUnmounted,
+  type Ref,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -67,6 +68,30 @@ export const QuestionVue: ComponentOptions = {
     }
   },
 };
+
+
+export function useLocString(getLocString: () => LocalizableString ): Ref<string> {
+  const renderedHtml = ref();
+  const setupOnChangedCallback = (locString: LocalizableString) => {
+    renderedHtml.value = locString.renderedHtml;
+    locString.onChanged = () => {
+      renderedHtml.value = locString.renderedHtml;
+    };
+  };
+  const stopWatch = watch(
+    getLocString,
+    (newValue, oldValue) => {
+      if (oldValue) oldValue.onChanged = () => {};
+      setupOnChangedCallback(newValue);
+    },
+    { immediate: true }
+  );
+  onUnmounted(() => {
+    stopWatch();
+  });
+  return renderedHtml;
+}
+
 
 export function getComponentName(question: Question): string {
   if (question.customWidget) return "survey-customwidget";

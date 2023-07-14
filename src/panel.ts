@@ -1735,7 +1735,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (this.hasEditButton) {
         actions.push({
           id: "cancel-preview",
-          title: this.survey.editText,
+          locTitle: this.survey.locEditText,
           innerCss: this.survey.cssNavigationEdit,
           action: () => { this.cancelPreview(); }
         });

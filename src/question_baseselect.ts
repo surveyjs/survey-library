@@ -990,7 +990,7 @@ export class QuestionSelectBase extends Question {
       vals.push(!onGetValueCallback ? value[i] : onGetValueCallback(i));
     }
     if(Helpers.isTwoValueEquals(this.value, vals)) {
-      this.getMultipleSelectedItems().forEach(item => strs.push(item.locText.textOrHtml));
+      this.getMultipleSelectedItems().forEach(item => strs.push(this.getItemDisplayValue(item)));
     }
     if(strs.length === 0) {
       for (var i = 0; i < vals.length; i++) {
@@ -1001,6 +1001,10 @@ export class QuestionSelectBase extends Question {
       }
     }
     return strs.join(", ");
+  }
+  private getItemDisplayValue(item: ItemValue): string {
+    if(item === this.otherItem && this.comment) return this.comment;
+    return item.locText.textOrHtml;
   }
   private getFilteredChoices(): Array<ItemValue> {
     return this.filteredChoicesValue

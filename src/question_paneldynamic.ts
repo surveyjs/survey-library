@@ -152,7 +152,7 @@ export class QuestionPanelDynamicItem implements ISurveyData, ISurveyImpl {
   public setValue(name: string, newValue: any) {
     const oldItemData = this.data.getPanelItemData(this);
     const oldValue = !!oldItemData ? oldItemData[name] : undefined;
-    if (Helpers.isTwoValueEquals(newValue, oldValue)) return;
+    if (Helpers.isTwoValueEquals(newValue, oldValue, false, true)) return;
     this.data.setPanelItemData(this, name, Helpers.getUnbindValue(newValue));
     const questions = this.panel.questions;
     for (var i = 0; i < questions.length; i++) {

@@ -17264,4 +17264,13 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   popup.toggleVisibility();
   assert.equal(log, "->true->false");
 });
-
+QUnit.test("Check onPopupVisibleChanged events", function (assert) {
+  assert.equal(settings.comparator.caseSensitive, false, "comparator.caseSensitive is false");
+  const survey = new SurveyModel({ elements: [{ "type": "text", "name": "q1" }] });
+  const q = survey.getQuestionByName("q1");
+  survey.onValueChanging.add((sender, options) => {
+    options.value = options.value.toUpperCase();
+  });
+  q.value = "abc";
+  assert.equal(q.value, "ABC", "Convert to upper case");
+});

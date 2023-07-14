@@ -8,13 +8,12 @@
     :id="elementId"
     v-bind:class="model.getItemClass(item)"
     v-on:click="click"
-    v-on:keyup="keyUp"
     v-key2click
   >
-    <div 
+    <div
       v-if="item.needSeparator"
       v-bind:class="model.cssClasses.itemSeparator"
-      />
+    />
 
     <div
       :style="{ paddingInlineStart: model.getItemIndent(item) }"
@@ -27,35 +26,29 @@
         :size="24"
       ></sv-svg-icon>
       <survey-string v-if="!item.component" :locString="item.locTitle" />
-      <component v-if="item.component" :is="item.component" :item="item"> </component>
+      <component v-if="item.component" :is="item.component" :item="item">
+      </component>
     </div>
   </li>
 </template>
 
 <script lang="ts">
 import { BaseVue } from "@/base";
-import { ListModel, Action, IAction } from "survey-core";
+import type { ListModel, Action, IAction } from "survey-core";
 import { defineComponent, type PropType } from "vue";
 
-//todo
-function attachKey2click(event: any) {
-
-}
 export default defineComponent({
   // eslint-disable-next-line
   name: "sv-list-item",
   props: {
     model: { type: Object as PropType<ListModel>, required: true },
-    item: Object as PropType<Action>,
+    item: { type: Object as PropType<Action>, required: true },
   },
   mixins: [BaseVue],
   methods: {
     click(event: any) {
       this.model.onItemClick(this.item as any);
       event.stopPropagation();
-    },
-    keyup(event: any) {
-      attachKey2click(event);
     },
     getModel() {
       return this.item;
@@ -64,10 +57,12 @@ export default defineComponent({
   computed: {
     elementId() {
       return (this.item as IAction)?.elementId;
-    }
+    },
   },
   mounted() {
-    this.model.onLastItemRended(this.item as any);
+    setTimeout(() => {
+      this.model.onLastItemRended(this.item as any);
+    });
   },
 });
 </script>

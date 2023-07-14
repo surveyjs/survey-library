@@ -149,6 +149,7 @@ export default defineComponent({
       this.vueSurvey.doComplete();
     },
     forceUpdate() {
+      this.updater += 1;
       this.$forceUpdate();
     },
     getModel(): SurveyModel {

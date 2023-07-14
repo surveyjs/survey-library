@@ -1,5 +1,4 @@
 import SurveyPlugin  from "survey-vue-ui";
-import "survey-core/defaultV2.css";
 
 import { createApp } from 'vue'
 import App from './App.vue'

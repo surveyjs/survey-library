@@ -56,7 +56,7 @@ class ExpectAssertAdapter {
   }
 }
 
-const whiteList = ["list-component"];
+const whiteList = [/.*/];
 
 describe("markup tests", () => {
   markupTests.forEach((markupTest) => {

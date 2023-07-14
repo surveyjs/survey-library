@@ -1,4 +1,4 @@
-<div data-bind="css: question.cssClasses.selectWrapper, pointerdown: click">
+<div data-bind="css: question.cssClasses.selectWrapper, click: click">
   <!-- ko ifnot: question.isReadOnly -->
   <div data-bind="css: question.getControlClass(),
     event: { keydown: keyhandler, blur: blur },

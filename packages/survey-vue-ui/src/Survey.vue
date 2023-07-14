@@ -1,5 +1,6 @@
 <template>
   <div :class="vueSurvey.getRootCss()" :style="vueSurvey.themeVariables">
+    <survey-popup-modal></survey-popup-modal>
     <div
       v-if="vueSurvey.renderBackgroundImage"
       :class="css.rootBackgroundImage"

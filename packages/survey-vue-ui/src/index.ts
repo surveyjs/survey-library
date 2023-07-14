@@ -95,6 +95,8 @@ import OtherChoice from "./QuestionOther.vue";
 import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
 import PopupSurvey from "./PopupSurvey.vue";
 import CustomWidget from "./CustomWidget.vue";
+import PopupModal from "./components/popup/PopupModal.vue";
+
 import {
   doKey2ClickBlur,
   doKey2ClickDown,
@@ -105,6 +107,7 @@ import type { App } from "vue";
 
 function registerComponents(app: App) {
   app.component("SurveyRoot", SurveyVue);
+  app.component("survey", SurveyVue);
   app.component("survey-header", Header);
   app.component("survey-page", Page);
   app.component("survey-row", Row);
@@ -205,6 +208,7 @@ function registerComponents(app: App) {
   app.component("sv-nav-btn", SurveyNavigationButton);
   app.component("popup-survey", PopupSurvey);
   app.component("survey-customwidget", CustomWidget);
+  app.component("survey-popup-modal", PopupModal);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

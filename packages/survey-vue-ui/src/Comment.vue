@@ -1,6 +1,35 @@
 <template>
+  <textarea
+    v-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
+    :readonly="question.isInputReadOnly"
+    :disabled="question.renderedInputDisabled"
+    :value="question.value"
+    :id="question.inputId"
+    :maxlength="question.getMaxLength()"
+    :cols="question.cols"
+    :rows="question.rows"
+    :placeholder="question.renderedPlaceholder"
+    :class="question.className"
+    @change="change"
+    @input="
+      (e) => {
+        question.onInput(e);
+      }
+    "
+    @keydown="
+      (e) => {
+        question.onKeyDown(e);
+      }
+    "
+    :aria-required="question.a11y_input_ariaRequired"
+    :aria-label="question.a11y_input_ariaLabel"
+    :aria-labelledby="question.a11y_input_ariaLabelledBy"
+    :aria-invalid="question.a11y_input_ariaInvalid"
+    :aria-describedby="question.a11y_input_ariaDescribedBy"
+    v-bind:style="{ resize: question.resizeStyle }"
+  ></textarea>
+  <div v-else-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()">
     <textarea
-      v-if="!question.isReadOnlyRenderDiv()"
       :readonly="question.isInputReadOnly"
       :disabled="question.renderedInputDisabled"
       :value="question.value"
@@ -11,8 +40,16 @@
       :placeholder="question.renderedPlaceholder"
       :class="question.className"
       @change="change"
-      @input="(e) => { question.onInput(e) }"
-      @keydown="(e) => { question.onKeyDown(e) }"
+      @input="
+        (e) => {
+          question.onInput(e);
+        }
+      "
+      @keydown="
+        (e) => {
+          question.onKeyDown(e);
+        }
+      "
       :aria-required="question.a11y_input_ariaRequired"
       :aria-label="question.a11y_input_ariaLabel"
       :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -20,7 +57,12 @@
       :aria-describedby="question.a11y_input_ariaDescribedBy"
       v-bind:style="{ resize: question.resizeStyle }"
     ></textarea>
-    <div v-else>{{ question.value }}</div>
+    <sv-character-counter
+      :counter="question.characterCounter"
+      :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
+    ></sv-character-counter>
+  </div>
+  <div v-else>{{ question.value }}</div>
 </template>
 
 <script lang="ts">
@@ -54,7 +96,6 @@ export default defineComponent({
     if (this.question) {
       this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
     }
-  }
+  },
 });
-
 </script>

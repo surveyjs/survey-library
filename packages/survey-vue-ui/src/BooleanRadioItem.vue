@@ -34,7 +34,7 @@
 
 <script lang="ts">
 import { defineComponent, type PropType } from "vue";
-import { QuestionBooleanModel } from "survey-core";
+import type { QuestionBooleanModel } from "survey-core";
 
 export default defineComponent({
   // eslint-disable-next-line
@@ -50,7 +50,7 @@ export default defineComponent({
   methods: {
     handleChange(event: any) {
       const question = this.question;
-      question.value = event.target.value == "true";
+      question.booleanValue = event.target.value == "true";
     },
   },
 });

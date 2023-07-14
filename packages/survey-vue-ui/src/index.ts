@@ -91,9 +91,15 @@ import OtherChoice from "./QuestionOther.vue";
 import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
 import PopupSurvey from "./PopupSurvey.vue";
 import CustomWidget from "./CustomWidget.vue";
+import {
+  doKey2ClickBlur,
+  doKey2ClickDown,
+  doKey2ClickUp,
+  type IAttachKey2clickOptions,
+} from "survey-core";
+import type { App } from "vue";
 
-
-function registerComponents(app: any) {
+function registerComponents(app: App) {
   app.component("SurveyRoot", SurveyVue);
   app.component("survey-header", Header);
   app.component("survey-page", Page);
@@ -192,6 +198,28 @@ function registerComponents(app: any) {
   app.component("sv-nav-btn", SurveyNavigationButton);
   app.component("popup-survey", PopupSurvey);
   app.component("survey-customwidget", CustomWidget);
+
+  app.directive("key2click", {
+    // When the bound element is inserted into the DOM...
+    mounted: function (el: HTMLElement, binding: any) {
+      const options: IAttachKey2clickOptions = { ...binding.value } || {
+        processEsc: true,
+      };
+      if (!options.disableTabStop) el.tabIndex = 0;
+      el.addEventListener("keyup", (evt: any) => {
+        evt.preventDefault();
+        evt.stopPropagation();
+        doKey2ClickUp(evt, options);
+        return false;
+      });
+      el.addEventListener("keydown", (evt: any) => {
+        doKey2ClickDown(evt, options);
+      });
+      el.addEventListener("blur", (evt: any) => {
+        doKey2ClickBlur(evt);
+      });
+    },
+  });
 }
 
 export default {

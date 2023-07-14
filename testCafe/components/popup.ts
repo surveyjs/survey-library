@@ -19,7 +19,7 @@ const disposeSurvey = ClientFunction(framework => {
   if (framework === "react") {
     window["ReactDOM"].unmountComponentAtNode(document.getElementById("surveyElement"));
   }
-  if (framework === "angular") {
+  if (framework === "angular" || framework === "vue3") {
     window["setSurvey"](undefined);
   }
   window["survey"].dispose();

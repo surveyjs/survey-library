@@ -9,6 +9,7 @@
     v-bind:class="model.getItemClass(item)"
     v-on:click="click"
     v-on:keyup="keyUp"
+    v-key2click
   >
     <div 
       v-if="item.needSeparator"

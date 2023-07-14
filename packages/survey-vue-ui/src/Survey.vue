@@ -23,7 +23,7 @@
             ></component>
             <div
               :class="vueSurvey.bodyCss"
-              :style="{ maxWidth: survey.renderedWidth }"
+              :style="{ maxWidth: vueSurvey.renderedWidth }"
               :id="pageId"
             >
               <component
@@ -150,7 +150,7 @@ export default defineComponent({
     },
     forceUpdate() {
       this.updater += 1;
-      //props.$forceUpdate();
+      this.$forceUpdate();
     },
     getModel(): SurveyModel {
       return this.vueSurvey;

@@ -1,5 +1,5 @@
 <template>
-    <label :key="item.value" :style="question.getItemStyle(item.itemValue, item.highlight)" :class="question.getItemClass(item.itemValue, item.highlight)" @mouseover="(e) => question.onItemMouseIn(item)"
+    <label :key="item.value" @mousedown="question.onMouseDown()" :style="question.getItemStyle(item.itemValue, item.highlight)" :class="question.getItemClass(item.itemValue, item.highlight)" @mouseover="(e) => question.onItemMouseIn(item)"
     @mouseleave="(e) => question.onItemMouseOut(item)">
     <input type="radio" class="sv-visuallyhidden" :name="question.name" :id="question.getInputId(index)"
       :value="item.value" :disabled="question.isInputReadOnly" @click="(e) => question.setValueFromClick(e.target.value)"
@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import { RenderedRatingItem, QuestionRatingModel } from "survey-core";
+import type { RenderedRatingItem, QuestionRatingModel } from "survey-core";
 import { BaseVue, QuestionVue } from "../../base";
 import { defineComponent, type PropType } from "vue";
 

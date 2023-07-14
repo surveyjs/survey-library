@@ -1592,7 +1592,7 @@ export class Question extends SurveyElement<Question>
       this.defaultValueRunner,
       this.getUnbindValue(this.defaultValue),
       (val) => {
-        if(!Helpers.isTwoValueEquals(this.value, val)) {
+        if(!this.isTwoValueEquals(this.value, val)) {
           this.value = val;
         }
       }
@@ -1627,7 +1627,7 @@ export class Question extends SurveyElement<Question>
     if (!setFunc) {
       setFunc = (val: any): void => {
         this.runExpressionSetValue(val, (val: any): void => {
-          if(!Helpers.isTwoValueEquals(this.value, val)) {
+          if(!this.isTwoValueEquals(this.value, val)) {
             this.value = val;
           }
         });

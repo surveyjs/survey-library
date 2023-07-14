@@ -157,7 +157,6 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
       var column = this.question.visibleColumns[i];
       var key = "value" + i;
 
-      //var isChecked = Helpers.isTwoValueEquals(row.value, column.value);
       var isChecked = row.value == column.value;
       let itemClass = this.question.getItemClass(row, column);
       var inputId = this.question.inputId + "_" + row.name + "_" + i;

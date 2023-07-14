@@ -83,6 +83,8 @@ import PopupPointer from "./components/popup/PopupPointer.vue";
 import Container from "./components/Container.vue";
 
 import Progress from "./components/progress/Progress.vue";
+import ProgressButtons from "./components/progress/ProgressButtons.vue";
+import ProgressToc from "./components/progress/ProgressToc.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
 import OtherChoice from "./QuestionOther.vue";
@@ -156,6 +158,9 @@ function registerComponents(app: any) {
   app.component("sv-paneldynamic-progress-text", PaneldynamicProgressText);
 
   app.component("sv-components-container", Container);
+
+  app.component("sv-progress-buttons", ProgressButtons);
+  app.component("sv-progress-toc", ProgressToc);
   app.component("sv-progress-pages", Progress);
   app.component("sv-progress-questions", Progress);
   app.component("sv-progress-correctquestions", Progress);

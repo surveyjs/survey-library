@@ -3830,7 +3830,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      return this.doComplete(this.canBeCompletedByTrigger);
+      return this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
     }
     this.doNextPage();
     return true;
@@ -4316,7 +4316,7 @@ export class SurveyModel extends SurveyElementCore
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if(!this.completedByTriggers) this.completedByTriggers = {};
     if(isCompleted) {
-      this.completedByTriggers[trigger.id] = true;
+      this.completedByTriggers[trigger.id] = trigger;
     } else {
       delete this.completedByTriggers[trigger.id];
     }
@@ -4324,10 +4324,15 @@ export class SurveyModel extends SurveyElementCore
       this.updateButtonsVisibility();
     }
   }
-  private completedByTriggers: HashTable<boolean>;
+  private completedByTriggers: HashTable<Trigger>;
   private get canBeCompletedByTrigger(): boolean {
     if(!this.completedByTriggers) return false;
     return Object.keys(this.completedByTriggers).length > 0;
+  }
+  private get completedTrigger(): Trigger {
+    if(!this.canBeCompletedByTrigger) return undefined;
+    const key = Object.keys(this.completedByTriggers)[0];
+    return this.completedByTriggers[key];
   }
   /**
    * Returns the HTML content for the complete page.

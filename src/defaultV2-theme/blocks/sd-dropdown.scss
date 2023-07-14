@@ -59,9 +59,13 @@
 
 .sd-dropdown_chevron-button {
   position: absolute;
-  height: calcSize(3);
-  inset-inline-end: calcSize(1.5);
-  inset-block-start: calc(50% - calcSize(1.5));
+  width: calcSize(5);
+  top: 0;
+  bottom: 0;
+  inset-inline-end: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .sd-dropdown_clean-button-svg {

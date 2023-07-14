@@ -13,6 +13,7 @@
           :is="'sv-components-container'"
           :survey="vueSurvey"
           :container="'header'"
+          :needRenderWrapper="false"
         ></component>
         <template v-if="vueSurvey.isShowingPage">
           <div :class="vueSurvey.bodyContainerCss">
@@ -20,6 +21,7 @@
               :is="'sv-components-container'"
               :survey="vueSurvey"
               :container="'left'"
+              :needRenderWrapper="true"
             ></component>
             <div
               :class="vueSurvey.bodyCss"
@@ -30,6 +32,7 @@
                 :is="'sv-components-container'"
                 :survey="vueSurvey"
                 :container="'contentTop'"
+                :needRenderWrapper="true"
               ></component>
               <survey-page
                 :key="pageKey"
@@ -41,12 +44,14 @@
                 :is="'sv-components-container'"
                 :survey="vueSurvey"
                 :container="'contentBottom'"
+                :needRenderWrapper="true"
               ></component>
             </div>
             <component
               :is="'sv-components-container'"
               :survey="vueSurvey"
               :container="'right'"
+              :needRenderWrapper="true"
             ></component>
           </div>
         </template>
@@ -54,6 +59,7 @@
           :is="'sv-components-container'"
           :survey="vueSurvey"
           :container="'footer'"
+          :needRenderWrapper="false"
         ></component>
         <div v-if="hasCompletedPage">
           <div

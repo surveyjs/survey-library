@@ -10,8 +10,8 @@
       }
     "
     v-on:click="
-      () => {
-        model.clickOutside();
+      (event) => {
+        model.clickOutside(event);
       }
     "
   >
@@ -33,7 +33,9 @@
           :model="model"
         ></component>
         <div class="sv-popup__body-content">
-          <div class="sv-popup__body-header" v-if="!!model.title">{{ model.title }}</div>
+          <div class="sv-popup__body-header" v-if="!!model.title">
+            {{ model.title }}
+          </div>
           <div class="sv-popup__scrolling-content">
             <div class="sv-popup__content">
               <component
@@ -52,7 +54,7 @@
 </template>
 <script lang="ts">
 import { BaseVue } from "@/base";
-import { PopupBaseViewModel } from "survey-core";
+import type { PopupBaseViewModel } from "survey-core";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({

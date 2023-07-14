@@ -84,7 +84,6 @@ export default defineComponent({
     const stopWatch = watch(
       () => props.question,
       (newValue, oldValue) => {
-        super.componentWillUnmount();
         oldValue.visibleRowsChangedCallback = () => {};
         oldValue.onRenderedTableResetCallback = () => {};
         oldValue.renderedTable.renderedRowsChangedCallback = () => {};

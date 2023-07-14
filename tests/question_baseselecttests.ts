@@ -1031,3 +1031,22 @@ QUnit.test("Do not notify survey on changing newItem.value", function (
   assert.equal(counter, 2, "Do not react on newItem properties changes, #4");
   settings.supportCreatorV2 = false;
 });
+QUnit.test("displayValue & otherItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "dropdown", name: "q1", choices: [1], hasOther: true },
+      { type: "checkbox", name: "q2", choices: [1], hasOther: true }
+    ]
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.value = "other";
+  assert.equal(q1.displayValue, "Other (describe)", "#1");
+  q1.comment = "Some comments";
+  assert.equal(q1.displayValue, "Some comments", "#2");
+  q2.value = ["other", 1];
+  q2.comment = "";
+  assert.equal(q2.displayValue, "Other (describe), 1", "#3");
+  q2.comment = "Some comments";
+  assert.equal(q2.displayValue, "Some comments, 1", "#4");
+});

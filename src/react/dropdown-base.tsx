@@ -55,7 +55,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     }
 
     return (
-      <div className={cssClasses.selectWrapper} onPointerDown={this.click}>
+      <div className={cssClasses.selectWrapper} onClick={this.click}>
         {selectElement}
         {this.createChevronButton()}
       </div>

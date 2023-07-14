@@ -238,17 +238,48 @@ QUnit.test("On trigger executed && executeCompleteTriggerOnValueChanged=true", f
   });
   const triggers = [];
   let isCompleteEvent = false;
+  let completeTrigger;
   survey.onTriggerExecuted.add((sender, options) => {
     triggers.push(options.trigger.getType());
   });
   survey.onComplete.add((sender, options) => {
     isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
   });
   survey.setValue("q1", 3);
   assert.equal(survey.state, "completed");
   assert.deepEqual(triggers, ["completetrigger"]);
   assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.expression, "{q1} = 3");
   settings.executeCompleteTriggerOnValueChanged = false;
+});
+QUnit.test("On trigger executed && options.completeTrigger", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{q1} = 3"
+      },
+    ],
+  });
+  let isCompleteEvent = false;
+  let completeTrigger;
+  survey.onComplete.add((sender, options) => {
+    isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
+  });
+  survey.setValue("q1", 3);
+  assert.equal(survey.state, "running");
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed");
+  assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.expression, "{q1} = 3");
 });
 QUnit.test("Show complete button instead of next if complete trigger is going to be executed", function(
   assert

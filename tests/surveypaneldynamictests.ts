@@ -3220,6 +3220,31 @@ QUnit.test(
     assert.equal(q2.errors.length, 1, "There is error in the second question");
   }
 );
+QUnit.test("paneldynamic isRequired + survey.checkErrorsMode='onValueChanged', Bug#6395", function(assert) {
+  var survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 1,
+        isRequired: true,
+        templateElements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ],
+      },
+    ],
+  });
+  var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  var q1 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q1");
+  survey.hasErrors();
+  assert.equal(panel.errors.length, 1, "There is one error in panel dynamic, #1");
+  q1.value = "test";
+  assert.equal(panel.errors.length, 0, "There is no error in panel dynamic, #2");
+});
 
 QUnit.test(
   "paneldynamic + expression value + clear data on survey.isSinglePage = true', Bug# 1625",
@@ -5912,4 +5937,33 @@ QUnit.test("defaultValue in questions and set data", function (assert) {
   const q2 = panel.panels[0].getQuestionByName("q2");
   assert.equal(q1.value, "foo", "q1 is correct");
   assert.notOk(q2.value, "q2 is empty");
+});
+QUnit.test("Make sure that panel is not collapsed on focusing the question", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "name": "q1",
+            "type": "text",
+          }
+        ]
+      },
+      {
+        "elements": [{
+          "name": "panel",
+          "type": "paneldynamic",
+          "panelCount": 2,
+          "templateElements": [
+            {
+              "name": "q2",
+              "type": "text",
+            }
+          ]
+        }] }] });
+  assert.equal(survey.currentPageNo, 0);
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  q2.focus();
+  assert.equal(survey.currentPageNo, 1);
 });

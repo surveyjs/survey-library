@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.97](https://github.com/surveyjs/surveyjs/compare/v1.9.96...v1.9.97) (2023-07-12)
+
+
+### Bug Fixes
+
+* **popup:** prevent crash on Legacy Edge when opening a popup ([#6514](https://github.com/surveyjs/surveyjs/issues/6514)) ([7c07538](https://github.com/surveyjs/surveyjs/commit/7c075381d3d562dc2b8b1a71fe3109c8e3a14b53))
+
+## [1.9.96](https://github.com/surveyjs/surveyjs/compare/v1.9.95...v1.9.96) (2023-07-04)
+
 ## [1.9.95](https://github.com/surveyjs/surveyjs/compare/v1.9.94...v1.9.95) (2023-06-28)
 
 ## [1.9.94](https://github.com/surveyjs/surveyjs/compare/v1.9.93...v1.9.94) (2023-06-27)

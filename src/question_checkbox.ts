@@ -260,7 +260,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (Array.isArray(val)) {
       for (var i = 0; i < val.length; i++) {
         const rVal = this.getRealValue(val[i]);
-        if (this.canClearValueAnUnknow(rVal)) {
+        if (this.canClearValueAnUnknown(rVal)) {
           this.addIntoInvisibleOldValues(rVal);
         }
       }
@@ -393,7 +393,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var newValue = [];
     for (var i = 0; i < val.length; i++) {
       const rItemVal = this.getRealValue(val[i]);
-      var isUnkown = this.canClearValueAnUnknow(rItemVal);
+      var isUnkown = this.canClearValueAnUnknown(rItemVal);
       if (
         (!clearDisabled && !isUnkown) ||
         (clearDisabled && !this.isValueDisabled(rItemVal))

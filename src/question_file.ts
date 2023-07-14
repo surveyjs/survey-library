@@ -40,6 +40,12 @@ export class QuestionFileModel extends Question {
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
+  /**
+   * Specifies whether users can capture and upload a photo. Applies only to mobile devices.
+   *
+   * Default value: `false`
+   */
+  @property() allowCameraAccess: boolean;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -239,6 +245,9 @@ export class QuestionFileModel extends Question {
         }
       }
     );
+  }
+  public get renderCapture(): string {
+    return this.allowCameraAccess ? "user" : undefined;
   }
 
   get multipleRendered() {
@@ -608,6 +617,7 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
+    { name: "allowCameraAccess:switch", category: "general" }
   ],
   function () {
     return new QuestionFileModel("");
@@ -623,19 +633,22 @@ export class FileLoader {
   }
   loaded: any[] = [];
   load(files: Array<any>): void {
-    files.forEach((value) => {
+    let downloadedCount = 0;
+    this.loaded = new Array(files.length);
+    files.forEach((value, index) => {
       if (this.fileQuestion.survey) {
         this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
           if (!this.fileQuestion || !this.callback) {
             return;
           }
           if (status === "success") {
-            this.loaded.push({
+            this.loaded[index] = {
               content: data,
               name: value.name,
               type: value.type,
-            });
-            if (this.loaded.length === files.length) {
+            };
+            downloadedCount ++;
+            if (downloadedCount === files.length) {
               this.callback("loaded", this.loaded);
             }
           } else {

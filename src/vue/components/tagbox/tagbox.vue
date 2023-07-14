@@ -1,12 +1,11 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper">
+  <div :class="question.cssClasses.selectWrapper" @pointerdown="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
       :tabindex="model.inputReadOnly ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
-      @pointerdown="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -47,6 +46,17 @@
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
       <div>{{ question.readOnlyText }}</div>
+    </div>
+    <div
+      :class="question.cssClasses.chevronButton"
+      v-if="question.cssClasses.chevronButtonIconId"
+    >
+      <sv-svg-icon
+        :class="question.cssClasses.chevronButtonSvg"
+        :iconName="question.cssClasses.chevronButtonIconId"
+        size="24"
+      >
+      </sv-svg-icon>
     </div>
   </div>
 </template>

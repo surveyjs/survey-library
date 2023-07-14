@@ -53,7 +53,7 @@ import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
-import { ITheme } from "./themes";
+import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
 
 /**
@@ -121,11 +121,11 @@ export class SurveyModel extends SurveyElementCore
 
   //#region Event declarations
   /**
-   * An event that is raised after a trigger is executed.
+   * An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * For more information about triggers, refer to the following help topic: [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers).
+   * [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle)).
    * @see triggers
    * @see runTriggers
    */
@@ -170,11 +170,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public onStarted: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
-   * Use this event to save incomplete survey results. Enable the [`sendResultOnPageNext`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResultOnPageNext) property for this event to occur.
+   * An event that is raised to save incomplete survey results. Enable the [`sendResultOnPageNext`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResultOnPageNext) property for this event to occur.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * Refer to the following help topic for more information on the use case: [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete).
+   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle)).
    */
   public onPartialSend: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
@@ -400,11 +400,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public onTextRenderAs: EventBase<SurveyModel, TextRenderAsEvent> = this.addEvent<SurveyModel, TextRenderAsEvent>();
   /**
-   * The event fires when it gets response from the [api.surveyjs.io](https://api.surveyjs.io) service on saving survey results. Use it to find out if the results have been saved successfully.
+   * An event that is raised after a request to save survey results on [SurveyJS Service](https://api.surveyjs.io/) has been completed. Use this event to find out if the results have been saved successfully.
    */
   public onSendResult: EventBase<SurveyModel, SendResultEvent> = this.addEvent<SurveyModel, SendResultEvent>();
   /**
-   * Use it to get results after calling the `getResult` method. It returns a simple analytics from [api.surveyjs.io](https://api.surveyjs.io) service.
+   * An event that is raised when the [`getResult(resultId, questionName)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#getResult) method is called. Use this event to obtain answers to an individual question from [SurveyJS Service](https://api.surveyjs.io/).
    * @see getResult
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
@@ -728,27 +728,25 @@ export class SurveyModel extends SurveyElementCore
   public onLocaleChangedEvent: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
   /**
-   * Use this event to create/customize actions to be displayed in a question's title.
+   * An event that allows you to add, delete, or modify actions in a question title.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-titleactions/ (linkStyle))
-   * @see IAction
-   * @see Question
   */
   public onGetQuestionTitleActions: EventBase<SurveyModel, GetQuestionTitleActionsEvent> = this.addEvent<SurveyModel, GetQuestionTitleActionsEvent>();
 
   /**
-   * Use this event to create/customize actions to be displayed in a panel's title.
-   * @see IAction
-   * @see PanelModel
+   * An event that allows you to add, delete, or modify actions in a panel title.
    */
   public onGetPanelTitleActions: EventBase<SurveyModel, GetPanelTitleActionsEvent> = this.addEvent<SurveyModel, GetPanelTitleActionsEvent>();
 
   /**
-   * Use this event to create/customize actions to be displayed in a page's title.
-   * @see IAction
-   * @see PageModel
+   * An event that allows you to add, delete, or modify actions in a page title.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/modify-titles-of-survey-elements/ (linkStyle))
    */
   public onGetPageTitleActions: EventBase<SurveyModel, GetPageTitleActionsEvent> = this.addEvent<SurveyModel, GetPageTitleActionsEvent>();
 
@@ -1147,8 +1145,11 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Gets or sets a list of triggers in the survey.
-   * @see SurveyTrigger
+   * A list of triggers in the survey.
+   *
+   * [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle))
+   * @see runTriggers
+   * @see onTriggerExecuted
    */
   public get triggers(): Array<SurveyTrigger> {
     return this.getPropertyValue("triggers");
@@ -1166,7 +1167,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("calculatedValues", val);
   }
   /**
-   * The identifier of a survey JSON schema to load from the [SurveyJS Service](https://api.surveyjs.io).
+   * The identifier of a survey JSON schema to load from [SurveyJS Service](https://api.surveyjs.io).
    *
    * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
    * @see loadSurveyFromService
@@ -1179,7 +1180,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("surveyId", val);
   }
   /**
-   * An identifier used to save survey results to the [SurveyJS Service](https://api.surveyjs.io).
+   * An identifier used to save survey results to [SurveyJS Service](https://api.surveyjs.io).
    *
    * Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
    * @see onComplete
@@ -1194,7 +1195,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * A user identifier (e-mail or other unique ID).
    *
-   * If your application works with the [SurveyJS Service](https://api.surveyjs.io), the ID ensures that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
+   * If your application works with [SurveyJS Service](https://api.surveyjs.io), the ID ensures that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
    * @see cookieName
    */
   public get clientId(): string {
@@ -1216,9 +1217,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("cookieName", val);
   }
   /**
-   * Specifies whether to save survey results when respondents swtich between pages. Handle the [`onPartialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onPartialSend) event to implement the save operation.
+   * Specifies whether to save survey results when respondents switch between pages. Handle the [`onPartialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onPartialSend) event to implement the save operation.
    *
-   * Refer to the following help topic for more information on the use case: [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete).
+   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle)).
    */
   public get sendResultOnPageNext(): boolean {
     return this.getPropertyValue("sendResultOnPageNext");
@@ -1660,8 +1661,13 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("keepIncorrectValues", val);
   }
   /**
-   * Gets or sets the survey locale. The default value it is empty, this means the 'en' locale is used.
-   * You can set it to 'de' - German, 'fr' - French and so on. The library has built-in localization for several languages. The library has a multi-language support as well.
+   * Specifies the survey's locale.
+   *
+   * Default value: `""` (a default locale is used)
+   *
+   * [Localization & Globalization help topic](https://surveyjs.io/form-library/documentation/survey-localization (linkStyle))
+   *
+   * [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
    */
   public get locale(): string {
     return this.getPropertyValue("locale", surveyLocalization.currentLocale);
@@ -1678,7 +1684,11 @@ export class SurveyModel extends SurveyElementCore
     this.onLocaleChangedEvent.fire(this, this.locale);
   }
   /**
-   * Returns an array of locales that are used in the survey's translation.
+   * Returns an array of locales whose translations are used in the survey.
+   *
+   * [Localization & Globalization help topic](https://surveyjs.io/form-library/documentation/survey-localization (linkStyle))
+   *
+   * [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
    */
   public getUsedLocales(): Array<string> {
     var locs = new Array<string>();
@@ -1936,12 +1946,9 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
   public get themeVariables() {
-    const result = Object.assign({}, this.cssVariables);
-    result.backgroundImage = this.renderBackgroundImage;
-    result.backgroundSize = this.backgroundImageFit;
-    return result;
+    return Object.assign({}, this.cssVariables);
   }
-  @property() backgroundImagePosition: string;
+
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
     if (this.isMobile !== newVal) {
@@ -1997,10 +2004,10 @@ export class SurveyModel extends SurveyElementCore
     const path = this.getLocalizableString("backgroundImage").renderedHtml;
     this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
-  @property() backgroundImageFit: string;
+  @property() backgroundImageFit: ImageFit;
+  @property() backgroundImageAttachment: ImageAttachment;
   /**
-   * A value from 0 to 1 that specifies how transparent the survey background should be: 0 makes the background completely transparent, and 1 makes it opaque.
-   * @see backgroundImage
+   * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
   public get backgroundOpacity(): number {
     return this.getPropertyValue("backgroundOpacity");
@@ -2008,14 +2015,13 @@ export class SurveyModel extends SurveyElementCore
   public set backgroundOpacity(val: number) {
     this.setPropertyValue("backgroundOpacity", val);
   }
-  public get renderBackgroundOpacity(): string {
-    const backgroundOpacityProperty = this.getPropertyByName("backgroundOpacity");
-    if(backgroundOpacityProperty.isDefaultValue(this.backgroundOpacity)) {
-      return "";
-    }
-
-    const alpha = 1 - this.backgroundOpacity;
-    return ["rgba(255, 255, 255, ", alpha, ")"].join("");
+  public get backgroundImageStyle() {
+    return {
+      opacity: this.backgroundOpacity,
+      backgroundImage: this.renderBackgroundImage,
+      backgroundSize: this.backgroundImageFit,
+      backgroundAttachment: this.backgroundImageAttachment
+    };
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -2067,7 +2073,10 @@ export class SurveyModel extends SurveyElementCore
     return new ConditionRunner(expression).run(values, properties);
   }
   /**
-   * Run all triggers that performs on value changed and not on moving to the next page.
+   * Executes [all triggers](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers), except ["complete"](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
+   *
+   * [Conditional Survey Logic (Triggers)](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-survey-logic-triggers (linkStyle))
+   * @see onTriggerExecuted
    */
   public runTriggers(): void {
     this.checkTriggers(this.getFilteredValues(), false);
@@ -2108,7 +2117,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("completedBeforeHtml");
   }
   /**
-   * HTML content displayed while a survey JSON schema is being loaded from the [SurveyJS Service](https://api.surveyjs.io).
+   * HTML content displayed while a survey JSON schema is being loaded from [SurveyJS Service](https://api.surveyjs.io).
    * @see surveyId
    * @see processedLoadingHtml
    */
@@ -3358,8 +3367,15 @@ export class SurveyModel extends SurveyElementCore
   public get areEmptyElementsHidden(): boolean {
     return (
       this.isShowingPreview &&
-      this.showPreviewBeforeComplete == "showAnsweredQuestions"
+      this.showPreviewBeforeComplete == "showAnsweredQuestions" && this.isAnyQuestionAnswered
     );
+  }
+  private get isAnyQuestionAnswered(): boolean {
+    const questions = this.getAllQuestions(true);
+    for(let i = 0; i < questions.length; i ++) {
+      if(!questions[i].isEmpty()) return true;
+    }
+    return false;
   }
   /**
    * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completedbefore` state if the function returns `true`.
@@ -3813,7 +3829,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.doServerValidation(doComplete)) return false;
     if (doComplete) {
       this.currentPage.passed = true;
-      return this.doComplete(this.canBeCompletedByTrigger);
+      return this.doComplete(this.canBeCompletedByTrigger, this.completedTrigger);
     }
     this.doNextPage();
     return true;
@@ -4094,7 +4110,7 @@ export class SurveyModel extends SurveyElementCore
    * 1. Switches the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) to `"completed"`.
    * 1. Raises the [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) event.
    * 1. Navigates the user to a URL specified by the [`navigateToUrl`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrl) or [`navigateToUrlOnCondition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#navigateToUrlOnCondition) property.
-   * 1. Calls the [`sendResult()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResult) method if Form Library works with the [SurveyJS Service](https://api.surveyjs.io/).
+   * 1. Calls the [`sendResult()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#sendResult) method if Form Library works with [SurveyJS Service](https://api.surveyjs.io/).
    *
    * The `doComplete()` method completes the survey regardless of validation errors and the current page. If you need to ensure that survey results are valid and full, call the [`completeLastPage()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) method instead.
    *
@@ -4102,9 +4118,9 @@ export class SurveyModel extends SurveyElementCore
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    * @see surveyPostId
    */
-  public doComplete(isCompleteOnTrigger: boolean = false): boolean {
+  public doComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger): boolean {
     if (this.isCompleted) return;
-    if (!this.checkOnCompletingEvent(isCompleteOnTrigger)) {
+    if (!this.checkOnCompletingEvent(isCompleteOnTrigger, completeTrigger)) {
       this.isCompleted = false;
       return false;
     }
@@ -4112,11 +4128,11 @@ export class SurveyModel extends SurveyElementCore
     this.stopTimer();
     this.isCompleted = true;
     this.clearUnusedValues();
-    this.saveDataOnComplete(isCompleteOnTrigger);
+    this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
     this.setCookie();
     return true;
   }
-  private saveDataOnComplete(isCompleteOnTrigger: boolean = false) {
+  private saveDataOnComplete(isCompleteOnTrigger: boolean = false, completeTrigger?: Trigger) {
     let previousCookie = this.hasCookie;
     const showSaveInProgress = (text: string) => {
       savingDataStarted = true;
@@ -4135,6 +4151,7 @@ export class SurveyModel extends SurveyElementCore
     var savingDataStarted = false;
     var onCompleteOptions = {
       isCompleteOnTrigger: isCompleteOnTrigger,
+      completeTrigger: completeTrigger,
       showSaveInProgress: showSaveInProgress,
       showSaveError: showSaveError,
       showSaveSuccess: showSaveSuccess,
@@ -4153,11 +4170,12 @@ export class SurveyModel extends SurveyElementCore
       this.navigateTo();
     }
   }
-  private checkOnCompletingEvent(isCompleteOnTrigger: boolean): boolean {
+  private checkOnCompletingEvent(isCompleteOnTrigger: boolean, completeTrigger?: Trigger): boolean {
     var options = {
       allowComplete: true,
       allow: true,
       isCompleteOnTrigger: isCompleteOnTrigger,
+      completeTrigger: completeTrigger
     };
     this.onCompleting.fire(this, options);
     return options.allowComplete && options.allow;
@@ -4289,15 +4307,15 @@ export class SurveyModel extends SurveyElementCore
       this.doComplete(true);
     }
   }
-  public setCompleted(): void {
-    this.doComplete(true);
+  public setCompleted(trigger: Trigger): void {
+    this.doComplete(true, trigger);
   }
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.triggers.changeNavigationButtonsOnComplete) return;
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if(!this.completedByTriggers) this.completedByTriggers = {};
     if(isCompleted) {
-      this.completedByTriggers[trigger.id] = true;
+      this.completedByTriggers[trigger.id] = trigger;
     } else {
       delete this.completedByTriggers[trigger.id];
     }
@@ -4305,10 +4323,15 @@ export class SurveyModel extends SurveyElementCore
       this.updateButtonsVisibility();
     }
   }
-  private completedByTriggers: HashTable<boolean>;
+  private completedByTriggers: HashTable<Trigger>;
   private get canBeCompletedByTrigger(): boolean {
     if(!this.completedByTriggers) return false;
     return Object.keys(this.completedByTriggers).length > 0;
+  }
+  private get completedTrigger(): Trigger {
+    if(!this.canBeCompletedByTrigger) return undefined;
+    const key = Object.keys(this.completedByTriggers)[0];
+    return this.completedByTriggers[key];
   }
   /**
    * Returns the HTML content for the complete page.
@@ -5437,20 +5460,18 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Sends a survey result to the [api.surveyjs.io](https://api.surveyjs.io) service.
-   * @param postId [api.surveyjs.io](https://api.surveyjs.io) service postId
-   * @param clientId Typically a customer e-mail or an identifier
-   * @param isPartialCompleted Set it to `true` if the survey is not completed yet and the results are intermediate
-   * @see surveyPostId
-   * @see clientId
+   * Posts a survey result to [SurveyJS Service](https://api.surveyjs.io/).
+   * @param postId An identifier used to save survey results. You can find it on the [My Surveys](https://surveyjs.io/service/mysurveys) page. If you do not specify this parameter, the survey uses the [`surveyPostId`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#surveyPostId) property value.
+   * @param clientId A respondent identifier (e-mail or other unique ID). This ID ensures that the respondent does not pass the same survey twice.
+   * @param isPartial Pass `true` to save partial survey results (see [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete)).
    */
   public sendResult(
     postId: string = null,
     clientId: string = null,
-    isPartialCompleted: boolean = false
+    isPartial: boolean = false
   ) {
     if (!this.isEditMode) return;
-    if (isPartialCompleted && this.onPartialSend) {
+    if (isPartial && this.onPartialSend) {
       this.onPartialSend.fire(this, null);
     }
 
@@ -5461,7 +5482,7 @@ export class SurveyModel extends SurveyElementCore
     if (clientId) {
       this.clientId = clientId;
     }
-    if (isPartialCompleted && !this.clientId) return;
+    if (isPartial && !this.clientId) return;
     var self = this;
     if (this.surveyShowDataSaving) {
       this.setCompletedState("saving", "");
@@ -5484,18 +5505,17 @@ export class SurveyModel extends SurveyElementCore
         });
       },
       this.clientId,
-      isPartialCompleted
+      isPartial
     );
   }
   /**
-   * Calls the [api.surveyjs.io](https://api.surveyjs.io) service and, on callback, fires the `onGetResult` event with all answers that your users made for a question.
-   * @param resultId [api.surveyjs.io](https://api.surveyjs.io) service resultId
-   * @param name The question name
-   * @see onGetResult
+   * Requests [SurveyJS Service](https://api.surveyjs.io/) to retrieve all answers to a specified question. Handle the [`onGetResult`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetResult) event to access the answers.
+   * @param resultId A result ID that identifies the required survey. You can find it on the [My Surveys](https://surveyjs.io/service/mysurveys) page.
+   * @param questionName A question name.
    */
-  public getResult(resultId: string, name: string) {
+  public getResult(resultId: string, questionName: string) {
     var self = this;
-    this.createSurveyService().getResult(resultId, name, function (
+    this.createSurveyService().getResult(resultId, questionName, function (
       success: boolean,
       data: any,
       dataList: any[],
@@ -6990,7 +7010,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
         if(container === "header") {
           if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
@@ -7304,6 +7324,7 @@ Serializer.addClass("survey", [
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
+  { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },
   { name: "showBrandInfo:boolean", default: false, visible: false }
 ]);

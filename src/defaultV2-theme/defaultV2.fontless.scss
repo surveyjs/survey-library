@@ -61,6 +61,12 @@ body {
   width: 100%;
   font-family: var(--font-family, $font-family);
   background-color: $background-dim;
+  position: relative;
+
+  form {
+    z-index: 1;
+    position: relative;
+  }
 
   * {
     scrollbar-width: thin;
@@ -143,7 +149,7 @@ body {
 
 .sv-popup.sv-popup--modal {
   .sv-popup__body-content {
-    box-shadow: 0px calcSize(1) calcSize(2) $shadow-medium;
+    box-shadow: $shadow-large;
     background-color: $background-dim-light;
   }
 

@@ -745,6 +745,12 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return !rec.result;
   }
+  public validateContainerOnly(): void {
+    this.hasErrorsInPanels({ fireCallback: true });
+    if(!!this.parent) {
+      this.parent.validateContainerOnly();
+    }
+  }
   private hasErrorsInPanels(rec: any) {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);

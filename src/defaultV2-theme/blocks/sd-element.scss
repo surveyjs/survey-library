@@ -19,13 +19,16 @@
   opacity: 0.35;
 }
 
+.sd-title.sd-element__title {
+  font-family: $font-questiontitle-family;
+  font-weight: $font-questiontitle-weight;
+  color: $font-questiontitle-color;
+}
+
 .sd-element__title {
   font-size: 0;
   line-height: 0;
   position: static;
-  font-family: $font-questiontitle-family;
-  font-weight: $font-questiontitle-weight;
-  color: $font-questiontitle-color;
   margin: 0;
 
   .sd-element__num {
@@ -125,7 +128,7 @@
   padding-right: calc(var(--sd-base-padding) + var(--sv-element-add-padding-right, 0px));
   padding-bottom: var(--sd-base-padding);
   background: $question-background;
-  box-shadow: $questionpanel-boxshadow;
+  box-shadow: $shadow-small;
 
   &.sd-question--paneldynamic {
     padding-bottom: 0;
@@ -293,5 +296,6 @@
   border: 1px solid $border-inside;
   border-radius: $panel-corner-radius;
   box-shadow: none;
+  background-color: transparent;
 }
 

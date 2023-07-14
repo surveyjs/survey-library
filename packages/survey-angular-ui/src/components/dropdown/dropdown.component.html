@@ -1,6 +1,6 @@
-<div [class]="model.cssClasses.selectWrapper">
+<div [class]="model.cssClasses.selectWrapper" (pointerdown)="click($event)">
     <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.inputReadOnly ? null : 0" [class]="model.getControlClass()"
-        [attr.disabled]="model.isInputReadOnly ? true : null" (pointerdown)="click($event)" (blur)="blur($event)"
+        [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
         [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
@@ -44,5 +44,8 @@
     <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
         <sv-ng-string *ngIf="model.selectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
         <div>{{ model.readOnlyText }}</div>
+    </div>
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+        <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="24" sv-ng-svg-icon></svg>
     </div>
 </div>

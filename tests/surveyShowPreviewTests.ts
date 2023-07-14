@@ -656,3 +656,37 @@ QUnit.test(
     assert.equal(survey.state, "preview", "We are in preview mode");
   }
 );
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAnsweredQuestions' and all questions are empty, Bug#6497",
+  function(assert) {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "q1",
+              "choices": ["item1", "item2", "item3"]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "q2",
+              "choices": ["item1", "item2", "item3"]
+            }
+          ]
+        }
+      ],
+      "showPreviewBeforeComplete": "showAnsweredQuestions"
+    });
+    survey.nextPage();
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "There is no errors");
+    assert.equal(survey.getAllQuestions(true).length, 2, "Show all questions");
+  }
+);

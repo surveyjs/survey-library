@@ -14,6 +14,7 @@
       :multiple="question.multipleRendered"
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"
+      :capture="question.renderCapture"
     />
     <input
       v-if="question.isReadOnly"

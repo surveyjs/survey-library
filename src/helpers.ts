@@ -162,13 +162,19 @@ export class Helpers {
     return array;
   }
   public static getUnbindValue(value: any): any {
+    if(Array.isArray(value)) {
+      const res = [];
+      for(let i = 0; i < value.length; i ++) {
+        res.push(Helpers.getUnbindValue(value[i]));
+      }
+      return res;
+    }
     if (!!value && value instanceof Object && !(value instanceof Date)) {
-      //do not return the same object instance!!!
       return JSON.parse(JSON.stringify(value));
     }
     return value;
   }
-  public static createCopy(obj: any) {
+  public static createCopy(obj: any): any {
     var res: any = {};
     if (!obj) return res;
     for (var key in obj) {

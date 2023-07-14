@@ -79,6 +79,9 @@ QUnit.test("check rating initResponsiveness", (assert) => {
   assert.ok(q1["resizeObserver"]);
   q1.dispose();
   assert.notOk(q1["resizeObserver"]);
+
+  contentElement.remove();
+  rootElement.remove();
 });
 
 QUnit.test("check rating resize observer behavior", (assert) => {
@@ -141,6 +144,9 @@ QUnit.test("check rating resize observer behavior", (assert) => {
   assert.equal(q1.renderAs, "default", "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state");
   window.getComputedStyle = getComputedStyle;
   window.ResizeObserver = ResizeObserver;
+
+  contentElement.remove();
+  rootElement.remove();
 });
 
 QUnit.test("check rating in case of state 'collapsed'", (assert) => {
@@ -243,6 +249,8 @@ QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set ren
   assert.equal(q1.renderAs, "default");
   assert.equal(q1.isDefaultRendering(), true);
   RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
+
+  container.remove();
 });
 QUnit.test("check getItemClass in display mode", (assert) => {
   var json = {
@@ -333,6 +341,36 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   assert.ok(dropdownListModel.popupModel.cssClass.includes("custom-popup-class"));
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
+});
+QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        "rateCount": 10,
+        "rateValues": [1, 2],
+      }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.notOk(list.isItemSelected(list.actions[0]));
+  assert.notOk(list.isItemSelected(list.actions[1]));
+
+  question.value = 1;
+
+  assert.ok(list.isItemSelected(list.actions[0]));
+  assert.notOk(list.isItemSelected(list.actions[1]));
+
+  question.value = 2;
+
+  assert.notOk(list.isItemSelected(list.actions[0]));
+  assert.ok(list.isItemSelected(list.actions[1]));
+
 });
 QUnit.test("check stars highlighting", (assert) => {
   var json = {

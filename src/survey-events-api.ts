@@ -100,6 +100,7 @@ export interface CompleteBaseEvent {
    * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    */
   isCompleteOnTrigger: boolean;
+  completeTrigger?: Trigger;
 }
 export interface CompletingEvent extends CompleteBaseEvent {
   /**
@@ -439,32 +440,46 @@ export interface TextRenderAsEvent extends TextProcessingEvent {
 
 export interface SendResultEvent {
   /**
-   * a response from the service
+   * A server [response](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response).
    */
   response: any;
   request: any;
   /**
-   * it is `true` if the results has been sent to the service successfully
+   * A Boolean value that indicates whether survey results have been saved successfully.
    */
   success: boolean;
 }
 export interface GetResultEvent {
   /**
-   * the server response
+   * A server [response](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response).
    */
   response: any;
   /**
-   * an array of objects `{name, value}`, where `name` is a unique value/answer to the question and `value` is a number/count of such answers
+   * A Boolean value that indicates whether survey results have been retrieved successfully.
    */
-  dataList: Array<any>;
+  success: boolean;
   /**
-   * the object `{AnswersCount, QuestionResult : {} }`. `AnswersCount` is the number of posted survey results. `QuestionResult` is an object with all possible unique answers to the question and number of these answers
+   * An object with the following structure:
+   *
+   * ```js
+   * {
+   *   AnswersCount: Number, // A total number of posted answers to the question
+   *   QuestionResult: Object // All unique answers to the question and their number
+   * }
+   * ```
    */
   data: any;
   /**
-   * it is `true` if the results were got from the service successfully
+   * An array of objects with the following structure:
+   *
+   * ```js
+   * {
+   *   name: String, // A unique answer to the question
+   *   value: Number // The number of user responses with this answer
+   * }
+   * ```
    */
-  success: boolean;
+  dataList: Array<any>;
 }
 
 export interface LoadFilesEvent extends FileQuestionEventMixin {

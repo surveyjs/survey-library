@@ -351,7 +351,7 @@ export class QuestionSelectBase extends Question {
 
     const itemValue = ItemValue.getItemByValue(this.visibleChoices, this.value);
     this.onGetSingleSelectedItem(itemValue);
-    if(!itemValue && !selectedItemValues) {
+    if (!itemValue && (!selectedItemValues || this.value != selectedItemValues.id)) {
       this.updateSelectedItemValues();
     }
     return itemValue || selectedItemValues || (this.isOtherSelected ? this.otherItem : this.getItemIfChoicesNotContainThisValue(this.value));
@@ -1338,7 +1338,7 @@ export class QuestionSelectBase extends Question {
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       const q = this.dependedQuestions[i];
       q.onVisibleChoicesChanged();
-      q.clearIncorrectValuesCore();
+      q.clearIncorrectValues();
     }
     this.isUpdatingChoicesDependedQuestions = false;
   }
@@ -1426,11 +1426,11 @@ export class QuestionSelectBase extends Question {
   }
   protected clearIncorrectValuesCore() {
     var val = this.value;
-    if (this.canClearValueAnUnknow(val)) {
+    if (this.canClearValueAnUnknown(val)) {
       this.clearValue();
     }
   }
-  protected canClearValueAnUnknow(val: any): boolean {
+  protected canClearValueAnUnknown(val: any): boolean {
     if (!this.getStoreOthersAsComment() && this.isOtherSelected) return false;
     return this.hasUnknownValue(val, true, true, true);
   }

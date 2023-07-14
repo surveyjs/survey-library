@@ -282,7 +282,7 @@ export class SurveyQuestionUncontrolledElement<
   }
   updateValueOnEvent = (event: any) => {
     if (
-      !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value)
+      !Helpers.isTwoValueEquals(this.questionBase.value, event.target.value, false, true)
     ) {
       this.setValueCore(event.target.value);
     }
@@ -297,7 +297,7 @@ export class SurveyQuestionUncontrolledElement<
     if (!!this.control) {
       const control: any = this.control;
       const newValue = this.getValueCore();
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true)) {
         control.value = this.getValue(newValue);
       }
     }

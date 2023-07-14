@@ -229,6 +229,56 @@ QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
     "There is error, but it is invisible"
   );
 });
+QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+        ],
+        isRequired: true,
+      },
+      {
+        type: "panel",
+        name: "panel2",
+        elements: [
+          {
+            type: "panel",
+            name: "panel3",
+            elements: [
+              {
+                type: "text",
+                name: "q2",
+              },
+            ],
+          },
+        ],
+        isRequired: true,
+      }
+    ]
+  });
+  const panel1 = survey.getPanelByName("panel1");
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(panel1.errors.length, 0, "There is no errors in panel, #1");
+  panel1.hasErrors();
+  assert.equal(panel1.errors.length, 1, "There is an error in panel, #2");
+  q1.value = "abc";
+  assert.equal(panel1.errors.length, 0, "There is no errors in panel, #3");
+
+  const panel2 = survey.getPanelByName("panel2");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(panel2.errors.length, 0, "There is no errors in panel, #4");
+  panel2.hasErrors();
+  assert.equal(panel2.errors.length, 1, "There is an error in panel, #5");
+  q2.value = "abc";
+  assert.equal(panel2.errors.length, 0, "There is no errors in panel, #6");
+});
 
 QUnit.test("Panel with paneldynamic error focus", function (assert) {
   const json = {
@@ -849,6 +899,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
   };
 
   const prevLazyRowsRenderingStartRow = settings.lazyRowsRenderingStartRow;
+  const createdDivs: Array<HTMLElement> = [];
   try {
     settings.lazyRowsRenderingStartRow = 0;
     const survey = new SurveyModel(json);
@@ -862,6 +913,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
       const div = document.createElement("div");
+      createdDivs.push(div);
       row.startLazyRendering(div, () => {
         return <any>{ scrollHeight: 200, clientHeight: 300 };
       });
@@ -876,6 +928,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
     });
   } finally {
     settings.lazyRowsRenderingStartRow = prevLazyRowsRenderingStartRow;
+    createdDivs.forEach(div => div?.remove());
   }
 });
 
@@ -910,6 +963,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
   const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
   settings.lazyRowsRendering = true;
   settings.lazyRowsRenderingStartRow = 0;
+  const createdDivs: Array<HTMLElement> = [];
   try {
     const survey = new SurveyModel(json);
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
@@ -921,6 +975,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
       const div = document.createElement("div");
+      createdDivs.push(div);
       row.startLazyRendering(div, () => {
         return <any>{ scrollHeight: 200, clientHeight: 100 };
       });
@@ -936,6 +991,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
   } finally {
     settings.lazyRowsRendering = prevLazyRowsRendering;
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+    createdDivs.forEach(div => div?.remove());
   }
 });
 QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (

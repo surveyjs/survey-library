@@ -1057,9 +1057,17 @@ const json = {
               startWithNewLine: false
             }
           ]
-        }
+        },
       ]
-    }
+    },
+    {
+          type: "paneldynamic",
+          title: "Panel Dynamic Tab mode Left",
+          name: "pd",
+          renderMode: "tab",
+          tabAlign: "left",
+          panelCount: 2,
+        },
   ]
 };
 

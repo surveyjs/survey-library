@@ -23,7 +23,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
           cursor: grabbing;
           position: absolute;
           z-index: 10000;
-          font-family: var(--font-family, $font-family);
+          font-family: var(--font-family, 'Open Sans');
         `;
 
     const isDeepClone = true;
@@ -34,10 +34,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     );
     clone.style.cssText = `
       min-width: 100px;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-      background-color: var(--background, white);
-      border-radius: 36px;
-      padding-right: 16px;
+      box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+      background-color: var(--sjs-general-backcolor, var(--background, #fff));
+      border-radius: calc(4.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
+      padding-right: calc(2* var(--sjs-base-unit, var(--base-unit, 8px)));
       margin-left: 0;
     `;
 
@@ -69,10 +69,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
       cursor: grabbing;
       position: absolute;
       z-index: 10000;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
-      padding: 4px;
-      border-radius: 4px;
-      background: white;
+      box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+      background-color: var(--sjs-general-backcolor, var(--background, #fff));
+      padding: calc(0.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
+      border-radius: calc(0.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
     `;
 
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");

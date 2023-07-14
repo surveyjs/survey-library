@@ -43,12 +43,16 @@ import BooleanRadioItem from "./BooleanRadioItem.vue";
 import BooleanCheckbox from "./BooleanCheckbox.vue";
 import MultipleText from "./Multipletext.vue";
 import MultipletextItem from "./MultipletextItem.vue";
+
 import Matrix from "./Matrix.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
 import MatrixCell from "./MatrixCell.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
+import RemoveButton from "./components/matrix-actions/remove-button/RemoveButton.vue";
+import DragDropIcon from "./components/matrix-actions/drag-drop-icon/DragDropIcon.vue";
+import DetailButton from "./components/matrix-actions/detail-button/DetailButton.vue";
 
 import PanelDynamic from "./PanelDynamic.vue";
 import PanelDynamicProgress from "./PanelDynamicProgress.vue";
@@ -87,7 +91,6 @@ import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
 import OtherChoice from "./QuestionOther.vue";
 import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
-
 
 function registerComponents(app: any) {
   app.component("SurveyRoot", SurveyVue);
@@ -143,6 +146,9 @@ function registerComponents(app: any) {
   app.component("survey-matrixheaderrequired", MatrixHeaderRequired);
   app.component("survey-matrixcell", MatrixCell);
   app.component("survey-matrixdynamic", MatrixDynamic);
+  app.component("sv-matrix-remove-button", RemoveButton);
+  app.component("sv-matrix-drag-drop-icon", DragDropIcon);
+  app.component("sv-matrix-detail-button", DetailButton);
 
   app.component("survey-paneldynamic", PanelDynamic);
   app.component("survey-paneldynamicprogress", PanelDynamicProgress);

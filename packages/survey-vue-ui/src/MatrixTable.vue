@@ -54,7 +54,7 @@
 <script lang="ts">
 import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } from "survey-core";
 import { BaseVue } from "./base";
-import { defineComponent, type PropType } from "vue";
+import { defineComponent, type PropType, getCurrentInstance, watch, onUnmounted } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
@@ -62,6 +62,38 @@ export default defineComponent({
   name: "survey-matrixtable",
   props: {
     question: { type: Object as PropType<QuestionMatrixDropdownModelBase>, required: true },
+  },
+  setup(props) {
+    const instance = getCurrentInstance();
+
+    const setupOnChangedCallback = (question: QuestionMatrixDropdownModelBase) => {
+      question.visibleRowsChangedCallback = () => {
+        instance?.proxy?.$forceUpdate();
+      };
+      question.onRenderedTableResetCallback = () => {
+        question.renderedTable.renderedRowsChangedCallback = () => {
+          instance?.proxy?.$forceUpdate();
+        };
+        instance?.proxy?.$forceUpdate();
+      };
+      question.renderedTable.renderedRowsChangedCallback = () => {
+        instance?.proxy?.$forceUpdate();
+      };
+    };
+    //setupOnChangedCallback(props.question);
+    const stopWatch = watch(
+      () => props.question,
+      (newValue, oldValue) => {
+        super.componentWillUnmount();
+        oldValue.visibleRowsChangedCallback = () => {};
+        oldValue.onRenderedTableResetCallback = () => {};
+        oldValue.renderedTable.renderedRowsChangedCallback = () => {};
+        setupOnChangedCallback(newValue);
+      }
+    );
+    onUnmounted(() => {
+      stopWatch();
+    });
   },
   methods: {
     getModel(): QuestionMatrixDropdownRenderedTable {

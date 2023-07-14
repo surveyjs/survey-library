@@ -27,7 +27,7 @@
       v-if="getShowLegacyNavigation() && question.isProgressTopShowing"
       :question="question"
     />
-    <template v-for="(panel, index) in getRenderedPanels()" :key="panel.id">
+    <template v-for="(panel, index) in renderedPanels" :key="panel.id">
       <div :class="question.getPanelWrapperCss()">
         <survey-panel :question="panel" :css="css" />
         <sv-paneldynamic-remove-btn
@@ -65,7 +65,7 @@
 <script lang="ts">
 import { PanelModel, QuestionPanelDynamicModel } from "survey-core";
 import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
+import { defineComponent, type PropType, getCurrentInstance, watch, onUnmounted } from "vue";
 
 export default defineComponent({
   // eslint-disable-next-line
@@ -78,17 +78,47 @@ export default defineComponent({
     },
     css: Object,
   },
+  setup(props) {
+    const instance = getCurrentInstance();
+
+    const setupOnChangedCallback = (question: QuestionPanelDynamicModel) => {
+      question.panelCountChangedCallback = () => {
+        instance?.proxy?.$forceUpdate();
+      };
+      question.currentIndexChangedCallback = () => {
+        instance?.proxy?.$forceUpdate();
+      };
+      question.renderModeChangedCallback = () => {
+        instance?.proxy?.$forceUpdate();
+      };
+    };
+    setupOnChangedCallback(props.question);
+    const stopWatch = watch(
+      () => props.question,
+      (newValue, oldValue) => {
+        oldValue.panelCountChangedCallback = () => {};
+        oldValue.currentIndexChangedCallback = () => {};
+        oldValue.renderModeChangedCallback = () => {};
+        setupOnChangedCallback(newValue);
+      }
+    );
+    onUnmounted(() => {
+      stopWatch();
+    });
+  },
   methods: {
-    getRenderedPanels(): PanelModel[] {
+    getShowLegacyNavigation() {
+      return this.question["showLegacyNavigation"];
+    },
+  },
+  computed: {
+    renderedPanels(): PanelModel[] {
       if (this.question.isRenderModeList) return this.question.panels;
       const panels = [];
       if (this.question.currentPanel) {
         panels.push(this.question.currentPanel);
       }
       return panels;
-    },
-    getShowLegacyNavigation() {
-      return this.question["showLegacyNavigation"];
     },
   },
 });

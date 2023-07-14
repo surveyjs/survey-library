@@ -91,6 +91,8 @@ import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
 import OtherChoice from "./QuestionOther.vue";
 import SurveyNavigationButton from "./components/survey-actions/SurveyNavigationButton.vue";
+import PopupSurvey from "./PopupSurvey.vue";
+import CustomWidget from "./CustomWidget.vue";
 
 function registerComponents(app: any) {
   app.component("SurveyRoot", SurveyVue);
@@ -189,6 +191,8 @@ function registerComponents(app: any) {
   app.component("sv-notifier", Notifier);
   app.component("survey-other-choice", OtherChoice);
   app.component("sv-nav-btn", SurveyNavigationButton);
+  app.component("popup-survey", PopupSurvey);
+  app.component("survey-customwidget", CustomWidget);
 }
 
 export default {

@@ -10,6 +10,7 @@
 <script lang="ts">
 import { LocalizableString } from "survey-core";
 import { ref, defineComponent, type PropType, watch, onUnmounted } from "vue";
+import { useLocString } from "./base";
 
 export default defineComponent({
   // eslint-disable-next-line
@@ -18,26 +19,8 @@ export default defineComponent({
     locString: { type: Object as PropType<LocalizableString>, required: true },
   },
   setup(props) {
-    const renderedHtml = ref();
-    const setupOnChangedCallback = (locString: LocalizableString) => {
-      renderedHtml.value = locString.renderedHtml;
-      locString.onChanged = () => {
-        renderedHtml.value = locString.renderedHtml;
-      };
-    };
-    setupOnChangedCallback(props.locString);
-    const stopWatch = watch(
-      () => props.locString,
-      (newValue, oldValue) => {
-        oldValue.onChanged = () => {};
-        setupOnChangedCallback(newValue);
-      }
-    );
-    onUnmounted(() => {
-      stopWatch();
-    });
     return {
-      renderedHtml,
+      renderedHtml: useLocString(() => props.locString),
     };
   },
 });

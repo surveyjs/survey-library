@@ -97,6 +97,8 @@ import PopupSurvey from "./PopupSurvey.vue";
 import CustomWidget from "./CustomWidget.vue";
 import PopupModal from "./components/popup/PopupModal.vue";
 import CharacterCounterComponent from "./components/CharacterCounter.vue";
+import Composite from "./Composite.vue";
+import Custom from "./Custom.vue";
 
 import {
   doKey2ClickBlur,
@@ -212,6 +214,9 @@ function registerComponents(app: App) {
   app.component("survey-popup-modal", PopupModal);
 
   app.component("sv-character-counter", CharacterCounterComponent);
+
+  app.component("survey-composite", Composite);
+  app.component("survey-custom", Custom);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

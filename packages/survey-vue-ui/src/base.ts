@@ -26,7 +26,7 @@ function makeReactive(surveyElement: Base) {
       triggerRef(arrayRef);
     };
     hash[key] = arrayRef;
-    return hash[key];
+    return unref(hash[key]);
   };
   surveyElement.iteratePropertiesHash((hash, key) => {
     if (Array.isArray(hash[key])) {
@@ -35,7 +35,6 @@ function makeReactive(surveyElement: Base) {
         triggerRef(arrayRef);
       };
       hash[key] = arrayRef;
-      return hash[key];
     }
   });
   surveyElement.getPropertyValueCoreHandler = (hash, key) => {

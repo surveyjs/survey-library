@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.rootRadio">
+  <div :class="question.cssClasses.rootRadio" ref="root">
     <fieldset role="presentation" :class="question.cssClasses.radioFieldset">
       <sv-boolean-radio-item
         :key="false"
@@ -17,18 +17,17 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { RendererFactory } from "survey-core";
-import { QuestionVue } from "./base";
-import { BooleanBaseMixin } from "./boolean";
-import { defineComponent } from "vue";
+import { ref } from "vue";
+import { useQuestion } from "./base";
+import type { IBooleanProps } from "./boolean";
+const root = ref(null);
+const props = defineProps<IBooleanProps>();
+useQuestion(props, root);
+</script>
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [QuestionVue, BooleanBaseMixin],
-  name: "sv-boolean-radio",
-});
-
+<script lang="ts">
 RendererFactory.Instance.registerRenderer(
   "boolean",
   "radio",

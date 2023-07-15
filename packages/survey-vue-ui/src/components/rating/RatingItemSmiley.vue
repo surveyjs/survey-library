@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import type { RenderedRatingItem, QuestionRatingModel } from "survey-core";
-import { BaseVue, QuestionVue } from "../../base";
+import { BaseVue } from "../../base";
 import { defineComponent, type PropType } from "vue";
 
 export default defineComponent({

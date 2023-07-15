@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.root">
+  <div :class="question.cssClasses.root" ref="root">
     <div
       v-if="question.getShowNoEntriesPlaceholder()"
       :class="question.cssClasses.noEntriesPlaceholder"
@@ -62,64 +62,45 @@
   </div>
 </template>
 
-<script lang="ts">
-import { PanelModel, QuestionPanelDynamicModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType, getCurrentInstance, watch, onUnmounted } from "vue";
+<script lang="ts" setup>
+import type { QuestionPanelDynamicModel } from "survey-core";
+import { useQuestion } from "./base";
+import { computed, getCurrentInstance, ref } from "vue";
+const props = defineProps<{ question: QuestionPanelDynamicModel; css?: any }>();
+const root = ref(null);
+const instance = getCurrentInstance();
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [QuestionVue],
-  name: "survey-paneldynamic",
-  props: {
-    question: {
-      type: Object as PropType<QuestionPanelDynamicModel>,
-      required: true,
-    },
-    css: Object,
-  },
-  setup(props) {
-    const instance = getCurrentInstance();
-
-    const setupOnChangedCallback = (question: QuestionPanelDynamicModel) => {
-      question.panelCountChangedCallback = () => {
-        instance?.proxy?.$forceUpdate();
-      };
-      question.currentIndexChangedCallback = () => {
-        instance?.proxy?.$forceUpdate();
-      };
-      question.renderModeChangedCallback = () => {
-        instance?.proxy?.$forceUpdate();
-      };
+useQuestion(
+  props,
+  root,
+  (value) => {
+    value.panelCountChangedCallback = () => {
+      instance?.proxy?.$forceUpdate();
     };
-    setupOnChangedCallback(props.question);
-    const stopWatch = watch(
-      () => props.question,
-      (newValue, oldValue) => {
-        oldValue.panelCountChangedCallback = () => {};
-        oldValue.currentIndexChangedCallback = () => {};
-        oldValue.renderModeChangedCallback = () => {};
-        setupOnChangedCallback(newValue);
-      }
-    );
-    onUnmounted(() => {
-      stopWatch();
-    });
+    value.currentIndexChangedCallback = () => {
+      instance?.proxy?.$forceUpdate();
+    };
+    value.renderModeChangedCallback = () => {
+      instance?.proxy?.$forceUpdate();
+    };
   },
-  methods: {
-    getShowLegacyNavigation() {
-      return this.question["showLegacyNavigation"];
-    },
-  },
-  computed: {
-    renderedPanels(): PanelModel[] {
-      if (this.question.isRenderModeList) return this.question.panels;
-      const panels = [];
-      if (this.question.currentPanel) {
-        panels.push(this.question.currentPanel);
-      }
-      return panels;
-    },
-  },
+  (value) => {
+    value.panelCountChangedCallback = () => {};
+    value.currentIndexChangedCallback = () => {};
+    value.renderModeChangedCallback = () => {};
+  }
+);
+
+const renderedPanels = computed(() => {
+  if (props.question.isRenderModeList) return props.question.panels;
+  const panels = [];
+  if (props.question.currentPanel) {
+    panels.push(props.question.currentPanel);
+  }
+  return panels;
 });
+
+const getShowLegacyNavigation = () => {
+  return props.question["showLegacyNavigation"];
+};
 </script>

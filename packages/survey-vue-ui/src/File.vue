@@ -168,29 +168,14 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import type { QuestionFileModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-file",
-  mixins: [QuestionVue],
-  props: {
-    question: { type: Object as PropType<QuestionFileModel>, required: true },
-    css: Object,
-  },
-  methods: {
-    getModel() {
-      return this.question;
-    },
-    doRemoveFile(data: any) {
-      this.question.doRemoveFile(data);
-    },
-    isPreviewVisible(index: any) {
-      return this.question.isPreviewVisible(index);
-    },
-  },
-});
+import { useQuestion } from "./base";
+import { ref } from "vue";
+const props = defineProps<{ question: QuestionFileModel }>();
+const root = ref(null);
+useQuestion(props, root);
+const isPreviewVisible = (index: any) => {
+  return props.question.isPreviewVisible(index);
+};
 </script>

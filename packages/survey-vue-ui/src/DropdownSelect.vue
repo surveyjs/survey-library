@@ -1,51 +1,71 @@
 <template>
-    <div :class="question.renderCssRoot">
-      <div :class="question.cssClasses.selectWrapper">
-        <select
-          v-if="!question.isReadOnly"
-          :id="question.inputId"
-          v-model="question.renderedValue"
-          @click="click"
-          @keyup="keyUp"
-          :autocomplete="question.autocomplete"
-          :class="question.getControlClass()"
-          :aria-required="question.ariaRequired"
-          :aria-label="question.ariaLabel"
-          :aria-invalid="question.ariaInvalid"
-          :aria-describedby="question.ariaDescribedBy"
-          :required="question.isRequired"
-        >
-          <option v-if="question.allowClear" :value="''">{{ question.placeholder }}</option>
-          <sv-dropdown-option-item
-            v-for="item in question.visibleChoices"
-            :item="item"
-            :key="item.id"
-          ></sv-dropdown-option-item>
-        </select>
-        <div disabled v-else :id="question.inputId" :class="question.getControlClass()">{{ question.readOnlyText }}</div>
+  <div :class="question.renderCssRoot">
+    <div :class="question.cssClasses.selectWrapper">
+      <select
+        v-if="!question.isReadOnly"
+        :id="question.inputId"
+        v-model="renderedValue"
+        @click="click"
+        @keyup="keyUp"
+        :autocomplete="question.autocomplete"
+        :class="question.getControlClass()"
+        :aria-required="question.ariaRequired"
+        :aria-label="question.ariaLabel"
+        :aria-invalid="question.ariaInvalid"
+        :aria-describedby="question.ariaDescribedBy"
+        :required="question.isRequired"
+      >
+        <option v-if="question.allowClear" :value="''">
+          {{ question.placeholder }}
+        </option>
+        <sv-dropdown-option-item
+          v-for="item in question.visibleChoices"
+          :item="item"
+          :key="item.id"
+        ></sv-dropdown-option-item>
+      </select>
+      <div
+        disabled
+        v-else
+        :id="question.inputId"
+        :class="question.getControlClass()"
+      >
+        {{ question.readOnlyText }}
       </div>
-      <survey-other-choice v-if="question.isOtherSelected" :question="question" />
     </div>
-  </template>
-  
-<script lang="ts">
-import { QuestionDropdownModel, RendererFactory } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
+    <survey-other-choice v-if="question.isOtherSelected" :question="question" />
+  </div>
+</template>
 
-export default defineComponent({
-  mixins: [QuestionVue],
-  props: {
-    question: { type: Object as PropType<QuestionDropdownModel>, required: true},
+<script lang="ts" setup>
+import { computed, ref } from "vue";
+import { useQuestion } from "./base";
+import type { QuestionDropdownModel } from "survey-core";
+const props = defineProps<{ question: QuestionDropdownModel }>();
+const root = ref(null);
+useQuestion(props, root);
+const click = (event: any) => {
+  props.question.onClick(event);
+};
+const keyUp = (event: any) => {
+  props.question.onKeyUp(event);
+};
+const renderedValue = computed({
+  get() {
+    return props.question.value;
   },
-  methods: {
-    click(event: any) {
-      this.question.onClick(event);
-    },
-    keyUp(event: any) {
-      this.question.onKeyUp(event);
-    },
+  set(val) {
+    const question = props.question;
+    question.renderedValue = val;
   },
 });
-RendererFactory.Instance.registerRenderer("dropdown", "select", "sv-dropdown-select");
+</script>
+
+<script lang="ts">
+import { RendererFactory } from "survey-core";
+RendererFactory.Instance.registerRenderer(
+  "dropdown",
+  "select",
+  "sv-dropdown-select"
+);
 </script>

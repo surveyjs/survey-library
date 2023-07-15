@@ -1,5 +1,6 @@
 <template>
   <textarea
+    ref="root"
     v-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
     :readonly="question.isInputReadOnly"
     :disabled="question.renderedInputDisabled"
@@ -28,7 +29,10 @@
     :aria-describedby="question.a11y_input_ariaDescribedBy"
     v-bind:style="{ resize: question.resizeStyle }"
   ></textarea>
-  <div v-else-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()">
+  <div
+    ref="root"
+    v-else-if="!question.isReadOnlyRenderDiv() && question.getMaxLength()"
+  >
     <textarea
       :readonly="question.isInputReadOnly"
       :disabled="question.renderedInputDisabled"
@@ -62,40 +66,21 @@
       :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"
     ></sv-character-counter>
   </div>
-  <div v-else>{{ question.value }}</div>
+  <div ref="root" v-else>{{ question.value }}</div>
 </template>
 
-<script lang="ts">
-import { QuestionCommentModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-comment",
-  props: {
-    question: {
-      type: Object as PropType<QuestionCommentModel>,
-      required: true,
-    },
-    css: Object,
-  },
-  mixins: [QuestionVue],
-  methods: {
-    change(event: any) {
-      const question = this.question;
-      question.value = event.target.value;
-    },
-  },
-  mounted() {
-    if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el as HTMLElement);
-    }
-  },
-  unmounted() {
-    if (this.question) {
-      this.question.beforeDestroyQuestionElement(this.$el as HTMLElement);
-    }
-  },
-});
+<script lang="ts" setup>
+import type { QuestionCommentModel } from "survey-core";
+import { useQuestion } from "./base";
+import { ref } from "vue";
+const props = defineProps<{
+  question: QuestionCommentModel;
+  css?: object;
+}>();
+const root = ref(null);
+useQuestion(props, root);
+const change = (event: any) => {
+  const question = props.question;
+  question.value = event.target.value;
+};
 </script>

@@ -1,18 +1,12 @@
 <template>
-  <survey-matrixtable :question="question" />
+  <survey-matrixtable :question="question" ref="root" />
 </template>
 
-<script lang="ts">
-import { QuestionMatrixDropdownModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [QuestionVue],
-  name: "survey-matrixdropdown",
-  props: {
-    question: Object as PropType<QuestionMatrixDropdownModel>,
-  },
-});
+<script lang="ts" setup>
+import type { QuestionMatrixDropdownModel } from "survey-core";
+import { useQuestion } from "./base";
+import { ref } from "vue";
+const props = defineProps<{ question: QuestionMatrixDropdownModel }>();
+const root = ref(null);
+useQuestion(props, root);
 </script>

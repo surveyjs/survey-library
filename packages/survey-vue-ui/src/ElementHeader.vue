@@ -1,6 +1,6 @@
 <template>
   <div :class="element.cssHeader" @click="clickTitleFunction">
-    <survey-element-title :element="element" :css="css"/>
+    <survey-element-title :element="element" :css="css" />
     <div
       v-if="element.hasDescriptionUnderTitle"
       v-show="element.hasDescription"
@@ -8,27 +8,20 @@
     >
       <survey-string :locString="element.locDescription" />
     </div>
-    <sv-action-bar v-if=!!element.additionalTitleToolbar :model="element.additionalTitleToolbar"></sv-action-bar>
+    <sv-action-bar
+      v-if="!!element.additionalTitleToolbar"
+      :model="element.additionalTitleToolbar"
+    ></sv-action-bar>
   </div>
 </template>
 
-<script lang="ts">
-import { SurveyElement, Question, PanelModel, doKey2ClickUp } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref } from "vue";
+<script lang="ts" setup>
+import type { Question, PanelModel } from "survey-core";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-brand-info",
-  props: {
-    element: { type: Object, required: true },
-    css: Object,
-  },
-  methods: {
-    clickTitleFunction() {
-      if(typeof (this.element).clickTitleFunction === "function") {
-        (this.element).clickTitleFunction();
-      }
-    },
-  },
-});
+const props = defineProps<{ element: Question | PanelModel; css?: any }>();
+const clickTitleFunction = () => {
+  if (typeof props.element.clickTitleFunction === "function") {
+    props.element.clickTitleFunction();
+  }
+};
 </script>

@@ -11,26 +11,20 @@
   </button>
 </template>
 
-<script lang="ts">
-import { PaneldynamicActionMixin } from "./action";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import type { PanelModel } from "survey-core";
+import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
+import { computed } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [PaneldynamicActionMixin],
-  name: "sv-paneldynamic-remove-btn",
-  methods: {
-    removePanelClick(panel: any) {
-      if (!this.question.isInputReadOnly) {
-        this.question.removePanelUI(panel);
-      }
-    },
-  },
-  computed: {
-    // readonly
-    panel(): any {
-      return (this.item && this.item.data.panel) || this.data.panel;
-    },
-  },
-});
+const props = defineProps<IPanelDynamicActionProps>();
+const question = usePanelDynamicAction(props);
+const panel = computed(
+  () => (props.item && props.item.data.panel) || props.data.panel
+);
+
+const removePanelClick = (panel: PanelModel) => {
+  if (!question.value.isInputReadOnly) {
+    question.value.removePanelUI(panel);
+  }
+};
 </script>

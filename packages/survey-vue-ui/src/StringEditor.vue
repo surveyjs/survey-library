@@ -1,5 +1,7 @@
 <template>
-  <span class="sv-string-editor" contenteditable="true"
+  <span
+    class="sv-string-editor"
+    contenteditable="true"
     v-if="locString.hasHtml"
     v-html="locString.renderedHtml"
     @blur="onInput"
@@ -15,28 +17,19 @@
   >
 </template>
 
-<script lang="ts">
-import { LocalizableString } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, type PropType } from "vue";
+<script lang="ts" setup>
+import type { LocalizableString } from "survey-core";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: LocalizableString.editableRenderer,
-  props: {
-    locString: { type: Object as PropType<LocalizableString>, required: true },
-  },
-  methods: {
-    onInput(event: any) {
-      const locString = this.locString;
-      locString.text = event.target.innerText;
-    },
-    onClick(event: any) {
-      event.preventDefault();
-      event.stopPropagation();
-    },
-  },
-});
+const props = defineProps<{
+  locString: LocalizableString;
+}>();
 
-// Vue.component(LocalizableString.editableRenderer, SurveyStringEditor);
-// export default SurveyStringEditor;
+const onInput = (event: any) => {
+  const locString = props.locString;
+  locString.text = event.target.innerText;
+};
+const onClick = (event: any) => {
+  event.preventDefault();
+  event.stopPropagation();
+};
 </script>

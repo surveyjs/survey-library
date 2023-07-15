@@ -7,7 +7,7 @@
         :width="survey.logoWidth ? survey.logoWidth : undefined"
         :height="survey.logoHeight ? survey.logoHeight : undefined"
         :alt="survey.locTitle.renderedHtml"
-        v-bind:style="{ objectFit: survey.logoFit }"
+        v-bind:style="{ objectFit: survey.logoFit as any }"
       />
     </div>
 
@@ -29,7 +29,7 @@
         :width="survey.logoWidth ? survey.logoWidth : undefined"
         :height="survey.logoHeight ? survey.logoHeight : undefined"
         :alt="survey.locTitle.renderedHtml"
-        v-bind:style="{ objectFit: survey.logoFit }"
+        v-bind:style="{ objectFit: survey.logoFit as any }"
       />
     </div>
 
@@ -37,19 +37,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { SurveyModel } from "survey-core";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import type { SurveyModel } from "survey-core";
+import { onMounted, ref } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-header",
-  props: {
-    survey: Object as PropType<SurveyModel>,
-  },
-  mounted() {
-    var el = this.$el;
-    if (el && this.survey) this.survey.afterRenderHeader(el as any);
-  },
+const props = defineProps<{
+  survey: SurveyModel;
+}>();
+const root = ref<HTMLElement>();
+onMounted(() => {
+  var el = root.value;
+  if (el && props.survey) props.survey.afterRenderHeader(el as any);
 });
 </script>

@@ -9,7 +9,7 @@
     v-bind:aria-expanded="element.titleAriaExpanded"
     v-bind:role="element.titleAriaRole"
     v-on:keyup="
-      ($event) => {
+      ($event: any) => {
         keyup($event);
       }
     "
@@ -27,21 +27,14 @@
   </component>
 </template>
 
-<script lang="ts">
-import { SurveyElementCore, doKey2ClickUp } from "survey-core";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import { doKey2ClickUp, type SurveyElementCore } from "survey-core";
+defineProps<{
+  element: SurveyElementCore;
+  css: any;
+}>();
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-element-title",
-  props: {
-    element: { type: Object as PropType<SurveyElementCore>, required: true },
-    css: Object,
-  },
-  methods: {
-    keyup(evt: any) {
-      doKey2ClickUp(evt);
-    },
-  },
-});
+const keyup = (event: any) => {
+  doKey2ClickUp(event);
+};
 </script>

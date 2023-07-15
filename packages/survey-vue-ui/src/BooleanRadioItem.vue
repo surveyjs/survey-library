@@ -32,26 +32,16 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
-import type { QuestionBooleanModel } from "survey-core";
+<script lang="ts" setup>
+import type { LocalizableString, QuestionBooleanModel } from "survey-core";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-boolean-radio-item",
-  props: {
-    question: {
-      type: Object as PropType<QuestionBooleanModel>,
-      required: true,
-    },
-    locText: Object,
-    value: [Boolean],
-  },
-  methods: {
-    handleChange(event: any) {
-      const question = this.question;
-      question.booleanValue = event.target.value == "true";
-    },
-  },
-});
+const props = defineProps<{
+  question: QuestionBooleanModel;
+  locText: LocalizableString;
+  value: boolean;
+}>();
+const handleChange = (event: any) => {
+  const question = props.question;
+  question.booleanValue = event.target.value == "true";
+};
 </script>

@@ -1,21 +1,22 @@
 <template>
-  <div :title="question.panelPrevText" @click="prevPanelClick" :class="question.getPrevButtonCss()">
-    <sv-svg-icon :iconName="question.cssClasses.progressBtnIcon" :size="'auto'"></sv-svg-icon>
+  <div
+    :title="question.panelPrevText"
+    @click="prevPanelClick"
+    :class="question.getPrevButtonCss()"
+  >
+    <sv-svg-icon
+      :iconName="question.cssClasses.progressBtnIcon"
+      :size="'auto'"
+    ></sv-svg-icon>
   </div>
 </template>
 
-<script lang="ts">
-import { PaneldynamicActionMixin } from "./action";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [PaneldynamicActionMixin],
-  name: "sv-paneldynamic-prev-btn",
-  methods: {
-    prevPanelClick() {
-      this.question.goToPrevPanel();
-    },
-  },
-});
+const props = defineProps<IPanelDynamicActionProps>();
+const question = usePanelDynamicAction(props);
+const prevPanelClick = () => {
+  question.value.goToPrevPanel();
+};
 </script>

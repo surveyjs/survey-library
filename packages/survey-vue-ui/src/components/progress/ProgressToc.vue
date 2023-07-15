@@ -8,18 +8,9 @@
   </div>
 </template>
 
-<script lang="ts">
-import { SurveyModel, TOCModel } from "survey-core";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import { type SurveyModel, TOCModel } from "survey-core";
 
-export default defineComponent({
-  props: {
-    survey: { type: Object as PropType<SurveyModel>, required: true },
-  },
-  setup(props) {
-    return {
-      tocModel: new TOCModel(props.survey),
-    };
-  },
-});
+const props = defineProps<{ survey: SurveyModel }>();
+const tocModel = new TOCModel(props.survey);
 </script>

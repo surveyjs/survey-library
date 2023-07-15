@@ -1,43 +1,35 @@
 <template>
-    <svg ref="svgIconElement" class="sv-svg-icon" role="img" :aria-label="title"><use></use></svg>
+  <svg ref="svgIconElement" class="sv-svg-icon" role="img" :aria-label="title">
+    <use></use>
+  </svg>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { createSvg } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, onUpdated, onMounted } from "vue";
+import { ref, onUpdated, onMounted } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-svg-icon",
-  props: {
-    size: { type: [String, Number] },
-    width: Number,
-    height: Number,
-    iconName: String,
-    title: String,
-  },
-  setup(props) {
-    const svgIconElement = ref();
-    const updateCallback = () => {
-      createSvg(
-        props.size,
-        props.width,
-        props.height,
-        props.iconName,
-        svgIconElement.value,
-        props.title
-      );
-    };
-    onUpdated(() => {
-      updateCallback();
-    });
-    onMounted(() => {
-      updateCallback();
-    });
-    return {
-      svgIconElement: svgIconElement,
-    };
-  },
+const props = defineProps<{
+  size: string | number;
+  width?: number;
+  height?: number;
+  iconName: string;
+  title?: string;
+}>();
+const svgIconElement = ref();
+const updateCallback = () => {
+  createSvg(
+    props.size,
+    props.width as number,
+    props.height as number,
+    props.iconName,
+    svgIconElement.value,
+    props.title as string
+  );
+};
+onUpdated(() => {
+  updateCallback();
 });
-
+onMounted(() => {
+  updateCallback();
+});
 </script>

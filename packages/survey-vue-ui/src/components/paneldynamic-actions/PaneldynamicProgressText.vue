@@ -1,14 +1,12 @@
 <template>
-  <div :class="question.cssClasses.progressText">{{ question.progressText }}</div>
+  <div :class="question.cssClasses.progressText">
+    {{ question.progressText }}
+  </div>
 </template>
 
-<script lang="ts">
-import { PaneldynamicActionMixin } from "./action";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [PaneldynamicActionMixin],
-  name: "sv-paneldynamic-progress-text",
-});
+const props = defineProps<IPanelDynamicActionProps>();
+const question = usePanelDynamicAction(props);
 </script>

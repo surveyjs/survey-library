@@ -43,61 +43,47 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { type SurveyModel, SurveyProgressButtonsModel } from "survey-core";
-import { ref, type PropType, defineComponent } from "vue";
+import { computed, onBeforeUnmount, onUnmounted, ref } from "vue";
 
-export default defineComponent({
-  props: {
-    survey: { type: Object as PropType<SurveyModel>, required: true },
-  },
-  setup(props) {
-    return {
-      progressButtonsModel: new SurveyProgressButtonsModel(props.survey),
-      hasScroller: ref(false),
-      updateScroller: undefined as any as number,
-    };
-  },
-  computed: {
-    css() {
-      return this.survey.css;
-    },
-  },
-  mounted() {
-    const listContainerElement: any =
-      this.$refs["progressButtonsListContainer"];
-    this.updateScroller = setInterval(() => {
-      this.hasScroller =
-        listContainerElement.scrollWidth > listContainerElement.offsetWidth;
-    }, 100);
-  },
-  methods: {
-    isListElementClickable(index: any): boolean {
-      return this.progressButtonsModel.isListElementClickable(index);
-    },
-    getListElementCss(index: any): string {
-      return this.progressButtonsModel.getListElementCss(index);
-    },
-    clickListElement(index: any): void {
-      this.progressButtonsModel.clickListElement(index);
-    },
-    getScrollButtonCss(hasScroller: boolean, isLeftScroll: boolean): any {
-      return this.progressButtonsModel.getScrollButtonCss(
-        hasScroller,
-        isLeftScroll
-      );
-    },
-    clickScrollButton(isLeftScroll: boolean): void {
-      let listContainerElement: any =
-        this.$refs["progressButtonsListContainer"];
-      listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
-    },
-  },
-  beforeUnmount() {
-    if (typeof this.updateScroller !== "undefined") {
-      clearInterval(this.updateScroller);
-      this.updateScroller = undefined as any as number;
-    }
-  },
+const props = defineProps<{
+  survey: SurveyModel;
+}>();
+const progressButtonsModel = new SurveyProgressButtonsModel(props.survey);
+const hasScroller = ref(false);
+const progressButtonsListContainer = ref<HTMLElement>();
+const css = computed(() => props.survey.css);
+let updateScroller: number;
+
+const isListElementClickable = (index: any) => {
+  return progressButtonsModel.isListElementClickable(index);
+};
+const getListElementCss = (index: any) => {
+  return progressButtonsModel.getListElementCss(index);
+};
+const clickListElement = (index: any) => {
+  progressButtonsModel.clickListElement(index);
+};
+const getScrollButtonCss = (hasScroller: boolean, isLeftScroll: boolean) => {
+  return progressButtonsModel.getScrollButtonCss(hasScroller, isLeftScroll);
+};
+const clickScrollButton = (isLeftScroll: boolean) => {
+  let listContainerElement: any = progressButtonsListContainer.value;
+  listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
+};
+
+onUnmounted(() => {
+  const listContainerElement: any = progressButtonsListContainer.value;
+  updateScroller = setInterval(() => {
+    hasScroller.value =
+      listContainerElement.scrollWidth > listContainerElement.offsetWidth;
+  }, 100);
+});
+onBeforeUnmount(() => {
+  if (typeof updateScroller !== "undefined") {
+    clearInterval(updateScroller);
+    updateScroller = undefined as any as number;
+  }
 });
 </script>

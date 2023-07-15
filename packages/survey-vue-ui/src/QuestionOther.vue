@@ -12,20 +12,26 @@
       :aria-label="question.ariaLabel"
       :aria-required="question.ariaRequired"
       v-bind:style="{ resize: question.resizeStyle }"
-      @change="(e) => { question.onOtherValueChange(e) }"
-      @input="(e) => { question.onOtherValueInput(e) }"
+      @change="
+        (e) => {
+          question.onOtherValueChange(e);
+        }
+      "
+      @input="
+        (e) => {
+          question.onOtherValueInput(e);
+        }
+      "
     />
     <div v-if="question.isReadOnlyRenderDiv()">{{ question.otherValue }}</div>
   </div>
 </template>
 
-<script lang="ts">
-import type { Question } from "survey-core"
-import { defineComponent, type PropType } from 'vue';
-export default defineComponent({
-  props: {
-    question: Object as PropType<Question>,
-    commentClass: String,
-  },
-});
+<script lang="ts" setup>
+import type { Question } from "survey-core";
+
+defineProps<{
+  question: Question;
+  commentClass?: string;
+}>();
 </script>

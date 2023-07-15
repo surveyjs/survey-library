@@ -3,8 +3,9 @@
     :class="cell.className"
     :data-responsive-title="getHeaders()"
     :title="cell.getTitle()"
-    :style="getCellStyle()"
+    :style="(getCellStyle() as StyleValue)"
     :colspan="cell.colSpans"
+    ref="root"
   >
     <sv-action-bar
       v-if="cell.isActionsCell"
@@ -17,8 +18,15 @@
       :question="cell.panel"
       :css="question.cssClasses"
     ></component>
-    <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
-      <survey-errors v-if="cell.showErrorOnTop" :element="cell.question" :location="'top'" />
+    <div
+      v-if="cell.hasQuestion"
+      :class="question.cssClasses.cellQuestionWrapper"
+    >
+      <survey-errors
+        v-if="cell.showErrorOnTop"
+        :element="cell.question"
+        :location="'top'"
+      />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
@@ -65,60 +73,53 @@
       />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-    <span v-if="!!cell.requiredText" :class="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+    <span
+      v-if="!!cell.requiredText"
+      :class="question.cssClasses.cellRequiredText"
+      >{{ cell.requiredText }}</span
+    >
   </td>
 </template>
 
-<script lang="ts">
-import { Question, QuestionMatrixDropdownRenderedCell, CssClassBuilder } from "survey-core";
-import { getComponentName } from "./base";
-import { defineComponent, type PropType, ref } from "vue";
+<script lang="ts" setup>
+import type { Question, QuestionMatrixDropdownRenderedCell } from "survey-core";
+import { getComponentName as getComponent } from "./base";
+import { ref, onMounted, type StyleValue } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-matrixcell",
-  props: {
-    question: { type: Object as PropType<Question>, required: true },
-    cell: { type: Object as PropType<QuestionMatrixDropdownRenderedCell>, required: true },
-  },
-  setup() {
-    return {
-      isVisible: ref(false),
-    };
-  },
-  methods: {
-    getComponentName(element: Question | any) {
-      return getComponentName(element);
-    },
-    getHeaders(): string {
-      return this.cell.headers;
-    },
-    getCellStyle(): any {
-      if (!!this.cell.width || !!this.cell.minWidth)
-        return { width: this.cell.width, minWidth: this.cell.minWidth };
-      return null;
-    },
-    getCellIndex(): string {
-      return (this.cell as any).index || "";
-    },
-    onVisibilityChanged(): void {
-      this.isVisible = this.cell.question.isVisible;
-    },
-  },
-  mounted() {
-    if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
-    this.onVisibilityChanged();
-    this.cell.question.registerPropertyChangedHandlers(["isVisible"], () => {
-      this.onVisibilityChanged();
-    });
-    var options = {
-      cell: this.cell.cell,
-      cellQuestion: this.cell.question,
-      htmlElement: this.$el,
-      row: this.cell.row,
-      column: this.cell.cell.column,
-    };
-    this.question.survey.matrixAfterCellRender(this.question, options);
-  }
+const props = defineProps<{
+  question: Question;
+  cell: QuestionMatrixDropdownRenderedCell;
+}>();
+const isVisible = ref(false);
+const root = ref<HTMLElement>();
+
+const getHeaders = () => props.cell.headers;
+const getCellStyle = () => {
+  if (!!props.cell.width || !!props.cell.minWidth)
+    return { width: props.cell.width, minWidth: props.cell.minWidth };
+  return null;
+};
+const getCellIndex = () => (props.cell as any).index || "";
+const onVisibilityChanged = () =>
+  (isVisible.value = props.cell.question.isVisible);
+const getComponentName = (element: Question | any) => {
+  return getComponent(element);
+};
+
+onMounted(() => {
+  if (!props.cell.hasQuestion || !props.question || !props.question.survey)
+    return;
+  onVisibilityChanged();
+  props.cell.question.registerPropertyChangedHandlers(["isVisible"], () => {
+    onVisibilityChanged();
+  });
+  var options = {
+    cell: props.cell.cell,
+    cellQuestion: props.cell.question,
+    htmlElement: root.value,
+    row: props.cell.row,
+    column: props.cell.cell.column,
+  };
+  props.question.survey.matrixAfterCellRender(props.question, options);
 });
 </script>

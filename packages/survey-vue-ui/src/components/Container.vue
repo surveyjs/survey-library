@@ -21,22 +21,16 @@
   </template>
 </template>
 
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import { computed } from "vue";
 import type { SurveyModel } from "survey-core";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-components-container",
-  props: {
-    survey: { type: Object as PropType<SurveyModel>, required: true },
-    container: String,
-    needRenderWrapper: Boolean,
-  },
-  computed: {
-    components(): Array<any> {
-      return this.survey.getContainerContent(this.container as any);
-    },
-  },
-});
+const props = defineProps<{
+  survey: SurveyModel;
+  container: string;
+  needRenderWrapper?: Boolean;
+}>();
+const components = computed(() =>
+  props.survey.getContainerContent(props.container as any)
+);
 </script>

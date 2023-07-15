@@ -1,6 +1,10 @@
 <template>
   <div role="presentation">
-    <label @mousedown="question.onMouseDown()" :class="getLabelClass(item)" :aria-label="question.getAriaItemLabel(item)">
+    <label
+      @mousedown="question.onMouseDown()"
+      :class="getLabelClass(item)"
+      :aria-label="question.getAriaItemLabel(item)"
+    >
       <input
         type="radio"
         :name="question.questionName"
@@ -20,39 +24,29 @@
         >
           <use :xlink:href="question.itemSvgIcon"></use>
         </svg> </span
-      ><span
-        v-if="!hideLabel"
-        :class="getControlLabelClass(item)"
-      >
+      ><span v-if="!hideLabel" :class="getControlLabelClass(item)">
         <survey-string :locString="item.locText" />
-      </span> </label
-    >
+      </span>
+    </label>
   </div>
 </template>
 
-<script lang="ts">
-import { ItemValue, Base } from "survey-core";
-import { defineComponent, type PropType } from "vue";
-import { BaseVue } from "./base";
+<script lang="ts" setup>
+import type { ItemValue, QuestionRadiogroupModel } from "survey-core";
+import { useBase } from "./base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-radiogroup-item",
-  props: {
-    question: { type: Object, required: true },
-    item: Object as PropType<ItemValue>,
-    index: [String, Number],
-    hideLabel: Boolean,
-  },
-  mixins: [BaseVue],
-  methods: {
-    getModel() { return this.item; },
-    getLabelClass(item: any) {
-      return this.question.getLabelClass(item);
-    },
-    getControlLabelClass(item: any) {
-      return this.question.getControlLabelClass(item);
-    },
-  },
-});
+const props = defineProps<{
+  question: QuestionRadiogroupModel;
+  item: ItemValue;
+  index: string | number;
+  hideLabel?: boolean;
+}>();
+const getLabelClass = (item: any) => {
+  return props.question.getLabelClass(item);
+};
+const getControlLabelClass = (item: any) => {
+  return props.question.getControlLabelClass(item);
+};
+
+useBase(() => props.item);
 </script>

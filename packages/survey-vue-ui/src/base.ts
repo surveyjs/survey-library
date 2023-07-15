@@ -1,6 +1,5 @@
 import { Base, Question, LocalizableString } from "survey-core";
 import {
-  type ComponentOptions,
   shallowReactive,
   ref,
   isRef,
@@ -63,27 +62,6 @@ function unMakeReactive(surveyElement: Base) {
 }
 
 // by convention, composable function names start with "use"
-
-export const BaseVue: ComponentOptions = {
-  mounted() {
-    if (typeof this.getModel == "function") {
-      const stopWatch = watch(
-        () => this.getModel(),
-        (value, oldValue) => {
-          unMakeReactive(oldValue);
-          makeReactive(value);
-        },
-        {
-          immediate: true,
-        }
-      );
-      onUnmounted(() => {
-        unMakeReactive(this.getModel());
-        stopWatch();
-      });
-    }
-  },
-};
 export function useBase<T extends Base>(
   getModel: () => T,
   onModelChanged?: (newValue: T) => void,
@@ -93,7 +71,11 @@ export function useBase<T extends Base>(
     getModel,
     (value, oldValue) => {
       if (onModelChanged) onModelChanged(value);
-      if (clean && oldValue) clean(oldValue);
+      if (oldValue) {
+        unMakeReactive(oldValue);
+        if (clean) clean(oldValue);
+      }
+
       makeReactive(value);
     },
     {
@@ -101,8 +83,12 @@ export function useBase<T extends Base>(
     }
   );
   onUnmounted(() => {
-    if (clean) clean(getModel());
-    stopWatch();
+    const model = getModel();
+    if (model) {
+      if (clean) clean(getModel());
+      unMakeReactive(model);
+      stopWatch();
+    }
   });
 }
 

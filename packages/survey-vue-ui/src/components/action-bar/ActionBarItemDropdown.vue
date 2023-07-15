@@ -32,38 +32,24 @@
   <sv-popup :model="item.popupModel" :getTarget="getTarget"></sv-popup>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
+import { useBase } from "@/base";
 import {
-  Action,
+  type Action,
   ActionDropdownViewModel,
   getActionDropdownButtonTarget,
 } from "survey-core";
-import { BaseVue } from "../../base";
-import { defineComponent, type PropType } from "vue";
+const props = defineProps<{ item: Action }>();
+const getTarget = getActionDropdownButtonTarget;
+let viewModel = undefined as any as ActionDropdownViewModel;
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-action-bar-item-dropdown",
-  props: {
-    item: { type: Object as PropType<Action>, required: true },
+useBase(
+  () => props.item,
+  (newValue) => {
+    viewModel = new ActionDropdownViewModel(newValue);
   },
-  mixins: [BaseVue],
-  setup() {
-    return {
-      viewModel: undefined as any as ActionDropdownViewModel,
-      getTarget: getActionDropdownButtonTarget,
-    };
-  },
-  beforeCreate() {
-    this.viewModel = new ActionDropdownViewModel(this.item);
-  },
-  beforeUnmount() {
-    this.viewModel.dispose();
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-  },
-});
+  () => {
+    viewModel.dispose();
+  }
+);
 </script>

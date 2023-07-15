@@ -109,73 +109,51 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
-import { DropdownListModel, QuestionDropdownModel, Helpers } from "survey-core";
-import { BaseVue } from "@/base";
+<script lang="ts" setup>
+import { useBase } from "@/base";
+import { DropdownListModel, Question, Helpers } from "survey-core";
+import { computed, onMounted, onUpdated, ref } from "vue";
 
-export default defineComponent({
-  props: {
-    question: {
-      type: Object as PropType<QuestionDropdownModel>,
-      required: true,
-    },
-  },
-  name: "sv-dropdown",
-  setup(props) {
-    return {
-      inputElement: undefined as any,
-    };
-  },
-  mixins: [BaseVue],
-  computed: {
-    model() {
-      const question = this.question;
-      if (!question.dropdownListModel) {
-        question.dropdownListModel = new DropdownListModel(this.question);
-      }
-      return this.question.dropdownListModel;
-    },
-  },
-  updated() {
-    this.updateInputDomElement();
-  },
-  mounted() {
-    this.inputElement = this.$refs["inputElement"];
-    this.updateInputDomElement();
-  },
-  methods: {
-    getModel() {
-      return this.model;
-    },
-    inputChange(event: any) {
-      this.model.inputStringRendered = event.target.value;
-    },
-    updateInputDomElement() {
-      if (this.inputElement) {
-        const control: any = this.inputElement;
-        const newValue = this.model.inputStringRendered;
-        if (!Helpers.isTwoValueEquals(newValue, control.value)) {
-          control.value = this.model.inputStringRendered;
-        }
-      }
-    },
-    click(event: any) {
-      this.model?.onClick(event);
-    },
-    clear(event: any) {
-      this.model?.onClear(event);
-    },
-    keyhandler(event: any) {
-      this.model?.keyHandler(event);
-    },
-    blur(event: any) {
-      this.model?.onBlur(event);
-      this.updateInputDomElement();
-    },
-    focus(event: any) {
-      this.model?.onFocus(event);
-    },
-  },
+const props = defineProps<{ question: Question }>();
+const inputElement = ref<HTMLElement>(null as any);
+const model = computed(() => {
+  const question = props.question;
+  if (!question.dropdownListModel) {
+    question.dropdownListModel = new DropdownListModel(question);
+  }
+  return props.question.dropdownListModel;
 });
+const click = (event: any) => {
+  model.value?.onClick(event);
+};
+const clear = (event: any) => {
+  model.value?.onClear(event);
+};
+const keyhandler = (event: any) => {
+  model.value?.keyHandler(event);
+};
+const updateInputDomElement = () => {
+  if (inputElement.value) {
+    const control: any = inputElement.value;
+    const newValue = model.value.inputStringRendered;
+    if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      control.value = model.value.inputStringRendered;
+    }
+  }
+};
+const blur = (event: any) => {
+  model.value?.onBlur(event);
+  updateInputDomElement();
+};
+const focus = (event: any) => {
+  model.value?.onFocus(event);
+};
+const inputChange = (event: any) => {
+  model.value.inputStringRendered = event.target.value;
+};
+
+useBase(() => model.value);
+
+onUpdated(updateInputDomElement);
+onMounted(updateInputDomElement);
 </script>

@@ -26,7 +26,10 @@
           :question="question"
           :key="'item' + index"
         ></sv-tagbox-item>
-        <sv-tagbox-filter :model="model" :question="question"></sv-tagbox-filter>
+        <sv-tagbox-filter
+          :model="model"
+          :question="question"
+        ></sv-tagbox-filter>
       </div>
       <div
         :class="question.cssClasses.cleanButton"
@@ -44,53 +47,42 @@
       </div>
     </div>
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
-    <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
+    <div
+      disabled
+      v-else
+      :id="question.inputId"
+      :class="question.getControlClass()"
+    >
       <div>{{ question.readOnlyText }}</div>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
-import { BaseVue } from "../../base";
+<script lang="ts" setup>
+import { useBase } from "@/base";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
+import { computed } from "vue";
 
-export default defineComponent({
-  props: {
-    question: { type: Object as PropType<QuestionTagboxModel>, required: true },
-  },
-  mixins: [BaseVue],
-  name: "sv-tagbox",
-  computed: {
-    model() {
-      return this.question.dropdownListModel;
-    },
-  },
-  methods: {
-    getModel() {
-      return this.model;
-    },
-    inputChange(event: any) {
-      this.model.filterString = event.target.value;
-    },
-    click(event: any) {
-      this.question.dropdownListModel?.onClick(event);
-    },
-    clear(event: any) {
-      this.question.dropdownListModel?.onClear(event);
-    },
-    keyhandler(event: any) {
-      this.question.dropdownListModel?.keyHandler(event);
-    },
-    blur(event: any) {
-      this.question.dropdownListModel?.onBlur(event);
-    },
-  },
-  created() {
-    const question = this.question;
-    if (!question.dropdownListModel) {
-      question.dropdownListModel = new DropdownMultiSelectListModel(this.question);
-    }
-  },
+const props = defineProps<{ question: QuestionTagboxModel }>();
+const model = computed(() => {
+  const question = props.question;
+  if (!question.dropdownListModel) {
+    question.dropdownListModel = new DropdownMultiSelectListModel(question);
+  }
+  return props.question.dropdownListModel;
 });
+const click = (event: any) => {
+  model.value?.onClick(event);
+};
+const clear = (event: any) => {
+  model.value?.onClear(event);
+};
+const keyhandler = (event: any) => {
+  model.value?.keyHandler(event);
+};
+const blur = (event: any) => {
+  model.value?.onBlur(event);
+};
+
+useBase(() => model.value);
 </script>

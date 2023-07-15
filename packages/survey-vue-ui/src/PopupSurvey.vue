@@ -34,72 +34,60 @@
   </div>
 </template>
 
-<script lang="ts">
-import { onUnmounted, shallowRef, watch, defineComponent } from "vue";
-import { PopupSurveyModel, SurveyModel } from "survey-core";
-import { BaseVue } from "./base";
-import type { PropType, ShallowRef } from "vue";
+<script lang="ts" setup>
+import { PopupSurveyModel, type SurveyModel } from "survey-core";
+import { shallowRef, type ShallowRef, watch, computed, onUnmounted } from "vue";
+import { useBase } from "./base";
 
-export default defineComponent({
-  mixins: [BaseVue],
-  props: {
-    survey: { type: Object as PropType<SurveyModel>, required: true },
-    isExpanded: Boolean,
-    closeOnCompleteTimeout: Number,
+const props = defineProps<{
+  survey: SurveyModel;
+  isExpanded: boolean;
+  closeOnCompleteTimeout: number;
+}>();
+const surveyWindow =
+  shallowRef<PopupSurveyModel>() as ShallowRef<PopupSurveyModel>;
+const css = computed(() => {
+  return props.survey ? props.survey.getCss() : {};
+});
+const expandedCss = computed(() => {
+  return surveyWindow.value?.isExpanded
+    ? css.value.window.header.buttonCollapsed
+    : css.value.window.header.buttonExpanded;
+});
+const isExpandedSurvey = computed(() => {
+  return surveyWindow.value?.isExpanded as boolean;
+});
+
+const doExpand = () => {
+  surveyWindow.value.changeExpandCollapse();
+};
+const getSurveyComponentName = () => {
+  return "SurveyRoot";
+};
+const doScroll = () => {
+  surveyWindow.value.onScroll();
+};
+
+useBase(() => surveyWindow.value);
+
+const stopWatch = watch(
+  () => props.survey,
+  (newValue) => {
+    const model = new PopupSurveyModel(null, newValue);
+    if (props.isExpanded !== undefined) {
+      model.isExpanded = props.isExpanded;
+    }
+    if (props.closeOnCompleteTimeout !== undefined) {
+      model.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
+    }
+    model.isShowing = true;
+    surveyWindow.value = model;
   },
-  setup(props) {
-    const surveyWindow =
-      shallowRef<PopupSurveyModel>() as ShallowRef<PopupSurveyModel>;
-    const stopWatch = watch(
-      () => props.survey,
-      (newValue) => {
-        const model = new PopupSurveyModel(null, newValue);
-        if (props.isExpanded !== undefined) {
-          model.isExpanded = props.isExpanded;
-        }
-        if (props.closeOnCompleteTimeout !== undefined) {
-          model.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
-        }
-        model.isShowing = true;
-        surveyWindow.value = model;
-      },
-      {
-        immediate: true,
-      }
-    );
-    onUnmounted(() => {
-      stopWatch();
-    });
-    return {
-      surveyWindow,
-    };
-  },
-  methods: {
-    getModel() {
-      return this.surveyWindow;
-    },
-    doExpand() {
-      this.surveyWindow.changeExpandCollapse();
-    },
-    getSurveyComponentName() {
-      return "SurveyRoot";
-    },
-    doScroll() {
-      this.surveyWindow.onScroll();
-    },
-  },
-  computed: {
-    css() {
-      return this.survey ? this.survey.getCss() : {};
-    },
-    expandedCss() {
-      return this.surveyWindow?.isExpanded
-        ? this.css.window.header.buttonCollapsed
-        : this.css.window.header.buttonExpanded;
-    },
-    isExpandedSurvey(): boolean {
-      return this.surveyWindow?.isExpanded as boolean;
-    },
-  },
+  {
+    immediate: true,
+  }
+);
+onUnmounted(() => {
+  stopWatch();
 });
 </script>

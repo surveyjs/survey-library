@@ -4,7 +4,7 @@
       <select
         v-if="!question.isReadOnly"
         :id="question.inputId"
-        v-model="question.renderedValue"
+        v-model="renderedValue"
         @click="click"
         @keyup="keyUp"
         :autocomplete="question.autocomplete"
@@ -47,29 +47,32 @@
     <survey-other-choice v-if="question.isOtherSelected" :question="question" />
   </div>
 </template>
-
-<script lang="ts">
-import { QuestionDropdownModel, RendererFactory } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  mixins: [QuestionVue],
-  props: {
-    question: {
-      type: Object as PropType<QuestionDropdownModel>,
-      required: true,
-    },
+<script lang="ts" setup>
+import { computed, ref } from "vue";
+import { useQuestion } from "./base";
+import type { QuestionDropdownModel } from "survey-core";
+const props = defineProps<{ question: QuestionDropdownModel }>();
+const root = ref(null);
+useQuestion(props, root);
+const click = (event: any) => {
+  props.question.onClick(event);
+};
+const keyUp = (event: any) => {
+  props.question.onKeyUp(event);
+};
+const renderedValue = computed({
+  get() {
+    return props.question.value;
   },
-  methods: {
-    click(event: any) {
-      this.question.onClick(event);
-    },
-    keyUp(event: any) {
-      this.question.onKeyUp(event);
-    },
+  set(val) {
+    const question = props.question;
+    question.renderedValue = val;
   },
 });
+</script>
+
+<script lang="ts">
+import { RendererFactory } from "survey-core";
 RendererFactory.Instance.registerRenderer(
   "dropdown",
   "select",

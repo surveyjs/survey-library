@@ -1,6 +1,5 @@
 <template>
-  <div v-bind:class="item.getActionRootCss()" 
-      :id="item.id">
+  <div v-bind:class="item.getActionRootCss()" :id="item.id">
     <div class="sv-action__content">
       <sv-action-bar-separator
         v-if="item.needSeparator"
@@ -9,28 +8,14 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-import { BaseVue } from "@/base";
-import { Action } from "survey-core";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import { useBase } from "@/base";
+import type { Action } from "survey-core";
+import { computed } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-action",
-  mixins: [BaseVue],
-  props: {
-    item: { type: Object as PropType<Action>, required: true },
-  },
-  computed: {
-    componentName() {
-      return this.item.component || "sv-action-bar-item";
-    },
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-  },
-});
-
+const props = defineProps<{ item: Action }>();
+const componentName = computed(
+  () => props.item.component || "sv-action-bar-item"
+);
+useBase(() => props.item);
 </script>

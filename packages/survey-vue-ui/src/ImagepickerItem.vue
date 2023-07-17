@@ -33,7 +33,7 @@
         <div :class="question.cssClasses.imageContainer">
           <span
             v-if="question.cssClasses.checkedItemDecorator"
-            :class="this.question.cssClasses.checkedItemDecorator"
+            :class="question.cssClasses.checkedItemDecorator"
           >
             <sv-svg-icon
               v-if="question.cssClasses.checkedItemSvgIconId"
@@ -52,7 +52,7 @@
             :src="imageLink"
             :width="question.renderedImageWidth"
             :height="question.renderedImageHeight"
-            v-bind:style="{ objectFit: question.imageFit }"
+            v-bind:style="{ objectFit: question.imageFit as any }"
             :alt="item.locText.renderedHtml"
             @load="
               (event) => {
@@ -75,7 +75,7 @@
             :src="imageLink"
             :width="question.renderedImageWidth"
             :height="question.renderedImageHeight"
-            v-bind:style="{ objectFit: question.imageFit }"
+            v-bind:style="{ objectFit: question.imageFit as any }"
             @loadedmetadata="
               (event) => {
                 question.onContentLoaded(item, event);
@@ -93,7 +93,7 @@
             v-bind:style="{
               width: question.renderedImageWidth + 'px',
               height: question.renderedImageHeight + 'px',
-              objectFit: question.imageFit,
+              objectFit: question.imageFit as any,
             }"
           >
             <sv-svg-icon
@@ -111,32 +111,17 @@
   </div>
 </template>
 
-<script lang="ts">
-import { QuestionImagePickerModel, ImageItemValue } from "survey-core";
-import { BaseVue, useLocString } from "./base";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import type { ImageItemValue, QuestionImagePickerModel } from "survey-core";
+import { useBase, useLocString } from "./base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-imagepicker-item",
-  mixins: [BaseVue],
-  props: {
-    question: {
-      type: Object as PropType<QuestionImagePickerModel>,
-      required: true,
-    },
-    item: { type: Object as PropType<ImageItemValue>, required: true },
-  },
-  setup(props) {
-    return { imageLink: useLocString(() => props.item.locImageLink) };
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-    getItemClass(item: any) {
-      return this.question.getItemClass(item);
-    },
-  },
-});
+const props = defineProps<{
+  question: QuestionImagePickerModel;
+  item: ImageItemValue;
+}>();
+const getItemClass = (item: any) => {
+  return props.question.getItemClass(item);
+};
+useBase(() => props.item);
+const imageLink = useLocString(() => props.item.locImageLink);
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.tableWrapper">
+  <div :class="question.cssClasses.tableWrapper" ref="root">
     <fieldset>
       <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
       <table :class="question.getTableCss()">
@@ -35,58 +35,60 @@
             >
               <survey-string :locString="row.locText" />
             </td>
-            <td
-              v-if="question.hasCellText"
-              v-for="(column, columnIndex) in question.visibleColumns"
-              :key="columnIndex"
-              :class="question.getItemClass(row, column)"
-              v-on:click="cellClick(row, column)"
-            >
-              <survey-string
-                :locString="question.getCellDisplayLocText(row.name, column)"
-              ></survey-string>
-            </td>
-            <td
-              v-if="!question.hasCellText"
-              v-for="(column, columnIndex) in question.visibleColumns"
-              :key="columnIndex"
-              :data-responsive-title="column.locText.renderedHtml"
-              :class="question.cssClasses.cell"
-              v-on:click="cellClick(row, column)"
-            >
-              <label
-                @mousedown="question.onMouseDown()"
+            <template v-if="question.hasCellText">
+              <td
+                v-for="(column, columnIndex) in question.visibleColumns"
+                :key="columnIndex"
                 :class="question.getItemClass(row, column)"
+                v-on:click="cellClick(row, column)"
               >
-                <input
-                  type="radio"
-                  :class="question.cssClasses.itemValue"
-                  :name="row.fullName"
-                  v-model="row.value"
-                  :value="column.value"
-                  :disabled="question.isInputReadOnly"
-                  :id="question.inputId + '_' + row.name + '_' + columnIndex"
-                  :aria-required="question.ariaRequired"
-                  :aria-label="column.locText.renderedHtml"
-                  :aria-invalid="question.ariaInvalid"
-                  :aria-describedby="question.ariaDescribedBy"
-                />
-                <span :class="question.cssClasses.materialDecorator">
-                  <svg
-                    v-if="question.itemSvgIcon"
-                    :class="question.cssClasses.itemDecorator"
-                  >
-                    <use :xlink:href="question.itemSvgIcon"></use>
-                  </svg>
-                </span>
-                <span
-                  v-show="question.isMobile"
-                  :class="question.cssClasses.cellResponsiveTitle"
+                <survey-string
+                  :locString="question.getCellDisplayLocText(row.name, column)"
+                ></survey-string>
+              </td>
+            </template>
+            <template v-if="!question.hasCellText">
+              <td
+                v-for="(column, columnIndex) in question.visibleColumns"
+                :key="columnIndex"
+                :data-responsive-title="column.locText.renderedHtml"
+                :class="question.cssClasses.cell"
+                v-on:click="cellClick(row, column)"
+              >
+                <label
+                  @mousedown="question.onMouseDown()"
+                  :class="question.getItemClass(row, column)"
                 >
-                  <survey-string :locString="column.locText"></survey-string>
-                </span>
-              </label>
-            </td>
+                  <input
+                    type="radio"
+                    :class="question.cssClasses.itemValue"
+                    :name="row.fullName"
+                    v-model="row.value"
+                    :value="column.value"
+                    :disabled="question.isInputReadOnly"
+                    :id="question.inputId + '_' + row.name + '_' + columnIndex"
+                    :aria-required="question.ariaRequired"
+                    :aria-label="column.locText.renderedHtml"
+                    :aria-invalid="question.ariaInvalid"
+                    :aria-describedby="question.ariaDescribedBy"
+                  />
+                  <span :class="question.cssClasses.materialDecorator">
+                    <svg
+                      v-if="question.itemSvgIcon"
+                      :class="question.cssClasses.itemDecorator"
+                    >
+                      <use :xlink:href="question.itemSvgIcon"></use>
+                    </svg>
+                  </span>
+                  <span
+                    v-show="question.isMobile"
+                    :class="question.cssClasses.cellResponsiveTitle"
+                  >
+                    <survey-string :locString="column.locText"></survey-string>
+                  </span>
+                </label>
+              </td>
+            </template>
           </tr>
         </tbody>
       </table>
@@ -94,56 +96,29 @@
   </div>
 </template>
 
-<script lang="ts">
-import { QuestionMatrixModel } from "survey-core";
-import { QuestionVue } from "./base";
-import {
-  defineComponent,
-  type PropType,
-  shallowRef,
-  ref,
-  watch,
-  onUnmounted,
-} from "vue";
+<script lang="ts" setup>
+import type { QuestionMatrixModel } from "survey-core";
+import { useQuestion } from "./base";
+import { ref, shallowRef } from "vue";
+const props = defineProps<{ question: QuestionMatrixModel }>();
+const root = ref(null);
+const visibleRows = shallowRef();
+useQuestion<QuestionMatrixModel>(
+  props,
+  root,
+  (value) => {
+    visibleRows.value = value.visibleRows;
+    value.visibleRowsChangedCallback = () => {
+      visibleRows.value = value.visibleRows;
+    };
+  },
+  (value) => {
+    value.visibleRowsChangedCallback = () => {};
+  }
+);
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [QuestionVue],
-  name: "survey-matrix",
-  props: {
-    question: { type: Object as PropType<QuestionMatrixModel>, required: true },
-  },
-  setup(props) {
-    const visibleRows = shallowRef();
-    const setupVisibleRowsChangedCallback = (question: QuestionMatrixModel) => {
-      visibleRows.value = question.visibleRows;
-      question.visibleRowsChangedCallback = () => {
-        visibleRows.value = question.visibleRows;
-      };
-    };
-    setupVisibleRowsChangedCallback(props.question);
-    const stopWatch = watch(
-      () => props.question,
-      (newValue, oldValue) => {
-        oldValue.visibleRowsChangedCallback = () => {};
-        setupVisibleRowsChangedCallback(newValue);
-      }
-    );
-    onUnmounted(() => {
-      stopWatch();
-    });
-    return {
-      visibleRows,
-    };
-  },
-  methods: {
-    getModel() {
-      return this.question;
-    },
-    cellClick(row: any, column: any): void {
-      if (this.question.isInputReadOnly) return;
-      row.value = column.value;
-    },
-  },
-});
+const cellClick = (row: any, column: any) => {
+  if (props.question.isInputReadOnly) return;
+  row.value = column.value;
+};
 </script>

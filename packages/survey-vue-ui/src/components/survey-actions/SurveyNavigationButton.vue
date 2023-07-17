@@ -1,5 +1,5 @@
 <template>
- <input
+  <input
     v-if="item.visible"
     type="button"
     :disabled="item.disabled"
@@ -11,23 +11,14 @@
   />
 </template>
 
-<script lang="ts">
-import { type PropType, defineComponent } from "vue";
-import { Action } from "survey-core";
-import { BaseVue } from "../../base";
+<script lang="ts" setup>
+import { useBase } from "@/base";
+import type { Action } from "survey-core";
 
-export default defineComponent({
-  mixins: [BaseVue],
-  props: {
-    item: { type: Object as PropType<Action>, required: true },
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-    buttonMouseDown() {
-      return this.item.data && this.item.data.mouseDown();
-    },
-  },
-});
+const props = defineProps<{ item: Action }>();
+const buttonMouseDown = () => {
+  return props.item.data && props.item.data.mouseDown();
+};
+
+useBase(() => props.item);
 </script>

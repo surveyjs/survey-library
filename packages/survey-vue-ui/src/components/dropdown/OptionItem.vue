@@ -3,25 +3,11 @@
     {{ text }}
   </option>
 </template>
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
 import type { ItemValue } from "survey-core";
-import { BaseVue, useLocString } from "../../base";
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [BaseVue],
-  props: {
-    item: { type: Object as PropType<ItemValue>, required: true },
-  },
-  setup(props) {
-    return {
-      text: useLocString(() => props.item.locText),
-    };
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-  },
-});
+import { useBase, useLocString } from "../../base";
+
+const props = defineProps<{ item: ItemValue }>();
+const text = useLocString(() => props.item.locText);
+useBase(() => props.item);
 </script>

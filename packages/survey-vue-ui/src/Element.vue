@@ -1,26 +1,30 @@
 <template>
-  <div :class="!element.isPanel ? element.getRootCss() : null" 
-        v-if="row.isNeedRender"
-        v-on:focusin="element.focusIn()"
-        :id="element.id"
-        :role="element.ariaRole"
-        :aria-required="element.ariaRequired"
-        :aria-invalid="element.ariaInvalid"
-        :aria-labelledby="element.ariaLabelledBy"
-        :data-name="element.name">
+  <div
+    :class="!element.isPanel ? (element as Question).getRootCss() : null"
+    ref="root"
+    v-if="row.isNeedRender"
+    v-on:focusin="element.focusIn()"
+    :id="element.id"
+    :role="(element as Question).ariaRole"
+    :aria-required="(element as Question).ariaRequired"
+    :aria-invalid="(element as Question).ariaInvalid"
+    :aria-labelledby="(element as Question).ariaLabelledBy"
+    :data-name="element.name"
+  >
     <survey-errors
-      v-if="!element.isPanel && element.showErrorsAboveQuestion"
+      v-if="!element.isPanel && (element as Question).showErrorsAboveQuestion"
       :element="element"
       :location="'top'"
     />
     <survey-element-header
-      v-if="!element.isPanel && element.hasTitleOnLeftTop"
+      v-if="!element.isPanel && (element as Question).hasTitleOnLeftTop"
       :element="element"
       :css="css"
     />
     <div
-      :class="getContentClass(element) || undefined"
-      v-show="element.isPanel || !element.isCollapsed"  role="presentation"
+      :class="getContentClass((element as Question)) || undefined"
+      v-show="element.isPanel || !element.isCollapsed"
+      role="presentation"
     >
       <survey-errors
         v-if="hasErrorsOnTop"
@@ -28,15 +32,21 @@
         :location="'top'"
       />
       <component
-        :is="getComponentName(element)"
+        :is="getComponentName((element as Question))"
         v-if="element.isPanel || !element.isCollapsed"
         :question="element"
       />
-      <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
+      <div
+        v-if="(element as any).hasComment"
+        :class="(element as Question).getCommentAreaCss()"
+      >
         <div>
-          <survey-string :locString="element.locCommentText" />
+          <survey-string :locString="(element as Question).locCommentText" />
         </div>
-        <survey-question-comment :commentClass="css.comment" :question="element" />
+        <survey-question-comment
+          :commentClass="css.comment"
+          :question="element"
+        />
       </div>
       <survey-errors
         v-if="hasErrorsOnBottom"
@@ -49,73 +59,74 @@
         :location="'tooltip'"
       />
       <div
-        v-if="!element.isPanel && element.hasDescriptionUnderInput"
+        v-if="!element.isPanel && (element as Question).hasDescriptionUnderInput"
         :class="element.cssClasses.descriptionUnderInput"
       >
         <survey-string :locString="element.locDescription" />
       </div>
     </div>
     <survey-element-header
-      v-if="!element.isPanel && element.hasTitleOnBottom"
+      v-if="!element.isPanel && (element as Question).hasTitleOnBottom"
       :element="element"
       :css="css"
     />
     <survey-errors
-      v-if="!element.isPanel && element.showErrorsBelowQuestion"
+      v-if="!element.isPanel && (element as Question).showErrorsBelowQuestion"
       :element="element"
       :location="'bottom'"
     />
   </div>
-  
+
   <component
-  v-else-if="!!element.skeletonComponentName"
-  :is="element.skeletonComponentName"
-  :element="element"
-  :css="css"
-></component>
+    v-else-if="!!element.skeletonComponentName"
+    :is="element.skeletonComponentName"
+    :element="element"
+    :css="css"
+  ></component>
 </template>
 
-<script lang="ts">
-import { SurveyModel, Question, SurveyElement, QuestionRowModel } from "survey-core";
-import { BaseVue } from "./base";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import type {
+  SurveyModel,
+  Question,
+  QuestionRowModel,
+  PanelModel,
+} from "survey-core";
+import { useBase } from "./base";
+import { computed, onMounted, ref } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-element",
-  props: {
-    css: Object,
-    survey: { type: Object as PropType<SurveyModel>, required: true },
-    element: { type: Object as PropType<SurveyElement>, required: true },
-    row: Object as PropType<QuestionRowModel>,
-  },
-  mixins: [BaseVue],
-  methods: {
-    getModel () { return this.element; },
-    getComponentName: (element: Question) => {
-        if (element.customWidget) return "survey-customwidget";
-        if (element.getType() === "panel" || element.isDefaultRendering()) {
-          return "survey-" + element.getTemplate();
-        }
-        return element.getComponentName();
-      },
-    getContentClass: (element: Question) => {
-      return element.cssContent;
-    }
-  },
-  computed: {
-    hasErrorsOnTop() {
-      return !this.element.isPanel && (<Question>this.element).showErrorOnTop;
-    },
-    hasErrorsOnBottom() {
-      return !this.element.isPanel && (<Question>this.element).showErrorOnBottom;
-    }
-  },
-  mounted() {
-    if (!this.element.isPanel) {
-      (<Question>this.element).afterRender(this.$el as HTMLElement);
-    }
+const props = defineProps<{
+  survey: SurveyModel;
+  element: Question | PanelModel;
+  row: QuestionRowModel;
+  css?: any;
+}>();
+const root = ref<HTMLElement>(null as any);
+const hasErrorsOnTop = computed(() => {
+  return !props.element.isPanel && (props.element as Question).showErrorOnTop;
+});
+const hasErrorsOnBottom = computed(() => {
+  return (
+    !props.element.isPanel && (props.element as Question).showErrorOnBottom
+  );
+});
+
+const getComponentName = (element: Question) => {
+  if (element.customWidget) return "survey-customwidget";
+  if (element.getType() === "panel" || element.isDefaultRendering()) {
+    return "survey-" + element.getTemplate();
+  }
+  return element.getComponentName();
+};
+const getContentClass = (element: Question) => {
+  return element.cssContent;
+};
+
+useBase(() => props.element);
+
+onMounted(() => {
+  if (!props.element.isPanel) {
+    (props.element as Question).afterRender(root.value as HTMLElement);
   }
 });
 </script>
-<style scoped></style>

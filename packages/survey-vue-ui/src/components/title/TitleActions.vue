@@ -1,7 +1,10 @@
 <template>
   <div class="sv-title-actions">
     <span class="sv-title-actions__title">
-      <survey-string v-if="element.isPage" :locString="element.locTitle"></survey-string>
+      <survey-string
+        v-if="element.isPage"
+        :locString="element.locTitle"
+      ></survey-string>
       <survey-element-title-content
         v-if="!element.isPage"
         :element="element"
@@ -12,28 +15,13 @@
   </div>
 </template>
 
-<script lang="ts">
-import {
-  Action,
-  AdaptiveActionContainer,
-  Question,
-  PanelModel,
-  RendererFactory,
-} from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref } from "vue";
+<script lang="ts" setup>
+import type { PanelModel, Question } from "survey-core";
+import { computed } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-element-title",
-  props: {
-    element: { type: Object, required: true },
-    css: Object,
-  },
-  computed: {
-    toolbar(): AdaptiveActionContainer<Action> {
-      return this.element.getTitleToolbar();
-    },
-  },
-});
-RendererFactory.Instance.registerRenderer("element", "title-actions", "sv-title-actions");
+const props = defineProps<{
+  element: Question | PanelModel;
+  css: any;
+}>();
+const toolbar = computed(() => props.element.getTitleToolbar());
 </script>

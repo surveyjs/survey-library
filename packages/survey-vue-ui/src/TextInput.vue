@@ -61,22 +61,14 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import type { QuestionTextModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
+import { useBase } from "./base";
+import { computed } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-text-input",
-  mixins: [QuestionVue],
-  props: {
-    question: { type: Object as PropType<QuestionTextModel>, required: true },
-  },
-  computed: {
-    inputStyle(): any {
-      return this.question.inputStyle;
-    },
-  },
-});
+const props = defineProps<{ question: QuestionTextModel }>();
+
+useBase(() => props.question);
+
+const inputStyle = computed(() => props.question.inputStyle);
 </script>

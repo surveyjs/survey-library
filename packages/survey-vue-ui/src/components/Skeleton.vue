@@ -2,19 +2,10 @@
   <div class="sv-skeleton-element" :id="element.id"></div>
 </template>
 
-<script lang="ts">
-import { BaseVue } from "@/base";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { useBase } from "@/base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-skeleton",
-  props: {
-    element: Object,
-  },
-  mixins: [BaseVue],
-  methods: {
-    getModel() { return this.element; }
-  }
-});
+const props = defineProps<{ element: any }>();
+
+useBase(() => props.element);
 </script>

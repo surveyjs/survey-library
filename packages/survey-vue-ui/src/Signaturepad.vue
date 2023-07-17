@@ -1,18 +1,25 @@
 <template>
   <div
     :class="question.cssClasses.root"
+    ref="root"
     v-bind:style="{
       height: question.signatureHeight + 'px',
       width: question.signatureWidth + 'px',
     }"
   >
-    <div :class="question.cssClasses.placeholder" v-show="question.needShowPlaceholder()">
+    <div
+      :class="question.cssClasses.placeholder"
+      v-show="question.needShowPlaceholder()"
+    >
       {{ question.placeHolderText }}
     </div>
     <div>
       <canvas tabindex="0"></canvas>
     </div>
-    <div :class="question.cssClasses.controls" v-if="question.canShowClearButton">
+    <div
+      :class="question.cssClasses.controls"
+      v-if="question.canShowClearButton"
+    >
       <button
         type="button"
         :class="question.cssClasses.clearButton"
@@ -34,19 +41,13 @@
   </div>
 </template>
 
-<script lang="ts">
-import { QuestionSignaturePadModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  mixins: [QuestionVue],
-  // eslint-disable-next-line
-  name: "survey-signaturepad",
-  props: {
-    question: Object as PropType<QuestionSignaturePadModel>,
-    css: Object,
-  },
-});
-
+<script setup lang="ts">
+import type { QuestionSignaturePadModel } from "survey-core";
+import { useQuestion } from "./base";
+import { ref } from "vue";
+const props = defineProps<{
+  question: QuestionSignaturePadModel;
+}>();
+const root = ref(null);
+useQuestion<QuestionSignaturePadModel>(props, root);
 </script>

@@ -22,10 +22,7 @@
         :element="item.editor"
         :location="'top'"
       />
-      <component
-        :is="getComponentName(item.editor)"
-        :question="item.editor"
-      />
+      <component :is="getComponentName(item.editor)" :question="item.editor" />
       <survey-errors
         v-if="item.editor.showErrorOnBottom"
         :element="item.editor"
@@ -40,25 +37,21 @@
   </label>
 </template>
 
-<script lang="ts">
-import { Question, MultipleTextItemModel, QuestionMultipleTextModel } from "survey-core";
-import { getComponentName } from "./base";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import type {
+  Question,
+  MultipleTextItemModel,
+  QuestionMultipleTextModel,
+} from "survey-core";
+import { getComponentName as getComponent, useBase } from "./base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-multipletext-item",
-  props: {
-    question: Object as PropType<QuestionMultipleTextModel>,
-    item: { type: Object as PropType<MultipleTextItemModel>, required: true },
-  },
-  methods: {
-    getModel() {
-      return this.item.editor;
-    },
-    getComponentName: (question: Question) => {
-      return getComponentName(question);
-    },
-  },
-});
+const props = defineProps<{
+  question: QuestionMultipleTextModel;
+  item: MultipleTextItemModel;
+}>();
+const getComponentName = (question: Question) => {
+  return getComponent(question);
+};
+
+useBase(() => props.item.editor);
 </script>

@@ -1,18 +1,16 @@
 import { Base, Question, LocalizableString } from "survey-core";
 import {
-  defineComponent,
-  type ComponentOptions,
   shallowReactive,
   ref,
   isRef,
-  isReactive,
   watch,
-  watchEffect,
   onUnmounted,
-  type Ref,
   shallowRef,
   triggerRef,
   unref,
+  onMounted,
+  type Ref,
+  onBeforeUnmount,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -64,45 +62,52 @@ function unMakeReactive(surveyElement: Base) {
 }
 
 // by convention, composable function names start with "use"
+export function useBase<T extends Base>(
+  getModel: () => T,
+  onModelChanged?: (newValue: T) => void,
+  clean?: (model: T) => void
+) {
+  const stopWatch = watch(
+    getModel,
+    (value, oldValue) => {
+      if (onModelChanged) onModelChanged(value);
+      if (oldValue) {
+        unMakeReactive(oldValue);
+        if (clean) clean(oldValue);
+      }
 
-export const BaseVue: ComponentOptions = {
-  mounted() {
-    if (typeof this.getModel == "function") {
-      const stopWatch = watch(
-        () => this.getModel(),
-        (value, oldValue) => {
-          unMakeReactive(oldValue);
-          makeReactive(value);
-        },
-        {
-          immediate: true,
-        }
-      );
-      onUnmounted(() => {
-        unMakeReactive(this.getModel());
-        stopWatch();
-      });
-    }
-  },
-};
-export const QuestionVue: ComponentOptions = {
-  mixins: [BaseVue],
-  methods: {
-    getModel() {
-      return this.question;
+      makeReactive(value);
     },
-  },
-  mounted() {
-    if (this.question) {
-      this.question.afterRenderQuestionElement(this.$el);
+    {
+      immediate: true,
     }
-  },
-  beforeUnmount() {
-    if (this.question) {
-      this.question.beforeDestroyQuestionElement(this.$el);
+  );
+  onUnmounted(() => {
+    const model = getModel();
+    if (model) {
+      if (clean) clean(getModel());
+      unMakeReactive(model);
+      stopWatch();
     }
-  },
-};
+  });
+}
+
+export function useQuestion<T extends Question>(
+  props: { question: T },
+  root: Ref,
+  onQuestionChanged?: (newValue: T) => void,
+  clean?: (question: T) => void
+) {
+  useBase<T>(() => props.question, onQuestionChanged, clean);
+  onMounted(() => {
+    if (props.question) {
+      props.question.afterRenderQuestionElement(root.value);
+    }
+  });
+  onBeforeUnmount(() => {
+    props.question.beforeDestroyQuestionElement(root.value);
+  });
+}
 
 export function useLocString(
   getLocString: () => LocalizableString

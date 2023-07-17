@@ -11,20 +11,11 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import type { Notifier } from "survey-core";
-import { defineComponent, type PropType } from "vue";
-import { BaseVue } from "./base";
+import { useBase } from "./base";
 
-export default defineComponent({
-  props: {
-    model: { type: Object as PropType<Notifier>, required: true },
-  },
-  mixins: [BaseVue],
-  methods: {
-    getModel() {
-      return this.model;
-    },
-  },
-});
+const props = defineProps<{ model: Notifier }>();
+
+useBase(() => props.model);
 </script>

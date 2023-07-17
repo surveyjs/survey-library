@@ -5,14 +5,23 @@
     v-if="element.hasVisibleErrors"
     :class="element.cssError"
     :id="element.id + '_errors'"
+    ref="root"
   >
     <div v-for="(error, index) in element.errors" :key="'error_' + index">
       <span
-        :class="element.cssClasses ? element.cssClasses.error.icon || undefined : 'panel-error-icon'"
+        :class="
+          element.cssClasses
+            ? element.cssClasses.error.icon || undefined
+            : 'panel-error-icon'
+        "
         aria-hidden="true"
       ></span>
       <span
-        :class="element.cssClasses ? element.cssClasses.error.item || undefined: 'panel-error-item'"
+        :class="
+          element.cssClasses
+            ? element.cssClasses.error.item || undefined
+            : 'panel-error-item'
+        "
       >
         <survey-string :locString="error.locText" />
       </span>
@@ -20,36 +29,30 @@
   </div>
 </template>
 
-<script lang="ts">
-import { TooltipManager } from "survey-core";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { type PanelModel, type Question, TooltipManager } from "survey-core";
+import { onUnmounted, onUpdated, ref } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-errors",
-  props: {
-    element: { type: Object, required: true },
-    location: String,
-  },
-  setup() {
-    return {
-      tooltipManager: (undefined as any as TooltipManager),
-    };
-  },
-  updated() {
-    if (this.location == "tooltip" && this.$el instanceof HTMLElement) {
-      if (!this.tooltipManager || this.$el !== this.tooltipManager.tooltipElement) {
-        this.tooltipManager = new TooltipManager(this.$el as HTMLElement);
-      }
+const props = defineProps<{
+  element: Question | PanelModel;
+  location?: string;
+}>();
+const root = ref<HTMLElement>();
+let tooltipManager: TooltipManager;
+
+onUpdated(() => {
+  if (props.location == "tooltip" && root.value instanceof HTMLElement) {
+    if (!tooltipManager || root.value !== tooltipManager.tooltipElement) {
+      tooltipManager = new TooltipManager(root.value as HTMLElement);
     }
-    if (!(this.$el instanceof HTMLElement) && !!this.tooltipManager) {
-      this.tooltipManager.dispose();
-    }
-  },
-  unmounted() {
-    if (this.tooltipManager) {
-      this.tooltipManager.dispose();
-    }
-  },
+  }
+  if (!(root.value instanceof HTMLElement) && !!tooltipManager) {
+    tooltipManager.dispose();
+  }
+});
+onUnmounted(() => {
+  if (tooltipManager) {
+    tooltipManager.dispose();
+  }
 });
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="model.hasActions"
-    ref="container"
+    ref="root"
     :class="model.getRootCss()"
     v-on:click="
       (event) => {
@@ -17,31 +17,24 @@
   </div>
 </template>
 
-<script lang="ts">
-import { ActionContainer } from "survey-core";
-import { BaseVue } from "../../base";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import type { ActionContainer } from "survey-core";
+import { useBase } from "@/base";
+import { onMounted, onUnmounted, ref } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-action-bar",
-  props: {
-    model: { type: Object as PropType<ActionContainer>, required: true },
-    handleClick: Boolean,
-  },
-  mixins: [BaseVue],
-  mounted() {
-    if (!this.model.hasActions) return;
-    const container = this.$el;
-    this.model.initResponsivityManager(container);
-  },
-  beforeUnmount() {
-    this.model.resetResponsivityManager();
-  },
-  methods: {
-    getModel() {
-      return this.model;
-    },
-  },
+const props = defineProps<{
+  model: ActionContainer;
+  handleClick?: boolean;
+}>();
+const root = ref<HTMLDivElement>(null as any as HTMLDivElement);
+
+useBase(() => props.model);
+
+onMounted(() => {
+  if (!props.model.hasActions) return;
+  props.model.initResponsivityManager(root.value);
+});
+onUnmounted(() => {
+  props.model.resetResponsivityManager();
 });
 </script>

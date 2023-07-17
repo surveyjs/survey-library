@@ -1,5 +1,5 @@
 <template>
-    <div :class="question.cssClasses.root">
+  <div :class="question.cssClasses.root" ref="root">
     <img
       v-if="question.renderedMode === 'image'"
       v-show="imageLink && !question.contentNotLoaded"
@@ -8,9 +8,21 @@
       :alt="question.altText || question.title"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
-      @load="(event) => { question.onLoadHandler() }"
-      @error="(event) => { question.onErrorHandler() }"
+      :style="{
+        objectFit: question.imageFit as any,
+        width: question.renderedStyleWidth,
+        height: question.renderedStyleHeight,
+      }"
+      @load="
+        (event) => {
+          question.onLoadHandler();
+        }
+      "
+      @error="
+        (event) => {
+          question.onErrorHandler();
+        }
+      "
     /><video
       controls
       v-if="question.renderedMode === 'video'"
@@ -19,9 +31,21 @@
       :src="imageLink"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit, width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
-      @loadedmetadata="(event) => { question.onLoadHandler() }"
-      @error="(event) => { question.onErrorHandler() }"
+      v-bind:style="{
+        objectFit: question.imageFit as any,
+        width: question.renderedStyleWidth,
+        height: question.renderedStyleHeight,
+      }"
+      @loadedmetadata="
+        (event) => {
+          question.onLoadHandler();
+        }
+      "
+      @error="
+        (event) => {
+          question.onErrorHandler();
+        }
+      "
     ></video>
     <iframe
       v-if="question.renderedMode === 'youtube'"
@@ -29,31 +53,30 @@
       :src="imageLink"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
+      :style="{
+        objectFit: question.imageFit as any,
+        width: question.renderedStyleWidth,
+        height: question.renderedStyleHeight,
+      }"
     ></iframe>
-    <div v-if="!imageLink || question.contentNotLoaded"
-      :class="question.cssClasses.noImage">
-      <sv-svg-icon :iconName="question.cssClasses.noImageSvgIconId" :size="48"></sv-svg-icon>
+    <div
+      v-if="!imageLink || question.contentNotLoaded"
+      :class="question.cssClasses.noImage"
+    >
+      <sv-svg-icon
+        :iconName="question.cssClasses.noImageSvgIconId"
+        :size="48"
+      ></sv-svg-icon>
     </div>
   </div>
 </template>
 
-<script lang="ts">
-import { QuestionImageModel } from "survey-core";
-import { ref, defineComponent, type ComponentOptions, unref, type PropType } from "vue";
-import { QuestionVue, useLocString } from "./base";
-
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey-image",
-  mixins: [QuestionVue],
-  props: {
-    question: { type: Object as PropType<QuestionImageModel>, required: true },
-    css: Object,
-  },
-  setup(props) {
-    return { imageLink: useLocString(() => props.question.locImageLink) };
-  }
-});
-
+<script lang="ts" setup>
+import type { QuestionImageModel } from "survey-core";
+import { useLocString, useQuestion } from "./base";
+import { ref } from "vue";
+const props = defineProps<{ question: QuestionImageModel }>();
+const root = ref(null);
+useQuestion(props, root);
+const imageLink = useLocString(() => props.question.locImageLink);
 </script>

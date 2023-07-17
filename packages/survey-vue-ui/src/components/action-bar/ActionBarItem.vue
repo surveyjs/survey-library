@@ -27,30 +27,15 @@
       :title="item.tooltip || item.title"
     ></sv-svg-icon>
 
-    <span
-      v-if="item.hasTitle"
-      :class="item.getActionBarItemTitleCss()"
-      >{{ item.title }}</span
-    >
+    <span v-if="item.hasTitle" :class="item.getActionBarItemTitleCss()">{{
+      item.title
+    }}</span>
   </button>
 </template>
 
-<script lang="ts">
-import { Action } from "survey-core";
-import { BaseVue } from "../../base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-action-bar-item",
-  mixins: [BaseVue],
-  props: {
-    item: Object as PropType<Action>,
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-  },
-});
+<script lang="ts" setup>
+import { useBase } from "@/base";
+import type { Action } from "survey-core";
+const props = defineProps<{ item: Action }>();
+useBase(() => props.item);
 </script>

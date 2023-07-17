@@ -1,5 +1,5 @@
 <template>
-  <table :class="question.cssClasses.root">
+  <table :class="question.cssClasses.root" ref="root">
     <tbody>
       <tr
         v-for="(row, rowindex) in question.getRows()"
@@ -14,17 +14,11 @@
   </table>
 </template>
 
-<script lang="ts">
-import { QuestionMultipleTextModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [QuestionVue],
-  name: "survey-multipletext",
-  props: {
-    question: Object as PropType<QuestionMultipleTextModel>,
-  },
-});
+<script lang="ts" setup>
+import type { QuestionMultipleTextModel } from "survey-core";
+import { useQuestion } from "./base";
+import { ref } from "vue";
+const props = defineProps<{ question: QuestionMultipleTextModel }>();
+const root = ref(null);
+useQuestion(props, root);
 </script>

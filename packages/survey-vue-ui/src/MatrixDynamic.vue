@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div ref="root">
     <div
       v-if="question.renderedTable.showAddRowOnTop"
       :class="question.cssClasses.footer"
@@ -49,22 +49,14 @@
   </div>
 </template>
 
-<script lang="ts">
-import { QuestionMatrixDynamicModel } from "survey-core";
-import { QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
-
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [QuestionVue],
-  name: "survey-matrixdynamic",
-  props: {
-    question: { type: Object as PropType<QuestionMatrixDynamicModel>, required: true },
-  },
-  methods: {
-    addRowClick(): void {
-      this.question.addRowUI();
-    },
-  },
-});
+<script lang="ts" setup>
+import type { QuestionMatrixDynamicModel } from "survey-core";
+import { useQuestion } from "./base";
+import { ref } from "vue";
+const props = defineProps<{ question: QuestionMatrixDynamicModel }>();
+const root = ref(null);
+useQuestion(props, root);
+const addRowClick = () => {
+  props.question.addRowUI();
+};
 </script>

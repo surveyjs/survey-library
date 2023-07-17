@@ -4,21 +4,13 @@
   </div>
 </template>
 
-<script lang="ts">
-import { BaseVue } from "@/base";
+<script lang="ts" setup>
+import { useBase } from "@/base";
 import type { CharacterCounter } from "survey-core";
-import { type PropType, defineComponent } from "vue";
 
-export default defineComponent({
-  mixins: [BaseVue],
-  props: {
-    counter: { type: Object as PropType<CharacterCounter>, required: true },
-    remainingCharacterCounter: String,
-  },
-  methods: {
-    getModel() {
-      return this.counter;
-    },
-  },
-});
+const props = defineProps<{
+  counter: CharacterCounter;
+  remainingCharacterCounter?: String;
+}>();
+useBase(() => props.counter);
 </script>

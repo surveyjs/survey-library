@@ -20,7 +20,7 @@
     "
   >
     <div tabindex="-1" style="outline: none">
-      <div :class="cssClasses.itemGhostNode" />
+      <div :class="cssClasses.itemGhostNode"></div>
       <div :class="cssClasses.itemContent">
         <div :class="cssClasses.itemIconContainer">
           <svg
@@ -57,36 +57,24 @@
   </div>
 </template>
 
-<script lang="ts">
-import {
-  QuestionRankingModel,
+<script lang="ts" setup>
+import type {
   ItemValue,
   LocalizableString,
+  QuestionRankingModel,
 } from "survey-core";
-import { BaseVue, QuestionVue } from "./base";
-import { defineComponent, type PropType } from "vue";
+import { useBase } from "./base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [BaseVue],
-  name: "survey-ranking-item",
-  props: {
-    index: Number,
-    indexText: String,
-    text: Object as PropType<LocalizableString>,
-    handleKeydown: Function,
-    cssClasses: { type: Object, required: true },
-    question: {
-      type: Object as PropType<QuestionRankingModel>,
-      required: true,
-    },
-    item: { type: Object as PropType<ItemValue>, required: true },
-    unrankedItem: Boolean,
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-  },
-});
+const props = defineProps<{
+  index: number;
+  indexText: string;
+  text: LocalizableString;
+  handleKeydown?: Function;
+  cssClasses: any;
+  question: QuestionRankingModel;
+  item: ItemValue;
+  unrankedItem?: boolean;
+}>();
+
+useBase(() => props.item);
 </script>

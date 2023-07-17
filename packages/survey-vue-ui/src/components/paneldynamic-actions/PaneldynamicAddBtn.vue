@@ -11,18 +11,12 @@
   </button>
 </template>
 
-<script lang="ts">
-import { PaneldynamicActionMixin } from "./action";
-import { defineComponent } from "vue";
+<script lang="ts" setup>
+import { type IPanelDynamicActionProps, usePanelDynamicAction } from "./action";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [PaneldynamicActionMixin],
-  name: "sv-paneldynamic-add-btn",
-  methods: {
-    addPanelClick() {
-      this.question.addPanelUI();
-    },
-  },
-});
+const props = defineProps<IPanelDynamicActionProps>();
+const question = usePanelDynamicAction(props);
+const addPanelClick = () => {
+  question.value.addPanelUI();
+};
 </script>

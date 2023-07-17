@@ -52,76 +52,24 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-import { BaseVue } from "@/base";
+<script lang="ts" setup>
+import { useBase } from "@/base";
 import type { PopupBaseViewModel } from "survey-core";
-import { defineComponent, type PropType } from "vue";
+import { onUpdated } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-popup-container",
-  props: {
-    model: { type: Object as PropType<PopupBaseViewModel>, required: true },
-  },
-  mixins: [BaseVue],
-  setup() {
-    return {
-      prevIsVisible: false,
-    };
-  },
-  methods: {
-    getModel() {
-      return this.model;
-    },
-    clickInside: (event: any) => {
-      event.stopPropagation();
-    },
-  },
-  updated() {
-    if (!this.prevIsVisible && this.model.isVisible) {
-      this.model.updateOnShowing();
-    }
-    this.prevIsVisible = this.model.isVisible;
-  },
+const props = defineProps<{ model: PopupBaseViewModel }>();
+let prevIsVisible = false;
+const clickInside = (event: any) => {
+  event.stopPropagation();
+};
+
+useBase(() => props.model);
+
+onUpdated(() => {
+  const model = props.model;
+  if (!prevIsVisible && model.isVisible) {
+    props.model.updateOnShowing();
+  }
+  prevIsVisible = model.isVisible;
 });
-// replace to showDialog then delete
-// export function showModal(
-//   componentName: string,
-//   data: any,
-//   onApply: () => boolean,
-//   onCancel?: () => void,
-//   cssClass?: string,
-//   title?: string,
-//   displayMode: "popup" | "overlay" = "popup"
-// ): PopupBaseViewModel {
-//   const options = createDialogOptions(
-//     componentName,
-//     data,
-//     onApply,
-//     onCancel,
-//     undefined,
-//     undefined,
-//     cssClass,
-//     title,
-//     displayMode
-//   );
-//   return showDialog(options);
-// }
-// export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-//   dialogOptions.onHide = () => {
-//     {
-//       popup.$destroy();
-//       popupViewModel.dispose();
-//     }
-//   };
-//   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
-//   const popup = new PopupContainer({
-//     el: popupViewModel.container.appendChild(document.createElement("div")),
-//     propsData: { model: popupViewModel },
-//   });
-//   popupViewModel.model.isVisible = true;
-//   return popupViewModel;
-// }
-// settings.showModal = showModal;
-// Vue.component("sv-popup-container", PopupContainer);
 </script>

@@ -1,5 +1,9 @@
 <template>
-  <div :class="vueSurvey.getRootCss()" :style="vueSurvey.themeVariables">
+  <div
+    :class="vueSurvey.getRootCss()"
+    :style="vueSurvey.themeVariables"
+    ref="root"
+  >
     <survey-popup-modal></survey-popup-modal>
     <div
       v-if="vueSurvey.renderBackgroundImage"
@@ -88,109 +92,74 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { SvgRegistry, SurveyModel } from "survey-core";
-import { type PropType, toRaw, defineComponent, ref } from "vue";
-import { BaseVue } from "./base";
+import {
+  toRaw,
+  ref,
+  computed,
+  getCurrentInstance,
+  onMounted,
+  onUnmounted,
+} from "vue";
+import { useBase } from "./base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "survey",
-  props: {
-    model: Object as PropType<SurveyModel>,
-    survey: Object as PropType<SurveyModel>,
-  },
-  mixins: [BaseVue],
-  setup() {
-    return {
-      processedCompletedHtmlValue: ref(""),
-      updater: ref(1),
-    };
-  },
-  computed: {
-    vueSurvey(): SurveyModel {
-      const survey = this.survey ? this.survey : this.model;
-      return toRaw(survey) as SurveyModel;
-    },
-    pageId() {
-      return this.vueSurvey.activePage ? this.vueSurvey.activePage.id : "";
-    },
-    navId() {
-      return "nav" + this.getActivePageId();
-    },
-    hasTitle() {
-      return !!this.vueSurvey.title && this.vueSurvey.showTitle;
-    },
-    hasCompletedPage() {
-      return (
-        this.vueSurvey.showCompletedPage && this.vueSurvey.state === "completed"
-      );
-    },
-    css(): any {
-      return this.vueSurvey.css;
-    },
-    pageKey(): string {
-      return "page" + this.getActivePageId();
-    },
-  },
-  methods: {
-    getActivePageId() {
-      const pageId = this.pageId;
-      return !!this.vueSurvey && pageId + this.updater.toString();
-    },
-    getProcessedCompletedHtml() {
-      if (!this.hasCompletedPage) return "";
-      if (!this.processedCompletedHtmlValue) {
-        this.processedCompletedHtmlValue =
-          this.vueSurvey.processedCompletedHtml;
-      }
-      return this.processedCompletedHtmlValue;
-    },
-    getCompletedStateClasses() {
-      return this.css.saveData[this.vueSurvey.completedState];
-    },
-    start() {
-      this.vueSurvey.start();
-    },
-    doTrySaveAgain() {
-      this.vueSurvey.doComplete();
-    },
-    forceUpdate() {
-      this.updater += 1;
-      this.$forceUpdate();
-    },
-    getModel(): SurveyModel {
-      return this.vueSurvey;
-    },
-  },
-  mounted() {
-    if (!this.vueSurvey) return;
-    if (this.vueSurvey["needRenderIcons"]) {
-      SvgRegistry.renderIcons();
+const props = defineProps<
+  | {
+      model: SurveyModel;
+      survey?: SurveyModel;
     }
-    var el = this.$el;
-    if (el) this.vueSurvey.afterRenderSurvey(el);
-    this.vueSurvey.renderCallback = this.forceUpdate;
-    this.vueSurvey.startTimerFromUI();
-  },
-  unmounted() {
-    this.vueSurvey.stopTimer();
-    this.vueSurvey.renderCallback = undefined as any;
-  },
+  | {
+      model?: SurveyModel;
+      survey: SurveyModel;
+    }
+>();
+const root = ref<HTMLElement>();
+const processedCompletedHtmlValue = ref("");
+const updater = ref(1);
+const vueSurvey = computed((): SurveyModel => {
+  const survey = props.survey ? props.survey : props.model;
+  return toRaw(survey) as SurveyModel;
 });
+const pageId = computed(() => {
+  return vueSurvey.value.activePage ? vueSurvey.value.activePage.id : "";
+});
+const getActivePageId = () => {
+  const id = pageId.value;
+  return !!vueSurvey.value && id + updater.value.toString();
+};
+const hasCompletedPage = computed(
+  () =>
+    vueSurvey.value.showCompletedPage && vueSurvey.value.state === "completed"
+);
+const css = computed(() => vueSurvey.value.css);
+const pageKey = computed(() => "page" + getActivePageId());
 
-// TODO: make this functionality available via surveyCss in all examples
-//Object.defineProperty(Survey, "cssType", {
-//  get: function() {
-//    return surveyCss.currentType;
-//  },
-//  set: function(newType) {
-//    StylesManager.applyTheme(newType);
-//  },
-//  enumerable: true,
-//  configurable: false,
-//});
+const getProcessedCompletedHtml = () => {
+  if (!hasCompletedPage.value) return "";
+  if (!processedCompletedHtmlValue.value) {
+    processedCompletedHtmlValue.value = vueSurvey.value.processedCompletedHtml;
+  }
+  return processedCompletedHtmlValue.value;
+};
+
+useBase(() => vueSurvey.value);
+
+onMounted(() => {
+  if (!vueSurvey.value) return;
+  if (vueSurvey.value["needRenderIcons"]) {
+    SvgRegistry.renderIcons();
+  }
+  var el = root.value;
+  if (el) vueSurvey.value.afterRenderSurvey(el);
+  vueSurvey.value.renderCallback = () => {
+    updater.value++;
+    getCurrentInstance()?.proxy?.$forceUpdate();
+  };
+  vueSurvey.value.startTimerFromUI();
+});
+onUnmounted(() => {
+  vueSurvey.value.stopTimer();
+  vueSurvey.value.renderCallback = undefined as any;
+});
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped></style>

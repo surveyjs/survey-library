@@ -1,25 +1,15 @@
 <template>
-  <survey-panel :question="contentPanel" :css="css" />
+  <survey-panel ref="root" :question="contentPanel" :css="css" />
 </template>
 
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import { computed, ref } from "vue";
 import type { QuestionCompositeModel } from "survey-core";
-import { QuestionVue } from "./base";
-
-export default defineComponent({
-  props: {
-    question: {
-      type: Object as PropType<QuestionCompositeModel>,
-      required: true,
-    },
-    css: Object,
-  },
-  mixins: [QuestionVue],
-  computed: {
-    contentPanel() {
-      return this.question.contentPanel;
-    },
-  },
+import { useQuestion } from "./base";
+const props = defineProps<{ question: QuestionCompositeModel; css?: object }>();
+const root = ref(null);
+useQuestion(props, root);
+const contentPanel = computed(() => {
+  return props.question.contentPanel;
 });
 </script>

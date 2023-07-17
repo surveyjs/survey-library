@@ -13,7 +13,7 @@
     <div
       v-if="item.needSeparator"
       v-bind:class="model.cssClasses.itemSeparator"
-    />
+    ></div>
 
     <div
       :style="{ paddingInlineStart: model.getItemIndent(item) }"
@@ -32,37 +32,24 @@
   </li>
 </template>
 
-<script lang="ts">
-import { BaseVue } from "@/base";
+<script lang="ts" setup>
+import { useBase } from "@/base";
 import type { ListModel, Action, IAction } from "survey-core";
-import { defineComponent, type PropType } from "vue";
+import { computed, onMounted } from "vue";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  name: "sv-list-item",
-  props: {
-    model: { type: Object as PropType<ListModel>, required: true },
-    item: { type: Object as PropType<Action>, required: true },
-  },
-  mixins: [BaseVue],
-  methods: {
-    click(event: any) {
-      this.model.onItemClick(this.item as any);
-      event.stopPropagation();
-    },
-    getModel() {
-      return this.item;
-    },
-  },
-  computed: {
-    elementId() {
-      return (this.item as IAction)?.elementId;
-    },
-  },
-  mounted() {
-    setTimeout(() => {
-      this.model.onLastItemRended(this.item as any);
-    });
-  },
+const props = defineProps<{ model: ListModel; item: Action }>();
+
+const elementId = computed(() => (props.item as IAction).elementId);
+const click = (event: any) => {
+  props.model.onItemClick(props.item as any);
+  event.stopPropagation();
+};
+
+useBase(() => props.item);
+
+onMounted(() => {
+  setTimeout(() => {
+    props.model.onLastItemRended(props.item as any);
+  });
 });
 </script>

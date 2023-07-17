@@ -37,35 +37,30 @@
     </div>
   </div>
 </template>
-<script lang="ts">
-import { defineComponent, type PropType } from "vue";
-import { BaseVue } from "../../base";
-import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
+<script lang="ts" setup>
+import { useBase } from "@/base";
+import type {
+  DropdownMultiSelectListModel,
+  QuestionTagboxModel,
+} from "survey-core";
 
-export default defineComponent({
-  props: {
-    model: { type: Object as PropType<DropdownMultiSelectListModel>, required: true },
-    question: Object as PropType<QuestionTagboxModel>,
-  },
-  mixins: [BaseVue],
-  name: "sv-tagbox-filter",
-  methods: {
-    getModel() {
-      return this.model;
-    },
-    inputChange(event: any) {
-      // eslint-disable-next-line vue/no-mutating-props
-      this.model.inputStringRendered = event.target.value;
-    },
-    inputKeyHandler(event: any) {
-      this.model.inputKeyHandler(event);
-    },
-    blur(event: any) {
-      this.model.onBlur(event);
-    },
-    focus(event: any) {
-      this.model.onFocus(event);
-    },
-  },
-});
+const props = defineProps<{
+  question: QuestionTagboxModel;
+  model: DropdownMultiSelectListModel;
+}>();
+const inputChange = (event: any) => {
+  const model = props.model;
+  model.inputStringRendered = event.target.value;
+};
+const inputKeyHandler = (event: any) => {
+  props.model.inputKeyHandler(event);
+};
+const blur = (event: any) => {
+  props.model.onBlur(event);
+};
+const focus = (event: any) => {
+  props.model.onFocus(event);
+};
+
+useBase(() => props.model);
 </script>

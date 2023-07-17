@@ -1,5 +1,8 @@
 <template>
-  <div :style="{ overflowX: question.showHorizontalScroll ? 'scroll' : '' }" :class="question.cssClasses.tableWrapper">
+  <div
+    :style="{ overflowX: question.showHorizontalScroll ? 'scroll' : '' as any }"
+    :class="question.cssClasses.tableWrapper"
+  >
     <table :class="question.getTableCss()">
       <thead v-if="table.showHeader">
         <tr>
@@ -11,7 +14,11 @@
               :style="{ minWidth: cell.minWidth, width: cell.width }"
             >
               <survey-string :locString="cell.locTitle" />
-              <survey-matrixheaderrequired v-if="!!cell.column" :column="cell.column" :question="question"></survey-matrixheaderrequired>
+              <survey-matrixheaderrequired
+                v-if="!!cell.column"
+                :column="cell.column"
+                :question="question"
+              ></survey-matrixheaderrequired>
             </th>
             <td
               v-if="!cell.hasTitle"
@@ -51,59 +58,25 @@
   </div>
 </template>
 
-<script lang="ts">
-import { QuestionMatrixDropdownModelBase, QuestionMatrixDropdownRenderedTable } from "survey-core";
-import { BaseVue } from "./base";
-import { defineComponent, type PropType, getCurrentInstance, watch, onUnmounted } from "vue";
+<script lang="ts" setup>
+import type { QuestionMatrixDropdownModelBase } from "survey-core";
+import { computed, getCurrentInstance } from "vue";
+import { useBase } from "./base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [BaseVue],
-  name: "survey-matrixtable",
-  props: {
-    question: { type: Object as PropType<QuestionMatrixDropdownModelBase>, required: true },
-  },
-  setup(props) {
-    const instance = getCurrentInstance();
-
-    const setupOnChangedCallback = (question: QuestionMatrixDropdownModelBase) => {
-      question.visibleRowsChangedCallback = () => {
-        instance?.proxy?.$forceUpdate();
-      };
-      question.onRenderedTableResetCallback = () => {
-        question.renderedTable.renderedRowsChangedCallback = () => {
-          instance?.proxy?.$forceUpdate();
-        };
-        instance?.proxy?.$forceUpdate();
-      };
-      question.renderedTable.renderedRowsChangedCallback = () => {
-        instance?.proxy?.$forceUpdate();
-      };
-    };
-    //setupOnChangedCallback(props.question);
-    const stopWatch = watch(
-      () => props.question,
-      (newValue, oldValue) => {
-        oldValue.visibleRowsChangedCallback = () => {};
-        oldValue.onRenderedTableResetCallback = () => {};
-        oldValue.renderedTable.renderedRowsChangedCallback = () => {};
-        setupOnChangedCallback(newValue);
-      }
-    );
-    onUnmounted(() => {
-      stopWatch();
-    });
-  },
-  methods: {
-    getModel(): QuestionMatrixDropdownRenderedTable {
-      return this.question.renderedTable;
-    },
-  },
-  computed: {
-    // readonly
-    table(): QuestionMatrixDropdownRenderedTable {
-      return this.question.renderedTable;
-    },
-  },
+const props = defineProps<{ question: QuestionMatrixDropdownModelBase }>();
+const table = computed(() => {
+  return props.question.renderedTable;
 });
+useBase(
+  () => table.value,
+  (newValue) => {
+    const instance = getCurrentInstance();
+    newValue.renderedRowsChangedCallback = () => {
+      instance?.proxy?.$forceUpdate();
+    };
+  },
+  (value) => {
+    value.renderedRowsChangedCallback = () => {};
+  }
+);
 </script>

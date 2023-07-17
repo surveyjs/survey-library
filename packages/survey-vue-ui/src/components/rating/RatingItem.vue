@@ -1,34 +1,33 @@
 <template>
-    <label :key="item.value" @mousedown="question.onMouseDown()" :class="question.getItemClassByText(item.itemValue, item.text)">
-    <input type="radio" class="sv-visuallyhidden" :name="question.name" :id="question.getInputId(index)"
-      :value="item.value" :disabled="question.isInputReadOnly"
-      @click="(e) => question.setValueFromClick(e.target.value)" :aria-required="question.ariaRequired"
-      :aria-label="question.ariaLabel" :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy" />
+  <label
+    :key="item.value"
+    @mousedown="question.onMouseDown()"
+    :class="question.getItemClassByText(item.itemValue, item.text)"
+  >
+    <input
+      type="radio"
+      class="sv-visuallyhidden"
+      :name="question.name"
+      :id="question.getInputId(index)"
+      :value="item.value"
+      :disabled="question.isInputReadOnly"
+      @click="(e) => question.setValueFromClick((e.target as any).value)"
+      :aria-required="question.ariaRequired"
+      :aria-label="question.ariaLabel"
+      :aria-invalid="question.ariaInvalid"
+      :aria-describedby="question.ariaDescribedBy"
+    />
     <span :class="question.cssClasses.itemText">
       <survey-string :locString="item.locText" />
     </span>
   </label>
 </template>
 
-<script lang="ts">
-import type { RenderedRatingItem, QuestionRatingModel } from "survey-core";
-import { BaseVue } from "../../base";
-import { defineComponent, type PropType } from "vue";
+<script lang="ts" setup>
+import type { IRatingItemProps } from "./rating";
+import { useBase } from "@/base";
 
-export default defineComponent({
-  // eslint-disable-next-line
-  mixins: [BaseVue],
-  name: "sv-rating-item",
-  props: {
-    item: Object as PropType<RenderedRatingItem>,
-    question: Object as PropType<QuestionRatingModel>,
-    index: Number,
-  },
-  methods: {
-    getModel() {
-      return this.item;
-    },
-  },
-});
+const props = defineProps<IRatingItemProps>();
+
+useBase(() => props.item);
 </script>

@@ -1117,6 +1117,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private lazyRenderingValue: boolean;
   @property() showBrandInfo: boolean;
+  @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
   /**
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
@@ -6907,8 +6908,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public questionEditFinishCallback(question: Question, event: any) {
-    if (settings.enterKeyAction == "loseFocus") event.target.blur();
-    if (settings.enterKeyAction == "moveToNextEditor") {
+    const enterKeyAction = this.enterKeyAction || settings.enterKeyAction;
+    if (enterKeyAction == "loseFocus") event.target.blur();
+    if (enterKeyAction == "moveToNextEditor") {
       const allQuestions = this.currentPage.questions;
       const questionIndex = allQuestions.indexOf(question);
       if (questionIndex > -1 && questionIndex < allQuestions.length - 1) {

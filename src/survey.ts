@@ -6852,10 +6852,15 @@ export class SurveyModel extends SurveyElementCore
       }
     }
   }
-  copyTriggerValue(name: string, fromName: string) {
+  copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
     if (!name || !fromName) return;
-    var processor = new ProcessValue();
-    var value = processor.getValue(fromName, this.getFilteredValues());
+    let value;
+    if(copyDisplayValue) {
+      value = this.processText("{" + fromName + "}", true);
+    } else {
+      const processor = new ProcessValue();
+      value = processor.getValue(fromName, this.getFilteredValues());
+    }
     this.setTriggerValue(name, value, false);
   }
   triggerExecuted(trigger: Trigger): void {

@@ -15,7 +15,7 @@
         :aria-describedby="question.ariaDescribedBy"
         :required="question.isRequired"
       >
-        <option v-if="question.allowClear" :value="undefined">
+        <option v-if="question.allowClear" value="">
           {{ question.placeholder }}
         </option>
         <sv-dropdown-option-item
@@ -62,11 +62,15 @@ const keyUp = (event: any) => {
 };
 const renderedValue = computed({
   get() {
-    return props.question.value;
+    return props.question.value ?? "";
   },
   set(val) {
     const question = props.question;
-    question.renderedValue = val;
+    if (val === "") {
+      question.renderedValue = undefined;
+    } else {
+      question.renderedValue = val;
+    }
   },
 });
 </script>

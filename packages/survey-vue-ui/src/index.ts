@@ -99,6 +99,7 @@ import PopupModal from "./components/popup/PopupModal.vue";
 import CharacterCounterComponent from "./components/CharacterCounter.vue";
 import Composite from "./Composite.vue";
 import Custom from "./Custom.vue";
+import TimerPanel from "./TimerPanel.vue";
 
 import {
   doKey2ClickBlur,
@@ -217,6 +218,7 @@ function registerComponents(app: App) {
 
   app.component("survey-composite", Composite);
   app.component("survey-custom", Custom);
+  app.component("sv-timerpanel", TimerPanel);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

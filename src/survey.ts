@@ -41,7 +41,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
@@ -1830,12 +1830,19 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   public get logoWidth(): any {
-    var width = this.getPropertyValue("logoWidth");
-    return getSize(width);
+    return this.getPropertyValue("logoWidth");
   }
   public set logoWidth(value: any) {
     this.setPropertyValue("logoWidth", value);
   }
+
+  public get renderedLogoWidth(): number {
+    return this.logoWidth ? getRenderedSize(this.logoWidth) : undefined;
+  }
+  public get renderedStyleLogoWidth(): string {
+    return this.logoWidth ? getRenderedStyleSize(this.logoWidth) : undefined;
+  }
+
   /**
    * A logo height in CSS-accepted values.
    *
@@ -1848,11 +1855,16 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   public get logoHeight(): any {
-    var height = this.getPropertyValue("logoHeight");
-    return getSize(height);
+    return this.getPropertyValue("logoHeight");
   }
   public set logoHeight(value: any) {
     this.setPropertyValue("logoHeight", value);
+  }
+  public get renderedLogoHeight(): number {
+    return this.logoHeight ? getRenderedSize(this.logoHeight) : undefined;
+  }
+  public get renderedStyleLogoHeight(): string {
+    return this.logoHeight ? getRenderedStyleSize(this.logoHeight) : undefined;
   }
   /**
    * A logo position relative to the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).

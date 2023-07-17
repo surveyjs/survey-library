@@ -59,12 +59,10 @@ import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
-import { getSize, increaseHeightByContent } from "../src/utils/utils";
-import { RendererFactory } from "../src/rendererFactory";
+import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent } from "../src/utils/utils";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
-import { IAction } from "../src/actions/action";
 
 export default QUnit.module("Survey");
 
@@ -14253,16 +14251,28 @@ QUnit.test("survey.isLazyRendering", function (assert) {
   assert.equal(survey.isLazyRendering, true, "set in survey");
 });
 QUnit.test("getSize", function (assert) {
-  assert.equal(getSize(300), "300px", "300px");
-  assert.equal(getSize("100%"), "100%", "100%");
-  assert.equal(getSize("100"), "100px", "100px");
+  assert.equal(getRenderedSize("300px"), 300, "300px");
+  assert.equal(getRenderedStyleSize("300px"), undefined, "300px");
+  assert.equal(getRenderedSize("100%"), undefined, "100%");
+  assert.equal(getRenderedStyleSize("100%"), "100%", "300px");
+  assert.equal(getRenderedSize(100), 100, "100px");
+  assert.equal(getRenderedStyleSize(100), undefined, "100");
 });
 QUnit.test("survey logo size", function (assert) {
   var survey = new SurveyModel();
   assert.equal(survey.logoWidth, "300px", "300px");
   assert.equal(survey.logoHeight, "200px", "200px");
+  assert.equal(survey.renderedLogoWidth, 300);
+  assert.equal(survey.renderedLogoHeight, 200);
+  assert.equal(survey.renderedStyleLogoWidth, undefined);
+  assert.equal(survey.renderedStyleLogoHeight, undefined);
   survey.logoWidth = "100%";
+  survey.logoHeight = "auto";
   assert.equal(survey.logoWidth, "100%", "100%");
+  assert.equal(survey.renderedLogoWidth, undefined);
+  assert.equal(survey.renderedLogoHeight, undefined);
+  assert.equal(survey.renderedStyleLogoWidth, "100%");
+  assert.equal(survey.renderedStyleLogoHeight, "auto");
 });
 QUnit.test("element.searchText()", function (assert) {
   var survey = new SurveyModel({

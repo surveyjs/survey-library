@@ -3,6 +3,7 @@ import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { getRenderedStyleSize, getRenderedSize } from "./utils/utils";
 
 const youtubeTags = ["youtube.com", "youtu.be"];
 const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
@@ -85,33 +86,13 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
   }
-  private getRenderedSize(val: string): number {
-    if(typeof val == "string") {
-      if(!isNaN(Number(val))) {
-        return Number(val);
-      }
-      else if(val.includes("px")) {
-        return parseFloat(val);
-      }
-    }
-    if(typeof val == "number") {
-      return val;
-    }
-    return undefined;
-  }
-  private getRenderedStyleSize(val: string): string {
-    if(this.getRenderedSize(val) !== undefined) {
-      return undefined;
-    }
-    return val;
-  }
 
   public get renderedStyleHeight(): string {
-    return this.imageHeight ? this.getRenderedStyleSize(this.imageHeight) : undefined;
+    return this.imageHeight ? getRenderedStyleSize(this.imageHeight) : undefined;
   }
 
   public get renderedHeight(): number {
-    return this.imageHeight ? this.getRenderedSize(this.imageHeight) : undefined;
+    return this.imageHeight ? getRenderedSize(this.imageHeight) : undefined;
   }
   /**
    * Specifies the width of a container for the image or video. Accepts positive numbers and CSS values.
@@ -129,10 +110,10 @@ export class QuestionImageModel extends QuestionNonValue {
     this.setPropertyValue("imageWidth", val);
   }
   public get renderedStyleWidth(): string {
-    return this.imageWidth ? this.getRenderedStyleSize(this.imageWidth) : undefined;
+    return this.imageWidth ? getRenderedStyleSize(this.imageWidth) : undefined;
   }
   public get renderedWidth(): number {
-    return this.imageWidth ? this.getRenderedSize(this.imageWidth) : undefined;
+    return this.imageWidth ? getRenderedSize(this.imageWidth) : undefined;
   }
   /**
    * Specifies how to resize the image or video to fit it into its container.

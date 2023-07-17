@@ -100,16 +100,17 @@ QUnit.test("check process responsiveness for imagepicker, colCount == 0", functi
   question.minImageHeight = 50;
   question.maxImageHeight = 100;
   question["processResponsiveness"](0, 332);
-  assert.equal(question.renderedImageWidth, "100");
-  assert.equal(question.renderedImageHeight, "50");
+  assert.equal(question.renderedImageWidth, 100);
+  assert.equal(question.renderedImageHeight, 50);
 
   question["processResponsiveness"](0, 548);
-  assert.equal(question.renderedImageWidth, "125");
-  assert.equal(question.renderedImageHeight, "62.5");
+  assert.equal(question.renderedImageWidth, 125);
+  assert.equal(question["responsiveImageHeight"], 62.5);
+  assert.equal(question.renderedImageHeight, 62);
 
   question["processResponsiveness"](0, 900);
-  assert.equal(question.renderedImageWidth, "200");
-  assert.equal(question.renderedImageHeight, "100");
+  assert.equal(question.renderedImageWidth, 200);
+  assert.equal(question.renderedImageHeight, 100);
 });
 
 QUnit.test("check process responsiveness for imagepicker, colCount !== 0", function(assert) {

@@ -2,8 +2,10 @@
   <img
   [class]="survey.css.logoImage"
   [attr.src]="survey.locLogo.renderedHtml | safeUrl"
-  [attr.width]="survey.logoWidth ? survey.logoWidth : undefined"
-  [attr.height]="survey.logoHeight ? survey.logoHeight : undefined"
+  [style.width]="survey.renderedStyleLogoHeight"
+  [style.height]="survey.renderedStyleLogoHeight"
+  [attr.width]="survey.renderedLogoWidth"
+  [attr.height]="survey.renderedLogoHeight"
   [attr.alt]="survey.locTitle.renderedHtml"
   [style.objectFit]="survey.logoFit"
   />

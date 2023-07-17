@@ -227,8 +227,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this.setPropertyValue("imageHeight", val);
   }
   @property({}) private responsiveImageHeight: number;
-  public get renderedImageHeight() {
-    const height = this.isResponsive ? this.responsiveImageHeight : this.imageHeight;
+  public get renderedImageHeight(): number {
+    const height = this.isResponsive ? Math.floor(this.responsiveImageHeight) : this.imageHeight;
     return (height ? height : 150);
   }
   /**
@@ -248,8 +248,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   @property({}) private responsiveImageWidth: number;
-  public get renderedImageWidth() {
-    const width = this.isResponsive ? this.responsiveImageWidth : this.imageWidth;
+  public get renderedImageWidth(): number {
+    const width = this.isResponsive ? Math.floor(this.responsiveImageWidth) : this.imageWidth;
     return (width ? width : 200);
   }
   /**

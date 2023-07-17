@@ -200,6 +200,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.validateItemValues(itemValues);
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
+  protected getMultipleSelectedItems(): Array<ItemValue> {
+    return this.selectedChoices;
+  }
   protected validateItemValues(itemValues: Array<ItemValue>): Array<ItemValue> {
     if(!!itemValues.length) return itemValues;
 
@@ -257,7 +260,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (Array.isArray(val)) {
       for (var i = 0; i < val.length; i++) {
         const rVal = this.getRealValue(val[i]);
-        if (this.canClearValueAnUnknow(rVal)) {
+        if (this.canClearValueAnUnknown(rVal)) {
           this.addIntoInvisibleOldValues(rVal);
         }
       }
@@ -390,7 +393,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var newValue = [];
     for (var i = 0; i < val.length; i++) {
       const rItemVal = this.getRealValue(val[i]);
-      var isUnkown = this.canClearValueAnUnknow(rItemVal);
+      var isUnkown = this.canClearValueAnUnknown(rItemVal);
       if (
         (!clearDisabled && !isUnkown) ||
         (clearDisabled && !this.isValueDisabled(rItemVal))
@@ -435,6 +438,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (operator == "contains" || operator == "notcontains") {
       json["type"] = "radiogroup";
     }
+    json["maxSelectedChoices"] = 0;
     return json;
   }
   public isAnswerCorrect(): boolean {

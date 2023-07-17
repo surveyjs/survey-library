@@ -1,6 +1,7 @@
 import { Action } from "../src/actions/action";
 import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
+import { LocalizableString } from "../src/localizablestring";
 import { ResponsivityManager, VerticalResponsivityManager } from "../src/utils/responsivity-manager";
 
 export default QUnit.module("ResponsivityManager");
@@ -127,6 +128,49 @@ QUnit.test("Fit items", function (assert) {
   assert.equal(item1.mode, "small", "dimension 100");
   assert.equal(item2.mode, "large", "dimension 100 unshrinkable");
 
+});
+
+QUnit.test("Fit items - hide if needed", function (assert) {
+  const itemSmallWidth = 50;
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+
+  const item1 = new Action(<any>{});
+  item1.minDimension = 0;
+  item1.disableShrink = true;
+  item1.maxDimension = itemSmallWidth;
+  item1.removePriority = 2;
+  model.actions.push(item1);
+  const item2 = new Action(<any>{});
+  item2.minDimension = 0;
+  item2.disableShrink = true;
+  item2.maxDimension = itemSmallWidth;
+  item2.removePriority = 1;
+  model.actions.push(item2);
+  const item3 = new Action(<any>{});
+  item3.minDimension = 0;
+  item3.disableShrink = true;
+  item3.maxDimension = itemSmallWidth;
+  model.actions.push(item3);
+
+  assert.equal(model.actions.length, 3);
+  assert.equal(model.visibleActions.length, 3);
+
+  model.fit(300, itemSmallWidth);
+  assert.equal(model.visibleActions.length, 3, "dimension 300");
+  assert.equal(model.visibleActions[0].isVisible, true, "300 - visible 1");
+  assert.equal(model.visibleActions[1].isVisible, true, "300 - visible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "300 - visible 3");
+
+  model.fit(120, itemSmallWidth);
+  assert.equal(model.visibleActions.length, 3, "dimension 120");
+  assert.equal(model.visibleActions[0].isVisible, true, "120 - visible 1");
+  assert.equal(model.visibleActions[1].isVisible, false, "120 - invisible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "120 - visible 3");
+  model.fit(70, itemSmallWidth);
+  assert.equal(model.visibleActions.length, 3, "dimension 70");
+  assert.equal(model.visibleActions[0].isVisible, false, "70 - invisible 1");
+  assert.equal(model.visibleActions[1].isVisible, false, "70 - invisible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "70 - visible 3");
 });
 
 QUnit.test("getAvailableSpace with content-box test", function (assert) {
@@ -410,4 +454,56 @@ QUnit.test("check disableHide property", function (assert) {
   assert.ok(item1.isVisible);
   assert.ok(item2.isVisible);
   assert.ok(item3.isVisible);
+});
+
+QUnit.test("check disableHide property in case of different widths", function (assert) {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  const item1 = new Action(<any>{});
+  item1.minDimension = 50;
+  item1.maxDimension = 50;
+  model.actions.push(item1);
+
+  const item2 = new Action(<any>{});
+  item2.minDimension = 75;
+  item2.maxDimension = 75;
+  model.actions.push(item2);
+
+  const item3 = new Action(<any>{});
+  item3.minDimension = 100;
+  item3.maxDimension = 100;
+  item3.disableHide = true;
+  model.actions.push(item3);
+
+  model.fit(125, 0);
+  assert.notOk(item1.isVisible);
+  assert.notOk(item2.isVisible);
+  assert.ok(item3.isVisible);
+
+  model.fit(150, 0);
+  assert.ok(item1.isVisible);
+  assert.notOk(item2.isVisible);
+  assert.ok(item3.isVisible);
+
+  model.fit(225, 0);
+  assert.ok(item1.isVisible);
+  assert.ok(item2.isVisible);
+  assert.ok(item3.isVisible);
+});
+
+QUnit.test("check title change calls raise update", function (assert) {
+  const itemSmallWidth = 48;
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  let log = "";
+  model.updateCallback = (isResetInitialized: boolean) => {
+    log += `->called: ${isResetInitialized}`;
+  };
+  const item1 = new Action(<any>{});
+  item1.minDimension = itemSmallWidth;
+  item1.maxDimension = itemSmallWidth;
+  model.actions.push(item1);
+  assert.equal(log, "->called: true", "called from push");
+  item1.title = "Test";
+  assert.equal(log, "->called: true->called: true", "called from title change");
+  item1.title = "Test";
+  assert.equal(log, "->called: true->called: true");
 });

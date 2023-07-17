@@ -4,24 +4,12 @@ import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { attachKey2click } from "../../reactSurvey";
 import { SvgIcon } from "../svg-icon/svg-icon";
-import { IRatingItemProps, RatingItem } from "./rating-item";
+import { IRatingItemProps, RatingItemBase } from "./rating-item";
 
-export class RatingItemStar extends SurveyElementBase<IRatingItemProps, any> {
-  get question(): QuestionRatingModel {
-    return this.props.question;
-  }
-  get item(): RenderedRatingItem {
-    return this.props.item;
-  }
-  get index(): any {
-    return this.props.index;
-  }
-  getStateElement() {
-    return this.item;
-  }
+export class RatingItemStar extends RatingItemBase {
   render(): JSX.Element | null {
     return (
-      <label
+      <label onMouseDown={this.handleOnMouseDown}
         className={this.question.getItemClass(this.item.itemValue)}
         onMouseOver={e => this.question.onItemMouseIn(this.item)}
         onMouseOut={e => this.question.onItemMouseOut(this.item)}
@@ -44,13 +32,13 @@ export class RatingItemStar extends SurveyElementBase<IRatingItemProps, any> {
         <SvgIcon
           className={"sv-star"}
           size={"auto"}
-          iconName={"icon-rating-star"}
+          iconName={this.question.itemStarIcon}
           title={this.item.text}
         ></SvgIcon>
         <SvgIcon
           className={"sv-star-2"}
           size={"auto"}
-          iconName={"icon-rating-star-2"}
+          iconName={this.question.itemStarIconAlt}
           title={this.item.text}
         ></SvgIcon>
       </label>

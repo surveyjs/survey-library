@@ -1,4 +1,4 @@
-<div style="flex: 1 1 100%; max-width: 100%; min-width: auto;">
+<div style="flex:1 1 100%; max-width:100%; min-width:auto;">
 	<div aria-invalid="false" aria-required="false" class="sd-element sd-element--complex sd-element--with-frame sd-question sd-question--complex sd-question--paneldynamic sd-row__question" data-name="question1" role="textbox">
 		<div class="sd-question__content" role="presentation">
 			<div class="sd-paneldynamic">
@@ -6,8 +6,8 @@
 					<div class="sd-element sd-element--complex sd-panel sd-row__panel">
 						<div class="sd-panel__content">
 							<div class="sd-clearfix sd-row">
-								<div style="flex: 1 1 100%; max-width: 100%; min-width: 300px;">
-									<div aria-invalid="false" aria-required="false" class="sd-element sd-element--nested sd-question sd-row__question sd-row__question--small" data-name="question2" role="textbox">
+								<div style="flex:1 1 100%; max-width:100%; min-width:300px;">
+									<div class="sd-element sd-element--nested sd-question sd-row__question sd-row__question--small" data-name="question2">
 										<div class="sd-question__content sd-text__content" role="presentation">
 											<input aria-invalid="false" aria-label="question2" aria-required="false" class="sd-input sd-text" placeholder="" type="text">
 										</div>
@@ -27,14 +27,35 @@
 								<div class="sv-action sv-action--hidden sv-dots">
 									<div class="sv-action__content">
 										<button class="sv-action-bar-item sv-dots__item" role="button" tabindex="0" title="More" type="button">
-											<svg aria-label="More" class="sv-action-bar-item__icon sv-svg-icon" role="img" style="height: 24px; width: 24px;">
+											<svg aria-label="More" class="sv-action-bar-item__icon sv-svg-icon" role="img" style="height:24px; width:24px;">
 												<use xlink:href="#icon-more" class="">
 												</use>
 												<title class="">More</title>
 											</svg>
-											<div>
-											</div>
 										</button>
+										<div>
+											<div class="sv-popup sv-popup--dropdown sv-popup--left sv-popup--show-pointer" style="display:none;" tabindex="-1">
+												<div class="sv-popup__container">
+													<div class="sv-popup__shadow">
+														<span class="sv-popup__pointer">
+														</span>
+														<div class="sv-popup__body-content">
+															<div class="sv-popup__scrolling-content">
+																<div class="sv-popup__content">
+																	<div class="sv-list__container">
+																		<div class="sv-list__empty-container">
+																			<div aria-label="No data to display" class="sv-list__empty-text">No data to display</div>
+																		</div>
+																		<ul class="sv-list" role="listbox" style="display:none;">
+																		</ul>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>

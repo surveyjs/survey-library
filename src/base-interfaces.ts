@@ -11,6 +11,7 @@ import { IAction } from "./actions/action";
 import { PanelModel } from "./panel";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { DragDropAllowEvent } from "./survey-events-api";
+import { PopupModel } from "./popup";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -52,9 +53,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
   isEditingSurveyElement: boolean;
-  isClearValueOnHidden: boolean;
-  isClearValueOnHiddenContainer: boolean;
+  getQuestionClearIfInvisible(questionClearIf: string): string;
   questionsOrder: string;
+  matrixDragHandleArea: string;
   keepIncorrectValues: boolean;
   questionCreated(question: IQuestion): any;
   questionAdded(
@@ -96,12 +97,14 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   isLoadingFromJson: boolean;
   isUpdateValueTextOnTyping: boolean;
   autoGrowComment: boolean;
+  allowResizeComment: boolean;
 
   state: string;
   isLazyRendering: boolean;
   cancelPreviewByPage(panel: IPanel): any;
-  editText: string;
+  locEditText: LocalizableString;
   cssNavigationEdit: string;
+  rootElement?: HTMLElement;
 
   requiredText: string;
   beforeSettingQuestionErrors(
@@ -220,6 +223,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
+  processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;
@@ -314,6 +318,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   indexOf(el: IElement): number;
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
+  validateContainerOnly(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;
@@ -342,6 +347,14 @@ export interface IWrapperObject {
 export interface IFindElement {
   element: Base;
   str: LocalizableString;
+}
+
+export type ISurveyEnvironment = {
+  root: Document | ShadowRoot,
+  rootElement: HTMLElement | ShadowRoot,
+  popupMountContainer: HTMLElement | string,
+  svgMountContainer: HTMLElement | string,
+  stylesSheetsMountContainer: HTMLElement,
 }
 
 export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";

@@ -1,20 +1,26 @@
+.sd-boolean-root {
+  box-shadow: $shadow-inner;
+  border-radius: calcSize(12.5);
+}
+
 .sd-boolean {
   display: flex;
   width: max-content;
   position: relative;
   padding: calcSize(0.5);
-  background: $editor-background;
-  box-shadow: inset 0px 1px 2px $shadow-inner;
+  background-color: $editor-background;
+  box-shadow: $shadow-inner;
   border-radius: calcSize(12.5);
 }
 
 .sd-boolean__thumb,
 .sd-boolean__label {
   display: block;
+  font-family: $font-editorfont-family;
+  font-weight: $font-editorfont-weight;
+  font-size: $font-editorfont-size;
   color: $foreground-light;
-  font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   padding: calcSize(1) calcSize(3);
 }
 
@@ -44,8 +50,8 @@
 }
 
 .sd-boolean__thumb {
-  background: $background;
-  box-shadow: 0px 1px 2px $shadow-inner;
+  background-color: $background;
+  box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   transition-duration: 0.2s;
   transition-property: margin-left, transform;
@@ -54,6 +60,7 @@
   font-weight: 600;
   margin-left: 0%;
   transform: translateX(0);
+  white-space: nowrap;
   z-index: 2;
 }
 
@@ -76,24 +83,9 @@
   z-index: 1;
 }
 
-.sd-boolean__thumb-ghost:hover {
+.sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover {
   background-color: $background-dim-dark;
   border-radius: calcSize(12.5);
-}
-
-.svc-question__content {
-  .sd-boolean:not(.sd-boolean--checked):not(.sd-boolean--indeterminate) .sd-boolean__label:nth-of-type(1),
-  .sd-boolean--checked .sd-boolean__label:nth-of-type(2) {
-    color: $primary;
-    font-weight: 600;
-    background: $background;
-    box-shadow: 0px 1px 2px $shadow-inner;
-    border-radius: calcSize(12.5);
-  }
-
-  .sd-boolean__switch {
-    display: none;
-  }
 }
 
 .sd-boolean--error {

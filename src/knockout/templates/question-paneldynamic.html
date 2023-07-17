@@ -1,7 +1,7 @@
 <script type="text/html" id="survey-question-paneldynamic">
-  <div data-bind="css: question.koCss().root">
+  <div data-bind="css: question.cssClasses.root">
     <!-- ko if: question.getShowNoEntriesPlaceholder() -->
-      <div data-bind="css: question.koCss().noEntriesPlaceholder">
+      <div data-bind="css: question.cssClasses.noEntriesPlaceholder">
         <span>
           <!-- ko template: { name: 'survey-string', data: locNoEntriesText } --><!-- /ko -->
         </span>
@@ -22,8 +22,8 @@
           <!-- /ko -->
           
         </div>
-        <!-- ko if: $index() < question.panelCount - 1 -->
-        <hr data-bind="css: question.koCss().separator"/>
+        <!-- ko if: question.showSeparator($index()) -->
+        <hr data-bind="css: question.cssClasses.separator"/>
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.showLegacyNavigation -->
@@ -37,7 +37,7 @@
           <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: question.showLegacyNavigation -->
-        <div data-bind="css: question.koCss().progressTop">
+        <div data-bind="css: question.cssClasses.progressTop">
           <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
           <!-- /ko -->
         </div>
@@ -56,21 +56,21 @@
       </div>
       <!-- /ko -->
       <!-- ko if: question.showLegacyNavigation && question.koIsProgressBottom--> 
-      <div data-bind="css: question.koCss().progressBottom">
+      <div data-bind="css: question.cssClasses.progressBottom">
         <!-- ko template: { name: 'survey-question-paneldynamic-navigator', data: question, as: 'question'} -->
         <!-- /ko -->
       </div>
       <!-- /ko -->
     <!-- /ko -->
-    <!-- ko if: !question.showLegacyNavigation && !!question.panelCount != 0 -->
-    <div data-bind="css: question.koCss().footer">
-      <hr data-bind="css: question.koCss().separator"/>
+    <!-- ko if: question.showNavigation -->
+    <div data-bind="css: question.cssClasses.footer">
+      <hr data-bind="css: question.cssClasses.separator"/>
       <!-- ko if: question.koIsRange() && question.koIsProgressBottom -->
          <!-- ko template: { name: 'survey-question-paneldynamic-progress', data: question, as: 'question'} -->
          <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.footerToolbar.visibleActions.length -->
-      <div data-bind="css: question.koCss().footerButtonsContainer">
+      <div data-bind="css: question.cssClasses.footerButtonsContainer">
         <!-- ko component: { name: "sv-action-bar", params: { model: question.footerToolbar } } -->
         <!-- /ko -->
       </div>

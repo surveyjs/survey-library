@@ -1,5 +1,5 @@
 import { Component, Input } from "@angular/core";
-import { ActionDropdownViewModel } from "survey-core";
+import { ActionDropdownViewModel, getActionDropdownButtonTarget } from "survey-core";
 import { BaseAngular } from "../../base-angular";
 import { AngularComponentFactory } from "../../component-factory";
 
@@ -10,6 +10,7 @@ import { AngularComponentFactory } from "../../component-factory";
 })
 export class ActionBarItemDropdownComponent extends BaseAngular {
   @Input() model: any
+  public getTarget: (container: HTMLElement) => HTMLElement = getActionDropdownButtonTarget;
   protected viewModel!: ActionDropdownViewModel;
 
   protected getModel() {

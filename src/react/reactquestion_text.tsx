@@ -44,10 +44,11 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
           onKeyUp={this.question.onKeyUp}
           onKeyDown={this.question.onKeyDown}
           onCompositionUpdate={(event) => this.question.onCompositionUpdate(event.nativeEvent)}
-          aria-required={this.question.ariaRequired}
-          aria-label={this.question.ariaLabel}
-          aria-invalid={this.question.ariaInvalid}
-          aria-describedby={this.question.ariaDescribedBy}
+          aria-required={this.question.a11y_input_ariaRequired}
+          aria-label={this.question.a11y_input_ariaLabel}
+          aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+          aria-invalid={this.question.a11y_input_ariaInvalid}
+          aria-describedby={this.question.a11y_input_ariaDescribedBy}
         />
         {counter}
       </>

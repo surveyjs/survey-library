@@ -152,7 +152,7 @@ frameworks.forEach((framework) => {
   test("expand collapse title", async (t) => {
     const title = "Please enter your name:";
     const questionTitle = Selector("h5").withText(title);
-    const contentItem = Selector(`input[aria-label='${title}']`);
+    const contentItem = Selector("input[type='text']");
 
     assert.equal(await contentItem.visible, true);
     await t.click(questionTitle);

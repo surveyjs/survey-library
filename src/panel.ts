@@ -15,7 +15,7 @@ import {
   ISurvey,
   IFindElement
 } from "./base-interfaces";
-import { SurveyElement } from "./survey-element";
+import { DragTypeOverMeEnum, SurveyElement } from "./survey-element";
 import { Question } from "./question";
 import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
@@ -158,8 +158,10 @@ export class QuestionRowModel extends Base {
           el.renderWidth = this.getRenderedWidthFromWidth(width);
           preSetWidthElements.push(el);
         }
-        if (!(this.panel.isDefaultV2Theme || this.panel.parentQuestion?.isDefaultV2Theme)) {
-          el.rightIndent = counter < visCount - 1 ? 1 : 0;
+        if(counter < visCount - 1 && !(this.panel.isDefaultV2Theme || this.panel.parentQuestion?.isDefaultV2Theme)) {
+          el.rightIndent = 1;
+        } else {
+          el.rightIndent = 0;
         }
         counter++;
       } else {
@@ -233,6 +235,7 @@ export class QuestionRowModel extends Base {
     }
     return false;
   }
+  @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose() {
     super.dispose();
     this.stopLazyRendering();
@@ -317,7 +320,7 @@ export class PanelModelBase extends SurveyElement<Question>
   get hasTitle(): boolean {
     return (
       (this.canShowTitle() && this.title.length > 0) ||
-      (this.showTitle && this.isDesignMode && settings.allowShowEmptyTitleInDesignMode)
+      (this.showTitle && this.isDesignMode && settings.designMode.showEmptyTitles)
     );
   }
   protected canShowTitle(): boolean { return true; }
@@ -325,8 +328,8 @@ export class PanelModelBase extends SurveyElement<Question>
   get _showDescription(): boolean {
     return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
       (this.showDescription && this.isDesignMode &&
-        settings.allowShowEmptyTitleInDesignMode &&
-        settings.allowShowEmptyDescriptionInDesignMode);
+        settings.designMode.showEmptyTitles &&
+        settings.designMode.showEmptyDescriptions);
   }
   public localeChanged() {
     super.localeChanged();
@@ -742,6 +745,12 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return !rec.result;
   }
+  public validateContainerOnly(): void {
+    this.hasErrorsInPanels({ fireCallback: true });
+    if(!!this.parent) {
+      this.parent.validateContainerOnly();
+    }
+  }
   private hasErrorsInPanels(rec: any) {
     var errors = <Array<any>>[];
     this.hasRequiredError(rec, errors);
@@ -839,7 +848,8 @@ export class PanelModelBase extends SurveyElement<Question>
     return null;
   }
   /**
-   * Sets focus on the input of the first question in this panel/page.
+   * Focuses the first question in this panel/page.
+   * @see focusFirstErrorQuestion
    */
   public focusFirstQuestion() {
     var q = this.getFirstQuestionToFocus();
@@ -848,8 +858,9 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   /**
-   * Sets focus on the input of the first question in this panel/page that has an error.
+   * Focuses the first question with a validation error in this panel/page.
    * @see validate
+   * @see focusFirstQuestion
    */
   public focusFirstErrorQuestion() {
     var q = this.getFirstQuestionToFocus(true);
@@ -1124,7 +1135,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private isLazyRenderInRow(rowIndex: number): boolean {
     if (!this.survey || !this.survey.isLazyRendering) return false;
     return (
-      rowIndex >= settings.lazyRowsRenderingStartRow ||
+      rowIndex >= settings.lazyRender.firstBatchSize ||
       !this.canRenderFirstRows()
     );
   }
@@ -1197,18 +1208,18 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("isVisible", this.isVisible);
     if (!this.isLoadingFromJson) this.onVisibleChanged();
   }
-  protected onVisibleChanged() {
+  protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);
     if (
-      !!this.survey &&
-      this.survey.isClearValueOnHiddenContainer &&
+      !!this.survey && this.survey.getQuestionClearIfInvisible("default") !== "none" &&
       !this.isLoadingFromJson
     ) {
-      var questions = this.questions;
+      const questions = this.questions;
+      const isVisible = this.isVisible;
       for (var i = 0; i < questions.length; i++) {
-        if (!this.isVisible) {
-          questions[i].clearValueIfInvisible();
+        if (!isVisible) {
+          questions[i].clearValueIfInvisible("onHiddenContainer");
         } else {
           questions[i].updateValueWithDefaults();
         }
@@ -1724,7 +1735,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (this.hasEditButton) {
         actions.push({
           id: "cancel-preview",
-          title: this.survey.editText,
+          locTitle: this.survey.locEditText,
           innerCss: this.survey.cssNavigationEdit,
           action: () => { this.cancelPreview(); }
         });
@@ -1756,8 +1767,15 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get cssError(): string {
     return this.getCssError(this.cssClasses);
   }
+  public get showErrorsAbovePanel(): boolean {
+    return this.isDefaultV2Theme;
+  }
   protected getCssError(cssClasses: any): string {
-    const builder = new CssClassBuilder().append(this.cssClasses.error.root);
+    const isDefaultV2Theme = this.isDefaultV2Theme;
+    const builder = new CssClassBuilder()
+      .append(this.cssClasses.error.root)
+      .append(this.cssClasses.error.outsideQuestion, isDefaultV2Theme)
+      .append(this.cssClasses.error.aboveQuestion, isDefaultV2Theme);
     return builder.append("panel-error-root", builder.isEmpty()).toString();
   }
   protected onVisibleChanged() {

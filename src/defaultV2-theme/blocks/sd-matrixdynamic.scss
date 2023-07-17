@@ -21,8 +21,8 @@
   appearance: none;
   background: transparent;
   border: none;
-  line-height: calcSize(3);
-  font-size: calcSize(2);
+  line-height: calcLineHeight(1.5);
+  font-size: calcFontSize(1);
   font-family: var(--font-family, $font-family);
   font-weight: 600;
   padding: calcSize(1) 0;
@@ -42,7 +42,7 @@
     width: calcSize(2);
     border: 1px solid $border;
     box-sizing: border-box;
-    border-radius: 10px;
+    border-radius: calcSize(1.25);
   }
 }
 

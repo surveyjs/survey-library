@@ -19,7 +19,7 @@ frameworks.forEach(framework => {
       await applyTheme(theme);
     });
 
-  test("Check rating question", async (t) => {
+  test("Check ranking question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -40,7 +40,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check rating question readonly", async (t) => {
+  test("Check ranking question readonly", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -57,7 +57,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-ranking-readonly.png", Selector(".sd-question"), t, comparer);
     });
   });
-  test("Check rating question items size", async (t) => {
+  test("Check ranking question items size", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -74,6 +74,86 @@ frameworks.forEach(framework => {
         document.querySelector(selector).style.backgroundColor = "red";
       })('div[data-name="ranking_question"] .sv-ranking-item__text .sv-string-viewer');
       await takeElementScreenshot("question-ranking-size.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
+  test("Check ranking question selectToRankEnabled", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
+            name: "ranking_question",
+            choices: ["item1", "item2", "item3", "item4"],
+            selectToRankEnabled: true
+          }
+        ]
+      });
+      await takeElementScreenshot("question-ranking-select-to-rank.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
+  test("Check ranking question selectToRankEnabled vertical mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            title: "Tell me about a time you strongly disagreed with your manager. What did you do to convince him or her that you were right? What happened?",
+            name: "ranking_question",
+            choices: ["item1", "item2", "item3", "item4"],
+            selectToRankEnabled: true,
+            selectToRankAreasLayout: "vertical"
+          }
+        ]
+      });
+      await takeElementScreenshot("question-ranking-select-to-rank-vertical.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
+  test("Shortcut position due container layout", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            title: "ranking question",
+            name: "ranking_question",
+            choices: ["item1", "item2", "item3", "item4"]
+          }
+        ]
+      });
+
+      const item1 = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]")
+        .find("span")
+        .withText("item1");
+
+      const qustion = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]");
+
+      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
+        (<HTMLElement>document.getElementById("surveyElement")).style.margin = "50px";
+        const question = window["survey"].getAllQuestions()[0];
+        question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
+        question.dragDropRankingChoices.domAdapter.drop = () => { };
+        question.dragDropRankingChoices.domAdapter.clear = () => { };
+      });
+
+      await patchDragDropToShowGhostElementAfterDrop();
+
+      await t.dragToElement(item1, qustion);
+
+      await takeElementScreenshot("question-ranking-shortcut-position-container-layout.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

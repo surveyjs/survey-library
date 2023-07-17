@@ -4,6 +4,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Question } from "./question";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { SurveyModel } from "./survey";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -40,6 +41,12 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
  */
 export class QuestionSignaturePadModel extends Question {
   @property({ defaultValue: false }) isDrawingValue: boolean;
+
+  private getPenColorFromTheme(): string {
+    const _survey = this.survey as SurveyModel;
+    return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
+  }
+
   protected getCssRoot(cssClasses: any): string {
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
@@ -49,7 +56,9 @@ export class QuestionSignaturePadModel extends Question {
 
   protected updateValue() {
     if (this.signaturePad) {
-      var data = this.signaturePad.toDataURL(this.dataFormat);
+      const format = this.dataFormat === "jpeg" ? "image/jpeg" :
+        (this.dataFormat === "svg" ? "image/svg+xml" : "");
+      var data = this.signaturePad.toDataURL(format);
       this.value = data;
     }
   }
@@ -89,14 +98,17 @@ export class QuestionSignaturePadModel extends Question {
 
     signaturePad.penColor = this.penColor;
     signaturePad.backgroundColor = this.backgroundColor;
-    signaturePad.onBegin = () => {
+
+    signaturePad.addEventListener("beginStroke", () => {
       this.isDrawingValue = true;
       canvas.focus();
-    };
-    signaturePad.onEnd = () => {
+    }, { once: false });
+
+    signaturePad.addEventListener("endStroke", () => {
       this.isDrawingValue = false;
       this.updateValue();
-    };
+    }, { once: false });
+
     var updateValueHandler = () => {
       var data = this.value;
       canvas.width = this.signatureWidth || defaultWidth;
@@ -133,12 +145,16 @@ export class QuestionSignaturePadModel extends Question {
    *
    * Possible values:
    *
-   * - `""` (default) - PNG
-   * - `"image/jpeg"` - JPEG
-   * - `"image/svg+xml"` - SVG
+   * - `"png"` (default)
+   * - `"jpeg"`
+   * - `"svg"`
    */
-  @property({ defaultValue: "" }) dataFormat: string;
-
+  public get dataFormat(): string {
+    return this.getPropertyValue("dataFormat");
+  }
+  public set dataFormat(val: string) {
+    this.setPropertyValue("dataFormat", correctFormatData(val));
+  }
   /**
    * Specifies the width of the signature area. Accepts positive integer numbers.
    */
@@ -185,7 +201,7 @@ export class QuestionSignaturePadModel extends Question {
    * @see backgroundColor
    */
   public get penColor(): string {
-    return this.getPropertyValue("penColor");
+    return this.getPropertyValue("penColor", this.getPenColorFromTheme());
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
@@ -229,6 +245,13 @@ export class QuestionSignaturePadModel extends Question {
   }
 }
 
+function correctFormatData(val: string): string {
+  if(!val) val = "png";
+  val = val.replace("image/", "").replace("+xml", "");
+  if(val !== "jpeg" && val !== "svg") val = "png";
+  return val;
+}
+
 Serializer.addClass(
   "signaturepad",
   [
@@ -266,12 +289,15 @@ Serializer.addClass(
     {
       name: "dataFormat",
       category: "general",
-      default: "",
+      default: "png",
       choices: [
-        { value: "", text: "PNG" },
+        { value: "png", text: "PNG" },
         { value: "image/jpeg", text: "JPEG" },
         { value: "image/svg+xml", text: "SVG" },
       ],
+      onSettingValue: (obj: any, val: any): any => {
+        return correctFormatData(val);
+      }
     },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },

@@ -4,6 +4,7 @@ import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { LocalizableString } from "./localizablestring";
 import { Base } from "./base";
+import { ISurveyImpl } from "./base-interfaces";
 
 export class CharacterCounter extends Base {
   @property() remainingCharacterCounter: string;
@@ -97,6 +98,10 @@ export class QuestionTextBase extends Question {
     super.localeChanged();
     this.calcRenderedPlaceholder();
   }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean): void {
+    super.setSurveyImpl(value, isLight);
+    this.calcRenderedPlaceholder();
+  }
   protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
     if(!!res && !this.hasPlaceHolder()) {
@@ -111,6 +116,18 @@ export class QuestionTextBase extends Question {
     super.setNewValue(newValue);
     this.updateRemainingCharacterCounter(newValue);
   }
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    super.setQuestionValue(newValue, updateIsAnswered);
+    this.updateRemainingCharacterCounter(newValue);
+  }
+  public disableNativeUndoRedo = false;
+  protected checkForUndo(event: KeyboardEvent) {
+    if (this.disableNativeUndoRedo && this.isInputTextUpdate && (event.ctrlKey || event.metaKey)) {
+      if ([89, 90].indexOf(event.keyCode) !== -1) {
+        event.preventDefault();
+      }
+    }
+  }
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -118,9 +135,54 @@ export class QuestionTextBase extends Question {
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
+
+  //a11y
   public get ariaRole(): string {
+    return null;
+  }
+  public get ariaRequired():any {
+    return null;
+  }
+  public get ariaInvalid():any {
+    return null;
+  }
+  public get ariaLabel(): string {
+    return null;
+  }
+  public get ariaLabelledBy(): string {
+    return null;
+  }
+  public get ariaDescribedBy(): string {
+    return null;
+  }
+
+  public get a11y_input_ariaRole(): string {
     return "textbox";
   }
+  public get a11y_input_ariaRequired(): "true" | "false" {
+    return this.isRequired ? "true" : "false";
+  }
+  public get a11y_input_ariaInvalid(): "true" | "false" {
+    return this.errors.length > 0 ? "true" : "false";
+  }
+  public get a11y_input_ariaLabel(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return null;
+    } else {
+      return this.locTitle.renderedHtml;
+    }
+  }
+  public get a11y_input_ariaLabelledBy(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaDescribedBy(): string {
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+  // EO a11y
 }
 Serializer.addClass(
   "textbase", [],

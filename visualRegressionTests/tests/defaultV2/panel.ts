@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, takeElementScreenshot, resetHoverToBody } from "../../helper";
 
 const title = "Panel Screenshot";
 
@@ -293,6 +293,7 @@ frameworks.forEach(framework => {
       const panelRoot = Selector(".sd-panel");
       await resetFocusToBody();
       await t.click(Selector("input[value='Complete']"));
+      await resetHoverToBody(t);
       await takeElementScreenshot("panel-with-question-errors-above.png", panelRoot, t, comparer);
     });
   });
@@ -487,6 +488,55 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("collapsed-questions-inside-panel.png", panelRoot, t, comparer);
       await t.hover(Selector(".sd-question__header"));
       await takeElementScreenshot("collapsed-questions-inside-panel-hover.png", panelRoot, t, comparer);
+    });
+  });
+  test("Check panel with errors", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel",
+            "isRequired": true,
+            "elements": [
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ],
+            "title": "Panel"
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-panel");
+      await resetFocusToBody();
+      await t.click("input[value='Complete']");
+      await takeElementScreenshot("panel-with-errors.png", panelRoot, t, comparer);
+    });
+  });
+  test("Check panel with errors without title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel",
+            "isRequired": true,
+            "elements": [
+              {
+                "type": "text",
+                "name": "question2"
+              }
+            ],
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-panel");
+      await resetFocusToBody();
+      await t.click("input[value='Complete']");
+      await takeElementScreenshot("panel-with-errors-without-title.png", panelRoot, t, comparer);
     });
   });
 });

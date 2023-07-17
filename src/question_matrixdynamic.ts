@@ -89,7 +89,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   private draggedRow: MatrixDropdownRowModelBase;
   private isBanStartDrag(pointerDownEvent: PointerEvent): boolean {
     const target = (<HTMLElement>pointerDownEvent.target);
-    return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT";
+    return target.getAttribute("contenteditable") === "true" || target.nodeName === "INPUT" || !this.isDragHandleAreaValid(target);
+  }
+  public isDragHandleAreaValid(node:HTMLElement): boolean {
+    if (this.survey.matrixDragHandleArea === "icon") {
+      return node.classList.contains(this.cssClasses.dragElementDecorator);
+    }
+    return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
     if (!row || !this.allowRowsDragAndDrop) return;
@@ -204,7 +210,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.rowCountValue;
   }
   public set rowCount(val: number) {
-    if (val < 0 || val > settings.matrixMaximumRowCount) return;
+    if (val < 0 || val > settings.matrix.maxRowCount) return;
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
@@ -293,7 +299,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
    *
-   * Default value: 1000 (inherited from [`settings.matrixMaximumRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
+   * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
@@ -303,8 +309,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set maxRowCount(val: number) {
     if (val <= 0) return;
-    if (val > settings.matrixMaximumRowCount)
-      val = settings.matrixMaximumRowCount;
+    if (val > settings.matrix.maxRowCount)
+      val = settings.matrix.maxRowCount;
     if (val == this.maxRowCount) return;
     this.setPropertyValue("maxRowCount", val);
     if (val < this.minRowCount) this.minRowCount = val;
@@ -407,11 +413,14 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    */
   public addRow(setFocus?: boolean): void {
     const oldRowCount = this.rowCount;
-    var options = { question: this, canAddRow: this.canAddRow };
+    const allow = this.canAddRow;
+    var options = { question: this, canAddRow: allow, allow: allow };
     if (!!this.survey) {
       this.survey.matrixBeforeRowAdded(options);
     }
-    if (!options.canAddRow) return;
+    const newAllow = allow !== options.allow ? options.allow :
+      (allow !== options.canAddRow ? options.canAddRow : allow);
+    if (!newAllow) return;
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
@@ -690,12 +699,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getConditionObjectsRowIndeces() : Array<number> {
     const res = [];
     const rowCount = Math.max(this.rowCount, 1);
-    for (var i = 0; i < Math.min(settings.matrixMaxRowCountInCondition, rowCount); i++) {
+    for (var i = 0; i < Math.min(settings.matrix.maxRowCountInCondition, rowCount); i++) {
       res.push(i);
     }
     return res;
   }
-  public supportGoNextPageAutomatic() {
+  public supportGoNextPageAutomatic(): boolean {
     return false;
   }
   public get hasRowText(): boolean {
@@ -896,7 +905,7 @@ Serializer.addClass(
     { name: "minRowCount:number", default: 0, minValue: 0 },
     {
       name: "maxRowCount:number",
-      default: settings.matrixMaximumRowCount,
+      default: settings.matrix.maxRowCount,
     },
     { name: "keyName" },
     "defaultRowValue:rowvalue",

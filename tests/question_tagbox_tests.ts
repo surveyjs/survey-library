@@ -44,6 +44,43 @@ const jsonTagbox = {
   }]
 };
 
+QUnit.test("clearValue", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "tagbox",
+        "name": "q1",
+        "hasOther": true,
+        "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
+      }]
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+
+  assert.equal(question.value.length, 0, "init");
+  assert.equal(dropdownListModel.filterString, "", "init");
+  assert.equal(dropdownListModel.inputStringRendered, "", "init");
+  assert.equal(dropdownListModel.hintString, "", "init");
+
+  question.value = [2];
+  dropdownListModel.inputStringRendered = "i";
+  assert.equal(question.value.length, 1);
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(dropdownListModel.filterString, "i");
+  assert.equal(dropdownListModel.inputStringRendered, "i");
+  assert.equal(dropdownListModel.hintString, "item 1");
+
+  question.clearValue();
+
+  assert.equal(question.value.length, 0, "after clear");
+  assert.equal(dropdownListModel.filterString, "", "after clear");
+  assert.equal(dropdownListModel.inputStringRendered, "", "after clear");
+  assert.equal(dropdownListModel.hintString, "", "after clear");
+});
+
 QUnit.test("Tagbox DropdownListModel with MultiListModel", (assert) => {
   const survey = new SurveyModel(jsonTagbox);
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
@@ -266,23 +303,35 @@ QUnit.test("Tagbox hideSelectedItems property set is true", (assert) => {
   assert.deepEqual(question.value, ["item4", "item1"]);
 });
 
-function getNumberArray(skip = 1, count = 25): Array<number> {
+function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   const result: Array<any> = [];
-  for (let index = skip; index < (skip + count); index++) {
-    result.push({ value: index, text: "DisplayText_" + index });
+  let index = skip;
+  while ((skip + result.length) < (skip + count)) {
+    if (!!filter) {
+      if (index.toString().toLowerCase().indexOf(filter.toLocaleLowerCase()) !== -1) {
+        result.push({ value: index, text: "DisplayText_" + index });
+      }
+    }
+    else {
+      result.push({ value: index, text: "DisplayText_" + index });
+    }
+    index++;
   }
   return result;
 }
+
+const onChoicesLazyLoadCallbackTimeOut = 5;
+const callbackTimeOutDelta = 1;
 
 const callback = (_, opt) => {
   const total = 70;
   setTimeout(() => {
     if (opt.skip + opt.take < total) {
-      opt.setItems(getNumberArray(opt.skip + 1, opt.take), total);
+      opt.setItems(getNumberArray(opt.skip + 1, opt.take, opt.filter), total);
     } else {
-      opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip), total);
+      opt.setItems(getNumberArray(opt.skip + 1, total - opt.skip, opt.filter), total);
     }
-  }, 500);
+  }, onChoicesLazyLoadCallbackTimeOut);
 };
 
 QUnit.test("lazy loading: several loading", assert => {
@@ -323,13 +372,81 @@ QUnit.test("lazy loading: several loading", assert => {
         assert.equal(question.choices[69].value, 70);
 
         done3();
-      }, 550);
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
       done2();
-    }, 550);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
     done1();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+
+QUnit.test("storeOthersAsComment is false", assert => {
+  const json = {
+    "storeOthersAsComment": false,
+    "elements": [
+      {
+        "type": "tagbox",
+        "name": "q1",
+        "showOtherItem": true
+      }
+    ],
+    "showQuestionNumbers": false
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.visibleChoices.length, 1);
+  assert.equal(question.visibleChoices[0].id, "other");
+  assert.equal(question.visibleChoices[0].value, "other");
+
+  question.renderedValue = ["other"];
+  assert.deepEqual(question.value, ["other"], "#1");
+  question.comment = "text1";
+  assert.deepEqual(question.value, ["text1"], "#2");
+  assert.deepEqual(survey.data, { q1: ["text1"] }, "#3");
+});
+
+QUnit.test("lazy loading: storeOthersAsComment is false", assert => {
+  const done = assert.async();
+  const json = {
+    "storeOthersAsComment": false,
+    "elements": [
+      {
+        "type": "tagbox",
+        "name": "q1",
+        "choicesLazyLoadEnabled": true,
+        "choicesLazyLoadPageSize": 75,
+        "showOtherItem": true
+      }
+    ],
+    "showQuestionNumbers": false
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.visibleChoices.length, 1);
+  assert.equal(question.visibleChoices[0].id, "other");
+  assert.equal(question.visibleChoices[0].value, "other");
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  setTimeout(() => {
+    assert.equal(question.visibleChoices.length, 71);
+    assert.equal(question.visibleChoices[0].value, 1);
+    assert.equal(question.visibleChoices[69].value, 70);
+    assert.equal(question.visibleChoices[70].id, "other");
+    assert.equal(question.visibleChoices[70].value, "other");
+
+    question.renderedValue = ["other"];
+    assert.deepEqual(question.value, ["other"], "#1");
+    question.comment = "text1";
+    assert.deepEqual(question.value, ["text1"], "#2");
+    assert.deepEqual(survey.data, { q1: ["text1"] }, "#3");
+    done();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("lazy loading: A value disappears when open tagbox popup again", assert => {
@@ -405,13 +522,13 @@ QUnit.test("lazy loading: A value disappears when open tagbox popup again", asse
         assert.equal(question.choices[29].value, 30);
 
         done3();
-      }, 550);
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
       done2();
-    }, 550);
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 
     done1();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 function getObjectArray(skip = 1, count = 25): Array<{value: any, text: string}> {
@@ -430,8 +547,12 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       "name": "q1",
       "defaultValue": [52, 55],
       "choicesLazyLoadEnabled": true
-    }]
-  };
+    },
+    {
+      "type": "text",
+      "name": "q2",
+      "title": "{q1}"
+    }] };
   const survey = new SurveyModel(json);
   survey.onChoicesLazyLoad.add((sender, options) => {
     const total = 55;
@@ -441,7 +562,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -450,6 +571,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   });
 
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const questionTitle = <QuestionTagboxModel>survey.getAllQuestions()[1];
   assert.equal(question.choicesLazyLoadEnabled, true);
   assert.equal(question.choices.length, 0);
   assert.deepEqual(question.value, [52, 55]);
@@ -458,6 +580,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
   assert.equal(question.selectedItems[0].text, "DisplayText_52", "question.selectedItems[0] text");
   assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
   assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
+  assert.equal(questionTitle.locTitle.textOrHtml, "DisplayText_52, DisplayText_55", "display text is correct");
 
   question.dropdownListModel.popupModel.isVisible = true;
   setTimeout(() => {
@@ -471,7 +594,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
     assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
@@ -493,7 +616,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -523,7 +646,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
     assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
     assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
@@ -544,7 +667,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -585,7 +708,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     assert.equal(question.selectedItems[2].value, 10, "question.selectedItems[2] value");
     assert.equal(question.selectedItems[2].text, "DisplayText_10", "question.selectedItems[2] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading data is lost: defaultValue", assert => {
@@ -607,7 +730,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -634,7 +757,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
     assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {
@@ -655,7 +778,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -683,7 +806,136 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
     assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
+});
+
+QUnit.test("lazy loading + change filter string", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(itemsSettings.skip, 0);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 0);
+  assert.equal(itemsSettings.items.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+    assert.equal(itemsSettings.skip, 25);
+    assert.equal(itemsSettings.take, 25);
+    assert.equal(itemsSettings.totalCount, 70);
+    assert.equal(itemsSettings.items.length, 25);
+
+    question.dropdownListModel.filterString = "2";
+    setTimeout(() => {
+      assert.equal(question.choices.length, 25);
+      assert.equal(question.choices[0].value, 2);
+      assert.equal(question.choices[24].value, 123);
+      assert.equal(itemsSettings.skip, 25);
+      assert.equal(itemsSettings.take, 25);
+      assert.equal(itemsSettings.totalCount, 70);
+      assert.equal(itemsSettings.items.length, 25);
+
+      question.dropdownListModel.filterString = "22";
+      setTimeout(() => {
+        assert.equal(question.choices.length, 25);
+        assert.equal(question.choices[0].value, 22);
+        assert.equal(question.choices[24].value, 1223);
+        assert.equal(itemsSettings.skip, 25);
+        assert.equal(itemsSettings.take, 25);
+        assert.equal(itemsSettings.totalCount, 70);
+        assert.equal(itemsSettings.items.length, 25);
+
+        done3();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+
+QUnit.test("lazy loading + change listModel filter string", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const done3 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const itemsSettings = question.dropdownListModel["itemsSettings"];
+  const listModel: MultiSelectListModel = question.dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(itemsSettings.skip, 0);
+  assert.equal(itemsSettings.take, 25);
+  assert.equal(itemsSettings.totalCount, 0);
+  assert.equal(itemsSettings.items.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.equal(question.choices.length, 25);
+    assert.equal(question.choices[0].value, 1);
+    assert.equal(question.choices[24].value, 25);
+    assert.equal(itemsSettings.skip, 25);
+    assert.equal(itemsSettings.take, 25);
+    assert.equal(itemsSettings.totalCount, 70);
+    assert.equal(itemsSettings.items.length, 25);
+
+    listModel.filterString = "2";
+    setTimeout(() => {
+      assert.equal(question.choices.length, 25);
+      assert.equal(question.choices[0].value, 2);
+      assert.equal(question.choices[24].value, 123);
+      assert.equal(itemsSettings.skip, 25);
+      assert.equal(itemsSettings.take, 25);
+      assert.equal(itemsSettings.totalCount, 70);
+      assert.equal(itemsSettings.items.length, 25);
+
+      listModel.filterString = "22";
+      setTimeout(() => {
+        assert.equal(question.choices.length, 25);
+        assert.equal(question.choices[0].value, 22);
+        assert.equal(question.choices[24].value, 1223);
+        assert.equal(itemsSettings.skip, 25);
+        assert.equal(itemsSettings.take, 25);
+        assert.equal(itemsSettings.totalCount, 70);
+        assert.equal(itemsSettings.items.length, 25);
+
+        done3();
+      }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
 });
 
 QUnit.test("Check tagbox in mobile mode with closeOnSelect true", assert => {
@@ -950,4 +1202,67 @@ QUnit.test("reset filterstring after select item", (assert) => {
   list.onItemClick(list.renderedActions.filter(item => list.isItemVisible(item))[0]);
   assert.equal(dropdownListModel.inputStringRendered, "");
   assert.equal(dropdownListModel.filterString, "");
+});
+
+QUnit.test("TagBox displays a value which doesn't exist in a list of choices #6293", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["value1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.selectedChoices.length, 0);
+  assert.deepEqual(survey.data, {
+    "question1": ["value1"],
+  });
+});
+
+QUnit.test("TagBox displays a value as Other if it doesn't exist in a list of choices", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      showOtherItem: true,
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["value1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.selectedChoices[0].id, "other");
+  assert.deepEqual(survey.data, {
+    question1: ["value1"],
+    "question1-Comment": "value1"
+  });
+});
+QUnit.test("TagBox displays a value if list of choices is empty", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "question1",
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  survey.data = {
+    question1: ["Item 1"]
+  };
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(question.value.length, 1);
+  assert.equal(question.value[0], "Item 1");
+  assert.equal(question.selectedItems.length, 1);
+  assert.equal(question.selectedItems[0].id, "Item 1");
+
+  question.setPropertyValue("visibleChoices", []);
+  assert.equal(question.value.length, 1);
+  assert.equal(question.value[0], "Item 1");
+  assert.equal(question.selectedItems.length, 0);
 });

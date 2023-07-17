@@ -4,7 +4,7 @@
   display: flex;
   align-items: center;
   flex-direction: row;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   overflow: auto;
   border: 1px solid $border;
 }
@@ -23,9 +23,9 @@
   appearance: none;
   width: 100%;
   padding: 11px calcSize(2);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   outline: none;
-  font-size: calcSize(2);
+  font-size: calcFontSize(1);
   font-weight: 400;
   background: $background;
   cursor: pointer;

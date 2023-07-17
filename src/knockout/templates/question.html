@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question">
-<div data-bind="css: question.koRootCss(), style: question.getRootStyle(), attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-labelledby': question.ariaLabelledBy}">
+<div data-bind="css: question.getRootCss(), style: question.getRootStyle(), attr: { id: question.id, 'data-name': question.name, role: question.ariaRole, 'aria-required': question.ariaRequired, 'aria-invalid': question.ariaInvalid, 'aria-labelledby': question.ariaLabelledBy, 'aria-expanded': question.ariaExpanded}">
   <!-- ko if: question.showErrorsAboveQuestion -->
     <!-- ko template: { name: 'survey-question-errors', data: question } -->
     <!-- /ko -->

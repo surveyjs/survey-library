@@ -76,6 +76,19 @@ class MyObject {
   constructor(public myItems: Array<IAction>) {}
 }
 
+class MyObject2 {
+  myOnFilter(text: string) {
+    this.myItems.forEach((item: IAction) => {
+      if(!!text && !!item) {
+        item.visible = item.title?.indexOf(text) !== -1;
+      } else {
+        item.visible = true;
+      }
+    });
+  }
+  constructor(public myItems: Array<IAction>) {}
+}
+
 QUnit.test("ListModel custom onFilter", assert => {
   ListModel.MINELEMENTCOUNT = 5;
   const items = [
@@ -113,6 +126,39 @@ QUnit.test("ListModel custom onFilter", assert => {
   list.refresh();
   assert.equal(list.filterString, "", "filterString is reset");
 
+  ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
+});
+
+QUnit.test("ListModel custom onFilter: item is not found when a search string contains a white space", assert => {
+  ListModel.MINELEMENTCOUNT = 5;
+  const items = [
+    new Action({ id: "test1", title: "test1" }),
+    new Action({ id: "test2", title: "test2" }),
+    new Action({ id: "test3", title: "test3" }),
+    new Action({ id: "test4", title: "test4" }),
+    new Action({ id: "test5", title: "test5" }),
+    new Action({ id: "test6", title: "test6" }),
+    new Action({ id: "test7", title: "test7" })
+  ];
+  const myObject = new MyObject2(items);
+  const list = new ListModel([], () => { }, true, null, (text: string) => { myObject.myOnFilter(text); });
+  assert.equal(list.renderedActions.length, 0, "#1");
+  assert.equal(list.isEmpty, true, "#2");
+
+  list.setItems(myObject.myItems);
+  assert.equal(list.isEmpty, false, "#3");
+  assert.equal(list.renderedActions.length, 7, "#4");
+  assert.equal(list.renderedActions.filter(item => item.visible).length, 7, "#5");
+
+  list.filterString = "1 ";
+  assert.equal(list.isEmpty, true, "#6");
+  assert.equal(list.renderedActions.length, 7, "#7");
+  assert.equal(list.renderedActions.filter(item => item.visible).length, 0, "#8");
+
+  list.filterString = "1";
+  assert.equal(list.isEmpty, false, "#9");
+  assert.equal(list.renderedActions.length, 7, "#10");
+  assert.equal(list.renderedActions.filter(item => item.visible).length, 1, "#11");
   ListModel.MINELEMENTCOUNT = oldValueMINELEMENTCOUNT;
 });
 
@@ -312,6 +358,18 @@ QUnit.test("getItemClass", (assert) => {
 
   list.actions[1].css = "custom-css";
   assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled custom-css");
+});
+
+QUnit.test("getListClass", (assert) => {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  assert.equal(list.getListClass(), "sv-list");
+
+  list.filterString = "test";
+  assert.equal(list.getListClass(), "sv-list");
+
+  list.filterString = "test1";
+  assert.equal(list.getListClass(), "sv-list sv-list--filtering");
 });
 
 QUnit.test("allow show selected item with disabled selection", (assert) => {

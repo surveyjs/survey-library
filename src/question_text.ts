@@ -346,8 +346,9 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return this.step;
   }
-  supportGoNextPageAutomatic() {
-    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
+  supportGoNextPageAutomatic(): boolean {
+    return !this.isSurveyInputTextUpdate &&
+      ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
     return ["date", "datetime-local"].indexOf(this.inputType) < 0;
@@ -389,7 +390,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public isReadOnlyRenderDiv(): boolean {
-    return this.isReadOnly && settings.readOnlyTextRenderMode === "div";
+    return this.isReadOnly && settings.readOnly.textRenderMode === "div";
   }
   get inputStyle(): any {
     var style: any = {};
@@ -400,7 +401,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private _isWaitingForEnter = false;
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
-    if (!Helpers.isTwoValueEquals(this.value, newValue)) {
+    if (!this.isTwoValueEquals(this.value, newValue)) {
       this.value = newValue;
     }
   }
@@ -426,6 +427,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyDown = (event: any) => {
+    this.checkForUndo(event);
     if(this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
@@ -434,7 +436,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public onChange = (event: any): void => {
-    if (event.target === document.activeElement) {
+    if (event.target === settings.environment.root.activeElement) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }
@@ -504,6 +506,13 @@ function getCorrectMinMax(obj: QuestionTextBase, min: any, max: any, isMax: bool
   return val;
 }
 
+function propertyEditorMinMaxUpdate(obj: QuestionTextBase, propertyEditor: any): void {
+  if(!!obj && !!obj.inputType) {
+    propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
+    propertyEditor.textUpdateMode = "onBlur";
+  }
+}
+
 Serializer.addClass(
   "text",
   [
@@ -543,9 +552,7 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
-        }
+        propertyEditorMinMaxUpdate(obj, propertyEditor);
       },
       onSettingValue: (obj: any, val: any): any => {
         return getCorrectMinMax(obj, val, obj.max, false);
@@ -562,9 +569,7 @@ Serializer.addClass(
         return getCorrectMinMax(obj, obj.min, val, true);
       },
       onPropertyEditorUpdate: function(obj: any, propertyEditor: any) {
-        if(!!obj && !!obj.inputType) {
-          propertyEditor.inputType = obj.inputType !== "range" ? obj.inputType : "number";
-        }
+        propertyEditorMinMaxUpdate(obj, propertyEditor);
       },
     },
     {

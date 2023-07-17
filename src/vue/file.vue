@@ -14,6 +14,7 @@
       :multiple="question.multipleRendered"
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"
+      :capture="question.renderCapture"
     />
     <input
       v-if="question.isReadOnly"
@@ -43,6 +44,7 @@
             :class="question.getChooseFileCss()"
             :for="question.inputId"
             v-bind:aria-label="question.chooseButtonCaption"
+              v-key2click
             >
             <span>{{ question.chooseButtonCaption }}</span>
             <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.chooseButtonCaption" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
@@ -136,7 +138,6 @@ export class File extends QuestionVue<QuestionFileModel> {
   isPreviewVisible(index: any) {
     return this.question.isPreviewVisible(index);
   }
-
 }
 Vue.component("survey-file", File);
 export default File;

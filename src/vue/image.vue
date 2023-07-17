@@ -2,6 +2,7 @@
   <div :class="question.cssClasses.root">
     <img
       v-if="question.renderedMode === 'image'"
+      v-show="question.imageLink && !question.contentNotLoaded"
       :class="question.getImageCss()"
       :src="question.locImageLink.renderedHtml"
       :alt="question.altText || question.title"
@@ -13,6 +14,7 @@
     /><video
       controls
       v-if="question.renderedMode === 'video'"
+      v-show="question.imageLink && !question.contentNotLoaded"
       :class="question.getImageCss()"
       :src="question.locImageLink.renderedHtml"
       :width="question.renderedWidth"

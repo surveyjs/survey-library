@@ -1,6 +1,4 @@
 import { ClientFunction, Selector } from "testcafe";
-import { waitForAngular } from "testcafe-angular-selectors";
-
 // eslint-disable-next-line no-undef
 const minimist = require("minimist");
 
@@ -91,7 +89,7 @@ export const registerCustomToolboxComponent = ClientFunction(
           },
         },
         template:
-          '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></div>',
+          '<span class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></span>',
       });
     } else if (framework === "react") {
       class CustomActionButton extends window["React"].Component {
@@ -101,10 +99,10 @@ export const registerCustomToolboxComponent = ClientFunction(
         render() {
           return (
             // eslint-disable-next-line react/react-in-jsx-scope
-            <div className="my-custom-action-class" onClick={this.click}>
+            <span className="my-custom-action-class" onClick={this.click}>
               {" "}
               {this.props.item.title}
-            </div>
+            </span>
           );
         }
       }
@@ -121,7 +119,7 @@ export const registerCustomToolboxComponent = ClientFunction(
           item: {},
         },
         template:
-          '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>',
+          '<span class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</span>',
       });
     }
   }

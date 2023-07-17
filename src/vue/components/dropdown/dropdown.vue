@@ -1,11 +1,10 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper">
+  <div :class="question.cssClasses.selectWrapper" @click="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-bind:disabled="question.isInputReadOnly"
       :tabindex="model.inputReadOnly ? undefined : 0"
-      @click="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -14,7 +13,7 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+      :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired"
@@ -51,7 +50,7 @@
       :tabindex="model.inputReadOnly ? undefined : -1"
       :readonly="!model.searchEnabled ? true : null"
       :aria-label="question.placeholder"
-      :aria-expanded="question.ariaExpanded ? 'true' : 'false'"
+      :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :placeholder="model.placeholderRendered"
@@ -85,6 +84,17 @@
         :locString="question.selectedItemLocText"
       />
       <div>{{ question.readOnlyText }}</div>
+    </div>
+    <div
+      :class="question.cssClasses.chevronButton"
+      v-if="question.cssClasses.chevronButtonIconId"
+    >
+      <sv-svg-icon
+        :class="question.cssClasses.chevronButtonSvg"
+        :iconName="question.cssClasses.chevronButtonIconId"
+        size="24"
+      >
+      </sv-svg-icon>
     </div>
   </div>
 </template>

@@ -5,18 +5,12 @@ const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
   constructor(public popupViewModel: PopupBaseViewModel) {
-    popupViewModel.initializePopupContainer();
     new ImplementorBase(popupViewModel.model);
     new ImplementorBase(popupViewModel);
-    popupViewModel.container.innerHTML = template;
     popupViewModel.model.onVisibilityChanged.add(this.visibilityChangedHandler);
-    ko.applyBindings(popupViewModel, popupViewModel.container);
   }
   dispose() {
-    ko.cleanNode(this.popupViewModel.container);
     this.popupViewModel.model.onVisibilityChanged.remove(this.visibilityChangedHandler);
-    this.popupViewModel.unmountPopupContainer();
-    this.popupViewModel.container = undefined;
   }
   visibilityChangedHandler = (s: any, option: { isVisible: boolean }) => {
     if (option.isVisible) {
@@ -34,7 +28,8 @@ export function showModal(
   onCancel?: () => void,
   cssClass?: string,
   title?: string,
-  displayMode: "popup" | "overlay" = "popup"
+  displayMode: "popup" | "overlay" = "popup",
+  container?: HTMLElement
 ): PopupBaseViewModel {
   const options = createDialogOptions(
     componentName,
@@ -47,12 +42,18 @@ export function showModal(
     title,
     displayMode
   );
-  return showDialog(options);
+  return showDialog(options, container);
 }
-export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-  dialogOptions.onHide = () => { viewModel.dispose(); };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
+export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+  dialogOptions.onHide = () => {
+    viewModel.dispose();
+    ko.cleanNode(popupViewModel.container);
+    popupViewModel.dispose();
+  };
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
   var viewModel = new PopupViewModel(popupViewModel);
+  popupViewModel.container.innerHTML = template;
+  ko.applyBindings(viewModel, popupViewModel.container);
   popupViewModel.model.isVisible = true;
   return popupViewModel;
 }
@@ -62,12 +63,11 @@ settings.showModal = showModal;
 ko.components.register("sv-popup", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      const viewModel = createPopupViewModel(
-        ko.unwrap(params.model),
-        componentInfo.element.parentElement
-      );
+      const container = componentInfo.element.nodeType === Node.COMMENT_NODE ? componentInfo.element.nextElementSibling : componentInfo.element;
+      const viewModel = createPopupViewModel(ko.unwrap(params.model));
+      viewModel.setComponentElement(container, params.getTarget ? params.getTarget(container) : undefined);
       return new PopupViewModel(viewModel);
     },
   },
-  template: "<div></div>",
+  template: template
 });

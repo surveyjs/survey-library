@@ -1,17 +1,19 @@
 <div [class]="model.cssClasses.root" #contentElement>
   <img
     *ngIf="model.renderedMode === 'image'"
+    [visible]="!!model.locImageLink.renderedHtml && !model.contentNotLoaded"
     [class]="model.getImageCss()"
     [attr.src]="model.locImageLink.renderedHtml"
     [attr.alt]="model.altText || model.title"
     [attr.width]="model.renderedWidth"
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"
-    (loadedmetadata)="model.onLoadHandler()"
+    (load)="model.onLoadHandler()"
     (error)="model.onErrorHandler()"
   /><video
     controls
     *ngIf="model.renderedMode === 'video'"
+    [visible]="!!model.locImageLink.renderedHtml && !model.contentNotLoaded"
     [class]="model.getImageCss()"
     [attr.src]="model.locImageLink.renderedHtml"
     [attr.width]="model.renderedWidth"
@@ -28,7 +30,7 @@
     [attr.height]="model.renderedHeight"
     [style]="{ objectFit: model.imageFit }"
     ></iframe>
-    <div *ngIf="!model.imageLink || model.contentNotLoaded" [class]="model.cssClasses.noImage">
+    <div *ngIf="!model.locImageLink.renderedHtml || model.contentNotLoaded" [class]="model.cssClasses.noImage">
       <svg [iconName]="model.cssClasses.noImageSvgIconId" [size]="48" sv-ng-svg-icon></svg>
     </div>
 </div>

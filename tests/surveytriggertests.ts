@@ -35,10 +35,10 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
     return this.items;
   }
   setCompleted() {}
-  canBeCompleted() {}
+  canBeCompleted(trigger: Trigger, isCompleted: boolean) {}
   triggerExecuted(trigger: Trigger): void {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
-  copyTriggerValue(name: string, fromName: string) {}
+  copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {}
   focusQuestion(name: string): boolean {
     return true;
   }
@@ -238,17 +238,48 @@ QUnit.test("On trigger executed && executeCompleteTriggerOnValueChanged=true", f
   });
   const triggers = [];
   let isCompleteEvent = false;
+  let completeTrigger;
   survey.onTriggerExecuted.add((sender, options) => {
     triggers.push(options.trigger.getType());
   });
   survey.onComplete.add((sender, options) => {
     isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
   });
   survey.setValue("q1", 3);
   assert.equal(survey.state, "completed");
   assert.deepEqual(triggers, ["completetrigger"]);
   assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.expression, "{q1} = 3");
   settings.executeCompleteTriggerOnValueChanged = false;
+});
+QUnit.test("On trigger executed && options.completeTrigger", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{q1} = 3"
+      },
+    ],
+  });
+  let isCompleteEvent = false;
+  let completeTrigger;
+  survey.onComplete.add((sender, options) => {
+    isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
+  });
+  survey.setValue("q1", 3);
+  assert.equal(survey.state, "running");
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed");
+  assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.expression, "{q1} = 3");
 });
 QUnit.test("Show complete button instead of next if complete trigger is going to be executed", function(
   assert
@@ -333,6 +364,34 @@ QUnit.test("Do not execute copy and set trigger on page changed", function(
   survey.doComplete();
   assert.deepEqual(survey.data, data, "We do not change anything");
 });
+QUnit.test("copyvalue from checkbox", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "checkbox", name: "q1",
+            choices: [{ value: 1, text: "Item1" }, { value: 2, text: "Item2" }, { value: 3, text: "Item3" }] },
+          { type: "text", name: "q2" },
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "expression": "{q1} notempty",
+        "fromName": "q1",
+        "setToName": "q2",
+        "copyDisplayValue": true
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = [1, 3];
+  assert.deepEqual(q2.value, "Item1, Item3", "Copy value correctly");
+  q1.value = [1, 2];
+  assert.deepEqual(q2.value, "Item1, Item2", "Copy value correctly");
+});
 
 QUnit.test("Execute trigger on complete", function(assert) {
   class TriggerExprssionTester extends SurveyTriggerRunExpression {
@@ -408,4 +467,56 @@ QUnit.test("Trigger with simple matrix", function(assert) {
   assert.equal(q2.value, 8, "#4");
   q1.value = { b: 2, c: 3 };
   assert.equal(q2.value, 8, "#5");
+});
+QUnit.test("Show complete button instead of next for single matrix, bug#6152", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          {
+            type: "matrix",
+            name: "q1",
+            columns: [1, 2, 3],
+            rows: ["row1", "row2", "row3"]
+          }
+        ]
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      }
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression:
+          "{q1.row2} = 1"
+      }
+    ]
+  });
+  assert.equal(survey.isShowNextButton, true, "#1-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#1-complete");
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = { row2: 1 };
+  assert.equal(survey.isShowNextButton, false, "#2-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#2-complete");
+  q1.value = { row1: 1, row2: 1 };
+  assert.equal(survey.isShowNextButton, false, "#3-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#3-complete");
+  q1.value = { row1: 1 };
+  assert.equal(survey.isShowNextButton, true, "#4-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#4-complete");
+  q1.value = { row1: 1, row2: 2 };
+  assert.equal(survey.isShowNextButton, true, "#5-next");
+  assert.equal(survey.isCompleteButtonVisible, false, "#5-complete");
+  q1.value = { row1: 1, row2: 1 };
+  assert.equal(survey.isShowNextButton, false, "#6-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#6-complete");
+  q1.value = { row1: 2, row2: 1, row3: 2 };
+  assert.equal(survey.isShowNextButton, false, "#7-next");
+  assert.equal(survey.isCompleteButtonVisible, true, "#7-complete");
 });

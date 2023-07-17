@@ -1,22 +1,22 @@
 @import "../defaultV2-theme/variables.scss";
 
 .sv-save-data_root {
-  position: absolute;
+  position: fixed;
   left: 50%;
   bottom: calcSize(3);
   background: $background;
   opacity: 0;
   padding: calcSize(3) calcSize(6);
-  box-shadow: 0px 2px 6px $shadow-medium;
-  border-radius: calcSize(1);
+  box-shadow: $shadow-medium;
+  border-radius: calcCornerRadius(2);
   color: $foreground;
   min-width: calcSize(30);
   text-align: center;
   z-index: 1600; //todo: should overlap popup
 
   font-family: var(--font-family, $font-family);
-  font-size: calcSize(2);
-  line-height: calcSize(3);
+  font-size: calcFontSize(1);
+  line-height: calcLineHeight(1.5);
 
   display: flex;
   flex-direction: row;
@@ -50,6 +50,7 @@
     flex-shrink: 0;
   }
 }
+
 .sv-save-data_root--shown.sv-save-data_success,
 .sv-save-data_root--shown.sv-save-data_error {
   opacity: 1;
@@ -65,17 +66,18 @@
 
 .sv-save-data_root.sv-save-data_error .sv-save-data_button {
   font-weight: 600;
-  font-size: calcSize(2);
-  line-height: calcSize(3);
+  font-size: calcFontSize(1);
+  line-height: calcLineHeight(1.5);
   height: calcSize(5);
   color: #ffffff;
   background-color: $red;
   border: calcSize(0.25) solid #ffffff;
-  border-radius: calcSize(0.75);
+  border-radius: calcCornerRadius(1.5);
   padding: calcSize(1) calcSize(3);
   display: flex;
   align-items: center;
 }
+
 .sv-save-data_root.sv-save-data_error .sv-save-data_button:hover,
 .sv-save-data_root.sv-save-data_error .sv-save-data_button:focus {
   color: $red;

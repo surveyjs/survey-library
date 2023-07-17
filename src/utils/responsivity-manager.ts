@@ -1,4 +1,3 @@
-import { setTimeout } from "timers";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { isContainerVisible } from "./utils";
@@ -31,8 +30,7 @@ export class ResponsivityManager {
     this.model.updateCallback = (isResetInitialized: boolean) => {
       if(isResetInitialized)
         this.isInitialized = false;
-      else
-        setTimeout(() => { this.process(); }, 1);
+      setTimeout(() => { this.process(); }, 1);
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((_) => this.process());
@@ -73,12 +71,11 @@ export class ResponsivityManager {
 
   private calcItemsSizes() {
     const actions = this.model.actions;
-    this.container
-      .querySelectorAll(this.itemsSelector)
-      .forEach((item: HTMLDivElement, index: number) => {
-        let currentAction = actions[index];
-        this.calcActionDimensions(currentAction, item);
-      });
+    const _items = this.container.querySelectorAll(this.itemsSelector);
+    (_items || []).forEach((item: HTMLDivElement, index: number) => {
+      let currentAction = actions[index];
+      this.calcActionDimensions(currentAction, item);
+    });
   }
   protected calcActionDimensions(currentAction: Action, item: HTMLDivElement) {
     currentAction.maxDimension = this.calcItemSize(item);

@@ -21,7 +21,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
 
   private syncFilterStringPlaceholder() {
     const selectedActions = this.getSelectedActions();
-    if (selectedActions.length || this.question.selectedItems.length) {
+    if (selectedActions.length || this.question.selectedItems.length || this.listModel.focusedItem) {
       this.filterStringPlaceholder = undefined;
     } else {
       this.filterStringPlaceholder = this.question.placeholder;
@@ -58,11 +58,14 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
         }
       };
     }
-    return new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, undefined, this.listElementId);
+    const res = new MultiSelectListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
+    res.forceShowFilter = true;
+    return res;
   }
   protected resetFilterString(): void {
     super.resetFilterString();
     this.inputString = null;
+    this.hintString = "";
   }
   @property() previousValue: any;
   @property({ localizable: { defaultStr: "tagboxDoneButtonCaption" } }) doneButtonCaption: string;
@@ -114,7 +117,12 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     let newValue = [].concat(this.question.renderedValue || []);
     newValue.splice(newValue.indexOf(id), 1);
     this.question.renderedValue = newValue;
+    this.applyHintString(this.listModel.focusedItem);
     this.updateListState();
+  }
+  public clear(): void {
+    super.clear();
+    this.syncFilterStringPlaceholder();
   }
   public onClear(event: any): void {
     super.onClear(event);
@@ -147,6 +155,32 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   public setInputStringFromSelectedItem(newValue: any): void {
     if (this.question.searchEnabled) {
       this.inputString = null;
+    }
+  }
+
+  protected focusItemOnClickAndPopup() {
+    return;
+  }
+  protected onEscape() {
+    return;
+  }
+  protected beforeScrollToFocusedItem(focusedItem: ItemValue) {
+    return;
+  }
+
+  protected afterScrollToFocusedItem() {
+    if (!this.listModel.focusedItem?.selected) {
+      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+    } else {
+      this.hintString = "";
+    }
+    this.syncFilterStringPlaceholder();
+  }
+
+  protected onPropertyChangedHandler(sender: any, options: any) {
+    super.onPropertyChangedHandler(sender, options);
+    if (options.name === "value" || options.name === "renderedValue") {
+      this.syncFilterStringPlaceholder();
     }
   }
 }

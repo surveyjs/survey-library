@@ -1,5 +1,5 @@
 <ng-template #template>
-  <label [class]="model.getItemClass(item.itemValue, item.highlight)" (mouseover)="model.onItemMouseIn(item)" (mouseout)="model.onItemMouseOut(item)">
+  <label [style]="model.getItemStyle(item.itemValue, item.highlight)" [class]="model.getItemClass(item.itemValue, item.highlight)" (mouseover)="model.onItemMouseIn(item)" (mouseout)="model.onItemMouseOut(item)" (mousedown)="model.onMouseDown()">
     <input type="radio"
       class="sv-visuallyhidden"
       [attr.name]="model.name" [attr.id]="model.getInputId(index)" [value]="item.value" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy"

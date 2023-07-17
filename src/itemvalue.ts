@@ -12,11 +12,10 @@ import { Base, ComputedUpdater } from "./base";
 import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
-import { QuestionSelectBase } from "./question_baseselect";
-import { QuestionRatingModel } from "./question_rating";
+import { Question } from "./question";
 
 /**
- * Array of ItemValue is used in checkox, dropdown and radiogroup choices, matrix columns and rows.
+ * Array of ItemValue is used in checkbox, dropdown and radiogroup choices, matrix columns and rows.
  * It has two main properties: value and text. If text is empty, value is used for displaying.
  * The text property is localizable and support markdown.
  */
@@ -235,6 +234,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public getLocale(): string {
     return !!this.locOwner && this.locOwner.getLocale ? this.locOwner.getLocale() : "";
   }
+  public isGhost: boolean;
+  protected get isInternal(): boolean {
+    return this.isGhost === true;
+  }
   public get locText(): LocalizableString {
     return this.locTextValue;
   }
@@ -302,10 +305,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     if (Helpers.isValueEmpty(json.value)) return json;
     const canSerializeVal = this.canSerializeValue();
-    const canSerializeAsContant = !canSerializeVal || !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
+    const canSerializeAsContant = !canSerializeVal || !settings.serialization.itemValueSerializeAsObject && !settings.serialization.itemValueSerializeDisplayText;
     if (canSerializeAsContant && Object.keys(json).length == 1)
       return this.value;
-    if (settings.itemValueAlwaysSerializeText && json.text === undefined && canSerializeVal) {
+    if (settings.serialization.itemValueSerializeDisplayText && json.text === undefined && canSerializeVal) {
       json.text = this.value.toString();
     }
     return json;
@@ -405,17 +408,18 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   //base action
   @property() selectedValue: boolean;
   public get selected(): boolean {
-    if(this._locOwner instanceof QuestionSelectBase && this.selectedValue === undefined) {
-      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => (<QuestionSelectBase>this._locOwner).isItemSelected(this)));
+    const locOwner = this._locOwner;
+    if(locOwner instanceof Question && locOwner.isItemSelected && this.selectedValue === undefined) {
+      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => locOwner.isItemSelected(this)));
     }
     return this.selectedValue;
   }
   private componentValue: string;
   public getComponent(): string {
-    if(this._locOwner instanceof QuestionSelectBase) {
+    if(this._locOwner instanceof Question) {
       return this.componentValue || this._locOwner.itemComponent;
     }
-    return "";
+    return this.componentValue;
   }
   public setComponent(val: string): void {
     this.componentValue = val;
@@ -472,7 +476,7 @@ JsonObjectProperty.getItemValuesDefaultValue = (val: any, type: string): Array<I
 Serializer.addClass(
   "itemvalue",
   [
-    "!value",
+    { name: "!value", isUnique: true },
     {
       name: "text",
       serializationProperty: "locText",

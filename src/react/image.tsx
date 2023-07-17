@@ -26,6 +26,9 @@ export class SurveyQuestionImage extends SurveyQuestionElementBase {
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.getImageCss();
     var style: any = { objectFit: this.question.imageFit };
+    if(!this.question.imageLink || this.question.contentNotLoaded) {
+      style["display"] = "none";
+    }
     var control: JSX.Element | null = null;
     if (this.question.renderedMode === "image") {
       control = (

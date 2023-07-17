@@ -1,11 +1,12 @@
 import * as ko from "knockout";
-import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions } from "survey-core";
+import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions, settings } from "survey-core";
 import { SurveyElement } from "survey-core";
 import { koTemplate, SurveyTemplateText } from "./templateText";
 import { CustomWidgetCollection } from "survey-core";
 import { LocalizableString } from "survey-core";
 import { ItemValue } from "survey-core";
 import { ImplementorBase } from "./kobase";
+import { getElement } from "survey-core";
 
 CustomWidgetCollection.Instance.onCustomWidgetAdded.add(customWidget => {
   if (customWidget.widgetJson.isDefaultRender) return;
@@ -65,12 +66,12 @@ export class SurveyImplementor extends ImplementorBase {
     if (typeof ko === "undefined")
       throw new Error("knockoutjs library is not loaded.");
     const page = this.survey.activePage;
-    if(!!page) {
+    if (!!page) {
       page.updateCustomWidgets();
     }
     this.survey.updateElementCss(false);
     if (element && typeof element === "string") {
-      element = document.getElementById(element);
+      element = getElement(element);
     }
     if (element) {
       this.renderedElement = element;
@@ -84,12 +85,12 @@ export class SurveyImplementor extends ImplementorBase {
     ko.renderTemplate(
       "survey-content",
       this.survey,
-      { },
+      {},
       this.renderedElement
     );
   }
   public koEventAfterRender(element: any, survey: any) {
-    if(survey["needRenderIcons"]) {
+    if (survey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
     survey.afterRenderSurvey(element);
@@ -154,7 +155,7 @@ LocalizableString.prototype["onCreating"] = function () {
   var self = this;
   this.koHasHtml = ko.observable(this.hasHtml);
   this.koRenderedHtml = ko.observable(this.renderedHtml);
-  this.onStringChanged.add(function() {
+  this.onStringChanged.add(function () {
     const hasHtml = self.hasHtml;
     self.koHasHtml(hasHtml);
     self.koRenderedHtml(hasHtml ? self.getHtmlValue() : self.calculatedText);
@@ -211,11 +212,12 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
         "survey-content-" + platform
       );
       if (!templateElementRoot) {
+        const { rootElement } = settings.environment;
         templateElementRoot = document.createElement("div");
         templateElementRoot.id = "survey-content-" + SurveyModel.platform;
         templateElementRoot.style.display = "none";
         templateElementRoot.innerHTML = koTemplate;
-        document.body.appendChild(templateElementRoot);
+        rootElement.appendChild(templateElementRoot);
       }
       var elem;
       for (var i = 0; i < templateElementRoot.children.length; i++) {
@@ -257,9 +259,30 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
   ko.setTemplateEngine(surveyTemplateEngineInstance);
 };
 
+ko.bindingHandlers["elementStyle"] = {
+  update: function (element, valueAccessor, allBindings) {
+    if (element && element.style.length) {
+      for (let index = element.style.length - 1; index >= 0; index--) {
+        const style = element.style[index] as string;
+        if (style && style.indexOf("--sjs-") === 0) {
+          element.style.removeProperty(style);
+        }
+      }
+    }
+    var value = ko.utils.unwrapObservable(valueAccessor()) || {};
+    Object.keys(value).forEach(key => {
+      if(key.indexOf("--") === 0) {
+        element.style.setProperty(key, value[key]);
+      } else {
+        element.style[key] = value[key];
+      }
+    });
+  }
+};
+
 ko.bindingHandlers["key2click"] = {
   init: function (element: HTMLElement, valueAccessor, allBindingsAccessor, viewModel: any) {
-    const options: IAttachKey2clickOptions = valueAccessor() || {
+    const options: IAttachKey2clickOptions = { ...valueAccessor() } || {
       processEsc: true,
       disableTabStop: false
     };

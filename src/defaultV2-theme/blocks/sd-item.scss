@@ -11,7 +11,7 @@
   height: calcSize(3);
   box-sizing: border-box;
   background: var(--sd-item-default-background, $editor-background);
-  box-shadow: inset 0px 1px 2px $shadow-inner;
+  box-shadow: $shadow-inner;
   border: none;
   flex-shrink: 0;
 }
@@ -20,7 +20,7 @@
   box-shadow: none;
 }
 
-.sd-item__control:focus + .sd-item__decorator {
+.sd-item__control:focus+.sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
   background: $background;
   outline: none;
@@ -36,12 +36,12 @@
 }
 
 .sd-item__control-label {
-  font-family: var(--font-family, $font-family);
+  font-family: $font-editorfont-family;
   font-style: normal;
   font-weight: normal;
-  line-height: calcSize(3);
-  font-size: calcSize(2);
-  color: $foreground;
+  line-height: calcLineHeight(1.5);
+  font-size: $font-editorfont-size;
+  color: $font-editorfont-color;
   white-space: normal;
   word-break: break-word;
   width: 100%;

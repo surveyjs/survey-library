@@ -6,6 +6,13 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return "matrix-row";
   }
 
+  protected restoreUserSelectValue: string;
+
+  protected onStartDrag(): void {
+    this.restoreUserSelectValue = document.body.style.userSelect;
+    document.body.style.userSelect = "none";
+  }
+
   protected createDraggedElementShortcut(
     text: string,
     draggedElementNode: HTMLElement,
@@ -16,38 +23,39 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
-          z-index: 1000;
-          font-family: var(--font-family, $font-family);
+          z-index: 10000;
+          font-family: var(--font-family, 'Open Sans');
         `;
 
     const isDeepClone = true;
 
-    const row = <HTMLElement>(draggedElementNode
-      .closest("[data-sv-drop-target-matrix-row]"));
-    const clone = <HTMLElement>(row.cloneNode(isDeepClone));
+    if(!!draggedElementNode) {
+      const row = <HTMLElement>(draggedElementNode
+        .closest("[data-sv-drop-target-matrix-row]"));
+      const clone = <HTMLElement>(row.cloneNode(isDeepClone));
 
-    clone.style.cssText = `
-      filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
-      box-shadow: rgb(0 0 0 / 10%) 0px 8px 16px;
-      background-color: white;
-      display: flex;
-      flex-grow: 0;
-      flex-shrink: 0;
-      align-items: center;
-      line-height: 0;
-      width: ${row.offsetWidth}px;
-    `;
+      clone.style.cssText = `
+        box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+        background-color: var(--sjs-general-backcolor, var(--background, #fff));
+        display: flex;
+        flex-grow: 0;
+        flex-shrink: 0;
+        align-items: center;
+        line-height: 0;
+        width: ${row.offsetWidth}px;
+      `;
 
-    clone.classList.remove("sv-matrix__drag-drop--moveup");
-    clone.classList.remove("sv-matrix__drag-drop--movedown");
-    this.draggedElement.isDragDropMoveDown = false;
-    this.draggedElement.isDragDropMoveUp = false;
+      clone.classList.remove("sv-matrix__drag-drop--moveup");
+      clone.classList.remove("sv-matrix__drag-drop--movedown");
+      this.draggedElement.isDragDropMoveDown = false;
+      this.draggedElement.isDragDropMoveUp = false;
 
-    draggedElementShortcut.appendChild(clone);
+      draggedElementShortcut.appendChild(clone);
 
-    const rect = draggedElementNode.getBoundingClientRect();
-    draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
-    draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
+      const rect = draggedElementNode.getBoundingClientRect();
+      draggedElementShortcut.shortcutXOffset = event.clientX - rect.x;
+      draggedElementShortcut.shortcutYOffset = event.clientY - rect.y;
+    }
 
     //this.isBottom = null;
 
@@ -92,7 +100,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return dropTargetRenderedRow.row;
   }
 
-  protected isDropTargetValid(dropTarget: any): boolean {
+  protected isDropTargetValid(dropTarget: any, dropTargetNode?: HTMLElement): boolean {
     return true;
   }
 
@@ -157,9 +165,15 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     return this.parentElement;
   };
 
-  protected doClear(): void {
+  public clear(): void {
+    const renderedRows = this.parentElement.renderedTable.rows;
+    renderedRows.forEach((renderedRow) => {
+      renderedRow.isGhostRow = false;
+    });
     this.parentElement.clearOnDrop();
     this.fromIndex = null;
     this.toIndex = null;
+    document.body.style.userSelect = this.restoreUserSelectValue || "initial";
+    super.clear();
   }
 }

@@ -279,7 +279,7 @@ QUnit.test("QuestionFile upload files", function(assert) {
             return { file: file, content: file.name + "_url" };
           })
         ),
-      10
+      2
     );
   });
 
@@ -517,8 +517,8 @@ QUnit.test(
         assert.equal(stateSec, "->loading->error->loading->loaded");
         assert.equal(state, "loaded");
         done();
-      }, 10);
-    }, 10);
+      }, 2);
+    }, 2);
   }
 );
 
@@ -849,7 +849,7 @@ QUnit.test("QuestionFile inside a panel set value", async function(assert) {
     downloadCallCount++;
     setTimeout(() => {
       options.callback("success", "data:image/jpeg;base64,FILECONTENT1");
-    }, 10);
+    }, 1);
   });
 
   q.value = [{
@@ -863,7 +863,7 @@ QUnit.test("QuestionFile inside a panel set value", async function(assert) {
     assert.equal(q.previewValue.length, 1);
     assert.deepEqual(q.previewValue, [downloadedFile]);
     done();
-  }, 25);
+  }, 2);
 });
 
 QUnit.test("preview item index on last file removed", (assert) => {
@@ -1122,4 +1122,38 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   assert.notOk(q2.storeDataAsText);
 
   assert.equal(downloadLog, "->f1->f1");
+});
+
+QUnit.test("Check previewValue order is correct", (assert) => {
+  const json = {
+    showPreviewBeforeComplete: "showAnsweredQuestions",
+    elements: [
+      {
+        type: "file",
+        name: "file",
+        storeDataAsText: false
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+
+  survey.onDownloadFile.add(function (survey, options) {
+    const timers = {
+      f2: 10,
+      f3: 20,
+      f1: 30
+    };
+    setTimeout(() => {
+      options.callback("success", "");
+    }, timers[options.fileValue.name]);
+  });
+  survey.data = {
+    file: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }, { name: "f3", content: "data" }],
+  };
+  const done = assert.async();
+  setTimeout(() => {
+    assert.deepEqual(question.previewValue.map(val => val.name), ["f1", "f2", "f3"]);
+    done();
+  }, 100);
 });

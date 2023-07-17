@@ -1,5 +1,6 @@
-import { ISurvey, ISurveyImpl } from "./base-interfaces";
+import { ISurveyImpl } from "./base-interfaces";
 import { DragDropRankingChoices } from "./dragdrop/ranking-choices";
+import { DragDropRankingSelectToRank } from "./dragdrop/ranking-select-to-rank";
 import { ItemValue } from "./itemvalue";
 import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -7,7 +8,6 @@ import { QuestionCheckboxModel } from "./question_checkbox";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsMobile } from "./utils/devices";
 import { Helpers } from "./helpers";
-import { QuestionSelectBase } from "./question_baseselect";
 import { settings } from "../src/settings";
 
 /**
@@ -21,6 +21,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   constructor(name: string) {
     super(name);
     this.createNewArray("rankingChoices");
+    this.registerFunctionOnPropertyValueChanged("selectToRankEnabled", () => {
+      this.clearValue();
+      this.setDragDropRankingChoices();
+      this.updateRankingChoices();
+    });
   }
 
   protected getDefaultItemComponent(): string {
@@ -43,6 +48,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.errors.length > 0)
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
+      .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
+      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.selectToRankAreasLayout === "horizontal")
+      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.selectToRankAreasLayout === "vertical")
       .toString();
   }
 
@@ -64,6 +72,25 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
 
+  public getContainerClasses(containerType?: string) {
+    let isEmpty = false;
+    const isToContainer = containerType === "to";
+    const isFromContainer = containerType === "from";
+
+    if (isToContainer) {
+      isEmpty = this.rankingChoices.length === 0;
+    } else if (isFromContainer) {
+      isEmpty = this.unRankingChoices.length === 0;
+    }
+
+    return new CssClassBuilder()
+      .append(this.cssClasses.container)
+      .append(this.cssClasses.containerToMode, isToContainer)
+      .append(this.cssClasses.containerFromMode, isFromContainer)
+      .append(this.cssClasses.containerEmptyMode, isEmpty)
+      .toString();
+  }
+
   protected isItemCurrentDropTarget(item: ItemValue): boolean {
     return this.dragDropRankingChoices.dropTarget === item;
   }
@@ -76,10 +103,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return "";
   }
 
-  public getItemIndexClasses() {
+  public getItemIndexClasses(item: ItemValue) {
+    let noNumber;
+
+    if (this.selectToRankEnabled) {
+      noNumber = this.unRankingChoices.indexOf(item) !== -1;
+    } else {
+      noNumber = this.isEmpty();
+    }
+
     return new CssClassBuilder()
       .append(this.cssClasses.itemIndex)
-      .append(this.cssClasses.itemIndexEmptyMode, this.isEmpty())
+      .append(this.cssClasses.itemIndexEmptyMode, noNumber)
       .toString();
   }
 
@@ -89,6 +124,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
+    this.setDragDropRankingChoices();
     this.updateRankingChoices();
   }
   public isAnswerCorrect(): boolean {
@@ -111,6 +147,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
 
     if (this.isEmpty()) {
+      this.updateRankingChoices();
+      return;
+    }
+
+    if (this.selectToRankEnabled) {
       this.updateRankingChoices();
       return;
     }
@@ -153,7 +194,29 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return this.getPropertyValue("rankingChoices", []);
   }
 
+  public get unRankingChoices(): Array<ItemValue> {
+    const unRankingChoices: ItemValue[] = [];
+    const rankingChoices = this.rankingChoices;
+
+    this.visibleChoices.forEach((choice) => {
+      unRankingChoices.push(choice);
+    });
+
+    rankingChoices.forEach((rankingChoice: ItemValue) => {
+      unRankingChoices.forEach((choice, index) => {
+        if (choice.value === rankingChoice.value) unRankingChoices.splice(index, 1);
+      });
+    });
+
+    return unRankingChoices;
+  }
+
   private updateRankingChoices(forceUpdate = false): ItemValue[] {
+    if (this.selectToRankEnabled) {
+      this.updateRankingChoicesSelectToRankMode(forceUpdate);
+      return;
+    }
+
     const newRankingChoices: ItemValue[] = [];
 
     // ranking question with only one choice doesn't make sense
@@ -177,13 +240,39 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("rankingChoices", newRankingChoices);
   }
 
+  private updateRankingChoicesSelectToRankMode(forceUpdate:boolean) {
+    if (this.isEmpty()) {
+      this.setPropertyValue("rankingChoices", []);
+      return;
+    }
+
+    const newRankingChoices: ItemValue[] = [];
+
+    this.value.forEach((valueItem: string) => {
+      this.visibleChoices.forEach((choice) => {
+        if (choice.value === valueItem) newRankingChoices.push(choice);
+      });
+    });
+    this.setPropertyValue("rankingChoices", newRankingChoices);
+  }
+
   public dragDropRankingChoices: DragDropRankingChoices;
   @property({ defaultValue: null }) currentDropTarget: ItemValue;
   @property({ defaultValue: null }) dropTargetNodeMove: string;
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
-    this.dragDropRankingChoices = new DragDropRankingChoices(this.survey, null, this.longTap);
+
+    this.setDragDropRankingChoices();
+  }
+
+  private setDragDropRankingChoices() {
+    this.dragDropRankingChoices = this.createDragDropRankingChoices();
+  }
+  protected createDragDropRankingChoices() {
+    if (this.selectToRankEnabled)
+      return new DragDropRankingSelectToRank(this.survey, null, this.longTap);
+    return new DragDropRankingChoices(this.survey, null, this.longTap);
   }
 
   public handlePointerDown = (
@@ -192,11 +281,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     node: HTMLElement
   ): void => {
 
-    const target:HTMLElement = <HTMLElement>event.target;
+    const target: HTMLElement = <HTMLElement>event.target;
 
     if (!this.isDragStartNodeValid(target)) return;
 
-    if (this.allowStartDrag) {
+    if (this.allowStartDrag && this.canStartDragDueMaxSelectedChoices(target)) {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };
@@ -213,6 +302,23 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return !this.isReadOnly && !this.isDesignMode;
   }
 
+  private canStartDragDueMaxSelectedChoices(target: HTMLElement):boolean {
+    if (!this.selectToRankEnabled) return true;
+
+    let fromContainer: HTMLElement = target.closest("[data-ranking='from-container']");
+    if (fromContainer) {
+      return this.checkMaxSelectedChoicesUnreached();
+    }
+    return true;
+  }
+
+  public checkMaxSelectedChoicesUnreached() {
+    if (this.maxSelectedChoices < 1) return true;
+    var val = this.value;
+    var len = !Array.isArray(val) ? 0 : val.length;
+    return len < this.maxSelectedChoices;
+  }
+
   //cross framework initialization
   public afterRenderQuestionElement(el: HTMLElement): void {
     this.domNode = el;
@@ -226,7 +332,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public handleKeydown = (event: KeyboardEvent, choice: ItemValue): void => {
     if (!this.isDesignMode) {
       const key: any = event.key;
-      const index = this.rankingChoices.indexOf(choice);
+      let index = this.rankingChoices.indexOf(choice);
+
+      if (this.selectToRankEnabled) {
+        this.handleKeydownSelectToRank(event, choice);
+        return;
+      }
 
       if (key === "ArrowUp" && index) {
         this.handleArrowUp(index, choice);
@@ -269,11 +380,80 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }, 1);
   };
 
-  private focusItem = (index: number) => {
-    const itemsNodes: any = this.domNode.querySelectorAll(
-      "." + this.cssClasses.item
-    );
-    itemsNodes[index].focus();
+  public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue) {
+    if (this.isDesignMode) return;
+
+    const dnd:any = this.dragDropRankingChoices; //????
+    const key: any = event.key;
+    const rankingChoices = this.rankingChoices;
+    const unRankingChoices = this.unRankingChoices;
+
+    const isMovedElementRanked = rankingChoices.indexOf(movedElement) !== -1;
+    const isMovedElementUnRanked = !isMovedElementRanked;
+
+    let fromIndex;
+    let toIndex;
+
+    if ((key === " " || key === "Enter") && isMovedElementUnRanked) {
+      fromIndex = unRankingChoices.indexOf(movedElement);
+      toIndex = 0;
+      dnd.selectToRank(this, fromIndex, toIndex);
+      this.setValueAfterKeydown(toIndex, "to-container");
+      return;
+    }
+
+    if ((key === " " || key === "Enter") && isMovedElementRanked) {
+      fromIndex = rankingChoices.indexOf(movedElement);
+      dnd.unselectFromRank(this, fromIndex);
+      toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
+      this.setValueAfterKeydown(toIndex, "from-container");
+      return;
+    }
+
+    if (key === "ArrowUp" && isMovedElementRanked) {
+      fromIndex = rankingChoices.indexOf(movedElement);
+      toIndex = fromIndex - 1;
+
+      if (fromIndex < 0) return;
+
+      dnd.reorderRankedItem(this, fromIndex, toIndex);
+      this.setValueAfterKeydown(toIndex, "to-container");
+      return;
+    }
+
+    if (key === "ArrowDown" && isMovedElementRanked) {
+      fromIndex = rankingChoices.indexOf(movedElement);
+      toIndex = fromIndex + 1;
+
+      if (toIndex >= rankingChoices.length) return;
+
+      dnd.reorderRankedItem(this, fromIndex, toIndex);
+      this.setValueAfterKeydown(toIndex, "to-container");
+      return;
+    }
+  }
+
+  private setValueAfterKeydown(index: number, container: string) {
+    this.setValue();
+    setTimeout(() => {
+      this.focusItem(index, container);
+    }, 1);
+    event.preventDefault();
+  }
+
+  private focusItem = (index: number, container?: string) => {
+    if (this.selectToRankEnabled && container) {
+      const containerSelector = "[data-ranking='" + container + "']";
+      const itemsNodes: any = this.domNode.querySelectorAll(
+        containerSelector + " " + "." + this.cssClasses.item
+      );
+      itemsNodes[index].focus();
+    } else {
+      const itemsNodes: any = this.domNode.querySelectorAll(
+        "." + this.cssClasses.item
+      );
+      itemsNodes[index].focus();
+    }
   };
 
   public setValue = (): void => {
@@ -311,6 +491,41 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("longTap", val);
   }
 
+  /**
+   * Specifies whether users can select choices they want to rank.
+   *
+   * When you enable this property, the Ranking question displays two areas for ranked and unranked choices. To order choices, users should first drag them from the unranked to the ranked area. Use this mode if you want to let users order only the choices they select.
+   *
+   * Default value: `false`
+   * @see selectToRankAreasLayout
+  */
+  public get selectToRankEnabled(): boolean {
+    return this.getPropertyValue("selectToRankEnabled", false);
+  }
+  public set selectToRankEnabled(val: boolean) {
+    this.setPropertyValue("selectToRankEnabled", val);
+  }
+
+  /**
+   * Specifies the layout of the ranked and unranked areas. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"horizontal"` (default) - The ranked and unranked areas are positioned next to each other. Users drag and drop choices between them in the horizontal direction.
+   * - `"vertical"`- The ranked area is positioned above the unranked area. Users drag and drop choices between them in the vertical direction.
+   * @see selectToRankAreasLayout
+  */
+  public get selectToRankAreasLayout(): string {
+    if (IsMobile) return "vertical";
+    return this.getPropertyValue("selectToRankAreasLayout", "horizontal");
+  }
+  public set selectToRankAreasLayout(val: string) {
+    this.setPropertyValue("selectToRankAreasLayout", val);
+  }
+
+  @property({ localizable: { defaultStr: "selectToRankEmptyRankedAreaText" } }) selectToRankEmptyRankedAreaText: string;
+  @property({ localizable: { defaultStr: "selectToRankEmptyUnrankedAreaText" } }) selectToRankEmptyUnrankedAreaText: string;
+
   public get useFullItemSizeForShortcut(): boolean {
     return this.getPropertyValue("useFullItemSizeForShortcut");
   }
@@ -338,6 +553,18 @@ Serializer.addClass(
       default: true,
       visible: false,
       isSerializable: false,
+    },
+    {
+      name: "selectToRankEnabled",
+      default: false,
+      visible: false,
+      isSerializable: true,
+    },
+    {
+      name: "selectToRankAreasLayout",
+      default: "horizontal",
+      visible: false,
+      isSerializable: true,
     },
     { name: "itemComponent", visible: false, default: "" }
   ],

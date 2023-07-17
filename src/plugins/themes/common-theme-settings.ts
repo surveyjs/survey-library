@@ -193,7 +193,7 @@ export function setStyles(): void {
     ".sv_q_dd_value": "width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; position: relative;",
     ".sv_q_dd_root": "position: relative;",
     ".sv_q_dd_select_wrapper::after": "content: \"\"; display: block;background-image: url(\"data:image/svg+xml,%3C%3Fxml version='1.0' encoding='utf-8'%3F%3E%3C!-- Generator: Adobe Illustrator 21.1.0, SVG Export Plug-In . SVG Version: 6.00 Build 0) --%3E%3Csvg version='1.1' id='Layer_1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' x='0px' y='0px' viewBox='0 0 10 10' style='enable-background:new 0 0 10 10;' xml:space='preserve'%3E%3Cstyle type='text/css'%3E .st0%7Bfill:%23404040;%7D%0A%3C/style%3E%3Cpolygon class='st0' points='2,2 0,4 5,9 10,4 8,2 5,5 '/%3E%3C/svg%3E%0A\"); background-repeat: no-repeat; background-position: center center; background-size: 10px 12px; width: 34px; height: 100%; position: absolute; inset-inline-end: 0; top: 0;",
-    ".sv_q_dd_filter-string-input": "outline: none; border: none; background-color: transparent; position: absolute; inset-inline-start: 0;",
+    ".sv_q_dd_filter-string-input": "outline: none; border: none; background-color: transparent; position: absolute; inset-inline-start: 0; inset-block-start: 0;",
 
     ".sv_q_dropdown_clean-button": "margin: auto 2em;",
     ".sv_q_tagbox__placeholder": "position: absolute; top: 0; inset-inline-start: 1em; max-width: 100%; width: auto; height: 100%; text-align: start; cursor: text; pointer-events: none;",
@@ -269,7 +269,7 @@ export function setStyles(): void {
     // EO ranking
 
     // drag drop
-    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 1000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: var(--font-family, $font-family); font-size: 16px; padding-left: 20px;line-height: 24px;",
+    ".sv-dragged-element-shortcut": "height: 24px; min-width: 100px; border-radius: 36px; background-color: white; padding: 16px; cursor: grabbing; position: absolute; z-index: 10000; box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1); font-family: var(--font-family, $font-family); font-size: 16px; padding-left: 20px;line-height: 24px;",
 
     ".sv-matrixdynamic__drag-icon": "padding-top:14px",
     ".sv-matrixdynamic__drag-icon:after": "content: ' '; display: block; height: 6px; width: 20px; border: 1px solid #e7e7e7; box-sizing: border-box; border-radius: 10px; cursor: move; margin-top: 12px;",
@@ -379,7 +379,7 @@ export function setStyles(): void {
     "sv-popup": "display: block; position: absolute; z-index: -1;",
     ".sv-popup": "position: fixed; left: 0; top: 0; width: 100vw; height: 100vh; outline: none; z-index: 1500;",
     ".sv-popup__container": "box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1); position: absolute; padding: 0;",
-    ".sv-popup__body-content": "background-color: var(--background, #fff); border-radius: calc(0.5 * var(--base-unit, 8px)); width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; max-height: 90vh; max-width: 90vw;",
+    ".sv-popup__body-content": "background-color: var(--background, #fff); border-radius: calc(0.5 * var(--base-unit, 8px)); width: 100%; height: 100%; box-sizing: border-box; display: flex; flex-direction: column; max-height: 90vh; max-width: 100vw;",
     ".sv-popup--modal .sv-list__filter": "padding-top: 8px;",
     ".sv-popup--modal .sv-list__filter-icon": "top: 20px;",
     ".sv-popup--overlay .sv-list__filter": "padding-top: 8px;",

@@ -24,10 +24,10 @@ export interface ILocalizableString {
 export class LocalizableString implements ILocalizableString {
   public static SerializeAsObject: boolean = false;
   public static get defaultLocale(): string {
-    return settings.defaultLocaleName;
+    return settings.localization.defaultLocaleName;
   }
   public static set defaultLocale(val: string) {
-    settings.defaultLocaleName = val;
+    settings.localization.defaultLocaleName = val;
   }
   public static defaultRenderer = "sv-string-viewer";
   public static editableRenderer = "sv-string-editor";
@@ -101,7 +101,7 @@ export class LocalizableString implements ILocalizableString {
     if (this.onGetTextCallback) res = this.onGetTextCallback(res);
     return res;
   }
-  public get pureText() {
+  public get pureText(): string {
     var loc = this.locale;
     if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);
@@ -167,9 +167,7 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   public setLocaleText(loc: string, value: string): void {
-    if(this.disableLocalization) {
-      loc = settings.defaultLocaleName;
-    }
+    loc = this.getValueLoc(loc);
     if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
       if(!!value || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;
@@ -180,7 +178,7 @@ export class LocalizableString implements ILocalizableString {
       }
       return;
     }
-    if (!settings.storeDuplicatedTranslations &&
+    if (!settings.localization.storeDuplicatedTranslations &&
       value &&
       loc &&
       loc != this.defaultLoc &&
@@ -212,7 +210,7 @@ export class LocalizableString implements ILocalizableString {
     return !!this.locale ? this.locale : this.defaultLoc;
   }
   private canRemoveLocValue(loc: string, val: string): boolean {
-    if(settings.storeDuplicatedTranslations) return false;
+    if(settings.localization.storeDuplicatedTranslations) return false;
     if(loc === this.defaultLoc) return false;
     const dialect = this.getRootDialect(loc);
     if(!!dialect) {
@@ -243,12 +241,12 @@ export class LocalizableString implements ILocalizableString {
   }
   public getJson(): any {
     if (!!this.sharedData) return this.sharedData.getJson();
-    var keys = this.getValuesKeys();
+    const keys = this.getValuesKeys();
     if (keys.length == 0) return null;
     if (
       keys.length == 1 &&
-      keys[0] == settings.defaultLocaleName &&
-      !settings.serializeLocalizableStringAsObject
+      keys[0] == settings.localization.defaultLocaleName &&
+      !settings.serialization.localizableStringSerializeAsObject
     )
       return (<any>this).values[keys[0]];
     return this.values;
@@ -327,7 +325,7 @@ export class LocalizableString implements ILocalizableString {
     return (<any>this).htmlValues[loc];
   }
   private deleteValuesEqualsToDefault(defaultValue: string) {
-    if(settings.storeDuplicatedTranslations) return;
+    if(settings.localization.storeDuplicatedTranslations) return;
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       if (keys[i] == this.defaultLoc) continue;
@@ -338,22 +336,26 @@ export class LocalizableString implements ILocalizableString {
   }
   private getValue(loc: string): string {
     if (!!this.sharedData) return this.sharedData.getValue(loc);
-    return (<any>this).values[loc];
+    return (<any>this).values[this.getValueLoc(loc)];
   }
   private setValue(loc: string, value: string) {
     if (!!this.sharedData) this.sharedData.setValue(loc, value);
-    else (<any>this).values[loc] = value;
+    else (<any>this).values[this.getValueLoc(loc)] = value;
   }
   private deleteValue(loc: string) {
     if (!!this.sharedData) this.sharedData.deleteValue(loc);
-    else delete (<any>this).values[loc];
+    else delete (<any>this).values[this.getValueLoc(loc)];
+  }
+  private getValueLoc(loc: string): string {
+    if(this.disableLocalization) return settings.localization.defaultLocaleName;
+    return loc;
   }
   private getValuesKeys(): string[] {
     if (!!this.sharedData) return this.sharedData.getValuesKeys();
     return Object.keys(this.values);
   }
   private get defaultLoc(): string {
-    return settings.defaultLocaleName;
+    return settings.localization.defaultLocaleName;
   }
 }
 /**
@@ -395,7 +397,7 @@ export class LocalizableStrings implements ILocalizableString {
     loc = this.getLocale(loc);
     if (this.values[loc]) return this.values[loc];
     if (useDefault) {
-      var defLoc = settings.defaultLocaleName;
+      var defLoc = settings.localization.defaultLocaleName;
       if (loc !== defLoc && this.values[defLoc]) return this.values[defLoc];
     }
     return [];
@@ -421,7 +423,7 @@ export class LocalizableStrings implements ILocalizableString {
   private getLocale(loc: string): string {
     if (!!loc) return loc;
     loc = this.locale;
-    return !!loc ? loc : settings.defaultLocaleName;
+    return !!loc ? loc : settings.localization.defaultLocaleName;
   }
   public getLocales(): Array<string> {
     var keys = this.getValuesKeys();
@@ -433,8 +435,8 @@ export class LocalizableStrings implements ILocalizableString {
     if (keys.length == 0) return null;
     if (
       keys.length == 1 &&
-      keys[0] == settings.defaultLocaleName &&
-      !settings.serializeLocalizableStringAsObject
+      keys[0] == settings.localization.defaultLocaleName &&
+      !settings.serialization.localizableStringSerializeAsObject
     ) return (<any>this).values[keys[0]];
     return Helpers.createCopy(this.values);
   }

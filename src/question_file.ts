@@ -14,7 +14,7 @@ import { Helpers } from "./helpers";
 /**
  * A class that describes the File question type.
  *
- * [View Demo](https://surveyjs.io/form-library/examples/questiontype-file/ (linkStyle))
+ * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
 export class QuestionFileModel extends Question {
   private isUploading: boolean = false;
@@ -40,6 +40,12 @@ export class QuestionFileModel extends Question {
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
+  /**
+   * Specifies whether users can capture and upload a photo. Applies only to mobile devices.
+   *
+   * Default value: `false`
+   */
+  @property() allowCameraAccess: boolean;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -91,6 +97,10 @@ export class QuestionFileModel extends Question {
 
   public getType(): string {
     return "file";
+  }
+  public clearValue(): void {
+    this.clearOnDeletingContainer();
+    super.clearValue();
   }
   public clearOnDeletingContainer() {
     if (!this.survey) return;
@@ -236,6 +246,9 @@ export class QuestionFileModel extends Question {
       }
     );
   }
+  public get renderCapture(): string {
+    return this.allowCameraAccess ? "user" : undefined;
+  }
 
   get multipleRendered() {
     return this.allowMultiple ? "multiple" : undefined;
@@ -365,13 +378,7 @@ export class QuestionFileModel extends Question {
             this.previewValue.push(val);
           });
         }
-        this.isReadyValue = true;
-        this.onReadyChanged &&
-        this.onReadyChanged.fire(this, {
-          question: this,
-          isReady: true,
-          oldIsReady: false,
-        });
+        this.isReady = true;
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });
@@ -426,7 +433,7 @@ export class QuestionFileModel extends Question {
     name?: string,
     type?: string,
   }): boolean {
-    if (!file) return false;
+    if (!file || !file.content || !file.content.substring) return false;
     const imagePrefix = "data:image";
     var subStr = file.content && file.content.substring(0, imagePrefix.length);
     subStr = subStr && subStr.toLowerCase();
@@ -610,6 +617,7 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
+    { name: "allowCameraAccess:switch", category: "general" }
   ],
   function () {
     return new QuestionFileModel("");
@@ -625,19 +633,22 @@ export class FileLoader {
   }
   loaded: any[] = [];
   load(files: Array<any>): void {
-    files.forEach((value) => {
+    let downloadedCount = 0;
+    this.loaded = new Array(files.length);
+    files.forEach((value, index) => {
       if (this.fileQuestion.survey) {
         this.fileQuestion.survey.downloadFile(this.fileQuestion, this.fileQuestion.name, value, (status, data) => {
           if (!this.fileQuestion || !this.callback) {
             return;
           }
           if (status === "success") {
-            this.loaded.push({
+            this.loaded[index] = {
               content: data,
               name: value.name,
               type: value.type,
-            });
-            if (this.loaded.length === files.length) {
+            };
+            downloadedCount ++;
+            if (downloadedCount === files.length) {
               this.callback("loaded", this.loaded);
             }
           } else {

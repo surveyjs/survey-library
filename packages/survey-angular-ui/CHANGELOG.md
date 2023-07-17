@@ -2,6 +2,37 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.97](https://github.com/surveyjs/surveyjs/compare/v1.9.96...v1.9.97) (2023-07-12)
+
+
+### Bug Fixes
+
+* **popup:** prevent crash on Legacy Edge when opening a popup ([#6514](https://github.com/surveyjs/surveyjs/issues/6514)) ([7c07538](https://github.com/surveyjs/surveyjs/commit/7c075381d3d562dc2b8b1a71fe3109c8e3a14b53))
+
+## [1.9.96](https://github.com/surveyjs/surveyjs/compare/v1.9.95...v1.9.96) (2023-07-04)
+
+## [1.9.95](https://github.com/surveyjs/surveyjs/compare/v1.9.94...v1.9.95) (2023-06-28)
+
+## [1.9.94](https://github.com/surveyjs/surveyjs/compare/v1.9.93...v1.9.94) (2023-06-27)
+
+## [1.9.93](https://github.com/surveyjs/surveyjs/compare/v1.9.92...v1.9.93) (2023-06-20)
+
+## [1.9.92](https://github.com/surveyjs/surveyjs/compare/v1.9.91...v1.9.92) (2023-06-14)
+
+## [1.9.91](https://github.com/surveyjs/surveyjs/compare/v1.9.90...v1.9.91) (2023-06-08)
+
+## [1.9.90](https://github.com/surveyjs/surveyjs/compare/v1.9.89...v1.9.90) (2023-05-31)
+
+## [1.9.89](https://github.com/surveyjs/surveyjs/compare/v1.9.88...v1.9.89) (2023-05-23)
+
+## [1.9.88](https://github.com/surveyjs/surveyjs/compare/v1.9.87...v1.9.88) (2023-05-16)
+
+## [1.9.87](https://github.com/surveyjs/surveyjs/compare/v1.9.86...v1.9.87) (2023-05-11)
+
+## [1.9.86](https://github.com/surveyjs/surveyjs/compare/v1.9.85...v1.9.86) (2023-05-03)
+
+## [1.9.85](https://github.com/surveyjs/surveyjs/compare/v1.9.84...v1.9.85) (2023-04-25)
+
 ## [1.9.84](https://github.com/surveyjs/surveyjs/compare/v1.9.83...v1.9.84) (2023-04-19)
 
 ## [1.9.83](https://github.com/surveyjs/surveyjs/compare/v1.9.82...v1.9.83) (2023-04-12)

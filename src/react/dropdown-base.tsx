@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Helpers, Question, DropdownListModel } from "survey-core";
+import { Helpers, Question, DropdownListModel, settings } from "survey-core";
 import { Popup } from "./components/popup/popup";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { ReactElementFactory } from "./element-factory";
@@ -55,8 +55,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     }
 
     return (
-      <div className={cssClasses.selectWrapper}>
+      <div className={cssClasses.selectWrapper} onClick={this.click}>
         {selectElement}
+        {this.createChevronButton()}
       </div>
     );
   }
@@ -72,9 +73,10 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
 
   protected renderInput(dropdownListModel: DropdownListModel): JSX.Element {
     let valueElement: JSX.Element | null = this.renderValueElement(dropdownListModel);
+    const { root } = settings.environment;
 
     const onInputChange = (e: any) => {
-      if (e.target === document.activeElement) {
+      if (e.target === root.activeElement) {
         dropdownListModel.inputStringRendered = e.target.value;
       }
     };
@@ -82,7 +84,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       id={this.question.inputId}
       className={this.question.getControlClass()}
       tabIndex={dropdownListModel.inputReadOnly ? undefined : 0}
-      onClick={this.click}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       disabled={this.question.isInputReadOnly}
@@ -94,7 +95,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       aria-label={this.question.ariaLabel}
       aria-invalid={this.question.ariaInvalid}
       aria-describedby={this.question.ariaDescribedBy}
-      aria-expanded={this.question.ariaExpanded ? "true" : "false"}
+      aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
       aria-controls={dropdownListModel.listElementId}
       aria-activedescendant={dropdownListModel.ariaActivedescendant}
     >
@@ -115,7 +116,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           className={this.question.cssClasses.filterStringInput}
           role={dropdownListModel.filterStringEnabled ? this.question.ariaRole : undefined}
           aria-label={this.question.placeholder}
-          aria-expanded={this.question.ariaExpanded ? "true" : "false"}
+          aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
           aria-controls={dropdownListModel.listElementId}
           aria-activedescendant={dropdownListModel.ariaActivedescendant}
           placeholder={dropdownListModel.placeholderRendered}
@@ -152,6 +153,20 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     );
   }
 
+  createChevronButton(): JSX.Element | null {
+    if (!this.question.cssClasses.chevronButtonIconId) return null;
+
+    return (
+      <div className={this.question.cssClasses.chevronButton}>
+        <SvgIcon
+          className={this.question.cssClasses.chevronButtonSvg}
+          iconName={this.question.cssClasses.chevronButtonIconId}
+          size={24}
+        ></SvgIcon>
+      </div>
+    );
+  }
+
   protected renderOther(cssClasses: any): JSX.Element {
     return (
       <div className={this.question.getCommentAreaCss(true)}>
@@ -178,7 +193,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.question.dropdownListModel.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true)) {
         control.value = this.question.dropdownListModel.inputStringRendered;
       }
     }

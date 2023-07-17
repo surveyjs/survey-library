@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getData, setData } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "ranking";
 
 const json = {
@@ -67,10 +67,15 @@ const json = {
 //   frameworks.push("knockout");
 // }
 
+const setSjsFramework = ClientFunction((framework) => {
+  window["sjsFramework"] = framework;
+});
+
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
     async (t) => {
       await t.resizeWindow(1920, 1080);
+      await setSjsFramework(framework);
       await initSurvey(framework, json);
     }
   );
@@ -235,6 +240,45 @@ frameworks.forEach((framework) => {
       "Durability",
       "Processor power",
       "Price",
+    ]);
+  });
+
+  test("ranking: run-time creation ", async (t) => {
+    const newName = "ranking-new";
+
+    const addNewRankingQuestion = ClientFunction((newName) => {
+      let qr;
+
+      if (window["sjsFramework"] === "knockout") { //see https://github.com/surveyjs/survey-library/issues/6396
+        qr = new window["Survey"].QuestionRanking(newName);
+      } else {
+        qr = new window["Survey"].QuestionRankingModel(newName);
+      }
+
+      qr.choices = ["one", "two"];
+      window["survey"].currentPage.addQuestion(qr);
+    });
+
+    await addNewRankingQuestion(newName);
+
+    const FirstItem = Selector("span")
+      .withText(newName)
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("one");
+
+    const SecondItem = Selector("span")
+      .withText(newName)
+      .parent("[aria-labelledby]")
+      .find("span")
+      .withText("two");
+
+    await t.dragToElement(FirstItem, SecondItem);
+
+    let data = await getData();
+    await t.expect(data[newName]).eql([
+      "two",
+      "one"
     ]);
   });
 });

@@ -1,3 +1,6 @@
+import { settings, ISurveyEnvironment } from "./settings";
+import { getElement } from "./utils/utils";
+
 class SvgIconData {
   [key: string]: string
 }
@@ -51,12 +54,13 @@ export class SvgIconRegistry {
   }
   public renderIcons() {
     const containerId = "sv-icon-holder-global-container";
-    if(!document.getElementById(containerId)) {
+    if(!!settings.environment && !settings.environment.root.getElementById(containerId)) {
       let iconsDiv = document.createElement("div");
       iconsDiv.id = containerId;
       iconsDiv.innerHTML = "<svg>" + this.iconsRenderedHtml() + "</svg>";
       iconsDiv.style.display = "none";
-      document.head.insertBefore(iconsDiv, document.head.firstChild);
+
+      getElement(settings.environment.svgMountContainer).appendChild(iconsDiv);
     }
   }
 }

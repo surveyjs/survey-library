@@ -19,6 +19,53 @@ frameworks.forEach(framework => {
     await explicitErrorHandler();
     await applyTheme(theme);
   });
+  test("Matrix dropdown", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "focusFirstQuestionAutomatic": false,
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdropdown",
+                "name": "question1",
+                "columns": [
+                  {
+                    "name": "Column 1"
+                  },
+                  {
+                    "name": "Column 2"
+                  },
+                  {
+                    "name": "Column 3"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "rows": [
+                  "Row 1",
+                  "Row 2"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      await t.click(".sd-dropdown");
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-dropdown.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Matrix detail row", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -341,6 +388,38 @@ frameworks.forEach(framework => {
       });
       const questionRoot = Selector(".sd-row");
       await takeElementScreenshot("question-matrix-description-under-input.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Matrix with boolean column", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "elements": [
+          {
+            "type": "matrixdropdown",
+            "name": "question1",
+            "columns": [
+              {
+                "name": "Column 1"
+              },
+              {
+                "name": "Column 3",
+                "title": "Column 2",
+                "cellType": "boolean"
+              }
+            ],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "1000"
+      });
+      const questionRoot = Selector(".sd-table");
+      await takeElementScreenshot("question-matrix-with-boolean-column.png", questionRoot, t, comparer);
     });
   });
 

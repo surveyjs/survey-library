@@ -341,7 +341,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   }
   getFilteredValues(): any {
     var allValues = this.getAllValues();
-    var values: { [key: string]: any } = { row: allValues };
+    var values: any = this.validationValues;
+    if(!values) values = {};
+    values.row = allValues;
     for (var key in allValues) {
       values[key] = allValues[key];
     }
@@ -548,7 +550,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       } else {
         if (
           !this.getSharedQuestionByName(key) &&
-          key.indexOf(settings.matrixTotalValuePostFix) < 0
+          key.indexOf(settings.matrix.totalsSuffix) < 0
         ) {
           this.setValue(key, null);
         }
@@ -616,6 +618,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       this.detailPanel.readOnly = parentIsReadOnly;
     }
   }
+  private validationValues: any;
   public hasErrors(
     fireCallback: boolean,
     rec: any,
@@ -624,6 +627,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     var res = false;
     var cells = this.cells;
     if (!cells) return res;
+    this.validationValues = rec.validationValues;
     for (var colIndex = 0; colIndex < cells.length; colIndex++) {
       if (!cells[colIndex]) continue;
       var question = cells[colIndex].question;
@@ -646,6 +650,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       }
       res = panelHasError || res;
     }
+    this.validationValues = undefined;
     return res;
   }
 
@@ -780,10 +785,10 @@ export class MatrixDropdownTotalRowModel extends MatrixDropdownRowModelBase {
  */
 export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<MatrixDropdownRowModelBase, MatrixDropdownColumn> implements IMatrixDropdownData {
   public static get defaultCellType() {
-    return settings.matrixDefaultCellType;
+    return settings.matrix.defaultCellType;
   }
   public static set defaultCellType(val: string) {
-    settings.matrixDefaultCellType = val;
+    settings.matrix.defaultCellType = val;
   }
   public static addDefaultColumns(matrix: QuestionMatrixDropdownModelBase) {
     var colNames = QuestionFactory.DefaultColums;
@@ -1119,10 +1124,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"expression"`
    * - `"rating"`
    *
-   * Default value: `"dropdown"` (inherited from [`settings.matrixDefaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
+   * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    */
   public get cellType(): string {
-    return this.getPropertyValue("cellType", settings.matrixDefaultCellType);
+    return this.getPropertyValue("cellType", settings.matrix.defaultCellType);
   }
   public set cellType(val: string) {
     val = val.toLowerCase();
@@ -1803,7 +1808,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.onSetQuestionValue();
     this.updateIsAnswered();
   }
-  supportGoNextPageAutomatic() {
+  supportGoNextPageAutomatic(): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
@@ -1905,6 +1910,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var res = false;
     if (!rec) rec = {};
     if (!rows) return rec;
+    rec.validationValues = this.getDataFilteredValues();
     rec.isSingleDetailPanel = this.detailPanelMode === "underRowSingle";
     for (var i = 0; i < rows.length; i++) {
       res = rows[i].hasErrors(fireCallback, rec, () => {
@@ -2009,6 +2015,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var question = column.createCellQuestion(row);
     question.setSurveyImpl(row);
     question.setParentQuestion(this);
+    question.inMatrixMode = true;
     return question;
   }
   protected deleteRowValue(
@@ -2048,14 +2055,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     columnName: string,
     rowValue: any
   ): any {
-    var getQuestion = (colName: any) => {
-      for (var i = 0; i < row.cells.length; i++) {
-        var col = row.cells[i].column;
-        if (!!col && col.name === colName) {
-          return row.cells[i].question;
-        }
-      }
-      return null;
+    const getQuestion = (colName: any) => {
+      return row.getQuestionByName(colName);
     };
     return {
       row: row,
@@ -2063,6 +2064,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       rowValue: rowValue,
       value: !!rowValue ? rowValue[columnName] : null,
       getCellQuestion: getQuestion,
+      cellQuestion: row.getQuestionByName(columnName),
+      column: this.getColumnByName(columnName)
     };
   }
   protected onCellValueChanged(
@@ -2277,7 +2280,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       !this.isSett
     ) {
       this.data.setValue(
-        this.getValueName() + settings.matrixTotalValuePostFix,
+        this.getValueName() + settings.matrix.totalsSuffix,
         this.totalValue,
         false
       );

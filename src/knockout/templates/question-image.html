@@ -1,17 +1,17 @@
 ﻿<script type="text/html" id="survey-question-image">
-  <div data-bind="css: question.koCss().root">
+  <div data-bind="css: question.cssClasses.root">
     <!-- ko if: question.renderedMode === "image" -->
-    <img data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml() || null, width: question.renderedWidth, height: question.renderedHeight, alt: question.altText || question.title }, style: { objectFit: question.imageFit }"/>
+    <img data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml() || null, width: question.renderedWidth, height: question.renderedHeight, alt: question.altText || question.title }, style: { objectFit: question.imageFit }, visible: $data.locImageLink.koRenderedHtml() && !question.contentNotLoaded"/>
     <!-- /ko -->
     <!-- ko if: question.renderedMode === "video" -->
-    <video controls data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }"></video>
+    <video controls data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }, visible: $data.locImageLink.koRenderedHtml() && !question.contentNotLoaded"></video>
     <!-- /ko -->
     <!-- ko if: question.renderedMode === "youtube" -->
     <iframe data-bind=" css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }"></iframe>
     <!-- /ko -->
-    <!-- ko if: !question.imageLink || question.contentNotLoaded  -->
-    <div data-bind="css: question.koCss().noImage">
-      <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.koCss().noImageSvgIconId, size: 48 } } --><!-- /ko -->
+    <!-- ko if: !$data.locImageLink.koRenderedHtml() || question.contentNotLoaded  -->
+    <div data-bind="css: question.cssClasses.noImage">
+      <!-- ko component: { name: 'sv-svg-icon', params: { iconName: question.cssClasses.noImageSvgIconId, size: 48 } } --><!-- /ko -->
     </div>
     <!-- /ko -->
   </div>

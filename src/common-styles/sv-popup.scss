@@ -5,7 +5,7 @@ $popup-overlay-height: var(--sv-popup-overlay-height, 100vh);
 sv-popup {
   display: block;
   position: absolute;
-  z-index: -1;
+  // z-index: -1;
 }
 
 .sv-popup {
@@ -31,12 +31,12 @@ sv-popup {
 .sv-popup__shadow {
   width: 100%;
   height: 100%;
-  border-radius: calcSize(1);
+  border-radius: calcCornerRadius(2);
 }
 
 .sv-popup__body-content {
   background-color: $background;
-  border-radius: calcSize(0.5);
+  border-radius: calcCornerRadius(1);
 
   width: 100%;
   height: 100%;
@@ -44,7 +44,7 @@ sv-popup {
   display: flex;
   flex-direction: column;
   max-height: 90vh;
-  max-width: 90vw;
+  max-width: 100vw;
 }
 
 .sv-popup.sv-popup--modal {
@@ -56,14 +56,13 @@ sv-popup {
   padding: calcSize(11) calcSize(15);
   box-sizing: border-box;
 
-  .sv-popup__container {
-    position: static;
-  }
-
   .sv-popup__body-content {
     padding: calcSize(4);
     height: auto;
   }
+}
+.sv-popup.sv-popup--modal > .sv-popup__container {
+  position: static;
 }
 
 .sv-popup--overlay.sv-popup--overlay {
@@ -83,7 +82,7 @@ sv-popup {
   .sv-popup__body-content {
     max-height: $popup-overlay-height;
     max-width: 100vw;
-    border-radius: calcSize(2) calcSize(2) 0px 0px;
+    border-radius: calcCornerRadius(4) calcCornerRadius(4) 0px 0px;
     background: $background;
     box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
     padding: calcSize(3) calcSize(2) calcSize(2);
@@ -102,10 +101,6 @@ sv-popup {
     width: 100%;
   }
 
-  .sv-popup__body-footer .sv-action {
-    width: 100%;
-  }
-
   .sv-popup__body-footer-item {
     width: 100%;
   }
@@ -114,6 +109,11 @@ sv-popup {
     background-color: $primary;
     border: 2px solid $primary;
     color: $primary-foreground;
+  }
+}
+.sv-popup--overlay.sv-popup--overlay:not(.sv-dropdown-popup) {
+  .sv-popup__body-footer .sv-action {
+    flex: 1 0 0;
   }
 }
 
@@ -162,7 +162,7 @@ sv-popup {
   }
 }
 
-.sv-popup--show-pointer.sv-popup--right {
+.sv-popup--show-pointer.sv-popup--right .sv-popup__container {
   transform: translate(calcSize(1));
 
   .sv-popup__pointer {
@@ -170,7 +170,7 @@ sv-popup {
   }
 }
 
-.sv-popup--show-pointer.sv-popup--left {
+.sv-popup--show-pointer.sv-popup--left .sv-popup__container {
   transform: translate(calcSize(-1));
 
   .sv-popup__pointer {
@@ -196,8 +196,8 @@ sv-popup {
 
 .sv-popup__body-header {
   font-family: Open Sans;
-  font-size: calcSize(3);
-  line-height: calcSize(4);
+  font-size: calcFontSize(1.5);
+  line-height: calcLineHeight(2);
   font-style: normal;
   font-weight: 700;
   margin-bottom: calcSize(2);
@@ -214,45 +214,7 @@ sv-popup {
 }
 
 .sv-popup__button {
-  padding: calcSize(2) calcSize(6);
-  background: $background;
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
-  border-radius: 4px;
-  margin: 2px;
-  cursor: pointer;
-
-  font-family: var(--font-family, $font-family);
-  font-style: normal;
-  font-weight: 600;
-  font-size: calcSize(2);
-  line-height: calcSize(3);
-  text-align: center;
-  color: $primary;
-  border: none;
-  outline: none;
-}
-
-.sv-popup__button:hover {
-  box-shadow: 0 0 0 2px $primary;
-}
-
-.sv-popup__button:disabled {
-  color: $foreground;
-  opacity: 0.25;
-  cursor: default;
-}
-
-.sv-popup__button:disabled:hover {
-  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);
-}
-
-.sv-popup__button--apply {
-  background-color: $primary;
-  color: $primary-foreground;
-}
-
-.sv-popup__button--apply:disabled {
-  background-color: $background-dim;
+  margin: calcSize(0.25);
 }
 
 .sv-popup--modal,
@@ -376,8 +338,8 @@ sv-popup {
 
   .sv-list__input {
     color: $foreground-light;
-    font-size: calcSize(2);
-    line-height: calcSize(3);
+    font-size: calcFontSize(1);
+    line-height: calcLineHeight(1.5);
     font-family: $font-family;
     padding: calcSize(0.5) 0 calcSize(0.5) calcSize(1);
   }
@@ -395,14 +357,23 @@ sv-popup {
         color: $primary-foreground;
         font-weight: 600;
       }
-
-      .sd-list__item-body {
+    }
+  }
+}
+.sv-dropdown-popup.sv-popup--overlay.sv-multi-select-list {
+  .sv-list__item:hover,
+  .sv-list__item:focus,
+  .sv-list__item--focused {
+    &.sv-list__item--selected {
+      .sv-list__item-body {
         background: $primary-light;
         color: $foreground;
+        font-weight: 400;
       }
     }
   }
 }
+
 
 .sv-dropdown-popup.sv-popup--overlay.sv-popup--tablet {
   .sv-popup__body-content {
@@ -418,10 +389,9 @@ sv-popup {
     width: auto;
     min-width: min(calcSize(40), var(--sv-popup-overlay-max-width));
     max-width: var(--sv-popup-overlay-max-width);
-    border-radius: calcSize(0.5);
+    border-radius: calcCornerRadius(1);
     overflow: hidden;
     margin: 0;
-    border-radius: 4px;
   }
 
   .sv-popup__content,

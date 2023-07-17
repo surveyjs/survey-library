@@ -7,32 +7,38 @@
   width: 100%;
   margin: 0;
 }
+
 .sd-imagepicker--column {
   align-items: flex-start;
   flex-direction: column;
 }
+
 @supports not (aspect-ratio: 1 / 1) {
   .sd-imagepicker>div {
-      margin-right: calcSize(2);
+    margin-right: calcSize(2);
   }
 }
 
 .sd-imagepicker__item {
+
   img,
   .sd-imagepicker__image-container>div {
-      border-radius: calcSize(0.5);
+    border-radius: calcCornerRadius(1);
     background-color: $background-dim-light;
   }
 }
+
 .sd-imagepicker__item-decorator {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .sd-imagepicker__image-container {
   position: relative;
 }
+
 .sd-imagepicker__check-decorator {
   display: none;
   position: absolute;
@@ -46,14 +52,17 @@
   background-color: $background;
   z-index: 1;
 }
+
 .sd-imagepicker__check-icon {
   width: calcSize(3);
   height: calcSize(3);
   fill: $primary;
 }
+
 .sd-imagepicker__item--checked .sd-imagepicker__check-decorator {
   display: block;
 }
+
 .sd-imagepicker__item--error .sd-imagepicker__image-container::before {
   display: block;
   position: absolute;
@@ -63,36 +72,42 @@
   width: 100%;
   height: 100%;
   background-color: $red-light;
-  border-radius: calcSize(0.5);
+  border-radius: calcCornerRadius(1);
   background: linear-gradient(0deg, $red-light, $red-light);
 }
+
 .sd-imagepicker__item:focus-within .sd-imagepicker__image,
 .sd-imagepicker__item--allowhover .sd-imagepicker__image:hover {
   opacity: 0.5;
 }
+
 .sd-imagepicker__image {
   display: block;
   box-sizing: border-box;
   max-width: 100%;
 }
+
 .sd-imagepicker__text {
-  font-size: calcSize(2);
-  line-height: calcSize(3);
+  font-size: calcFontSize(1);
+  line-height: calcLineHeight(1.5);
   margin-top: calcSize(1);
   color: $foreground;
 }
+
 .sd-imagepicker__no-image {
   display: flex;
   background-color: $background-dim-light;
   inset-block-start: 0;
 }
+
 .sd-imagepicker__no-image-svg {
   height: calcSize(6);
   width: calcSize(6);
   margin: auto;
+
   use {
-      fill: $foreground-light;
-    }
+    fill: $foreground-light;
+  }
 }
 
 .sd-imagepicker__column {
@@ -102,6 +117,7 @@
   align-items: flex-start;
   padding-right: 0;
 }
+
 .sd-selectbase__column.sd-imagepicker__column:not(:last-child) {
   padding-right: 0;
 }

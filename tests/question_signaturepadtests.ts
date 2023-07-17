@@ -5,12 +5,12 @@ QUnit.test("QuestionSignaturePadModel dataFormat default value", function (
   assert
 ) {
   var question = new QuestionSignaturePadModel("q");
-  assert.equal(question.dataFormat, "", "default value");
+  assert.equal(question.dataFormat, "png", "default value");
 });
 
 QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
   var question = new QuestionSignaturePadModel("q");
-  assert.equal(question.dataFormat, "", "defaultValue");
+  assert.equal(question.dataFormat, "png", "defaultValue");
 
   var el = document.createElement("div");
   el.appendChild(document.createElement("canvas"));
@@ -21,16 +21,51 @@ QUnit.test("QuestionSignaturePadModel dataFormat values", function (assert) {
   assert.equal(question.value.substring(0, 15), "data:image/png;", "png");
 
   question.dataFormat = "image/jpeg";
-  assert.equal(question.dataFormat, "image/jpeg", "jpeg format");
+  assert.equal(question.dataFormat, "jpeg", "jpeg format");
   question["updateValue"]();
   assert.equal(question.value.substring(0, 15), "data:image/jpeg", "jpeg");
 
   question.dataFormat = "image/svg+xml";
-  assert.equal(question.dataFormat, "image/svg+xml", "svg format");
+  assert.equal(question.dataFormat, "svg", "svg format");
   question["updateValue"]();
   assert.equal(question.value.substring(0, 15), "data:image/svg+", "svg");
-});
 
+  question.dataFormat = "jpeg";
+  assert.equal(question.dataFormat, "jpeg", "jpeg format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/jpeg", "jpeg#2");
+
+  question.dataFormat = "svg";
+  assert.equal(question.dataFormat, "svg", "svg format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/svg+", "svg#2");
+
+  question.dataFormat = "png";
+  assert.equal(question.dataFormat, "png", "png format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/png;", "png#2");
+
+  question.dataFormat = "";
+  assert.equal(question.dataFormat, "png", "png format");
+  question["updateValue"]();
+  assert.equal(question.value.substring(0, 15), "data:image/png;", "png#3");
+
+  el.remove();
+});
+QUnit.test("QuestionSignaturePadModel dataFormat converters", function (assert) {
+  var question = new QuestionSignaturePadModel("q");
+  assert.equal(question.dataFormat, "png", "#1");
+  question.fromJSON({ name: "q", dataFormat: "jpeg" });
+  assert.equal(question.dataFormat, "jpeg", "#2");
+  question.fromJSON({ name: "q", dataFormat: "svg" });
+  assert.equal(question.dataFormat, "svg", "#3");
+  question.fromJSON({ name: "q", dataFormat: "dffd" });
+  assert.equal(question.dataFormat, "png", "#4");
+  question.fromJSON({ name: "q", dataFormat: "image/jpeg" });
+  assert.equal(question.dataFormat, "jpeg", "#5");
+  question.fromJSON({ name: "q", dataFormat: "image/svg+xml" });
+  assert.equal(question.dataFormat, "svg", "#6");
+});
 QUnit.test("check allowClear", (assert) => {
   var json = {
     questions: [
@@ -75,6 +110,9 @@ QUnit.test("Check signaturepad signauteWidth/Height properties", (assert) => {
   signaturepad.signatureHeight = 300;
   assert.equal(canvas.width, 400);
   assert.equal(canvas.height, 300);
+
+  canvas.remove();
+  containerEl.remove();
 });
 //todo: need to remove this test after code modification
 QUnit.test("Check width/height influence on signageWidth/Height properties", (assert) => {
@@ -133,4 +171,27 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
   assert.equal(canvas.width, 400);
   assert.equal(signaturepad.signatureHeight, 300);
   assert.equal(canvas.height, 300);
+
+  canvas.remove();
+  containerEl.remove();
+});
+
+QUnit.test("check penColor", (assert) => {
+  const json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  assert.equal(signaturepad.penColor, "#1ab394", "penColor default");
+
+  survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
+  assert.equal(signaturepad.penColor, "rgba(103, 58, 176, 1)", "penColor from theme");
+
+  survey.applyTheme({ "cssVariables": { } });
+  assert.equal(signaturepad.penColor, "#1ab394", "penColor default");
 });

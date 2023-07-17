@@ -22,7 +22,7 @@ export var englishStrings = {
     "Our records show that you have already completed this survey.",
   loadingSurvey: "Loading Survey...",
   placeholder: "Select...",
-  ratingOptionsCaption: "Tap to rate here...",
+  ratingOptionsCaption: "Select...",
   value: "value",
   requiredError: "Response required.",
   requiredErrorInPanel: "Response required: answer at least one question.",
@@ -52,7 +52,7 @@ export var englishStrings = {
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",
   noFileChosen: "No file chosen",
-  fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload.",
   confirmDelete: "Do you want to delete the record?",
   keyDuplicationError: "This value should be unique.",
   addColumn: "Add Column",
@@ -94,7 +94,9 @@ export var englishStrings = {
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
   noEntriesReadonlyText: "There are no entries.",
   more: "More",
-  tagboxDoneButtonCaption: "OK"
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "All choices are ranked",
+  selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

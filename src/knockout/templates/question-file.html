@@ -1,23 +1,23 @@
 ﻿<script type="text/html" id="survey-question-file">
   <div data-bind="css: question.fileRootCss">
       <!-- ko ifnot: question.isInputReadOnly -->
-      <input type="file" tabindex="-1" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes }, event: { change: question.dochange }">
+      <input type="file" tabindex="-1" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes, capture: question.renderCapture }, event: { change: question.dochange }">
       <!-- /ko -->
       <!-- ko if: question.isReadOnly -->
       <input type="file" disabled data-bind="css: question.getReadOnlyFileCss(), attr: { id: question.inputId, placeholder: question.title, multiple: question.allowMultiple ? 'multiple' : undefined }" style="color: transparent;"/>
       <!-- /ko -->
       <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     
         <div data-bind="css: question.getFileDecoratorCss()">
-          <span data-bind="css: question.koCss().dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
-          <div data-bind="css: question.koCss().wrapper">
-            <label tabindex="0" role="button" data-bind="css: question.koChooseFileCss, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
+          <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
+          <div data-bind="css: question.cssClasses.wrapper">
+            <label tabindex="0" role="button" data-bind="css: question.koChooseFileCss, key2click, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
               <span data-bind="text: question.chooseButtonCaption"></span>
               <!-- ko if: question.cssClasses.chooseFileIconId -->
                   <!-- ko component: { name: 'sv-svg-icon', params: { title: question.chooseButtonCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->
               <!-- /ko -->
             </label>
             <!-- ko if: !question.koHasValue() -->
-            <span data-bind="css: question.koCss().noFileChosen, text: question.noFileChosenCaption"></span>
+            <span data-bind="css: question.cssClasses.noFileChosen, text: question.noFileChosenCaption"></span>
             <!-- /ko -->
           </div>
         </div>

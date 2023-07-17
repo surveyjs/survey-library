@@ -518,7 +518,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private get showRemoveButtonAsIcon() {
     return (
-      settings.matrixRenderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
+      settings.matrix.renderRemoveAsIcon && this.matrix.survey && (<any>this.matrix.survey).css.root === "sd-root-modern"
     );
   }
   protected setDefaultRowActions(

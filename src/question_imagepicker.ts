@@ -9,7 +9,9 @@ import { settings } from "./settings";
 import { classesToSelector } from "./utils/utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
-  @property({ defaultValue: false }) contentNotLoaded: boolean;
+
+  @property({ defaultValue: false }) private videoNotLoaded: boolean;
+  @property({ defaultValue: false }) private imageNotLoaded: boolean;
 
   constructor(
     value: any,
@@ -55,6 +57,18 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   public onErrorHandler(): void {
     this.contentNotLoaded = true;
   }
+
+  public set contentNotLoaded(val: boolean) {
+    if(this.locOwner instanceof QuestionImagePickerModel && this.locOwner.contentMode == "video") {
+      this.videoNotLoaded = val;
+    } else {
+      this.imageNotLoaded = val;
+    }
+  }
+  public get contentNotLoaded(): boolean {
+    return this.locOwner instanceof QuestionImagePickerModel && this.locOwner.contentMode == "video" ? this.videoNotLoaded : this.imageNotLoaded;
+  }
+
 }
 
 /**
@@ -396,14 +410,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 }
 Serializer.addClass(
   "imageitemvalue",
-  [],
+  [{ name: "imageLink", serializationProperty: "locImageLink" }],
   (value: any) => new ImageItemValue(value),
   "itemvalue"
 );
-Serializer.addProperty("imageitemvalue", {
-  name: "imageLink",
-  serializationProperty: "locImageLink",
-});
 Serializer.addClass(
   "responsiveImageSize",
   [],

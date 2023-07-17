@@ -42,7 +42,7 @@ frameworks.forEach(framework => {
   test("check custom markup in list behavior", async t => {
     await registerComponet_onValueChanging();
     await initSurvey(framework, json);
-    const item1Input = Selector("input[aria-label='item1']");
+    const item1Input = Selector("input[type='text']");
     await t
       .typeText(item1Input, "1")
       .pressKey("tab")

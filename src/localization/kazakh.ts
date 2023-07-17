@@ -21,7 +21,7 @@ export var kazakhStrings = {
   completingSurveyBefore: "Сіз бұл сауалнаманы өтіп қойдыңыз.",
   loadingSurvey: "Серверден жүктеу...",
   placeholder: "Таңдау...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   value: "мәні",
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
   requiredErrorInPanel: "Өтінеміз, кем дегенде бір сұраққа жауап беріңіз.",

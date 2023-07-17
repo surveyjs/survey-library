@@ -22,8 +22,8 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;
           position: absolute;
-          z-index: 1000;
-          font-family: var(--font-family, $font-family);
+          z-index: 10000;
+          font-family: var(--font-family, 'Open Sans');
         `;
 
     const isDeepClone = true;
@@ -34,10 +34,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     );
     clone.style.cssText = `
       min-width: 100px;
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-      background-color: var(--background, white);
-      border-radius: 36px;
-      padding-right: 16px;
+      box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+      background-color: var(--sjs-general-backcolor, var(--background, #fff));
+      border-radius: calc(4.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
+      padding-right: calc(2* var(--sjs-base-unit, var(--base-unit, 8px)));
       margin-left: 0;
     `;
 
@@ -68,12 +68,11 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     draggedElementShortcut.style.cssText = ` 
       cursor: grabbing;
       position: absolute;
-      z-index: 1000;
-      filter: drop-shadow(0px 2px 6px rgba(0, 0, 0, 0.1));
-      box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
-      padding: 4px;
-      border-radius: 4px;
-      background: white;
+      z-index: 10000;
+      box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+      background-color: var(--sjs-general-backcolor, var(--background, #fff));
+      padding: calc(0.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
+      border-radius: calc(0.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
     `;
 
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
@@ -113,12 +112,13 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doDragOver = (): any => {
     if (this.parentElement.getType() === "imagepicker") return;
-    const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
+    const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".svc-item-value-controls__button");
     node.style.cursor = "grabbing";
   };
 
   protected isDropTargetValid(
-    dropTarget: ItemValue
+    dropTarget: ItemValue,
+    dropTargetNode?: HTMLElement
   ): boolean {
     const choices = this.getVisibleChoices();
 
@@ -145,7 +145,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
 
   protected doBanDropHere = (): any => {
     if (this.parentElement.getType() === "imagepicker") return;
-    const node = this.draggedElementShortcut.querySelector(".svc-item-value-controls__button");
+    const node = this.domAdapter.draggedElementShortcut.querySelector<HTMLElement>(".svc-item-value-controls__button");
     node.style.cursor = "not-allowed";
   };
 
@@ -202,13 +202,15 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     return this.parentElement;
   }
 
-  protected doClear(): void {
-    this.updateVisibleChoices();
+  public clear(): void {
+    if(!!this.parentElement) {
+      this.updateVisibleChoices(this.parentElement);
+    }
+    super.clear();
   }
 
-  private updateVisibleChoices() {
-    const parent = this.parentElement;
-    this.parentElement.getType() === "ranking" ?
+  private updateVisibleChoices(parent: any) {
+    parent.getType() === "ranking" ?
       parent.updateRankingChoices() :
       parent["updateVisibleChoices"]();
   }

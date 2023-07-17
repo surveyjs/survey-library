@@ -1,4 +1,4 @@
-import { url, initSurvey, frameworks } from "../helper";
+import { url, initSurvey, frameworks, getListItemByText } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "popup";
 
@@ -14,6 +14,7 @@ const json = {
 const disposeSurvey = ClientFunction(framework => {
   if (framework === "vue") {
     window["vueApp"].$destroy();
+    window["vueApp"].$el.parentNode.removeChild(window["vueApp"].$el);
   }
   if (framework === "react") {
     window["ReactDOM"].unmountComponentAtNode(document.getElementById("surveyElement"));
@@ -91,8 +92,8 @@ frameworks.forEach(async framework => {
     const itemClientRect = await getElementClientRect(".sv-action-bar-item");
 
     await t
-      .expect(itemClientRect.left - 8 - popupClientRect.width).eql(popupClientRect.left)
-      .expect(itemClientRect.top).eql(popupClientRect.top)
+      .expect(Math.round(itemClientRect.left) - 8 - Math.round(popupClientRect.width)).eql(Math.round(popupClientRect.left))
+      .expect(Math.round(itemClientRect.top)).eql(Math.round(popupClientRect.top))
       .click(clickButton)
       .expect(popupSelector.exists).ok()
       .expect(popupSelector.visible).notOk()
@@ -101,8 +102,8 @@ frameworks.forEach(async framework => {
       .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).ok()
       .pressKey("esc")
       .expect(popupSelector.exists).ok()
-      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).notOk()
       .expect(popupSelector.visible).notOk()
+      .expect(Selector(".sv-action-bar-item").hasClass("sv-action-bar-item--pressed")).notOk()
       .click(clickButton)
       .expect(popupSelector.visible).ok()
       .click(Selector("body"), {
@@ -260,7 +261,8 @@ frameworks.forEach(async framework => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
 
     await t
-      .click(clickButton)
+      .pressKey("shift+tab shift+tab")
+      .pressKey("enter")
       .expect(popupSelector.visible).ok()
 
       .expect(listItems.count).eql(10)
@@ -308,5 +310,87 @@ frameworks.forEach(async framework => {
       .click(clickButton)
       .expect(popupSelector.visible).ok()
       .expect(popupSelector.offsetHeight).eql(346);
+  });
+  test("check popup with filter", async t => {
+    const currentAddDropdownTitleAction = (_, opt) => {
+      if(opt.question.name !== "actions_question") return;
+
+      let items: Array<any> = [];
+      for (let index = 0; index < 20; index++) {
+        items[index] = new window["Survey"].Action({ title: "item" + index });
+      }
+      const item = window["Survey"].createDropdownActionModel(
+        { title: "Click", showTitle: true },
+        { items: items }
+      );
+      opt.titleActions = [item];
+    };
+    const insertContainer = ClientFunction(() => {
+      const container = document.createElement("div");
+      container.style.height = "200px";
+      const surveyEl = document.getElementById("surveyElement");
+      surveyEl?.parentElement?.insertBefore(container, document.getElementById("surveyElement"));
+    });
+
+    await insertContainer();
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "text",
+          name: "q1"
+        },
+        {
+          type: "text",
+          name: "q2"
+        },
+        {
+          type: "text",
+          name: "actions_question"
+        }
+      ]
+    }, { onGetQuestionTitleActions: currentAddDropdownTitleAction });
+
+    const popupHeight = 455;
+    await t
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
+      .typeText(Selector(".sv-list__input"), "2")
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1)
+      .click(clickButton)
+      .expect(popupSelector.visible).notOk()
+      .click(clickButton)
+      .expect(popupSelector.visible).ok()
+      .expect(popupSelector.offsetHeight).within(popupHeight - 1, popupHeight + 1);
+  });
+
+  test("list model", async t => {
+    await initSurvey(framework, json, { onGetQuestionTitleActions: (_, opt) => {
+      const getItems = (count, startIndex = 0) => {
+        const list = [];
+        for (let index = startIndex; index < count; index++) {
+          list[index - startIndex] = new window["Survey"].Action({ id: index, title: "item" + index, needSeparator: index % 4 == 1 });
+        }
+        return list;
+      };
+      const dropdownWithSearchAction = window["Survey"].createDropdownActionModel(
+        { title: "Long List", showTitle: true },
+        { items: getItems(40), showPointer: true }
+      );
+      opt.titleActions = [dropdownWithSearchAction];
+    } });
+
+    const listItems = Selector(".sv-list__item").filterVisible();
+
+    await t
+      .click(Selector(".sv-action-bar-item"))
+      .expect(listItems.count).eql(40)
+
+      .pressKey("1")
+      .expect(listItems.count).eql(13)
+      .expect(getListItemByText("item1").focused).notOk()
+
+      .pressKey("down")
+      .expect(getListItemByText("item1").focused).ok();
   });
 });

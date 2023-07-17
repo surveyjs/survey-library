@@ -31,7 +31,7 @@ const subscribedQuestion = survey.getQuestionByName("subscribed");
 subscribedQuestion.value = true;
 ```
 
-Alternatively, you can call the Survey's [`setValue(questionName, newValue)`]() method:
+Alternatively, you can call the Survey's [`setValue(questionName, newValue)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#setValue) method:
 
 ```js
 import { Model } from "survey-core";
@@ -97,6 +97,22 @@ const surveyJson = {
   }]
 }
 ```
+
+You can also specify default values dynamically. Assign a [logical expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) to a question's [`defaultValueExpression`](https://surveyjs.io/form-library/documentation/api-reference/question#defaultValueExpression) property. This expression will be evaluated for the first time when the survey begins, and then re-evaluated again each time any question value changes.
+
+```js
+const surveyJson = {
+  "elements": [{
+    "name": "start-date",
+    "title": "Select a vacation start date",
+    "type": "text",
+    "inputType": "date",
+    "defaultValueExpression": "today()"
+  }]
+}
+```
+
+[View Demo](https://surveyjs.io/form-library/examples/specify-default-question-value-dynamically/ (linkStyle))
 
 ## See Also
 

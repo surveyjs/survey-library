@@ -118,3 +118,41 @@ frameworks.forEach(framework => {
       .expect(getStyleWidthInPercents("max-width")).eql("455px");
   });
 });
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+  test("Check popup scrolling hides all popups inside survey", async t => {
+    await t.resizeWindow(1000, 500);
+    await initPopupSurvey(framework, {
+      title: "Survey title",
+      elements: [
+        {
+          type: "dropdown",
+          name: "q1",
+          choices: ["Item1", "Item2"]
+        },
+        {
+          type: "dropdown",
+          name: "q1",
+          choices: ["Item1", "Item2"]
+        },
+        {
+          type: "dropdown",
+          name: "q1",
+          choices: ["Item1", "Item2"]
+        },
+        {
+          type: "dropdown",
+          name: "q1",
+          choices: ["Item1", "Item2"]
+        }
+      ]
+    });
+    const titleSelector = Selector("span").withText("Survey title");
+    await t.click(titleSelector)
+      .click(Selector(".sv_q_dropdown__filter-string-input"))
+      .expect(Selector(".sv-popup__container").filterVisible().exists).ok()
+      .scroll(Selector(".sv_window_content").filterVisible(), "bottom")
+      .expect(Selector(".sv-popup__container").filterVisible().exists).notOk();
+  });
+});

@@ -24,7 +24,7 @@
           </svg>
         </div>
 
-        <div :class="question.getItemIndexClasses()">{{indexText}}</div>
+        <div :class="question.getItemIndexClasses(item)">{{unrankedItem ? "" : indexText}}</div>
         <div :class="cssClasses.controlLabel">
           <survey-string :locString="text" />
         </div>
@@ -47,6 +47,7 @@ export class RankingItem extends Vue {
   @Prop() cssClasses: any
   @Prop() question: QuestionRankingModel
   @Prop() item: ItemValue
+  @Prop() unrankedItem: boolean
 }
 Vue.component("survey-ranking-item", RankingItem);
 export default RankingItem;

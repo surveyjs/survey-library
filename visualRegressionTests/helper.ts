@@ -38,6 +38,10 @@ export async function takeElementScreenshot(screenshotName: string, element: Sel
   await comparer.takeScreenshot(screenshotName, element, screenshotComparerOptions);
 }
 
+export async function resetHoverToBody(t: TestController): Promise<void> {
+  await t.hover(Selector("body"), { offsetX: 0, offsetY: 0 });
+}
+
 //devextreme-screenshot-comparer options
 export const screenshotComparerOptions = {
   path: "./tests",

@@ -411,8 +411,9 @@ export class Base {
    * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
-    if(!this.classMetaData) {
-      this.classMetaData = Serializer.findClass(this.getType());
+    const type = this.getType();
+    if(!this.classMetaData || this.classMetaData.name !== type) {
+      this.classMetaData = Serializer.findClass(type);
     }
     return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
   }
@@ -459,8 +460,10 @@ export class Base {
    * @param defaultValue (Optional) A value to return if the property is not found or does not have a value.
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
-    const res = this.getPropertyValueCore(this.propertyHash, name);
+    const res = this.getPropertyValueWithoutDefault(name);
     if (this.isPropertyEmpty(res)) {
+      const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+      if(locStr) return locStr.text;
       if (defaultValue != null) return defaultValue;
       const propDefaultValue = this.getDefaultValueFromProperty(name);
       if(propDefaultValue !== undefined) return propDefaultValue;
@@ -475,6 +478,9 @@ export class Base {
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;
+  }
+  protected getPropertyValueWithoutDefault(name: string): any {
+    return this.getPropertyValueCore(this.propertyHash, name);
   }
   protected getPropertyValueCore(propertiesHash: any, name: string): any {
     if(!this.isLoadingFromJson) {

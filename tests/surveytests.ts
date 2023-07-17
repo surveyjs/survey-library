@@ -6,6 +6,7 @@ import { PanelModel } from "../src/panel";
 import { QuestionFactory } from "../src/questionfactory";
 import { Question } from "../src/question";
 import { QuestionHtmlModel } from "../src/question_html";
+import { QuestionImageModel } from "../src/question_image";
 import {
   SurveyTriggerVisible,
   SurveyTriggerComplete,
@@ -99,6 +100,28 @@ QUnit.test("merge data property", function (assert) {
     { strVal: "item1", intVal: 7, boolVal: false },
     "do nothing"
   );
+});
+QUnit.test("merge data for image question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        "name": "image",
+        "showPreview": true
+      }
+    ]
+  });
+  const imageData = [
+    {
+      name: "maxresdefault.jpg",
+      type: "image/jpeg",
+      content:
+        "data:image/jpeg;base64,=123test"
+    }
+  ];
+  survey.mergeData({ image: imageData });
+  const question = <QuestionImageModel>survey.getQuestionByName("image");
+  assert.deepEqual(question.value, imageData, "value set correctly");
 });
 QUnit.test("Add two pages", function (assert) {
   var survey = new SurveyModel();
@@ -2471,17 +2494,19 @@ QUnit.test(
     trigger.name = "question1";
     trigger.value = "Hello";
     var isCompleteOnTrigger_Completing = false;
-    var isCompleteOnTrigger_Completed = false;
+    var isCompleteOnTrigger_Complete = false;
     survey.onCompleting.add(function (sender, options) {
       isCompleteOnTrigger_Completing = options.isCompleteOnTrigger;
     });
-    survey.onCompleting.add(function (sender, options) {
-      isCompleteOnTrigger_Completed = options.isCompleteOnTrigger;
+    survey.onComplete.add(function (sender, options) {
+      isCompleteOnTrigger_Complete = options.isCompleteOnTrigger;
     });
 
     survey.setValue("question1", "Hello");
     assert.equal(survey.state, "running");
-    survey.nextPage();
+    assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible");
+    assert.equal(survey.isShowNextButton, false, "next button is invisible");
+    survey.completeLastPage();
     assert.equal(survey.state, "completed");
     assert.equal(
       isCompleteOnTrigger_Completing,
@@ -2489,7 +2514,7 @@ QUnit.test(
       "isCompleteOnTrigger property works for onCompleting event"
     );
     assert.equal(
-      isCompleteOnTrigger_Completed,
+      isCompleteOnTrigger_Complete,
       true,
       "isCompleteOnTrigger property works for onCompleted event"
     );
@@ -2502,7 +2527,7 @@ QUnit.test(
       "isCompleteOnTrigger property works for onCompleting event, #2"
     );
     assert.equal(
-      isCompleteOnTrigger_Completed,
+      isCompleteOnTrigger_Complete,
       false,
       "isCompleteOnTrigger property works for onCompleted event, #2"
     );
@@ -3912,6 +3937,7 @@ QUnit.test(
       page.addQuestion(q.question);
       survey.goNextPageAutomatic = true;
       if (q.value) {
+        q.question.onMouseDown();
         q.question.value = q.value;
       }
       var state = q.auto ? "completed" : "running";
@@ -4843,7 +4869,28 @@ QUnit.test("customWidgets camel name", function (assert) {
   );
   CustomWidgetCollection.Instance.clear();
 });
-
+QUnit.test("Create custom widget from addQuestion", function (assert) {
+  const cType = "newcustomwidget";
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: cType,
+    isFit: (question) => {
+      return question.getType() == cType;
+    },
+  });
+  if (!Serializer.findClass(cType)) {
+    Serializer.addClass(cType, [], undefined, "text");
+    QuestionFactory.Instance.registerCustomQuestion(cType);
+  }
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("p1");
+  const question = page.addNewQuestion(cType, "q1");
+  assert.equal(question.name, "q1", "name is correct");
+  assert.equal(question.getType(), cType, "type is correct");
+  CustomWidgetCollection.Instance.clear();
+  Serializer.removeClass(cType);
+  QuestionFactory.Instance.unregisterElement(cType);
+});
 QUnit.test("readOnlyCallback, bug #1818", function (assert) {
   CustomWidgetCollection.Instance.clear();
   var readOnlyCounter = 0;
@@ -5812,19 +5859,16 @@ QUnit.test("onMatrixRowAdded + defaultValueFromLastRow", function (assert) {
   assert.notOk(q1.value[2]["col1"], "clear value for this column");
 });
 
-QUnit.test("onMatrixBeforeRowAdded", function (assert) {
+QUnit.test("onMatrixBeforeRowAdded -> obsolete", function (assert) {
   var survey = new SurveyModel();
   survey.onMatrixBeforeRowAdded.add(function (sender, options) {
-    if (options.question.rowCount >= 1) options.canAddRow = false;
-    return;
+    options.canAddRow = options.question.rowCount < 1;
   });
 
   var page = survey.addNewPage("Page 1");
   var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
   page.addElement(q1);
   q1.addColumn("col1");
-  q1.addColumn("col2");
-  q1.addColumn("col3");
   q1.rowCount = 0;
 
   q1.addRow();
@@ -5835,6 +5879,72 @@ QUnit.test("onMatrixBeforeRowAdded", function (assert) {
     1,
     "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'"
   );
+});
+QUnit.test("onMatrixRowAdding -> replace onMatrixBeforeRowAdded", function (assert) {
+  var survey = new SurveyModel();
+  survey.onMatrixRowAdding.add(function (sender, options) {
+    options.allow = options.question.rowCount < 1;
+  });
+
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionMatrixDynamicModel("matrixdynamic");
+  page.addElement(q1);
+  q1.addColumn("col1");
+  q1.rowCount = 0;
+
+  q1.addRow();
+  assert.equal(q1.rowCount, 1, "there is one row");
+  q1.addRow();
+  assert.equal(
+    q1.rowCount,
+    1,
+    "there is stil one row because of 'onMatrixBeforeRowAdded' and 'canAddRow'"
+  );
+});
+QUnit.test("onMatrixRowAdding, support options.canAddRow & options.allow", function (assert) {
+  const survey = new SurveyModel();
+  let allow: any = undefined;
+  let canAddRow: any = undefined;
+  survey.onMatrixRowAdding.add(function (sender, options) {
+    if(allow !== undefined) options.allow = allow;
+    if(canAddRow !== undefined) options.canAddRow = canAddRow;
+  });
+  const page = survey.addNewPage("Page 1");
+  const matrix = new QuestionMatrixDynamicModel("matrixdynamic");
+  page.addElement(matrix);
+  matrix.addColumn("col1");
+  matrix.rowCount = 0;
+  matrix.allowAddRows = false;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 0, "rowCount=0, #1");
+  allow = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 1, "rowCount=1, #2");
+  allow = undefined;
+  canAddRow = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 2, "rowCount=2, #3");
+  canAddRow = undefined;
+
+  matrix.allowAddRows = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 3, "rowCount=3, #4");
+  allow = undefined;
+  canAddRow = true;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 4, "rowCount=4, #5");
+  canAddRow = undefined;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 5, "rowCount=5, #6");
+
+  allow = undefined;
+  canAddRow = false;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 5, "rowCount=5, #7");
+  canAddRow = undefined;
+  allow = false;
+  matrix.addRow();
+  assert.equal(matrix.rowCount, 5, "rowCount=5, #8");
 });
 
 QUnit.test("onMatrixRowRemoved. Added a case for Bug#2557", function (assert) {
@@ -8234,7 +8344,7 @@ QUnit.test("textUpdateMode=onTyping and goNextPageAutomatic option", function (
   question.clearValue();
   question.inputType = "email";
   question.value = "a@a.com";
-  assert.equal(survey.currentPageNo, 1, "Move to the second page");
+  assert.equal(survey.currentPageNo, 0, "Stay on the first page");
 });
 QUnit.test("textUpdateMode=onTyping and visibleIf", function (assert) {
   var json = {
@@ -12420,7 +12530,7 @@ QUnit.test("Remove errors on settings correct values, multipletext", function (
     "There is required error in item1"
   );
   assert.equal(
-    question1.items[0].editor.errors.length,
+    question1.items[1].editor.errors.length,
     1,
     "There is required error in item2"
   );
@@ -13369,6 +13479,24 @@ QUnit.test("Update progressText on changing locale, Bug#2453", function (
   assert.equal(survey.progressText, "Seite 1 von 2", "in de");
   survey.locale = oldLocale;
 });
+QUnit.test("Update preview edit button on changing locale, Bug#6523", function (
+  assert
+) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  survey.showPreview();
+  const panel = <PanelModel>survey.getAllPanels()[0];
+  assert.equal(survey.locEditText.textOrHtml, "Edit", "Edit - en");
+  const editAction = panel.getFooterToolbar().getActionById("cancel-preview");
+  assert.equal(editAction.locTitle.textOrHtml, "Edit", "Action - en");
+  survey.locale = "de";
+  assert.equal(survey.locEditText.textOrHtml, "Bearbeiten", "Edit - de");
+  assert.equal(editAction.locTitle.textOrHtml, "Bearbeiten", "Action - de");
+  survey.locale = "";
+});
 QUnit.test(
   "Focus question on Survey onServerValidateQuestions event, Bug#2464",
   function (assert) {
@@ -13922,6 +14050,28 @@ QUnit.test("Make inputs read-only in design-mode for V2", function (assert) {
     false,
     "supportCreatorV2 is false"
   );
+});
+
+QUnit.test("forceIsInputReadOnly", function (assert) {
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "text", name: "q1" },
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [{ type: "text", name: "q2" }],
+      },
+    ],
+  });
+  assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isInputReadOnly, true, "q2");
+
+  survey.getQuestionByName("q2").forceIsInputReadOnly = false;
+  assert.equal(survey.getQuestionByName("q1").isInputReadOnly, true, "q1");
+  assert.equal(survey.getQuestionByName("q2").isInputReadOnly, false, "q2 with forceIsInputReadOnly");
 });
 
 QUnit.test("onElementContentVisibilityChanged event", function (assert) {
@@ -14692,6 +14842,37 @@ QUnit.test("survey.autoGrowComment", function (assert) {
   assert.equal(comment1.autoGrow, false);
   assert.equal(comment2.autoGrow, true);
 });
+QUnit.test("survey.allowResizeComment", function (assert) {
+  let json = {
+    allowResizeComment: false,
+    pages: [
+      {
+        elements: [
+          {
+            type: "comment",
+            name: "comment1",
+          },
+          {
+            type: "comment",
+            name: "comment2",
+            allowResize: false
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel(json);
+  let comment1 = survey.getQuestionByName("comment1");
+  let comment2 = survey.getQuestionByName("comment2");
+
+  assert.equal(survey.allowResizeComment, false);
+  assert.equal(comment1.allowResize, false);
+  assert.equal(comment2.allowResize, false);
+
+  survey.allowResizeComment = true;
+  assert.equal(comment1.allowResize, true);
+  assert.equal(comment2.allowResize, false);
+});
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
     getBoundingClientRect: () => { return { height: 50, width: 100, x: 10, y: 10 }; },
@@ -15237,6 +15418,7 @@ QUnit.test("Check survey resize observer", function (assert) {
   survey.dispose();
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 class CustomResizeObserver {
@@ -15281,6 +15463,7 @@ QUnit.test("Check survey resize observer double process", function (assert) {
   assert.equal(trace, "->processed->processed");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check survey resize observer do not process if container is not visible", function (assert) {
@@ -15315,6 +15498,7 @@ QUnit.test("Check survey resize observer do not process if container is not visi
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  rootEl.remove();
 });
 
 QUnit.test("Check isMobile set via processResponsiveness method", function (assert) {
@@ -15808,6 +15992,35 @@ QUnit.test("hasDescription is not updated on changing locale", function (assert)
   assert.equal(question.hasDescription, true, "Question description is shown for 'de'");
   survey.locale = "";
 });
+QUnit.test("hasDescription is isDesignMode", function (assert) {
+  const commentDescriptionProperty = Serializer.getProperty("comment", "description");
+  const oldValue = commentDescriptionProperty.placeholder;
+  commentDescriptionProperty.placeholder = "Q placeholder";
+
+  const survey = new SurveyModel({});
+  survey["_isDesignMode"] = true;
+  settings.supportCreatorV2 = true;
+  survey.fromJSON({
+    pages: [{
+      name: "page1",
+      title: "Page title",
+      elements: [{
+        type: "text",
+        name: "q1",
+      }, {
+        type: "comment",
+        name: "q2",
+      }]
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.notOk(q1.hasDescription, "text description is not shown");
+  assert.ok(q2.hasDescription, "comment description is shown");
+
+  commentDescriptionProperty.placeholder = oldValue;
+  settings.supportCreatorV2 = false;
+});
 QUnit.test("Test survey with custom type", function (assert) {
   JsonObject.metaData.addClass(
     "sortablelist",
@@ -16096,7 +16309,7 @@ QUnit.test("no scrolling to page top after focus a question on another page - ht
   setTimeout(() => {
     assert.equal(log, "->" + qName, "no scrolling after page changed and focused a question, scroll to the question only");
     done();
-  }, 100);
+  }, 2);
 });
 
 QUnit.test("check descriptionLocation change css classes", function (assert) {
@@ -16517,6 +16730,134 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   assert.deepEqual(getContainerContent("right"), [], "");
 });
 
+QUnit.test("getContainerContent - do not show TOC on start page", function (assert) {
+  const json = {
+    showTOC: true,
+    firstPageIsStarted: true,
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q3",
+          },
+        ]
+      }
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "empty on the start page");
+
+  survey.start();
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [{
+    "component": "sv-progress-toc",
+    "id": "toc-navigation"
+  }], "show toc left");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+
+QUnit.test("getContainerContent - do not show buttons progress on completed page", function (assert) {
+  const json = {
+    "progressBarType": "buttons",
+    "showProgressBar": "top",
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q3",
+          },
+        ]
+      }
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => delete item["data"]);
+    return result;
+  }
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.doComplete();
+
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+
 const structedDataSurveyJSON = {
   pages: [
     {
@@ -16725,16 +17066,6 @@ QUnit.test("backgroundImage", assert => {
   assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
 });
 
-QUnit.test("backgroundOpacity", assert => {
-  const survey = new SurveyModel({
-    "backgroundOpacity": 0.6,
-  });
-  assert.equal(survey.backgroundOpacity, 0.6, "backgroundOpacity");
-  assert.equal(survey.renderBackgroundOpacity, "rgba(255, 255, 255, 0.4)", "renderBackgroundOpacity");
-
-  survey.backgroundOpacity = 1;
-  assert.equal(survey.renderBackgroundOpacity, "", "renderBackgroundOpacity empty");
-});
 QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
   const titleProp = Serializer.findProperty("survey", "title");
   titleProp.isLocalizable = false;
@@ -16840,4 +17171,124 @@ QUnit.test("check title classes when readOnly changed", function (assert) {
   assert.ok(question.cssTitle.includes(customDisabledClass));
   question.readOnly = false;
   assert.notOk(question.cssTitle.includes(customDisabledClass));
+});
+QUnit.test("Do not run onComplete twice if complete trigger and completeLastPage() is called", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "question1"
+      },
+      {
+        "type": "text",
+        "name": "question2"
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} = 1"
+      }
+    ]
+  });
+  let counter = 0;
+  survey.onComplete.add((sender, options) => {
+    counter ++;
+  });
+  survey.setValue("question1", 1);
+  survey.completeLastPage();
+  assert.equal(counter, 1, "onComplete called one time");
+});
+QUnit.test("Expression with dates & defaultValueExpression & expression question", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "text",
+        "name": "startdate",
+        "defaultValueExpression": "today(-2)",
+        "inputType": "date"
+      },
+      {
+        "type": "expression",
+        "name": "enddate",
+        "expression": "today()"
+      },
+      {
+        "type": "expression",
+        "name": "check1",
+        "expression": "{startdate} <= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check2",
+        "expression": "{startdate} >= {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check3",
+        "expression": "{startdate} < {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check4",
+        "expression": "{startdate} > {enddate}"
+      },
+      {
+        "type": "expression",
+        "name": "check5",
+        "expression": "{startdate} = {enddate}"
+      }
+    ]
+  });
+  const checkFunc= function(res: Array<boolean>, no: number) {
+    for(var i = 0; i < res.length; i ++) {
+      const name = "check" + (i + 1).toString();
+      const val = survey.getValue(name);
+      assert.equal(val, res[i], "check no: " + no + ", value name: " + name);
+    }
+  };
+  checkFunc([true, false, true, false, false], 1);
+
+  const startQ = survey.getQuestionByName("startdate");
+  const date = new Date();
+  date.setDate(date.getDate() + 1);
+  startQ.value = Helpers.convertDateToString(date);
+  checkFunc([false, true, false, true, false], 2);
+
+  startQ.value = Helpers.convertDateToString(new Date());
+  checkFunc([true, true, false, false, true], 3);
+});
+
+QUnit.test("Check onPopupVisibleChanged events", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "dropdown",
+        "name": "q1",
+        "choices": ["Item1", "Item2", "Item3"]
+      },
+    ]
+  });
+  let log = "";
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const popup = question.dropdownListModel.popupModel;
+  survey.onPopupVisibleChanged.add((_, options) => {
+    assert.equal(options.question, question);
+    assert.equal(options.popup, popup);
+    log += `->${options.visible}`;
+  });
+  popup.toggleVisibility();
+  assert.equal(log, "->true");
+  popup.toggleVisibility();
+  assert.equal(log, "->true->false");
+});
+QUnit.test("Check onPopupVisibleChanged events", function (assert) {
+  assert.equal(settings.comparator.caseSensitive, false, "comparator.caseSensitive is false");
+  const survey = new SurveyModel({ elements: [{ "type": "text", "name": "q1" }] });
+  const q = survey.getQuestionByName("q1");
+  survey.onValueChanging.add((sender, options) => {
+    options.value = options.value.toUpperCase();
+  });
+  q.value = "abc";
+  assert.equal(q.value, "ABC", "Convert to upper case");
 });

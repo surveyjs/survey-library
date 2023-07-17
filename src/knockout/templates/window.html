@@ -8,7 +8,7 @@
             <span style="padding-right:10px" data-bind="css: cssHeaderTitle">X</span>
         </span>
     </div>
-    <div data-bind="visible:isExpanded, css: cssBody">
+    <div data-bind="visible:isExpanded, css: cssBody, event: { scroll: $data.onScroll }">
         <survey params="survey: survey"></survey>
     </div>
 </div>

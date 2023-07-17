@@ -4,8 +4,11 @@
 </script>
 
 <script type="text/html" id="survey-content-template">
-  <div data-bind="css: rootCss, style: { backgroundImage: renderBackgroundImage }">
-      <form onsubmit="return false;" data-bind="style: { backgroundColor: renderBackgroundOpacity }">
+  <div data-bind="css: rootCss, elementStyle: themeVariables">
+      <!-- ko if: !!renderBackgroundImage -->
+      <div data-bind="css: css.rootBackgroundImage, style: backgroundImageStyle"></div>
+      <!-- /ko -->
+      <form onsubmit="return false;">
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: containerCss">
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->

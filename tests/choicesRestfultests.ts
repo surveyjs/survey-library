@@ -13,6 +13,7 @@ import { JsonObject, Serializer } from "../src/jsonobject";
 import { QuestionRadiogroupModel } from "../src/question_radiogroup";
 import { settings } from "../src/settings";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { SurveyError } from "../src/survey-error";
 
 export default QUnit.module("choicesRestful");
 
@@ -719,8 +720,42 @@ QUnit.test("Set value before loading data, bug #1089", function(assert) {
   question.hasItemsCallbackDelay = true;
   question.onSurveyLoad();
   survey.setValue("q1", "CA");
-  question.doResultsCallback();
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA")]);
   assert.equal(question.value, "CA", "'CA' value is still here");
+  assert.equal(question.selectedItem.value, "CA", "selectedItem is correct");
+});
+QUnit.test("Set value before loading data + defaultValue", function(assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("1");
+  const question = new QuestionDropdownModelTester("q1");
+  question.defaultValue = "CA";
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  question.hasItemsCallbackDelay = true;
+  question.onSurveyLoad();
+  question.restFulTest.isRequestRunning = true;
+  assert.equal(question.restFulTest.isRunning, true, "request should be running");
+  assert.equal(question.value, "CA", "Set default Value");
+  survey.mergeData({ "q1": "TX" });
+  question.restFulTest.isRequestRunning = false;
+  question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("TX")]);
+  assert.equal(question.value, "TX", "'TX' value is here");
+  assert.equal(question.selectedItem.value, "TX", "selectedItem is correct");
+});
+QUnit.test("Clear value on getting empty array, bug #6251", function(assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("1");
+  var question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  question.hasItemsCallbackDelay = true;
+  question.onSurveyLoad();
+  survey.setValue("q1", "CA");
+  question.choicesByUrl.error = new SurveyError("Empty request");
+  question["onLoadChoicesFromUrl"]([]);
+  assert.equal(question.isEmpty(), true, "value is empty");
+  assert.equal(question.selectedItem, null, "selectedItem is null");
+  assert.equal(question.errors.length, 1, "It shows error on empty result");
 });
 
 QUnit.test(
@@ -736,9 +771,10 @@ QUnit.test(
     question.onSurveyLoad();
     survey.setValue("q1", "CA");
     assert.equal(question.isOtherSelected, false, "There shuld not be other#1");
-    question.doResultsCallback();
+    question["onLoadChoicesFromUrl"]([new ItemValue("CA")]);
     assert.equal(question.isOtherSelected, false, "There shuld not be other#2");
     assert.equal(question.value, "CA", "'CA' value is still here");
+    assert.equal(question.selectedItem.value, "CA", "selectedItem is correct");
   }
 );
 
@@ -748,20 +784,21 @@ QUnit.test("preset data and same data from url", function(assert) {
   survey.addNewPage("1");
   var question = new QuestionDropdownModelTester("q1");
   survey.storeOthersAsComment = false;
-
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "{state}";
+  survey.pages[0].addQuestion(question);
+  question.onSurveyLoad();
+  survey.data = { q1: "CA" };
   survey.onValueChanging.add(function() {
     counter++;
   });
-
   survey.onValueChanged.add(function() {
     counter++;
   });
-
-  question.choicesByUrl.url = "{state}";
-  survey.pages[0].addQuestion(question);
-  survey.data = { q1: "CA" };
+  assert.equal(question.value, "CA", "value is here");
   question["onLoadChoicesFromUrl"]([new ItemValue("CA"), new ItemValue("AA")]);
-
+  assert.equal(question.value, "CA", "value is still here");
+  assert.equal(question.selectedItem.value, "CA", "selecteditem is correct");
   assert.equal(counter, 0, "value doesn't change");
 });
 

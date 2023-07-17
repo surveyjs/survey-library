@@ -1,3 +1,4 @@
+import { settings, ISurveyEnvironment } from "../src/settings";
 import { SvgIconRegistry } from "../src/svgbundle";
 export default QUnit.module("SvgRegistryTests");
 
@@ -33,4 +34,35 @@ QUnit.test("svg import custom prefix via string", function (assert) {
   let res = svg.registerIconFromSvg("a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>", "sprite-");
   assert.ok(res);
   assert.equal(svg.iconsRenderedHtml(), "<symbol id=\"sprite-a\" viewBox=\"0 0 100 100\"><circle/></symbol>");
+});
+
+QUnit.test("svg import in the custom environment", function (assert) {
+  const shadowRootWrapper = document.createElement("div");
+  const shadowRoot = shadowRootWrapper.attachShadow({ mode: "open" });
+
+  const svgMountContainer = document.createElement("div");
+  shadowRoot.appendChild(svgMountContainer);
+
+  const environment: ISurveyEnvironment = {
+    ...settings.environment,
+    root: shadowRoot,
+    rootElement: shadowRoot,
+    svgMountContainer,
+  };
+
+  settings.environment = environment as any;
+
+  let svg = new SvgIconRegistry();
+  svg.registerIconFromSvgViaElement("a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>", "sprite-");
+  assert.equal(svg.iconsRenderedHtml(), "<symbol viewBox=\"0 0 100 100\" id=\"sprite-a\"><circle></circle></symbol>");
+
+  svgMountContainer.remove();
+  shadowRootWrapper.remove();
+
+  settings.environment = {
+    ...settings.environment,
+    root: document,
+    rootElement: document.body,
+    svgMountContainer: document.head
+  };
 });

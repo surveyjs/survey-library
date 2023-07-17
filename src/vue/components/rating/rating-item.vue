@@ -1,5 +1,5 @@
 <template>
-  <label :key="item.value" :class="question.getItemClassByText(item.itemValue, item.text)">
+  <label :key="item.value" @mousedown="question.onMouseDown()" :class="question.getItemClassByText(item.itemValue, item.text)">
     <input type="radio" class="sv-visuallyhidden" :name="question.name" :id="question.getInputId(index)"
       :value="item.value" :disabled="question.isInputReadOnly"
       @click="(e) => question.setValueFromClick(e.target.value)" :aria-required="question.ariaRequired"
@@ -15,7 +15,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { RenderedRatingItem, QuestionRatingModel, Action } from "survey-core";
-import { BaseVue, attachKey2click } from "../../base";
+import { BaseVue } from "../../base";
 
 
 @Component

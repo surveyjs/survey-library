@@ -5,14 +5,14 @@ import { ActionContainer } from "./container";
 import { surveyLocalization } from "../surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
-  protected dotsItem: Action;
+  public dotsItem: Action;
   private responsivityManager: ResponsivityManager;
   public minVisibleItemsCount: number = 0;
   public isResponsivenessDisabled = false;
 
   private hideItemsGreaterN(visibleItemsCount: number) {
     const actionsToHide = this.visibleActions.filter(action => !action.disableHide);
-    visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount) - (this.visibleActions.length - actionsToHide.length);
+    visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount - (this.visibleActions.length - actionsToHide.length));
     const hiddenItems: IAction[] = [];
     actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
@@ -25,7 +25,8 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   private getVisibleItemsCount(availableSize: number): number {
-    const itemsSizes: number[] = this.visibleActions.map((item) => item.minDimension);
+    this.visibleActions.filter((action) => action.disableHide).forEach(action => availableSize -= action.minDimension);
+    const itemsSizes: number[] = this.visibleActions.filter(action => !action.disableHide).map((item) => item.minDimension);
     let currSize: number = 0;
     for (var i = 0; i < itemsSizes.length; i++) {
       currSize += itemsSizes[i];
@@ -42,6 +43,16 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
         items[index].mode = "small";
       } else {
         items[index].mode = "large";
+      }
+    }
+    if (itemsSize > availableSize) {
+      const hidableItems = this.visibleActions.filter(a => a.removePriority);
+      hidableItems.sort((a, b) => a.removePriority - b.removePriority);
+      for (let index = 0; index < hidableItems.length; index++) {
+        if (itemsSize > availableSize) {
+          itemsSize -= items[index].disableShrink ? hidableItems[index].maxDimension : hidableItems[index].minDimension;
+          hidableItems[index].mode = "removed";
+        }
       }
     }
   }
@@ -77,12 +88,12 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   protected onSet() {
-    this.actions.forEach(action => action.updateCallback = () => this.raiseUpdate(false));
+    this.actions.forEach(action => action.updateCallback = (isResetInitialized: boolean) => this.raiseUpdate(isResetInitialized));
     super.onSet();
   }
 
   protected onPush(item: T) {
-    item.updateCallback = () => this.raiseUpdate(false);
+    item.updateCallback = (isResetInitialized: boolean) => this.raiseUpdate(isResetInitialized);
     super.onPush(item);
   }
 
@@ -124,7 +135,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   public initResponsivityManager(container: HTMLDivElement): void {
     this.responsivityManager = new ResponsivityManager(
       container, this,
-      ".sv-action:not(.sv-dots)>.sv-action__content"
+      ":scope > .sv-action:not(.sv-dots) > .sv-action__content"
     );
   }
   public resetResponsivityManager(): void {

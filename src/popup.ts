@@ -16,7 +16,7 @@ export interface IPopupOptionsBase {
   isModal?: boolean;
   displayMode?: "popup" | "overlay";
 }
-export interface IDialogOptions extends IPopupOptionsBase{
+export interface IDialogOptions extends IPopupOptionsBase {
   componentName: string;
   data: any;
   onApply: () => boolean;
@@ -37,6 +37,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: false }) showPointer: boolean;
   @property({ defaultValue: false }) isModal: boolean;
   @property({ defaultValue: true }) isFocusedContent: boolean;
+  @property({ defaultValue: true }) isFocusedContainer: boolean;
   @property({ defaultValue: () => { } }) onCancel: () => void;
   @property({ defaultValue: () => { return true; } }) onApply: () => boolean;
   @property({ defaultValue: () => { } }) onHide: () => void;
@@ -49,6 +50,11 @@ export class PopupModel<T = any> extends Base {
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
   public onFooterActionsCreated: EventBase<Base> = this.addEvent<Base>();
   public onRecalculatePosition: EventBase<Base> = this.addEvent<Base>();
+
+  private refreshInnerModel(): void {
+    const innerModel = (this.contentComponentData as any)["model"];
+    innerModel && innerModel.refresh && innerModel.refresh();
+  }
 
   constructor(
     contentComponentName: string,
@@ -88,10 +94,9 @@ export class PopupModel<T = any> extends Base {
     this.setPropertyValue("isVisible", value);
     this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
     if (this.isVisible) {
-      const innerModel = (this.contentComponentData as any)["model"];
-      innerModel && innerModel.refresh && innerModel.refresh();
       this.onShow();
     } else {
+      this.refreshInnerModel();
       this.onHide();
     }
   }

@@ -310,7 +310,13 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item1", { paste: true });
+        .click(Selector(".sd-list__item span").withText("item1"));
+      await takeElementScreenshot("tagbox-question-overlay-popup-selected.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+
+      await t.click(Selector("span").withText("Cancel"));
+
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });
@@ -357,16 +363,16 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item1", { paste: true });
+        .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item", { paste: true, replace: true });
+        .typeText(Selector(".sv-list__input"), "item", { replace: true });
 
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-big.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
 
       await t.click(Selector(".sd-dropdown__filter-string-input"))
-        .typeText(Selector(".sv-list__input"), "item3", { paste: true, replace: true });
+        .typeText(Selector(".sv-list__input"), "item3", { replace: true });
       await takeElementScreenshot("tagbox-question-overlay-tablet-popup-small.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
   });
@@ -406,7 +412,31 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-question__title"));
-      takeElementScreenshot("tagbox-focused.png", Selector(".sd-question"), t, comparer);
+      await takeElementScreenshot("tagbox-focused.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check tagbox input width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hasOther: "true",
+            choices: [
+              "item1",
+              "item2",
+              "item3"
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<HTMLElement>document.querySelector(".sd-question input")).style.backgroundColor = "red";
+      })();
+      await takeElementScreenshot("tagbox-contrast-input.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

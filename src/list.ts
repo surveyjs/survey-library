@@ -3,6 +3,7 @@ import { ActionContainer } from "./actions/container";
 import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
+import { getFirstVisibleChild } from "./utils/utils";
 
 export let defaultListCss = {
   root: "sv-list__container",
@@ -17,6 +18,7 @@ export let defaultListCss = {
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",
   itemsContainer: "sv-list",
+  itemsContainerFiltering: "sv-list--filtering",
   filter: "sv-list__filter",
   filterIcon: "sv-list__filter-icon",
   filterInput: "sv-list__input",
@@ -41,6 +43,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }) searchEnabled: boolean;
   @property({ defaultValue: false }) showFilter: boolean;
+  @property({ defaultValue: false }) forceShowFilter: boolean;
   @property({ defaultValue: false }) isExpanded: boolean;
   @property({}) selectedItem: IAction;
   @property() focusedItem: T;
@@ -74,11 +77,10 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return !this.onFilterStringChangedCallback;
   }
   private onFilterStringChanged(text: string) {
-    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
-
     if (!!this.onFilterStringChangedCallback) {
       this.onFilterStringChangedCallback(text);
     }
+    this.isEmpty = this.renderedActions.filter(action => this.isItemVisible(action)).length === 0;
   }
   private scrollToItem(selector: string, ms = 0): void {
     setTimeout(() => {
@@ -116,7 +118,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
   protected onSet(): void {
-    this.showFilter = this.searchEnabled && (this.actions || []).length > ListModel.MINELEMENTCOUNT;
+    this.showFilter = this.searchEnabled && (this.forceShowFilter || (this.actions || []).length > ListModel.MINELEMENTCOUNT);
     super.onSet();
   }
   protected getDefaultCssClasses() {
@@ -152,6 +154,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     return !!item1 && !!item2 && item1.id == item2.id;
   }
 
+  public getListClass: () => string = () => {
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemsContainer)
+      .append(this.cssClasses.itemsContainerFiltering, !!this.filterString && this.visibleActions.length !== this.visibleItems.length)
+      .toString();
+  }
   public getItemClass: (itemValue: T) => string = (itemValue: T) => {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
@@ -196,8 +204,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if (event.key === "ArrowDown" || event.keyCode === 40) {
       const currentElement = (<HTMLElement>event.target).parentElement;
       const listElement = currentElement.parentElement.querySelector("ul");
-      if (!!listElement && !!listElement.firstElementChild) {
-        ElementHelper.focusElement(listElement.firstElementChild);
+      const firstChild = getFirstVisibleChild(listElement);
+      if (!!listElement && !!firstChild) {
+        ElementHelper.focusElement(firstChild);
         event.preventDefault();
       }
     }

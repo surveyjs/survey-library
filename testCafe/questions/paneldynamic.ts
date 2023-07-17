@@ -1,4 +1,5 @@
-import { applyTheme, frameworks, url, url_test, initSurvey, getSurveyResult, getQuestionJson, getDynamicPanelRemoveButton, getListItemByText, completeButton } from "../helper";
+import { applyTheme, frameworks, url, url_test, initSurvey, getSurveyResult, getQuestionJson,
+  getDynamicPanelRemoveButton, getListItemByText, completeButton, setData } from "../helper";
 import { Selector } from "testcafe";
 const title = "paneldynamic";
 
@@ -195,6 +196,7 @@ frameworks.forEach((framework) => {
       .click(Selector("body"), { offsetX: 1, offsetY: 1 })
       .expect(relativeillnessDropdown.find(".sv-string-viewer").textContent).eql("Diabetes")
       .typeText("td[title=\"Describe\"] input[type=\"text\"]", "Type 2")
+      .click(Selector("body"), { offsetX: 1, offsetY: 1 })
 
       .click(".sv-paneldynamic__next-btn")
       .click(getDynamicPanelRemoveButton("Please enter all blood relatives you know", "Remove the relative"))
@@ -285,5 +287,86 @@ frameworks.forEach((framework) => {
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.panel).eql([{ q1: "1" }, { q1: "2" }, { q1: "3" }, { q1: "4" }, { q1: "5" }]);
+  });
+});
+
+const json3 = {
+  elements: [
+    {
+      type: "matrixdynamic",
+      name: "matrix",
+      valueName: "a",
+      columns: [
+        { cellType: "text", name: "col1" }
+      ]
+    },
+    {
+      type: "paneldynamic",
+      name: "panel",
+      valueName: "a",
+      templateElements: [
+        { type: "text", name: "q1" },
+        { type: "text", name: "q2" },
+      ],
+      templateVisibleIf: "{panel.col1}='a'",
+      renderMode: "tab",
+      templateTabTitle: "#{visiblePanelIndex}-{panelIndex}"
+    },
+  ],
+};
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(
+    async (t) => {
+      await applyTheme("defaultV2");
+      await initSurvey(framework, json3);
+    }
+  );
+
+  test("templateVisibleIf", async (t) => {
+    const addNewSelector = Selector("span").withText("Add new");
+    await t
+      .expect(addNewSelector.count).eql(1)
+      .expect(Selector("span").withText("#1-2").visible).notOk()
+      .pressKey("b")
+      .pressKey("tab")
+      .expect(addNewSelector.count).eql(1)
+      .pressKey("tab")
+      .pressKey("a")
+      .pressKey("tab")
+      .expect(addNewSelector.count).eql(1)
+      .expect(Selector("span").withText("#1-2").visible).ok();
+  });
+});
+const jsonCheckboxRestFul = {
+  storeOthersAsComment: false,
+  elements: [
+    {
+      name: "panel",
+      type: "paneldynamic",
+      templateElements: [{
+        type: "checkbox",
+        name: "q1",
+        choicesByUrl: {
+          url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+          path: "RestResponse;result",
+          valueName: "name",
+        },
+        "showOtherItem": true
+      }]
+    }
+  ]
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(
+    async (t) => {
+    }
+  );
+
+  test("restful checkbox with showOtherItem & storeOthersAsComment set to false in panel dynamic", async (t) => {
+    await initSurvey(framework, jsonCheckboxRestFul);
+    await setData({ "panel": [{ "q1": ["newCountry"] }] });
+    await t
+      .expect(Selector("textarea").value).eql("newCountry");
   });
 });

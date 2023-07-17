@@ -21,7 +21,7 @@ export var georgianSurveyStrings = {
   // completingSurveyBefore: "Our records show that you have already completed this survey.",
   loadingSurvey: "ჩატვირთვა სერვერიდან...",
   placeholder: "არჩევა...",
-  // ratingOptionsCaption: "Tap to rate here...",
+  // ratingOptionsCaption: "Select...",
   // value: "value",
   requiredError: "გთხოვთ უპასუხეთ კითხვას.",
   // requiredErrorInPanel: "Response required: answer at least one question.",

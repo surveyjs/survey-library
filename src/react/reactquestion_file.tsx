@@ -4,6 +4,7 @@ import { SurveyActionBar } from "./components/action-bar/action-bar";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ReactQuestionFactory } from "./reactquestion_factory";
+import { attachKey2click } from "./reactSurvey";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -55,6 +56,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           multiple={this.question.allowMultiple}
           title={this.question.inputTitle}
           accept={this.question.acceptedTypes}
+          capture={this.question.renderCapture}
         />
     );
     return (
@@ -80,7 +82,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     const questionCss = this.question.cssClasses;
     let noFileChosen: JSX.Element | null = null;
     let chooseFile: JSX.Element | null = null;
-    chooseFile = (
+    chooseFile = attachKey2click(
       <label
         role="button"
         tabIndex={0}

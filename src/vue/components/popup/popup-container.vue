@@ -10,8 +10,8 @@
       }
     "
     v-on:click="
-      () => {
-        model.clickOutside();
+      (event) => {
+        model.clickOutside(event);
       }
     "
   >
@@ -102,14 +102,12 @@ export function showModal(
   );
   return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
+export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
   dialogOptions.onHide = () => {
-    {
-      popup.$destroy();
-      popupViewModel.dispose();
-    }
+    popup.$destroy();
+    popupViewModel.dispose();
   };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },

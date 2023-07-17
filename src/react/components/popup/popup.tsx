@@ -7,6 +7,7 @@ import { SurveyActionBar } from "../action-bar/action-bar";
 
 interface IPopupProps {
   model: PopupModel;
+  getTarget?: (container: HTMLElement) => HTMLElement;
 }
 
 export class Popup extends SurveyElementBase<IPopupProps, any> {
@@ -25,29 +26,18 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
   }
   private createModel(): void {
     this.popup = createPopupViewModel(this.props.model, undefined as any);
-    this.popup.initializePopupContainer();
   }
   private setTargetElement(): void {
-    if(!!this.containerRef.current && !this.popup.isModal) {
-      const popupDropdownModel = this.popup as PopupDropdownViewModel;
-      if(!popupDropdownModel) return;
-
-      if(!!this.containerRef.current.parentElement) {
-        popupDropdownModel.targetElement = this.containerRef.current.parentElement;
-      }
-    }
+    const container = this.containerRef.current as HTMLElement;
+    this.popup.setComponentElement(container, this.props.getTarget ? this.props.getTarget(container) : undefined);
   }
   componentDidMount(): void {
     super.componentDidMount();
-    this.popup.initializePopupContainer();
     this.setTargetElement();
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
     this.setTargetElement();
-  }
-  componentWillUnmount(): void {
-    this.popup.unmountPopupContainer();
   }
   shouldComponentUpdate(nextProps: IPopupProps, nextState: any) {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
@@ -62,9 +52,9 @@ export class Popup extends SurveyElementBase<IPopupProps, any> {
     this.popup.model = this.model;
     let popupContainer;
     if(this.model.isModal) {
-      popupContainer = ReactDOM.createPortal(<PopupContainer model={this.popup}></PopupContainer>, this.popup.container);
+      popupContainer = <PopupContainer model={this.popup}></PopupContainer>;
     } else {
-      popupContainer = ReactDOM.createPortal(<PopupDropdownContainer model={this.popup}></PopupDropdownContainer>, this.popup.container);
+      popupContainer = <PopupDropdownContainer model={this.popup}></PopupDropdownContainer>;
     }
     return <div ref={this.containerRef}>{popupContainer}</div>;
   }
@@ -167,8 +157,7 @@ export class PopupContainer extends SurveyElementBase<any, any> {
         className={className}
         style={style}
         onClick={(e: any) => {
-          this.model.clickOutside();
-          e.stopPropagation();
+          this.model.clickOutside(e);
         }}
         onKeyDown={this.handleKeydown}
       >
@@ -218,15 +207,15 @@ export function showModal(
   );
   return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions): PopupBaseViewModel {
-  dialogOptions.onHide = () => { {
+export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+  dialogOptions.onHide = () => {
     ReactDOM.unmountComponentAtNode(popupViewModel.container);
-    popupViewModel.unmountPopupContainer();
-  } };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions);
+    popupViewModel.dispose();
+  };
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
-
   popupViewModel.model.isVisible = true;
+
   return popupViewModel;
 }
 

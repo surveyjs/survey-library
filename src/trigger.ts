@@ -13,6 +13,7 @@ import { settings } from "./settings";
  * Please note, it runs only one changing the expression result.
  */
 export class Trigger extends Base {
+  static idCounter: number = 1;
   static operatorsValue: HashTable<Function> = null;
   static get operators() {
     if (Trigger.operatorsValue != null) return Trigger.operatorsValue;
@@ -55,6 +56,7 @@ export class Trigger extends Base {
   private conditionRunner: ConditionRunner;
   private usedNames: Array<string>;
   private hasFunction: boolean;
+  private idValue: number = (Trigger.idCounter ++);
   constructor() {
     super();
     this.usedNames = [];
@@ -63,6 +65,7 @@ export class Trigger extends Base {
     });
     this.registerPropertyChangedHandlers(["expression"], () => { this.onExpressionChanged(); });
   }
+  public get id(): number { return this.idValue; }
   public getType(): string {
     return "triggerbase";
   }
@@ -217,11 +220,11 @@ export class Trigger extends Base {
 
 export interface ISurveyTriggerOwner {
   getObjects(pages: string[], questions: string[]): any[];
-  setCompleted(): void;
-  canBeCompleted(): void;
+  setCompleted(trigger: Trigger): void;
+  canBeCompleted(trigger: Trigger, isCompleted: boolean): void;
   triggerExecuted(trigger: Trigger): void;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
-  copyTriggerValue(name: string, fromName: string): any;
+  copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void;
   focusQuestion(name: string): boolean;
 }
 
@@ -297,15 +300,18 @@ export class SurveyTriggerComplete extends SurveyTrigger {
     return "completetrigger";
   }
   protected isRealExecution(): boolean {
-    return !settings.executeCompleteTriggerOnValueChanged === this.isExecutingOnNextPage;
+    return !settings.triggers.executeCompleteOnValueChanged === this.isExecutingOnNextPage;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.owner) return;
     if(this.isRealExecution()) {
-      this.owner.setCompleted();
+      this.owner.setCompleted(this);
     } else {
-      this.owner.canBeCompleted();
+      this.owner.canBeCompleted(this, true);
     }
+  }
+  protected onFailure(): void {
+    this.owner.canBeCompleted(this, false);
   }
 }
 /**
@@ -369,7 +375,7 @@ export class SurveyTriggerSkip extends SurveyTrigger {
     this.setPropertyValue("gotoName", val);
   }
   protected canBeExecuted(isOnNextPage: boolean): boolean {
-    return isOnNextPage === !settings.executeSkipTriggerOnValueChanged;
+    return isOnNextPage === !settings.triggers.executeSkipOnValueChanged;
   }
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
     if (!this.gotoName || !this.owner) return;
@@ -437,12 +443,18 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   public set fromName(val: string) {
     this.setPropertyValue("fromName", val);
   }
+  public get copyDisplayValue(): boolean {
+    return this.getPropertyValue("copyDisplayValue");
+  }
+  public set copyDisplayValue(val: boolean) {
+    this.setPropertyValue("copyDisplayValue", val);
+  }
   public getType(): string {
     return "copyvaluetrigger";
   }
-  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.setToName || !this.owner) return;
-    this.owner.copyTriggerValue(this.setToName, this.fromName);
+    this.owner.copyTriggerValue(this.setToName, this.fromName, this.copyDisplayValue);
   }
 }
 
@@ -493,7 +505,8 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "copyvaluetrigger",
-  [{ name: "!fromName:questionvalue" }, { name: "!setToName:questionvalue" }],
+  [{ name: "!fromName:questionvalue" }, { name: "!setToName:questionvalue" },
+    { name: "copyDisplayValue:boolean", visible: false }],
   function() {
     return new SurveyTriggerCopyValue();
   },

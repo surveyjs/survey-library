@@ -677,6 +677,8 @@ QUnit.test("findParentByClassNames function", function (assert) {
 
   assert.equal(findParentByClassNames(element, ["class1", "class2", ""]), element);
   assert.equal(findParentByClassNames(element, ["class1", "class22", ""]), parentElement);
+
+  parentElement.remove();
 });
 QUnit.test("Subscribe localizable property", function (assert) {
   const base4 = new BaseTester4();

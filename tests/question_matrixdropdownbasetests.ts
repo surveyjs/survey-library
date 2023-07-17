@@ -484,3 +484,61 @@ QUnit.test("getCellWrapper name and data", function (assert) {
   matrix.getCellWrapperComponentData(ordinaryCell);
   assert.equal(survey.reason, "data->cell", "Ordinary cell component data");
 });
+QUnit.test("Rows with value = 0, Bug#6370", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: [0, 1, 2]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  assert.equal(matrix.visibleRows.length, 3, "Three rows has been created");
+  assert.equal(matrix.visibleRows[0].rowName, 0, "The rowName is 0");
+  matrix.visibleRows[0].cells[0].question.value = "val1";
+  assert.deepEqual(survey.data, { q1: { 0: { col1: "val1" } } }, "Set row value correctly");
+});
+QUnit.test("survey.onPropertyValueChangedCallback on column property changed", function (assert) {
+  var survey = new SurveyModel({ elements: [
+    { type: "matrixdynamic", name: "q", columns: [{ cellType: "expression", name: "col1" }] }]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q");
+  const column = matrix.columns[0];
+  let counter = 0;
+  let propertyName;
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: SurveyModel,
+    arrayChanges: any
+  ) => {
+    counter++;
+    propertyName = name;
+  };
+  assert.equal(counter, 0, "initial");
+  column.title = "col title";
+  assert.equal(counter, 1, "callback called, #1");
+  assert.equal(propertyName, "title", "title is changed, #2");
+  column["expression"] = "today()";
+  assert.equal(counter, 2, "callback called, #3");
+  assert.equal(propertyName, "expression", "expression is changed, #4");
+});
+QUnit.test("Column width is not loaded, bug in Creator #4303", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", width: "222px" }],
+        rows: [0, 1, 2]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  assert.equal(matrix.columns.length, 1, "There is one column");
+  assert.equal(matrix.columns[0].width, "222px", "column width is loaded correctly");
+});

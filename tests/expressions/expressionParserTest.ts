@@ -1428,3 +1428,7 @@ QUnit.test("Arrays and plus operations", function(assert) {
   const values4 = { a: [1, 2, 3] };
   assert.equal(runner4.run(values4), "1, 2, 3", "summary of numbers");
 });
+QUnit.test("today(1) <= today(10)", function(assert) {
+  const runner = new ExpressionRunner("today(1) <= today(10)");
+  assert.deepEqual(runner.run({}), true, "today(1) <= today(10)");
+});

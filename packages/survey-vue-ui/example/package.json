@@ -11,12 +11,13 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
-    "vue": "^3.3.4",
+    "bootstrap": "^3.3.7",
+    "showdown": "^1.6.4",
     "survey-core": "../../../build/survey-core",
     "survey-vue-ui": "../../../build/survey-vue3-ui",
-    "vue-router": "^4.2.2",
     "surveyjs-widgets": "^1.9.40",
-    "bootstrap": "^3.3.7"
+    "vue": "^3.3.4",
+    "vue-router": "^4.2.2"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",

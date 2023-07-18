@@ -9,6 +9,7 @@
     "build:types": "vue-tsc --project tsconfig.types.json --emitDeclarationOnly",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
     "test": "vitest --no-threads tests/test.spec.ts",
+    "test:single": "vitest --no-watch --no-threads tests/test.spec.ts",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "devDependencies": {

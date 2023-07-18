@@ -5,6 +5,7 @@ import { Question } from "./question";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
+import { ISurveyImpl } from "./base-interfaces";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -79,6 +80,16 @@ export class QuestionSignaturePadModel extends Question {
     if (!!el) {
       this.destroySignaturePad(el);
     }
+  }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
+
+    (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
+      if(!!this.signaturePad) {
+        this.signaturePad.penColor = this.penColor;
+        this.signaturePad.backgroundColor = this.backgroundColor;
+      }
+    });
   }
 
   initSignaturePad(el: HTMLElement) {
@@ -196,12 +207,25 @@ export class QuestionSignaturePadModel extends Question {
   public get canShowClearButton(): boolean {
     return !this.isInputReadOnly && this.allowClear;
   }
+
+  public get useCustomColors(): boolean {
+    return this.getPropertyValue("useCustomColors");
+  }
+  public set useCustomColors(val: boolean) {
+    this.setPropertyValue("useCustomColors", val);
+  }
+
   /**
    * Specifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
    * @see backgroundColor
    */
   public get penColor(): string {
-    return this.getPropertyValue("penColor", this.getPenColorFromTheme());
+    const colorFromTheme = this.getPenColorFromTheme();
+    if(this.useCustomColors || !colorFromTheme) {
+      return this.getPropertyValue("penColor");
+    } else {
+      return colorFromTheme;
+    }
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
@@ -211,7 +235,11 @@ export class QuestionSignaturePadModel extends Question {
    * @see penColor
    */
   public get backgroundColor(): string {
-    return this.getPropertyValue("backgroundColor");
+    if(this.useCustomColors) {
+      return this.getPropertyValue("backgroundColor");
+    } else {
+      return "transparent";
+    }
   }
   public set backgroundColor(val: string) {
     this.setPropertyValue("backgroundColor", val);
@@ -276,15 +304,24 @@ Serializer.addClass(
       category: "general",
       default: true,
     },
+    { name: "useCustomColors:boolean", category: "general" },
     {
       name: "penColor:color",
       category: "general",
       default: "#1ab394",
+      dependsOn: "useCustomColors",
+      visibleIf: function (obj: any) {
+        return obj.useCustomColors;
+      }
     },
     {
       name: "backgroundColor:color",
       category: "general",
       default: "#ffffff",
+      dependsOn: "useCustomColors",
+      visibleIf: function (obj: any) {
+        return obj.useCustomColors;
+      }
     },
     {
       name: "dataFormat",

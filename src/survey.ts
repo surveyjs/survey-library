@@ -120,6 +120,8 @@ export class SurveyModel extends SurveyElementCore
 
   private navigationBarValue: ActionContainer;
 
+  onThemeApplied: EventBase<SurveyModel> = new EventBase<SurveyModel>();
+
   //#region Event declarations
   /**
    * An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
@@ -7068,6 +7070,8 @@ export class SurveyModel extends SurveyElementCore
     Object.keys(theme).forEach((key: keyof ITheme) => {
       (this as any)[key] = theme[key];
     });
+
+    this.onThemeApplied.fire(this, {});
   }
 
   /**

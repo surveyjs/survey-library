@@ -1,5 +1,11 @@
 <template>
-  <span :class="question.cssClasses.iconDrag"></span>
+  <svg
+    v-if="question.iconDragElement"
+    :class="question.cssClasses.dragElementDecorator"
+  >
+    <use :xlink:href="question.iconDragElement"></use>
+  </svg>
+  <span v-else :class="question.cssClasses.iconDrag"></span>
 </template>
 
 <script lang="ts" setup>

@@ -5,12 +5,13 @@
     :id="question.id"
     ref="root"
   >
+    <survey-errors :element="question" v-if="question.showErrorsAbovePanel" />
     <survey-element-header
       v-if="question.hasTitle || question.hasDescription"
       :element="question"
       :css="css"
     ></survey-element-header>
-    <survey-errors :element="question" />
+    <survey-errors :element="question" v-if="!question.showErrorsAbovePanel" />
     <div
       :id="question.contentId"
       :style="{ paddingLeft: question.innerPaddingLeft }"

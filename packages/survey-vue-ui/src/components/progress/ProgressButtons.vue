@@ -45,7 +45,7 @@
 
 <script lang="ts" setup>
 import { type SurveyModel, SurveyProgressButtonsModel } from "survey-core";
-import { computed, onBeforeUnmount, onUnmounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
@@ -73,7 +73,7 @@ const clickScrollButton = (isLeftScroll: boolean) => {
   listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
 };
 
-onUnmounted(() => {
+onMounted(() => {
   const listContainerElement: any = progressButtonsListContainer.value;
   updateScroller = setInterval(() => {
     hasScroller.value =

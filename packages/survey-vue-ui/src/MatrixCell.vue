@@ -7,6 +7,10 @@
     :colspan="cell.colSpans"
     ref="root"
   >
+    <sv-matrix-drag-drop-icon
+      v-if="cell.isDragHandlerCell"
+      :item="{ data: { row: cell.row, question: question } }"
+    ></sv-matrix-drag-drop-icon>
     <sv-action-bar
       v-if="cell.isActionsCell"
       :model="cell.item.getData()"

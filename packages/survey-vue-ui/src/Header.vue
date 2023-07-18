@@ -1,13 +1,17 @@
 <template>
-  <div v-if="survey.renderedHasHeader" :class="survey.css.header">
+  <div v-if="survey.renderedHasHeader" :class="survey.css.header" ref="root">
     <div v-if="survey.isLogoBefore" :class="survey.logoClassNames">
       <img
         :class="survey.css.logoImage"
-        :src="survey.locLogo.renderedHtml"
-        :width="survey.logoWidth ? survey.logoWidth : undefined"
-        :height="survey.logoHeight ? survey.logoHeight : undefined"
+        :src="logoUrl"
+        :width="survey.renderedLogoWidth"
+        :height="survey.renderedLogoHeight"
         :alt="survey.locTitle.renderedHtml"
-        v-bind:style="{ objectFit: survey.logoFit as any }"
+        :style="{
+          objectFit: survey.logoFit as any,
+          width: survey.renderedStyleLogoWidth,
+          height: survey.renderedStyleLogoHeight,
+        }"
       />
     </div>
 
@@ -25,11 +29,15 @@
     <div v-if="survey.isLogoAfter" :class="survey.logoClassNames">
       <img
         :class="survey.css.logoImage"
-        :src="survey.locLogo.renderedHtml"
-        :width="survey.logoWidth ? survey.logoWidth : undefined"
-        :height="survey.logoHeight ? survey.logoHeight : undefined"
+        :src="logoUrl"
+        :width="survey.renderedLogoWidth"
+        :height="survey.renderedLogoHeight"
         :alt="survey.locTitle.renderedHtml"
-        v-bind:style="{ objectFit: survey.logoFit as any }"
+        :style="{
+          objectFit: survey.logoFit as any,
+          width: survey.renderedStyleLogoWidth,
+          height: survey.renderedStyleLogoHeight,
+        }"
       />
     </div>
 
@@ -40,11 +48,15 @@
 <script lang="ts" setup>
 import type { SurveyModel } from "survey-core";
 import { onMounted, ref } from "vue";
+import { useLocString } from "./base";
 
 const props = defineProps<{
   survey: SurveyModel;
 }>();
 const root = ref<HTMLElement>();
+
+const logoUrl = useLocString(() => props.survey.locLogo);
+
 onMounted(() => {
   var el = root.value;
   if (el && props.survey) props.survey.afterRenderHeader(el as any);

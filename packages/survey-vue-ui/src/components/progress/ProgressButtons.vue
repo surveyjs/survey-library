@@ -54,7 +54,7 @@ const progressButtonsModel = new SurveyProgressButtonsModel(props.survey);
 const hasScroller = ref(false);
 const progressButtonsListContainer = ref<HTMLElement>();
 const css = computed(() => props.survey.css);
-let updateScroller: number;
+let updateScroller: any;
 
 const isListElementClickable = (index: any) => {
   return progressButtonsModel.isListElementClickable(index);

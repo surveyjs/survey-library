@@ -21,14 +21,18 @@
         :placeholder="model.filterStringPlaceholder"
         :disabled="question.isInputReadOnly"
         :inputmode="model.inputMode"
-        :role="model.filterStringEnabled ? question.ariaRole : null"
+        :role="model.filterStringEnabled ? question.ariaRole : undefined"
         :aria-label="question.placeholder"
-        :aria-expanded="question.ariaExpanded"
+        :aria-expanded="
+          question.ariaExpanded === null
+            ? undefined
+            : question.ariaExpanded === 'true'
+        "
         :aria-controls="model.listElementId"
         :aria-activedescendant="model.ariaActivedescendant"
         :id="question.getInputId()"
-        :readonly="!model.searchEnabled ? true : null"
-        :size="!model.inputStringRendered ? 1 : null"
+        :readonly="!model.searchEnabled ? true : undefined"
+        :size="!model.inputStringRendered ? 1 : undefined"
         @change="inputChange"
         @keydown="inputKeyHandler"
         @blur="blur"

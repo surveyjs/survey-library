@@ -3,7 +3,7 @@
     ref="root"
     v-if="!question.isReadOnlyRenderDiv() && !question.getMaxLength()"
     :readonly="question.isInputReadOnly"
-    :disabled="question.renderedInputDisabled"
+    :disabled="question.isInputReadOnly"
     :value="question.value"
     :id="question.inputId"
     :maxlength="question.getMaxLength()"
@@ -35,7 +35,7 @@
   >
     <textarea
       :readonly="question.isInputReadOnly"
-      :disabled="question.renderedInputDisabled"
+      :disabled="question.isInputReadOnly"
       :value="question.value"
       :id="question.inputId"
       :maxlength="question.getMaxLength()"

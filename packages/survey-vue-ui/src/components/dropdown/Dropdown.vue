@@ -13,7 +13,11 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :aria-expanded="question.ariaExpanded"
+      :aria-expanded="
+        question.ariaExpanded === null
+          ? undefined
+          : question.ariaExpanded === 'true'
+      "
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :required="question.isRequired ? true : null"
@@ -50,12 +54,16 @@
           v-bind:disabled="question.isInputReadOnly"
           autocomplete="off"
           :inputmode="model.inputMode"
-          :role="model.filterStringEnabled ? question.ariaRole : null"
+          :role="model.filterStringEnabled ? question.ariaRole : undefined"
           :id="question.getInputId()"
           :tabindex="model.inputReadOnly ? undefined : -1"
-          :readonly="!model.searchEnabled ? true : null"
+          :readonly="!model.searchEnabled ? true : undefined"
           :aria-label="question.placeholder"
-          :aria-expanded="question.ariaExpanded"
+          :aria-expanded="
+            question.ariaExpanded === null
+              ? undefined
+              : question.ariaExpanded === 'true'
+          "
           :aria-controls="model.listElementId"
           :aria-activedescendant="model.ariaActivedescendant"
           :placeholder="model.placeholderRendered"

@@ -11,10 +11,10 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :multiple="question.multipleRendered"
+      :multiple="question.allowMultiple"
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"
-      :capture="question.renderCapture"
+      :capture="(question.renderCapture as any)"
     />
     <input
       v-if="question.isReadOnly"
@@ -22,7 +22,7 @@
       disabled
       :id="question.inputId"
       :class="question.getReadOnlyFileCss()"
-      :multiple="question.multipleRendered"
+      :multiple="question.allowMultiple"
       :placeholder="question.title"
       style="color: transparent"
     />

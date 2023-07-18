@@ -1,4 +1,4 @@
-import SurveyPlugin  from "survey-vue-ui";
+import { surveyPlugin }  from "survey-vue-ui";
 
 import { createApp } from 'vue'
 import Action from "./components/test/test-custom-components/Action.vue"
@@ -7,7 +7,7 @@ import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
-app.use(SurveyPlugin);
+app.use(surveyPlugin);
 
 
 app.component("svc-custom-action", Action);

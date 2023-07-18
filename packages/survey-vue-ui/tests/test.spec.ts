@@ -1,15 +1,15 @@
-import { SurveyModel, StylesManager } from "survey-core";
+import { SurveyModel } from "survey-core";
 import { testQuestionMarkup } from "../../../tests/markup/helper";
 import { markupTests } from "../../../tests/markup/etalon";
 import { describe, it, expect, beforeAll } from "vitest";
 import { mount, config } from "@vue/test-utils";
-import SurveyPlugin from "../src/index";
+import { surveyPlugin } from "../src/index";
 import Survey from "@/Survey.vue";
 import fs from "fs";
 import path from "path";
 
 beforeAll(() => {
-  config.global.plugins.push(SurveyPlugin);
+  config.global.plugins.push(surveyPlugin);
   (<any>window).ResizeObserver = function () {
     return {
       observe: () => {},

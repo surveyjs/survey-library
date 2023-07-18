@@ -108,6 +108,7 @@ import {
   type IAttachKey2clickOptions,
 } from "survey-core";
 import type { App } from "vue";
+export { useBase, useLocString, useQuestion } from "./base";
 
 function registerComponents(app: App) {
   app.component("SurveyRoot", SurveyVue);
@@ -243,7 +244,7 @@ function registerComponents(app: App) {
   });
 }
 
-export default {
+export const surveyPlugin = {
   install(app: any) {
     registerComponents(app);
   },

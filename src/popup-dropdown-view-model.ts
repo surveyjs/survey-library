@@ -5,6 +5,7 @@ import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
+import { SurveyModel } from "./survey";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {
@@ -26,7 +27,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
   private resizeWindowCallback = () => {
     if(!this.isOverlay) {
-      this.updatePosition(true, false);
+      this.updatePosition(true, SurveyModel.platform === "vue");
     }
   };
   private clientY: number = 0;

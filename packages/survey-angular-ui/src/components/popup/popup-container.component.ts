@@ -33,6 +33,10 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
     popupModalModel.apply();
   }
 
+  protected override getPropertiesToUpdateSync(): string[] {
+    return ["height"];
+  }
+
   protected override getShouldReattachChangeDetector(): boolean {
     return false;
   }

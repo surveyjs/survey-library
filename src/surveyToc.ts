@@ -2,9 +2,9 @@ import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { ListModel } from "./list";
 import { PageModel } from "./page";
+import { PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { SurveyModel } from "./survey";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
 
 export function tryNavigateToPage(survey: SurveyModel, page: PageModel) {
@@ -21,19 +21,29 @@ export function tryNavigateToPage(survey: SurveyModel, page: PageModel) {
   return true;
 }
 
+export function tryFocusPage(survey: SurveyModel, panel: PanelModelBase) {
+  if (survey.isDesignMode) return true;
+  panel.focusFirstQuestion();
+  return true;
+}
+
 export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
-  var items = survey.pages.map(page => {
+  const pagesSource: PanelModelBase[] = survey.questionsOnPageMode === "singlePage" ? (survey.pages[0]?.elements as any) : survey.pages;
+  var items = (pagesSource || []).map(page => {
     return new Action({
       id: page.name,
-      title: page.navigationTitle || page.title || page.name,
+      title: ((<any>page)["navigationTitle"]) || page.title || page.name,
       action: () => {
         if (typeof document !== undefined && !!document.activeElement) {
           !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
         }
         !!onAction && onAction();
-        return tryNavigateToPage(survey, page);
+        if(page instanceof PageModel) {
+          return tryNavigateToPage(survey, page);
+        }
+        return tryFocusPage(survey, page);
       },
-      visible: <any>new ComputedUpdater(() => page.isVisible && !page.isStartPage)
+      visible: <any>new ComputedUpdater(() => page.isVisible && !((<any>page)["isStartPage"]))
     });
   });
   var listModel = new ListModel(
@@ -44,7 +54,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
       }
     },
     true,
-    items.filter(i => i.id === survey.currentPage.name)[0]
+    items.filter(i => i.id === survey.currentPage.name)[0] || items.filter(i => i.id === pagesSource[0].name)[0]
   );
   listModel.allowSelection = false;
   listModel.locOwner = survey;

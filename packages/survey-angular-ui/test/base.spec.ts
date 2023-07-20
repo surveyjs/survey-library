@@ -110,8 +110,8 @@ class TestWithRecursiveProperty extends BaseAngular<RecurciveModel> {
   protected override getModel(): RecurciveModel {
     return this.model;
   }
-  protected override afterUpdate(): void {
-    super.afterUpdate();
+  protected override afterUpdate(key: string): void {
+    super.afterUpdate(key);
     this.log += "->afterUpdate";
   }
 

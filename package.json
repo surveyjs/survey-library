@@ -178,6 +178,9 @@
   "overrides": {
     "karma-webpack": {
       "webpack": "^4.43.0"
+    },
+    "downlevel-dts": {
+      "typescript": "5.1.6"
     }
   },
   "husky": {

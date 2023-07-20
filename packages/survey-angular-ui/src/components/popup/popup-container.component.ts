@@ -45,13 +45,16 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
     this.changeDetectorRef.detectChanges();
   }
 
-  protected override afterUpdate(): void {
-    super.afterUpdate();
-    if (!this.prevIsVisible && this.model.isVisible) {
-      this.model.updateOnShowing();
-    }
-    if (this.prevIsVisible !== this.model.isVisible) {
-      this.prevIsVisible = this.model.isVisible;
+  protected override afterUpdate(key: string): void {
+    super.afterUpdate(key);
+
+    if(key === "isVisible") {
+      if (!this.prevIsVisible && this.model.isVisible) {
+        this.model.updateOnShowing();
+      }
+      if (this.prevIsVisible !== this.model.isVisible) {
+        this.prevIsVisible = this.model.isVisible;
+      }
     }
   }
   public clickInside(event: any) {

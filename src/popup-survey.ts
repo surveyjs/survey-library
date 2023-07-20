@@ -136,6 +136,12 @@ export class PopupSurveyModel extends Base {
   public changeExpandCollapse(): void {
     this.isExpanded = !this.isExpanded;
   }
+  public get allowClose(): boolean {
+    return this.getPropertyValue("allowClose", false);
+  }
+  public set allowClose(val: boolean) {
+    this.setPropertyValue("allowClose", val);
+  }
   public get css(): any {
     return this.survey.css;
   }
@@ -154,6 +160,9 @@ export class PopupSurveyModel extends Base {
   public get cssHeaderTitle(): string {
     return this.getPropertyValue("cssHeaderTitle", "");
   }
+  public get cssHeaderButton(): string {
+    return this.getPropertyValue("cssHeaderButton", "");
+  }
   public get renderedWidth(): string {
     let width = this.getPropertyValue("width", "60%");
     if (width && !isNaN(width)) width = width + "px";
@@ -170,6 +179,7 @@ export class PopupSurveyModel extends Base {
     if (!cssHeader) return;
     this.setPropertyValue("cssHeaderRoot", cssHeader.root);
     this.setPropertyValue("cssHeaderTitle", cssHeader.title);
+    this.setPropertyValue("cssHeaderButton", cssHeader.button);
     this.updateCssButton();
   }
   private updateCssButton() {

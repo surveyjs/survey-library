@@ -12,6 +12,9 @@ export class PopupSurveyImplementor extends ImplementorBase {
     (<any>this.window)["doExpand"] = () => {
       this.window.changeExpandCollapse();
     };
+    (<any>this.window)["doHide"] = () => {
+      this.window.hide();
+    };
   }
   private doShowingChanged() {
     const windowElement = this.window.windowElement;

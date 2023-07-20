@@ -17,7 +17,6 @@
     "@rushstack/eslint-patch": "^1.1.4",
     "@types/node": "^16.11.68",
     "@vitejs/plugin-vue": "^3.1.2",
-    "@vitest/browser": "latest",
     "@vue/eslint-config-prettier": "^7.0.0",
     "@vue/eslint-config-typescript": "^11.0.0",
     "@vue/test-utils": "latest",
@@ -30,7 +29,7 @@
     "survey-core": "../../build/survey-core",
     "typescript": "~4.7.4",
     "vite": "^3.1.8",
-    "vitest": "^0.32.2",
+    "vitest": "~0.32.4",
     "vue": "^3.2.41",
     "vue-tsc": "^1.0.8"
   }

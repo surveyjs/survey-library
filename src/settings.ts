@@ -1,3 +1,5 @@
+import { IDialogOptions } from "./popup";
+
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
   rootElement: HTMLElement | ShadowRoot,
@@ -562,6 +564,7 @@ export var settings = {
       displayMode?: "popup" | "overlay"
     ) => any
     >undefined,
+  showDialog: < (options: IDialogOptions, rootElement?: HTMLElement) => any >undefined,
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,
   /**

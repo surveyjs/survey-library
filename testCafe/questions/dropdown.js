@@ -1858,7 +1858,7 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.getAttribute("placeholder")).eql("Select...");
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("choicesFromQuestion, bug#5818", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("choicesFromQuestion, bug#5818", async (t) => {
     await applyTheme(theme);
 
     const json = {
@@ -1904,7 +1904,7 @@ frameworks.forEach((framework) => {
       .click(getListItemByText("Audi"));
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check dropdown popup opens after beak click", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click", async (t) => {
     await t.resizeWindow(800, 600);
     const jsonWithDropDown = {
       questions: [

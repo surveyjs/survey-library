@@ -295,5 +295,5 @@ jobs:
       displayName: "run unit and markup tests"
 
     - script: |
-        npm run testcafe:ci:vue
+        npm run testcafe:ci:vue3
       displayName: "run functional tests"

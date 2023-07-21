@@ -7,6 +7,7 @@
   display: flex;
   width: max-content;
   position: relative;
+  gap: calcSize(0.5);
   padding: calcSize(0.5);
   background-color: $editor-background;
   box-shadow: $shadow-inner;

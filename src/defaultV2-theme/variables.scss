@@ -12,7 +12,7 @@ $secondary-forecolor-light: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25
 
 $editor-background: var(
   --sjs-editorpanel-backcolor,
-  var(--sjs-editor-background, var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9)))
+  var(--sjs-editor-background, var(--sjs-general-backcolor-dim, var(--background-dim-light, #f9f9f9)))
 );
 $question-background: var(
   --sjs-questionpanel-backcolor,

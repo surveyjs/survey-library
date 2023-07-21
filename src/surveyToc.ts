@@ -75,6 +75,7 @@ export class TOCModel {
   constructor(public survey: SurveyModel) {
     this.listModel = createTOCListModel(survey, () => { this.popupModel.isVisible = false; });
     this.popupModel = new PopupModel("sv-list", { model: this.listModel });
+    this.popupModel.displayMode = this.isMobile ? "overlay" : "popup";
   }
 
   isMobile = IsTouch;

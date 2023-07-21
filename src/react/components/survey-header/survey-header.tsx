@@ -25,7 +25,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
 
   componentDidMount() {
     const self: SurveyHeader = this;
-    this.survey.afterRenderHeader(this.rootRef.current);
+    this.survey.afterRenderHeader(this.rootRef.current as HTMLDivElement);
     this.survey.locLogo.onChanged = function () {
       self.setState({ changed: self.state.changed + 1 });
     };

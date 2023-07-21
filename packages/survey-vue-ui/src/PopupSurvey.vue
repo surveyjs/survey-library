@@ -8,20 +8,45 @@
     }"
     :class="surveyWindow.cssRoot"
   >
-    <div :class="surveyWindow.cssHeaderRoot" @click="doExpand">
-      <span style="width: 100%; cursor: pointer; user-select: none">
+    <div :class="surveyWindow.cssHeaderRoot">
+      <span
+        @click="doExpand"
+        style="width: 100%; cursor: pointer; user-select: none"
+      >
         <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">
           <survey-string :locString="survey.locTitle" />
         </span>
         <span aria-hidden="true" :class="expandedCss"></span>
       </span>
       <span
-        v-if="isExpandedSurvey"
-        style="float: right; cursor: pointer; user-select: none"
+        v-if="surveyWindow.allowClose"
+        :class="surveyWindow.cssHeaderButton"
+        @click="doHide"
+        style="
+          transform: rotate(45deg);
+          float: right;
+          cursor: pointer;
+          user-select: none;
+          width: 24px;
+          height: 24px;
+        "
       >
-        <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle"
-          >X</span
-        >
+        <sv-svg-icon :iconName="'icon-expanddetail'" :size="16"> </sv-svg-icon>
+      </span>
+      <span
+        v-if="isExpandedSurvey"
+        :class="surveyWindow.cssHeaderButton"
+        @click="doExpand"
+        style="
+          float: right;
+          cursor: pointer;
+          user-select: none;
+          width: 24px;
+          height: 24px;
+        "
+      >
+        <sv-svg-icon :iconName="'icon-collapsedetail'" :size="16">
+        </sv-svg-icon>
       </span>
     </div>
     <div
@@ -60,6 +85,9 @@ const isExpandedSurvey = computed(() => {
 
 const doExpand = () => {
   surveyWindow.value.changeExpandCollapse();
+};
+const doHide = () => {
+  surveyWindow.value.hide();
 };
 const getSurveyComponentName = () => {
   return "SurveyRoot";

@@ -49,6 +49,8 @@ frameworks.forEach(framework => {
 
       const questionRoot = Selector(".sd-question");
       await takeElementScreenshot("mutlipletext.png", questionRoot, t, comparer);
+      await t.click("input.sd-input");
+      await takeElementScreenshot("mutlipletext-focus.png", questionRoot, t, comparer);
     });
   });
 });

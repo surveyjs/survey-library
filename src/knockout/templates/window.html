@@ -4,8 +4,13 @@
             <span style="padding-right:10px" data-bind="css: cssHeaderTitle, text: locTitle.koRenderedHtml"></span>
             <span aria-hidden="true" data-bind="css: cssButton"></span>
         </span>
-        <span data-bind="visible:isExpanded, click:doExpand" style="float: right; cursor: pointer;">
-            <span style="padding-right:10px" data-bind="css: cssHeaderTitle">X</span>
+        <!-- ko if: allowClose -->
+        <span data-bind="click:doHide, css: cssHeaderButton" style="float: right; cursor: pointer; width: 24px; height: 24px; transform: rotate(45deg);">
+        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-expanddetail', size: '16' } } --><!-- /ko -->
+        </span>
+        <!-- /ko -->
+        <span data-bind="visible:isExpanded, click:doExpand, css: cssHeaderButton" style="float: right; cursor: pointer; width: 24px; height: 24px;">
+        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-collapsedetail', size: '16' } } --><!-- /ko -->
         </span>
     </div>
     <div data-bind="visible:isExpanded, css: cssBody, event: { scroll: $data.onScroll }">

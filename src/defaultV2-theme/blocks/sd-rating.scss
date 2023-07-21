@@ -326,7 +326,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
   font-size: $font-editorfont-size;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
 
   &.sd-rating__min-text,

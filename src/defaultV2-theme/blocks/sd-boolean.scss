@@ -21,7 +21,7 @@
   font-weight: $font-editorfont-weight;
   font-size: $font-editorfont-size;
   color: $foreground-light;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   padding: calcSize(1) calcSize(3);
 }
 

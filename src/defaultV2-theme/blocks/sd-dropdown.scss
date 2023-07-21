@@ -12,7 +12,6 @@
   appearance: none;
   padding-inline-end: calcSize(6); //padding-right
   padding-inline-start: calcSize(2); //padding-left
-  height: initial;
 
   opacity: 1;
   display: flex;
@@ -40,11 +39,11 @@
 
 .sd-dropdown__value {
   width: 100%;
-  min-height: calcSize(3);
+  min-height: multiply(1.5, $font-editorfont-size);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
@@ -99,7 +98,7 @@
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
   font-size: $font-editorfont-size;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   background-color: transparent;
   overflow: hidden;
   text-overflow: ellipsis;

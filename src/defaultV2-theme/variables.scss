@@ -99,6 +99,11 @@ $font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-f
 $font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
 $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 
+@function multiply($a, $b) {
+  $result: calc(#{$a} * #{$b});
+  @return $result;
+}
+
 @function calcSize($multiplier) {
   $result: calc(#{$multiplier} * #{$base-unit});
   @return $result;

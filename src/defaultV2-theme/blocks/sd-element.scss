@@ -39,7 +39,7 @@
 
   span {
     font-size: $font-questiontitle-size;
-    line-height: calcLineHeight(1.5);
+    line-height: multiply(1.5, $font-questiontitle-size);
   }
 
   .sv-title-actions__title {

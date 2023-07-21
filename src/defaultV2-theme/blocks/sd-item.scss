@@ -40,7 +40,7 @@
   font-family: $font-editorfont-family;
   font-style: normal;
   font-weight: normal;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   font-size: $font-editorfont-size;
   color: $font-editorfont-color;
   white-space: normal;

@@ -36,13 +36,13 @@
   }
 
   h3 {
-    line-height: calcLineHeight(2.5);
+    line-height: multiply(2.5, $font-surveytitle-size);
   }
 
   h5 {
     font-size: calcFontSize(1);
     font-weight: 400;
-    line-height: calcLineHeight(1.5);
+    line-height: multiply(1.5, $font-surveytitle-size);
   }
 }
 

@@ -5,8 +5,8 @@
     :style="{maxWidth: surveyWindow.renderedWidth, width: surveyWindow.renderedWidth}"
     :class="surveyWindow.cssRoot"
   >
-    <div :class="surveyWindow.cssHeaderRoot" @click="doExpand">
-      <span style="width: 100%; cursor: pointer; user-select: none;">
+    <div :class="surveyWindow.cssHeaderRoot">
+      <span @click="doExpand" style="width: 100%; cursor: pointer; user-select: none;">
         <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">
           <survey-string :locString="windowSurvey.locTitle" />
         </span>
@@ -15,6 +15,7 @@
       <span
         v-if="surveyWindow.allowClose"
         :class="surveyWindow.cssHeaderButton"
+        @click="doHide"
         style="transform: rotate(45deg); float: right; cursor: pointer; user-select: none; width: 24px; height: 24px;"
       >
         <sv-svg-icon :iconName="'icon-expanddetail'" :size="16"> </sv-svg-icon>
@@ -22,6 +23,7 @@
       <span
         v-if="isExpandedSurvey"
         :class="surveyWindow.cssHeaderButton"
+        @click="doExpand"
         style="float: right; cursor: pointer; user-select: none; width: 24px; height: 24px;"
       >
         <sv-svg-icon :iconName="'icon-collapsedetail'" :size="16"> </sv-svg-icon>

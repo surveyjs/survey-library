@@ -86,7 +86,7 @@ const jsonCloseOnSelectIsDefault = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   const questionTagbox = Selector(".sv_q_input.sv_q_tagbox");
   const questionValueInput = Selector(".sv_q_tagbox__value input");
@@ -495,7 +495,7 @@ frameworks.forEach((framework) => {
     }, 500);
   }
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -591,7 +591,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -722,7 +722,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -819,7 +819,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [

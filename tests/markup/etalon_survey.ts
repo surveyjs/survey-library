@@ -64,5 +64,63 @@ registerMarkupTests(
         return el.children[0].outerHTML;
       },
       snapshot: "survey-theme-backgroundImage"
+    },
+    {
+      name: "Test survey logo (attribute sizes)",
+      json: {
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        "logoPosition": "right",
+        "logoWidth": "200px",
+        "logoHeight": "300px",
+        "title": "Test",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ]
+      },
+      event: "onAfterRenderHeader",
+      snapshot: "survey-logo-attribute-sizes",
+      getElement: (el) => {
+        const image = <HTMLElement>el?.querySelector(".sv_logo");
+        const div = document.createElement("div");
+        div.appendChild(image);
+        return div;
+      }
+    },
+    {
+      name: "Test survey logo (style sizes)",
+      json: {
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        "logoPosition": "right",
+        "logoWidth": "30%",
+        "logoHeight": "auto",
+        "title": "Test",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ]
+      },
+      event: "onAfterRenderHeader",
+      snapshot: "survey-logo-style-sizes",
+      getElement: (el) => {
+        const image = <HTMLElement>el?.querySelector(".sv_logo");
+        const div = document.createElement("div");
+        div.appendChild(image);
+        return div;
+      }
     }
   ]);

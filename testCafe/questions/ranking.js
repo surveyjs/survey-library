@@ -72,7 +72,7 @@ const setSjsFramework = ClientFunction((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await t.resizeWindow(1920, 1080);
       await setSjsFramework(framework);

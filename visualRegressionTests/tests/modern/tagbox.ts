@@ -13,7 +13,7 @@ const theme = "modern";
 
 frameworks.forEach(async framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+    .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
       await explicitErrorHandler();
       await applyTheme(theme);

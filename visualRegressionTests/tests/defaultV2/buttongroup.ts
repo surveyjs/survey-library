@@ -39,7 +39,7 @@ const registerButtongroup = ClientFunction((framework) => {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await explicitErrorHandler();
     await applyTheme(theme);
   });
@@ -47,7 +47,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await registerButtongroup(framework);
-      if (framework === "vue" || framework === "angular") {
+      if (framework === "vue" || framework === "angular" || framework === "vue3") {
         return;
       }
       await initSurvey(framework, {

@@ -3260,7 +3260,7 @@ export class SurveyModel extends SurveyElementCore
         : 100;
     }
     const visPages = this.visiblePages;
-    var index = visPages.indexOf(this.currentPage) + 1;
+    var index = visPages.indexOf(this.currentPage);
     return Math.ceil((index * 100) / visPages.length);
   }
   /**

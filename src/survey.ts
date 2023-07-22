@@ -1709,32 +1709,35 @@ export class SurveyModel extends SurveyElementCore
     }
     return locs;
   }
-  public localeChanged() {
+  public localeChanged(): void {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].localeChanged();
     }
   }
   //ILocalizableOwner
-  getLocale() {
+  getLocale(): string {
     return this.locale;
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!this.currentPage) return;
+    if(this.isDesignMode) {
+      this.pages.forEach(page => page.locStrsChanged());
+    } else {
+      var page = this.activePage;
+      if (!!page) {
+        page.locStrsChanged();
+      }
+      const visPages = this.visiblePages;
+      for (var i = 0; i < visPages.length; i++) {
+        visPages[i].navigationLocStrChanged();
+      }
+    }
     if (!this.isShowStartingPage) {
       this.updateProgressText();
     }
-    var page = this.activePage;
-    if (!!page) {
-      page.locStrsChanged();
-    }
-    const visPages = this.visiblePages;
-    for (var i = 0; i < visPages.length; i++) {
-      visPages[i].navigationLocStrChanged();
-    }
     this.navigationBar.locStrsChanged();
   }
-
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
   }

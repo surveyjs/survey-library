@@ -5545,6 +5545,22 @@ QUnit.test("Survey Markdown + processed text", function (assert) {
   survey.setValue("val", "test2");
   assert.equal(q1.locTitle.renderedHtml, "Q1 test2!", "Change the value");
 });
+QUnit.test("Survey Markdown + design model", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1", title: "Q1" }] },
+      { elements: [{ type: "text", name: "q2", title: "Q2" }] }
+    ]
+  });
+  survey.setDesignMode(true);
+  survey.onTextMarkdown.add((survey, options) => {
+    options.html = options.text + "!";
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.locTitle.renderedHtml, "Q1!", "page1");
+  assert.equal(q2.locTitle.renderedHtml, "Q2!", "page2");
+});
 
 QUnit.test("required question title test", function (assert) {
   var survey = new SurveyModel();

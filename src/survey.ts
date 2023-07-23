@@ -2955,7 +2955,7 @@ export class SurveyModel extends SurveyElementCore
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
     var oldValue = this.currentPage;
-    if (!this.currentPageChanging(newPage, oldValue)) return;
+    if (!this.isShowingPreview && !this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
     if (!!newPage) {
       newPage.onFirstRendering();
@@ -2963,7 +2963,9 @@ export class SurveyModel extends SurveyElementCore
       newPage.setWasShown(true);
     }
     this.locStrsChanged();
-    this.currentPageChanged(newPage, oldValue);
+    if(!this.isShowingPreview) {
+      this.currentPageChanged(newPage, oldValue);
+    }
   }
   private updateCurrentPage(): void {
     if (this.isCurrentPageAvailable) return;
@@ -3246,7 +3248,8 @@ export class SurveyModel extends SurveyElementCore
       isNextPage: diff === 1,
       isPrevPage: diff === -1,
       isGoingForward: diff > 0,
-      isGoingBackward: diff < 0
+      isGoingBackward: diff < 0,
+      isAfterPreview: this.changeCurrentPageFromPreview === true
     };
   }
   /**
@@ -3822,14 +3825,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public cancelPreview(curPage: any = null) {
     if (!this.isShowingPreview) return;
+    this.gotoPageFromPreview = curPage;
     this.isShowingPreview = false;
-    if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
-      curPage = this.visiblePageCount - 1;
-    }
-    if (curPage !== null) {
-      this.currentPage = curPage;
-    }
   }
+  private gotoPageFromPreview: PageModel;
   public cancelPreviewByPage(panel: IPanel): any {
     this.cancelPreview((<any>panel)["originalPage"]);
   }
@@ -3929,8 +3928,22 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllElementsVisibility(this.pages);
     this.updateVisibleIndexes();
-    this.currentPageNo = 0;
+    if(this.isShowingPreview) {
+      this.currentPageNo = 0;
+    } else {
+      let curPage = this.gotoPageFromPreview;
+      this.gotoPageFromPreview = null;
+      if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
+        curPage = this.visiblePages[this.visiblePageCount - 1];
+      }
+      if (!!curPage) {
+        this.changeCurrentPageFromPreview = true;
+        this.currentPage = curPage;
+        this.changeCurrentPageFromPreview = false;
+      }
+    }
   }
+  private changeCurrentPageFromPreview: boolean;
   private origionalPages: any;
   protected onQuestionsOnPageModeChanged(oldValue: string) {
     if (this.isShowingPreview) return;
@@ -6049,6 +6062,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
     this.updateVisibleIndexes();
+    if(!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
       this.updateProgressText();
       this.updateCurrentPage();
@@ -6058,6 +6072,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel) {
     page.setSurveyImpl(null);
+    if(!!this.runningPages) return;
     if (page === this.currentPage) {
       this.updateCurrentPage();
     }

@@ -790,8 +790,8 @@ export class SurveyModel extends SurveyElementCore
     }
     const htmlCallBack = (str: string): string => { return "<h3>" + str + "</h3>"; };
     this.createHtmlLocString("completedHtml", "completingSurvey", htmlCallBack);
-    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack);
-    this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack);
+    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack, "completed-before");
+    this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack, "loading");
     this.createLocalizableString("logo", this, false);
     this.createLocalizableString("backgroundImage", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
@@ -967,8 +967,12 @@ export class SurveyModel extends SurveyElementCore
       }
     };
   }
-  private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
-    this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
+  private createHtmlLocString(name: string, locName: string, func: (str: string) => string, reason?: string): void {
+    const res = this.createLocalizableString(name, this, false, locName);
+    res.onGetLocalizationTextCallback = func;
+    if(reason) {
+      res.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
+    }
   }
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
@@ -4374,13 +4378,13 @@ export class SurveyModel extends SurveyElementCore
    * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
-    return this.processHtml(this.completedBeforeHtml, "completed-before");
+    return this.locCompletedBeforeHtml.textOrHtml;
   }
   /**
    * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
-    return this.processHtml(this.loadingHtml, "loading");
+    return this.locLoadingHtml.textOrHtml;
   }
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;

@@ -15,7 +15,7 @@
   color: $font-pagedescription-color;
   position: static;
   line-height: calcLineHeight(1.5);
-  margin: calcSize(0.5) 0px;
+  margin: 0 0 calcSize(1) 0;
 }
 
 @mixin num_inline {

@@ -1,12 +1,3 @@
-.sd-body--responsive {
-  .sd-page {
-    padding: calcSize(5) var(--sd-page-vertical-padding) calcSize(2);
-
-    &.sd-page__empty-header {
-      padding-top: calcSize(3);
-    }
-  }
-}
 .sd-root-modern--mobile .sd-page {
   padding-top: calcSize(2);
 }
@@ -16,13 +7,15 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding: calcSize(5) calcSize(2) calcSize(2);
+  padding: 0 calcSize(2);
   width: 100%;
   box-sizing: border-box;
 }
+
 .sd-page .sd-page__title {
   @include page_title();
 }
+
 .sd-page .sd-page__description {
   @include page_description();
 }

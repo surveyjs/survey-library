@@ -262,3 +262,83 @@ jobs:
         publishLocation: 'Container'
       condition: always()
       displayName: 'publish vrt artifacts'
+
+- job: Vue3
+  steps:
+    - checkout: self
+      persistCredentials: true
+      clean: true
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "16.x"
+      displayName: "Install Node.js"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/node_modules
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPMs
+
+    - task: Npm@1
+      displayName: 'NPM install root'
+      inputs:
+        command: install
+        verbose: false
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+  
+    - powershell: |
+        npm run build_core
+        npm run build_i18n_dev
+        npm run build-plugins
+      displayName: "Build Core"
+
+    - script: |
+        cd packages/survey-vue3-ui
+        npm install
+      displayName: "NPM install packages/survey-vue3-ui"
+    
+    - script: |
+        cd packages/survey-vue3-ui
+        npm run build
+      displayName: "Build Vue3"
+
+    - script: |
+        cd packages/survey-vue3-ui/example
+        npm install
+      displayName: "NPM install packages/survey-vue3-ui/example"
+
+    - script: |
+        cd packages/survey-vue3-ui/example
+        npm run build
+      displayName: "Build Vue3 Example"
+
+    - script: |
+        npm run visual-regression-tests:ci:vue3
+      displayName: "run vrt tests"
+    
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+        Contents: '**'
+        TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue3_VRT'
+        OverWrite: true
+      condition: always()
+      displayName: 'copy vrt artifacts'
+      
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue3_VRT/'
+        ArtifactName: 'Library_Vue3_VRT'
+        publishLocation: 'Container'
+      condition: always()
+      displayName: 'publish vrt artifacts'

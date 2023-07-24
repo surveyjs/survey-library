@@ -224,7 +224,7 @@ export interface ISurveyTriggerOwner {
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void;
   triggerExecuted(trigger: Trigger): void;
   setTriggerValue(name: string, value: any, isVariable: boolean): any;
-  copyTriggerValue(name: string, fromName: string): any;
+  copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void;
   focusQuestion(name: string): boolean;
 }
 
@@ -443,12 +443,18 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   public set fromName(val: string) {
     this.setPropertyValue("fromName", val);
   }
+  public get copyDisplayValue(): boolean {
+    return this.getPropertyValue("copyDisplayValue");
+  }
+  public set copyDisplayValue(val: boolean) {
+    this.setPropertyValue("copyDisplayValue", val);
+  }
   public getType(): string {
     return "copyvaluetrigger";
   }
-  protected onSuccess(values: HashTable<any>, properties: HashTable<any>) {
+  protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.setToName || !this.owner) return;
-    this.owner.copyTriggerValue(this.setToName, this.fromName);
+    this.owner.copyTriggerValue(this.setToName, this.fromName, this.copyDisplayValue);
   }
 }
 
@@ -499,7 +505,8 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "copyvaluetrigger",
-  [{ name: "!fromName:questionvalue" }, { name: "!setToName:questionvalue" }],
+  [{ name: "!fromName:questionvalue" }, { name: "!setToName:questionvalue" },
+    { name: "copyDisplayValue:boolean", visible: false }],
   function() {
     return new SurveyTriggerCopyValue();
   },

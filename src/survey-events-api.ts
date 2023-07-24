@@ -184,6 +184,10 @@ export interface CurrentPageChangedEvent {
    */
   isGoingForward: boolean;
   /**
+   * Returns `true` if the respondent is switching from the [preview page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   */
+  isAfterPreview: boolean;
+  /**
    * The current page.
    */
   newCurrentPage: PageModel;

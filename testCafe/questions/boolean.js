@@ -51,7 +51,7 @@ var jsonRadio = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json);
     }
@@ -116,7 +116,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
     }
@@ -179,7 +179,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, jsonCheckbox);
     }
@@ -193,7 +193,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   const theme = "defaultV2";
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+    .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
       await applyTheme(theme);
       await initSurvey(framework, jsonCheckbox2, { onGetQuestionTitleActions: (_, options) => {
@@ -226,7 +226,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, jsonRadio);
     }
@@ -247,7 +247,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   const theme = "defaultV2";
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+    .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
       await applyTheme(theme);
       await initSurvey(framework, {

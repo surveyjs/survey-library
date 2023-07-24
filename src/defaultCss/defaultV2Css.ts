@@ -576,7 +576,7 @@ export var defaultV2Css = {
     header: {
       root: "sv_window_title",
       title: "",
-      button: "",
+      button: "sv_window_button",
       buttonExpanded: "",
       buttonCollapsed: ""
     }
@@ -643,7 +643,6 @@ export var defaultV2Css = {
   },
   variables: {
     mobileWidth: "--sd-mobile-width",
-    imagepickerGapBetweenItems: "--sd-imagepicker-gap",
     themeMark: "--sv-defaultV2-mark"
   },
   tagbox: {

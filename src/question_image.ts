@@ -3,6 +3,7 @@ import { property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { getRenderedStyleSize, getRenderedSize } from "./utils/utils";
 
 const youtubeTags = ["youtube.com", "youtu.be"];
 const videoSuffics = [".mp4", ".mov", ".wmv", ".flv", ".avi", ".mkv"];
@@ -85,12 +86,13 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageHeight(val: string) {
     this.setPropertyValue("imageHeight", val);
   }
-  private getRenderedSize(val: string): string {
-    return isNaN(Number(val)) ? val : val + "px";
+
+  public get renderedStyleHeight(): string {
+    return this.imageHeight ? getRenderedStyleSize(this.imageHeight) : undefined;
   }
 
-  public get renderedHeight(): string {
-    return this.imageHeight ? this.getRenderedSize(this.imageHeight) : undefined;
+  public get renderedHeight(): number {
+    return this.imageHeight ? getRenderedSize(this.imageHeight) : undefined;
   }
   /**
    * Specifies the width of a container for the image or video. Accepts positive numbers and CSS values.
@@ -107,8 +109,11 @@ export class QuestionImageModel extends QuestionNonValue {
   public set imageWidth(val: string) {
     this.setPropertyValue("imageWidth", val);
   }
-  public get renderedWidth(): string {
-    return this.imageWidth ? this.getRenderedSize(this.imageWidth) : undefined;
+  public get renderedStyleWidth(): string {
+    return this.imageWidth ? getRenderedStyleSize(this.imageWidth) : undefined;
+  }
+  public get renderedWidth(): number {
+    return this.imageWidth ? getRenderedSize(this.imageWidth) : undefined;
   }
   /**
    * Specifies how to resize the image or video to fit it into its container.

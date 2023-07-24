@@ -22,7 +22,7 @@ const json = {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await explicitErrorHandler();
     await applyTheme(theme);
     await initSurvey(framework, json);

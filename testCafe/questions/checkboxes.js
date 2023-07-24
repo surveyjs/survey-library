@@ -32,7 +32,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (ctx) => {
       await initSurvey(framework, json);
     }
@@ -388,7 +388,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
     }
@@ -439,7 +439,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   const themeName = "defaultV2";
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}.html`
+    .page`${url_test}${themeName}/${framework}`
     .beforeEach(async (t) => {
       await applyTheme(themeName);
       await initSurvey(framework, json);

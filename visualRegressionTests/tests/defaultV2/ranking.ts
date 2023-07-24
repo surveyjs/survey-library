@@ -13,7 +13,7 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+    .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
       await explicitErrorHandler();
       await applyTheme(theme);
@@ -113,6 +113,47 @@ frameworks.forEach(framework => {
         ]
       });
       await takeElementScreenshot("question-ranking-select-to-rank-vertical.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
+  test("Shortcut position due container layout", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            title: "ranking question",
+            name: "ranking_question",
+            choices: ["item1", "item2", "item3", "item4"]
+          }
+        ]
+      });
+
+      const item1 = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]")
+        .find("span")
+        .withText("item1");
+
+      const qustion = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]");
+
+      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
+        (<HTMLElement>document.getElementById("surveyElement")).style.margin = "50px";
+        const question = window["survey"].getAllQuestions()[0];
+        question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
+        question.dragDropRankingChoices.domAdapter.drop = () => { };
+        question.dragDropRankingChoices.domAdapter.clear = () => { };
+      });
+
+      await patchDragDropToShowGhostElementAfterDrop();
+
+      await t.dragToElement(item1, qustion);
+
+      await takeElementScreenshot("question-ranking-shortcut-position-container-layout.png", Selector(".sd-question"), t, comparer);
     });
   });
 });

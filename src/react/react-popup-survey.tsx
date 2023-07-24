@@ -2,6 +2,7 @@ import * as React from "react";
 import { Survey } from "./reactSurvey";
 import { SurveyElementBase } from "./reactquestion_element";
 import { Base, PopupSurveyModel } from "survey-core";
+import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class PopupSurvey extends Survey {
   protected popup: PopupSurveyModel;
@@ -51,14 +52,24 @@ export class PopupSurvey extends Survey {
           </span>
           <span className={glyphClassName} aria-hidden="true" />
         </span>
+        {this.popup.allowClose ? (
+          <span
+            className={this.popup.cssHeaderButton}
+            onClick={() => { this.popup.hide(); }}
+            style={{ transform: "rotate(45deg)", float: "right", cursor: "pointer", width: "24px", height: "24px" }}
+          >
+            <SvgIcon iconName={"icon-expanddetail"} size={16}>
+            </SvgIcon>
+          </span>
+        ) : null}
         {this.popup.isExpanded ? (
           <span
+            className={this.popup.cssHeaderButton}
             onClick={this.handleOnExpanded}
-            style={{ float: "right", cursor: "pointer" }}
+            style={{ float: "right", cursor: "pointer", width: "24px", height: "24px" }}
           >
-            <span className={this.popup.cssHeaderTitle} style={styleTitle}>
-              X
-            </span>
+            <SvgIcon iconName={"icon-collapsedetail"} size={16}>
+            </SvgIcon>
           </span>
         ) : null}
       </div>
@@ -74,6 +85,7 @@ export class PopupSurvey extends Survey {
     if (newProps.closeOnCompleteTimeout) {
       this.popup.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }
+    this.popup.allowClose = newProps.allowClose;
     this.popup.isShowing = true;
     if (!this.popup.isExpanded && (newProps.expanded || newProps.isExpanded))
       this.popup.expand();

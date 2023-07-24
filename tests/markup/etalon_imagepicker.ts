@@ -138,6 +138,7 @@ registerMarkupTests(
     },
     timeout: 500,
     initSurvey: survey => {
+      survey.getAllQuestions()[0]["choices"][0]["contentNotLoaded"] = true;
       survey.getAllQuestions()[0]["choices"][0]["onErrorHandler"] = function() { this["contentNotLoaded"] = true; };
       survey.getAllQuestions()[0]["choices"][1]["onErrorHandler"] = function() { this["contentNotLoaded"] = true; };
     },
@@ -166,6 +167,7 @@ registerMarkupTests(
     },
     timeout: 500,
     initSurvey: survey => {
+      survey.getAllQuestions()[0]["choices"][0]["contentNotLoaded"] = true;
       survey.getAllQuestions()[0]["choices"][0]["onErrorHandler"] = function() { this["contentNotLoaded"] = true; };
       survey.getAllQuestions()[0]["choices"][1]["onErrorHandler"] = function() { this["contentNotLoaded"] = true; };
     },

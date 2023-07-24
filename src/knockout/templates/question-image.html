@@ -1,13 +1,13 @@
 ﻿<script type="text/html" id="survey-question-image">
   <div data-bind="css: question.cssClasses.root">
     <!-- ko if: question.renderedMode === "image" -->
-    <img data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml() || null, width: question.renderedWidth, height: question.renderedHeight, alt: question.altText || question.title }, style: { objectFit: question.imageFit }, visible: $data.locImageLink.koRenderedHtml() && !question.contentNotLoaded"/>
+    <img data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml() || null, width: question.renderedWidth, height: question.renderedHeight, alt: question.altText || question.title }, style: { objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }, visible: $data.locImageLink.koRenderedHtml() && !question.contentNotLoaded"/>
     <!-- /ko -->
     <!-- ko if: question.renderedMode === "video" -->
-    <video controls data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }, visible: $data.locImageLink.koRenderedHtml() && !question.contentNotLoaded"></video>
+    <video controls data-bind="event: { load: question.onLoadHandler, error: question.onErrorHandler }, css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }, visible: $data.locImageLink.koRenderedHtml() && !question.contentNotLoaded"></video>
     <!-- /ko -->
     <!-- ko if: question.renderedMode === "youtube" -->
-    <iframe data-bind=" css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit }"></iframe>
+    <iframe data-bind=" css: question.getImageCss(), attr: { src: $data.locImageLink.koRenderedHtml(), width: question.renderedWidth, height: question.renderedHeight }, style: { objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }"></iframe>
     <!-- /ko -->
     <!-- ko if: !$data.locImageLink.koRenderedHtml() || question.contentNotLoaded  -->
     <div data-bind="css: question.cssClasses.noImage">

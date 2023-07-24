@@ -199,20 +199,44 @@ export function unwrap<T>(value: T | (() => T)): T {
   }
 }
 
-export function getSize(value: any) {
-  if (typeof value === "number") {
-    return "" + value + "px";
-  }
-  if (!!value && typeof value === "string" && value.length > 0) {
-    const lastSymbol: string = value[value.length - 1];
-    if ((lastSymbol >= "0" && lastSymbol <= "9") || lastSymbol == ".") {
-      try {
-        const num: number = parseFloat(value);
-        return "" + num + "px";
-      } catch { }
+// export function getSize(value: any): number {
+//   if (typeof value === "number") {
+//     return value;
+//   }
+//   if (typeof value === "string" && value.includes("px")) {
+//     return parseInt(value);
+//   }
+//   if (!!value && typeof value === "string" && value.length > 0) {
+//     const lastSymbol: string = value[value.length - 1];
+//     if ((lastSymbol >= "0" && lastSymbol <= "9") || lastSymbol == ".") {
+//       try {
+//         const num: number = parseInt(value);
+//         return num;
+//       } catch { }
+//     }
+//   }
+//   return value;
+// }
+
+export function getRenderedSize(val: string | number): number {
+  if(typeof val == "string") {
+    if(!isNaN(Number(val))) {
+      return Number(val);
+    }
+    else if(val.includes("px")) {
+      return parseFloat(val);
     }
   }
-  return value;
+  if(typeof val == "number") {
+    return val;
+  }
+  return undefined;
+}
+export function getRenderedStyleSize(val: string | number): string {
+  if(getRenderedSize(val) !== undefined) {
+    return undefined;
+  }
+  return val as string;
 }
 
 export interface IAttachKey2clickOptions {
@@ -220,7 +244,6 @@ export interface IAttachKey2clickOptions {
   disableTabStop?: boolean;
   __keyDownReceived?: boolean;
 }
-
 const keyFocusedClassName = "sv-focused--by-key";
 export function doKey2ClickBlur(evt: KeyboardEvent): void {
   const element: any = evt.target;

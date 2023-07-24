@@ -100,16 +100,17 @@ QUnit.test("check process responsiveness for imagepicker, colCount == 0", functi
   question.minImageHeight = 50;
   question.maxImageHeight = 100;
   question["processResponsiveness"](0, 332);
-  assert.equal(question.renderedImageWidth, "100px");
-  assert.equal(question.renderedImageHeight, "50px");
+  assert.equal(question.renderedImageWidth, 100);
+  assert.equal(question.renderedImageHeight, 50);
 
   question["processResponsiveness"](0, 548);
-  assert.equal(question.renderedImageWidth, "125px");
-  assert.equal(question.renderedImageHeight, "62.5px");
+  assert.equal(question.renderedImageWidth, 125);
+  assert.equal(question["responsiveImageHeight"], 62.5);
+  assert.equal(question.renderedImageHeight, 62);
 
   question["processResponsiveness"](0, 900);
-  assert.equal(question.renderedImageWidth, "200px");
-  assert.equal(question.renderedImageHeight, "100px");
+  assert.equal(question.renderedImageWidth, 200);
+  assert.equal(question.renderedImageHeight, 100);
 });
 
 QUnit.test("check process responsiveness for imagepicker, colCount !== 0", function(assert) {
@@ -128,23 +129,23 @@ QUnit.test("check process responsiveness for imagepicker, colCount !== 0", funct
   question.maxImageHeight = 100;
   question["processResponsiveness"](0, 332);
   assert.equal(question["getCurrentColCount"](), 3);
-  assert.equal(question.renderedImageWidth, "100px");
-  assert.equal(question.renderedImageHeight, "50px");
+  assert.equal(question.renderedImageWidth, "100");
+  assert.equal(question.renderedImageHeight, "50");
 
   question["processResponsiveness"](0, 900);
   assert.equal(question["getCurrentColCount"](), 3);
-  assert.equal(question.renderedImageWidth, "200px");
-  assert.equal(question.renderedImageHeight, "100px");
+  assert.equal(question.renderedImageWidth, "200");
+  assert.equal(question.renderedImageHeight, "100");
 
   question["processResponsiveness"](0, 216);
   assert.equal(question["getCurrentColCount"](), 2);
-  assert.equal(question.renderedImageWidth, "100px");
-  assert.equal(question.renderedImageHeight, "50px");
+  assert.equal(question.renderedImageWidth, "100");
+  assert.equal(question.renderedImageHeight, "50");
 
   question["processResponsiveness"](0, 100);
   assert.equal(question["getCurrentColCount"](), 1);
-  assert.equal(question.renderedImageWidth, "100px");
-  assert.equal(question.renderedImageHeight, "50px");
+  assert.equal(question.renderedImageWidth, "100");
+  assert.equal(question.renderedImageHeight, "50");
 });
 
 QUnit.test("check isResponsive getter", function(assert) {

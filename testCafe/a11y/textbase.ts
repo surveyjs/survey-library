@@ -45,7 +45,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} a11y:${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} a11y:${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json);
     }

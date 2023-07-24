@@ -38,7 +38,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
   canBeCompleted(trigger: Trigger, isCompleted: boolean) {}
   triggerExecuted(trigger: Trigger): void {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
-  copyTriggerValue(name: string, fromName: string) {}
+  copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {}
   focusQuestion(name: string): boolean {
     return true;
   }
@@ -250,8 +250,36 @@ QUnit.test("On trigger executed && executeCompleteTriggerOnValueChanged=true", f
   assert.equal(survey.state, "completed");
   assert.deepEqual(triggers, ["completetrigger"]);
   assert.equal(isCompleteEvent, true);
-  assert.equal(completeTrigger.getType(), "completetrigger");
+  assert.equal(completeTrigger.expression, "{q1} = 3");
   settings.executeCompleteTriggerOnValueChanged = false;
+});
+QUnit.test("On trigger executed && options.completeTrigger", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{q1} = 3"
+      },
+    ],
+  });
+  let isCompleteEvent = false;
+  let completeTrigger;
+  survey.onComplete.add((sender, options) => {
+    isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
+  });
+  survey.setValue("q1", 3);
+  assert.equal(survey.state, "running");
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed");
+  assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.expression, "{q1} = 3");
 });
 QUnit.test("Show complete button instead of next if complete trigger is going to be executed", function(
   assert
@@ -335,6 +363,34 @@ QUnit.test("Do not execute copy and set trigger on page changed", function(
   survey.nextPage();
   survey.doComplete();
   assert.deepEqual(survey.data, data, "We do not change anything");
+});
+QUnit.test("copyvalue from checkbox", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "checkbox", name: "q1",
+            choices: [{ value: 1, text: "Item1" }, { value: 2, text: "Item2" }, { value: 3, text: "Item3" }] },
+          { type: "text", name: "q2" },
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "expression": "{q1} notempty",
+        "fromName": "q1",
+        "setToName": "q2",
+        "copyDisplayValue": true
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = [1, 3];
+  assert.deepEqual(q2.value, "Item1, Item3", "Copy value correctly");
+  q1.value = [1, 2];
+  assert.deepEqual(q2.value, "Item1, Item2", "Copy value correctly");
 });
 
 QUnit.test("Execute trigger on complete", function(assert) {

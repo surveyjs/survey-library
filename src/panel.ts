@@ -172,7 +172,7 @@ export class QuestionRowModel extends Base {
       var el = this.elements[i];
       if (!el.isVisible || preSetWidthElements.indexOf(el) > -1) continue;
       if (preSetWidthElements.length == 0) {
-        el.renderWidth = (100 / visCount).toFixed(6) + "%";
+        el.renderWidth = `${Number.parseFloat((100 / visCount).toFixed(6))}%`;
       } else {
         el.renderWidth = this.getRenderedCalcWidth(
           el,
@@ -1735,7 +1735,7 @@ export class PanelModel extends PanelModelBase implements IElement {
       if (this.hasEditButton) {
         actions.push({
           id: "cancel-preview",
-          title: this.survey.editText,
+          locTitle: this.survey.locEditText,
           innerCss: this.survey.cssNavigationEdit,
           action: () => { this.cancelPreview(); }
         });

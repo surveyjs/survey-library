@@ -5,18 +5,28 @@
     :style="{maxWidth: surveyWindow.renderedWidth, width: surveyWindow.renderedWidth}"
     :class="surveyWindow.cssRoot"
   >
-    <div :class="surveyWindow.cssHeaderRoot" @click="doExpand">
-      <span style="width: 100%; cursor: pointer; user-select: none;">
+    <div :class="surveyWindow.cssHeaderRoot">
+      <span @click="doExpand" style="width: 100%; cursor: pointer; user-select: none;">
         <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">
           <survey-string :locString="windowSurvey.locTitle" />
         </span>
         <span aria-hidden="true" :class="expandedCss"></span>
       </span>
       <span
-        v-if="isExpandedSurvey"
-        style="float: right; cursor: pointer; user-select: none;"
+        v-if="surveyWindow.allowClose"
+        :class="surveyWindow.cssHeaderButton"
+        @click="doHide"
+        style="transform: rotate(45deg); float: right; cursor: pointer; user-select: none; width: 24px; height: 24px;"
       >
-        <span style="padding-right: 10px" :class="surveyWindow.cssHeaderTitle">X</span>
+        <sv-svg-icon :iconName="'icon-expanddetail'" :size="16"> </sv-svg-icon>
+      </span>
+      <span
+        v-if="isExpandedSurvey"
+        :class="surveyWindow.cssHeaderButton"
+        @click="doExpand"
+        style="float: right; cursor: pointer; user-select: none; width: 24px; height: 24px;"
+      >
+        <sv-svg-icon :iconName="'icon-collapsedetail'" :size="16"> </sv-svg-icon>
       </span>
     </div>
     <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody" @scroll="doScroll">
@@ -37,6 +47,7 @@ export class PopupSurvey extends BaseVue {
   @Prop() survey: SurveyModel;
   @Prop() isExpanded: boolean;
   @Prop() isexpanded: boolean;
+  @Prop() allowClose: boolean;
   @Prop() closeOnCompleteTimeout: number;
 
   surveyWindow: PopupSurveyModel;
@@ -55,6 +66,9 @@ export class PopupSurvey extends BaseVue {
     }
     if (this.closeOnCompleteTimeout !== undefined) {
       this.surveyWindow.closeOnCompleteTimeout = this.closeOnCompleteTimeout;
+    }
+    if (this.allowClose !== undefined) {
+      this.surveyWindow.allowClose = this.allowClose;
     }
     this.surveyWindow.isShowing = true;
   }
@@ -81,6 +95,9 @@ export class PopupSurvey extends BaseVue {
   }
   doExpand() {
     this.surveyWindow.changeExpandCollapse();
+  }
+  doHide() {
+    this.surveyWindow.hide();
   }
   getSurveyComponentName() {
     return "survey";

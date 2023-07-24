@@ -37,10 +37,10 @@
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
               <!-- /ko -->
               <!-- ko if: state == "completedbefore" -->
-              <div data-bind="html: processedCompletedBeforeHtml, css: css.body"></div>
+              <div data-bind="html: locCompletedBeforeHtml.koRenderedHtml, css: css.body"></div>
               <!-- /ko -->
               <!-- ko if: state == "loading" -->
-              <div data-bind="html: processedLoadingHtml, css: css.body"></div>
+              <div data-bind="html: locLoadingHtml.koRenderedHtml, css: css.body"></div>
               <!-- /ko -->
               <!-- ko if: state == "empty" -->
               <div data-bind="text:emptySurveyText, css: css.bodyEmpty"></div>

@@ -191,6 +191,7 @@ export interface CurrentPageChangedEvent {
    * A page that used to be current.
    */
   oldCurrentPage: PageModel;
+  isAfterPreview: boolean;
 }
 export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**

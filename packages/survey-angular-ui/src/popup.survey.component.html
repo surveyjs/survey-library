@@ -4,8 +4,11 @@
           <span style="padding-right:10px" [class]="popup.cssHeaderTitle">{{popup.locTitle.renderedHtml}}</span>
           <span aria-hidden="true" [class]="popup.cssButton"></span>
       </span>
-      <span *ngIf="popup.isExpanded" (click)="popup.changeExpandCollapse()" style="float: right; cursor: pointer;">
-          <span style="padding-right:10px" [class]="popup.cssHeaderTitle">X</span>
+      <span *ngIf="popup.allowClose" (click)="popup.hide()" [class]="popup.cssHeaderButton" style="float: right; cursor: pointer; width: 24px; height: 24px; transform: rotate(45deg);">
+        <svg [iconName]="'icon-expanddetail'" [size]="16" sv-ng-svg-icon></svg>
+    </span>
+      <span *ngIf="popup.isExpanded" (click)="popup.changeExpandCollapse()" [class]="popup.cssHeaderButton" style="float: right; cursor: pointer; width: 24px; height: 24px;">
+          <svg [iconName]="'icon-collapsedetail'" [size]="16" sv-ng-svg-icon></svg>
       </span>
   </div>
   <div *ngIf="popup.isExpanded" [class]="popup.cssBody" (scroll)="popup.onScroll()">

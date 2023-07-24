@@ -350,8 +350,24 @@ function sortInlineStyles(str: string) {
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
     if(!!el.getAttribute("style")) {
-      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(";");
-      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1"))).join("; ") + ";");
+      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(/;(?![^(]*\))/);
+      const flexRules = ["flex-grow", "flex-shrink", "flex-basis"];
+      const flexStyles: Array<string> = [];
+      flexRules.forEach(rule => {
+        const flexStyle = inlineStyle.filter(style => style.includes(rule))[0];
+        if(flexStyle) {
+          flexStyles.push(flexStyle);
+        }
+      }
+      );
+      if(flexStyles.length == 3) {
+        inlineStyle.push(`flex:${flexStyles.map((style => {
+          inlineStyle.splice(inlineStyle.indexOf(style), 1);
+          const match = style.replace(/\s*(:)\s*/, "$1").match(/:(.*)/);
+          return match ? match[1] : "";
+        })).join(" ")}`);
+      }
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1").replace(/url\(([^"].*[^"])\)/, "url(\"$1\")"))).join("; ") + ";");
     }
   });
   return div.innerHTML;

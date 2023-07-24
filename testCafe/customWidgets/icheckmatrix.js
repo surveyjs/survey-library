@@ -32,7 +32,7 @@ const json = {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`
-    .page`${url_test}customWidget/${framework}.html`.beforeEach(async ctx => {
+    .page`${url_test}customWidget/${framework}`.beforeEach(async ctx => {
     await initSurvey(framework, json);
   });
 

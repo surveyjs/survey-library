@@ -23,7 +23,7 @@
         v-if="item.iconName && !item.component"
         v-bind:class="model.cssClasses.itemIcon"
         :iconName="item.iconName"
-        :size="24"
+        :size="item.iconSize"
       ></sv-svg-icon>
       <survey-string v-if="!item.component" :locString="item.locTitle" />
       <component v-if="item.component" :is="item.component" :item="item">

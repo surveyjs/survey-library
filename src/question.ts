@@ -1740,16 +1740,21 @@ export class Question extends SurveyElement<Question>
       question: this,
     });
   }
-  public getNestedQuestions(isVisibleOnly: boolean = false): Array<Question> {
+  /**
+   * Returns an array of questions nested within the current question. Use this method to obtain questions within [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model)-like questions.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
+   * @returns An array of nested questions or an array with the current question if it cannot nest questions.
+   */
+  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
     const res: Array<Question> = [];
-    this.collectNestedQuestions(res, isVisibleOnly);
+    this.collectNestedQuestions(res, visibleOnly);
     return res;
   }
-  public collectNestedQuestions(questions: Array<Question>, isVisibleOnly: boolean = false): void {
-    if(isVisibleOnly && !this.isVisible) return;
-    this.collectNestedQuestionsCore(questions, isVisibleOnly);
+  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false): void {
+    if(visibleOnly && !this.isVisible) return;
+    this.collectNestedQuestionsCore(questions, visibleOnly);
   }
-  protected collectNestedQuestionsCore(questions: Array<Question>, isVisibleOnly: boolean): void {
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean): void {
     questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {

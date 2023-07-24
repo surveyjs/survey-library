@@ -5199,8 +5199,9 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   /**
-   * Returns a list of nested questions in a survey.
-   * @param visibleOnly set it `true`, if you want to get only visible questions
+   * Returns an array of questions nested within other survey questions, such as [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and different [Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model) type. Use the [`parentQuestion`](https://surveyjs.io/form-library/documentation/api-reference/surveyelement#parentQuestion) property if you need to access the parent question.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
+   * @returns An array of nested questions.
    */
   public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
     const res: Array<Question> = [];

@@ -74,7 +74,7 @@ export class QuestionExpressionModel extends Question {
       this.expressionRunner = new ExpressionRunner(this.expression);
     }
     this.expressionRunner.onRunComplete = (newValue) => {
-      this.value = newValue;
+      this.value = this.roundValue(newValue);
       this.unlocCalculation();
     };
     this.expressionRunner.run(values, properties);
@@ -194,6 +194,17 @@ export class QuestionExpressionModel extends Question {
   }
   public set useGrouping(val: boolean) {
     this.setPropertyValue("useGrouping", val);
+  }
+  public get presicion(): number {
+    return this.getPropertyValue("presicion");
+  }
+  public set presicion(val: number) {
+    this.setPropertyValue("presicion", val);
+  }
+  private roundValue(val: any): any {
+    if(this.presicion < 0) return val;
+    if(!Helpers.isNumber(val)) return val;
+    return parseFloat(val.toFixed(this.presicion));
   }
   protected getValueAsStr(val: any): string {
     if (this.displayStyle == "date") {
@@ -423,6 +434,7 @@ Serializer.addClass(
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
+    { name: "presicion:number", default: -1, category: "data" },
     { name: "enableIf", visible: false },
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },

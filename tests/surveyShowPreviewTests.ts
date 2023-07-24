@@ -407,6 +407,48 @@ QUnit.test(
     );
   }
 );
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions', onCurrentPageChanging/onCurrentPageChanged, bug#6564", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      { name: "p3", elements: [{ type: "text", name: "q3" }] },
+    ],
+  });
+  survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+  survey.data = { q2: "2", q3: "3" };
+  survey.currentPageNo = 2;
+  survey.showPreview();
+  let changingCounter = 0;
+  let changedCounter = 0;
+  let changingIsAfterPreview = 0;
+  let changedIsAfterPreview = 0;
+  survey.onCurrentPageChanging.add((sender, options) => {
+    changingCounter ++;
+    if(options.isAfterPreview) changingIsAfterPreview ++;
+  });
+  survey.onCurrentPageChanged.add((sender, options) => {
+    changedCounter ++;
+    if(options.isAfterPreview) changedIsAfterPreview ++;
+  });
+  survey.cancelPreview(survey.pages[1]);
+  assert.equal(changingCounter, 1, "onChanging is called one time");
+  assert.equal(changedCounter, 1, "onChanging is called one time");
+  assert.equal(changingIsAfterPreview, 1, "changingIsAfterPreview is called one time");
+  assert.equal(changedIsAfterPreview, 1, "changedIsAfterPreview is called one time");
+  survey.showPreview();
+  survey.cancelPreview(survey.pages[2]);
+  assert.equal(changingCounter, 2, "onChanging is called two times");
+  assert.equal(changedCounter, 2, "onChanging is called two times");
+  assert.equal(changingIsAfterPreview, 2, "changingIsAfterPreview is called two times");
+  assert.equal(changedIsAfterPreview, 2, "changedIsAfterPreview is called two times");
+  survey.showPreview();
+  survey.cancelPreview(survey.pages[2]);
+  assert.equal(changingCounter, 3, "onChanging is called three times");
+  assert.equal(changedCounter, 3, "onChanging is called three times");
+  assert.equal(changingIsAfterPreview, 3, "changingIsAfterPreview is called three times");
+  assert.equal(changedIsAfterPreview, 3, "changedIsAfterPreview is called three times");
+});
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', do not hide questions on running state",
   function(assert) {

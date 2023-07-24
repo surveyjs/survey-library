@@ -37,12 +37,12 @@
 
 .sv_progress-toc--mobile {
   position: fixed;
-  top: calcSize(4);
+  top: calcSize(3);
   right: calcSize(4);
   width: auto;
   min-width: auto;
   height: auto;
-  background-color: transparent;
+  background-color: $background-dim;
   z-index: 15;
   border-radius: calcSize(3);
 

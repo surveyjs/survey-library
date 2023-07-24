@@ -4,10 +4,10 @@
       <img
         :class="survey.css.logoImage"
         :src="survey.locLogo.renderedHtml"
-        :width="survey.logoWidth ? survey.logoWidth : undefined"
-        :height="survey.logoHeight ? survey.logoHeight : undefined"
+        :width="survey.renderedLogoWidth"
+        :height="survey.renderedLogoHeight"
         :alt="survey.locTitle.renderedHtml"
-        v-bind:style="{ objectFit: survey.logoFit }"
+        v-bind:style="{ objectFit: survey.logoFit, width: survey.renderedStyleLogoWidth, height: survey.renderedStyleLogoHeight }"
       />
     </div>
 
@@ -26,10 +26,10 @@
       <img
         :class="survey.css.logoImage"
         :src="survey.locLogo.renderedHtml"
-        :width="survey.logoWidth ? survey.logoWidth : undefined"
-        :height="survey.logoHeight ? survey.logoHeight : undefined"
+        :width="survey.renderedLogoWidth"
+        :height="survey.renderedLogoHeight"
         :alt="survey.locTitle.renderedHtml"
-        v-bind:style="{ objectFit: survey.logoFit }"
+        v-bind:style="{ objectFit: survey.logoFit, width: survey.renderedStyleLogoWidth, height: survey.renderedStyleLogoHeight }"
       />
     </div>
 

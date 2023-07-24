@@ -9,6 +9,7 @@ import { BaseAngular } from "./base-angular";
 export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implements OnChanges {
   @Input() model!: SurveyModel;
   @Input() isExpanded?: boolean;
+  @Input() allowClose?: boolean;
   @Input() closeOnCompleteTimeout?: number;
   public popup!: PopupSurveyModel;
 
@@ -28,6 +29,9 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
     }
     if (this.isExpanded !== undefined) {
       this.popup.isExpanded = this.isExpanded;
+    }
+    if (this.allowClose !== undefined) {
+      this.popup.allowClose = this.allowClose;
     }
     if (this.closeOnCompleteTimeout !== undefined) {
       this.popup.closeOnCompleteTimeout = this.closeOnCompleteTimeout;

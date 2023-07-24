@@ -31,7 +31,7 @@ const createComponent = ClientFunction(() => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Component as a single question", async (t) => {
     await createComponent();

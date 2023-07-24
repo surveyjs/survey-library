@@ -56,7 +56,6 @@ body {
 .sd-root-modern {
   -webkit-font-smoothing: antialiased;
   --sd-mobile-width: 600px;
-  --sd-imagepicker-gap: 16px;
   --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
   font-family: var(--font-family, $font-family);

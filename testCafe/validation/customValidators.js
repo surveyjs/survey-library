@@ -44,7 +44,7 @@ const setupSurvey = ClientFunction(() => {
     };
     return MyTextValidator;
   })(window["Survey"].SurveyValidator);
-  window["Survey"].MyTextValidator = MyTextValidator;
+  // window["Survey"].MyTextValidator = MyTextValidator;
   //add into survey Json metaData
   window["Survey"].Serializer.addClass(
     "mytextvalidator",

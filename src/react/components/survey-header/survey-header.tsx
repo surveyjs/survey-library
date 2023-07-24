@@ -12,6 +12,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   constructor(props: ISurveyHeaderProps) {
     super(props);
     this.state = { changed: 0 };
+    this.rootRef = React.createRef();
   }
 
   private get survey(): SurveyModel {
@@ -20,9 +21,11 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   private get css(): any {
     return this.survey.css;
   }
+  private rootRef: React.RefObject<HTMLDivElement>;
 
   componentDidMount() {
     const self: SurveyHeader = this;
+    this.survey.afterRenderHeader(this.rootRef.current as HTMLDivElement);
     this.survey.locLogo.onChanged = function () {
       self.setState({ changed: self.state.changed + 1 });
     };
@@ -64,7 +67,7 @@ export class SurveyHeader extends React.Component<ISurveyHeaderProps, any> {
   public render(): JSX.Element | null {
     if (!this.survey.renderedHasHeader) return null;
     return (
-      <div className={this.css.header}>
+      <div className={this.css.header} ref={this.rootRef}>
         {this.renderLogoImage(this.survey.isLogoBefore)}
         {this.renderTitle()}
         {this.renderLogoImage(this.survey.isLogoAfter)}

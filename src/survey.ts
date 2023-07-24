@@ -41,7 +41,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { getSize, isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
@@ -790,8 +790,8 @@ export class SurveyModel extends SurveyElementCore
     }
     const htmlCallBack = (str: string): string => { return "<h3>" + str + "</h3>"; };
     this.createHtmlLocString("completedHtml", "completingSurvey", htmlCallBack);
-    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack);
-    this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack);
+    this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack, "completed-before");
+    this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack, "loading");
     this.createLocalizableString("logo", this, false);
     this.createLocalizableString("backgroundImage", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
@@ -967,8 +967,12 @@ export class SurveyModel extends SurveyElementCore
       }
     };
   }
-  private createHtmlLocString(name: string, locName: string, func: (str: string) => string): void {
-    this.createLocalizableString(name, this, false, locName).onGetLocalizationTextCallback = func;
+  private createHtmlLocString(name: string, locName: string, func: (str: string) => string, reason?: string): void {
+    const res = this.createLocalizableString(name, this, false, locName);
+    res.onGetLocalizationTextCallback = func;
+    if(reason) {
+      res.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
+    }
   }
   /**
    * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
@@ -1709,32 +1713,35 @@ export class SurveyModel extends SurveyElementCore
     }
     return locs;
   }
-  public localeChanged() {
+  public localeChanged(): void {
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].localeChanged();
     }
   }
   //ILocalizableOwner
-  getLocale() {
+  getLocale(): string {
     return this.locale;
   }
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!this.currentPage) return;
+    if(this.isDesignMode) {
+      this.pages.forEach(page => page.locStrsChanged());
+    } else {
+      var page = this.activePage;
+      if (!!page) {
+        page.locStrsChanged();
+      }
+      const visPages = this.visiblePages;
+      for (var i = 0; i < visPages.length; i++) {
+        visPages[i].navigationLocStrChanged();
+      }
+    }
     if (!this.isShowStartingPage) {
       this.updateProgressText();
     }
-    var page = this.activePage;
-    if (!!page) {
-      page.locStrsChanged();
-    }
-    const visPages = this.visiblePages;
-    for (var i = 0; i < visPages.length; i++) {
-      visPages[i].navigationLocStrChanged();
-    }
     this.navigationBar.locStrsChanged();
   }
-
   public getMarkdownHtml(text: string, name: string): string {
     return this.getSurveyMarkdownHtml(this, text, name);
   }
@@ -1831,12 +1838,19 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   public get logoWidth(): any {
-    var width = this.getPropertyValue("logoWidth");
-    return getSize(width);
+    return this.getPropertyValue("logoWidth");
   }
   public set logoWidth(value: any) {
     this.setPropertyValue("logoWidth", value);
   }
+
+  public get renderedLogoWidth(): number {
+    return this.logoWidth ? getRenderedSize(this.logoWidth) : undefined;
+  }
+  public get renderedStyleLogoWidth(): string {
+    return this.logoWidth ? getRenderedStyleSize(this.logoWidth) : undefined;
+  }
+
   /**
    * A logo height in CSS-accepted values.
    *
@@ -1849,11 +1863,16 @@ export class SurveyModel extends SurveyElementCore
    * @see logoFit
    */
   public get logoHeight(): any {
-    var height = this.getPropertyValue("logoHeight");
-    return getSize(height);
+    return this.getPropertyValue("logoHeight");
   }
   public set logoHeight(value: any) {
     this.setPropertyValue("logoHeight", value);
+  }
+  public get renderedLogoHeight(): number {
+    return this.logoHeight ? getRenderedSize(this.logoHeight) : undefined;
+  }
+  public get renderedStyleLogoHeight(): string {
+    return this.logoHeight ? getRenderedStyleSize(this.logoHeight) : undefined;
   }
   /**
    * A logo position relative to the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
@@ -2943,7 +2962,7 @@ export class SurveyModel extends SurveyElementCore
     if (newPage != null && vPages.indexOf(newPage) < 0) return;
     if (newPage == this.currentPage) return;
     var oldValue = this.currentPage;
-    if (!this.currentPageChanging(newPage, oldValue)) return;
+    if (!this.isShowingPreview && !this.currentPageChanging(newPage, oldValue)) return;
     this.setPropertyValue("currentPage", newPage);
     if (!!newPage) {
       newPage.onFirstRendering();
@@ -2951,7 +2970,9 @@ export class SurveyModel extends SurveyElementCore
       newPage.setWasShown(true);
     }
     this.locStrsChanged();
-    this.currentPageChanged(newPage, oldValue);
+    if(!this.isShowingPreview) {
+      this.currentPageChanged(newPage, oldValue);
+    }
   }
   private updateCurrentPage(): void {
     if (this.isCurrentPageAvailable) return;
@@ -3234,7 +3255,8 @@ export class SurveyModel extends SurveyElementCore
       isNextPage: diff === 1,
       isPrevPage: diff === -1,
       isGoingForward: diff > 0,
-      isGoingBackward: diff < 0
+      isGoingBackward: diff < 0,
+      isAfterPreview: this.changeCurrentPageFromPreview === true
     };
   }
   /**
@@ -3260,7 +3282,7 @@ export class SurveyModel extends SurveyElementCore
         : 100;
     }
     const visPages = this.visiblePages;
-    var index = visPages.indexOf(this.currentPage) + 1;
+    var index = visPages.indexOf(this.currentPage);
     return Math.ceil((index * 100) / visPages.length);
   }
   /**
@@ -3810,14 +3832,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public cancelPreview(curPage: any = null) {
     if (!this.isShowingPreview) return;
+    this.gotoPageFromPreview = curPage;
     this.isShowingPreview = false;
-    if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
-      curPage = this.visiblePageCount - 1;
-    }
-    if (curPage !== null) {
-      this.currentPage = curPage;
-    }
   }
+  private gotoPageFromPreview: PageModel;
   public cancelPreviewByPage(panel: IPanel): any {
     this.cancelPreview((<any>panel)["originalPage"]);
   }
@@ -3917,8 +3935,22 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllElementsVisibility(this.pages);
     this.updateVisibleIndexes();
-    this.currentPageNo = 0;
+    if(this.isShowingPreview) {
+      this.currentPageNo = 0;
+    } else {
+      let curPage = this.gotoPageFromPreview;
+      this.gotoPageFromPreview = null;
+      if (Helpers.isValueEmpty(curPage) && this.visiblePageCount > 0) {
+        curPage = this.visiblePages[this.visiblePageCount - 1];
+      }
+      if (!!curPage) {
+        this.changeCurrentPageFromPreview = true;
+        this.currentPage = curPage;
+        this.changeCurrentPageFromPreview = false;
+      }
+    }
   }
+  private changeCurrentPageFromPreview: boolean;
   private origionalPages: any;
   protected onQuestionsOnPageModeChanged(oldValue: string) {
     if (this.isShowingPreview) return;
@@ -4349,13 +4381,13 @@ export class SurveyModel extends SurveyElementCore
    * @see cookieName
    */
   public get processedCompletedBeforeHtml(): string {
-    return this.processHtml(this.completedBeforeHtml, "completed-before");
+    return this.locCompletedBeforeHtml.textOrHtml;
   }
   /**
    * Returns the HTML content, that is shows when a survey loads the survey JSON.
    */
   public get processedLoadingHtml(): string {
-    return this.processHtml(this.loadingHtml, "loading");
+    return this.locLoadingHtml.textOrHtml;
   }
   public getProgressInfo(): IProgressInfo {
     var pages = this.isDesignMode ? this.pages : this.visiblePages;
@@ -4484,6 +4516,13 @@ export class SurveyModel extends SurveyElementCore
       return true;
     }
   }
+
+  public triggerResponsiveness(hard: boolean) {
+    this.getAllQuestions().forEach(question => {
+      question.triggerResponsiveness(hard);
+    });
+  }
+
   public destroyResizeObserver(): void {
     if (!!this.resizeObserver) {
       this.resizeObserver.disconnect();
@@ -6030,6 +6069,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
     this.updateVisibleIndexes();
+    if(!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
       this.updateProgressText();
       this.updateCurrentPage();
@@ -6039,6 +6079,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel) {
     page.setSurveyImpl(null);
+    if(!!this.runningPages) return;
     if (page === this.currentPage) {
       this.updateCurrentPage();
     }

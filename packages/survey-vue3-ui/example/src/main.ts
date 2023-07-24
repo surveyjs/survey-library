@@ -1,4 +1,4 @@
-import { surveyPlugin }  from "survey-vue-ui";
+import { surveyPlugin }  from "survey-vue3-ui";
 
 import { createApp } from 'vue'
 import Action from "./components/test/test-custom-components/Action.vue"

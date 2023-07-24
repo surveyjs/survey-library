@@ -51,7 +51,7 @@
 }
 
 .sd-boolean__thumb {
-  background-color: $background;
+  background-color: $question-background;
   box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   transition-duration: 0.2s;

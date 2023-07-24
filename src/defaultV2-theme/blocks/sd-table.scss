@@ -33,7 +33,7 @@
         background-color: $primary-foreground;
       }
 
-      .sd-item__decorator {
+      .sd-item:not(.sd-item--error) .sd-item__decorator {
         background-color: var(--sjs-general-backcolor, var(--background, #fff));
       }
 

@@ -1269,9 +1269,9 @@ export class SurveyModel extends SurveyElementCore
    *
    * Possible values:
    *
-   * - `"bottom"` (default) - Displays the navigation buttons below the survey content.
-   * - `"top"` - Displays the navigation buttons above the survey content.
-   * - `"both"` - Displays the navigation buttons above and below the survey content.
+   * - `"bottom"` (default) - Displays the navigation buttons below survey content.
+   * - `"top"` - Displays the navigation buttons above survey content.
+   * - `"both"` - Displays the navigation buttons above and below survey content.
    * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
    * @see goNextPageAutomatic
    * @see showPrevButton
@@ -2243,7 +2243,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies a pattern for question titles.
    *
-   * Refer to the following help topic for more infromation: [Title Pattern](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#title-pattern).
+   * Refer to the following help topic for more information: [Title Pattern](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#title-pattern).
    */
   public get questionTitlePattern(): string {
     return this.getPropertyValue("questionTitlePattern", "numTitleRequire");
@@ -3383,7 +3383,7 @@ export class SurveyModel extends SurveyElementCore
     return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
   }
   /**
-   * Sets a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) in the browser. If the `cookieName` property value is defined, this method is called automatically on survey completion.
+   * Sets a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) in the browser. If the `cookieName` property value is defined, this method is automatically called on survey completion.
    * @see hasCookie
    * @see deleteCookie
    */

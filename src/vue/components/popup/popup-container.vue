@@ -102,12 +102,12 @@ export function showModal(
   );
   return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
   dialogOptions.onHide = () => {
     popup.$destroy();
     popupViewModel.dispose();
   };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
   const popup = new PopupContainer({
     el: popupViewModel.container.appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },
@@ -116,6 +116,7 @@ export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElemen
   return popupViewModel;
 }
 settings.showModal = showModal;
+settings.showDialog = showDialog;
 Vue.component("sv-popup-container", PopupContainer);
 export default PopupContainer;
 </script>

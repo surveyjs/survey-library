@@ -14,7 +14,7 @@
     "bootstrap": "^3.3.7",
     "showdown": "^1.6.4",
     "survey-core": "../../../build/survey-core",
-    "survey-vue-ui": "../../../build/survey-vue3-ui",
+    "survey-vue3-ui": "../../../build/survey-vue3-ui",
     "surveyjs-widgets": "^1.9.40",
     "vue": "^3.3.4",
     "vue-router": "^4.2.2"

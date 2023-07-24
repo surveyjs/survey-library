@@ -8,7 +8,7 @@ const packageJson = require("./package.json");
 json.version = packageJson.version;
 // json.dependencies["survey-core"] = json.version;
 
-const libraryName = "survey-vue-ui";
+const libraryName = "survey-vue3-ui";
 
 // https://vitejs.dev/config/
 export default defineConfig({

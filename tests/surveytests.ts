@@ -17346,3 +17346,16 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   q.value = "abc";
   assert.equal(q.value, "ABC", "Convert to upper case");
 });
+QUnit.test("survey.getNestedQuestions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "multipletext", name: "q2", items: [{ name: "q2_item1" }, { name: "q2_item2" }] }
+    ]
+  });
+  const questions = survey.getNestedQuestions();
+  assert.equal(questions.length, 3, "3 questions");
+  assert.equal(questions[0].name, "q1", "#1");
+  assert.equal(questions[1].name, "q2_item1", "#2");
+  assert.equal(questions[2].name, "q2_item2", "#3");
+});

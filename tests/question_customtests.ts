@@ -1427,6 +1427,28 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: getNestedQuestions", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2"
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "cp_question" }],
+  });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const questions = q.getNestedQuestions();
+  assert.equal(questions.length, 2, "#1");
+  assert.equal(questions[0].name, "q1", "#2");
+  assert.equal(questions[1].name, "q2", "#3");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
   ComponentCollection.Instance.add(<any>{
     name: "fullname",

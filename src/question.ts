@@ -1733,16 +1733,24 @@ export class Question extends SurveyElement<Question>
     }
     return res;
   }
-  private addSupportedValidators(
-    supportedValidators: Array<string>,
-    classValidators: Array<string>
-  ) { }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
       name: this.getValueName(),
       text: this.processedTitle,
       question: this,
     });
+  }
+  public getNestedQuestions(isVisibleOnly: boolean = false): Array<Question> {
+    const res: Array<Question> = [];
+    this.collectNestedQuestions(res, isVisibleOnly);
+    return res;
+  }
+  public collectNestedQuestions(questions: Array<Question>, isVisibleOnly: boolean = false): void {
+    if(isVisibleOnly && !this.isVisible) return;
+    this.collectNestedQuestionsCore(questions, isVisibleOnly);
+  }
+  protected collectNestedQuestionsCore(questions: Array<Question>, isVisibleOnly: boolean): void {
+    questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = new JsonObject().toJsonObject(this);

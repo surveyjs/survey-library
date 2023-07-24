@@ -1411,6 +1411,13 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
+  protected collectNestedQuestionsCore(questions: Question[], isVisibleOnly: boolean): void {
+    const panels = isVisibleOnly ? this.visiblePanels : this.panels;
+    if(!Array.isArray(panels)) return;
+    panels.forEach(panel => {
+      panel.questions.forEach(q => q.collectNestedQuestions(questions, isVisibleOnly));
+    });
+  }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator, path);
     var questionName = path;

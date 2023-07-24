@@ -5188,15 +5188,26 @@ export class SurveyModel extends SurveyElementCore
     visibleOnly: boolean = false,
     includingDesignTime: boolean = false
   ): Array<Question> {
-    var result = new Array<Question>();
+    var res: Array<Question> = [];
     for (var i: number = 0; i < this.pages.length; i++) {
       this.pages[i].addQuestionsToList(
-        result,
+        res,
         visibleOnly,
         includingDesignTime
       );
     }
-    return result;
+    return res;
+  }
+  /**
+   * Returns a list of nested questions in a survey.
+   * @param visibleOnly set it `true`, if you want to get only visible questions
+   */
+  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
+    const res: Array<Question> = [];
+    this.getAllQuestions(visibleOnly).forEach(
+      q => q.collectNestedQuestions(res)
+    );
+    return res;
   }
   /**
    * Returns quiz questions. All visible questions that has input(s) widgets.

@@ -1743,6 +1743,7 @@ export class Question extends SurveyElement<Question>
   public getNestedQuestions(isVisibleOnly: boolean = false): Array<Question> {
     const res: Array<Question> = [];
     this.collectNestedQuestions(res, isVisibleOnly);
+    if(res.length === 1 && res[0] === this) return [];
     return res;
   }
   public collectNestedQuestions(questions: Array<Question>, isVisibleOnly: boolean = false): void {

@@ -5183,10 +5183,13 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a list of all questions in a survey.
    * @param visibleOnly set it `true`, if you want to get only visible questions
+   * @param includingDesignTime reserved parameter. It is used in Creator
+   * @param includeNested include into array nested questions like cell questions in matrices
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
-    includingDesignTime: boolean = false
+    includingDesignTime: boolean = false,
+    includeNested: boolean = false
   ): Array<Question> {
     var res: Array<Question> = [];
     for (var i: number = 0; i < this.pages.length; i++) {
@@ -5196,18 +5199,13 @@ export class SurveyModel extends SurveyElementCore
         includingDesignTime
       );
     }
-    return res;
-  }
-  /**
-   * Returns a list of nested questions in a survey.
-   * @param visibleOnly set it `true`, if you want to get only visible questions
-   */
-  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
-    const res: Array<Question> = [];
-    this.getAllQuestions(visibleOnly).forEach(
-      q => q.collectNestedQuestions(res)
-    );
-    return res;
+    if(!includeNested) return res;
+    const res2: Array<Question> = [];
+    res.forEach(q => {
+      res2.push(q);
+      q.getNestedQuestions(visibleOnly).forEach(nQ => res2.push(nQ));
+    });
+    return res2;
   }
   /**
    * Returns quiz questions. All visible questions that has input(s) widgets.

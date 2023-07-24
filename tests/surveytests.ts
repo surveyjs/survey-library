@@ -17353,9 +17353,10 @@ QUnit.test("survey.getNestedQuestions", function (assert) {
       { type: "multipletext", name: "q2", items: [{ name: "q2_item1" }, { name: "q2_item2" }] }
     ]
   });
-  const questions = survey.getNestedQuestions();
-  assert.equal(questions.length, 3, "3 questions");
+  const questions = survey.getAllQuestions(false, false, true);
+  assert.equal(questions.length, 4, "3 questions");
   assert.equal(questions[0].name, "q1", "#1");
-  assert.equal(questions[1].name, "q2_item1", "#2");
-  assert.equal(questions[2].name, "q2_item2", "#3");
+  assert.equal(questions[1].name, "q2", "#2");
+  assert.equal(questions[2].name, "q2_item1", "#3");
+  assert.equal(questions[3].name, "q2_item2", "#4");
 });

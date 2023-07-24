@@ -157,7 +157,7 @@
   text-align: center;
   gap: calcSize(0.5);
   justify-content: center;
-  min-height: calcLineHeight(1.5);
+  min-height: calcSize(24);
   line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
   color: $foreground-light;

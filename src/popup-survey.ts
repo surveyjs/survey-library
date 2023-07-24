@@ -136,6 +136,16 @@ export class PopupSurveyModel extends Base {
   public changeExpandCollapse(): void {
     this.isExpanded = !this.isExpanded;
   }
+  /**
+   * Specifies whether to display a button that closes the pop-up window.
+   *
+   * Default value: `false`
+   *
+   * If you allow users to close the pop-up window, make sure to implement a UI element that opens it. This element should call the [`show()`](https://surveyjs.io/form-library/documentation/api-reference/pop-up-survey-model#show) method.
+   * @see expand
+   * @see collapse
+   * @see hide
+   */
   public get allowClose(): boolean {
     return this.getPropertyValue("allowClose", false);
   }

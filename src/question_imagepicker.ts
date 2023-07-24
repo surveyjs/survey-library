@@ -399,12 +399,23 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
     return false;
   }
+
+  public triggerResponsiveness(hard: boolean = true): void {
+    if(hard && this.reCalcGapBetweenItemsCallback) {
+      this.reCalcGapBetweenItemsCallback();
+    }
+    super.triggerResponsiveness(hard);
+  }
+
   private gapBetweenItems: number;
+  private reCalcGapBetweenItemsCallback: () => void;
   public afterRender(el: HTMLElement): void {
     super.afterRender(el);
-    const variables = this.survey.getCss().variables;
-    if (!!variables) {
-      this.gapBetweenItems = Number.parseInt(window.getComputedStyle(el).getPropertyValue(variables.imagepickerGapBetweenItems)) || 0;
+    if(el && el.querySelector(this.getObservedElementSelector())) {
+      this.reCalcGapBetweenItemsCallback = () => {
+        this.gapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(el.querySelector(this.getObservedElementSelector())).gap)) || 16;
+      };
+      this.reCalcGapBetweenItemsCallback();
     }
   }
 }

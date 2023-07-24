@@ -941,6 +941,34 @@ QUnit.test(
     );
   }
 );
+QUnit.test("survey.progressBarType = 'pages', Bug #6563",
+  function (assert) {
+    var survey = new SurveyModel({
+      progressBarType: "pages",
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+        { elements: [{ type: "text", name: "q3" }] },
+        { elements: [{ type: "text", name: "q1" }] },
+      ]
+    });
+    assert.equal(survey.getProgress(), 0, "page1 #1");
+    assert.equal(survey.progressValue, 0, "page1 #2");
+    assert.equal(survey.progressText, "Page 1 of 4", "page1, #3");
+    survey.nextPage();
+    assert.equal(survey.getProgress(), 25, "page2 #1");
+    assert.equal(survey.progressValue, 25, "page2 #2");
+    assert.equal(survey.progressText, "Page 2 of 4", "page2, #3");
+    survey.nextPage();
+    assert.equal(survey.getProgress(), 50, "page3 #1");
+    assert.equal(survey.progressValue, 50, "page3 #2");
+    assert.equal(survey.progressText, "Page 3 of 4", "page3, #3");
+    survey.nextPage();
+    assert.equal(survey.getProgress(), 75, "page4 #1");
+    assert.equal(survey.progressValue, 75, "page4 #2");
+    assert.equal(survey.progressText, "Page 4 of 4", "page4, #3");
+  }
+);
 QUnit.test("Next, Prev, Next", function (assert) {
   var survey = new SurveyModel();
   survey.addPage(createPageWithQuestion("Page 1"));
@@ -5516,6 +5544,22 @@ QUnit.test("Survey Markdown + processed text", function (assert) {
   assert.equal(q1.locTitle.renderedHtml, "Q1 test1!", "Initial value");
   survey.setValue("val", "test2");
   assert.equal(q1.locTitle.renderedHtml, "Q1 test2!", "Change the value");
+});
+QUnit.test("Survey Markdown + design model", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1", title: "Q1" }] },
+      { elements: [{ type: "text", name: "q2", title: "Q2" }] }
+    ]
+  });
+  survey.setDesignMode(true);
+  survey.onTextMarkdown.add((survey, options) => {
+    options.html = options.text + "!";
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.locTitle.renderedHtml, "Q1!", "page1");
+  assert.equal(q2.locTitle.renderedHtml, "Q2!", "page2");
 });
 
 QUnit.test("required question title test", function (assert) {

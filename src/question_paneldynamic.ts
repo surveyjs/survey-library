@@ -1411,11 +1411,11 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
-  protected collectNestedQuestionsCore(questions: Question[], isVisibleOnly: boolean): void {
-    const panels = isVisibleOnly ? this.visiblePanels : this.panels;
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+    const panels = visibleOnly ? this.visiblePanels : this.panels;
     if(!Array.isArray(panels)) return;
     panels.forEach(panel => {
-      panel.questions.forEach(q => q.collectNestedQuestions(questions, isVisibleOnly));
+      panel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
     });
   }
   public getConditionJson(operator: string = null, path: string = null): any {

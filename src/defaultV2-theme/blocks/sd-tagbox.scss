@@ -130,11 +130,15 @@
 }
 
 .sd-dropdown__hint-suffix.sd-tagbox__hint-suffix {
-  height: calcSize(5);
-  line-height: calcLineHeight(2.5);
+  line-height: multiply(1.5, $font-editorfont-size);
+  height: 100%;
+  display: flex;
+  align-items: center;
 }
 
 .sd-dropdown__hint-prefix.sd-tagbox__hint-prefix {
-  height: calcSize(5);
-  line-height: calcLineHeight(2.5);
+  line-height: multiply(1.5, $font-editorfont-size);
+  height: 100%;
+  display: flex;
+  align-items: center;
 }

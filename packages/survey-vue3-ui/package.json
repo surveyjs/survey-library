@@ -1,5 +1,5 @@
 {
-  "name": "survey-vue-ui",
+  "name": "survey-vue3-ui",
   "version": "1.9.58",
   "scripts": {
     "dev": "vite",
@@ -10,6 +10,7 @@
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
     "test": "vitest --no-threads tests/test.spec.ts",
     "test:single": "vitest --no-watch --no-threads tests/test.spec.ts",
+    "release": "commit-and-tag-version --message \"Release: %s [azurepipelines skip]\" ",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "prettier": "^2.7.1",
     "rollup-plugin-generate-package-json": "^3.2.0",
     "survey-core": "../../build/survey-core",
+    "commit-and-tag-version": "^11.0.0",
     "typescript": "~4.7.4",
     "vite": "^3.1.8",
     "vitest": "~0.32.4",

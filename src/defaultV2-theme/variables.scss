@@ -95,9 +95,14 @@ $font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 
 
 $font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
 $font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
-$font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
+$font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-forecolor, rgba(0, 0, 0, 0.91)));
 $font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
 $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
+
+@function multiply($a, $b) {
+  $result: calc(#{$a} * #{$b});
+  @return $result;
+}
 
 @function calcSize($multiplier) {
   $result: calc(#{$multiplier} * #{$base-unit});

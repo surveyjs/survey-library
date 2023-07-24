@@ -33,6 +33,7 @@
     font-family: $font-surveytitle-family;
     font-size: $font-surveytitle-size;
     font-weight: $font-surveytitle-weight;
+    line-height: multiply(1.25, $font-surveytitle-size);
   }
 
   h3 {

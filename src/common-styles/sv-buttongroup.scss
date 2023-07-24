@@ -83,8 +83,12 @@
 
 .sv-button-group__item--disabled {
   color: $foreground;
-  opacity: 0.25;
   cursor: default;
+
+  .sv-button-group__item-decorator {
+    opacity: 0.25;
+    font-weight: normal;
+  }
 
   .sv-button-group__item-icon use {
     fill: $foreground;

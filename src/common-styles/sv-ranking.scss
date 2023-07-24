@@ -136,7 +136,7 @@
 }
 
 .sv-ranking-item--drag .sv-ranking-item__content {
-  box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
+  box-shadow: $shadow-large;
   border-radius: calcSize(12.5);
 }
 

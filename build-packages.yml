@@ -627,33 +627,33 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm install
-      displayName: "NPM install packages/survey-vue-ui"
+      displayName: "NPM install packages/survey-vue3-ui"
     
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm run release -- --release-as $(SurveyJSVersion)
         git status
       displayName: "npm run release"
     
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm run build
       displayName: "Build Vue3"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui/example
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
         npm install
-      displayName: "NPM install survey-vue-ui/example"
+      displayName: "NPM install survey-vue3-ui/example"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui/example
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
         npm run build
       displayName: "Build Vue3 Example"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm run test:single
       displayName: "run unit and markup tests"
 

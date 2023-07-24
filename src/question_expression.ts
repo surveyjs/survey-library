@@ -91,6 +91,7 @@ export class QuestionExpressionModel extends Question {
    * Default value: -1
    * @see displayStyle
    * @see minimumFractionDigits
+   * @see precision
    */
   public get maximumFractionDigits(): number {
     return this.getPropertyValue("maximumFractionDigits");
@@ -195,16 +196,22 @@ export class QuestionExpressionModel extends Question {
   public set useGrouping(val: boolean) {
     this.setPropertyValue("useGrouping", val);
   }
-  public get presicion(): number {
-    return this.getPropertyValue("presicion");
+  /**
+   * Specifies how many decimal digits to keep in the expression value.
+   *
+   * Default value: -1 (unlimited)
+   * @see maximumFractionDigits
+   */
+  public get precision(): number {
+    return this.getPropertyValue("precision");
   }
-  public set presicion(val: number) {
-    this.setPropertyValue("presicion", val);
+  public set precision(val: number) {
+    this.setPropertyValue("precision", val);
   }
   private roundValue(val: any): any {
-    if(this.presicion < 0) return val;
+    if(this.precision < 0) return val;
     if(!Helpers.isNumber(val)) return val;
-    return parseFloat(val.toFixed(this.presicion));
+    return parseFloat(val.toFixed(this.precision));
   }
   protected getValueAsStr(val: any): string {
     if (this.displayStyle == "date") {
@@ -434,7 +441,7 @@ Serializer.addClass(
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
-    { name: "presicion:number", default: -1, category: "data" },
+    { name: "precision:number", default: -1, category: "data" },
     { name: "enableIf", visible: false },
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },

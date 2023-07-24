@@ -176,21 +176,21 @@ QUnit.test("round to digits", function (assert) {
   const survey = new SurveyModel({
     questions: [
       { "name": "q1", "type": "expression", "expression": "1111/125" },
-      { "name": "q2", "type": "expression", "expression": "1111/125", "presicion": 2 },
-      { "name": "q3", "type": "expression", "expression": "1111/125", "presicion": 1 },
-      { "name": "q4", "type": "expression", "expression": "1111/125", "presicion": 0 }
+      { "name": "q2", "type": "expression", "expression": "1111/125", "precision": 2 },
+      { "name": "q3", "type": "expression", "expression": "1111/125", "precision": 1 },
+      { "name": "q4", "type": "expression", "expression": "1111/125", "precision": 0 }
     ]
   });
   const q1 = <QuestionExpressionModel>survey.getQuestionByName("q1");
   const q2 = <QuestionExpressionModel>survey.getQuestionByName("q2");
   const q3 = <QuestionExpressionModel>survey.getQuestionByName("q3");
   const q4 = <QuestionExpressionModel>survey.getQuestionByName("q4");
-  assert.equal(q1.presicion, -1, "presicion:-1");
-  assert.equal(q2.presicion, 2, "presicion:2");
-  assert.equal(q3.presicion, 1, "presicion:1");
-  assert.equal(q4.presicion, 0, "presicion:0");
-  assert.equal(q1.value, 8.888, "presicion - default (-1)");
-  assert.equal(q2.value, 8.89, "presicion - 2");
-  assert.equal(q3.value, 8.9, "presicion - 1");
-  assert.equal(q4.value, 9, "presicion - 0");
+  assert.equal(q1.precision, -1, "precision:-1");
+  assert.equal(q2.precision, 2, "precision:2");
+  assert.equal(q3.precision, 1, "precision:1");
+  assert.equal(q4.precision, 0, "precision:0");
+  assert.equal(q1.value, 8.888, "precision - default (-1)");
+  assert.equal(q2.value, 8.89, "precision - 2");
+  assert.equal(q3.value, 8.9, "precision - 1");
+  assert.equal(q4.value, 9, "precision - 0");
 });

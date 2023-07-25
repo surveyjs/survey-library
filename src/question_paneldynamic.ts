@@ -1818,14 +1818,15 @@ export class QuestionPanelDynamicModel extends Question
     return true;
   }
   private panelUpdateValueFromSurvey(panel: PanelModel) {
-    var questions = panel.questions;
+    const questions = panel.questions;
     var values = this.getPanelItemData(panel.data);
     for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
+      const q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
       q.updateCommentFromSurvey(
         values[q.getValueName() + settings.commentSuffix]
       );
+      q.initDataUI();
     }
   }
   private panelSurveyValueChanged(panel: PanelModel) {

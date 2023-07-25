@@ -17361,7 +17361,6 @@ QUnit.test("Shared data #6584", (assert) => {
               {
                 type: "text",
                 name: "name",
-                title: "name",
                 defaultValueExpression: '({panelindex} + 1) +  " name"'
               },
             ],
@@ -17369,25 +17368,19 @@ QUnit.test("Shared data #6584", (assert) => {
           {
             type: "paneldynamic",
             name: "panel2",
-            hideNumber: true,
             valueName: "sharedData",
             templateElements: [
               {
                 type: "matrixdynamic",
                 name: "matrix1",
                 rowCount: 1,
-                titleLocation: "hidden",
-                hideNumber: true,
                 columns: [
                   {
                     name: "b_eil_nr",
-                    title: "Nr.",
                     cellType: "text",
                     readOnly: true,
-                    width: "50px",
                     defaultValueExpression: "{panelindex} + 1",
-                    inputType: "number",
-                    step: 1
+                    inputType: "number"
                   },
                   {
                     name: "b_name",
@@ -17408,11 +17401,18 @@ QUnit.test("Shared data #6584", (assert) => {
   const p1 = survey.getAllQuestions()[0];
   const p2 = survey.getAllQuestions()[1];
   p1.addPanel();
-  assert.deepEqual(survey.data, { sharedData: [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }] });
-
-  const matrix = p2.panels[0].questions[0];
-  assert.equal(matrix.renderedTable.rows[0].cells[0].value, 1);
-  assert.equal(matrix.renderedTable.rows[0].cells[1].value, "1 name");
+  assert.deepEqual(survey.data, { sharedData: [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }] }, "survey.data");
+  assert.deepEqual(p2.value, [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }], "panel2.data");
+  const matrix = <QuestionMatrixDynamicModel>p2.panels[0].questions[0];
+  assert.deepEqual(matrix.value, [{ b_eil_nr: 1, b_name: "1 name" }], "panel2[0].matrix1.data");
+  const table = matrix.renderedTable;
+  assert.equal(table.rows.length, 1, "One row in rendered table");
+  assert.equal(table.rows[0].cells[0].question.value, 1);
+  assert.equal(table.rows[0].cells[1].question.value, "1 name");
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 1, "one row is added, rowCount: 1");
+  assert.equal(rows[0].cells[0].question.value, 1, "cell [0,0]");
+  assert.equal(rows[0].cells[1].question.value, "1 name", "cell [0,1]");
 });
 QUnit.test("survey.getNestedQuestions", function (assert) {
   const survey = new SurveyModel({

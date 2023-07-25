@@ -201,6 +201,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.resetRenderedTable();
     }
   }
+  initDataUI(): void {
+    if(!this.generatedVisibleRows) {
+      this.visibleRows;
+    }
+  }
   /**
    * The number of rows in the matrix.
    * @see minRowCount

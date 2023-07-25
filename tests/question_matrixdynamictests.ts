@@ -8286,3 +8286,16 @@ QUnit.test("column validation, bug#6449", function (assert) {
   cellQuestion.value = 41;
   assert.equal(survey.hasErrors(), false, "41<50");
 });
+QUnit.test("matrixDynamic & defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 1,
+        columns: [{ name: "col1", cellType: "text", defaultValueExpression: "1 + 1" }, { name: "col2" }]
+      }
+    ]
+  });
+  const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(q.visibleRows.length, 1, "one row");
+  assert.deepEqual(q.value, [{ col1: 2 }], "matrix.data");
+  assert.deepEqual(survey.data, { matrix: [{ col1: 2 }] }, "survey.data");
+});

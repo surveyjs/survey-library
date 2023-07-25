@@ -1618,6 +1618,24 @@ QUnit.test("panelDynamic.addConditionObjectsByContext", function(assert) {
     "addConditionObjectsByContext work correctly for panel dynamic with context equals true"
   );
 });
+QUnit.test("panelDynamic.getNestedQuestions", function(assert) {
+  const panel = new QuestionPanelDynamicModel("qPanel");
+  panel.template.addNewQuestion("text", "q1");
+  const q2 = new QuestionMultipleTextModel("q2");
+  q2.title = "Question 2";
+  q2.addItem("item1");
+  q2.addItem("item2");
+  panel.template.addQuestion(q2);
+  panel.panelCount = 2;
+  const questions = panel.getNestedQuestions();
+  assert.equal(questions.length, 6, "two panels * 3");
+  assert.equal(questions[0].name, "q1", "panel[0].q1");
+  assert.equal(questions[1].name, "item1", "panel[0].q2.item1");
+  assert.equal(questions[2].name, "item2", "panel[0].q2.item2");
+  assert.equal(questions[3].name, "q1", "panel[1].q1");
+  assert.equal(questions[4].name, "item1", "panel[1].q2.item1");
+  assert.equal(questions[5].name, "item2", "panel[1].q2.item2");
+});
 
 QUnit.test("panelDynamic.addConditionObjectsByContext + settings.panelDynamicMaxPanelCountInCondition = 0", function(assert) {
   settings.panelDynamicMaxPanelCountInCondition = 0;

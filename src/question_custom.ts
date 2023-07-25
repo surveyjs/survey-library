@@ -976,6 +976,10 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       });
     }
   }
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+    if (!this.contentPanel) return;
+    this.contentPanel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+  }
   protected convertDataValue(name: string, newValue: any): any {
     var val = this.getValueForContentPanel(this.value);
     if (!val) val = {};

@@ -2328,6 +2328,15 @@ QUnit.test("question.addConditionObjectsByContext", function (assert) {
     "addConditionObjectsByContext work correctly"
   );
 });
+QUnit.test("question.getNextedQuestions", function (assert) {
+  const q = new QuestionMultipleTextModel("q_mt");
+  q.addItem("item1", "Item 1 title");
+  q.addItem("item2");
+  const nQuestions = q.getNestedQuestions();
+  assert.equal(nQuestions.length, 2, "We have 2 items");
+  assert.equal(nQuestions[0].name, "item1", "#1");
+  assert.equal(nQuestions[1].name, "item2", "#2");
+});
 
 QUnit.test("question.getConditionJson", function (assert) {
   var json = new QuestionHtmlModel("q_html").getConditionJson("equals");

@@ -17346,3 +17346,72 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   q.value = "abc";
   assert.equal(q.value, "ABC", "Convert to upper case");
 });
+
+QUnit.test("Shared data #6584", (assert) => {
+  const json = {
+    logoPosition: "right",
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel1",
+            valueName: "sharedData",
+            templateElements: [
+              {
+                type: "text",
+                name: "name",
+                title: "name",
+                defaultValueExpression: '({panelindex} + 1) +  " name"'
+              },
+            ],
+          },
+          {
+            type: "paneldynamic",
+            name: "panel2",
+            hideNumber: true,
+            valueName: "sharedData",
+            templateElements: [
+              {
+                type: "matrixdynamic",
+                name: "matrix1",
+                rowCount: 1,
+                titleLocation: "hidden",
+                hideNumber: true,
+                columns: [
+                  {
+                    name: "b_eil_nr",
+                    title: "Nr.",
+                    cellType: "text",
+                    readOnly: true,
+                    width: "50px",
+                    defaultValueExpression: "{panelindex} + 1",
+                    inputType: "number",
+                    step: 1
+                  },
+                  {
+                    name: "b_name",
+                    cellType: "text",
+                    readOnly: true,
+                    defaultValueExpression: "{panel.name}"
+                  }
+                ],
+                cellType: "text"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const p1 = survey.getAllQuestions()[0];
+  const p2 = survey.getAllQuestions()[1];
+  p1.addPanel();
+  assert.deepEqual(survey.data, { sharedData: [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }] });
+
+  const matrix = p2.panels[0].questions[0];
+  assert.equal(matrix.renderedTable.rows[0].cells[0].value, 1);
+  assert.equal(matrix.renderedTable.rows[0].cells[1].value, "1 name");
+});

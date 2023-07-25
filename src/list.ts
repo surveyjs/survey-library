@@ -68,7 +68,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     let textInLow = (item.title || "").toLocaleLowerCase();
     const normalize = settings.comparator.normalizeTextCallback;
     if(!!normalize) {
-      textInLow = normalize(textInLow);
+      textInLow = normalize(textInLow, "filter");
     }
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }

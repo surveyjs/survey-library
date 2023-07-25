@@ -59,8 +59,8 @@ export class Helpers {
   }
   public static compareStrings(x: string, y: string): number {
     const normalize = settings.comparator.normalizeTextCallback;
-    if(!!x) x = normalize(x).trim();
-    if(!!y) y = normalize(y).trim();
+    if(!!x) x = normalize(x, "compare").trim();
+    if(!!y) y = normalize(y, "compare").trim();
     if(!x && !y) return 0;
     if(!x) return -1;
     if(!y) return 1;
@@ -102,8 +102,8 @@ export class Helpers {
 
     if(typeof x === "string" && typeof y === "string") {
       const normalize = settings.comparator.normalizeTextCallback;
-      x = normalize(x);
-      y = normalize(y);
+      x = normalize(x, "compare");
+      y = normalize(y, "compare");
       if(trimStrings) {
         x = x.trim();
         y = y.trim();

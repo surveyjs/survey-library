@@ -392,9 +392,11 @@ QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", 
   let filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
   assert.equal(filteredActions.length, 1, "one item by default");
 
-  settings.comparator.normalizeTextCallback = (str: string): string => { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); };
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
+    return reason === "filter" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
+  };
   list.filterString = "lle";
   filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
   assert.equal(filteredActions.length, 2, "include brouillé");
-  settings.comparator.normalizeTextCallback = (str: string): string => { return str; };
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });

@@ -1733,16 +1733,30 @@ export class Question extends SurveyElement<Question>
     }
     return res;
   }
-  private addSupportedValidators(
-    supportedValidators: Array<string>,
-    classValidators: Array<string>
-  ) { }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
       name: this.getValueName(),
       text: this.processedTitle,
       question: this,
     });
+  }
+  /**
+   * Returns an array of questions nested within the current question. Use this method to obtain questions within [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model)-like questions.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
+   * @returns An array of nested questions.
+   */
+  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
+    const res: Array<Question> = [];
+    this.collectNestedQuestions(res, visibleOnly);
+    if(res.length === 1 && res[0] === this) return [];
+    return res;
+  }
+  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false): void {
+    if(visibleOnly && !this.isVisible) return;
+    this.collectNestedQuestionsCore(questions, visibleOnly);
+  }
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean): void {
+    questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = new JsonObject().toJsonObject(this);

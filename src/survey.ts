@@ -120,6 +120,8 @@ export class SurveyModel extends SurveyElementCore
 
   private navigationBarValue: ActionContainer;
 
+  onThemeApplied: EventBase<SurveyModel> = new EventBase<SurveyModel>();
+
   //#region Event declarations
   /**
    * An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
@@ -5181,22 +5183,31 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a list of all questions in a survey.
-   * @param visibleOnly set it `true`, if you want to get only visible questions
+   * Returns a list of all questions in the survey.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible questions.
+   * @param includeDesignTime For internal use.
+   * @param includeNested A Boolean value that specifies whether to include nested questions, such as questions within matrix cells.
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
-    includingDesignTime: boolean = false
+    includeDesignTime: boolean = false,
+    includeNested: boolean = false
   ): Array<Question> {
-    var result = new Array<Question>();
+    var res: Array<Question> = [];
     for (var i: number = 0; i < this.pages.length; i++) {
       this.pages[i].addQuestionsToList(
-        result,
+        res,
         visibleOnly,
-        includingDesignTime
+        includeDesignTime
       );
     }
-    return result;
+    if(!includeNested) return res;
+    const res2: Array<Question> = [];
+    res.forEach(q => {
+      res2.push(q);
+      q.getNestedQuestions(visibleOnly).forEach(nQ => res2.push(nQ));
+    });
+    return res2;
   }
   /**
    * Returns quiz questions. All visible questions that has input(s) widgets.
@@ -5241,11 +5252,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public getAllPanels(
     visibleOnly: boolean = false,
-    includingDesignTime: boolean = false
+    includeDesignTime: boolean = false
   ): Array<IPanel> {
     var result = new Array<IPanel>();
     for (var i: number = 0; i < this.pages.length; i++) {
-      this.pages[i].addPanelsIntoList(result, visibleOnly, includingDesignTime);
+      this.pages[i].addPanelsIntoList(result, visibleOnly, includeDesignTime);
     }
     return result;
   }
@@ -7147,6 +7158,8 @@ export class SurveyModel extends SurveyElementCore
     Object.keys(theme).forEach((key: keyof ITheme) => {
       (this as any)[key] = theme[key];
     });
+
+    this.onThemeApplied.fire(this, {});
   }
 
   /**

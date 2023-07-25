@@ -133,7 +133,7 @@ body {
 
 .sv-popup.sv-popup--dropdown {
   .sv-popup__shadow {
-    box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-medium;
   }
 
   .sv-popup__body-content {

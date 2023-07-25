@@ -4,7 +4,7 @@
   font-size: $font-pagetitle-size;
   color: $font-pagetitle-color;
   position: static;
-  line-height: calcLineHeight(2);
+  line-height: multiply(1.33, $font-pagetitle-size);
   margin: calcSize(0.5) 0px;
 }
 
@@ -14,7 +14,7 @@
   font-size: $font-pagedescription-size;
   color: $font-pagedescription-color;
   position: static;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-pagedescription-size);
   margin: 0 0 calcSize(1) 0;
 }
 

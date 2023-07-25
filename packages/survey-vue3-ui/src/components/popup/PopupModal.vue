@@ -39,7 +39,7 @@ function showModal(
 }
 function showDialog(
   dialogOptions: IDialogOptions,
-  container?: HTMLElement
+  rootElement?: HTMLElement
 ): PopupBaseViewModel {
   dialogOptions.onHide = () => {
     popup.value = undefined;
@@ -47,7 +47,7 @@ function showDialog(
   };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
     dialogOptions,
-    container
+    rootElement
   );
   popupViewModel.model.isVisible = true;
   popup.value = popupViewModel;
@@ -57,6 +57,12 @@ if (!settings.showModal) {
   settings.showModal = showModal;
   onUnmounted(() => {
     settings.showModal = undefined as any;
+  });
+}
+if (!settings.showDialog) {
+  settings.showDialog = showDialog;
+  onUnmounted(() => {
+    settings.showDialog = undefined as any;
   });
 }
 </script>

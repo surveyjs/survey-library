@@ -1748,6 +1748,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+    const rows = this.visibleRows;
+    rows.forEach(row => {
+      row.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+    });
+  }
   protected getConditionObjectRowName(index: number): string {
     return "";
   }

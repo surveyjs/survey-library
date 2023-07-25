@@ -410,34 +410,34 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
   /**
-   * An event that is raised on uploading the file in QuestionFile when `storeDataAsText` is set to `false`. Use this event to change the uploaded file name or to prevent a particular file from being uploaded.
+   * An event that is raised when a File Upload question starts to upload a file. Applies only if [`storeDataAsText`](https://surveyjs.io/form-library/documentation/api-reference/file-model#storeDataAsText) is `false`. Use this event to upload files to your server.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
    * @see uploadFiles
-   * @see QuestionFileModel.storeDataAsText
    * @see onDownloadFile
    * @see onClearFiles
    */
   public onUploadFiles: EventBase<SurveyModel, UploadFilesEvent> = this.addEvent<SurveyModel, UploadFilesEvent>();
   /**
-   * An event that is raised on downloading a file in QuestionFile. Use this event to pass the file to a preview.
+   * An event that is raised when a File Upload question starts to download a file. Use this event to implement file preview when your server stores only file names.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/store-file-names-in-survey-results/ (linkStyle))
    * @see downloadFile
    * @see onClearFiles
    * @see onUploadFiles
    */
   public onDownloadFile: EventBase<SurveyModel, DownloadFileEvent> = this.addEvent<SurveyModel, DownloadFileEvent>();
   /**
-   * This event is fired on clearing the value in a QuestionFile. Use this event to remove files stored on your server.
+   * An event that is raised when users clear files in a [File Upload](https://surveyjs.io/form-library/documentation/api-reference/file-model) question. Use this event to delete files from your server.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/file-delayed-upload/ (linkStyle))
+   * @see clearFiles
    * @see onDownloadFile
    * @see onUploadFiles
    */
@@ -1225,7 +1225,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies whether to save survey results when respondents switch between pages. Handle the [`onPartialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onPartialSend) event to implement the save operation.
    *
-   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle)).
+   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle))
    */
   public get sendResultOnPageNext(): boolean {
     return this.getPropertyValue("sendResultOnPageNext");
@@ -1271,9 +1271,14 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("focusOnFirstError", val);
   }
   /**
-   * Gets or sets the navigation buttons position.
-   * Possible values: 'bottom' (default), 'top', 'both' and 'none'. Set it to 'none' to hide 'Prev', 'Next' and 'Complete' buttons.
-   * It makes sense if you are going to create a custom navigation, have only a single page, or the `goNextPageAutomatic` property is set to `true`.
+   * Gets or sets the position of the Start, Next, Previous, and Complete navigation buttons and controls their visibility.
+   *
+   * Possible values:
+   *
+   * - `"bottom"` (default) - Displays the navigation buttons below survey content.
+   * - `"top"` - Displays the navigation buttons above survey content.
+   * - `"both"` - Displays the navigation buttons above and below survey content.
+   * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
    * @see goNextPageAutomatic
    * @see showPrevButton
    */
@@ -1290,7 +1295,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showNavigationButtons", val);
   }
   /**
-   * Gets or sets whether the Survey displays "Prev" button in its pages. Set it to `false` to prevent end-users from going back to their answers.
+   * Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
    * @see showNavigationButtons
    */
   public get showPrevButton(): boolean {
@@ -1331,10 +1336,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("tocLocation", val);
   }
   /**
-   * Gets or sets whether the Survey displays survey title in its pages. Set it to `false` to hide a survey title.
-   * @see title
+   * Specifies whether to display the [survey title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title).
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
+   * @see title
    */
   public get showTitle(): boolean {
     return this.getPropertyValue("showTitle");
@@ -1343,10 +1348,7 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showTitle", val);
   }
   /**
-   * Gets or sets whether the Survey displays page titles. Set it to `false` to hide page titles.
-   * @see PageModel.title
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
+   * Specifies whether to display [page titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title).
    */
   public get showPageTitles(): boolean {
     return this.getPropertyValue("showPageTitles");
@@ -1355,12 +1357,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showPageTitles", val);
   }
   /**
-   * On finishing the survey the complete page is shown. Set the property to `false`, to hide the complete page.
-   * @see data
+   * Specifies whether to show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    * @see onComplete
    * @see navigateToUrl
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
    */
   public get showCompletedPage(): boolean {
     return this.getPropertyValue("showCompletedPage");
@@ -1803,7 +1802,8 @@ export class SurveyModel extends SurveyElementCore
     return options.displayValue;
   }
   /**
-   * Returns the text displayed when a survey has no visible pages and questions.
+   * Returns a message that is displayed when a survey does not contain visible pages or questions.
+   * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get emptySurveyText(): string {
     return this.getLocalizationString("emptySurvey");
@@ -2173,10 +2173,9 @@ export class SurveyModel extends SurveyElementCore
     return this.navigationBar.addAction(val);
   }
   /**
-   * Gets or sets the 'Start' button caption.
-   * The 'Start' button is shown on the started page. Set the `firstPageIsStarted` property to `true`, to display the started page.
+   * Gets or sets a caption for the Start button.
    * @see firstPageIsStarted
-   * @see locale
+   * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get startSurveyText(): string {
     return this.getLocalizableStringText("startSurveyText");
@@ -2188,8 +2187,8 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("startSurveyText");
   }
   /**
-   * Gets or sets the 'Prev' button caption.
-   * @see locale
+   * Gets or sets a caption for the Previous button.
+   * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get pagePrevText(): string {
     return this.getLocalizableStringText("pagePrevText");
@@ -2201,8 +2200,8 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("pagePrevText");
   }
   /**
-   * Gets or sets the 'Next' button caption.
-   * @see locale
+   * Gets or sets a caption for the Next button.
+   * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get pageNextText(): string {
     return this.getLocalizableStringText("pageNextText");
@@ -2214,8 +2213,8 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizableString("pageNextText");
   }
   /**
-   *  Gets or sets the 'Complete' button caption.
-   * @see locale
+   * Gets or sets a caption for the Complete button.
+   * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get completeText(): string {
     return this.getLocalizableStringText("completeText");
@@ -2263,13 +2262,9 @@ export class SurveyModel extends SurveyElementCore
     return options.tagName;
   }
   /**
-   * Set the pattern for question title. Default is "numTitleRequire", 1. What is your name? *,
-   * You can set it to numRequireTitle: 1. * What is your name?
-   * You can set it to requireNumTitle: * 1. What is your name?
-   * You can set it to numTitle (remove require symbol completely): 1. What is your name?
-   * @see QuestionModel.title
+   * Specifies a pattern for question titles.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
+   * Refer to the following help topic for more information: [Title Pattern](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#title-pattern).
    */
   public get questionTitlePattern(): string {
     return this.getPropertyValue("questionTitlePattern", "numTitleRequire");
@@ -2996,7 +2991,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getPropertyValue("activePage");
   }
   /**
-   * The started page is showing right now. survey state equals to "starting"
+   * A Boolean value that indicates whether the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page) is currently displayed.
    */
   public get isShowStartingPage(): boolean {
     return this.state === "starting";
@@ -3402,11 +3397,9 @@ export class SurveyModel extends SurveyElementCore
     return false;
   }
   /**
-   * Returns `true`, if a user has already completed the survey in this browser and there is a cookie about it. Survey goes to `completedbefore` state if the function returns `true`.
-   * @see cookieName
+   * Indicates whether the browser has a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName). If this property's value is `true`, the respondent has passed the survey previously.
    * @see setCookie
    * @see deleteCookie
-   * @see state
    */
   public get hasCookie(): boolean {
     if (!this.cookieName || typeof document === "undefined") return false;
@@ -3414,8 +3407,7 @@ export class SurveyModel extends SurveyElementCore
     return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
   }
   /**
-   * Set the cookie with `cookieName` in user's browser. It is done automatically on survey complete if the `cookieName` property value is not empty.
-   * @see cookieName
+   * Sets a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) in the browser. If the `cookieName` property value is defined, this method is automatically called on survey completion.
    * @see hasCookie
    * @see deleteCookie
    */
@@ -3425,8 +3417,7 @@ export class SurveyModel extends SurveyElementCore
       this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
   }
   /**
-   * Deletes the cookie with `cookieName` from the browser.
-   * @see cookieName
+   * Deletes a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) from the browser.
    * @see hasCookie
    * @see setCookie
    */
@@ -3824,15 +3815,15 @@ export class SurveyModel extends SurveyElementCore
     this.isShowingPreview = options.allowShowPreview && options.allow;
   }
   /**
-   * Cancels a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) and switches the survey to the page specified by the `curPage` parameter.
-   * @param curPage A new current page. If you do not specify this parameter, the survey displays the last page.
+   * Cancels a [preview of given answers](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page) and switches the survey to the page specified by the `currentPage` parameter.
+   * @param currentPage A new current page. If you do not specify this parameter, the survey displays the last page.
    * @see showPreview
    * @see showPreviewBeforeComplete
    * @see state
    */
-  public cancelPreview(curPage: any = null) {
+  public cancelPreview(currentPage: any = null) {
     if (!this.isShowingPreview) return;
-    this.gotoPageFromPreview = curPage;
+    this.gotoPageFromPreview = currentPage;
     this.isShowingPreview = false;
   }
   private gotoPageFromPreview: PageModel;
@@ -4860,36 +4851,81 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * Uploads a file to server.
-   * @param question a file question object
-   * @param name a question name
-   * @param files files to upload
-   * @param uploadingCallback a call back function to get the status on uploading the files
+   *
+   * The following code shows how to call this method:
+   *
+   * ```js
+   * const question = survey.getQuestionByName("myFileQuestion");
+   * survey.uploadFiles(
+   *   question,
+   *   question.name,
+   *   question.value,
+   *   (status, data) => {
+   *     if (status === "success") {
+   *       // Handle success
+   *     }
+   *     if (status === "error") {
+   *       // Handle error
+   *     }
+   *   }
+   * );
+   * ```
+   * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
+   * @param name The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
+   * @param files An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
+   * @param callback A callback function that allows you to get the upload status (`"success"` or `"error"`) and file data.
+   * @see onUploadFiles
+   * @see downloadFile
    */
   public uploadFiles(
     question: QuestionFileModel,
     name: string,
     files: File[],
-    uploadingCallback: (status: string, data: any) => any
+    callback: (status: string, data: any) => any
   ) {
     if (this.onUploadFiles.isEmpty) {
-      uploadingCallback("error", files);
+      callback("error", files);
     } else {
       this.onUploadFiles.fire(this, {
         question: question,
         name: name,
         files: files || [],
-        callback: uploadingCallback,
+        callback: callback,
       });
     }
     if (this.surveyPostId) {
-      this.uploadFilesCore(name, files, uploadingCallback);
+      this.uploadFilesCore(name, files, callback);
     }
   }
   /**
-   * Downloads a file from server
-   * @param name a question name
-   * @param fileValue a single file question value
-   * @param callback a call back function to get the status on downloading the file and the downloaded file content
+   * Downloads a file from a server.
+   *
+   * The following code shows how to call this method:
+   *
+   * ```js
+   * const question = survey.getQuestionByName("myFileQuestion");
+   * survey.downloadFile(
+   *   question,
+   *   question.name,
+   *   // Download the first uploaded file
+   *   question.value[0],
+   *   (status, data) => {
+   *     if (status === "success") {
+   *       // Use `data` to retrieve the file
+   *     }
+   *     if (status === "error") {
+   *       // Handle error
+   *     }
+   *   }
+   * );
+   * ```
+   *
+   * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
+   * @param questionName The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
+   * @param fileValue An object from File Upload's [`value`](https://surveyjs.io/form-library/documentation/api-reference/file-model#value) array. This object contains metadata about the file you want to download.
+   * @param callback A callback function that allows you to get the download status (`"success"` or `"error"`) and the file identifier (URL, file name, etc.) that you can use to retrieve the file.
+   * @see onDownloadFile
+   * @see uploadFiles
    */
   public downloadFile(
     question: QuestionFileModel,
@@ -5103,8 +5139,8 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a page on which an element (question or panel) is placed.
-   * @param element Question or Panel
+   * Returns a page to which a specified survey element (question or panel) belongs.
+   * @param element A question or panel instance.
    */
   public getPageByElement(element: IElement): PageModel {
     for (var i: number = 0; i < this.pages.length; i++) {
@@ -5114,15 +5150,15 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   /**
-   * Returns a page on which a question is located.
-   * @param question
+   * Returns a page to which a specified question belongs.
+   * @param question A question instance.
    */
   public getPageByQuestion(question: IQuestion): PageModel {
     return this.getPageByElement(question);
   }
   /**
-   * Returns a page by it's name.
-   * @param name
+   * Returns a page with a specified name.
+   * @param name A page [name](https://surveyjs.io/form-library/documentation/api-reference/page-model#name).
    */
   public getPageByName(name: string): PageModel {
     for (var i: number = 0; i < this.pages.length; i++) {
@@ -5131,8 +5167,8 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   /**
-   * Returns a list of pages by their names.
-   * @param names a list of page names
+   * Returns an array of pages with specified names.
+   * @param names An array of page names.
    */
   public getPagesByNames(names: string[]): PageModel[] {
     var result: PageModel[] = [];
@@ -5145,22 +5181,31 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a list of all questions in a survey.
-   * @param visibleOnly set it `true`, if you want to get only visible questions
+   * Returns a list of all questions in the survey.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible questions.
+   * @param includeDesignTime For internal use.
+   * @param includeNested A Boolean value that specifies whether to include nested questions, such as questions within matrix cells.
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
-    includingDesignTime: boolean = false
+    includeDesignTime: boolean = false,
+    includeNested: boolean = false
   ): Array<Question> {
-    var result = new Array<Question>();
+    var res: Array<Question> = [];
     for (var i: number = 0; i < this.pages.length; i++) {
       this.pages[i].addQuestionsToList(
-        result,
+        res,
         visibleOnly,
-        includingDesignTime
+        includeDesignTime
       );
     }
-    return result;
+    if(!includeNested) return res;
+    const res2: Array<Question> = [];
+    res.forEach(q => {
+      res2.push(q);
+      q.getNestedQuestions(visibleOnly).forEach(nQ => res2.push(nQ));
+    });
+    return res2;
   }
   /**
    * Returns quiz questions. All visible questions that has input(s) widgets.
@@ -5205,11 +5250,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public getAllPanels(
     visibleOnly: boolean = false,
-    includingDesignTime: boolean = false
+    includeDesignTime: boolean = false
   ): Array<IPanel> {
     var result = new Array<IPanel>();
     for (var i: number = 0; i < this.pages.length; i++) {
-      this.pages[i].addPanelsIntoList(result, visibleOnly, includingDesignTime);
+      this.pages[i].addPanelsIntoList(result, visibleOnly, includeDesignTime);
     }
     return result;
   }

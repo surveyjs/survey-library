@@ -446,10 +446,15 @@ export var settings = {
    *
    * - `caseSensitive`: `Boolean`\
    * Specifies whether to differentiate between capital and lower-case letters. Default value: `false`.
+   *
+   * - `normalizedTextCallback`: `(str: string) => string`
+   * Use the following function { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+   * If you want to 'Brouillé' to be equal to 'Brouille'.
    */
   comparator: {
     trimStrings: true,
-    caseSensitive: false
+    caseSensitive: false,
+    normalizeTextCallback: (str: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",
   get commentPrefix(): string { return settings.commentSuffix; },

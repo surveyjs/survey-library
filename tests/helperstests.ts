@@ -126,6 +126,12 @@ QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert)
   settings.comparator.trimStrings = true;
   settings.comparator.caseSensitive = false;
 });
+QUnit.test("isTwoValueEquals, strings: settings.normalizeTextCallback", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), false, "#1");
+  settings.comparator.normalizeTextCallback = (str: string): string => { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); };
+  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), true, "#2");
+  settings.comparator.normalizeTextCallback = (str: string): string => { return str; };
+});
 
 QUnit.test("Return correct value for array.length", function(assert) {
   var process = new ProcessValue();
@@ -446,6 +452,10 @@ QUnit.test("Check compareStrings function", function(assert) {
   assert.equal(Helpers.compareStrings("item12", "item 2"), 1, "#14");
   assert.equal(Helpers.compareStrings("401", "60"), 1, "#15");
   assert.equal(Helpers.compareStrings("60", "401"), -1, "#16");
+
+  settings.comparator.normalizeTextCallback = (str: string): string => { return str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); };
+  assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17");
+  settings.comparator.normalizeTextCallback = (str: string): string => { return str; };
 });
 QUnit.test("convertArrayValueToObject function", function(assert) {
   assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name"), [{ name: 1 }, { name: 2 }], "#1");

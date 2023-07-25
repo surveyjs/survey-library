@@ -7,5 +7,5 @@ export interface ITheme {
   backgroundImageFit?: ImageFit;
   backgroundImageAttachment?: ImageAttachment;
   backgroundOpacity?: number;
-  isCompact?: boolean;
+  isPanelless?: boolean;
 }

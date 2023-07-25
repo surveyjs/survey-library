@@ -37,7 +37,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
           key={1}
           className={this.model.cssClasses.itemIcon}
           iconName={this.item.iconName}
-          size={24}
+          size={this.item.iconSize}
           aria-label={this.item.title}
         ></SvgIcon>;
         content.push(icon);

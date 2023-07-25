@@ -1298,6 +1298,7 @@ export class Question extends SurveyElement<Question>
   public createValueCopy(): any {
     return this.getUnbindValue(this.value);
   }
+  initDataUI(): void {}
   protected getUnbindValue(value: any): any {
     if (this.isValueSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);

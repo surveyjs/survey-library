@@ -1743,7 +1743,7 @@ export class Question extends SurveyElement<Question>
   /**
    * Returns an array of questions nested within the current question. Use this method to obtain questions within [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model)-like questions.
    * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
-   * @returns An array of nested questions or an array with the current question if it cannot nest questions.
+   * @returns An array of nested questions.
    */
   public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
     const res: Array<Question> = [];

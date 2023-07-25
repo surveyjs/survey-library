@@ -5181,14 +5181,14 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a list of all questions in a survey.
-   * @param visibleOnly set it `true`, if you want to get only visible questions
-   * @param includingDesignTime reserved parameter. It is used in Creator
-   * @param includeNested include into array nested questions like cell questions in matrices
+   * Returns a list of all questions in the survey.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible questions.
+   * @param includeDesignTime For internal use.
+   * @param includeNested A Boolean value that specifies whether to include nested questions, such as questions within matrix cells.
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
-    includingDesignTime: boolean = false,
+    includeDesignTime: boolean = false,
     includeNested: boolean = false
   ): Array<Question> {
     var res: Array<Question> = [];
@@ -5196,7 +5196,7 @@ export class SurveyModel extends SurveyElementCore
       this.pages[i].addQuestionsToList(
         res,
         visibleOnly,
-        includingDesignTime
+        includeDesignTime
       );
     }
     if(!includeNested) return res;
@@ -5250,11 +5250,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public getAllPanels(
     visibleOnly: boolean = false,
-    includingDesignTime: boolean = false
+    includeDesignTime: boolean = false
   ): Array<IPanel> {
     var result = new Array<IPanel>();
     for (var i: number = 0; i < this.pages.length; i++) {
-      this.pages[i].addPanelsIntoList(result, visibleOnly, includingDesignTime);
+      this.pages[i].addPanelsIntoList(result, visibleOnly, includeDesignTime);
     }
     return result;
   }

@@ -66,10 +66,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   private hasText(item: T, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
     let textInLow = (item.title || "").toLocaleLowerCase();
-    const normalize = settings.comparator.normalizeTextCallback;
-    if(!!normalize) {
-      textInLow = normalize(textInLow, "filter");
-    }
+    textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
   public isItemVisible(item: T): boolean {

@@ -851,7 +851,9 @@ QUnit.test("progressText, 'requiredQuestions' type and design mode", function (
   assert.equal(survey.progressText, "Page 1 of 4");
   survey.progressBarType = "questions";
   assert.equal(survey.progressText, "Answered 0/4 questions");
+  assert.equal(survey.getProgressTypeComponent(), "sv-progress-questions", "questions component");
   survey.progressBarType = "requiredQuestions";
+  assert.equal(survey.getProgressTypeComponent(), "sv-progress-requiredquestions", "requiredQuestions component");
   assert.equal(survey.progressText, "Answered 0/2 questions");
 });
 QUnit.test("progressText, 'requiredQuestions' type and required matrix dropdown, bug#5375", function (

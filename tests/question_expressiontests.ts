@@ -194,3 +194,40 @@ QUnit.test("round to digits", function (assert) {
   assert.equal(q3.value, 8.9, "precision - 1");
   assert.equal(q4.value, 9, "precision - 0");
 });
+QUnit.test("survey.onValueChanging, bug#6548", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "weightKg",
+        "type": "text",
+        "inputType": "number"
+      },
+      {
+        "name": "heightCm",
+        "type": "text",
+        "inputType": "number",
+      },
+      {
+        "name": "bmi",
+        "type": "expression",
+        "expression": "{weightKg}/(({heightCm}/100)^2)"
+      }
+
+    ]
+  });
+  const q = <QuestionExpressionModel>survey.getQuestionByName("bmi");
+  survey.onValueChanging.add((sender, options) => {
+    if(options.question.name === "bmi" && !!options.value) {
+      options.value = parseFloat(options.value.toFixed(0));
+    }
+  });
+  survey.data = {
+    weightKg: 88,
+    heightCm: 169
+  };
+  assert.equal(q.value, 31, "correct value on survey.onValueChanging event, #1");
+  assert.deepEqual(survey.data, { weightKg: 88, heightCm: 169, bmi: 31 }, "survey.data is correct, #1");
+  survey.setValue("weightKg", 100);
+  assert.equal(q.value, 35, "correct value on survey.onValueChanging event, #2");
+  assert.deepEqual(survey.data, { weightKg: 100, heightCm: 169, bmi: 35 }, "survey.data is correct, #2");
+});

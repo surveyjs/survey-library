@@ -17428,3 +17428,40 @@ QUnit.test("survey.getNestedQuestions", function (assert) {
   assert.equal(questions[2].name, "q2_item1", "#3");
   assert.equal(questions[3].name, "q2_item2", "#4");
 });
+QUnit.test("survey.applyTheme", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "multipletext", name: "q2", items: [{ name: "q2_item1" }, { name: "q2_item2" }] }
+    ]
+  });
+
+  assert.equal(Object.keys(survey.themeVariables).length, 0, "before applyTheme");
+  assert.equal(!!survey.backgroundImage, false, "before applyTheme");
+  assert.equal(survey.backgroundImageFit, "cover", "before applyTheme");
+  assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
+  assert.equal(survey.backgroundOpacity, 1, "before applyTheme");
+  assert.equal(survey["isCompact"], false, "before applyTheme");
+
+  survey.applyTheme({
+    "cssVariables": {
+      "--sjs-general-backcolor": "rgba(255, 255, 255, 1)",
+      "--sjs-general-backcolor-dark": "rgba(248, 248, 248, 1)",
+      "--sjs-general-backcolor-dim": "rgba(243, 243, 243, 1)",
+      "--sjs-general-backcolor-dim-light": "rgba(249, 249, 249, 1)",
+      "--sjs-general-backcolor-dim-dark": "rgba(243, 243, 243, 1)",
+    },
+    "backgroundImage": "data:image/png;base64,dgoldfk",
+    "backgroundOpacity": 0.6,
+    "backgroundImageAttachment": "fixed",
+    "backgroundImageFit": "cover",
+    "isPanelless": true
+  });
+
+  assert.equal(Object.keys(survey.themeVariables).length, 5);
+  assert.equal(!!survey.backgroundImage, true);
+  assert.equal(survey.backgroundImageFit, "cover");
+  assert.equal(survey.backgroundImageAttachment, "fixed");
+  assert.equal(survey.backgroundOpacity, 0.6);
+  assert.equal(survey["isCompact"], true);
+});

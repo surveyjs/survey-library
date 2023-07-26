@@ -7156,7 +7156,11 @@ export class SurveyModel extends SurveyElementCore
     if(!theme) return;
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      (this as any)[key] = theme[key];
+      if(key === "isPanelless") {
+        this.isCompact = theme[key];
+      } else {
+        (this as any)[key] = theme[key];
+      }
     });
 
     this.onThemeApplied.fire(this, {});

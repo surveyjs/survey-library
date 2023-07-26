@@ -98,6 +98,13 @@
   width: calcSize(3);
 }
 
+.sd-input[type="color"],
+.sd-input[type="range"] {
+  box-sizing: content-box;
+  width: calc(100% - 4 * #{$base-unit});
+  height: multiply(1.5, $font-editorfont-size);
+}
+
 .sd-input[type="range"]::-webkit-slider-runnable-track {
   @include runnable-track;
 }

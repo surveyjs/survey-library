@@ -57,6 +57,25 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check question color", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "text",
+            inputType: "color",
+            name: "question_color",
+            width: "708px",
+            title: "Color question"
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-color.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check question num + expand/collapse", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

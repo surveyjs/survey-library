@@ -17346,6 +17346,74 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   q.value = "abc";
   assert.equal(q.value, "ABC", "Convert to upper case");
 });
+QUnit.test("Shared data #6584", (assert) => {
+  const json = {
+    logoPosition: "right",
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel1",
+            valueName: "sharedData",
+            templateElements: [
+              {
+                type: "text",
+                name: "name",
+                defaultValueExpression: '({panelindex} + 1) +  " name"'
+              },
+            ],
+          },
+          {
+            type: "paneldynamic",
+            name: "panel2",
+            valueName: "sharedData",
+            templateElements: [
+              {
+                type: "matrixdynamic",
+                name: "matrix1",
+                rowCount: 1,
+                columns: [
+                  {
+                    name: "b_eil_nr",
+                    cellType: "text",
+                    readOnly: true,
+                    defaultValueExpression: "{panelindex} + 1",
+                    inputType: "number"
+                  },
+                  {
+                    name: "b_name",
+                    cellType: "text",
+                    readOnly: true,
+                    defaultValueExpression: "{panel.name}"
+                  }
+                ],
+                cellType: "text"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const p1 = survey.getAllQuestions()[0];
+  const p2 = survey.getAllQuestions()[1];
+  p1.addPanel();
+  assert.deepEqual(survey.data, { sharedData: [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }] }, "survey.data");
+  assert.deepEqual(p2.value, [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }], "panel2.data");
+  const matrix = <QuestionMatrixDynamicModel>p2.panels[0].questions[0];
+  assert.deepEqual(matrix.value, [{ b_eil_nr: 1, b_name: "1 name" }], "panel2[0].matrix1.data");
+  const table = matrix.renderedTable;
+  assert.equal(table.rows.length, 1, "One row in rendered table");
+  assert.equal(table.rows[0].cells[0].question.value, 1);
+  assert.equal(table.rows[0].cells[1].question.value, "1 name");
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 1, "one row is added, rowCount: 1");
+  assert.equal(rows[0].cells[0].question.value, 1, "cell [0,0]");
+  assert.equal(rows[0].cells[1].question.value, "1 name", "cell [0,1]");
+});
 QUnit.test("survey.getNestedQuestions", function (assert) {
   const survey = new SurveyModel({
     elements: [

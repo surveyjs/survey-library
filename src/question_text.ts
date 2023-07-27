@@ -258,11 +258,7 @@ export class QuestionTextModel extends QuestionTextBase {
       const validateResult = emailValidator.validate(this.value, valName);
 
       if (!!validateResult && !!validateResult.error) {
-        const maxError = new CustomError(
-          validateResult.error.getText(),
-          this
-        );
-        errors.push(maxError);
+        errors.push(validateResult.error);
       }
     }
   }

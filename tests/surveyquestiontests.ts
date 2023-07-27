@@ -6960,3 +6960,33 @@ QUnit.test("question.getRootCss apply disable css correctly", function (assert) 
   q.readOnly = false;
   assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #4");
 });
+QUnit.test("numeric validator, use custom text, bug#6588", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "validators": [
+          {
+            "type": "numeric",
+            "text": "Enter only numbers"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "validators": [{ "type": "numeric" }
+        ]
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "aa";
+  q2.value = "aa";
+  survey.hasErrors();
+  assert.equal(q1.errors.length, 1, "One error");
+  assert.equal(q1.errors[0].getText(), "Enter only numbers", "Customer error");
+  assert.equal(q2.errors.length, 1, "One error, #2");
+  assert.equal(q2.errors[0].getText(), "The value should be numeric.", "Default error");
+});

@@ -173,7 +173,7 @@ export class NumericValidator extends SurveyValidator {
     if (!Helpers.isNumber(value)) {
       return new ValidatorResult(
         null,
-        new RequreNumericError(null, this.errorOwner)
+        new RequreNumericError(this.text, this.errorOwner)
       );
     }
     var result = new ValidatorResult(Helpers.getNumber(value));

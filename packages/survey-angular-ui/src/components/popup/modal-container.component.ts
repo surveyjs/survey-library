@@ -54,7 +54,7 @@ export class ModalComponent {
     };
 
     settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => {
-      this.showDialog(dialogOptions, rootElement);
+      return this.showDialog(dialogOptions, rootElement);
     };
   }
   ngOnDestroy() {

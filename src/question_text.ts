@@ -249,18 +249,21 @@ export class QuestionTextModel extends QuestionTextBase {
       errors.push(maxError);
     }
 
-    var name = this.name;
+    const valName = this.getValidatorTitle();
     var emailValidator = new EmailValidator();
     if (
       this.inputType === "email" &&
-      !this.validators.some((v) => v.getType() === "emailvalidator") &&
-      emailValidator.validate(this.value, name)
+      !this.validators.some((v) => v.getType() === "emailvalidator")
     ) {
-      const maxError = new CustomError(
-        emailValidator.getErrorText(name),
-        this
-      );
-      errors.push(maxError);
+      const validateResult = emailValidator.validate(this.value, valName);
+
+      if (!!validateResult) {
+        const maxError = new CustomError(
+          validateResult.error.getText(),
+          this
+        );
+        errors.push(maxError);
+      }
     }
   }
 

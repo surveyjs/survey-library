@@ -38,7 +38,7 @@ export class SurveyValidator extends Base {
   get locText(): LocalizableString {
     return this.getLocalizableString("text");
   }
-  public getErrorText(name: string): string {
+  protected getErrorText(name: string): string {
     if (this.text) return this.text;
     return this.getDefaultErrorText(name);
   }

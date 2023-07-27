@@ -5116,6 +5116,29 @@ QUnit.test("select items and then set maxSelectedChoices in checkbox", function 
   assert.equal(question.otherItem.isEnabled, false, "otherItem is disabled");
 });
 
+QUnit.test("select items and then set minSelectedChoices in checkbox", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3, 4, 5],
+        hasSelectAll: true,
+        hasOther: true,
+      },
+    ],
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.minSelectedChoices = 3;
+  question.value = [2, 3];
+  question.validate();
+  assert.equal(question.hasErrors(), true, "has errors");
+
+  question.value = [2, 3, 4];
+  question.validate();
+  assert.equal(question.hasErrors(), false, "has no errors");
+});
+
 QUnit.test("Matrix Question: columns with true/false values", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = [true, false, 0, "0", 1];

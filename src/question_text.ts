@@ -2,7 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
-import { EmailValidator, SurveyValidator } from "./validator";
+import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
@@ -71,16 +71,7 @@ export class QuestionTextModel extends QuestionTextBase {
       this.setRenderedMinMax(values, properties);
     }
   }
-  public getValidators(): Array<SurveyValidator> {
-    var validators = super.getValidators();
-    if (
-      this.inputType === "email" &&
-      !this.validators.some((v) => v.getType() === "emailvalidator")
-    ) {
-      validators.push(new EmailValidator());
-    }
-    return validators;
-  }
+
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
@@ -257,7 +248,22 @@ export class QuestionTextModel extends QuestionTextBase {
       ); };
       errors.push(maxError);
     }
+
+    var name = this.name;
+    var emailValidator = new EmailValidator();
+    if (
+      this.inputType === "email" &&
+      !this.validators.some((v) => v.getType() === "emailvalidator") &&
+      emailValidator.validate(this.value, name)
+    ) {
+      const maxError = new CustomError(
+        emailValidator.getErrorText(name),
+        this
+      );
+      errors.push(maxError);
+    }
   }
+
   protected canSetValueToSurvey(): boolean {
     if (!this.isMinMaxType) return true;
     const isValid = !this.isValueLessMin && !this.isValueGreaterMax;

@@ -2481,6 +2481,9 @@ export class SurveyModel extends SurveyElementCore
     if (!this.canShowProresBar()) return false;
     return this.showProgressBar === "bottom" || this.showProgressBar === "both";
   }
+  public getProgressTypeComponent(): string {
+    return "sv-progress-" + this.progressBarType.toLowerCase();
+  }
   public getProgressCssClasses(): string {
     return new CssClassBuilder()
       .append(this.css.progress)
@@ -7156,7 +7159,11 @@ export class SurveyModel extends SurveyElementCore
     if(!theme) return;
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      (this as any)[key] = theme[key];
+      if(key === "isPanelless") {
+        this.isCompact = theme[key];
+      } else {
+        (this as any)[key] = theme[key];
+      }
     });
 
     this.onThemeApplied.fire(this, {});

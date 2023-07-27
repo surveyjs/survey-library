@@ -970,7 +970,7 @@ export class Question extends SurveyElement<Question>
   public focus(onError: boolean = false): void {
     if (this.isDesignMode || !this.isVisible || !this.survey) return;
     let page = this.page;
-    const shouldChangePage = !!page && this.survey.currentPage !== page;
+    const shouldChangePage = !!page && this.survey.activePage !== page;
     if(shouldChangePage) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {

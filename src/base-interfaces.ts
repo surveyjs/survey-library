@@ -45,6 +45,7 @@ export interface ISurveyErrorOwner extends ILocalizableOwner {
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getSkeletonComponentName(element: ISurveyElement): string;
   currentPage: IPage;
+  activePage: IPage;
   pages: Array<IPage>;
   getCss(): any;
   isPageStarted(page: IPage): boolean;

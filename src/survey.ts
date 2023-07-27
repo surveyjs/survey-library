@@ -2481,6 +2481,9 @@ export class SurveyModel extends SurveyElementCore
     if (!this.canShowProresBar()) return false;
     return this.showProgressBar === "bottom" || this.showProgressBar === "both";
   }
+  public getProgressTypeComponent(): string {
+    return "sv-progress-" + this.progressBarType.toLowerCase();
+  }
   public getProgressCssClasses(): string {
     return new CssClassBuilder()
       .append(this.css.progress)

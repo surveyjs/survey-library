@@ -170,11 +170,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return !this.valuePropertyName ? val : val[this.valuePropertyName];
   }
   /**
-   * Sets a limit on the number of selected choices.
+   * Specifies the maximum number of selected choices.
    *
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   * @see minSelectedChoices
    */
   public get maxSelectedChoices(): number {
     return this.getPropertyValue("maxSelectedChoices");
@@ -185,11 +186,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     this.filterItems();
   }
   /**
-   * Sets a limit on the number of selected choices.
+   * Specifies the minimum number of selected choices.
    *
    * Default value: 0 (unlimited)
    *
-   * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `minSelectedChoices` value.
+   * @see maxSelectedChoices
    */
   public get minSelectedChoices(): number {
     return this.getPropertyValue("minSelectedChoices");

@@ -7,6 +7,7 @@
   display: flex;
   width: max-content;
   position: relative;
+  gap: calcSize(0.5);
   padding: calcSize(0.5);
   background-color: $editor-background;
   box-shadow: $shadow-inner;
@@ -20,7 +21,7 @@
   font-weight: $font-editorfont-weight;
   font-size: $font-editorfont-size;
   color: $foreground-light;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   padding: calcSize(1) calcSize(3);
 }
 
@@ -50,7 +51,7 @@
 }
 
 .sd-boolean__thumb {
-  background-color: $background;
+  background-color: $question-background;
   box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   transition-duration: 0.2s;

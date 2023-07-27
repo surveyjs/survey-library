@@ -42,7 +42,7 @@ const initPopupSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
-    } else if (framework === "angular") {
+    } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model, true);
     }
     window["survey"] = model;

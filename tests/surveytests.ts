@@ -59,12 +59,10 @@ import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
-import { getSize, increaseHeightByContent } from "../src/utils/utils";
-import { RendererFactory } from "../src/rendererFactory";
+import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent } from "../src/utils/utils";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
-import { IAction } from "../src/actions/action";
 
 export default QUnit.module("Survey");
 
@@ -853,7 +851,9 @@ QUnit.test("progressText, 'requiredQuestions' type and design mode", function (
   assert.equal(survey.progressText, "Page 1 of 4");
   survey.progressBarType = "questions";
   assert.equal(survey.progressText, "Answered 0/4 questions");
+  assert.equal(survey.getProgressTypeComponent(), "sv-progress-questions", "questions component");
   survey.progressBarType = "requiredQuestions";
+  assert.equal(survey.getProgressTypeComponent(), "sv-progress-requiredquestions", "requiredQuestions component");
   assert.equal(survey.progressText, "Answered 0/2 questions");
 });
 QUnit.test("progressText, 'requiredQuestions' type and required matrix dropdown, bug#5375", function (
@@ -941,6 +941,34 @@ QUnit.test(
       100,
       "The progress is 100%, the second answer is invisible, progressValue"
     );
+  }
+);
+QUnit.test("survey.progressBarType = 'pages', Bug #6563",
+  function (assert) {
+    var survey = new SurveyModel({
+      progressBarType: "pages",
+      pages: [
+        { elements: [{ type: "text", name: "q1" }] },
+        { elements: [{ type: "text", name: "q2" }] },
+        { elements: [{ type: "text", name: "q3" }] },
+        { elements: [{ type: "text", name: "q1" }] },
+      ]
+    });
+    assert.equal(survey.getProgress(), 0, "page1 #1");
+    assert.equal(survey.progressValue, 0, "page1 #2");
+    assert.equal(survey.progressText, "Page 1 of 4", "page1, #3");
+    survey.nextPage();
+    assert.equal(survey.getProgress(), 25, "page2 #1");
+    assert.equal(survey.progressValue, 25, "page2 #2");
+    assert.equal(survey.progressText, "Page 2 of 4", "page2, #3");
+    survey.nextPage();
+    assert.equal(survey.getProgress(), 50, "page3 #1");
+    assert.equal(survey.progressValue, 50, "page3 #2");
+    assert.equal(survey.progressText, "Page 3 of 4", "page3, #3");
+    survey.nextPage();
+    assert.equal(survey.getProgress(), 75, "page4 #1");
+    assert.equal(survey.progressValue, 75, "page4 #2");
+    assert.equal(survey.progressText, "Page 4 of 4", "page4, #3");
   }
 );
 QUnit.test("Next, Prev, Next", function (assert) {
@@ -3588,7 +3616,7 @@ QUnit.test(
     }
     assert.equal(
       page.questions[1].renderWidth,
-      "20.000000%",
+      "20%",
       "the width is 20%"
     );
     page.questions[1].width = "100";
@@ -3682,7 +3710,7 @@ QUnit.test(
 
     assert.equal(
       question.renderWidth,
-      "100.000000%",
+      "100%",
       "the render width is 100%"
     );
   }
@@ -5518,6 +5546,22 @@ QUnit.test("Survey Markdown + processed text", function (assert) {
   assert.equal(q1.locTitle.renderedHtml, "Q1 test1!", "Initial value");
   survey.setValue("val", "test2");
   assert.equal(q1.locTitle.renderedHtml, "Q1 test2!", "Change the value");
+});
+QUnit.test("Survey Markdown + design model", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1", title: "Q1" }] },
+      { elements: [{ type: "text", name: "q2", title: "Q2" }] }
+    ]
+  });
+  survey.setDesignMode(true);
+  survey.onTextMarkdown.add((survey, options) => {
+    options.html = options.text + "!";
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.locTitle.renderedHtml, "Q1!", "page1");
+  assert.equal(q2.locTitle.renderedHtml, "Q2!", "page2");
 });
 
 QUnit.test("required question title test", function (assert) {
@@ -14253,16 +14297,28 @@ QUnit.test("survey.isLazyRendering", function (assert) {
   assert.equal(survey.isLazyRendering, true, "set in survey");
 });
 QUnit.test("getSize", function (assert) {
-  assert.equal(getSize(300), "300px", "300px");
-  assert.equal(getSize("100%"), "100%", "100%");
-  assert.equal(getSize("100"), "100px", "100px");
+  assert.equal(getRenderedSize("300px"), 300, "300px");
+  assert.equal(getRenderedStyleSize("300px"), undefined, "300px");
+  assert.equal(getRenderedSize("100%"), undefined, "100%");
+  assert.equal(getRenderedStyleSize("100%"), "100%", "300px");
+  assert.equal(getRenderedSize(100), 100, "100px");
+  assert.equal(getRenderedStyleSize(100), undefined, "100");
 });
 QUnit.test("survey logo size", function (assert) {
   var survey = new SurveyModel();
   assert.equal(survey.logoWidth, "300px", "300px");
   assert.equal(survey.logoHeight, "200px", "200px");
+  assert.equal(survey.renderedLogoWidth, 300);
+  assert.equal(survey.renderedLogoHeight, 200);
+  assert.equal(survey.renderedStyleLogoWidth, undefined);
+  assert.equal(survey.renderedStyleLogoHeight, undefined);
   survey.logoWidth = "100%";
+  survey.logoHeight = "auto";
   assert.equal(survey.logoWidth, "100%", "100%");
+  assert.equal(survey.renderedLogoWidth, undefined);
+  assert.equal(survey.renderedLogoHeight, undefined);
+  assert.equal(survey.renderedStyleLogoWidth, "100%");
+  assert.equal(survey.renderedStyleLogoHeight, "auto");
 });
 QUnit.test("element.searchText()", function (assert) {
   var survey = new SurveyModel({
@@ -17291,4 +17347,123 @@ QUnit.test("Check onPopupVisibleChanged events", function (assert) {
   });
   q.value = "abc";
   assert.equal(q.value, "ABC", "Convert to upper case");
+});
+QUnit.test("Shared data #6584", (assert) => {
+  const json = {
+    logoPosition: "right",
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel1",
+            valueName: "sharedData",
+            templateElements: [
+              {
+                type: "text",
+                name: "name",
+                defaultValueExpression: '({panelindex} + 1) +  " name"'
+              },
+            ],
+          },
+          {
+            type: "paneldynamic",
+            name: "panel2",
+            valueName: "sharedData",
+            templateElements: [
+              {
+                type: "matrixdynamic",
+                name: "matrix1",
+                rowCount: 1,
+                columns: [
+                  {
+                    name: "b_eil_nr",
+                    cellType: "text",
+                    readOnly: true,
+                    defaultValueExpression: "{panelindex} + 1",
+                    inputType: "number"
+                  },
+                  {
+                    name: "b_name",
+                    cellType: "text",
+                    readOnly: true,
+                    defaultValueExpression: "{panel.name}"
+                  }
+                ],
+                cellType: "text"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const p1 = survey.getAllQuestions()[0];
+  const p2 = survey.getAllQuestions()[1];
+  p1.addPanel();
+  assert.deepEqual(survey.data, { sharedData: [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }] }, "survey.data");
+  assert.deepEqual(p2.value, [{ name: "1 name", matrix1: [{ b_eil_nr: 1, b_name: "1 name" }] }], "panel2.data");
+  const matrix = <QuestionMatrixDynamicModel>p2.panels[0].questions[0];
+  assert.deepEqual(matrix.value, [{ b_eil_nr: 1, b_name: "1 name" }], "panel2[0].matrix1.data");
+  const table = matrix.renderedTable;
+  assert.equal(table.rows.length, 1, "One row in rendered table");
+  assert.equal(table.rows[0].cells[0].question.value, 1);
+  assert.equal(table.rows[0].cells[1].question.value, "1 name");
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 1, "one row is added, rowCount: 1");
+  assert.equal(rows[0].cells[0].question.value, 1, "cell [0,0]");
+  assert.equal(rows[0].cells[1].question.value, "1 name", "cell [0,1]");
+});
+QUnit.test("survey.getNestedQuestions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "multipletext", name: "q2", items: [{ name: "q2_item1" }, { name: "q2_item2" }] }
+    ]
+  });
+  const questions = survey.getAllQuestions(false, false, true);
+  assert.equal(questions.length, 4, "3 questions");
+  assert.equal(questions[0].name, "q1", "#1");
+  assert.equal(questions[1].name, "q2", "#2");
+  assert.equal(questions[2].name, "q2_item1", "#3");
+  assert.equal(questions[3].name, "q2_item2", "#4");
+});
+QUnit.test("survey.applyTheme", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "multipletext", name: "q2", items: [{ name: "q2_item1" }, { name: "q2_item2" }] }
+    ]
+  });
+
+  assert.equal(Object.keys(survey.themeVariables).length, 0, "before applyTheme");
+  assert.equal(!!survey.backgroundImage, false, "before applyTheme");
+  assert.equal(survey.backgroundImageFit, "cover", "before applyTheme");
+  assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
+  assert.equal(survey.backgroundOpacity, 1, "before applyTheme");
+  assert.equal(survey["isCompact"], false, "before applyTheme");
+
+  survey.applyTheme({
+    "cssVariables": {
+      "--sjs-general-backcolor": "rgba(255, 255, 255, 1)",
+      "--sjs-general-backcolor-dark": "rgba(248, 248, 248, 1)",
+      "--sjs-general-backcolor-dim": "rgba(243, 243, 243, 1)",
+      "--sjs-general-backcolor-dim-light": "rgba(249, 249, 249, 1)",
+      "--sjs-general-backcolor-dim-dark": "rgba(243, 243, 243, 1)",
+    },
+    "backgroundImage": "data:image/png;base64,dgoldfk",
+    "backgroundOpacity": 0.6,
+    "backgroundImageAttachment": "fixed",
+    "backgroundImageFit": "cover",
+    "isPanelless": true
+  });
+
+  assert.equal(Object.keys(survey.themeVariables).length, 5);
+  assert.equal(!!survey.backgroundImage, true);
+  assert.equal(survey.backgroundImageFit, "cover");
+  assert.equal(survey.backgroundImageAttachment, "fixed");
+  assert.equal(survey.backgroundOpacity, 0.6);
+  assert.equal(survey["isCompact"], true);
 });

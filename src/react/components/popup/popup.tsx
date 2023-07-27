@@ -207,12 +207,12 @@ export function showModal(
   );
   return showDialog(options);
 }
-export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
   dialogOptions.onHide = () => {
     ReactDOM.unmountComponentAtNode(popupViewModel.container);
     popupViewModel.dispose();
   };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
   ReactDOM.render(<PopupContainer model={popupViewModel} />, popupViewModel.container);
   popupViewModel.model.isVisible = true;
 
@@ -220,3 +220,4 @@ export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElemen
 }
 
 settings.showModal = showModal;
+settings.showDialog = showDialog;

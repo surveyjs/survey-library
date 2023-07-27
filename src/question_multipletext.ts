@@ -428,6 +428,9 @@ export class QuestionMultipleTextModel extends Question
       });
     }
   }
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+    this.items.forEach(item => item.editor.collectNestedQuestions(questions, visibleOnly));
+  }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson();
     var item = this.getItemByName(path);

@@ -77,11 +77,15 @@
     "visual-regression-tests:ci:react": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react",
     "visual-regression-tests:ci:vue": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue",
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
+    "visual-regression-tests:ci:vue3": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3",
+    "visual-regression-tests:vue3": "testcafe -c 4 -q chrome ./visualRegressionTests/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3",
+    "testcafe:ci:vue3": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example\" --selector-timeout 1500 --reporter minimal --env=vue3",
+    "testcafe:vue3": "testcafe chrome testCafe/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example \" --selector-timeout 1500 --reporter minimal --env=vue3",
     "testcafe:angular": "testcafe chrome testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.97",
+  "version": "1.9.100",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -174,6 +178,9 @@
   "overrides": {
     "karma-webpack": {
       "webpack": "^4.43.0"
+    },
+    "downlevel-dts": {
+      "typescript": "5.1.6"
     }
   },
   "husky": {

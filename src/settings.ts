@@ -1,3 +1,5 @@
+import { IDialogOptions } from "./popup";
+
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
   rootElement: HTMLElement | ShadowRoot,
@@ -444,10 +446,17 @@ export var settings = {
    *
    * - `caseSensitive`: `Boolean`\
    * Specifies whether to differentiate between capital and lower-case letters. Default value: `false`.
+   *
+   * - `normalizedTextCallback`: `(str: string, reason: string) => string`
+   * Use the following function { str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+   * If you want to 'Brouillé' to be equal to 'Brouille'.
+   * Use the following function { return reason === "filter" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): ""; }
+   * If you want to use this functionality during filtering only, for example in list.
    */
   comparator: {
     trimStrings: true,
-    caseSensitive: false
+    caseSensitive: false,
+    normalizeTextCallback: (str: string, reason: string): string => { return str; }
   },
   expressionDisableConversionChar: "#",
   get commentPrefix(): string { return settings.commentSuffix; },
@@ -562,6 +571,7 @@ export var settings = {
       displayMode?: "popup" | "overlay"
     ) => any
     >undefined,
+  showDialog: < (options: IDialogOptions, rootElement?: HTMLElement) => any >undefined,
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,
   /**

@@ -188,3 +188,44 @@ QUnit.test("TOC pages navigation with start page, bug #6327", function(assert) {
   tocListModel.visibleItems[1].action();
   assert.equal(survey.currentPage.name, "page3", "Current page is 3");
 });
+
+QUnit.test("TOC questionsOnPageMode singlePage", function(assert) {
+  let json: any = {
+    "questionsOnPageMode": "singlePage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "html",
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ]
+  };
+  let survey: SurveyModel = new SurveyModel(json);
+  let tocListModel = createTOCListModel(survey);
+
+  assert.equal(tocListModel.visibleItems.length, 3, "3 items is TOC");
+  assert.equal(tocListModel.visibleItems[0].id, survey.pages[0].elements[0].name, "Page 1");
+  assert.equal(tocListModel.visibleItems[1].id, survey.pages[0].elements[1].name, "Page 2");
+  assert.equal(tocListModel.visibleItems[2].id, survey.pages[0].elements[2].name, "Page 3");
+});

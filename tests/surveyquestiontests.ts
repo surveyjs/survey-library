@@ -2328,6 +2328,15 @@ QUnit.test("question.addConditionObjectsByContext", function (assert) {
     "addConditionObjectsByContext work correctly"
   );
 });
+QUnit.test("question.getNextedQuestions", function (assert) {
+  const q = new QuestionMultipleTextModel("q_mt");
+  q.addItem("item1", "Item 1 title");
+  q.addItem("item2");
+  const nQuestions = q.getNestedQuestions();
+  assert.equal(nQuestions.length, 2, "We have 2 items");
+  assert.equal(nQuestions[0].name, "item1", "#1");
+  assert.equal(nQuestions[1].name, "item2", "#2");
+});
 
 QUnit.test("question.getConditionJson", function (assert) {
   var json = new QuestionHtmlModel("q_html").getConditionJson("equals");
@@ -6927,4 +6936,34 @@ QUnit.test("question.getRootCss apply disable css correctly", function (assert) 
   assert.ok(q.cssTitle.indexOf(disableCss) > -1, "disableCss is in the title, #3");
   q.readOnly = false;
   assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #4");
+});
+QUnit.test("numeric validator, use custom text, bug#6588", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "validators": [
+          {
+            "type": "numeric",
+            "text": "Enter only numbers"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "validators": [{ "type": "numeric" }
+        ]
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "aa";
+  q2.value = "aa";
+  survey.hasErrors();
+  assert.equal(q1.errors.length, 1, "One error");
+  assert.equal(q1.errors[0].getText(), "Enter only numbers", "Customer error");
+  assert.equal(q2.errors.length, 1, "One error, #2");
+  assert.equal(q2.errors[0].getText(), "The value should be numeric.", "Default error");
 });

@@ -1265,3 +1265,78 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   assert.equal(q1.ratingRootCss, "sv_q");
   settings.matrix.rateSize = "small";
 });
+
+QUnit.test("check rating triggerResponsiveness method", (assert) => {
+  const ResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  const done = assert.async();
+
+  const rootElement = document.createElement("div");
+  const contentElement = document.createElement("div");
+  const ratingElement = document.createElement("div");
+  contentElement.className = "sd-scrollable-container";
+  contentElement.style.width = "400px";
+  contentElement.style.height = "10px";
+  contentElement.style.overflow = "auto";
+  ratingElement.style.width = "400px";
+  ratingElement.style.height = "10px";
+
+  contentElement.appendChild(ratingElement);
+  rootElement.append(contentElement);
+  document.body.appendChild(rootElement);
+
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.css = defaultV2Css;
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+
+  q1.afterRender(rootElement);
+  q2.afterRender(rootElement);
+
+  assert.notOk(!!q2["triggerResponsivenessCallback"]);
+  assert.ok(!!q1["triggerResponsivenessCallback"]);
+  assert.ok(q1["resizeObserver"]);
+  assert.equal(q1.renderAs, "default");
+
+  contentElement.style.width = "350px";
+
+  survey.triggerResponsiveness(false);
+  assert.equal(q1.renderAs, "dropdown");
+
+  contentElement.style.width = "450px";
+  //to reset is processed flag
+  survey.triggerResponsiveness(false);
+
+  survey.triggerResponsiveness(false);
+  assert.equal(q1.renderAs, "default");
+
+  ratingElement.style.width = "500px";
+
+  survey.triggerResponsiveness(false);
+  assert.equal(q1.renderAs, "default");
+
+  survey.triggerResponsiveness(true);
+
+  setTimeout(() => {
+    assert.equal(q1.renderAs, "dropdown");
+
+    ratingElement.remove();
+    contentElement.remove();
+    rootElement.remove();
+    window.ResizeObserver = ResizeObserver;
+    done();
+  }, 1);
+
+});

@@ -4,6 +4,7 @@ import { Action, BaseAction, IAction } from "./actions/action";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ElementHelper } from "./element-helper";
 import { getFirstVisibleChild } from "./utils/utils";
+import { settings } from "./settings";
 
 export let defaultListCss = {
   root: "sv-list__container",
@@ -65,6 +66,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   private hasText(item: T, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
     let textInLow = (item.title || "").toLocaleLowerCase();
+    textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
   public isItemVisible(item: T): boolean {

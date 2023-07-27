@@ -144,7 +144,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json);
     }
@@ -228,7 +228,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
     }
@@ -262,7 +262,7 @@ const json2 = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
     async (t) => {
       await applyTheme("defaultV2");
       await initSurvey(framework, json2);
@@ -315,7 +315,7 @@ const json3 = {
   ],
 };
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
     async (t) => {
       await applyTheme("defaultV2");
       await initSurvey(framework, json3);
@@ -358,7 +358,7 @@ const jsonCheckboxRestFul = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
     async (t) => {
     }
   );
@@ -368,5 +368,71 @@ frameworks.forEach((framework) => {
     await setData({ "panel": [{ "q1": ["newCountry"] }] });
     await t
       .expect(Selector("textarea").value).eql("newCountry");
+  });
+
+  test("Check valueName for two paneldynamics - #6584", async (t) => {
+    await initSurvey(framework, {
+      logoPosition: "right",
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "paneldynamic",
+              name: "panel1",
+              valueName: "sharedData",
+              templateElements: [
+                {
+                  type: "text",
+                  name: "name",
+                  defaultValueExpression: '({panelindex} + 1) +  " name"'
+                },
+              ],
+            },
+            {
+              type: "paneldynamic",
+              name: "panel2",
+              valueName: "sharedData",
+              templateElements: [
+                {
+                  type: "matrixdynamic",
+                  name: "matrix1",
+                  rowCount: 1,
+                  columns: [
+                    {
+                      name: "b_eil_nr",
+                      cellType: "text",
+                      readOnly: true,
+                      defaultValueExpression: "{panelindex} + 1",
+                      inputType: "number"
+                    },
+                    {
+                      name: "b_name",
+                      cellType: "text",
+                      readOnly: true,
+                      defaultValueExpression: "{panel.name}"
+                    }
+                  ],
+                  cellType: "text"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    });
+    await t.click(Selector("button").withText("Add new")).click("input[value='Complete']").expect(getSurveyResult()).eql({
+      sharedData: [
+        {
+          matrix1: [
+            {
+              b_eil_nr: 1,
+              b_name: "1 name"
+            }
+          ],
+          name: "1 name"
+        }
+      ]
+    });
   });
 });

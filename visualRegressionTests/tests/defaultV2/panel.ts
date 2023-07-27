@@ -15,7 +15,7 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await explicitErrorHandler();
     await applyTheme(theme);
   });
@@ -424,6 +424,41 @@ frameworks.forEach(framework => {
       const panelRoot = Selector(".sd-panel");
       await resetFocusToBody();
       await takeElementScreenshot("panel-single-page.png", panelRoot, t, comparer);
+    });
+  });
+  test("Check multiple panels with singlePage mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questionsOnPageMode: "singlePage",
+        pages: [
+          {
+            title: "Page title",
+            description: "Page description",
+            elements: [
+              {
+                name: "username",
+                type: "text",
+                title: "Username",
+              }
+            ]
+          },
+          {
+            title: "Page title 2",
+            description: "Page description 2",
+            elements: [
+              {
+                name: "email",
+                type: "text",
+                title: "email",
+              }
+            ]
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-container-modern");
+      await resetFocusToBody();
+      await takeElementScreenshot("multiple-panels-single-page.png", panelRoot, t, comparer);
     });
   });
   test("Check inner panel with singlePage mode", async (t) => {

@@ -21,9 +21,9 @@ export class LogoImage extends React.Component<ILogoImageProps, any> {
           className={this.survey.css.logoImage}
           src={this.survey.locLogo.renderedHtml}
           alt={this.survey.locTitle.renderedHtml}
-          width={this.survey.logoWidth ? this.survey.logoWidth : undefined}
-          height={this.survey.logoHeight ? this.survey.logoHeight : undefined}
-          style={{ objectFit: this.survey.logoFit as any }}
+          width={this.survey.renderedLogoWidth}
+          height={this.survey.renderedLogoHeight}
+          style={{ objectFit: this.survey.logoFit as any, width: this.survey.renderedStyleLogoWidth, height: this.survey.renderedStyleLogoHeight }}
         />
       </div>
     );

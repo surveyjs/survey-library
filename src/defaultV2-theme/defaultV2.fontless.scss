@@ -56,7 +56,6 @@ body {
 .sd-root-modern {
   -webkit-font-smoothing: antialiased;
   --sd-mobile-width: 600px;
-  --sd-imagepicker-gap: 16px;
   --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
   font-family: var(--font-family, $font-family);
@@ -138,7 +137,7 @@ body {
 
 .sv-popup.sv-popup--dropdown {
   .sv-popup__shadow {
-    box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-medium;
   }
 
   .sv-popup__body-content {

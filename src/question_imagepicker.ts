@@ -227,9 +227,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     this.setPropertyValue("imageHeight", val);
   }
   @property({}) private responsiveImageHeight: number;
-  public get renderedImageHeight() {
-    const height = this.isResponsive ? this.responsiveImageHeight : this.imageHeight;
-    return (height ? height : 150) + "px";
+  public get renderedImageHeight(): number {
+    const height = this.isResponsive ? Math.floor(this.responsiveImageHeight) : this.imageHeight;
+    return (height ? height : 150);
   }
   /**
    * Specifies the width of containers for images or videos. Accepts positive numbers and CSS values.
@@ -248,9 +248,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   @property({}) private responsiveImageWidth: number;
-  public get renderedImageWidth() {
-    const width = this.isResponsive ? this.responsiveImageWidth : this.imageWidth;
-    return (width ? width : 200) + "px";
+  public get renderedImageWidth(): number {
+    const width = this.isResponsive ? Math.floor(this.responsiveImageWidth) : this.imageWidth;
+    return (width ? width : 200);
   }
   /**
    * Specifies how to resize images or videos to fit them into their containers.
@@ -399,12 +399,23 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     }
     return false;
   }
+
+  public triggerResponsiveness(hard: boolean = true): void {
+    if(hard && this.reCalcGapBetweenItemsCallback) {
+      this.reCalcGapBetweenItemsCallback();
+    }
+    super.triggerResponsiveness(hard);
+  }
+
   private gapBetweenItems: number;
+  private reCalcGapBetweenItemsCallback: () => void;
   public afterRender(el: HTMLElement): void {
     super.afterRender(el);
-    const variables = this.survey.getCss().variables;
-    if (!!variables) {
-      this.gapBetweenItems = Number.parseInt(window.getComputedStyle(el).getPropertyValue(variables.imagepickerGapBetweenItems)) || 0;
+    if(el && el.querySelector(this.getObservedElementSelector())) {
+      this.reCalcGapBetweenItemsCallback = () => {
+        this.gapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(el.querySelector(this.getObservedElementSelector())).gap)) || 16;
+      };
+      this.reCalcGapBetweenItemsCallback();
     }
   }
 }

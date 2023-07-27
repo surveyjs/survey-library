@@ -10,10 +10,11 @@
   width: calcSize(3);
   height: calcSize(3);
   box-sizing: border-box;
-  background: var(--sd-item-default-background, $editor-background);
+  background-color: $editor-background;
   box-shadow: $shadow-inner;
   border: none;
   flex-shrink: 0;
+  margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - calcSize(3)) / 2);
 }
 
 .sd-item--checked .sd-item__decorator {
@@ -39,7 +40,7 @@
   font-family: $font-editorfont-family;
   font-style: normal;
   font-weight: normal;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   font-size: $font-editorfont-size;
   color: $font-editorfont-color;
   white-space: normal;

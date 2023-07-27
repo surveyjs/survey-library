@@ -1298,6 +1298,7 @@ export class Question extends SurveyElement<Question>
   public createValueCopy(): any {
     return this.getUnbindValue(this.value);
   }
+  initDataUI(): void {}
   protected getUnbindValue(value: any): any {
     if (this.isValueSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
@@ -1733,16 +1734,30 @@ export class Question extends SurveyElement<Question>
     }
     return res;
   }
-  private addSupportedValidators(
-    supportedValidators: Array<string>,
-    classValidators: Array<string>
-  ) { }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
       name: this.getValueName(),
       text: this.processedTitle,
       question: this,
     });
+  }
+  /**
+   * Returns an array of questions nested within the current question. Use this method to obtain questions within [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model)-like questions.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
+   * @returns An array of nested questions.
+   */
+  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
+    const res: Array<Question> = [];
+    this.collectNestedQuestions(res, visibleOnly);
+    if(res.length === 1 && res[0] === this) return [];
+    return res;
+  }
+  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false): void {
+    if(visibleOnly && !this.isVisible) return;
+    this.collectNestedQuestionsCore(questions, visibleOnly);
+  }
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean): void {
+    questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = new JsonObject().toJsonObject(this);
@@ -2130,6 +2145,12 @@ export class Question extends SurveyElement<Question>
 
   private onMobileChangedCallback: () => void;
 
+  public triggerResponsiveness(hard: boolean = true): void {
+    if(this.triggerResponsivenessCallback) {
+      this.triggerResponsivenessCallback(hard);
+    }
+  }
+  private triggerResponsivenessCallback: (hard: boolean) => void;
   private initResponsiveness(el: HTMLElement) {
     this.destroyResizeObserver();
     if (!!el && this.isDefaultRendering()) {
@@ -2139,16 +2160,32 @@ export class Question extends SurveyElement<Question>
       if (!defaultRootEl) return;
       let isProcessed = false;
       let requiredWidth: number = undefined;
-      this.resizeObserver = new ResizeObserver(() => {
-        const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
-        if (!requiredWidth && this.isDefaultRendering()) {
-          requiredWidth = rootEl.scrollWidth;
-        }
-        if (isProcessed || !isContainerVisible(rootEl)) {
+      this.triggerResponsivenessCallback = (hard: boolean) => {
+        if(hard) {
+          requiredWidth = undefined;
+          this.renderAs = "default";
           isProcessed = false;
-        } else {
-          isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
         }
+        const callback = () => {
+          const rootEl = <HTMLElement>el.querySelector(scrollableSelector);
+          if (!requiredWidth && this.isDefaultRendering()) {
+            requiredWidth = rootEl.scrollWidth;
+          }
+          if (isProcessed || !isContainerVisible(rootEl)) {
+            isProcessed = false;
+          } else {
+            isProcessed = this.processResponsiveness(requiredWidth, getElementWidth(rootEl));
+          }
+        };
+        if(hard) {
+          setTimeout(callback, 1);
+        } else {
+          callback();
+        }
+
+      };
+      this.resizeObserver = new ResizeObserver(() => {
+        this.triggerResponsiveness(false);
       });
       this.onMobileChangedCallback = () => {
         setTimeout(() => {
@@ -2183,6 +2220,7 @@ export class Question extends SurveyElement<Question>
       this.resizeObserver.disconnect();
       this.resizeObserver = undefined;
       this.onMobileChangedCallback = undefined;
+      this.triggerResponsivenessCallback = undefined;
       this.renderAs = this.getDesktopRenderAs();
     }
   }

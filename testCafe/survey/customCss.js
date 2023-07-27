@@ -35,7 +35,7 @@ const initSurvey = ClientFunction((framework, json) => {
         survey: model,
       },
     });
-  } else if (framework === "angular") {
+  } else if (framework === "angular" || framework === "vue3") {
     model.css = myCss;
     window.setSurvey(model);
   }

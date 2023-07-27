@@ -24,8 +24,7 @@
   }
 
   .sd-table__row:nth-of-type(odd) {
-
-    &>td,
+    & > td,
     td:first-of-type {
       background-color: $background-dim-light;
 
@@ -33,8 +32,18 @@
         background-color: $primary-foreground;
       }
 
-      .sd-item__decorator {
-        --sd-item-default-background: var(--primary-foreground, #fff);
+      .sd-item:not(.sd-item--error) {
+        .sd-item__decorator {
+          background-color: var(--sjs-general-backcolor, var(--background, #fff));
+        }
+
+        &.sd-item--checked .sd-item__decorator {
+          background-color: $primary;
+        }
+
+        &.sd-radio--checked .sd-radio__control:focus + .sd-radio__decorator:after {
+          background-color: $primary-foreground;
+        }
       }
     }
   }

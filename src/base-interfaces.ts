@@ -77,6 +77,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     oldName: string,
     oldValueName: string
   ): any;
+  focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;

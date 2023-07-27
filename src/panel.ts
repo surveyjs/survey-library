@@ -524,6 +524,16 @@ export class PanelModelBase extends SurveyElement<Question>
 
     return this.questionsValue;
   }
+  public getQuestions(includeNested: boolean): Array<Question> {
+    const res = this.questions;
+    if(!includeNested) return res;
+    const res2: Array<Question> = [];
+    res.forEach(q => {
+      res2.push(q);
+      q.getNestedQuestions().forEach(nQ => res2.push(nQ));
+    });
+    return res2;
+  }
   protected getValidName(name: string): string {
     if (!!name) return name.trim();
     return name;

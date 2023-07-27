@@ -13656,6 +13656,7 @@ QUnit.test(
     survey.nextPage();
     survey.nextPage();
     survey.completeLastPage();
+    survey.afterRenderPage(<HTMLElement>{});
     assert.equal(survey.currentPageNo, 0, "The first page is active");
     assert.equal(
       survey.getQuestionByName("q1").inputId,

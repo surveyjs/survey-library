@@ -39,6 +39,7 @@
         }}</span>
         <div :class="question.cssClasses.wrapper">
           <label
+            v-if="!question.isReadOnly"
             role="button"
             tabindex="0"
             :class="question.getChooseFileCss()"

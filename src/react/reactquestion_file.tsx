@@ -82,7 +82,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     const questionCss = this.question.cssClasses;
     let noFileChosen: JSX.Element | null = null;
     let chooseFile: JSX.Element | null = null;
-    chooseFile = attachKey2click(
+    chooseFile = this.question.isReadOnly ? null : attachKey2click(
       <label
         role="button"
         tabIndex={0}

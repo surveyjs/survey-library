@@ -240,6 +240,9 @@ export class PopupBaseViewModel extends Base {
       this.containerElement = componentRoot;
     }
   }
+  public resetComponentElement(): void {
+    this.containerElement = undefined;
+  }
   protected preventScrollOuside(event: any, deltaY: number): void {
     let currentElement = event.target;
     while (currentElement !== this.container) {

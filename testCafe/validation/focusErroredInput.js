@@ -114,11 +114,8 @@ frameworks.forEach(framework => {
       .pressKey("a")
       .click("input[value=\"Next\"]")
       .click("input[value=\"Complete\"]")
-      .wait(1000)
       .pressKey("backspace")
-      .wait(1000)
       .pressKey("1")
-      .wait(1000)
       .click("input[value=\"Next\"]")
       .click("input[value=\"Complete\"]");
 

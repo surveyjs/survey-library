@@ -15,7 +15,12 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
     true,
     options.onCancel,
     options.onApply,
-    options.onHide,
+    () => {
+      options.onHide();
+      if(!!container) {
+        popupViewModel.resetComponentElement();
+      }
+    },
     options.onShow,
     options.cssClass,
     options.title
@@ -23,7 +28,7 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
   popupModel.displayMode = options.displayMode || "popup";
   const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
   if(!!rootElement && !!rootElement.appendChild) {
-    const container: HTMLElement = document.createElement("div");
+    var container: HTMLElement = document.createElement("div");
     rootElement.appendChild(container);
     popupViewModel.setComponentElement(container);
   }

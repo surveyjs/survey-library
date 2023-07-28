@@ -5116,6 +5116,29 @@ QUnit.test("select items and then set maxSelectedChoices in checkbox", function 
   assert.equal(question.otherItem.isEnabled, false, "otherItem is disabled");
 });
 
+QUnit.test("select items and then set minSelectedChoices in checkbox", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3, 4, 5],
+        hasSelectAll: true,
+        hasOther: true,
+      },
+    ],
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.minSelectedChoices = 3;
+  question.value = [2, 3];
+  question.validate();
+  assert.equal(question.hasErrors(), true, "has errors");
+
+  question.value = [2, 3, 4];
+  question.validate();
+  assert.equal(question.hasErrors(), false, "has no errors");
+});
+
 QUnit.test("Matrix Question: columns with true/false values", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = [true, false, 0, "0", 1];
@@ -6936,4 +6959,34 @@ QUnit.test("question.getRootCss apply disable css correctly", function (assert) 
   assert.ok(q.cssTitle.indexOf(disableCss) > -1, "disableCss is in the title, #3");
   q.readOnly = false;
   assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #4");
+});
+QUnit.test("numeric validator, use custom text, bug#6588", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "validators": [
+          {
+            "type": "numeric",
+            "text": "Enter only numbers"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "validators": [{ "type": "numeric" }
+        ]
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "aa";
+  q2.value = "aa";
+  survey.hasErrors();
+  assert.equal(q1.errors.length, 1, "One error");
+  assert.equal(q1.errors[0].getText(), "Enter only numbers", "Customer error");
+  assert.equal(q2.errors.length, 1, "One error, #2");
+  assert.equal(q2.errors[0].getText(), "The value should be numeric.", "Default error");
 });

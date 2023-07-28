@@ -84,7 +84,7 @@
     "testcafe:angular": "testcafe chrome testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install",
-    "attempttofixcache: "husky install",
+    "attempttofixcache": "husky install"
   },
   "version": "1.9.100",
   "name": "survey-library",

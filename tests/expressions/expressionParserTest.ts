@@ -1442,4 +1442,12 @@ QUnit.test("year, month, day, weekday", function(assert) {
   assert.deepEqual(runner.run({}), 28, "day");
   runner = new ExpressionRunner("weekday('2023-07-28')");
   assert.deepEqual(runner.run({}), 5, "weekday");
+  runner = new ExpressionRunner("year()");
+  assert.deepEqual(runner.run({}), new Date().getFullYear(), "current year");
+  runner = new ExpressionRunner("month()");
+  assert.deepEqual(runner.run({}), new Date().getMonth() + 1, "current month");
+  runner = new ExpressionRunner("day()");
+  assert.deepEqual(runner.run({}), new Date().getDate(), "current day");
+  runner = new ExpressionRunner("weekday()");
+  assert.deepEqual(runner.run({}), new Date().getDay(), "current weekday");
 });

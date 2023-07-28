@@ -1432,3 +1432,14 @@ QUnit.test("today(1) <= today(10)", function(assert) {
   const runner = new ExpressionRunner("today(1) <= today(10)");
   assert.deepEqual(runner.run({}), true, "today(1) <= today(10)");
 });
+
+QUnit.test("year, month, day, weekday", function(assert) {
+  let runner = new ExpressionRunner("year('2023-07-28')");
+  assert.deepEqual(runner.run({}), 2023, "year");
+  runner = new ExpressionRunner("month('2023-07-28')");
+  assert.deepEqual(runner.run({}), 7, "month");
+  runner = new ExpressionRunner("day('2023-07-28')");
+  assert.deepEqual(runner.run({}), 28, "day");
+  runner = new ExpressionRunner("weekday('2023-07-28')");
+  assert.deepEqual(runner.run({}), 5, "weekday");
+});

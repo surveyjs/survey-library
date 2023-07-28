@@ -178,13 +178,14 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
   containerEl.remove();
 });
 
-QUnit.test("check penColor & background color, useCustomColors - true", (assert) => {
+QUnit.test("check penColor & background color from json", (assert) => {
   const json = {
     questions: [
       {
         type: "signaturepad",
         name: "q1",
-        useCustomColors: true
+        penColor: "#e92525",
+        backgroundColor: "#dde6db"
       },
     ],
   };
@@ -195,25 +196,25 @@ QUnit.test("check penColor & background color, useCustomColors - true", (assert)
   let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
   signaturepadQuestion.initSignaturePad(containerEl);
 
-  assert.equal(signaturepadQuestion.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.backgroundColor, "#ffffff", "backgroundColor default");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#ffffff", "backgroundColor default");
+  assert.equal(signaturepadQuestion.penColor, "#e92525", "penColor init");
+  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor init");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#e92525", "signaturePad.penColor init");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#dde6db", "signaturePad.backgroundColor init");
 
   survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
-  assert.equal(signaturepadQuestion.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.backgroundColor, "#ffffff", "backgroundColor default");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#ffffff", "backgroundColor default");
+  assert.equal(signaturepadQuestion.penColor, "#e92525", "penColor init");
+  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor init");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#e92525", "signaturePad.penColor init");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#dde6db", "signaturePad.backgroundColor init");
 
   survey.applyTheme({ "cssVariables": { } });
-  assert.equal(signaturepadQuestion.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.backgroundColor, "#ffffff", "backgroundColor default");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#ffffff", "backgroundColor default");
+  assert.equal(signaturepadQuestion.penColor, "#e92525", "penColor init");
+  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor init");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#e92525", "signaturePad.penColor init");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#dde6db", "signaturePad.backgroundColor init");
 });
 
-QUnit.test("check penColor & background color, useCustomColors - false", (assert) => {
+QUnit.test("check penColor & background color from theme", (assert) => {
   const json = {
     questions: [
       {
@@ -229,20 +230,20 @@ QUnit.test("check penColor & background color, useCustomColors - false", (assert
   let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
   signaturepadQuestion.initSignaturePad(containerEl);
 
-  assert.equal(signaturepadQuestion.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.backgroundColor, "transparent", "backgroundColor");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "backgroundColor default");
+  assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
+  assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor default");
 
   survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
-  assert.equal(signaturepadQuestion.penColor, "rgba(103, 58, 176, 1)", "penColor from theme");
-  assert.equal(signaturepadQuestion.backgroundColor, "transparent", "backgroundColor");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "rgba(103, 58, 176, 1)", "penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "backgroundColor default");
+  assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
+  assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "rgba(103, 58, 176, 1)", "signaturePad.penColor from theme");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor from theme");
 
   survey.applyTheme({ "cssVariables": { } });
-  assert.equal(signaturepadQuestion.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.backgroundColor, "transparent", "backgroundColor");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "backgroundColor default");
+  assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
+  assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor default");
 });

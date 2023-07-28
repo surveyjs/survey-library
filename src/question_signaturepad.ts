@@ -47,6 +47,14 @@ export class QuestionSignaturePadModel extends Question {
     const _survey = this.survey as SurveyModel;
     return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
   }
+  private updateColors(signaturePad: SignaturePad) {
+    const colorFromTheme = this.getPenColorFromTheme();
+    const penColorProperty = this.getPropertyByName("penColor");
+    signaturePad.penColor = this.penColor || colorFromTheme || penColorProperty.defaultValue || "#1ab394";
+
+    const backgroundColorProperty = this.getPropertyByName("backgroundColor");
+    signaturePad.backgroundColor = this.backgroundColor || backgroundColorProperty.defaultValue || "transparent";
+  }
 
   protected getCssRoot(cssClasses: any): string {
     return new CssClassBuilder()
@@ -83,11 +91,11 @@ export class QuestionSignaturePadModel extends Question {
   }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
+    if (!this.survey) return;
 
     (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
       if(!!this.signaturePad) {
-        this.signaturePad.penColor = this.penColor;
-        this.signaturePad.backgroundColor = this.backgroundColor;
+        this.updateColors(this.signaturePad);
       }
     });
   }
@@ -107,8 +115,7 @@ export class QuestionSignaturePadModel extends Question {
       }
     };
 
-    signaturePad.penColor = this.penColor;
-    signaturePad.backgroundColor = this.backgroundColor;
+    this.updateColors(signaturePad);
 
     signaturePad.addEventListener("beginStroke", () => {
       this.isDrawingValue = true;
@@ -207,25 +214,12 @@ export class QuestionSignaturePadModel extends Question {
   public get canShowClearButton(): boolean {
     return !this.isInputReadOnly && this.allowClear;
   }
-
-  public get useCustomColors(): boolean {
-    return this.getPropertyValue("useCustomColors");
-  }
-  public set useCustomColors(val: boolean) {
-    this.setPropertyValue("useCustomColors", val);
-  }
-
   /**
    * Specifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
    * @see backgroundColor
    */
   public get penColor(): string {
-    const colorFromTheme = this.getPenColorFromTheme();
-    if(this.useCustomColors || !colorFromTheme) {
-      return this.getPropertyValue("penColor");
-    } else {
-      return colorFromTheme;
-    }
+    return this.getPropertyValue("penColor");
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
@@ -235,11 +229,7 @@ export class QuestionSignaturePadModel extends Question {
    * @see penColor
    */
   public get backgroundColor(): string {
-    if(this.useCustomColors) {
-      return this.getPropertyValue("backgroundColor");
-    } else {
-      return "transparent";
-    }
+    return this.getPropertyValue("backgroundColor");
   }
   public set backgroundColor(val: string) {
     this.setPropertyValue("backgroundColor", val);
@@ -304,24 +294,13 @@ Serializer.addClass(
       category: "general",
       default: true,
     },
-    { name: "useCustomColors:boolean", category: "general" },
     {
       name: "penColor:color",
       category: "general",
-      default: "#1ab394",
-      dependsOn: "useCustomColors",
-      visibleIf: function (obj: any) {
-        return obj.useCustomColors;
-      }
     },
     {
       name: "backgroundColor:color",
       category: "general",
-      default: "#ffffff",
-      dependsOn: "useCustomColors",
-      visibleIf: function (obj: any) {
-        return obj.useCustomColors;
-      }
     },
     {
       name: "dataFormat",

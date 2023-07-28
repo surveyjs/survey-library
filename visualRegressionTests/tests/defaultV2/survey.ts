@@ -687,13 +687,14 @@ frameworks.forEach(framework => {
 
   test("Check survey notifier error type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
       await t.resizeWindow(1920, 900);
       await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
         options.isCompleteOnTrigger = false;
         options.showDataSaving();
         let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
+        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
           () => { options.showDataSavingSuccess(); },
           () => { options.showDataSavingError(); }
         );
@@ -701,6 +702,7 @@ frameworks.forEach(framework => {
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-error.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });
 
@@ -713,7 +715,7 @@ frameworks.forEach(framework => {
         options.showDataSaving();
         let fail = false;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
+        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
           () => { options.showDataSavingSuccess(); },
           () => { options.showDataSavingError(); }
         );

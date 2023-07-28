@@ -249,6 +249,7 @@ export class Question extends SurveyElement<Question>
    * Returns a page to which the question belongs and allows you to move this question to a different page.
    */
   public get page(): IPage {
+    if(!!this.parentQuestion) return this.parentQuestion.page;
     return this.getPage(this.parent);
   }
   public set page(val: IPage) {
@@ -969,13 +970,9 @@ export class Question extends SurveyElement<Question>
   public focus(onError: boolean = false): void {
     if (this.isDesignMode || !this.isVisible || !this.survey) return;
     let page = this.page;
-    if(!page && !!this.parentQuestion) {
-      page = this.parentQuestion.page;
-    }
-    let shouldChangePage = !!page && this.survey.currentPage !== page;
+    const shouldChangePage = !!page && this.survey.activePage !== page;
     if(shouldChangePage) {
-      this.survey.currentPage = page;
-      setTimeout(() => this.focuscore(onError), 0);
+      this.survey.focusQuestionByInstance(this, onError);
     } else {
       this.focuscore(onError);
     }

@@ -60,6 +60,14 @@ jobs:
         cacheHitVar: NPM_CACHE_RESTORED
       displayName: Cache NPM
 
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
 
 - job: CoreAngularJquery
   dependsOn:

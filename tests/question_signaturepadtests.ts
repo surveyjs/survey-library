@@ -233,7 +233,7 @@ QUnit.test("check penColor & background color from theme", (assert) => {
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
   assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
   assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor default");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#ffffff", "signaturePad.backgroundColor default");
 
   survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
@@ -245,5 +245,5 @@ QUnit.test("check penColor & background color from theme", (assert) => {
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
   assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
   assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor default");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#ffffff", "signaturePad.backgroundColor default");
 });

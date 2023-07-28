@@ -48,12 +48,13 @@ export class QuestionSignaturePadModel extends Question {
     return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
   }
   private updateColors(signaturePad: SignaturePad) {
-    const colorFromTheme = this.getPenColorFromTheme();
+    const penColorFromTheme = this.getPenColorFromTheme();
     const penColorProperty = this.getPropertyByName("penColor");
-    signaturePad.penColor = this.penColor || colorFromTheme || penColorProperty.defaultValue || "#1ab394";
+    signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
 
     const backgroundColorProperty = this.getPropertyByName("backgroundColor");
-    signaturePad.backgroundColor = this.backgroundColor || backgroundColorProperty.defaultValue || "transparent";
+    const backgroundColorFromTheme = penColorFromTheme ? "transparent" : undefined;
+    signaturePad.backgroundColor = this.backgroundColor || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
   }
 
   protected getCssRoot(cssClasses: any): string {

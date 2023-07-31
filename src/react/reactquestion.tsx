@@ -388,9 +388,6 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
   }
   protected renderElement(): JSX.Element {
     var style = this.getCellStyle();
-    var errorsTooltip = this.question.isErrorsModeTooltip
-      ? this.renderErrors("tooltip")
-      : null;
     return (
       <td
         ref={this.cellRef}
@@ -403,8 +400,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
         {this.wrapCell(this.props.cell,
           (
             <div className={this.cssClasses.cellQuestionWrapper}>
-              {this.renderContent()}
-              {errorsTooltip}
+              {this.renderQuestion()}
             </div>)
         )}
       </td>

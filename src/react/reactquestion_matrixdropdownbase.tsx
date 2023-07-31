@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase
 } from "./reactquestion_element";
-import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
+import { SurveyElementErrors, SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
 import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
@@ -235,6 +235,17 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         />
       );
     }
+    if(cell.isErrorsCell) {
+      if (cell.isErrorsCell) {
+        return (
+          <SurveyQuestionMatrixDropdownErrorCell
+            cell={cell}
+            creator={this.creator}
+          >
+          </SurveyQuestionMatrixDropdownErrorCell>
+        );
+      }
+    }
     if (!cellContent) return null;
 
     const readyCell = (
@@ -386,5 +397,47 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         hideCaption={true}
       />
     );
+  }
+}
+
+export class SurveyQuestionMatrixDropdownErrorCell extends React.Component<any, any> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      changed: 0
+    };
+    if(this.cell) {
+      this.registerCallback(this.cell);
+    }
+  }
+  private get cell(): QuestionMatrixDropdownRenderedCell {
+    return this.props.cell;
+  }
+  private update() {
+    this.setState({ changed: this.state.changed + 1 });
+  }
+  private registerCallback(cell: QuestionMatrixDropdownRenderedCell) {
+    cell.question.registerFunctionOnPropertyValueChanged("errors", () => {
+      this.update();
+    }, "__reactSubscription");
+  }
+  private unRegisterCallback(cell: QuestionMatrixDropdownRenderedCell) {
+    cell.question.unRegisterFunctionOnPropertyValueChanged("errors", "__reactSubscription");
+  }
+  componentDidUpdate(prevProps: Readonly<any>): void {
+    if(prevProps.cell && prevProps.cell !== this.cell) {
+      this.unRegisterCallback(prevProps.cell);
+    }
+    if(this.cell) {
+      this.registerCallback(this.cell);
+    }
+  }
+  componentWillUnmount(): void {
+    if(this.cell) {
+      this.unRegisterCallback(this.cell);
+    }
+  }
+  render(): JSX.Element {
+    return <SurveyElementErrors element={this.cell.question} creator={this.props.creator} cssClasses={this.cell.question.cssClasses}></SurveyElementErrors>;
   }
 }

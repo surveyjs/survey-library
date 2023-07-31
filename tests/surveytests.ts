@@ -17408,9 +17408,9 @@ QUnit.test("Shared data #6584", (assert) => {
   const matrix = <QuestionMatrixDynamicModel>p2.panels[0].questions[0];
   assert.deepEqual(matrix.value, [{ b_eil_nr: 1, b_name: "1 name" }], "panel2[0].matrix1.data");
   const table = matrix.renderedTable;
-  assert.equal(table.rows.length, 1, "One row in rendered table");
-  assert.equal(table.rows[0].cells[0].question.value, 1);
-  assert.equal(table.rows[0].cells[1].question.value, "1 name");
+  assert.equal(table.rows.length, 2, "One row in rendered table");
+  assert.equal(table.rows[1].cells[0].question.value, 1);
+  assert.equal(table.rows[1].cells[1].question.value, "1 name");
   const rows = matrix.visibleRows;
   assert.equal(rows.length, 1, "one row is added, rowCount: 1");
   assert.equal(rows[0].cells[0].question.value, 1, "cell [0,0]");

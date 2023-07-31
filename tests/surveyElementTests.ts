@@ -176,8 +176,8 @@ QUnit.test("Check errors location", function (assert) {
 
   assert.notOk(questionInMatrix.showErrorOnTop);
   assert.notOk(questionInMatrix.showErrorOnBottom);
-  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
-  assert.ok(questionInMatrix.isErrorsModeTooltip);
+  assert.ok(questionInMatrix.showErrorsAboveQuestion);
+  assert.notOk(questionInMatrix.isErrorsModeTooltip);
 });
 QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert) {
   StylesManager.applyTheme("default");
@@ -224,75 +224,6 @@ QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert)
   assert.notOk(q1.showErrorsAboveQuestion);
   assert.ok(q1.showErrorsBelowQuestion);
 });
-
-QUnit.test("Check isErrorsModeTooltip for custom widget", function (assert) {
-  StylesManager.applyTheme("default");
-  CustomWidgetCollection.Instance.clear();
-  CustomWidgetCollection.Instance.addCustomWidget(
-    {
-      name: "tagbox2",
-      isFit: (question) => {
-        return question.getType() === "tagbox2";
-      },
-    }
-  );
-  if (!Serializer.findClass("tagbox2")) {
-    Serializer.addClass("tagbox2", [], null, "text");
-  }
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "tagbox2",
-        name: "q1"
-      },
-      {
-        type: "matrixdynamic",
-        name: "q2",
-        "columns": [
-          {
-            "name": "subjects",
-            "cellType": "tagbox2",
-            "isRequired": true,
-            "choices": [1, 2, 3]
-          }
-        ]
-      }
-    ]
-  });
-  const q1 = survey.getQuestionByName("q1");
-  const questionInMatrix = survey.getAllQuestions()[1].renderedTable.rows[0].cells[0].question;
-  assert.notOk(q1.isErrorsModeTooltip);
-  assert.notOk(q1.showErrorsAboveQuestion);
-  assert.notOk(q1.showErrorOnBottom);
-  assert.ok(q1.showErrorOnTop);
-
-  assert.notOk(questionInMatrix.isErrorsModeTooltip);
-  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
-  assert.notOk(questionInMatrix.showErrorOnBottom);
-  assert.ok(questionInMatrix.showErrorOnTop);
-
-  survey.questionErrorLocation = "bottom";
-  assert.notOk(q1.showErrorOnTop);
-  assert.ok(q1.showErrorOnBottom);
-
-  assert.notOk(questionInMatrix.showErrorOnTop);
-  assert.ok(questionInMatrix.showErrorOnBottom);
-
-  survey.css = defaultV2Css;
-  survey.questionErrorLocation = "top";
-  assert.notOk(q1.showErrorOnTop);
-  assert.notOk(q1.showErrorOnBottom);
-  assert.notOk(q1.isErrorsModeTooltip);
-  assert.ok(q1.showErrorsAboveQuestion);
-
-  survey.questionErrorLocation = "bottom";
-  assert.notOk(questionInMatrix.showErrorOnTop);
-  assert.notOk(questionInMatrix.showErrorsAboveQuestion);
-  assert.notOk(questionInMatrix.isErrorsModeTooltip);
-  assert.ok(questionInMatrix.showErrorOnBottom);
-  CustomWidgetCollection.Instance.clear();
-});
-
 QUnit.test("allowRootStyle", function (assert) {
   StylesManager.applyTheme("default");
   const survey = new SurveyModel({

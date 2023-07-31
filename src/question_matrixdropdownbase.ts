@@ -867,9 +867,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       });
     this.registerPropertyChangedHandlers(["isMobile"],
       () => {
-        if (this.columnLayout === "vertical") {
-          this.resetRenderedTable();
-        }
+        this.resetRenderedTable();
       }
     );
   }
@@ -2353,7 +2351,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();
   }
   protected getIsTooltipErrorInsideSupported(): boolean {
-    return true;
+    return false;
   }
 }
 

@@ -3081,7 +3081,7 @@ export class SurveyModel extends SurveyElementCore
    * @see focusFirstQuestionAutomatic
    */
   public focusFirstQuestion() {
-    if (this.isFocusingQuestion) return;
+    if (this.focusingQuestionInfo) return;
     var page = this.activePage;
     if (page) {
       page.scrollToTop();
@@ -3094,7 +3094,7 @@ export class SurveyModel extends SurveyElementCore
     if (doScroll) {
       page.scrollToTop();
     }
-    if (this.isCurrentPageRendering && this.focusFirstQuestionAutomatic && !this.isFocusingQuestion) {
+    if (this.isCurrentPageRendering && this.focusFirstQuestionAutomatic && !this.focusingQuestionInfo) {
       page.focusFirstQuestion();
       this.isCurrentPageRendering = false;
     }
@@ -3614,9 +3614,8 @@ export class SurveyModel extends SurveyElementCore
       }
     }
     if (focusOnFirstError && !!firstErrorPage) {
-      this.currentPage = firstErrorPage;
-      var questions = firstErrorPage.questions;
-      for (var i = 0; i < questions.length; i++) {
+      const questions = firstErrorPage.getQuestions(true);
+      for (let i = 0; i < questions.length; i++) {
         if (questions[i].errors.length > 0) {
           questions[i].focus(true);
           break;
@@ -4216,6 +4215,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public start(): boolean {
     if (!this.firstPageIsStarted) return false;
+    this.isCurrentPageRendering = true;
     if (this.checkIsPageHasErrors(this.startedPage, true)) return false;
     this.isStartedState = false;
     this.startTimerFromUI();
@@ -4550,12 +4550,10 @@ export class SurveyModel extends SurveyElementCore
   private isFirstPageRendering: boolean = true;
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
-    if (!this.isDesignMode && !this.isFocusingQuestion) {
+    if (!this.isDesignMode && !this.focusingQuestionInfo) {
       setTimeout(() => this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
     }
-    while (this.afterRenderPageTasks.length > 0) {
-      this.afterRenderPageTasks.shift()();
-    }
+    this.focusQuestionInfo();
     this.isFirstPageRendering = false;
     if (this.onAfterRenderPage.isEmpty) return;
     this.onAfterRenderPage.fire(this, {
@@ -6958,8 +6956,7 @@ export class SurveyModel extends SurveyElementCore
   triggerExecuted(trigger: Trigger): void {
     this.onTriggerExecuted.fire(this, { trigger: trigger });
   }
-  private isFocusingQuestion: boolean;
-  private afterRenderPageTasks: Array<() => void> = [];
+  private focusingQuestionInfo: any;
   private isMovingQuestion: boolean;
   public startMovingQuestion(): void {
     this.isMovingQuestion = true;
@@ -6979,23 +6976,29 @@ export class SurveyModel extends SurveyElementCore
    * @see focusFirstQuestionAutomatic
    */
   public focusQuestion(name: string): boolean {
-    var question = this.getQuestionByName(name, true);
+    return this.focusQuestionByInstance(this.getQuestionByName(name, true));
+  }
+  focusQuestionByInstance(question: Question, onError: boolean = false): boolean {
     if (!question || !question.isVisible || !question.page) return false;
-    this.isFocusingQuestion = true;
+    const oldQuestion = this.focusingQuestionInfo?.question;
+    if(oldQuestion === question) return false;
+    this.focusingQuestionInfo = { question: question, onError: onError };
     this.skippedPages.push({ from: this.currentPage, to: question.page });
-    const isNeedWaitForPageRendered = this.currentPage !== question.page;
-    const focusQuestionFunc = () => {
-      question.focus();
-      this.isFocusingQuestion = false;
-      this.isCurrentPageRendering = false;
-    };
-    this.afterRenderPageTasks.push(focusQuestionFunc);
-    this.currentPage = <PageModel>question.page;
+    const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
+    if(isNeedWaitForPageRendered) {
+      this.currentPage = <PageModel>question.page;
+    }
     if (!isNeedWaitForPageRendered) {
-      focusQuestionFunc();
-      this.afterRenderPageTasks.splice(this.afterRenderPageTasks.indexOf(focusQuestionFunc), 1);
+      this.focusQuestionInfo();
     }
     return true;
+  }
+  private focusQuestionInfo(): void {
+    const question = this.focusingQuestionInfo?.question;
+    if(!!question && !question.isDisposed) {
+      question.focus(this.focusingQuestionInfo.onError);
+    }
+    this.focusingQuestionInfo = undefined;
   }
 
   public questionEditFinishCallback(question: Question, event: any) {

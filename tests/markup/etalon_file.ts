@@ -114,7 +114,28 @@ registerMarkupTests(
     },
     snapshot: "file-zip-png-ro",
   },
-
+  {
+    name: "Test single file question readOnly (default)",
+    json: {
+      mode: "display",
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+          defaultValue: [
+            {
+              "name": "item1.zip",
+              "type": "application/x-zip-compressed",
+              "content": "#item1.zip"
+            },
+          ],
+        }
+      ]
+    },
+    snapshot: "file-single-zip-ro",
+  },
   // defaultV2
   {
     name: "Test file question empty (defaultV2)",

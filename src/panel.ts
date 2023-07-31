@@ -319,7 +319,7 @@ export class PanelModelBase extends SurveyElement<Question>
   @property({ defaultValue: true }) showTitle: boolean;
   get hasTitle(): boolean {
     return (
-      (this.canShowTitle() && this.title.length > 0) ||
+      (this.canShowTitle() && this.locTitle.textOrHtml.length > 0) ||
       (this.showTitle && this.isDesignMode && settings.designMode.showEmptyTitles)
     );
   }
@@ -523,6 +523,16 @@ export class PanelModelBase extends SurveyElement<Question>
     }
 
     return this.questionsValue;
+  }
+  public getQuestions(includeNested: boolean): Array<Question> {
+    const res = this.questions;
+    if(!includeNested) return res;
+    const res2: Array<Question> = [];
+    res.forEach(q => {
+      res2.push(q);
+      q.getNestedQuestions().forEach(nQ => res2.push(nQ));
+    });
+    return res2;
   }
   protected getValidName(name: string): string {
     if (!!name) return name.trim();
@@ -1621,11 +1631,21 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get no(): string {
     return this.getPropertyValue("no", "");
   }
-  protected setNo(visibleIndex: number) {
+  protected setNo(visibleIndex: number): void {
     this.setPropertyValue(
       "no",
       Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex())
     );
+  }
+  protected createLocTitleProperty(): LocalizableString {
+    const locTitleValue = super.createLocTitleProperty();
+    locTitleValue.onGetTextCallback = (text: string): string => {
+      if (!text && (this.isExpanded || this.isCollapsed)) {
+        text = this.name;
+      }
+      return text;
+    };
+    return locTitleValue;
   }
   protected beforeSetVisibleIndex(index: number): number {
     let visibleIndex = -1;

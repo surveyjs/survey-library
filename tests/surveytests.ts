@@ -1469,6 +1469,7 @@ QUnit.test("survey.checkErrorsMode = 'onComplete'", function (assert) {
   assert.equal(survey.currentPageNo, 1, "Ignore error on the first page");
   survey.completeLastPage();
   assert.equal(survey.currentPageNo, 0, "Move to first page with the error");
+  survey.afterRenderPage(<HTMLElement>{});
 
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Ignore error on the first page, #2");
@@ -1478,6 +1479,7 @@ QUnit.test("survey.checkErrorsMode = 'onComplete'", function (assert) {
     0,
     "Move to first page with the error, #2"
   );
+  survey.afterRenderPage(<HTMLElement>{});
 
   survey.setValue("q1", "john.snow@nightwatch.org");
   survey.nextPage();
@@ -13658,6 +13660,7 @@ QUnit.test(
     survey.nextPage();
     survey.nextPage();
     survey.completeLastPage();
+    survey.afterRenderPage(<HTMLElement>{});
     assert.equal(survey.currentPageNo, 0, "The first page is active");
     assert.equal(
       survey.getQuestionByName("q1").inputId,

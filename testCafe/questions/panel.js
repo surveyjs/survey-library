@@ -69,6 +69,14 @@ var json = {
           innerIndent: 1,
           name: "panel1",
         },
+        {
+          type: "panel",
+          name: "panel2",
+          state: "collapsed",
+          elements: [
+            { type: "text", name: "q1" }
+          ]
+        }
       ],
     },
   ],
@@ -118,6 +126,14 @@ frameworks.forEach((framework) => {
     assert.equal(await contentItem.visible, true);
     await t.click(panelTitle);
     assert.equal(await contentItem.visible, false);
+  });
+  test("expand collapse title by name", async (t) => {
+    const panelTitle = Selector("h4").withText("panel2");
+    const contentItem = Selector("[data-name='q1']");
+
+    assert.equal(await contentItem.visible, false);
+    await t.click(panelTitle);
+    assert.equal(await contentItem.visible, true);
   });
 
   test("panel description reactivity", async (t) => {

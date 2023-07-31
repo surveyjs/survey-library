@@ -9,6 +9,10 @@
   word-break: break-word;
 }
 
+.sd-description.sd-question__description--under-input {
+  padding-top: calcSize(2);
+}
+
 .sd-element__header .sd-description {
   margin-top: calcSize(0.5);
 }

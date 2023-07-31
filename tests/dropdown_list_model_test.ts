@@ -367,6 +367,27 @@ QUnit.test("hintString test", function (assert) {
   assert.equal(dropdownListModel.hintStringSuffix, "em3", "filter from start with value, hint suffix correct");
 });
 
+QUnit.test("showHintString for zero values", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      hasOther: "true",
+      searchEnabled: false,
+      choices: [
+        0,
+        "1"]
+    }
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  dropdownListModel.inputStringRendered = "1";
+  question.value = 0;
+  assert.notOk(dropdownListModel.showHintString, "no hint");
+});
+
 QUnit.test("hintString test - no search", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];

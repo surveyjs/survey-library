@@ -109,7 +109,7 @@
     <!-- /ko -->
     <tbody>
       <!-- ko foreach: question.koTable().rows -->
-      <!-- ko ifnot: ($parent.detailPanelMode === "popup" && $data.isDetailRow) || !$data.visible,-->
+      <!-- ko ifnot: ($parent.detailPanelMode === "popup" && $data.isDetailRow) || !$data.visible-->
       <tr data-bind="css: $data.className, attr: attributes, event: { pointerdown: function (model, event) { question.onPointerDown(event, row); return true;} }">
         <!-- ko foreach: $data.cells -->
         <!-- ko if: $data.isDragHandlerCell -->

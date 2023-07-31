@@ -1340,3 +1340,56 @@ QUnit.test("check rating triggerResponsiveness method", (assert) => {
   }, 1);
 
 });
+
+QUnit.test("check rating in-matrix pre-defined items", (assert) => {
+  var json = {
+    logoPosition: "right",
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "matrixdropdown",
+            name: "q",
+            columns: [
+              {
+                name: "Column 1",
+                cellType: "rating",
+                rateValues: [
+                  {
+                    value: "item1",
+                    text: "Rate Item 1"
+                  },
+                  {
+                    value: "item2",
+                    text: "Rate Item 2"
+                  },
+                  {
+                    value: "item3",
+                    text: "Rate Item 3"
+                  },
+                  {
+                    value: "item4",
+                    text: "Rate Item 4"
+                  },
+                  {
+                    value: "item5",
+                    text: "Rate Item 5"
+                  }
+                ]
+              }
+            ],
+            choices: [1, 2, 3, 4, 5],
+            rows: ["Row 1", "Row 2"]
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const q = survey.getQuestionByName("q") as QuestionMatrixDropdownModel;
+  var column = q.columns[0];
+  assert.equal(column.templateQuestion.rateValues.length, 5);
+  assert.equal(column.templateQuestion.autoGenerate, false);
+  //assert.notOk(column.autoGenerate);
+});

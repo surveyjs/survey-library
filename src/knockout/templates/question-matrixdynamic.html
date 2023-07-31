@@ -49,10 +49,6 @@
     data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }"
   >
     <div data-bind="visible: question.isVisible, css: $parentContext.question.cssClasses.cellQuestionWrapper">
-      <!-- ko if: $data.showErrorOnTop-->
-      <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
-      <!-- /ko -->
-      <!-- /ko -->
       <!-- ko if: $data.isOtherChoice -->
         <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': true } }"></div>
       <!-- /ko -->
@@ -79,14 +75,6 @@
         <!-- ko component: { name: question.getComponentName(), params: { question: question } } -->
         <!-- /ko -->
       <!-- /ko -->
-      <!-- /ko -->
-      <!-- ko if: $data.showErrorOnBottom-->
-      <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
-      <!-- /ko -->
-      <!-- /ko -->
-      <!-- ko if: $data.hasQuestion && $data.question.isErrorsModeTooltip-->
-        <!-- ko component: { name: 'sv-tooltip-error', params: { question: question } } -->
-        <!-- /ko -->
       <!-- /ko -->
     </div>
   </td>
@@ -121,7 +109,7 @@
     <!-- /ko -->
     <tbody>
       <!-- ko foreach: question.koTable().rows -->
-      <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
+      <!-- ko ifnot: ($parent.detailPanelMode === "popup" && $data.isDetailRow) || !$data.visible,-->
       <tr data-bind="css: $data.className, attr: attributes, event: { pointerdown: function (model, event) { question.onPointerDown(event, row); return true;} }">
         <!-- ko foreach: $data.cells -->
         <!-- ko if: $data.isDragHandlerCell -->
@@ -146,6 +134,12 @@
             templateData: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koElementAfterRender } } } 
           -->
           <!-- /ko -->
+        </td>
+        <!-- /ko -->
+        <!-- ko if: $data.isErrorsCell -->
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans}">
+            <!-- ko template: { name: 'survey-question-errors', data: $data.question, as: 'question' } -->
+            <!-- /ko -->
         </td>
         <!-- /ko -->
         <!-- ko if: $data.hasQuestion -->

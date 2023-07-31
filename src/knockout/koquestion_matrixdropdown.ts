@@ -12,6 +12,7 @@ import { QuestionFactory } from "survey-core";
 import { Question } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
+import { QuestionMatrixDropdownRenderedErrorRow } from "src/question_matrixdropdownrendered";
 
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   private _tableImplementor: ImplementorBase;
@@ -144,6 +145,11 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
 export class KoQuestionMatrixDropdownRenderedTable extends QuestionMatrixDropdownRenderedTable {
   protected createRenderedRow(cssClasses: any, isDetailRow: boolean = false) {
     const renderedRow = new QuestionMatrixDropdownRenderedRow(cssClasses, isDetailRow);
+    new ImplementorBase(renderedRow);
+    return renderedRow;
+  }
+  protected createErrorRenderedRow(cssClasses: any): QuestionMatrixDropdownRenderedErrorRow {
+    const renderedRow = new QuestionMatrixDropdownRenderedErrorRow(cssClasses);
     new ImplementorBase(renderedRow);
     return renderedRow;
   }

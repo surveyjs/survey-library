@@ -125,7 +125,7 @@
         </td>
         <!-- /ko -->
         <!-- ko if: $data.isEmpty -->
-        <td data-bind="attr: { colspan: $data.colSpans }"></td>
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }"></td>
         <!-- /ko -->
         <!-- ko if: $data.hasPanel -->
         <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
@@ -137,7 +137,7 @@
         </td>
         <!-- /ko -->
         <!-- ko if: $data.isErrorsCell -->
-        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans}">
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }">
             <!-- ko template: { name: 'survey-question-errors', data: $data.question, as: 'question' } -->
             <!-- /ko -->
         </td>

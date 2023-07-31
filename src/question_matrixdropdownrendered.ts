@@ -108,7 +108,7 @@ export class QuestionMatrixDropdownRenderedCell {
         }
       }
     }
-    if(this.question && this.question.isVisible) {
+    if(this.hasQuestion && this.question.isVisible) {
       return this.question.locTitle.renderedHtml;
     }
     if(this.hasTitle) {

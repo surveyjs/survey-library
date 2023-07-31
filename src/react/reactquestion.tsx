@@ -239,7 +239,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
     this.tooltipRef = React.createRef();
   }
   protected get id(): string {
-    return this.props.id;
+    return this.props.element.id + "_errors";
   }
   protected get element(): SurveyElement {
     return this.props.element;

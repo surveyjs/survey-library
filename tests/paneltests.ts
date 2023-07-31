@@ -187,6 +187,32 @@ QUnit.test("Expand panel on validation error", function (assert) {
   assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
   assert.equal(panel2.isCollapsed, false, "Panel2 is not collapsed");
 });
+QUnit.test("Render name if title is empty and panel is expanded or collapsed", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page1");
+  const panel = page.addNewPanel("p1");
+  assert.notOk(panel.locTitle.textOrHtml, "panel title is empty");
+  assert.notOk(panel.hasTitle, "no title, #1");
+  panel.collapse();
+  assert.equal(panel.locTitle.textOrHtml, "p1", "panel title is name");
+  assert.ok(panel.hasTitle, "has title, #2");
+  panel.state = "default";
+  assert.notOk(panel.locTitle.textOrHtml, "panel title is empty, #2");
+  assert.notOk(panel.hasTitle, "no title, #3");
+  panel.expand();
+  assert.equal(panel.locTitle.textOrHtml, "p1", "panel title is name, #2");
+  assert.ok(panel.hasTitle, "has title, #3");
+  panel.title = "some text";
+  assert.equal(panel.locTitle.textOrHtml, "some text", "panel title is not empty");
+  assert.ok(panel.hasTitle, "has title, #4");
+  panel.title = "";
+  panel.state = "default";
+  assert.notOk(panel.locTitle.textOrHtml, "panel title is empty, #3");
+  assert.notOk(panel.hasTitle, "no title, #5");
+  panel.title = "some text";
+  assert.equal(panel.locTitle.textOrHtml, "some text", "panel title is not empty, #2");
+  assert.ok(panel.hasTitle, "has title, #6");
+});
 QUnit.test("Panel.isRequired", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("page1");

@@ -5,6 +5,7 @@ import { Question } from "./question";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
+import { ISurveyImpl } from "./base-interfaces";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -46,6 +47,15 @@ export class QuestionSignaturePadModel extends Question {
     const _survey = this.survey as SurveyModel;
     return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
   }
+  private updateColors(signaturePad: SignaturePad) {
+    const penColorFromTheme = this.getPenColorFromTheme();
+    const penColorProperty = this.getPropertyByName("penColor");
+    signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
+
+    const backgroundColorProperty = this.getPropertyByName("backgroundColor");
+    const backgroundColorFromTheme = penColorFromTheme ? "transparent" : undefined;
+    signaturePad.backgroundColor = this.backgroundColor || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
+  }
 
   protected getCssRoot(cssClasses: any): string {
     return new CssClassBuilder()
@@ -80,6 +90,16 @@ export class QuestionSignaturePadModel extends Question {
       this.destroySignaturePad(el);
     }
   }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
+    if (!this.survey) return;
+
+    (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
+      if(!!this.signaturePad) {
+        this.updateColors(this.signaturePad);
+      }
+    });
+  }
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
@@ -96,8 +116,7 @@ export class QuestionSignaturePadModel extends Question {
       }
     };
 
-    signaturePad.penColor = this.penColor;
-    signaturePad.backgroundColor = this.backgroundColor;
+    this.updateColors(signaturePad);
 
     signaturePad.addEventListener("beginStroke", () => {
       this.isDrawingValue = true;
@@ -201,7 +220,7 @@ export class QuestionSignaturePadModel extends Question {
    * @see backgroundColor
    */
   public get penColor(): string {
-    return this.getPropertyValue("penColor", this.getPenColorFromTheme());
+    return this.getPropertyValue("penColor");
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
@@ -279,12 +298,10 @@ Serializer.addClass(
     {
       name: "penColor:color",
       category: "general",
-      default: "#1ab394",
     },
     {
       name: "backgroundColor:color",
       category: "general",
-      default: "#ffffff",
     },
     {
       name: "dataFormat",

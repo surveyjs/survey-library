@@ -22,10 +22,10 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
       this.update();
     };
     this.model.currentIndexChangedCallback = () => {
-      this.detectChanges();
+      this.update()
     };
     this.model.renderModeChangedCallback = () => {
-      this.detectChanges();
+      this.update();
     };
   }
   get progressCssClass() {

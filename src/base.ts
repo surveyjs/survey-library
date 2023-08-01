@@ -243,6 +243,8 @@ export class Base {
   }>;
   protected isLoadingFromJsonValue: boolean = false;
   public loadingOwner: Base = null;
+
+  protected jsonObj: any;
   /**
    * An event that is raised when a property of this SurveyJS object has changed.
    *
@@ -375,6 +377,7 @@ export class Base {
 
   startLoadingFromJson(json?: any) {
     this.isLoadingFromJsonValue = true;
+    this.jsonObj = json;
   }
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;

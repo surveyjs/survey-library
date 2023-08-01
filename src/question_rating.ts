@@ -88,16 +88,10 @@ export class QuestionRatingModel extends Question {
     );
     this.initPropertyDependencies();
   }
-  private jsonObj: any;
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {
       this.rateValues.map(item => item.icon = this.getItemSmiley(item));
     }
-  }
-
-  startLoadingFromJson(jsonObj: any) {
-    super.startLoadingFromJson(jsonObj);
-    this.jsonObj = jsonObj;
   }
 
   endLoadingFromJson() {

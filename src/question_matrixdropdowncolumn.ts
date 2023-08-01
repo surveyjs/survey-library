@@ -535,6 +535,13 @@ export class MatrixDropdownColumn extends Base
         delete json["choices"];
       }
       delete json["itemComponent"];
+
+      if (this.jsonObj) {
+        Object.keys(this.jsonObj).forEach((prop) => {
+          json[prop] = this.jsonObj[prop];
+        });
+      }
+
       new JsonObject().toObject(json, question);
       question.isContentElement = this.templateQuestion.isContentElement;
       this.previousChoicesId = undefined;

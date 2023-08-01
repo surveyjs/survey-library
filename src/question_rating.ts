@@ -167,6 +167,15 @@ export class QuestionRatingModel extends Question {
       });
   }
 
+  @property({ defaultValue: false }) inputHasValue: boolean;
+
+  public get showSelectedItemLocText(): boolean {
+    return !this.readOnly && !this.inputHasValue && !!this.selectedItemLocText;
+  }
+  public get selectedItemLocText(): LocalizableString {
+    return !this.readOnly && this.visibleRateValues.filter(v => v.value == this.value)[0]?.locText;
+  }
+
   @property({ defaultValue: true }) autoGenerate: boolean;
 
   /**
@@ -732,7 +741,8 @@ export class QuestionRatingModel extends Question {
     return this.visibleRateValues;
   }
   public get readOnlyText() {
-    return (this.displayValue || this.placeholder);
+    if (this.readOnly) return (this.displayValue || this.placeholder);
+    return this.isEmpty() ? this.placeholder : "";
   }
 
   public needResponsiveWidth() {

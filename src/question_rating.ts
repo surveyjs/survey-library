@@ -10,6 +10,8 @@ import { Base } from "./base";
 import { HtmlConditionItem } from "./expressionItems";
 import { mergeValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
+import { SurveyModel } from "./survey";
+import { ISurveyImpl } from "./base-interfaces";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -273,13 +275,16 @@ export class QuestionRatingModel extends Question {
   private static normalColorLight: Array<number>;
   private static goodColorLight: Array<number>;
 
-  private initColors() {
+  private updateColors() {
+    const _survey = this.survey as SurveyModel;
     if (this.colorMode === "monochrome") return;
     if (typeof document === "undefined" || !document) return;
-    if (QuestionRatingModel.badColor && QuestionRatingModel.normalColor && QuestionRatingModel.goodColor) return;
-    function getRGBColor(varName: string) {
-      const style = getComputedStyle(document.documentElement);
-      const str = style.getPropertyValue && style.getPropertyValue(varName);
+    function getRGBColor(colorName: string, varName: string) {
+      let str = !!_survey && !!_survey.themeVariables && _survey.themeVariables[colorName];
+      if(!str) {
+        const style = getComputedStyle(document.documentElement);
+        str = style.getPropertyValue && style.getPropertyValue(varName);
+      }
       if (!str) return null;
       var ctx = document.createElement("canvas").getContext("2d");
       ctx.fillStyle = str;
@@ -296,12 +301,18 @@ export class QuestionRatingModel extends Question {
         1
       ] : null;
     }
-    QuestionRatingModel.badColor = getRGBColor("--sd-rating-bad-color");
-    QuestionRatingModel.normalColor = getRGBColor("--sd-rating-normal-color");
-    QuestionRatingModel.goodColor = getRGBColor("--sd-rating-good-color");
-    QuestionRatingModel.badColorLight = getRGBColor("--sd-rating-bad-color-light");
-    QuestionRatingModel.normalColorLight = getRGBColor("--sd-rating-normal-color-light");
-    QuestionRatingModel.goodColorLight = getRGBColor("--sd-rating-good-color-light");
+
+    QuestionRatingModel.badColor = getRGBColor("--sjs-special-red", "--sd-rating-bad-color");
+    QuestionRatingModel.normalColor = getRGBColor("--sjs-special-yellow", "--sd-rating-normal-color");
+    QuestionRatingModel.goodColor = getRGBColor("--sjs-special-green", "--sd-rating-good-color");
+    QuestionRatingModel.badColorLight = getRGBColor("--sjs-special-red-light", "--sd-rating-bad-color-light");
+    QuestionRatingModel.normalColorLight = getRGBColor("--sjs-special-yellow-light", "--sd-rating-normal-color-light");
+    QuestionRatingModel.goodColorLight = getRGBColor("--sjs-special-green-light", "--sd-rating-good-color-light");
+  }
+
+  private initColors() {
+    if (QuestionRatingModel.badColor && QuestionRatingModel.normalColor && QuestionRatingModel.goodColor) return;
+    this.updateColors();
   }
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -793,6 +804,14 @@ export class QuestionRatingModel extends Question {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
+  }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
+    if (!this.survey) return;
+
+    (<SurveyModel>this.survey).onThemeApplying.add((survey, options) => {
+      this.updateColors();
+    });
   }
   public dispose(): void {
     super.dispose();

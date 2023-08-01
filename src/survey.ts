@@ -120,6 +120,7 @@ export class SurveyModel extends SurveyElementCore
 
   private navigationBarValue: ActionContainer;
 
+  onThemeApplying: EventBase<SurveyModel> = new EventBase<SurveyModel>();
   onThemeApplied: EventBase<SurveyModel> = new EventBase<SurveyModel>();
 
   //#region Event declarations
@@ -7160,6 +7161,7 @@ export class SurveyModel extends SurveyElementCore
 
   public applyTheme(theme: ITheme): void {
     if(!theme) return;
+    this.onThemeApplying.fire(this, {});
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if(key === "isPanelless") {

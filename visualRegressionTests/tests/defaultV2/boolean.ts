@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, setOptions, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, setOptions, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Boolean Screenshot";
 
@@ -33,6 +33,7 @@ frameworks.forEach(framework => {
       });
       const questionRoot = Selector(".sd-question--boolean");
       await t.wait(1000);
+      await resetFocusToBody();
       await takeElementScreenshot("boolean-question-indeterminate.png", questionRoot, t, comparer);
 
       await t.hover(".sd-boolean__thumb-ghost");

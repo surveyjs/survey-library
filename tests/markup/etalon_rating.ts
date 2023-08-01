@@ -1,6 +1,5 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, DropdownListModel } from "survey-core";
 import { registerMarkupTests } from "./helper";
-import { DropdownListModel } from "../../src/dropdownListModel";
 
 registerMarkupTests(
   [{
@@ -128,7 +127,7 @@ registerMarkupTests(
     initSurvey: (survey) => {
       let q1 = survey.getQuestionByName("name");
       const dropdownListModel = new DropdownListModel(q1);
-      q1.dropdownListModel = dropdownListModel;
+      q1["dropdownListModel"] = dropdownListModel;
       survey.focusFirstQuestionAutomatic = false;
       q1["dropdownListModel"].onFocus(null);
     },

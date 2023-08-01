@@ -433,11 +433,24 @@
   }
 
   .sd-table__cell.sd-table__cell--error-top {
-    margin-top: calcSize(2);
+    margin-top: 0;
   }
 
-  .sd-table__cell--error-top+.sd-table__cell {
-    margin-top: calcSize(-1);
+  .sd-table__cell--error-top:first-of-type+.sd-table__cell {
+    margin-top: 0;
+  }
+
+  .sd-table__cell--error-top {
+    .sd-question__erbox {
+      margin-top: calcSize(2);
+      margin-bottom: calcSize(-2);
+    }
+  }
+
+  .sd-table__cell--error-top:first-of-type {
+    .sd-question__erbox {
+      margin-bottom: calcSize(-1);
+    }
   }
 }
 

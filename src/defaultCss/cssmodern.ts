@@ -437,6 +437,7 @@ export var modernCss = {
     },
   },
   variables: {
+    mobileWidth: "--sv-mobile-width",
     themeMark: "--sv-modern-mark"
   }
 };

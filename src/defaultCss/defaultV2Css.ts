@@ -407,6 +407,9 @@ export var defaultV2Css = {
     tableWrapper: "sd-table-wrapper",
     rootAlternateRows: "sd-table--alternate-rows",
     cell: "sd-table__cell",
+    errorsCell: "sd-table__cell--error",
+    errorsCellTop: "sd-table__cell--error-top",
+    errorsCellBottom: "sd-table__cell--error-bottom",
     itemCell: "sd-table__cell--item",
     row: "sd-table__row",
     headerCell: "sd-table__cell sd-table__cell--header",
@@ -460,6 +463,9 @@ export var defaultV2Css = {
     emptyCell: "sd-table__cell--empty",
     verticalCell: "sd-table__cell--vertical",
     cellQuestionWrapper: "sd-table__question-wrapper",
+    errorsCell: "sd-table__cell--error",
+    errorsCellTop: "sd-table__cell--error-top",
+    errorsCellBottom: "sd-table__cell--error-bottom",
     compact: "sd-element--with-frame sd-element--compact"
   },
   rating: {

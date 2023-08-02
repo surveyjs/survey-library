@@ -201,7 +201,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const { root } = settings.environment;
     if (!root) return false;
     const el = root.getElementById(elementId);
-    if (el && !(<any>el)["disabled"]) {
+    if (el && !(<any>el)["disabled"] && el.style.display !== "none") {
       el.focus();
       return true;
     }

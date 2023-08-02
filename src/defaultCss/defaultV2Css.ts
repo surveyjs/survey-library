@@ -14,6 +14,7 @@ export var defaultV2Css = {
   root: "sd-root-modern",
   rootMobile: "sd-root-modern--mobile",
   rootReadOnly: "sd-root--readonly",
+  rootCompact: "sd-root--compact",
   rootBackgroundImage: "sd-root_background-image",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",

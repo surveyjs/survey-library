@@ -36,6 +36,7 @@
       <span [class]="model.cssClasses.dragAreaPlaceholder">{{ model.dragAreaPlaceholder }}</span>
       <div [class]="model.cssClasses.wrapper">
         <label
+          *ngIf="!model.isReadOnly"
           role="button"
           tabindex="0"
           [class]="model.getChooseFileCss()"

@@ -26,10 +26,6 @@
       flex-wrap: wrap;
     }
   }
-
-  &.sd-scrollable-container:not(.sd-scrollable-container--compact) {
-    overflow: visible;
-  }
 }
 
 .sd-rating--small {
@@ -87,6 +83,8 @@ legend+sv-ng-rating-item+.sd-rating__item {
 .sd-rating__item.sd-rating__item--selected.sd-rating__item--disabled {
   color: $primary-foreground;
   fill: $foreground;
+  background-color: $background-semitransparent;
+  border-color: transparent;
 }
 
 .sd-question--disabled .sd-rating__item-text {

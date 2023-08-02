@@ -4,9 +4,13 @@
   font-weight: $font-questiondescription-weight;
   color: $font-questiondescription-color;
   font-size: $font-questiondescription-size;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-questiondescription-size);
   white-space: normal;
   word-break: break-word;
+}
+
+.sd-description.sd-question__description--under-input {
+  padding-top: calcSize(2);
 }
 
 .sd-element__header .sd-description {

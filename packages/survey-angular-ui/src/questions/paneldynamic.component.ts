@@ -19,13 +19,13 @@ export class PanelDynamicQuestionComponent extends QuestionAngular<QuestionPanel
   protected override onModelChanged(): void {
     super.onModelChanged();
     this.model.panelCountChangedCallback = () => {
-      this.detectChanges();
+      this.update();
     };
     this.model.currentIndexChangedCallback = () => {
-      this.detectChanges();
+      this.update()
     };
     this.model.renderModeChangedCallback = () => {
-      this.detectChanges();
+      this.update();
     };
   }
   get progressCssClass() {

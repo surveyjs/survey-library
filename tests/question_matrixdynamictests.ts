@@ -1596,6 +1596,32 @@ QUnit.test("matrixDynamic.addConditionObjectsByContext", function (assert) {
     "addConditionObjectsByContext work correctly for matrix dynamic with context equals true"
   );
 });
+QUnit.test("matrixDynamic.getNestedQuestions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 2,
+        columns: [{ name: "col1", visibleIf: "{row.col2} = 'a'" }, { name: "col2" }]
+      }
+    ]
+  });
+  const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  let questions = q.getNestedQuestions();
+  assert.equal(questions.length, 4, "4 cells");
+  assert.equal(questions[0].name, "col1", "cells[0, 0]");
+  assert.equal(questions[1].name, "col2", "cells[0, 1]");
+  assert.equal(questions[0].name, "col1", "cells[1, 0]");
+  assert.equal(questions[1].name, "col2", "cells[1, 1]");
+
+  const rows = q.visibleRows;
+  rows[1].getQuestionByColumnName("col2").value = "a";
+  assert.equal(rows[0].cells[0].question.isVisible, false, "cell[0,0] is invisible");
+  assert.equal(rows[1].cells[0].question.isVisible, true, "cell[1,0] is visible");
+  questions = q.getNestedQuestions(true);
+  assert.equal(questions.length, 3, "3 cells");
+  assert.equal(questions[0].name, "col2", "cells[0, 0], visible");
+  assert.equal(questions[1].name, "col1", "cells[1, 1], visible");
+  assert.equal(questions[2].name, "col2", "cells[1, 1], visible");
+});
 QUnit.test("matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition=0", function (assert) {
   settings.matrixMaxRowCountInCondition = 0;
   var objs = [];
@@ -8259,4 +8285,17 @@ QUnit.test("column validation, bug#6449", function (assert) {
   assert.equal(survey.hasErrors(), true, "51<50");
   cellQuestion.value = 41;
   assert.equal(survey.hasErrors(), false, "41<50");
+});
+QUnit.test("matrixDynamic & defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix", rowCount: 1,
+        columns: [{ name: "col1", cellType: "text", defaultValueExpression: "1 + 1" }, { name: "col2" }]
+      }
+    ]
+  });
+  const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(q.visibleRows.length, 1, "one row");
+  assert.deepEqual(q.value, [{ col1: 2 }], "matrix.data");
+  assert.deepEqual(survey.data, { matrix: [{ col1: 2 }] }, "survey.data");
 });

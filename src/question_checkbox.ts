@@ -10,6 +10,8 @@ import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IQuestion } from "./base-interfaces";
+import { SurveyError } from "./survey-error";
+import { CustomError } from "./error";
 
 /**
  * A class that describes the Checkbox question type.
@@ -168,11 +170,12 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return !this.valuePropertyName ? val : val[this.valuePropertyName];
   }
   /**
-   * Sets a limit on the number of selected choices.
+   * Specifies the maximum number of selected choices.
    *
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   * @see minSelectedChoices
    */
   public get maxSelectedChoices(): number {
     return this.getPropertyValue("maxSelectedChoices");
@@ -181,6 +184,21 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (val < 0) val = 0;
     this.setPropertyValue("maxSelectedChoices", val);
     this.filterItems();
+  }
+  /**
+   * Specifies the minimum number of selected choices.
+   *
+   * Default value: 0 (unlimited)
+   *
+   * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `minSelectedChoices` value.
+   * @see maxSelectedChoices
+   */
+  public get minSelectedChoices(): number {
+    return this.getPropertyValue("minSelectedChoices");
+  }
+  public set minSelectedChoices(val: number) {
+    if (val < 0) val = 0;
+    this.setPropertyValue("minSelectedChoices", val);
   }
   /**
    * An array of selected choice items. Includes the "Other" and "None" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
@@ -215,6 +233,23 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     const val = this.renderedValue as Array<any>;
     return val.map((item: any) => new ItemValue(item));
   }
+
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (isOnValueChanged) return;
+
+    if (this.minSelectedChoices > 0 && this.checkMinSelectedChoicesUnreached()) {
+      const minError = new CustomError(
+        this.getLocalizationFormatString("minSelectError", this.minSelectedChoices),
+        this
+      );
+      errors.push(minError);
+    }
+  }
+
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);
@@ -242,6 +277,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var len = !Array.isArray(val) ? 0 : val.length;
     return len >= this.maxSelectedChoices;
   }
+
+  private checkMinSelectedChoicesUnreached(): boolean {
+    if (this.minSelectedChoices < 1) return false;
+    var val = this.value;
+    var len = !Array.isArray(val) ? 0 : val.length;
+    return len < this.minSelectedChoices;
+  }
+
   protected getItemClassCore(item: any, options: any) {
     const __dummy_value = this.value; //trigger dependencies from koValue for knockout
     options.isSelectAllItem = item === this.selectAllItem;
@@ -439,6 +482,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       json["type"] = "radiogroup";
     }
     json["maxSelectedChoices"] = 0;
+    json["minSelectedChoices"] = 0;
     return json;
   }
   public isAnswerCorrect(): boolean {
@@ -537,6 +581,7 @@ Serializer.addClass(
     { name: "showSelectAllItem:boolean", alternativeName: "hasSelectAll" },
     { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0 },
+    { name: "minSelectedChoices:number", default: 0 },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",

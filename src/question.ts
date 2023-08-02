@@ -249,6 +249,7 @@ export class Question extends SurveyElement<Question>
    * Returns a page to which the question belongs and allows you to move this question to a different page.
    */
   public get page(): IPage {
+    if(!!this.parentQuestion) return this.parentQuestion.page;
     return this.getPage(this.parent);
   }
   public set page(val: IPage) {
@@ -969,13 +970,9 @@ export class Question extends SurveyElement<Question>
   public focus(onError: boolean = false): void {
     if (this.isDesignMode || !this.isVisible || !this.survey) return;
     let page = this.page;
-    if(!page && !!this.parentQuestion) {
-      page = this.parentQuestion.page;
-    }
-    let shouldChangePage = !!page && this.survey.currentPage !== page;
+    const shouldChangePage = !!page && this.survey.activePage !== page;
     if(shouldChangePage) {
-      this.survey.currentPage = page;
-      setTimeout(() => this.focuscore(onError), 0);
+      this.survey.focusQuestionByInstance(this, onError);
     } else {
       this.focuscore(onError);
     }
@@ -1298,6 +1295,7 @@ export class Question extends SurveyElement<Question>
   public createValueCopy(): any {
     return this.getUnbindValue(this.value);
   }
+  initDataUI(): void {}
   protected getUnbindValue(value: any): any {
     if (this.isValueSurveyElement(value)) return value;
     return Helpers.getUnbindValue(value);
@@ -1733,16 +1731,30 @@ export class Question extends SurveyElement<Question>
     }
     return res;
   }
-  private addSupportedValidators(
-    supportedValidators: Array<string>,
-    classValidators: Array<string>
-  ) { }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     objects.push({
       name: this.getValueName(),
       text: this.processedTitle,
       question: this,
     });
+  }
+  /**
+   * Returns an array of questions nested within the current question. Use this method to obtain questions within [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model), [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model), and [Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model)-like questions.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible nested questions.
+   * @returns An array of nested questions.
+   */
+  public getNestedQuestions(visibleOnly: boolean = false): Array<Question> {
+    const res: Array<Question> = [];
+    this.collectNestedQuestions(res, visibleOnly);
+    if(res.length === 1 && res[0] === this) return [];
+    return res;
+  }
+  public collectNestedQuestions(questions: Array<Question>, visibleOnly: boolean = false): void {
+    if(visibleOnly && !this.isVisible) return;
+    this.collectNestedQuestionsCore(questions, visibleOnly);
+  }
+  protected collectNestedQuestionsCore(questions: Array<Question>, visibleOnly: boolean): void {
+    questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     var json = new JsonObject().toJsonObject(this);

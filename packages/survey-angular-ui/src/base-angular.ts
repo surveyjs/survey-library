@@ -4,7 +4,7 @@ import { EmbeddedViewContentComponent } from "./embedded-view-content.component"
 
 @Component({
   template: ""
-  })
+})
 export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewContentComponent implements DoCheck, OnDestroy {
   constructor(protected changeDetectorRef: ChangeDetectorRef, viewContainerRef?: ViewContainerRef) {
     super(viewContainerRef);
@@ -84,15 +84,14 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     }
   }
 
-  private update(key: string) {
+  protected update(key?: string): void {
     if (this.getIsRendering()) return;
     this.beforeUpdate();
-    if(this.getPropertiesToUpdateSync().indexOf(key) > -1) {
+    if(key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
       this.detectChanges();
       this.afterUpdate(key);
     } else {
-      ((<any>window)["__zone_symbol__queueMicrotask"]
-        ? (<any>window)["__zone_symbol__queueMicrotask"] : queueMicrotask)(() => {
+      queueMicrotask(() => {
         if(!this.isDestroyed) {
           this.setIsRendering(true);
           this.detectChanges();

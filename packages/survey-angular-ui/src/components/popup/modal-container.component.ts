@@ -17,8 +17,8 @@ export class ModalComponent {
 
   constructor(private popupService: PopupService) {
   }
-  showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
-    this.model = createPopupModalViewModel(dialogOptions, container);
+  showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
+    this.model = createPopupModalViewModel(dialogOptions, rootElement);
     this.model.model.onHide = () => {
       this.portalHost.detach();
       this.model.dispose();
@@ -52,10 +52,15 @@ export class ModalComponent {
       );
       return this.showDialog(options);
     };
+
+    settings.showDialog = (dialogOptions: IDialogOptions, rootElement?: HTMLElement) => {
+      return this.showDialog(dialogOptions, rootElement);
+    };
   }
   ngOnDestroy() {
     if(this.functionDefined) {
       settings.showModal = <any>undefined;
+      settings.showDialog = <any>undefined;
     }
   }
 }

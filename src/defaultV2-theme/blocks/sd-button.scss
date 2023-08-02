@@ -5,7 +5,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
-  background: $background;
+  background: $question-background;
   box-shadow: $shadow-small;
   border-radius: calcCornerRadius(1);
   cursor: pointer;

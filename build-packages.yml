@@ -32,7 +32,46 @@ pool:
 
 jobs:
 
+- job: NPMCache
+
+  steps:
+    - checkout: self
+    - checkout: EmptyRepo
+      persistCredentials: true
+      clean: true
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "14.x"
+      displayName: "Install Node.js"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPM
+
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+
 - job: CoreAngularJquery
+  dependsOn:
+    - NPMCache
 
   steps:
     - checkout: self
@@ -138,6 +177,9 @@ jobs:
 
 
 - job: Knockout
+  dependsOn:
+    - NPMCache
+
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -244,6 +286,8 @@ jobs:
 
 
 - job: React
+  dependsOn:
+    - NPMCache
 
   steps:
     - checkout: self
@@ -345,6 +389,8 @@ jobs:
 
 
 - job: Vue
+  dependsOn:
+    - NPMCache
 
   steps:
     - checkout: self
@@ -445,6 +491,9 @@ jobs:
         publishLocation: "Container"
 
 - job: Angular
+  dependsOn:
+    - NPMCache
+
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -560,6 +609,9 @@ jobs:
         publishLocation: "Container"
 
 - job: Vue3
+  dependsOn:
+    - NPMCache
+
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -627,33 +679,33 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm install
-      displayName: "NPM install packages/survey-vue-ui"
+      displayName: "NPM install packages/survey-vue3-ui"
     
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm run release -- --release-as $(SurveyJSVersion)
         git status
       displayName: "npm run release"
     
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm run build
       displayName: "Build Vue3"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui/example
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
         npm install
-      displayName: "NPM install survey-vue-ui/example"
+      displayName: "NPM install survey-vue3-ui/example"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui/example
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
         npm run build
       displayName: "Build Vue3 Example"
 
     - script: |
-        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue-ui
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
         npm run test:single
       displayName: "run unit and markup tests"
 

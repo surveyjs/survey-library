@@ -26,10 +26,6 @@
       flex-wrap: wrap;
     }
   }
-
-  &.sd-scrollable-container:not(.sd-scrollable-container--compact) {
-    overflow: visible;
-  }
 }
 
 .sd-rating--small {
@@ -87,6 +83,8 @@ legend+sv-ng-rating-item+.sd-rating__item {
 .sd-rating__item.sd-rating__item--selected.sd-rating__item--disabled {
   color: $primary-foreground;
   fill: $foreground;
+  background-color: $background-semitransparent;
+  border-color: transparent;
 }
 
 .sd-question--disabled .sd-rating__item-text {
@@ -326,7 +324,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
   font-size: $font-editorfont-size;
-  line-height: calcLineHeight(1.5);
+  line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
 
   &.sd-rating__min-text,

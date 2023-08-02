@@ -303,22 +303,22 @@ jobs:
       displayName: "Build Core"
 
     - script: |
-        cd packages/survey-vue-ui
+        cd packages/survey-vue3-ui
         npm install
-      displayName: "NPM install packages/survey-vue-ui"
+      displayName: "NPM install packages/survey-vue3-ui"
     
     - script: |
-        cd packages/survey-vue-ui
+        cd packages/survey-vue3-ui
         npm run build
       displayName: "Build Vue3"
 
     - script: |
-        cd packages/survey-vue-ui/example
+        cd packages/survey-vue3-ui/example
         npm install
-      displayName: "NPM install packages/survey-vue-ui/example"
+      displayName: "NPM install packages/survey-vue3-ui/example"
 
     - script: |
-        cd packages/survey-vue-ui/example
+        cd packages/survey-vue3-ui/example
         npm run build
       displayName: "Build Vue3 Example"
 

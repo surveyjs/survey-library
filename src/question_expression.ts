@@ -74,7 +74,7 @@ export class QuestionExpressionModel extends Question {
       this.expressionRunner = new ExpressionRunner(this.expression);
     }
     this.expressionRunner.onRunComplete = (newValue) => {
-      this.value = newValue;
+      this.value = this.roundValue(newValue);
       this.unlocCalculation();
     };
     this.expressionRunner.run(values, properties);
@@ -91,6 +91,7 @@ export class QuestionExpressionModel extends Question {
    * Default value: -1
    * @see displayStyle
    * @see minimumFractionDigits
+   * @see precision
    */
   public get maximumFractionDigits(): number {
     return this.getPropertyValue("maximumFractionDigits");
@@ -194,6 +195,23 @@ export class QuestionExpressionModel extends Question {
   }
   public set useGrouping(val: boolean) {
     this.setPropertyValue("useGrouping", val);
+  }
+  /**
+   * Specifies how many decimal digits to keep in the expression value.
+   *
+   * Default value: -1 (unlimited)
+   * @see maximumFractionDigits
+   */
+  public get precision(): number {
+    return this.getPropertyValue("precision");
+  }
+  public set precision(val: number) {
+    this.setPropertyValue("precision", val);
+  }
+  private roundValue(val: any): any {
+    if(this.precision < 0) return val;
+    if(!Helpers.isNumber(val)) return val;
+    return parseFloat(val.toFixed(this.precision));
   }
   protected getValueAsStr(val: any): string {
     if (this.displayStyle == "date") {
@@ -423,6 +441,7 @@ Serializer.addClass(
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
+    { name: "precision:number", default: -1, category: "data" },
     { name: "enableIf", visible: false },
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },

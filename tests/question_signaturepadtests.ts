@@ -1,6 +1,8 @@
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { SurveyModel } from "../src/survey";
 
+export default QUnit.module("question signaturepad");
+
 QUnit.test("QuestionSignaturePadModel dataFormat default value", function (
   assert
 ) {
@@ -176,22 +178,72 @@ QUnit.test("Check width/height influence on signageWidth/Height properties", (as
   containerEl.remove();
 });
 
-QUnit.test("check penColor", (assert) => {
+QUnit.test("check penColor & background color from json", (assert) => {
   const json = {
     questions: [
       {
         type: "signaturepad",
-        name: "q1"
+        name: "q1",
+        penColor: "#e92525",
+        backgroundColor: "#dde6db"
       },
     ],
   };
-  const survey = new SurveyModel(json);
-  const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
-  assert.equal(signaturepad.penColor, "#1ab394", "penColor default");
+  const containerEl = document.createElement("div");
+  const canvas = document.createElement("canvas");
+  containerEl.appendChild(canvas);
+  let survey = new SurveyModel(json);
+  let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepadQuestion.initSignaturePad(containerEl);
+
+  assert.equal(signaturepadQuestion.penColor, "#e92525", "penColor init");
+  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor init");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#e92525", "signaturePad.penColor init");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#dde6db", "signaturePad.backgroundColor init");
 
   survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
-  assert.equal(signaturepad.penColor, "rgba(103, 58, 176, 1)", "penColor from theme");
+  assert.equal(signaturepadQuestion.penColor, "#e92525", "penColor init");
+  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor init");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#e92525", "signaturePad.penColor init");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#dde6db", "signaturePad.backgroundColor init");
 
   survey.applyTheme({ "cssVariables": { } });
-  assert.equal(signaturepad.penColor, "#1ab394", "penColor default");
+  assert.equal(signaturepadQuestion.penColor, "#e92525", "penColor init");
+  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor init");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#e92525", "signaturePad.penColor init");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#dde6db", "signaturePad.backgroundColor init");
+});
+
+QUnit.test("check penColor & background color from theme", (assert) => {
+  const json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1",
+      },
+    ],
+  };
+  const containerEl = document.createElement("div");
+  const canvas = document.createElement("canvas");
+  containerEl.appendChild(canvas);
+  let survey = new SurveyModel(json);
+  let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepadQuestion.initSignaturePad(containerEl);
+
+  assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
+  assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#ffffff", "signaturePad.backgroundColor default");
+
+  survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
+  assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
+  assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "rgba(103, 58, 176, 1)", "signaturePad.penColor from theme");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor from theme");
+
+  survey.applyTheme({ "cssVariables": { } });
+  assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
+  assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#ffffff", "signaturePad.backgroundColor default");
 });

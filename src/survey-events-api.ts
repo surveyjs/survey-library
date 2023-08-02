@@ -23,7 +23,7 @@ export interface QuestionEventMixin {
 }
 export interface FileQuestionEventMixin {
   /**
-   * A File question instance for which the event is raised.
+   * A File Upload question instance for which the event is raised.
    */
   question: QuestionFileModel;
 }
@@ -184,6 +184,10 @@ export interface CurrentPageChangedEvent {
    */
   isGoingForward: boolean;
   /**
+   * Returns `true` if the respondent is switching from the [preview page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   */
+  isAfterPreview: boolean;
+  /**
    * The current page.
    */
   newCurrentPage: PageModel;
@@ -191,7 +195,6 @@ export interface CurrentPageChangedEvent {
    * A page that used to be current.
    */
   oldCurrentPage: PageModel;
-  isAfterPreview: boolean;
 }
 export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**
@@ -485,46 +488,45 @@ export interface GetResultEvent {
 
 export interface LoadFilesEvent extends FileQuestionEventMixin {
   /**
-   * the question name
+   * A File Upload question's name.
    */
   name: string;
 }
 export interface UploadFilesEvent extends LoadFilesEvent {
   /**
-   * a callback function to get the file upload status and the updloaded file content
+   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, the downloaded file's data.
    */
   callback: (status: string, data?: any) => any;
   /**
-   * the Javascript File objects array to upload
+   * An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
    */
   files: Array<File>;
-
 }
 export interface DownloadFileEvent extends LoadFilesEvent {
   /**
-   * a callback function to get the file downloading status and the downloaded file content
+   * A callback function that you should call when a file is downloaded successfully or when deletion fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, the downloaded file's data as a Base64 string.
    */
   callback: (status: string, data?: any) => any;
   /**
-   * single file question value
+   * The File Upload question's [`value`](https://surveyjs.io/form-library/documentation/api-reference/file-model#value) that contains metadata about uploaded files.
    */
   fileValue: any;
   /**
-   * the file content
+   * A file identifier (URL, file name, etc.) stored in survey results.
    */
   content: any;
 }
 export interface ClearFilesEvent extends LoadFilesEvent {
   /**
-   * a callback function to get the operation status
+   * A callback function that you should call when files are deleted successfully or when deletion fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, deleted files' data (`options.value`).
    */
   callback: (status: string, data?: any) => any;
   /**
-   * a removed file's name, set it to `null` to clear all files
+   * The name of a file to delete. When this parameter is `null`, all files should be deleted.
    */
   fileName: string;
   /**
-   * the question value
+   * The File Upload question's [`value`](https://surveyjs.io/form-library/documentation/api-reference/file-model#value) that contains metadata about uploaded files.
    */
   value: any;
 }

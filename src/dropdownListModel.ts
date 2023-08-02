@@ -302,7 +302,7 @@ export class DropdownListModel extends Base {
   }
   public get showHintString(): boolean {
     return !!this.question.searchEnabled && this.hintStringLC && this.hintStringLC.indexOf(this.inputStringLC) >= 0 ||
-      !this.question.searchEnabled && this.hintStringLC && !this.question.value;
+      !this.question.searchEnabled && this.hintStringLC && this.question.isEmpty();
   }
   public get hintStringSuffix(): string {
     return this.hintString.substring(this.hintStringLC.indexOf(this.inputStringLC) + this.inputStringLC.length);

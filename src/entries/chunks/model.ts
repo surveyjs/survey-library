@@ -3,7 +3,9 @@
 //import "../../modern.scss";
 
 export var Version: string;
+export var ReleaseDate: string;
 Version = `${process.env.VERSION}`;
+ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {
   if(Version != ver) {
@@ -12,6 +14,37 @@ export function checkLibraryVersion(ver: string, libraryName: string): void {
     /* eslint no-console: ["error", { allow: ["error"] }] */
     console.error(str);
   }
+}
+export function setLicenseKey(key: string): void {
+  slk(key, lic, ReleaseDate);
+}
+export function hasLicense(index: number): boolean {
+  return lic[index.toString()] === true;
+}
+const lic: any = {};
+function slk(k: any, lh: any, rd: any) {
+  if(!k) return;
+  const en = (s: string) => {
+    var e: any={}, i, b=0, c, x, l=0, a, r="", w=String.fromCharCode, L=s.length;
+    var A="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    for(i=0; i<64; i++) { e[A.charAt(i)]=i; }
+    for(x=0; x<L; x++) {
+      let c=e[s.charAt(x)]; b=(b<<6)+c; l+=6;
+      while(l>=8) { ((a=(b>>>(l-=8))&0xff)||(x<(L-2)))&&(r+=w(a)); }
+    }
+    return r;
+  };
+  let v = en(k);
+  if(!v) return;
+  let index = v.indexOf(";");
+  if(index < 0) return;
+  v = v.substring(index + 1);
+  v.split(",").forEach(s => {
+    let i = s.indexOf("=");
+    if(i > 0) {
+      lh[s.substring(0, i)] = new Date(rd) <= new Date(s.substring(i + 1));
+    }
+  });
 }
 
 export { settings, ISurveyEnvironment } from "../../settings";

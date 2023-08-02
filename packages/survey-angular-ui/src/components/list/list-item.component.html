@@ -5,7 +5,7 @@
     </ng-container>
     <div [class]="listModel.cssClasses.itemBody" [style.paddingInlineStart]="paddingLeft">
     <ng-container *ngIf="!model.component">
-      <svg *ngIf="model.iconName" [class]="listModel.cssClasses.itemIcon" [iconName]="model.iconName" [size]="24"
+      <svg *ngIf="model.iconName" [class]="listModel.cssClasses.itemIcon" [iconName]="model.iconName" [size]="model.iconSize"
         sv-ng-svg-icon></svg>
       <sv-ng-string [model]="model.locTitle"></sv-ng-string>
     </ng-container>

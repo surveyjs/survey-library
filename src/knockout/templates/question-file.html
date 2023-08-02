@@ -10,12 +10,14 @@
         <div data-bind="css: question.getFileDecoratorCss()">
           <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
           <div data-bind="css: question.cssClasses.wrapper">
+            <!-- ko ifnot: isReadOnly -->
             <label tabindex="0" role="button" data-bind="css: question.koChooseFileCss, key2click, attr: { for: question.inputId, 'aria-label': question.chooseButtonCaption }">
               <span data-bind="text: question.chooseButtonCaption"></span>
               <!-- ko if: question.cssClasses.chooseFileIconId -->
                   <!-- ko component: { name: 'sv-svg-icon', params: { title: question.chooseButtonCaption, iconName: question.cssClasses.chooseFileIconId, size: 'auto' } } --><!-- /ko -->
               <!-- /ko -->
             </label>
+            <!-- /ko -->
             <!-- ko if: !question.koHasValue() -->
             <span data-bind="css: question.cssClasses.noFileChosen, text: question.noFileChosenCaption"></span>
             <!-- /ko -->

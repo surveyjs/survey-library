@@ -44,13 +44,14 @@ export function showModal(
   );
   return showDialog(options, container);
 }
-export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElement): PopupBaseViewModel {
+export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
   dialogOptions.onHide = () => {
     viewModel.dispose();
     ko.cleanNode(popupViewModel.container);
+    popupViewModel.container.remove();
     popupViewModel.dispose();
   };
-  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, container);
+  const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
   var viewModel = new PopupViewModel(popupViewModel);
   popupViewModel.container.innerHTML = template;
   ko.applyBindings(viewModel, popupViewModel.container);
@@ -59,6 +60,7 @@ export function showDialog(dialogOptions: IDialogOptions, container?: HTMLElemen
 }
 
 settings.showModal = showModal;
+settings.showDialog = showDialog;
 
 ko.components.register("sv-popup", {
   viewModel: {

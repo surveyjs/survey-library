@@ -1411,6 +1411,13 @@ export class QuestionPanelDynamicModel extends Question
       }
     }
   }
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+    const panels = visibleOnly ? this.visiblePanels : this.panels;
+    if(!Array.isArray(panels)) return;
+    panels.forEach(panel => {
+      panel.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
+    });
+  }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson(operator, path);
     var questionName = path;
@@ -1811,14 +1818,15 @@ export class QuestionPanelDynamicModel extends Question
     return true;
   }
   private panelUpdateValueFromSurvey(panel: PanelModel) {
-    var questions = panel.questions;
+    const questions = panel.questions;
     var values = this.getPanelItemData(panel.data);
     for (var i = 0; i < questions.length; i++) {
-      var q = questions[i];
+      const q = questions[i];
       q.updateValueFromSurvey(values[q.getValueName()]);
       q.updateCommentFromSurvey(
         values[q.getValueName() + settings.commentSuffix]
       );
+      q.initDataUI();
     }
   }
   private panelSurveyValueChanged(panel: PanelModel) {

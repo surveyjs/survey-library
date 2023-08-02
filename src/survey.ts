@@ -7160,9 +7160,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public applyTheme(theme: ITheme): void {
-    if(!theme) return;
-    this.onThemeApplying.fire(this, {});
-
+    if (!theme) return;
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if(key === "isPanelless") {
         this.isCompact = theme[key];
@@ -7171,7 +7169,7 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
-    this.onThemeApplied.fire(this, {});
+    this.onThemeApplied.fire(this, { theme: theme });
   }
 
   /**

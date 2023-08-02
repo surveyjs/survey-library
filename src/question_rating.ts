@@ -43,8 +43,6 @@ export class QuestionRatingModel extends Question {
   constructor(name: string) {
     super(name);
 
-    this.initColors();
-
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
@@ -89,6 +87,7 @@ export class QuestionRatingModel extends Question {
       true
     );
     this.initPropertyDependencies();
+
   }
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {
@@ -98,7 +97,6 @@ export class QuestionRatingModel extends Question {
 
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    this.initColors();
     this.hasMinRateDescription = !!this.minRateDescription;
     this.hasMaxRateDescription = !!this.maxRateDescription;
     if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
@@ -267,6 +265,8 @@ export class QuestionRatingModel extends Question {
    */
   @property({ defaultValue: 5 }) rateCount: number;
 
+  private static colorsCalculated: boolean = false;
+
   private static badColor: Array<number>;
   private static normalColor: Array<number>;
   private static goodColor: Array<number>;
@@ -275,12 +275,12 @@ export class QuestionRatingModel extends Question {
   private static normalColorLight: Array<number>;
   private static goodColorLight: Array<number>;
 
-  private updateColors() {
-    const _survey = this.survey as SurveyModel;
+  private updateColors(themeVariables: any) {
     if (this.colorMode === "monochrome") return;
     if (typeof document === "undefined" || !document) return;
+    if (QuestionRatingModel.colorsCalculated) return;
     function getRGBColor(colorName: string, varName: string) {
-      let str = !!_survey && !!_survey.themeVariables && _survey.themeVariables[colorName];
+      let str: string = !!themeVariables && themeVariables[colorName] as any;
       if(!str) {
         const style = getComputedStyle(document.documentElement);
         str = style.getPropertyValue && style.getPropertyValue(varName);
@@ -308,11 +308,8 @@ export class QuestionRatingModel extends Question {
     QuestionRatingModel.badColorLight = getRGBColor("--sjs-special-red-light", "--sd-rating-bad-color-light");
     QuestionRatingModel.normalColorLight = getRGBColor("--sjs-special-yellow-light", "--sd-rating-normal-color-light");
     QuestionRatingModel.goodColorLight = getRGBColor("--sjs-special-green-light", "--sd-rating-good-color-light");
-  }
 
-  private initColors() {
-    if (QuestionRatingModel.badColor && QuestionRatingModel.normalColor && QuestionRatingModel.goodColor) return;
-    this.updateColors();
+    this.colorsCalculated = true;
   }
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
@@ -808,9 +805,12 @@ export class QuestionRatingModel extends Question {
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     if (!this.survey) return;
+    this.updateColors((this.survey as SurveyModel).themeVariables);
 
-    (<SurveyModel>this.survey).onThemeApplying.add((survey, options) => {
-      this.updateColors();
+    (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
+      this.colorsCalculated = false;
+      this.updateColors(options.theme.cssVariables);
+      this.createRenderedRateItems();
     });
   }
   public dispose(): void {

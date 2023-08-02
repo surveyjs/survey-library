@@ -346,21 +346,19 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     row: MatrixDropdownRowModelBase,
     isShowing: boolean
   ) {
-    var rowIndex = this.getRenderedRowIndex(row);
+    const rowIndex = this.getRenderedRowIndex(row);
     if (rowIndex < 0) return;
+    let currentIndex = rowIndex;
+    if(this.showCellErrorsBottom) currentIndex ++;
     var panelRowIndex =
-      rowIndex < this.rows.length - 1 && this.rows[rowIndex + 1].isDetailRow
-        ? rowIndex + 1
-        : -1;
+    currentIndex < this.rows.length - 1 && this.rows[currentIndex + 1].isDetailRow
+      ? currentIndex + 1
+      : -1;
     if ((isShowing && panelRowIndex > -1) || (!isShowing && panelRowIndex < 0))
       return;
     if (isShowing) {
       var detailRow = this.createDetailPanelRow(row, this.rows[rowIndex]);
-      if(this.showCellErrorsTop) {
-        this.rows.splice(rowIndex + 1, 0, detailRow);
-      } else {
-        this.rows.splice(rowIndex + 2, 0, detailRow);
-      }
+      this.rows.splice(currentIndex + 1, 0, detailRow);
     } else {
       this.rows.splice(panelRowIndex, 1);
     }

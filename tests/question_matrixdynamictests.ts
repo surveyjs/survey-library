@@ -8471,12 +8471,25 @@ QUnit.test("Errors: matrixdynamic + showDetailPanel", function (assert) {
   assert.equal(table.rows.length, 7, "3 rows + 3 error rows + detail panel");
 
   assert.equal(table.rows[0].isErrorsRow, true);
-  assert.equal(table.rows[1].isErrorsRow, false);
+  assert.equal(table.rows[1].isErrorsRow || table.rows[1].isDetailRow, false);
   assert.equal(table.rows[2].isErrorsRow, true);
-  assert.equal(table.rows[3].isErrorsRow, false);
+  assert.equal(table.rows[3].isErrorsRow || table.rows[3].isDetailRow, false);
   assert.equal(table.rows[4].isDetailRow, true);
   assert.equal(table.rows[5].isErrorsRow, true);
-  assert.equal(table.rows[6].isErrorsRow, false);
+  assert.equal(table.rows[6].isErrorsRow || table.rows[6].isDetailRow, false);
+
+  q.visibleRows[1].hideDetailPanel();
+
+  assert.equal(table.rows.length, 6, "3 rows + 3 error rows");
+
+  assert.equal(table.rows[0].isErrorsRow, true);
+  assert.equal(table.rows[1].isErrorsRow || table.rows[1].isDetailRow, false);
+  assert.equal(table.rows[2].isErrorsRow, true);
+  assert.equal(table.rows[3].isErrorsRow || table.rows[3].isDetailRow, false);
+  assert.equal(table.rows[4].isErrorsRow, true);
+  assert.equal(table.rows[1].isErrorsRow || table.rows[1].isDetailRow, false);
+
+  q.visibleRows[1].showDetailPanel();
 
   const rowId0 = table.rows[1].id;
   const rowId2 = table.rows[5].id;
@@ -8511,13 +8524,26 @@ QUnit.test("Errors: matrixdynamic + showDetailPanel + errors bottom", function (
   q.visibleRows[1].showDetailPanel();
   assert.equal(table.rows.length, 7, "3 rows + 3 error rows + detail panel");
 
-  assert.equal(table.rows[0].isErrorsRow, false);
+  assert.equal(table.rows[0].isErrorsRow || table.rows[0].isDetailRow, false);
   assert.equal(table.rows[1].isErrorsRow, true);
-  assert.equal(table.rows[2].isErrorsRow, false);
+  assert.equal(table.rows[2].isErrorsRow || table.rows[2].isDetailRow, false);
   assert.equal(table.rows[3].isErrorsRow, true);
   assert.equal(table.rows[4].isDetailRow, true);
-  assert.equal(table.rows[5].isErrorsRow, false);
+  assert.equal(table.rows[5].isErrorsRow || table.rows[5].isDetailRow, false);
   assert.equal(table.rows[6].isErrorsRow, true);
+
+  q.visibleRows[1].hideDetailPanel();
+
+  assert.equal(table.rows.length, 6, "3 rows + 3 error rows");
+
+  assert.equal(table.rows[0].isErrorsRow || table.rows[0].isDetailRow, false);
+  assert.equal(table.rows[1].isErrorsRow, true);
+  assert.equal(table.rows[2].isErrorsRow || table.rows[2].isDetailRow, false);
+  assert.equal(table.rows[3].isErrorsRow, true);
+  assert.equal(table.rows[4].isErrorsRow || table.rows[4].isDetailRow, false);
+  assert.equal(table.rows[5].isErrorsRow, true);
+
+  q.visibleRows[1].showDetailPanel();
 
   const rowId0 = table.rows[0].id;
   const rowId2 = table.rows[5].id;

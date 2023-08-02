@@ -63,7 +63,7 @@ export class QuestionRatingModel extends Question {
       });
     this.registerFunctionOnPropertiesValueChanged(["rateColorMode", "scaleColorMode"],
       () => {
-        this.initColors();
+        this.updateColors((this.survey as SurveyModel).themeVariables);
       });
     this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
       () => {

@@ -2524,6 +2524,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < pages.length; i++) {
       pages[i].updateElementCss(reNew);
     }
+    this.updateCss();
   }
   /**
    * Gets or sets the error message position.
@@ -4473,6 +4474,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.root)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootReadOnly, this.mode === "display")
+      .append(this.css.rootCompact, this.isCompact)
       .toString();
   }
   private resizeObserver: ResizeObserver;

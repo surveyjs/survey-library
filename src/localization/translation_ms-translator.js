@@ -52,6 +52,9 @@ if(parameter === "all") {
 function translateLanguage(name) {
   const locale = utils.getLocale(name);
   if(!locale) return;
+  if(locale === "en") {
+    return;
+  }
   const json = utils.readJson(name);
   if(!json) return;
   const stringsToTranslate = [];
@@ -62,7 +65,7 @@ function translateLanguage(name) {
     }
   }
   if(stringsToTranslate.length === 0) {
-    utils.reportMessage("There is nothing to translate.");
+    utils.reportMessage("Locale: " + locale + ". There is nothing to translate.");
     return;
   }
   translateStrings(locale, stringsToTranslate, (dic) => {
@@ -112,6 +115,8 @@ function translateStrings(locale, stringsToTranslate, callback) {
       dic[tr_item.key] = tr_item.translation;
     }
     callback(dic);
+  }).catch(function (error) {
+    utils.reportMessage("Error to translate: " + locale + ". Error: " + JSON.stringify(error.toJSON(), null, 2));
   });
 }
 function UUIDGenerator() {

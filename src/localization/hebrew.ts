@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var hebrewSurveyStrings = {
@@ -13,22 +11,23 @@ export var hebrewSurveyStrings = {
   noneItemText: "אף אחד",
   selectAllItemText: "בחר הכל",
   progressText: "דף {1} מתוך {0}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} מתוך {1}",
   panelDynamicProgressText: "הקלטה {0} מתוך {1}",
+  panelDynamicTabTextFormat: "לוח {panelIndex}",
   questionsProgressText: "ענה על שאלות",
   emptySurvey: "אין שאלות",
   completingSurvey: "תודה על מילוי השאלון!",
   completingSurveyBefore: "הרשומות שלנו מראות שכבר סיימת את הסקר הזה.",
   loadingSurvey: "טעינה מהשרת...",
   placeholder: "בחר...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "בחר...",
   value: "ערך",
   requiredError: "אנא השב על השאלה",
   requiredErrorInPanel: "אנא ענה לפחות על שאלה אחת.",
   requiredInAllRowsError: "אנא ענה על שאלות בכל השורות.",
   numericError: "התשובה צריכה להיות מספר.",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "הערך לא צריך להיות קטן מ {0}",
+  maxError: "הערך לא צריך להיות גדול מ- {0}",
   textMinLength: "הזן לפחות {0} תווים.",
   textMaxLength: "הזן פחות מ- {0} תווים.",
   textMinMaxLength: "הזן יותר מ- {0} ופחות מ- {1} תווים.",
@@ -48,19 +47,19 @@ export var hebrewSurveyStrings = {
   loadingFile: "טוען...",
   chooseFile: "לבחור קבצים...",
   noFileChosen: "לא נבחר קובץ",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה.",
   confirmDelete: "האם אתה רוצה למחוק את הרשומה?",
   keyDuplicationError: "ערך זה צריך להיות ייחודי.",
   addColumn: "הוסף עמודה",
   addRow: "להוסיף שורה",
   removeRow: "לְהַסִיר",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "אין שורות.",
   addPanel: "הוסף חדש",
   removePanel: "לְהַסִיר",
   choices_Item: "פריט",
   matrix_column: "טור",
   matrix_row: "שׁוּרָה",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "טקסט",
   savingData: "התוצאות נשמרות בשרת ...",
   savingDataError: "אירעה שגיאה ולא הצלחנו לשמור את התוצאות.",
   savingDataSuccess: "התוצאות נשמרו בהצלחה!",
@@ -74,7 +73,7 @@ export var hebrewSurveyStrings = {
   timerLimitPage: "הוצאת {0} מתוך {1} בדף זה.",
   timerLimitSurvey: "הוצאת סכום כולל של {0} מתוך {1}.",
   clearCaption: "ברור",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "חתום כאן",
   chooseFileCaption: "בחר קובץ",
   removeFileCaption: "הסר קובץ זה",
   booleanCheckedLabel: "כן",
@@ -82,13 +81,39 @@ export var hebrewSurveyStrings = {
   confirmRemoveFile: "האם אתה בטוח שברצונך להסיר קובץ זה: {0}?",
   confirmRemoveAllFiles: "האם אתה בטוח שברצונך להסיר את כל הקבצים?",
   questionTitlePatternText: "כותרת שאלה",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "ביטל",
+  modalApplyButtonText: "החל",
+  filterStringPlaceholder: "הקלד כדי לחפש...",
+  emptyMessage: "אין נתונים להצגה",
+  noEntriesText: "אין עדיין ערכים.\nלחץ על הלחצן למטה כדי להוסיף ערך חדש.",
+  noEntriesReadonlyText: "אין ערכים.",
+  more: "עוד",
+  tagboxDoneButtonCaption: "אוקיי",
+  selectToRankEmptyRankedAreaText: "כל האפשרויות מדורגות",
+  selectToRankEmptyUnrankedAreaText: "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"
 };
 
 surveyLocalization.locales["he"] = hebrewSurveyStrings;
 surveyLocalization.localeNames["he"] = "עברית";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} מתוך {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "לוח {panelIndex}"
+// ratingOptionsCaption: "Select..." => "בחר..."
+// minError: "The value should not be less than {0}" => "הערך לא צריך להיות קטן מ {0}"
+// maxError: "The value should not be greater than {0}" => "הערך לא צריך להיות גדול מ- {0}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה."
+// emptyRowsText: "There are no rows." => "אין שורות."
+// multipletext_itemname: "text" => "טקסט"
+// signaturePlaceHolder: "Sign here" => "חתום כאן"
+// modalCancelButtonText: "Cancel" => "ביטל"
+// modalApplyButtonText: "Apply" => "החל"
+// filterStringPlaceholder: "Type to search..." => "הקלד כדי לחפש..."
+// emptyMessage: "No data to display" => "אין נתונים להצגה"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "אין עדיין ערכים.\nלחץ על הלחצן למטה כדי להוסיף ערך חדש."
+// noEntriesReadonlyText: "There are no entries." => "אין ערכים."
+// more: "More" => "עוד"
+// tagboxDoneButtonCaption: "OK" => "אוקיי"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "כל האפשרויות מדורגות"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"

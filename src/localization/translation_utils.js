@@ -67,7 +67,7 @@ module.exports = {
       }
       for(let i = 0; i < translatedKeys.length; i ++) {
         const item = translatedKeys[i];
-        keys.push("// " + item.key + ": " + item.english + " => " + item.translation);
+        keys.push("// " + item.key + ": " + JSON.stringify(item.english) + " => " + JSON.stringify(item.translation));
       }
       translatedKeysStr = keys.join("\n");
     }

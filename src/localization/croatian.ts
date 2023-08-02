@@ -1,5 +1,3 @@
-// This dictionary contains 12 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var croatianStrings = {
@@ -13,22 +11,23 @@ export var croatianStrings = {
   noneItemText: "Nitko",
   selectAllItemText: "Select All",
   progressText: "Stranica {0} od {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} {1}",
   panelDynamicProgressText: "Zapisa {0} od {1}",
+  panelDynamicTabTextFormat: "Ploča {panelIndex}",
   questionsProgressText: "Odgovorio na {0}/{1} pitanja",
   emptySurvey: "U anketi nema vidljive stranice ili pitanja.",
   completingSurvey: "Hvala vam što ste završili anketu!",
   completingSurveyBefore: "Naši zapisi pokazuju da ste već završili ovu anketu.",
   loadingSurvey: "Anketa o učitavanje...",
   placeholder: "Odaberite...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Odabirati...",
   value: "vrijednost",
   requiredError: "Molim vas odgovorite na pitanje.",
   requiredErrorInPanel: "Molim vas odgovorite na barem jedno pitanje.",
   requiredInAllRowsError: "Odgovorite na pitanja u svim redovima.",
   numericError: "Vrijednost bi trebala biti brojčana.",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "Vrijednost ne smije biti manja od {0}",
+  maxError: "Vrijednost ne smije biti veća od {0}",
   textMinLength: "Unesite najmanje {0} znak(ova).",
   textMaxLength: "Unesite manje od {0} znak(ova).",
   textMinMaxLength: "Unesite više od {0} i manje od {1} znakova.",
@@ -48,19 +47,19 @@ export var croatianStrings = {
   loadingFile: "Učitavanje...",
   chooseFile: "Odaberite datoteku...",
   noFileChosen: "Nije odabrana datoteka",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Povucite i ispustite datoteku ovdje ili kliknite donji gumb i odaberite datoteku koju želite prenijeti.",
   confirmDelete: "Želite li izbrisati zapis?",
   keyDuplicationError: "Ta bi vrijednost trebala biti jedinstvena.",
   addColumn: "Dodavanje stupca",
   addRow: "Dodavanje redaka",
   removeRow: "Ukloniti",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "Nema redova.",
   addPanel: "Dodavanje novih",
   removePanel: "Ukloniti",
   choices_Item: "stavku",
   matrix_column: "Stupca",
   matrix_row: "Redak",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "Tekstualna poruka",
   savingData: "Rezultati se spremaju na poslužitelju...",
   savingDataError: "Došlo je do pogreške i nismo mogli spremiti rezultate.",
   savingDataSuccess: "Rezultati su uspješno spremljeni!",
@@ -74,7 +73,7 @@ export var croatianStrings = {
   timerLimitPage: "Potrošio si {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Ukupno ste potrošili {0} od {1}.",
   clearCaption: "Očistiti",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "Potpiši ovdje",
   chooseFileCaption: "Odaberite datoteku",
   removeFileCaption: "Uklonite ovu datoteku",
   booleanCheckedLabel: "Da",
@@ -84,11 +83,35 @@ export var croatianStrings = {
   questionTitlePatternText: "Naslov pitanja",
   modalCancelButtonText: "Otkazati",
   modalApplyButtonText: "Primijeniti",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  filterStringPlaceholder: "Upišite za pretraživanje...",
+  emptyMessage: "Nema podataka za prikaz",
+  noEntriesText: "Još nema unosa.\nKliknite donji gumb da biste dodali novi unos.",
+  noEntriesReadonlyText: "Nema unosa.",
+  more: "Više",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
+  selectToRankEmptyUnrankedAreaText: "Ovdje povucite i ispustite odabire da biste ih rangirali"
 };
 
 surveyLocalization.locales["hr"] = croatianStrings;
 surveyLocalization.localeNames["hr"] = "hrvatski";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Ploča {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Odabirati..."
+// minError: "The value should not be less than {0}" => "Vrijednost ne smije biti manja od {0}"
+// maxError: "The value should not be greater than {0}" => "Vrijednost ne smije biti veća od {0}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Povucite i ispustite datoteku ovdje ili kliknite donji gumb i odaberite datoteku koju želite prenijeti."
+// emptyRowsText: "There are no rows." => "Nema redova."
+// multipletext_itemname: "text" => "Tekstualna poruka"
+// signaturePlaceHolder: "Sign here" => "Potpiši ovdje"
+// filterStringPlaceholder: "Type to search..." => "Upišite za pretraživanje..."
+// emptyMessage: "No data to display" => "Nema podataka za prikaz"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Još nema unosa.\nKliknite donji gumb da biste dodali novi unos."
+// noEntriesReadonlyText: "There are no entries." => "Nema unosa."
+// more: "More" => "Više"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Svi izbori su rangirani"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Ovdje povucite i ispustite odabire da biste ih rangirali"

@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var polishSurveyStrings = {
@@ -15,6 +13,7 @@ export var polishSurveyStrings = {
   progressText: "Strona {0} z {1}",
   indexText: "{0} od {1}",
   panelDynamicProgressText: "Zapis {0} z {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Odpowiedzi na {0}/{1} pytania",
   emptySurvey: "Nie ma widocznych pytań.",
   completingSurvey: "Dziękujemy za wypełnienie ankiety!",
@@ -85,10 +84,24 @@ export var polishSurveyStrings = {
   modalCancelButtonText: "Anulować",
   modalApplyButtonText: "Zastosować",
   filterStringPlaceholder: "Wpisz aby wyszukać...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Brak danych do wyświetlenia",
   noEntriesText: "Nie ma jeszcze wpisów.\nKliknij przycisk poniżej, aby dodać nowy wpis.",
-  // more: "More"
+  noEntriesReadonlyText: "Brak wpisów.",
+  more: "Więcej",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Wszystkie wybory są uszeregowane",
+  selectToRankEmptyUnrankedAreaText: "Przeciągnij i upuść tutaj wybory, aby je uszeregować"
 };
 
 surveyLocalization.locales["pl"] = polishSurveyStrings;
 surveyLocalization.localeNames["pl"] = "polski";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// emptyMessage: "No data to display" => "Brak danych do wyświetlenia"
+// noEntriesReadonlyText: "There are no entries." => "Brak wpisów."
+// more: "More" => "Więcej"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Wszystkie wybory są uszeregowane"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Przeciągnij i upuść tutaj wybory, aby je uszeregować"

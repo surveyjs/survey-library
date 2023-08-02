@@ -13,6 +13,8 @@ const fs = require("fs");
 // eslint-disable-next-line no-undef
 const utils = require("./translation_utils");
 
+const unsupportedName = "unsupported";
+
 // eslint-disable-next-line no-undef
 let arg = process.argv;
 if(!Array.isArray(arg)) return;
@@ -49,10 +51,23 @@ if(parameter === "all") {
   translateLanguage(parameter);
 }
 
-function translateLanguage(name) {
+function getMSTranslationLocale(name) {
   const locale = utils.getLocale(name);
+  if(locale === "gr") return "el";
+  if(locale === "ua") return "uk";
+  if(locale === "tel") return "te";
+  if(locale === "rs") return "sr-Latn";
+  if(locale === "tg") return unsupportedName;
+  return locale;
+}
+function translateLanguage(name) {
+  const locale = getMSTranslationLocale(name);
   if(!locale) return;
   if(locale === "en") {
+    return;
+  }
+  if(locale === unsupportedName) {
+    utils.reportMessage("MS translator doesn't support: " + name + ".");
     return;
   }
   const json = utils.readJson(name);
@@ -65,7 +80,7 @@ function translateLanguage(name) {
     }
   }
   if(stringsToTranslate.length === 0) {
-    utils.reportMessage("Locale: " + locale + ". There is nothing to translate.");
+    utils.reportMessage("File name: " + name + ". There is nothing to translate.");
     return;
   }
   translateStrings(locale, stringsToTranslate, (dic) => {

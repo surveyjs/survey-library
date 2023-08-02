@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var russianSurveyStrings = {
@@ -15,6 +13,7 @@ export var russianSurveyStrings = {
   progressText: "Страница {0} из {1}",
   indexText: "{0} из {1}",
   panelDynamicProgressText: "Запись {0} из {1}",
+  panelDynamicTabTextFormat: "Панель {panelIndex}",
   questionsProgressText: "Oтвечено на {0}/{1} вопросов",
   emptySurvey: "Нет ни одного вопроса.",
   completingSurvey: "Благодарим Вас за заполнение анкеты!",
@@ -85,10 +84,24 @@ export var russianSurveyStrings = {
   modalCancelButtonText: "Отменить",
   modalApplyButtonText: "Применять",
   filterStringPlaceholder: "Введите для поиска...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Нет данных для отображения",
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
-  // more: "More"
+  noEntriesReadonlyText: "Записей нет.",
+  more: "Больше",
+  tagboxDoneButtonCaption: "ХОРОШО",
+  selectToRankEmptyRankedAreaText: "Все варианты ранжируются",
+  selectToRankEmptyUnrankedAreaText: "Перетащите сюда варианты, чтобы ранжировать их"
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;
 surveyLocalization.localeNames["ru"] = "русский";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Панель {panelIndex}"
+// emptyMessage: "No data to display" => "Нет данных для отображения"
+// noEntriesReadonlyText: "There are no entries." => "Записей нет."
+// more: "More" => "Больше"
+// tagboxDoneButtonCaption: "OK" => "ХОРОШО"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Все варианты ранжируются"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетащите сюда варианты, чтобы ранжировать их"

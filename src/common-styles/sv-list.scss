@@ -94,6 +94,7 @@
 
 .sv-list__item-icon {
   float: left;
+  flex-shrink: 0;
   width: calcSize(3);
   height: calcSize(3);
 

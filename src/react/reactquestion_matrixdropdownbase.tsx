@@ -294,6 +294,7 @@ class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
     if(!this.column.isRenderedRequired) return null;
     return (
       <>
+        <span>&nbsp;</span>
         <span className={this.question.cssClasses.cellRequiredText}>{this.column.requiredText}</span>
       </>
     );

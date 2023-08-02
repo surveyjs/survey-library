@@ -95,6 +95,7 @@
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
                 <!-- ko if: $data.column && $data.column.isRenderedRequired -->
+                <span>&nbsp</span>
                 <span data-bind="css: question.cssClasses.cellRequiredText, text: $data.column.requiredText"></span>
                 <!-- /ko -->
               <!-- /ko -->

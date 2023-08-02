@@ -96,6 +96,18 @@
 }
 
 .sd-table__cell--header {
+  font-size: 0;
+  line-height: 0;
+}
+
+.sd-table__cell--header {
+  span {
+    font-size: calcFontSize(1);
+    line-height: calcFontSize(1.5);
+  }
+}
+
+.sd-table__cell--header {
   font-weight: 600;
   vertical-align: top;
   padding: calcSize(1.5) calcSize(1) calcSize(2.5);

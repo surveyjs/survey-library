@@ -88,16 +88,10 @@ export class QuestionRatingModel extends Question {
     );
     this.initPropertyDependencies();
   }
-  private jsonObj: any;
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {
       this.rateValues.map(item => item.icon = this.getItemSmiley(item));
     }
-  }
-
-  startLoadingFromJson(jsonObj: any) {
-    super.startLoadingFromJson(jsonObj);
-    this.jsonObj = jsonObj;
   }
 
   endLoadingFromJson() {
@@ -171,6 +165,15 @@ export class QuestionRatingModel extends Question {
       () => {
         this.updateRateCount();
       });
+  }
+
+  @property({ defaultValue: false }) inputHasValue: boolean;
+
+  public get showSelectedItemLocText(): boolean {
+    return !this.readOnly && !this.inputHasValue && !!this.selectedItemLocText;
+  }
+  public get selectedItemLocText(): LocalizableString {
+    return !this.readOnly && this.visibleRateValues.filter(v => v.value == this.value)[0]?.locText;
   }
 
   @property({ defaultValue: true }) autoGenerate: boolean;
@@ -738,7 +741,8 @@ export class QuestionRatingModel extends Question {
     return this.visibleRateValues;
   }
   public get readOnlyText() {
-    return (this.displayValue || this.placeholder);
+    if (this.readOnly) return (this.displayValue || this.placeholder);
+    return this.isEmpty() ? this.placeholder : "";
   }
 
   public needResponsiveWidth() {

@@ -3,7 +3,7 @@ const fs = require("fs");
 
 const startStr = " = {";
 const endStr = "};";
-//utils.js
+// eslint-disable-next-line no-undef
 module.exports = {
   isTranslationExists: function (fileName) {
     return fs.existsSync(this.getTranslationFileName(fileName));

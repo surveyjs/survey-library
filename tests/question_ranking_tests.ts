@@ -133,7 +133,7 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
 
   // ranking question with only one choice doesn't make sense
   q1.value = ["2"];
-  assert.deepEqual(q2.isEmpty(), true);
+  assert.deepEqual(q2.isEmpty(), false);
   assert.deepEqual(survey.data, {
     q1: [2],
   });

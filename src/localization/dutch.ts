@@ -1,5 +1,3 @@
-// This dictionary contains 12 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var dutchSurveyStrings = {
@@ -13,22 +11,23 @@ export var dutchSurveyStrings = {
   noneItemText: "Geen",
   selectAllItemText: "Selecteer Alles",
   progressText: "Pagina {0} van {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} van {1}",
   panelDynamicProgressText: "Record {0} of {1}",
+  panelDynamicTabTextFormat: "Paneel {panelIndex}",
   questionsProgressText: "Geantwoord {0}/{1} vragen",
   emptySurvey: "Er is geen zichtbare pagina of vraag in deze vragenlijst",
   completingSurvey: "Bedankt voor het invullen van de vragenlijst",
   completingSurveyBefore: "Onze gegevens tonen aan dat je deze vragenlijst reeds beantwoord hebt.",
   loadingSurvey: "De vragenlijst is aan het laden...",
   placeholder: "Kies...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Selecteren...",
   value: "waarde",
   requiredError: "Dit is een vereiste vraag",
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
   requiredInAllRowsError: "Deze vraag vereist één antwoord per rij",
   numericError: "Het antwoord moet een getal zijn",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "De waarde mag niet lager zijn dan {0}",
+  maxError: "De waarde mag niet groter zijn dan {0}",
   textMinLength: "Vul minstens {0} karakters in",
   textMaxLength: "Gelieve minder dan {0} karakters in te vullen.",
   textMinMaxLength: "Gelieve meer dan {0} en minder dan {1} karakters in te vullen.",
@@ -54,13 +53,13 @@ export var dutchSurveyStrings = {
   addColumn: "Voeg kolom toe",
   addRow: "Voeg rij toe",
   removeRow: "Verwijder",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "Er zijn geen rijen.",
   addPanel: "Nieuwe toevoegen",
   removePanel: "Verwijder",
   choices_Item: "onderwerp",
   matrix_column: "Kolom",
   matrix_row: "Rij",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "Sms",
   savingData: "De resultaten worden bewaard op de server...",
   savingDataError: "Er was een probleem en we konden de resultaten niet bewaren.",
   savingDataSuccess: "De resultaten werden succesvol bewaard!",
@@ -82,13 +81,37 @@ export var dutchSurveyStrings = {
   confirmRemoveFile: "Weet u zeker dat u deze file wilt verwijderen: {0}?",
   confirmRemoveAllFiles: "Weet u zeker dat u al deze files wilt verwijderen?",
   questionTitlePatternText: "Titel van de vraag",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "Annuleren",
+  modalApplyButtonText: "Toepassen",
+  filterStringPlaceholder: "Typ om te zoeken...",
+  emptyMessage: "Geen gegevens om weer te geven",
+  noEntriesText: "Er zijn nog geen inzendingen.\nKlik op de onderstaande knop om een nieuw item toe te voegen.",
+  noEntriesReadonlyText: "Er zijn geen inzendingen.",
+  more: "Meer",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Alle keuzes zijn gerangschikt",
+  selectToRankEmptyUnrankedAreaText: "Drag en drop keuzes hier om ze te rangschikken"
 };
 
 surveyLocalization.locales["nl"] = dutchSurveyStrings;
 surveyLocalization.localeNames["nl"] = "nederlands";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} van {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Paneel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Selecteren..."
+// minError: "The value should not be less than {0}" => "De waarde mag niet lager zijn dan {0}"
+// maxError: "The value should not be greater than {0}" => "De waarde mag niet groter zijn dan {0}"
+// emptyRowsText: "There are no rows." => "Er zijn geen rijen."
+// multipletext_itemname: "text" => "Sms"
+// modalCancelButtonText: "Cancel" => "Annuleren"
+// modalApplyButtonText: "Apply" => "Toepassen"
+// filterStringPlaceholder: "Type to search..." => "Typ om te zoeken..."
+// emptyMessage: "No data to display" => "Geen gegevens om weer te geven"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Er zijn nog geen inzendingen.\nKlik op de onderstaande knop om een nieuw item toe te voegen."
+// noEntriesReadonlyText: "There are no entries." => "Er zijn geen inzendingen."
+// more: "More" => "Meer"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle keuzes zijn gerangschikt"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Drag en drop keuzes hier om ze te rangschikken"

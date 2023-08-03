@@ -1,4 +1,4 @@
-import { StylesManager } from "survey-core";
+import { StylesManager, DropdownListModel } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -108,6 +108,32 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
     snapshot: "rating-as-dropdown-readonly-with-value",
+  },
+  {
+    name: "Test Rating question as dropdown with value focused",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "rating",
+          defaultValue: 3,
+          title: "Question title",
+          titleLocation: "hidden",
+          renderAs: "dropdown",
+          rateMax: 4,
+        }
+      ]
+    },
+    initSurvey: (survey) => {
+      let q1 = survey.getQuestionByName("name");
+      const dropdownListModel = new DropdownListModel(q1);
+      q1["dropdownListModel"] = dropdownListModel;
+      survey.focusFirstQuestionAutomatic = false;
+      q1["dropdownListModel"].onFocus(null);
+    },
+    timeout: 300,
+    removeIds: true,
+    snapshot: "rating-as-dropdown-with-value-focused",
   },
   {
     name: "Test Rating question as wrappable items",

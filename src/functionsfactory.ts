@@ -311,3 +311,35 @@ function diffDays(params: any[]) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 FunctionFactory.Instance.register("diffDays", diffDays);
+
+function dateFromFirstParameterOrToday(params: any[]) {
+  let date = today(undefined);
+  if (params && params[0]) {
+    date = new Date(params[0]);
+  }
+  return date;
+}
+
+function year(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getFullYear();
+}
+FunctionFactory.Instance.register("year", year);
+
+function month(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getMonth() + 1;
+}
+FunctionFactory.Instance.register("month", month);
+
+function day(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getDate();
+}
+FunctionFactory.Instance.register("day", day);
+
+function weekday(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getDay();
+}
+FunctionFactory.Instance.register("weekday", weekday);

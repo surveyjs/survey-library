@@ -26,10 +26,6 @@
       flex-wrap: wrap;
     }
   }
-
-  &.sd-scrollable-container:not(.sd-scrollable-container--compact) {
-    overflow: visible;
-  }
 }
 
 .sd-rating--small {

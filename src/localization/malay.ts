@@ -1,5 +1,3 @@
-// This dictionary contains 4 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var malaySurveyStrings = {
@@ -13,15 +11,16 @@ export var malaySurveyStrings = {
   noneItemText: "Tiada",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} daripada {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} {1}",
   panelDynamicProgressText: "Rekod {0} daripada {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "{0}/{1} soalan telah dijawab",
   emptySurvey: "Tiada halaman atau soalan boleh dilihat dalam tinjauan.",
   completingSurvey: "Terima kasih kerana melengkapkan tinjauan!",
   completingSurveyBefore: "Rekod kami menunjukkan yang anda telah melengkapkan tinjauan ini.",
   loadingSurvey: "Memuatkan Tinjauan...",
   placeholder: "Pilih...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Pilih...",
   value: "nilai",
   requiredError: "Respons diperlukan.",
   requiredErrorInPanel: "Respons diperlukan: jawab sekurang-kurangnya satu soalan.",
@@ -85,10 +84,26 @@ export var malaySurveyStrings = {
   modalCancelButtonText: "Batal",
   modalApplyButtonText: "Guna",
   filterStringPlaceholder: "Taip untuk membuat carian...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Tiada data untuk dipaparkan",
   noEntriesText: "Belum ada entri.\nKlik butang di bawah untuk menambahkan entri.",
-  // more: "More"
+  noEntriesReadonlyText: "Tiada penyertaan.",
+  more: "Lebih banyak",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Semua pilihan disenaraikan",
+  selectToRankEmptyUnrankedAreaText: "Seret dan lepaskan pilihan di sini untuk meletakkannya"
 };
 
 surveyLocalization.locales["ms"] = malaySurveyStrings;
 surveyLocalization.localeNames["ms"] = "melayu";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Pilih..."
+// emptyMessage: "No data to display" => "Tiada data untuk dipaparkan"
+// noEntriesReadonlyText: "There are no entries." => "Tiada penyertaan."
+// more: "More" => "Lebih banyak"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Semua pilihan disenaraikan"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepaskan pilihan di sini untuk meletakkannya"

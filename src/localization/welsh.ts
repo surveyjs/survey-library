@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var welshSurveyStrings = {
@@ -13,22 +11,23 @@ export var welshSurveyStrings = {
   noneItemText: "Dim",
   selectAllItemText: "Dewis y Cyfan ",
   progressText: "Tudalen {0} o {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} o {1}",
   panelDynamicProgressText: "Cofnod {0} o {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Wedi ateb {0}/{1} cwestiwn",
   emptySurvey: "Does dim modd gweld tudalen na chwestiwn yn yr arolwg.",
   completingSurvey: "Diolch am lenwi’r holiadur!",
   completingSurveyBefore: "Rydych chi wedi llenwi’r arolwg hwn yn barod yn ôl ein cofnodion.",
   loadingSurvey: "Wrthi’n Llwytho’r Arolwg...",
   placeholder: "Dewiswch...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Dewis...",
   value: "gwerth",
   requiredError: "Atebwch y cwestiwn.",
   requiredErrorInPanel: "Atebwch o leiaf un cwestiwn.",
   requiredInAllRowsError: "Atebwch y cwestiynau ym mhob rhes.",
   numericError: "Dylai’r gwerth fod yn rhif.",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "Ni ddylai'r gwerth fod yn llai na {0}",
+  maxError: "Ni ddylai'r gwerth fod yn fwy na {0}",
   textMinLength: "Rhowch o leiaf {0} nod.",
   textMaxLength: "Rhowch lai na {0} nod.",
   textMinMaxLength: "Rhowch o leiaf {0} nod ond dim mwy na {1}.",
@@ -48,19 +47,19 @@ export var welshSurveyStrings = {
   loadingFile: "Wrthi’n llwytho...",
   chooseFile: "Dewiswch ffeil(iau)...",
   noFileChosen: "Heb ddewis ffeil ",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho.",
   confirmDelete: "Ydych chi am ddileu’r cofnod?",
   keyDuplicationError: "Dylai’r gwerth hwn fod yn unigryw.",
   addColumn: "Ychwanegu colofn ",
   addRow: "Ychwanegu rhes",
   removeRow: "Tynnu",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "Nid oes unrhyw ffraeau.",
   addPanel: "Ychwanegu o’r newydd",
   removePanel: "Tynnu",
   choices_Item: "eitem",
   matrix_column: "Colofn",
   matrix_row: "Rhes",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "Testun",
   savingData: "Mae’r canlyniadau’n cael eu cadw ar y gweinydd...",
   savingDataError: "Roedd gwall a doedd dim modd cadw’r canlyniadau.",
   savingDataSuccess: "Wedi llwyddo i gadw’r canlyniadau!",
@@ -74,7 +73,7 @@ export var welshSurveyStrings = {
   timerLimitPage: "Rydych chi wedi treulio {0} o {1} ar y dudalen hon.",
   timerLimitSurvey: "Rydych chi wedi treulio {0} o {1} gyda’i gilydd.",
   clearCaption: "Clirio",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "Arwydd yma",
   chooseFileCaption: "Dewiswch ffeil ",
   removeFileCaption: "Tynnu’r ffeil hon ",
   booleanCheckedLabel: "Iawn",
@@ -82,13 +81,39 @@ export var welshSurveyStrings = {
   confirmRemoveFile: "Ydych chi’n siŵr eich bod am dynnu’r ffeil hon: {0}?",
   confirmRemoveAllFiles: "Ydych chi’n siŵr eich bod am dynnu pob ffeil?",
   questionTitlePatternText: "Teitl y Cwestiwn ",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "Canslo",
+  modalApplyButtonText: "Cynnig",
+  filterStringPlaceholder: "Teipiwch i chwilio...",
+  emptyMessage: "Dim data i'w arddangos",
+  noEntriesText: "Nid oes unrhyw gofnodion hyd yn hyn.\nCliciwch y botwm isod i ychwanegu cofnod newydd.",
+  noEntriesReadonlyText: "Nid oes unrhyw gofnodion.",
+  more: "Rhagor",
+  tagboxDoneButtonCaption: "OCÊ",
+  selectToRankEmptyRankedAreaText: "Mae'r holl ddewisiadau yn cael eu rhestru",
+  selectToRankEmptyUnrankedAreaText: "Dewisiadau llusgo a gollwng yma i'w graddio"
 };
 
 surveyLocalization.locales["cy"] = welshSurveyStrings;
 surveyLocalization.localeNames["cy"] = "cymraeg";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} o {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Dewis..."
+// minError: "The value should not be less than {0}" => "Ni ddylai'r gwerth fod yn llai na {0}"
+// maxError: "The value should not be greater than {0}" => "Ni ddylai'r gwerth fod yn fwy na {0}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho."
+// emptyRowsText: "There are no rows." => "Nid oes unrhyw ffraeau."
+// multipletext_itemname: "text" => "Testun"
+// signaturePlaceHolder: "Sign here" => "Arwydd yma"
+// modalCancelButtonText: "Cancel" => "Canslo"
+// modalApplyButtonText: "Apply" => "Cynnig"
+// filterStringPlaceholder: "Type to search..." => "Teipiwch i chwilio..."
+// emptyMessage: "No data to display" => "Dim data i'w arddangos"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Nid oes unrhyw gofnodion hyd yn hyn.\nCliciwch y botwm isod i ychwanegu cofnod newydd."
+// noEntriesReadonlyText: "There are no entries." => "Nid oes unrhyw gofnodion."
+// more: "More" => "Rhagor"
+// tagboxDoneButtonCaption: "OK" => "OCÊ"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Mae'r holl ddewisiadau yn cael eu rhestru"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dewisiadau llusgo a gollwng yma i'w graddio"

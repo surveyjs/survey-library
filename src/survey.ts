@@ -120,6 +120,7 @@ export class SurveyModel extends SurveyElementCore
 
   private navigationBarValue: ActionContainer;
 
+  onThemeApplying: EventBase<SurveyModel> = new EventBase<SurveyModel>();
   onThemeApplied: EventBase<SurveyModel> = new EventBase<SurveyModel>();
 
   //#region Event declarations
@@ -2524,6 +2525,7 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < pages.length; i++) {
       pages[i].updateElementCss(reNew);
     }
+    this.updateCss();
   }
   /**
    * Gets or sets the error message position.
@@ -3808,8 +3810,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
-    if (this.hasErrorsOnNavigate(true)) return false;
-    if (this.doServerValidation(true, true)) return false;
+    if (this.checkErrorsMode !== "onComplete") {
+      if (this.hasErrorsOnNavigate(true)) return false;
+      if (this.doServerValidation(true, true)) return false;
+    }
     this.showPreviewCore();
     return true;
   }
@@ -4473,6 +4477,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.root)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootReadOnly, this.mode === "display")
+      .append(this.css.rootCompact, this.isCompact)
       .toString();
   }
   private resizeObserver: ResizeObserver;
@@ -7159,8 +7164,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   public applyTheme(theme: ITheme): void {
-    if(!theme) return;
-
+    if (!theme) return;
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if(key === "isPanelless") {
         this.isCompact = theme[key];
@@ -7169,7 +7173,7 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
-    this.onThemeApplied.fire(this, {});
+    this.onThemeApplied.fire(this, { theme: theme });
   }
 
   /**

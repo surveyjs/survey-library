@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var vietnameseSurveyStrings = {
@@ -13,22 +11,23 @@ export var vietnameseSurveyStrings = {
   noneItemText: "Trống",
   selectAllItemText: "Chọn tất cả",
   progressText: "Trang {0} / {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} của {1}",
   panelDynamicProgressText: "Dòng {0} / {1}",
+  panelDynamicTabTextFormat: "Bảng điều khiển {panelIndex}",
   questionsProgressText: "Đã trả lời {0}/{1} câu hỏi",
   emptySurvey: "Không có trang hoặc câu hỏi nào được hiển thị trong cuộc khảo sát này.",
   completingSurvey: "Cảm ơn đã hoàn thành khảo sát!",
   completingSurveyBefore: "Hồ sơ chúng tôi cho thấy rằng bạn đã hoàn thành cuộc khảo sát này.",
   loadingSurvey: "Đang tải khảo sát...",
   placeholder: "Chọn...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Lựa...",
   value: "Giá trị",
   requiredError: "Vui lòng trả lời câu hỏi.",
   requiredErrorInPanel: "Vui lòng trả lời ít nhất một câu hỏi.",
   requiredInAllRowsError: "Vui lòng trả lời các câu hỏi trên tất cả các dòng.",
   numericError: "Giá trị nên là kiểu số.",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "Giá trị không được nhỏ hơn {0}",
+  maxError: "Giá trị không được lớn hơn {0}",
   textMinLength: "Vui lòng nhập ít nhất {0} kí tự.",
   textMaxLength: "Vui lòng nhập ít hơn {0} kí tự.",
   textMinMaxLength: "Vui lòng nhập nhiều hơn {0} hoặc ít hơn {1} kí tự.",
@@ -48,19 +47,19 @@ export var vietnameseSurveyStrings = {
   loadingFile: "Đang tải...",
   chooseFile: "Chọn các tập tin...",
   noFileChosen: "Không có tập tin nào được chọn",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên.",
   confirmDelete: "Bạn muốn xóa dòng này?",
   keyDuplicationError: "Giá trị này không nên bị trùng lặp.",
   addColumn: "Thêm cột",
   addRow: "Thêm dòng",
   removeRow: "Xóa",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "Không có hàng.",
   addPanel: "Thêm mới",
   removePanel: "Xóa",
   choices_Item: "mục",
   matrix_column: "Cột",
   matrix_row: "Dòng",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "Nhắn tin",
   savingData: "Kết quả đang lưu lại trên hệ thống...",
   savingDataError: "Có lỗi xảy ra và chúng ta không thể lưu kết quả.",
   savingDataSuccess: "Kết quả đã được lưu thành công!",
@@ -74,7 +73,7 @@ export var vietnameseSurveyStrings = {
   timerLimitPage: "Bạn đã sử dụng {0} / {1} trên trang này.",
   timerLimitSurvey: "Bạn đã sử dụng {0} / {1} trên toàn bộ.",
   clearCaption: "Xóa",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "Ký tên tại đây",
   chooseFileCaption: "Chọn tập tin",
   removeFileCaption: "Xóa tập tin",
   booleanCheckedLabel: "Có",
@@ -82,14 +81,40 @@ export var vietnameseSurveyStrings = {
   confirmRemoveFile: "Bạn có chắc chắn muốn xóa tập tin này: {0}?",
   confirmRemoveAllFiles: "Bạn có chắc chắn muốn xóa toàn bộ tập tin?",
   questionTitlePatternText: "Tiêu đề câu hỏi",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "Hủy",
+  modalApplyButtonText: "Áp dụng",
+  filterStringPlaceholder: "Nhập để tìm kiếm...",
+  emptyMessage: "Không có dữ liệu để hiển thị",
+  noEntriesText: "Chưa có mục nào.\nNhấp vào nút bên dưới để thêm mục nhập mới.",
+  noEntriesReadonlyText: "Không có mục.",
+  more: "Nhiều hơn",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Tất cả các lựa chọn được xếp hạng",
+  selectToRankEmptyUnrankedAreaText: "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
 surveyLocalization.locales["vi"] = vietnameseSurveyStrings;
 surveyLocalization.localeNames["vi"] = "Việt Nam";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} của {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Bảng điều khiển {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Lựa..."
+// minError: "The value should not be less than {0}" => "Giá trị không được nhỏ hơn {0}"
+// maxError: "The value should not be greater than {0}" => "Giá trị không được lớn hơn {0}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên."
+// emptyRowsText: "There are no rows." => "Không có hàng."
+// multipletext_itemname: "text" => "Nhắn tin"
+// signaturePlaceHolder: "Sign here" => "Ký tên tại đây"
+// modalCancelButtonText: "Cancel" => "Hủy"
+// modalApplyButtonText: "Apply" => "Áp dụng"
+// filterStringPlaceholder: "Type to search..." => "Nhập để tìm kiếm..."
+// emptyMessage: "No data to display" => "Không có dữ liệu để hiển thị"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Chưa có mục nào.\nNhấp vào nút bên dưới để thêm mục nhập mới."
+// noEntriesReadonlyText: "There are no entries." => "Không có mục."
+// more: "More" => "Nhiều hơn"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tất cả các lựa chọn được xếp hạng"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"

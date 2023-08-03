@@ -1,5 +1,3 @@
-// This dictionary contains 8 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var macedonianSurveyStrings = {
@@ -13,15 +11,16 @@ export var macedonianSurveyStrings = {
   noneItemText: "Ништо",
   selectAllItemText: "Селектирај се",
   progressText: "Страница {0} од {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} на {1}",
   panelDynamicProgressText: "Сними {0} од {1}",
+  panelDynamicTabTextFormat: "Панел {панел Индекс}",
   questionsProgressText: "Одговорени на {0} / {1} прашања",
   emptySurvey: "Нема видлива страница или прашање во истражувањето.",
   completingSurvey: "Ви благодариме што го завршивте истражувањето!",
   completingSurveyBefore: "Нашите записи покажуваат дека веќе сте го завршиле ова истражување.",
   loadingSurvey: "Анкетата се вчитува ...",
   placeholder: "Изберете ...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Изберете...",
   value: "вредност",
   requiredError: "Ве молам, одговорете на прашањето.",
   requiredErrorInPanel: "Ве молам, одговорете барем на едно прашање.",
@@ -60,7 +59,7 @@ export var macedonianSurveyStrings = {
   choices_Item: "ставка",
   matrix_column: "Колона",
   matrix_row: "Ред",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "текст.",
   savingData: "Резултатите се зачувуваат на серверот ...",
   savingDataError: "Настана грешка и не можевме да ги зачуваме резултатите.",
   savingDataSuccess: "Резултатите беа успешно зачувани!",
@@ -74,7 +73,7 @@ export var macedonianSurveyStrings = {
   timerLimitPage: "Поминавте {0} од {1} на оваа страница.",
   timerLimitSurvey: "Вие потрошивте вкупно {0} од {1}.",
   clearCaption: "Да расчисти",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "Потпиши се овде.",
   chooseFileCaption: "Изберете датотека",
   removeFileCaption: "Отстранете ја оваа датотека",
   booleanCheckedLabel: "Да",
@@ -84,11 +83,31 @@ export var macedonianSurveyStrings = {
   questionTitlePatternText: "Наслов на прашањето",
   modalCancelButtonText: "Откажи",
   modalApplyButtonText: "Аплицирај",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  filterStringPlaceholder: "Тип за пребарување...",
+  emptyMessage: "Нема податоци за прикажување",
+  noEntriesText: "Сеуште нема влезници.\nКликнете на копчето подолу за да додадете нов влез.",
+  noEntriesReadonlyText: "Нема влезници.",
+  more: "Повеќе",
+  tagboxDoneButtonCaption: "ДОБРО",
+  selectToRankEmptyRankedAreaText: "Сите избори се рангирани",
+  selectToRankEmptyUnrankedAreaText: "Влечете и фрлете го изборот овде за да ги рангирате"
 };
 
 surveyLocalization.locales["mk"] = macedonianSurveyStrings;
 surveyLocalization.localeNames["mk"] = "Македонски";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} на {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Панел {панел Индекс}"
+// ratingOptionsCaption: "Select..." => "Изберете..."
+// multipletext_itemname: "text" => "текст."
+// signaturePlaceHolder: "Sign here" => "Потпиши се овде."
+// filterStringPlaceholder: "Type to search..." => "Тип за пребарување..."
+// emptyMessage: "No data to display" => "Нема податоци за прикажување"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Сеуште нема влезници.\nКликнете на копчето подолу за да додадете нов влез."
+// noEntriesReadonlyText: "There are no entries." => "Нема влезници."
+// more: "More" => "Повеќе"
+// tagboxDoneButtonCaption: "OK" => "ДОБРО"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Сите избори се рангирани"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Влечете и фрлете го изборот овде за да ги рангирате"

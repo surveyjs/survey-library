@@ -3810,8 +3810,10 @@ export class SurveyModel extends SurveyElementCore
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
-    if (this.hasErrorsOnNavigate(true)) return false;
-    if (this.doServerValidation(true, true)) return false;
+    if (this.checkErrorsMode !== "onComplete") {
+      if (this.hasErrorsOnNavigate(true)) return false;
+      if (this.doServerValidation(true, true)) return false;
+    }
     this.showPreviewCore();
     return true;
   }

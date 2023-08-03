@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { surveyLocalization } from "../src/surveyStrings";
 import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
+import { settings } from "../src/settings";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
@@ -730,5 +731,22 @@ QUnit.test(
     survey.showPreview();
     assert.equal(survey.state, "preview", "There is no errors");
     assert.equal(survey.getAllQuestions(true).length, 2, "Show all questions");
+  }
+);
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' and all questions are empty, bug#6608",
+  function(assert) {
+    const survey = new SurveyModel({
+      "elements": [{ "type": "text", "name": "q1", "isRequired": true }],
+      "showPreviewBeforeComplete": "showAnsweredQuestions"
+    });
+    survey.showPreview();
+    assert.equal(survey.state, "running", "There is an error");
+    survey.checkErrorsMode = "onComplete";
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "We do not check for errors");
+    survey.cancelPreview();
+    assert.equal(survey.state, "running", "running again");
+    survey.completeLastPage();
+    assert.equal(survey.state, "running", "We have errors, we can't fix errors");
   }
 );

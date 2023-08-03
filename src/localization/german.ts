@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var germanSurveyStrings = {
@@ -15,6 +13,7 @@ export var germanSurveyStrings = {
   progressText: "Seite {0} von {1}",
   indexText: "{0} von {1}",
   panelDynamicProgressText: "Eintrag {0} von {1}",
+  panelDynamicTabTextFormat: "Bereich {panelIndex}",
   questionsProgressText: "{0}/{1} Fragen beantwortet",
   emptySurvey: "Es sind keine Fragen vorhanden.",
   completingSurvey: "Vielen Dank, dass Sie die Umfrage abgeschlossen haben!",
@@ -87,8 +86,20 @@ export var germanSurveyStrings = {
   filterStringPlaceholder: "Tippe um zu suchen...",
   emptyMessage: "Es gibt noch keine Daten.",
   noEntriesText: "Es gibt noch keine Einträge.\nKlicken Sie auf die Schaltfläche unten, um einen neuen Eintrag hinzuzufügen.",
-  more: "Mehr"
+  noEntriesReadonlyText: "Es gibt keine Einträge.",
+  more: "Mehr",
+  tagboxDoneButtonCaption: "OKAY",
+  selectToRankEmptyRankedAreaText: "Alle Auswahlmöglichkeiten sind in einer Rangfolge angeordnet",
+  selectToRankEmptyUnrankedAreaText: "Ziehen Sie die Auswahl hierher, um sie zu ordnen"
 };
 
 surveyLocalization.locales["de"] = germanSurveyStrings;
 surveyLocalization.localeNames["de"] = "deutsch";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Bereich {panelIndex}"
+// noEntriesReadonlyText: "There are no entries." => "Es gibt keine Einträge."
+// tagboxDoneButtonCaption: "OK" => "OKAY"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle Auswahlmöglichkeiten sind in einer Rangfolge angeordnet"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Ziehen Sie die Auswahl hierher, um sie zu ordnen"

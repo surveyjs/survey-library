@@ -1,5 +1,3 @@
-// This dictionary contains 7 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var basqueSurveyStrings = {
@@ -13,15 +11,16 @@ export var basqueSurveyStrings = {
   noneItemText: "Bat ere ez",
   selectAllItemText: "Guztia hautatu",
   progressText: "{1}-(e)tik {0} orrialde",
-  // indexText: "{0} of {1}",
+  indexText: "{1} {0}",
   panelDynamicProgressText: "{0} errigistro {1}-(e)tik",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Erantzundako galderak {0}/{1}",
   emptySurvey: "Ez dago orrialde bistaragarririk edo ez dago galderarik.",
   completingSurvey: "Eskerrik asko galdetegia erantzuteagatik!",
   completingSurveyBefore: "Gure datuek diote dagoeneko galdetegia erantzun duzula.",
   loadingSurvey: "Galdetegia kargatzen...",
   placeholder: "Hautatu...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Aukeratu...",
   value: "balioa",
   requiredError: "Mesedez, galdera erantzun.",
   requiredErrorInPanel: "Mesedez, gutxienez galdera bat erantzun.",
@@ -48,7 +47,7 @@ export var basqueSurveyStrings = {
   loadingFile: "Kargatzen...",
   chooseFile: "Fitxategia(k) hautatu...",
   noFileChosen: "Ez da inolako fitxategirik hautatu",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Arrastatu eta askatu artxibo bat hemen edo klik egin beheko botoian eta aukeratu artxibo bat kargatzeko.",
   confirmDelete: "¿Erregistroa borratu nahi al duzu?",
   keyDuplicationError: "Balio hau bakarra izan behar du.",
   addColumn: "Zutabe bat gehitu",
@@ -84,11 +83,30 @@ export var basqueSurveyStrings = {
   questionTitlePatternText: "Galderaren izenburua",
   modalCancelButtonText: "Ezeztatu",
   modalApplyButtonText: "Ezarri",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  filterStringPlaceholder: "Idatzi bila...",
+  emptyMessage: "Ez daturik erakusteko",
+  noEntriesText: "Oraindik ez sarrerarik.\nKlik beheko botoian klik egin sarrera berri bat eransteko.",
+  noEntriesReadonlyText: "Ez sarrerarik.",
+  more: "Gehiago",
+  tagboxDoneButtonCaption: "Ados",
+  selectToRankEmptyRankedAreaText: "Aukera guztiak sailkatuta daude",
+  selectToRankEmptyUnrankedAreaText: "Arrastaka eta askatzen ditu hemen sailkatzeko"
 };
 
 surveyLocalization.locales["eu"] = basqueSurveyStrings;
 surveyLocalization.localeNames["eu"] = "Euskara";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{1} {0}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Aukeratu..."
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Arrastatu eta askatu artxibo bat hemen edo klik egin beheko botoian eta aukeratu artxibo bat kargatzeko."
+// filterStringPlaceholder: "Type to search..." => "Idatzi bila..."
+// emptyMessage: "No data to display" => "Ez daturik erakusteko"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Oraindik ez sarrerarik.\nKlik beheko botoian klik egin sarrera berri bat eransteko."
+// noEntriesReadonlyText: "There are no entries." => "Ez sarrerarik."
+// more: "More" => "Gehiago"
+// tagboxDoneButtonCaption: "OK" => "Ados"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Aukera guztiak sailkatuta daude"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastaka eta askatzen ditu hemen sailkatzeko"

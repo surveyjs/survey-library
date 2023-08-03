@@ -1,5 +1,8 @@
 <template>
-    <span v-if="column.isRenderedRequired" :class="question.cssClasses.cellRequiredText">{{ column.requiredText }}</span>
+  <span class="sv-vue-title-additional-div" v-if="column.isRenderedRequired">
+    <span>&nbsp;</span>
+    <span :class="question.cssClasses.cellRequiredText">{{ column.requiredText }}</span>      
+  </span>
 </template>
 
 <script lang="ts">

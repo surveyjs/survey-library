@@ -20,12 +20,15 @@
 }
 
 .sd-question__erbox--above-question {
-  border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
   margin-bottom: calc(var(--sd-base-vertical-padding) - #{$base-unit});
 }
 
 .sd-question__erbox--below-question {
   margin-top: calcSize(1);
+}
+
+.sd-element--with-frame>.sd-question__erbox--above-question {
+  border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
 }
 
 .sd-element--with-frame>.sd-question__erbox--below-question {

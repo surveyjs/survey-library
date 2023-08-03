@@ -1,9 +1,12 @@
 <template>
-  <span
-    v-if="column.isRenderedRequired"
-    :class="question.cssClasses.cellRequiredText"
-    >{{ column.requiredText }}</span
-  >
+  <template v-if="column.isRenderedRequired">
+    <span>&nbsp;</span>
+    <span
+      v-if="column.isRenderedRequired"
+      :class="question.cssClasses.cellRequiredText"
+      >{{ column.requiredText }}</span
+    >
+  </template>
 </template>
 
 <script lang="ts" setup>

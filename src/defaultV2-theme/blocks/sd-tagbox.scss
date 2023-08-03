@@ -25,6 +25,7 @@
 .sv-tagbox__item {
   position: relative;
   display: flex;
+  align-items: center;
   padding: calcSize(1) calcSize(1.5);
   background-color: $primary;
   border-radius: calcCornerRadius(0.5);

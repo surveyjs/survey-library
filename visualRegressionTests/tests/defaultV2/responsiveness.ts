@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { imageSource } from "../../constants";
-import { url, takeElementScreenshot, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest } from "../../helper";
+import { url, takeElementScreenshot, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, resetHoverToBody } from "../../helper";
 
 const title = "Responsiveness Screenshot";
 
@@ -197,6 +197,83 @@ frameworks.forEach(framework => {
         document.body.focus();
       })();
       await takeElementScreenshot("responsiveness-matrixdynamic.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check matrixdynamic on small screen with errors", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "frameworks",
+            title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+            columns: [
+              {
+                "name": "Column 1",
+                "isRequired": true,
+                "title": "Framework"
+              },
+              {
+                "name": "Column 2",
+                "title": "How long do you use it?"
+              },
+              {
+                "name": "Column 3",
+                "isRequired": true,
+                "title": "What is main strength?"
+              }
+            ],
+            addRowText: "Add a New Record",
+            rowCount: 2,
+          },
+        ]
+      });
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await resetHoverToBody(t);
+
+      await takeElementScreenshot("responsiveness-matrixdynamic-with-errros.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check matrixdynamic on small screen with errors bottom", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questionErrorLocation: "bottom",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "frameworks",
+            title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+            columns: [
+              {
+                "name": "Column 1",
+                "isRequired": true,
+                "title": "Framework"
+              },
+              {
+                "name": "Column 2",
+                "title": "How long do you use it?"
+              },
+              {
+                "name": "Column 3",
+                "isRequired": true,
+                "title": "What is main strength?"
+              }
+            ],
+            addRowText: "Add a New Record",
+            rowCount: 2,
+          },
+        ]
+      });
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await resetHoverToBody(t);
+
+      await takeElementScreenshot("responsiveness-matrixdynamic-with-errros-bottom.png", Selector(".sd-question"), t, comparer);
     });
   });
   test("Check matrixdropdown on small screen", async (t) => {

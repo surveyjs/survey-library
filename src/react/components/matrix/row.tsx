@@ -28,6 +28,7 @@ export class MatrixRow extends SurveyElementBase<IMatrixRowProps, any> {
 
   render() {
     const model = this.model;
+    if(!model.visible) return null;
     return (
       <tr
         className={model.className}

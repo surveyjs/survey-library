@@ -24,7 +24,8 @@
   }
 
   .sd-table__row:nth-of-type(odd) {
-    & > td,
+
+    &>td,
     td:first-of-type {
       background-color: $background-dim-light;
 
@@ -41,7 +42,7 @@
           background-color: $primary;
         }
 
-        &.sd-radio--checked .sd-radio__control:focus + .sd-radio__decorator:after {
+        &.sd-radio--checked .sd-radio__control:focus+.sd-radio__decorator:after {
           background-color: $primary-foreground;
         }
       }
@@ -56,6 +57,24 @@
   padding: calcSize(1);
   color: $foreground;
   text-align: center;
+}
+
+.sd-table__cell--error {
+  padding: 0 calcSize(1);
+
+  .sd-question__erbox--outside-question {
+    margin: 0;
+  }
+}
+
+.sd-table__cell--error-top {
+  vertical-align: bottom;
+  padding-top: calcSize(1);
+}
+
+.sd-table__cell--error-bottom {
+  vertical-align: top;
+  padding-bottom: calcSize(1);
 }
 
 .sd-table__cell--item {
@@ -74,6 +93,19 @@
 
 .sd-root--readonly .sd-question--disabled .sd-table__cell {
   opacity: 1;
+}
+
+.sd-table__cell--header .sv-vue-title-additional-div,
+.sd-table__cell--header {
+  font-size: 0;
+  line-height: 0;
+}
+
+.sd-table__cell--header {
+  span {
+    font-size: calcFontSize(1);
+    line-height: calcFontSize(1.5);
+  }
 }
 
 .sd-table__cell--header {
@@ -337,11 +369,16 @@
     text-align: left;
   }
 
-  .sd-table__cell:not(.sd-matrix__cell):not(:first-of-type) {
+  .sd-table__cell {
     margin-top: calcSize(1);
   }
 
-  .sd-table__cell:not(.sd-matrix__cell):not(.sd-table__cell--actions):not(.sd-table__cell--row-text) {
+  .sd-table__cell:first-of-type,
+  .sd-matrix__cell {
+    margin-top: 0;
+  }
+
+  .sd-table__cell {
     &::before {
       padding-top: calcSize(2);
       padding-bottom: calcSize(1);
@@ -349,6 +386,15 @@
       font-weight: 600;
       display: block;
       text-align: left;
+    }
+  }
+
+  .sd-matrix__cell,
+  .sd-table__cell--actions,
+  .sd-table__cell--row-text,
+  .sd-table__cell--error {
+    &::before {
+      content: none;
     }
   }
 
@@ -398,6 +444,27 @@
       content: none;
     }
   }
+
+  .sd-table__cell.sd-table__cell--error-top {
+    margin-top: 0;
+  }
+
+  .sd-table__cell--error-top:first-of-type~.sd-table__cell:nth-of-type(2) {
+    margin-top: 0;
+  }
+
+  .sd-table__cell--error-top {
+    .sd-question__erbox {
+      margin-top: calcSize(2);
+      margin-bottom: calcSize(-2);
+    }
+  }
+
+  .sd-table__cell--error-top:first-of-type {
+    .sd-question__erbox {
+      margin-bottom: calcSize(-1);
+    }
+  }
 }
 
 .sd-table__cell--detail-panel {
@@ -411,4 +478,3 @@
     margin: auto;
   }
 }
-

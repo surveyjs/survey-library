@@ -372,6 +372,7 @@ export var defaultStandardCss = {
     },
   },
   variables: {
+    mobileWidth: "--sv-mobile-width",
     themeMark: "--sv-default-mark"
   },
   tagbox: {

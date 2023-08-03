@@ -34,7 +34,7 @@
   .sd-element__num {
     font-size: calcFontSize(0.75);
     line-height: calcLineHeight(1);
-    color: $foreground-light;
+    // color: $foreground-light; test
   }
 
   span {
@@ -70,7 +70,7 @@
   width: calcSize(5);
   font-size: calcFontSize(0.75);
   line-height: calcLineHeight(1);
-  color: $foreground-light;
+  // color: $foreground-light; test
   margin-inline-start: calcSize(-5); // margin-left
   text-align: end;
   box-sizing: border-box;

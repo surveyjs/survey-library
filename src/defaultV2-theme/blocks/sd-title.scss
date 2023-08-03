@@ -65,11 +65,11 @@
   .sd-container-modern__title {
     .sd-header__text h3 {
       margin: 0;
+      color: $foreground-light; // test
     }
 
     .sd-description {
       margin: 0;
-      color: $foreground-light;
     }
   }
 }

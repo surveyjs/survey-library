@@ -18,7 +18,7 @@ Base.createPropertiesHash = () => {
   return res;
 };
 function makeReactive(surveyElement: Base) {
-  if (!surveyElement) return;
+  if (!surveyElement || (surveyElement as any).__vueImplemented) return false;
   surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
     const arrayRef = shallowRef(hash[key]);
     hash[key]["onArrayChanged"] = () => {
@@ -46,16 +46,19 @@ function makeReactive(surveyElement: Base) {
       hash[key] = val;
     }
   };
+  (surveyElement as any).__vueImplemented = true;
+  return true;
 }
 
-function unMakeReactive(surveyElement: Base) {
-  if (!surveyElement) return;
+function unMakeReactive(surveyElement: Base, isModelSubsribed: boolean) {
+  if (!surveyElement || !isModelSubsribed) return;
   surveyElement.iteratePropertiesHash((hash, key) => {
     hash[key] = unref(hash[key]);
     if (Array.isArray(hash[key])) {
       hash[key]["onArrayChanged"] = undefined;
     }
   });
+  delete (surveyElement as any).__vueImplemented;
   surveyElement.createArrayCoreHandler = undefined as any;
   surveyElement.getPropertyValueCoreHandler = undefined as any;
   surveyElement.setPropertyValueCoreHandler = undefined as any;
@@ -67,26 +70,27 @@ export function useBase<T extends Base>(
   onModelChanged?: (newValue: T) => void,
   clean?: (model: T) => void
 ) {
+  let isModelSubsribed = false;
   const stopWatch = watch(
     getModel,
     (value, oldValue) => {
       if (onModelChanged) onModelChanged(value);
       if (oldValue) {
-        unMakeReactive(oldValue);
+        unMakeReactive(oldValue, isModelSubsribed);
         if (clean) clean(oldValue);
       }
 
-      makeReactive(value);
+      isModelSubsribed = makeReactive(value);
     },
     {
       immediate: true,
     }
   );
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     const model = getModel();
     if (model) {
       if (clean) clean(getModel());
-      unMakeReactive(model);
+      unMakeReactive(model, isModelSubsribed);
       stopWatch();
     }
   });
@@ -127,7 +131,7 @@ export function useLocString(
     },
     { immediate: true }
   );
-  onUnmounted(() => {
+  onBeforeUnmount(() => {
     stopWatch();
   });
   return renderedHtml;

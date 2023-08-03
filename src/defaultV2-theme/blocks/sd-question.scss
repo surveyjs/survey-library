@@ -158,8 +158,8 @@
   gap: calcSize(0.5);
   justify-content: center;
   min-height: calcSize(24);
-  line-height: calcLineHeight(1.5);
-  font-size: calcFontSize(1);
+  font-size: $font-editorfont-size;
+  line-height: multiply(1.5, $font-editorfont-size);
   color: $foreground-light;
 
   &>div,

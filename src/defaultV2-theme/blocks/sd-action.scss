@@ -8,8 +8,8 @@
   font-weight: 600;
   font-family: var(--font-family, $font-family);
   font-style: normal;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  font-size: $font-questiontitle-size;
+  line-height: multiply(1.5, $font-questiontitle-size);
   outline: none;
 }
 

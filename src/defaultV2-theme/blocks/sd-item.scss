@@ -39,7 +39,7 @@
 .sd-item__control-label {
   font-family: $font-editorfont-family;
   font-style: normal;
-  font-weight: normal;
+  font-weight: $font-editorfont-weight;
   line-height: multiply(1.5, $font-editorfont-size);
   font-size: $font-editorfont-size;
   color: $font-editorfont-color;

@@ -24,6 +24,7 @@ sv-popup {
 
 .sv-popup__container {
   box-shadow: $shadow-large;
+  border-radius: calcCornerRadius(2);
   position: absolute;
   padding: 0;
 }

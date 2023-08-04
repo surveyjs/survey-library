@@ -19,6 +19,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
+import { ConsoleWarnings } from "./console-warnings";
 
 export interface IConditionObject {
   name: string;
@@ -585,10 +586,10 @@ export class Question extends SurveyElement<Question>
     this.updateQuestionCss();
   }
   get hasDescriptionUnderTitle(): boolean {
-    return this.getDescriptionLocation() == "underTitle";
+    return this.getDescriptionLocation() == "underTitle" && this.hasDescription;
   }
   get hasDescriptionUnderInput(): boolean {
-    return this.getDescriptionLocation() == "underInput";
+    return this.getDescriptionLocation() == "underInput" && this.hasDescription;
   }
   private getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
@@ -1905,12 +1906,19 @@ export class Question extends SurveyElement<Question>
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
+    if(!this.isValueEmpty(newValue) && !this.isNewValueCorrect(newValue)) {
+      ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
+      return;
+    }
     var oldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
     if (this.isAnswered != oldAnswered) {
       this.updateQuestionCss();
     }
+  }
+  protected isNewValueCorrect(val: any): boolean {
+    return true;
   }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;
@@ -1924,6 +1932,7 @@ export class Question extends SurveyElement<Question>
   public get isSurveyInputTextUpdate(): boolean {
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
+  get requireStrictCompare(): boolean { return false; }
   private getDataLocNotification(): any {
     return this.isInputTextUpdate ? "text" : false;
   }

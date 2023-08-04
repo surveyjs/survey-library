@@ -368,6 +368,9 @@ export class QuestionMatrixModel
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
   }
+  protected isNewValueCorrect(val: any): boolean {
+    return Helpers.isValueObject(val);
+  }
   protected processRowsOnSet(newRows: Array<any>) {
     return this.sortVisibleRows(newRows);
   }

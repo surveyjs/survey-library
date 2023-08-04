@@ -96,7 +96,8 @@
 }
 
 .sd-paneldynamic__progress-text {
-    font-size: calcFontSize(1);
+    font-size: $font-questiontitle-size;
+    line-height: multiply(1.5, $font-questiontitle-size);
     color: $foreground-light;
     margin: 0;
     margin-right: calcSize(3);
@@ -190,7 +191,8 @@
     cursor: pointer;
 
     font-family: var(--font-family, $font-family);
-    font-size: calcFontSize(1);
+    font-size: $font-editorfont-size;
+    line-height: multiply(1.5, $font-editorfont-size);
     color: $foreground-light;
     overflow-x: hidden;
     white-space: nowrap;

@@ -62,6 +62,8 @@
   word-break: break-word;
   white-space: normal;
   color: $foreground-light;
+  font-size: $font-editorfont-size;
+  line-height: multiply(1.5, $font-editorfont-size);
 }
 
 .sd-file__choose-btn--text {

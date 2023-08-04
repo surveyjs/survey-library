@@ -378,8 +378,8 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   const renderedTable = matrix.renderedTable;
   assert.equal(renderedTable.headerRow.cells[1].className, "custom-header-cell");
-  assert.equal(renderedTable.rows[0].cells[1].className, "custom-item-cell custom-radio-item-cell");
-  assert.equal(renderedTable.rows[0].cells[3].className, "custom-item-cell custom-checkbox-item-cell");
+  assert.equal(renderedTable.rows[1].cells[1].className, "custom-item-cell custom-radio-item-cell");
+  assert.equal(renderedTable.rows[1].cells[3].className, "custom-item-cell custom-checkbox-item-cell");
 });
 QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", function (assert) {
   const survey = new SurveyModel({

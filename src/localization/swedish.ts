@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var swedishSurveyStrings = {
@@ -15,6 +13,7 @@ export var swedishSurveyStrings = {
   progressText: "Sida {0} av {1}",
   indexText: "{0} av {1}",
   panelDynamicProgressText: "{0} av {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "{0} / {1} frågor besvarade",
   emptySurvey: "Det finns ingen synlig sida eller fråga i enkäten.",
   completingSurvey: "Tack för att du genomfört enkäten!!",
@@ -48,13 +47,13 @@ export var swedishSurveyStrings = {
   loadingFile: "Laddar...",
   chooseFile: "Välj fil(er) ...",
   noFileChosen: "Ingen fil vald",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp.",
   confirmDelete: "Vill du radera posten?",
   keyDuplicationError: "Detta värde ska vara unikt.",
   addColumn: "Lägg till kolumn",
   addRow: "Lägg till rad",
   removeRow: "Ta bort",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "Det finns inga rader.",
   addPanel: "Lägg till ny",
   removePanel: "Ta bort",
   choices_Item: "Artikel",
@@ -87,8 +86,22 @@ export var swedishSurveyStrings = {
   filterStringPlaceholder: "Skriv för att söka...",
   emptyMessage: "Ingen data finns",
   noEntriesText: "Det finns inga värden än.\nKlicka på knappen nedan för att lägga till nytt värde.",
-  more: "Mer"
+  noEntriesReadonlyText: "Det finns inga poster.",
+  more: "Mer",
+  tagboxDoneButtonCaption: "OKEJ",
+  selectToRankEmptyRankedAreaText: "Alla val rangordnas",
+  selectToRankEmptyUnrankedAreaText: "Dra och släpp val här för att rangordna dem"
 };
 
 surveyLocalization.locales["sv"] = swedishSurveyStrings;
 surveyLocalization.localeNames["sv"] = "svenska";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp."
+// emptyRowsText: "There are no rows." => "Det finns inga rader."
+// noEntriesReadonlyText: "There are no entries." => "Det finns inga poster."
+// tagboxDoneButtonCaption: "OK" => "OKEJ"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alla val rangordnas"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra och släpp val här för att rangordna dem"

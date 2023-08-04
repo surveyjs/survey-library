@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var arabicSurveyStrings = {
@@ -13,22 +11,23 @@ export var arabicSurveyStrings = {
   noneItemText: "لا شيء",
   selectAllItemText: "اختر الكل",
   progressText: "{1} صفحة {0} من",
-  // indexText: "{0} of {1}",
+  indexText: "{0} من {1}",
   panelDynamicProgressText: "سجل {0} من {1}",
+  panelDynamicTabTextFormat: "لوحة {بانل إندكس}",
   questionsProgressText: "تمت الإجابة على أسئلة {0} / {1}",
   emptySurvey: "لا توجد صفحة مرئية أو سؤال في النموذج",
   completingSurvey: "شكرا لكم لاستكمال النموذج!",
   completingSurveyBefore: "تظهر سجلاتنا أنك قد أكملت هذا الاستطلاع بالفعل.",
   loadingSurvey: "...يتم تحميل النموذج",
   placeholder: "...اختر",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "اختار...",
   value: "القيمة",
   requiredError: ".يرجى الإجابة على السؤال",
   requiredErrorInPanel: "الرجاء الإجابة على سؤال واحد على الأقل.",
   requiredInAllRowsError: "يرجى الإجابة على الأسئلة في جميع الصفوف",
   numericError: "يجب أن تكون القيمة رقمية.",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "يجب ألا تقل القيمة عن {0}",
+  maxError: "يجب ألا تزيد القيمة عن {0}",
   textMinLength: "الرجاء إدخال ما لا يقل عن {0} حروف",
   textMaxLength: "الرجاء إدخال أقل من {0} حروف",
   textMinMaxLength: "يرجى إدخال أكثر من {0} وأقل من {1} حروف",
@@ -48,19 +47,19 @@ export var arabicSurveyStrings = {
   loadingFile: "جار التحميل...",
   chooseFile: "اختر الملفات...",
   noFileChosen: "لم تقم باختيار ملف",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله.",
   confirmDelete: "هل تريد حذف السجل؟",
   keyDuplicationError: "يجب أن تكون هذه القيمة فريدة.",
   addColumn: "أضف العمود",
   addRow: "اضافة صف",
   removeRow: "إزالة صف",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "لا توجد صفوف.",
   addPanel: "اضف جديد",
   removePanel: "إزالة",
   choices_Item: "بند",
   matrix_column: "عمود",
   matrix_row: "صف",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "نص",
   savingData: "يتم حفظ النتائج على الخادم ...",
   savingDataError: "حدث خطأ ولم نتمكن من حفظ النتائج.",
   savingDataSuccess: "تم حفظ النتائج بنجاح!",
@@ -74,7 +73,7 @@ export var arabicSurveyStrings = {
   timerLimitPage: "لقد أنفقت {0} من {1} في هذه الصفحة.",
   timerLimitSurvey: "لقد أنفقت {0} من إجمالي {1}.",
   clearCaption: "واضح",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "وقع هنا",
   chooseFileCaption: "اختر ملف",
   removeFileCaption: "قم بإزالة هذا الملف",
   booleanCheckedLabel: "نعم",
@@ -82,13 +81,39 @@ export var arabicSurveyStrings = {
   confirmRemoveFile: "هل أنت متأكد أنك تريد إزالة هذا الملف: {0}؟",
   confirmRemoveAllFiles: "هل أنت متأكد أنك تريد إزالة كافة الملفات؟",
   questionTitlePatternText: "عنوان السؤال",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "إلغاء الأمر",
+  modalApplyButtonText: "طبق",
+  filterStringPlaceholder: "اكتب للبحث...",
+  emptyMessage: "لا توجد بيانات للعرض",
+  noEntriesText: "لا توجد إدخالات حتى الآن.\nانقر فوق الزر أدناه لإضافة إدخال جديد.",
+  noEntriesReadonlyText: "لا توجد إدخالات.",
+  more: "أكثر",
+  tagboxDoneButtonCaption: "موافق",
+  selectToRankEmptyRankedAreaText: "يتم ترتيب جميع الخيارات",
+  selectToRankEmptyUnrankedAreaText: "قم بسحب وإسقاط الخيارات هنا لترتيبها"
 };
 
 surveyLocalization.locales["ar"] = arabicSurveyStrings;
 surveyLocalization.localeNames["ar"] = "العربية";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} من {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "لوحة {بانل إندكس}"
+// ratingOptionsCaption: "Select..." => "اختار..."
+// minError: "The value should not be less than {0}" => "يجب ألا تقل القيمة عن {0}"
+// maxError: "The value should not be greater than {0}" => "يجب ألا تزيد القيمة عن {0}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله."
+// emptyRowsText: "There are no rows." => "لا توجد صفوف."
+// multipletext_itemname: "text" => "نص"
+// signaturePlaceHolder: "Sign here" => "وقع هنا"
+// modalCancelButtonText: "Cancel" => "إلغاء الأمر"
+// modalApplyButtonText: "Apply" => "طبق"
+// filterStringPlaceholder: "Type to search..." => "اكتب للبحث..."
+// emptyMessage: "No data to display" => "لا توجد بيانات للعرض"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "لا توجد إدخالات حتى الآن.\nانقر فوق الزر أدناه لإضافة إدخال جديد."
+// noEntriesReadonlyText: "There are no entries." => "لا توجد إدخالات."
+// more: "More" => "أكثر"
+// tagboxDoneButtonCaption: "OK" => "موافق"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "يتم ترتيب جميع الخيارات"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "قم بسحب وإسقاط الخيارات هنا لترتيبها"

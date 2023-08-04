@@ -1,5 +1,3 @@
-// This dictionary contains 8 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var serbianStrings = {
@@ -13,15 +11,16 @@ export var serbianStrings = {
   noneItemText: "Ništa",
   selectAllItemText: "Izaberi sve",
   progressText: "Stranica {0} od {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} {1}",
   panelDynamicProgressText: "Upis {0} od {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Odgovoreno na {0}/{1} pitanja",
   emptySurvey: "Nema vidljivih stranica ili pitanja u anketi.",
   completingSurvey: "Hvala na popunjavanju ankete!",
   completingSurveyBefore: "Prema našim podacima, već ste popunili ovu anketu.",
   loadingSurvey: "Učitavam anketu...",
   placeholder: "Izaberi...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Izaberite...",
   value: "vrednost",
   requiredError: "Molimo odgovorite na ovo pitanje.",
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",
@@ -48,7 +47,7 @@ export var serbianStrings = {
   loadingFile: "Učitavanje...",
   chooseFile: "Izaberite fajlove...",
   noFileChosen: "Nije izabran nijedan fajl",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Prevucite i otpustite datoteku ovde ili kliknite na dugme ispod i odaberite datoteku za otpremanje.",
   confirmDelete: "Da li želite da izbrišete unos?",
   keyDuplicationError: "Ova vrednost treba da bude jedinstvena.",
   addColumn: "Dodaj kolonu",
@@ -74,7 +73,7 @@ export var serbianStrings = {
   timerLimitPage: "Proveli ste {0} od {1} na ovoj stranici.",
   timerLimitSurvey: "Proveli ste {0} od {1} ukupno.",
   clearCaption: "Poništi",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "Potpišite ovde",
   chooseFileCaption: "Izaberi fajl",
   removeFileCaption: "Ukloni ovaj fajl",
   booleanCheckedLabel: "Da",
@@ -84,12 +83,32 @@ export var serbianStrings = {
   questionTitlePatternText: "Naslov pitanja",
   modalCancelButtonText: "Otkaži",
   modalApplyButtonText: "Primeni",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  filterStringPlaceholder: "Otkucajte da biste pretražili...",
+  emptyMessage: "Nema podataka za prikazivanje",
+  noEntriesText: "Još uvek nema stavki.\nKliknite na dugme ispod da biste dodali novu stavku.",
+  noEntriesReadonlyText: "Nema stavki.",
+  more: "Viљe",
+  tagboxDoneButtonCaption: "U redu",
+  selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
+  selectToRankEmptyUnrankedAreaText: "Prevucite i otpustite izbor ovde da biste ih rangirali"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
 surveyLocalization.locales["rs"] = serbianStrings;
 surveyLocalization.localeNames["rs"] = "Srpski";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Izaberite..."
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Prevucite i otpustite datoteku ovde ili kliknite na dugme ispod i odaberite datoteku za otpremanje."
+// signaturePlaceHolder: "Sign here" => "Potpišite ovde"
+// filterStringPlaceholder: "Type to search..." => "Otkucajte da biste pretražili..."
+// emptyMessage: "No data to display" => "Nema podataka za prikazivanje"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Još uvek nema stavki.\nKliknite na dugme ispod da biste dodali novu stavku."
+// noEntriesReadonlyText: "There are no entries." => "Nema stavki."
+// more: "More" => "Viљe"
+// tagboxDoneButtonCaption: "OK" => "U redu"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Svi izbori su rangirani"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Prevucite i otpustite izbor ovde da biste ih rangirali"

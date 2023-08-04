@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var norwegianSurveyStrings = {
@@ -13,22 +11,23 @@ export var norwegianSurveyStrings = {
   noneItemText: "Ingen",
   selectAllItemText: "Velg alle",
   progressText: "Side {0} av {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} av {1}",
   panelDynamicProgressText: "Ta opp {0} av {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Besvarte {0} / {1} spørsmål",
   emptySurvey: "Det er ingen synlig side eller spørsmål i undersøkelsen.",
   completingSurvey: "Takk for at du fullførte undersøkelsen!",
   completingSurveyBefore: "Våre data viser at du allerede har gjennomført denne undersøkelsen.",
   loadingSurvey: "Undersøkelsen laster...",
   placeholder: "Velg...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Velge...",
   value: "verdi",
   requiredError: "Vennligst svar på spørsmålet.",
   requiredErrorInPanel: "Vennligst svar på minst ett spørsmål.",
   requiredInAllRowsError: "Vennligst svar på spørsmål i alle rader.",
   numericError: "Verdien skal være numerisk.",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "Verdien bør ikke være mindre enn {0}",
+  maxError: "Verdien bør ikke være større enn {0}",
   textMinLength: "Vennligst skriv inn minst {0} tegn.",
   textMaxLength: "Vennligst skriv inn mindre enn {0} tegn.",
   textMinMaxLength: "Vennligst skriv inn mer enn {0} og mindre enn {1} tegn.",
@@ -48,19 +47,19 @@ export var norwegianSurveyStrings = {
   loadingFile: "Laster inn ...",
   chooseFile: "Velg fil (er) ...",
   noFileChosen: "Ingen fil valgt",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Dra og slipp en fil her, eller klikk på knappen nedenfor og velg en fil du vil laste opp.",
   confirmDelete: "Ønsker du å slette posten?",
   keyDuplicationError: "Denne verdien skal være unik.",
   addColumn: "Legg til kolonne",
   addRow: "Legg til rad",
   removeRow: "Fjern",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "Det er ingen rader.",
   addPanel: "Legg til ny",
   removePanel: "Fjerne",
   choices_Item: "element",
   matrix_column: "Kolonne",
   matrix_row: "Rad",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "Tekst",
   savingData: "Resultatene lagres på serveren ...",
   savingDataError: "Det oppsto en feil, og vi kunne ikke lagre resultatene.",
   savingDataSuccess: "Resultatene ble lagret!",
@@ -74,7 +73,7 @@ export var norwegianSurveyStrings = {
   timerLimitPage: "Du har tilbrakt {0} av {1} på denne siden.",
   timerLimitSurvey: "Du har tilbrakt {0} av {1} totalt.",
   clearCaption: "Klar",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "Logg inn her",
   chooseFileCaption: "Velg Fil",
   removeFileCaption: "Fjern denne filen",
   booleanCheckedLabel: "Ja",
@@ -82,13 +81,39 @@ export var norwegianSurveyStrings = {
   confirmRemoveFile: "Er du sikker på at du vil fjerne denne filen: {0}?",
   confirmRemoveAllFiles: "Er du sikker på at du vil fjerne alle filene?",
   questionTitlePatternText: "Spørsmålstittel",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "Annullere",
+  modalApplyButtonText: "Bruke",
+  filterStringPlaceholder: "Skriv for å søke ...",
+  emptyMessage: "Ingen data å vise",
+  noEntriesText: "Det er ingen oppføringer ennå.\nKlikk på knappen nedenfor for å legge til en ny oppføring.",
+  noEntriesReadonlyText: "Det er ingen oppføringer.",
+  more: "Mer",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Alle valg er rangert",
+  selectToRankEmptyUnrankedAreaText: "Dra og slipp valg her for å rangere dem"
 };
 
 surveyLocalization.locales["no"] = norwegianSurveyStrings;
 surveyLocalization.localeNames["no"] = "norsk";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} av {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Velge..."
+// minError: "The value should not be less than {0}" => "Verdien bør ikke være mindre enn {0}"
+// maxError: "The value should not be greater than {0}" => "Verdien bør ikke være større enn {0}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra og slipp en fil her, eller klikk på knappen nedenfor og velg en fil du vil laste opp."
+// emptyRowsText: "There are no rows." => "Det er ingen rader."
+// multipletext_itemname: "text" => "Tekst"
+// signaturePlaceHolder: "Sign here" => "Logg inn her"
+// modalCancelButtonText: "Cancel" => "Annullere"
+// modalApplyButtonText: "Apply" => "Bruke"
+// filterStringPlaceholder: "Type to search..." => "Skriv for å søke ..."
+// emptyMessage: "No data to display" => "Ingen data å vise"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Det er ingen oppføringer ennå.\nKlikk på knappen nedenfor for å legge til en ny oppføring."
+// noEntriesReadonlyText: "There are no entries." => "Det er ingen oppføringer."
+// more: "More" => "Mer"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle valg er rangert"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra og slipp valg her for å rangere dem"

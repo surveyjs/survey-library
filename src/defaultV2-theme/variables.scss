@@ -89,7 +89,7 @@ $font-questiondescription-family: var(--sjs-font-questiondescription-family, var
 $font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
 $font-questiondescription-color: var(
   --sjs-font-questiondescription-color,
-  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
+  var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45))
 );
 $font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 * var(--sjs-font-size, $font-size)));
 

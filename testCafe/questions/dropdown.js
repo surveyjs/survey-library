@@ -11,7 +11,7 @@ const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
 
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
-const questionOffsetTopConst = 168;
+const questionOffsetTopConst = 176;
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
@@ -1415,7 +1415,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown1.offsetTop).lt(200)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(dropdown1.find(".sv-list").scrollTop).within(540, 550)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(550, 560)
       .expect(dropdown1.find(".sv-list").scrollHeight).within(2400, 2500)
       .expect(listItems.filterVisible().count).eql(51)
 

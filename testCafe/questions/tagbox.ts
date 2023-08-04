@@ -2,7 +2,7 @@ import { frameworks, url, initSurvey, getListItemByText, applyTheme, url_test } 
 import { Selector } from "testcafe";
 const title = "tagbox";
 
-const questionOffsetTopConst = 168;
+const questionOffsetTopConst = 176;
 
 const jsonCloseOnSelectIsTrue = {
   showQuestionNumbers: "off",
@@ -552,7 +552,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox1.offsetTop).lt(200)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(tagbox1.find(".sv-list").scrollTop).within(545, 555)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(550, 560)
       .expect(tagbox1.find(".sv-list").scrollHeight).within(2400, 2500)
       .expect(listItems.filterVisible().count).eql(51)
 
@@ -779,7 +779,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox1.offsetTop).lt(200)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(tagbox1.find(".sv-list").scrollTop).within(545, 555)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(550, 560)
       .expect(tagbox1.find(".sv-list").scrollHeight).within(2400, 2500)
       .expect(listItems.filterVisible().count).eql(51)
 

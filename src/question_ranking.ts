@@ -578,7 +578,7 @@ Serializer.addClass(
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;
       },
-      isSerializable: false
+      isSerializable: true
     },
     { name: "minSelectedChoices:number",
       visible: true,
@@ -587,7 +587,7 @@ Serializer.addClass(
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;
       },
-      isSerializable: false
+      isSerializable: true
     },
     { name: "itemComponent", visible: false, default: "" }
   ],

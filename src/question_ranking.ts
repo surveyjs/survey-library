@@ -546,8 +546,6 @@ Serializer.addClass(
     { name: "showSelectAllItem", visible: false, isSerializable: false },
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
-    { name: "maxSelectedChoices", visible: false, isSerializable: false },
-    { name: "minSelectedChoices", visible: false, isSerializable: false },
     { name: "separateSpecialChoices", visible: false, isSerializable: false },
     {
       name: "longTap",
@@ -556,16 +554,40 @@ Serializer.addClass(
       isSerializable: false,
     },
     {
-      name: "selectToRankEnabled",
+      name: "selectToRankEnabled:switch",
       default: false,
-      visible: false,
+      visible: true,
       isSerializable: true,
     },
     {
       name: "selectToRankAreasLayout",
       default: "horizontal",
-      visible: false,
+      choices: ["horizontal", "vertical"],
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+      visible: true,
       isSerializable: true,
+    },
+    {
+      name: "maxSelectedChoices:number",
+      visible: true,
+      default: 0,
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+      isSerializable: false
+    },
+    { name: "minSelectedChoices:number",
+      visible: true,
+      default: 0,
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+      isSerializable: false
     },
     { name: "itemComponent", visible: false, default: "" }
   ],

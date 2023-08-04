@@ -586,10 +586,10 @@ export class Question extends SurveyElement<Question>
     this.updateQuestionCss();
   }
   get hasDescriptionUnderTitle(): boolean {
-    return this.getDescriptionLocation() == "underTitle";
+    return this.getDescriptionLocation() == "underTitle" && this.hasDescription;
   }
   get hasDescriptionUnderInput(): boolean {
-    return this.getDescriptionLocation() == "underInput";
+    return this.getDescriptionLocation() == "underInput" && this.hasDescription;
   }
   private getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;

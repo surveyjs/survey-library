@@ -16379,6 +16379,7 @@ QUnit.test("check descriptionLocation change css classes", function (assert) {
         "elements": [
           {
             "type": "text",
+            "description": "question-description",
             "descriptionLocation": "hidden",
             "name": "question1",
           }

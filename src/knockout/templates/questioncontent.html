@@ -30,15 +30,15 @@
       <!-- ko component: { name: 'sv-tooltip-error', params: {question: question} } -->
       <!-- /ko -->
     <!-- /ko -->
+    <!-- ko if: question.hasTitleOnBottom -->
+      <!--ko template: { name: 'survey-question-title', data: question  } -->
+      <!-- /ko -->
+    <!-- /ko -->
     <!-- ko if: question.hasDescriptionUnderInput -->
     <div data-bind="css: cssClasses.descriptionUnderInput">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->
       <!-- /ko -->
     </div>
-    <!-- /ko -->
-    <!-- ko if: question.hasTitleOnBottom -->
-      <!--ko template: { name: 'survey-question-title', data: question  } -->
-      <!-- /ko -->
     <!-- /ko -->
   </div>
 </script>

@@ -104,3 +104,64 @@ registerMarkupTest(
     after: () => StylesManager.applyTheme("default"),
   },
 );
+registerMarkupTest(
+  {
+    name: "Test question title & description location",
+    json: {
+      "focusFirstQuestionAutomatic": false,
+      showQuestionNumbers: "off",
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              name: "q1",
+              type: "text",
+              title: "description underTitle",
+              description: "question-description",
+            },
+            {
+              name: "q2",
+              type: "text",
+              title: "description underTitle",
+              description: "question-description",
+              descriptionLocation: "underTitle",
+            },
+            {
+              name: "q3",
+              type: "text",
+              title: "description empty",
+              descriptionLocation: "underTitle",
+            },
+            {
+              name: "q4",
+              type: "text",
+              title: "description underInput",
+              description: "question-description",
+              descriptionLocation: "underInput",
+            },
+            {
+              name: "q5",
+              type: "text",
+              title: "description empty",
+              descriptionLocation: "underInput",
+            },
+            {
+              name: "q6",
+              type: "text",
+              title: "title & description underInput",
+              titleLocation: "bottom",
+              description: "question-description",
+              descriptionLocation: "underInput",
+            },
+          ]
+        }
+      ]
+    },
+    snapshot: "question-title-description-location",
+    event: "onAfterRenderSurvey",
+    getSnapshot: el => {
+      return el.children[0].children[1].children[0].children[0].children[0].outerHTML;
+    },
+  },
+);

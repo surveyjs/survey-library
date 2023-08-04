@@ -58,18 +58,18 @@
         :element="element"
         :location="'tooltip'"
       />
-      <div
-        v-if="!element.isPanel && (element as Question).hasDescriptionUnderInput"
-        :class="element.cssClasses.descriptionUnderInput"
-      >
-        <survey-string :locString="element.locDescription" />
-      </div>
     </div>
     <survey-element-header
       v-if="!element.isPanel && (element as Question).hasTitleOnBottom"
       :element="element"
       :css="css"
     />
+    <div
+      v-if="!element.isPanel && (element as Question).hasDescriptionUnderInput"
+      :class="element.cssClasses.descriptionUnderInput"
+    >
+      <survey-string :locString="element.locDescription" />
+    </div>
     <survey-errors
       v-if="!element.isPanel && (element as Question).showErrorsBelowQuestion"
       :element="element"

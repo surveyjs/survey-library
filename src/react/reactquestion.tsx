@@ -116,9 +116,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       this.question.isErrorsModeTooltip
         ? this.renderErrors(cssClasses, "tooltip")
         : null;
-    var descriptionUnderInput = question.hasDescriptionUnderInput
-      ? this.renderDescription()
-      : null;
     return (
       <div
         className={question.cssContent || undefined}
@@ -130,7 +127,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         {comment}
         {errorsBottom}
         {errorsTooltip}
-        {descriptionUnderInput}
       </div>
     );
   }
@@ -140,6 +136,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
     var header = this.renderHeader(question);
     var headerTop = question.hasTitleOnLeftTop ? header : null;
     var headerBottom = question.hasTitleOnBottom ? header : null;
+    var descriptionUnderInput = question.hasDescriptionUnderInput ? this.renderDescription() : null;
 
     const errorsAboveQuestion = this.question.showErrorsAboveQuestion
       ? this.renderErrors(cssClasses, "")
@@ -169,6 +166,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
           {headerTop}
           {questionContent}
           {headerBottom}
+          {descriptionUnderInput}
           {errorsBelowQuestion}
         </div>
       </>

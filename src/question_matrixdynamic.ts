@@ -172,6 +172,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
   }
+  protected isNewValueCorrect(val: any): boolean {
+    return Array.isArray(val);
+  }
   protected setDefaultValue() {
     if (
       this.isValueEmpty(this.defaultRowValue) ||

@@ -1861,6 +1861,9 @@ export class QuestionPanelDynamicModel extends Question
       this.rebuildPanels();
     }
   }
+  protected isNewValueCorrect(val: any): boolean {
+    return Array.isArray(val);
+  }
   //IQuestionPanelDynamicData
   getItemIndex(item: ISurveyData): number {
     var res = this.items.indexOf(item);

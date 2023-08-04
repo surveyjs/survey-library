@@ -6,6 +6,7 @@ import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
+import { ConsoleWarnings } from "./console-warnings";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -250,14 +251,12 @@ export class QuestionSignaturePadModel extends Question {
     super.endLoadingFromJson();
     //todo: need to remove this code
     if(this.signatureWidth === 300 && !!this.width && typeof this.width === "number" && this.width) {
-      // eslint-disable-next-line no-console
-      console.warn("Use signatureWidth property to set width for the signature pad");
+      ConsoleWarnings.warn("Use signatureWidth property to set width for the signature pad");
       this.signatureWidth = this.width;
       this.width = undefined;
     }
     if(this.signatureHeight === 200 && !!this.height) {
-      // eslint-disable-next-line no-console
-      console.warn("Use signatureHeight property to set width for the signature pad");
+      ConsoleWarnings.warn("Use signatureHeight property to set width for the signature pad");
       this.signatureHeight = this.height;
       this.height = undefined;
     }

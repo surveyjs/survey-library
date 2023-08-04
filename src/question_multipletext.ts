@@ -415,10 +415,7 @@ export class QuestionMultipleTextModel extends Question
     }
     return null;
   }
-  public addConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    context: any
-  ) {
+  public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       objects.push({
@@ -450,6 +447,9 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].localeChanged();
     }
+  }
+  protected isNewValueCorrect(val: any): boolean {
+    return Helpers.isValueObject(val);
   }
   supportGoNextPageAutomatic(): boolean {
     for (var i = 0; i < this.items.length; i++) {
@@ -496,14 +496,14 @@ export class QuestionMultipleTextModel extends Question
     return rows;
   }
   private isMultipleItemValueChanging = false;
-  protected onValueChanged() {
+  protected onValueChanged(): void {
     super.onValueChanged();
     this.onItemValueChanged();
   }
   protected createTextItem(name: string, title: string): MultipleTextItemModel {
     return new MultipleTextItemModel(name, title);
   }
-  protected onItemValueChanged() {
+  protected onItemValueChanged(): void {
     if (this.isMultipleItemValueChanging) return;
     for (var i = 0; i < this.items.length; i++) {
       var itemValue = null;

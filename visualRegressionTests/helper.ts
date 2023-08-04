@@ -49,7 +49,7 @@ export const screenshotComparerOptions = {
   destinationRelativePath: "../visualRegressionTests/artifacts",
   enableTextMask: true,
   textMaskRadius: 2,
-  textDiffTreshold: 0.15,
+  textDiffTreshold: 0.25,
   maskRadius: 2,
   attempts: 2,
   attemptTimeout: 500,

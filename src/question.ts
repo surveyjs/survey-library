@@ -19,6 +19,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
+import { ConsoleWarnings } from "./console-warnings";
 
 export interface IConditionObject {
   name: string;
@@ -1905,12 +1906,19 @@ export class Question extends SurveyElement<Question>
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
+    if(!this.isValueEmpty(newValue) && !this.isNewValueCorrect(newValue)) {
+      ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
+      return;
+    }
     var oldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
     if (this.isAnswered != oldAnswered) {
       this.updateQuestionCss();
     }
+  }
+  protected isNewValueCorrect(val: any): boolean {
+    return true;
   }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;

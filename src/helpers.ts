@@ -11,7 +11,7 @@ export class Helpers {
    */
   public static isValueEmpty(value: any) {
     if (Array.isArray(value) && value.length === 0) return true;
-    if (!!value && typeof value === "object" && value.constructor === Object) {
+    if (!!value && Helpers.isValueObject(value) && value.constructor === Object) {
       for (var key in value) {
         if (!Helpers.isValueEmpty(value[key])) return false;
       }
@@ -133,8 +133,8 @@ export class Helpers {
     if ((y === true || y === false) && typeof x == "string") {
       return y.toString() === x.toLocaleLowerCase();
     }
-    if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
-    if (!(x instanceof Object) || !(y instanceof Object)) return false;
+    if (!Helpers.isValueObject(x) && !Helpers.isValueObject(y)) return x == y;
+    if (!Helpers.isValueObject(x) || !Helpers.isValueObject(y)) return false;
     if (x["equals"]) return x.equals(y);
     if (!!x.toJSON && !!y.toJSON && !!x.getType && !!y.getType) {
       if (x.isDiposed || y.isDiposed) return false;
@@ -173,7 +173,7 @@ export class Helpers {
       }
       return res;
     }
-    if (!!value && value instanceof Object && !(value instanceof Date)) {
+    if (!!value && Helpers.isValueObject(value) && !(value instanceof Date)) {
       return JSON.parse(JSON.stringify(value));
     }
     return value;
@@ -193,6 +193,9 @@ export class Helpers {
       !Array.isArray(value) &&
       !isNaN(value)
     );
+  }
+  public static isValueObject(val: any): boolean {
+    return val instanceof Object;
   }
   public static isNumber(value: any): boolean {
     return !isNaN(this.getNumber(value));

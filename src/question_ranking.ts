@@ -143,6 +143,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     // ranking question with only one choice doesn't make sense
     if (this.visibleChoices.length === 1) {
       this.value = [];
+      this.value.push(this.visibleChoices[0].value);
       this.updateRankingChoices();
       return;
     }
@@ -221,10 +222,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const newRankingChoices: ItemValue[] = [];
 
     // ranking question with only one choice doesn't make sense
-    if (this.visibleChoices.length === 1) {
-      this.setPropertyValue("rankingChoices", newRankingChoices);
-      return;
-    }
+    // if (this.visibleChoices.length === 1) {
+    //   this.setPropertyValue("rankingChoices", newRankingChoices);
+    //   return;
+    // }
 
     if (forceUpdate) this.setPropertyValue("rankingChoices", []);
 

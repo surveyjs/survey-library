@@ -713,7 +713,7 @@ frameworks.forEach((framework) => {
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox2.offsetTop).eql(760)
+      .expect(tagbox2.offsetTop).eql(768)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
@@ -942,7 +942,7 @@ frameworks.forEach((framework) => {
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox2.offsetTop).eql(760)
+      .expect(tagbox2.offsetTop).eql(768)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")

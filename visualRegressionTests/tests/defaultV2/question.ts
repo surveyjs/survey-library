@@ -636,4 +636,59 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-baseunit.png", questionRoot, t, comparer);
     });
   });
+
+  test("Question descriptionLocation property", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "focusFirstQuestionAutomatic": false,
+        showQuestionNumbers: "off",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                name: "q1",
+                type: "text",
+                title: "description underTitle",
+                description: "question-description",
+              },
+              {
+                name: "q2",
+                type: "text",
+                title: "description underTitle",
+                description: "question-description",
+                descriptionLocation: "underTitle",
+              },
+              {
+                name: "q3",
+                type: "text",
+                title: "description empty",
+                descriptionLocation: "underTitle",
+              },
+              {
+                name: "q4",
+                type: "text",
+                title: "description underInput",
+                description: "question-description",
+                descriptionLocation: "underInput",
+              },
+              {
+                name: "q5",
+                type: "text",
+                title: "description empty",
+                descriptionLocation: "underInput",
+              }
+            ]
+          }
+        ]
+      });
+      const questionRows = Selector(".sd-row");
+      await takeElementScreenshot("question-descriptionLocation-underTitle.png", questionRows.nth(0), t, comparer);
+      await takeElementScreenshot("question-descriptionLocation-underTitle.png", questionRows.nth(1), t, comparer);
+      await takeElementScreenshot("question-description-empty.png", questionRows.nth(2), t, comparer);
+      await takeElementScreenshot("question-description-empty.png", questionRows.nth(4), t, comparer);
+      await takeElementScreenshot("question-descriptionLocation-underInput.png", questionRows.nth(3), t, comparer);
+    });
+  });
 });

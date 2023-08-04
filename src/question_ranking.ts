@@ -130,6 +130,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public isAnswerCorrect(): boolean {
     return Helpers.isArraysEqual(this.value, this.correctAnswer, false);
   }
+  get requireStrictCompare(): boolean { return true; }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;

@@ -317,6 +317,24 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.deepEqual(q2.value, ["a", "b"], "value is correct");
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
+QUnit.test("Ranking: strict compare, Bug#6644", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "ranking", name: "q1", choices: ["a", "b", "c"] },
+      { type: "text", name: "q2", visibleIf: "{q1} = ['b', 'c', 'a']"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "not visible initially");
+  q1.value = ["a", "b", "c"];
+  assert.equal(q2.isVisible, false, "not visible #2");
+  q1.value = ["b", "c", "a"];
+  assert.equal(q2.isVisible, true, "visible #3");
+  q1.value = ["a", "c", "b"];
+  assert.equal(q2.isVisible, false, "not visible #3");
+});
 
 // selectToRankEnabled
 function createRankingQuestionModel(selectToRankEnabled = false, withDefaultValue = false) {

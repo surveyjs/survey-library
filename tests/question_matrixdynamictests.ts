@@ -1600,7 +1600,7 @@ QUnit.test("matrixDynamic.getNestedQuestions", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "matrixdynamic", name: "matrix", rowCount: 2,
-        columns: [{ name: "col1", visibleIf: "{row.col2} = 'a'" }, { name: "col2" }]
+        columns: [{ name: "col1", cellType: "text", visibleIf: "{row.col2} = 'a'" }, { cellType: "text", name: "col2" }]
       }
     ]
   });
@@ -1608,6 +1608,7 @@ QUnit.test("matrixDynamic.getNestedQuestions", function (assert) {
   let questions = q.getNestedQuestions();
   assert.equal(questions.length, 4, "4 cells");
   assert.equal(questions[0].name, "col1", "cells[0, 0]");
+  assert.equal(questions[0].getType(), "text", "cells[0, 0]");
   assert.equal(questions[1].name, "col2", "cells[0, 1]");
   assert.equal(questions[0].name, "col1", "cells[1, 0]");
   assert.equal(questions[1].name, "col2", "cells[1, 1]");
@@ -1621,6 +1622,12 @@ QUnit.test("matrixDynamic.getNestedQuestions", function (assert) {
   assert.equal(questions[0].name, "col2", "cells[0, 0], visible");
   assert.equal(questions[1].name, "col1", "cells[1, 1], visible");
   assert.equal(questions[2].name, "col2", "cells[1, 1], visible");
+  assert.equal(survey.getAllQuestions().length, 1, "No nested - one question");
+  assert.equal(survey.getAllQuestions(true, true).length, 1 + 2, "Include design-time + 2 columns");
+  assert.equal(survey.getAllQuestions(false, false, true).length, 1 + 4, "Include nested + 4 cells");
+  assert.equal(survey.getAllQuestions(false, true, true).length, 1 + 4, "Include nested + 4 cells, ignore design-time");
+  assert.equal(survey.getAllQuestions(true, false, true).length, 1 + 3, "Include nested + 3 visible cells");
+  assert.equal(survey.getAllQuestions(true, true, true).length, 1 + 3, "Include nested + 3 visible cells, ignore design-time");
 });
 QUnit.test("matrixDynamic.addConditionObjectsByContext + settings.matrixMaxRowCountInCondition=0", function (assert) {
   settings.matrixMaxRowCountInCondition = 0;

@@ -5199,6 +5199,7 @@ export class SurveyModel extends SurveyElementCore
     includeDesignTime: boolean = false,
     includeNested: boolean = false
   ): Array<Question> {
+    if(includeNested) includeDesignTime = false;
     var res: Array<Question> = [];
     for (var i: number = 0; i < this.pages.length; i++) {
       this.pages[i].addQuestionsToList(

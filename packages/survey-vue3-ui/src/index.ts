@@ -112,7 +112,7 @@ export { useBase, useLocString, useQuestion } from "./base";
 
 function registerComponents(app: App) {
   app.component("SurveyComponent", SurveyVue);
-  app.component("PopupSurveyComponent", SurveyVue);
+  app.component("PopupSurveyComponent", PopupSurvey);
   app.component("survey", SurveyVue);
   app.component("popup-survey", PopupSurvey);
 

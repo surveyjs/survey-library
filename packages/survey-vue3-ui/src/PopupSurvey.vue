@@ -90,7 +90,7 @@ const doHide = () => {
   surveyWindow.value.hide();
 };
 const getSurveyComponentName = () => {
-  return "SurveyRoot";
+  return "SurveyComponent";
 };
 const doScroll = () => {
   surveyWindow.value.onScroll();

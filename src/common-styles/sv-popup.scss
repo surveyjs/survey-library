@@ -24,7 +24,7 @@ sv-popup {
 
 .sv-popup__container {
   box-shadow: $shadow-large;
-  border-radius: calcCornerRadius(2);
+  border-radius: calcCornerRadius(1);
   position: absolute;
   padding: 0;
 }
@@ -32,7 +32,7 @@ sv-popup {
 .sv-popup__shadow {
   width: 100%;
   height: 100%;
-  border-radius: calcCornerRadius(2);
+  border-radius: calcCornerRadius(1);
 }
 
 .sv-popup__body-content {
@@ -62,7 +62,8 @@ sv-popup {
     height: auto;
   }
 }
-.sv-popup.sv-popup--modal > .sv-popup__container {
+
+.sv-popup.sv-popup--modal>.sv-popup__container {
   position: static;
 }
 
@@ -112,6 +113,7 @@ sv-popup {
     color: $primary-foreground;
   }
 }
+
 .sv-popup--overlay.sv-popup--overlay:not(.sv-dropdown-popup) {
   .sv-popup__body-footer .sv-action {
     flex: 1 0 0;
@@ -361,7 +363,9 @@ sv-popup {
     }
   }
 }
+
 .sv-dropdown-popup.sv-popup--overlay.sv-multi-select-list {
+
   .sv-list__item:hover,
   .sv-list__item:focus,
   .sv-list__item--focused {

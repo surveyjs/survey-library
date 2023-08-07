@@ -10,7 +10,7 @@
   margin-top: 0;
 }
 
-.sd-row.sd-page__row:not(:first-child) {
+.sd-row.sd-page__row:not(:first-of-type) {
   margin-top: calcSize(2);
 
   &.sd-row--compact {

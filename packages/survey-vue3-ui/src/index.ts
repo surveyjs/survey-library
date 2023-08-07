@@ -111,8 +111,11 @@ import type { App } from "vue";
 export { useBase, useLocString, useQuestion } from "./base";
 
 function registerComponents(app: App) {
-  app.component("SurveyRoot", SurveyVue);
+  app.component("SurveyComponent", SurveyVue);
+  app.component("PopupSurveyComponent", SurveyVue);
   app.component("survey", SurveyVue);
+  app.component("popup-survey", PopupSurvey);
+
   app.component("survey-header", Header);
   app.component("survey-page", Page);
   app.component("survey-row", Row);
@@ -211,7 +214,6 @@ function registerComponents(app: App) {
   app.component("sv-notifier", Notifier);
   app.component("survey-other-choice", OtherChoice);
   app.component("sv-nav-btn", SurveyNavigationButton);
-  app.component("popup-survey", PopupSurvey);
   app.component("survey-customwidget", CustomWidget);
   app.component("survey-popup-modal", PopupModal);
 

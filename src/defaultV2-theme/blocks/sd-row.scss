@@ -10,6 +10,10 @@
   margin-top: 0;
 }
 
+sv-ng-row:first-of-type+.sd-row:first-of-type {
+  margin-top: 0;
+}
+
 .sd-row.sd-page__row:not(:first-child) {
   margin-top: calcSize(2);
 

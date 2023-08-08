@@ -24,6 +24,10 @@
       margin-right: 0;
     }
 
+    .sd-body__navigation {
+      padding-top: calcSize(4);
+    }
+
     .sd-body__navigation.sd-action-bar {
       padding-left: calcSize(5);
       padding-right: calcSize(5);
@@ -36,7 +40,7 @@
     box-sizing: border-box;
 
     .sd-page {
-      padding: 0 0 calcSize(2) 0;
+      padding: 0;
 
       &.sd-page__empty-header {
         padding-top: calcSize(3);
@@ -46,6 +50,10 @@
     .sd-body__timer,
     .sd-body__navigation {
       padding: calcSize(2) 0;
+    }
+
+    .sd-body__navigation {
+      padding-top: calcSize(4);
     }
 
     &.sd-body--with-timer {

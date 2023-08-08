@@ -12,5 +12,5 @@
 </script>
 
 <template>
-  <SurveyRoot :survey="survey"></SurveyRoot>
+  <SurveyComponent :survey="survey"></SurveyComponent>
 </template>

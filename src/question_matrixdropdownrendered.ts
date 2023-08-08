@@ -414,13 +414,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       var rows = this.matrix.visibleRows;
       for (var i = 0; i < rows.length; i++) {
         const cell = this.createTextCell(rows[i].locText);
+        this.setHeaderCellCssClasses(cell);
         cell.row = rows[i];
         this.headerRow.cells.push(cell);
       }
       if (this.matrix.hasFooter) {
-        this.headerRow.cells.push(
-          this.createTextCell(this.matrix.getFooterText())
-        );
+        const cell = this.createTextCell(this.matrix.getFooterText());
+        this.setHeaderCellCssClasses(cell);
+        this.headerRow.cells.push(cell);
       }
     }
     if (this.hasActionCellInRows("end")) {

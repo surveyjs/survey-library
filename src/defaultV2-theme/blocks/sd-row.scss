@@ -6,13 +6,15 @@
   margin-top: var(--sd-base-vertical-padding);
 }
 
+.sd-row.sd-page__row {
+  margin-top: calcSize(2);
+}
+
 .sd-row:first-of-type {
   margin-top: 0;
 }
 
 .sd-page__title~.sd-row.sd-page__row {
-  margin-top: calcSize(2);
-
   &.sd-row--compact {
     margin-top: var(--sd-base-vertical-padding);
   }

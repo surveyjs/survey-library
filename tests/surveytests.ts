@@ -17471,3 +17471,25 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundOpacity, 0.6);
   assert.equal(survey["isCompact"], true);
 });
+QUnit.test("page/panel delete do it recursively", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "panel", name: "p1",
+      elements: [
+        { type: "text", name: "q1" },
+      ] },
+    { type: "panel", name: "p2",
+      elements: [
+        { type: "text", name: "q2" },
+      ] }
+    ] });
+  const p1 = survey.getPanelByName("p1");
+  const p2 = survey.getPanelByName("p2");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  p2.delete();
+  assert.equal(p2.isDisposed, true, "p2.isDisposed");
+  assert.equal(q2.isDisposed, true, "q2.isDisposed");
+  survey.currentPage.delete();
+  assert.equal(p1.isDisposed, true, "p1.isDisposed");
+  assert.equal(q1.isDisposed, true, "q1.isDisposed");
+});

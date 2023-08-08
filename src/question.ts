@@ -260,6 +260,10 @@ export class Question extends SurveyElement<Question>
     return null;
   }
   public delete(): void {
+    this.removeFromParent();
+    this.dispose();
+  }
+  protected removeFromParent(): void {
     if (!!this.parent) {
       this.removeSelfFromList(this.parent.elements);
     }
@@ -450,7 +454,7 @@ export class Question extends SurveyElement<Question>
   }
   public set parent(val: IPanel) {
     if (this.parent === val) return;
-    this.delete();
+    this.removeFromParent();
     this.setPropertyValue("parent", val);
     this.updateQuestionCss();
     this.onParentChanged();

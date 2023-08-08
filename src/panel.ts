@@ -323,6 +323,11 @@ export class PanelModelBase extends SurveyElement<Question>
       (this.showTitle && this.isDesignMode && settings.designMode.showEmptyTitles)
     );
   }
+  public delete(): void {
+    this.removeFromParent();
+    this.dispose();
+  }
+  protected removeFromParent(): void {}
   protected canShowTitle(): boolean { return true; }
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
@@ -1548,7 +1553,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   public set page(val: IPage) {
     this.setPage(this.parent, val);
   }
-  public delete() {
+  protected removeFromParent(): void {
     if (!!this.parent) {
       this.removeSelfFromList(this.parent.elements);
     }

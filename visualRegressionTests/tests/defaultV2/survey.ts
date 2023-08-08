@@ -858,6 +858,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {

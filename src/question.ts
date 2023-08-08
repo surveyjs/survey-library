@@ -1385,7 +1385,7 @@ export class Question extends SurveyElement<Question>
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
-    if (this.isValueEmpty(value)) return this.getDisplayValueEmpty();
+    if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
     return this.getDisplayValueCore(keysAsText, value);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
@@ -1574,7 +1574,7 @@ export class Question extends SurveyElement<Question>
     return this.defaultValue;
   }
   protected isDefaultValueEmpty(): boolean {
-    return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
+    return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue, !this.allowSpaceAsAnswer);
   }
   protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
     if (!runner && !!expression) {
@@ -1686,7 +1686,7 @@ export class Question extends SurveyElement<Question>
    * Returns `true` if the question value is an empty string, array, or object or if it equals `undefined` or `null`.
    */
   public isEmpty(): boolean {
-    return this.isValueEmpty(this.value);
+    return this.isValueEmpty(this.value, !this.allowSpaceAsAnswer);
   }
   public get isAnswered(): boolean {
     return this.getPropertyValue("isAnswered");
@@ -1902,11 +1902,12 @@ export class Question extends SurveyElement<Question>
       this.onCompletedAsyncValidators = null;
     }
   }
+  public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
-    if(!this.isValueEmpty(newValue) && !this.isNewValueCorrect(newValue)) {
+    if(!this.isValueEmpty(newValue, !this.allowSpaceAsAnswer) && !this.isNewValueCorrect(newValue)) {
       ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
       return;
     }
@@ -1922,7 +1923,7 @@ export class Question extends SurveyElement<Question>
   }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;
-    if(!this.isTwoValueEquals(newValue, val)) return false;
+    if(!this.isTwoValueEquals(newValue, val, false, false)) return false;
     const isObj = newValue === val && !!val && (Array.isArray(val) || typeof val === "object");
     return !isObj;
   }

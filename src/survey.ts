@@ -6078,7 +6078,7 @@ export class SurveyModel extends SurveyElementCore
     )
       return;
     var oldValue = this.getValue(name);
-    if (this.isValueEmpty(newValue)) {
+    if (this.isValueEmpty(newValue, false)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
       newValue = this.getUnbindValue(newValue);

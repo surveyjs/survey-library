@@ -219,7 +219,7 @@ frameworks.forEach((framework) => {
       .pressKey("backspace")
       .expect(characterCounter.textContent).eql("0/10");
   });
-  test.only("Remaining character counter", async (t) => {
+  test("Remaining character counter", async (t) => {
     const characterCounter = Selector(".sv-remaining-character-counter");
 
     await initSurvey(framework, {

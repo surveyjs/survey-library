@@ -57,7 +57,7 @@ export class QuestionSelectBase extends Question {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "showNoneItem"],
+      ["choicesFromQuestion", "choicesFromQuestionMode", "choicesFromValueName", "choicesFromTextName", "showNoneItem"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -93,7 +93,7 @@ export class QuestionSelectBase extends Question {
   public getType(): string {
     return "selectbase";
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].choicesFromQuestion = "";
@@ -118,7 +118,7 @@ export class QuestionSelectBase extends Question {
   public get isUsingCarryForward(): boolean {
     return !!this.carryForwardQuestionType;
   }
-  private get carryForwardQuestionType(): string {
+  public get carryForwardQuestionType(): string {
     return this.getPropertyValue("carryForwardQuestionType");
   }
   private setCarryForwardQuestionType(selBaseQuestion: boolean, arrayQuestion: boolean): void {
@@ -729,6 +729,18 @@ export class QuestionSelectBase extends Question {
   public set choicesFromQuestionMode(val: string) {
     this.setPropertyValue("choicesFromQuestionMode", val);
   }
+  public get choicesFromValueName(): string {
+    return this.getPropertyValue("choicesFromValueName");
+  }
+  public set choicesFromValueName(val: string) {
+    this.setPropertyValue("choicesFromValueName", val);
+  }
+  public get choicesFromTextName(): string {
+    return this.getPropertyValue("choicesFromTextName");
+  }
+  public set choicesFromTextName(val: string) {
+    this.setPropertyValue("choicesFromTextName", val);
+  }
   /**
    * Specifies whether to hide the question if no choice items are visible.
    *
@@ -1050,11 +1062,18 @@ export class QuestionSelectBase extends Question {
     for(var i = 0; i < val.length; i ++) {
       const obj = val[i];
       if(!Helpers.isValueObject(obj)) continue;
-      const keys = Object.keys(obj);
-      if(keys.length === 0) continue;
-      res.push(this.createItemValue(obj[keys[0]]));
+      const key = this.getValueKeyName(obj);
+      if(!!key && !this.isValueEmpty(obj[key])) {
+        const text = !!this.choicesFromTextName ? obj[this.choicesFromTextName] : undefined;
+        res.push(this.createItemValue(obj[key], text));
+      }
     }
     return res;
+  }
+  private getValueKeyName(obj: any): string {
+    if(this.choicesFromValueName) return this.choicesFromValueName;
+    const keys = Object.keys(obj);
+    return keys.length > 0 ? keys[0] : undefined;
   }
   private getChoicesFromSelectQuestion(question: QuestionSelectBase): Array<ItemValue> {
     if (this.isDesignMode) return [];
@@ -1786,7 +1805,21 @@ Serializer.addClass(
       choices: ["all", "selected", "unselected"],
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return !!obj.choicesFromQuestion;
+        return obj.carryForwardQuestionType === "select";
+      },
+    },
+    {
+      name: "choicesFromValueName",
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return obj.carryForwardQuestionType === "array";
+      },
+    },
+    {
+      name: "choicesFromTextName",
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return obj.carryForwardQuestionType === "array";
       },
     },
     {

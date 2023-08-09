@@ -1125,6 +1125,7 @@ export class SurveyModel extends SurveyElementCore
   private lazyRenderingValue: boolean;
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
+  public dropdownPopupsFitContent: boolean;
   /**
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.

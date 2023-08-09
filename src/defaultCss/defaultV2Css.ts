@@ -379,6 +379,7 @@ export var defaultV2Css = {
     mainRoot: "sd-element sd-question sd-row__question sd-element--complex sd-question--complex sd-question--table",
     tableWrapper: "sd-matrix sd-table-wrapper",
     root: "sd-table sd-matrix__table",
+    noHeader: "sd-table--no-header",
     rootVerticalAlignTop: "sd-table--align-top",
     rootVerticalAlignMiddle: "sd-table--align-middle",
     rootAlternateRows: "sd-table--alternate-rows",

@@ -280,7 +280,7 @@ export class QuestionFileModel extends Question {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true));
+            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
           } else {
             this.value = undefined;
           }

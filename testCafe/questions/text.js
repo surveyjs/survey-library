@@ -219,4 +219,28 @@ frameworks.forEach((framework) => {
       .pressKey("backspace")
       .expect(characterCounter.textContent).eql("0/10");
   });
+  test.only("Remaining character counter", async (t) => {
+    const characterCounter = Selector(".sv-remaining-character-counter");
+
+    await initSurvey(framework, {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          maxLength: 10,
+        }]
+    });
+    await ClientFunction(() => {
+      window.survey.getQuestionByName("name").allowSpaceAsAnswer = true;
+    })();
+
+    await t
+      .pressKey("space")
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({
+      name: " ",
+    });
+  });
 });

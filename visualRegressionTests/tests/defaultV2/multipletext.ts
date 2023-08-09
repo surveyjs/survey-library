@@ -27,6 +27,8 @@ frameworks.forEach(framework => {
           {
             type: "multipletext",
             name: "q1",
+            minWidth: "768px",
+            maxWidth: "768px",
             width: "768px",
             title: "Personal Information",
             items: [

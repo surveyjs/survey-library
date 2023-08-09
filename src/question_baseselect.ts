@@ -116,24 +116,28 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   public get isUsingCarryForward(): boolean {
-    return this.getPropertyValue("isUsingCarrayForward", false);
+    return !!this.carryForwardQuestionType;
   }
-  private setIsUsingCarrayForward(val: boolean): void {
-    this.setPropertyValue("isUsingCarrayForward", val);
+  private get carryForwardQuestionType(): string {
+    return this.getPropertyValue("carryForwardQuestionType");
   }
-  public supportGoNextPageError() {
+  private setCarryForwardQuestionType(selBaseQuestion: boolean, arrayQuestion: boolean): void {
+    const mode = selBaseQuestion ? "select" : (arrayQuestion ? "array" : undefined);
+    this.setPropertyValue("carryForwardQuestionType", mode);
+  }
+  public supportGoNextPageError(): boolean {
     return !this.isOtherSelected || !!this.otherValue;
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     if (this.choicesOrder !== "none") {
       this.updateVisibleChoices();
     }
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     if (!!this.choicesFromUrl) {
       ItemValue.locStrsChanged(this.choicesFromUrl);
@@ -1012,29 +1016,56 @@ export class QuestionSelectBase extends Question {
       : this.activeChoices;
   }
   protected get activeChoices(): Array<ItemValue> {
-    const question = this.getQuestionWithChoices();
-    this.setIsUsingCarrayForward(!!question);
-    if (this.isUsingCarryForward) {
-      this.addIntoDependedQuestion(question);
-      return this.getChoicesFromQuestion(question);
+    const question = this.findCarryForwardQuestion();
+    const selBaseQuestion = this.getQuestionWithChoicesCore(question);
+    const arrayQuestion = !selBaseQuestion ? this.getQuestionWithArrayValue(question) : null;
+    this.setCarryForwardQuestionType(!!selBaseQuestion, !!arrayQuestion);
+    if (this.carryForwardQuestionType === "select") {
+      this.addIntoDependedQuestion(selBaseQuestion);
+      return this.getChoicesFromSelectQuestion(selBaseQuestion);
+    }
+    if (this.carryForwardQuestionType === "array") {
+      return this.getChoicesFromArrayQuestion(arrayQuestion);
     }
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   private getQuestionWithChoices(): QuestionSelectBase {
-    if (!this.choicesFromQuestion || !this.data) return null;
-    var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
-    return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
+    return this.getQuestionWithChoicesCore(this.findCarryForwardQuestion());
   }
-  private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
+  private findCarryForwardQuestion(): Question {
+    if (!this.choicesFromQuestion || !this.data) return null;
+    return <Question>this.data.findQuestionByName(this.choicesFromQuestion);
+  }
+  private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
+    return !!question && !!question.visibleChoices && Array.isArray(question.dependedQuestions) && question !== this ? <QuestionSelectBase>question : null;
+  }
+  private getQuestionWithArrayValue(question: Question): Question {
+    return !!question && question.isValueArray ? question : null;
+  }
+  private getChoicesFromArrayQuestion(question: Question): Array<ItemValue> {
     if (this.isDesignMode) return [];
-    var res: Array<ItemValue> = [];
+    const val = question.value;
+    if(!Array.isArray(val)) return [];
+    const res: Array<ItemValue> = [];
+    for(var i = 0; i < val.length; i ++) {
+      const obj = val[i];
+      if(!Helpers.isValueObject(obj)) continue;
+      const keys = Object.keys(obj);
+      if(keys.length === 0) continue;
+      res.push(this.createItemValue(obj[keys[0]]));
+    }
+    return res;
+  }
+  private getChoicesFromSelectQuestion(question: QuestionSelectBase): Array<ItemValue> {
+    if (this.isDesignMode) return [];
+    const res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
         ? true
         : this.choicesFromQuestionMode == "unselected"
           ? false
           : undefined;
-    var choices = question.visibleChoices;
+    const choices = question.visibleChoices;
     for (var i = 0; i < choices.length; i++) {
       if (this.isBuiltInChoice(choices[i], question)) continue;
       if (isSelected === undefined) {

@@ -1264,6 +1264,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("comment", val);
     this.fireCallback(this.commentChangedCallback);
   }
+  public get isValueArray(): boolean { return false; }
   /**
    * Gets or sets the question value.
    * @see SurveyModel.setValue

@@ -10,6 +10,7 @@ import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
 import { Base } from "../src/base";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("baseselect");
 
@@ -1065,3 +1066,55 @@ QUnit.test("displayValue & otherItem", function (assert) {
   q2.comment = "Some comments";
   assert.equal(q2.displayValue, "Some comments, 1", "#4");
 });
+QUnit.test("Use carryForward with matrix dynamic", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "matrixdynamic", name: "q1", columns: [{ name: "col1", cellType: "text" }] },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, row is empty");
+  q1.visibleRows[0].cells[0].value = "A";
+  assert.deepEqual(survey.data, { q1: [{ col1: "A" }, {}] }, "survey.data is correct");
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.visibleChoices[0].value, "A", "the first value is correct");
+  q1.visibleRows[1].cells[0].value = "B";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[1].value, "B", "the second value is correct");
+  q1.addRow();
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, new row is empty");
+  q1.visibleRows[2].cells[0].value = "C";
+  assert.deepEqual(survey.data, { q1: [{ col1: "A" }, { col1: "B" }, { col1: "C" }] }, "survey.data is correct, #2");
+  assert.equal(q2.visibleChoices.length, 3, "There are three choice");
+  assert.equal(q2.visibleChoices[2].value, "C", "the third value is correct");
+});
+/*
+QUnit.test("Use carryForward with matrix dynamic + choicesFromValueName", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "matrixdynamic", name: "q1", columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" }] },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromValueName: "" }
+  ] });
+  const q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, row is empty");
+  q1.visibleRows[0].cells[0].value = "A";
+  assert.deepEqual(survey.data, { q1: [{ col1: "A" }, {}] }, "survey.data is correct");
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.visibleChoices[0].value, "A", "the first value is correct");
+  q1.visibleRows[1].cells[0].value = "B";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[1].value, "B", "the second value is correct");
+  q1.addRow();
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, new row is empty");
+  q1.visibleRows[2].cells[0].value = "C";
+  assert.deepEqual(survey.data, { q1: [{ col1: "A" }, { col1: "B" }, { col1: "C" }] }, "survey.data is correct, #2");
+  assert.equal(q2.visibleChoices.length, 3, "There are three choice");
+  assert.equal(q2.visibleChoices[2].value, "C", "the third value is correct");
+});
+*/

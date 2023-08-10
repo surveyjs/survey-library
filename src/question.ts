@@ -78,6 +78,7 @@ export class Question extends SurveyElement<Question>
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
+  private dependedQuestions: Array<Question> = [];
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -268,6 +269,24 @@ export class Question extends SurveyElement<Question>
       this.removeSelfFromList(this.parent.elements);
     }
   }
+  protected addDependedQuestion(question: Question): void {
+    if (!question || this.dependedQuestions.indexOf(question) > -1) return;
+    this.dependedQuestions.push(question);
+  }
+  protected removeDependedQuestion(question: Question): void {
+    if (!question) return;
+    var index = this.dependedQuestions.indexOf(question);
+    if (index > -1) {
+      this.dependedQuestions.splice(index, 1);
+    }
+  }
+  protected updateDependedQuestions(): void {
+    for (var i = 0; i < this.dependedQuestions.length; i++) {
+      this.dependedQuestions[i].updateDependedQuestion();
+    }
+  }
+  protected updateDependedQuestion(): void {}
+  protected resetDependedQuestion(): void {}
   public get isFlowLayout(): boolean {
     return this.getLayoutType() === "flow";
   }
@@ -2235,8 +2254,11 @@ export class Question extends SurveyElement<Question>
       this.renderAs = this.getDesktopRenderAs();
     }
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
+    for (var i = 0; i < this.dependedQuestions.length; i++) {
+      this.dependedQuestions[i].resetDependedQuestion();
+    }
     this.destroyResizeObserver();
   }
 }

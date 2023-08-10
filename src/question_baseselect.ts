@@ -29,7 +29,6 @@ export class QuestionSelectBase extends Question {
   private cachedValueForUrlRequests: any;
   private isChoicesLoaded: boolean;
   private enableOnLoadingChoices: boolean;
-  private dependedQuestions: Array<QuestionSelectBase> = [];
   private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
@@ -95,10 +94,13 @@ export class QuestionSelectBase extends Question {
   }
   public dispose(): void {
     super.dispose();
-    for (var i = 0; i < this.dependedQuestions.length; i++) {
-      this.dependedQuestions[i].choicesFromQuestion = "";
+    const q = this.getQuestionWithChoices();
+    if(!!q) {
+      q.removeDependedQuestion(this);
     }
-    this.removeFromDependedQuestion(this.getQuestionWithChoices());
+  }
+  protected resetDependedQuestion(): void {
+    this.choicesFromQuestion = "";
   }
   public get otherId(): string {
     return this.id + "_other";
@@ -693,23 +695,12 @@ export class QuestionSelectBase extends Question {
     var question = this.getQuestionWithChoices();
     this.isLockVisibleChoices = !!question && question.name === val;
     if (!!question && question.name !== val) {
-      question.removeFromDependedQuestion(this);
+      question.removeDependedQuestion(this);
     }
     this.setPropertyValue("choicesFromQuestion", val);
     this.isLockVisibleChoices = false;
   }
   private isLockVisibleChoices: boolean;
-  private addIntoDependedQuestion(question: QuestionSelectBase) {
-    if (!question || question.dependedQuestions.indexOf(this) > -1) return;
-    question.dependedQuestions.push(this);
-  }
-  private removeFromDependedQuestion(question: QuestionSelectBase) {
-    if (!question) return;
-    var index = question.dependedQuestions.indexOf(this);
-    if (index > -1) {
-      question.dependedQuestions.splice(index, 1);
-    }
-  }
   /**
    * Specifies which choice items to inherit from another question. Applies only when the `choicesFromQuestion` property is specified.
    *
@@ -1033,10 +1024,11 @@ export class QuestionSelectBase extends Question {
     const arrayQuestion = !selBaseQuestion ? this.getQuestionWithArrayValue(question) : null;
     this.setCarryForwardQuestionType(!!selBaseQuestion, !!arrayQuestion);
     if (this.carryForwardQuestionType === "select") {
-      this.addIntoDependedQuestion(selBaseQuestion);
+      selBaseQuestion.addDependedQuestion(this);
       return this.getChoicesFromSelectQuestion(selBaseQuestion);
     }
     if (this.carryForwardQuestionType === "array") {
+      (<any>arrayQuestion).addDependedQuestion(this);
       return this.getChoicesFromArrayQuestion(arrayQuestion);
     }
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
@@ -1049,7 +1041,9 @@ export class QuestionSelectBase extends Question {
     return <Question>this.data.findQuestionByName(this.choicesFromQuestion);
   }
   private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
-    return !!question && !!question.visibleChoices && Array.isArray(question.dependedQuestions) && question !== this ? <QuestionSelectBase>question : null;
+    if(!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)
+      return <QuestionSelectBase>question;
+    return null;
   }
   private getQuestionWithArrayValue(question: Question): Question {
     return !!question && question.isValueArray ? question : null;
@@ -1389,12 +1383,12 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
       !this.allowNotifyValueChanged || this.choicesByUrl.isRunning) return;
     this.isUpdatingChoicesDependedQuestions = true;
-    for (var i = 0; i < this.dependedQuestions.length; i++) {
-      const q = this.dependedQuestions[i];
-      q.onVisibleChoicesChanged();
-      q.clearIncorrectValues();
-    }
+    this.updateDependedQuestions();
     this.isUpdatingChoicesDependedQuestions = false;
+  }
+  protected updateDependedQuestion(): void {
+    this.onVisibleChoicesChanged();
+    this.clearIncorrectValues();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -1788,7 +1782,7 @@ Serializer.addClass(
   "selectbase",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
-    "choicesFromQuestion:question_selectbase",
+    "choicesFromQuestion:question_carryforward",
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",
       baseValue: function () {

@@ -88,10 +88,10 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
         tabIndex={0}
         className={this.question.getChooseFileCss()}
         htmlFor={this.question.inputId}
-        aria-label={this.question.chooseButtonCaption}
+        aria-label={this.question.chooseButtonText}
       >
-        <span>{this.question.chooseButtonCaption}</span>
-        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.chooseButtonCaption} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon>: null }
+        <span>{this.question.chooseButtonText}</span>
+        {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.chooseButtonText} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon>: null }
       </label>
     );
     if (this.question.isEmpty()) {

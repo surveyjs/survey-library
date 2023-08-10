@@ -81,6 +81,7 @@ export var englishStrings = {
   clearCaption: "Clear",
   signaturePlaceHolder: "Sign here",
   chooseFileCaption: "Choose file",
+  replaceFileCaption: "Replace file",
   removeFileCaption: "Remove this file",
   booleanCheckedLabel: "Yes",
   booleanUncheckedLabel: "No",

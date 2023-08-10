@@ -29,13 +29,16 @@ class QuestionFileImplementor extends QuestionImplementor {
     );
     this.setObservaleObj("ko", ko.observable<string>());
     this.setObservaleObj("koInputTitle", ko.observable<string>());
-    this.setObservaleObj("koChooseButtonText", ko.observable<string>());
     this.setObservaleObj(
       "koChooseFileCss",
       ko.pureComputed(() => {
         return this.question.getChooseFileCss();
       })
     );
+    this.setCallbackFunc("koGetChooseButtonText", () => {
+      this.question.koState();
+      return this.question.chooseButtonText;
+    });
     this.setCallbackFunc("ondrop", (data: any, event: any) => {
       this.question.onDrop(getOriginalEvent(event));
     });
@@ -68,7 +71,6 @@ export class QuestionFile extends QuestionFileModel {
   private _implementor: QuestionFileImplementor;
   private updateState = (sender: QuestionFileModel, options: any) => {
     this.koState(options.state);
-    this.koChooseButtonText(this.chooseButtonText);
     this.koInputTitle(this.inputTitle);
   };
   constructor(name: string) {

@@ -1,11 +1,18 @@
 .sd-table {
   width: 100%;
   background: $question-background;
-  border-collapse: separate;
+  border-collapse: collapse;
   white-space: normal;
-  border-spacing: 0 16px;
-  margin: calcSize(-2) 0;
   table-layout: fixed;
+  &>tbody {
+    &>tr+tr {
+      border-top: calcSize(2) solid transparent;
+    }
+  }
+
+  &>thead {
+    border-bottom: calcSize(2) solid transparent;
+  }
 }
 
 .sd-table--align-top {

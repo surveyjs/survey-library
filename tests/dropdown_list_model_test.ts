@@ -832,3 +832,12 @@ QUnit.test("lazy loading clear value", function (assert) {
   assert.equal(dropdownListModel.hintString, "France", "hintString");
   assert.equal(dropdownListModel.inputStringRendered, "");
 });
+
+QUnit.test("DropdownListModel popup fitContent", (assert) => {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.notOk(dropdownListModel.popupModel.fitContent);
+  survey.dropdownPopupsFitContent = true;
+  assert.ok(dropdownListModel.popupModel.fitContent);
+});

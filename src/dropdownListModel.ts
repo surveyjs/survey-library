@@ -82,13 +82,16 @@ export class DropdownListModel extends Base {
   }
 
   protected createPopup(): void {
+    const survey = this.question.survey as SurveyModel;
     this._popupModel = new PopupModel("sv-list", { model: this.listModel }, "bottom", "center", false);
     this._popupModel.displayMode = IsTouch ? "overlay" : "popup";
     this._popupModel.positionMode = "fixed";
     this._popupModel.isFocusedContainer = false;
     this._popupModel.isFocusedContent = IsTouch;
     this._popupModel.setWidthByTarget = !IsTouch;
-    this._popupModel.fitContent = (this.question.survey as SurveyModel)?.dropdownPopupsFitContent;
+    if (!(survey?.dropdownPopupsFitContent)) {
+      this._popupModel.fitContent = false;
+    }
     this.updatePopupFocusFirstInputSelector();
     this.listModel.registerPropertyChangedHandlers(["showFilter"], () => {
       this.updatePopupFocusFirstInputSelector();

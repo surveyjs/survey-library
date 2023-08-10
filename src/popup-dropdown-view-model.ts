@@ -95,7 +95,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,
           width,
-          document.documentElement.clientWidth,
+          window.innerWidth,
           actualHorizontalPosition,
           this.model.positionMode,
           { left: marginLeft, right: marginRight }

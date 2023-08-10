@@ -1216,6 +1216,43 @@ QUnit.test("Fixed PopupModel width calculate", (assert) => {
   targetElement.remove();
 });
 
+QUnit.test("Fixed PopupModel width calculate with no fitContent", (assert) => {
+  const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
+  model.positionMode = "fixed";
+  model.setWidthByTarget = true;
+  const targetElement: HTMLElement = document.createElement("button");
+
+  targetElement.style.position = "absolute";
+  targetElement.style.top = "130px";
+  targetElement.style.left = "200px";
+  targetElement.style.width = "560px";
+  targetElement.style.height = "48px";
+  addElementIntoBody(targetElement);
+  targetElement.parentElement.scrollTop = 0;
+  targetElement.parentElement.scrollLeft = 0;
+
+  model.fitContent = false;
+
+  const viewModel: PopupDropdownViewModel = createPopupViewModel(model, targetElement) as PopupDropdownViewModel;
+  viewModel.initializePopupContainer();
+  viewModel.container.innerHTML = popupTemplate;
+  let popupContainer = getPopupContainer(viewModel.container);
+  popupContainer.style.width = "700px";
+  popupContainer.style.height = "400px";
+
+  (<any>window).innerWidth = 1000;
+  (<any>window).innerHeight = 800;
+  model.toggleVisibility();
+  viewModel.updateOnShowing();
+  assert.equal(viewModel.minWidth, "560px", "minWidth");
+  assert.equal(viewModel.width, "560px", "width");
+  assert.equal(viewModel.left, "200px", "left");
+  assert.equal(viewModel.top, "178px", "top");
+
+  viewModel.dispose();
+  targetElement.remove();
+});
+
 QUnit.test("Fixed PopupModel width calculate if short content", (assert) => {
   const model: PopupModel = new PopupModel("sv-list", {}, "bottom", "center", true);
   model.positionMode = "fixed";

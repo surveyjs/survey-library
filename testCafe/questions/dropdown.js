@@ -1945,4 +1945,40 @@ frameworks.forEach((framework) => {
       .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
       .expect(popupContainer.visible).notOk();
   });
+
+  test.page(`${url_test}${theme}/${framework}`)("Dropdown shold not be open when disabled", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "boolean",
+              name: "Editable",
+              defaultValueExpression: "false"
+            },
+            {
+              type: "dropdown",
+              name: "Dropdown",
+              enableIf: "{Editable} = true",
+              choices: ["Item 1", "Item 2", "Item 3"]
+            }
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+
+      .click(questionDropdownV2Select)
+      .expect(popupContainer.visible).notOk()
+
+      .click(Selector(".sd-boolean__label").withText("Yes"))
+      .expect(Selector(".sd-boolean__thumb-text").withText("Yes").visible).ok()
+      .expect(popupContainer.visible).notOk();
+  });
 });

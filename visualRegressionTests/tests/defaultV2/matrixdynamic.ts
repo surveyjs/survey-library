@@ -30,6 +30,8 @@ frameworks.forEach(framework => {
             emptyRowsText: "There is no records yet.\nClick the button below to add a new record.",
             addRowText: "Add New Record",
             rowCount: 0,
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px"
           }
         ]
@@ -65,6 +67,8 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px"
           },
         ]
@@ -116,8 +120,9 @@ frameworks.forEach(framework => {
             cellType: "comment",
             addRowText: "Add Date +",
             removeRowText: "Remove",
-            width: "800px"
-          }
+            maxWidth: "800px",
+            minWidth: "800px",
+            width: "800px" }
         ]
       });
 
@@ -155,6 +160,8 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
+            maxWidth: "704px",
+            minWidth: "704px",
             width: "704px"
           },
         ]
@@ -196,6 +203,8 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
+            maxWidth: "704px",
+            minWidth: "704px",
             width: "704px"
           },
         ]

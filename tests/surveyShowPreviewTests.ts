@@ -748,5 +748,27 @@ QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' and all question
     assert.equal(survey.state, "running", "running again");
     survey.completeLastPage();
     assert.equal(survey.state, "running", "We have errors, we can't fix errors");
+    survey.setValue("q1", "a");
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "No errors");
+  }
+);
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608",
+  function(assert) {
+    const survey = new SurveyModel({
+      "pages": [
+        { "elements": [{ "type": "text", "name": "q1", "isRequired": true }] },
+        { "elements": [{ "type": "text", "name": "q2" }] },
+      ],
+      "showPreviewBeforeComplete": "showAnsweredQuestions",
+      "checkErrorsMode": "onComplete"
+    });
+    survey.nextPage();
+    survey.showPreview();
+    survey.completeLastPage();
+    assert.equal(survey.state, "running", "We have errors, we can't fix errors");
+    survey.setValue("q1", "a");
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "No errors");
   }
 );

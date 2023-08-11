@@ -24,7 +24,7 @@ As a result, you will create a survey displayed below:
 
 ## Install the `survey-react-ui` npm Package
 
-The SurveyJS Form Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-react-ui` dependencies.
+SurveyJS Form Library for React consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-react-ui`](https://www.npmjs.com/package/survey-react-ui) (rendering code). Run the following command to install `survey-react-ui`. The `survey-core` package will be installed automatically as a dependency.
 
 ```cmd
 npm install survey-react-ui --save
@@ -32,20 +32,19 @@ npm install survey-react-ui --save
 
 ## Configure Styles
 
-SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
+SurveyJS Form Library ships with several predefined themes illustrated below and a flexible theme customization mechanism based upon CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-Open the React component in which your survey will be and import a style sheet that implements the required theme.
+To add SurveyJS themes to your application, open the React component in which your survey will be and import the Form Library style sheet:
 
 ```js
-// Default V2 theme
 import 'survey-core/defaultV2.min.css';
-// Modern theme
-// import 'survey-core/modern.min.css';
 ```
 
-For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+
+> Previous to v1.9.100, SurveyJS also supplied the Modern theme, which is now obsolete. Please migrate to one of the predefined themes or create a custom theme.
 
 ## Create a Model
 

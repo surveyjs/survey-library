@@ -56,7 +56,7 @@ export class QuestionSelectBase extends Question {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "choicesFromValueName", "choicesFromTextName", "showNoneItem"],
+      ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion", "choiceTextsFromQuestion", "showNoneItem"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -720,17 +720,17 @@ export class QuestionSelectBase extends Question {
   public set choicesFromQuestionMode(val: string) {
     this.setPropertyValue("choicesFromQuestionMode", val);
   }
-  public get choicesFromValueName(): string {
-    return this.getPropertyValue("choicesFromValueName");
+  public get choiceValuesFromQuestion(): string {
+    return this.getPropertyValue("choiceValuesFromQuestion");
   }
-  public set choicesFromValueName(val: string) {
-    this.setPropertyValue("choicesFromValueName", val);
+  public set choiceValuesFromQuestion(val: string) {
+    this.setPropertyValue("choiceValuesFromQuestion", val);
   }
-  public get choicesFromTextName(): string {
-    return this.getPropertyValue("choicesFromTextName");
+  public get choiceTextsFromQuestion(): string {
+    return this.getPropertyValue("choiceTextsFromQuestion");
   }
-  public set choicesFromTextName(val: string) {
-    this.setPropertyValue("choicesFromTextName", val);
+  public set choiceTextsFromQuestion(val: string) {
+    this.setPropertyValue("choiceTextsFromQuestion", val);
   }
   /**
    * Specifies whether to hide the question if no choice items are visible.
@@ -1058,14 +1058,14 @@ export class QuestionSelectBase extends Question {
       if(!Helpers.isValueObject(obj)) continue;
       const key = this.getValueKeyName(obj);
       if(!!key && !this.isValueEmpty(obj[key])) {
-        const text = !!this.choicesFromTextName ? obj[this.choicesFromTextName] : undefined;
+        const text = !!this.choiceTextsFromQuestion ? obj[this.choiceTextsFromQuestion] : undefined;
         res.push(this.createItemValue(obj[key], text));
       }
     }
     return res;
   }
   private getValueKeyName(obj: any): string {
-    if(this.choicesFromValueName) return this.choicesFromValueName;
+    if(this.choiceValuesFromQuestion) return this.choiceValuesFromQuestion;
     const keys = Object.keys(obj);
     return keys.length > 0 ? keys[0] : undefined;
   }
@@ -1803,14 +1803,14 @@ Serializer.addClass(
       },
     },
     {
-      name: "choicesFromValueName",
+      name: "choiceValuesFromQuestion",
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
         return obj.carryForwardQuestionType === "array";
       },
     },
     {
-      name: "choicesFromTextName",
+      name: "choiceTextsFromQuestion",
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
         return obj.carryForwardQuestionType === "array";

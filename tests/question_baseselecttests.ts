@@ -1092,15 +1092,15 @@ QUnit.test("Use carryForward with matrix dynamic", function (assert) {
   assert.equal(q2.visibleChoices[2].value, "C", "the third value is correct");
 });
 
-QUnit.test("Use carryForward with matrix dynamic + choicesFromValueName", function (assert) {
+QUnit.test("Use carryForward with matrix dynamic + choiceValuesFromQuestion", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "matrixdynamic", name: "q1", columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" }] },
-    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromValueName: "col2" }
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "col2" }
   ] });
   const q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
-  assert.equal(q2.choicesFromValueName, "col2", "choicesFromValueName is set");
+  assert.equal(q2.choiceValuesFromQuestion, "col2", "choiceValuesFromQuestion is set");
   assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
   assert.equal(q2.visibleChoices.length, 0, "There is no choices");
   assert.equal(q2.visibleChoices.length, 0, "There is no choices, row is empty");
@@ -1121,18 +1121,18 @@ QUnit.test("Use carryForward with matrix dynamic + choicesFromValueName", functi
   assert.equal(q2.visibleChoices.length, 3, "There are three choice");
   assert.equal(q2.visibleChoices[2].value, "CC", "the third value is correct");
 });
-QUnit.test("Use carryForward with panel dynamic + choicesFromValueName&choicesFromTextName", function (assert) {
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion&choiceTextsFromQuestion", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "paneldynamic", name: "q1", panelCount: 2,
       templateElements: [{ name: "q1-q1", type: "text" }, { name: "q1-q2", type: "text" }, { name: "q1-q3", type: "text" }]
     },
-    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromValueName: "q1-q2", choicesFromTextName: "q1-q3" }
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q2", choiceTextsFromQuestion: "q1-q3" }
   ] });
   const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
   const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
   assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
-  assert.equal(q2.choicesFromValueName, "q1-q2", "choicesFromValueName is set");
-  assert.equal(q2.choicesFromTextName, "q1-q3", "choicesFromTextName is set");
+  assert.equal(q2.choiceValuesFromQuestion, "q1-q2", "choiceValuesFromQuestion is set");
+  assert.equal(q2.choiceTextsFromQuestion, "q1-q3", "choiceTextsFromQuestion is set");
   assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
   assert.equal(q2.visibleChoices.length, 0, "There is no choices");
   q1.panels[0].getQuestionByName("q1-q1").value = "A";

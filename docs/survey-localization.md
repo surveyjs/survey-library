@@ -17,7 +17,9 @@ This article describes how to localize UI elements and contents of your survey.
 
 ### Available Languages
 
-Survey UI is translated into over 50 languages. We ship translated strings as [dictionary files](https://github.com/surveyjs/survey-library/tree/master/src/localization). They are supported by the community and may be incomplete. Feel free to add missing translations to existing dictionaries or create new dictionaries for other languages. You can use English as a base dictionary: copy the file, replace English translations in it, and submit a pull request with the resulting file to the [survey-library](https://github.com/surveyjs/survey-library) repository.
+Survey UI is translated into over 50 languages. We ship translated strings as [dictionary files](https://github.com/surveyjs/survey-library/tree/master/src/localization). They are supported by the community and may contain untranslated strings. To fill the gap, these strings are translated by <a href="https://learn.microsoft.com/en-us/azure/ai-services/translator/" target="_blank">Azure AI Translator by Microsoft</a>. Each dictionary file contains a log of machine translations at the end. You can use it to find individual machine-translated strings and revise them if required. Delete revised strings from the log to exclude them from machine translation.
+
+You can also create new dictionaries for unsupported languages. Use English as a base dictionary: copy the file, replace English translations in it, and submit a pull request with the resulting file to the [survey-library](https://github.com/surveyjs/survey-library) repository.
 
 ### Enable Localization and Switch Between Locales
 

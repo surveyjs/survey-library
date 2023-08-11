@@ -786,28 +786,6 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionRowModel setElementMaxMinWidth", function (assert) {
-  const qrm = new QuestionRowModel(<any>{ areInvisibleElementsShowing: false });
-
-  const el1: any = {
-    width: "100px",
-    minWidth: settings.minWidth,
-    maxWidth: settings.maxWidth,
-  };
-  qrm.setElementMaxMinWidth(el1);
-  assert.equal(el1.minWidth, "100px", "minWidth in 'px' is set");
-  assert.equal(el1.maxWidth, "100px", "maxWidth in 'px' is set");
-
-  const el2: any = {
-    width: "20%",
-    minWidth: settings.minWidth,
-    maxWidth: settings.maxWidth,
-  };
-  qrm.setElementMaxMinWidth(el2);
-  assert.equal(el2.minWidth, "300px", "minWidth in '%' is default");
-  assert.equal(el2.maxWidth, "100%", "maxWidth in '%' is default");
-});
-
 QUnit.test("Page/Panel.getProgressInfo()", function (assert) {
   const page = new PageModel("q1");
   const panel1 = page.addNewPanel("panel1");

@@ -44,11 +44,11 @@
             tabindex="0"
             :class="question.getChooseFileCss()"
             :for="question.inputId"
-            v-bind:aria-label="question.chooseButtonCaption"
+            v-bind:aria-label="question.chooseButtonText"
               v-key2click
             >
-            <span>{{ question.chooseButtonCaption }}</span>
-            <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.chooseButtonCaption" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
+            <span>{{ question.chooseButtonText }}</span>
+            <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.chooseButtonText" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
           </label>
           <span
             :class="question.cssClasses.noFileChosen"

@@ -216,6 +216,7 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
+  @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
   @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
@@ -227,6 +228,11 @@ export class QuestionFileModel extends Question {
     if (this.isEmpty()) return this.chooseFileTitle;
     return " ";
   }
+
+  public get chooseButtonText () {
+    return this.isEmpty() || this.allowMultiple ? this.chooseButtonCaption : this.replaceButtonCaption;
+  }
+
   public clear(doneCallback?: () => void) {
     if (!this.survey) return;
     this.containsMultiplyFiles = false;
@@ -280,7 +286,7 @@ export class QuestionFileModel extends Question {
         if (status === "success") {
           var oldValue = this.value;
           if (Array.isArray(oldValue)) {
-            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true));
+            this.value = oldValue.filter((f) => !Helpers.isTwoValueEquals(f, content, true, false, false));
           } else {
             this.value = undefined;
           }

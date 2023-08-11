@@ -41,11 +41,11 @@
           tabindex="0"
           [class]="model.getChooseFileCss()"
           [attr.for]="model.inputId"
-          [attr.aria-label]="model.chooseButtonCaption"
+          [attr.aria-label]="model.chooseButtonText"
           [key2click]
           >
-          <span>{{ model.chooseButtonCaption }}</span>
-          <svg *ngIf="model.cssClasses.chooseFileIconId" [title]="model.chooseButtonCaption" [iconName]="model.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>
+          <span>{{ model.chooseButtonText }}</span>
+          <svg *ngIf="model.cssClasses.chooseFileIconId" [title]="model.chooseButtonText" [iconName]="model.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>
         </label>
         <span
           [class]="model.cssClasses.noFileChosen"

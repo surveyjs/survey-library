@@ -62,6 +62,8 @@ frameworks.forEach(framework => {
           {
             type: "boolean",
             name: "boolean_question",
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px",
             renderAs: "radio"
           },

@@ -79,7 +79,7 @@
   padding: 0 calcSize(1);
   color: $foreground;
   text-align: center;
-  &:not(.sd-table__cell--empty):not(.sd-table__cell--actions) {
+  &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
       min-width: calcSize(14);
     }
 }

@@ -1137,6 +1137,7 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.value = newValue;
   }
+  public get isValueArray(): boolean { return true; }
   public isEmpty(): boolean {
     var val = this.value;
     if (!val || !Array.isArray(val)) return true;

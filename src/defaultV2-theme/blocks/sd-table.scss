@@ -178,7 +178,7 @@
   }
 }
 
-.sd-table__cell--actions:not(.sd-table__cell--vertical) {
+.sd-table__cell--actions:not(.sd-table__cell--vertical):not(.sd-table__cell--drag) {
   width: 0;
   &:first-of-type {
       padding-left: 0;

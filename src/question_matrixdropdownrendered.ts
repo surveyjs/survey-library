@@ -528,12 +528,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private getRowDragCell(rowIndex: number) {
     const cell = new QuestionMatrixDropdownRenderedCell();
     cell.isDragHandlerCell = true;
-    cell.className = this.getActionsCellClassName();
+    cell.className = this.getActionsCellClassName(cell);
     cell.row = this.matrix.visibleRows[rowIndex];
     return cell;
   }
-  private getActionsCellClassName() :string {
-    return new CssClassBuilder().append(this.cssClasses.actionsCell).append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal).toString();
+  private getActionsCellClassName(cell: QuestionMatrixDropdownRenderedCell = null): string {
+    return new CssClassBuilder().append(this.cssClasses.actionsCell).append(this.cssClasses.actionsCellDrag, cell?.isDragHandlerCell).append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal).toString();
   }
   private getRowActionsCell(rowIndex: number, location: "start" | "end") {
     const rowActions = this.getRowActions(rowIndex, location);

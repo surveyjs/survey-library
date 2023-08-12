@@ -19,6 +19,275 @@ frameworks.forEach(framework => {
     await explicitErrorHandler();
     await applyTheme(theme);
   });
+
+  test("Matrix single-select", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "q",
+                "title": "Question",
+                "alternateRows": true,
+                "columns": [
+                  {
+                    "value": "Column 1",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Column 2",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Column 3",
+                    "text": "Title"
+                  }
+                ],
+                "rows": [
+                  {
+                    "value": "Row 1",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Row 2",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Row 3",
+                    "text": "Title"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "720px"
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-single-select-alt-rows.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = false; })();
+      await takeElementScreenshot("question-matrix-single-select-alt-rows-no-header.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").alternateRows = false; })();
+      await takeElementScreenshot("question-matrix-single-select-no-header.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = false; })();
+      await takeElementScreenshot("question-matrix-single-select.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Matrix multi-select", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdropdown",
+                "name": "q",
+                "title": "Question",
+                "columns": [
+                  {
+                    "name": "Column 1",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 2",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 3",
+                    "title": "Title"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "cellType": "text",
+                "rows": [
+                  {
+                    "value": "Row 1",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Row 2",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Row 3",
+                    "text": "Title"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "720px"
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-multi-select.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = false; })();
+      await takeElementScreenshot("question-matrix-multi-select-no-header.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").titleLocation = "hidden"; })();
+      await takeElementScreenshot("question-matrix-multi-select-no-header-no-title.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = true; })();
+      await takeElementScreenshot("question-matrix-multi-select-no-title.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Matrix dynamic", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdynamic",
+                "name": "q",
+                "title": "Question",
+                "columns": [
+                  {
+                    "name": "Column 1",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 2",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 3",
+                    "title": "Title"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "cellType": "text",
+                "rowCount": 3
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "720px"
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-dynamic.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = false; })();
+      await takeElementScreenshot("question-matrix-dynamic-no-header.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").titleLocation = "hidden"; })();
+      await takeElementScreenshot("question-matrix-dynamic-no-header-no-title.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = true; })();
+      await takeElementScreenshot("question-matrix-dynamic-no-title.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Matrix dynamic detail", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdynamic",
+                "name": "q",
+                "title": "Question",
+                "columns": [
+                  {
+                    "name": "Column 1",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 2",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 3",
+                    "title": "Title"
+                  }
+                ],
+                "detailElements": [
+                  {
+                    "type": "text",
+                    "name": "question1",
+                    "titleLocation": "hidden"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question2",
+                    "titleLocation": "hidden"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question3",
+                    "titleLocation": "hidden"
+                  }
+                ],
+                "detailPanelMode": "underRow",
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "cellType": "text",
+                "rowCount": 3
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "720px"
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-dynamic-detail.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-table__cell--detail-button").filterVisible().nth(1));
+
+      await takeElementScreenshot("question-matrix-dynamic-detail-expanded.png", questionRoot, t, comparer);
+
+    });
+  });
+
   test("Matrix dropdown", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

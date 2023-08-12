@@ -15,11 +15,11 @@
   border-bottom: calcSize(1) solid transparent;
   background-clip: padding-box;
 }
-.sd-table__row:first-child>.sd-table__cell:not(.sd-question--error) {
+.sd-table__row:first-child>.sd-table__cell {
   border-top: 0;
 }
 
-.sd-table__row:last-child>.sd-table__cell:not(.sd-question--error) {
+.sd-table__row:last-child>.sd-table__cell {
   border-bottom: 0;
 }
 

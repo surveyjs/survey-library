@@ -648,6 +648,34 @@ QUnit.test("Writable captions", function(assert) {
 
 });
 
+QUnit.test("Check choose button text", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "file",
+        title: "Please upload your file",
+        name: "file1",
+      }
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q: QuestionFileModel = <any>survey.getQuestionByName("file1");
+
+  assert.equal(q.chooseButtonText, "Choose file");
+  q.value = [{
+    content: "https://api.surveyjs.io/public/v1/Survey/file?filePath=dcc81e2a-586f-45dd-b734-ee86bcbad8db.png",
+    name: "name.png",
+    type: "image/png"
+  }];
+  assert.equal(q.chooseButtonText, "Replace file");
+
+  q.allowMultiple = true;
+  assert.equal(q.chooseButtonText, "Choose file");
+  q.value = undefined;
+  assert.equal(q.chooseButtonText, "Choose file");
+});
+
 QUnit.test("check file d&d", (assert) => {
   var json = {
     questions: [

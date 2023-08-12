@@ -10,6 +10,10 @@
   margin-top: calcSize(2);
 }
 
+.sd-page__row.sd-row--compact {
+  margin-top: var(--sd-base-vertical-padding);
+}
+
 .sd-row:first-of-type {
   margin-top: 0;
 }

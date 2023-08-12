@@ -3461,7 +3461,7 @@ export class SurveyModel extends SurveyElementCore
         this.doCurrentPageCompleteCore(doComplete);
       }
     };
-    if (this.checkErrorsMode === "onComplete") {
+    if (this.isValidateOnComplete) {
       if (!this.isLastPage) return false;
       return this.validate(true, true, func) !== true;
     }
@@ -3777,7 +3777,10 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public completeLastPage(): boolean {
-    var res = this.doCurrentPageComplete(true);
+    if(this.isValidateOnComplete) {
+      this.cancelPreview();
+    }
+    let res = this.doCurrentPageComplete(true);
     if (res) {
       this.cancelPreview();
     }
@@ -3810,7 +3813,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public showPreview(): boolean {
     this.resetNavigationButton();
-    if (this.checkErrorsMode !== "onComplete") {
+    if (!this.isValidateOnComplete) {
       if (this.hasErrorsOnNavigate(true)) return false;
       if (this.doServerValidation(true, true)) return false;
     }
@@ -4253,7 +4256,7 @@ export class SurveyModel extends SurveyElementCore
         self.completeServerValidation(options, isPreview);
       },
     };
-    if (doComplete && this.checkErrorsMode === "onComplete") {
+    if (doComplete && this.isValidateOnComplete) {
       options.data = this.data;
     } else {
       var questions = this.activePage.questions;
@@ -4277,7 +4280,7 @@ export class SurveyModel extends SurveyElementCore
       (<EventBase<SurveyModel>>this.onServerValidateQuestions).isEmpty
     )
       return false;
-    if (!doComplete && this.checkErrorsMode === "onComplete") return false;
+    if (!doComplete && this.isValidateOnComplete) return false;
     this.setIsValidatingOnServer(true);
     const isFunc = typeof this.onServerValidateQuestions === "function";
     this.serverValidationEventCount = !isFunc ? this.onServerValidateQuestions.length : 1;
@@ -4712,6 +4715,9 @@ export class SurveyModel extends SurveyElementCore
   }
   get isValidateOnValueChanged(): boolean {
     return this.checkErrorsMode === "onValueChanged";
+  }
+  private get isValidateOnComplete(): boolean {
+    return this.checkErrorsMode === "onComplete";
   }
   matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;
@@ -5312,7 +5318,7 @@ export class SurveyModel extends SurveyElementCore
   private checkQuestionErrorOnValueChanged(question: Question) {
     if (
       !this.isNavigationButtonPressed &&
-      (this.checkErrorsMode === "onValueChanged" ||
+      (this.isValidateOnValueChanged ||
         question.getAllErrors().length > 0)
     ) {
       this.checkQuestionErrorOnValueChangedCore(question);
@@ -6078,7 +6084,7 @@ export class SurveyModel extends SurveyElementCore
     )
       return;
     var oldValue = this.getValue(name);
-    if (this.isValueEmpty(newValue)) {
+    if (this.isValueEmpty(newValue, false)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
       newValue = this.getUnbindValue(newValue);

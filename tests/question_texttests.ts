@@ -411,3 +411,35 @@ QUnit.test("CharacterCounter + settings.showMaxLengthIndicator", function(assert
   ch.updateRemainingCharacterCounter("abcd", 7);
   assert.equal(ch.remainingCharacterCounter, "4/7", "#4");
 });
+
+QUnit.test("Set empty text", function(assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }]
+  });
+  const q = survey.getQuestionByName("q1");
+  q.value = " ";
+  assert.equal(q.isEmpty(), true, "question.isEmpty() #1");
+  assert.equal(q.value, " ", "question.value #1");
+  assert.deepEqual(survey.data, { q1: " " }, "survey.data #1");
+  q.value = "a";
+  assert.equal(q.isEmpty(), false, "question.isEmpty() #2");
+  assert.equal(q.value, "a", "question.value #2");
+  assert.deepEqual(survey.data, { q1: "a" }, "survey.data #2");
+  q.value = " a ";
+  assert.equal(q.isEmpty(), false, "question.isEmpty() #3");
+  assert.equal(q.value, " a ", "question.value #3");
+  assert.deepEqual(survey.data, { q1: " a " }, "survey.data #3");
+  q.allowSpaceAsAnswer = true;
+  q.value = " ";
+  assert.equal(q.isEmpty(), false, "question.isEmpty() #4");
+  assert.equal(q.value, " ", "question.value #4");
+  assert.deepEqual(survey.data, { q1: " " }, "survey.data #4");
+  q.value = "a";
+  assert.equal(q.isEmpty(), false, "question.isEmpty() #5");
+  assert.equal(q.value, "a", "question.value #5");
+  assert.deepEqual(survey.data, { q1: "a" }, "survey.data #5");
+  q.value = " a ";
+  assert.equal(q.isEmpty(), false, "question.isEmpty() #6");
+  assert.equal(q.value, " a ", "question.value #6");
+  assert.deepEqual(survey.data, { q1: " a " }, "survey.data #6");
+});

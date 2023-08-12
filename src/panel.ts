@@ -149,7 +149,6 @@ export class QuestionRowModel extends Base {
     var preSetWidthElements = [];
     for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i];
-      this.setElementMaxMinWidth(el);
 
       if (el.isVisible) {
         (<any>el).isSingleInRow = isSingleInRow;
@@ -180,16 +179,6 @@ export class QuestionRowModel extends Base {
           visCount
         );
       }
-    }
-  }
-  public setElementMaxMinWidth(el: IElement): void {
-    if (
-      el.width &&
-      typeof el.width === "string" &&
-      el.width.indexOf("%") === -1
-    ) {
-      el.minWidth = el.width;
-      el.maxWidth = el.width;
     }
   }
 

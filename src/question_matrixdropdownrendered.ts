@@ -548,7 +548,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       const itemValue = new ItemValue(actionContainer);
       cell.item = itemValue;
       cell.isActionsCell = true;
-      cell.className = this.getActionsCellClassName();
+      cell.isDragHandlerCell = false;
+      cell.className = this.getActionsCellClassName(cell);
       cell.row = this.matrix.visibleRows[rowIndex];
       return cell;
     }

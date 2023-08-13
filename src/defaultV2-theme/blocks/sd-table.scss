@@ -178,9 +178,9 @@
   }
 }
 
-.sd-table__cell--actions:not(.sd-table__cell--vertical):not(.sd-table__cell--drag) {
+.sd-table__cell--actions:not(.sd-table__cell--vertical) {
   width: 0;
-  &:first-of-type {
+  &:not(.sd-table__cell--drag):first-of-type {
       padding-left: 0;
     }
 }

@@ -68,7 +68,8 @@ frameworks.forEach(framework => {
         ],
         "showQuestionNumbers": "off",
         "widthMode": "static",
-        "width": "720px"
+        "width": "720px",
+        focusFirstQuestionAutomatic: false
       });
 
       const questionRoot = Selector(".sd-row");
@@ -80,7 +81,7 @@ frameworks.forEach(framework => {
       await ClientFunction(() => { window["survey"].getQuestionByName("q").alternateRows = false; })();
       await takeElementScreenshot("question-matrix-single-select-no-header.png", questionRoot, t, comparer);
 
-      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = false; })();
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = true; })();
       await takeElementScreenshot("question-matrix-single-select.png", questionRoot, t, comparer);
     });
   });
@@ -140,7 +141,8 @@ frameworks.forEach(framework => {
         ],
         "showQuestionNumbers": "off",
         "widthMode": "static",
-        "width": "720px"
+        "width": "720px",
+        focusFirstQuestionAutomatic: false
       });
 
       const questionRoot = Selector(".sd-row");
@@ -199,7 +201,8 @@ frameworks.forEach(framework => {
         ],
         "showQuestionNumbers": "off",
         "widthMode": "static",
-        "width": "720px"
+        "width": "720px",
+        focusFirstQuestionAutomatic: false
       });
 
       const questionRoot = Selector(".sd-row");
@@ -276,7 +279,8 @@ frameworks.forEach(framework => {
         ],
         "showQuestionNumbers": "off",
         "widthMode": "static",
-        "width": "720px"
+        "width": "720px",
+        focusFirstQuestionAutomatic: false
       });
 
       const questionRoot = Selector(".sd-row");

@@ -3215,24 +3215,18 @@ QUnit.test(
     var panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
     var q1 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q1");
     var q2 = <QuestionRadiogroupModel>panel.panels[0].getQuestionByName("q2");
-    assert.equal(
-      q2.errors.length,
-      0,
-      "There are no errors in the second question"
-    );
+    assert.equal(q2.errors.length, 0, "There are no errors in the second question");
     q1.value = "test";
-    assert.equal(
-      q2.errors.length,
-      0,
-      "There are still no errors in the second question"
-    );
+    assert.equal(q2.errors.length, 0, "There are still no errors in the second question");
+    panel.value = [{ }];
+    assert.equal(q1.errors.length, 0, "There is no errors on panel.value changed, q1");
+    assert.equal(q1.errors.length, 0, "There is no errors on panel.value changed, q2");
+    assert.equal(q1.isEmpty(), true, "q1 is empty now");
+    q1.value = "abc";
+    assert.equal(q1.errors.length, 0, "There is no errors on value changed, #2");
+    assert.equal(q2.errors.length, 0, "and there is no error in the second question");
     q1.value = "";
-    assert.equal(q1.errors.length, 0, "There is no errors on value changed");
-    assert.equal(
-      q2.errors.length,
-      0,
-      "and there is no error in the second question"
-    );
+    assert.equal(q1.errors.length, 1, "We have the error in q1 now");
     survey.completeLastPage();
     assert.equal(q1.errors.length, 1, "There is error in the first question");
     assert.equal(q2.errors.length, 1, "There is error in the second question");

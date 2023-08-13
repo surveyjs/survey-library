@@ -995,6 +995,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private createEmptyCell(): QuestionMatrixDropdownRenderedCell {
     const res = this.createTextCell(null);
     res.isEmpty = true;
+    res.className = new CssClassBuilder()
+      .append(this.cssClasses.cell)
+      .append(this.cssClasses.emptyCell)
+      .toString();
     return res;
   }
 }

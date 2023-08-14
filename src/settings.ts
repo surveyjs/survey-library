@@ -446,12 +446,6 @@ export var settings = {
    *
    * - `caseSensitive`: `Boolean`\
    * Specifies whether to differentiate between capital and lower-case letters. Default value: `false`.
-   *
-   * - `normalizedTextCallback`: `(str: string, reason: string) => string`
-   * Use the following function { str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
-   * If you want to 'Brouillé' to be equal to 'Brouille'.
-   * Use the following function { return reason === "filter" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): ""; }
-   * If you want to use this functionality during filtering only, for example in list.
    */
   comparator: {
     trimStrings: true,
@@ -596,13 +590,24 @@ export var settings = {
    */
   rankingDragHandleArea: "entireItem",
 
-  /**
-   * Specifies environment in which SurveyJS will exist
-   */
   environment: defaultEnvironment,
 
+  /**
+   * Allows you to hide the maximum length indicator in text input questions.
+   *
+   * If you specify a question's [`maxLength`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maxLength) property or a survey's [`maxTextLength`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#maxTextLength) property, text input questions indicate the number of entered characters and the character limit. Assign `false` to the `settings.showMaxLengthIndicator` property if you want to hide this indicator.
+   *
+   * Default value: `true`
+   */
   showMaxLengthIndicator: true,
 
+  /**
+   * An object that specifies heading levels (`<h1>`, `<h2>`, etc.) to use when rendering survey, page, panel, and question titles.
+   *
+   * Default value: `{ survey: "h3", page: "h4", panel: "h4", question: "h5" }`
+   *
+   * If you want to modify heading levels for individual titles, handle `SurveyModel`'s [`onGetTitleTagName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetTitleTagName) event.
+   */
   titleTags: {
     survey: "h3",
     page: "h4",

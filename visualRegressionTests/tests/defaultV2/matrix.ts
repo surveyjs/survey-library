@@ -78,6 +78,8 @@ frameworks.forEach(framework => {
             detailPanelMode: "underRow",
             columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
             detailElements: [{ type: "text", name: "q1" }],
+            minWidth: "800px",
+            maxWidth: "800px",
             width: "800px"
           },
         ],

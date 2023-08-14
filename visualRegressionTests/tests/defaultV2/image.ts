@@ -30,6 +30,8 @@ frameworks.forEach(framework => {
             name: "image_question",
             imageWidth: "1024px",
             imageHeight: "465px",
+            minWidth: "1024px",
+            maxWidth: "1024px",
             width: "1024px",
             imageLink: imageSource
           },

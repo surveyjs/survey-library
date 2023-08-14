@@ -18,7 +18,9 @@ const json = {
     type: "file",
     title: "Upload everything what you’d like to.",
     name: "file_question",
-    width: "704px"
+    minWidth: "704px",
+    width: "704px",
+    maxWidth: "704px",
   }]
 };
 

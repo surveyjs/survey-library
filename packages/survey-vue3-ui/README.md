@@ -1,46 +1,45 @@
-# survey-vue3-ui
+# SurveyJS Vue Form Library (Vue 3)
 
-This template should help get you started developing with Vue 3 in Vite.
+[![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
+<a href="https://github.com/DevExpress/testcafe">
+<img alt="Tested with TestCafe" src="https://img.shields.io/badge/tested%20with-TestCafe-2fa4cf.svg">
+</a>
+<a href="https://github.com/surveyjs/survey-library/issues">
+<img alt="Issues" title="Open Issues" src="https://img.shields.io/github/issues/surveyjs/survey-library.svg">
+</a>
+<a href="https://github.com/surveyjs/survey-library/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aclosed+">
+<img alt="Closed issues" title="Closed Issues" src="https://img.shields.io/github/issues-closed/surveyjs/survey-library.svg">
+</a>
 
-## Recommended IDE Setup
+A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your Vue applications.
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
+> **NOTE**: This package contains a version of SurveyJS Form Library for Vue 3. If you are looking for a Vue 2 version, refer to the [survey-vue-ui](https://www.npmjs.com/package/survey-vue-ui) npm package.
 
-## Type Support for `.vue` Imports in TS
+## Features
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
+- Dynamic forms, surveys, polls, and quizzes for your JavaScript application
+- Integration with React, Angular, Vue, jQuery, and Knockout
+- 20+ built-in question types and support for custom question types
+- Built-in themes and CSS customization
+- Answer validation
+- TypeScript support
+- Community-supported UI localization to 50+ languages
+- Integration with any backend framework (examples for PHP, NodeJS, and ASP.NET included)
+- Compatibility with any server + database combination
+- Third-party component integration
 
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
+## Get Started
 
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
+To get started with SurveyJS Vue Form Library, refer to the following tutorial: [Add a Survey to a Vue 3 Application](https://surveyjs.io/form-library/documentation/get-started-vue#add-a-survey-to-a-vue-3-application).
 
-## Customize configuration
+## Resources
 
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+- [Website](https://surveyjs.io/)
+- [Documentation](https://surveyjs.io/Documentation/Library)
+- [Live Examples](https://surveyjs.io/form-library/examples/nps-question/vuejs)
+- [What's New](https://surveyjs.io/WhatsNew)
 
-## Project Setup
+## Licensing
 
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Type-Check, Compile and Minify for Production
-
-```sh
-npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
-```
+SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

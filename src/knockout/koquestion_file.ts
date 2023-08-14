@@ -27,6 +27,7 @@ class QuestionFileImplementor extends QuestionImplementor {
         return [];
       })
     );
+    this.setObservaleObj("ko", ko.observable<string>());
     this.setObservaleObj("koInputTitle", ko.observable<string>());
     this.setObservaleObj(
       "koChooseFileCss",
@@ -34,6 +35,10 @@ class QuestionFileImplementor extends QuestionImplementor {
         return this.question.getChooseFileCss();
       })
     );
+    this.setCallbackFunc("koGetChooseButtonText", () => {
+      this.question.koState();
+      return this.question.chooseButtonText;
+    });
     this.setCallbackFunc("ondrop", (data: any, event: any) => {
       this.question.onDrop(getOriginalEvent(event));
     });

@@ -1,4 +1,4 @@
-# SurveyJS Vue Form Library
+# SurveyJS Vue Form Library (Vue 2)
 
 [![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
@@ -13,6 +13,8 @@
 </a>
 
 A free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your Vue applications.
+
+> **NOTE**: This package contains a version of SurveyJS Form Library for Vue 2. If you are looking for a Vue 3 version, refer to the [survey-vue3-ui](https://www.npmjs.com/package/survey-vue3-ui) npm package.
 
 ## Features
 
@@ -29,7 +31,7 @@ A free and open-source MIT-licensed JavaScript form builder library that allows 
 
 ## Get Started
 
-To get started with SurveyJS Vue Form Library, refer to the following tutorial: [Add a Survey to a Vue Application](https://surveyjs.io/Documentation/Library?id=get-started-vue).
+To get started with SurveyJS Vue Form Library, refer to the following tutorial: [Add a Survey to a Vue 2 Application](https://surveyjs.io/form-library/documentation/get-started-vue#add-a-survey-to-a-vue-2-application).
 
 ## Resources
 

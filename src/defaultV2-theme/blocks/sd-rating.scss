@@ -40,7 +40,7 @@
 
 .sd-rating__item {
   position: relative;
-  background: transparent;
+  background: $background;
   box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   white-space: nowrap;

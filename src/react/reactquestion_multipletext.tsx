@@ -87,7 +87,6 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
         cssClasses={cssClasses}
         creator={this.creator}
         location={"tooltip"}
-        id={item.editor.id + "_errors"}
       />
     ): null;
   }

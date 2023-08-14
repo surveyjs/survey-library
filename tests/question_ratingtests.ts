@@ -1393,3 +1393,29 @@ QUnit.test("check rating in-matrix pre-defined items", (assert) => {
   assert.equal(column.templateQuestion.autoGenerate, false);
   //assert.notOk(column.autoGenerate);
 });
+
+QUnit.test("show only 10 items when switching to smileys mode", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  var changed = false;
+  q1.onPropertyChanged.add(function (sender, options) {
+    if (options.name == "rateValues") changed = true;
+  });
+
+  q1.rateCount = 20;
+  q1.autoGenerate = false;
+  changed = false;
+  q1.rateType = "smileys";
+  assert.ok(changed);
+
+  assert.equal(q1.rateValues.length, 10);
+
+});

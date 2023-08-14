@@ -95,8 +95,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   color: $foreground;
-  font-size: calcFontSize(1);
-  line-height: calcLineHeight(1.5);
+  font-size: $font-editorfont-size;
+  line-height: multiply(1.5, $font-editorfont-size);
   margin: 0 calcSize(2);
 }
 

@@ -29,6 +29,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -60,6 +62,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Contact",
+            minWidth: "780px",
+            maxWidth: "780px",
             width: "780px",
             elements: [
               {
@@ -97,6 +101,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             state: "collapsed",
             elements: [
@@ -132,6 +138,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             visible: false,
             elements: [
@@ -271,6 +279,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -307,6 +317,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -345,6 +357,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -379,6 +393,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             showNumber: true,
             elements: [

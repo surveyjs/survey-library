@@ -1,5 +1,3 @@
-// This dictionary contains 8 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var simplifiedChineseSurveyStrings = {
@@ -13,15 +11,16 @@ export var simplifiedChineseSurveyStrings = {
   noneItemText: "无",
   selectAllItemText: "选择全部",
   progressText: "第 {0} 页, 共 {1} 页",
-  // indexText: "{0} of {1}",
+  indexText: "{1}{0}",
   panelDynamicProgressText: "{0} of {1}",
+  panelDynamicTabTextFormat: "面板 {面板索引}",
   questionsProgressText: "第 {0}/{1} 题",
   emptySurvey: "问卷中没有问题或页面",
   completingSurvey: "感谢您的参与!",
   completingSurveyBefore: "你已完成问卷.",
   loadingSurvey: "问卷正在加载中...",
   placeholder: "请选择...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "选择。。。",
   value: "值",
   requiredError: "请填写此问题",
   requiredErrorInPanel: "至少回答一题.",
@@ -48,7 +47,7 @@ export var simplifiedChineseSurveyStrings = {
   loadingFile: "加载...",
   chooseFile: "选择文件...",
   noFileChosen: "未选择文件",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "将文件拖放到此处或单击下面的按钮并选择要上传的文件。",
   confirmDelete: "删除记录?",
   keyDuplicationError: "主键不能重复",
   addColumn: "添加列",
@@ -74,7 +73,7 @@ export var simplifiedChineseSurveyStrings = {
   timerLimitPage: "本页用时 {0} 共 {1} .",
   timerLimitSurvey: "总计用时 {0} 共 {1}.",
   clearCaption: "清除",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "在此签名",
   chooseFileCaption: "选择文件",
   removeFileCaption: "移除文件",
   booleanCheckedLabel: "是",
@@ -84,11 +83,31 @@ export var simplifiedChineseSurveyStrings = {
   questionTitlePatternText: "标题",
   modalCancelButtonText: "取消",
   modalApplyButtonText: "确定",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  filterStringPlaceholder: "键入以搜索...",
+  emptyMessage: "没有要显示的数据",
+  noEntriesText: "尚无条目。\n单击下面的按钮以添加新条目。",
+  noEntriesReadonlyText: "没有条目。",
+  more: "更多",
+  tagboxDoneButtonCaption: "还行",
+  selectToRankEmptyRankedAreaText: "所有选择均已排名",
+  selectToRankEmptyUnrankedAreaText: "将选项拖放到此处进行排名"
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;
 surveyLocalization.localeNames["zh-cn"] = "简体中文";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{1}{0}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "面板 {面板索引}"
+// ratingOptionsCaption: "Select..." => "选择。。。"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "将文件拖放到此处或单击下面的按钮并选择要上传的文件。"
+// signaturePlaceHolder: "Sign here" => "在此签名"
+// filterStringPlaceholder: "Type to search..." => "键入以搜索..."
+// emptyMessage: "No data to display" => "没有要显示的数据"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "尚无条目。\n单击下面的按钮以添加新条目。"
+// noEntriesReadonlyText: "There are no entries." => "没有条目。"
+// more: "More" => "更多"
+// tagboxDoneButtonCaption: "OK" => "还行"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "所有选择均已排名"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "将选项拖放到此处进行排名"

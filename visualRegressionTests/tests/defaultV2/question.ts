@@ -29,6 +29,8 @@ frameworks.forEach(framework => {
             type: "text",
             titleLocation: "hidden",
             name: "question",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
           },
         ]
@@ -47,6 +49,8 @@ frameworks.forEach(framework => {
           {
             type: "text",
             name: "question_with_num",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
           },
@@ -66,6 +70,8 @@ frameworks.forEach(framework => {
             type: "text",
             inputType: "color",
             name: "question_color",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             title: "Color question"
           },
@@ -84,6 +90,8 @@ frameworks.forEach(framework => {
           {
             type: "text",
             name: "question_with_num",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             state: "collapsed",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
@@ -112,6 +120,8 @@ frameworks.forEach(framework => {
             type: "text",
             name: "q1",
             title: "Rate the importance of this scenario for your enterprise (assuming you've encountered it in the past).",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             choices: ["High", "Medium", "Low"],
             visible: false,
@@ -134,6 +144,8 @@ frameworks.forEach(framework => {
           {
             type: "text",
             name: "question_with_num",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             state: "collapsed",
             title: "Personal information"
@@ -163,6 +175,8 @@ frameworks.forEach(framework => {
             type: "text",
             name: "required_question",
             isRequired: true,
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             title: "What can we improve or add to our Xamarin.Forms UI product line to better address your business needs in the future (control features, learning materials, etc.)?"
           },
@@ -634,6 +648,61 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await focusBody();
       await takeElementScreenshot("question-baseunit.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Question descriptionLocation property", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "focusFirstQuestionAutomatic": false,
+        showQuestionNumbers: "off",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                name: "q1",
+                type: "text",
+                title: "description underTitle",
+                description: "question-description",
+              },
+              {
+                name: "q2",
+                type: "text",
+                title: "description underTitle",
+                description: "question-description",
+                descriptionLocation: "underTitle",
+              },
+              {
+                name: "q3",
+                type: "text",
+                title: "description empty",
+                descriptionLocation: "underTitle",
+              },
+              {
+                name: "q4",
+                type: "text",
+                title: "description underInput",
+                description: "question-description",
+                descriptionLocation: "underInput",
+              },
+              {
+                name: "q5",
+                type: "text",
+                title: "description empty",
+                descriptionLocation: "underInput",
+              }
+            ]
+          }
+        ]
+      });
+      const questionRows = Selector(".sd-row");
+      await takeElementScreenshot("question-descriptionLocation-underTitle.png", questionRows.nth(0), t, comparer);
+      await takeElementScreenshot("question-descriptionLocation-underTitle.png", questionRows.nth(1), t, comparer);
+      await takeElementScreenshot("question-description-empty.png", questionRows.nth(2), t, comparer);
+      await takeElementScreenshot("question-description-empty.png", questionRows.nth(4), t, comparer);
+      await takeElementScreenshot("question-descriptionLocation-underInput.png", questionRows.nth(3), t, comparer);
     });
   });
 });

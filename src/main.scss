@@ -59,6 +59,7 @@ body {
 }
 
 .sv_main {
+  --sv-mobile-width: 600px;
   background-color: var(--body-container-background-color, $body-container-background-color);
 
   hr {
@@ -112,6 +113,7 @@ body {
     span {
       word-break: unset;
     }
+
     opacity: 0.5;
   }
 
@@ -121,8 +123,10 @@ body {
     span {
       word-break: unset;
     }
+
     opacity: 0.5;
   }
+
   .sv_q_dropdown_control__input-field-component {
     height: auto;
   }
@@ -328,51 +332,52 @@ body {
     }
   }
 
-.sv_q_rating__item-star>svg {
-  &.sv-star-2 {
-    display: none;
+  .sv_q_rating__item-star>svg {
+    &.sv-star-2 {
+      display: none;
+    }
+
+    height: 32px;
+    width: 32px;
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid transparent;
+
+    &:hover {
+      border: 1px solid var(--main-hover-color, $main-hover-color);
+    }
+
+    fill: var(--text-color, $text-color);
   }
 
-  height: 32px;
-  width: 32px;
-  display: inline-block;
-  vertical-align: middle;
-  border: 1px solid transparent;
-
-  &:hover {
-    border: 1px solid var(--main-hover-color, $main-hover-color);
+  .sv_q_rating__item-star--selected>svg {
+    fill: var(--main-color, $main-color);
   }
 
-  fill: var(--text-color, $text-color);
-}
+  .sv_q_rating__item-smiley>svg {
+    height: 24px;
+    width: 24px;
+    padding: 4px;
+    display: inline-block;
+    vertical-align: middle;
+    border: 1px solid var(--border-color, $border-color);
 
-.sv_q_rating__item-star--selected>svg {
-  fill: var(--main-color, $main-color);
-}
+    &>use {
+      display: block;
+    }
 
-.sv_q_rating__item-smiley>svg {
-  height: 24px;
-  width: 24px;
-  padding: 4px;
-  display: inline-block;
-  vertical-align: middle;
-  border: 1px solid var(--border-color, $border-color);
+    &:hover {
+      border: 1px solid var(--main-hover-color, $main-hover-color);
+    }
 
-  &>use {
-    display: block;
+    fill: var(--text-color, $text-color);
   }
 
-  &:hover {
-    border: 1px solid var(--main-hover-color, $main-hover-color);
+  .sv_q_rating__item-smiley--selected>svg {
+    background-color: var(--main-hover-color, $main-hover-color);
+    fill: var(--body-background-color, $body-background-color);
   }
 
-  fill: var(--text-color, $text-color);
-}
-
-.sv_q_rating__item-smiley--selected>svg {
-  background-color: var(--main-hover-color, $main-hover-color);
-  fill: var(--body-background-color, $body-background-color);
-}
   .sv_q_imgsel.checked label>div {
     background-color: var(--main-color, $main-color);
   }

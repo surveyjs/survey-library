@@ -202,6 +202,8 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
+      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === true)
+      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === false)
       .toString();
   }
 

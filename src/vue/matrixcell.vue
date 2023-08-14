@@ -6,6 +6,10 @@
     :style="getCellStyle()"
     :colspan="cell.colSpans"
   >
+    <survey-errors
+      v-if="cell.isErrorsCell"
+      :element="cell.question"
+    />
     <sv-action-bar
       v-if="cell.isActionsCell"
       :model="cell.item.getData()"
@@ -18,7 +22,6 @@
       :css="question.cssClasses"
     ></component>
     <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
-      <survey-errors v-if="cell.showErrorOnTop" :element="cell.question" :location="'top'" />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
@@ -52,16 +55,6 @@
       <survey-other-choice
         v-if="cell.isOtherChoice"
         :question="cell.question"
-      />
-      <survey-errors
-        v-if="cell.showErrorOnBottom"
-        :element="cell.question"
-        :location="'bottom'"
-      />
-      <survey-errors
-        v-if="cell.question.isErrorsModeTooltip"
-        :element="cell.question"
-        :location="'tooltip'"
       />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />

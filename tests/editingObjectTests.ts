@@ -405,9 +405,9 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
   assert.equal(rows[2].id, row0Id, "row0 is not re-created, #1");
   assert.strictEqual(matrix.renderedTable, table, "rendered table is not recreated, #1");
   table = matrix.renderedTable;
-  assert.equal(table.rows[0].cells[1].question.value, "col2", "renderedTable:Row0Cell0, #1");
-  assert.equal(table.rows[1].cells[1].question.value, "col3", "renderedTable:Row1Cell0, #1");
-  assert.equal(table.rows[2].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #1");
+  assert.equal(table.rows[1].cells[1].question.value, "col2", "renderedTable:Row0Cell0, #1");
+  assert.equal(table.rows[3].cells[1].question.value, "col3", "renderedTable:Row1Cell0, #1");
+  assert.equal(table.rows[5].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #1");
 
   matrix.moveRowByIndex(1, 0);
   assert.equal(matrix.value.length, 3);
@@ -420,9 +420,9 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
   assert.equal(rows[2].id, row0Id, "row0 is not re-created, #2");
   assert.strictEqual(matrix.renderedTable, table, "rendered table is not recreated, #2");
   table = matrix.renderedTable;
-  assert.equal(table.rows[0].cells[1].question.value, "col3", "renderedTable:Row0Cell0, #2");
-  assert.equal(table.rows[1].cells[1].question.value, "col2", "renderedTable:Row1Cell0, #2");
-  assert.equal(table.rows[2].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #2");
+  assert.equal(table.rows[1].cells[1].question.value, "col3", "renderedTable:Row0Cell0, #2");
+  assert.equal(table.rows[3].cells[1].question.value, "col2", "renderedTable:Row1Cell0, #2");
+  assert.equal(table.rows[5].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #2");
   assert.equal(cellCreatedCallbackCounter, 0, "new cell is not created");
 });
 QUnit.test(
@@ -782,11 +782,11 @@ QUnit.test("Edit choices in matrix + detailPanel + addChoice", function (assert)
   assert.equal(rows.length, 2, "There are 2 rows");
   rows[1].showDetailPanel();
   const table = matrix.renderedTable;
-  assert.equal(table.rows.length, 3, "There are 2 rows in rendred table");
-  assert.equal(table.rows[0].row.id, rows[0].id, "row0.id is correct");
-  assert.equal(table.rows[1].row.id, rows[1].id, "row1.id is correct");
-  assert.equal(table.rows[2].isDetailRow, true, "The last row is detail row");
-  assert.equal(table.rows[2].row.id, rows[1].id, "ros1.id in detail row");
+  assert.equal(table.rows.length, 5, "There are 2 rows in rendred table");
+  assert.equal(table.rows[1].row.id, rows[0].id, "row0.id is correct");
+  assert.equal(table.rows[3].row.id, rows[1].id, "row1.id is correct");
+  assert.equal(table.rows[4].isDetailRow, true, "The last row is detail row");
+  assert.equal(table.rows[4].row.id, rows[1].id, "ros1.id in detail row");
 });
 QUnit.test("Edit custom choices in matrix with custom property", function (
   assert

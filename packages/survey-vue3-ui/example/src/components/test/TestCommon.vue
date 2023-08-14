@@ -12,8 +12,8 @@ const isPopup = shallowRef();
 </script>
 <template>
 <div id="surveyElement">
-    <SurveyRoot v-if="survey && !isPopup" :survey="survey"></SurveyRoot>
-    <popup-survey v-if="survey && isPopup" :survey="survey"></popup-survey>
+    <SurveyComponent v-if="survey && !isPopup" :survey="survey"></SurveyComponent>
+    <PopupSurveyComponent v-if="survey && isPopup" :survey="survey"></PopupSurveyComponent>
 </div>
 <div id="surveyResultElement"></div>
 </template>

@@ -128,6 +128,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set confirmDelete(val: boolean) {
     this.setPropertyValue("confirmDelete", val);
   }
+  public get isValueArray(): boolean { return true; }
   /**
    * Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.
    * @see keyDuplicationError
@@ -171,6 +172,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if (!Array.isArray(val)) val = [];
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
+  }
+  protected isNewValueCorrect(val: any): boolean {
+    return Array.isArray(val);
   }
   protected setDefaultValue() {
     if (

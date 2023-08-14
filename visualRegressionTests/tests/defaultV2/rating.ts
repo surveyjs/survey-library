@@ -33,6 +33,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -64,6 +66,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -89,6 +93,8 @@ frameworks.forEach(framework => {
             title: "Rating",
             displayMode: "buttons",
             rateMax: 30,
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -114,6 +120,8 @@ frameworks.forEach(framework => {
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
             renderAs: "dropdown",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -148,6 +156,8 @@ frameworks.forEach(framework => {
                 "text": "third item"
               }
             ],
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -246,6 +256,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -283,6 +295,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -315,6 +329,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -341,6 +357,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -378,6 +396,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -416,6 +436,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -438,6 +460,49 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check rating smileys scale colored question themes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            scaleColorMode: "colored",
+            defaultValue: "1",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px"
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        const themeJson = {
+          "cssVariables": {
+            "--sjs-special-red": "orange",
+            "--sjs-special-yellow": "magenta",
+            "--sjs-special-green": "blue"
+          },
+          "isPanelless": false
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-scale-colored-theme", questionRoot, t, comparer);
+    });
+  });
+
   test("Check rating smileys disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -453,6 +518,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -481,6 +548,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             isRequired: true
           },
@@ -493,6 +562,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             isRequired: true
           }

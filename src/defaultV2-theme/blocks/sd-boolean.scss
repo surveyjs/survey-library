@@ -37,6 +37,14 @@
   border-radius: calcSize(12.5);
 }
 
+.sd-boolean.sd-boolean--checked .sd-boolean__label--true,
+.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false {
+  color: transparent;
+  transition-duration: 0.15s;
+  transition-property: color;
+  transition-timing-function: linear;
+}
+
 .sd-boolean.sd-boolean--indeterminate .sd-boolean__switch {
   display: none;
 }

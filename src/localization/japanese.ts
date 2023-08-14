@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var japaneseSurveyStrings = {
@@ -13,22 +11,23 @@ export var japaneseSurveyStrings = {
   noneItemText: "なし",
   selectAllItemText: "すべて選択",
   progressText: "{0}/{1}頁",
-  // indexText: "{0} of {1}",
+  indexText: "{1}の{0}",
   panelDynamicProgressText: "{1}の{0}を記録する",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "{0}/{1}の質問に回答しました。",
   emptySurvey: "この調査に表示できるページや質問はありません",
   completingSurvey: "調査を完了してくれてありがとうございました",
   completingSurveyBefore: "当社の記録によると、この調査はすでに完了しています。",
   loadingSurvey: "調査をダウンロード中",
   placeholder: "選択",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "選ぶ。。。",
   value: "値打ち",
   requiredError: "質問にお答え下さい",
   requiredErrorInPanel: "最低でも1つの質問に答えてください。",
   requiredInAllRowsError: "質問には全列で回答してください。",
   numericError: "数字でご記入下さい",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "値は {0} 値より小さくすることはできません",
+  maxError: "値は {0} を超えてはなりません。",
   textMinLength: "{0} 文字以上で入力して下さい",
   textMaxLength: "{0}文字以下で入力してください。",
   textMinMaxLength: "{0}以上{1}未満の文字を入力してください。",
@@ -48,19 +47,19 @@ export var japaneseSurveyStrings = {
   loadingFile: "読み込み中",
   chooseFile: "ファイルを選択",
   noFileChosen: "選択されたファイルはありません",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。",
   confirmDelete: "レコードを削除しますか？",
   keyDuplicationError: "この値は一意でなければなりません。",
   addColumn: "列の追加",
   addRow: "追加行",
   removeRow: "除去",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "行はありません。",
   addPanel: "新規追加",
   removePanel: "除去",
   choices_Item: "品目",
   matrix_column: "コラム",
   matrix_row: "行",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "テキスト",
   savingData: "結果はサーバーに保存されています...。",
   savingDataError: "エラーが発生し、結果を保存できませんでした。",
   savingDataSuccess: "結果は無事に保存されました",
@@ -74,7 +73,7 @@ export var japaneseSurveyStrings = {
   timerLimitPage: "このページで{1}の{0}を使ったことがあります。",
   timerLimitSurvey: "合計で{1}の{0}を使ったことがあります。",
   clearCaption: "空白",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "ここに署名",
   chooseFileCaption: "ファイルを選択",
   removeFileCaption: "このファイルを削除",
   booleanCheckedLabel: "噫",
@@ -82,13 +81,39 @@ export var japaneseSurveyStrings = {
   confirmRemoveFile: "このファイルを削除してもよろしいですか？{0}?",
   confirmRemoveAllFiles: "すべてのファイルを削除してもよろしいですか？",
   questionTitlePatternText: "質問名",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "キャンセル",
+  modalApplyButtonText: "申し込む",
+  filterStringPlaceholder: "検索するタイプ...",
+  emptyMessage: "表示するデータがありません",
+  noEntriesText: "エントリはまだありません。\n下のボタンをクリックして、新しいエントリを追加します。",
+  noEntriesReadonlyText: "エントリはありません。",
+  more: "もっとその",
+  tagboxDoneButtonCaption: "わかりました",
+  selectToRankEmptyRankedAreaText: "すべての選択肢がランク付けされます",
+  selectToRankEmptyUnrankedAreaText: "ここに選択肢をドラッグアンドドロップしてランク付けします"
 };
 
 surveyLocalization.locales["ja"] = japaneseSurveyStrings;
 surveyLocalization.localeNames["ja"] = "日本語";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{1}の{0}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "選ぶ。。。"
+// minError: "The value should not be less than {0}" => "値は {0} 値より小さくすることはできません"
+// maxError: "The value should not be greater than {0}" => "値は {0} を超えてはなりません。"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。"
+// emptyRowsText: "There are no rows." => "行はありません。"
+// multipletext_itemname: "text" => "テキスト"
+// signaturePlaceHolder: "Sign here" => "ここに署名"
+// modalCancelButtonText: "Cancel" => "キャンセル"
+// modalApplyButtonText: "Apply" => "申し込む"
+// filterStringPlaceholder: "Type to search..." => "検索するタイプ..."
+// emptyMessage: "No data to display" => "表示するデータがありません"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "エントリはまだありません。\n下のボタンをクリックして、新しいエントリを追加します。"
+// noEntriesReadonlyText: "There are no entries." => "エントリはありません。"
+// more: "More" => "もっとその"
+// tagboxDoneButtonCaption: "OK" => "わかりました"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "すべての選択肢がランク付けされます"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ここに選択肢をドラッグアンドドロップしてランク付けします"

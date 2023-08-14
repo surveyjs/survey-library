@@ -1,5 +1,3 @@
-// This dictionary contains 15 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var teluguStrings = {
@@ -10,25 +8,26 @@ export var teluguStrings = {
   editText: "మార్పులు చెయ్యి",
   startSurveyText: "ప్రారంభించు",
   otherItemText: "ఇతరమైన(వివరించండి)",
-  // noneItemText: "None",
+  noneItemText: "ఎవరు కాదు",
   selectAllItemText: "అన్ని ఎంచుకో",
   progressText: "పేజీ{0}/{1}",
-  // indexText: "{0} of {1}",
+  indexText: "{1} {0}[మార్చు]",
   panelDynamicProgressText: "దాఖలాలు{0}/{1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "{0}/{1} ప్రశ్నలకు జవాబు ఇవ్వడం అయినది",
   emptySurvey: "ఈ సర్వేలో పేజీలు గాని ప్రశ్నలు గాని కనబడుట లేదు",
   completingSurvey: "సర్వేను ముగించి నందుకు ధన్యవాదములు",
   completingSurveyBefore: " మీరు ఇప్పటికే సర్వేను ముగించినట్లు మా రికార్డులు చూపిస్తున్నాయి",
   loadingSurvey: "సర్వే లోడ్ అవుతుంది",
   placeholder: "ఎన్నుకోండి",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "ఎంచు...",
   value: "విలువ",
   requiredError: "దయచేసి ప్రశ్నకు జవాబు ఇవ్వండి",
   requiredErrorInPanel: "దయచేసి కనీసం ఒక్క ప్రశ్నకైనా జవాబు ఇవ్వండి",
   requiredInAllRowsError: "దయచేసి అన్ని వరుసలలో ఉన్న ప్రశ్నలకు జవాబు ఇవ్వండి",
   numericError: "విలువను సంఖ్యలలో తెలియజేయండి",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "విలువ {0} కంటే తక్కువగా ఉండకూడదు.",
+  maxError: "విలువ {0} కంటే ఎక్కువ ఉండకూడదు.",
   textMinLength: "దయచేసి కనీసం {0} అక్షరాలను నమోదు చేయండి",
   textMaxLength: "దయచేసి {0} కన్నా తక్కువ అక్షరాలను నమోదు చేయండి",
   textMinMaxLength: "దయచేసి {0} కన్నా ఎక్కువ మరియు{1} కన్నా తక్కువ అక్షరాలను నమోదు చేయండి",
@@ -48,19 +47,19 @@ export var teluguStrings = {
   loadingFile: "లోడ్ అవుతున్నది",
   chooseFile: "ఫైళ్లను ఎన్నుకోండి",
   noFileChosen: "ఏ ఫైల్ ఎన్నుకో లేదు",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి.",
   confirmDelete: "మీరు రికార్డులను తొలగించాలని అనుకుంటున్నారా",
   keyDuplicationError: "విలువ ప్రత్యేకంగా ఉండాలి",
   addColumn: "కాలం చేర్పించండి",
   addRow: "వరుసలు చేర్పించండి",
   removeRow: "తీసేయండి",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "వరుసలు లేవు.",
   addPanel: "కొత్త దాన్ని చేర్పించండి",
   removePanel: "తీసేయండి",
   choices_Item: "వస్తువులు",
   matrix_column: "కాలం ",
   matrix_row: "వరుస",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "వచనం",
   savingData: "ఫలితాంశాలు సర్వర్లో సేవ్ అవుతున్నాయి",
   savingDataError: "ఒక లోపము సంభవించినది అందుకని ఫలితాంశాలను సేవ్ చేయలేకపోయాము  ",
   savingDataSuccess: "ఫలితాంశాలను విజయవంతంగా సేవ్ చేసాము",
@@ -74,7 +73,7 @@ export var teluguStrings = {
   timerLimitPage: "ఈ పేజీలో మీరు {1}లోని{0} ని ఉపయోగించారు",
   timerLimitSurvey: " మొత్తంగా మీరు {1} లో {0} ని ఉపయోగించారు ",
   clearCaption: "స్పష్టమ్",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "ఇక్కడ సంతకం చేయండి",
   chooseFileCaption: "ఫైల్ ఎంచుకోండి",
   removeFileCaption: "ఈ ఫైల్ తీసేయండి",
   booleanCheckedLabel: "అవును",
@@ -82,13 +81,40 @@ export var teluguStrings = {
   confirmRemoveFile: " ఈ ఫైల్ని తీయించాలని మీరు ఖచ్చితంగా అనుకుంటున్నారా:{0} ?",
   confirmRemoveAllFiles: "అన్ని ఫైళ్లను తీసేయాలని మీరు ఖచ్చితంగా అనుకుంటున్నారా",
   questionTitlePatternText: "ప్రశ్న శీర్షిక",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "రద్దు",
+  modalApplyButtonText: "సరిపడు",
+  filterStringPlaceholder: "శోధించడానికి టైప్ చేయండి...",
+  emptyMessage: "డిస్ ప్లే చేయడానికి డేటా లేదు",
+  noEntriesText: "ఇంకా ఎలాంటి ఎంట్రీలు లేవు.\nకొత్త ఎంట్రీని జోడించడం కొరకు దిగువ బటన్ మీద క్లిక్ చేయండి.",
+  noEntriesReadonlyText: "ఎలాంటి ఎంట్రీలు లేవు.",
+  more: "ఎక్కువ",
+  tagboxDoneButtonCaption: "సరే",
+  selectToRankEmptyRankedAreaText: "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి",
+  selectToRankEmptyUnrankedAreaText: "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"
 };
 
 surveyLocalization.locales["tel"] = teluguStrings;
 surveyLocalization.localeNames["tel"] = "Telugu";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// noneItemText: "None" => "ఎవరు కాదు"
+// indexText: "{0} of {1}" => "{1} {0}[మార్చు]"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "ఎంచు..."
+// minError: "The value should not be less than {0}" => "విలువ {0} కంటే తక్కువగా ఉండకూడదు."
+// maxError: "The value should not be greater than {0}" => "విలువ {0} కంటే ఎక్కువ ఉండకూడదు."
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి."
+// emptyRowsText: "There are no rows." => "వరుసలు లేవు."
+// multipletext_itemname: "text" => "వచనం"
+// signaturePlaceHolder: "Sign here" => "ఇక్కడ సంతకం చేయండి"
+// modalCancelButtonText: "Cancel" => "రద్దు"
+// modalApplyButtonText: "Apply" => "సరిపడు"
+// filterStringPlaceholder: "Type to search..." => "శోధించడానికి టైప్ చేయండి..."
+// emptyMessage: "No data to display" => "డిస్ ప్లే చేయడానికి డేటా లేదు"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "ఇంకా ఎలాంటి ఎంట్రీలు లేవు.\nకొత్త ఎంట్రీని జోడించడం కొరకు దిగువ బటన్ మీద క్లిక్ చేయండి."
+// noEntriesReadonlyText: "There are no entries." => "ఎలాంటి ఎంట్రీలు లేవు."
+// more: "More" => "ఎక్కువ"
+// tagboxDoneButtonCaption: "OK" => "సరే"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"

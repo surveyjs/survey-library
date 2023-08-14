@@ -94,7 +94,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     let dropTargetRenderedRow;
 
     dropTargetRenderedRow = matrix.renderedTable.rows.filter(
-      (renderedRow: any) => renderedRow.row.id === dataAttributeValue
+      (renderedRow: any) => renderedRow.row && renderedRow.row.id === dataAttributeValue
     )[0];
 
     return dropTargetRenderedRow.row;
@@ -136,7 +136,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     renderedRows.splice(draggedElementIndex, 1);
     renderedRows.splice(dropTargetIndex, 0, draggedRenderedRow);
-    this.toIndex = dropTargetIndex;
+    this.toIndex = this.parentElement.visibleRows.indexOf(this.dropTarget);
 
     // const matrix = this.parentElement;
     // const fromIndex = matrix.visibleRows.indexOf(this.draggedElement);

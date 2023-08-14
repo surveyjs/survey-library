@@ -19,6 +19,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
+import { ConsoleWarnings } from "./console-warnings";
 
 export interface IConditionObject {
   name: string;
@@ -77,6 +78,7 @@ export class Question extends SurveyElement<Question>
   private locProcessedTitle: LocalizableString;
   protected isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
+  private dependedQuestions: Array<Question> = [];
 
   /**
    * An event that is raised when the question's ready state has changed (expressions are evaluated, choices are loaded from a web resource specified by the `choicesByUrl` property, etc.).
@@ -259,10 +261,32 @@ export class Question extends SurveyElement<Question>
     return null;
   }
   public delete(): void {
+    this.removeFromParent();
+    this.dispose();
+  }
+  protected removeFromParent(): void {
     if (!!this.parent) {
       this.removeSelfFromList(this.parent.elements);
     }
   }
+  protected addDependedQuestion(question: Question): void {
+    if (!question || this.dependedQuestions.indexOf(question) > -1) return;
+    this.dependedQuestions.push(question);
+  }
+  protected removeDependedQuestion(question: Question): void {
+    if (!question) return;
+    var index = this.dependedQuestions.indexOf(question);
+    if (index > -1) {
+      this.dependedQuestions.splice(index, 1);
+    }
+  }
+  protected updateDependedQuestions(): void {
+    for (var i = 0; i < this.dependedQuestions.length; i++) {
+      this.dependedQuestions[i].updateDependedQuestion();
+    }
+  }
+  protected updateDependedQuestion(): void {}
+  protected resetDependedQuestion(): void {}
   public get isFlowLayout(): boolean {
     return this.getLayoutType() === "flow";
   }
@@ -449,7 +473,7 @@ export class Question extends SurveyElement<Question>
   }
   public set parent(val: IPanel) {
     if (this.parent === val) return;
-    this.delete();
+    this.removeFromParent();
     this.setPropertyValue("parent", val);
     this.updateQuestionCss();
     this.onParentChanged();
@@ -585,10 +609,10 @@ export class Question extends SurveyElement<Question>
     this.updateQuestionCss();
   }
   get hasDescriptionUnderTitle(): boolean {
-    return this.getDescriptionLocation() == "underTitle";
+    return this.getDescriptionLocation() == "underTitle" && this.hasDescription;
   }
   get hasDescriptionUnderInput(): boolean {
-    return this.getDescriptionLocation() == "underInput";
+    return this.getDescriptionLocation() == "underInput" && this.hasDescription;
   }
   private getDescriptionLocation() {
     if (this.descriptionLocation !== "default") return this.descriptionLocation;
@@ -1259,6 +1283,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("comment", val);
     this.fireCallback(this.commentChangedCallback);
   }
+  public get isValueArray(): boolean { return false; }
   /**
    * Gets or sets the question value.
    * @see SurveyModel.setValue
@@ -1384,7 +1409,7 @@ export class Question extends SurveyElement<Question>
       if (res) return res;
     }
     value = value == undefined ? this.createValueCopy() : value;
-    if (this.isValueEmpty(value)) return this.getDisplayValueEmpty();
+    if (this.isValueEmpty(value, !this.allowSpaceAsAnswer)) return this.getDisplayValueEmpty();
     return this.getDisplayValueCore(keysAsText, value);
   }
   protected getDisplayValueCore(keyAsText: boolean, value: any): any {
@@ -1573,7 +1598,7 @@ export class Question extends SurveyElement<Question>
     return this.defaultValue;
   }
   protected isDefaultValueEmpty(): boolean {
-    return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue);
+    return !this.defaultValueExpression && this.isValueEmpty(this.defaultValue, !this.allowSpaceAsAnswer);
   }
   protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
     if (!runner && !!expression) {
@@ -1685,7 +1710,7 @@ export class Question extends SurveyElement<Question>
    * Returns `true` if the question value is an empty string, array, or object or if it equals `undefined` or `null`.
    */
   public isEmpty(): boolean {
-    return this.isValueEmpty(this.value);
+    return this.isValueEmpty(this.value, !this.allowSpaceAsAnswer);
   }
   public get isAnswered(): boolean {
     return this.getPropertyValue("isAnswered");
@@ -1859,7 +1884,7 @@ export class Question extends SurveyElement<Question>
     return this.survey ? this.survey.validateQuestion(this) : null;
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
-    if (!isOnValueChanged && this.hasRequiredError()) {
+    if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
@@ -1901,20 +1926,30 @@ export class Question extends SurveyElement<Question>
       this.onCompletedAsyncValidators = null;
     }
   }
+  public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;
+  private isOldAnswered: boolean;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
-    var oldAnswered = this.isAnswered;
+    if(!this.isValueEmpty(newValue, !this.allowSpaceAsAnswer) && !this.isNewValueCorrect(newValue)) {
+      ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
+      return;
+    }
+    this.isOldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
-    if (this.isAnswered != oldAnswered) {
+    if (this.isAnswered !== this.isOldAnswered) {
       this.updateQuestionCss();
     }
+    this.isOldAnswered = undefined;
+  }
+  protected isNewValueCorrect(val: any): boolean {
+    return true;
   }
   protected isNewValueEqualsToValue(newValue: any): boolean {
     const val = this.value;
-    if(!this.isTwoValueEquals(newValue, val)) return false;
+    if(!this.isTwoValueEquals(newValue, val, false, false)) return false;
     const isObj = newValue === val && !!val && (Array.isArray(val) || typeof val === "object");
     return !isObj;
   }
@@ -1924,6 +1959,7 @@ export class Question extends SurveyElement<Question>
   public get isSurveyInputTextUpdate(): boolean {
     return !!this.survey ? this.survey.isUpdateValueTextOnTyping : false;
   }
+  get requireStrictCompare(): boolean { return false; }
   private getDataLocNotification(): any {
     return this.isInputTextUpdate ? "text" : false;
   }
@@ -2221,8 +2257,11 @@ export class Question extends SurveyElement<Question>
       this.renderAs = this.getDesktopRenderAs();
     }
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
+    for (var i = 0; i < this.dependedQuestions.length; i++) {
+      this.dependedQuestions[i].resetDependedQuestion();
+    }
     this.destroyResizeObserver();
   }
 }

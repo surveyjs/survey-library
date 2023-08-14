@@ -10,6 +10,8 @@ import { QuestionSelectBase } from "../src/question_baseselect";
 import { DragDropCore } from "../src/dragdrop/core";
 import { DragDropDOMAdapter } from "../src/dragdrop/dom-adapter";
 import { QuestionRankingModel } from "../src/question_ranking";
+import { DragDropMatrixRows } from "../src/dragdrop/matrix-rows";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("DragDropHelper Tests");
 
@@ -302,3 +304,65 @@ QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
   assert.equal(questionModel.rankingChoices.length, 2, "rankingChoices count");
 });
 // EO selectToRankEnabled
+
+QUnit.test("rows: check matrixdynamic d&d", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        allowRowsDragAndDrop: true,
+        name: "q",
+        columns: ["Col1"],
+        rowCount: 3,
+        choices: ["item1", "item2", "item3"],
+      },
+    ]
+  });
+  const question: QuestionMatrixDynamicModel = <QuestionMatrixDynamicModel>(
+    survey.getQuestionByName("q")
+  );
+
+  const ddHelper = new DragDropMatrixRows(survey);
+
+  let draggedRow = question.visibleRows[1];
+  let dropRow = question.visibleRows[2];
+
+  ddHelper["parentElement"] = question;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+  assert.equal(ddHelper["fromIndex"], 1);
+  assert.ok(question.renderedTable.rows[3].isGhostRow);
+
+  ddHelper.dropTarget = dropRow;
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 2);
+  assert.strictEqual(question.renderedTable.rows[4].row, dropRow);
+  assert.ok(question.renderedTable.rows[5].isGhostRow);
+  assert.strictEqual(question.renderedTable.rows[5].row, draggedRow);
+
+  ddHelper["doDrop"]();
+  ddHelper.clear();
+  assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
+  assert.strictEqual(question.renderedTable.rows[5].row, question.visibleRows[2]);
+
+  draggedRow = question.visibleRows[2];
+  dropRow = question.visibleRows[0];
+
+  ddHelper["parentElement"] = question;
+  ddHelper.draggedElement = draggedRow;
+  ddHelper["createDraggedElementShortcut"]("", <any>undefined, <any>undefined);
+  assert.equal(ddHelper["fromIndex"], 2);
+  assert.ok(question.renderedTable.rows[5].isGhostRow);
+
+  ddHelper.dropTarget = dropRow;
+  ddHelper["afterDragOver"](<any>undefined);
+  assert.equal(ddHelper["toIndex"], 0);
+  assert.strictEqual(question.renderedTable.rows[2].row, dropRow);
+  assert.ok(question.renderedTable.rows[1].isGhostRow);
+  assert.strictEqual(question.renderedTable.rows[1].row, draggedRow);
+
+  ddHelper["doDrop"]();
+  ddHelper.clear();
+  assert.strictEqual(question.renderedTable.rows[1].row, question.visibleRows[0]);
+  assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
+});

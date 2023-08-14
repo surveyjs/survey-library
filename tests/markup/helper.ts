@@ -122,7 +122,9 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
     }
     if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
       q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
-        row.row.idValue = `${q.id}row${rowIndex}`;
+        if(row.row) {
+          row.row.idValue = `${q.id}row${rowIndex}`;
+        }
         row.cells.forEach((cell: any, cellIndex: number) => {
           if(cell.hasQuestion) {
             cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;

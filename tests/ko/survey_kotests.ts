@@ -2061,7 +2061,7 @@ QUnit.test(
       "column text"
     );
     assert.equal(
-      matrix.renderedTable.rows[0].cells[0].locTitle["koRenderedHtml"](),
+      matrix.renderedTable.rows[1].cells[0].locTitle["koRenderedHtml"](),
       "Row:value1",
       "row text"
     );
@@ -2072,7 +2072,7 @@ QUnit.test(
       "column text, #2"
     );
     assert.equal(
-      matrix.renderedTable.rows[0].cells[0].locTitle["koRenderedHtml"](),
+      matrix.renderedTable.rows[1].cells[0].locTitle["koRenderedHtml"](),
       "Row:val2",
       "row text, #2"
     );

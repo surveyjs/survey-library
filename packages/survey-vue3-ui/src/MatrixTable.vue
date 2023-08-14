@@ -30,19 +30,23 @@
         </tr>
       </thead>
       <tbody>
-        <tr
+        <template
           v-for="row in table.rows"
-          :data-sv-drop-target-matrix-row="row.row && row.row.id"
-          :class="row.className"
           :key="question.inputId + '_' + row.id"
         >
-          <survey-matrixcell
-            :cell="cell"
-            :question="question"
-            v-for="(cell, cellIndex) in row.cells"
-            :key="row.id + '_' + cellIndex"
-          />
-        </tr>
+          <tr
+            :data-sv-drop-target-matrix-row="row.row && row.row.id"
+            :class="row.className"
+            v-if="row.visible"
+          >
+            <survey-matrixcell
+              :cell="cell"
+              :question="question"
+              v-for="(cell, cellIndex) in row.cells"
+              :key="row.id + '_' + cellIndex"
+            />
+          </tr>
+        </template>
       </tbody>
       <tfoot v-if="table.showFooter">
         <tr>

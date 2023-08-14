@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var icelandicSurveyStrings = {
@@ -13,22 +11,23 @@ export var icelandicSurveyStrings = {
   noneItemText: "Enginn",
   selectAllItemText: "Velja allt",
   progressText: "Síða {0} of {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} af {1}",
   panelDynamicProgressText: "Taka upp {0} af {1}",
+  panelDynamicTabTextFormat: "Pallborð {panelIndex}",
   questionsProgressText: "Svarað {0} / {1} spurningum",
   emptySurvey: "Það er enginn síða eða spurningar í þessari könnun.",
   completingSurvey: "Takk fyrir að fyllja út þessa könnun!",
   completingSurveyBefore: "Skrár okkar sýna að þú hefur þegar lokið þessari könnun.",
   loadingSurvey: "Könnunin er að hlaða...",
   placeholder: "Veldu...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Velja...",
   value: "gildi",
   requiredError: "Vinsamlegast svarið spurningunni.",
   requiredErrorInPanel: "Vinsamlegast svaraðu að minnsta kosti einni spurningu.",
   requiredInAllRowsError: "Vinsamlegast svarið spurningum í öllum röðum.",
   numericError: "Þetta gildi verður að vera tala.",
-  // minError: "The value should not be less than {0}",
-  // maxError: "The value should not be greater than {0}",
+  minError: "Gildið má ekki vera lægra en {0}",
+  maxError: "Gildið má ekki vera hærra en {0}",
   textMinLength: "Það ætti að vera minnst {0} tákn.",
   textMaxLength: "Það ætti að vera mest {0} tákn.",
   textMinMaxLength: "Það ætti að vera fleiri en {0} og færri en {1} tákn.",
@@ -48,19 +47,19 @@ export var icelandicSurveyStrings = {
   loadingFile: "Hleður ...",
   chooseFile: "Veldu skrár ...",
   noFileChosen: "Engin skrá valin",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  fileDragAreaPlaceholder: "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp.",
   confirmDelete: "Viltu eyða skránni?",
   keyDuplicationError: "Þetta gildi ætti að vera einstakt.",
   addColumn: "Bæta við dálki",
   addRow: "Bæta við röð",
   removeRow: "Fjarlægja",
-  // emptyRowsText: "There are no rows.",
+  emptyRowsText: "Það eru engar raðir.",
   addPanel: "Bæta við nýju",
   removePanel: "Fjarlægðu",
   choices_Item: "hlutur",
   matrix_column: "Dálkur",
   matrix_row: "Röð",
-  // multipletext_itemname: "text",
+  multipletext_itemname: "Texti",
   savingData: "Niðurstöðurnar eru að spara á netþjóninum ... ",
   savingDataError: "Villa kom upp og við gátum ekki vistað niðurstöðurnar.",
   savingDataSuccess: "Árangurinn var vistaður með góðum árangri!",
@@ -74,7 +73,7 @@ export var icelandicSurveyStrings = {
   timerLimitPage: "Þú hefur eytt {0} af {1} á þessari síðu.",
   timerLimitSurvey: "Þú hefur eytt {0} af {1} samtals.",
   clearCaption: "Hreinsa",
-  // signaturePlaceHolder: "Sign here",
+  signaturePlaceHolder: "Kvittađu hér",
   chooseFileCaption: "Veldu skrá",
   removeFileCaption: "Fjarlægðu þessa skrá",
   booleanCheckedLabel: "Já",
@@ -82,13 +81,39 @@ export var icelandicSurveyStrings = {
   confirmRemoveFile: "Ertu viss um að þú viljir fjarlægja þessa skrá: {0}?",
   confirmRemoveAllFiles: "Ertu viss um að þú viljir fjarlægja allar skrár?",
   questionTitlePatternText: "Spurningartitill",
-  // modalCancelButtonText: "Cancel",
-  // modalApplyButtonText: "Apply",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  modalCancelButtonText: "Afturkalla",
+  modalApplyButtonText: "Nota",
+  filterStringPlaceholder: "Sláðu inn til að leita...",
+  emptyMessage: "Engin gögn til að birta",
+  noEntriesText: "Það eru engar færslur ennþá.\nSmelltu á hnappinn hér að neðan til að bæta við nýrri færslu.",
+  noEntriesReadonlyText: "Það eru engar færslur.",
+  more: "Fleiri",
+  tagboxDoneButtonCaption: "ÓKEI",
+  selectToRankEmptyRankedAreaText: "Öllum valkostum er raðað",
+  selectToRankEmptyUnrankedAreaText: "Dragðu og slepptu valkostum hér til að raða þeim"
 };
 
 surveyLocalization.locales["is"] = icelandicSurveyStrings;
 surveyLocalization.localeNames["is"] = "íslenska";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} af {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Pallborð {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Velja..."
+// minError: "The value should not be less than {0}" => "Gildið má ekki vera lægra en {0}"
+// maxError: "The value should not be greater than {0}" => "Gildið má ekki vera hærra en {0}"
+// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp."
+// emptyRowsText: "There are no rows." => "Það eru engar raðir."
+// multipletext_itemname: "text" => "Texti"
+// signaturePlaceHolder: "Sign here" => "Kvittađu hér"
+// modalCancelButtonText: "Cancel" => "Afturkalla"
+// modalApplyButtonText: "Apply" => "Nota"
+// filterStringPlaceholder: "Type to search..." => "Sláðu inn til að leita..."
+// emptyMessage: "No data to display" => "Engin gögn til að birta"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Það eru engar færslur ennþá.\nSmelltu á hnappinn hér að neðan til að bæta við nýrri færslu."
+// noEntriesReadonlyText: "There are no entries." => "Það eru engar færslur."
+// more: "More" => "Fleiri"
+// tagboxDoneButtonCaption: "OK" => "ÓKEI"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Öllum valkostum er raðað"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dragðu og slepptu valkostum hér til að raða þeim"

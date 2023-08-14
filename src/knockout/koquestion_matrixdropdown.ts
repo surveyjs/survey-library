@@ -12,7 +12,6 @@ import { QuestionFactory } from "survey-core";
 import { Question } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
-
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   private _tableImplementor: ImplementorBase;
   koRecalc: any;
@@ -146,6 +145,11 @@ export class KoQuestionMatrixDropdownRenderedTable extends QuestionMatrixDropdow
     const renderedRow = new QuestionMatrixDropdownRenderedRow(cssClasses, isDetailRow);
     new ImplementorBase(renderedRow);
     return renderedRow;
+  }
+  protected createErrorRenderedRow(cssClasses: any) {
+    const res = super.createErrorRenderedRow(cssClasses);
+    new ImplementorBase(res);
+    return res;
   }
 }
 

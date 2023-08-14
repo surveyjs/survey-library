@@ -144,7 +144,9 @@ const updateInputDomElement = () => {
   if (inputElement.value) {
     const control: any = inputElement.value;
     const newValue = model.value.inputStringRendered;
-    if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+    if (
+      !Helpers.isTwoValueEquals(newValue, control.value, false, true, false)
+    ) {
       control.value = model.value.inputStringRendered;
     }
   }

@@ -39,6 +39,59 @@ registerMarkupTests(
       before: () => StylesManager.applyTheme("defaultV2"),
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdynamic-show-in-multiple-columns"
+    },
+    {
+      name: "Test matrixdropdown errors top",
+      json: {
+        elements: [
+          {
+            titleLocation: "hidden",
+            type: "matrixdropdown",
+            name: "matrix",
+            rows: ["row1"],
+            columns: [
+              {
+                cellType: "text",
+                isRequired: true,
+                "name": "col1",
+              },
+            ]
+          },
+        ],
+      },
+      before: () => StylesManager.applyTheme("defaultV2"),
+      initSurvey(survey) {
+        survey.completeLastPage();
+      },
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrixdropdown-cell-errors-top"
+    },
+    {
+      name: "Test matrixdropdown errors top",
+      json: {
+        questionErrorLocation: "bottom",
+        elements: [
+          {
+            titleLocation: "hidden",
+            type: "matrixdropdown",
+            name: "matrix",
+            rows: ["row1"],
+            columns: [
+              {
+                cellType: "text",
+                isRequired: true,
+                "name": "col1",
+              },
+            ]
+          },
+        ],
+      },
+      before: () => StylesManager.applyTheme("defaultV2"),
+      initSurvey(survey) {
+        survey.completeLastPage();
+      },
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrixdropdown-cell-errors-bottom"
     }
   ]
 );

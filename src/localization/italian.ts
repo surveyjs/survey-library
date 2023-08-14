@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var italianSurveyStrings = {
@@ -15,6 +13,7 @@ export var italianSurveyStrings = {
   progressText: "Pagina {0} di {1}",
   indexText: "{0} da {1}",
   panelDynamicProgressText: "Record di {0} di {1}",
+  panelDynamicTabTextFormat: "Pannello {panelIndex}",
   questionsProgressText: "Risposte a {0}/{1} domande",
   emptySurvey: "Non ci sono pagine o domande visibili nel questionario.",
   completingSurvey: "Grazie per aver completato il questionario!",
@@ -85,10 +84,24 @@ export var italianSurveyStrings = {
   modalCancelButtonText: "Annulla",
   modalApplyButtonText: "Applicare",
   filterStringPlaceholder: "Digita per cercare...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Nessun dato da visualizzare",
   noEntriesText: "Non ci sono ancora voci.\nFai clic sul pulsante qui sotto per aggiungere una nuova voce.",
-  // more: "More"
+  noEntriesReadonlyText: "Non ci sono voci.",
+  more: "Più",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Tutte le scelte sono classificate",
+  selectToRankEmptyUnrankedAreaText: "Trascina e rilascia le scelte qui per classificarle"
 };
 
 surveyLocalization.locales["it"] = italianSurveyStrings;
 surveyLocalization.localeNames["it"] = "italiano";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Pannello {panelIndex}"
+// emptyMessage: "No data to display" => "Nessun dato da visualizzare"
+// noEntriesReadonlyText: "There are no entries." => "Non ci sono voci."
+// more: "More" => "Più"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tutte le scelte sono classificate"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Trascina e rilascia le scelte qui per classificarle"

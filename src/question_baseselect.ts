@@ -29,7 +29,6 @@ export class QuestionSelectBase extends Question {
   private cachedValueForUrlRequests: any;
   private isChoicesLoaded: boolean;
   private enableOnLoadingChoices: boolean;
-  private dependedQuestions: Array<QuestionSelectBase> = [];
   private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
@@ -57,7 +56,7 @@ export class QuestionSelectBase extends Question {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "showNoneItem"],
+      ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion", "choiceTextsFromQuestion", "showNoneItem"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -93,12 +92,15 @@ export class QuestionSelectBase extends Question {
   public getType(): string {
     return "selectbase";
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
-    for (var i = 0; i < this.dependedQuestions.length; i++) {
-      this.dependedQuestions[i].choicesFromQuestion = "";
+    const q = this.getQuestionWithChoices();
+    if(!!q) {
+      q.removeDependedQuestion(this);
     }
-    this.removeFromDependedQuestion(this.getQuestionWithChoices());
+  }
+  protected resetDependedQuestion(): void {
+    this.choicesFromQuestion = "";
   }
   public get otherId(): string {
     return this.id + "_other";
@@ -116,24 +118,28 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   public get isUsingCarryForward(): boolean {
-    return this.getPropertyValue("isUsingCarrayForward", false);
+    return !!this.carryForwardQuestionType;
   }
-  private setIsUsingCarrayForward(val: boolean): void {
-    this.setPropertyValue("isUsingCarrayForward", val);
+  public get carryForwardQuestionType(): string {
+    return this.getPropertyValue("carryForwardQuestionType");
   }
-  public supportGoNextPageError() {
+  private setCarryForwardQuestionType(selBaseQuestion: boolean, arrayQuestion: boolean): void {
+    const mode = selBaseQuestion ? "select" : (arrayQuestion ? "array" : undefined);
+    this.setPropertyValue("carryForwardQuestionType", mode);
+  }
+  public supportGoNextPageError(): boolean {
     return !this.isOtherSelected || !!this.otherValue;
   }
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     if (this.choicesOrder !== "none") {
       this.updateVisibleChoices();
     }
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     if (!!this.choicesFromUrl) {
       ItemValue.locStrsChanged(this.choicesFromUrl);
@@ -689,23 +695,12 @@ export class QuestionSelectBase extends Question {
     var question = this.getQuestionWithChoices();
     this.isLockVisibleChoices = !!question && question.name === val;
     if (!!question && question.name !== val) {
-      question.removeFromDependedQuestion(this);
+      question.removeDependedQuestion(this);
     }
     this.setPropertyValue("choicesFromQuestion", val);
     this.isLockVisibleChoices = false;
   }
   private isLockVisibleChoices: boolean;
-  private addIntoDependedQuestion(question: QuestionSelectBase) {
-    if (!question || question.dependedQuestions.indexOf(this) > -1) return;
-    question.dependedQuestions.push(this);
-  }
-  private removeFromDependedQuestion(question: QuestionSelectBase) {
-    if (!question) return;
-    var index = question.dependedQuestions.indexOf(this);
-    if (index > -1) {
-      question.dependedQuestions.splice(index, 1);
-    }
-  }
   /**
    * Specifies which choice items to inherit from another question. Applies only when the `choicesFromQuestion` property is specified.
    *
@@ -724,6 +719,18 @@ export class QuestionSelectBase extends Question {
   }
   public set choicesFromQuestionMode(val: string) {
     this.setPropertyValue("choicesFromQuestionMode", val);
+  }
+  public get choiceValuesFromQuestion(): string {
+    return this.getPropertyValue("choiceValuesFromQuestion");
+  }
+  public set choiceValuesFromQuestion(val: string) {
+    this.setPropertyValue("choiceValuesFromQuestion", val);
+  }
+  public get choiceTextsFromQuestion(): string {
+    return this.getPropertyValue("choiceTextsFromQuestion");
+  }
+  public set choiceTextsFromQuestion(val: string) {
+    this.setPropertyValue("choiceTextsFromQuestion", val);
   }
   /**
    * Specifies whether to hide the question if no choice items are visible.
@@ -1012,29 +1019,66 @@ export class QuestionSelectBase extends Question {
       : this.activeChoices;
   }
   protected get activeChoices(): Array<ItemValue> {
-    const question = this.getQuestionWithChoices();
-    this.setIsUsingCarrayForward(!!question);
-    if (this.isUsingCarryForward) {
-      this.addIntoDependedQuestion(question);
-      return this.getChoicesFromQuestion(question);
+    const question = this.findCarryForwardQuestion();
+    const selBaseQuestion = this.getQuestionWithChoicesCore(question);
+    const arrayQuestion = !selBaseQuestion ? this.getQuestionWithArrayValue(question) : null;
+    this.setCarryForwardQuestionType(!!selBaseQuestion, !!arrayQuestion);
+    if (this.carryForwardQuestionType === "select") {
+      selBaseQuestion.addDependedQuestion(this);
+      return this.getChoicesFromSelectQuestion(selBaseQuestion);
+    }
+    if (this.carryForwardQuestionType === "array") {
+      (<any>arrayQuestion).addDependedQuestion(this);
+      return this.getChoicesFromArrayQuestion(arrayQuestion);
     }
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   private getQuestionWithChoices(): QuestionSelectBase {
-    if (!this.choicesFromQuestion || !this.data) return null;
-    var res: any = this.data.findQuestionByName(this.choicesFromQuestion);
-    return !!res && !!res.visibleChoices && Array.isArray(res.dependedQuestions) && res !== this ? res : null;
+    return this.getQuestionWithChoicesCore(this.findCarryForwardQuestion());
   }
-  private getChoicesFromQuestion(question: QuestionSelectBase): Array<ItemValue> {
+  private findCarryForwardQuestion(): Question {
+    if (!this.choicesFromQuestion || !this.data) return null;
+    return <Question>this.data.findQuestionByName(this.choicesFromQuestion);
+  }
+  private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
+    if(!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)
+      return <QuestionSelectBase>question;
+    return null;
+  }
+  private getQuestionWithArrayValue(question: Question): Question {
+    return !!question && question.isValueArray ? question : null;
+  }
+  private getChoicesFromArrayQuestion(question: Question): Array<ItemValue> {
     if (this.isDesignMode) return [];
-    var res: Array<ItemValue> = [];
+    const val = question.value;
+    if(!Array.isArray(val)) return [];
+    const res: Array<ItemValue> = [];
+    for(var i = 0; i < val.length; i ++) {
+      const obj = val[i];
+      if(!Helpers.isValueObject(obj)) continue;
+      const key = this.getValueKeyName(obj);
+      if(!!key && !this.isValueEmpty(obj[key])) {
+        const text = !!this.choiceTextsFromQuestion ? obj[this.choiceTextsFromQuestion] : undefined;
+        res.push(this.createItemValue(obj[key], text));
+      }
+    }
+    return res;
+  }
+  private getValueKeyName(obj: any): string {
+    if(this.choiceValuesFromQuestion) return this.choiceValuesFromQuestion;
+    const keys = Object.keys(obj);
+    return keys.length > 0 ? keys[0] : undefined;
+  }
+  private getChoicesFromSelectQuestion(question: QuestionSelectBase): Array<ItemValue> {
+    if (this.isDesignMode) return [];
+    const res: Array<ItemValue> = [];
     var isSelected =
       this.choicesFromQuestionMode == "selected"
         ? true
         : this.choicesFromQuestionMode == "unselected"
           ? false
           : undefined;
-    var choices = question.visibleChoices;
+    const choices = question.visibleChoices;
     for (var i = 0; i < choices.length; i++) {
       if (this.isBuiltInChoice(choices[i], question)) continue;
       if (isSelected === undefined) {
@@ -1339,12 +1383,12 @@ export class QuestionSelectBase extends Question {
     if (this.isLoadingFromJson || this.isUpdatingChoicesDependedQuestions ||
       !this.allowNotifyValueChanged || this.choicesByUrl.isRunning) return;
     this.isUpdatingChoicesDependedQuestions = true;
-    for (var i = 0; i < this.dependedQuestions.length; i++) {
-      const q = this.dependedQuestions[i];
-      q.onVisibleChoicesChanged();
-      q.clearIncorrectValues();
-    }
+    this.updateDependedQuestions();
     this.isUpdatingChoicesDependedQuestions = false;
+  }
+  protected updateDependedQuestion(): void {
+    this.onVisibleChoicesChanged();
+    this.clearIncorrectValues();
   }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
@@ -1738,7 +1782,7 @@ Serializer.addClass(
   "selectbase",
   [
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
-    "choicesFromQuestion:question_selectbase",
+    "choicesFromQuestion:question_carryforward",
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",
       baseValue: function () {
@@ -1755,7 +1799,21 @@ Serializer.addClass(
       choices: ["all", "selected", "unselected"],
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return !!obj.choicesFromQuestion;
+        return obj.carryForwardQuestionType === "select";
+      },
+    },
+    {
+      name: "choiceValuesFromQuestion",
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return obj.carryForwardQuestionType === "array";
+      },
+    },
+    {
+      name: "choiceTextsFromQuestion",
+      dependsOn: "choicesFromQuestion",
+      visibleIf: (obj: any) => {
+        return obj.carryForwardQuestionType === "array";
       },
     },
     {

@@ -36,7 +36,7 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
-import { PageModel } from "../src/page";
+import { ConsoleWarnings } from "../src/console-warnings";
 import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_Questions");
@@ -445,10 +445,11 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
 });
 QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.value, undefined, "the matrix initial value");
-  matrix.value = "col1";
-  assert.equal(matrix.value, "col1", "the matrix value changed correctly");
+  matrix.value = { row1: "col1" };
+  assert.deepEqual(matrix.value, { row1: "col1" }, "the matrix value changed correctly");
 });
 QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
@@ -6989,4 +6990,68 @@ QUnit.test("numeric validator, use custom text, bug#6588", function (assert) {
   assert.equal(q1.errors[0].getText(), "Enter only numbers", "Customer error");
   assert.equal(q2.errors.length, 1, "One error, #2");
   assert.equal(q2.errors[0].getText(), "The value should be numeric.", "Default error");
+});
+QUnit.test("Try to set incorrect values, bug#6629", function (assert) {
+  const oldFunc = ConsoleWarnings.inCorrectQuestionValue;
+  const incorrectCalls: Array<string> = [];
+  ConsoleWarnings.inCorrectQuestionValue = (questionName: string, val: any): void => {
+    incorrectCalls.push(questionName);
+  };
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: [1, 2],
+        rows: [1, 2],
+        defaultValue: "a"
+      },
+      {
+        type: "matrixdropdown",
+        name: "q2",
+        columns: [{ cellType: "text", name: "col1" }],
+        rows: [1, 2],
+        defaultValue: "b"
+      },
+      {
+        type: "matrixdynamic",
+        name: "q3",
+        columns: [{ cellType: "text", name: "col1" }],
+        panelCount: 1,
+        defaultValue: "c"
+      },
+      {
+        type: "paneldynamic",
+        name: "q4",
+        templateElements: [{ type: "text", name: "q4_q1" }],
+        defaultValue: "d"
+      },
+      {
+        type: "multipletext",
+        name: "q5",
+        items: [{ name: "item1" }],
+        defaultValue: "e"
+      },
+      {
+        type: "checkbox",
+        name: "q6",
+        choices: [1, 2],
+        defaultValue: "f"
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = survey.getQuestionByName("q5");
+  const q6 = survey.getQuestionByName("q6");
+  assert.equal(incorrectCalls.length, 5, "Incorrect calls 5 times");
+  assert.deepEqual(incorrectCalls, ["q1", "q2", "q3", "q4", "q5"]);
+  assert.equal(q1.isEmpty(), true, "Can't set 'a' to matrix");
+  assert.equal(q2.isEmpty(), true, "Can't set 'b' to matrixdropdown");
+  assert.equal(q3.isEmpty(), true, "Can't set 'c' to matrixdynamic");
+  assert.equal(q4.isEmpty(), true, "Can't set 'd' to paneldynamic");
+  assert.equal(q5.isEmpty(), true, "Can't set 'e' to multipletext");
+  assert.deepEqual(q6.value, ["f"], "Convert to array");
+  ConsoleWarnings.inCorrectQuestionValue = oldFunc;
 });

@@ -12,6 +12,7 @@ import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { surveyLocalization } from "./surveyStrings";
+import { ConsoleWarnings } from "./console-warnings";
 
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
@@ -504,8 +505,7 @@ export class Base {
       if (!this.isDisposedValue) {
         this.setPropertyValueCoreHandler(propertiesHash, name, val);
       } else {
-        // eslint-disable-next-line no-console
-        console.warn("Attempt to set property '" + name + "' of a disposed object '" + this.getType() + "'");
+        ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
       }
     }
     else propertiesHash[name] = val;

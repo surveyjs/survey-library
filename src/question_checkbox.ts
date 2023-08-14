@@ -169,6 +169,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val) return val;
     return !this.valuePropertyName ? val : val[this.valuePropertyName];
   }
+  public get isValueArray(): boolean { return true; }
   /**
    * Specifies the maximum number of selected choices.
    *

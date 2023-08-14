@@ -58,6 +58,7 @@ export class ProcessValue {
     valueInfo.value = res.value;
     valueInfo.hasValue = res.hasValue;
     valueInfo.path = res.hasValue ? res.path : null;
+    valueInfo.sctrictCompare = res.sctrictCompare;
   }
   private getValueFromPath(path: Array<string | number>, values: any): any {
     if(path.length === 2 && path[0] === surveyBuiltInVarible) {
@@ -80,7 +81,7 @@ export class ProcessValue {
   private getValueCore(text: string, values: any): any {
     const question = this.getQuestionDirectly(text);
     if(question) {
-      return { hasValue: true, value: question.value, path: [text] };
+      return { hasValue: true, value: question.value, path: [text], sctrictCompare: question.requireStrictCompare };
     }
     const res = this.getValueFromValues(text, values);
     if(!!text && !res.hasValue) {

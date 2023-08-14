@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, applyTheme, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, applyTheme, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 
 const title = "Matrixdynamic Screenshot";
 
@@ -30,6 +30,8 @@ frameworks.forEach(framework => {
             emptyRowsText: "There is no records yet.\nClick the button below to add a new record.",
             addRowText: "Add New Record",
             rowCount: 0,
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px"
           }
         ]
@@ -65,6 +67,8 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px"
           },
         ]
@@ -116,8 +120,9 @@ frameworks.forEach(framework => {
             cellType: "comment",
             addRowText: "Add Date +",
             removeRowText: "Remove",
-            width: "800px"
-          }
+            maxWidth: "800px",
+            minWidth: "800px",
+            width: "800px" }
         ]
       });
 
@@ -149,11 +154,14 @@ frameworks.forEach(framework => {
               },
               {
                 "name": "Column 3",
+                "isRequired": true,
                 "title": "What is main strength?"
               },
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
+            maxWidth: "704px",
+            minWidth: "704px",
             width: "704px"
           },
         ]
@@ -161,9 +169,52 @@ frameworks.forEach(framework => {
       const matrixdynamicRoot = Selector(".sd-question");
       await t.click(".sd-navigation__complete-btn");
       await resetFocusToBody();
+      await resetHoverToBody(t);
 
-      await t.hover(".sd-table__question-wrapper", { offsetX: 50, offsetY: 20 });
       await takeElementScreenshot("matrixdynamic-errors-in-cell.png", matrixdynamicRoot, t, comparer);
+    });
+  });
+  test("Check Matrixdynamic errors inside cells bottom", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questionErrorLocation: "bottom",
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "frameworks",
+            title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+            columns: [
+              {
+                "name": "Column 1",
+                "isRequired": true,
+                "title": "Framework"
+              },
+              {
+                "name": "Column 2",
+                "title": "How long do you use it?"
+              },
+              {
+                "name": "Column 3",
+                "isRequired": true,
+                "title": "What is main strength?"
+              },
+            ],
+            addRowText: "Add a New Record",
+            rowCount: 3,
+            maxWidth: "704px",
+            minWidth: "704px",
+            width: "704px"
+          },
+        ]
+      });
+      const matrixdynamicRoot = Selector(".sd-question");
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await resetHoverToBody(t);
+
+      await takeElementScreenshot("matrixdynamic-errors-in-cell-bottom.png", matrixdynamicRoot, t, comparer);
     });
   });
 

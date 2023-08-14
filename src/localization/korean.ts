@@ -1,5 +1,3 @@
-// This dictionary contains 1 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var koreanStrings = {
@@ -15,6 +13,7 @@ export var koreanStrings = {
   progressText: "페이지 {1} / {0}",
   indexText: "{0} / {1}",
   panelDynamicProgressText: "{0} / {1}",
+  panelDynamicTabTextFormat: "패널 {panelIndex}",
   questionsProgressText: "{0} / {1} 개의 질문에 답변함",
   emptySurvey: "설문지에 보여지는 페이지나 질문이 없습니다.",
   completingSurvey: "설문조사를 완료해 주셔서 감사합니다.",
@@ -85,10 +84,23 @@ export var koreanStrings = {
   modalCancelButtonText: "취소",
   modalApplyButtonText: "적용",
   filterStringPlaceholder: "검색 유형...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "표시할 데이터가 없습니다.",
   noEntriesText: "아직 항목이 없습니다.\n새 항목을 추가하려면 아래 버튼을 클릭하세요.",
-  more: "더보기"
+  noEntriesReadonlyText: "항목이 없습니다.",
+  more: "더보기",
+  tagboxDoneButtonCaption: "그래",
+  selectToRankEmptyRankedAreaText: "모든 선택 항목이 순위가 매겨집니다.",
+  selectToRankEmptyUnrankedAreaText: "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."
 };
 
 surveyLocalization.locales["ko"] = koreanStrings;
 surveyLocalization.localeNames["ko"] = "한국어";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "패널 {panelIndex}"
+// emptyMessage: "No data to display" => "표시할 데이터가 없습니다."
+// noEntriesReadonlyText: "There are no entries." => "항목이 없습니다."
+// tagboxDoneButtonCaption: "OK" => "그래"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "모든 선택 항목이 순위가 매겨집니다."
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."

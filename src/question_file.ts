@@ -90,6 +90,11 @@ export class QuestionFileModel extends Question {
   private getFileIndexCaption(): string {
     return this.getLocalizationFormatString("indexText", this.indexToShow + 1, this.previewValue.length);
   }
+  private previewValueChanged() {
+    this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
+    this.fileIndexAction.title = this.getFileIndexCaption();
+    this.containsMultiplyFiles = this.previewValue.length > 1;
+  }
 
   public isPreviewVisible(index: number) {
     return !this.isMobile || index === this.indexToShow;
@@ -383,6 +388,7 @@ export class QuestionFileModel extends Question {
           loaded.forEach((val) => {
             this.previewValue.push(val);
           });
+          this.previewValueChanged();
         }
         this.isReady = true;
         this._previewLoader.dispose();
@@ -390,9 +396,7 @@ export class QuestionFileModel extends Question {
       });
       this._previewLoader.load(newValues);
     }
-    this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
-    this.fileIndexAction.title = this.getFileIndexCaption();
-    this.containsMultiplyFiles = this.previewValue.length > 1;
+    this.previewValueChanged();
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,

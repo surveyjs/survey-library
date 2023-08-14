@@ -24,7 +24,7 @@ As a result, you will create a survey displayed below:
 
 ## Install the `survey-vue-ui` npm Package
 
-The SurveyJS Form Library for Vue consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue-ui`](https://www.npmjs.com/package/survey-vue-ui) (rendering code). Run the following command to install `survey-vue-ui`. The `survey-core` package will be installed automatically because it is listed in `survey-vue-ui` dependencies.
+SurveyJS Form Library for Vue consists of two npm packages: [`survey-core`](https://www.npmjs.com/package/survey-core) (platform-independent code) and [`survey-vue-ui`](https://www.npmjs.com/package/survey-vue-ui) (rendering code). Run the following command to install `survey-vue-ui`. The `survey-core` package will be installed automatically as a dependency.
 
 ```cmd
 npm install survey-vue-ui --save
@@ -33,26 +33,25 @@ npm install survey-vue-ui --save
 
 ## Configure Styles
 
-SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-Open the Vue component in which your survey will be and import a style sheet that implements the required theme.
+To add SurveyJS themes to your application, open the Vue component that will render your survey and import the Form Library style sheet:
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
 
 <script>
-// Default V2 theme
 import 'survey-core/defaultV2.min.css';
-// Modern theme
-// import 'survey-core/modern.min.css';
 </script>
 ```
 
-For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+
+> Previous to v1.9.100, SurveyJS also supplied the Modern theme, which is now obsolete. Please migrate to one of the predefined themes or create a custom theme.
 
 ## Create a Model
 
@@ -60,7 +59,7 @@ A model describes the layout and contents of your survey. The simplest survey mo
 
 Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
-```js
+```html
 const surveyJson = {
   elements: [{
     name: "FirstName",
@@ -76,7 +75,7 @@ const surveyJson = {
 
 To instantiate a model, pass the model schema to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey. 
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -100,7 +99,7 @@ export default {
 <details>
     <summary>View Full Code</summary>  
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -139,7 +138,7 @@ export default {
 
 To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `survey` attribute:
 
-```js
+```html
 <template>
   <Survey :survey="survey" />
 </template>
@@ -171,7 +170,7 @@ If you replicate the code correctly, you should see the following survey:
 <details>
     <summary>View Full Code</summary>  
 
-```js
+```html
 <template>
   <Survey :survey="survey" />
 </template>
@@ -213,7 +212,7 @@ export default {
 
 After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -243,23 +242,30 @@ export default {
 }
 
 function saveSurveyResults(url, json) {
-  const request = new XMLHttpRequest();
-  request.open('POST', url);
-  request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  request.addEventListener('load', () => {
-    // Handle "load"
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+    body: JSON.stringify(json)
+  })
+  .then(response => {
+    if (response.ok) {
+      // Handle success
+    } else {
+      // Handle error
+    }
+  })
+  .catch(error => {
+    // Handle error
   });
-  request.addEventListener('error', () => {
-    // Handle "error"
-  });
-  request.send(JSON.stringify(json));
 }
 </script>
 ```
 
 In this tutorial, the results are simply output in an alert dialog:
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -295,7 +301,7 @@ To view the application, run `npm run serve` in a command line and open [http://
 <details>
     <summary>View Full Code</summary>  
 
-```js
+```html
 <template>
   <Survey :survey="survey" />
 </template>

@@ -43,11 +43,11 @@ npm install survey-angular-ui --save
 
 ## Configure Styles
 
-SurveyJS ships with the Modern and Default V2 UI themes illustrated below.
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-Open the `angular.json` file and reference a style sheet that implements the required theme:
+To add SurveyJS themes to your Angular application, open the `angular.json` file and reference the Form Library style sheet:
 
 ```js
 {
@@ -64,10 +64,7 @@ Open the `angular.json` file and reference a style sheet that implements the req
             // ...
             "styles": [
               "src/styles.css",
-              // Default V2 theme
               "node_modules/survey-core/defaultV2.min.css",
-              // Modern theme
-              // "node_modules/survey-core/modern.min.css"
             ],
             // ...
           }
@@ -78,7 +75,9 @@ Open the `angular.json` file and reference a style sheet that implements the req
 }
 ```
 
-For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+This style sheet applies the Default theme. If you want to apply a different predefined theme or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+
+> Previous to v1.9.100, SurveyJS also supplied the Modern theme, which is now obsolete. Please migrate to one of the predefined themes or create a custom theme.
 
 ## Create a Model
 
@@ -276,16 +275,23 @@ export class AppComponent implements OnInit {
 }
 
 function saveSurveyResults(url, json) {
-  const request = new XMLHttpRequest();
-  request.open('POST', url);
-  request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  request.addEventListener('load', () => {
-    // Handle "load"
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+    body: JSON.stringify(json)
+  })
+  .then(response => {
+    if (response.ok) {
+      // Handle success
+    } else {
+      // Handle error
+    }
+  })
+  .catch(error => {
+    // Handle error
   });
-  request.addEventListener('error', () => {
-    // Handle "error"
-  });
-  request.send(JSON.stringify(json));
 }
 ```
 

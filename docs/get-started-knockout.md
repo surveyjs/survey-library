@@ -23,30 +23,27 @@ As a result, you will create a survey displayed below:
 
 ## Link SurveyJS Resources
 
-The SurveyJS Form Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part includes scripts and style sheets that implement the Modern and Default V2 themes illustrated below:
-
-![Themes in SurveyJS Form Library](images/survey-library-themes.png)
-
-Insert links to the scripts and style sheets within the `<head>` tag on your HTML page _after_ the Knockout link:
+SurveyJS Form Library for Knockout consists of two parts: `survey-core` (platform-independent code) and `survey-knockout-ui` (view models). Each part is distributed as a script, while `survey-core` also includes a style sheet. Insert links to these resources within the `<head>` tag on your HTML page _after_ the Knockout link:
 
 ```html
 <head>
     <!-- ... -->
     <script type="text/javascript" src="https://unpkg.com/knockout/build/output/knockout-latest.js"></script>
 
-    <!-- Default V2 theme -->
-    <link href="https://unpkg.com/survey-knockout/defaultV2.min.css" type="text/css" rel="stylesheet">
-
-    <!-- Modern theme -->
-    <!-- <link href="https://unpkg.com/survey-knockout/modern.min.css" type="text/css" rel="stylesheet"> -->
-
+    <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
     <script type="text/javascript" src="https://unpkg.com/survey-knockout-ui/survey-knockout-ui.min.js"></script>
     <!-- ... -->
 </head>
 ```
 
-For more information about SurveyJS themes, refer to the following help topic: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+The style sheet above applies the Default theme. SurveyJS Form Library is shipped with several more predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
+
+![Themes in SurveyJS Form Library](images/survey-library-themes.png)
+
+If you want to apply a predefined theme different from Default or create a custom theme, refer to the following help topic for detailed instructions: [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles).
+
+> Previous to v1.9.100, SurveyJS also supplied the Modern theme, which is now obsolete. Please migrate to one of the predefined themes or create a custom theme.
 
 ## Create a Model
 
@@ -208,16 +205,23 @@ function surveyComplete (sender) {
 }
 
 function saveSurveyResults(url, json) {
-    const request = new XMLHttpRequest();
-    request.open('POST', url);
-    request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-    request.addEventListener('load', () => {
-        // Handle "load"
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify(json)
+    })
+    .then(response => {
+        if (response.ok) {
+            // Handle success
+        } else {
+            // Handle error
+        }
+    })
+    .catch(error => {
+        // Handle error
     });
-    request.addEventListener('error', () => {
-        // Handle "error"
-    });
-    request.send(JSON.stringify(json));
 }
 
 const survey = new Survey.Model(surveyJson);

@@ -41,6 +41,46 @@ registerMarkupTests(
       snapshot: "matrixdynamic-show-in-multiple-columns"
     },
     {
+      name: "Test matrixdropdown with showInMultipleColumns - mobile",
+      json: {
+        elements: [
+          {
+            titleLocation: "hidden",
+            type: "matrixdropdown",
+            name: "matrix",
+            rows: ["row1"],
+            columns: [
+              {
+                "name": "col1",
+                "cellType": "radiogroup",
+                "showInMultipleColumns": true,
+                "isRequired": true,
+                "choices": [
+                  "Item 1",
+                ]
+              },
+              {
+                "name": "col2",
+                "cellType": "checkbox",
+                "showInMultipleColumns": true,
+                "isRequired": true,
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                ]
+              }
+            ]
+          },
+        ],
+      },
+      before: () => StylesManager.applyTheme("defaultV2"),
+      initSurvey(survey) {
+        survey.setIsMobile(true);
+      },
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrixdynamic-show-in-multiple-columns-mobile"
+    },
+    {
       name: "Test matrixdropdown errors top",
       json: {
         elements: [
@@ -92,7 +132,7 @@ registerMarkupTests(
       },
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdropdown-cell-errors-bottom"
-    }
+    },
   ]
 );
 

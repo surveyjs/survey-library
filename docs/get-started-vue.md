@@ -33,11 +33,11 @@ npm install survey-vue-ui --save
 
 ## Configure Styles
 
-SurveyJS Form Library ships with several predefined themes illustrated below and a flexible theme customization mechanism based upon CSS variables.
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To add SurveyJS themes to your application, open the Vue component in which your survey will be and import the Form Library style sheet:
+To add SurveyJS themes to your application, open the Vue component that will render your survey and import the Form Library style sheet:
 
 ```html
 <template>

@@ -8,11 +8,11 @@ This help topic describes how to add SurveyJS UI themes to your Angular, Vue, Re
 
 ## Add SurveyJS Themes to Your Application
 
-SurveyJS Form Library ships with several predefined UI themes. You can see what they look like and switch between them in [Form Library demos](https://surveyjs.io/form-library/examples/nps-question/).
+SurveyJS Form Library is shipped with several predefined UI themes. You can see what they look like and switch between them in [Form Library demos](https://surveyjs.io/form-library/examples/nps-question/).
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To use a theme, you need to reference a SurveyJS style sheet. Refer to the following sections within Get Started help topics for detailed instructions: 
+To use a theme, you need to reference a SurveyJS style sheet. Refer to the following sections of Get Started help topics for detailed instructions: 
 
 - [Configure Styles in Angular](https://surveyjs.io/form-library/documentation/get-started-angular#configure-styles)
 - [Configure Styles in Vue](https://surveyjs.io/form-library/documentation/get-started-vue#configure-styles)

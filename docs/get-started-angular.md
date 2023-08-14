@@ -43,7 +43,7 @@ npm install survey-angular-ui --save
 
 ## Configure Styles
 
-SurveyJS Form Library ships with several predefined themes illustrated below and a flexible theme customization mechanism based upon CSS variables.
+SurveyJS Form Library is shipped with several predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 

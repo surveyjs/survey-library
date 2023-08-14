@@ -37,7 +37,7 @@ SurveyJS Form Library for Knockout consists of two parts: `survey-core` (platfor
 </head>
 ```
 
-The style sheet above applies the Default theme. SurveyJS Form Library ships with several more predefined themes illustrated below and a flexible theme customization mechanism based upon CSS variables.
+The style sheet above applies the Default theme. SurveyJS Form Library is shipped with several more predefined themes illustrated below and a flexible theme customization mechanism based on CSS variables.
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 

@@ -1884,7 +1884,7 @@ export class Question extends SurveyElement<Question>
     return this.survey ? this.survey.validateQuestion(this) : null;
   }
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
-    if (!isOnValueChanged && this.hasRequiredError()) {
+    if ((!isOnValueChanged || this.isOldAnswered) && this.hasRequiredError()) {
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
@@ -1928,6 +1928,7 @@ export class Question extends SurveyElement<Question>
   }
   public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;
+  private isOldAnswered: boolean;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
@@ -1935,12 +1936,13 @@ export class Question extends SurveyElement<Question>
       ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
       return;
     }
-    var oldAnswered = this.isAnswered;
+    this.isOldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
-    if (this.isAnswered != oldAnswered) {
+    if (this.isAnswered !== this.isOldAnswered) {
       this.updateQuestionCss();
     }
+    this.isOldAnswered = undefined;
   }
   protected isNewValueCorrect(val: any): boolean {
     return true;

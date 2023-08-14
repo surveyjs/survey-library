@@ -39,7 +39,7 @@ SurveyJS Form Library ships with several predefined themes illustrated below and
 
 To add SurveyJS themes to your application, open the Vue component in which your survey will be and import the Form Library style sheet:
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -59,7 +59,7 @@ A model describes the layout and contents of your survey. The simplest survey mo
 
 Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
-```js
+```html
 const surveyJson = {
   elements: [{
     name: "FirstName",
@@ -75,7 +75,7 @@ const surveyJson = {
 
 To instantiate a model, pass the model schema to the [Model](https://surveyjs.io/Documentation/Library?id=surveymodel) constructor as shown in the code below. The model instance will be later used to render the survey. 
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -99,7 +99,7 @@ export default {
 <details>
     <summary>View Full Code</summary>  
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -138,7 +138,7 @@ export default {
 
 To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `survey` attribute:
 
-```js
+```html
 <template>
   <Survey :survey="survey" />
 </template>
@@ -170,7 +170,7 @@ If you replicate the code correctly, you should see the following survey:
 <details>
     <summary>View Full Code</summary>  
 
-```js
+```html
 <template>
   <Survey :survey="survey" />
 </template>
@@ -212,7 +212,7 @@ export default {
 
 After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -242,23 +242,30 @@ export default {
 }
 
 function saveSurveyResults(url, json) {
-  const request = new XMLHttpRequest();
-  request.open('POST', url);
-  request.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-  request.addEventListener('load', () => {
-    // Handle "load"
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json;charset=UTF-8'
+    },
+    body: JSON.stringify(json)
+  })
+  .then(response => {
+    if (response.ok) {
+      // Handle success
+    } else {
+      // Handle error
+    }
+  })
+  .catch(error => {
+    // Handle error
   });
-  request.addEventListener('error', () => {
-    // Handle "error"
-  });
-  request.send(JSON.stringify(json));
 }
 </script>
 ```
 
 In this tutorial, the results are simply output in an alert dialog:
 
-```js
+```html
 <template>
   <!-- ... -->
 </template>
@@ -294,7 +301,7 @@ To view the application, run `npm run serve` in a command line and open [http://
 <details>
     <summary>View Full Code</summary>  
 
-```js
+```html
 <template>
   <Survey :survey="survey" />
 </template>

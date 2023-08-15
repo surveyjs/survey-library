@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { Question } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -1019,26 +1019,31 @@ export class QuestionSelectBase extends Question {
       : this.activeChoices;
   }
   protected get activeChoices(): Array<ItemValue> {
-    const question = this.findCarryForwardQuestion();
+    const question = this.getCarryForwardQuestion();
+    if (this.carryForwardQuestionType === "select") {
+      (<QuestionSelectBase>question).addDependedQuestion(this);
+      return this.getChoicesFromSelectQuestion((<QuestionSelectBase>question));
+    }
+    if (this.carryForwardQuestionType === "array") {
+      (<any>question).addDependedQuestion(this);
+      return this.getChoicesFromArrayQuestion(question);
+    }
+    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+  }
+  getCarryForwardQuestion(data?: ISurveyData): Question {
+    const question = this.findCarryForwardQuestion(data);
     const selBaseQuestion = this.getQuestionWithChoicesCore(question);
     const arrayQuestion = !selBaseQuestion ? this.getQuestionWithArrayValue(question) : null;
     this.setCarryForwardQuestionType(!!selBaseQuestion, !!arrayQuestion);
-    if (this.carryForwardQuestionType === "select") {
-      selBaseQuestion.addDependedQuestion(this);
-      return this.getChoicesFromSelectQuestion(selBaseQuestion);
-    }
-    if (this.carryForwardQuestionType === "array") {
-      (<any>arrayQuestion).addDependedQuestion(this);
-      return this.getChoicesFromArrayQuestion(arrayQuestion);
-    }
-    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+    return !!selBaseQuestion || !!arrayQuestion ? question : null;
   }
   private getQuestionWithChoices(): QuestionSelectBase {
     return this.getQuestionWithChoicesCore(this.findCarryForwardQuestion());
   }
-  private findCarryForwardQuestion(): Question {
-    if (!this.choicesFromQuestion || !this.data) return null;
-    return <Question>this.data.findQuestionByName(this.choicesFromQuestion);
+  private findCarryForwardQuestion(data?: ISurveyData): Question {
+    if(!data) data = this.data;
+    if (!this.choicesFromQuestion || !data) return null;
+    return <Question>data.findQuestionByName(this.choicesFromQuestion);
   }
   private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
     if(!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)
@@ -1778,6 +1783,16 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     keys.push("choices");
   }
 }
+
+function checkCopyPropVisibility(obj: any, mode: string): boolean {
+  if(!obj) return false;
+  if(!!obj.templateQuestion) {
+    const data = obj.colOwner?.data;
+    obj = obj.templateQuestion;
+    if(!obj.getCarryForwardQuestion(data)) return false;
+  }
+  return obj.carryForwardQuestionType === mode;
+}
 Serializer.addClass(
   "selectbase",
   [
@@ -1799,21 +1814,21 @@ Serializer.addClass(
       choices: ["all", "selected", "unselected"],
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return obj.carryForwardQuestionType === "select";
+        return checkCopyPropVisibility(obj, "select");
       },
     },
     {
       name: "choiceValuesFromQuestion",
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return obj.carryForwardQuestionType === "array";
+        return checkCopyPropVisibility(obj, "array");
       },
     },
     {
       name: "choiceTextsFromQuestion",
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return obj.carryForwardQuestionType === "array";
+        return checkCopyPropVisibility(obj, "array");
       },
     },
     {

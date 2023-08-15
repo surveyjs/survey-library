@@ -116,8 +116,6 @@
 }
 
 .sd-dropdown__filter-string-input::placeholder {
-  font-family: var(--font-family, $font-family);
-  font-size: calcFontSize(1);
   color: $foreground;
   width: 100%;
   max-width: 100%;
@@ -125,7 +123,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   display: inline-block;
-  line-height: calcLineHeight(1.5);
   appearance: none;
 }
 

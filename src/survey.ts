@@ -1127,17 +1127,6 @@ export class SurveyModel extends SurveyElementCore
   private lazyRenderingValue: boolean;
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
-  private dropdownPopupsFitContentValue: boolean = false;
-  public get dropdownPopupsFitContent(): boolean {
-    return this.dropdownPopupsFitContentValue;
-  }
-  public set dropdownPopupsFitContent(value: boolean) {
-    this.getAllQuestions().forEach(q => {
-      if (q instanceof QuestionDropdownModel) {
-        q.dropdownListModel.popupModel.fitContent = value;
-      }
-    });
-  }
   /**
    * By default all rows are rendered no matters if they are visible or not.
    * Set it true, and survey markup rows will be rendered only if they are visible in viewport.

@@ -91,7 +91,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         pos.top = newVerticalDimensions.top;
       }
 
-      if(this.model.fitContent) {
+      if (!this.model.setWidthByTarget) {
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,
           width,

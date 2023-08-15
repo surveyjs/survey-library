@@ -47,8 +47,6 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
   @property({ defaultValue: "flex" }) positionMode: PositionMode;
 
-  public fitContent: boolean = true;
-
   public onVisibilityChanged: EventBase<PopupModel> = this.addEvent<PopupModel>();
   public onFooterActionsCreated: EventBase<Base> = this.addEvent<Base>();
   public onRecalculatePosition: EventBase<Base> = this.addEvent<Base>();

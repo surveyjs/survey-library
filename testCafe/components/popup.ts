@@ -116,35 +116,6 @@ frameworks.forEach(async framework => {
     await t.expect(popupSelector.exists).notOk();
   });
 
-  test("check popup width", async t => {
-    await initSurvey(framework,
-      {
-        "elements": [
-          {
-            "width": "200px",
-            "type": "dropdown",
-            "name": "car",
-            "title": "Which is the brand of your car?",
-            "isRequired": true,
-            "showNoneItem": true,
-            "showOtherItem": true,
-            "choices": ["Ford Ford Ford Ford Ford Ford Ford Ford Ford", "Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall", "Volkswagen   Volkswagen Volkswagen Volkswagen Volkswagen Volkswagen"]
-          },
-          {
-            "type": "dropdown",
-            "name": "car",
-            "title": "Which is the brand of your car?",
-            "isRequired": true,
-            "showNoneItem": true,
-            "showOtherItem": true,
-            "choices": ["Ford Ford Ford Ford Ford Ford Ford Ford Ford", "Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall Vauxhall", "Volkswagen   Volkswagen Volkswagen Volkswagen Volkswagen Volkswagen"]
-          }
-        ],
-        "showQuestionNumbers": false
-      });
-
-  });
-
   test("check showPointer popup position", async t => {
     await initSurvey(framework, json, { onGetQuestionTitleActions: addDropdownTitleAction });
     await ClientFunction(selector => {

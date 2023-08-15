@@ -131,6 +131,7 @@ body {
   }
 }
 
+.sv-popup.sv-popup--dropdown.sv-single-select-list,
 .sv-popup.sv-popup--dropdown {
   .sv-popup__shadow {
     box-shadow: $shadow-medium;
@@ -139,6 +140,7 @@ body {
   .sv-popup__body-content {
     background-color: $background;
     padding: calcSize(1) 0;
+    height: 100%;
   }
 }
 

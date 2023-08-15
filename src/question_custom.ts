@@ -39,9 +39,9 @@ export interface ICustomQuestionTypeConfiguration {
    */
   title?: string;
   /**
-   * An icon for the custom question type.
+   * An icon name for the custom question type.
    */
-  icon?: string;
+  iconName?: string;
   /**
    * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types#override-base-question-properties)).
    */

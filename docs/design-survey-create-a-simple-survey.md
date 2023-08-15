@@ -206,7 +206,7 @@ export class AppComponent implements OnInit {
 </details>
 
 <details>
-    <summary>Vue</summary> 
+    <summary>Vue 2</summary> 
 
 ```js
 <template>
@@ -239,6 +239,29 @@ export default {
   }
 }
 </script>
+```
+</details>
+
+<details>
+    <summary>Vue 3</summary> 
+
+```html
+<script setup lang="ts">
+import { Model } from 'survey-core';
+
+const surveyJson = {
+  // ...
+};
+const survey = new Model(surveyJson);
+</script>
+
+<template>
+  <!-- Render the survey inside the page -->
+  <SurveyComponent :model="survey" />
+
+  <!-- Render the survey in a pop-up window -->
+  <PopupSurveyComponent :model="survey" :isExpanded="true" />
+</template>
 ```
 </details>
 

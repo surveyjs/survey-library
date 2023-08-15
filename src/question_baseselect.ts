@@ -680,11 +680,11 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choices", newValue);
   }
   /**
-   * Inherits choice items from a specified question. Accepts a question name.
+   * Copies choice items from a specified question. Accepts a question name.
    *
-   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties do not apply because their values are inherited.
+   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties do not apply because their values are copied.
    *
-   * In addition, you can specify the `choicesFromQuestionMode` property if you do not want to inherit all choice items.
+   * In addition, you can specify the `choicesFromQuestionMode` property if you do not want to copy all choice items.
    * @see choicesFromQuestionMode
    * @see choices
    */
@@ -702,15 +702,15 @@ export class QuestionSelectBase extends Question {
   }
   private isLockVisibleChoices: boolean;
   /**
-   * Specifies which choice items to inherit from another question. Applies only when the `choicesFromQuestion` property is specified.
+   * Specifies which choice items to copy from another question. Applies only when the `choicesFromQuestion` property is specified.
    *
    * Possible values:
    *
-   * - `"all"` (default) - Inherits all choice items.
-   * - `"selected"` - Inherits only selected choice items.
-   * - `"unselected"` - Inherits only unselected choice items.
+   * - `"all"` (default) - Copies all choice items.
+   * - `"selected"` - Copies only selected choice items.
+   * - `"unselected"` - Copies only unselected choice items.
    *
-   * Use the `visibleChoices` property to access inherited choice items.
+   * Use the `visibleChoices` property to access copied choice items.
    * @see choicesFromQuestion
    * @see visibleChoices
    */
@@ -720,12 +720,22 @@ export class QuestionSelectBase extends Question {
   public set choicesFromQuestionMode(val: string) {
     this.setPropertyValue("choicesFromQuestionMode", val);
   }
+  /**
+   * Specifies which matrix column or dynamic panel question supplies choice values. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
+   *
+   * Each choice item consists of a value saved in survey results and a text displayed in the UI. To construct a choice item, assign the `name` of a Dynamic Matrix or Dynamic Panel to the [`choicesFromQuestion`](#choicesFromQuestion) property and specify which dynamic panel question or matrix column supplies values and which provides texts. Use the `choiceValuesFromQuestion` and [`choiceTextsFromQuestion`](#choiceTextsFromQuestion) properties for this purpose. If a choice text is empty, a choice value is used as a display text and saved in survey results.
+   */
   public get choiceValuesFromQuestion(): string {
     return this.getPropertyValue("choiceValuesFromQuestion");
   }
   public set choiceValuesFromQuestion(val: string) {
     this.setPropertyValue("choiceValuesFromQuestion", val);
   }
+  /**
+   * Specifies which matrix column or dynamic panel question supplies choice texts. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
+   *
+   * Each choice item consists of a value saved in survey results and a text displayed in the UI. To construct a choice item, assign the `name` of a Dynamic Matrix or Dynamic Panel to the [`choicesFromQuestion`](#choicesFromQuestion) property and specify which dynamic panel question or matrix column supplies values and which provides texts. Use the [`choiceValuesFromQuestion`](#choiceValuesFromQuestion) and `choiceTextsFromQuestion` properties for this purpose. If a choice text is empty, a choice value is used as a display text and saved in survey results.
+   */
   public get choiceTextsFromQuestion(): string {
     return this.getPropertyValue("choiceTextsFromQuestion");
   }

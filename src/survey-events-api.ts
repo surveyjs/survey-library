@@ -372,23 +372,23 @@ export interface ProcessHtmlEvent {
 }
 export interface GetQuestionTitleEvent extends QuestionEventMixin {
   /**
-   * a calculated question title, based on question `title`, `name`
+   * A question title taken from the question's `title` or `name` property. You can change this parameter's value.
    */
   title: string;
 }
 export interface GetTitleTagNameEvent {
   /**
-   * an element title tagName that are used to render a title. You can change it from the default value
-   */
-  tagName: string;
-  /**
-   * an element (question, panel, page and survey) that SurveyJS is going to render
+   * A survey element (question, panel, page, or the survey itself) for which the event is raised.
    */
   element: Base;
+  /**
+   * A heading used to render the title (`"h1"`-`"h6"`). You can change this parameter's value.
+   */
+  tagName: string;
 }
 export interface GetQuestionNoEvent extends QuestionEventMixin {
   /**
-   * a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it
+   * A question number that is calculated based upon the question's [`visibleIndex`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIndex) and survey's [`questionStartIndex`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionStartIndex) properties. You can change this parameter's value.
    */
   no: string;
 }

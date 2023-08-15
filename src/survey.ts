@@ -178,7 +178,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle)).
+   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle))
    */
   public onPartialSend: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
@@ -369,26 +369,37 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionDisplayValue: EventBase<SurveyModel, GetQuestionDisplayValueEvent> = this.addEvent<SurveyModel, GetQuestionDisplayValueEvent>();
   /**
-   * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
-   * @see showQuestionNumbers
+   * An event that is raised before the survey displays a question title. Handle this event to modify question titles.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * If you want to modify question numbers, handle the [`onGetQuestionNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNo) event.
    * @see requiredText
    */
   public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>();
   /**
-   * Use this event to change the element title tag name that renders by default.
-   * @see showQuestionNumbers
-   * @see requiredText
+   * An event that is raised when the survey calculates heading levels (`<h1>`, `<h2>`, etc.) for a survey, page, panel, and question title. Handle this event to change the heading level of individual titles.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * If you want to specify heading levels for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
+   * @see onGetQuestionTitle
+   * @see onGetQuestionNo
    */
   public onGetTitleTagName: EventBase<SurveyModel, GetTitleTagNameEvent> = this.addEvent<SurveyModel, GetTitleTagNameEvent>();
   /**
-   * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
-   * @see showQuestionNumbers
+   * An event that is raised before the survey calculates a question number. Handle this event to modify question numbers.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * If you want to hide question numbers, disable the [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property.
+   * @see onGetQuestionTitle
    * @see questionStartIndex
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNoEvent> = this.addEvent<SurveyModel, GetQuestionNoEvent>();
   /**
    * Use this event to change the progress text in code.
-   *  @see progressBarType
+   * @see progressBarType
    */
   public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.addEvent<SurveyModel, ProgressTextEvent>();
   /**
@@ -2409,15 +2420,17 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
   }
   /**
-   * Gets or sets a value that specifies how the question numbers are displayed.
+   * Specifies whether to display question numbers and how to calculate them.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `on` - display question numbers
-   * - `onpage` - display question numbers, start numbering on every page
-   * - `off` - turn off the numbering for questions titles
+   * - `true` or `"on"` - Displays question numbers.
+   * - `"onpage"` - Displays question numbers and starts numbering on each page from scratch.
+   * - `false` or `"off"` - Hides question numbers.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
+   *
+   * If you want to hide the number of an individual question, enable its [`hideNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#hideNumber) property.
    */
   public get showQuestionNumbers(): string | boolean {
     return this.getPropertyValue("showQuestionNumbers");

@@ -91,17 +91,22 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         pos.top = newVerticalDimensions.top;
       }
 
-      const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
-        pos.left,
-        width,
-        window.innerWidth,
-        actualHorizontalPosition,
-        this.model.positionMode,
-        { left: marginLeft, right: marginRight }
-      );
-      if (!!newHorizontalDimensions) {
-        this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
-        pos.left = newHorizontalDimensions.left;
+      if (this.model.setWidthByTarget) {
+        this.width = targetElementRect.width + "px";
+        pos.left = targetElementRect.left;
+      } else {
+        const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
+          pos.left,
+          width,
+          window.innerWidth,
+          actualHorizontalPosition,
+          this.model.positionMode,
+          { left: marginLeft, right: marginRight }
+        );
+        if (!!newHorizontalDimensions) {
+          this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
+          pos.left = newHorizontalDimensions.left;
+        }
       }
     }
     if(!!fixedPopupContainer) {

@@ -100,7 +100,7 @@ export class QuestionMatrixDropdownRenderedCell {
       if(!!this.cell.column.cellHint) {
         return this.cell.column.locCellHint.renderedHtml;
       }
-      if(this.cell.column.isShowInMultipleColumns) {
+      if (this.matrix.IsMultiplyColumn(this.cell.column)) {
         if(!!this.item) {
           return this.item.locText.renderedHtml;
         } else {
@@ -404,7 +404,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       for (var i = 0; i < this.matrix.visibleColumns.length; i++) {
         var column = this.matrix.visibleColumns[i];
         if (!column.hasVisibleCell) continue;
-        if (column.isShowInMultipleColumns) {
+        if (this.matrix.IsMultiplyColumn(column)) {
           this.createMutlipleColumnsHeader(column);
         } else {
           this.headerRow.cells.push(this.createHeaderCell(column));
@@ -446,7 +446,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < cells.length; i++) {
       var cell = cells[i];
       if (!cell.column.hasVisibleCell) continue;
-      if (cell.column.isShowInMultipleColumns) {
+      if (this.matrix.IsMultiplyColumn(cell.column)) {
         this.createMutlipleColumnsFooter(this.footerRow, cell);
       } else {
         var editCell = this.createEditCell(cell);
@@ -639,7 +639,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       if(!cell.hasQuestion) {
         res.cells.push(this.createEmptyCell());
       }
-      else if(cell.cell.column.isShowInMultipleColumns) {
+      else if (this.matrix.IsMultiplyColumn(cell.cell.column)) {
         if(cell.isFirstChoice) {
           res.cells.push(this.createErrorCell(cell.cell));
         } else {
@@ -679,9 +679,12 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < row.cells.length; i++) {
       let cell = row.cells[i];
       if (!cell.column.hasVisibleCell) continue;
-      if (cell.column.isShowInMultipleColumns) {
+      if (this.matrix.IsMultiplyColumn(cell.column)) {
         this.createMutlipleEditCells(res, cell);
       } else {
+        if (cell.column.isShowInMultipleColumns) {
+          cell.question.visibleChoices.map((c: ItemValue) => c.hideCaption = false);
+        }
         var renderedCell = this.createEditCell(cell);
         res.cells.push(renderedCell);
         if (useAsHeader) {
@@ -752,7 +755,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (var i = 0; i < columns.length; i++) {
       var col = columns[i];
       if (col.isVisible && col.hasVisibleCell) {
-        if (col.isShowInMultipleColumns) {
+        if (this.matrix.IsMultiplyColumn(col)) {
           this.createMutlipleVerticalRows(renderedRows, col, i);
         } else {
           const renderedRow = this.createVerticalRow(col, i);

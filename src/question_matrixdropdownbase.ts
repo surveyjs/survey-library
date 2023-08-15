@@ -1408,6 +1408,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     newValues["totalRow"] = totalRow;
     return newValues;
   }
+
+  public IsMultiplyColumn(column: MatrixDropdownColumn): boolean {
+    return column.isShowInMultipleColumns && !this.isMobile;
+  }
+
   public locStrsChanged() {
     super.locStrsChanged();
     var columns = this.columns;

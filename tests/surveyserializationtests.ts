@@ -671,3 +671,48 @@ QUnit.test(
     assert.ok(property.isVisible("", page), "navigationTitle visible for buttons nav");
   }
 );
+QUnit.test("choiceValuesFromQuestion properties visibility", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      { name: "q1", type: "dropdown", choices: [1, 2, 3] },
+      { name: "q2", type: "matrixdynamic" },
+      { name: "q3", type: "dropdown", choicesFromQuestion: "q1" },
+      { name: "q4", type: "dropdown", choicesFromQuestion: "q2" },
+      { name: "q5", type: "matrixdropdown",
+        columns: [
+          { name: "col1", cellType: "dropdown", choicesFromQuestion: "q1" },
+          { name: "col2", cellType: "dropdown", choicesFromQuestion: "q2" }
+        ]
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q5");
+  const col1 = q5.columns[0];
+  const col2 = q5.columns[1];
+  const propMode = Serializer.findProperty("dropdown", "choicesFromQuestionMode");
+  const propValues = Serializer.findProperty("dropdown", "choiceValuesFromQuestion");
+  const propTexts = Serializer.findProperty("dropdown", "choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(q1), false, "q1.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(q1), false, "q1.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(q1), false, "q1.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(q3), true, "q3.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(q3), false, "q3.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(q3), false, "q3.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(q4), false, "q4.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(q4), true, "q4.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(q4), true, "q4.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(col1), true, "col1.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(col1), false, "col1.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(col1), false, "col1.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(col2), false, "col2.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(col2), true, "col2.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(col2), true, "col2.choiceTextsFromQuestion");
+});

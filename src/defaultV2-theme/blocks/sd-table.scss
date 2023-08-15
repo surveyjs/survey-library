@@ -1,8 +1,26 @@
 .sd-table {
   width: 100%;
   background: $question-background;
-  border-collapse: collapse;
+  border-collapse: separate;
+    border-spacing: 0;
   white-space: normal;
+  &>thead>tr>th {
+      border-top: 0;
+      border-bottom: calcSize(2) solid transparent;
+    }
+  }
+
+.sd-table__cell {
+  border-top: calcSize(1) solid transparent;
+  border-bottom: calcSize(1) solid transparent;
+  background-clip: padding-box;
+}
+.sd-table__row:first-of-type>.sd-table__cell {
+  border-top: 0;
+}
+
+.sd-table__row:last-of-type>.sd-table__cell {
+  border-bottom: 0;
 }
 
 .sd-table--align-top {
@@ -11,11 +29,15 @@
   }
 }
 
+.sd-table--no-header {
+  padding-top: calcSize(3)
+}
 .sd-table--alternate-rows {
-  margin: 0 8px;
+  margin-left: calcSize(1);
+    margin-right: calcSize(1);
   width: calc(100% - 2 * #{$base-unit});
 
-  .sd-table__cell:first-of-type {
+    .sd-table__cell:not(.sd-table__cell--header):first-of-type {
     padding-left: calcSize(2);
   }
 
@@ -54,12 +76,16 @@
   font-weight: normal;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  padding: calcSize(1);
+  padding: 0 calcSize(1);
   color: $foreground;
   text-align: center;
+  &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
+      min-width: calcSize(14);
+    }
 }
 
 .sd-table__cell--error {
+  border: none;
   padding: 0 calcSize(1);
 
   .sd-question__erbox--outside-question {
@@ -111,7 +137,7 @@
 .sd-table__cell--header {
   font-weight: 600;
   vertical-align: top;
-  padding: calcSize(1.5) calcSize(1) calcSize(2.5);
+  padding: calcSize(1.5) calcSize(1);
 
   &:not(.sd-table__cell--empty) {
     min-width: calcSize(14);
@@ -140,7 +166,9 @@
 }
 
 .sd-table__cell--detail-panel {
-  padding: 0 calcSize(1) calcSize(1);
+  border-top: calcSize(1) solid transparent;
+    padding: calcSize(3) calcSize(1) calcSize(4);
+    border-bottom: calcSize(1) solid transparent;
 }
 
 .sd-table__cell--actions,
@@ -152,6 +180,9 @@
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical) {
   width: 0;
+  &:not(.sd-table__cell--drag):first-of-type {
+      padding-left: 0;
+    }
 }
 
 .sd-table__cell--detail-button {
@@ -189,7 +220,7 @@
   font-weight: 600;
   text-align: left;
   min-width: calcSize(12);
-  padding: calcSize(2.5) calcSize(1);
+  padding: calcSize(1.5) calcSize(1);
 }
 
 .sd-matrixdynamic__content .sd-table__question-wrapper {
@@ -210,7 +241,7 @@
 .sd-matrix__cell:first-of-type,
 .sd-matrix tr>td:first-of-type {
   position: sticky;
-  background: $question-background;
+  background-color: $question-background;
   z-index: 12;
 
   &:first-of-type {
@@ -275,7 +306,7 @@
   }
 
   &>.sd-question__content {
-    padding-top: calcSize(2.5);
+    padding-top: calcSize(2);
     min-width: min-content;
   }
 
@@ -477,4 +508,7 @@
   .sd-boolean-root {
     margin: auto;
   }
+}
+.sd-table.sd-matrixdynamic {
+  table-layout: auto;
 }

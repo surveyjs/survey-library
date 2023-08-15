@@ -65,7 +65,7 @@
       <sv-svg-icon
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
-        size="24"
+        size="auto"
       >
       </sv-svg-icon>
     </div>

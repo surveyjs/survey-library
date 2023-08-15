@@ -161,7 +161,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         <SvgIcon
           className={this.question.cssClasses.chevronButtonSvg}
           iconName={this.question.cssClasses.chevronButtonIconId}
-          size={24}
+          size={"auto"}
         ></SvgIcon>
       </div>
     );

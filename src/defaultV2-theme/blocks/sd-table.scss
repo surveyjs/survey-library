@@ -179,7 +179,7 @@
 }
 
 .sd-table__cell--actions:not(.sd-table__cell--vertical) {
-  width: 0;
+  width: calcSize(1);
   &:not(.sd-table__cell--drag):first-of-type {
       padding-left: 0;
     }

@@ -91,7 +91,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         pos.top = newVerticalDimensions.top;
       }
 
-      if (!this.model.setWidthByTarget) {
+      if (this.model.setWidthByTarget) {
+        this.width = targetElementRect.width + "px";
+        pos.left = targetElementRect.left;
+      } else {
         const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
           pos.left,
           width,
@@ -104,9 +107,6 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
           this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
           pos.left = newHorizontalDimensions.left;
         }
-      } else {
-        this.width = targetElementRect.width + "px";
-        pos.left = targetElementRect.left;
       }
     }
     if(!!fixedPopupContainer) {

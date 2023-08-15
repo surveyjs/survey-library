@@ -55,8 +55,6 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
-import { DropdownListModel } from "./dropdownListModel";
-import { QuestionDropdownModel } from "./question_dropdown";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.

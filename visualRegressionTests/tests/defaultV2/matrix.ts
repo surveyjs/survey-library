@@ -86,6 +86,127 @@ frameworks.forEach(framework => {
     });
   });
 
+  // test("Matrix single-select in panel", async (t) => {
+  //   await wrapVisualTest(t, async (t, comparer) => {
+  //     await t.resizeWindow(1200, 1200);
+  //     await initSurvey(framework, {
+  //       "pages": [
+  //         {
+  //           "name": "page1",
+  //           "elements": [
+  //             {
+  //               "type": "panel",
+  //               "name": "panel1",
+  //               "elements": [
+  //                 {
+  //                   "type": "matrix",
+  //                   "name": "q1",
+  //                   "title": "Question",
+  //                   "alternateRows": true,
+  //                   "columns": [
+  //                     {
+  //                       "value": "Column 1",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 2",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 3",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 4",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 5",
+  //                       "text": "Title"
+  //                     }
+  //                   ],
+  //                   "rows": [
+  //                     {
+  //                       "value": "Row 1",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Row 2",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Row 3",
+  //                       "text": "Title"
+  //                     }
+  //                   ]
+  //                 },
+  //                 {
+  //                   "type": "matrix",
+  //                   "name": "q2",
+  //                   "title": "Question",
+  //                   "alternateRows": true,
+  //                   "columns": [
+  //                     {
+  //                       "value": "Column 1",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 2",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 3",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 4",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Column 5",
+  //                       "text": "Title"
+  //                     }
+  //                   ],
+  //                   "rows": [
+  //                     {
+  //                       "value": "Row 1",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Row 2",
+  //                       "text": "Title"
+  //                     },
+  //                     {
+  //                       "value": "Row 3",
+  //                       "text": "Title"
+  //                     }
+  //                   ]
+  //                 }
+  //               ],
+  //               "title": "Question"
+  //             }
+  //           ]
+  //         }
+  //       ],
+  //       "showQuestionNumbers": "off",
+  //       "widthMode": "static",
+  //       "width": "1136"
+  //     });
+
+  //     const questionRoot = Selector(".sd-row");
+  //     await takeElementScreenshot("question-matrix-single-select-in-panel.png", questionRoot, t, comparer);
+
+  //     await ClientFunction(() => { window["survey"].getAllQuestions().map(q => q.showHeader = false); })();
+  //     await takeElementScreenshot("question-matrix-single-select-in-panel-no-header.png", questionRoot, t, comparer);
+
+  //     await ClientFunction(() => { window["survey"].getAllQuestions().map(q => q.titleLocation = "hidden"); })();
+  //     await takeElementScreenshot("question-matrix-single-select-in-panel-no-header-no-title.png", questionRoot, t, comparer);
+
+  //     await ClientFunction(() => { window["survey"]..getAllQuestions().map(q => q.showHeader = true); })();
+  //     await takeElementScreenshot("question-matrix-single-select-in-panel-no-title.png", questionRoot, t, comparer);
+  //   });
+  // });
+
   test("Matrix multi-select", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);

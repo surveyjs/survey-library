@@ -60,5 +60,5 @@
 }
 
 .sd-panel__content {
-  padding-top: var(--sd-base-vertical-padding);
+  padding-top: calc(1.2 * var(--sd-base-vertical-padding));
 }

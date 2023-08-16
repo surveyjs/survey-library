@@ -161,7 +161,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         <SvgIcon
           className={this.question.cssClasses.chevronButtonSvg}
           iconName={this.question.cssClasses.chevronButtonIconId}
-          size={24}
+          size={"auto"}
         ></SvgIcon>
       </div>
     );
@@ -193,7 +193,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.question.dropdownListModel.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.question.dropdownListModel.inputStringRendered;
       }
     }

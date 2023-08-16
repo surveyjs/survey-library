@@ -810,6 +810,51 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "off",
         width: "1000px",
         pages: [{
+          elements: [
+            {
+              name: "q1",
+              title: "First Name",
+              type: "text"
+            },
+            {
+              name: "q2",
+              title: "Last Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q3",
+              title: "Middle Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q4",
+              title: "Address",
+              type: "comment"
+            }
+          ]
+        }
+        ]
+      };
+      await initSurvey(framework, json);
+      await resetFocusToBody();
+      await ClientFunction(() => {
+        document.body.style.setProperty("--background-dim", "#fff");
+        (<any>window).survey.isCompact = true;
+      })();
+      await takeElementScreenshot("survey-page-without-title-compact.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check survey in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        title: "Lightweight",
+        widthMode: "static",
+        showQuestionNumbers: "off",
+        width: "1000px",
+        pages: [{
           title: "Form Library in Action",
           description: "Form Library is extensible and allows you to change its behavior as your needs require. Take advantage of more than a hundred free demos showing functionality that includes all popular scenarios.",
           elements: [
@@ -858,6 +903,8 @@ frameworks.forEach(framework => {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {

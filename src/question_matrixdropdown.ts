@@ -8,6 +8,7 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
+import { Helpers } from "./helpers";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -119,9 +120,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) res.push(i);
     return res;
   }
-  protected setNewValue(newValue: any): void {
-    if(!!newValue && typeof newValue !== "object") return;
-    super.setNewValue(newValue);
+  protected isNewValueCorrect(val: any): boolean {
+    return Helpers.isValueObject(val);
   }
   public clearIncorrectValues() {
     var val = this.value;

@@ -130,6 +130,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public isAnswerCorrect(): boolean {
     return Helpers.isArraysEqual(this.value, this.correctAnswer, false);
   }
+  get requireStrictCompare(): boolean { return true; }
   onSurveyValueChanged(newValue: any) {
     super.onSurveyValueChanged(newValue);
     if (this.isLoadingFromJson) return;
@@ -142,6 +143,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     // ranking question with only one choice doesn't make sense
     if (this.visibleChoices.length === 1) {
       this.value = [];
+      this.value.push(this.visibleChoices[0].value);
       this.updateRankingChoices();
       return;
     }
@@ -220,10 +222,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     const newRankingChoices: ItemValue[] = [];
 
     // ranking question with only one choice doesn't make sense
-    if (this.visibleChoices.length === 1) {
-      this.setPropertyValue("rankingChoices", newRankingChoices);
-      return;
-    }
+    // if (this.visibleChoices.length === 1) {
+    //   this.setPropertyValue("rankingChoices", newRankingChoices);
+    //   return;
+    // }
 
     if (forceUpdate) this.setPropertyValue("rankingChoices", []);
 
@@ -546,8 +548,6 @@ Serializer.addClass(
     { name: "showSelectAllItem", visible: false, isSerializable: false },
     { name: "selectAllText", visible: false, isSerializable: false },
     { name: "colCount:number", visible: false, isSerializable: false },
-    { name: "maxSelectedChoices", visible: false, isSerializable: false },
-    { name: "minSelectedChoices", visible: false, isSerializable: false },
     { name: "separateSpecialChoices", visible: false, isSerializable: false },
     {
       name: "longTap",
@@ -556,16 +556,40 @@ Serializer.addClass(
       isSerializable: false,
     },
     {
-      name: "selectToRankEnabled",
+      name: "selectToRankEnabled:switch",
       default: false,
-      visible: false,
+      visible: true,
       isSerializable: true,
     },
     {
       name: "selectToRankAreasLayout",
       default: "horizontal",
-      visible: false,
+      choices: ["horizontal", "vertical"],
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+      visible: true,
       isSerializable: true,
+    },
+    {
+      name: "maxSelectedChoices:number",
+      visible: true,
+      default: 0,
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+      isSerializable: true
+    },
+    { name: "minSelectedChoices:number",
+      visible: true,
+      default: 0,
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+      isSerializable: true
     },
     { name: "itemComponent", visible: false, default: "" }
   ],

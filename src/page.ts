@@ -79,12 +79,12 @@ export class PageModel extends PanelModelBase implements IPage {
   public set passed(val: boolean) {
     this.setPropertyValue("passed", val);
   }
-  public delete() {
+  protected removeFromParent(): void {
     if (!!this.survey) {
       this.removeSelfFromList(this.survey.pages);
     }
   }
-  public onFirstRendering() {
+  public onFirstRendering(): void {
     if (this.wasShown) return;
     super.onFirstRendering();
   }

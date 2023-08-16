@@ -11,7 +11,7 @@ const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
 
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
-const questionOffsetTopConst = 184;
+const questionOffsetTopConst = 176;
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
@@ -1304,7 +1304,7 @@ frameworks.forEach((framework) => {
       .pressKey("delete")
       .expect(ratingAsDropdownPlaceholder.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
   });
-  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup width", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup width - long", async (t) => {
     await applyTheme(theme);
     const json = {
       "elements": [
@@ -1339,7 +1339,7 @@ frameworks.forEach((framework) => {
 
       .resizeWindow(1300, 600)
       .click(questionDropdownV2Select)
-      .expect(popupContainer.clientWidth).gte(850);
+      .expect(popupContainer.clientWidth).lte(685);
   });
 
   function choicesLazyLoad(_, opt) {
@@ -1415,7 +1415,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown1.offsetTop).lt(200)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(dropdown1.find(".sv-list").scrollTop).within(560, 570)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(550, 560)
       .expect(dropdown1.find(".sv-list").scrollHeight).within(2400, 2500)
       .expect(listItems.filterVisible().count).eql(51)
 
@@ -1436,7 +1436,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(dropdown2.find(".sv-list").scrollTop).eql(0)
       .expect(dropdown2.find(".sv-list").scrollHeight).within(1350, 1500)
       .expect(listItems.filterVisible().count).eql(31)
@@ -1445,7 +1445,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(dropdown2.find(".sv-list").scrollTop).within(750, 850)
       .expect(dropdown2.find(".sv-list").scrollHeight).within(2600, 2650)
       .expect(listItems.filterVisible().count).eql(55)
@@ -1568,13 +1568,13 @@ frameworks.forEach((framework) => {
       .expect(dropdown2.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown2.offsetTop).within(230, 240)
+      .expect(dropdown2.offsetTop).within(220, 230)
       .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(470, 480)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown2.offsetTop).eql(776)
+      .expect(dropdown2.offsetTop).eql(768)
       .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
@@ -1943,6 +1943,42 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).ok()
 
       .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Dropdown shold not be open when disabled", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "boolean",
+              name: "Editable",
+              defaultValueExpression: "false"
+            },
+            {
+              type: "dropdown",
+              name: "Dropdown",
+              enableIf: "{Editable} = true",
+              choices: ["Item 1", "Item 2", "Item 3"]
+            }
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+
+      .click(questionDropdownV2Select)
+      .expect(popupContainer.visible).notOk()
+
+      .click(Selector(".sd-boolean__label").withText("Yes"))
+      .expect(Selector(".sd-boolean__thumb-text").withText("Yes").visible).ok()
       .expect(popupContainer.visible).notOk();
   });
 });

@@ -23,7 +23,7 @@
 
 .sd-item__control:focus+.sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
-  background: $background;
+  background: $question-background;
   outline: none;
 }
 

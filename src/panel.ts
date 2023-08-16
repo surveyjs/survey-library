@@ -149,7 +149,6 @@ export class QuestionRowModel extends Base {
     var preSetWidthElements = [];
     for (var i = 0; i < this.elements.length; i++) {
       var el = this.elements[i];
-      this.setElementMaxMinWidth(el);
 
       if (el.isVisible) {
         (<any>el).isSingleInRow = isSingleInRow;
@@ -180,16 +179,6 @@ export class QuestionRowModel extends Base {
           visCount
         );
       }
-    }
-  }
-  public setElementMaxMinWidth(el: IElement): void {
-    if (
-      el.width &&
-      typeof el.width === "string" &&
-      el.width.indexOf("%") === -1
-    ) {
-      el.minWidth = el.width;
-      el.maxWidth = el.width;
     }
   }
 
@@ -323,6 +312,11 @@ export class PanelModelBase extends SurveyElement<Question>
       (this.showTitle && this.isDesignMode && settings.designMode.showEmptyTitles)
     );
   }
+  public delete(): void {
+    this.removeFromParent();
+    this.dispose();
+  }
+  protected removeFromParent(): void {}
   protected canShowTitle(): boolean { return true; }
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
@@ -1548,7 +1542,7 @@ export class PanelModel extends PanelModelBase implements IElement {
   public set page(val: IPage) {
     this.setPage(this.parent, val);
   }
-  public delete() {
+  protected removeFromParent(): void {
     if (!!this.parent) {
       this.removeSelfFromList(this.parent.elements);
     }

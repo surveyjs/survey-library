@@ -143,7 +143,7 @@ export class QuestionRatingModel extends Question {
       newCount = 10;
     }
     this.rateCount = newCount;
-    if (this.rateValues.length > newCount) this.rateValues.length = newCount;
+    if (this.rateValues.length > newCount) this.rateValues.splice(newCount, this.rateValues.length - newCount);
   }
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],

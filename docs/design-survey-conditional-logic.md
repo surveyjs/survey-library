@@ -4,24 +4,7 @@ description: Learn how to implement branching and skip logic and add dynamic tex
 ---
 # Conditional Logic and Dynamic Texts
 
-This help topic describes how to implement custom conditional logic and add dynamic texts to your survey. Refer to the following sections for details:
-
-- [Dynamic Texts](#dynamic-texts)
-  - [Question Values](#question-values)
-  - [Variables](#variables)
-  - [Calculated Values](#calculated-values)
-- [Expressions](#expressions)
-  - [Built-In Functions](#built-in-functions)
-  - [Custom Functions](#custom-functions)
-    - [Implement a Custom Function](#implement-a-custom-function)
-    - [Access Survey Elements Within a Custom Function](#access-survey-elements-within-a-custom-function)
-    - [Asynchronous Functions](#asynchronous-functions)
-- [Conditional Visibility](#conditional-visibility)
-  - [Question Visibility](#question-visibility)
-  - [Item Visibility (Choices, Columns, Rows)](#item-visibility-choices-columns-rows)
-    - [Specify Visibility Conditions for Individual Items](#specify-visibility-conditions-for-individual-items)
-    - [Combine Visibility Conditions](#combine-visibility-conditions)
-- [Conditional Survey Logic (Triggers)](#conditional-survey-logic-triggers)
+This help topic describes how to implement custom conditional logic and add dynamic texts to your survey.
 
 ## Dynamic Texts
 
@@ -272,7 +255,55 @@ Returns the current date or a date shifted from the current by a given number of
 - `"expression": "today()"`
 - `"expression": "today(2)"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264 (linkStyle))  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264 (linkStyle))
+
+---
+
+#### `year`
+
+*Definition*: `year(date?: Date): number`
+
+Returns the year of a given date.
+
+*Example*: `"expression": "year({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L323-L326 (linkStyle))
+
+---
+
+#### `month`
+
+*Definition*: `month(date?: Date): number`
+
+Returns the month of a given date as a value from 1 (January) to 12 (December).
+
+*Example*: `"expression": "month({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L329-L332 (linkStyle))
+
+---
+
+#### `day`
+
+*Definition*: `day(date?: Date): number`
+
+Returns the day of the month for a given date as a value from 1 to 31.
+
+*Example*: `"expression": "day({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L335-L338 (linkStyle))
+
+---
+
+#### `weekday`
+
+*Definition*: `weekday(date?: Date): number`
+
+Returns the day of the week for a given date as a value from 0 (Sunday) to 6 (Saturday).
+
+*Example*: `"expression": "weekday({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L341-L344 (linkStyle))
 
 ---
 

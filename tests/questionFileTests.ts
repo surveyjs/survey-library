@@ -648,6 +648,34 @@ QUnit.test("Writable captions", function(assert) {
 
 });
 
+QUnit.test("Check choose button text", function(assert) {
+  const json = {
+    questions: [
+      {
+        type: "file",
+        title: "Please upload your file",
+        name: "file1",
+      }
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q: QuestionFileModel = <any>survey.getQuestionByName("file1");
+
+  assert.equal(q.chooseButtonText, "Choose file");
+  q.value = [{
+    content: "https://api.surveyjs.io/public/v1/Survey/file?filePath=dcc81e2a-586f-45dd-b734-ee86bcbad8db.png",
+    name: "name.png",
+    type: "image/png"
+  }];
+  assert.equal(q.chooseButtonText, "Replace file");
+
+  q.allowMultiple = true;
+  assert.equal(q.chooseButtonText, "Choose file");
+  q.value = undefined;
+  assert.equal(q.chooseButtonText, "Choose file");
+});
+
 QUnit.test("check file d&d", (assert) => {
   var json = {
     questions: [
@@ -1154,6 +1182,49 @@ QUnit.test("Check previewValue order is correct", (assert) => {
   const done = assert.async();
   setTimeout(() => {
     assert.deepEqual(question.previewValue.map(val => val.name), ["f1", "f2", "f3"]);
+    done();
+  }, 100);
+});
+
+QUnit.test("File Question on Smaller Screens: navigation bar doesn't appear when the survey.onDownloadFile event is used", (assert) => {
+  const json = {
+    showPreviewBeforeComplete: "showAnsweredQuestions",
+    elements: [
+      {
+        type: "file",
+        name: "file",
+        storeDataAsText: false
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+  question.isMobile = true;
+  assert.equal(question.indexToShow, 0);
+  assert.equal(question["fileIndexAction"].title, "1 of 0");
+  assert.equal(question.containsMultiplyFiles, false);
+  assert.equal(question.mobileFileNavigatorVisible, false);
+
+  survey.onDownloadFile.add(function (survey, options) {
+    const timers = {
+      f2: 10,
+      f3: 20,
+      f1: 30
+    };
+    setTimeout(() => {
+      options.callback("success", "");
+    }, timers[options.fileValue.name]);
+  });
+  survey.data = {
+    file: [{ name: "f1", content: "data" }, { name: "f2", content: "data" }, { name: "f3", content: "data" }],
+  };
+  const done = assert.async();
+  setTimeout(() => {
+    assert.deepEqual(question.previewValue.map(val => val.name), ["f1", "f2", "f3"]);
+    assert.equal(question.indexToShow, 0);
+    assert.equal(question["fileIndexAction"].title, "1 of 3");
+    assert.equal(question.containsMultiplyFiles, true);
+    assert.equal(question.mobileFileNavigatorVisible, true);
     done();
   }, 100);
 });

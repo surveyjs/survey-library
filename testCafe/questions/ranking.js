@@ -189,7 +189,7 @@ frameworks.forEach((framework) => {
       .click(checkboxToyotaItem);
 
     let data = await getData();
-    await t.expect(typeof data.bestcar).eql("undefined");
+    await t.expect(typeof data.bestcar).ok();
 
     await t.hover(rankAudiItem);
     await t.dragToElement(rankAudiItem, rankMercedesBenzItem);

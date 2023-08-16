@@ -13,9 +13,7 @@ export abstract class Operand {
   public hasFunction(): boolean {
     return false;
   }
-  public hasAsyncFunction() {
-    return false;
-  }
+  public hasAsyncFunction(): boolean { return false; }
   public addToAsyncList(list: Array<FunctionOperand>): void {}
   public isEqual(op: Operand): boolean {
     return !!op && op.getType() === this.getType() && this.isContentEqual(op);
@@ -49,13 +47,20 @@ export class BinaryOperand extends Operand {
       OperandMaker.throwInvalidOperatorError(operatorName);
     }
   }
+  private get requireStrictCompare(): boolean {
+    return this.getIsOperandRequireStrict(this.left) ||
+    this.getIsOperandRequireStrict(this.right);
+  }
+  private getIsOperandRequireStrict(op: any): boolean {
+    return !!op && op.requireStrictCompare;
+  }
   public getType(): string {
     return "binary";
   }
-  public get isArithmetic() {
+  public get isArithmetic(): boolean {
     return this.isArithmeticValue;
   }
-  public get isConjunction() {
+  public get isConjunction(): boolean {
     return this.operatorName == "or" || this.operatorName == "and";
   }
   public get conjunction(): string {
@@ -84,7 +89,8 @@ export class BinaryOperand extends Operand {
     return this.consumer.call(
       this,
       this.evaluateParam(this.left, processValue),
-      this.evaluateParam(this.right, processValue)
+      this.evaluateParam(this.right, processValue),
+      this.requireStrictCompare
     );
   }
 
@@ -241,7 +247,7 @@ export class Const extends Operand {
   public get correctValue(): any {
     return this.getCorrectValue(this.value);
   }
-
+  public get requireStrictCompare(): boolean { return false; }
   public evaluate(): any {
     return this.getCorrectValue(this.value);
   }
@@ -293,6 +299,9 @@ export class Variable extends Const {
       this.variableName = this.variableName.substring(1);
       this.useValueAsItIs = true;
     }
+  }
+  public get requireStrictCompare(): boolean {
+    return this.valueInfo.sctrictCompare === true;
   }
   public getType(): string {
     return "variable";
@@ -533,10 +542,10 @@ static unaryFunctions: HashTable<Function> = {
       if (OperandMaker.binaryFunctions.equal(left, right)) return true;
       return OperandMaker.binaryFunctions.less(left, right);
     },
-    equal: function(left: any, right: any): boolean {
+    equal: function(left: any, right: any, strictCompare?: boolean): boolean {
       left = OperandMaker.convertValForDateCompare(left, right);
       right = OperandMaker.convertValForDateCompare(right, left);
-      return OperandMaker.isTwoValueEquals(left, right);
+      return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true);
     },
     notequal: function(left: any, right: any): boolean {
       return !OperandMaker.binaryFunctions.equal(left, right);
@@ -604,12 +613,11 @@ static unaryFunctions: HashTable<Function> = {
     },
   };
 
-  static isTwoValueEquals(x: any, y: any): boolean {
+  static isTwoValueEquals(x: any, y: any, ignoreOrder: boolean = true): boolean {
     if (x === "undefined") x = undefined;
     if (y === "undefined") y = undefined;
-    return Helpers.isTwoValueEquals(x, y, true);
+    return Helpers.isTwoValueEquals(x, y, ignoreOrder);
   }
-
   static operatorToString(operatorName: string): string {
     let opStr = OperandMaker.signs[operatorName];
     return opStr == null ? operatorName : opStr;

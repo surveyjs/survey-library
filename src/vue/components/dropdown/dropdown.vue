@@ -92,7 +92,7 @@
       <sv-svg-icon
         :class="question.cssClasses.chevronButtonSvg"
         :iconName="question.cssClasses.chevronButtonIconId"
-        size="24"
+        size="auto"
       >
       </sv-svg-icon>
     </div>
@@ -152,7 +152,7 @@ export class DropdownComponent extends BaseVue {
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.model.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.model.inputStringRendered;
       }
     }

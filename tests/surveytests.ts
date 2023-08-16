@@ -1380,6 +1380,30 @@ QUnit.test(
     );
   }
 );
+QUnit.test("survey.checkErrorsMode = 'onValueChanged' & isRequired: true & changing value to empty, #6692", function (assert) {
+  const json = {
+    checkErrorsMode: "onValueChanged",
+    elements: [{ type: "text", name: "q1", isRequired: true }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <Question>survey.getQuestionByName("q1");
+  assert.equal(question.errors.length, 0, "No error initially");
+  question.value = "abc";
+  assert.equal(question.errors.length, 0, "No error, it has value");
+  question.value = "";
+  assert.equal(question.errors.length, 1, "There is an error");
+});
+QUnit.test("survey.checkErrorsMode = 'onValueChanged' & , isRequired: true & do not generate error on setting the value, #6692", function (assert) {
+  const json = {
+    checkErrorsMode: "onValueChanged",
+    elements: [{ type: "text", name: "q1", isRequired: true }, { type: "text", name: "q2" }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <Question>survey.getQuestionByName("q1");
+  assert.equal(question.errors.length, 0, "No error initially");
+  survey.data = { q1: "", q2: "abc" };
+  assert.equal(question.errors.length, 0, "No error on setting value to data");
+});
 QUnit.test(
   "survey.checkErrorsMode = 'onValueChanged', matrix question inside dynamic panel - https://surveyjs.answerdesk.io/ticket/details/T1612",
   function (assert) {
@@ -11769,15 +11793,14 @@ QUnit.test(
     question.value = "1";
     assert.equal(panelDynamic.containsErrors, false, "The panel has no errors");
     question.value = "";
-    assert.equal(
-      panelDynamic.containsErrors,
-      false,
-      "We do not show error on value change"
-    );
+    assert.equal(panelDynamic.containsErrors, true, "We show errors");
+    question.value = "1";
+    assert.equal(panelDynamic.containsErrors, false, "The panel has no errors again");
+    panelDynamic.value = [{}];
+    assert.equal(question.isEmpty(), true, "Question is empty");
+    assert.equal(panelDynamic.containsErrors, false, "We do not show error on value change in panel itself");
     survey.completeLastPage();
-    assert.equal(
-      panelDynamic.containsErrors,
-      true,
+    assert.equal(panelDynamic.containsErrors, true,
       "The panel has errors after value changed to empty. Show it on next page event"
     );
   }
@@ -12137,6 +12160,7 @@ QUnit.test("Question css classes", function (assert) {
     questions: [{ type: "text", name: "q1", isRequired: true }],
   });
   var q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.errors.length, 0, "There is not errors");
   var defaultQuestionRoot = survey.css.question.mainRoot;
   assert.equal(
     q1.cssRoot,
@@ -16379,6 +16403,7 @@ QUnit.test("check descriptionLocation change css classes", function (assert) {
         "elements": [
           {
             "type": "text",
+            "description": "question-description",
             "descriptionLocation": "hidden",
             "name": "question1",
           }
@@ -17469,4 +17494,26 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "fixed");
   assert.equal(survey.backgroundOpacity, 0.6);
   assert.equal(survey["isCompact"], true);
+});
+QUnit.test("page/panel delete do it recursively", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{ type: "panel", name: "p1",
+      elements: [
+        { type: "text", name: "q1" },
+      ] },
+    { type: "panel", name: "p2",
+      elements: [
+        { type: "text", name: "q2" },
+      ] }
+    ] });
+  const p1 = survey.getPanelByName("p1");
+  const p2 = survey.getPanelByName("p2");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  p2.delete();
+  assert.equal(p2.isDisposed, true, "p2.isDisposed");
+  assert.equal(q2.isDisposed, true, "q2.isDisposed");
+  survey.currentPage.delete();
+  assert.equal(p1.isDisposed, true, "p1.isDisposed");
+  assert.equal(q1.isDisposed, true, "q1.isDisposed");
 });

@@ -192,6 +192,43 @@ QUnit.test("column cell css classes by column cellType test", function (assert) 
   assert.equal(matrix.renderedTable.headerRow.cells[5].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 5");
 
 });
+
+QUnit.test("column cell css classes for vertical layout", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "question1",
+        "columns": [
+          {
+            "name": "Column 1"
+          },
+          {
+            "name": "Column 2"
+          }
+        ],
+        "columnLayout": "vertical",
+        "choices": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rows": [
+          "Row 1",
+          "Row 2"
+        ]
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("question1");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 3);
+  assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header", "column 1");
+  assert.equal(matrix.renderedTable.headerRow.cells[2].className, "sv_matrix_cell_header", "column 2");
+});
+
 QUnit.test("column cell css classes by matrix cellType test", function (assert) {
   var survey = new SurveyModel({
     "elements": [

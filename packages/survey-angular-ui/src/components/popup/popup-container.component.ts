@@ -45,10 +45,10 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
     this.changeDetectorRef.detectChanges();
   }
 
-  protected override afterUpdate(key: string): void {
+  protected override afterUpdate(key?: string): void {
     super.afterUpdate(key);
 
-    if(key === "isVisible") {
+    if(!!key && key === "isVisible") {
       if (!this.prevIsVisible && this.model.isVisible) {
         this.model.updateOnShowing();
       }

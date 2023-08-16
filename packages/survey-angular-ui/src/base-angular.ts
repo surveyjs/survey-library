@@ -120,7 +120,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     }
     this.setIsRendering(true);
   }
-  protected afterUpdate(key: string): void {
+  protected afterUpdate(key?: string): void {
     if(this.getShouldReattachChangeDetector()) {
       this.getChangeDetectorRef().reattach();
     }

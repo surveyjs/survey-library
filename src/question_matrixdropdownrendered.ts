@@ -674,6 +674,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       renderedCell.className = new CssClassBuilder()
         .append(renderedCell.className)
         .append(this.cssClasses.rowTextCell)
+        .append(this.cssClasses.columnTitleCell, !this.matrix.isColumnLayoutHorizontal)
         .append(this.cssClasses.detailRowText, row.hasPanel)
         .toString();
     }
@@ -808,7 +809,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       hCell.column = column;
       hCell.className = new CssClassBuilder()
         .append(hCell.className)
-        .append(this.cssClasses.rowTextCell).toString();
+        .append(this.cssClasses.rowTextCell)
+        .append(this.cssClasses.columnTitleCell).toString();
       if (!choice) {
         this.setRequriedToHeaderCell(column, hCell);
       }
@@ -935,6 +937,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   private setHeaderCellCssClasses(cell: QuestionMatrixDropdownRenderedCell, cellType?: string): void {
     cell.className = new CssClassBuilder()
       .append(this.cssClasses.headerCell)
+      .append(this.cssClasses.columnTitleCell, this.matrix.isColumnLayoutHorizontal)
       .append(this.cssClasses.emptyCell, !!cell.isEmpty)
       .append(this.cssClasses.cell + "--" + cellType, !!cellType)
       .toString();

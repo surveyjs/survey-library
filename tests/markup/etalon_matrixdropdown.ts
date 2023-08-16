@@ -4,6 +4,52 @@ import { StylesManager } from "survey-core";
 registerMarkupTests(
   [
     {
+      name: "Test matrixdropdown",
+      json: {
+        elements: [
+          {
+            titleLocation: "hidden",
+            cellType: "text",
+            "type": "matrixdropdown",
+            "name": "m",
+            "columns": ["Col 1", "Col 2"],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ]
+      }
+      ,
+
+      before: () => StylesManager.applyTheme("defaultV2"),
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrixdropdown"
+    },
+    {
+      name: "Test matrixdropdown vertical",
+      json: {
+        elements: [
+          {
+            titleLocation: "hidden",
+            type: "matrixdropdown",
+            name: "m",
+            cellType: "text",
+            columnLayout: "vertical",
+            "columns": ["Col 1", "Col 2"],
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }
+        ]
+      },
+
+      before: () => StylesManager.applyTheme("defaultV2"),
+      after: () => StylesManager.applyTheme("default"),
+      snapshot: "matrixdropdown-vertical"
+    },
+    {
       name: "Test matrixdropdown with showInMultipleColumns",
       json: {
         elements: [

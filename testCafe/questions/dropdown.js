@@ -1908,7 +1908,7 @@ frameworks.forEach((framework) => {
 
   test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click", async (t) => {
     await t.resizeWindow(800, 600);
-    const jsonWithDropDown = {
+    const json = {
       questions: [
         {
           type: "dropdown",
@@ -1930,7 +1930,7 @@ frameworks.forEach((framework) => {
         }
       ]
     };
-    await initSurvey(framework, jsonWithDropDown);
+    await initSurvey(framework, json);
 
     const questionDropdownV2Select = Selector(".sd-dropdown");
     const popupContainer = Selector(".sv-popup__container").filterVisible();
@@ -1943,6 +1943,12 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).ok()
 
       .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
       .expect(popupContainer.visible).notOk();
   });
 

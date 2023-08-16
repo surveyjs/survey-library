@@ -353,8 +353,8 @@ export class DropdownListModel extends Base {
     if(this.question.readOnly) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    if (this.searchEnabled && !!event && !!event.target) {
-      const input = event.target.querySelector("input");
+    if (this.searchEnabled && !!event && !!event.currentTarget) {
+      const input = event.currentTarget.querySelector("input");
       if (!!input) {
         input.focus();
       }

@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper" @pointerdown="click">
+  <div :class="question.cssClasses.selectWrapper" v-on:pointerdown="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"

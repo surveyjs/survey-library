@@ -807,7 +807,6 @@ export class SurveyModel extends SurveyElementCore
     this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack, "completed-before");
     this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack, "loading");
     this.createLocalizableString("logo", this, false);
-    this.createLocalizableString("backgroundImage", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
     this.createLocalizableString("pageNextText", this, false, true);
@@ -2025,18 +2024,10 @@ export class SurveyModel extends SurveyElementCore
    * An image to display in the background of the survey or form. Accepts a base64 or URL string value.
    * @see backgroundOpacity
    */
-  public get backgroundImage(): string {
-    return this.getLocalizableStringText("backgroundImage");
-  }
-  public set backgroundImage(value: string) {
-    this.setLocalizableStringText("backgroundImage", value);
-  }
-  get locBackgroundImage(): LocalizableString {
-    return this.getLocalizableString("backgroundImage");
-  }
+  @property() backgroundImage: string;
   @property() renderBackgroundImage: string;
   private updateRenderBackgroundImage(): void {
-    const path = this.getLocalizableString("backgroundImage").renderedHtml;
+    const path = this.backgroundImage;
     this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
   @property() backgroundImageFit: ImageFit;
@@ -7455,7 +7446,7 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
-  { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "backgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

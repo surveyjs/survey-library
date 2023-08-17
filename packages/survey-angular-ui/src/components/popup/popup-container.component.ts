@@ -48,7 +48,7 @@ export class PopupBaseContainerComponent<T extends PopupBaseViewModel = PopupBas
   protected override afterUpdate(key?: string): void {
     super.afterUpdate(key);
 
-    if(!!key && key === "isVisible") {
+    if(!!key && (key === "isVisible" || key === "top")) {
       if (!this.prevIsVisible && this.model.isVisible) {
         this.model.updateOnShowing();
       }

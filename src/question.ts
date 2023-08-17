@@ -2023,6 +2023,7 @@ export class Question extends SurveyElement<Question>
       newValue = this.valueFromDataCallback(newValue);
     }
     this.setQuestionValue(this.valueFromData(newValue));
+    this.updateDependedQuestions();
     this.updateIsAnswered();
   }
   updateCommentFromSurvey(newValue: any): any {

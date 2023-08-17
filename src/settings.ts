@@ -489,6 +489,16 @@ export var settings = {
     return confirm(message);
   },
   /**
+   * A property that allows you to display a custom confirm dialog in async mode instead of the standard browser dialog. Set this property to a function that renders your custom dialog window in async mode.
+   * @param message A message to be displayed in the confirm dialog window.
+   * @param callback A callback function that should be called with res paramter equals to true if action is confirmed and equals to false otherwise.
+   */
+  confirmActionAsyncFunc: function (message: string, resFunc: (res: boolean) => void): boolean {
+    //when you finish with displaying your dialog, call the resFunc as resFunc(true) or resFunc(false).
+    //You should return true to tell that you use this function
+    return false;
+  },
+  /**
    * A minimum width value for all survey elements.
    *
    * Default value: `"300px"`

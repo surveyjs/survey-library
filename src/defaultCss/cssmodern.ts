@@ -415,6 +415,8 @@ export var modernCss = {
     small: "sv-row__question--small",
     controls: "sjs_sp_controls",
     placeholder: "sjs_sp_placeholder",
+    canvas: "sjs_sp_canvas",
+    backgroundImage: "sjs_sp__background-image",
     clearButton: "sjs_sp_clear",
   },
   saveData: {

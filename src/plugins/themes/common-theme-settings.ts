@@ -330,6 +330,8 @@ export function setStyles(): void {
     ".sv_main .sjs_sp_controls > button": "user-select: none;",
     ".sv_main .sjs_sp_container>div>canvas:focus": "outline: none;",
     ".sv_main .sjs_sp_placeholder": "display: flex;  align-items: center; justify-content: center; position: absolute; z-index: 0; user-select: none; pointer-events: none; width: 100%; height: 100%;",
+    ".sv_main .sjs_sp_canvas": "position: absolute; top: 0; left: 0;",
+    ".sv_main .sjs_sp__background-image": "position: absolute; top: 0; left: 0;",
 
     // logo
     // ".sv_main .sv_header": "white-space: nowrap;",

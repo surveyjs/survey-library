@@ -54,7 +54,7 @@ export class QuestionSignaturePadModel extends Question {
     signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
 
     const backgroundColorProperty = this.getPropertyByName("backgroundColor");
-    const backgroundColorFromTheme = penColorFromTheme ? "transparent" : undefined;
+    const backgroundColorFromTheme = (penColorFromTheme || !!this.backgroundImage) ? "transparent" : undefined;
     signaturePad.backgroundColor = this.backgroundColor || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
   }
 
@@ -225,6 +225,7 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
   }
   /**
    * Specifies a color for the signature area background.  Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
@@ -235,6 +236,14 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set backgroundColor(val: string) {
     this.setPropertyValue("backgroundColor", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
+  }
+  public get backgroundImage(): string {
+    return this.getPropertyValue("backgroundImage");
+  }
+  public set backgroundImage(val: string) {
+    this.setPropertyValue("backgroundImage", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
   }
   get clearButtonCaption(): string {
     return this.getLocalizationString("clearCaption");
@@ -302,6 +311,7 @@ Serializer.addClass(
       name: "backgroundColor:color",
       category: "general",
     },
+    { name: "backgroundImage" },
     {
       name: "dataFormat",
       category: "general",

@@ -41,6 +41,26 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check question with empty title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "text",
+            title: " ",
+            name: "question",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px",
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("question-empty-title.png", questionRoot, t, comparer);
+    });
+  });
   test("Check question num", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

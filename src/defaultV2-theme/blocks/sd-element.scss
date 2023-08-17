@@ -58,6 +58,9 @@
 
   .sv-string-viewer {
     white-space: normal;
+    &::before {
+      content: "\200B";
+    }
   }
 }
 

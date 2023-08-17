@@ -1838,11 +1838,11 @@ Serializer.addClass(
       visible: false,
       isLightSerializable: false,
     },
-    { name: "visible:switch", default: true },
+    { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
+    { name: "readOnly:boolean", overridingProperty: "enableIf" },
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",
-    "readOnly:boolean",
     {
       name: "questionTitleLocation",
       default: "default",
@@ -1870,7 +1870,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "collapsed", "expanded"],
     },
-    "isRequired:switch",
+    { name: "isRequired:switch", overridingProperty: "requiredIf" },
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",

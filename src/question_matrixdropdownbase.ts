@@ -932,6 +932,23 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   set columnsLocation(val: string) {
     this.columnLayout = val;
   }
+  public get detailErrorLocation(): string {
+    return this.getPropertyValue("detailErrorLocation");
+  }
+  public set detailErrorLocation(value: string) {
+    this.setPropertyValue("detailErrorLocation", value.toLowerCase());
+  }
+  public get cellsErrorLocation(): string {
+    return this.getPropertyValue("cellsErrorLocation");
+  }
+  public set cellsErrorLocation(value: string) {
+    this.setPropertyValue("cellsErrorLocation", value.toLowerCase());
+  }
+  public getChildErrorLocation(child: Question): string {
+    const errLocation = !!child.parent ? this.detailErrorLocation : this.cellsErrorLocation;
+    if(errLocation !== "default") return errLocation;
+    return super.getChildErrorLocation(child);
+  }
   /**
    * Returns `true` if columns are placed in the horizontal direction and rows in the vertical direction.
    *
@@ -2264,6 +2281,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!this.onCreateDetailPanelCallback) {
       this.onCreateDetailPanelCallback(row, panel);
     }
+    panel.questions.forEach(q => q.setParentQuestion(this));
     return panel;
   }
   getSharedQuestionByName(
@@ -2383,6 +2401,8 @@ Serializer.addClass(
       choices: ["none", "underRow", "underRowSingle"],
       default: "none",
     },
+    { name: "detailErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
+    { name: "cellsErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
     "horizontalScroll:boolean",
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",

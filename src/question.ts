@@ -574,8 +574,12 @@ export class Question extends SurveyElement<Question>
   }
   public getErrorLocation(): string {
     if(this.errorLocation !== "default") return this.errorLocation;
+    if(this.parentQuestion) return this.parentQuestion.getChildErrorLocation(this);
     if(this.parent) return this.parent.getQuestionErrorLocation();
     return this.survey ? this.survey.questionErrorLocation : "top";
+  }
+  public getChildErrorLocation(child: Question): string {
+    return this.getErrorLocation();
   }
   /**
    * Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel), and similar question types).

@@ -7348,10 +7348,9 @@ Serializer.addClass("survey", [
     name: "showTOC:switch",
     default: false
   },
-  {
-    name: "tocLocation",
-    default: "left",
-    choices: ["left", "right"],
+  { name: "tocLocation", default: "left", choices: ["left", "right"],
+    dependsOn: ["showTOC"],
+    visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
@@ -7393,9 +7392,7 @@ Serializer.addClass("survey", [
   {
     name: "questionStartIndex",
     dependsOn: ["showQuestionNumbers"],
-    visibleIf: function (survey: any) {
-      return !survey || survey.showQuestionNumbers !== "off";
-    },
+    visibleIf: (survey: any) => { return !survey || survey.showQuestionNumbers !== "off"; }
   },
   {
     name: "questionTitlePattern",

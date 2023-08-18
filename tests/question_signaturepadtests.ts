@@ -267,8 +267,8 @@ QUnit.test("check penColor & background color if background image", (assert) => 
 
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
   assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor default");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor #1ab394");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor transparent");
 
   survey.applyTheme({ "cssVariables": { "--sjs-primary-backcolor": "rgba(103, 58, 176, 1)" } });
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
@@ -279,12 +279,12 @@ QUnit.test("check penColor & background color if background image", (assert) => 
   survey.applyTheme({ "cssVariables": { } });
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
   assert.equal(signaturepadQuestion.backgroundColor, undefined, "backgroundColor undefined");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor default");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor #1ab394");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor transparent");
 
   signaturepadQuestion.backgroundColor = "#dde6db";
   assert.equal(signaturepadQuestion.penColor, undefined, "penColor undefined");
-  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor");
-  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor default");
-  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "#dde6db", "signaturePad.backgroundColor");
+  assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor #dde6db");
+  assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor #1ab394");
+  assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor transparent");
 });

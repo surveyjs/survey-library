@@ -54,8 +54,9 @@ export class QuestionSignaturePadModel extends Question {
     signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
 
     const backgroundColorProperty = this.getPropertyByName("backgroundColor");
-    const backgroundColorFromTheme = (penColorFromTheme || !!this.backgroundImage) ? "transparent" : undefined;
-    signaturePad.backgroundColor = this.backgroundColor || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
+    const backgroundColorFromTheme = penColorFromTheme ? "transparent" : undefined;
+    const background = !!this.backgroundImage ? "transparent" : this.backgroundColor;
+    signaturePad.backgroundColor = background || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
   }
 
   protected getCssRoot(cssClasses: any): string {

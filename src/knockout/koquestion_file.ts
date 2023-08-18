@@ -1,13 +1,5 @@
 import * as ko from "knockout";
-import { Serializer,
-  Question,
-  QuestionFactory,
-  QuestionFileModel,
-  getOriginalEvent,
-  confirmAction,
-  detectIEOrEdge,
-  loadFileFromBase64
-} from "survey-core";
+import { Serializer, QuestionFactory, QuestionFileModel, getOriginalEvent } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 
 class QuestionFileImplementor extends QuestionImplementor {

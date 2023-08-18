@@ -12,7 +12,7 @@ import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
-import { confirmAction } from "./utils/utils";
+import { confirmActionAsync } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -566,7 +566,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if(confirmDelete === undefined) {
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
-    if (confirmDelete && !confirmAction(this.confirmDeleteText)) return;
+    if (confirmDelete) {
+      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); });
+      return;
+    }
+    this.removeRowAsync(index, row);
+  }
+  private removeRowAsync(index: number, row: MatrixDropdownRowModelBase): void {
     if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);

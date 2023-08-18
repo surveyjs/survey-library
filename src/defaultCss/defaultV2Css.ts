@@ -427,6 +427,7 @@ export var defaultV2Css = {
     detailIconExpanded: "sd-detail-panel__icon--expanded",
     detailIconId: "icon-expanddetail",
     detailIconExpandedId: "icon-collapsedetail",
+    detailPanelCell: "sd-table__cell--detail-panel",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     actionsCellDrag: "sd-table__cell--drag",
     emptyCell: "sd-table__cell--empty",

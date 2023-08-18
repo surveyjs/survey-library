@@ -206,7 +206,7 @@ export class MatrixCells {
 }
 
 /**
-  * A class that describes the Single-Choice Matrix question type.
+  * A class that describes the Single-Select Matrix question type.
   *
   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
   */

@@ -14,7 +14,7 @@ export class CharacterCounter extends Base {
 }
 
 /**
- * A base class for the [Text](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types.
+ * A base class for the [Single-Line Input](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Long Text](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types.
  */
 export class QuestionTextBase extends Question {
   constructor(name: string) {

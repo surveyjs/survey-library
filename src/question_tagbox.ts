@@ -10,7 +10,7 @@ import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 
 /**
- * A Model for a tagbox question
+ * A class that describes the Multi-Select Dropdown (Tag Box) question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/how-to-create-multiselect-tag-box/ (linkStyle))
  */

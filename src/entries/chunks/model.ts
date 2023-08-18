@@ -239,6 +239,7 @@ export {
 export { IsMobile, IsTouch, _setIsTouch } from "../../utils/devices";
 export {
   confirmAction,
+  confirmActionAsync,
   detectIEOrEdge,
   doKey2ClickUp,
   doKey2ClickDown,

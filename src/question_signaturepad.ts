@@ -217,7 +217,13 @@ export class QuestionSignaturePadModel extends Question {
     return !this.isInputReadOnly && this.allowClear;
   }
   /**
-   * Specifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * Specifies a color for the pen.
+   *
+   * This property accepts color values in the following formats:
+   *
+   * - Hexadecimal colors (`"#FF0000"`)
+   * - RGB colors (`"rgb(255,0,0)"`)
+   * - Color names (`"red"`)
    * @see backgroundColor
    */
   public get penColor(): string {
@@ -228,7 +234,13 @@ export class QuestionSignaturePadModel extends Question {
     !!this.signaturePad && this.updateColors(this.signaturePad);
   }
   /**
-   * Specifies a color for the signature area background.  Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * Specifies a color for the signature area background. Ignored if [`backgroundImage`](#backgroundImage) is set.
+   *
+   * This property accepts color values in the following formats:
+   *
+   * - Hexadecimal colors (`"#FF0000"`)
+   * - RGB colors (`"rgb(255,0,0)"`)
+   * - Color names (`"red"`)
    * @see penColor
    */
   public get backgroundColor(): string {
@@ -238,6 +250,10 @@ export class QuestionSignaturePadModel extends Question {
     this.setPropertyValue("backgroundColor", val);
     !!this.signaturePad && this.updateColors(this.signaturePad);
   }
+  /**
+   * An image to display in the background of the signature area. Accepts a base64 or URL string value.
+   * @see backgroundColor
+   */
   public get backgroundImage(): string {
     return this.getPropertyValue("backgroundImage");
   }

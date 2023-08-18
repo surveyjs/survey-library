@@ -11,7 +11,7 @@ import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
 
 /**
- * A class that describes the File question type.
+ * A class that describes the File Upload question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */

@@ -8,7 +8,7 @@ import { preventDefaults } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
 
 /**
- * A class that describes the Boolean question type.
+ * A class that describes the Yes/No (Boolean) question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */

@@ -11,7 +11,7 @@ import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 
 /**
- * A class that describes the Text question type.
+ * A class that describes the Single-Line Input question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-text/ (linkStyle))
  */

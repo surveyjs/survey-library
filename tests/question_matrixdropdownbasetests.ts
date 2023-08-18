@@ -579,7 +579,7 @@ QUnit.test("Column width is not loaded, bug in Creator #4303", function (assert)
   assert.equal(matrix.columns.length, 1, "There is one column");
   assert.equal(matrix.columns[0].width, "222px", "column width is loaded correctly");
 });
-QUnit.test("Error location from survey", function (assert) {
+QUnit.test("Error location from survey/matrix/properties", function (assert) {
   const survey = new SurveyModel({
     questionErrorLocation: "bottom",
     elements: [
@@ -596,68 +596,20 @@ QUnit.test("Error location from survey", function (assert) {
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   const row = matrix.visibleRows[0];
   row.showDetailPanel();
-  assert.equal(row.cells[0].question.getErrorLocation(), "bottom", "cell");
-  assert.equal(row.detailPanel.getQuestionByName("q1").getErrorLocation(), "bottom", "question in detail panel");
-});
-QUnit.test("Error location from matrix question", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdropdown",
-        name: "matrix",
-        errorLocation: "bottom",
-        columns: [{ name: "col1" }],
-        rows: [0],
-        detailPanelMode: "underRow",
-        detailElements: [{ type: "text", name: "q1" }],
-      },
-    ],
-  });
-  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
-  const row = matrix.visibleRows[0];
-  row.showDetailPanel();
-  assert.equal(row.cells[0].question.getErrorLocation(), "bottom", "cell");
-  assert.equal(row.detailPanel.getQuestionByName("q1").getErrorLocation(), "bottom", "question in detail panel");
-});
-QUnit.test("Error location from cellsErrorLocation", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdropdown",
-        name: "matrix",
-        columns: [{ name: "col1" }],
-        rows: [0],
-        detailPanelMode: "underRow",
-        detailElements: [{ type: "text", name: "q1" }],
-        cellsErrorLocation: "bottom",
-      },
-    ],
-  });
-  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
-  const row = matrix.visibleRows[0];
-  const q = row.cells[0].question;
-  assert.notOk(q.parent, "There is no parent in matrix cell");
-  assert.equal(q.getErrorLocation(), "bottom", "cell");
-});
-QUnit.test("Error location from detailErrorLocation", function (assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "matrixdropdown",
-        name: "matrix",
-        columns: [{ name: "col1" }],
-        rows: [0],
-        detailPanelMode: "underRow",
-        detailElements: [{ type: "text", name: "q1" }],
-        detailErrorLocation: "bottom",
-      },
-    ],
-  });
-  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
-  const row = matrix.visibleRows[0];
-  row.showDetailPanel();
-  const q = row.detailPanel.getQuestionByName("q1");
-  assert.ok(q.parent, "parent is set for question from detail panel");
-  assert.ok(q.parentQuestion, "parentQuestion is set for question from detail panel");
-  assert.equal(q.getErrorLocation(), "bottom", "question in detail panel");
+  const qCell = row.cells[0].question;
+  const qDetail = row.detailPanel.getQuestionByName("q1");
+  assert.ok(qCell, "qCell");
+  assert.ok(qDetail, "qDetail");
+  assert.equal(qCell.getErrorLocation(), "bottom", "cell, #1");
+  assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #1");
+  matrix.errorLocation = "top";
+  assert.equal(qCell.getErrorLocation(), "top", "cell, #2");
+  assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #2");
+  matrix.cellsErrorLocation = "bottom";
+  assert.equal(qCell.getErrorLocation(), "bottom", "cell, #3");
+  assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #3");
+  matrix.cellsErrorLocation = "default";
+  matrix.detailErrorLocation = "bottom";
+  assert.equal(qCell.getErrorLocation(), "top", "cell, #4");
+  assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #4");
 });

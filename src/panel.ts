@@ -1471,7 +1471,17 @@ export class PanelModelBase extends SurveyElement<Question>
   public get cssDescription(): string {
     return this.cssClasses.panel.description;
   }
-
+  public get questionErrorLocation(): string {
+    return this.getPropertyValue("questionErrorLocation");
+  }
+  public set questionErrorLocation(val: string) {
+    this.setPropertyValue("questionErrorLocation", val);
+  }
+  public getQuestionErrorLocation(): string {
+    if(this.questionErrorLocation !== "default") return this.questionErrorLocation;
+    if(this.parent) return this.parent.getQuestionErrorLocation();
+    return this.survey ? this.survey.questionErrorLocation : "top";
+  }
   //ITitleOwner
   public get no(): string { return ""; }
   public dispose() {
@@ -1855,7 +1865,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "initial", "random"],
     },
-
+    { name: "questionErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
   ],
   function () {
     return new PanelModelBase();

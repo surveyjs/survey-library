@@ -574,6 +574,7 @@ export class Question extends SurveyElement<Question>
   }
   public getErrorLocation(): string {
     if(this.errorLocation !== "default") return this.errorLocation;
+    if(this.parent) return this.parent.getQuestionErrorLocation();
     return this.survey ? this.survey.questionErrorLocation : "top";
   }
   /**

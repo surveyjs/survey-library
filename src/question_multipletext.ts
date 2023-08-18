@@ -448,6 +448,16 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].localeChanged();
     }
   }
+  public get questionErrorLocation(): string {
+    return this.getPropertyValue("questionErrorLocation");
+  }
+  public set questionErrorLocation(val: string) {
+    this.setPropertyValue("questionErrorLocation", val);
+  }
+  public getQuestionErrorLocation(): string {
+    if(this.questionErrorLocation !== "default") return this.questionErrorLocation;
+    return this.getErrorLocation();
+  }
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val);
   }
@@ -699,6 +709,7 @@ Serializer.addClass(
     { name: "!items:textitems", className: "multipletextitem" },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
+    { name: "questionErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
   ],
   function () {
     return new QuestionMultipleTextModel("");

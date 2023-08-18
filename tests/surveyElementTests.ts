@@ -280,3 +280,37 @@ QUnit.test("question.errorLocation", function (assert) {
   assert.notOk(q1.showErrorsAboveQuestion, "#11");
   assert.ok(q1.showErrorsBelowQuestion, "#12");
 });
+QUnit.test("question.errorLocation & panel.questionErrorLocation & page.questionErrorLocation", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { name: "p1", type: "panel",
+            elements: [
+              {
+                name: "q1",
+                type: "text"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const p1 = survey.getPanelByName("p1");
+  const page = survey.currentPage;
+  assert.equal(q1.getErrorLocation(), "top", "#1");
+
+  survey.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#2");
+
+  page.questionErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#3");
+
+  p1.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#4");
+
+  q1.errorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#5");
+});

@@ -292,6 +292,81 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix dropdown detail", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdropdown",
+                "name": "q",
+                "title": "Question",
+                "columns": [
+                  {
+                    "name": "Column 1",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 2",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 3",
+                    "title": "Title"
+                  }
+                ],
+                "rows": [
+                  "Row 1", "Row 2", "Row 3"
+                ],
+                "detailElements": [
+                  {
+                    "type": "text",
+                    "name": "question1",
+                    "titleLocation": "hidden"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question2",
+                    "titleLocation": "hidden"
+                  },
+                  {
+                    "type": "text",
+                    "name": "question3",
+                    "titleLocation": "hidden"
+                  }
+                ],
+                "detailPanelMode": "underRow",
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "cellType": "text"
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "720px",
+        focusFirstQuestionAutomatic: false
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-dropdown-detail.png", questionRoot, t, comparer);
+      await t.click(Selector(".sd-table__cell--detail-button").filterVisible().nth(1));
+
+      await takeElementScreenshot("question-matrix-dropdown-detail-expanded.png", questionRoot, t, comparer);
+
+    });
+  });
+
   test("Matrix dropdown", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

@@ -1286,8 +1286,32 @@ export class Question extends SurveyElement<Question>
   public get isValueArray(): boolean { return false; }
   /**
    * Gets or sets the question value.
-   * @see SurveyModel.setValue
-   * @see SurveyModel.getValue
+   *
+   * The following table illustrates how the value type depends on the question type:
+   *
+   * | Question type | Value type(s) |
+   * | ------------- | ------------- |
+   * | Checkboxes | `Array<String \| Number>` |
+   * | Dropdown | `String` \| `Number` |
+   * | Dynamic Matrix | `Array<Object>` |
+   * | Dynamic Panel | `Array<Object>` |
+   * | Expression | `String` \| `Number` \| `Boolean` |
+   * | File Upload | `File` \| `Array<File>` |
+   * | HTML | (no value) |
+   * | Image | (no value) |
+   * | Image Picker | `Array<String \| Number>` |
+   * | Long Text | `String` |
+   * | Multi-Select Dropdown | `Object` |
+   * | Multi-Select Matrix | `Object` |
+   * | Multiple Textboxes | `Array<String>` |
+   * | Panel | (no value) |
+   * | Radio Button Group | `String` \| `Number` |
+   * | Ranking | `Array<String \| Number>` |
+   * | Rating Scale | `Number` \| `String` |
+   * | Signature | `String` (base64-encoded image) |
+   * | Single-Line Input | `String` \| `Number` \| `Date` |
+   * | Single-Select Matrix | `Object` |
+   * | Yes/No (Boolean) | `Boolean` \| `String` |
    */
   public get value(): any {
     return this.getValueCore();

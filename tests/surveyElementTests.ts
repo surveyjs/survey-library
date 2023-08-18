@@ -245,3 +245,38 @@ QUnit.test("allowRootStyle", function (assert) {
   survey.css = defaultV2Css;
   assert.deepEqual(q1.rootStyle, {});
 });
+QUnit.test("question.errorLocation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.notOk(q1.isErrorsModeTooltip, "isErrorsModeTooltip");
+  assert.notOk(q1.showErrorsBelowQuestion, "showErrorsBelowQuestion");
+  assert.ok(q1.showErrorsAboveQuestion, "#1");
+  assert.notOk(q1.showErrorsBelowQuestion, "#2");
+
+  survey.questionErrorLocation = "bottom";
+  assert.notOk(q1.showErrorsAboveQuestion, "#3");
+  assert.ok(q1.showErrorsBelowQuestion, "#4");
+
+  q1.errorLocation = "top";
+  assert.ok(q1.showErrorsAboveQuestion, "#5");
+  assert.notOk(q1.showErrorsBelowQuestion, "#6");
+
+  q1.errorLocation = "default";
+  assert.notOk(q1.showErrorsAboveQuestion, "#7");
+  assert.ok(q1.showErrorsBelowQuestion, "#8");
+
+  survey.questionErrorLocation = "top";
+  assert.ok(q1.showErrorsAboveQuestion, "#9");
+  assert.notOk(q1.showErrorsBelowQuestion, "#10");
+
+  q1.errorLocation = "bottom";
+  assert.notOk(q1.showErrorsAboveQuestion, "#11");
+  assert.ok(q1.showErrorsBelowQuestion, "#12");
+});

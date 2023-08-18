@@ -567,6 +567,13 @@ export class Question extends SurveyElement<Question>
     return location === "left" || location === "top";
   }
   public get errorLocation(): string {
+    return this.getPropertyValue("errorLocation");
+  }
+  public set errorLocation(val: string) {
+    this.setPropertyValue("errorLocation", val);
+  }
+  public getErrorLocation(): string {
+    if(this.errorLocation !== "default") return this.errorLocation;
     return this.survey ? this.survey.questionErrorLocation : "top";
   }
   /**
@@ -871,7 +878,7 @@ export class Question extends SurveyElement<Question>
   }
 
   public showErrorOnCore(location: string): boolean {
-    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.errorLocation === location;
+    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
   }
 
   public get showErrorOnTop(): boolean {
@@ -891,10 +898,10 @@ export class Question extends SurveyElement<Question>
     return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
   }
   public get showErrorsAboveQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.errorLocation === "top";
+    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.errorLocation === "bottom";
+    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "bottom";
   }
 
   public get cssError(): string {
@@ -2371,6 +2378,9 @@ Serializer.addClass("question", [
   {
     name: "requiredErrorText:text",
     serializationProperty: "locRequiredErrorText",
+  },
+  {
+    name: "errorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false
   },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
   {

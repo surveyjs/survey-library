@@ -2307,11 +2307,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "top", "bottom", "left"],
     },
-    {
-      name: "templateErrorLocation",
-      default: "default",
-      choices: ["default", "top", "bottom"], visible: false
-    },
+    { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
     {
       name: "templateVisibleIf:expression",
       category: "logic"

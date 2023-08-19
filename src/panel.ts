@@ -1865,7 +1865,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "initial", "random"],
     },
-    { name: "questionErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
+    { name: "questionErrorLocation", default: "default", choices: ["default", "top", "bottom"] }
   ],
   function () {
     return new PanelModelBase();

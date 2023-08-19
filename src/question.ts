@@ -2384,9 +2384,7 @@ Serializer.addClass("question", [
     name: "requiredErrorText:text",
     serializationProperty: "locRequiredErrorText",
   },
-  {
-    name: "errorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false
-  },
+  { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
   {
     name: "validators:validators",

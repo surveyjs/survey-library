@@ -2401,8 +2401,10 @@ Serializer.addClass(
       choices: ["none", "underRow", "underRowSingle"],
       default: "none",
     },
-    { name: "detailErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
-    { name: "cellsErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
+    { name: "cellsErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
+    { name: "detailErrorLocation", default: "default", choices: ["default", "top", "bottom"],
+      visibleIf: (obj: any) => { return !!obj && obj.detailPanelMode != "none"; }
+    },
     "horizontalScroll:boolean",
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",

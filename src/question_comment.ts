@@ -7,7 +7,7 @@ import { increaseHeightByContent } from "./utils/utils";
 import { settings } from "./settings";
 
 /**
- * A class that describes the Comment question type.
+ * A class that describes the Long Text question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-comment/ (linkStyle))
  */

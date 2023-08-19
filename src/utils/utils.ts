@@ -19,14 +19,24 @@ function confirmAction(message: string): boolean {
     return settings.confirmActionFunc(message);
   return confirm(message);
 }
-function detectIEBrowser() {
+function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
+  const callbackFunc = (res: boolean): void => {
+    if(res) funcOnYes();
+    else if(!!funcOnNo) funcOnNo();
+  };
+  if(!!settings && !!settings.confirmActionAsyncFunc) {
+    if(settings.confirmActionAsyncFunc(message, callbackFunc)) return;
+  }
+  callbackFunc(confirmAction(message));
+}
+function detectIEBrowser(): boolean {
   if (typeof window === "undefined") return false;
   const ua: string = window.navigator.userAgent;
   const oldIe: number = ua.indexOf("MSIE ");
   const elevenIe: number = ua.indexOf("Trident/");
   return oldIe > -1 || elevenIe > -1;
 }
-function detectIEOrEdge() {
+function detectIEOrEdge(): boolean {
   if (typeof window === "undefined") return false;
   if (typeof (<any>detectIEOrEdge).isIEOrEdge === "undefined") {
     const ua: string = window.navigator.userAgent;
@@ -37,7 +47,7 @@ function detectIEOrEdge() {
   }
   return (<any>detectIEOrEdge).isIEOrEdge;
 }
-function loadFileFromBase64(b64Data: string, fileName: string) {
+function loadFileFromBase64(b64Data: string, fileName: string): void {
   try {
     const byteString: string = atob(b64Data.split(",")[1]);
 
@@ -64,7 +74,7 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
     }
   } catch (err) { }
 }
-function isMobile() {
+function isMobile(): boolean {
   return (
     typeof window !== "undefined" && typeof window.orientation !== "undefined"
   );
@@ -392,6 +402,7 @@ export {
   classesToSelector,
   compareVersions,
   confirmAction,
+  confirmActionAsync,
   detectIEOrEdge,
   detectIEBrowser,
   loadFileFromBase64,

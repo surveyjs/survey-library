@@ -37,7 +37,7 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
 }
 
 /**
- * A class that describes the Signature Page question type.
+ * A class that describes the Signature question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
  */

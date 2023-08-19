@@ -1521,7 +1521,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you enable this property, the survey is also completed automatically. Set the [`allowCompleteSurveyAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#allowCompleteSurveyAutomatic) property to `false` if you want to disable this behavior.
    *
-   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
+   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    */
@@ -4155,6 +4155,7 @@ export class SurveyModel extends SurveyElementCore
    * The `doComplete()` method completes the survey regardless of validation errors and the current page. If you need to ensure that survey results are valid and full, call the [`completeLastPage()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) method instead.
    *
    * @param isCompleteOnTrigger For internal use.
+   * @param completeTrigger For internal use.
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    * @see surveyPostId
    */
@@ -7347,10 +7348,9 @@ Serializer.addClass("survey", [
     name: "showTOC:switch",
     default: false
   },
-  {
-    name: "tocLocation",
-    default: "left",
-    choices: ["left", "right"],
+  { name: "tocLocation", default: "left", choices: ["left", "right"],
+    dependsOn: ["showTOC"],
+    visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
@@ -7392,9 +7392,7 @@ Serializer.addClass("survey", [
   {
     name: "questionStartIndex",
     dependsOn: ["showQuestionNumbers"],
-    visibleIf: function (survey: any) {
-      return !survey || survey.showQuestionNumbers !== "off";
-    },
+    visibleIf: (survey: any) => { return !survey || survey.showQuestionNumbers !== "off"; }
   },
   {
     name: "questionTitlePattern",

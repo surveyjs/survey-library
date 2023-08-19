@@ -1,5 +1,4 @@
 import { HashTable, Helpers } from "./helpers";
-
 import {
   IElement,
   IQuestion,
@@ -11,8 +10,7 @@ import {
   IProgressInfo,
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { surveyLocalization } from "./surveyStrings";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import {
   TextPreProcessorValue,
   QuestionTextProcessor,
@@ -23,7 +21,7 @@ import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { confirmAction, mergeValues } from "./utils/utils";
+import { confirmActionAsync } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
@@ -1242,9 +1240,11 @@ export class QuestionPanelDynamicModel extends Question
    * @see canRemovePanel
    *
    */
-  public removePanelUI(value: any) {
+  public removePanelUI(value: any): void {
     if (!this.canRemovePanel) return;
-    if (!this.confirmDelete || confirmAction(this.confirmDeleteText)) {
+    if(this.confirmDelete) {
+      confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); });
+    } else {
       this.removePanel(value);
     }
   }

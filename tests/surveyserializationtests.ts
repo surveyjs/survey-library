@@ -716,3 +716,21 @@ QUnit.test("choiceValuesFromQuestion properties visibility", function (assert) {
   assert.equal(propValues.visibleIf(col2), true, "col2.choiceValuesFromQuestion");
   assert.equal(propTexts.visibleIf(col2), true, "col2.choiceTextsFromQuestion");
 });
+QUnit.test("Allow to save empty string for localization strings & strings with default value", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      { name: "q1", type: "dropdown", choices: [1, 2, 3] }
+    ]
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(q1.placeholder, "Select...", "Default string for placeholder");
+  q1.placeholder = "test";
+  assert.equal(q1.placeholder, "test", "set value for placeholder");
+  q1.placeholder = "";
+  assert.equal(q1.placeholder, "", "set empty string for placeholder");
+  assert.strictEqual(q1.locPlaceholder.getJson(), "", "JSON has empty string");
+  q1.placeholder = "test";
+  assert.equal(q1.placeholder, "test", "set value for placeholder, #2");
+  q1.locPlaceholder.clear();
+  assert.equal(q1.placeholder, "Select...", "Clear value for placeholder");
+});

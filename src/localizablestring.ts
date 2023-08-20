@@ -173,6 +173,9 @@ export class LocalizableString implements ILocalizableString {
   public clear(): void {
     this.setJson(undefined);
   }
+  public clearLocale(loc?: string): void {
+    this.setLocaleText(loc, undefined);
+  }
   public setLocaleText(loc: string, value: string): void {
     loc = this.getValueLoc(loc);
     if (!this.storeDefaultText && this.isLocaleTextEqualsWithDefault(loc, value)) {

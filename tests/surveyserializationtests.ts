@@ -733,4 +733,8 @@ QUnit.test("Allow to save empty string for localization strings & strings with d
   assert.equal(q1.placeholder, "test", "set value for placeholder, #2");
   q1.locPlaceholder.clear();
   assert.equal(q1.placeholder, "Select...", "Clear value for placeholder");
+  q1.placeholder = "test";
+  assert.equal(q1.placeholder, "test", "set value for placeholder, #3");
+  q1.locPlaceholder.clearLocale();
+  assert.equal(q1.placeholder, "Select...", "ClearLocale for placeholder");
 });

@@ -210,6 +210,10 @@ export class DropdownListModel extends Base {
     return !!this.itemsSettings.totalCount && this.itemsSettings.items.length == this.itemsSettings.totalCount;
   }
 
+  public get canShowSelectedItem(): boolean {
+    return this.focused || this._markdownMode || !this.searchEnabled;
+  }
+
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
     defaultValue: "",

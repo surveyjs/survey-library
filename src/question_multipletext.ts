@@ -449,6 +449,15 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].localeChanged();
     }
   }
+  /**
+   * Specifies the error message position relative to individual input fields.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above input fields.
+   * - `"bottom"` - Displays error messages below input fields.
+   */
   public get itemErrorLocation(): string {
     return this.getPropertyValue("itemErrorLocation");
   }

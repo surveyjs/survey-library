@@ -914,6 +914,15 @@ export class QuestionPanelDynamicModel extends Question
   public set templateTitleLocation(value: string) {
     this.setPropertyValue("templateTitleLocation", value.toLowerCase());
   }
+  /**
+   * Specifies the error message position.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   */
   public get templateErrorLocation(): string {
     return this.getPropertyValue("templateErrorLocation");
   }

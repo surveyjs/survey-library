@@ -1471,6 +1471,17 @@ export class PanelModelBase extends SurveyElement<Question>
   public get cssDescription(): string {
     return this.cssClasses.panel.description;
   }
+  /**
+   * Specifies the error message position for questions that belong to this page/panel.
+   *
+   * Use this property to override the [`questionErrorLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionErrorLocation) property specified for the survey. You can also set the [`errorLocation`](https://surveyjs.io/form-library/documentation/question#errorLocation) property for individual questions.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the `questionErrorLocation` property specified for the survey.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   */
   public get questionErrorLocation(): string {
     return this.getPropertyValue("questionErrorLocation");
   }

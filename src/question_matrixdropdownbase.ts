@@ -932,12 +932,32 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   set columnsLocation(val: string) {
     this.columnLayout = val;
   }
+  /**
+   * Specifies the error message position for question within detail sections.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   * @see cellsErrorLocation
+   */
   public get detailErrorLocation(): string {
     return this.getPropertyValue("detailErrorLocation");
   }
   public set detailErrorLocation(value: string) {
     this.setPropertyValue("detailErrorLocation", value.toLowerCase());
   }
+  /**
+   * Specifies the error message position relative to matrix cells.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above matrix cells.
+   * - `"bottom"` - Displays error messages below matrix cells.
+   * @see detailErrorLocation
+   */
   public get cellsErrorLocation(): string {
     return this.getPropertyValue("cellsErrorLocation");
   }

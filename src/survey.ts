@@ -2532,12 +2532,14 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
   }
   /**
-   * Gets or sets the error message position.
+   * Specifies the error message position.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `top` - to show question error(s) over the question,
-   * - `bottom` - to show question error(s) under the question.
+   * - `"top"` (default) - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   *
+   * You can override this setting if you specify the `questionErrorLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionErrorLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionErrorLocation) or set the `errorLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#errorLocation).
    */
   public get questionErrorLocation(): string {
     return this.getPropertyValue("questionErrorLocation");

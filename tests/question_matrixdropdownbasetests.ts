@@ -605,10 +605,10 @@ QUnit.test("Error location from survey/matrix/properties", function (assert) {
   matrix.errorLocation = "top";
   assert.equal(qCell.getErrorLocation(), "top", "cell, #2");
   assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #2");
-  matrix.cellsErrorLocation = "bottom";
+  matrix.cellErrorLocation = "bottom";
   assert.equal(qCell.getErrorLocation(), "bottom", "cell, #3");
   assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #3");
-  matrix.cellsErrorLocation = "default";
+  matrix.cellErrorLocation = "default";
   matrix.detailErrorLocation = "bottom";
   assert.equal(qCell.getErrorLocation(), "top", "cell, #4");
   assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #4");

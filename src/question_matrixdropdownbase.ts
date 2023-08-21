@@ -940,7 +940,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
    * - `"top"` - Displays error messages above questions.
    * - `"bottom"` - Displays error messages below questions.
-   * @see cellsErrorLocation
+   * @see cellErrorLocation
    */
   public get detailErrorLocation(): string {
     return this.getPropertyValue("detailErrorLocation");
@@ -958,14 +958,14 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    * - `"bottom"` - Displays error messages below matrix cells.
    * @see detailErrorLocation
    */
-  public get cellsErrorLocation(): string {
-    return this.getPropertyValue("cellsErrorLocation");
+  public get cellErrorLocation(): string {
+    return this.getPropertyValue("cellErrorLocation");
   }
-  public set cellsErrorLocation(value: string) {
-    this.setPropertyValue("cellsErrorLocation", value.toLowerCase());
+  public set cellErrorLocation(value: string) {
+    this.setPropertyValue("cellErrorLocation", value.toLowerCase());
   }
   public getChildErrorLocation(child: Question): string {
-    const errLocation = !!child.parent ? this.detailErrorLocation : this.cellsErrorLocation;
+    const errLocation = !!child.parent ? this.detailErrorLocation : this.cellErrorLocation;
     if(errLocation !== "default") return errLocation;
     return super.getChildErrorLocation(child);
   }
@@ -2421,7 +2421,7 @@ Serializer.addClass(
       choices: ["none", "underRow", "underRowSingle"],
       default: "none",
     },
-    { name: "cellsErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
+    { name: "cellErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
     { name: "detailErrorLocation", default: "default", choices: ["default", "top", "bottom"],
       visibleIf: (obj: any) => { return !!obj && obj.detailPanelMode != "none"; }
     },

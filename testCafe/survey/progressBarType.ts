@@ -103,11 +103,6 @@ const json_toc = {
   ]
 };
 
-const setProgressBarType_questions = ClientFunction(() => {
-  window["survey"].progressBarType = "";
-  window["survey"].render();
-});
-
 frameworks.forEach(async framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
@@ -115,7 +110,6 @@ frameworks.forEach(async framework => {
   );
   test("progressBarType:questions", async t => {
     await initSurvey(framework, json_questions);
-    await t.wait(1000);
     await t.expect(Selector("span").withText("Answered 0/4 questions").exists).ok()
       .typeText("input[type=email]", "stub@gmail.com")
       .pressKey("tab")
@@ -123,7 +117,6 @@ frameworks.forEach(async framework => {
   });
   test("progressBarType:requiredQuestions", async t => {
     await initSurvey(framework, json_requiredQuestions);
-    await t.wait(1000);
     await t.expect(Selector("span").withText("Answered 0/2 questions").exists).ok()
       .typeText("input[type=email]", "stub@gmail.com")
       .pressKey("tab")
@@ -131,7 +124,6 @@ frameworks.forEach(async framework => {
   });
   test("navigation:toc", async t => {
     await initSurvey(framework, json_toc);
-    await t.wait(1000);
     const page1 = Selector(".sv-list__item-body").withText("page1");
     const page2 = Selector(".sv-list__item-body").withText("page2");
     await t.expect(page1.exists).ok();

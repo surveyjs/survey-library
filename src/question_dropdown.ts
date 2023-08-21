@@ -234,7 +234,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.inputFieldComponent || this.itemComponent;
   }
   public get showSelectedItemLocText(): boolean {
-    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText;
+    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && !this.dropdownListModel.focused;
   }
   public get showInputFieldComponent(): boolean {
     return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();

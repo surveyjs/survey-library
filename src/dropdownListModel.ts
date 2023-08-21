@@ -211,7 +211,7 @@ export class DropdownListModel extends Base {
   }
 
   public get canShowSelectedItem(): boolean {
-    return this.focused || this._markdownMode || !this.searchEnabled;
+    return !this.focused || this._markdownMode || !this.searchEnabled;
   }
 
   @property({ defaultValue: true }) searchEnabled: boolean;

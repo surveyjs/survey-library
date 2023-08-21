@@ -2435,7 +2435,7 @@ QUnit.test("question.clearIncorrectValues and choicesByUrl", function (assert) {
   );
 });
 
-QUnit.test("questiontext.maxLength", function (assert) {
+QUnit.test("questiontext.maxLength & make it works for text input type only, #6750", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qText = new QuestionTextModel("q1");
@@ -2447,6 +2447,16 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), null, "makes it undefined");
   qText.maxLength = 5;
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
+  qText.maxLength = -1;
+  assert.equal(qText.getMaxLength(), 10, "get from survey again");
+  qText.inputType = "date";
+  assert.equal(qText.getMaxLength(), null, "input type is 'date'");
+  qText.inputType = "number";
+  assert.equal(qText.getMaxLength(), null, "input type is 'number'");
+  qText.inputType = "color";
+  assert.equal(qText.getMaxLength(), null, "input type is 'color'");
+  qText.inputType = "text";
+  assert.equal(qText.getMaxLength(), 10, "input type is 'text'");
 });
 
 QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {

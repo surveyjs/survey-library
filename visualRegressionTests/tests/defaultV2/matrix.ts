@@ -772,5 +772,53 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-with-boolean-column.png", questionRoot, t, comparer);
     });
   });
+  test("Matrix rubric alternate rows", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "planningPerformance",
+                "title": "Question",
+                "hideNumber": true,
+                "defaultValue": {
+                  "Row 1": "Column 1",
+                  "Row 2": "Column 2"
+                },
+                "alternateRows": true,
+                "columns": [
+                  "Column 1",
+                  "Column 2"
+                ],
+                "rows": [
+                  "Row 1",
+                  "Row 2"
+                ],
+                "cells": {
+                  "Row 1": {
+                    "Column 1": "Abc",
+                    "Column 2": "Cde"
+                  },
+                  "Row 2": {
+                    "Column 1": "Fgh",
+                    "Column 2": "Igk"
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "widthMode": "static"
+      });
+      //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      const rowElement = Selector(".sd-row");
+
+      await takeElementScreenshot("question-matrix-rubric-alternate-rows.png", rowElement, t, comparer);
+    });
+  });
 
 });

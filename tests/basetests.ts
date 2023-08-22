@@ -715,3 +715,11 @@ QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.
   question.resetPropertyValue("minWidth");
   assert.equal(question.minWidth, "300px", "minWidth property value is reset, #2");
 });
+QUnit.test("base.resetPropertyValue() for localization string", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.completeText, "Complete", "default value");
+  survey.completeText = "test";
+  assert.equal(survey.completeText, "test", "set value");
+  survey.resetPropertyValue("completeText");
+  assert.equal(survey.completeText, "Complete", "default value, #2");
+});

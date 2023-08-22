@@ -817,4 +817,5 @@ QUnit.test("Allow to set empty string if there is localization name", function(a
   locString.text = "";
   assert.equal(locString.renderedHtml, "", "empty rendred html");
   assert.equal(locString.text, "", "empty text");
+  assert.strictEqual(locString.getJson(), "", "Return empty string in getJson()");
 });

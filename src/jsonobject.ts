@@ -324,7 +324,7 @@ export class JsonObjectProperty implements IObject {
     }
     return (
       (value === false && (this.type == "boolean" || this.type == "switch")) ||
-      value === "" ||
+      (value === "" && !this.defaultValue) ||
       Helpers.isValueEmpty(value)
     );
   }

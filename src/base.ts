@@ -490,7 +490,13 @@ export class Base {
     return this.getDefaultPropertyValue(name) !== undefined;
   }
   public resetPropertyValue(name: string): void {
-    this.setPropertyValue(name, undefined);
+    const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+    if(locStr) {
+      locStr.clearLocale();
+    }
+    else {
+      this.setPropertyValue(name, undefined);
+    }
   }
   protected getPropertyValueWithoutDefault(name: string): any {
     return this.getPropertyValueCore(this.propertyHash, name);

@@ -108,6 +108,7 @@ export class MultipleTextItemModel extends Base
       this.editor.defaultValue = data.getItemDefaultValue(this.name);
       this.editor.setSurveyImpl(this);
       this.editor.parent = data;
+      this.editor.setParentQuestion(<any>data);
     }
   }
   /**
@@ -448,6 +449,28 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].localeChanged();
     }
   }
+  /**
+   * Specifies the error message position relative to individual input fields.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above input fields.
+   * - `"bottom"` - Displays error messages below input fields.
+   */
+  public get itemErrorLocation(): string {
+    return this.getPropertyValue("itemErrorLocation");
+  }
+  public set itemErrorLocation(val: string) {
+    this.setPropertyValue("itemErrorLocation", val);
+  }
+  public getQuestionErrorLocation(): string {
+    if(this.itemErrorLocation !== "default") return this.itemErrorLocation;
+    return this.getErrorLocation();
+  }
+  public getChildErrorLocation(child: Question): string {
+    return this.getQuestionErrorLocation();
+  }
   protected isNewValueCorrect(val: any): boolean {
     return Helpers.isValueObject(val);
   }
@@ -699,6 +722,7 @@ Serializer.addClass(
     { name: "!items:textitems", className: "multipletextitem" },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
+    { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
   ],
   function () {
     return new QuestionMultipleTextModel("");

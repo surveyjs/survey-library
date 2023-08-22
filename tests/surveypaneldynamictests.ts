@@ -5979,6 +5979,28 @@ QUnit.test("Make sure that panel is not collapsed on focusing the question", fun
   q2.focus();
   assert.equal(survey.currentPageNo, 1);
 });
+QUnit.test("templateErrorLocation property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  assert.equal(q1.getErrorLocation(), "top", "take from survey");
+  panel.errorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "take from question.errorLocation");
+  panel.templateErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "take from question.templateErrorLocation");
+});
 QUnit.test("paneldynamic.removePanelUI & confirmActionAsyncFunc, #6736", function(assert) {
   const prevAsync = settings.confirmActionAsyncFunc;
   const survey = new SurveyModel({

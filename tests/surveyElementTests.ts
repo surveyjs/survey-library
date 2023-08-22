@@ -245,3 +245,64 @@ QUnit.test("allowRootStyle", function (assert) {
   survey.css = defaultV2Css;
   assert.deepEqual(q1.rootStyle, {});
 });
+QUnit.test("question.errorLocation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.getErrorLocation(), "top", "#1");
+
+  survey.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#2");
+
+  q1.errorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#3");
+
+  q1.errorLocation = "default";
+  assert.equal(q1.getErrorLocation(), "bottom", "#4");
+
+  survey.questionErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#5");
+
+  q1.errorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#6");
+});
+QUnit.test("question.errorLocation & panel.questionErrorLocation & page.questionErrorLocation", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { name: "p1", type: "panel",
+            elements: [
+              {
+                name: "q1",
+                type: "text"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const p1 = survey.getPanelByName("p1");
+  const page = survey.currentPage;
+  assert.equal(q1.getErrorLocation(), "top", "#1");
+
+  survey.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#2");
+
+  page.questionErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#3");
+
+  p1.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#4");
+
+  q1.errorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#5");
+});

@@ -482,20 +482,22 @@ export var settings = {
    */
   tagboxCloseOnSelect: false,
   /**
-   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog. Set this property to a function that renders your custom dialog window.
+   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog.
+   *
+   * Set this property to a function that renders your custom dialog window. This function should return `true` if a user confirms an action or `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    */
   confirmActionFunc: function (message: string): boolean {
     return confirm(message);
   },
   /**
-   * A property that allows you to display a custom confirm dialog in async mode instead of the standard browser dialog. Set this property to a function that renders your custom dialog window in async mode.
+   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog in async mode.
+   *
+   * Set this property to a function that renders your custom dialog window. This function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
-   * @param callback A callback function that should be called with res paramter equals to true if action is confirmed and equals to false otherwise.
+   * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsyncFunc: function (message: string, resFunc: (res: boolean) => void): boolean {
-    //when you finish with displaying your dialog, call the resFunc as resFunc(true) or resFunc(false).
-    //You should return true to tell that you use this function
+  confirmActionAsyncFunc: function (message: string, callback: (res: boolean) => void): boolean {
     return false;
   },
   /**

@@ -315,6 +315,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getChildrenLayoutType(): string;
   getQuestionTitleLocation(): string;
   getQuestionStartIndex(): string;
+  getQuestionErrorLocation(): string;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;

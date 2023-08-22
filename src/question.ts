@@ -566,8 +566,29 @@ export class Question extends SurveyElement<Question>
     const location = this.getTitleLocation();
     return location === "left" || location === "top";
   }
+  /**
+   * Specifies the error message position. Overrides the `questionErrorLocation` property specified for the question's container ([survey](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionErrorLocation), [page](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionErrorLocation), or [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionErrorLocation)).
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the `questionErrorLocation` property specified for the question's container.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   */
   public get errorLocation(): string {
+    return this.getPropertyValue("errorLocation");
+  }
+  public set errorLocation(val: string) {
+    this.setPropertyValue("errorLocation", val);
+  }
+  public getErrorLocation(): string {
+    if(this.errorLocation !== "default") return this.errorLocation;
+    if(this.parentQuestion) return this.parentQuestion.getChildErrorLocation(this);
+    if(this.parent) return this.parent.getQuestionErrorLocation();
     return this.survey ? this.survey.questionErrorLocation : "top";
+  }
+  public getChildErrorLocation(child: Question): string {
+    return this.getErrorLocation();
   }
   /**
    * Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel), and similar question types).
@@ -871,7 +892,7 @@ export class Question extends SurveyElement<Question>
   }
 
   public showErrorOnCore(location: string): boolean {
-    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.errorLocation === location;
+    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
   }
 
   public get showErrorOnTop(): boolean {
@@ -891,10 +912,10 @@ export class Question extends SurveyElement<Question>
     return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
   }
   public get showErrorsAboveQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.errorLocation === "top";
+    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.errorLocation === "bottom";
+    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "bottom";
   }
 
   public get cssError(): string {
@@ -2396,6 +2417,7 @@ Serializer.addClass("question", [
     name: "requiredErrorText:text",
     serializationProperty: "locRequiredErrorText",
   },
+  { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
   {
     name: "validators:validators",

@@ -933,6 +933,43 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.columnLayout = val;
   }
   /**
+   * Specifies the error message position for question within detail sections.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   * @see cellErrorLocation
+   */
+  public get detailErrorLocation(): string {
+    return this.getPropertyValue("detailErrorLocation");
+  }
+  public set detailErrorLocation(value: string) {
+    this.setPropertyValue("detailErrorLocation", value.toLowerCase());
+  }
+  /**
+   * Specifies the error message position relative to matrix cells.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above matrix cells.
+   * - `"bottom"` - Displays error messages below matrix cells.
+   * @see detailErrorLocation
+   */
+  public get cellErrorLocation(): string {
+    return this.getPropertyValue("cellErrorLocation");
+  }
+  public set cellErrorLocation(value: string) {
+    this.setPropertyValue("cellErrorLocation", value.toLowerCase());
+  }
+  public getChildErrorLocation(child: Question): string {
+    const errLocation = !!child.parent ? this.detailErrorLocation : this.cellErrorLocation;
+    if(errLocation !== "default") return errLocation;
+    return super.getChildErrorLocation(child);
+  }
+  /**
    * Returns `true` if columns are placed in the horizontal direction and rows in the vertical direction.
    *
    * To specify the layout, use the `columnLayout` property. If you set it to `"vertical"`, the survey applies it only when the screen has enough space. Otherwise, the survey falls back to the horizontal layout, but the `columnLayout` property remains set to `"vertical"`. Unlike `columnLayout`, the `isColumnLayoutHorizontal` property always indicates the current layout.
@@ -2264,6 +2301,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!this.onCreateDetailPanelCallback) {
       this.onCreateDetailPanelCallback(row, panel);
     }
+    panel.questions.forEach(q => q.setParentQuestion(this));
     return panel;
   }
   getSharedQuestionByName(
@@ -2382,6 +2420,10 @@ Serializer.addClass(
       name: "detailPanelMode",
       choices: ["none", "underRow", "underRowSingle"],
       default: "none",
+    },
+    { name: "cellErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
+    { name: "detailErrorLocation", default: "default", choices: ["default", "top", "bottom"],
+      visibleIf: (obj: any) => { return !!obj && obj.detailPanelMode != "none"; }
     },
     "horizontalScroll:boolean",
     {

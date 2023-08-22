@@ -809,8 +809,8 @@ QUnit.test("Support disableLocalization", function(assert) {
   assert.deepEqual(locString.getJson(), "default-2", "#4");
 });
 QUnit.test("Allow to set empty string if there is localization name", function(assert) {
-  var owner = new LocalizableOwnerTester("");
-  var locString = new LocalizableString(owner, true);
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
   locString.localizationName = "completeText";
   assert.equal(locString.renderedHtml, "Complete", "get value from localizationName, renderedHtml");
   assert.equal(locString.text, "Complete", "get value from localizationName, text");
@@ -818,4 +818,9 @@ QUnit.test("Allow to set empty string if there is localization name", function(a
   assert.equal(locString.renderedHtml, "", "empty rendred html");
   assert.equal(locString.text, "", "empty text");
   assert.strictEqual(locString.getJson(), "", "Return empty string in getJson()");
+  const locString2 = new LocalizableString(owner, true);
+  locString2.localizationName = "completeText";
+  assert.equal(locString2.renderedHtml, "Complete", "locString2 = default value, renderedHtml");
+  locString2.setJson("");
+  assert.equal(locString2.renderedHtml, "", "locString2 = empty string after setJson, renderedHtml");
 });

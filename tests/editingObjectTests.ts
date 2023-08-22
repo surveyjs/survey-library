@@ -1461,9 +1461,14 @@ QUnit.test("Allow to set empty string into localization string & string property
   assert.strictEqual(minWidthQuestion.value, "", "minWidth question value is empty");
   assert.strictEqual(question.placeholder, "", "dropdown.placeholder value is empty");
   assert.strictEqual(question.minWidth, "", "dropdown.minWidth value is empty");
-  /* TODO
   assert.deepEqual(question.toJSON(), {
     name: "q1", placeholder: "", minWidth: ""
   });
-  */
+  const q2 = Serializer.createClass("dropdown");
+  q2.fromJSON({
+    name: "q2", placeholder: "", minWidth: ""
+  });
+  assert.equal(q2.name, "q2", "set the name correctly");
+  assert.strictEqual(q2.placeholder, "", "q2.placeholder value is empty");
+  assert.strictEqual(q2.minWidth, "", "q2.minWidth value is empty");
 });

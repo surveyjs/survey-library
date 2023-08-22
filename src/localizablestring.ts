@@ -271,7 +271,7 @@ export class LocalizableString implements ILocalizableString {
     }
     this.values = {};
     this.htmlValues = {};
-    if (!value) return;
+    if (value === null || value === undefined) return;
     if (typeof value === "string") {
       this.setLocaleText(null, value);
     } else {

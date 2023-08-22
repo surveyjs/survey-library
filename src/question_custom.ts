@@ -588,6 +588,9 @@ export abstract class QuestionCustomModelBase extends Question
   validateContainerOnly(): void {
     // do nothing
   }
+  getQuestionErrorLocation(): string {
+    return this.getErrorLocation();
+  }
   protected getContentDisplayValueCore(keyAsText: boolean, value: any, question: Question): any {
     if (!question) return super.getDisplayValueCore(keyAsText, value);
     return this.customQuestion.getDisplayValue(keyAsText, value, question);

@@ -245,11 +245,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
 
   private get showCellErrorsTop() {
     //todo
-    return this.matrix.errorLocation == "top";
+    return this.matrix.getErrorLocation() === "top";
   }
   private get showCellErrorsBottom() {
     //todo
-    return this.matrix.errorLocation == "bottom";
+    return this.matrix.getErrorLocation() === "bottom";
   }
 
   protected build() {

@@ -226,6 +226,9 @@
   .sv-ranking__container--empty {
     padding-top: calcSize(1);
     padding-bottom: calcSize(1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 
@@ -242,15 +245,23 @@
 
   .sv-ranking__container--empty {
     &.sv-ranking__container--to {
-      padding-right: calcSize(3);
+      //padding-right: calcSize(3);
 
       .sv-ranking-item {
         left: initial;
       }
+
+      .sv-ranking__container-placeholder {
+        padding-left: calcSize(5);
+      }
     }
 
     &.sv-ranking__container--from {
-      padding-left: calcSize(3);
+      //padding-left: calcSize(3);
+
+      .sv-ranking__container-placeholder {
+        padding-right: calcSize(5);
+      }
     }
   }
 }
@@ -262,17 +273,17 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%;
+  //width: 100%;
   height: 100%;
 }
 
 .sv-ranking__container {
   flex: 1;
-  max-width: 100%;
+  //max-width: 100%;
 }
 
 .sv-ranking__container--empty {
-  padding: calcSize(8);
+  //padding: calcSize(8);
   box-sizing: border-box;
   text-align: center;
 }

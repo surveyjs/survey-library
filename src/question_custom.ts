@@ -39,7 +39,9 @@ export interface ICustomQuestionTypeConfiguration {
    */
   title?: string;
   /**
-   * An icon name for the custom question type.
+   * The name of an icon to use for the custom question type.
+   *
+   * [UI Icons](https://surveyjs.io/form-library/documentation/icons (linkStyle))
    */
   iconName?: string;
   /**

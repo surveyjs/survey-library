@@ -12,8 +12,13 @@
       v-show="question.needShowPlaceholder()"
     >{{ question.placeHolderText }}</div>
     <div>
-      <img v-if="question.backgroundImage" :class="question.cssClasses.backgroundImage" :src="question.backgroundImage"
-      :width="question.signatureWidth" :height="question.signatureHeight">
+      <img
+        v-if="question.backgroundImage"
+        :class="question.cssClasses.backgroundImage"
+        :src="question.backgroundImage"
+        :width="question.signatureWidth"
+        :height="question.signatureHeight"
+      />
       <canvas tabindex="0" :class="question.cssClasses.canvas"></canvas>
     </div>
     <div

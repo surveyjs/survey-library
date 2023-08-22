@@ -24,8 +24,8 @@ function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: (
     if(res) funcOnYes();
     else if(!!funcOnNo) funcOnNo();
   };
-  if(!!settings && !!settings.confirmActionAsyncFunc) {
-    if(settings.confirmActionAsyncFunc(message, callbackFunc)) return;
+  if(!!settings && !!settings.confirmActionAsync) {
+    if(settings.confirmActionAsync(message, callbackFunc)) return;
   }
   callbackFunc(confirmAction(message));
 }

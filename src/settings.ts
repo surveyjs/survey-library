@@ -497,7 +497,7 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsyncFunc: function (message: string, callback: (res: boolean) => void): boolean {
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void): boolean {
     return false;
   },
   /**

@@ -8,7 +8,7 @@
       <!-- /ko -->
       <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     
         <div data-bind="css: question.getFileDecoratorCss()">
-          <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.dragAreaPlaceholder"></span>
+          <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.renderedPlaceholder"></span>
           <div data-bind="css: question.cssClasses.wrapper">
             <!-- ko ifnot: isReadOnly -->
             <label tabindex="0" role="button" data-bind="css: question.koChooseFileCss, key2click, attr: { for: question.inputId, 'aria-label': question.koGetChooseButtonText() }">

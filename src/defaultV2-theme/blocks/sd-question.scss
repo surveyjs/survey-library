@@ -163,7 +163,7 @@
   min-height: calcSize(24);
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  color: $foreground-light;
+  color: $font-questionplaceholder-color;
 
   &>div,
   &>span {

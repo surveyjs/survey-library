@@ -5,6 +5,7 @@ import { property, Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
+import { QuestionTextModel } from "../src/question_text";
 
 export default QUnit.module("Base");
 
@@ -694,4 +695,23 @@ QUnit.test("Subscribe localizable property", function (assert) {
   base4.propL = "localizable value";
   assert.equal(base4.propC, "localizable value");
   assert.equal(updaterCallCount1, 2, "update called - localizable value");
+});
+QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.resetPropertyValue()", function (assert) {
+  const question = new QuestionTextModel("q1");
+  assert.equal(question.hasDefaultPropertyValue("width"), false, "question.width has no default value");
+  assert.notOk(question.getDefaultPropertyValue("width"), "question.width default value is undefined");
+  question.width = "200px";
+  question.resetPropertyValue("width");
+  assert.notOk(question.width, "width property value is empty");
+
+  assert.equal(question.hasDefaultPropertyValue("minWidth"), true, "question.minWidth has default value");
+  assert.ok(question.getDefaultPropertyValue("minWidth"), "question.minWidth default value is 300px");
+  question.minWidth = "200px";
+  assert.equal(question.minWidth, "200px", "minWidth property is set to 200px");
+  question.resetPropertyValue("minWidth");
+  assert.equal(question.minWidth, "300px", "minWidth property value is reset, #1");
+  question.minWidth = "";
+  assert.strictEqual(question.minWidth, "", "minWidth property value is empty string");
+  question.resetPropertyValue("minWidth");
+  assert.equal(question.minWidth, "300px", "minWidth property value is reset, #2");
 });

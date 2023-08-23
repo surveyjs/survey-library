@@ -245,11 +245,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
 
   private get showCellErrorsTop() {
     //todo
-    return this.matrix.errorLocation == "top";
+    return this.matrix.getErrorLocation() === "top";
   }
   private get showCellErrorsBottom() {
     //todo
-    return this.matrix.errorLocation == "bottom";
+    return this.matrix.getErrorLocation() === "bottom";
   }
 
   protected build() {
@@ -392,10 +392,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!isShown) return;
     this.headerRowValue = this.createRenderedRow(this.cssClasses);
     if (this.allowRowsDragAndDrop) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.hasActionCellInRows("start")) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.matrix.hasRowText && this.matrix.showHeader) {
       this.headerRow.cells.push(this.createHeaderCell(null));
@@ -943,12 +943,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       .toString();
   }
   private createHeaderCell(
-    column: MatrixDropdownColumn
+    column: MatrixDropdownColumn,
+    cellType: string = null
   ): QuestionMatrixDropdownRenderedCell {
     let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
     this.setHeaderCell(column, cell);
-    const cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
+    if (!cellType) cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
     this.setHeaderCellCssClasses(cell, cellType);
     return cell;
   }

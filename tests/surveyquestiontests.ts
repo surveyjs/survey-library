@@ -2435,7 +2435,7 @@ QUnit.test("question.clearIncorrectValues and choicesByUrl", function (assert) {
   );
 });
 
-QUnit.test("questiontext.maxLength", function (assert) {
+QUnit.test("questiontext.maxLength & make it works for text input type only, #6750", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qText = new QuestionTextModel("q1");
@@ -2447,6 +2447,16 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), null, "makes it undefined");
   qText.maxLength = 5;
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
+  qText.maxLength = -1;
+  assert.equal(qText.getMaxLength(), 10, "get from survey again");
+  qText.inputType = "date";
+  assert.equal(qText.getMaxLength(), null, "input type is 'date'");
+  qText.inputType = "number";
+  assert.equal(qText.getMaxLength(), null, "input type is 'number'");
+  qText.inputType = "color";
+  assert.equal(qText.getMaxLength(), null, "input type is 'color'");
+  qText.inputType = "text";
+  assert.equal(qText.getMaxLength(), 10, "input type is 'text'");
 });
 
 QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {
@@ -5494,6 +5504,32 @@ QUnit.test("Multiple Text Question: itemSize", function (assert) {
   assert.equal(q1.inputSize, 10, "q1 rendered size is 10");
   assert.equal(q2.inputSize, 0, "q2 rendered size is still empty");
   assert.equal(q3.inputSize, 15, "q3 rendered size is 15, from parent");
+});
+QUnit.test("Multiple Text Question: errorLocation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext",
+        name: "q1",
+        items: [
+          {
+            name: "text1",
+          }
+        ],
+      },
+    ],
+  });
+  const q = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  const qItem = q.items[0].editor;
+  assert.equal(qItem.getErrorLocation(), "top", "survey, #1");
+  survey.questionErrorLocation = "bottom";
+  assert.equal(qItem.getErrorLocation(), "bottom", "survey, #2");
+  q.errorLocation = "top";
+  assert.equal(qItem.getErrorLocation(), "top", "question");
+  q.itemErrorLocation = "bottom";
+  assert.equal(q.getQuestionErrorLocation(), "bottom", "q.getQuestionErrorLocation");
+  assert.equal(qItem.parentQuestion.name, "q1", "Parent is here");
+  assert.equal(qItem.getErrorLocation(), "bottom", "itemErrorLocation");
 });
 QUnit.test(
   "multipletext question: empty string should return isEmpty(), bug #2803",

@@ -1,5 +1,4 @@
 import { HashTable, Helpers } from "./helpers";
-
 import {
   IElement,
   IQuestion,
@@ -11,8 +10,7 @@ import {
   IProgressInfo,
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { surveyLocalization } from "./surveyStrings";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import {
   TextPreProcessorValue,
   QuestionTextProcessor,
@@ -23,7 +21,7 @@ import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { KeyDuplicationError } from "./error";
 import { settings } from "./settings";
-import { confirmAction, mergeValues } from "./utils/utils";
+import { confirmActionAsync } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
@@ -917,6 +915,21 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("templateTitleLocation", value.toLowerCase());
   }
   /**
+   * Specifies the error message position.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   */
+  public get templateErrorLocation(): string {
+    return this.getPropertyValue("templateErrorLocation");
+  }
+  public set templateErrorLocation(value: string) {
+    this.setPropertyValue("templateErrorLocation", value.toLowerCase());
+  }
+  /**
    * Use this property to show/hide the numbers in titles in questions inside a dynamic panel.
    * By default the value is "off". You may set it to "onPanel" and the first question inside a dynamic panel will start with 1 or "onSurvey" to include nested questions in dymamic panels into global survey question numbering.
    */
@@ -1236,9 +1249,11 @@ export class QuestionPanelDynamicModel extends Question
    * @see canRemovePanel
    *
    */
-  public removePanelUI(value: any) {
+  public removePanelUI(value: any): void {
     if (!this.canRemovePanel) return;
-    if (!this.confirmDelete || confirmAction(this.confirmDeleteText)) {
+    if(this.confirmDelete) {
+      confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); });
+    } else {
       this.removePanel(value);
     }
   }
@@ -1765,16 +1780,17 @@ export class QuestionPanelDynamicModel extends Question
     var panel = this.createNewPanelObject();
     panel.isInteractiveDesignElement = false;
     panel.setParentQuestion(this);
-    var self = this;
-    panel.onGetQuestionTitleLocation = function () {
-      return self.getTemplateQuestionTitleLocation();
-    };
+    panel.onGetQuestionTitleLocation = () => this.getTemplateQuestionTitleLocation();
     return panel;
   }
-  private getTemplateQuestionTitleLocation() {
+  private getTemplateQuestionTitleLocation(): string {
     return this.templateTitleLocation != "default"
       ? this.templateTitleLocation
       : this.getTitleLocationCore();
+  }
+  public getChildErrorLocation(child: Question): string {
+    if(this.templateErrorLocation !== "default") return this.templateErrorLocation;
+    return super.getChildErrorLocation(child);
   }
   protected createNewPanelObject(): PanelModel {
     return Serializer.createClass("panel");
@@ -2300,6 +2316,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "top", "bottom", "left"],
     },
+    { name: "templateErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
     {
       name: "templateVisibleIf:expression",
       category: "logic"

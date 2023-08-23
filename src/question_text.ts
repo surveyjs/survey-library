@@ -11,7 +11,7 @@ import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 
 /**
- * A class that describes the Text question type.
+ * A class that describes the Single-Line Input question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-text/ (linkStyle))
  */
@@ -64,6 +64,10 @@ export class QuestionTextModel extends QuestionTextBase {
       this.max = undefined;
       this.step = undefined;
     }
+  }
+  public getMaxLength(): any {
+    if(this.inputType !== "text") return null;
+    return super.getMaxLength();
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);

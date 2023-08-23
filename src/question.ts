@@ -827,6 +827,7 @@ export class Question extends SurveyElement<Question>
       .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot)
+      .append(cssClasses.titleTopRoot, this.hasTitleOnTop)
       .append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft)
       .append(cssClasses.hasError, this.errors.length > 0)
       .append(cssClasses.small, !this.width)

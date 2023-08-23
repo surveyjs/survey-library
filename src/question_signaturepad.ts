@@ -321,6 +321,10 @@ Serializer.addClass(
       default: true,
     },
     {
+      name: "backgroundImage",
+      category: "general",
+    },
+    {
       name: "penColor:color",
       category: "general",
     },
@@ -328,7 +332,6 @@ Serializer.addClass(
       name: "backgroundColor:color",
       category: "general",
     },
-    { name: "backgroundImage" },
     {
       name: "dataFormat",
       category: "general",

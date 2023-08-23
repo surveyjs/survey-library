@@ -3,7 +3,7 @@ type="button"
 data-bind="css:question.getDetailPanelButtonCss(row), click:row.showHideDetailPanelClick, attr:{ 'aria-expanded': question.getIsDetailPanelShowing($data.row) ? 'true': 'false', 'aria-controls': question.getIsDetailPanelShowing($data.row) ? row.detailPanelId: false}"
 >
 <span
-  data-bind="css: question.getDetailPanelIconCss(row), component: { name: 'sv-svg-icon', params: {iconName: question.getDetailPanelIconId(row)} }"
+  data-bind="css: question.getDetailPanelIconCss(row), component: { name: 'sv-svg-icon', params: {iconName: question.getDetailPanelIconId(row),  size: 'auto'} }"
 >
 </span>
 </button>

@@ -364,6 +364,13 @@ frameworks.forEach(framework => {
 
       await takeElementScreenshot("question-matrix-dropdown-detail-expanded.png", questionRoot, t, comparer);
 
+      await ClientFunction(() => { window["survey"].getQuestionByName("q").showHeader = false; })();
+      await takeElementScreenshot("question-matrix-dropdown-detail-no-header-expanded.png", questionRoot, t, comparer);
+
+      await t.click(Selector(".sd-table__cell--detail-button").filterVisible().nth(1));
+      await t.hover(questionRoot, { offsetX: 1, offsetY: 1 });
+
+      await takeElementScreenshot("question-matrix-dropdown-detail-no-header.png", questionRoot, t, comparer);
     });
   });
 

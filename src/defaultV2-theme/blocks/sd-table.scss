@@ -190,6 +190,8 @@
   width: calcSize(1);
   &:not(.sd-table__cell--drag):first-of-type {
       padding-left: 0;
+      width: calcSize(5);
+      min-width: calcSize(5);
     }
 }
 

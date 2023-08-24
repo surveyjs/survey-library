@@ -2188,6 +2188,12 @@ export class Question extends SurveyElement<Question>
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
   }
 
+  protected onTextKeyDownHandler(event: any) {
+    if (event.keyCode === 13) {
+      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
+    }
+  }
+
   public transformToMobileView(): void { }
   public transformToDesktopView(): void { }
   public needResponsiveWidth() {
@@ -2324,6 +2330,7 @@ function makeNameValid(str: string): string {
   }
   return str;
 }
+
 Serializer.addClass("question", [
   { name: "!name", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   {

@@ -159,17 +159,14 @@
 }
 .sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
   min-width: calcSize(14);
-  width: calcSize(14);
 
   &.sd-table__cell--dropdown,
   &.sd-table__cell--rating {
     min-width: calcSize(22);
-    width: calcSize(22);
   }
 
   &.sd-table__cell--boolean {
     min-width: calcSize(18);
-    width: calcSize(18);
   }
 }
 

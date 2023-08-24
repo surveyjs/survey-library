@@ -154,8 +154,8 @@
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--action {
-  min-width: calcSize(2);
-  width: calcSize(2);
+  min-width: calcSize(3);
+    width: calcSize(3);
 }
 .sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
   min-width: calcSize(14);
@@ -190,8 +190,8 @@
   width: calcSize(1);
   &:not(.sd-table__cell--drag):first-of-type {
       padding-left: 0;
-      width: calcSize(5);
-      min-width: calcSize(5);
+      width: calcSize(4);
+      min-width: calcSize(4);
     }
 }
 

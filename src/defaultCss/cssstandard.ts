@@ -350,6 +350,8 @@ export var defaultStandardCss = {
     root: "sv_q_signaturepad sjs_sp_container",
     controls: "sjs_sp_controls",
     placeholder: "sjs_sp_placeholder",
+    canvas: "sjs_sp_canvas",
+    backgroundImage: "sjs_sp__background-image",
     clearButton: "sjs_sp_clear",
   },
   saveData: {

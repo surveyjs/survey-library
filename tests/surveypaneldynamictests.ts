@@ -5979,8 +5979,30 @@ QUnit.test("Make sure that panel is not collapsed on focusing the question", fun
   q2.focus();
   assert.equal(survey.currentPageNo, 1);
 });
-QUnit.test("paneldynamic.removePanelUI & confirmActionAsyncFunc, #6736", function(assert) {
-  const prevAsync = settings.confirmActionAsyncFunc;
+QUnit.test("templateErrorLocation property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  assert.equal(q1.getErrorLocation(), "top", "take from survey");
+  panel.errorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "take from question.errorLocation");
+  panel.templateErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "take from question.templateErrorLocation");
+});
+QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(assert) {
+  const prevAsync = settings.confirmActionAsync;
   const survey = new SurveyModel({
     questions: [
       {
@@ -6000,7 +6022,7 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsyncFunc, #6736", functio
   panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
   assert.equal(panel.panelCount, 3, "There are 3 panels by default");
   let f_resFunc = (res: boolean): void => {};
-  settings.confirmActionAsyncFunc = (message: string, resFunc: (res: boolean) => void): boolean => {
+  settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void): boolean => {
     f_resFunc = resFunc;
     return true;
   };
@@ -6014,5 +6036,5 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsyncFunc, #6736", functio
   assert.equal(panel.panelCount, 2, "confirm action return true");
   assert.deepEqual(panel.value, [{ q1: 1 }, { q1: 3 }], "Row is deleted correctly");
 
-  settings.confirmActionAsyncFunc = prevAsync;
+  settings.confirmActionAsync = prevAsync;
 });

@@ -8710,8 +8710,8 @@ QUnit.test("Errors: matrixdropdown + mobile mode", function (assert) {
   assert.equal(table.rows[0].cells[3].isErrorsCell, true);
   assert.equal(table.rows[0].cells[4].hasQuestion, true);
 });
-QUnit.test("matrixdynamic.removeRow & confirmActionAsyncFunc, #6736", function (assert) {
-  const prevAsync = settings.confirmActionAsyncFunc;
+QUnit.test("matrixdynamic.removeRow & confirmActionAsync, #6736", function (assert) {
+  const prevAsync = settings.confirmActionAsync;
 
   const survey = new SurveyModel({
     elements: [
@@ -8723,7 +8723,7 @@ QUnit.test("matrixdynamic.removeRow & confirmActionAsyncFunc, #6736", function (
   const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   q.value = [{ col1: 1 }, { col1: 2 }, { col1: 3 }];
   let f_resFunc = (res: boolean): void => {};
-  settings.confirmActionAsyncFunc = (message: string, resFunc: (res: boolean) => void): boolean => {
+  settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void): boolean => {
     f_resFunc = resFunc;
     return true;
   };
@@ -8737,5 +8737,5 @@ QUnit.test("matrixdynamic.removeRow & confirmActionAsyncFunc, #6736", function (
   assert.equal(q.visibleRows.length, 2, "confirm action return true");
   assert.deepEqual(q.value, [{ col1: 1 }, { col1: 3 }], "Row is deleted correctly");
 
-  settings.confirmActionAsyncFunc = prevAsync;
+  settings.confirmActionAsync = prevAsync;
 });

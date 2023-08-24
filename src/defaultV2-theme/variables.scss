@@ -92,6 +92,10 @@ $font-questiondescription-color: var(
   var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45))
 );
 $font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 * var(--sjs-font-size, $font-size)));
+$font-questionplaceholder-color: var(
+  --sjs-font-questiondescription-color,
+  var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45))
+);
 
 $font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
 $font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);

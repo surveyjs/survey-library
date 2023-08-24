@@ -10,11 +10,16 @@
     <div
       :class="question.cssClasses.placeholder"
       v-show="question.needShowPlaceholder()"
-    >
-      {{ question.placeHolderText }}
-    </div>
+    >{{ question.placeHolderText }}</div>
     <div>
-      <canvas tabindex="0"></canvas>
+      <img
+        v-if="question.backgroundImage"
+        :class="question.cssClasses.backgroundImage"
+        :src="question.backgroundImage"
+        :width="question.signatureWidth"
+        :height="question.signatureHeight"
+      />
+      <canvas tabindex="0" :class="question.cssClasses.canvas"></canvas>
     </div>
     <div
       :class="question.cssClasses.controls"

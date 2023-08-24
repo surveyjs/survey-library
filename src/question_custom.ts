@@ -39,7 +39,9 @@ export interface ICustomQuestionTypeConfiguration {
    */
   title?: string;
   /**
-   * An icon name for the custom question type.
+   * The name of an icon to use for the custom question type.
+   *
+   * [UI Icons](https://surveyjs.io/form-library/documentation/icons (linkStyle))
    */
   iconName?: string;
   /**
@@ -587,6 +589,9 @@ export abstract class QuestionCustomModelBase extends Question
   }
   validateContainerOnly(): void {
     // do nothing
+  }
+  getQuestionErrorLocation(): string {
+    return this.getErrorLocation();
   }
   protected getContentDisplayValueCore(keyAsText: boolean, value: any, question: Question): any {
     if (!question) return super.getDisplayValueCore(keyAsText, value);

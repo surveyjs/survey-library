@@ -51,6 +51,10 @@
     td:first-of-type {
       background-color: $background-dim-light;
 
+      &.sd-matrix__text--checked {
+          background-color: $primary-light;
+      }
+
       .sd-input {
         background-color: $primary-foreground;
       }

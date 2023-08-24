@@ -1,7 +1,7 @@
 import { Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { EventBase } from "./base";
+import { EventBase, ComputedUpdater } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -226,6 +226,18 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
+
+  @property() renderedPlaceholderValue: string;
+  public get renderedPlaceholder(): string {
+    if(this.renderedPlaceholderValue === undefined) {
+      this.renderedPlaceholderValue = <string><unknown>(new ComputedUpdater<string>(() => {
+        const dragAreaText = this.dragAreaPlaceholder;
+        const readOnlyText = this.noFileChosenCaption;
+        return this.isReadOnly ? readOnlyText : dragAreaText;
+      }));
+    }
+    return this.renderedPlaceholderValue;
+  }
 
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;

@@ -5505,6 +5505,32 @@ QUnit.test("Multiple Text Question: itemSize", function (assert) {
   assert.equal(q2.inputSize, 0, "q2 rendered size is still empty");
   assert.equal(q3.inputSize, 15, "q3 rendered size is 15, from parent");
 });
+QUnit.test("Multiple Text Question: errorLocation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext",
+        name: "q1",
+        items: [
+          {
+            name: "text1",
+          }
+        ],
+      },
+    ],
+  });
+  const q = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  const qItem = q.items[0].editor;
+  assert.equal(qItem.getErrorLocation(), "top", "survey, #1");
+  survey.questionErrorLocation = "bottom";
+  assert.equal(qItem.getErrorLocation(), "bottom", "survey, #2");
+  q.errorLocation = "top";
+  assert.equal(qItem.getErrorLocation(), "top", "question");
+  q.itemErrorLocation = "bottom";
+  assert.equal(q.getQuestionErrorLocation(), "bottom", "q.getQuestionErrorLocation");
+  assert.equal(qItem.parentQuestion.name, "q1", "Parent is here");
+  assert.equal(qItem.getErrorLocation(), "bottom", "itemErrorLocation");
+});
 QUnit.test(
   "multipletext question: empty string should return isEmpty(), bug #2803",
   function (assert) {

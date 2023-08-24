@@ -1529,7 +1529,7 @@ QUnit.test(
     question.addColumn("col1");
     question.rowCount = 1;
     survey.setValue("matrix", "sometext");
-    assert.equal(question.value, "sometext", "It does not generate the error");
+    assert.equal(question.isEmpty(), true, "It does not generate the error");
   }
 );
 
@@ -3178,7 +3178,7 @@ QUnit.test("matrix.hasTotal property", function (assert) {
 QUnit.test("Test matrix.totalValue, expression question", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
-  var matrix = new QuestionMatrixDropdownModel("q1");
+  var matrix = new QuestionMatrixDynamicModel("q1");
   page.addElement(matrix);
   matrix.addColumn("col1");
   matrix.addColumn("col2");
@@ -3232,7 +3232,7 @@ QUnit.test("Test matrix.totalValue, expression question", function (assert) {
 QUnit.test("Test totals, different value types", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
-  var matrix = new QuestionMatrixDropdownModel("q1");
+  var matrix = new QuestionMatrixDynamicModel("q1");
   page.addElement(matrix);
   matrix.addColumn("col1");
   matrix.columns[0].totalType = "count";

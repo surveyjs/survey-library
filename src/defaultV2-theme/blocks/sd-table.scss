@@ -30,7 +30,7 @@
 }
 
 .sd-table--no-header {
-  padding-top: calcSize(3)
+  padding-top: calcSize(3);
 }
 .sd-table--alternate-rows {
   margin-left: calcSize(1);
@@ -197,11 +197,10 @@
   border: none;
   background: transparent;
   border-radius: calcSize(2);
-  width: calcSize(4);
-  height: calcSize(4);
   padding: calcSize(1);
 
   svg {
+    display: block;
     width: multiply(1, $font-editorfont-size);
     height: multiply(1, $font-editorfont-size);
     fill: $foreground-light;

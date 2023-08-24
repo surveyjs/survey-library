@@ -1,6 +1,7 @@
 const fs = require("fs");
 const MikeThemes = require("./themes.json");
 var themes = {};
+var articleFontSettings = {};
 
 const _dirPath = "./src/themes/";
 const displayNameMap = {
@@ -58,7 +59,23 @@ function getShadowSettings(shadowGroup) {
   return createBoxShadow(result);
 }
 
-Object.keys(MikeThemes).forEach(function (themeName) {
+if(!!MikeThemes["article"] && Object.keys(MikeThemes["article"]).length > 0) {
+  const allowedSettings = ["fontSize", "textDecoration", "fontFamily", "fontWeight", "fontStyle", "fontStretch", "letterSpacing", "lineHeight", "paragraphIndent", "paragraphSpacing", "textCase"];
+  Object.keys(MikeThemes["article"]).forEach(fontSettingsName => {
+    const fontSettings = MikeThemes["article"][fontSettingsName];
+    if(!!fontSettings && Object.keys(fontSettings).length > 0) {
+      Object.keys(fontSettings).filter(key => allowedSettings.indexOf(key) !== -1).forEach(key => {
+        let value = fontSettings[key]["value"];
+        if(value !== undefined) {
+          value = value + ((fontSettings[key]["type"] === "number" && fontSettings[key]["unit"] === "pixel") ? "px": "");
+        }
+        articleFontSettings["--sjs-article-font-" + fontSettingsName + "-" + key] = value;
+      });
+    }
+  });
+}
+
+Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf(key) === -1).forEach(function (themeName) {
   console.log(themeName);
 
   const generalGroup = MikeThemes[themeName]["general"];
@@ -128,6 +145,7 @@ Object.keys(MikeThemes).forEach(function (themeName) {
     themes[displayThemeName]["--sjs-special-yellow-light"] = specialGroup["yellow-light"] ? specialGroup["yellow-light"]["value"] : undefined;
     themes[displayThemeName]["--sjs-special-yellow-forecolor"] = specialGroup["yellow-forecolor"] ? specialGroup["yellow-forecolor"]["value"] : undefined;
   }
+  themes[displayThemeName] = Object.assign(themes[displayThemeName], articleFontSettings);
 });
 
 const predefinedThemesContent = JSON.stringify(themes, null, 4);

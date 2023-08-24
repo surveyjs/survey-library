@@ -494,3 +494,12 @@ QUnit.test("sumAnyValues", function(assert) {
   assert.equal(Helpers.sumAnyValues(["a", "b", "c"], " "), "a, b, c ", "['a', 'b', 'c'] + ' '");
   assert.equal(Helpers.sumAnyValues(["a", "b", "c"], ""), "a, b, c", "['a', 'b', 'c'] + ''");
 });
+QUnit.test("isValueObject", function(assert) {
+  assert.equal(Helpers.isValueObject("abc"), false, "abc");
+  assert.equal(Helpers.isValueObject("a string", true), false, "a string, exclude array");
+  assert.equal(Helpers.isValueObject(1), false, "1");
+  assert.equal(Helpers.isValueObject([1]), true, "[1]");
+  assert.equal(Helpers.isValueObject([1], true), false, "[1], exclude array");
+  assert.equal(Helpers.isValueObject({ a: "abc" }), true, "{ a: 'abc' }");
+  assert.equal(Helpers.isValueObject({ a: "abc" }, true), true, "{ a: 'abc' }, exclude array");
+});

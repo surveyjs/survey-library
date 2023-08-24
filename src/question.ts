@@ -1977,10 +1977,7 @@ export class Question extends SurveyElement<Question>
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
-    if(!this.isValueEmpty(newValue, !this.allowSpaceAsAnswer) && !this.isNewValueCorrect(newValue)) {
-      ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
-      return;
-    }
+    if(!this.checkIsValueCorrect(newValue)) return;
     this.isOldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
@@ -1988,6 +1985,13 @@ export class Question extends SurveyElement<Question>
       this.updateQuestionCss();
     }
     this.isOldAnswered = undefined;
+  }
+  private checkIsValueCorrect(val: any): boolean {
+    const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isNewValueCorrect(val);
+    if(!res) {
+      ConsoleWarnings.inCorrectQuestionValue(this.name, val);
+    }
+    return res;
   }
   protected isNewValueCorrect(val: any): boolean {
     return true;
@@ -2067,6 +2071,7 @@ export class Question extends SurveyElement<Question>
     if (!!this.valueFromDataCallback) {
       newValue = this.valueFromDataCallback(newValue);
     }
+    if(!this.checkIsValueCorrect(newValue)) return;
     this.setQuestionValue(this.valueFromData(newValue));
     this.updateDependedQuestions();
     this.updateIsAnswered();

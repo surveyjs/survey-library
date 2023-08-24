@@ -129,6 +129,11 @@ export class QuestionMatrixDropdownRenderedCell {
       .append(matrixCssClasses.choiceCell, this.isChoice)
       .toString();
   }
+  public focusIn(): void {
+    if(this.question) {
+      this.question.focusIn();
+    }
+  }
 }
 
 export class QuestionMatrixDropdownRenderedRow extends Base {

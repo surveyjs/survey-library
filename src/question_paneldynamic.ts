@@ -285,9 +285,9 @@ export class QuestionPanelDynamicModel extends Question
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
   }
-  public get hasSingleInput(): boolean {
-    return false;
-  }
+  public get isCompositeQuestion(): boolean { return true; }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   public getFirstQuestionToFocus(withError: boolean): Question {
     for (var i = 0; i < this.visiblePanels.length; i++) {
       const res = this.visiblePanels[i].getFirstQuestionToFocus(withError);
@@ -339,10 +339,7 @@ export class QuestionPanelDynamicModel extends Question
   public getType(): string {
     return "paneldynamic";
   }
-  public get isCompositeQuestion(): boolean {
-    return true;
-  }
-  public clearOnDeletingContainer() {
+  public clearOnDeletingContainer(): void {
     this.panels.forEach((panel) => {
       panel.clearOnDeletingContainer();
     });

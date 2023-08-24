@@ -35,7 +35,7 @@
     >
       <div :class="question.getFileDecoratorCss()">
         <span :class="question.cssClasses.dragAreaPlaceholder">{{
-          question.dragAreaPlaceholder
+          question.renderedPlaceholder
         }}</span>
         <div :class="question.cssClasses.wrapper">
           <label

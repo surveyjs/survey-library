@@ -933,7 +933,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.columnLayout = val;
   }
   /**
-   * Specifies the error message position for question within detail sections.
+   * Specifies the error message position for questions within detail sections.
    *
    * Possible values:
    *

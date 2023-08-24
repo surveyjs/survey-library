@@ -143,6 +143,13 @@
   }
 }
 
+.sv-popup.sv-popup--dropdown.sv-popup--dropdown {
+  .sd-list__item-body {
+    line-height: multiply(1.5, $font-editorfont-size);
+    font-size: $font-editorfont-size;
+  }
+}
+
 [dir="rtl"],
 [style*="direction:rtl"],
 [style*="direction: rtl"] {

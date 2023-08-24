@@ -36,7 +36,7 @@
       <div
         :class="question.getFileDecoratorCss()"
       >
-        <span :class="question.cssClasses.dragAreaPlaceholder">{{ question.dragAreaPlaceholder }}</span>
+        <span :class="question.cssClasses.dragAreaPlaceholder">{{ question.renderedPlaceholder }}</span>
         <div :class="question.cssClasses.wrapper">
           <label
             v-if="!question.isReadOnly"

@@ -121,7 +121,7 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   protected isNewValueCorrect(val: any): boolean {
-    return Helpers.isValueObject(val);
+    return Helpers.isValueObject(val, true);
   }
   public clearIncorrectValues() {
     var val = this.value;

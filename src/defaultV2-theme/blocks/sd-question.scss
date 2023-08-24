@@ -20,7 +20,7 @@
 }
 
 .sd-question__erbox--above-question {
-  margin-bottom: calc(var(--sd-base-vertical-padding) - #{$base-unit});
+  margin-bottom: var(--sd-base-vertical-padding);
 }
 
 .sd-question__erbox--below-question {
@@ -47,6 +47,7 @@
 }
 
 .sd-question__header--location-top {
+  margin-top: calc(-1 * 0.25 * var(--sd-base-vertical-padding));
   padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
 }
 
@@ -63,11 +64,6 @@
 
   &>.sd-question__erbox--above-question {
     margin-top: calc(-1 * var(--sd-base-padding));
-    margin-bottom: var(--sd-base-vertical-padding);
-  }
-
-  &>.sd-question__header--location-top {
-    margin-top: calcSize(-1);
   }
 
   &>.sd-question__content>.sd-question__header--location--bottom {
@@ -163,7 +159,7 @@
   min-height: calcSize(24);
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
-  color: $foreground-light;
+  color: $font-questionplaceholder-color;
 
   &>div,
   &>span {

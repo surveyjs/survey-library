@@ -472,7 +472,7 @@ export class QuestionMultipleTextModel extends Question
     return this.getQuestionErrorLocation();
   }
   protected isNewValueCorrect(val: any): boolean {
-    return Helpers.isValueObject(val);
+    return Helpers.isValueObject(val, true);
   }
   supportGoNextPageAutomatic(): boolean {
     for (var i = 0; i < this.items.length; i++) {

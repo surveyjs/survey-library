@@ -20,17 +20,11 @@
             display: none;
         }
 
-        padding-top: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
+        padding-top: var(--sd-base-vertical-padding);
 
         &>.sd-panel__title {
             color: $foreground-light;
         }
-    }
-}
-
-.sd-question__content:first-child>.sd-paneldynamic {
-    &>.sd-paneldynamic__panel-wrapper>.sd-panel>.sd-panel__header {
-        padding-top: var(--sd-base-vertical-padding);
     }
 }
 
@@ -135,6 +129,7 @@
         padding-bottom: var(--sd-base-padding);
     }
 }
+
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
     margin: 0 calcSize(-3);

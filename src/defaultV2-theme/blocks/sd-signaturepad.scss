@@ -23,4 +23,12 @@
     .sjs_sp_placeholder {
         background-color: $red-light;
     }
-} 
+}
+
+.sd-signaturepad__canvas,
+.sd-signaturepad__background-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    object-fit: cover;
+}

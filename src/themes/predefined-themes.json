@@ -87,7 +87,7 @@
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
         "--sjs-shadow-small": "0px 0px 0px 1px rgba(0, 0, 0, 0.15)",
-        "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.1),0px 0px 0px 1px rgba(0, 0, 0, 0.1)",
+        "--sjs-shadow-medium": "0px 0px 0px 1px rgba(0, 0, 0, 0.1),0px 2px 6px 0px rgba(0, 0, 0, 0.1)",
         "--sjs-shadow-inner": "0px 0px 0px 1px rgba(0, 0, 0, 0.12)",
         "--sjs-border-light": "rgba(0, 0, 0, 0.12)",
         "--sjs-border-default": "rgba(0, 0, 0, 0.12)"
@@ -120,7 +120,7 @@
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
         "--sjs-shadow-small": "0px 0px 0px 2px rgba(0, 0, 0, 0.07)",
-        "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.04),0px 0px 0px 2px rgba(0, 0, 0, 0.08)",
+        "--sjs-shadow-medium": "0px 0px 0px 2px rgba(0, 0, 0, 0.08),0px 2px 6px 0px rgba(0, 0, 0, 0.04)",
         "--sjs-shadow-large": "0px 8px 16px 0px rgba(0, 0, 0, 0.08)",
         "--sjs-shadow-inner": "0px 0px 0px 2px rgba(0, 0, 0, 0.1)",
         "--sjs-border-light": "rgba(0, 0, 0, 0.1)",
@@ -138,8 +138,8 @@
         "--sjs-primary-backcolor-dark": "rgba(105, 84, 152, 1)",
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
-        "--sjs-shadow-small": "0px 2px 4px 0px rgba(0, 0, 0, 0.1),0px 8px 16px 0px rgba(0, 0, 0, 0.1),0px 0px 0px 1px rgba(0, 0, 0, 0.05)",
-        "--sjs-shadow-inner": "inset 0px 1px 4px 0px rgba(0, 0, 0, 0.1),inset 0px 0px 0px 1px rgba(0, 0, 0, 0.05)"
+        "--sjs-shadow-small": "0px 0px 0px 1px rgba(0, 0, 0, 0.05),0px 8px 16px 0px rgba(0, 0, 0, 0.1),0px 2px 4px 0px rgba(0, 0, 0, 0.1)",
+        "--sjs-shadow-inner": "inset 0px 0px 0px 1px rgba(0, 0, 0, 0.05),inset 0px 1px 4px 0px rgba(0, 0, 0, 0.1)"
     },
     "solid": {
         "--sjs-general-backcolor": "rgba(255, 255, 255, 1)",
@@ -171,10 +171,10 @@
         "--sjs-primary-backcolor-dark": "rgba(189, 61, 84, 1)",
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
-        "--sjs-shadow-small": "0px 0px 0px 2px rgba(228, 228, 228, 1),0px 2px 0px 2px rgba(228, 228, 228, 1)",
-        "--sjs-shadow-medium": "0px 8px 0px 2px rgba(228, 228, 228, 1),0px 0px 0px 2px rgba(228, 228, 228, 1)",
+        "--sjs-shadow-small": "0px 2px 0px 2px rgba(228, 228, 228, 1),0px 0px 0px 2px rgba(228, 228, 228, 1)",
+        "--sjs-shadow-medium": "0px 0px 0px 2px rgba(228, 228, 228, 1),0px 8px 0px 2px rgba(228, 228, 228, 1)",
         "--sjs-shadow-large": "0px 0px 0px 0px rgba(0, 0, 0, 0.1)",
-        "--sjs-shadow-inner": "0px -2px 0px 2px rgba(228, 228, 228, 1),0px 0px 0px 2px rgba(228, 228, 228, 1)",
+        "--sjs-shadow-inner": "0px 0px 0px 2px rgba(228, 228, 228, 1),0px -2px 0px 2px rgba(228, 228, 228, 1)",
         "--sjs-border-light": "rgba(0, 0, 0, 0.08)",
         "--sjs-border-default": "rgba(0, 0, 0, 0.08)"
     },
@@ -196,7 +196,7 @@
         "--sjs-shadow-small": "0px 0px 0px 2px rgba(0, 0, 0, 1)",
         "--sjs-shadow-medium": "0px 0px 0px 2px rgba(0, 0, 0, 1)",
         "--sjs-shadow-large": "0px 6px 0px 0px rgba(0, 0, 0, 1)",
-        "--sjs-shadow-inner": "0px -2px 0px 2px rgba(0, 0, 0, 1),0px 0px 0px 2px rgba(0, 0, 0, 1)",
+        "--sjs-shadow-inner": "0px 0px 0px 2px rgba(0, 0, 0, 1),0px -2px 0px 2px rgba(0, 0, 0, 1)",
         "--sjs-border-light": "rgba(0, 0, 0, 0.2)",
         "--sjs-border-default": "rgba(0, 0, 0, 1)"
     },
@@ -257,7 +257,7 @@
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
         "--sjs-shadow-small": "0px 0px 0px 1px rgba(255, 255, 255, 0.28)",
-        "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.2),0px 0px 0px 1px rgba(255, 255, 255, 0.25)",
+        "--sjs-shadow-medium": "0px 0px 0px 1px rgba(255, 255, 255, 0.25),0px 2px 6px 0px rgba(0, 0, 0, 0.2)",
         "--sjs-shadow-inner": "0px 0px 0px 1px rgba(255, 255, 255, 0.22)",
         "--sjs-border-light": "rgba(255, 255, 255, 0.22)",
         "--sjs-border-default": "rgba(255, 255, 255, 0.22)"
@@ -292,7 +292,7 @@
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
         "--sjs-shadow-small": "0px 0px 0px 1px rgba(255, 255, 255, 0.09)",
-        "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.2),0px 0px 0px 1px rgba(255, 255, 255, 0.12)",
+        "--sjs-shadow-medium": "0px 0px 0px 1px rgba(255, 255, 255, 0.12),0px 2px 6px 0px rgba(0, 0, 0, 0.2)",
         "--sjs-shadow-inner": "0px 0px 0px 1px rgba(255, 255, 255, 0.07)",
         "--sjs-border-light": "rgba(255, 255, 255, 0.07)",
         "--sjs-border-default": "rgba(255, 255, 255, 0.07)"
@@ -309,7 +309,7 @@
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
         "--sjs-shadow-small": "0px 0px 0px 1px rgba(255, 255, 255, 0.12)",
-        "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.2),0px 0px 0px 1px rgba(255, 255, 255, 0.12)",
+        "--sjs-shadow-medium": "0px 0px 0px 1px rgba(255, 255, 255, 0.12),0px 2px 6px 0px rgba(0, 0, 0, 0.2)",
         "--sjs-shadow-inner": "0px 0px 0px 1px rgba(255, 255, 255, 0.12)",
         "--sjs-border-light": "rgba(255, 255, 255, 0.12)",
         "--sjs-border-default": "rgba(255, 255, 255, 0.12)"
@@ -347,9 +347,9 @@
         "--sjs-primary-backcolor-dark": "rgba(192, 165, 251, 1)",
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
-        "--sjs-shadow-small": "0px 2px 4px 0px rgba(0, 0, 0, 0.2),0px 8px 16px 0px rgba(0, 0, 0, 0.15),0px 0px 0px 1px rgba(255, 255, 255, 0.1)",
-        "--sjs-shadow-medium": "0px 2px 6px 0px rgba(0, 0, 0, 0.2),inset 0px 0px 0px 1px rgba(255, 255, 255, 0.05)",
-        "--sjs-shadow-inner": "inset 0px 1px 4px 0px rgba(0, 0, 0, 0.2),0px 0px 0px 1px rgba(255, 255, 255, 0.03)",
+        "--sjs-shadow-small": "0px 0px 0px 1px rgba(255, 255, 255, 0.1),0px 8px 16px 0px rgba(0, 0, 0, 0.15),0px 2px 4px 0px rgba(0, 0, 0, 0.2)",
+        "--sjs-shadow-medium": "inset 0px 0px 0px 1px rgba(255, 255, 255, 0.05),0px 2px 6px 0px rgba(0, 0, 0, 0.2)",
+        "--sjs-shadow-inner": "0px 0px 0px 1px rgba(255, 255, 255, 0.03),inset 0px 1px 4px 0px rgba(0, 0, 0, 0.2)",
         "--sjs-border-light": "rgba(54, 56, 69, 1)",
         "--sjs-border-default": "rgba(67, 69, 85, 1)"
     },
@@ -382,10 +382,10 @@
         "--sjs-primary-backcolor-dark": "rgba(250, 118, 157, 1)",
         "--sjs-base-unit": "8px",
         "--sjs-corner-radius": "4px",
-        "--sjs-shadow-small": "0px 0px 0px 2px rgba(64, 64, 64, 1),0px 2px 0px 2px rgba(64, 64, 64, 1)",
-        "--sjs-shadow-medium": "0px 8px 0px 2px rgba(64, 64, 64, 1),0px 0px 0px 2px rgba(64, 64, 64, 1)",
+        "--sjs-shadow-small": "0px 2px 0px 2px rgba(64, 64, 64, 1),0px 0px 0px 2px rgba(64, 64, 64, 1)",
+        "--sjs-shadow-medium": "0px 0px 0px 2px rgba(64, 64, 64, 1),0px 8px 0px 2px rgba(64, 64, 64, 1)",
         "--sjs-shadow-large": "0px 0px 0px 0px rgba(0, 0, 0, 0.1)",
-        "--sjs-shadow-inner": "0px 2px 0px 2px rgba(64, 64, 64, 1),0px 0px 0px 2px rgba(64, 64, 64, 1)",
+        "--sjs-shadow-inner": "0px 0px 0px 2px rgba(64, 64, 64, 1),0px 2px 0px 2px rgba(64, 64, 64, 1)",
         "--sjs-border-light": "rgba(255, 255, 255, 0.12)",
         "--sjs-border-default": "rgba(255, 255, 255, 0.12)"
     },
@@ -408,7 +408,7 @@
         "--sjs-shadow-small": "0px 0px 0px 2px rgba(0, 0, 0, 1)",
         "--sjs-shadow-medium": "0px 0px 0px 2px rgba(0, 0, 0, 1)",
         "--sjs-shadow-large": "0px 6px 0px 0px rgba(0, 0, 0, 1)",
-        "--sjs-shadow-inner": "0px -2px 0px 2px rgba(0, 0, 0, 1),0px 0px 0px 2px rgba(0, 0, 0, 1)",
+        "--sjs-shadow-inner": "0px 0px 0px 2px rgba(0, 0, 0, 1),0px -2px 0px 2px rgba(0, 0, 0, 1)",
         "--sjs-border-light": "rgba(232, 192, 51, 1)",
         "--sjs-border-default": "rgba(0, 0, 0, 1)"
     },

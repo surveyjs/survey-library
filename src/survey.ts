@@ -5460,7 +5460,7 @@ export class SurveyModel extends SurveyElementCore
   private isTriggerIsRunning: boolean = false;
   private triggerValues: any = null;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false) {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, name?: string) {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       this.triggerValues = this.getFilteredValues();
@@ -5469,13 +5469,20 @@ export class SurveyModel extends SurveyElementCore
       }
       return;
     }
+    let isQuestionInvalid = false;
+    if(!isOnComplete && name && this.hasRequiredValidQuestionTrigger) {
+      const question = <Question>this.getQuestionByValueName(name);
+      isQuestionInvalid = question && !question.validate(false);
+    }
     this.isTriggerIsRunning = true;
     this.triggerKeys = key;
     this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    for (var i: number = 0; i < this.triggers.length; i++) {
-      this.triggers[i].checkExpression(isOnNextPage, isOnComplete,
+    for (let i = 0; i < this.triggers.length; i++) {
+      const trigger = this.triggers[i];
+      if(isQuestionInvalid &&trigger.requireValidQuestion) continue;
+      trigger.checkExpression(isOnNextPage, isOnComplete,
         this.triggerKeys,
         this.triggerValues,
         properties
@@ -5485,6 +5492,12 @@ export class SurveyModel extends SurveyElementCore
       this.updateButtonsVisibility();
     }
     this.isTriggerIsRunning = false;
+  }
+  private get hasRequiredValidQuestionTrigger(): boolean {
+    for (let i = 0; i < this.triggers.length; i++) {
+      if(this.triggers[i].requireValidQuestion) return true;
+    }
+    return false;
   }
   private doElementsOnLoad() {
     for (var i = 0; i < this.pages.length; i++) {
@@ -6117,7 +6130,7 @@ export class SurveyModel extends SurveyElementCore
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);
-    this.checkTriggers(triggerKeys, false);
+    this.checkTriggers(triggerKeys, false, false, name);
     if (allowNotifyValueChanged)
       this.notifyQuestionOnValueChanged(name, newValue);
     if (locNotification !== "text") {

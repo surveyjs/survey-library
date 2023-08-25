@@ -4,11 +4,6 @@
   width: 100%;
   box-sizing: border-box;
   margin-top: var(--sd-base-vertical-padding);
-  gap: calcSize(2);
-}
-
-.sd-panel__content > .sd-row {
-  gap: calcSize(4);
 }
 
 .sd-row.sd-page__row {
@@ -39,20 +34,22 @@
 
   >div {
     box-sizing: border-box;
-    padding-left: var(--sd-base-padding);
+    padding-left: calcSize(2);
+  }
+}
+
+.sd-panel {
+  .sd-row--multiple {
+    &>div {
+      padding-left: var(--sd-base-padding);
+    }
   }
 }
 
 .sd-page__row.sd-row--multiple {
-  padding: var(--sd-base-padding) var(--sd-base-padding) var(--sd-base-padding) 0;
-  margin-left: 0;
-  width: 100%;
+  margin-left: calcSize(-2);
+  width: calc(100% + 2 * var(--sjs-base-unit, var(--base-unit, 8px)));
 
-  &:not(.sd-row--compact) {
-    background: $question-background;
-    box-shadow: $shadow-small;
-    border-radius: calcCornerRadius(1);
-  }
 
   &.sd-row--compact {
     padding: 0;

@@ -39,6 +39,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private scrollIntervalId: number = null;
 
   constructor(private dd: IDragDropEngine, private longTap?: boolean) {
+    if (typeof longTap === "undefined") {
+      longTap = true;
+    }
   }
   private get rootElement() {
     if(isShadowDOM(settings.environment.root)) {

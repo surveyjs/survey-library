@@ -144,6 +144,7 @@
 
 .sd-table__cell--header {
   font-weight: 600;
+  color: $font-questiontitle-color;
   vertical-align: top;
   padding: calcSize(1.5) calcSize(1);
 
@@ -231,6 +232,7 @@
 
 .sd-table__cell--row-text {
   font-weight: 600;
+  color: $font-questiontitle-color;
   text-align: left;
   min-width: calcSize(12);
   padding: calcSize(1.5) calcSize(1);

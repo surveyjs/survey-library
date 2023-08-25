@@ -397,23 +397,23 @@ export interface GetQuestionNoEvent extends QuestionEventMixin {
 }
 export interface ProgressTextEvent {
   /**
-   * a number of required questions that have input(s) and an user has answered
-   */
-  requiredAnsweredQuestionCount: number;
-  /**
-   * a number of required questions that have input(s). We do not count html or expression questions
-   */
-  requiredQuestionCount: number;
-  /**
-   * a number of questions that have input(s) and an user has answered
-   */
-  answeredQuestionCount: number;
-  /**
-   * a number of questions that have input(s). We do not count html or expression questions
+   * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
    */
   questionCount: number;
   /**
-   * a progress text, that SurveyJS will render in progress bar
+   * The number of answered questions.
+   */
+  answeredQuestionCount: number;
+  /**
+   * The number of questions marked as required.
+   */
+  requiredQuestionCount: number;
+  /**
+   * The number of answered questions marked as required.
+   */
+  requiredAnsweredQuestionCount: number;
+  /**
+   * Progress text rendered in the [progress bar](#showProgressBar). You can change this parameter's value.
    */
   text: string;
 }

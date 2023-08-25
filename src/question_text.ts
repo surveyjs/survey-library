@@ -437,12 +437,10 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onKeyDown = (event: any) => {
     this.checkForUndo(event);
-    if(this.isInputTextUpdate) {
+    if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
-    if (event.keyCode === 13) {
-      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
-    }
+    this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
     if (event.target === settings.environment.root.activeElement) {

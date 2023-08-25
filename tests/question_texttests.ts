@@ -443,3 +443,7 @@ QUnit.test("Set empty text", function(assert) {
   assert.equal(q.value, " a ", "question.value #6");
   assert.deepEqual(survey.data, { q1: " a " }, "survey.data #6");
 });
+QUnit.test("Text Question KeyHandler exists", function (assert) {
+  const q = new QuestionTextModel("q1");
+  assert.ok(q["onTextKeyDownHandler"], "we need this handler for using in Survey Creator");
+});

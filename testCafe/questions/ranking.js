@@ -281,4 +281,32 @@ frameworks.forEach((framework) => {
       "one"
     ]);
   });
+
+  test("ranking: work with flexbox layout", async (t) => {
+    const addFlexboxLayout = ClientFunction(() => {
+      const stylesheet = document.styleSheets[0];
+      stylesheet.addRule(".sv-ranking.sv-ranking.sv-ranking.sv-ranking.sv-ranking", "display:flex;flex-direction: column", 0);
+    });
+    const removeFlexboxLayout = ClientFunction(() => {
+      const stylesheet = document.styleSheets[0];
+      stylesheet.removeRule(0);
+    });
+
+    await addFlexboxLayout();
+
+    await t.dragToElement(PriceItem, BatteryItem);
+
+    let data = await getData();
+    await t.expect(data["smartphone-features"]).eql([
+      "Price",
+      "Battery life",
+      "Screen size",
+      "Storage space",
+      "Camera quality",
+      "Durability",
+      "Processor power",
+    ]);
+
+    await removeFlexboxLayout();
+  });
 });

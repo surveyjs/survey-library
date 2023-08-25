@@ -1012,20 +1012,20 @@ export class Question extends SurveyElement<Question>
    * Moves focus to the input field of this question.
    * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
-  public focus(onError: boolean = false): void {
+  public focus(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (this.isDesignMode || !this.isVisible || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
     if(shouldChangePage) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {
-      this.focuscore(onError);
+      this.focuscore(onError, scrollIfVisible);
     }
   }
-  private focuscore(onError: boolean = false): void {
+  private focuscore(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (!!this.survey) {
       this.expandAllParents(this);
-      this.survey.scrollElementToTop(this, this, null, this.id);
+      this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
     }
     var id = !onError
       ? this.getFirstInputElementId()

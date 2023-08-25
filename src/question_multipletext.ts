@@ -111,6 +111,9 @@ export class MultipleTextItemModel extends Base
       this.editor.setParentQuestion(<any>data);
     }
   }
+  public focusIn(): void {
+    this.editor.focusIn();
+  }
   /**
    * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
    */
@@ -332,9 +335,8 @@ export class QuestionMultipleTextModel extends Question
   public get isAllowTitleLeft(): boolean {
     return false;
   }
-  public get hasSingleInput(): boolean {
-    return false;
-  }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   public get id() {
     return this.getPropertyValue("id");
   }
@@ -472,7 +474,7 @@ export class QuestionMultipleTextModel extends Question
     return this.getQuestionErrorLocation();
   }
   protected isNewValueCorrect(val: any): boolean {
-    return Helpers.isValueObject(val);
+    return Helpers.isValueObject(val, true);
   }
   supportGoNextPageAutomatic(): boolean {
     for (var i = 0; i < this.items.length; i++) {

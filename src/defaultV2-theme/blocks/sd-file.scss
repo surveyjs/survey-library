@@ -102,7 +102,7 @@
 
 .sd-file__clean-btn {
   z-index: 2;
-  right: calcSize(1);
+  inset-inline-end: calcSize(1);
 
   span:first-child {
     display: none;
@@ -110,7 +110,7 @@
 }
 
 .sd-file__choose-btn--icon {
-  right: calcSize(8);
+  inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
 }
 
 .sd-file__list {

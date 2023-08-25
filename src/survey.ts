@@ -4855,7 +4855,7 @@ export class SurveyModel extends SurveyElementCore
     element: ISurveyElement,
     question: Question,
     page: PageModel,
-    id: string
+    id: string, scrollIfVisible?: boolean
   ): any {
     const options: ScrollingElementToTopEvent = {
       element: element,
@@ -4866,7 +4866,7 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
-      SurveyElement.ScrollElementToTop(options.elementId);
+      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible);
     }
   }
 

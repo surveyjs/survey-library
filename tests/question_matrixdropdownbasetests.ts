@@ -613,3 +613,26 @@ QUnit.test("Error location from survey/matrix/properties", function (assert) {
   assert.equal(qCell.getErrorLocation(), "top", "cell, #4");
   assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #4");
 });
+QUnit.test("Set incorrect value into matrix dropdown", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.value = "a string";
+  matrix.value = 4;
+  matrix.value = ["a string"];
+  assert.equal(matrix.isEmpty(), true, "Do not allow to set incorrect values");
+  assert.notOk(matrix.value, "matrix value is empty, #1");
+  survey.data = { matrix: "a string" };
+  assert.equal(matrix.isEmpty(), true, "Do not allow to set incorrect values from data");
+  assert.notOk(matrix.value, "matrix value is empty, #2");
+  survey.data = { matrix: { row1: 1 } };
+  assert.equal(matrix.isEmpty(), false, "Set correct value");
+});

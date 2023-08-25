@@ -32,7 +32,7 @@
 }
 
 .sd-table--no-header {
-  padding-top: calcSize(3)
+  padding-top: calcSize(3);
 }
 
 .sd-table--alternate-rows {
@@ -203,13 +203,12 @@
   border: none;
   background: transparent;
   border-radius: calcSize(2);
-  width: calcSize(4);
-  height: calcSize(4);
   padding: calcSize(1);
 
   svg {
-    width: calcSize(2);
-    height: calcSize(2);
+    display: block;
+    width: multiply(1, $font-editorfont-size);
+    height: multiply(1, $font-editorfont-size);
     fill: $foreground-light;
   }
 

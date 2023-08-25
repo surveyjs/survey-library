@@ -29,4 +29,8 @@
   p {
     @include articleDefaultFont;
   }
+
+  a {
+    color: $primary;
+  }
 }

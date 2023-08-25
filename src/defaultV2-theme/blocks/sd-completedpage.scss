@@ -35,6 +35,10 @@
   p {
     @include articleDefaultFont;
   }
+
+  a {
+    color: $primary;
+  }
 }
 
 .sd-completedpage:before,

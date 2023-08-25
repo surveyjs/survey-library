@@ -146,7 +146,7 @@ export var defaultV2Css = {
   pageTitle: "sd-title sd-page__title",
   pageDescription: "sd-description sd-page__description",
   row: "sd-row sd-clearfix",
-  rowMultiple: "sd-row--multiple",
+  rowMultiple: "",
   rowCompact: "sd-row--compact",
   pageRow: "sd-page__row",
   question: {

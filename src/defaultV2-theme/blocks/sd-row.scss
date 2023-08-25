@@ -4,6 +4,11 @@
   width: 100%;
   box-sizing: border-box;
   margin-top: var(--sd-base-vertical-padding);
+  gap: calcSize(2);
+}
+
+.sd-panel__content > .sd-row {
+  gap: calcSize(4);
 }
 
 .sd-row.sd-page__row {

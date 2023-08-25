@@ -5481,7 +5481,7 @@ export class SurveyModel extends SurveyElementCore
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
     for (let i = 0; i < this.triggers.length; i++) {
       const trigger = this.triggers[i];
-      if(isQuestionInvalid &&trigger.requireValidQuestion) continue;
+      if(isQuestionInvalid && trigger.requireValidQuestion) continue;
       trigger.checkExpression(isOnNextPage, isOnComplete,
         this.triggerKeys,
         this.triggerValues,

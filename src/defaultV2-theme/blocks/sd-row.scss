@@ -53,8 +53,6 @@
 
   &.sd-row--compact {
     padding: 0;
-    width: calc(100% + var(--sd-base-padding));
-    margin-left: calc(-1 * var(--sd-base-padding));
   }
 }
 

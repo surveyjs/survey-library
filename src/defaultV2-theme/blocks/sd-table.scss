@@ -88,7 +88,7 @@
   text-align: center;
 
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
-    min-width: calcSize(16);
+    min-width: calcSize(15);
   }
 }
 
@@ -148,7 +148,7 @@
   padding: calcSize(1.5) calcSize(1);
 
   &:not(.sd-table__cell--empty) {
-    min-width: calcSize(16);
+    min-width: calcSize(15);
   }
 }
 

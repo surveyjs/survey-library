@@ -16,7 +16,11 @@
         >{{ item.editor.requiredText }}</span
       >
     </span>
-    <div :key="item.editor.id" :class="question.getItemCss()">
+    <div
+      :key="item.editor.id"
+      :class="question.getItemCss()"
+      v-on:focusin="item.focusIn()"
+    >
       <survey-errors
         v-if="item.editor.showErrorOnTop"
         :element="item.editor"

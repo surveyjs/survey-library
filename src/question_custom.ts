@@ -849,6 +849,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       questions[i].onAnyValueChanged(name);
     }
   }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");
     res.showQuestionNumbers = "off";

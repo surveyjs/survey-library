@@ -721,6 +721,7 @@ export class Question extends SurveyElement<Question>
   public get isCompositeQuestion(): boolean {
     return false;
   }
+  public get isContainer(): boolean { return false; }
   protected updateCommentElements(): void {
     if(!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
     for(let i = 0; i < this.commentElements.length; i ++) {
@@ -1043,7 +1044,7 @@ export class Question extends SurveyElement<Question>
     this.expandAllParents((<any>element).parentQuestion);
   }
   public focusIn(): void {
-    if(!this.survey) return;
+    if(!this.survey || this.isDisposed || this.isContainer) return;
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
   }
   protected fireCallback(callback: () => void): void {

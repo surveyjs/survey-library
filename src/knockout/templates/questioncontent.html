@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-content">
-<div data-bind="visible: !question.isCollapsed, css: question.cssContent" role="presentation">
+<div data-bind="visible: !question.isCollapsed, css: question.cssContent, event: {focusin: question.focusIn }" role="presentation">
     <!-- ko if: question.showErrorOnTop -->
       <!-- ko template: { name: 'survey-question-errors', data: question } -->
       <!-- /ko -->

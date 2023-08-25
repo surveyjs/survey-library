@@ -9,7 +9,7 @@
       >{{ model.editor.requiredText }}</span
     >
   </span>
-  <div [class]="question.getItemCss()">
+  <div [class]="question.getItemCss()" (focusin)="model.focusIn()">
     <div *ngIf="model.editor.showErrorOnTop && model.editor.hasVisibleErrors" [element]="model.editor" sv-ng-errors></div>
     <sv-ng-text-question [model]="model.editor"></sv-ng-text-question>
     <div *ngIf="model.editor.showErrorOnBottom && model.editor.hasVisibleErrors" [element]="model.editor" sv-ng-errors></div>

@@ -878,9 +878,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.dispose();
     this.clearGeneratedRows();
   }
-  public get hasSingleInput(): boolean {
-    return false;
-  }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   public get isRowsDynamic(): boolean {
     return false;
   }
@@ -933,7 +932,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.columnLayout = val;
   }
   /**
-   * Specifies the error message position for question within detail sections.
+   * Specifies the error message position for questions within detail sections.
    *
    * Possible values:
    *

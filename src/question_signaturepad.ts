@@ -55,7 +55,8 @@ export class QuestionSignaturePadModel extends Question {
 
     const backgroundColorProperty = this.getPropertyByName("backgroundColor");
     const backgroundColorFromTheme = penColorFromTheme ? "transparent" : undefined;
-    signaturePad.backgroundColor = this.backgroundColor || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
+    const background = !!this.backgroundImage ? "transparent" : this.backgroundColor;
+    signaturePad.backgroundColor = background || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
   }
 
   protected getCssRoot(cssClasses: any): string {
@@ -217,7 +218,13 @@ export class QuestionSignaturePadModel extends Question {
     return !this.isInputReadOnly && this.allowClear;
   }
   /**
-   * Specifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * Specifies a color for the pen.
+   *
+   * This property accepts color values in the following formats:
+   *
+   * - Hexadecimal colors (`"#FF0000"`)
+   * - RGB colors (`"rgb(255,0,0)"`)
+   * - Color names (`"red"`)
    * @see backgroundColor
    */
   public get penColor(): string {
@@ -225,9 +232,16 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
   }
   /**
-   * Specifies a color for the signature area background.  Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * Specifies a color for the signature area background. Ignored if [`backgroundImage`](#backgroundImage) is set.
+   *
+   * This property accepts color values in the following formats:
+   *
+   * - Hexadecimal colors (`"#FF0000"`)
+   * - RGB colors (`"rgb(255,0,0)"`)
+   * - Color names (`"red"`)
    * @see penColor
    */
   public get backgroundColor(): string {
@@ -235,6 +249,18 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set backgroundColor(val: string) {
     this.setPropertyValue("backgroundColor", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
+  }
+  /**
+   * An image to display in the background of the signature area. Accepts a base64 or URL string value.
+   * @see backgroundColor
+   */
+  public get backgroundImage(): string {
+    return this.getPropertyValue("backgroundImage");
+  }
+  public set backgroundImage(val: string) {
+    this.setPropertyValue("backgroundImage", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
   }
   get clearButtonCaption(): string {
     return this.getLocalizationString("clearCaption");
@@ -293,6 +319,10 @@ Serializer.addClass(
       name: "allowClear:boolean",
       category: "general",
       default: true,
+    },
+    {
+      name: "backgroundImage",
+      category: "general",
     },
     {
       name: "penColor:color",

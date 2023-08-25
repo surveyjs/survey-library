@@ -20,8 +20,10 @@ Base.createPropertiesHash = () => {
 function makeReactive(surveyElement: Base) {
   if (!surveyElement || (surveyElement as any).__vueImplemented) return false;
   surveyElement.createArrayCoreHandler = (hash, key: string): Array<any> => {
-    const arrayRef = shallowRef(hash[key]);
-    hash[key]["onArrayChanged"] = () => {
+    const arr: any = [];
+    const arrayRef = shallowRef(arr);
+
+    arr.onArrayChanged = () => {
       triggerRef(arrayRef);
     };
     hash[key] = arrayRef;

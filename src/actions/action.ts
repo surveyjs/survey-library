@@ -117,7 +117,7 @@ export interface IAction {
    * The action item's icon size in pixels.
    * @see iconName
    */
-  iconSize?: number;
+  iconSize?: number | string;
   /**
    * The action item's location in a matrix question's row.
    *

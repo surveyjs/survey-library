@@ -5,6 +5,7 @@
     :title="cell.getTitle()"
     :style="(getCellStyle() as StyleValue)"
     :colspan="cell.colSpans"
+    v-on:focusin="cell.focusIn()"
     ref="root"
   >
     <survey-errors v-if="cell.isErrorsCell" :element="cell.question" />

@@ -721,6 +721,7 @@ export class Question extends SurveyElement<Question>
   public get isCompositeQuestion(): boolean {
     return false;
   }
+  public get isContainer(): boolean { return false; }
   protected updateCommentElements(): void {
     if(!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
     for(let i = 0; i < this.commentElements.length; i ++) {
@@ -1012,20 +1013,20 @@ export class Question extends SurveyElement<Question>
    * Moves focus to the input field of this question.
    * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
-  public focus(onError: boolean = false): void {
+  public focus(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (this.isDesignMode || !this.isVisible || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
     if(shouldChangePage) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {
-      this.focuscore(onError);
+      this.focuscore(onError, scrollIfVisible);
     }
   }
-  private focuscore(onError: boolean = false): void {
+  private focuscore(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (!!this.survey) {
       this.expandAllParents(this);
-      this.survey.scrollElementToTop(this, this, null, this.id);
+      this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
     }
     var id = !onError
       ? this.getFirstInputElementId()
@@ -1043,7 +1044,7 @@ export class Question extends SurveyElement<Question>
     this.expandAllParents((<any>element).parentQuestion);
   }
   public focusIn(): void {
-    if(!this.survey) return;
+    if(!this.survey || this.isDisposed || this.isContainer) return;
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
   }
   protected fireCallback(callback: () => void): void {
@@ -1977,10 +1978,7 @@ export class Question extends SurveyElement<Question>
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
-    if(!this.isValueEmpty(newValue, !this.allowSpaceAsAnswer) && !this.isNewValueCorrect(newValue)) {
-      ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
-      return;
-    }
+    if(!this.checkIsValueCorrect(newValue)) return;
     this.isOldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
@@ -1988,6 +1986,13 @@ export class Question extends SurveyElement<Question>
       this.updateQuestionCss();
     }
     this.isOldAnswered = undefined;
+  }
+  private checkIsValueCorrect(val: any): boolean {
+    const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isNewValueCorrect(val);
+    if(!res) {
+      ConsoleWarnings.inCorrectQuestionValue(this.name, val);
+    }
+    return res;
   }
   protected isNewValueCorrect(val: any): boolean {
     return true;
@@ -2067,6 +2072,7 @@ export class Question extends SurveyElement<Question>
     if (!!this.valueFromDataCallback) {
       newValue = this.valueFromDataCallback(newValue);
     }
+    if(!this.checkIsValueCorrect(newValue)) return;
     this.setQuestionValue(this.valueFromData(newValue));
     this.updateDependedQuestions();
     this.updateIsAnswered();

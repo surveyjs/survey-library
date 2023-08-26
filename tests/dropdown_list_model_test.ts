@@ -399,6 +399,19 @@ QUnit.test("hintString test - no search", function (assert) {
   assert.notOk(dropdownListModel.showHintString, "no search, hint hidden");
 });
 
+QUnit.test("hintString test - clear, see nothing", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  question.value = "item12";
+  dropdownListModel.onFocus(null);
+  dropdownListModel.inputStringRendered = "";
+  assert.notOk(dropdownListModel.showHintString);
+  assert.notOk(question.showSelectedItemLocText);
+  dropdownListModel.onBlur({ stopPropagation: () => { } });
+  assert.ok(question.showSelectedItemLocText);
+});
+
 QUnit.test("dropdown keyboard tests", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -829,6 +842,7 @@ QUnit.test("lazy loading clear value", function (assert) {
 
   dropdownListModel.inputStringRendered = "";
 
-  assert.equal(dropdownListModel.hintString, "France", "hintString");
+  assert.equal(dropdownListModel.hintString, "", "hintString");
   assert.equal(dropdownListModel.inputStringRendered, "");
 });
+

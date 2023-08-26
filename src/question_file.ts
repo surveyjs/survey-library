@@ -1,18 +1,17 @@
 import { Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { EventBase } from "./base";
+import { EventBase, ComputedUpdater } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
-import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
+import { confirmActionAsync, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
 
 /**
- * A class that describes the File question type.
+ * A class that describes the File Upload question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
@@ -227,6 +226,18 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
+
+  @property() renderedPlaceholderValue: string;
+  public get renderedPlaceholder(): string {
+    if(this.renderedPlaceholderValue === undefined) {
+      this.renderedPlaceholderValue = <string><unknown>(new ComputedUpdater<string>(() => {
+        const dragAreaText = this.dragAreaPlaceholder;
+        const readOnlyText = this.noFileChosenCaption;
+        return this.isReadOnly ? readOnlyText : dragAreaText;
+      }));
+    }
+    return this.renderedPlaceholderValue;
+  }
 
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
@@ -582,11 +593,13 @@ export class QuestionFileModel extends Question {
     this.onChange(src);
   }
   doClean = (event: any) => {
-    var src = event.currentTarget || event.srcElement;
     if (this.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
-      if (!isConfirmed) return;
+      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); });
+      return;
     }
+    this.clearFilesCore();
+  }
+  private clearFilesCore(): void {
     if(this.rootElement) {
       this.rootElement.querySelectorAll("input")[0].value = "";
     }
@@ -594,11 +607,12 @@ export class QuestionFileModel extends Question {
   }
   doRemoveFile(data: any) {
     if (this.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(
-        this.getConfirmRemoveMessage(data.name)
-      );
-      if (!isConfirmed) return;
+      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); });
+      return;
     }
+    this.removeFileCore(data);
+  }
+  private removeFileCore(data: any): void {
     const previewIndex = this.previewValue.indexOf(data);
     this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
   }

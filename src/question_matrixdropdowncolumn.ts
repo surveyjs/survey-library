@@ -124,6 +124,7 @@ export class MatrixDropdownColumn extends Base
   private indexValue = -1;
   private _isVisible = true;
   private _hasVisibleCell = true;
+  private _visiblechoices: Array<any>;
 
   constructor(name: string, title: string = null) {
     super();
@@ -209,16 +210,44 @@ export class MatrixDropdownColumn extends Base
   public get isVisible() {
     return this._isVisible;
   }
-  public setIsVisible(newVal: boolean) {
+  public setIsVisible(newVal: boolean): void {
     this._isVisible = newVal;
   }
-  public get hasVisibleCell() {
+  public get hasVisibleCell(): boolean {
     return this._hasVisibleCell;
   }
   public set hasVisibleCell(newVal: boolean) {
     this._hasVisibleCell = newVal;
   }
-  public get name() {
+  public getVisibleMultipleChoices(): Array<ItemValue> {
+    const choices = this.templateQuestion.visibleChoices;
+    if(!Array.isArray(choices)) return [];
+    if(!Array.isArray(this._visiblechoices)) return choices;
+    const res = new Array<ItemValue>();
+    for(let i = 0; i < choices.length; i ++) {
+      const item = choices[i];
+      if(this._visiblechoices.indexOf(item.value) > -1) res.push(item);
+    }
+    return res;
+  }
+  public get getVisibleChoicesInCell(): Array<any> {
+    if(Array.isArray(this._visiblechoices)) return this._visiblechoices;
+    const res = this.templateQuestion.visibleChoices;
+    return Array.isArray(res) ? res : [];
+  }
+  public setVisibleChoicesInCell(val: Array<any>): void {
+    this._visiblechoices = val;
+  }
+  public get isFilteredMultipleColumns(): boolean {
+    if(!this.showInMultipleColumns) return false;
+    const choices = this.templateQuestion.choices;
+    if(!Array.isArray(choices)) return false;
+    for(let i = 0; i < choices.length; i ++) {
+      if(choices[i].visibleIf) return true;
+    }
+    return false;
+  }
+  public get name(): string {
     return this.templateQuestion.name;
   }
   public set name(val: string) {

@@ -129,6 +129,11 @@ export class QuestionMatrixDropdownRenderedCell {
       .append(matrixCssClasses.choiceCell, this.isChoice)
       .toString();
   }
+  public focusIn(): void {
+    if(this.question) {
+      this.question.focusIn();
+    }
+  }
 }
 
 export class QuestionMatrixDropdownRenderedRow extends Base {
@@ -245,11 +250,11 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
 
   private get showCellErrorsTop() {
     //todo
-    return this.matrix.errorLocation == "top";
+    return this.matrix.getErrorLocation() === "top";
   }
   private get showCellErrorsBottom() {
     //todo
-    return this.matrix.errorLocation == "bottom";
+    return this.matrix.getErrorLocation() === "bottom";
   }
 
   protected build() {
@@ -392,10 +397,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (!isShown) return;
     this.headerRowValue = this.createRenderedRow(this.cssClasses);
     if (this.allowRowsDragAndDrop) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.hasActionCellInRows("start")) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.matrix.hasRowText && this.matrix.showHeader) {
       this.headerRow.cells.push(this.createHeaderCell(null));
@@ -603,6 +608,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           new Action({
             id: "remove-row",
             iconName: "icon-delete",
+            iconSize: "auto",
             component: "sv-action-bar-item",
             innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
             location: "end",
@@ -930,7 +936,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var choices = column.templateQuestion.choices;
     if (!!choices && Array.isArray(choices) && choices.length == 0)
       return this.matrix.choices;
-    choices = column.templateQuestion.visibleChoices;
+    choices = column.getVisibleMultipleChoices();
     if (!choices || !Array.isArray(choices)) return null;
     return choices;
   }
@@ -943,12 +949,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       .toString();
   }
   private createHeaderCell(
-    column: MatrixDropdownColumn
+    column: MatrixDropdownColumn,
+    cellType: string = null
   ): QuestionMatrixDropdownRenderedCell {
     let cell = !!column ? this.createTextCell(column.locTitle) : this.createEmptyCell();
     cell.column = column;
     this.setHeaderCell(column, cell);
-    const cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
+    if (!cellType) cellType = (!!column && column.cellType !== "default") ? column.cellType : this.matrix.cellType;
     this.setHeaderCellCssClasses(cell, cellType);
     return cell;
   }

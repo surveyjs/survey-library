@@ -30,13 +30,14 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     rowIndex: number,
     items: Array<MultipleTextItemModel>,
     cssClasses: any
-  ) {
-    var key: string = "item" + rowIndex;
-    var tds:Array<JSX.Element> = [];
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
+  ): JSX.Element {
+    const key: string = "item" + rowIndex;
+    const tds:Array<JSX.Element> = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      const focusIn = () => { item.focusIn(); };
       tds.push(
-        <td key={"item" + i} className={this.question.cssClasses.cell}>
+        <td key={"item" + i} className={this.question.cssClasses.cell} onFocus={focusIn}>
           <SurveyMultipleTextItem question={this.question} item={item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>
         </td>
       );

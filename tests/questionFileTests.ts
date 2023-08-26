@@ -1228,3 +1228,19 @@ QUnit.test("File Question on Smaller Screens: navigation bar doesn't appear when
     done();
   }, 100);
 });
+QUnit.test("QuestionFile download file content on preview", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1" },
+      { type: "file", name: "q2", readOnly: true }
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+  assert.equal(q1.renderedPlaceholder.substring(0, 4), "Drag", "q1 => drag");
+  assert.equal(q2.renderedPlaceholder.substring(0, 2), "No", "q2 => no file");
+  q1.readOnly = true;
+  q2.readOnly = false;
+  assert.equal(q1.renderedPlaceholder.substring(0, 2), "No", "q1, readOnly => no file");
+  assert.equal(q2.renderedPlaceholder.substring(0, 4), "Drag", "q2, not readOnly=> drag");
+});

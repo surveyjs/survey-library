@@ -388,14 +388,17 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
   }
   protected renderElement(): JSX.Element {
     var style = this.getCellStyle();
+    const cell = this.props.cell;
+    const focusIn = () => { cell.focusIn(); };
     return (
       <td
         ref={this.cellRef}
         className={this.itemCss}
-        colSpan={this.props.cell.colSpans}
+        colSpan={cell.colSpans}
         data-responsive-title={this.getHeaderText()}
-        title={this.props.cell.getTitle()}
+        title={cell.getTitle()}
         style={style}
+        onFocus={focusIn}
       >
         {this.wrapCell(this.props.cell,
           (

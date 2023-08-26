@@ -472,12 +472,12 @@ export class Base {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if(locStr) return locStr.text;
       if (defaultValue != null) return defaultValue;
-      const propDefaultValue = this.getDefaultValueFromProperty(name);
+      const propDefaultValue = this.getDefaultPropertyValue(name);
       if(propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
   }
-  private getDefaultValueFromProperty(name: string): any {
+  public getDefaultPropertyValue(name: string): any {
     const prop = this.getPropertyByName(name);
     if(!prop || prop.isCustom && this.isCreating) return undefined;
     const dValue = prop.defaultValue;
@@ -485,6 +485,12 @@ export class Base {
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;
+  }
+  public hasDefaultPropertyValue(name: string): boolean {
+    return this.getDefaultPropertyValue(name) !== undefined;
+  }
+  public resetPropertyValue(name: string): void {
+    this.setPropertyValue(name, undefined);
   }
   protected getPropertyValueWithoutDefault(name: string): any {
     return this.getPropertyValueCore(this.propertyHash, name);

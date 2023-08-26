@@ -6,7 +6,11 @@ import { fileURLToPath, URL } from "node:url";
 export default defineConfig({
  plugins: [vue()],
  test:{
+	setupFiles: ['./vitest.setup.ts'],
 	environment: 'jsdom',
+	deps: {
+	 inline: ['vitest-canvas-mock'],
+	},
  },
  resolve: {
 	alias: {

@@ -1471,7 +1471,28 @@ export class PanelModelBase extends SurveyElement<Question>
   public get cssDescription(): string {
     return this.cssClasses.panel.description;
   }
-
+  /**
+   * Specifies the error message position for questions that belong to this page/panel.
+   *
+   * Use this property to override the [`questionErrorLocation`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionErrorLocation) property specified for the survey. You can also set the [`errorLocation`](https://surveyjs.io/form-library/documentation/question#errorLocation) property for individual questions.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the `questionErrorLocation` property specified for the survey.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   */
+  public get questionErrorLocation(): string {
+    return this.getPropertyValue("questionErrorLocation");
+  }
+  public set questionErrorLocation(val: string) {
+    this.setPropertyValue("questionErrorLocation", val);
+  }
+  public getQuestionErrorLocation(): string {
+    if(this.questionErrorLocation !== "default") return this.questionErrorLocation;
+    if(this.parent) return this.parent.getQuestionErrorLocation();
+    return this.survey ? this.survey.questionErrorLocation : "top";
+  }
   //ITitleOwner
   public get no(): string { return ""; }
   public dispose() {
@@ -1838,11 +1859,11 @@ Serializer.addClass(
       visible: false,
       isLightSerializable: false,
     },
-    { name: "visible:switch", default: true },
+    { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
+    { name: "readOnly:boolean", overridingProperty: "enableIf" },
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",
-    "readOnly:boolean",
     {
       name: "questionTitleLocation",
       default: "default",
@@ -1855,7 +1876,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "initial", "random"],
     },
-
+    { name: "questionErrorLocation", default: "default", choices: ["default", "top", "bottom"] }
   ],
   function () {
     return new PanelModelBase();
@@ -1870,7 +1891,7 @@ Serializer.addClass(
       default: "default",
       choices: ["default", "collapsed", "expanded"],
     },
-    "isRequired:switch",
+    { name: "isRequired:switch", overridingProperty: "requiredIf" },
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",

@@ -566,8 +566,29 @@ export class Question extends SurveyElement<Question>
     const location = this.getTitleLocation();
     return location === "left" || location === "top";
   }
+  /**
+   * Specifies the error message position. Overrides the `questionErrorLocation` property specified for the question's container ([survey](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionErrorLocation), [page](https://surveyjs.io/form-library/documentation/api-reference/page-model#questionErrorLocation), or [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model#questionErrorLocation)).
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the `questionErrorLocation` property specified for the question's container.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   */
   public get errorLocation(): string {
+    return this.getPropertyValue("errorLocation");
+  }
+  public set errorLocation(val: string) {
+    this.setPropertyValue("errorLocation", val);
+  }
+  public getErrorLocation(): string {
+    if(this.errorLocation !== "default") return this.errorLocation;
+    if(this.parentQuestion) return this.parentQuestion.getChildErrorLocation(this);
+    if(this.parent) return this.parent.getQuestionErrorLocation();
     return this.survey ? this.survey.questionErrorLocation : "top";
+  }
+  public getChildErrorLocation(child: Question): string {
+    return this.getErrorLocation();
   }
   /**
    * Returns `false` if the question has no input fields ([HTML](https://surveyjs.io/form-library/documentation/questionhtmlmodel), [Image](https://surveyjs.io/form-library/documentation/questionimagemodel), and similar question types).
@@ -700,6 +721,7 @@ export class Question extends SurveyElement<Question>
   public get isCompositeQuestion(): boolean {
     return false;
   }
+  public get isContainer(): boolean { return false; }
   protected updateCommentElements(): void {
     if(!this.autoGrowComment || !Array.isArray(this.commentElements)) return;
     for(let i = 0; i < this.commentElements.length; i ++) {
@@ -871,7 +893,7 @@ export class Question extends SurveyElement<Question>
   }
 
   public showErrorOnCore(location: string): boolean {
-    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.errorLocation === location;
+    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
   }
 
   public get showErrorOnTop(): boolean {
@@ -891,10 +913,10 @@ export class Question extends SurveyElement<Question>
     return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
   }
   public get showErrorsAboveQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.errorLocation === "top";
+    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "top";
   }
   public get showErrorsBelowQuestion(): boolean {
-    return this.showErrorsOutsideQuestion && this.errorLocation === "bottom";
+    return this.showErrorsOutsideQuestion && this.getErrorLocation() === "bottom";
   }
 
   public get cssError(): string {
@@ -991,20 +1013,20 @@ export class Question extends SurveyElement<Question>
    * Moves focus to the input field of this question.
    * @param onError Pass `true` if you want to focus an input field with the first validation error. Default value: `false` (focuses the first input field). Applies to question types with multiple input fields.
    */
-  public focus(onError: boolean = false): void {
+  public focus(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (this.isDesignMode || !this.isVisible || !this.survey) return;
     let page = this.page;
     const shouldChangePage = !!page && this.survey.activePage !== page;
     if(shouldChangePage) {
       this.survey.focusQuestionByInstance(this, onError);
     } else {
-      this.focuscore(onError);
+      this.focuscore(onError, scrollIfVisible);
     }
   }
-  private focuscore(onError: boolean = false): void {
+  private focuscore(onError: boolean = false, scrollIfVisible?: boolean): void {
     if (!!this.survey) {
       this.expandAllParents(this);
-      this.survey.scrollElementToTop(this, this, null, this.id);
+      this.survey.scrollElementToTop(this, this, null, this.id, scrollIfVisible);
     }
     var id = !onError
       ? this.getFirstInputElementId()
@@ -1022,7 +1044,7 @@ export class Question extends SurveyElement<Question>
     this.expandAllParents((<any>element).parentQuestion);
   }
   public focusIn(): void {
-    if(!this.survey) return;
+    if(!this.survey || this.isDisposed || this.isContainer) return;
     (this.survey as SurveyModel).whenQuestionFocusIn(this);
   }
   protected fireCallback(callback: () => void): void {
@@ -1286,8 +1308,32 @@ export class Question extends SurveyElement<Question>
   public get isValueArray(): boolean { return false; }
   /**
    * Gets or sets the question value.
-   * @see SurveyModel.setValue
-   * @see SurveyModel.getValue
+   *
+   * The following table illustrates how the value type depends on the question type:
+   *
+   * | Question type | Value type(s) |
+   * | ------------- | ------------- |
+   * | Checkboxes | `Array<String \| Number>` |
+   * | Dropdown | `String` \| `Number` |
+   * | Dynamic Matrix | `Array<Object>` |
+   * | Dynamic Panel | `Array<Object>` |
+   * | Expression | `String` \| `Number` \| `Boolean` |
+   * | File Upload | `File` \| `Array<File>` |
+   * | HTML | (no value) |
+   * | Image | (no value) |
+   * | Image Picker | `Array<String \| Number>` |
+   * | Long Text | `String` |
+   * | Multi-Select Dropdown | `Object` |
+   * | Multi-Select Matrix | `Object` |
+   * | Multiple Textboxes | `Array<String>` |
+   * | Panel | (no value) |
+   * | Radio Button Group | `String` \| `Number` |
+   * | Ranking | `Array<String \| Number>` |
+   * | Rating Scale | `Number` \| `String` |
+   * | Signature | `String` (base64-encoded image) |
+   * | Single-Line Input | `String` \| `Number` \| `Date` |
+   * | Single-Select Matrix | `Object` |
+   * | Yes/No (Boolean) | `Boolean` \| `String` |
    */
   public get value(): any {
     return this.getValueCore();
@@ -1794,6 +1840,9 @@ export class Question extends SurveyElement<Question>
         this.survey.beforeSettingQuestionErrors(this, errors);
       }
       this.errors = errors;
+      if(this.errors !== errors) {
+        this.errors.forEach(er => er.locText.strChanged());
+      }
     }
     this.updateContainsErrors();
     if (oldHasErrors != errors.length > 0) {
@@ -1932,10 +1981,7 @@ export class Question extends SurveyElement<Question>
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if(this.isNewValueEqualsToValue(newValue)) return;
-    if(!this.isValueEmpty(newValue, !this.allowSpaceAsAnswer) && !this.isNewValueCorrect(newValue)) {
-      ConsoleWarnings.inCorrectQuestionValue(this.name, newValue);
-      return;
-    }
+    if(!this.checkIsValueCorrect(newValue)) return;
     this.isOldAnswered = this.isAnswered;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
@@ -1943,6 +1989,13 @@ export class Question extends SurveyElement<Question>
       this.updateQuestionCss();
     }
     this.isOldAnswered = undefined;
+  }
+  private checkIsValueCorrect(val: any): boolean {
+    const res = this.isValueEmpty(val, !this.allowSpaceAsAnswer) || this.isNewValueCorrect(val);
+    if(!res) {
+      ConsoleWarnings.inCorrectQuestionValue(this.name, val);
+    }
+    return res;
   }
   protected isNewValueCorrect(val: any): boolean {
     return true;
@@ -2022,7 +2075,9 @@ export class Question extends SurveyElement<Question>
     if (!!this.valueFromDataCallback) {
       newValue = this.valueFromDataCallback(newValue);
     }
+    if(!this.checkIsValueCorrect(newValue)) return;
     this.setQuestionValue(this.valueFromData(newValue));
+    this.updateDependedQuestions();
     this.updateIsAnswered();
   }
   updateCommentFromSurvey(newValue: any): any {
@@ -2135,6 +2190,12 @@ export class Question extends SurveyElement<Question>
 
   public processPopupVisiblilityChanged(popupModel: PopupModel, visible: boolean): void {
     this.survey.processPopupVisiblityChanged(this, popupModel, visible);
+  }
+
+  protected onTextKeyDownHandler(event: any) {
+    if (event.keyCode === 13) {
+      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
+    }
   }
 
   public transformToMobileView(): void { }
@@ -2273,6 +2334,7 @@ function makeNameValid(str: string): string {
   }
   return str;
 }
+
 Serializer.addClass("question", [
   { name: "!name", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   {
@@ -2371,6 +2433,7 @@ Serializer.addClass("question", [
     name: "requiredErrorText:text",
     serializationProperty: "locRequiredErrorText",
   },
+  { name: "errorLocation", default: "default", choices: ["default", "top", "bottom"] },
   { name: "readOnly:switch", overridingProperty: "enableIf" },
   {
     name: "validators:validators",

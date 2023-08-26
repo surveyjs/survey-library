@@ -358,14 +358,14 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     }
     values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
     values[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
-    if (!properties) properties = {};
-    properties[MatrixDropdownRowModelBase.RowVariableName] = this;
+    const newProps = Helpers.createCopy(properties);
+    newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
     for (var i = 0; i < this.cells.length; i++) {
       values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
-      this.cells[i].runCondition(values, properties);
+      this.cells[i].runCondition(values, newProps);
     }
     if (!!this.detailPanel) {
-      this.detailPanel.runCondition(values, properties);
+      this.detailPanel.runCondition(values, newProps);
     }
   }
   public clearValue() {
@@ -878,9 +878,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     super.dispose();
     this.clearGeneratedRows();
   }
-  public get hasSingleInput(): boolean {
-    return false;
-  }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   public get isRowsDynamic(): boolean {
     return false;
   }
@@ -931,6 +930,43 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   }
   set columnsLocation(val: string) {
     this.columnLayout = val;
+  }
+  /**
+   * Specifies the error message position for questions within detail sections.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   * @see cellErrorLocation
+   */
+  public get detailErrorLocation(): string {
+    return this.getPropertyValue("detailErrorLocation");
+  }
+  public set detailErrorLocation(value: string) {
+    this.setPropertyValue("detailErrorLocation", value.toLowerCase());
+  }
+  /**
+   * Specifies the error message position relative to matrix cells.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above matrix cells.
+   * - `"bottom"` - Displays error messages below matrix cells.
+   * @see detailErrorLocation
+   */
+  public get cellErrorLocation(): string {
+    return this.getPropertyValue("cellErrorLocation");
+  }
+  public set cellErrorLocation(value: string) {
+    this.setPropertyValue("cellErrorLocation", value.toLowerCase());
+  }
+  public getChildErrorLocation(child: Question): string {
+    const errLocation = !!child.parent ? this.detailErrorLocation : this.cellErrorLocation;
+    if(errLocation !== "default") return errLocation;
+    return super.getChildErrorLocation(child);
   }
   /**
    * Returns `true` if columns are placed in the horizontal direction and rows in the vertical direction.
@@ -1342,9 +1378,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private checkColumnsVisibility() {
     var hasChanged = false;
     for (var i = 0; i < this.visibleColumns.length; i++) {
-      if (!this.visibleColumns[i].visibleIf) continue;
-      hasChanged =
-        this.isColumnVisibilityChanged(this.visibleColumns[i]) || hasChanged;
+      const column = this.visibleColumns[i];
+      if (!column.visibleIf && !column.isFilteredMultipleColumns) continue;
+      hasChanged = this.isColumnVisibilityChanged(column) || hasChanged;
     }
     if (hasChanged) {
       this.resetRenderedTable();
@@ -1366,25 +1402,43 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   private isColumnVisibilityChanged(column: MatrixDropdownColumn): boolean {
-    var curVis = column.hasVisibleCell;
-    var hasVisCell = false;
-    var rows = this.generatedVisibleRows;
-    for (var i = 0; i < rows.length; i++) {
-      var cell = rows[i].cells[column.index];
-      if (!!cell && !!cell.question && cell.question.isVisible) {
+    const curVis = column.hasVisibleCell;
+    const isMultipleColumnsVisibility = column.isFilteredMultipleColumns;
+    const curVisibleChoices = isMultipleColumnsVisibility ? column.getVisibleChoicesInCell : [];
+    const newVisibleChoices = new Array<any>();
+    let hasVisCell = false;
+    const rows = this.generatedVisibleRows;
+    for (let i = 0; i < rows.length; i++) {
+      const cell = rows[i].cells[column.index];
+      const q = cell?.question;
+      if (!!q && q.isVisible) {
         hasVisCell = true;
-        break;
+        if(isMultipleColumnsVisibility) {
+          this.updateNewVisibleChoices(q, newVisibleChoices);
+        } else break;
       }
     }
     if (curVis != hasVisCell) {
       column.hasVisibleCell = hasVisCell;
     }
+    if(isMultipleColumnsVisibility) {
+      column.setVisibleChoicesInCell(newVisibleChoices);
+      if(!Helpers.isArraysEqual(curVisibleChoices, newVisibleChoices, true, false, false)) return true;
+    }
     return curVis != hasVisCell;
+  }
+  private updateNewVisibleChoices(q: Question, dest: Array<any>): void {
+    const choices = q.visibleChoices;
+    if(!Array.isArray(choices)) return;
+    for(let i = 0; i < choices.length; i ++) {
+      const ch = choices[i];
+      if(dest.indexOf(ch.value) < 0) dest.push(ch.value);
+    }
   }
   protected runTotalsCondition(
     values: HashTable<any>,
     properties: HashTable<any>
-  ) {
+  ): void {
     if (!this.generatedTotalRow) return;
     this.generatedTotalRow.runCondition(
       this.getRowConditionValues(values),
@@ -2264,6 +2318,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!this.onCreateDetailPanelCallback) {
       this.onCreateDetailPanelCallback(row, panel);
     }
+    panel.questions.forEach(q => q.setParentQuestion(this));
     return panel;
   }
   getSharedQuestionByName(
@@ -2382,6 +2437,10 @@ Serializer.addClass(
       name: "detailPanelMode",
       choices: ["none", "underRow", "underRowSingle"],
       default: "none",
+    },
+    { name: "cellErrorLocation", default: "default", choices: ["default", "top", "bottom"] },
+    { name: "detailErrorLocation", default: "default", choices: ["default", "top", "bottom"],
+      visibleIf: (obj: any) => { return !!obj && obj.detailPanelMode != "none"; }
     },
     "horizontalScroll:boolean",
     {

@@ -427,6 +427,7 @@ export var defaultV2Css = {
     detailIconExpanded: "sd-detail-panel__icon--expanded",
     detailIconId: "icon-expanddetail",
     detailIconExpandedId: "icon-collapsedetail",
+    detailPanelCell: "sd-table__cell--detail-panel",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     actionsCellDrag: "sd-table__cell--drag",
     emptyCell: "sd-table__cell--empty",
@@ -575,6 +576,8 @@ export var defaultV2Css = {
     small: "sd-row__question--small",
     controls: "sjs_sp_controls sd-signaturepad__controls",
     placeholder: "sjs_sp_placeholder",
+    canvas: "sjs_sp_canvas sd-signaturepad__canvas",
+    backgroundImage: "sjs_sp__background-image sd-signaturepad__background-image",
     clearButton: "sjs_sp_clear sd-context-btn sd-context-btn--negative sd-signaturepad__clear",
     clearButtonIconId: "icon-clear"
   },

@@ -579,3 +579,60 @@ QUnit.test("Column width is not loaded, bug in Creator #4303", function (assert)
   assert.equal(matrix.columns.length, 1, "There is one column");
   assert.equal(matrix.columns[0].width, "222px", "column width is loaded correctly");
 });
+QUnit.test("Error location from survey/matrix/properties", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  const qCell = row.cells[0].question;
+  const qDetail = row.detailPanel.getQuestionByName("q1");
+  assert.ok(qCell, "qCell");
+  assert.ok(qDetail, "qDetail");
+  assert.equal(qCell.getErrorLocation(), "bottom", "cell, #1");
+  assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #1");
+  matrix.errorLocation = "top";
+  assert.equal(qCell.getErrorLocation(), "top", "cell, #2");
+  assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #2");
+  matrix.cellErrorLocation = "bottom";
+  assert.equal(qCell.getErrorLocation(), "bottom", "cell, #3");
+  assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #3");
+  matrix.cellErrorLocation = "default";
+  matrix.detailErrorLocation = "bottom";
+  assert.equal(qCell.getErrorLocation(), "top", "cell, #4");
+  assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #4");
+});
+QUnit.test("Set incorrect value into matrix dropdown", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.value = "a string";
+  matrix.value = 4;
+  matrix.value = ["a string"];
+  assert.equal(matrix.isEmpty(), true, "Do not allow to set incorrect values");
+  assert.notOk(matrix.value, "matrix value is empty, #1");
+  survey.data = { matrix: "a string" };
+  assert.equal(matrix.isEmpty(), true, "Do not allow to set incorrect values from data");
+  assert.notOk(matrix.value, "matrix value is empty, #2");
+  survey.data = { matrix: { row1: 1 } };
+  assert.equal(matrix.isEmpty(), false, "Set correct value");
+});

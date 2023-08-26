@@ -464,6 +464,7 @@ export class Question extends SurveyElement<Question>
     if (isLight !== true) {
       this.runConditions();
     }
+    this.calcRenderedCommentPlaceholder();
   }
   /**
    * Returns a survey element (panel or page) that contains the question and allows you to move this question to a different survey element.
@@ -685,13 +686,20 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  @property({ localizable: true }) commentPlaceholder: string;
+  @property({ localizable: true, onSet: (val, target) => target.calcRenderedCommentPlaceholder() }) commentPlaceholder: string;
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
   }
   public set commentPlaceHolder(newValue: string) {
     this.commentPlaceholder = newValue;
+  }
+  public get renderedCommentPlaceholder(): string {
+    return this.getPropertyValue("renderedCommentPlaceholder");
+  }
+  private calcRenderedCommentPlaceholder() {
+    const res = !this.isReadOnly ? this.commentPlaceHolder : undefined;
+    this.setPropertyValue("renderedCommentPlaceholder", res);
   }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
@@ -712,8 +720,9 @@ export class Question extends SurveyElement<Question>
   public updateCustomWidget(): void {
     this.customWidgetValue = CustomWidgetCollection.Instance.getCustomWidget(this);
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
+    this.calcRenderedCommentPlaceholder();
     if (!!this.localeChangedCallback) {
       this.localeChangedCallback();
     }
@@ -1195,6 +1204,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();
     this.updateQuestionCss();
+    this.calcRenderedCommentPlaceholder();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -1254,6 +1264,7 @@ export class Question extends SurveyElement<Question>
     if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
+    this.calcRenderedCommentPlaceholder();
     this.onIndentChanged();
   }
   protected onSetData(): void {

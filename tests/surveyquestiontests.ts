@@ -7091,6 +7091,32 @@ QUnit.test("Try to set incorrect values, bug#6629", function (assert) {
   assert.deepEqual(q6.value, ["f"], "Convert to array");
   ConsoleWarnings.inCorrectQuestionValue = oldFunc;
 });
+QUnit.test("Update on changing commentPlaceholder UI immediately, bug#6797", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        name: "q1",
+        showCommentArea: true,
+        commentPlaceholder: {
+          default: "abc",
+          de: "abc-de"
+        }
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.renderedCommentPlaceholder, "abc", "Loaded from survey");
+  q1.readOnly = true;
+  assert.notOk(q1.renderedCommentPlaceholder, "Do not show when read-only");
+  q1.commentPlaceholder = "edf";
+  assert.notOk(q1.renderedCommentPlaceholder, "Do not show when read-only, #2");
+  q1.readOnly = false;
+  assert.equal(q1.renderedCommentPlaceholder, "edf", "question is not read-only");
+  q1.commentPlaceholder = "abcd";
+  assert.equal(q1.renderedCommentPlaceholder, "abcd", "comment placeholder is changed");
+  survey.locale = "de";
+  assert.equal(q1.renderedCommentPlaceholder, "abc-de", "locale is changed");
+});
 QUnit.test("Dynamic error text in expression validator, bug#6790", function (assert) {
   const survey = new SurveyModel({
     checkErrorsMode: "onValueChanged",
@@ -7131,4 +7157,3 @@ QUnit.test("Dynamic error text in expression validator, bug#6790", function (ass
   assert.strictEqual(error, q2.errors[0], "Same errors");
   assert.equal(errorTextChangedCounter, 1, "text has been updated");
 });
-

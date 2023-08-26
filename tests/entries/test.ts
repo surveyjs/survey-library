@@ -14,7 +14,7 @@ export * from "../surveyLocalizationTests"; //
 export * from "../surveyquestiontests"; //
 export * from "../question_matrixdynamictests";
 export * from "../question_matrixdropdownbasetests";
-export * from "../surveypaneldynamictests";
+export * from "../question_paneldynamic_tests";
 export * from "../surveyserializationtests"; //
 export * from "../surveytests"; //
 export * from "../surveyWindowTests"; //

@@ -10188,6 +10188,95 @@ QUnit.test(
     Serializer.removeProperty("itemvalue", "score");
   }
 );
+QUnit.test("getPlainData - calculate itemvalue.score in rate question, Bug#6804",
+  function (assert) {
+    Serializer.addProperty("itemvalue", { name: "score:number" });
+
+    var survey = new SurveyModel({
+      questions: [
+        {
+          type: "rating",
+          name: "q1",
+          rateValues: [{ value: 1, score: 2, text: "Score 2" }, { value: 2, score: 4, text: "Score 4" }]
+        },
+        {
+          type: "dropdown",
+          name: "q2",
+          choices: [
+            {
+              value: "item1",
+              score: 1,
+            },
+            {
+              value: "item2",
+              score: 2,
+            },
+            {
+              value: "item3",
+              score: 3,
+            },
+          ],
+        },
+        {
+          type: "checkbox",
+          name: "q3",
+          choices: [
+            {
+              value: "item1",
+              score: 1,
+            },
+            {
+              value: "item2",
+              score: 2,
+            },
+            {
+              value: "item3",
+              score: 3,
+            },
+          ],
+        }
+      ]
+    });
+    survey.data = {
+      q1: 2,
+      q2: "item2",
+      q3: ["item2", "item3"]
+    };
+    const q1 = survey.getQuestionByName("q1");
+    const q1PlainData = q1.getPlainData({ calculations: [{ propertyName: "score" }] });
+    assert.equal(q1PlainData.displayValue, "Score 4", "display value is correct");
+    assert.equal(q1PlainData.isNode, false, "it is not a node");
+    assert.equal((<any>q1PlainData).score, 4, "score is correct");
+
+    const plainData = survey.getPlainData({
+      includeEmpty: false,
+      calculations: [{ propertyName: "score" }],
+    });
+    const calculate = (
+      plainData: Array<{
+        isNode: boolean,
+        score?: number,
+        data?: Array<any>,
+      }> = []
+    ): number => {
+      return plainData.reduce((result, current) => {
+        var currentScore = current.score;
+        if (current.isNode) {
+          currentScore = calculate(current.data);
+        }
+        if (currentScore) {
+          return result + currentScore;
+        }
+        return result;
+      }, 0);
+    };
+
+    const surveyScore = calculate(plainData);
+    assert.equal(surveyScore, 11, "overall survey score for answered questions");
+
+    Serializer.removeProperty("itemvalue", "score");
+  }
+);
 
 QUnit.test(
   "question.getPlainData - select base - multiple select - other",
@@ -10219,7 +10308,7 @@ QUnit.test(
     question.value = ["other", "giraffe"];
     question.comment = "Other value text";
 
-    var plainData = question.getPlainData();
+    const plainData = question.getPlainData();
     assert.deepEqual(plainData.value, ["other", "giraffe"]);
     assert.equal(plainData.isNode, true);
     assert.deepEqual(plainData.data.length, 2);

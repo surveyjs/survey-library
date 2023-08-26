@@ -72,6 +72,7 @@ export {
   ISurveyData,
   ITitleOwner,
   ISurveyLayoutElement,
+  IPlainDataOptions as IPlainData,
   IShortcutText
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";

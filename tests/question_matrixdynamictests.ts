@@ -4686,6 +4686,85 @@ QUnit.test("showInMultipleColumns and hasOther properties, change in run-time in
   assert.equal(matrix.renderedTable.rows[0].cells.length, 2 + 1, "first row: 2 choices + hasOther");
   assert.equal(matrix.renderedTable.headerRow.cells[2].locTitle.text, "Other (describe)", "Column text is correct");
 });
+QUnit.test("showInMultipleColumns property, and visibleIf in choices", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            totalType: "sum",
+          },
+          {
+            name: "col2",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            hasNone: true,
+            choices: [
+              { value: "A", visibleIf: "{val1} = 1" },
+              { value: "B", visibleIf: "{val1} = 2" },
+              { value: "C", visibleIf: "{val1} = 3" }
+            ]
+          }
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const column = matrix.getColumnByName("col2");
+  const choices = column.templateQuestion.visibleChoices;
+  assert.equal(choices.length, 4, "There are 4 choices");
+  assert.equal(column.isFilteredMultipleColumns, true, "multiple column has visibleIf in choices");
+
+  let table = matrix.renderedTable;
+  let multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 1, "One visible choice");
+  assert.equal(multipleChoices[0].value, "none", "none is only visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 1, "header: row value + 1 choices");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 1, "first row: row value + 1 choices");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "None", "Header None");
+  assert.equal(table.rows[1].cells[2].choiceValue, "none", "none index in the first row");
+
+  survey.setValue("val1", 1);
+  table = matrix.renderedTable;
+  multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 2, "Two visible choice");
+  assert.equal(multipleChoices[0].value, "A", "A is visible");
+  assert.equal(multipleChoices[1].value, "none", "none is visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 2, "header: row value + 1 choices, #2");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 2, "first row: row value + 1 choices, #2");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "A", "Header A, #2");
+  assert.equal(table.headerRow.cells[3].locTitle.textOrHtml, "None", "Header None, #2");
+  assert.equal(table.rows[1].cells[2].choiceValue, "A", "none in the first row, #2");
+  assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #2");
+
+  survey.setValue("val1", 3);
+  table = matrix.renderedTable;
+  multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 2, "Two visible choice");
+  assert.equal(multipleChoices[0].value, "C", "C is visible");
+  assert.equal(multipleChoices[1].value, "none", "none is visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 2, "header: row value + 1 choices, #3");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 2, "first row: row value + 1 choices, #3");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "C", "Header C, #3");
+  assert.equal(table.headerRow.cells[3].locTitle.textOrHtml, "None", "Header None, #3");
+  assert.equal(table.rows[1].cells[2].choiceValue, "C", "none in the first row, #3");
+  assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #3");
+
+  survey.setValue("val1", 4);
+  table = matrix.renderedTable;
+  multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 1, "Two visible choice");
+  assert.equal(multipleChoices[0].value, "none", "none is visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 1, "header: row value + 1 choices, #4");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 1, "first row: row value + 1 choices, #4");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "None", "Header None, #4");
+  assert.equal(table.rows[1].cells[2].choiceValue, "none", "none in the first row, #4");
+});
 QUnit.test(
   "showInMultipleColumns property + columnLayout = 'vertical'",
   function (assert) {

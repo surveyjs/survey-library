@@ -7107,7 +7107,7 @@ QUnit.test("Dynamic error text in expression validator, bug#6790", function (ass
         validators: [
           {
             type: "expression",
-            text: "{q1}% left.",
+            text: "{q2}% left.",
             expression: "{leftover} <= 0"
           }
         ]
@@ -7118,9 +7118,17 @@ QUnit.test("Dynamic error text in expression validator, bug#6790", function (ass
   const q2 = survey.getQuestionByName("q2");
   q1.value = 10;
   assert.equal(q2.errors.length, 1, "Error is here, #1");
-  assert.equal(q2.errors[0].locText.renderedHtml, "10% left.", "Error text is correct, #1");
+  const error = q2.errors[0];
+  assert.equal(q2.errors[0].locText.renderedHtml, "90% left.", "Error text is correct, #1");
+  let errorTextChangedCounter = 0;
+  error.locText.onChanged = (): void => {
+    errorTextChangedCounter ++;
+  };
   q1.value = 20;
   assert.equal(q2.errors.length, 1, "Error is here, #2");
-  assert.equal(q2.errors[0].locText.renderedHtml, "20% left.", "Error text is correct, #2");
+  assert.equal(q2.errors[0].locText.renderedHtml, "80% left.", "Error text is correct, #2");
+  assert.equal(error.locText.renderedHtml, "80% left.", "Old error text is correct, #2");
+  assert.strictEqual(error, q2.errors[0], "Same errors");
+  assert.equal(errorTextChangedCounter, 1, "text has been updated");
 });
 

@@ -1840,6 +1840,9 @@ export class Question extends SurveyElement<Question>
         this.survey.beforeSettingQuestionErrors(this, errors);
       }
       this.errors = errors;
+      if(this.errors !== errors) {
+        this.errors.forEach(er => er.locText.strChanged());
+      }
     }
     this.updateContainsErrors();
     if (oldHasErrors != errors.length > 0) {

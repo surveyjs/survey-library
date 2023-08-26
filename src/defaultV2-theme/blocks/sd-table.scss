@@ -153,7 +153,7 @@
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--empty {
-  min-width: calcSize(16);
+  min-width: calcSize(15);
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--action {
@@ -162,7 +162,7 @@
 }
 
 .sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
-  min-width: calcSize(16);
+  min-width: calcSize(15);
 
   &.sd-table__cell--dropdown,
   &.sd-table__cell--rating {

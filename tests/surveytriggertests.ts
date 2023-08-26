@@ -520,3 +520,84 @@ QUnit.test("Show complete button instead of next for single matrix, bug#6152", f
   assert.equal(survey.isShowNextButton, false, "#7-next");
   assert.equal(survey.isCompleteButtonVisible, true, "#7-complete");
 });
+QUnit.test("skip trigger for showOtherItem, Bug#6792", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ],
+            "showOtherItem": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "question2"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{question1} notempty",
+        "gotoName": "question2"
+      }
+    ] });
+  const q1 = survey.getQuestionByName("question1");
+  q1.value = "other";
+  assert.equal(survey.currentPageNo, 0, "We are staying on the same page");
+});
+QUnit.test("complete trigger for showOtherItem, Bug#6792", function (assert) {
+  const oldSettings = settings.triggers.executeCompleteOnValueChanged;
+  settings.triggers.executeCompleteOnValueChanged = true;
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ],
+            "showOtherItem": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "question2"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} notempty"
+      }
+    ] });
+  const q1 = survey.getQuestionByName("question1");
+  q1.value = "other";
+  assert.equal(survey.currentPageNo, 0, "We are staying on the same page");
+  assert.equal(survey.state, "running", "Survey is not completed");
+  settings.triggers.executeCompleteOnValueChanged = oldSettings;
+});

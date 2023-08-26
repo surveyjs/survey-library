@@ -7091,3 +7091,36 @@ QUnit.test("Try to set incorrect values, bug#6629", function (assert) {
   assert.deepEqual(q6.value, ["f"], "Convert to array");
   ConsoleWarnings.inCorrectQuestionValue = oldFunc;
 });
+QUnit.test("Dynamic error text in expression validator, bug#6790", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        isRequired: true
+      },
+      {
+        type: "expression",
+        name: "q2",
+        expression: "100 - {q1}",
+        validators: [
+          {
+            type: "expression",
+            text: "{q1}% left.",
+            expression: "{leftover} <= 0"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 10;
+  assert.equal(q2.errors.length, 1, "Error is here, #1");
+  assert.equal(q2.errors[0].locText.renderedHtml, "10% left.", "Error text is correct, #1");
+  q1.value = 20;
+  assert.equal(q2.errors.length, 1, "Error is here, #2");
+  assert.equal(q2.errors[0].locText.renderedHtml, "20% left.", "Error text is correct, #2");
+});
+

@@ -358,14 +358,14 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     }
     values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
     values[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
-    if (!properties) properties = {};
-    properties[MatrixDropdownRowModelBase.RowVariableName] = this;
+    const newProps = Helpers.createCopy(properties);
+    newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
     for (var i = 0; i < this.cells.length; i++) {
       values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
-      this.cells[i].runCondition(values, properties);
+      this.cells[i].runCondition(values, newProps);
     }
     if (!!this.detailPanel) {
-      this.detailPanel.runCondition(values, properties);
+      this.detailPanel.runCondition(values, newProps);
     }
   }
   public clearValue() {

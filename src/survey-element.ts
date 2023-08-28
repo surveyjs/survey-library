@@ -975,4 +975,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       });
     }
   }
+  public dispose() {
+    super.dispose();
+    if(this.titleToolbarValue) {
+      this.titleToolbarValue.dispose();
+    }
+  }
 }

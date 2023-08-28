@@ -317,5 +317,6 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     if(!!this.loadingIndicatorValue) {
       this.loadingIndicatorValue.dispose();
     }
+    this.listContainerHtmlElement = undefined;
   }
 }

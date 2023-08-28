@@ -149,6 +149,8 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
   public dispose(): void {
     super.dispose();
+    this.dotsItem.data.dispose();
+    this.dotsItem.dispose();
     this.resetResponsivityManager();
   }
 }

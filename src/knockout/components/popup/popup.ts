@@ -11,6 +11,7 @@ export class PopupViewModel {
   }
   dispose() {
     this.popupViewModel.model.onVisibilityChanged.remove(this.visibilityChangedHandler);
+    this.popupViewModel.dispose();
   }
   visibilityChangedHandler = (s: any, option: { isVisible: boolean }) => {
     if (option.isVisible) {

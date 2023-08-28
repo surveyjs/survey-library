@@ -162,13 +162,15 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: IPosition;
 
+  private onRecalculatePosition = (_: any, options: { isResetHeight: boolean }) => {
+    if(!this.isOverlay) {
+      this.updatePosition(options.isResetHeight);
+    }
+  };
+
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
     super(model);
-    this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
-      if(!this.isOverlay) {
-        this.updatePosition(options.isResetHeight);
-      }
-    });
+    this.model.onRecalculatePosition.add(this.onRecalculatePosition);
   }
   public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
     super.setComponentElement(componentRoot);
@@ -237,5 +239,23 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
       this.width = undefined;
       this.minWidth = undefined;
     }
+  }
+
+  protected onModelChanging(newModel: PopupModel) {
+    if(!!this.model) {
+      this.model.onRecalculatePosition.remove(this.onRecalculatePosition);
+    }
+    super.onModelChanging(newModel);
+    newModel.onRecalculatePosition.add(this.onRecalculatePosition);
+  }
+
+  public dispose(): void {
+    super.dispose();
+    this.updateOnHiding();
+    if(!!this.model) {
+      this.model.onRecalculatePosition.remove(this.onRecalculatePosition);
+      this.onRecalculatePosition = undefined;
+    }
+    this.targetElement = undefined;
   }
 }

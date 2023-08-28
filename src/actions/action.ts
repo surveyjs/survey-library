@@ -445,6 +445,16 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public getComponent(): string {
     return this._component;
   }
+  public dispose(): void {
+    if(this.popupModel) {
+      this.popupModel.dispose();
+    }
+    this.action = undefined;
+    this.visible = undefined;
+    this.enabled = undefined;
+    this.iconName = undefined;
+    this.iconSize = undefined;
+  }
 }
 
 export class ActionDropdownViewModel {

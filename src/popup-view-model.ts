@@ -79,10 +79,14 @@ export class PopupBaseViewModel extends Base {
     this.minWidth = nullableValue;
   }
 
+  protected onModelChanging(newModel: PopupModel) {
+  }
+
   private setupModel(model: PopupModel) {
     if (!!this.model) {
       this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel");
     }
+    this.onModelChanging(model);
     this._model = model;
     const onIsVisibleChangedHandler = () => {
       if (!model.isVisible) {
@@ -99,6 +103,9 @@ export class PopupBaseViewModel extends Base {
     return this._model;
   }
   public set model(model: PopupModel) {
+    if(this.model) {
+      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
+    }
     this.setupModel(model);
   }
 
@@ -220,6 +227,9 @@ export class PopupBaseViewModel extends Base {
   }
   public dispose(): void {
     super.dispose();
+    if(this.model) {
+      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
+    }
     if(!!this.createdContainer) {
       this.createdContainer.remove();
       this.createdContainer = undefined;
@@ -227,6 +237,7 @@ export class PopupBaseViewModel extends Base {
     if(!!this.footerToolbarValue) {
       this.footerToolbarValue.dispose();
     }
+    this.containerElement = undefined;
   }
   public initializePopupContainer(): void {
     if (!this.container) {

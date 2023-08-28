@@ -1,8 +1,8 @@
 import { property, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { Question } from "./question";
+import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -938,17 +938,11 @@ export class QuestionSelectBase extends Question {
       this.isDesignMode && !this.customWidget && !this.isContentElement;
   }
   public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
+    options: IPlainDataOptions = {
       includeEmpty: true,
       includeQuestionTypes: false,
     }
-  ) {
+  ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = Array.isArray(this.value) ? this.value : [this.value];
@@ -990,7 +984,7 @@ export class QuestionSelectBase extends Question {
   protected getDisplayValueEmpty(): string {
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
-  protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
+  private getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     const selItem = this.getSingleSelectedItem();

@@ -220,7 +220,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     element: ISurveyElement,
     question: IQuestion,
     page: IPage,
-    id: string
+    id: string, scrollIfVisible?: boolean
   ): any;
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
@@ -368,4 +368,12 @@ export interface ISurveyLayoutElement {
   component?: string;
   template?: string;
   data?: any;
+}
+export interface IPlainDataOptions {
+  includeEmpty?: boolean;
+  includeQuestionTypes?: boolean;
+  includeValues?: boolean;
+  calculations?: Array<{
+    propertyName: string,
+  }>;
 }

@@ -32,7 +32,7 @@
 }
 
 .sd-table--no-header {
-  padding-top: calcSize(3)
+  padding-top: calcSize(3);
 }
 
 .sd-table--alternate-rows {
@@ -144,6 +144,7 @@
 
 .sd-table__cell--header {
   font-weight: 600;
+  color: $font-questiontitle-color;
   vertical-align: top;
   padding: calcSize(1.5) calcSize(1);
 
@@ -203,13 +204,12 @@
   border: none;
   background: transparent;
   border-radius: calcSize(2);
-  width: calcSize(4);
-  height: calcSize(4);
   padding: calcSize(1);
 
   svg {
-    width: calcSize(2);
-    height: calcSize(2);
+    display: block;
+    width: multiply(1, $font-editorfont-size);
+    height: multiply(1, $font-editorfont-size);
     fill: $foreground-light;
   }
 
@@ -232,6 +232,7 @@
 
 .sd-table__cell--row-text {
   font-weight: 600;
+  color: $font-questiontitle-color;
   text-align: left;
   min-width: calcSize(12);
   padding: calcSize(1.5) calcSize(1);

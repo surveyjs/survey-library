@@ -129,6 +129,11 @@ export class QuestionMatrixDropdownRenderedCell {
       .append(matrixCssClasses.choiceCell, this.isChoice)
       .toString();
   }
+  public focusIn(): void {
+    if(this.question) {
+      this.question.focusIn();
+    }
+  }
 }
 
 export class QuestionMatrixDropdownRenderedRow extends Base {
@@ -603,6 +608,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
           new Action({
             id: "remove-row",
             iconName: "icon-delete",
+            iconSize: "auto",
             component: "sv-action-bar-item",
             innerCss: new CssClassBuilder().append(this.matrix.cssClasses.button).append(this.matrix.cssClasses.buttonRemove).toString(),
             location: "end",
@@ -930,7 +936,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var choices = column.templateQuestion.choices;
     if (!!choices && Array.isArray(choices) && choices.length == 0)
       return this.matrix.choices;
-    choices = column.templateQuestion.visibleChoices;
+    choices = column.getVisibleMultipleChoices();
     if (!choices || !Array.isArray(choices)) return null;
     return choices;
   }

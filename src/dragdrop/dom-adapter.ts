@@ -38,7 +38,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private savedTargetNode: any;
   private scrollIntervalId: number = null;
 
-  constructor(private dd: IDragDropEngine, private longTap?: boolean) {}
+  constructor(private dd: IDragDropEngine, private longTap: boolean = true) {}
 
   private get rootElement() {
     if(isShadowDOM(settings.environment.root)) {
@@ -83,11 +83,6 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     document.body.style.setProperty("user-select", "none", "important");
     document.body.style.setProperty("-webkit-user-select", "none", "important");
 
-    let longTap = this.longTap;
-    if (typeof longTap === "undefined") {
-      longTap = true;
-    }
-
     this.timeoutID = setTimeout(() => {
       this.doStartDrag(
         event,
@@ -110,7 +105,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       }
 
       this.stopLongTap();
-    }, longTap ? 500: 0);
+    }, this.longTap ? 500: 0);
 
     document.addEventListener("pointerup", this.stopLongTap);
     document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);

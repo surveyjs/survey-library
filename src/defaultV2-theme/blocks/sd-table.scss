@@ -61,7 +61,7 @@
     margin-top: calcSize(-3);
   }
 
-  &>.sd-row:not(:first-child) .sd-question--table>.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+  &>.sd-row:not(:first-of-type) .sd-question--table>.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
     margin-top: calcSize(-2);
   }
 
@@ -69,7 +69,7 @@
     margin-top: calcSize(1);
   }
 
-  &>.sd-row:not(:first-child) .sd-question--table>.sd-question__header+.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+  &>.sd-row:not(:first-of-type) .sd-question--table>.sd-question__header+.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
     margin-top: calcSize(1);
   }
 }

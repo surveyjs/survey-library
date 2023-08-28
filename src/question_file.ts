@@ -1,4 +1,5 @@
-import { Question } from "./question";
+import { IPlainDataOptions } from "./base-interfaces";
+import { IQuestionPlainData, Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { EventBase, ComputedUpdater } from "./base";
@@ -464,15 +465,10 @@ export class QuestionFileModel extends Question {
     return result;
   }
   public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
+    options: IPlainDataOptions = {
       includeEmpty: true,
     }
-  ) {
+  ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
       questionPlainData.isNode = false;

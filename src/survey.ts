@@ -15,6 +15,7 @@ import {
   IProgressInfo,
   IFindElement,
   ISurveyLayoutElement,
+  IPlainDataOptions,
   LayoutElementContainer
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
@@ -2754,16 +2755,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you want to skip empty answers, pass an object with the `includeEmpty` property set to `false`.
    */
-  public getPlainData(
-    options?: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
-      includeValues?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    }
-  ): Array<IQuestionPlainData> {
+  public getPlainData(options?: IPlainDataOptions): Array<IQuestionPlainData> {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false, includeValues: false };
     }

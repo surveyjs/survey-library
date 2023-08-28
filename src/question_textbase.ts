@@ -83,10 +83,10 @@ export class QuestionTextBase extends Question {
   public get renderedPlaceholder(): string {
     return this.getPropertyValue("renderedPlaceholder");
   }
-  protected setRenderedPlaceholder(val: string) {
+  protected setRenderedPlaceholder(val: string): void {
     this.setPropertyValue("renderedPlaceholder", val);
   }
-  protected onReadOnlyChanged() {
+  protected onReadOnlyChanged(): void {
     super.onReadOnlyChanged();
     this.calcRenderedPlaceholder();
   }
@@ -94,7 +94,7 @@ export class QuestionTextBase extends Question {
     this.calcRenderedPlaceholder();
     super.onSurveyLoad();
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     this.calcRenderedPlaceholder();
   }
@@ -104,12 +104,12 @@ export class QuestionTextBase extends Question {
   }
   protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
-    if(!!res && !this.hasPlaceHolder()) {
+    if(!!res && !this.hasPlaceholder()) {
       res = undefined;
     }
     this.setRenderedPlaceholder(res);
   }
-  protected hasPlaceHolder(): boolean {
+  protected hasPlaceholder(): boolean {
     return !this.isReadOnly;
   }
   protected setNewValue(newValue: any): void {

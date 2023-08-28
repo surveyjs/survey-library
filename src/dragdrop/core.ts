@@ -113,9 +113,12 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   protected doBanDropHere = (): void => { };
 
   protected findDropTargetNodeFromPoint(clientX: number, clientY: number): HTMLElement {
-    this.domAdapter.draggedElementShortcut.hidden = true;
+    const displayProp = this.domAdapter.draggedElementShortcut.style.display;
+    //this.domAdapter.draggedElementShortcut.hidden = true;
+    this.domAdapter.draggedElementShortcut.style.display = "none";
     let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    this.domAdapter.draggedElementShortcut.hidden = false;
+    // this.domAdapter.draggedElementShortcut.hidden = false;
+    this.domAdapter.draggedElementShortcut.style.display = displayProp || "block";
 
     if (!dragOverNode) return null;
 

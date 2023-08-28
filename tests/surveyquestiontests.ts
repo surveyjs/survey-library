@@ -7091,3 +7091,69 @@ QUnit.test("Try to set incorrect values, bug#6629", function (assert) {
   assert.deepEqual(q6.value, ["f"], "Convert to array");
   ConsoleWarnings.inCorrectQuestionValue = oldFunc;
 });
+QUnit.test("Update on changing commentPlaceholder UI immediately, bug#6797", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        name: "q1",
+        showCommentArea: true,
+        commentPlaceholder: {
+          default: "abc",
+          de: "abc-de"
+        }
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.renderedCommentPlaceholder, "abc", "Loaded from survey");
+  q1.readOnly = true;
+  assert.notOk(q1.renderedCommentPlaceholder, "Do not show when read-only");
+  q1.commentPlaceholder = "edf";
+  assert.notOk(q1.renderedCommentPlaceholder, "Do not show when read-only, #2");
+  q1.readOnly = false;
+  assert.equal(q1.renderedCommentPlaceholder, "edf", "question is not read-only");
+  q1.commentPlaceholder = "abcd";
+  assert.equal(q1.renderedCommentPlaceholder, "abcd", "comment placeholder is changed");
+  survey.locale = "de";
+  assert.equal(q1.renderedCommentPlaceholder, "abc-de", "locale is changed");
+});
+QUnit.test("Dynamic error text in expression validator, bug#6790", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        isRequired: true
+      },
+      {
+        type: "expression",
+        name: "q2",
+        expression: "100 - {q1}",
+        validators: [
+          {
+            type: "expression",
+            text: "{q2}% left.",
+            expression: "{leftover} <= 0"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 10;
+  assert.equal(q2.errors.length, 1, "Error is here, #1");
+  const error = q2.errors[0];
+  assert.equal(q2.errors[0].locText.renderedHtml, "90% left.", "Error text is correct, #1");
+  let errorTextChangedCounter = 0;
+  error.locText.onChanged = (): void => {
+    errorTextChangedCounter ++;
+  };
+  q1.value = 20;
+  assert.equal(q2.errors.length, 1, "Error is here, #2");
+  assert.equal(q2.errors[0].locText.renderedHtml, "80% left.", "Error text is correct, #2");
+  assert.equal(error.locText.renderedHtml, "80% left.", "Old error text is correct, #2");
+  assert.strictEqual(error, q2.errors[0], "Same errors");
+  assert.equal(errorTextChangedCounter, 1, "text has been updated");
+});

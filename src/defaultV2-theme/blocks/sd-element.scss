@@ -157,11 +157,10 @@
     &:after {
       content: " ";
       display: block;
-      position: absolute;
+      position: relative;
       height: 1px;
       background: $border-light;
       bottom: 0;
-      width: 100%;
     }
   }
 
@@ -172,9 +171,9 @@
       margin-top: 0;
       padding-top: var(--sd-base-vertical-padding);
       padding-bottom: var(--sd-base-vertical-padding);
-      position: relative;
 
       &:after {
+        bottom: calc(-1 * var(--sd-base-vertical-padding));
         left: calc(-1 * var(--sd-base-padding));
         width: calc(100% + 2 * var(--sd-base-padding));
       }
@@ -231,6 +230,13 @@
 
 //nested styles
 .sd-element--nested {
+  &.sd-element--complex {
+    &>.sd-element__header--location-top {
+      &:after {
+        bottom: calc(-0.5 * var(--sd-base-vertical-padding));
+      }
+    }
+  }
 
   &.sd-element--collapsed {
 

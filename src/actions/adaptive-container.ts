@@ -75,6 +75,8 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
         this.hiddenItemSelected(item);
       },
       allowSelection: false
+    }, {
+      horizontalPosition: "center"
     });
   }
   public get hiddenItemsListModel(): ListModel {

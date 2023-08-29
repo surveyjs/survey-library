@@ -3,9 +3,11 @@ import { Base } from "../base";
 import { surveyLocalization } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
-import { IPopupOptionsBase, PopupModel } from "../popup";
+import { IDialogOptions, IPopupOptionsBase, PopupModel } from "../popup";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { defaultActionBarCss } from "./container";
+import { showDialog } from "src/knockout/components/popup/popup";
+import { settings } from "src/settings";
 
 export type actionModeType = "large" | "small" | "popup" | "removed";
 
@@ -179,6 +181,15 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     popupModel: innerPopupModel,
     action: (action:IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
+      // if (action.mode == "popup") {
+      //   settings.showDialog(
+      //     <IDialogOptions>{
+      //       componentName: "sv-list",
+      //       data: { model: listModel },
+      //       cssClass: "sv-property-editor",
+      //       displayMode: "popup"
+      //     });
+      // }
       innerPopupModel.isFocusedContent = !isUserAction || listModel.showFilter;
       innerPopupModel.toggleVisibility();
       listModel.scrollToSelectedItem();

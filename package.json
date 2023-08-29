@@ -74,7 +74,7 @@
     "test:markup": "npm run test:knockout:single && npm run test:react:single && npm run test:vue:single",
     "visual-regression-tests": "testcafe chrome ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --reporter minimal --selector-timeout 1500",
     "visual-regression-tests:ci": "testcafe chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal",
-    "visual-regression-tests:ci:knockout": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=knockout",
+    "visual-regression-tests:ci:knockout": "testcafe --list-browsers",
     "visual-regression-tests:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular",
     "visual-regression-tests:angular": "testcafe -c 4 -q chrome ./visualRegressionTests/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=angular",
     "visual-regression-tests:ci:react": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react",

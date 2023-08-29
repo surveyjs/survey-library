@@ -1,4 +1,4 @@
 {
   "nativeAutomation": "true",
-  "browsers": "path:%ProgramFiles%\\Google\\Chrome\\Application\\chrome.exe"
+  "browsers": "path:C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe"
 }

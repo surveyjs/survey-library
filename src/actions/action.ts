@@ -140,7 +140,6 @@ export interface IAction {
    */
   disableShrink?: boolean;
   disableHide?: boolean;
-  hideFirst?: boolean;
   mode?: actionModeType;
   /**
    * A number that specifies the action's position relative to other actions.

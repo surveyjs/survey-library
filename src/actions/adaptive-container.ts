@@ -11,13 +11,17 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   public isResponsivenessDisabled = false;
 
   private hideItemsGreaterN(visibleItemsCount: number) {
-    const actionsToHide = this.getActionsToHide();
+    const actionsToHide = this.getActionsToHide().sort((a, b) => a.removePriority || 0 - b.removePriority || 0);
     visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount - (this.visibleActions.length - actionsToHide.length));
     const hiddenItems: IAction[] = [];
     actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
-        item.mode = "popup";
-        hiddenItems.push(item.innerItem);
+        if(item.removePriority) {
+          item.mode = "removed";
+        } else {
+          item.mode = "popup";
+          hiddenItems.push(item.innerItem);
+        }
       }
       visibleItemsCount--;
     });
@@ -25,12 +29,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   }
 
   private getActionsToHide() {
-    return this.visibleActions.filter(action => !action.disableHide)
-      .sort((a: IAction, b: IAction) => {
-        if (a.hideFirst && !b.hideFirst) return 1;
-        if (!a.hideFirst && b.hideFirst) return -1;
-        return 0;
-      });
+    return this.visibleActions.filter(action => !action.disableHide);
   }
 
   private getVisibleItemsCount(availableSize: number): number {
@@ -84,8 +83,6 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
         this.hiddenItemSelected(item);
       },
       allowSelection: false
-    }, {
-      horizontalPosition: "center"
     });
   }
   public get hiddenItemsListModel(): ListModel {
@@ -156,7 +153,10 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
   public setActionsMode(mode: actionModeType) {
-    this.actions.forEach((action) => (action.mode = mode));
+    this.actions.forEach((action) => {
+      if(mode == "small" && action.disableShrink) return;
+      action.mode = mode;
+    });
   }
   public dispose(): void {
     super.dispose();

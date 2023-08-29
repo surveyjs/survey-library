@@ -8,6 +8,7 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
+  IPlainDataOptions,
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -15,7 +16,7 @@ import {
   TextPreProcessorValue,
   QuestionTextProcessor,
 } from "./textPreProcessor";
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -1956,16 +1957,7 @@ export class QuestionPanelDynamicModel extends Question
   getRootData(): ISurveyData {
     return this.data;
   }
-  public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
-      includeEmpty: true,
-    }
-  ) {
+  public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       questionPlainData.isNode = true;

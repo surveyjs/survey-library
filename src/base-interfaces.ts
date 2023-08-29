@@ -369,3 +369,11 @@ export interface ISurveyLayoutElement {
   template?: string;
   data?: any;
 }
+export interface IPlainDataOptions {
+  includeEmpty?: boolean;
+  includeQuestionTypes?: boolean;
+  includeValues?: boolean;
+  calculations?: Array<{
+    propertyName: string,
+  }>;
+}

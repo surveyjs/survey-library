@@ -9,10 +9,11 @@ import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
-import { IConditionObject } from "./question";
+import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { IPlainDataOptions } from "./base-interfaces";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -484,15 +485,10 @@ export class QuestionMatrixModel
     return res;
   }
   public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
+    options: IPlainDataOptions = {
       includeEmpty: true,
     }
-  ) {
+  ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = this.createValueCopy();

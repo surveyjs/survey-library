@@ -38,8 +38,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private savedTargetNode: any;
   private scrollIntervalId: number = null;
 
-  constructor(private dd: IDragDropEngine, private longTap?: boolean) {
-  }
+  constructor(private dd: IDragDropEngine, private longTap: boolean = true) {}
+
   private get rootElement() {
     if(isShadowDOM(settings.environment.root)) {
       return settings.environment.root.host;
@@ -105,7 +105,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       }
 
       this.stopLongTap();
-    }, this.longTap? 500: 0);
+    }, this.longTap ? 500: 0);
 
     document.addEventListener("pointerup", this.stopLongTap);
     document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);

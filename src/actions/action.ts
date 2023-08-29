@@ -171,7 +171,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.onFilterStringChangedCallback
   );
   listModel.locOwner = locOwner;
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title);
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
+    listModel.dispose();
+  });
   innerPopupModel.displayMode = popupOptions?.displayMode as any;
 
   const newActionOptions = Object.assign({}, actionOptions, {
@@ -450,10 +452,10 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
       this.popupModel.dispose();
     }
     this.action = undefined;
-    this.visible = undefined;
-    this.enabled = undefined;
-    this.iconName = undefined;
-    this.iconSize = undefined;
+    if (!!this.locTitleValue) {
+      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
+      this.locTitleChanged = undefined;
+    }
   }
 }
 

@@ -11,7 +11,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   public isResponsivenessDisabled = false;
 
   private hideItemsGreaterN(visibleItemsCount: number) {
-    const actionsToHide = this.visibleActions.filter(action => !action.disableHide);
+    const actionsToHide = this.getActionsToHide();
     visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount - (this.visibleActions.length - actionsToHide.length));
     const hiddenItems: IAction[] = [];
     actionsToHide.forEach((item) => {
@@ -24,9 +24,18 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     this.hiddenItemsListModel.setItems(hiddenItems);
   }
 
+  private getActionsToHide() {
+    return this.visibleActions.filter(action => !action.disableHide)
+      .sort((a: IAction, b: IAction) => {
+        if (a.hideFirst && !b.hideFirst) return 1;
+        if (!a.hideFirst && b.hideFirst) return -1;
+        return 0;
+      });
+  }
+
   private getVisibleItemsCount(availableSize: number): number {
     this.visibleActions.filter((action) => action.disableHide).forEach(action => availableSize -= action.minDimension);
-    const itemsSizes: number[] = this.visibleActions.filter(action => !action.disableHide).map((item) => item.minDimension);
+    const itemsSizes: number[] = this.getActionsToHide().map((item) => item.minDimension);
     let currSize: number = 0;
     for (var i = 0; i < itemsSizes.length; i++) {
       currSize += itemsSizes[i];

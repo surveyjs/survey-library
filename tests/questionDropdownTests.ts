@@ -1656,3 +1656,44 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
   assert.notOk(question["waitingChoicesByURL"]);
   assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
 });
+
+QUnit.test("lazy loading: change choicesLazyLoadEnabled on runtime", assert => {
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add((_, opt) => {
+    const total = 55;
+    const result: Array<any> = [];
+    for (let index = 0; index < total; index++) {
+      result.push({ value: "item" + index, text: "item" + index });
+    }
+    if(opt.filter === "des") {
+      opt.setItems(result.slice(10, 15), total);
+    } else {
+      opt.setItems(result.slice(0, 15), total);
+    }
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  assert.equal(question.choicesLazyLoadEnabled, false);
+  assert.equal(question.choices.length, 0);
+
+  question.choicesLazyLoadEnabled = true;
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.dropdownListModel["listModel"].visibleItems.length, 0, "#1");
+
+  question.dropdownListModel.popupModel.isVisible = true;
+  assert.equal(question.choices.length, 15);
+  assert.equal(question.dropdownListModel["listModel"].visibleItems.length, 16, "#2");
+  assert.equal(question.dropdownListModel["listModel"].visibleItems[15].id, "loadingIndicator");
+
+  question.dropdownListModel.filterString = "des";
+  assert.equal(question.choices.length, 5);
+  assert.equal(question.dropdownListModel["listModel"].visibleItems.length, 6, "#3");
+  assert.equal(question.dropdownListModel["listModel"].visibleItems[5].id, "loadingIndicator");
+});

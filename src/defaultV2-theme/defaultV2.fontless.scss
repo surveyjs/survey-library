@@ -58,6 +58,8 @@ body {
   --sd-mobile-width: 600px;
   --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
+  height: 100%;
+  overflow: auto;
   font-family: var(--font-family, $font-family);
   background-color: $background-dim;
   position: relative;

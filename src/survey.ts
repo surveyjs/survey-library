@@ -1980,7 +1980,7 @@ export class SurveyModel extends SurveyElementCore
 
   @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
   public get themeVariables() {
-    return Object.assign({}, this.cssVariables);
+    return Object.assign({}, this.cssVariables, this.backgroundImageStyle);
   }
 
   @property() _isMobile = false;
@@ -2042,11 +2042,13 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("backgroundOpacity", val);
   }
   public get backgroundImageStyle() {
+    if(!this.renderBackgroundImage) return {};
+
     return {
       opacity: this.backgroundOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.backgroundImageFit,
-      backgroundAttachment: this.backgroundImageAttachment
+      backgroundAttachment: this.backgroundImageAttachment === "fixed" ? "scroll" : "local"
     };
   }
   /**
@@ -4482,6 +4484,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootReadOnly, this.mode === "display")
       .append(this.css.rootCompact, this.isCompact)
+      .append(this.css.rootBackgroundImage, !!this.renderBackgroundImage)
       .toString();
   }
   private resizeObserver: ResizeObserver;

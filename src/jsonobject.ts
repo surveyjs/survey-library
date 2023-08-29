@@ -43,14 +43,19 @@ function getLocStringValue(
   return "";
 }
 
-export function property(options?: IPropertyDecoratorOptions) {
-  return function (target: any, key: string) {
+export function property(options: IPropertyDecoratorOptions = {}) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  return function (target: any, key: string): void {
     let processComputedUpdater = (obj: any, val: any) => {
       if (!!val && typeof val === "object" && val.type === ComputedUpdater.ComputedUpdaterType) {
         Base.startCollectDependencies(() => obj[key] = val.updater(), obj, key);
         const result = val.updater();
         const dependencies = Base.finishCollectDependencies();
         val.setDependencies(dependencies);
+        if(obj.dependencies[key]) {
+          obj.dependencies[key].dispose();
+        }
+        obj.dependencies[key] = val;
         return result;
       }
       return val;

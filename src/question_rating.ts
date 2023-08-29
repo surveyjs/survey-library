@@ -7,7 +7,6 @@ import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
-import { HtmlConditionItem } from "./expressionItems";
 import { mergeValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
@@ -313,6 +312,7 @@ export class QuestionRatingModel extends Question {
   }
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if(!this.useRateValues) return super.getDisplayValueCore(keysAsText, value);
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
   }
@@ -389,6 +389,12 @@ export class QuestionRatingModel extends Question {
   }
   public supportOther(): boolean {
     return false;
+  }
+  protected getPlainDataCalculatedValue(propName: string): any {
+    const res = super.getPlainDataCalculatedValue(propName);
+    if(res !== undefined || !this.useRateValues || this.isEmpty()) return res;
+    const item = <any>ItemValue.getItemByValue(this.visibleRateValues, this.value);
+    return item ? item[propName] : undefined;
   }
   /**
    * Specifies a description for the minimum (first) rate value.

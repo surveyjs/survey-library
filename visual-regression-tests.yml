@@ -21,6 +21,12 @@ jobs:
   steps:
   - checkout: self
 
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
   - task: NodeTool@0
     inputs:
       versionSpec: '14.x'
@@ -75,6 +81,12 @@ jobs:
 - job: React
   steps:
   - checkout: self
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
 
   - task: NodeTool@0
     inputs:
@@ -132,6 +144,12 @@ jobs:
   steps:
   - checkout: self
 
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
   - task: NodeTool@0
     inputs:
       versionSpec: '14.x'
@@ -188,6 +206,12 @@ jobs:
   - checkout: self
     persistCredentials: true
     clean: true
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
 
   - task: NodeTool@0
     inputs:
@@ -268,6 +292,12 @@ jobs:
   - checkout: self
     persistCredentials: true
     clean: true
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
 
   - task: NodeTool@0
     inputs:

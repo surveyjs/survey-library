@@ -374,6 +374,9 @@ export class DropdownListModel extends Base {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
     }
+    if(options.name == "choicesLazyLoadEnabled" && options.newValue) {
+      this.listModel.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
+    }
   }
   protected focusItemOnClickAndPopup() {
     if (this._popupModel.isVisible && this.question.value)

@@ -67,7 +67,8 @@
 }
 
 .sd-file__choose-btn--text {
-  display: block;
+  display: flex;
+  flex-direction: column;
   margin-top: calcSize(1);
   font-weight: 600;
   color: $primary;

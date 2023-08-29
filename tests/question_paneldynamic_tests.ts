@@ -6038,3 +6038,34 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(as
 
   settings.confirmActionAsync = prevAsync;
 });
+QUnit.test("panel property in custom function", function (assert) {
+  const panelCustomFunc = function (params: any) {
+    if(!this.panel) return "";
+    const q = this.panel.getQuestionByName(params[0]);
+    if(q && !q.isEmpty()) return q.value + q.value;
+    return "";
+  };
+  FunctionFactory.Instance.register("panelCustomFunc", panelCustomFunc);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          { name: "q1", type: "text" },
+          {
+            name: "q2",
+            type: "expression",
+            expression: "panelCustomFunc('q1')",
+          },
+        ],
+        panelCount: 2,
+      },
+    ],
+  });
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel = question.panels[0];
+  panel.getQuestionByName("q1").value = "abc";
+  assert.equal(panel.getQuestionByName("q2").value, "abcabc", "Custom function with row property works correctly");
+  FunctionFactory.Instance.unregister("panelCustomFunc");
+});

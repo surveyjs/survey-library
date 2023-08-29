@@ -70,7 +70,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     return this.props.question.commentId;
   }
   protected getPlaceholder(): string {
-    return this.props.question.commentPlaceholder;
+    return this.props.question.renderedCommentPlaceholder;
   }
   protected renderElement(): JSX.Element {
     let question = this.props.question;

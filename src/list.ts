@@ -110,6 +110,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.selectedItem = selectedItem;
   }
 
+  public setOnFilterStringChangedCallback(callback: (text: string) => void) {
+    this.onFilterStringChangedCallback = callback;
+  }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);
     if(this.elementId) {

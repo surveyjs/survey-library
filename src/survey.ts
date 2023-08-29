@@ -15,6 +15,7 @@ import {
   IProgressInfo,
   IFindElement,
   ISurveyLayoutElement,
+  IPlainDataOptions,
   LayoutElementContainer
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
@@ -93,7 +94,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Many question types allow respondents to leave comments. To enable this functionality, set a question's [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#showCommentArea) property to `true`. Comment values are saved in a separate property. The property name is composed of the question `name` and `commentSuffix`.
    *
-   * Respondents can also leave a comment when they select "Other" in a single- or multi-select question, such as Dropdown or Checkboxes. The property name for the comment value is composed according to the same rules. However, you can use the question `name` as a key to store the comment value instead. Disable the [`storeOthersAsComment`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#storeOthersAsComment) property in this case.
+   * Respondents can also leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. The property name for the comment value is composed according to the same rules. However, you can use the question `name` as a key to store the comment value instead. Disable the [`storeOthersAsComment`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#storeOthersAsComment) property in this case.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
    */
@@ -398,7 +399,8 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNoEvent> = this.addEvent<SurveyModel, GetQuestionNoEvent>();
   /**
-   * Use this event to change the progress text in code.
+   * An event that is raised before the survey displays progress text. Handle this event to change the progress text in code.
+   * @see showProgressBar
    * @see progressBarType
    */
   public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.addEvent<SurveyModel, ProgressTextEvent>();
@@ -1461,12 +1463,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Gets or sets the first question index. The first question index is '1' by default. You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
-   * You can set the start index to "(1)" or "# A)" or "a)" to render question number as (1), # A) and a) accordingly.
-   * @see Question.title
-   * @see requiredText
+   * Specifies the initial number or letter from which to start question numbering.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
+   * [Question Numbers](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#question-numbers (linkStyle))
    */
   public get questionStartIndex(): string {
     return this.getPropertyValue("questionStartIndex", "");
@@ -1475,11 +1474,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionStartIndex", val);
   }
   /**
-   * Gets or sets whether the "Others" option text is stored as question comment.
+   * Specifies whether to store the "Other" option response in a separate property.
    *
-   * By default the entered text in the "Others" input in the checkbox/radiogroup/dropdown is stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
-   * Set this property to `false`, to store the entered text directly in the `"question name"` key.
-   * @see commentSuffix
+   * Default value: `true`
+   *
+   * Respondents can leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. Comment values are saved in a separate property. The property name is composed of the question `name` and [`commentSuffix`](#commentSuffix). However, you can use the question `name` as a key to store the comment value instead. Disable the `storeOthersAsComment` property in this case.
+   * @see maxOthersLength
    */
   public get storeOthersAsComment(): boolean {
     return this.getPropertyValue("storeOthersAsComment");
@@ -1488,9 +1488,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("storeOthersAsComment", val);
   }
   /**
-   * Specifies the default maximum length for questions like text and comment, including matrix cell questions.
+   * Specifies the maximum text length in textual questions ([Single-Line Input](https://surveyjs.io/form-library/examples/text-entry-question/), [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/), [Multiple Textboxes](https://surveyjs.io/form-library/examples/multiple-text-box-question/)), measured in characters.
    *
-   * The default value is `0`, that means that the text and comment have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
+   * Default value: 0 (unlimited)
+   *
+   * You can override this setting for individual questions if you specify their [`maxLength`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maxLength) property.
    * @see maxOthersLength
    */
   public get maxTextLength(): number {
@@ -1500,11 +1502,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("maxTextLength", val);
   }
   /**
-   * Gets or sets the default maximum length for question comments and others
+   * Specifies the maximum text length for question comments. Applies to questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property set to `true`.
    *
-   * The default value is `0`, that means that the question comments have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
-   * @see Question.showCommentArea
-   * @see Question.showOtherItem
+   * Default value: 0 (unlimited)
    * @see maxTextLength
    */
   public get maxOthersLength(): number {
@@ -2398,9 +2398,9 @@ export class SurveyModel extends SurveyElementCore
     return options.no;
   }
   /**
-   * Gets or sets whether the survey displays page numbers on pages titles.
+   * Specifies whether page titles contain page numbers.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
    */
   public get showPageNumbers(): boolean {
     return this.getPropertyValue("showPageNumbers");
@@ -2548,12 +2548,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionErrorLocation", value.toLowerCase());
   }
   /**
-   * Gets or sets the question description position. The default value is `underTitle`.
+   * Specifies where to display question descriptions.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `underTitle` - show question description under the question title,
-   * - `underInput` - show question description under the question input instead of question title.
+   * - `"underTitle"` (default) - Displays descriptions under question titles.
+   * - `"underInput"` - Displays descriptions under the interactive area.
+   *
+   * You can override this setting for individual questions if you specify their [`descriptionLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#descriptionLocation) property.
+   *
    */
   public get questionDescriptionLocation(): string {
     return this.getPropertyValue("questionDescriptionLocation");
@@ -2752,16 +2755,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you want to skip empty answers, pass an object with the `includeEmpty` property set to `false`.
    */
-  public getPlainData(
-    options?: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
-      includeValues?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    }
-  ): Array<IQuestionPlainData> {
+  public getPlainData(options?: IPlainDataOptions): Array<IQuestionPlainData> {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false, includeValues: false };
     }

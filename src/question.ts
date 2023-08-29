@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -260,9 +260,13 @@ export class Question extends SurveyElement<Question>
   public getPanel(): IPanel {
     return null;
   }
-  public delete(): void {
+  public delete(doDispose: boolean = true): void {
     this.removeFromParent();
-    this.dispose();
+    if(doDispose) {
+      this.dispose();
+    } else {
+      this.resetDependedQuestions();
+    }
   }
   protected removeFromParent(): void {
     if (!!this.parent) {
@@ -1528,15 +1532,7 @@ export class Question extends SurveyElement<Question>
    *
    * Pass an object with the `includeEmpty` property set to `false` if you want to skip empty answers.
    */
-  public getPlainData(
-    options?: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    }
-  ): IQuestionPlainData {
+  public getPlainData(options?: IPlainDataOptions): IQuestionPlainData {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false };
     }
@@ -1554,9 +1550,7 @@ export class Question extends SurveyElement<Question>
         questionPlainData.questionType = this.getType();
       }
       (options.calculations || []).forEach((calculation) => {
-        questionPlainData[calculation.propertyName] = this[
-          calculation.propertyName
-        ];
+        questionPlainData[calculation.propertyName] = this.getPlainDataCalculatedValue(calculation.propertyName);
       });
       if (this.hasComment) {
         questionPlainData.isNode = true;
@@ -1576,6 +1570,9 @@ export class Question extends SurveyElement<Question>
       return questionPlainData;
     }
     return undefined;
+  }
+  protected getPlainDataCalculatedValue(propName: string): any {
+    return this[propName];
   }
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
@@ -2331,10 +2328,13 @@ export class Question extends SurveyElement<Question>
   }
   public dispose(): void {
     super.dispose();
+    this.resetDependedQuestions();
+    this.destroyResizeObserver();
+  }
+  private resetDependedQuestions(): void {
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].resetDependedQuestion();
     }
-    this.destroyResizeObserver();
   }
 }
 function makeNameValid(str: string): string {

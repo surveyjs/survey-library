@@ -1173,6 +1173,21 @@ QUnit.test("Check isUsingCarryForward on deleting matrix dynamic question", func
   assert.notOk(q2.choicesFromQuestion, "it is empty");
   assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
 });
+QUnit.test("Check isUsingCarryForward on deleting matrix dynamic question with doDispose = false parameter", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "matrixdynamic", name: "q1" },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "set correctly");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  q1.delete(false);
+  assert.notOk(q2.choicesFromQuestion, "it is empty");
+  assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
+});
 QUnit.test("Use carryForward with panel dynamic + update data on survey.data=data;", function (assert) {
   const survey = new SurveyModel({ elements: [
     { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q2", choiceTextsFromQuestion: "q1-q3" },

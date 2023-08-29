@@ -340,3 +340,42 @@ QUnit.test("check contentNotLoaded and contentMode flags behavior", function(ass
   question.contentMode = "video";
   assert.ok(choice.contentNotLoaded);
 });
+
+QUnit.test("check reCalcGap", function(assert) {
+  const survey = new SurveyModel(
+    {
+      "elements": [
+        {
+          "type": "imagepicker",
+          "name": "question2",
+          "choices": [
+            {
+              "value": "lion",
+              "imageLink": "test"
+            },
+          ],
+        }
+      ]
+    }
+  );
+  const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
+  survey.css = defaultV2Css;
+  const container = document.createElement("div");
+  const itemsContainer = document.createElement("div");
+  itemsContainer.className = survey.css.imagepicker.root;
+  container.appendChild(itemsContainer);
+
+  assert.notOk(question["reCalcGapBetweenItemsCallback"]);
+  question.afterRender(container);
+  assert.ok(!!question["reCalcGapBetweenItemsCallback"]);
+
+  question["reCalcGapBetweenItemsCallback"] = undefined as any;
+  question.cssClasses.root = "";
+  question.afterRender(container);
+  assert.notOk(!!question["reCalcGapBetweenItemsCallback"]);
+
+  container.innerHTML = "";
+  survey.cssClasses.root = "some-class";
+  question.afterRender(container);
+  assert.notOk(!!question["reCalcGapBetweenItemsCallback"]);
+});

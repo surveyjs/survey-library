@@ -68,7 +68,8 @@ export class PopupModel<T = any> extends Base {
     onHide = () => { },
     onShow = () => { },
     cssClass: string = "",
-    title: string = ""
+    title: string = "",
+    private onDispose = () => { }
   ) {
     super();
     this.contentComponentName = contentComponentName;
@@ -110,6 +111,10 @@ export class PopupModel<T = any> extends Base {
     const options = { actions: footerActions };
     this.onFooterActionsCreated.fire(this, options);
     return options.actions;
+  }
+  public dispose(): void {
+    super.dispose();
+    this.onDispose();
   }
 }
 

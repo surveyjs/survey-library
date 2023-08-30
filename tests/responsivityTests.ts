@@ -173,6 +173,55 @@ QUnit.test("Fit items - hide if needed", function (assert) {
   assert.equal(model.visibleActions[2].isVisible, true, "70 - visible 3");
 });
 
+QUnit.test("Fit items - hide items with priority", function (assert) {
+  const itemSmallWidth = 15;
+  const itemLargeWidth = 50;
+  const dotsItemSize = 10;
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+
+  const item1 = new Action(<any>{});
+  item1.minDimension = itemSmallWidth;
+  item1.maxDimension = itemLargeWidth;
+  item1.title = "a";
+  model.actions.push(item1);
+  const item2 = new Action(<any>{});
+  item2.minDimension = itemLargeWidth;
+  item2.disableShrink = true;
+  item2.maxDimension = itemLargeWidth;
+  item2.title = "b";
+  item2.removePriority = 1;
+  model.actions.push(item2);
+  const item3 = new Action(<any>{});
+  item3.minDimension = itemSmallWidth;
+  item3.maxDimension = itemLargeWidth;
+  item3.title = "c";
+  model.actions.push(item3);
+
+  assert.equal(model.actions.length, 3);
+  assert.equal(model.visibleActions.length, 3);
+
+  model.fit(300, dotsItemSize);
+  assert.equal(model.visibleActions.length, 3, "dimension 300");
+  assert.equal(model.visibleActions[0].isVisible, true, "300 - visible 1");
+  assert.equal(model.visibleActions[1].isVisible, true, "300 - visible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "300 - visible 3");
+  assert.equal(model.renderedActions[3].isVisible, false, "300 - dots hidden");
+
+  model.fit(78, dotsItemSize);
+  assert.equal(model.visibleActions.length, 3, "dimension 78");
+  assert.equal(model.visibleActions[0].isVisible, true, "78 - visible 1");
+  assert.equal(model.visibleActions[1].isVisible, false, "78 - invisible 2");
+  assert.equal(model.visibleActions[2].isVisible, true, "78 - visible 3");
+  assert.equal(model.renderedActions[3].isVisible, false, "78 - dots hidden");
+
+  model.fit(29, dotsItemSize);
+  assert.equal(model.visibleActions.length, 3, "dimension 29");
+  assert.equal(model.visibleActions[0].isVisible, true, "29 - visible 1");
+  assert.equal(model.visibleActions[1].isVisible, false, "29 - invisible 2");
+  assert.equal(model.visibleActions[2].isVisible, false, "29 - visible 3");
+  assert.equal(model.dotsItem.isVisible, true, "29 - dots visible");
+});
+
 QUnit.test("getAvailableSpace with content-box test", function (assert) {
   const itemSmallWidth = 48;
   const container: SimpleContainer = new SimpleContainer({

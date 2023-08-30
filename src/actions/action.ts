@@ -164,7 +164,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.items,
     (item: Action) => {
       listOptions.onSelectionChanged(item),
-      innerPopupModel.toggleVisibility();
+        innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
     listOptions.selectedItem,
@@ -179,7 +179,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: innerPopupModel,
-    action: (action:IAction, isUserAction: boolean) => {
+    action: (action: IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
       innerPopupModel.isFocusedContent = !isUserAction || listModel.showFilter;
       innerPopupModel.toggleVisibility();
@@ -305,7 +305,7 @@ export abstract class BaseAction extends Base implements IAction {
     return this.tooltip || this.title;
   }
   public getIsTrusted(args: any): boolean {
-    if(!!args.originalEvent) {
+    if (!!args.originalEvent) {
       return args.originalEvent.isTrusted;
     }
     return args.isTrusted;
@@ -448,7 +448,8 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this._component;
   }
   public dispose(): void {
-    if(this.popupModel) {
+    super.dispose();
+    if (this.popupModel) {
       this.popupModel.dispose();
     }
     this.action = undefined;

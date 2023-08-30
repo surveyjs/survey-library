@@ -814,6 +814,20 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    */
   panel: PanelModel;
 }
+export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventMixin {
+  /**
+   * The panel's index within Dynamic Panel.
+   */
+  visiblePanelIndex: number;
+  /**
+   * The tab title.
+   */
+  title: string;
+  /**
+   * A panel that nests the item with a changed value.
+   */
+  panel: PanelModel;
+}
 export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
    * you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question

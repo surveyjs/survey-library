@@ -45,7 +45,7 @@ export class QuestionBooleanModel extends Question {
     return this.value == this.getValueTrue();
   }
   public set booleanValue(val: any) {
-    if (this.isReadOnly) {
+    if (this.isReadOnly || this.isDesignMode) {
       return;
     }
     this.setBooleanValue(val);
@@ -258,9 +258,8 @@ export class QuestionBooleanModel extends Question {
   }
   public onKeyDownCore(event: any): boolean {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-      preventDefaults(event);
+      event.stopPropagation();
       this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
-      return;
     }
     return true;
   }

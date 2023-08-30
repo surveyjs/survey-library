@@ -366,3 +366,21 @@ QUnit.test("rows: check matrixdynamic d&d", function (assert) {
   assert.strictEqual(question.renderedTable.rows[1].row, question.visibleRows[0]);
   assert.strictEqual(question.renderedTable.rows[3].row, question.visibleRows[1]);
 });
+
+QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {
+  const json = {
+    questions: [
+      {
+        type: "ranking",
+        name: "q1",
+        selectToRankEnabled: true,
+        choices: ["item1", "item2", "item3", "item4"]
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+
+  let ddHelper:any = new DragDropChoices(survey);
+  ddHelper.parentElement = survey.getQuestionByName("q1");
+  assert.equal(ddHelper["getVisibleChoices"]().length, 4);
+});

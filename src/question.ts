@@ -1,7 +1,7 @@
 import { HashTable, Helpers } from "./helpers";
 import { JsonObject, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
-import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
@@ -260,9 +260,13 @@ export class Question extends SurveyElement<Question>
   public getPanel(): IPanel {
     return null;
   }
-  public delete(): void {
+  public delete(doDispose: boolean = true): void {
     this.removeFromParent();
-    this.dispose();
+    if(doDispose) {
+      this.dispose();
+    } else {
+      this.resetDependedQuestions();
+    }
   }
   protected removeFromParent(): void {
     if (!!this.parent) {
@@ -464,6 +468,7 @@ export class Question extends SurveyElement<Question>
     if (isLight !== true) {
       this.runConditions();
     }
+    this.calcRenderedCommentPlaceholder();
   }
   /**
    * Returns a survey element (panel or page) that contains the question and allows you to move this question to a different survey element.
@@ -685,13 +690,20 @@ export class Question extends SurveyElement<Question>
    * @see comment
    * @see commentText
    */
-  @property({ localizable: true }) commentPlaceholder: string;
+  @property({ localizable: true, onSet: (val, target) => target.calcRenderedCommentPlaceholder() }) commentPlaceholder: string;
 
   public get commentPlaceHolder(): string {
     return this.commentPlaceholder;
   }
   public set commentPlaceHolder(newValue: string) {
     this.commentPlaceholder = newValue;
+  }
+  public get renderedCommentPlaceholder(): string {
+    return this.getPropertyValue("renderedCommentPlaceholder");
+  }
+  private calcRenderedCommentPlaceholder() {
+    const res = !this.isReadOnly ? this.commentPlaceHolder : undefined;
+    this.setPropertyValue("renderedCommentPlaceholder", res);
   }
   public getAllErrors(): Array<SurveyError> {
     return this.errors.slice();
@@ -712,8 +724,9 @@ export class Question extends SurveyElement<Question>
   public updateCustomWidget(): void {
     this.customWidgetValue = CustomWidgetCollection.Instance.getCustomWidget(this);
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
+    this.calcRenderedCommentPlaceholder();
     if (!!this.localeChangedCallback) {
       this.localeChangedCallback();
     }
@@ -1195,6 +1208,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();
     this.updateQuestionCss();
+    this.calcRenderedCommentPlaceholder();
   }
   /**
    * A Boolean expression. If it evaluates to `false`, this question becomes read-only.
@@ -1254,6 +1268,7 @@ export class Question extends SurveyElement<Question>
     if (this.isEmpty()) {
       this.initDataFromSurvey();
     }
+    this.calcRenderedCommentPlaceholder();
     this.onIndentChanged();
   }
   protected onSetData(): void {
@@ -1517,15 +1532,7 @@ export class Question extends SurveyElement<Question>
    *
    * Pass an object with the `includeEmpty` property set to `false` if you want to skip empty answers.
    */
-  public getPlainData(
-    options?: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    }
-  ): IQuestionPlainData {
+  public getPlainData(options?: IPlainDataOptions): IQuestionPlainData {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false };
     }
@@ -1543,9 +1550,7 @@ export class Question extends SurveyElement<Question>
         questionPlainData.questionType = this.getType();
       }
       (options.calculations || []).forEach((calculation) => {
-        questionPlainData[calculation.propertyName] = this[
-          calculation.propertyName
-        ];
+        questionPlainData[calculation.propertyName] = this.getPlainDataCalculatedValue(calculation.propertyName);
       });
       if (this.hasComment) {
         questionPlainData.isNode = true;
@@ -1565,6 +1570,9 @@ export class Question extends SurveyElement<Question>
       return questionPlainData;
     }
     return undefined;
+  }
+  protected getPlainDataCalculatedValue(propName: string): any {
+    return this[propName];
   }
   /**
    * A correct answer to this question. Specify this property if you want to [create a quiz](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
@@ -2320,10 +2328,13 @@ export class Question extends SurveyElement<Question>
   }
   public dispose(): void {
     super.dispose();
+    this.resetDependedQuestions();
+    this.destroyResizeObserver();
+  }
+  private resetDependedQuestions(): void {
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].resetDependedQuestion();
     }
-    this.destroyResizeObserver();
   }
 }
 function makeNameValid(str: string): string {

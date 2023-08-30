@@ -72,6 +72,7 @@ export {
   ISurveyData,
   ITitleOwner,
   ISurveyLayoutElement,
+  IPlainDataOptions as IPlainData,
   IShortcutText
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
@@ -199,6 +200,7 @@ export {
   SurveyTriggerVisible,
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
+  SurveyTriggerSkip,
   Trigger
 } from "../../trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";

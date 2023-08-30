@@ -192,3 +192,49 @@ QUnit.test("Check boolean labelRenderedAriaID", function (assert) {
   question.titleLocation = "hidden";
   assert.strictEqual(question.labelRenderedAriaID.indexOf("_ariaTitle") !== -1, true);
 });
+
+QUnit.test("Boolean shouldn't call preventDefault on key down", function (assert) {
+  var json = {
+    "elements": [
+      {
+        "type": "boolean",
+        "name": "bool",
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+
+  let pdCount = 0;
+  let spCount = 0;
+  const event = {
+    key: "ArrowLeft",
+    target: document.createElement("div"),
+    preventDefault: () => { pdCount++; },
+    stopPropagation: () => { spCount++; }
+  };
+  question.onKeyDownCore(event);
+  assert.equal(pdCount, 0);
+  assert.equal(spCount, 1);
+});
+QUnit.test("Boolean shouldn't set booleanValue in design time", function (assert) {
+  var json = {
+    "elements": [
+      {
+        "type": "boolean",
+        "name": "bool",
+      }
+    ]
+  };
+  var survey = new SurveyModel(json);
+  var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+
+  assert.equal(question.value, undefined);
+
+  question.booleanValue = true;
+  assert.equal(question.value, true);
+
+  survey.setDesignMode(true);
+  question.booleanValue = false;
+  assert.equal(question.value, true);
+});

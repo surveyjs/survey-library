@@ -395,7 +395,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return newValue;
   }
-  protected hasPlaceHolder(): boolean {
+  protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public isReadOnlyRenderDiv(): boolean {

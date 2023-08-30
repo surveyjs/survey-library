@@ -27,6 +27,7 @@ export * from "../textPreprocessorTests"; //
 export * from "../lowercasetests";
 export * from "../elementslayouttests";
 export * from "../surveytimertests";
+export * from "../question_multipletexttests";
 export * from "../question_expressiontests";
 export * from "../questionFileTests";
 export * from "../dragdroptests";

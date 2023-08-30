@@ -163,8 +163,8 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {
-      listOptions.onSelectionChanged(item),
-        innerPopupModel.toggleVisibility();
+      listOptions.onSelectionChanged(item);
+      innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
     listOptions.selectedItem,

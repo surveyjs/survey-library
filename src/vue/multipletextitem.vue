@@ -32,11 +32,6 @@
         :location="'bottom'"
       />
     </div>
-    <survey-errors
-      v-if="item.editor.isErrorsModeTooltip"
-      :element="item.editor"
-      :location="'tooltip'"
-    />
   </label>
 </template>
 

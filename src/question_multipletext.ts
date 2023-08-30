@@ -684,9 +684,6 @@ export class QuestionMultipleTextModel extends Question
   public getItemTitleCss(): string {
     return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
   }
-  protected getIsTooltipErrorInsideSupported(): boolean {
-    return true;
-  }
 }
 
 Serializer.addClass(

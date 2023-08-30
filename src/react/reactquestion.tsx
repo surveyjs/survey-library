@@ -5,7 +5,6 @@ import {
   SurveyError,
   Question,
   QuestionMatrixDropdownRenderedCell,
-  TooltipManager,
   SurveyModel
 } from "survey-core";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
@@ -112,10 +111,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       : null;
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
-    const errorsTooltip =
-      this.question.isErrorsModeTooltip
-        ? this.renderErrors(cssClasses, "tooltip")
-        : null;
     var descriptionUnderInput = question.hasDescriptionUnderInput
       ? this.renderDescription()
       : null;
@@ -129,7 +124,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         {questionRender}
         {comment}
         {errorsBottom}
-        {errorsTooltip}
         {descriptionUnderInput}
       </div>
     );
@@ -236,7 +230,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.state = this.getState();
-    this.tooltipRef = React.createRef();
   }
   protected get id(): string {
     return this.props.element.id + "_errors";
@@ -256,27 +249,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.element && this.element.hasVisibleErrors;
   }
-  private tooltipManager: TooltipManager | undefined;
-  private tooltipRef: React.RefObject<HTMLDivElement>;
-  componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    if (this.props.location == "tooltip") {
-      if (this.tooltipRef.current && !this.tooltipManager) {
-        this.tooltipManager = new TooltipManager(this.tooltipRef.current);
-      }
-      if (!!this.tooltipManager && !this.tooltipRef.current) {
-        this.disposeTooltipManager();
-      }
-    }
-  }
   componentWillUnmount() {
-    if (!!this.tooltipManager) {
-      this.disposeTooltipManager();
-    }
-  }
-  private disposeTooltipManager() {
-    this.tooltipManager?.dispose();
-    this.tooltipManager = undefined;
   }
   protected renderElement(): JSX.Element {
     const errors: Array<JSX.Element> = [];
@@ -293,7 +266,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
         aria-live="polite"
         className={this.element.cssError}
         id={this.id}
-        ref={this.tooltipRef}
       >
         {errors}
       </div>

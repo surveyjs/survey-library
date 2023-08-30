@@ -77,19 +77,7 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
         question={item.editor}
         creator={this.creator}
       />
-      {this.renderItemTooltipError(item, cssClasses)}
     </label>);
-  }
-
-  protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element | null {
-    return this.item.editor.isErrorsModeTooltip ? (
-      <SurveyElementErrors
-        element={item.editor}
-        cssClasses={cssClasses}
-        creator={this.creator}
-        location={"tooltip"}
-      />
-    ): null;
   }
 }
 

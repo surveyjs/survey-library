@@ -1,5 +1,5 @@
 <template>
-  <label :class="question.getItemLabelCss(item)">
+   <label v-if="!cell.isErrorsCell" :class="question.getItemLabelCss(item)">
     <span :class="question.getItemTitleCss()">
       <span
         v-if="
@@ -10,29 +10,23 @@
         >{{ item.editor.requiredText }}</span
       >
       <survey-string :locString="item.locTitle" />
+      <span v-if="item.editor.isRequireTextAfterTitle">&nbsp;</span>
       <span
         v-if="item.editor.isRequireTextAfterTitle"
+        aria-hidden="true"
         :class="question.cssClasses.requiredText"
         >{{ item.editor.requiredText }}</span
       >
     </span>
-    <div :key="item.editor.id" :class="question.getItemCss()" v-on:focusin="item.focusIn()">
-      <survey-errors
-        v-if="item.editor.showErrorOnTop"
-        :element="item.editor"
-        :location="'top'"
-      />
-      <component
-        :is="getComponentName(item.editor)"
-        :question="item.editor"
-      />
-      <survey-errors
-        v-if="item.editor.showErrorOnBottom"
-        :element="item.editor"
-        :location="'bottom'"
-      />
+    <div
+      :key="item.editor.id"
+      :class="question.getItemCss()"
+      v-on:focusin="item.focusIn()"
+    >
+      <component :is="getComponentName(item.editor)" :question="item.editor" />
     </div>
   </label>
+  <survey-errors v-else :element="item.editor" />
 </template>
 
 <script lang="ts">
@@ -40,8 +34,7 @@
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
-import { MultipleTextItemModel, Question } from "survey-core";
-import { QuestionMultipleTextModel } from "survey-core";
+import { QuestionMultipleTextModel, Question, MultipleTextCell } from "survey-core";
 import BaseVue from "./base";
 import { getComponentName } from "./question";
 
@@ -50,10 +43,13 @@ export class MultipleTextItem extends BaseVue {
   @Prop()
   question: QuestionMultipleTextModel;
   @Prop()
-  item: MultipleTextItemModel
+  cell: MultipleTextCell;
 
   getModel() {
-    return this.item.editor;
+    return this.cell.item.editor;
+  }
+  public get item() {
+    return this.cell.item;
   }
   getComponentName(question: Question) {
     return getComponentName(question);

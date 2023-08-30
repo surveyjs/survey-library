@@ -1,5 +1,5 @@
 <template>
-  <label :class="question.getItemLabelCss(item)">
+  <label v-if="!cell.isErrorsCell" :class="question.getItemLabelCss(item)">
     <span :class="question.getItemTitleCss()">
       <span
         v-if="
@@ -10,8 +10,10 @@
         >{{ item.editor.requiredText }}</span
       >
       <survey-string :locString="item.locTitle" />
+      <span v-if="item.editor.isRequireTextAfterTitle">&nbsp;</span>
       <span
         v-if="item.editor.isRequireTextAfterTitle"
+        aria-hidden="true"
         :class="question.cssClasses.requiredText"
         >{{ item.editor.requiredText }}</span
       >
@@ -21,36 +23,28 @@
       :class="question.getItemCss()"
       v-on:focusin="item.focusIn()"
     >
-      <survey-errors
-        v-if="item.editor.showErrorOnTop"
-        :element="item.editor"
-        :location="'top'"
-      />
       <component :is="getComponentName(item.editor)" :question="item.editor" />
-      <survey-errors
-        v-if="item.editor.showErrorOnBottom"
-        :element="item.editor"
-        :location="'bottom'"
-      />
     </div>
   </label>
+  <survey-errors v-else :element="item.editor" />
 </template>
 
 <script lang="ts" setup>
 import type {
   Question,
-  MultipleTextItemModel,
   QuestionMultipleTextModel,
+  MultipleTextCell,
 } from "survey-core";
 import { getComponentName as getComponent, useBase } from "./base";
+import { computed } from "vue";
 
 const props = defineProps<{
   question: QuestionMultipleTextModel;
-  item: MultipleTextItemModel;
+  cell: MultipleTextCell;
 }>();
 const getComponentName = (question: Question) => {
   return getComponent(question);
 };
-
-useBase(() => props.item.editor);
+useBase(() => props.cell.item.editor);
+const item = computed(() => props.cell.item);
 </script>

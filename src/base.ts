@@ -474,7 +474,7 @@ export class Base {
     if (this.isPropertyEmpty(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if(locStr) return locStr.text;
-      if (defaultValue != null) return defaultValue;
+      if (defaultValue !== null && defaultValue !== undefined) return defaultValue;
       const propDefaultValue = this.getDefaultPropertyValue(name);
       if(propDefaultValue !== undefined) return propDefaultValue;
     }

@@ -846,3 +846,21 @@ QUnit.test("lazy loading clear value", function (assert) {
   assert.equal(dropdownListModel.inputStringRendered, "");
 });
 
+QUnit.test("Dropdown should noy be open on click in design mode", (assert) => {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.ok(dropdownListModel.popupModel);
+
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 28);
+  assert.notOk(dropdownListModel.popupModel.isVisible);
+  dropdownListModel.onClick(new Event("click"));
+  assert.ok(dropdownListModel.popupModel.isVisible);
+  dropdownListModel.onClick(new Event("click"));
+  assert.notOk(dropdownListModel.popupModel.isVisible);
+  survey.setDesignMode(true);
+
+  dropdownListModel.onClick(new Event("click"));
+  assert.notOk(dropdownListModel.popupModel.isVisible);
+});

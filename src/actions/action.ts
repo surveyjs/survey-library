@@ -448,11 +448,11 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     return this._component;
   }
   public dispose(): void {
+    this.action = undefined;
     super.dispose();
     if (this.popupModel) {
       this.popupModel.dispose();
     }
-    this.action = undefined;
     if (!!this.locTitleValue) {
       this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
       this.locTitleChanged = undefined;

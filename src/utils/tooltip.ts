@@ -6,6 +6,7 @@ export class TooltipManager {
   }
   dispose() {
     this.targetElement.removeEventListener("mousemove", this.onMouseMoveCallback);
+    this.targetElement = undefined;
   }
 
   private onMouseMoveCallback = (e: any) => {

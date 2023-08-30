@@ -1204,4 +1204,11 @@ QUnit.test("Use carryForward with panel dynamic + update data on survey.data=dat
   assert.equal(q2.visibleChoices[1].value, 2, "the second value is correct");
   assert.equal(q2.visibleChoices[1].text, "Item 2", "the second text is correct");
 });
+QUnit.test("Allow to override default value fro choicesByUrl.path Bug#6766", function (assert) {
+  const prop = Serializer.findProperty("choicesByUrl", "path");
+  prop.defaultValue = "list";
+  const q1 = new QuestionDropdownModel("q1");
+  assert.equal(q1.choicesByUrl.path, "list", "get new default value for path");
+  prop.defaultValue = undefined;
+});
 

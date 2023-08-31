@@ -82,10 +82,9 @@
 }
 
 .sd-multipletext__cell {
+  padding-left: 0;
+  padding-right: 0;
   padding-bottom: calcSize(1);
-}
-
-.sd-multipletext__cell {
   padding-top: calcSize(1);
 }
 

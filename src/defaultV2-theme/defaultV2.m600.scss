@@ -32,9 +32,13 @@
     .sd-multipletext__cell {
       display: block;
 
-      &:not(:last-child) {
-        padding-right: 0;
-        padding-bottom: calcSize(2);
+      &:not(:first-of-type) {
+        padding-left: 0;
+        padding-top: calcSize(1);
+      }
+
+      :not(:last-of-type) {
+        padding-bottom: calcSize(1);
       }
     }
 

@@ -1130,6 +1130,8 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() completedCss: string;
   @property() containerCss: string;
+  @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
+
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
       .append(btn).toString();
@@ -4482,6 +4484,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootReadOnly, this.mode === "display")
       .append(this.css.rootCompact, this.isCompact)
+      .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
   }
   private resizeObserver: ResizeObserver;
@@ -7454,6 +7457,7 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
+  { name: "fitToContainer:boolean", default: false },
   { name: "backgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

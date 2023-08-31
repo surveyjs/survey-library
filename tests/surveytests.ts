@@ -15763,6 +15763,32 @@ QUnit.test("Check navigation bar css update", function (assert) {
   survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
   assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });
+QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = defaultV2Css;
+  assert.equal(survey.getRootCss(), "sd-root-modern");
+
+  survey.setIsMobile(true);
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
+
+  survey.mode = "display";
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
+
+  survey.mode = "edit";
+  survey.setIsMobile(false);
+  survey["isCompact"] = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact");
+
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact sd-root-modern--full-container");
+});
 QUnit.test("Set correct activePage on fromSurvey and update buttons visibility", function (assert) {
   const survey = new SurveyModel({
     "elements": [

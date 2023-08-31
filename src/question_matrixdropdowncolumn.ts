@@ -27,6 +27,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
     oldValue: any
   ): void;
   onShowInMultipleColumnsChanged(column: MatrixDropdownColumn): void;
+  onColumnVisibilityChanged(column: MatrixDropdownColumn): void;
   getCellType(): string;
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
@@ -122,7 +123,6 @@ export class MatrixDropdownColumn extends Base
   private templateQuestionValue: Question;
   private colOwnerValue: IMatrixColumnOwner = null;
   private indexValue = -1;
-  private _isVisible = true;
   private _hasVisibleCell = true;
   private _visiblechoices: Array<any>;
 
@@ -131,6 +131,7 @@ export class MatrixDropdownColumn extends Base
     this.createLocalizableString("totalFormat", this);
     this.createLocalizableString("cellHint", this);
     this.registerPropertyChangedHandlers(["showInMultipleColumns"], () => { this.doShowInMultipleColumnsChanged(); });
+    this.registerPropertyChangedHandlers(["visible"], () => { this.doColumnVisibilityChanged(); });
     this.updateTemplateQuestion();
     this.name = name;
     if (title) {
@@ -201,17 +202,23 @@ export class MatrixDropdownColumn extends Base
       this.colOwner.onColumnCellTypeChanged(this);
     }
   }
-  public get templateQuestion() {
+  public get templateQuestion(): Question {
     return this.templateQuestionValue;
   }
   public get value() {
     return this.templateQuestion.name;
   }
-  public get isVisible() {
-    return this._isVisible;
+  //For filtering columns
+  public get isVisible(): boolean {
+    return true;
   }
-  public setIsVisible(newVal: boolean): void {
-    this._isVisible = newVal;
+  public get isColumnVisible(): boolean {
+    if(this.isDesignMode) return true;
+    return this.visible && this.hasVisibleCell;
+  }
+  public get visible(): boolean { return this.getPropertyValue("visible"); }
+  public set visible(val: boolean) {
+    this.setPropertyValue("visible", val);
   }
   public get hasVisibleCell(): boolean {
     return this._hasVisibleCell;
@@ -616,12 +623,17 @@ export class MatrixDropdownColumn extends Base
     }
   }
 
-  private doShowInMultipleColumnsChanged() {
-    if (this.colOwner != null && !this.isLoadingFromJson) {
+  private doShowInMultipleColumnsChanged(): void {
+    if (this.colOwner != null) {
       this.colOwner.onShowInMultipleColumnsChanged(this);
     }
     if (this.templateQuestion) {
       this.templateQuestion.autoOtherMode = this.isShowInMultipleColumns;
+    }
+  }
+  private doColumnVisibilityChanged(): void {
+    if (this.colOwner != null && !this.isDesignMode) {
+      this.colOwner.onColumnVisibilityChanged(this);
     }
   }
   private getProperties(curCellType: string): Array<JsonObjectProperty> {
@@ -710,6 +722,7 @@ Serializer.addClass(
       }
     },
     "width",
+    { name: "visible:switch", default: true, overridingProperty: "visibleIf" },
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",

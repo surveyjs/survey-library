@@ -88,7 +88,7 @@
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.104",
+  "version": "1.9.105",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -107,7 +107,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
     "ace-builds": "1.2.2",
-    "ajv": "4.11.2",
+    "ajv": "6.12.3",
     "axe-core": "^3.5.6",
     "axe-testcafe": "^3.0.0",
     "babel-loader": "8.2.5",

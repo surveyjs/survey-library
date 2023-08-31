@@ -260,9 +260,13 @@ export class Question extends SurveyElement<Question>
   public getPanel(): IPanel {
     return null;
   }
-  public delete(): void {
+  public delete(doDispose: boolean = true): void {
     this.removeFromParent();
-    this.dispose();
+    if(doDispose) {
+      this.dispose();
+    } else {
+      this.resetDependedQuestions();
+    }
   }
   protected removeFromParent(): void {
     if (!!this.parent) {
@@ -2312,10 +2316,13 @@ export class Question extends SurveyElement<Question>
   }
   public dispose(): void {
     super.dispose();
+    this.resetDependedQuestions();
+    this.destroyResizeObserver();
+  }
+  private resetDependedQuestions(): void {
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].resetDependedQuestion();
     }
-    this.destroyResizeObserver();
   }
 }
 function makeNameValid(str: string): string {

@@ -376,7 +376,8 @@ export class ChoicesRestful extends Base {
    */
 
   public get path(): string {
-    return this.getPropertyValue("path", "");
+    const res = this.getPropertyValue("path");
+    return !!res ? res : "";
   }
   public set path(val: string) {
     this.setPropertyValue("path", val);

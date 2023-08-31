@@ -253,7 +253,7 @@ export interface ISurveyElement extends IShortcutText {
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
-  delete(): any;
+  delete(doDispose?: boolean): void;
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;

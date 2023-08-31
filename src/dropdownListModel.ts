@@ -358,7 +358,7 @@ export class DropdownListModel extends Base {
   }
 
   public onClick(event: any): void {
-    if(this.question.readOnly) return;
+    if (this.question.readOnly || this.question.isDesignMode) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
     if (this.searchEnabled && !!event && !!event.target) {
@@ -372,6 +372,9 @@ export class DropdownListModel extends Base {
   protected onPropertyChangedHandler(sender: any, options: any) {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
+    }
+    if(options.name == "choicesLazyLoadEnabled" && options.newValue) {
+      this.listModel.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
     }
   }
   protected focusItemOnClickAndPopup() {

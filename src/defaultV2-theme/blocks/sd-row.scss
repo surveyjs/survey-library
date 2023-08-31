@@ -61,17 +61,22 @@
     margin-left: calc(-1 * var(--sd-base-padding));
     width: calc(100% + var(--sd-base-padding));
   }
+  .sd-row__panel {
+    height: 100%
+  }
+  
+  .sd-row__question {
+    height: 100%
+  }
 }
 
 .sd-row__panel {
   box-sizing: border-box;
   width: 100%;
-  height: 100%
 }
 
 .sd-row__question {
   box-sizing: border-box;
   width: 100%;
   white-space: nowrap;
-  height: 100%
 }

@@ -1097,11 +1097,14 @@ QUnit.test("Matrixdynamic column.visibleIf", function (assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.columns.push(new MatrixDropdownColumn("column3"));
-  question.columns[0]["choices"] = [1, 2, 3];
-  question.columns[1]["choices"] = [4, 5];
-  question.columns[2]["choices"] = [7, 8, 9, 10];
-  question.columns[2].isRequired = true;
-
+  const columns = question.columns;
+  columns[0]["choices"] = [1, 2, 3];
+  columns[1]["choices"] = [4, 5];
+  columns[2]["choices"] = [7, 8, 9, 10];
+  columns[2].isRequired = true;
+  assert.equal(columns[0].visible, true, "columns[0].visible");
+  assert.equal(columns[1].visible, true, "columns[1].visible");
+  assert.equal(columns[2].visible, true, "columns[2].visible");
   question.columns[1].visibleIf = "{row.column1} = 2";
   question.columns[2].visibleIf = "{a} = 5";
 
@@ -1327,6 +1330,7 @@ QUnit.test(
       "The second column is invisible"
     );
     survey.setValue("q2", 1);
+    let table = matrix.renderedTable;
     assert.equal(
       matrix.columns[0].hasVisibleCell,
       true,
@@ -1362,6 +1366,7 @@ QUnit.test(
       "The second column is invisible now"
     );
     survey.setValue("q2", 2);
+    table = matrix.renderedTable;
     assert.equal(
       matrix.columns[0].hasVisibleCell,
       false,
@@ -4686,6 +4691,85 @@ QUnit.test("showInMultipleColumns and hasOther properties, change in run-time in
   assert.equal(matrix.renderedTable.rows[0].cells.length, 2 + 1, "first row: 2 choices + hasOther");
   assert.equal(matrix.renderedTable.headerRow.cells[2].locTitle.text, "Other (describe)", "Column text is correct");
 });
+QUnit.test("showInMultipleColumns property, and visibleIf in choices", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          {
+            name: "col1",
+            cellType: "text",
+            totalType: "sum",
+          },
+          {
+            name: "col2",
+            cellType: "checkbox",
+            showInMultipleColumns: true,
+            hasNone: true,
+            choices: [
+              { value: "A", visibleIf: "{val1} = 1" },
+              { value: "B", visibleIf: "{val1} = 2" },
+              { value: "C", visibleIf: "{val1} = 3" }
+            ]
+          }
+        ],
+        rows: ["row1", "row2"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModel>survey.getQuestionByName("matrix");
+  const column = matrix.getColumnByName("col2");
+  const choices = column.templateQuestion.visibleChoices;
+  assert.equal(choices.length, 4, "There are 4 choices");
+  assert.equal(column.isFilteredMultipleColumns, true, "multiple column has visibleIf in choices");
+
+  let table = matrix.renderedTable;
+  let multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 1, "One visible choice");
+  assert.equal(multipleChoices[0].value, "none", "none is only visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 1, "header: row value + 1 choices");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 1, "first row: row value + 1 choices");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "None", "Header None");
+  assert.equal(table.rows[1].cells[2].choiceValue, "none", "none index in the first row");
+
+  survey.setValue("val1", 1);
+  table = matrix.renderedTable;
+  multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 2, "Two visible choice");
+  assert.equal(multipleChoices[0].value, "A", "A is visible");
+  assert.equal(multipleChoices[1].value, "none", "none is visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 2, "header: row value + 1 choices, #2");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 2, "first row: row value + 1 choices, #2");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "A", "Header A, #2");
+  assert.equal(table.headerRow.cells[3].locTitle.textOrHtml, "None", "Header None, #2");
+  assert.equal(table.rows[1].cells[2].choiceValue, "A", "none in the first row, #2");
+  assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #2");
+
+  survey.setValue("val1", 3);
+  table = matrix.renderedTable;
+  multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 2, "Two visible choice");
+  assert.equal(multipleChoices[0].value, "C", "C is visible");
+  assert.equal(multipleChoices[1].value, "none", "none is visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 2, "header: row value + 1 choices, #3");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 2, "first row: row value + 1 choices, #3");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "C", "Header C, #3");
+  assert.equal(table.headerRow.cells[3].locTitle.textOrHtml, "None", "Header None, #3");
+  assert.equal(table.rows[1].cells[2].choiceValue, "C", "none in the first row, #3");
+  assert.equal(table.rows[1].cells[3].choiceValue, "none", "none in the first row, #3");
+
+  survey.setValue("val1", 4);
+  table = matrix.renderedTable;
+  multipleChoices = column.getVisibleMultipleChoices();
+  assert.equal(multipleChoices.length, 1, "Two visible choice");
+  assert.equal(multipleChoices[0].value, "none", "none is visible");
+  assert.equal(table.headerRow.cells.length, 1 + 1 + 1, "header: row value + 1 choices, #4");
+  assert.equal(table.rows[1].cells.length, 1 + 1 + 1, "first row: row value + 1 choices, #4");
+  assert.equal(table.headerRow.cells[2].locTitle.textOrHtml, "None", "Header None, #4");
+  assert.equal(table.rows[1].cells[2].choiceValue, "none", "none in the first row, #4");
+});
 QUnit.test(
   "showInMultipleColumns property + columnLayout = 'vertical'",
   function (assert) {
@@ -7876,10 +7960,15 @@ QUnit.test("Summary doesn't work correctly if there is invisible column and clea
     clearInvisibleValues: "onHiddenContainer"
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "two rows");
+  assert.equal(rows[0].cells.length, 4, "row[0].cells.length = 4");
+  assert.equal(rows[1].cells.length, 4, "row[1].cells.length = 4");
   matrix.visibleRows[0].cells[0].question.value = 1;
   matrix.visibleRows[0].cells[1].question.value = 2;
   matrix.visibleRows[1].cells[0].question.value = 3;
   matrix.visibleRows[1].cells[1].question.value = 4;
+  assert.equal(matrix.visibleTotalRow.cells.length, 4, "There are 4 cells");
   assert.equal(matrix.visibleTotalRow.cells[2].value, 1 + 2 + 3 + 4, "summary calculated correctly");
 });
 QUnit.test("Set empty string to expression with empty total type", function (assert) {

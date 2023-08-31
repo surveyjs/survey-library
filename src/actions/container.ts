@@ -10,6 +10,7 @@ export let defaultActionBarCss = {
   defaultSizeMode: "sv-action-bar--default-size-mode",
   smallSizeMode: "sv-action-bar--small-size-mode",
   item: "sv-action-bar-item",
+  itemAsIcon: "sv-action-bar-item--icon",
   itemActive: "sv-action-bar-item--active",
   itemPressed: "sv-action-bar-item--pressed",
   itemIcon: "sv-action-bar-item__icon",

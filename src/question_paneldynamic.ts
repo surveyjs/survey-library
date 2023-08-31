@@ -8,6 +8,7 @@ import {
   ISurveyImpl,
   ITextProcessor,
   IProgressInfo,
+  IPlainDataOptions,
 } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
 import { LocalizableString } from "./localizablestring";
@@ -15,7 +16,7 @@ import {
   TextPreProcessorValue,
   QuestionTextProcessor,
 } from "./textPreProcessor";
-import { Question, IConditionObject } from "./question";
+import { Question, IConditionObject, IQuestionPlainData } from "./question";
 import { PanelModel } from "./panel";
 import { JsonObject, property, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
@@ -1518,14 +1519,16 @@ export class QuestionPanelDynamicModel extends Question
       cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
     }
     for (var i = 0; i < this.panels.length; i++) {
-      var panelValues = this.getPanelItemData(this.panels[i].data);
+      const panel = this.panels[i];
+      var panelValues = this.getPanelItemData(panel.data);
       //Should be unique for every panel due async expression support
-      var newValues = Helpers.createCopy(cachedValues);
-      newValues[
-        QuestionPanelDynamicItem.ItemVariableName.toLowerCase()
-      ] = panelValues;
+      const newValues = Helpers.createCopy(cachedValues);
+      const panelName = QuestionPanelDynamicItem.ItemVariableName;
+      newValues[panelName] = panelValues;
       newValues[QuestionPanelDynamicItem.IndexVariableName.toLowerCase()] = i;
-      this.panels[i].runCondition(newValues, properties);
+      const newProps = Helpers.createCopy(properties);
+      newProps[panelName] = panel;
+      panel.runCondition(newValues, newProps);
     }
   }
   onAnyValueChanged(name: string) {
@@ -1954,16 +1957,7 @@ export class QuestionPanelDynamicModel extends Question
   getRootData(): ISurveyData {
     return this.data;
   }
-  public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
-      includeEmpty: true,
-    }
-  ) {
+  public getPlainData(options: IPlainDataOptions = { includeEmpty: true }): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       questionPlainData.isNode = true;

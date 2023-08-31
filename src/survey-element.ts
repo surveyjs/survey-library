@@ -810,10 +810,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   protected getHasFrameV2() : boolean {
-    return this.shouldAddRunnerStyles() && (!this.hasParent && this.isSingleInRow);
+    return this.shouldAddRunnerStyles() && (!this.hasParent);
   }
   protected getIsNested(): boolean {
-    return this.shouldAddRunnerStyles() && (this.hasParent || !this.isSingleInRow);
+    return this.shouldAddRunnerStyles() && (this.hasParent);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()

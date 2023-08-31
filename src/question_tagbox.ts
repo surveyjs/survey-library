@@ -22,14 +22,23 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
+    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
+      this.updateReadOnlyText();
+    });
+    this.updateReadOnlyText();
   }
-
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.updateReadOnlyText();
+    this.dropdownListModel?.locStrsChanged();
+  }
   protected getDefaultItemComponent(): string {
     return "";
   }
+  @property({ defaultValue: "" }) readOnlyText: string;
 
-  public get readOnlyText() {
-    return this.displayValue || this.placeholder;
+  private updateReadOnlyText(): void {
+    this.readOnlyText = this.displayValue || this.placeholder;
   }
 
   public onSurveyLoad() {

@@ -1266,3 +1266,28 @@ QUnit.test("TagBox displays a value if list of choices is empty", (assert) => {
   assert.equal(question.value[0], "Item 1");
   assert.equal(question.selectedItems.length, 0);
 });
+QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "q1",
+      placeholder: {
+        default: "en-sel",
+        de: "de-sel"
+      },
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  const q = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(q.readOnlyText, "en-sel", "Empty en");
+  assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en");
+  q.value = ["Item 1"];
+  assert.equal(q.readOnlyText, "Item 1", "has value");
+  q.clearValue();
+  assert.equal(q.readOnlyText, "en-sel", "Empty en, #2");
+  survey.locale = "de";
+  assert.equal(q.readOnlyText, "de-sel", "Empty de");
+  assert.equal(q.dropdownListModel.filterStringPlaceholder, "de-sel", "dropdownlist de");
+  survey.locale = "";
+  assert.equal(q.readOnlyText, "en-sel", "Empty en, #3");
+});

@@ -305,31 +305,11 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
   protected canRender(): boolean {
     return !!this.question;
   }
-  protected renderErrors(errorsLocation: string) {
-    return this.getShowErrors() ? (
-      <SurveyElementErrors
-        element={this.question}
-        cssClasses={this.cssClasses}
-        creator={this.creator}
-        location={errorsLocation}
-      />
-    ) : null;
-  }
   protected renderContent(): JSX.Element {
-    var errorsLocation = this.creator.questionErrorLocation();
-    var errors = this.renderErrors(errorsLocation);
-    var errorsTop = this.question.showErrorOnTop
-      ? errors
-      : null;
-    var errorsBottom = this.question.showErrorOnBottom
-      ? errors
-      : null;
     var renderedQuestion = this.renderQuestion();
     return (
       <>
-        {errorsTop}
         {renderedQuestion}
-        {errorsBottom}
       </>
     );
   }
@@ -400,5 +380,47 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, this.props.reason);
     }
     return wrapper ?? element;
+  }
+}
+
+export class SurveyQuestionErrorCell extends React.Component<any, any> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      changed: 0
+    };
+    if(this.question) {
+      this.registerCallback(this.question);
+    }
+  }
+  private get question(): Question {
+    return this.props.question;
+  }
+  private update() {
+    this.setState({ changed: this.state.changed + 1 });
+  }
+  private registerCallback(question: Question) {
+    question.registerFunctionOnPropertyValueChanged("errors", () => {
+      this.update();
+    }, "__reactSubscription");
+  }
+  private unRegisterCallback(question: Question) {
+    question.unRegisterFunctionOnPropertyValueChanged("errors", "__reactSubscription");
+  }
+  componentDidUpdate(prevProps: Readonly<any>): void {
+    if(prevProps.question && prevProps.question !== this.question) {
+      this.unRegisterCallback(prevProps.cell);
+    }
+    if(this.question) {
+      this.registerCallback(this.question);
+    }
+  }
+  componentWillUnmount(): void {
+    if(this.question) {
+      this.unRegisterCallback(this.question);
+    }
+  }
+  render(): JSX.Element {
+    return <SurveyElementErrors element={this.question} creator={this.props.creator} cssClasses={this.question.cssClasses}></SurveyElementErrors>;
   }
 }

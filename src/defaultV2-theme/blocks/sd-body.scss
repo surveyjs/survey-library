@@ -118,3 +118,11 @@
   left: 0;
   right: 0;
 }
+.sd-root-modern--full-container .sd-root_background-image {
+  z-index: -1;
+}
+.sd-root-modern--full-container .sd-root_background-image.sd-root_background-image--fixed {
+  position: sticky;
+  height: 100%;
+  z-index: 0;
+}

@@ -871,6 +871,9 @@ export class SurveyModel extends SurveyElementCore
       () => { this.onStateAndCurrentPageChanged(); });
     this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
     this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
+    this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
+      this.updateBackgroundImageStyle();
+    });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1051,6 +1054,8 @@ export class SurveyModel extends SurveyElementCore
     this.rootCss = this.getRootCss();
     this.updateNavigationCss();
     this.updateCompletedPageCss();
+    this.updateBackgroundImageCss();
+    this.updateFormCss();
   }
   /**
    * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
@@ -2033,7 +2038,10 @@ export class SurveyModel extends SurveyElementCore
     this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
   @property() backgroundImageFit: ImageFit;
-  @property() backgroundImageAttachment: ImageAttachment;
+  @property({ onSet: (newValue, target: SurveyModel) => {
+    target.backgroundImageFixed = newValue === "fixed";
+    target.updateCss(); } }) backgroundImageAttachment: ImageAttachment;
+  @property() backgroundImageFixed: boolean;
   /**
    * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
@@ -2043,13 +2051,28 @@ export class SurveyModel extends SurveyElementCore
   public set backgroundOpacity(val: number) {
     this.setPropertyValue("backgroundOpacity", val);
   }
-  public get backgroundImageStyle() {
-    return {
+  @property() backgroundImageStyle: any;
+  public updateBackgroundImageStyle() {
+    this.backgroundImageStyle = {
       opacity: this.backgroundOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.backgroundImageFit,
-      backgroundAttachment: this.backgroundImageAttachment
+      backgroundImageAttachment: !this.fitToContainer ? this.backgroundImageAttachment : undefined
     };
+  }
+  @property() backgroundImageCss: string;
+  public updateBackgroundImageCss(): void {
+    this.backgroundImageCss = new CssClassBuilder()
+      .append(this.css.rootBackgroundImage)
+      .append(this.css.rootBackgroundImageFixed, this.backgroundImageFixed)
+      .toString();
+  }
+  @property() formCss: string;
+  public updateFormCss(): void {
+    this.formCss = new CssClassBuilder()
+      .append(this.css.rootForm)
+      .append(this.css.rootFormAbsolute, this.backgroundImageFixed)
+      .toString();
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).

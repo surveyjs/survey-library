@@ -128,6 +128,15 @@ body {
   }
 }
 
+.sd-root-modern--full-container form.sd-root_form--absolute {
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
 .sd-root-modern--mobile {
   --sd-timer-size: calc(9 * #{$base-unit});
 }

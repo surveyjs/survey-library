@@ -93,7 +93,7 @@ export class Survey extends SurveyElementBase<any, any>
     } else {
       renderResult = this.renderSurvey();
     }
-    const backgroundImage = !!this.survey.renderBackgroundImage ? <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div> : null;
+    const backgroundImage = !!this.survey.backgroundImage ? <div className={this.survey.backgroundImageCss} style={this.survey.backgroundImageStyle}></div> : null;
     const header: JSX.Element = <SurveyHeader survey={this.survey}></SurveyHeader>;
     const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
@@ -107,8 +107,9 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
-        {backgroundImage}
-        <form onSubmit={onSubmit}>
+        {!!backgroundImage && this.survey.backgroundImageFixed ? backgroundImage: null}
+        <form className={this.survey.formCss} onSubmit={onSubmit}>
+          {!!backgroundImage && !this.survey.backgroundImageFixed ? backgroundImage: null}
           {customHeader}
           <div className={this.css.container}>
             {header}

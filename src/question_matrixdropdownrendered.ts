@@ -430,7 +430,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     if (this.hasActionCellInRows("end")) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
   }
   protected buildFooter() {

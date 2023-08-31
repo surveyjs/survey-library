@@ -15,7 +15,9 @@
   border-top: calcSize(1) solid transparent;
   border-bottom: calcSize(1) solid transparent;
   background-clip: padding-box;
-  width: 0;
+}
+.sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action) {
+  width: 10000px;
 }
 
 .sd-table__row:first-of-type>.sd-table__cell {
@@ -474,6 +476,7 @@
     padding-top: 0;
     padding-bottom: 0;
     text-align: left;
+    width: unset;
   }
 
   .sd-table__cell {

@@ -2981,3 +2981,11 @@ QUnit.test("multipletextitem, name property should be required and unique", func
   assert.equal(prop.isRequired, true, "name property is required");
   assert.equal(prop.isUnique, true, "name property is unique");
 });
+QUnit.test("load matrix column, visible property", function (assert) {
+  const matrix = new QuestionMatrixDynamicModel("q1");
+  const column = matrix.addColumn("col1");
+  assert.equal(column.visible, true, "It is visible by default");
+  column.fromJSON({ title: "column1", visible: false });
+  assert.equal(column.title, "column1", "set column title correctly");
+  assert.equal(column.visible, false, "column.visible is false");
+});

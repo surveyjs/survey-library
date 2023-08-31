@@ -237,7 +237,7 @@ frameworks.forEach(framework => {
   test("Check questions in one row (overflow content)", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
-      await t.resizeWindow(1000, 1080);
+      await t.resizeWindow(900, 1080);
       await initSurvey(framework, {
         questions: [
           {

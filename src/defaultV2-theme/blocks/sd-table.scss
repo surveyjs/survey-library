@@ -88,7 +88,7 @@
   text-align: center;
 
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
-    min-width: calcSize(14);
+    min-width: calcSize(15);
   }
 }
 
@@ -149,33 +149,29 @@
   padding: calcSize(1.5) calcSize(1);
 
   &:not(.sd-table__cell--empty) {
-    min-width: calcSize(14);
+    min-width: calcSize(15);
   }
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--empty {
-  min-width: calcSize(14);
-  width: calcSize(14);
+  min-width: calcSize(15);
 }
 
 .sd-matrixdropdown .sd-table__cell--header.sd-table__cell--action {
-  min-width: calcSize(2);
-  width: calcSize(2);
+  min-width: calcSize(3);
+  width: calcSize(3);
 }
 
 .sd-matrixdropdown .sd-table__cell--header:not(.sd-table__cell--empty) {
-  min-width: calcSize(14);
-  width: calcSize(14);
+  min-width: calcSize(15);
 
   &.sd-table__cell--dropdown,
   &.sd-table__cell--rating {
     min-width: calcSize(22);
-    width: calcSize(22);
   }
 
   &.sd-table__cell--boolean {
     min-width: calcSize(18);
-    width: calcSize(18);
   }
 }
 
@@ -197,6 +193,8 @@
 
   &:not(.sd-table__cell--drag):first-of-type {
     padding-left: 0;
+    width: calcSize(4);
+    min-width: calcSize(4);
   }
 }
 
@@ -359,7 +357,7 @@
 }
 
 .sd-matrixdropdown.sd-table {
-  table-layout: fixed;
+  //table-layout: fixed;
 }
 
 @mixin table_responsive {

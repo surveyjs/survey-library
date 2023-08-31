@@ -15,6 +15,7 @@
   border-top: calcSize(1) solid transparent;
   border-bottom: calcSize(1) solid transparent;
   background-clip: padding-box;
+  width: 0;
 }
 
 .sd-table__row:first-of-type>.sd-table__cell {

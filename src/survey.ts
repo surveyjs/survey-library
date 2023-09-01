@@ -735,6 +735,10 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised after an item value is changed in a panel within a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
    */
   public onDynamicPanelItemValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelItemValueChangedEvent>();
+
+  /**
+   * An event that is raised before a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) renders [tab titles](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle). Use this event to change individual tab titles.
+   */
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 
   /**

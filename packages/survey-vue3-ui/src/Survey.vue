@@ -2,7 +2,6 @@
   <div
     :class="vueSurvey.getRootCss()"
     :style="vueSurvey.themeVariables"
-    @scroll="doScroll"
     ref="root"
   >
     <survey-popup-modal></survey-popup-modal>
@@ -142,10 +141,6 @@ const getProcessedCompletedHtml = () => {
     processedCompletedHtmlValue.value = vueSurvey.value.processedCompletedHtml;
   }
   return processedCompletedHtmlValue.value;
-};
-
-const doScroll = () => {
-  vueSurvey.value.onScroll();
 };
 
 useBase(() => vueSurvey.value);

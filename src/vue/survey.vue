@@ -1,7 +1,6 @@
 <template>
   <div :class="survey.getRootCss()"
     :style="vueSurvey.themeVariables"
-    @scroll="doScroll"
     >
     <div v-if="vueSurvey.renderBackgroundImage" :class="css.rootBackgroundImage" :style="vueSurvey.backgroundImageStyle"></div>
     <form onsubmit="return false;">
@@ -141,9 +140,6 @@ export class Survey extends BaseVue {
   }
   start() {
     this.vueSurvey.start();
-  }
-    doScroll() {
-    this.vueSurvey.onScroll();
   }
 }
 

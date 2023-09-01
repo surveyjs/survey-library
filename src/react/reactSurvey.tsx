@@ -106,7 +106,7 @@ export class Survey extends SurveyElementBase<any, any>
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
 
     return (
-      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables} onScroll={() => this.survey.onScroll()}>
+      <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
         {backgroundImage}
         <form onSubmit={onSubmit}>
           {customHeader}

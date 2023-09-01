@@ -4524,6 +4524,7 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
     this.rootElement = htmlElement;
+    this.addScrollEventListener();
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
@@ -7227,6 +7228,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.disposeCallback) {
       this.disposeCallback();
     }
+    this.removeScrollEventListener();
   }
   disposeCallback: () => void;
 
@@ -7234,6 +7236,15 @@ export class SurveyModel extends SurveyElementCore
   public onScroll(): void {
     if(this.onScrollCallback) {
       this.onScrollCallback();
+    }
+  }
+  public addScrollEventListener(): void {
+    this.scrollHandler = () => { this.onScroll(); };
+    this.rootElement.addEventListener("scroll", this.scrollHandler);
+  }
+  public removeScrollEventListener(): void {
+    if (!!this.scrollHandler) {
+      this.rootElement.removeEventListener("scroll", this.scrollHandler);
     }
   }
 }

@@ -16,7 +16,8 @@
   border-bottom: calcSize(1) solid transparent;
   background-clip: padding-box;
 }
-.sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action) {
+
+.sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action):not(.sd-table__cell--empty.sd-table__cell--error) {
   width: 10000px;
 }
 
@@ -379,6 +380,7 @@
       min-width: auto;
       overflow-x: auto;
     }
+
     &>.sd-question__content {
       padding-bottom: calcSize(0.25);
       margin-bottom: calcSize(-0.25);

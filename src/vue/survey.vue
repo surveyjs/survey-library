@@ -35,12 +35,12 @@
         </div>
         <div
           v-if="vueSurvey.state === 'completedbefore'"
-          :class="css.body"
+          :class="vueSurvey.completedBeforeCss"
           v-html="vueSurvey.processedCompletedBeforeHtml"
         ></div>
         <div
           v-if="vueSurvey.state === 'loading'"
-          :class="css.body"
+          :class="vueSurvey.loadingBodyCss"
           v-html="vueSurvey.processedLoadingHtml"
         ></div>
         <div v-if="vueSurvey.state === 'empty'" :class="css.bodyEmpty">

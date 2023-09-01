@@ -4,7 +4,10 @@
   box-sizing: border-box;
   text-align: center;
   height: auto;
+}
 
+.sd-completedpage,
+.sd-completed-before-page {
   // h3 {
   //   font-size: calcFontSize(1.5);
   // }
@@ -21,15 +24,13 @@
     @include articleLargeFont;
   }
 
-  h4 {
+  h4,  
+  h5,
+  h6 {
     @include articleMediumFont;
   }
 
-  h5,
-  h6 {
-    color: $foreground;
-  }
-
+  td,
   span,
   div,
   p {

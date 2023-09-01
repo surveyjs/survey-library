@@ -336,6 +336,30 @@ QUnit.test("Ranking: strict compare, Bug#6644", function(assert) {
   assert.equal(q2.isVisible, false, "not visible #3");
 });
 
+QUnit.test("Ranking: disabledItem", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: [
+          "a",
+          {
+            "value": "b",
+            "enableIf": "False"
+          },
+          "c"
+        ]
+      }
+    ]
+  });
+  const rankingQuestion = survey.getQuestionByName("q1");
+  const disabledItem = rankingQuestion.choices[1];
+
+  assert.equal(rankingQuestion.canStartDragDueItemEnabled(disabledItem), false, "can't start drag disabled item");
+  assert.equal(rankingQuestion.getItemTabIndex(disabledItem), undefined, "can't move disabled item via keyboard");
+});
+
 // selectToRankEnabled
 function createRankingQuestionModel(selectToRankEnabled = false, withDefaultValue = false) {
   const json = {

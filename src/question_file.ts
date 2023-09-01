@@ -1,18 +1,18 @@
-import { Question } from "./question";
+import { IPlainDataOptions } from "./base-interfaces";
+import { IQuestionPlainData, Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { EventBase } from "./base";
+import { EventBase, ComputedUpdater } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
-import { surveyLocalization } from "./surveyStrings";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { confirmAction, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
+import { confirmActionAsync, detectIEOrEdge, loadFileFromBase64 } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
 
 /**
- * A class that describes the File question type.
+ * A class that describes the File Upload question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
@@ -89,6 +89,11 @@ export class QuestionFileModel extends Question {
   }
   private getFileIndexCaption(): string {
     return this.getLocalizationFormatString("indexText", this.indexToShow + 1, this.previewValue.length);
+  }
+  private previewValueChanged() {
+    this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
+    this.fileIndexAction.title = this.getFileIndexCaption();
+    this.containsMultiplyFiles = this.previewValue.length > 1;
   }
 
   public isPreviewVisible(index: number) {
@@ -222,6 +227,18 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
+
+  @property() renderedPlaceholderValue: string;
+  public get renderedPlaceholder(): string {
+    if(this.renderedPlaceholderValue === undefined) {
+      this.renderedPlaceholderValue = <string><unknown>(new ComputedUpdater<string>(() => {
+        const dragAreaText = this.dragAreaPlaceholder;
+        const readOnlyText = this.noFileChosenCaption;
+        return this.isReadOnly ? readOnlyText : dragAreaText;
+      }));
+    }
+    return this.renderedPlaceholderValue;
+  }
 
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
@@ -383,6 +400,7 @@ export class QuestionFileModel extends Question {
           loaded.forEach((val) => {
             this.previewValue.push(val);
           });
+          this.previewValueChanged();
         }
         this.isReady = true;
         this._previewLoader.dispose();
@@ -390,9 +408,7 @@ export class QuestionFileModel extends Question {
       });
       this._previewLoader.load(newValues);
     }
-    this.indexToShow = this.previewValue.length > 0 ? (this.indexToShow > 0 ? this.indexToShow - 1 : 0) : 0;
-    this.fileIndexAction.title = this.getFileIndexCaption();
-    this.containsMultiplyFiles = this.previewValue.length > 1;
+    this.previewValueChanged();
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -449,15 +465,10 @@ export class QuestionFileModel extends Question {
     return result;
   }
   public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
+    options: IPlainDataOptions = {
       includeEmpty: true,
     }
-  ) {
+  ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData && !this.isEmpty()) {
       questionPlainData.isNode = false;
@@ -578,11 +589,13 @@ export class QuestionFileModel extends Question {
     this.onChange(src);
   }
   doClean = (event: any) => {
-    var src = event.currentTarget || event.srcElement;
     if (this.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(this.confirmRemoveAllMessage);
-      if (!isConfirmed) return;
+      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); });
+      return;
     }
+    this.clearFilesCore();
+  }
+  private clearFilesCore(): void {
     if(this.rootElement) {
       this.rootElement.querySelectorAll("input")[0].value = "";
     }
@@ -590,11 +603,12 @@ export class QuestionFileModel extends Question {
   }
   doRemoveFile(data: any) {
     if (this.needConfirmRemoveFile) {
-      var isConfirmed = confirmAction(
-        this.getConfirmRemoveMessage(data.name)
-      );
-      if (!isConfirmed) return;
+      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); });
+      return;
     }
+    this.removeFileCore(data);
+  }
+  private removeFileCore(data: any): void {
     const previewIndex = this.previewValue.indexOf(data);
     this.removeFileByContent(previewIndex === -1 ? data : this.value[previewIndex]);
   }

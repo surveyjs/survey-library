@@ -1,8 +1,8 @@
 import { property, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions } from "./base-interfaces";
 import { SurveyModel } from "./survey";
-import { Question } from "./question";
+import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { OtherEmptyError } from "./error";
@@ -15,7 +15,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { mergeValues } from "./utils/utils";
 
 /**
- * A base class for multiple-choice question types ([Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
+ * A base class for multiple-choice question types ([Checkboxes](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Radio Button Group](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), etc.).
  */
 export class QuestionSelectBase extends Question {
   public visibleChoicesChangedCallback: () => void;
@@ -680,11 +680,11 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choices", newValue);
   }
   /**
-   * Inherits choice items from a specified question. Accepts a question name.
+   * Copies choice items from a specified question. Accepts a question name.
    *
-   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties do not apply because their values are inherited.
+   * If you specify this property, the `choices`, `choicesVisibleIf`, `choicesEnableIf`, and `choicesOrder` properties do not apply because their values are copied.
    *
-   * In addition, you can specify the `choicesFromQuestionMode` property if you do not want to inherit all choice items.
+   * In addition, you can specify the `choicesFromQuestionMode` property if you do not want to copy all choice items.
    * @see choicesFromQuestionMode
    * @see choices
    */
@@ -702,15 +702,15 @@ export class QuestionSelectBase extends Question {
   }
   private isLockVisibleChoices: boolean;
   /**
-   * Specifies which choice items to inherit from another question. Applies only when the `choicesFromQuestion` property is specified.
+   * Specifies which choice items to copy from another question. Applies only when the `choicesFromQuestion` property is specified.
    *
    * Possible values:
    *
-   * - `"all"` (default) - Inherits all choice items.
-   * - `"selected"` - Inherits only selected choice items.
-   * - `"unselected"` - Inherits only unselected choice items.
+   * - `"all"` (default) - Copies all choice items.
+   * - `"selected"` - Copies only selected choice items.
+   * - `"unselected"` - Copies only unselected choice items.
    *
-   * Use the `visibleChoices` property to access inherited choice items.
+   * Use the `visibleChoices` property to access copied choice items.
    * @see choicesFromQuestion
    * @see visibleChoices
    */
@@ -720,12 +720,22 @@ export class QuestionSelectBase extends Question {
   public set choicesFromQuestionMode(val: string) {
     this.setPropertyValue("choicesFromQuestionMode", val);
   }
+  /**
+   * Specifies which matrix column or dynamic panel question supplies choice values. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
+   *
+   * Each choice item consists of a value saved in survey results and a text displayed in the UI. To construct a choice item, assign the `name` of a Dynamic Matrix or Dynamic Panel to the [`choicesFromQuestion`](#choicesFromQuestion) property and specify which dynamic panel question or matrix column supplies values and which provides texts. Use the `choiceValuesFromQuestion` and [`choiceTextsFromQuestion`](#choiceTextsFromQuestion) properties for this purpose. If a choice text is empty, a choice value is used as a display text and saved in survey results.
+   */
   public get choiceValuesFromQuestion(): string {
     return this.getPropertyValue("choiceValuesFromQuestion");
   }
   public set choiceValuesFromQuestion(val: string) {
     this.setPropertyValue("choiceValuesFromQuestion", val);
   }
+  /**
+   * Specifies which matrix column or dynamic panel question supplies choice texts. Use this property to construct choice items based on cell values in Dynamic Matrix and question values in Dynamic Panel.
+   *
+   * Each choice item consists of a value saved in survey results and a text displayed in the UI. To construct a choice item, assign the `name` of a Dynamic Matrix or Dynamic Panel to the [`choicesFromQuestion`](#choicesFromQuestion) property and specify which dynamic panel question or matrix column supplies values and which provides texts. Use the [`choiceValuesFromQuestion`](#choiceValuesFromQuestion) and `choiceTextsFromQuestion` properties for this purpose. If a choice text is empty, a choice value is used as a display text and saved in survey results.
+   */
   public get choiceTextsFromQuestion(): string {
     return this.getPropertyValue("choiceTextsFromQuestion");
   }
@@ -928,17 +938,11 @@ export class QuestionSelectBase extends Question {
       this.isDesignMode && !this.customWidget && !this.isContentElement;
   }
   public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
+    options: IPlainDataOptions = {
       includeEmpty: true,
       includeQuestionTypes: false,
     }
-  ) {
+  ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = Array.isArray(this.value) ? this.value : [this.value];
@@ -980,7 +984,7 @@ export class QuestionSelectBase extends Question {
   protected getDisplayValueEmpty(): string {
     return ItemValue.getTextOrHtmlByValue(this.visibleChoices, undefined);
   }
-  protected getChoicesDisplayValue(items: ItemValue[], val: any): any {
+  private getChoicesDisplayValue(items: ItemValue[], val: any): any {
     if (val == this.otherItemValue.value)
       return this.otherValue ? this.otherValue : this.locOtherText.textOrHtml;
     const selItem = this.getSingleSelectedItem();
@@ -1019,26 +1023,31 @@ export class QuestionSelectBase extends Question {
       : this.activeChoices;
   }
   protected get activeChoices(): Array<ItemValue> {
-    const question = this.findCarryForwardQuestion();
+    const question = this.getCarryForwardQuestion();
+    if (this.carryForwardQuestionType === "select") {
+      (<QuestionSelectBase>question).addDependedQuestion(this);
+      return this.getChoicesFromSelectQuestion((<QuestionSelectBase>question));
+    }
+    if (this.carryForwardQuestionType === "array") {
+      (<any>question).addDependedQuestion(this);
+      return this.getChoicesFromArrayQuestion(question);
+    }
+    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+  }
+  getCarryForwardQuestion(data?: ISurveyData): Question {
+    const question = this.findCarryForwardQuestion(data);
     const selBaseQuestion = this.getQuestionWithChoicesCore(question);
     const arrayQuestion = !selBaseQuestion ? this.getQuestionWithArrayValue(question) : null;
     this.setCarryForwardQuestionType(!!selBaseQuestion, !!arrayQuestion);
-    if (this.carryForwardQuestionType === "select") {
-      selBaseQuestion.addDependedQuestion(this);
-      return this.getChoicesFromSelectQuestion(selBaseQuestion);
-    }
-    if (this.carryForwardQuestionType === "array") {
-      (<any>arrayQuestion).addDependedQuestion(this);
-      return this.getChoicesFromArrayQuestion(arrayQuestion);
-    }
-    return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+    return !!selBaseQuestion || !!arrayQuestion ? question : null;
   }
   private getQuestionWithChoices(): QuestionSelectBase {
     return this.getQuestionWithChoicesCore(this.findCarryForwardQuestion());
   }
-  private findCarryForwardQuestion(): Question {
-    if (!this.choicesFromQuestion || !this.data) return null;
-    return <Question>this.data.findQuestionByName(this.choicesFromQuestion);
+  private findCarryForwardQuestion(data?: ISurveyData): Question {
+    if(!data) data = this.data;
+    if (!this.choicesFromQuestion || !data) return null;
+    return <Question>data.findQuestionByName(this.choicesFromQuestion);
   }
   private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
     if(!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)
@@ -1778,6 +1787,16 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     keys.push("choices");
   }
 }
+
+function checkCopyPropVisibility(obj: any, mode: string): boolean {
+  if(!obj) return false;
+  if(!!obj.templateQuestion) {
+    const data = obj.colOwner?.data;
+    obj = obj.templateQuestion;
+    if(!obj.getCarryForwardQuestion(data)) return false;
+  }
+  return obj.carryForwardQuestionType === mode;
+}
 Serializer.addClass(
   "selectbase",
   [
@@ -1799,21 +1818,21 @@ Serializer.addClass(
       choices: ["all", "selected", "unselected"],
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return obj.carryForwardQuestionType === "select";
+        return checkCopyPropVisibility(obj, "select");
       },
     },
     {
       name: "choiceValuesFromQuestion",
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return obj.carryForwardQuestionType === "array";
+        return checkCopyPropVisibility(obj, "array");
       },
     },
     {
       name: "choiceTextsFromQuestion",
       dependsOn: "choicesFromQuestion",
       visibleIf: (obj: any) => {
-        return obj.carryForwardQuestionType === "array";
+        return checkCopyPropVisibility(obj, "array");
       },
     },
     {

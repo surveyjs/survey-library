@@ -9,10 +9,11 @@ import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
-import { IConditionObject } from "./question";
+import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { IPlainDataOptions } from "./base-interfaces";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -206,7 +207,7 @@ export class MatrixCells {
 }
 
 /**
-  * A class that describes the Single-Choice Matrix question type.
+  * A class that describes the Single-Select Matrix question type.
   *
   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
   */
@@ -369,7 +370,7 @@ export class QuestionMatrixModel
     this.rows = this.sortVisibleRows(this.rows);
   }
   protected isNewValueCorrect(val: any): boolean {
-    return Helpers.isValueObject(val);
+    return Helpers.isValueObject(val, true);
   }
   protected processRowsOnSet(newRows: Array<any>) {
     return this.sortVisibleRows(newRows);
@@ -484,15 +485,10 @@ export class QuestionMatrixModel
     return res;
   }
   public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
+    options: IPlainDataOptions = {
       includeEmpty: true,
     }
-  ) {
+  ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = this.createValueCopy();

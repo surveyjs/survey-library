@@ -7,7 +7,7 @@ import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 
 /**
- * A class that describes the Radiogroup question type.
+ * A class that describes the Radio Button Group question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-radiogroup/ (linkStyle))
  */

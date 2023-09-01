@@ -44,8 +44,6 @@
   position: absolute;
   top: calcSize(1);
   right: calcSize(1);
-  width: calcSize(6);
-  height: calcSize(6);
   padding: calcSize(1.5);
   box-sizing: border-box;
   border-radius: 100%;
@@ -54,8 +52,9 @@
 }
 
 .sd-imagepicker__check-icon {
-  width: calcSize(3);
-  height: calcSize(3);
+  display: block;
+  width: multiply(1.5, $font-editorfont-size);
+  height: multiply(1.5, $font-editorfont-size);
   fill: $primary;
 }
 

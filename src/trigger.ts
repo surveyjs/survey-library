@@ -130,6 +130,7 @@ export class Trigger extends Base {
       this.onFailure();
     }
   }
+  public get requireValidQuestion(): boolean { return false; }
   private perform(values: HashTable<any>, properties: HashTable<any>) {
     this.conditionRunner.onRunComplete = (res: boolean) => {
       this.triggerResult(res, values, properties);
@@ -299,6 +300,7 @@ export class SurveyTriggerComplete extends SurveyTrigger {
   public getType(): string {
     return "completetrigger";
   }
+  public get requireValidQuestion(): boolean { return true; }
   protected isRealExecution(): boolean {
     return !settings.triggers.executeCompleteOnValueChanged === this.isExecutingOnNextPage;
   }
@@ -368,6 +370,7 @@ export class SurveyTriggerSkip extends SurveyTrigger {
   public getType(): string {
     return "skiptrigger";
   }
+  public get requireValidQuestion(): boolean { return this.canBeExecuted(false); }
   public get gotoName(): string {
     return this.getPropertyValue("gotoName", "");
   }

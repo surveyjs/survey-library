@@ -32,27 +32,41 @@
   width: calc(100% + var(--sd-base-padding));
   flex-wrap: wrap;
 
-  >div {
+  &>div {
     box-sizing: border-box;
-    padding-left: var(--sd-base-padding);
+    padding-left: calcSize(2);
   }
 }
 
-.sd-page__row.sd-row--multiple {
-  padding: var(--sd-base-vertical-padding) var(--sd-base-padding) var(--sd-base-padding) 0;
-  margin-left: 0;
-  width: 100%;
-
-  &:not(.sd-row--compact) {
-    background: $question-background;
-    box-shadow: $shadow-small;
-    border-radius: calcCornerRadius(1);
+.sd-panel {
+  .sd-row--multiple {
+    &>div {
+      padding-left: var(--sd-base-padding);
+    }
   }
+}
+
+.sd-row--multiple.sd-row--compact {
+  &>div {
+    padding-left: var(--sd-base-padding);
+  }
+}
+.sd-page__row.sd-row--multiple {
+  margin-left: calcSize(-2);
+  width: calc(100% + 2 * var(--sjs-base-unit, var(--base-unit, 8px)));
+
 
   &.sd-row--compact {
     padding: 0;
-    width: calc(100% + var(--sd-base-padding));
     margin-left: calc(-1 * var(--sd-base-padding));
+    width: calc(100% + var(--sd-base-padding));
+  }
+  .sd-row__panel {
+    height: 100%
+  }
+  
+  .sd-row__question {
+    height: 100%
   }
 }
 

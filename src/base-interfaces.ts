@@ -220,7 +220,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     element: ISurveyElement,
     question: IQuestion,
     page: IPage,
-    id: string
+    id: string, scrollIfVisible?: boolean
   ): any;
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
@@ -253,7 +253,7 @@ export interface ISurveyElement extends IShortcutText {
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
-  delete(): any;
+  delete(doDispose?: boolean): void;
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;
@@ -315,6 +315,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getChildrenLayoutType(): string;
   getQuestionTitleLocation(): string;
   getQuestionStartIndex(): string;
+  getQuestionErrorLocation(): string;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
@@ -367,4 +368,12 @@ export interface ISurveyLayoutElement {
   component?: string;
   template?: string;
   data?: any;
+}
+export interface IPlainDataOptions {
+  includeEmpty?: boolean;
+  includeQuestionTypes?: boolean;
+  includeValues?: boolean;
+  calculations?: Array<{
+    propertyName: string,
+  }>;
 }

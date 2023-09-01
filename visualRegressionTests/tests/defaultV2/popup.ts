@@ -334,4 +334,69 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("popup-overlay-long-list-with-title.png", null, t, comparer);
     });
   });
+
+  test("Popup inner modal window", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 600);
+      await initSurvey(framework, json, { onGetQuestionTitleActions: (_, opt) => {
+        const json = {
+          elements: [
+            {
+              type: "dropdown",
+              name: "modal_question",
+              choices: [
+                "item1",
+                "item2",
+                "item3",
+                "item4",
+                "item5",
+                "item6",
+                "item7",
+                "item8",
+                "item9",
+                "item10",
+                "item11",
+                "item12",
+                "item13",
+                "item14",
+                "item15",
+                "item16",
+                "item17",
+                "item18",
+                "item19",
+                "item20",
+                "item21",
+                "item22",
+                "item23",
+                "item24",
+                "item25",
+                "item26",
+                "item27"
+              ]
+            }
+          ]
+        };
+        const item = new window["Survey"].Action({
+          component: "sv-action-bar-item",
+          title: "Click",
+          showTitle: true,
+          action: () => {
+            const model = new window["Survey"].Model(json);
+            model.focusFirstQuestionAutomatic = false;
+            window["Survey"].settings.showModal("survey", {
+              model: model,
+              survey: model
+            });
+          }
+        });
+        opt.titleActions = [item];
+      } });
+      await t
+        .click(clickButton.withText("Click"))
+        .click(Selector(".sd-dropdown"));
+
+      await resetHoverToBody(t);
+      await takeElementScreenshot("popup-into-modal-popup.png", Selector(".sv-popup.sv-single-select-list .sv-popup__container"), t, comparer);
+    });
+  });
 });

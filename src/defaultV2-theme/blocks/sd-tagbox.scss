@@ -13,8 +13,8 @@
 }
 
 .sd-tagbox_clean-button {
-  height: calcSize(3);
-  padding: calcSize(1);
+  height: multiply(1.5, $font-editorfont-size);
+  padding: multiply(0.5, $font-editorfont-size);
   margin: auto 0;
 }
 
@@ -57,10 +57,10 @@
 }
 
 .sd-tagbox-item_clean-button-svg {
-  display: flex;
-  padding: calcSize(0.5);
-  width: calcSize(2);
-  height: calcSize(2);
+  display: block;
+  padding: multiply(0.25, $font-editorfont-size);
+  width: multiply(1, $font-editorfont-size);
+  height: multiply(1, $font-editorfont-size);
 }
 
 .sd-tagbox-item_clean-button-svg:hover {

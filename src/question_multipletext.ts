@@ -41,7 +41,7 @@ export class MultipleTextEditorModel extends QuestionTextModel {
 }
 
 /**
- * A class that describes an item in a [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
+ * A class that describes an item in a [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
  *
  * [View Demo](/form-library/examples/multiple-text-box-question/)
  */
@@ -108,7 +108,11 @@ export class MultipleTextItemModel extends Base
       this.editor.defaultValue = data.getItemDefaultValue(this.name);
       this.editor.setSurveyImpl(this);
       this.editor.parent = data;
+      this.editor.setParentQuestion(<any>data);
     }
+  }
+  public focusIn(): void {
+    this.editor.focusIn();
   }
   /**
    * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
@@ -331,9 +335,8 @@ export class QuestionMultipleTextModel extends Question
   public get isAllowTitleLeft(): boolean {
     return false;
   }
-  public get hasSingleInput(): boolean {
-    return false;
-  }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   public get id() {
     return this.getPropertyValue("id");
   }
@@ -448,8 +451,30 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].localeChanged();
     }
   }
+  /**
+   * Specifies the error message position relative to individual input fields.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above input fields.
+   * - `"bottom"` - Displays error messages below input fields.
+   */
+  public get itemErrorLocation(): string {
+    return this.getPropertyValue("itemErrorLocation");
+  }
+  public set itemErrorLocation(val: string) {
+    this.setPropertyValue("itemErrorLocation", val);
+  }
+  public getQuestionErrorLocation(): string {
+    if(this.itemErrorLocation !== "default") return this.itemErrorLocation;
+    return this.getErrorLocation();
+  }
+  public getChildErrorLocation(child: Question): string {
+    return this.getQuestionErrorLocation();
+  }
   protected isNewValueCorrect(val: any): boolean {
-    return Helpers.isValueObject(val);
+    return Helpers.isValueObject(val, true);
   }
   supportGoNextPageAutomatic(): boolean {
     for (var i = 0; i < this.items.length; i++) {
@@ -699,6 +724,7 @@ Serializer.addClass(
     { name: "!items:textitems", className: "multipletextitem" },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
+    { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
   ],
   function () {
     return new QuestionMultipleTextModel("");

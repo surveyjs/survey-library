@@ -161,12 +161,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   public readOnlyChangedCallback: () => void;
 
-  public static ScrollElementToTop(elementId: string): boolean {
+  public static ScrollElementToTop(elementId: string, scrollIfVisible?: boolean): boolean {
     const { root } = settings.environment;
     if (!elementId || typeof root === "undefined") return false;
     const el = root.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
-    const elemTop: number = el.getBoundingClientRect().top;
+    const elemTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
     if (elemTop < 0) el.scrollIntoView();
     return elemTop < 0;
   }
@@ -661,7 +661,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isQuestion() {
     return false;
   }
-  public delete() { }
+  public delete(doDispose: boolean): void { }
   //ILocalizableOwner
   locOwner: ILocalizableOwner;
   /**
@@ -810,10 +810,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   protected getHasFrameV2() : boolean {
-    return this.shouldAddRunnerStyles() && (!this.hasParent && this.isSingleInRow);
+    return this.shouldAddRunnerStyles() && (!this.hasParent);
   }
   protected getIsNested(): boolean {
-    return this.shouldAddRunnerStyles() && (this.hasParent || !this.isSingleInRow);
+    return this.shouldAddRunnerStyles() && (this.hasParent);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()

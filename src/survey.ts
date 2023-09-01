@@ -15,6 +15,7 @@ import {
   IProgressInfo,
   IFindElement,
   ISurveyLayoutElement,
+  IPlainDataOptions,
   LayoutElementContainer
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
@@ -93,7 +94,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Many question types allow respondents to leave comments. To enable this functionality, set a question's [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#showCommentArea) property to `true`. Comment values are saved in a separate property. The property name is composed of the question `name` and `commentSuffix`.
    *
-   * Respondents can also leave a comment when they select "Other" in a single- or multi-select question, such as Dropdown or Checkboxes. The property name for the comment value is composed according to the same rules. However, you can use the question `name` as a key to store the comment value instead. Disable the [`storeOthersAsComment`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#storeOthersAsComment) property in this case.
+   * Respondents can also leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. The property name for the comment value is composed according to the same rules. However, you can use the question `name` as a key to store the comment value instead. Disable the [`storeOthersAsComment`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#storeOthersAsComment) property in this case.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/create-checkboxes-question-in-javascript/ (linkStyle))
    */
@@ -178,7 +179,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle)).
+   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle))
    */
   public onPartialSend: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
@@ -369,26 +370,38 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetQuestionDisplayValue: EventBase<SurveyModel, GetQuestionDisplayValueEvent> = this.addEvent<SurveyModel, GetQuestionDisplayValueEvent>();
   /**
-   * Use this event to change the question title in code. If you want to remove question numbering then set showQuestionNumbers to "off".
-   * @see showQuestionNumbers
+   * An event that is raised before the survey displays a question title. Handle this event to modify question titles.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * If you want to modify question numbers, handle the [`onGetQuestionNo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetQuestionNo) event.
    * @see requiredText
    */
   public onGetQuestionTitle: EventBase<SurveyModel, GetQuestionTitleEvent> = this.addEvent<SurveyModel, GetQuestionTitleEvent>();
   /**
-   * Use this event to change the element title tag name that renders by default.
-   * @see showQuestionNumbers
-   * @see requiredText
+   * An event that is raised when the survey calculates heading levels (`<h1>`, `<h2>`, etc.) for a survey, page, panel, and question title. Handle this event to change the heading level of individual titles.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * If you want to specify heading levels for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
+   * @see onGetQuestionTitle
+   * @see onGetQuestionNo
    */
   public onGetTitleTagName: EventBase<SurveyModel, GetTitleTagNameEvent> = this.addEvent<SurveyModel, GetTitleTagNameEvent>();
   /**
-   * Use this event to change the question no in code. If you want to remove question numbering then set showQuestionNumbers to "off".
-   * @see showQuestionNumbers
+   * An event that is raised before the survey calculates a question number. Handle this event to modify question numbers.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * If you want to hide question numbers, disable the [`showQuestionNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showQuestionNumbers) property.
+   * @see onGetQuestionTitle
    * @see questionStartIndex
    */
   public onGetQuestionNo: EventBase<SurveyModel, GetQuestionNoEvent> = this.addEvent<SurveyModel, GetQuestionNoEvent>();
   /**
-   * Use this event to change the progress text in code.
-   *  @see progressBarType
+   * An event that is raised before the survey displays progress text. Handle this event to change the progress text in code.
+   * @see showProgressBar
+   * @see progressBarType
    */
   public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.addEvent<SurveyModel, ProgressTextEvent>();
   /**
@@ -796,7 +809,6 @@ export class SurveyModel extends SurveyElementCore
     this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack, "completed-before");
     this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack, "loading");
     this.createLocalizableString("logo", this, false);
-    this.createLocalizableString("backgroundImage", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
     this.createLocalizableString("pageNextText", this, false, true);
@@ -1118,6 +1130,8 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() completedCss: string;
   @property() containerCss: string;
+  @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
+
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
       .append(btn).toString();
@@ -1451,12 +1465,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Gets or sets the first question index. The first question index is '1' by default. You may start it from '100' or from 'A', by setting '100' or 'A' to this property.
-   * You can set the start index to "(1)" or "# A)" or "a)" to render question number as (1), # A) and a) accordingly.
-   * @see Question.title
-   * @see requiredText
+   * Specifies the initial number or letter from which to start question numbering.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
+   * [Question Numbers](https://surveyjs.io/form-library/documentation/design-survey/configure-question-titles#question-numbers (linkStyle))
    */
   public get questionStartIndex(): string {
     return this.getPropertyValue("questionStartIndex", "");
@@ -1465,11 +1476,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionStartIndex", val);
   }
   /**
-   * Gets or sets whether the "Others" option text is stored as question comment.
+   * Specifies whether to store the "Other" option response in a separate property.
    *
-   * By default the entered text in the "Others" input in the checkbox/radiogroup/dropdown is stored as `"question name " + "-Comment"`. The value itself is `"question name": "others"`.
-   * Set this property to `false`, to store the entered text directly in the `"question name"` key.
-   * @see commentSuffix
+   * Default value: `true`
+   *
+   * Respondents can leave comments when they select "Other" in choice-based questions, such as Dropdown or Checkboxes. Comment values are saved in a separate property. The property name is composed of the question `name` and [`commentSuffix`](#commentSuffix). However, you can use the question `name` as a key to store the comment value instead. Disable the `storeOthersAsComment` property in this case.
+   * @see maxOthersLength
    */
   public get storeOthersAsComment(): boolean {
     return this.getPropertyValue("storeOthersAsComment");
@@ -1478,9 +1490,11 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("storeOthersAsComment", val);
   }
   /**
-   * Specifies the default maximum length for questions like text and comment, including matrix cell questions.
+   * Specifies the maximum text length in textual questions ([Single-Line Input](https://surveyjs.io/form-library/examples/text-entry-question/), [Long Text](https://surveyjs.io/form-library/examples/add-open-ended-question-to-a-form/), [Multiple Textboxes](https://surveyjs.io/form-library/examples/multiple-text-box-question/)), measured in characters.
    *
-   * The default value is `0`, that means that the text and comment have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
+   * Default value: 0 (unlimited)
+   *
+   * You can override this setting for individual questions if you specify their [`maxLength`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maxLength) property.
    * @see maxOthersLength
    */
   public get maxTextLength(): number {
@@ -1490,11 +1504,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("maxTextLength", val);
   }
   /**
-   * Gets or sets the default maximum length for question comments and others
+   * Specifies the maximum text length for question comments. Applies to questions with the [`showCommentArea`](https://surveyjs.io/form-library/documentation/api-reference/question#showCommentArea) or [`showOtherItem`](https://surveyjs.io/form-library/documentation/api-reference/question#showOtherItem) property set to `true`.
    *
-   * The default value is `0`, that means that the question comments have the same max length as the standard HTML input - 524288 characters: https://www.w3schools.com/tags/att_input_maxlength.asp.
-   * @see Question.showCommentArea
-   * @see Question.showOtherItem
+   * Default value: 0 (unlimited)
    * @see maxTextLength
    */
   public get maxOthersLength(): number {
@@ -1511,7 +1523,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you enable this property, the survey is also completed automatically. Set the [`allowCompleteSurveyAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#allowCompleteSurveyAutomatic) property to `false` if you want to disable this behavior.
    *
-   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkbox, Boolean (rendered as Checkbox), Comment, Signature Pad, Image Picker (with Multi Select), File, Single-Choice Matrix (not all rows are answered), Dynamic Matrix, Panel Dynamic.
+   * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
    */
@@ -2014,18 +2026,10 @@ export class SurveyModel extends SurveyElementCore
    * An image to display in the background of the survey or form. Accepts a base64 or URL string value.
    * @see backgroundOpacity
    */
-  public get backgroundImage(): string {
-    return this.getLocalizableStringText("backgroundImage");
-  }
-  public set backgroundImage(value: string) {
-    this.setLocalizableStringText("backgroundImage", value);
-  }
-  get locBackgroundImage(): LocalizableString {
-    return this.getLocalizableString("backgroundImage");
-  }
+  @property() backgroundImage: string;
   @property() renderBackgroundImage: string;
   private updateRenderBackgroundImage(): void {
-    const path = this.getLocalizableString("backgroundImage").renderedHtml;
+    const path = this.backgroundImage;
     this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
   }
   @property() backgroundImageFit: ImageFit;
@@ -2396,9 +2400,9 @@ export class SurveyModel extends SurveyElementCore
     return options.no;
   }
   /**
-   * Gets or sets whether the survey displays page numbers on pages titles.
+   * Specifies whether page titles contain page numbers.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
    */
   public get showPageNumbers(): boolean {
     return this.getPropertyValue("showPageNumbers");
@@ -2409,15 +2413,17 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
   }
   /**
-   * Gets or sets a value that specifies how the question numbers are displayed.
+   * Specifies whether to display question numbers and how to calculate them.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `on` - display question numbers
-   * - `onpage` - display question numbers, start numbering on every page
-   * - `off` - turn off the numbering for questions titles
+   * - `true` or `"on"` - Displays question numbers.
+   * - `"onpage"` - Displays question numbers and starts numbering on each page from scratch.
+   * - `false` or `"off"` - Hides question numbers.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-options/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/how-to-number-pages-and-questions/ (linkStyle))
+   *
+   * If you want to hide the number of an individual question, enable its [`hideNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#hideNumber) property.
    */
   public get showQuestionNumbers(): string | boolean {
     return this.getPropertyValue("showQuestionNumbers");
@@ -2528,12 +2534,14 @@ export class SurveyModel extends SurveyElementCore
     this.updateCss();
   }
   /**
-   * Gets or sets the error message position.
+   * Specifies the error message position.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `top` - to show question error(s) over the question,
-   * - `bottom` - to show question error(s) under the question.
+   * - `"top"` (default) - Displays error messages above questions.
+   * - `"bottom"` - Displays error messages below questions.
+   *
+   * You can override this setting if you specify the `questionErrorLocation` property for an [individual page](https://surveyjs.io/form-library/documentation/pagemodel#questionErrorLocation) or [panel](https://surveyjs.io/form-library/documentation/panelmodel#questionErrorLocation) or set the `errorLocation` property for a [specific question](https://surveyjs.io/form-library/documentation/question#errorLocation).
    */
   public get questionErrorLocation(): string {
     return this.getPropertyValue("questionErrorLocation");
@@ -2542,12 +2550,15 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionErrorLocation", value.toLowerCase());
   }
   /**
-   * Gets or sets the question description position. The default value is `underTitle`.
+   * Specifies where to display question descriptions.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `underTitle` - show question description under the question title,
-   * - `underInput` - show question description under the question input instead of question title.
+   * - `"underTitle"` (default) - Displays descriptions under question titles.
+   * - `"underInput"` - Displays descriptions under the interactive area.
+   *
+   * You can override this setting for individual questions if you specify their [`descriptionLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#descriptionLocation) property.
+   *
    */
   public get questionDescriptionLocation(): string {
     return this.getPropertyValue("questionDescriptionLocation");
@@ -2746,16 +2757,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you want to skip empty answers, pass an object with the `includeEmpty` property set to `false`.
    */
-  public getPlainData(
-    options?: {
-      includeEmpty?: boolean,
-      includeQuestionTypes?: boolean,
-      includeValues?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    }
-  ): Array<IQuestionPlainData> {
+  public getPlainData(options?: IPlainDataOptions): Array<IQuestionPlainData> {
     if (!options) {
       options = { includeEmpty: true, includeQuestionTypes: false, includeValues: false };
     }
@@ -4151,6 +4153,7 @@ export class SurveyModel extends SurveyElementCore
    * The `doComplete()` method completes the survey regardless of validation errors and the current page. If you need to ensure that survey results are valid and full, call the [`completeLastPage()`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completeLastPage) method instead.
    *
    * @param isCompleteOnTrigger For internal use.
+   * @param completeTrigger For internal use.
    * @returns `false` if survey completion is cancelled within the [`onCompleting`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCompleting) event handler; otherwise, `true`.
    * @see surveyPostId
    */
@@ -4481,6 +4484,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootReadOnly, this.mode === "display")
       .append(this.css.rootCompact, this.isCompact)
+      .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
   }
   private resizeObserver: ResizeObserver;
@@ -4848,7 +4852,7 @@ export class SurveyModel extends SurveyElementCore
     element: ISurveyElement,
     question: Question,
     page: PageModel,
-    id: string
+    id: string, scrollIfVisible?: boolean
   ): any {
     const options: ScrollingElementToTopEvent = {
       element: element,
@@ -4859,7 +4863,7 @@ export class SurveyModel extends SurveyElementCore
     };
     this.onScrollingElementToTop.fire(this, options);
     if (!options.cancel) {
-      SurveyElement.ScrollElementToTop(options.elementId);
+      SurveyElement.ScrollElementToTop(options.elementId, scrollIfVisible);
     }
   }
 
@@ -5453,7 +5457,7 @@ export class SurveyModel extends SurveyElementCore
   private isTriggerIsRunning: boolean = false;
   private triggerValues: any = null;
   private triggerKeys: any = null;
-  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false) {
+  private checkTriggers(key: any, isOnNextPage: boolean, isOnComplete: boolean = false, name?: string) {
     if (this.isCompleted || this.triggers.length == 0 || this.isDisplayMode) return;
     if (this.isTriggerIsRunning) {
       this.triggerValues = this.getFilteredValues();
@@ -5462,13 +5466,20 @@ export class SurveyModel extends SurveyElementCore
       }
       return;
     }
+    let isQuestionInvalid = false;
+    if(!isOnComplete && name && this.hasRequiredValidQuestionTrigger) {
+      const question = <Question>this.getQuestionByValueName(name);
+      isQuestionInvalid = question && !question.validate(false);
+    }
     this.isTriggerIsRunning = true;
     this.triggerKeys = key;
     this.triggerValues = this.getFilteredValues();
     var properties = this.getFilteredProperties();
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
-    for (var i: number = 0; i < this.triggers.length; i++) {
-      this.triggers[i].checkExpression(isOnNextPage, isOnComplete,
+    for (let i = 0; i < this.triggers.length; i++) {
+      const trigger = this.triggers[i];
+      if(isQuestionInvalid && trigger.requireValidQuestion) continue;
+      trigger.checkExpression(isOnNextPage, isOnComplete,
         this.triggerKeys,
         this.triggerValues,
         properties
@@ -5478,6 +5489,12 @@ export class SurveyModel extends SurveyElementCore
       this.updateButtonsVisibility();
     }
     this.isTriggerIsRunning = false;
+  }
+  private get hasRequiredValidQuestionTrigger(): boolean {
+    for (let i = 0; i < this.triggers.length; i++) {
+      if(this.triggers[i].requireValidQuestion) return true;
+    }
+    return false;
   }
   private doElementsOnLoad() {
     for (var i = 0; i < this.pages.length; i++) {
@@ -6110,7 +6127,7 @@ export class SurveyModel extends SurveyElementCore
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);
-    this.checkTriggers(triggerKeys, false);
+    this.checkTriggers(triggerKeys, false, false, name);
     if (allowNotifyValueChanged)
       this.notifyQuestionOnValueChanged(name, newValue);
     if (locNotification !== "text") {
@@ -7343,10 +7360,9 @@ Serializer.addClass("survey", [
     name: "showTOC:switch",
     default: false
   },
-  {
-    name: "tocLocation",
-    default: "left",
-    choices: ["left", "right"],
+  { name: "tocLocation", default: "left", choices: ["left", "right"],
+    dependsOn: ["showTOC"],
+    visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
   },
   { name: "mode", default: "edit", choices: ["edit", "display"] },
   { name: "storeOthersAsComment:boolean", default: true },
@@ -7388,9 +7404,7 @@ Serializer.addClass("survey", [
   {
     name: "questionStartIndex",
     dependsOn: ["showQuestionNumbers"],
-    visibleIf: function (survey: any) {
-      return !survey || survey.showQuestionNumbers !== "off";
-    },
+    visibleIf: (survey: any) => { return !survey || survey.showQuestionNumbers !== "off"; }
   },
   {
     name: "questionTitlePattern",
@@ -7442,7 +7456,8 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
-  { name: "backgroundImage", serializationProperty: "locBackgroundImage", visible: false },
+  { name: "fitToContainer:boolean", default: false },
+  { name: "backgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

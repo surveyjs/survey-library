@@ -11,7 +11,7 @@ import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 
 /**
- * A class that describes the Text question type.
+ * A class that describes the Single-Line Input question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-text/ (linkStyle))
  */
@@ -64,6 +64,10 @@ export class QuestionTextModel extends QuestionTextBase {
       this.max = undefined;
       this.step = undefined;
     }
+  }
+  public getMaxLength(): any {
+    if(this.inputType !== "text") return null;
+    return super.getMaxLength();
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
@@ -391,7 +395,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return newValue;
   }
-  protected hasPlaceHolder(): boolean {
+  protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public isReadOnlyRenderDiv(): boolean {
@@ -433,12 +437,10 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onKeyDown = (event: any) => {
     this.checkForUndo(event);
-    if(this.isInputTextUpdate) {
+    if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
-    if (event.keyCode === 13) {
-      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
-    }
+    this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
     if (event.target === settings.environment.root.activeElement) {

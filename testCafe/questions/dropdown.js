@@ -1304,7 +1304,7 @@ frameworks.forEach((framework) => {
       .pressKey("delete")
       .expect(ratingAsDropdownPlaceholder.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
   });
-  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup width", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup width - long", async (t) => {
     await applyTheme(theme);
     const json = {
       "elements": [
@@ -1339,7 +1339,7 @@ frameworks.forEach((framework) => {
 
       .resizeWindow(1300, 600)
       .click(questionDropdownV2Select)
-      .expect(popupContainer.clientWidth).gte(850);
+      .expect(popupContainer.clientWidth).lte(685);
   });
 
   function choicesLazyLoad(_, opt) {

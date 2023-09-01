@@ -39,9 +39,11 @@ export interface ICustomQuestionTypeConfiguration {
    */
   title?: string;
   /**
-   * An icon for the custom question type.
+   * The name of an icon to use for the custom question type.
+   *
+   * [UI Icons](https://surveyjs.io/form-library/documentation/icons (linkStyle))
    */
-  icon?: string;
+  iconName?: string;
   /**
    * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types#override-base-question-properties)).
    */
@@ -588,6 +590,9 @@ export abstract class QuestionCustomModelBase extends Question
   validateContainerOnly(): void {
     // do nothing
   }
+  getQuestionErrorLocation(): string {
+    return this.getErrorLocation();
+  }
   protected getContentDisplayValueCore(keyAsText: boolean, value: any, question: Question): any {
     if (!question) return super.getDisplayValueCore(keyAsText, value);
     return this.customQuestion.getDisplayValue(keyAsText, value, question);
@@ -844,6 +849,8 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       questions[i].onAnyValueChanged(name);
     }
   }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   protected createPanel(): PanelModel {
     var res = <PanelModel>Serializer.createClass("panel");
     res.showQuestionNumbers = "off";

@@ -97,9 +97,12 @@ export interface TriggerExecutedEvent {
 
 export interface CompleteBaseEvent {
   /**
-   * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
+   * Returns `true` if survey completion is caused by a ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    */
   isCompleteOnTrigger: boolean;
+  /**
+   * A "complete" trigger that has been executed. This parameter has a value only if `options.isCompleteOnTrigger` is `true`.
+   */
   completeTrigger?: Trigger;
 }
 export interface CompletingEvent extends CompleteBaseEvent {
@@ -372,45 +375,45 @@ export interface ProcessHtmlEvent {
 }
 export interface GetQuestionTitleEvent extends QuestionEventMixin {
   /**
-   * a calculated question title, based on question `title`, `name`
+   * A question title taken from the question's `title` or `name` property. You can change this parameter's value.
    */
   title: string;
 }
 export interface GetTitleTagNameEvent {
   /**
-   * an element title tagName that are used to render a title. You can change it from the default value
-   */
-  tagName: string;
-  /**
-   * an element (question, panel, page and survey) that SurveyJS is going to render
+   * A survey element (question, panel, page, or the survey itself) for which the event is raised.
    */
   element: Base;
+  /**
+   * A heading used to render the title (`"h1"`-`"h6"`). You can change this parameter's value.
+   */
+  tagName: string;
 }
 export interface GetQuestionNoEvent extends QuestionEventMixin {
   /**
-   * a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it
+   * A question number that is calculated based upon the question's [`visibleIndex`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIndex) and survey's [`questionStartIndex`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionStartIndex) properties. You can change this parameter's value.
    */
   no: string;
 }
 export interface ProgressTextEvent {
   /**
-   * a number of required questions that have input(s) and an user has answered
-   */
-  requiredAnsweredQuestionCount: number;
-  /**
-   * a number of required questions that have input(s). We do not count html or expression questions
-   */
-  requiredQuestionCount: number;
-  /**
-   * a number of questions that have input(s) and an user has answered
-   */
-  answeredQuestionCount: number;
-  /**
-   * a number of questions that have input(s). We do not count html or expression questions
+   * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
    */
   questionCount: number;
   /**
-   * a progress text, that SurveyJS will render in progress bar
+   * The number of answered questions.
+   */
+  answeredQuestionCount: number;
+  /**
+   * The number of questions marked as required.
+   */
+  requiredQuestionCount: number;
+  /**
+   * The number of answered questions marked as required.
+   */
+  requiredAnsweredQuestionCount: number;
+  /**
+   * Progress text rendered in the [progress bar](#showProgressBar). You can change this parameter's value.
    */
   text: string;
 }

@@ -10,11 +10,16 @@
 }
 
 .sd-matrixdynamic__footer {
-  padding-top: calcSize(1);
+  padding-top: calcSize(2);
 }
 
 .sd-action.sd-matrixdynamic__remove-btn {
   opacity: 0.5;
+}
+
+.sd-action.sd-matrixdynamic__remove-btn .sd-action__icon {
+  width: multiply(1.5, $font-editorfont-size);
+  height: multiply(1.5, $font-editorfont-size);
 }
 
 .sd-matrixdynamic__btn {

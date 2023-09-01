@@ -40,7 +40,7 @@
 
 .sd-rating__item {
   position: relative;
-  background: $background;
+  background: $question-background;
   box-shadow: $shadow-small;
   border-radius: calcSize(12.5);
   white-space: nowrap;
@@ -357,4 +357,5 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item--selected .sd-rating__item-text.sd-rating__item-text {
   color: $primary-foreground;
+  font-weight: inherit;
 }

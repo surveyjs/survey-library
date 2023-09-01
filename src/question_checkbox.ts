@@ -14,7 +14,7 @@ import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 
 /**
- * A class that describes the Checkbox question type.
+ * A class that describes the Checkboxes question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-checkbox/ (linkStyle))
  */

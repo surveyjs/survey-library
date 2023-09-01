@@ -1173,3 +1173,42 @@ QUnit.test("Check isUsingCarryForward on deleting matrix dynamic question", func
   assert.notOk(q2.choicesFromQuestion, "it is empty");
   assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
 });
+QUnit.test("Check isUsingCarryForward on deleting matrix dynamic question with doDispose = false parameter", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "matrixdynamic", name: "q1" },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "set correctly");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  q1.delete(false);
+  assert.notOk(q2.choicesFromQuestion, "it is empty");
+  assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
+});
+QUnit.test("Use carryForward with panel dynamic + update data on survey.data=data;", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q2", choiceTextsFromQuestion: "q1-q3" },
+    { type: "paneldynamic", name: "q1", panelCount: 2,
+      templateElements: [{ name: "q1-q1", type: "text" }, { name: "q1-q2", type: "text" }, { name: "q1-q3", type: "text" }]
+    }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  survey.data = { q1: [{ "q1-q2": 1, "q1-q3": "Item 1" }, { "q1-q2": 2, "q1-q3": "Item 2" }] };
+  assert.equal(q2.visibleChoices.length, 2, "Create choices");
+  assert.equal(q2.visibleChoices[0].value, 1, "the first value is correct");
+  assert.equal(q2.visibleChoices[0].text, "Item 1", "the first text is correct");
+  assert.equal(q2.visibleChoices[1].value, 2, "the second value is correct");
+  assert.equal(q2.visibleChoices[1].text, "Item 2", "the second text is correct");
+});
+QUnit.test("Allow to override default value fro choicesByUrl.path Bug#6766", function (assert) {
+  const prop = Serializer.findProperty("choicesByUrl", "path");
+  prop.defaultValue = "list";
+  const q1 = new QuestionDropdownModel("q1");
+  assert.equal(q1.choicesByUrl.path, "list", "get new default value for path");
+  prop.defaultValue = undefined;
+});
+

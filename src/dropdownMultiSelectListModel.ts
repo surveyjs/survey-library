@@ -14,6 +14,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.syncFilterStringPlaceholder();
+  }
   private updateListState() {
     (<MultiSelectListModel<ItemValue>>this.listModel).updateState();
     this.syncFilterStringPlaceholder();

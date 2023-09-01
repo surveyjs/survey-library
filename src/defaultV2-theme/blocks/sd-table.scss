@@ -17,8 +17,10 @@
   background-clip: padding-box;
 }
 
-.sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action):not(.sd-table__cell--empty.sd-table__cell--error) {
-  width: 10000px;
+.sd-root-modern:not(.sd-root-modern--mobile) {
+  .sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action):not(.sd-table__cell--empty.sd-table__cell--error) {
+    width: 10000px;
+  }
 }
 
 .sd-table__row:first-of-type>.sd-table__cell {
@@ -478,7 +480,6 @@
     padding-top: 0;
     padding-bottom: 0;
     text-align: left;
-    width: unset;
   }
 
   .sd-table__cell {

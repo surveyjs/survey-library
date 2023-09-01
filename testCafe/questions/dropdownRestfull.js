@@ -158,10 +158,15 @@ frameworks.forEach(framework => {
   );
   test("Carry forward for choicesByUrl", async t => {
     const questionDropdownSelect = Selector(".sv_q_dropdown_control");
-    await setData({ q1: ["United States", "Romania"], q2: "Romania" });
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+
+    await setData({ q1: ["United States", "Romania"] });
     await t
       .wait(1000)
-      .click(questionDropdownSelect)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownSelect.nth(1))
+      .expect(popupContainer.visible).ok()
       .expect(getListItemByText("Romania").exists).ok()
       .click("input[value=Complete]");
 

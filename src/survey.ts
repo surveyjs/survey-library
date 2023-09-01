@@ -5074,9 +5074,11 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns a question by its name.
-   * @param name a question name
-   * @param caseInsensitive
+   * Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   * @param name A question name
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A question with a specified name.
+   * @see getAllQuestions
    * @see getQuestionByValueName
    */
   public getQuestionByName(
@@ -5098,12 +5100,14 @@ export class SurveyModel extends SurveyElementCore
     return this.getQuestionByName(name);
   }
   /**
-   * Returns a question by its value name
-   * @param valueName a question name
-   * @param caseInsensitive
+   * Returns a question with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName).
+   *
+   * > Since `valueName` does not have to be unique, multiple questions can have the same `valueName` value. In this case, the `getQuestionByValueName()` method returns the first such question. If you need to get all questions with the same `valueName`, call the `getQuestionsByValueName()` method.
+   * @param valueName A question's `valueName` property value.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A question with a specified `valueName`.
+   * @see getAllQuestions
    * @see getQuestionByName
-   * @see getQuestionsByValueName
-   * @see Question.valueName
    */
   public getQuestionByValueName(
     valueName: string,
@@ -5113,12 +5117,12 @@ export class SurveyModel extends SurveyElementCore
     return !!res ? res[0] : null;
   }
   /**
-   * Returns all questions by their valueName. name property is used if valueName property is empty.
-   * @param valueName a question name
-   * @param caseInsensitive
+   * Returns all questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName). If a question's `valueName` is undefined, its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name) property is used.
+   * @param valueName A question's `valueName` property value.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns An array of questions with a specified `valueName`.
+   * @see getAllQuestions
    * @see getQuestionByName
-   * @see getQuestionByValueName
-   * @see Question.valueName
    */
   public getQuestionsByValueName(
     valueName: string,
@@ -5139,9 +5143,11 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   /**
-   * Gets a list of questions by their names.
-   * @param names an array of question names
-   * @param caseInsensitive
+   * Returns an array of questions with specified [names](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   * @param names An array of question names.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns An array of questions with specified names
+   * @see getAllQuestions
    */
   public getQuestionsByNames(
     names: string[],
@@ -5199,10 +5205,12 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a list of all questions in the survey.
+   * Returns a list of all [questions](https://surveyjs.io/form-library/documentation/api-reference/question) in the survey.
    * @param visibleOnly A Boolean value that specifies whether to include only visible questions.
    * @param includeDesignTime For internal use.
    * @param includeNested A Boolean value that specifies whether to include nested questions, such as questions within matrix cells.
+   * @returns An array of questions.
+   * @see getQuestionByName
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
@@ -5227,7 +5235,10 @@ export class SurveyModel extends SurveyElementCore
     return res2;
   }
   /**
-   * Returns quiz questions. All visible questions that has input(s) widgets.
+   * Returns an array of quiz questions. A question counts if it is visible, has an input field, and specifies [`correctAnswer`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#correctAnswer).
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns An array of quiz questions.
    * @see getQuizQuestionCount
    */
   public getQuizQuestions(): Array<IQuestion> {
@@ -5246,10 +5257,11 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a panel by its name.
-   * @param name a panel name
-   * @param caseInsensitive
-   * @see getQuestionByName
+   * Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
+   * @param name A panel name.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the panel. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A panel with a specified name.
+   * @see getAllPanels
    */
   public getPanelByName(
     name: string,
@@ -5265,7 +5277,11 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   /**
-   * Returns a list of all survey's panels.
+   * Returns a list of all [panels](https://surveyjs.io/form-library/documentation/api-reference/panel-model) in the survey.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible panels.
+   * @param includeDesignTime For internal use.
+   * @returns An array of panels.
+   * @see getPanelByName
    */
   public getAllPanels(
     visibleOnly: boolean = false,
@@ -6007,9 +6023,13 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns a variable value. Variable, unlike values, are not stored in the survey results.
-   * @param name A variable name
-   * @see SetVariable
+   * Returns a variable value.
+   *
+   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @param name A variable name.
+   * @return A variable value.
+   * @see setVariable
+   * @see getVariableNames
    */
   public getVariable(name: string): any {
     if (!name) return null;
@@ -6023,10 +6043,13 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   /**
-   * Sets a variable value. Variable, unlike values, are not stored in the survey results.
-   * @param name A variable name
-   * @param newValue A variable new value
-   * @see GetVariable
+   * Sets a variable value.
+   *
+   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @param name A variable name.
+   * @param newValue A new variable value.
+   * @see getVariable
+   * @see getVariableNames
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
@@ -6040,7 +6063,10 @@ export class SurveyModel extends SurveyElementCore
     this.onVariableChanged.fire(this, { name: name, value: newValue });
   }
   /**
-   * Returns all variables in the survey. Use setVariable function to create a new variable.
+   * Returns the names of all variables in the survey.
+   *
+   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @returns An array of variable names.
    * @see getVariable
    * @see setVariable
    */
@@ -6057,8 +6083,9 @@ export class SurveyModel extends SurveyElementCore
     return Helpers.getUnbindValue(value);
   }
   /**
-   * Returns a question value (answer) by a question's name.
-   * @param name A question name
+   * Returns a value (answer) for a question with a specified `name`.
+   * @param name A question name.
+   * @returns A question value (answer).
    * @see data
    * @see setValue
    */
@@ -6068,16 +6095,15 @@ export class SurveyModel extends SurveyElementCore
     return this.getUnbindValue(value);
   }
   /**
-   * Sets a question value (answer). It runs all triggers and conditions (`visibleIf` properties).
+   * Sets a question value (answer).
    *
-   * Goes to the next page if `goNextPageAutomatic` is `true` and all questions on the current page are answered correctly.
-   * @param name A question name
-   * @param newValue A new question value
+   * > This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is enabled and all questions on the current page have correct answers.
+   * @param name A question name.
+   * @param newValue A new question value.
+   * @param locNotification For internal use.
+   * @param allowNotifyValueChanged For internal use.
    * @see data
    * @see getValue
-   * @see PageModel.visibleIf
-   * @see Question.visibleIf
-   * @see goNextPageAutomatic
    */
   public setValue(
     name: string,
@@ -6209,8 +6235,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns the comment value.
-   * @param name A comment's name.
+   * Returns a comment value from a question with a specified `name`.
+   * @param name A question name.
+   * @returns A comment.
    * @see setComment
    */
   public getComment(name: string): string {
@@ -6218,9 +6245,10 @@ export class SurveyModel extends SurveyElementCore
     return res || "";
   }
   /**
-   * Sets a comment value.
-   * @param name A comment name.
+   * Sets a comment value to a question with a specified `name`.
+   * @param name A question name.
    * @param newValue A new comment value.
+   * @param locNotification For internal use.
    * @see getComment
    */
   public setComment(
@@ -6543,13 +6571,23 @@ export class SurveyModel extends SurveyElementCore
     return this.getCorrectedAnswerCountCore(true);
   }
   /**
-   * Returns an amount of corrected quiz answers.
+   * Returns the number of correct answers in a quiz.
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns The number of correct answers in a quiz.
+   * @see getQuizQuestionCount
+   * @see getInCorrectAnswerCount
    */
   public getCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(true);
   }
   /**
-   * Returns quiz question number. It may be different from `getQuizQuestions.length` because some widgets like matrix may have several questions.
+   * Returns the number of quiz questions. A question counts if it is visible, has an input field, and specifies [`correctAnswer`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#correctAnswer).
+   *
+   * This number may be different from `getQuizQuestions().length` because certain question types (for instance, matrix-like types) include more than one question.
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns The number of quiz questions.
    * @see getQuizQuestions
    */
   public getQuizQuestionCount(): number {
@@ -6564,7 +6602,11 @@ export class SurveyModel extends SurveyElementCore
     return this.getCorrectedAnswerCountCore(false);
   }
   /**
-   * Returns an amount of incorrect quiz answers.
+   * Returns the number of incorrect answers in a quiz.
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns The number of incorrect answers in a quiz.
+   * @see getCorrectAnswerCount
    */
   public getInCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);

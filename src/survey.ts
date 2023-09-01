@@ -924,6 +924,16 @@ export class SurveyModel extends SurveyElementCore
     this.notifier = new Notifier(this.css.saveData);
     this.notifier.addAction(this.createTryAgainAction(), "error");
 
+    this.onPopupVisibleChanged.add((_, opt) => {
+      if(opt.visible) {
+        this.onScrollCallback = () => {
+          opt.popup.toggleVisibility();
+        };
+      } else {
+        this.onScrollCallback = undefined;
+      }
+    });
+
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -7219,6 +7229,13 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   disposeCallback: () => void;
+
+  private onScrollCallback: () => void;
+  public onScroll(): void {
+    if(this.onScrollCallback) {
+      this.onScrollCallback();
+    }
+  }
 }
 
 function isStrCiEqual(a: string, b: string) {

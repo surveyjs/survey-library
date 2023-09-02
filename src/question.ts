@@ -1356,6 +1356,8 @@ export class Question extends SurveyElement<Question>
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  public get hasFilteredValue(): boolean { return false; }
+  public getFilteredValue(): any { return this.value; }
   public get valueForSurvey(): any {
     if (!!this.valueToDataCallback) {
       return this.valueToDataCallback(this.value);

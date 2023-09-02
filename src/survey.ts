@@ -2801,6 +2801,12 @@ export class SurveyModel extends SurveyElementCore
       var key = keys[i];
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
+    this.getAllQuestions().forEach(q => {
+      if(q.hasFilteredValue) {
+        values[q.getValueName()] = q.getFilteredValue();
+      }
+    });
+
     return values;
   }
   private addCalculatedValuesIntoFilteredValues(values: {
@@ -5108,7 +5114,7 @@ export class SurveyModel extends SurveyElementCore
   public getQuestionByValueName(
     valueName: string,
     caseInsensitive: boolean = false
-  ): IQuestion {
+  ): Question {
     var res = this.getQuestionsByValueName(valueName, caseInsensitive);
     return !!res ? res[0] : null;
   }
@@ -5963,7 +5969,7 @@ export class SurveyModel extends SurveyElementCore
     textValue.value = processor.getValue(textValue.name, data);
     textValue.isExists = processor.hasValue(textValue.name, data);
   }
-  private getFirstName(name: string): IQuestion {
+  private getFirstName(name: string): Question {
     name = name.toLowerCase();
     var question;
     do {

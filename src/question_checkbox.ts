@@ -219,6 +219,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.validateItemValues(itemValues);
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
+  public get hasFilteredValue(): boolean { return !!this.valuePropertyName; }
+  public getFilteredValue(): any {
+    if(this.hasFilteredValue) return this.renderedValue;
+    return super.getFilteredValue();
+  }
   protected getMultipleSelectedItems(): Array<ItemValue> {
     return this.selectedChoices;
   }

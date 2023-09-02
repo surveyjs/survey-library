@@ -563,6 +563,33 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
 });
+QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit"
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} allof ['apple', 'orange']"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "#1");
+  q1.renderedValue = ["apple", "orange"];
+  assert.deepEqual(q1.value, [{ fruit: "apple" }, { fruit: "orange" }], "q1.value. #1");
+  assert.equal(q2.isVisible, true, "#2");
+  q1.renderedValue = ["orange"];
+  assert.deepEqual(q1.value, [{ fruit: "orange" }], "q1.value. #2");
+  assert.equal(q2.isVisible, false, "#3");
+});
 
 QUnit.test("check radiogroup title actions", (assert) => {
   let survey = new SurveyModel({

@@ -16,7 +16,8 @@ import {
   IFindElement,
   ISurveyLayoutElement,
   IPlainDataOptions,
-  LayoutElementContainer
+  LayoutElementContainer,
+  IValueItemCustomPropValues
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -4631,7 +4632,7 @@ export class SurveyModel extends SurveyElementCore
   loadQuestionChoices(options: { question: Question, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
     this.onChoicesLazyLoad.fire(this, options);
   }
-  getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
+  getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void {
     if(this.onGetChoiceDisplayValue.isEmpty) {
       options.setItems(null);
     } else {

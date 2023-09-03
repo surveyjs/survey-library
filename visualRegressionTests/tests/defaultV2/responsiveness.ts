@@ -81,6 +81,7 @@ frameworks.forEach(framework => {
       });
       await ClientFunction(() => { document.body.style.maxWidth = "375px"; document.body.style.maxHeight = "667px"; })();
       await takeElementScreenshot("responsiveness-simple-question-mobile.png", Selector("body"), t, comparer);
+      await ClientFunction(() => { document.body.style.removeProperty("maxWidth"); document.body.style.removeProperty("maxHeight"); })();
     });
   });
 

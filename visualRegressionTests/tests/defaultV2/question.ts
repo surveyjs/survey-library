@@ -234,6 +234,41 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check questions in one row - wrap", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2",
+                "startWithNewLine": false
+              },
+              {
+                "type": "text",
+                "name": "question3",
+                "startWithNewLine": false
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "940px",
+      },);
+      const rowSelector = Selector(".sd-row");
+      await resetFocusToBody();
+      await takeElementScreenshot("multiple-row-wrap.png", rowSelector, t, comparer);
+    });
+  });
+
   test("Check questions in one row with different default heights", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 

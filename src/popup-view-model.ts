@@ -10,6 +10,8 @@ import { getElement } from "./utils/utils";
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  private static SubscriptionId = 0;
+  private subscriptionId = PopupBaseViewModel.SubscriptionId++;
   protected popupSelector = ".sv-popup";
   protected fixedPopupContainer = ".sv-popup";
   protected containerSelector = ".sv-popup__container";
@@ -84,7 +86,7 @@ export class PopupBaseViewModel extends Base {
 
   private setupModel(model: PopupModel) {
     if (!!this.model) {
-      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel");
+      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
     }
     this.onModelChanging(model);
     this._model = model;
@@ -94,7 +96,7 @@ export class PopupBaseViewModel extends Base {
       }
       this.isVisible = model.isVisible;
     };
-    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel");
+    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel" + this.subscriptionId);
     onIsVisibleChangedHandler();
   }
 
@@ -103,9 +105,6 @@ export class PopupBaseViewModel extends Base {
     return this._model;
   }
   public set model(model: PopupModel) {
-    if (this.model) {
-      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
-    }
     this.setupModel(model);
   }
 
@@ -228,7 +227,7 @@ export class PopupBaseViewModel extends Base {
   public dispose(): void {
     super.dispose();
     if (this.model) {
-      this.model.unRegisterFunctionOnPropertiesValueChanged(["isVisible"], "PopupBaseViewModel");
+      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
     }
     if (!!this.createdContainer) {
       this.createdContainer.remove();

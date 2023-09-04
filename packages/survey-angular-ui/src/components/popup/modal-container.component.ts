@@ -28,7 +28,7 @@ export class ModalComponent {
     return this.model;
   }
   ngOnInit(): void {
-    if(!!settings.showModal) return;
+    if (!!settings.showModal) return;
     this.functionDefined = true;
     settings.showModal = (
       componentName: string,
@@ -58,7 +58,9 @@ export class ModalComponent {
     };
   }
   ngOnDestroy() {
-    if(this.functionDefined) {
+    this.portalHost?.detach();
+    this.model?.dispose();
+    if (this.functionDefined) {
       settings.showModal = <any>undefined;
       settings.showDialog = <any>undefined;
     }

@@ -1,6 +1,6 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { IElement, ISurveyElement } from "./base-interfaces";
+import { IElement, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -618,7 +618,7 @@ export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.
    */
-  setItems: (displayValues: Array<string>) => void;
+  setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void;
   /**
    * An array of one (in Dropdown) or more (in Tag Box) default values.
    */

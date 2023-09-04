@@ -13,7 +13,7 @@ import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
-import { JsonObject, Serializer } from "./jsonobject";
+import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -111,7 +111,7 @@ export class MultipleTextItemModel extends Base
       this.editor.setParentQuestion(<any>data);
     }
   }
-  public focusIn(): void {
+  public focusIn = (): void => {
     this.editor.focusIn();
   }
   /**
@@ -309,7 +309,6 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < names.length; i++) question.addItem(names[i]);
   }
 
-  colCountChangedCallback: () => void;
   constructor(name: string) {
     super(name);
     this.createNewArray("items", (item: any) => {
@@ -318,8 +317,8 @@ export class QuestionMultipleTextModel extends Question
         this.survey.multipleTextItemAdded(this, item);
       }
     });
-    this.registerPropertyChangedHandlers(["items", "colCount"], () => {
-      this.fireCallback(this.colCountChangedCallback);
+    this.registerPropertyChangedHandlers(["items", "colCount", "itemErrorLocation"], () => {
+      this.calcVisibleRows();
     });
     this.registerPropertyChangedHandlers(["itemSize"], () => { this.updateItemsSize(); });
   }
@@ -347,7 +346,6 @@ export class QuestionMultipleTextModel extends Question
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();
-    this.fireCallback(this.colCountChangedCallback);
   }
   setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
@@ -470,6 +468,12 @@ export class QuestionMultipleTextModel extends Question
     if(this.itemErrorLocation !== "default") return this.itemErrorLocation;
     return this.getErrorLocation();
   }
+  public get showItemErrorOnTop(): boolean {
+    return this.getQuestionErrorLocation() == "top";
+  }
+  public get showItemErrorOnBottom(): boolean {
+    return this.getQuestionErrorLocation() == "bottom";
+  }
   public getChildErrorLocation(child: Question): string {
     return this.getQuestionErrorLocation();
   }
@@ -503,22 +507,48 @@ export class QuestionMultipleTextModel extends Question
   public set itemSize(val: number) {
     this.setPropertyValue("itemSize", val);
   }
-  public getRows(): Array<any> {
-    var colCount = this.colCount;
-    var items = this.items;
-    var rows = [];
-    var index = 0;
+  @propertyArray() rows: Array<MutlipleTextRow>;
+
+  protected onRowCreated(row: MutlipleTextRow) {
+    return row;
+  }
+
+  private calcVisibleRows() {
+    const colCount = this.colCount;
+    const items = this.items;
+    let index = 0;
+    let row: MutlipleTextRow;
+    let errorRow: MutlipleTextErrorRow;
+    let rows: Array<MutlipleTextRow> = [];
     for (var i = 0; i < items.length; i++) {
-      if (index == 0) {
-        rows.push([]);
+      if(index == 0) {
+        row = this.onRowCreated(new MutlipleTextRow());
+        errorRow = <MutlipleTextErrorRow>this.onRowCreated(new MutlipleTextErrorRow());
+        if(this.showItemErrorOnTop) {
+          rows.push(errorRow);
+          rows.push(row);
+        }
+        else {
+          rows.push(row);
+          rows.push(errorRow);
+        }
       }
-      rows[rows.length - 1].push(items[i]);
+      row.cells.push(new MultipleTextCell(items[i], this));
+      errorRow.cells.push(new MultipleTextErrorCell(items[i], this));
       index++;
-      if (index >= colCount) {
+      if (index >= colCount || i == items.length - 1) {
         index = 0;
+        errorRow.onAfterCreated();
       }
     }
-    return rows;
+    this.rows = rows;
+  }
+
+  public getRows(): Array<any> {
+    if(Helpers.isValueEmpty(this.rows)) {
+      this.calcVisibleRows();
+    }
+    return this.rows;
   }
   private isMultipleItemValueChanging = false;
   protected onValueChanged(): void {
@@ -684,8 +714,45 @@ export class QuestionMultipleTextModel extends Question
   public getItemTitleCss(): string {
     return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
   }
-  protected getIsTooltipErrorInsideSupported(): boolean {
-    return true;
+}
+
+export class MutlipleTextRow extends Base {
+  @property() public isVisible: boolean = true;
+  @propertyArray() public cells: Array<MultipleTextCell> = []
+}
+export class MutlipleTextErrorRow extends MutlipleTextRow {
+  public onAfterCreated(): void {
+    const callback = () => {
+      this.isVisible = this.cells.some((cell) => cell.item?.editor && cell.item?.editor.hasVisibleErrors);
+    };
+    this.cells.forEach((cell) => {
+      if(cell.item?.editor) {
+        cell.item?.editor.registerFunctionOnPropertyValueChanged("hasVisibleErrors", callback);
+      }
+    });
+    callback();
+  }
+}
+export class MultipleTextCell {
+  constructor(public item: MultipleTextItemModel, protected question: QuestionMultipleTextModel) {}
+  public isErrorsCell: boolean = false;
+  protected getClassName(): string {
+    return new CssClassBuilder().append(this.question.cssClasses.cell).toString();
+  }
+  public get className(): string {
+    return this.getClassName();
+  }
+}
+
+export class MultipleTextErrorCell extends MultipleTextCell {
+  public isErrorsCell: boolean = true;
+  protected getClassName(): string {
+    return new CssClassBuilder()
+      .append(super.getClassName())
+      .append(this.question.cssClasses.cellError)
+      .append(this.question.cssClasses.cellErrorTop, this.question.showItemErrorOnTop)
+      .append(this.question.cssClasses.cellErrorBottom, this.question.showItemErrorOnBottom)
+      .toString();
   }
 }
 

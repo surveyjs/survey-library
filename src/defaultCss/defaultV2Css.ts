@@ -20,7 +20,6 @@ export var defaultV2Css = {
   rootWrapperFixed: "sd-root-modern__wrapper--fixed",
   rootBackgroundImage: "sd-root_background-image",
   rootBackgroundImageFixed: "sd-root_background-image--fixed",
-  rootForm: "sd-root_form",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   bodyContainer: "sv-components-row",

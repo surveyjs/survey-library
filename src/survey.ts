@@ -1090,7 +1090,6 @@ export class SurveyModel extends SurveyElementCore
     this.rootCss = this.getRootCss();
     this.updateNavigationCss();
     this.updateCompletedPageCss();
-    this.updateBackgroundImageCss();
     this.updateWrapperFormCss();
   }
   /**
@@ -2097,13 +2096,6 @@ export class SurveyModel extends SurveyElementCore
       backgroundSize: this.backgroundImageFit,
       backgroundAttachment: !this.fitToContainer ? this.backgroundImageAttachment : undefined
     };
-  }
-  @property() backgroundImageCss: string;
-  public updateBackgroundImageCss(): void {
-    this.backgroundImageCss = new CssClassBuilder()
-      .append(this.css.rootBackgroundImage)
-      .append(this.css.rootBackgroundImageFixed, this.backgroundImageFixed)
-      .toString();
   }
   @property() wrapperFormCss: string;
   public updateWrapperFormCss(): void {

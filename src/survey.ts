@@ -2109,7 +2109,7 @@ export class SurveyModel extends SurveyElementCore
   public updateWrapperFormCss(): void {
     this.wrapperFormCss = new CssClassBuilder()
       .append(this.css.rootWrapper)
-      .append(this.css.rootWrapperAbsolute, this.backgroundImageFixed)
+      .append(this.css.rootWrapperFixed, this.backgroundImageFixed)
       .toString();
   }
   /**
@@ -7350,10 +7350,16 @@ export class SurveyModel extends SurveyElementCore
   public addScrollEventListener(): void {
     this.scrollHandler = () => { this.onScroll(); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
+    if(!!this.css.rootWrapper) {
+      this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.addEventListener("scroll", this.scrollHandler);
+    }
   }
   public removeScrollEventListener(): void {
     if (!!this.rootElement && !!this.scrollHandler) {
       this.rootElement.removeEventListener("scroll", this.scrollHandler);
+      if(!!this.css.rootWrapper) {
+        this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.removeEventListener("scroll", this.scrollHandler);
+      }
     }
   }
 }

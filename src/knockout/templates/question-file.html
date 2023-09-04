@@ -8,6 +8,11 @@
       <!-- /ko -->
       <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     
         <div data-bind="css: question.getFileDecoratorCss()">
+          <!-- ko if: question.isUploading -->
+          <!-- ko component: { name: "sv-loading-indicator" } -->
+          <!-- /ko -->
+          <!-- /ko -->
+          <!-- ko ifnot: question.isUploading -->
           <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.renderedPlaceholder"></span>
           <div data-bind="css: question.cssClasses.wrapper">
             <!-- ko ifnot: isReadOnly -->
@@ -22,6 +27,7 @@
             <span data-bind="css: question.cssClasses.noFileChosen, text: question.noFileChosenCaption"></span>
             <!-- /ko -->
           </div>
+          <!-- /ko -->
         </div>
         <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButton} } --><!-- /ko -->
         <!-- ko if: question.showPreview -->

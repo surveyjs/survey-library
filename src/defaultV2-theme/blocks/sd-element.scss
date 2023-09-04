@@ -60,7 +60,7 @@
     white-space: normal;
 
     &::before {
-      content: "\200B";
+      content: "";
     }
   }
 }

@@ -17,7 +17,7 @@ import { Helpers } from "./helpers";
  * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
 export class QuestionFileModel extends Question {
-  private isUploading: boolean = false;
+  @property() public isUploading: boolean = false;
   @property() isDragging: boolean = false;
   /**
    * An event that is raised after the upload state has changed.

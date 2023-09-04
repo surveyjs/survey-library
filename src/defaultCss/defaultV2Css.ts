@@ -318,7 +318,10 @@ export var defaultV2Css = {
     itemTitle: "sd-multipletext__item-title",
     content: "sd-multipletext__content sd-question__content",
     row: "sd-multipletext__row",
-    cell: "sd-multipletext__cell"
+    cell: "sd-multipletext__cell",
+    cellError: "sd-multipletext__cell--error",
+    cellErrorTop: "sd-multipletext__cell--error-top",
+    cellErrorBottom: "sd-multipletext__cell--error-bottom"
   },
   dropdown: {
     root: "sd-selectbase",

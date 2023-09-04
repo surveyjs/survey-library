@@ -2402,9 +2402,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getRootCss(): string {
     return new CssClassBuilder().append(super.getRootCss()).append(this.cssClasses.rootScroll, this.horizontalScroll).toString();
   }
-  protected getIsTooltipErrorInsideSupported(): boolean {
-    return false;
-  }
 }
 
 Serializer.addClass(

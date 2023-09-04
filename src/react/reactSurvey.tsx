@@ -147,13 +147,13 @@ export class Survey extends SurveyElementBase<any, any>
   protected renderCompletedBefore(): JSX.Element {
     var htmlValue = { __html: this.survey.processedCompletedBeforeHtml };
     return (
-      <div dangerouslySetInnerHTML={htmlValue} className={this.completedBeforeCss} />
+      <div dangerouslySetInnerHTML={htmlValue} className={this.survey.completedBeforeCss} />
     );
   }
   protected renderLoading(): JSX.Element {
     var htmlValue = { __html: this.survey.processedLoadingHtml };
     return (
-      <div dangerouslySetInnerHTML={htmlValue} className={this.loadingBodyCss} />
+      <div dangerouslySetInnerHTML={htmlValue} className={this.survey.loadingBodyCss} />
     );
   }
   protected renderSurvey(): JSX.Element {

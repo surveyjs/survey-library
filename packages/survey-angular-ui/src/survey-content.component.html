@@ -26,9 +26,9 @@
         <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer', needRenderWrapper: false } }"></ng-template>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
           [innerHtml]="model.processedCompletedHtml"></div>
-        <div *ngIf="model.state === 'completedbefore'" [class]="model.css.body"
+        <div *ngIf="model.state === 'completedbefore'" [class]="model.completedBeforeCss"
           [innerHtml]="model.processedCompletedBeforeHtml"></div>
-        <div *ngIf="model.state === 'loading'" [class]="model.css.body" [innerHtml]="model.processedLoadingHtml"></div>
+        <div *ngIf="model.state === 'loading'" [class]="model.loadingBodyCss" [innerHtml]="model.processedLoadingHtml"></div>
         <div *ngIf="model.state === 'empty'" [class]="model.css.bodyEmpty">{{model.emptySurveyText}}</div>
       </div>
     </form>

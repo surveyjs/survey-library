@@ -11,22 +11,30 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
   public isResponsivenessDisabled = false;
 
   private hideItemsGreaterN(visibleItemsCount: number) {
-    const actionsToHide = this.visibleActions.filter(action => !action.disableHide);
+    const actionsToHide = this.getActionsToHide();
     visibleItemsCount = Math.max(visibleItemsCount, this.minVisibleItemsCount - (this.visibleActions.length - actionsToHide.length));
     const hiddenItems: IAction[] = [];
     actionsToHide.forEach((item) => {
       if (visibleItemsCount <= 0) {
-        item.mode = "popup";
-        hiddenItems.push(item.innerItem);
+        if(item.removePriority) {
+          item.mode = "removed";
+        } else {
+          item.mode = "popup";
+          hiddenItems.push(item.innerItem);
+        }
       }
       visibleItemsCount--;
     });
     this.hiddenItemsListModel.setItems(hiddenItems);
   }
 
+  private getActionsToHide() {
+    return this.visibleActions.filter(action => !action.disableHide).sort((a, b) => a.removePriority || 0 - b.removePriority || 0);
+  }
+
   private getVisibleItemsCount(availableSize: number): number {
     this.visibleActions.filter((action) => action.disableHide).forEach(action => availableSize -= action.minDimension);
-    const itemsSizes: number[] = this.visibleActions.filter(action => !action.disableHide).map((item) => item.minDimension);
+    const itemsSizes: number[] = this.getActionsToHide().map((item) => item.minDimension);
     let currSize: number = 0;
     for (var i = 0; i < itemsSizes.length; i++) {
       currSize += itemsSizes[i];
@@ -127,7 +135,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     } else if (dimension < minSize) {
       this.setActionsMode("small");
       this.hideItemsGreaterN(this.getVisibleItemsCount(dimension - dotsItemSize));
-      this.dotsItem.visible = true;
+      this.dotsItem.visible = !!this.hiddenItemsListModel.actions.length;
     } else {
       this.updateItemMode(dimension, maxSize);
     }
@@ -145,10 +153,15 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
     }
   }
   public setActionsMode(mode: actionModeType) {
-    this.actions.forEach((action) => (action.mode = mode));
+    this.actions.forEach((action) => {
+      if(mode == "small" && action.disableShrink) return;
+      action.mode = mode;
+    });
   }
   public dispose(): void {
     super.dispose();
+    this.dotsItem.data.dispose();
+    this.dotsItem.dispose();
     this.resetResponsivityManager();
   }
 }

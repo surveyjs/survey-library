@@ -95,10 +95,10 @@ QUnit.test("Check that popups inside survey are closed when scrolling container"
   const model = new PopupSurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] }] });
   const question = <QuestionDropdownModel>model.survey.getAllQuestions()[0];
   question.dropdownListModel.popupModel.toggleVisibility();
-  assert.ok(model["onScrollCallback"]);
+  assert.ok(model.survey["onScrollCallback"]);
   assert.ok(question.dropdownListModel.popupModel.isVisible);
   model.onScroll();
   assert.notOk(question.dropdownListModel.popupModel.isVisible);
-  assert.notOk(model["onScrollCallback"]);
+  assert.notOk(model.survey["onScrollCallback"]);
   model.onScroll();
 });

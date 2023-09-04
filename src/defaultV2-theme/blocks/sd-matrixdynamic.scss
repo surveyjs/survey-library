@@ -17,6 +17,11 @@
   opacity: 0.5;
 }
 
+.sd-action.sd-matrixdynamic__remove-btn .sd-action__icon {
+  width: multiply(1.5, $font-editorfont-size);
+  height: multiply(1.5, $font-editorfont-size);
+}
+
 .sd-matrixdynamic__btn {
   appearance: none;
   background: transparent;

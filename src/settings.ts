@@ -482,11 +482,23 @@ export var settings = {
    */
   tagboxCloseOnSelect: false,
   /**
-   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog. Set this property to a function that renders your custom dialog window.
+   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog.
+   *
+   * Set this property to a function that renders your custom dialog window. This function should return `true` if a user confirms an action or `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    */
   confirmActionFunc: function (message: string): boolean {
     return confirm(message);
+  },
+  /**
+   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog in async mode.
+   *
+   * Set this property to a function that renders your custom dialog window. This function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
+   * @param message A message to be displayed in the confirm dialog window.
+   * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
+   */
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void): boolean {
+    return false;
   },
   /**
    * A minimum width value for all survey elements.

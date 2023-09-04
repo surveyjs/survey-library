@@ -72,6 +72,7 @@ export {
   ISurveyData,
   ITitleOwner,
   ISurveyLayoutElement,
+  IPlainDataOptions as IPlainData,
   IShortcutText
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
@@ -145,6 +146,10 @@ export {
 export { QuestionMatrixBaseModel } from "../../martixBase";
 export {
   MultipleTextItemModel,
+  MultipleTextCell,
+  MultipleTextErrorCell,
+  MutlipleTextErrorRow,
+  MutlipleTextRow,
   QuestionMultipleTextModel,
   MultipleTextEditorModel
 } from "../../question_multipletext";
@@ -199,6 +204,7 @@ export {
   SurveyTriggerVisible,
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
+  SurveyTriggerSkip,
   Trigger
 } from "../../trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
@@ -239,6 +245,7 @@ export {
 export { IsMobile, IsTouch, _setIsTouch } from "../../utils/devices";
 export {
   confirmAction,
+  confirmActionAsync,
   detectIEOrEdge,
   doKey2ClickUp,
   doKey2ClickDown,

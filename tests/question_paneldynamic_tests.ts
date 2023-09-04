@@ -5759,6 +5759,37 @@ QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", f
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
 });
+QUnit.test("renderMode: tab, additionalTitleToolbar&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab"
+      }],
+  });
+  survey.onGetDynamicPanelTabTitle.add((sender, options) => {
+    if(options.visiblePanelIndex === 0) {
+      const val = options.panel.getQuestionByName("q1").value;
+      options.title = "First tab" + (!!val ? " " + val.toString() : "");
+    }
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
+  panel.templateTabTitle = "#{panelIndex} {panel.q1}";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  panel.panels[0].getQuestionByName("q1").value = "q1-value";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+});
 QUnit.test("templateVisibleIf", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -5978,4 +6009,127 @@ QUnit.test("Make sure that panel is not collapsed on focusing the question", fun
   const q2 = panel.panels[0].getQuestionByName("q2");
   q2.focus();
   assert.equal(survey.currentPageNo, 1);
+});
+QUnit.test("templateErrorLocation property", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  assert.equal(q1.getErrorLocation(), "top", "take from survey");
+  panel.errorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "take from question.errorLocation");
+  panel.templateErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "take from question.templateErrorLocation");
+});
+QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(assert) {
+  const prevAsync = settings.confirmActionAsync;
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+        ]
+      },
+    ],
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel.confirmDelete = true;
+  panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
+  assert.equal(panel.panelCount, 3, "There are 3 panels by default");
+  let f_resFunc = (res: boolean): void => {};
+  settings.confirmActionAsync = (message: string, resFunc: (res: boolean) => void): boolean => {
+    f_resFunc = resFunc;
+    return true;
+  };
+  panel.removePanelUI(1);
+  assert.equal(panel.panelCount, 3, "We are waiting for async function");
+  f_resFunc(false);
+  assert.equal(panel.panelCount, 3, "confirm action return false");
+  panel.removePanelUI(1);
+  assert.equal(panel.panelCount, 3, "We are waiting for async function, #2");
+  f_resFunc(true);
+  assert.equal(panel.panelCount, 2, "confirm action return true");
+  assert.deepEqual(panel.value, [{ q1: 1 }, { q1: 3 }], "Row is deleted correctly");
+
+  settings.confirmActionAsync = prevAsync;
+});
+QUnit.test("panel property in custom function", function (assert) {
+  const panelCustomFunc = function (params: any) {
+    if(!this.panel) return "";
+    const q = this.panel.getQuestionByName(params[0]);
+    if(q && !q.isEmpty()) return q.value + q.value;
+    return "";
+  };
+  FunctionFactory.Instance.register("panelCustomFunc", panelCustomFunc);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        templateElements: [
+          { name: "q1", type: "text" },
+          {
+            name: "q2",
+            type: "expression",
+            expression: "panelCustomFunc('q1')",
+          },
+        ],
+        panelCount: 2,
+      },
+    ],
+  });
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  const panel = question.panels[0];
+  panel.getQuestionByName("q1").value = "abc";
+  assert.equal(panel.getQuestionByName("q2").value, "abcabc", "Custom function with row property works correctly");
+  FunctionFactory.Instance.unregister("panelCustomFunc");
+});
+QUnit.test("nested panel.panelCount&expression question", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "paneldynamic",
+            "name": "panel2",
+            "templateElements": [
+              {
+                "type": "expression",
+                "name": "q2",
+                "expression": "{panelIndex}"
+              }
+            ],
+            "panelCount": 3
+          }
+        ],
+        "panelCount": 1
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(rootPanel.panels.length, 1);
+  const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
+  assert.equal(panel1.panels.length, 3, "It should be 3 panels");
 });

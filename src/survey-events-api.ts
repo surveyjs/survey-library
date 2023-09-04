@@ -1,6 +1,6 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { IElement, ISurveyElement } from "./base-interfaces";
+import { IElement, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -97,9 +97,12 @@ export interface TriggerExecutedEvent {
 
 export interface CompleteBaseEvent {
   /**
-   * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
+   * Returns `true` if survey completion is caused by a ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    */
   isCompleteOnTrigger: boolean;
+  /**
+   * A "complete" trigger that has been executed. This parameter has a value only if `options.isCompleteOnTrigger` is `true`.
+   */
   completeTrigger?: Trigger;
 }
 export interface CompletingEvent extends CompleteBaseEvent {
@@ -394,23 +397,23 @@ export interface GetQuestionNoEvent extends QuestionEventMixin {
 }
 export interface ProgressTextEvent {
   /**
-   * a number of required questions that have input(s) and an user has answered
-   */
-  requiredAnsweredQuestionCount: number;
-  /**
-   * a number of required questions that have input(s). We do not count html or expression questions
-   */
-  requiredQuestionCount: number;
-  /**
-   * a number of questions that have input(s) and an user has answered
-   */
-  answeredQuestionCount: number;
-  /**
-   * a number of questions that have input(s). We do not count html or expression questions
+   * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
    */
   questionCount: number;
   /**
-   * a progress text, that SurveyJS will render in progress bar
+   * The number of answered questions.
+   */
+  answeredQuestionCount: number;
+  /**
+   * The number of questions marked as required.
+   */
+  requiredQuestionCount: number;
+  /**
+   * The number of answered questions marked as required.
+   */
+  requiredAnsweredQuestionCount: number;
+  /**
+   * Progress text rendered in the [progress bar](#showProgressBar). You can change this parameter's value.
    */
   text: string;
 }
@@ -615,7 +618,7 @@ export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.
    */
-  setItems: (displayValues: Array<string>) => void;
+  setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void;
   /**
    * An array of one (in Dropdown) or more (in Tag Box) default values.
    */
@@ -810,6 +813,20 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    * A panel that nests the item with a changed value.
    */
   panel: PanelModel;
+}
+export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventMixin {
+  /**
+   * A panel whose tab title is being rendered.
+   */
+  panel: PanelModel;
+  /**
+   * The panel's index in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array of the Dynamic Panel.
+   */
+  visiblePanelIndex: number;
+  /**
+   * A tab title. You can change this parameter's value.
+   */
+  title: string;
 }
 export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**

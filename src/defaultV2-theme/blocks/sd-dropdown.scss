@@ -112,7 +112,7 @@
 }
 
 .sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {
-  color: $foreground-light;
+  color: $font-editorfont-placeholdercolor;
 }
 
 .sd-dropdown__filter-string-input::placeholder {
@@ -127,7 +127,7 @@
 }
 
 .sd-dropdown__hint-prefix {
-  color: $foreground-light;
+  color: $font-editorfont-placeholdercolor;
 
   span {
     white-space: pre;
@@ -136,10 +136,17 @@
 
 .sd-dropdown__hint-suffix {
   display: flex;
-  color: $foreground-light;
+  color: $font-editorfont-placeholdercolor;
 
   span {
     white-space: pre;
+  }
+}
+
+.sv-popup.sv-popup--dropdown.sv-popup--dropdown {
+  .sd-list__item-body {
+    line-height: multiply(1.5, $font-editorfont-size);
+    font-size: $font-editorfont-size;
   }
 }
 

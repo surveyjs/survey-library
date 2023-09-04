@@ -1,8 +1,8 @@
 import { surveyLocalization } from "survey-core";
 
 export var latvianSurveyStrings = {
-  pagePrevText: "Atpakaļ",
-  pageNextText: "Tālāk",
+  pagePrevText: "Iepriekšēja lapa",
+  pageNextText: "Nākamā lapa",
   completeText: "Iesniegt",
   previewText: "Priekšskatījums",
   editText: "Rediģēt",

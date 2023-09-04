@@ -3,15 +3,13 @@ import {
   LocalizableString,
   LocalizableStrings,
 } from "../src/localizablestring";
-import { JsonObject, propertyArray, Serializer } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { HashTable } from "../src/helpers";
 import { settings } from "../src/settings";
 import { surveyLocalization } from "../src/surveyStrings";
 import { englishStrings } from "../src/localization/english";
 import { Base } from "../src/base";
-import { Question } from "../src/question";
-import { SurveyElementCore } from "../src/survey-element";
 
 export default QUnit.module("LocalizableString");
 
@@ -809,4 +807,20 @@ QUnit.test("Support disableLocalization", function(assert) {
   assert.equal(newStr, "default-fr", "onStrChanged, newStr #4");
   locString.setJson("default-2");
   assert.deepEqual(locString.getJson(), "default-2", "#4");
+});
+QUnit.test("Allow to set empty string if there is localization name", function(assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.localizationName = "completeText";
+  assert.equal(locString.renderedHtml, "Complete", "get value from localizationName, renderedHtml");
+  assert.equal(locString.text, "Complete", "get value from localizationName, text");
+  locString.text = "";
+  assert.equal(locString.renderedHtml, "", "empty rendred html");
+  assert.equal(locString.text, "", "empty text");
+  assert.strictEqual(locString.getJson(), "", "Return empty string in getJson()");
+  const locString2 = new LocalizableString(owner, true);
+  locString2.localizationName = "completeText";
+  assert.equal(locString2.renderedHtml, "Complete", "locString2 = default value, renderedHtml");
+  locString2.setJson("");
+  assert.equal(locString2.renderedHtml, "", "locString2 = empty string after setJson, renderedHtml");
 });

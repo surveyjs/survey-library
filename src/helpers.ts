@@ -194,8 +194,8 @@ export class Helpers {
       !isNaN(value)
     );
   }
-  public static isValueObject(val: any): boolean {
-    return val instanceof Object;
+  public static isValueObject(val: any, excludeArray?: boolean): boolean {
+    return val instanceof Object && (!excludeArray || !Array.isArray(val));
   }
   public static isNumber(value: any): boolean {
     return !isNaN(this.getNumber(value));

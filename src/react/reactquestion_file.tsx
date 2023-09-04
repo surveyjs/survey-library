@@ -105,7 +105,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       <div
         className={this.question.getFileDecoratorCss()}
       >
-        <span className={this.question.cssClasses.dragAreaPlaceholder}>{this.question.dragAreaPlaceholder}</span>
+        <span className={this.question.cssClasses.dragAreaPlaceholder}>{this.question.renderedPlaceholder}</span>
         <div className={this.question.cssClasses.wrapper}>
           {chooseFile}
           {noFileChosen}

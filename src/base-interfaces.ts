@@ -41,7 +41,10 @@ export interface ITextProcessor {
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;
 }
-
+export interface IValueItemCustomPropValues {
+  propertyName: string;
+  values: Array<any>;
+}
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getSkeletonComponentName(element: ISurveyElement): string;
   currentPage: IPage;
@@ -186,7 +189,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   canChangeChoiceItemsVisibility(): boolean;
   getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void;
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixColumnAdded(question: IQuestion, column: any): void;
   matrixBeforeRowAdded(options: {
@@ -213,6 +216,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): void;
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
+  dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
 
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
 
@@ -220,7 +224,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     element: ISurveyElement,
     question: IQuestion,
     page: IPage,
-    id: string
+    id: string, scrollIfVisible?: boolean
   ): any;
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
@@ -253,7 +257,7 @@ export interface ISurveyElement extends IShortcutText {
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
-  delete(): any;
+  delete(doDispose?: boolean): void;
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;
@@ -315,6 +319,7 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getChildrenLayoutType(): string;
   getQuestionTitleLocation(): string;
   getQuestionStartIndex(): string;
+  getQuestionErrorLocation(): string;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
@@ -367,4 +372,12 @@ export interface ISurveyLayoutElement {
   component?: string;
   template?: string;
   data?: any;
+}
+export interface IPlainDataOptions {
+  includeEmpty?: boolean;
+  includeQuestionTypes?: boolean;
+  includeValues?: boolean;
+  calculations?: Array<{
+    propertyName: string,
+  }>;
 }

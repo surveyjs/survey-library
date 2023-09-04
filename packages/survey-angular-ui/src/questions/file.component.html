@@ -33,7 +33,7 @@
     <div
       [class]="model.getFileDecoratorCss()"
     >
-      <span [class]="model.cssClasses.dragAreaPlaceholder">{{ model.dragAreaPlaceholder }}</span>
+      <span [class]="model.cssClasses.dragAreaPlaceholder">{{ model.renderedPlaceholder }}</span>
       <div [class]="model.cssClasses.wrapper">
         <label
           *ngIf="!model.isReadOnly"

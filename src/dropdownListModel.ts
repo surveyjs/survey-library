@@ -210,6 +210,10 @@ export class DropdownListModel extends Base {
     return !!this.itemsSettings.totalCount && this.itemsSettings.items.length == this.itemsSettings.totalCount;
   }
 
+  public get canShowSelectedItem(): boolean {
+    return !this.focused || this._markdownMode || !this.searchEnabled;
+  }
+
   @property({ defaultValue: true }) searchEnabled: boolean;
   @property({
     defaultValue: "",
@@ -262,7 +266,11 @@ export class DropdownListModel extends Base {
   public set inputStringRendered(val: string) {
     this.inputString = val;
     this.filterString = val;
-    this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+    if (!val) {
+      this.hintString = "";
+    } else {
+      this.applyHintString(this.listModel.focusedItem || this.question.selectedItem);
+    }
   }
 
   public get placeholderRendered() {
@@ -312,11 +320,12 @@ export class DropdownListModel extends Base {
     if (start == -1) return null;
     return this.hintString.substring(start, start + this.inputStringLC.length);
   }
+  private qustionPropertyChangedHandler = (sender: any, options: any) => {
+    this.onPropertyChangedHandler(sender, options);
+  };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
-    question.onPropertyChanged.add((sender: any, options: any) => {
-      this.onPropertyChangedHandler(sender, options);
-    });
+    question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
@@ -350,7 +359,7 @@ export class DropdownListModel extends Base {
   }
 
   public onClick(event: any): void {
-    if(this.question.readOnly) return;
+    if (this.question.readOnly || this.question.isDesignMode) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
     if (this.searchEnabled && !!event && !!event.target) {
@@ -364,6 +373,9 @@ export class DropdownListModel extends Base {
   protected onPropertyChangedHandler(sender: any, options: any) {
     if (options.name == "value") {
       this.showInputFieldComponent = this.question.showInputFieldComponent;
+    }
+    if(options.name == "choicesLazyLoadEnabled" && options.newValue) {
+      this.listModel.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
     }
   }
   protected focusItemOnClickAndPopup() {
@@ -519,6 +531,8 @@ export class DropdownListModel extends Base {
 
   dispose(): void {
     super.dispose();
+    this.question && this.question.onPropertyChanged.remove(this.qustionPropertyChangedHandler);
+    this.qustionPropertyChangedHandler = undefined;
     if (!!this.listModel) {
       this.listModel.dispose();
     }

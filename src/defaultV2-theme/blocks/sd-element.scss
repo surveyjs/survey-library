@@ -58,6 +58,10 @@
 
   .sv-string-viewer {
     white-space: normal;
+
+    &::before {
+      content: "\200B";
+    }
   }
 }
 
@@ -198,6 +202,10 @@
     }
   }
 
+  &>.sd-element__header--location-top {
+    margin-top: 0;
+  }
+
   &.sd-element--with-frame {
     padding-top: 0;
     padding-bottom: 0;
@@ -206,10 +214,6 @@
       padding-top: calcSize(2);
       padding-bottom: calcSize(2);
       border-radius: $panel-corner-radius;
-    }
-
-    &>.sd-element__header--location-top {
-      margin-top: 0;
     }
   }
 
@@ -298,4 +302,3 @@
   box-shadow: none;
   background-color: transparent;
 }
-

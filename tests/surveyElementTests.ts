@@ -150,12 +150,10 @@ QUnit.test("Check errors location", function (assert) {
   });
   const q1 = survey.getQuestionByName("q1");
   const questionInMatrix = survey.getAllQuestions()[1].renderedTable.rows[0].cells[0].question;
-  assert.notOk(q1.isErrorsModeTooltip);
   assert.notOk(q1.showErrorsAboveQuestion);
   assert.notOk(q1.showErrorOnBottom);
   assert.ok(q1.showErrorOnTop);
 
-  assert.notOk(questionInMatrix.isErrorsModeTooltip);
   assert.notOk(questionInMatrix.showErrorsAboveQuestion);
   assert.notOk(questionInMatrix.showErrorOnBottom);
   assert.ok(questionInMatrix.showErrorOnTop);
@@ -171,15 +169,13 @@ QUnit.test("Check errors location", function (assert) {
   survey.questionErrorLocation = "top";
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorOnBottom);
-  assert.notOk(q1.isErrorsModeTooltip);
   assert.ok(q1.showErrorsAboveQuestion);
 
   assert.notOk(questionInMatrix.showErrorOnTop);
   assert.notOk(questionInMatrix.showErrorOnBottom);
   assert.ok(questionInMatrix.showErrorsAboveQuestion);
-  assert.notOk(questionInMatrix.isErrorsModeTooltip);
 });
-QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert) {
+QUnit.test("Check error location for questions in panel", function (assert) {
   StylesManager.applyTheme("default");
   const survey = new SurveyModel({
     elements: [
@@ -196,14 +192,12 @@ QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert)
     ]
   });
   const q1 = survey.getQuestionByName("q1");
-  assert.notOk(q1.isErrorsModeTooltip);
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.showErrorsBelowQuestion);
   assert.notOk(q1.showErrorsAboveQuestion);
   assert.ok(q1.showErrorOnTop);
 
   survey.questionErrorLocation = "bottom";
-  assert.notOk(q1.isErrorsModeTooltip);
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorsBelowQuestion);
   assert.notOk(q1.showErrorsAboveQuestion);
@@ -211,14 +205,12 @@ QUnit.test("Check isErrorsModeTooltip for questions in panel", function (assert)
 
   survey.css = defaultV2Css;
   survey.questionErrorLocation = "top";
-  assert.notOk(q1.isErrorsModeTooltip);
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorsBelowQuestion);
   assert.ok(q1.showErrorsAboveQuestion);
 
   survey.questionErrorLocation = "bottom";
-  assert.notOk(q1.isErrorsModeTooltip);
   assert.notOk(q1.showErrorOnBottom);
   assert.notOk(q1.showErrorOnTop);
   assert.notOk(q1.showErrorsAboveQuestion);
@@ -244,4 +236,65 @@ QUnit.test("allowRootStyle", function (assert) {
   q1.allowRootStyle = false;
   survey.css = defaultV2Css;
   assert.deepEqual(q1.rootStyle, {});
+});
+QUnit.test("question.errorLocation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.getErrorLocation(), "top", "#1");
+
+  survey.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#2");
+
+  q1.errorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#3");
+
+  q1.errorLocation = "default";
+  assert.equal(q1.getErrorLocation(), "bottom", "#4");
+
+  survey.questionErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#5");
+
+  q1.errorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#6");
+});
+QUnit.test("question.errorLocation & panel.questionErrorLocation & page.questionErrorLocation", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { name: "p1", type: "panel",
+            elements: [
+              {
+                name: "q1",
+                type: "text"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const p1 = survey.getPanelByName("p1");
+  const page = survey.currentPage;
+  assert.equal(q1.getErrorLocation(), "top", "#1");
+
+  survey.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#2");
+
+  page.questionErrorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#3");
+
+  p1.questionErrorLocation = "bottom";
+  assert.equal(q1.getErrorLocation(), "bottom", "#4");
+
+  q1.errorLocation = "top";
+  assert.equal(q1.getErrorLocation(), "top", "#5");
 });

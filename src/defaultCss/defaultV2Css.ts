@@ -15,6 +15,7 @@ export var defaultV2Css = {
   rootMobile: "sd-root-modern--mobile",
   rootReadOnly: "sd-root--readonly",
   rootCompact: "sd-root--compact",
+  rootFitToContainer: "sd-root-modern--full-container",
   rootBackgroundImage: "sd-root_background-image",
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
@@ -30,6 +31,7 @@ export var defaultV2Css = {
   clockTimerMinorText: "sd-timer__text--minor",
   clockTimerMajorText: "sd-timer__text--major",
   bodyEmpty: "sd-body sd-body--empty",
+  bodyLoading: "sd-body--loading",
   footer: "sd-footer sd-body__navigation sd-clearfix",
   title: "sd-title",
   description: "sd-description",
@@ -40,6 +42,7 @@ export var defaultV2Css = {
   navigationButton: "",
   bodyNavigationButton: "sd-btn",
   completedPage: "sd-completedpage",
+  completedBeforePage: "sd-completed-before-page",
   timerRoot: "sd-body__timer",
   navigation: {
     complete: "sd-btn--action sd-navigation__complete-btn",
@@ -317,7 +320,10 @@ export var defaultV2Css = {
     itemTitle: "sd-multipletext__item-title",
     content: "sd-multipletext__content sd-question__content",
     row: "sd-multipletext__row",
-    cell: "sd-multipletext__cell"
+    cell: "sd-multipletext__cell",
+    cellError: "sd-multipletext__cell--error",
+    cellErrorTop: "sd-multipletext__cell--error-top",
+    cellErrorBottom: "sd-multipletext__cell--error-bottom"
   },
   dropdown: {
     root: "sd-selectbase",
@@ -427,6 +433,7 @@ export var defaultV2Css = {
     detailIconExpanded: "sd-detail-panel__icon--expanded",
     detailIconId: "icon-expanddetail",
     detailIconExpandedId: "icon-collapsedetail",
+    detailPanelCell: "sd-table__cell--detail-panel",
     actionsCell: "sd-table__cell sd-table__cell--actions",
     actionsCellDrag: "sd-table__cell--drag",
     emptyCell: "sd-table__cell--empty",
@@ -575,6 +582,8 @@ export var defaultV2Css = {
     small: "sd-row__question--small",
     controls: "sjs_sp_controls sd-signaturepad__controls",
     placeholder: "sjs_sp_placeholder",
+    canvas: "sjs_sp_canvas sd-signaturepad__canvas",
+    backgroundImage: "sjs_sp__background-image sd-signaturepad__background-image",
     clearButton: "sjs_sp_clear sd-context-btn sd-context-btn--negative sd-signaturepad__clear",
     clearButtonIconId: "icon-clear"
   },

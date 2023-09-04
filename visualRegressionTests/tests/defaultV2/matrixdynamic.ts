@@ -160,9 +160,9 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
-            maxWidth: "704px",
-            minWidth: "704px",
-            width: "704px"
+            maxWidth: "724px",
+            minWidth: "724px",
+            width: "724px"
           },
         ]
       });
@@ -203,9 +203,9 @@ frameworks.forEach(framework => {
             ],
             addRowText: "Add a New Record",
             rowCount: 3,
-            maxWidth: "704px",
-            minWidth: "704px",
-            width: "704px"
+            maxWidth: "724px",
+            minWidth: "724px",
+            width: "724px"
           },
         ]
       });

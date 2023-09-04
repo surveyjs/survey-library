@@ -4,7 +4,7 @@ import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 
 /**
-  * A class that describes the Html question type. Unlike other question types, Html cannot have a title or value.
+  * A class that describes the HTML question type. Unlike other question types, HTML cannot have a title or value.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-html/ (linkStyle))
  */

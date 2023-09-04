@@ -184,4 +184,81 @@ frameworks.forEach(async framework => {
       window["survey"].enterKeyAction = "default";
     })();
   });
+  test("Check question focus event", async t => {
+    const getVal = ClientFunction(() => {
+      return window["survey_focusedName"];
+    });
+    await initSurvey(framework, {
+      pages: [
+        {
+          elements: [
+            {
+              type: "text",
+              name: "start"
+            },
+            {
+              type: "text",
+              name: "q1"
+            },
+            {
+              type: "matrixdropdown",
+              name: "q2",
+              rows: ["Row1"],
+              columns: [
+                { name: "col1", cellType: "text" },
+                { name: "col2", cellType: "text" }
+              ]
+            },
+            {
+              type: "multipletext",
+              name: "q3",
+              items: [
+                { name: "text1" },
+                { name: "text2" }
+              ]
+            },
+            {
+              type: "dropdown",
+              name: "q4",
+              choices: ["item1", "item2"]
+            },
+            {
+              type: "checkbox",
+              name: "q5",
+              choices: ["item1", "item2"]
+            },
+            {
+              type: "text",
+              name: "res"
+            }
+          ]
+        }
+      ]
+    });
+    await ClientFunction(() => {
+      window["survey_focusedName"] = undefined;
+      window["survey"].onFocusInQuestion.add(function (sender, options) {
+        const q = options.question;
+        let name = q.name;
+        if(q.parentQuestion) {
+          name = q.parentQuestion.name + "." + name;
+        }
+        window["survey_focusedName"] = name;
+      });
+    })();
+    await t.pressKey("tab")
+      .expect(getVal()).eql("q1");
+    await t.pressKey("tab")
+      .expect(getVal()).eql("q2.col1");
+    await t.pressKey("tab")
+      .expect(getVal()).eql("q2.col2");
+    await t.pressKey("tab")
+      .expect(getVal()).eql("q3.text1");
+    await t.pressKey("tab")
+      .expect(getVal()).eql("q3.text2");
+    await t.pressKey("tab")
+      .expect(getVal()).eql("q4");
+    await t.pressKey("tab")
+      .expect(getVal()).eql("q5");
+  });
 });

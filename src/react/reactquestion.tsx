@@ -5,7 +5,6 @@ import {
   SurveyError,
   Question,
   QuestionMatrixDropdownRenderedCell,
-  TooltipManager,
   SurveyModel
 } from "survey-core";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
@@ -112,10 +111,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
       : null;
     var comment =
       question && question.hasComment ? this.renderComment(cssClasses) : null;
-    const errorsTooltip =
-      this.question.isErrorsModeTooltip
-        ? this.renderErrors(cssClasses, "tooltip")
-        : null;
     var descriptionUnderInput = question.hasDescriptionUnderInput
       ? this.renderDescription()
       : null;
@@ -129,7 +124,6 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
         {questionRender}
         {comment}
         {errorsBottom}
-        {errorsTooltip}
         {descriptionUnderInput}
       </div>
     );
@@ -236,7 +230,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
     this.state = this.getState();
-    this.tooltipRef = React.createRef();
   }
   protected get id(): string {
     return this.props.element.id + "_errors";
@@ -256,27 +249,7 @@ export class SurveyElementErrors extends ReactSurveyElement {
   protected canRender(): boolean {
     return !!this.element && this.element.hasVisibleErrors;
   }
-  private tooltipManager: TooltipManager | undefined;
-  private tooltipRef: React.RefObject<HTMLDivElement>;
-  componentDidUpdate(prevProps: any, prevState: any) {
-    super.componentDidUpdate(prevProps, prevState);
-    if (this.props.location == "tooltip") {
-      if (this.tooltipRef.current && !this.tooltipManager) {
-        this.tooltipManager = new TooltipManager(this.tooltipRef.current);
-      }
-      if (!!this.tooltipManager && !this.tooltipRef.current) {
-        this.disposeTooltipManager();
-      }
-    }
-  }
   componentWillUnmount() {
-    if (!!this.tooltipManager) {
-      this.disposeTooltipManager();
-    }
-  }
-  private disposeTooltipManager() {
-    this.tooltipManager?.dispose();
-    this.tooltipManager = undefined;
   }
   protected renderElement(): JSX.Element {
     const errors: Array<JSX.Element> = [];
@@ -293,7 +266,6 @@ export class SurveyElementErrors extends ReactSurveyElement {
         aria-live="polite"
         className={this.element.cssError}
         id={this.id}
-        ref={this.tooltipRef}
       >
         {errors}
       </div>
@@ -333,31 +305,11 @@ export abstract class SurveyQuestionAndErrorsWrapped extends ReactSurveyElement 
   protected canRender(): boolean {
     return !!this.question;
   }
-  protected renderErrors(errorsLocation: string) {
-    return this.getShowErrors() ? (
-      <SurveyElementErrors
-        element={this.question}
-        cssClasses={this.cssClasses}
-        creator={this.creator}
-        location={errorsLocation}
-      />
-    ) : null;
-  }
   protected renderContent(): JSX.Element {
-    var errorsLocation = this.creator.questionErrorLocation();
-    var errors = this.renderErrors(errorsLocation);
-    var errorsTop = this.question.showErrorOnTop
-      ? errors
-      : null;
-    var errorsBottom = this.question.showErrorOnBottom
-      ? errors
-      : null;
     var renderedQuestion = this.renderQuestion();
     return (
       <>
-        {errorsTop}
         {renderedQuestion}
-        {errorsBottom}
       </>
     );
   }
@@ -388,14 +340,17 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
   }
   protected renderElement(): JSX.Element {
     var style = this.getCellStyle();
+    const cell = this.props.cell;
+    const focusIn = () => { cell.focusIn(); };
     return (
       <td
         ref={this.cellRef}
         className={this.itemCss}
-        colSpan={this.props.cell.colSpans}
+        colSpan={cell.colSpans}
         data-responsive-title={this.getHeaderText()}
-        title={this.props.cell.getTitle()}
+        title={cell.getTitle()}
         style={style}
+        onFocus={focusIn}
       >
         {this.wrapCell(this.props.cell,
           (
@@ -425,5 +380,47 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       wrapper = ReactSurveyElementsWrapper.wrapMatrixCell(survey, element, cell, this.props.reason);
     }
     return wrapper ?? element;
+  }
+}
+
+export class SurveyQuestionErrorCell extends React.Component<any, any> {
+  constructor(props: any) {
+    super(props);
+    this.state = {
+      changed: 0
+    };
+    if(this.question) {
+      this.registerCallback(this.question);
+    }
+  }
+  private get question(): Question {
+    return this.props.question;
+  }
+  private update() {
+    this.setState({ changed: this.state.changed + 1 });
+  }
+  private registerCallback(question: Question) {
+    question.registerFunctionOnPropertyValueChanged("errors", () => {
+      this.update();
+    }, "__reactSubscription");
+  }
+  private unRegisterCallback(question: Question) {
+    question.unRegisterFunctionOnPropertyValueChanged("errors", "__reactSubscription");
+  }
+  componentDidUpdate(prevProps: Readonly<any>): void {
+    if(prevProps.question && prevProps.question !== this.question) {
+      this.unRegisterCallback(prevProps.cell);
+    }
+    if(this.question) {
+      this.registerCallback(this.question);
+    }
+  }
+  componentWillUnmount(): void {
+    if(this.question) {
+      this.unRegisterCallback(this.question);
+    }
+  }
+  render(): JSX.Element {
+    return <SurveyElementErrors element={this.question} creator={this.props.creator} cssClasses={this.question.cssClasses}></SurveyElementErrors>;
   }
 }

@@ -37,7 +37,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   public getItemTabIndex(item: ItemValue) {
-    return this.isDesignMode ? undefined : 0;
+    if (this.isDesignMode || item.disabled) return undefined;
+    return 0;
   }
 
   public get rootClass(): string {
@@ -287,7 +288,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     if (!this.isDragStartNodeValid(target)) return;
 
-    if (this.allowStartDrag && this.canStartDragDueMaxSelectedChoices(target)) {
+    if (choice.disabled) return;
+
+    if (
+      this.allowStartDrag &&
+      this.canStartDragDueMaxSelectedChoices(target) &&
+      this.canStartDragDueItemEnabled(choice)
+    )
+    {
       this.dragDropRankingChoices.startDrag(event, choice, this, node);
     }
   };
@@ -312,6 +320,10 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       return this.checkMaxSelectedChoicesUnreached();
     }
     return true;
+  }
+
+  private canStartDragDueItemEnabled(item: ItemValue): boolean {
+    return item.enabled;
   }
 
   public checkMaxSelectedChoicesUnreached() {

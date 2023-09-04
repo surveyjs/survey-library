@@ -320,11 +320,12 @@ export class DropdownListModel extends Base {
     if (start == -1) return null;
     return this.hintString.substring(start, start + this.inputStringLC.length);
   }
+  private qustionPropertyChangedHandler = (sender: any, options: any) => {
+    this.onPropertyChangedHandler(sender, options);
+  };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
-    question.onPropertyChanged.add((sender: any, options: any) => {
-      this.onPropertyChangedHandler(sender, options);
-    });
+    question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
@@ -530,6 +531,8 @@ export class DropdownListModel extends Base {
 
   dispose(): void {
     super.dispose();
+    this.question && this.question.onPropertyChanged.remove(this.qustionPropertyChangedHandler);
+    this.qustionPropertyChangedHandler = undefined;
     if (!!this.listModel) {
       this.listModel.dispose();
     }

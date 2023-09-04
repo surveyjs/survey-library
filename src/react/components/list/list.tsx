@@ -37,6 +37,12 @@ export class List extends SurveyElementBase<IListProps, any> {
       this.model.initListContainerHtmlElement(this.listContainerRef.current);
     }
   }
+  componentWillUnmount(): void {
+    super.componentWillUnmount();
+    if(!!this.model) {
+      this.model.initListContainerHtmlElement(undefined as any);
+    }
+  }
   renderElement() {
     return (
       <div className={this.model.cssClasses.root} ref={this.listContainerRef}>

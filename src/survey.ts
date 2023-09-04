@@ -7237,6 +7237,7 @@ export class SurveyModel extends SurveyElementCore
    * Use this method to dispose survey model properly.
    */
   public dispose() {
+    this.rootElement = undefined;
     this.currentPage = null;
     this.destroyResizeObserver();
     super.dispose();

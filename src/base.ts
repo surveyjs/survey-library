@@ -141,6 +141,7 @@ export class Dependencies {
     this.dependencies.forEach(dependency => {
       dependency.obj.unregisterPropertyChangedHandlers([dependency.prop], dependency.id);
     });
+    // this.currentDependency = undefined;
   }
 }
 
@@ -191,6 +192,7 @@ export class Base {
     if (Base.currentDependencis === undefined) return;
     Base.currentDependencis.addDependency(target, property);
   }
+  public dependencies: {[key: string]: ComputedUpdater } = {};
   public static get commentSuffix(): string {
     return settings.commentSuffix;
   }
@@ -307,6 +309,7 @@ export class Base {
     }
     this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
+    Object.values(this.dependencies).forEach(dependencies => dependencies.dispose());
   }
   public get isDisposed() {
     return this.isDisposedValue === true;

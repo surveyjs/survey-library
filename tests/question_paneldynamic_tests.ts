@@ -5759,6 +5759,37 @@ QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", f
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
 });
+QUnit.test("renderMode: tab, additionalTitleToolbar&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab"
+      }],
+  });
+  survey.onGetDynamicPanelTabTitle.add((sender, options) => {
+    if(options.visiblePanelIndex === 0) {
+      const val = options.panel.getQuestionByName("q1").value;
+      options.title = "First tab" + (!!val ? " " + val.toString() : "");
+    }
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
+  panel.templateTabTitle = "#{panelIndex} {panel.q1}";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  panel.panels[0].getQuestionByName("q1").value = "q1-value";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+});
 QUnit.test("templateVisibleIf", function (assert) {
   const survey = new SurveyModel({
     elements: [

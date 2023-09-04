@@ -814,6 +814,20 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    */
   panel: PanelModel;
 }
+export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventMixin {
+  /**
+   * A panel whose tab title is being rendered.
+   */
+  panel: PanelModel;
+  /**
+   * The panel's index in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array of the Dynamic Panel.
+   */
+  visiblePanelIndex: number;
+  /**
+   * A tab title. You can change this parameter's value.
+   */
+  title: string;
+}
 export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
    * you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question

@@ -925,6 +925,16 @@ export class SurveyModel extends SurveyElementCore
     this.notifier = new Notifier(this.css.saveData);
     this.notifier.addAction(this.createTryAgainAction(), "error");
 
+    this.onPopupVisibleChanged.add((_, opt) => {
+      if(opt.visible) {
+        this.onScrollCallback = () => {
+          opt.popup.toggleVisibility();
+        };
+      } else {
+        this.onScrollCallback = undefined;
+      }
+    });
+
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -4525,6 +4535,7 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
     this.rootElement = htmlElement;
+    this.addScrollEventListener();
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
@@ -7228,8 +7239,25 @@ export class SurveyModel extends SurveyElementCore
     if (this.disposeCallback) {
       this.disposeCallback();
     }
+    this.removeScrollEventListener();
   }
   disposeCallback: () => void;
+
+  private onScrollCallback: () => void;
+  public onScroll(): void {
+    if(this.onScrollCallback) {
+      this.onScrollCallback();
+    }
+  }
+  public addScrollEventListener(): void {
+    this.scrollHandler = () => { this.onScroll(); };
+    this.rootElement.addEventListener("scroll", this.scrollHandler);
+  }
+  public removeScrollEventListener(): void {
+    if (!!this.scrollHandler) {
+      this.rootElement.removeEventListener("scroll", this.scrollHandler);
+    }
+  }
 }
 
 function isStrCiEqual(a: string, b: string) {

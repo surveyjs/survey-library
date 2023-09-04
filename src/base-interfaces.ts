@@ -41,7 +41,10 @@ export interface ITextProcessor {
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;
 }
-
+export interface IValueItemCustomPropValues {
+  propertyName: string;
+  values: Array<any>;
+}
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getSkeletonComponentName(element: ISurveyElement): string;
   currentPage: IPage;
@@ -186,7 +189,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   canChangeChoiceItemsVisibility(): boolean;
   getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void;
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixColumnAdded(question: IQuestion, column: any): void;
   matrixBeforeRowAdded(options: {

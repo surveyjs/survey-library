@@ -4,6 +4,7 @@ import { ListModel } from "../src/list";
 import { createListContainerHtmlElement } from "./utilstests";
 import { Question } from "../src/question";
 import { settings } from "../src/settings";
+import { Serializer } from "../src/jsonobject";
 
 export default QUnit.module("choicesRestful");
 
@@ -1133,7 +1134,40 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     done();
   }, onChoicesLazyLoadCallbackTimeOut);
 });
+QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue & custom property", assert => {
+  Serializer.addProperty("itemvalue", "customProp");
+  const survey = new SurveyModel({
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "defaultValue": 55,
+      "choicesLazyLoadEnabled": true
+    },
+    {
+      "type": "text",
+      "name": "q2",
+      "title": "{q1}"
+    }
+    ]
+  });
+  survey.onGetChoiceDisplayValue.add((sender, options) => {
+    if(options.question.name == "q1") {
+      options.setItems(options.values.map(item => ("DisplayText_" + item)),
+        { propertyName: "customProp", values: options.values.map(item => ("customProp_" + item)) });
+    }
+  });
 
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const questionTitle = <Question>survey.getAllQuestions()[1];
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+  assert.equal(question.value, 55);
+  assert.equal(question.selectedItem.value, 55);
+  assert.equal(question.selectedItem.text, "DisplayText_55");
+  assert.equal(question.selectedItem.customProp, "customProp_55");
+  assert.equal(questionTitle.locTitle.textOrHtml, "DisplayText_55", "display text is correct");
+  Serializer.removeProperty("itemvalue", "customProp");
+});
 QUnit.test("lazy loading + onGetChoiceDisplayValue, selected last item", assert => {
   const json = {
     questions: [{

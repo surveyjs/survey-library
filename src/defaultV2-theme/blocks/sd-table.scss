@@ -17,6 +17,12 @@
   background-clip: padding-box;
 }
 
+.sd-root-modern:not(.sd-root-modern--mobile) {
+  .sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action):not(.sd-table__cell--empty.sd-table__cell--error) {
+    width: 10000px;
+  }
+}
+
 .sd-table__row:first-of-type>.sd-table__cell {
   border-top: 0;
 }
@@ -376,6 +382,7 @@
       min-width: auto;
       overflow-x: auto;
     }
+
     &>.sd-question__content {
       padding-bottom: calcSize(0.25);
       margin-bottom: calcSize(-0.25);

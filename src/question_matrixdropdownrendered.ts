@@ -430,7 +430,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     if (this.hasActionCellInRows("end")) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
   }
   protected buildFooter() {
@@ -644,13 +644,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (let i = 0; i < row.cells.length; i++) {
       const cell = row.cells[i];
       if(!cell.hasQuestion) {
-        res.cells.push(this.createEmptyCell());
+        res.cells.push(this.createEmptyCell(true));
       }
       else if (this.matrix.IsMultiplyColumn(cell.cell.column)) {
         if(cell.isFirstChoice) {
           res.cells.push(this.createErrorCell(cell.cell));
         } else {
-          res.cells.push(this.createEmptyCell());
+          res.cells.push(this.createEmptyCell(true));
         }
       }
       else {
@@ -1005,12 +1005,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return cell;
   }
-  private createEmptyCell(): QuestionMatrixDropdownRenderedCell {
+  private createEmptyCell(isError: boolean = false): QuestionMatrixDropdownRenderedCell {
     const res = this.createTextCell(null);
     res.isEmpty = true;
     res.className = new CssClassBuilder()
       .append(this.cssClasses.cell)
       .append(this.cssClasses.emptyCell)
+      .append(this.cssClasses.errorsCell, isError)
       .toString();
     return res;
   }

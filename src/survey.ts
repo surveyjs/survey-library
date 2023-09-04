@@ -6123,7 +6123,7 @@ export class SurveyModel extends SurveyElementCore
     )
       return;
     var oldValue = this.getValue(name);
-    if (this.isValueEmpty(newValue, false)) {
+    if (this.isValueEmpyOnSetValue(name, newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
       newValue = this.getUnbindValue(newValue);
@@ -6136,6 +6136,11 @@ export class SurveyModel extends SurveyElementCore
       locNotification,
       allowNotifyValueChanged
     );
+  }
+  private isValueEmpyOnSetValue(name: string, val: any): boolean {
+    if(!this.isValueEmpty(val, false)) return false;
+    if(!this.editingObj || val === null || val === undefined) return true;
+    return this.editingObj.getDefaultPropertyValue(name) === val;
   }
   private updateOnSetValue(
     name: string,

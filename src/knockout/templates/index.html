@@ -5,12 +5,12 @@
 
 <script type="text/html" id="survey-content-template">
   <div data-bind="css: rootCss, elementStyle: themeVariables">
-      <!-- ko if: !!renderBackgroundImage && $data.backgroundImageFixed -->
-      <div data-bind="css: backgroundImageCss, style: backgroundImageStyle"></div>
+      <!-- ko if: !!renderBackgroundImage && ($data.backgroundImageFixed || !$data.fitToContainer)-->
+      <div data-bind="css: backgroundImageCss, elementStyle: backgroundImageStyle"></div>
       <!-- /ko -->
       <form data-bind="css: formCss" onsubmit="return false;">
-          <!-- ko if: !!renderBackgroundImage && !$data.backgroundImageFixed -->
-          <div data-bind="css: backgroundImageCss, style: backgroundImageStyle"></div>
+          <!-- ko if: !!renderBackgroundImage && !$data.backgroundImageFixed && $data.fitToContainer -->
+          <div data-bind="css: backgroundImageCss, elementStyle: backgroundImageStyle"></div>
           <!-- /ko -->
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: containerCss">

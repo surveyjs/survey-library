@@ -2057,7 +2057,7 @@ export class SurveyModel extends SurveyElementCore
       opacity: this.backgroundOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.backgroundImageFit,
-      backgroundImageAttachment: !this.fitToContainer ? this.backgroundImageAttachment : undefined
+      backgroundAttachment: !this.fitToContainer ? this.backgroundImageAttachment : undefined
     };
   }
   @property() backgroundImageCss: string;

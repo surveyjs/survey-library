@@ -107,9 +107,9 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
-        {!!backgroundImage && this.survey.backgroundImageFixed ? backgroundImage: null}
+        {!!backgroundImage && (this.survey.backgroundImageFixed || !this.survey.fitToContainer) ? backgroundImage: null}
         <form className={this.survey.formCss} onSubmit={onSubmit}>
-          {!!backgroundImage && !this.survey.backgroundImageFixed ? backgroundImage: null}
+          {!!backgroundImage && !this.survey.backgroundImageFixed && this.survey.fitToContainer ? backgroundImage: null}
           {customHeader}
           <div className={this.css.container}>
             {header}

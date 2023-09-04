@@ -107,19 +107,20 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
-        {!!backgroundImage && (this.survey.backgroundImageFixed || !this.survey.fitToContainer) ? backgroundImage: null}
-        <form className={this.survey.formCss} onSubmit={onSubmit}>
-          {!!backgroundImage && !this.survey.backgroundImageFixed && this.survey.fitToContainer ? backgroundImage: null}
-          {customHeader}
-          <div className={this.css.container}>
-            {header}
-            <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
-            {renderResult}
-            <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
-          </div>
-        </form>
-        { this.survey.showBrandInfo ? <BrandInfo/> : null }
-        <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
+        <div className={this.survey.wrapperFormCss}>
+          {!!backgroundImage ? backgroundImage: null}
+          <form className={this.css.rootForm} onSubmit={onSubmit}>
+            {customHeader}
+            <div className={this.css.container}>
+              {header}
+              <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
+              {renderResult}
+              <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
+            </div>
+          </form>
+          { this.survey.showBrandInfo ? <BrandInfo/> : null }
+          <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
+        </div>
       </div>
     );
   }

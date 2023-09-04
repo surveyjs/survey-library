@@ -5,13 +5,11 @@
 
 <script type="text/html" id="survey-content-template">
   <div data-bind="css: rootCss, elementStyle: themeVariables">
-      <!-- ko if: !!renderBackgroundImage && ($data.backgroundImageFixed || !$data.fitToContainer)-->
+    <div data-bind="css: wrapperFormCss">
+      <!-- ko if: !!renderBackgroundImage -->
       <div data-bind="css: backgroundImageCss, elementStyle: backgroundImageStyle"></div>
       <!-- /ko -->
-      <form data-bind="css: formCss" onsubmit="return false;">
-          <!-- ko if: !!renderBackgroundImage && !$data.backgroundImageFixed && $data.fitToContainer -->
-          <div data-bind="css: backgroundImageCss, elementStyle: backgroundImageStyle"></div>
-          <!-- /ko -->
+      <form data-bind="css: css.rootForm" onsubmit="return false;">
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: containerCss">
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
@@ -55,5 +53,6 @@
       <!-- /ko -->
       <!-- ko component: { name: 'sv-notifier', params: { notifier: notifier } } -->
       <!-- /ko -->
+    </div>
   </div>
 </script>

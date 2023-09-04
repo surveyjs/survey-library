@@ -1055,7 +1055,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateNavigationCss();
     this.updateCompletedPageCss();
     this.updateBackgroundImageCss();
-    this.updateFormCss();
+    this.updateWrapperFormCss();
   }
   /**
    * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
@@ -2067,11 +2067,11 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.rootBackgroundImageFixed, this.backgroundImageFixed)
       .toString();
   }
-  @property() formCss: string;
-  public updateFormCss(): void {
-    this.formCss = new CssClassBuilder()
-      .append(this.css.rootForm)
-      .append(this.css.rootFormAbsolute, this.backgroundImageFixed)
+  @property() wrapperFormCss: string;
+  public updateWrapperFormCss(): void {
+    this.wrapperFormCss = new CssClassBuilder()
+      .append(this.css.rootWrapper)
+      .append(this.css.rootWrapperAbsolute, this.backgroundImageFixed)
       .toString();
   }
   /**

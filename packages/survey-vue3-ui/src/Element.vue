@@ -53,11 +53,6 @@
         :element="element"
         :location="'bottom'"
       />
-      <survey-errors
-        v-if="!element.isPanel && element.isErrorsModeTooltip"
-        :element="element"
-        :location="'tooltip'"
-      />
       <div
         v-if="!element.isPanel && (element as Question).hasDescriptionUnderInput"
         :class="element.cssClasses.descriptionUnderInput"

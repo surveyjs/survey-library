@@ -61,6 +61,13 @@
     margin-left: calc(-1 * var(--sd-base-padding));
     width: calc(100% + var(--sd-base-padding));
   }
+  .sd-row__panel {
+    height: 100%
+  }
+  
+  .sd-row__question {
+    height: 100%
+  }
 }
 
 .sd-row__panel {

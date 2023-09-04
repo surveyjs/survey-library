@@ -26,10 +26,6 @@
       <!-- ko template: { name: 'survey-question-errors', data: question } -->
       <!-- /ko -->
     <!-- /ko -->
-    <!-- ko if: question.isErrorsModeTooltip -->
-      <!-- ko component: { name: 'sv-tooltip-error', params: {question: question} } -->
-      <!-- /ko -->
-    <!-- /ko -->
     <!-- ko if: question.hasDescriptionUnderInput -->
     <div data-bind="css: cssClasses.descriptionUnderInput">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->

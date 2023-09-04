@@ -158,7 +158,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 }
 
 @mixin articleXXLargeFont {
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: var(--sjs-article-font-xx-large-fontSize, 64px);
   text-decoration: var(--sjs-article-font-xx-large-textDecoration, "none");
   font-family: $font-family;
@@ -172,7 +172,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 }
 
 @mixin articleXLargeFont {
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: var(--sjs-article-font-x-large-fontSize, 48px);
   text-decoration: var(--sjs-article-font-x-large-textDecoration, "none");
   font-family: $font-family;
@@ -186,7 +186,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 }
 
 @mixin articleLargeFont {
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: var(--sjs-article-font-large-fontSize, 32px);
   text-decoration: var(--sjs-article-font-large-textDecoration, "none");
   font-family: $font-family;
@@ -200,7 +200,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 }
 
 @mixin articleMediumFont {
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: var(--sjs-article-font-medium-fontSize, 24px);
   text-decoration: var(--sjs-article-font-medium-textDecoration, "none");
   font-family: $font-family;
@@ -214,7 +214,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 }
 
 @mixin articleDefaultFont {
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: var(--sjs-article-font-default-fontSize, 16px);
   text-decoration: var(--sjs-article-font-default-textDecoration, "none");
   font-family: $font-family;

@@ -74,7 +74,6 @@ export { SurveyQuestionMatrixDynamicRemoveButton } from "../knockout/components/
 export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-actions/detail-button/detail-button";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../knockout/components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export { ButtonGroupItemViewModel } from "../knockout/components/button-group/button-group-item";
-export { TooltipErrorViewModel } from "../knockout/components/tooltip-error/tooltip-error";
 export { SurveyNavigationButton } from "../knockout/components/survey-actions/survey-nav-button";
 export * from "../knockout/components/paneldynamic-actions/paneldynamic-actions";
 export * from "../knockout/components/brand-info/brand-info";

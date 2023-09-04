@@ -6100,3 +6100,36 @@ QUnit.test("panel property in custom function", function (assert) {
   assert.equal(panel.getQuestionByName("q2").value, "abcabc", "Custom function with row property works correctly");
   FunctionFactory.Instance.unregister("panelCustomFunc");
 });
+QUnit.test("nested panel.panelCount&expression question", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "paneldynamic",
+            "name": "panel2",
+            "templateElements": [
+              {
+                "type": "expression",
+                "name": "q2",
+                "expression": "{panelIndex}"
+              }
+            ],
+            "panelCount": 3
+          }
+        ],
+        "panelCount": 1
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(rootPanel.panels.length, 1);
+  const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
+  assert.equal(panel1.panels.length, 3, "It should be 3 panels");
+});

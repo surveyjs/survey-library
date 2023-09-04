@@ -1047,6 +1047,14 @@ export class SurveyModel extends SurveyElementCore
     this.containerCss = this.css.container;
     this.completedCss = new CssClassBuilder().append(this.css.body)
       .append(this.css.completedPage).toString(); // for completed page
+    this.completedBeforeCss = new CssClassBuilder()
+      .append(this.css.body)
+      .append(this.css.completedBeforePage)
+      .toString();
+    this.loadingBodyCss = new CssClassBuilder()
+      .append(this.css.body)
+      .append(this.css.bodyLoading)
+      .toString();
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
@@ -1130,6 +1138,8 @@ export class SurveyModel extends SurveyElementCore
     return this.css.bodyContainer;
   }
   @property() completedCss: string;
+  @property() completedBeforeCss: string;
+  @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
 

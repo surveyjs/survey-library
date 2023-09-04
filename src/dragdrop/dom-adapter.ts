@@ -275,6 +275,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       this.savedTargetNodeParent.appendChild(this.savedTargetNode);
       DragDropDOMAdapter.PreventScrolling = false;
     }
+    this.savedTargetNode = null;
+    this.savedTargetNodeParent = null;
+
     document.body.style.setProperty("touch-action", "");
     document.body.style.setProperty("user-select", "");
     document.body.style.setProperty("-webkit-user-select", "");

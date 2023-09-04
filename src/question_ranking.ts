@@ -288,8 +288,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
 
     if (!this.isDragStartNodeValid(target)) return;
 
-    if (choice.disabled) return;
-
     if (
       this.allowStartDrag &&
       this.canStartDragDueMaxSelectedChoices(target) &&

@@ -7266,7 +7266,7 @@ export class SurveyModel extends SurveyElementCore
     this.rootElement.addEventListener("scroll", this.scrollHandler);
   }
   public removeScrollEventListener(): void {
-    if (!!this.scrollHandler) {
+    if (!!this.rootElement && !!this.scrollHandler) {
       this.rootElement.removeEventListener("scroll", this.scrollHandler);
     }
   }

@@ -1518,6 +1518,7 @@ export class QuestionPanelDynamicModel extends Question
     if (!!this.parentQuestion && !!this.parent) {
       cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
     }
+    this.isValueChangingInternally = true;
     for (var i = 0; i < this.panels.length; i++) {
       const panel = this.panels[i];
       var panelValues = this.getPanelItemData(panel.data);
@@ -1530,6 +1531,7 @@ export class QuestionPanelDynamicModel extends Question
       newProps[panelName] = panel;
       panel.runCondition(newValues, newProps);
     }
+    this.isValueChangingInternally = false;
   }
   onAnyValueChanged(name: string) {
     super.onAnyValueChanged(name);

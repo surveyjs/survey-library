@@ -30,29 +30,12 @@
 </template>
 
 <script lang="ts" setup>
-import { type PanelModel, type Question, TooltipManager } from "survey-core";
-import { onUnmounted, onUpdated, ref } from "vue";
+import type { PanelModel, Question } from "survey-core";
+import { ref } from "vue";
 
 const props = defineProps<{
   element: Question | PanelModel;
   location?: string;
 }>();
 const root = ref<HTMLElement>();
-let tooltipManager: TooltipManager;
-
-onUpdated(() => {
-  if (props.location == "tooltip" && root.value instanceof HTMLElement) {
-    if (!tooltipManager || root.value !== tooltipManager.tooltipElement) {
-      tooltipManager = new TooltipManager(root.value as HTMLElement);
-    }
-  }
-  if (!(root.value instanceof HTMLElement) && !!tooltipManager) {
-    tooltipManager.dispose();
-  }
-});
-onUnmounted(() => {
-  if (tooltipManager) {
-    tooltipManager.dispose();
-  }
-});
 </script>

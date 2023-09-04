@@ -1518,6 +1518,7 @@ export class QuestionPanelDynamicModel extends Question
     if (!!this.parentQuestion && !!this.parent) {
       cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
     }
+    this.isValueChangingInternally = true;
     for (var i = 0; i < this.panels.length; i++) {
       const panel = this.panels[i];
       var panelValues = this.getPanelItemData(panel.data);
@@ -1530,6 +1531,7 @@ export class QuestionPanelDynamicModel extends Question
       newProps[panelName] = panel;
       panel.runCondition(newValues, newProps);
     }
+    this.isValueChangingInternally = false;
   }
   onAnyValueChanged(name: string) {
     super.onAnyValueChanged(name);
@@ -2150,10 +2152,20 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActionsCallback();
     this.footerToolbarValue.setItems(items);
   }
-  private createTabByPanel(panel: PanelModel) {
+  private createTabByPanel(panel: PanelModel, visPanelIndex: number) {
     if(!this.isRenderModeTab) return;
 
     const locTitle = new LocalizableString(panel, true);
+    locTitle.onGetTextCallback = (str: string): string => {
+      if(!this.survey) return str;
+      const options = {
+        title: str,
+        panel: panel,
+        visiblePanelIndex: visPanelIndex
+      };
+      this.survey.dynamicPanelGetTabTitle(this, options);
+      return options.title;
+    };
     locTitle.sharedData = this.locTemplateTabTitle;
     const isActive = this.getPanelIndexById(panel.id) === this.currentIndex;
     const newItem = new Action({
@@ -2194,13 +2206,16 @@ export class QuestionPanelDynamicModel extends Question
     if(!this.isRenderModeTab) return;
 
     const items: Array<Action> = [];
-    this.visiblePanels.forEach(panel => items.push(this.createTabByPanel(panel)));
+    const visPanels = this.visiblePanels;
+    for(let i = 0; i < visPanels.length; i ++) {
+      this.visiblePanels.forEach(panel => items.push(this.createTabByPanel(visPanels[i], i)));
+    }
     this.additionalTitleToolbar.setItems(items);
   }
   private addTabFromToolbar(panel: PanelModel, index: number) {
     if(!this.isRenderModeTab) return;
 
-    const newItem = this.createTabByPanel(panel);
+    const newItem = this.createTabByPanel(panel, index);
     this.additionalTitleToolbar.actions.splice(index, 0, newItem);
     this.updateTabToolbarItemsPressedState();
   }

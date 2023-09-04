@@ -1438,3 +1438,37 @@ QUnit.test("Check column min width property is set correctly to editor", functio
   property.onPropertyEditorUpdate(column, editor);
   assert.equal(editor.value, "");
 });
+QUnit.test("Allow to set empty string into localization string & string property with default value", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "placeholder" },
+      { type: "text", name: "minWidth" },
+      { type: "text", name: "valueName" },
+    ],
+  });
+  survey.editingObj = question;
+  const placeholderQuestion = survey.getQuestionByName("placeholder");
+  const minWidthQuestion = survey.getQuestionByName("minWidth");
+  const valueNameQuestion = survey.getQuestionByName("valueName");
+  assert.equal(placeholderQuestion.value, "Select...", "placeholder - default value");
+  assert.equal(minWidthQuestion.value, "300px", "minWidth - default value");
+  assert.notOk(valueNameQuestion.value, "valueName is empty by default");
+  placeholderQuestion.value = "";
+  minWidthQuestion.value = "";
+  valueNameQuestion.value = "";
+  assert.strictEqual(placeholderQuestion.value, "", "placeholder question value is empty");
+  assert.strictEqual(minWidthQuestion.value, "", "minWidth question value is empty");
+  assert.strictEqual(question.placeholder, "", "dropdown.placeholder value is empty");
+  assert.strictEqual(question.minWidth, "", "dropdown.minWidth value is empty");
+  assert.deepEqual(question.toJSON(), {
+    name: "q1", placeholder: "", minWidth: ""
+  });
+  const q2 = Serializer.createClass("dropdown");
+  q2.fromJSON({
+    name: "q2", placeholder: "", minWidth: ""
+  });
+  assert.equal(q2.name, "q2", "set the name correctly");
+  assert.strictEqual(q2.placeholder, "", "q2.placeholder value is empty");
+  assert.strictEqual(q2.minWidth, "", "q2.minWidth value is empty");
+});

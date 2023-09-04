@@ -163,7 +163,7 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {
-      listOptions.onSelectionChanged(item),
+      listOptions.onSelectionChanged(item);
       innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
@@ -171,13 +171,15 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.onFilterStringChangedCallback
   );
   listModel.locOwner = locOwner;
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title);
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
+    listModel.dispose();
+  });
   innerPopupModel.displayMode = popupOptions?.displayMode as any;
 
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: innerPopupModel,
-    action: (action:IAction, isUserAction: boolean) => {
+    action: (action: IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
       innerPopupModel.isFocusedContent = !isUserAction || listModel.showFilter;
       innerPopupModel.toggleVisibility();
@@ -303,7 +305,7 @@ export abstract class BaseAction extends Base implements IAction {
     return this.tooltip || this.title;
   }
   public getIsTrusted(args: any): boolean {
-    if(!!args.originalEvent) {
+    if (!!args.originalEvent) {
       return args.originalEvent.isTrusted;
     }
     return args.isTrusted;
@@ -444,6 +446,17 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public getComponent(): string {
     return this._component;
+  }
+  public dispose(): void {
+    this.action = undefined;
+    super.dispose();
+    if (this.popupModel) {
+      this.popupModel.dispose();
+    }
+    if (!!this.locTitleValue) {
+      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
+      this.locTitleChanged = undefined;
+    }
   }
 }
 

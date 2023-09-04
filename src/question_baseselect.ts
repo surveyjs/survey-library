@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { SurveyError } from "./survey-error";
-import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions } from "./base-interfaces";
+import { ISurveyImpl, ISurvey, ISurveyData, IPlainDataOptions, IValueItemCustomPropValues } from "./base-interfaces";
 import { SurveyModel } from "./survey";
 import { IQuestionPlainData, Question } from "./question";
 import { ItemValue } from "./itemvalue";
@@ -573,49 +573,43 @@ export class QuestionSelectBase extends Question {
     return this.hasUnknownValue(val, true, false);
   }
   protected updateSelectedItemValues(): void {
-    if(this.waitingGetChoiceDisplayValueResponse) return;
-
-    const IsMultipleValue = this.getIsMultipleValue();
-    if(IsMultipleValue) {
-      this.updateMultipleSelectedItemValues();
-    } else {
-      this.updateSingleSelectedItemValues();
-    }
-  }
-  protected updateSingleSelectedItemValues(): void {
-    if (!!this.survey && !this.isEmpty() && !ItemValue.getItemByValue(this.choices, this.value)) {
+    if(this.waitingGetChoiceDisplayValueResponse || !this.survey || this.isEmpty()) return;
+    const value = this.value;
+    const valueArray: Array<any> = Array.isArray(value) ? value : [value];
+    const hasItemWithoutValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
+    if (hasItemWithoutValues) {
       this.waitingGetChoiceDisplayValueResponse = true;
       this.isReady = !this.waitingAcyncOperations;
       this.survey.getChoiceDisplayValue({
         question: this,
-        values: [this.value],
-        setItems: (displayValues: Array<string>) => {
+        values: valueArray,
+        setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => {
           this.waitingGetChoiceDisplayValueResponse = false;
           if (!displayValues || !displayValues.length) return;
-          this.selectedItemValues = this.createItemValue(this.value, displayValues[0]);
+          const items = displayValues.map((displayValue, index) => this.createItemValue(valueArray[index], displayValue));
+          this.setCustomValuesIntoItems(items, customValues);
+          if(Array.isArray(value)) {
+            this.selectedItemValues = items;
+          }
+          else {
+            this.selectedItemValues = items[0];
+          }
           this.isReady = !this.waitingAcyncOperations;
         }
       });
     }
   }
-  protected updateMultipleSelectedItemValues(): void {
-    const valueArray: Array<any> = this.value;
-    const hasItemWithValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
-
-    if (!!this.survey && !this.isEmpty() && hasItemWithValues) {
-      this.waitingGetChoiceDisplayValueResponse = true;
-      this.isReady = this.waitingAcyncOperations;
-      this.survey.getChoiceDisplayValue({
-        question: this,
-        values: valueArray,
-        setItems: (displayValues: Array<string>) => {
-          this.waitingGetChoiceDisplayValueResponse = false;
-          if (!displayValues || !displayValues.length) return;
-          this.selectedItemValues = displayValues.map((displayValue, index) => this.createItemValue(this.value[index], displayValue));
-          this.isReady = !this.waitingAcyncOperations;
+  private setCustomValuesIntoItems(items: Array<ItemValue>, customValues: Array<IValueItemCustomPropValues>): void {
+    if(!Array.isArray(customValues) || customValues.length === 0) return;
+    customValues.forEach(customValue => {
+      const vals = customValue.values;
+      const propName = customValue.propertyName;
+      if(Array.isArray(vals)) {
+        for(let i = 0; i < items.length && i < vals.length; i ++) {
+          items[i][propName] = vals[i];
         }
-      });
-    }
+      }
+    });
   }
   protected hasUnknownValue(
     val: any,

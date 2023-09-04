@@ -17632,3 +17632,14 @@ QUnit.test("page/panel delete do it recursively", function (assert) {
   assert.equal(p1.isDisposed, true, "p1.isDisposed");
   assert.equal(q1.isDisposed, true, "q1.isDisposed");
 });
+QUnit.test("SurveyModel: Check that popups inside survey are closed when scrolling container", (assert): any => {
+  const model = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] }] });
+  const question = <QuestionDropdownModel>model.getAllQuestions()[0];
+  question.dropdownListModel.popupModel.toggleVisibility();
+  assert.ok(model["onScrollCallback"]);
+  assert.ok(question.dropdownListModel.popupModel.isVisible);
+  model.onScroll();
+  assert.notOk(question.dropdownListModel.popupModel.isVisible);
+  assert.notOk(model["onScrollCallback"]);
+  model.onScroll();
+});

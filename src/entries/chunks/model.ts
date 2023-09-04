@@ -146,6 +146,10 @@ export {
 export { QuestionMatrixBaseModel } from "../../martixBase";
 export {
   MultipleTextItemModel,
+  MultipleTextCell,
+  MultipleTextErrorCell,
+  MutlipleTextErrorRow,
+  MutlipleTextRow,
   QuestionMultipleTextModel,
   MultipleTextEditorModel
 } from "../../question_multipletext";

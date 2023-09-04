@@ -665,6 +665,45 @@ QUnit.test("Update via function - nested dependencies", function (assert) {
   assert.equal(updaterCallCount1, 2, "update called - responsive");
   assert.equal(base1.propS, "responsive");
 });
+QUnit.test("Unsubscribe dependencies on dispose", function (assert) {
+  const base1 = new BaseTester1();
+  const base2 = new BaseTester2();
+  const base3 = new BaseTester3();
+  let updaterCallCount = 0;
+  const updater = new ComputedUpdater<number>(() => {
+    updaterCallCount++;
+    return base1.propA + base2.propB;
+  });
+  base3.propC = <any>updater;
+
+  assert.equal(Object.keys(base3.dependencies).length, 1, "one computed");
+  assert.equal(Object.keys(base3.dependencies)[0], "propC", "propC");
+  assert.equal(base3.dependencies["propC"]["getDependencies"]().dependencies.length, 2, "depends on two properties");
+
+  assert.equal(base1["onPropChangeFunctions"].length, 1, "base1 one subscription");
+  assert.equal(base1["onPropChangeFunctions"][0].name, "propA", "base1 one subscription to A");
+  assert.equal(base2["onPropChangeFunctions"].length, 1, "base2 one subscription");
+  assert.equal(base2["onPropChangeFunctions"][0].name, "propB", "base2 one subscription to B");
+
+  assert.equal(updaterCallCount, 1, "first time calculation");
+  assert.equal(base3.propC, 3, "1 + 2");
+  base1.propA = 2;
+  assert.equal(updaterCallCount, 2, "propA changed");
+  assert.equal(base3.propC, 4, "2 + 2");
+
+  base3.dispose();
+
+  assert.equal(Object.keys(base3.dependencies).length, 1, "one computed");
+  assert.equal(base3.dependencies["propC"]["getDependencies"](), undefined, "no dependencies");
+
+  assert.equal(base1["onPropChangeFunctions"].length, 0, "base1 no subscriptions");
+  assert.equal(base2["onPropChangeFunctions"].length, 0, "base2 no subscriptions");
+
+  base1.propA = 3;
+  assert.equal(updaterCallCount, 2, "updater doesn't react on changes");
+  assert.equal(base3.propC, 4, "no value updates");
+});
+
 QUnit.test("findParentByClassNames function", function (assert) {
   const parentElement = document.createElement("div");
   parentElement.classList.add("class1");
@@ -714,4 +753,15 @@ QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.
   assert.strictEqual(question.minWidth, "", "minWidth property value is empty string");
   question.resetPropertyValue("minWidth");
   assert.equal(question.minWidth, "300px", "minWidth property value is reset, #2");
+});
+QUnit.test("base.resetPropertyValue() for localization string", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.completeText, "Complete", "default value");
+  survey.completeText = "test";
+  assert.equal(survey.completeText, "test", "set value");
+  survey.resetPropertyValue("completeText");
+  assert.equal(survey.completeText, "Complete", "default value, #2");
+  const prop = Serializer.findProperty("survey", "completeText");
+  prop.setValue(survey, "", null);
+  assert.equal(survey.completeText, "", "Empty string after prop.setValue func");
 });

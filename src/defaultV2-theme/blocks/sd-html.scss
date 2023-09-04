@@ -15,15 +15,13 @@
     @include articleLargeFont;
   }
 
-  h4 {
+  h4,
+  h5,
+  h6 {
     @include articleMediumFont;
   }
 
-  h5,
-  h6 {
-    color: $foreground;
-  }
-
+  td,
   span,
   div,
   p {

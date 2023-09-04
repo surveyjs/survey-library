@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
-import { ISurveyCreator, SurveyElementErrors, SurveyQuestionAndErrorsWrapped } from "./reactquestion";
-import { QuestionMultipleTextModel, MultipleTextItemModel } from "survey-core";
+import { ISurveyCreator, SurveyQuestionAndErrorsWrapped, SurveyQuestionErrorCell } from "./reactquestion";
+import { QuestionMultipleTextModel, MultipleTextItemModel, MultipleTextCell } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElement } from "./reactquestion_element";
 import { TitleContent } from "./components/title/title-content";
@@ -18,7 +18,9 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     var tableRows = this.question.getRows();
     var rows:Array<JSX.Element> = [];
     for (var i = 0; i < tableRows.length; i++) {
-      rows.push(this.renderRow(i, tableRows[i], cssClasses));
+      if(tableRows[i].isVisible) {
+        rows.push(this.renderRow(i, tableRows[i].cells, cssClasses));
+      }
     }
     return (
       <table className={cssClasses.root}>
@@ -26,20 +28,29 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       </table>
     );
   }
+
+  protected renderCell(cell: MultipleTextCell, cssClasses: any, index: number): JSX.Element {
+    let cellContent: JSX.Element;
+    const focusIn = () => { cell.item.focusIn(); };
+    if(cell.isErrorsCell) {
+      cellContent = <SurveyQuestionErrorCell question={cell.item.editor} creator={this.creator}></SurveyQuestionErrorCell>;
+    } else {
+      cellContent = <SurveyMultipleTextItem question={this.question} item={cell.item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>;
+    }
+    return (<td key={"item" + index} className={cell.className} onFocus={focusIn}>{cellContent}</td>);
+  }
+
   protected renderRow(
     rowIndex: number,
-    items: Array<MultipleTextItemModel>,
+    cells: Array<MultipleTextCell>,
     cssClasses: any
   ): JSX.Element {
     const key: string = "item" + rowIndex;
     const tds:Array<JSX.Element> = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const focusIn = () => { item.focusIn(); };
+    for (let i = 0; i < cells.length; i++) {
+      const cell = cells[i];
       tds.push(
-        <td key={"item" + i} className={this.question.cssClasses.cell} onFocus={focusIn}>
-          <SurveyMultipleTextItem question={this.question} item={item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>
-        </td>
+        this.renderCell(cell, cssClasses, i)
       );
     }
     return (
@@ -77,19 +88,7 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
         question={item.editor}
         creator={this.creator}
       />
-      {this.renderItemTooltipError(item, cssClasses)}
     </label>);
-  }
-
-  protected renderItemTooltipError(item: MultipleTextItemModel, cssClasses: any): JSX.Element | null {
-    return this.item.editor.isErrorsModeTooltip ? (
-      <SurveyElementErrors
-        element={item.editor}
-        cssClasses={cssClasses}
-        creator={this.creator}
-        location={"tooltip"}
-      />
-    ): null;
   }
 }
 

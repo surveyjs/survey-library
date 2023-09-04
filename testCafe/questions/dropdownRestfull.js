@@ -158,6 +158,8 @@ frameworks.forEach(framework => {
   );
   test("Carry forward for choicesByUrl", async t => {
     const questionDropdownSelect = Selector(".sv_q_dropdown_control");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+
     await setData({ q1: ["United States", "Romania"], q2: "Romania" });
     await t
       .wait(1000)

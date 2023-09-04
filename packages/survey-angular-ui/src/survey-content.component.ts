@@ -6,7 +6,7 @@ import { AngularComponentFactory } from "./component-factory";
 @Component({
   selector: "survey-content",
   templateUrl: "./survey-content.component.html"
-  })
+})
 export class SurveyContentComponent extends BaseAngular<SurveyModel> implements OnInit, AfterViewInit {
   @Input() model!: SurveyModel;
   @ViewChild("surveyContainer", { static: false }) rootEl!: ElementRef<HTMLDivElement>;
@@ -15,11 +15,11 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     return this.model;
   }
   protected override onModelChanged(): void {
-    if(!!this.previousModel) {
+    if (!!this.previousModel) {
       this.previousModel.destroyResizeObserver();
       this.previousModel.renderCallback = <any>undefined;
     }
-    if(!!this.model) {
+    if (!!this.model) {
       this.model.renderCallback = () => {
         this.detectChanges();
       };
@@ -28,13 +28,15 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
   }
   override ngOnInit(): void {
     super.ngOnInit();
-    if(!!this.model && this.model["needRenderIcons"]) {
+    if (!!this.model && this.model["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
   }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
-    if(!!this.model) {
+    if (!!this.model) {
+      this.model.rootElement = undefined as any;
+      this.model.destroyResizeObserver();
       this.model.renderCallback = <any>undefined;
     }
   }
@@ -42,7 +44,7 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     this.isSurveyUpdated = true;
   }
   override ngAfterViewChecked(): void {
-    if(!!this.model && this.isSurveyUpdated) {
+    if (!!this.model && this.isSurveyUpdated) {
       this.model.afterRenderSurvey(this.rootEl.nativeElement);
       this.model.startTimerFromUI();
     }

@@ -22,15 +22,24 @@ export class PopupComponent extends BaseAngular<PopupModel> {
     super(changeDetectorRef, viewContainerRef);
   }
   protected override onModelChanged(): void {
+    if (this.model) {
+      this.model.resetComponentElement();
+      this.model.dispose();
+    }
     this.model = createPopupViewModel(this.popupModel, this.viewContainerRef?.element.nativeElement);
   }
   ngAfterViewInit(): void {
-    if(!!this.containerRef?.nativeElement) {
+    if (!!this.containerRef?.nativeElement) {
       const container = this.containerRef.nativeElement as HTMLElement;
       this.model.setComponentElement(container, this.getTarget ? this.getTarget(container.parentElement as HTMLElement) : container?.parentElement?.parentElement);
     }
   }
   override ngOnInit() {
     this.onModelChanged();
+  }
+  override ngOnDestroy(): void {
+    this.model.resetComponentElement();
+    this.model.dispose();
+    super.ngOnDestroy();
   }
 }

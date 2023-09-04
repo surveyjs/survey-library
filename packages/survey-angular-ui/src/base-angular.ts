@@ -17,7 +17,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   private isModelSubsribed: boolean = false;
 
   public ngDoCheck(): void {
-    if(this.previousModel !== this.getModel()) {
+    if (this.previousModel !== this.getModel()) {
       this.unMakeBaseElementAngular(this.previousModel);
       this.makeBaseElementAngular(this.getModel());
       this.onModelChanged();
@@ -26,7 +26,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.setIsRendering(true);
   }
 
-  protected onModelChanged() {}
+  protected onModelChanged() { }
 
   private setIsRendering(val: boolean) {
     const model = this.getModel();
@@ -42,10 +42,11 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   ngOnDestroy() {
     this.isDestroyed = true;
     this.unMakeBaseElementAngular(this.getModel());
+    this.previousModel = undefined;
   }
 
   private makeBaseElementAngular(stateElement: T) {
-    if(!!stateElement && !(<any>stateElement).__ngImplemented) {
+    if (!!stateElement && !(<any>stateElement).__ngImplemented) {
       this.isModelSubsribed = true;
       (<any>stateElement).__ngImplemented = true;
       stateElement.iteratePropertiesHash((hash, key) => {
@@ -70,7 +71,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     }
   }
   private unMakeBaseElementAngular(stateElement?: Base) {
-    if(!!stateElement && this.isModelSubsribed) {
+    if (!!stateElement && this.isModelSubsribed) {
       this.isModelSubsribed = false;
       (<any>stateElement).__ngImplemented = false;
       stateElement.setPropertyValueCoreHandler = <any>undefined;
@@ -78,7 +79,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
         var val: any = hash[key];
         if (Array.isArray(val)) {
           var val: any = val;
-          val["onArrayChanged"] = () => {};
+          val["onArrayChanged"] = () => { };
         }
       });
     }
@@ -87,12 +88,12 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   protected update(key?: string): void {
     if (this.getIsRendering()) return;
     this.beforeUpdate();
-    if(key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
+    if (key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
       this.detectChanges();
       this.afterUpdate(true);
     } else {
       queueMicrotask(() => {
-        if(!this.isDestroyed) {
+        if (!this.isDestroyed) {
           this.setIsRendering(true);
           this.detectChanges();
         }
@@ -115,13 +116,13 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
 
   protected beforeUpdate(): void {
-    if(this.getShouldReattachChangeDetector()) {
+    if (this.getShouldReattachChangeDetector()) {
       this.getChangeDetectorRef().detach();
     }
     this.setIsRendering(true);
   }
   protected afterUpdate(isSync: boolean = false): void {
-    if(this.getShouldReattachChangeDetector()) {
+    if (this.getShouldReattachChangeDetector()) {
       this.getChangeDetectorRef().reattach();
     }
     this.setIsRendering(false);

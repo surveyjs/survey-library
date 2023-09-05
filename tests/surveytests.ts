@@ -17643,3 +17643,32 @@ QUnit.test("SurveyModel: Check that popups inside survey are closed when scrolli
   assert.notOk(model["onScrollCallback"]);
   model.onScroll();
 });
+QUnit.test("Copy panel with invisible questions at design-time", (assert): any => {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      { type: "panel", name: "panel1",
+        elements: [
+          { type: "text", name: "q1", visible: false },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ]
+  });
+  const panel1 = survey.getPanelByName("panel1");
+  const panel2 = Serializer.createClass("panel");
+  panel2.fromJSON(panel1.toJSON());
+  panel2.name = "panel2";
+  panel2.questions[0].name = "q3";
+  panel2.questions[1].name = "q4";
+  survey.pages[0].addElement(panel2);
+  const q1 = survey.getQuestionByName("q1");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q1.visible, false, "q1.visible = false");
+  assert.equal(q1.isVisible, true, "q1.isVisible = true");
+  assert.equal(q1.getPropertyValue("isVisible"), true, "q1.isVisible via getPropertyValue");
+  assert.equal(q3.visible, false, "q3.visible = false");
+  assert.equal(q3.isVisible, true, "q3.isVisible = true");
+  assert.equal(q3.getPropertyValue("isVisible"), true, "q3.isVisible via getPropertyValue");
+});

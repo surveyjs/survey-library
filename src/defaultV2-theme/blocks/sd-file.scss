@@ -67,12 +67,15 @@
 }
 
 .sd-file__choose-btn--text {
-  display: flex;
-  flex-direction: column;
+  display: block;
   margin-top: calcSize(1);
   font-weight: 600;
   color: $primary;
   cursor: pointer;
+}
+
+.sd-file__wrapper {
+  width: max-content;
 }
 
 .sd-question--answered {

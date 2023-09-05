@@ -15,17 +15,17 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     return this.questionBase as QuestionFileModel;
   }
   protected renderLoadingIndicator(): JSX.Element {
-    return <LoadingIndicatorComponent></LoadingIndicatorComponent>;
+    return this.question.showLoadingIndicator ? <LoadingIndicatorComponent></LoadingIndicatorComponent> : null as any;
   }
   protected renderElement(): JSX.Element {
     var preview = this.renderPreview();
     var fileInput: JSX.Element | null = null;
     var fileDecorator = this.renderFileDecorator();
     var clearButton = this.renderClearButton(
-      this.question.showRemoveButton
+      this.question.showRemoveButton as string
     );
     var clearButtonBottom = this.renderClearButton(
-      this.question.showRemoveButtonBottom
+      this.question.showRemoveButtonBottom as string
     );
 
     let mobileFileNavigator = this.question.mobileFileNavigatorVisible?(<SurveyActionBar model = {this.question.mobileFileNavigator}></SurveyActionBar>):null;
@@ -83,18 +83,21 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderFileDecorator(): JSX.Element {
-    const content = this.question.isUploading ? this.renderLoadingIndicator() : this.renderButtons();
+    const loadingIndicator = this.renderLoadingIndicator();
+    const chooseButton = this.renderChooseButton();
     return (
       <div
         className={this.question.getFileDecoratorCss()}
       >
-        {content}
+        {loadingIndicator}
+        {chooseButton}
       </div>
     );
   }
-  protected renderButtons(): JSX.Element {
+  protected renderChooseButton(): JSX.Element {
     let noFileChosen: JSX.Element | null = null;
     let chooseFile: JSX.Element | null = null;
+    if(!this.question.showChooseButton) return null;
     chooseFile = this.question.isReadOnly ? null : attachKey2click(
       <label
         role="button"
@@ -150,7 +153,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderPreview(): JSX.Element | null {
-    if (!this.question.previewValue || !this.question.previewValue.length || this.question.isUploading) return null;
+    if (!this.question.allowShowPreview) return null;
     var previews = this.question.previewValue.map((val, index) => {
       if (!val) return null;
       return (

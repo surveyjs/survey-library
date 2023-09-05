@@ -276,11 +276,20 @@ export class QuestionFileModel extends Question {
   get multipleRendered() {
     return this.allowMultiple ? "multiple" : undefined;
   }
-  get showRemoveButton() {
-    return !this.isReadOnly && !this.isEmpty() && this.cssClasses.removeButton;
+  public get showChooseButton(): boolean {
+    return !this.showLoadingIndicator;
   }
-  get showRemoveButtonBottom() {
-    return !this.isReadOnly && !this.isEmpty() && this.cssClasses.removeButtonBottom;
+  public get showLoadingIndicator(): boolean {
+    return this.isUploading && this.isDefaultV2Theme;
+  }
+  public get allowShowPreview(): boolean {
+    return this.previewValue && this.previewValue.length > 0 && !this.isUploading;
+  }
+  get showRemoveButton(): boolean {
+    return !this.isReadOnly && !this.isEmpty() && !this.isUploading && this.cssClasses.removeButton;
+  }
+  get showRemoveButtonBottom(): boolean {
+    return !this.isReadOnly && !this.isEmpty() && !this.isUploading && this.cssClasses.removeButtonBottom;
   }
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;

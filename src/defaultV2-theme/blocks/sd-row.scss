@@ -27,7 +27,7 @@
 }
 
 .sd-row--multiple {
-  row-gap: var(--sd-base-vertical-padding);
+  row-gap: calcSize(2);
   margin-left: calc(-1 * var(--sd-base-padding));
   width: calc(100% + var(--sd-base-padding));
   flex-wrap: wrap;
@@ -39,6 +39,7 @@
 }
 
 .sd-panel {
+  row-gap: var(--sd-base-vertical-padding);
   .sd-row--multiple {
     &>div {
       padding-left: var(--sd-base-padding);

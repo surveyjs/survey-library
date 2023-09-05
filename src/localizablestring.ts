@@ -199,7 +199,7 @@ export class LocalizableString implements ILocalizableString {
     var oldValue = this.onStrChanged && loc === curLoc ? this.pureText : undefined;
     delete (<any>this).htmlValues[loc];
     if (this.isValueEmpty(value)) {
-      if (this.getValue(loc)) this.deleteValue(loc);
+      this.deleteValue(loc);
     } else {
       if (typeof value === "string") {
         if (this.canRemoveLocValue(loc, value)) {

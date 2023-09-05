@@ -92,6 +92,8 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderCompletedBefore();
     } else if (this.survey.state == "loading") {
       renderResult = this.renderLoading();
+    } else if (this.survey.state == "empty") {
+      renderResult = this.renderEmptySurvey();
     } else {
       renderResult = this.renderSurvey();
     }
@@ -168,10 +170,6 @@ export class Survey extends SurveyElementBase<any, any>
     var pageId = this.survey.activePage ? this.survey.activePage.id : "";
 
     let className = this.survey.bodyCss;
-    if (!activePage) {
-      className = this.css.bodyEmpty;
-      activePage = this.renderEmptySurvey();
-    }
     const style: any = {};
     if(!!this.survey.renderedWidth) {
       style.maxWidth = this.survey.renderedWidth;
@@ -203,7 +201,7 @@ export class Survey extends SurveyElementBase<any, any>
     );
   }
   protected renderEmptySurvey(): JSX.Element {
-    return <span>{this.survey.emptySurveyText}</span>;
+    return <div className={this.css.bodyEmpty}>{this.survey.emptySurveyText}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};

@@ -1,16 +1,14 @@
 # Continue an Incomplete Survey
 
-Your respondents may not complete your survey in a single session. In this case, you can restore their answers from the previous session next time they get to the survey. Incomplete results can be loaded from your database or the browser's [localStorage](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
+Respondents may not complete your survey in a single session. In this case, you can restore their answers from the previous session next time they get to the survey. Incomplete results can be loaded from your database or the browser's [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).
 
-To save incomplete results, enable the Survey's [`sendResultOnPageNext`](/Documentation/Library?id=surveymodel#sendResultOnPageNext) property. With this setting, the Survey raises the [`onPartialSend`](/Documentation/Library?id=surveymodel#onPartialSend) event each time a respondent navigates to the next survey page. Handle this event to send incomplete results to your database or `localStorage`:
+To save incomplete results, implement a function that sends them to your server or saves them in the `localStorage`. Call this function within `SurveyModel`'s [`onValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onValueChanged) and [`onCurrentPageChanged`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onCurrentPageChanged) event handlers to save survey results when users change a question value or switch between pages. If you use the `localStorage`, you also need to delete survey results from it when the survey is completed. Handle the [`onComplete`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onComplete) event for this purpose.
 
 ```js
 import { Model } from "survey-core";
 
 const surveyJson = { ... };
 const survey = new Model(surveyJson);
-
-survey.sendResultOnPageNext = true;
 
 const storageItemKey = "my-survey";
 
@@ -20,13 +18,9 @@ function saveSurveyData (survey) {
   window.localStorage.setItem(storageItemKey, JSON.stringify(data));
 }
 
-// Save survey results
-survey.onPartialSend.add((survey) => {
-  saveSurveyData(survey);
-});
-survey.onComplete.add((survey) => {
-  saveSurveyData(survey);
-});
+// Save survey results to the local storage
+survey.onValueChanged.add(saveSurveyData);
+survey.onCurrentPageChanged.add(saveSurveyData);
 
 // Restore survey results
 const prevData = window.localStorage.getItem(storageItemKey) || null;
@@ -37,9 +31,14 @@ if (prevData) {
     survey.currentPageNo = data.pageNo;
   }
 }
+
+// Empty the local storage after the survey is completed
+survey.onComplete.add(() => {
+  window.localStorage.setItem(storageItemKey, "");
+});
 ```
 
-[View Demo](https://surveyjs.io/Examples/Library?id=real-patient-history (linkStyle))
+[View Demo](/form-library/examples/survey-editprevious/ (linkStyle))
 
 ## See Also
 

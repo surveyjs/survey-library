@@ -312,9 +312,11 @@ export class PanelModelBase extends SurveyElement<Question>
       (this.showTitle && this.isDesignMode && settings.designMode.showEmptyTitles)
     );
   }
-  public delete(): void {
+  public delete(doDispose: boolean = true): void {
     this.removeFromParent();
-    this.dispose();
+    if(doDispose) {
+      this.dispose();
+    }
   }
   protected removeFromParent(): void {}
   protected canShowTitle(): boolean { return true; }

@@ -661,7 +661,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get isQuestion() {
     return false;
   }
-  public delete() { }
+  public delete(doDispose: boolean): void { }
   //ILocalizableOwner
   locOwner: ILocalizableOwner;
   /**
@@ -783,19 +783,6 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.survey && this.survey.getCss().root == "sd-root-modern";
   }
 
-  public get isErrorsModeTooltip(): boolean {
-    return this.getIsErrorsModeTooltip();
-  }
-  protected getIsErrorsModeTooltip() {
-    return this.isDefaultV2Theme && this.hasParent && this.getIsTooltipErrorSupportedByParent();
-  }
-  protected getIsTooltipErrorSupportedByParent(): boolean {
-    return (<any>this.parent)?.getIsTooltipErrorInsideSupported();
-  }
-  protected getIsTooltipErrorInsideSupported(): boolean {
-    return false;
-  }
-
   public get hasParent() {
     return (this.parent && !this.parent.isPage && (!(<any>this.parent).originalPage || (<any>this.survey).isShowingPreview)) || (this.parent === undefined);
   }
@@ -810,10 +797,10 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   protected getHasFrameV2() : boolean {
-    return this.shouldAddRunnerStyles() && (!this.hasParent && this.isSingleInRow);
+    return this.shouldAddRunnerStyles() && (!this.hasParent);
   }
   protected getIsNested(): boolean {
-    return this.shouldAddRunnerStyles() && (this.hasParent || !this.isSingleInRow);
+    return this.shouldAddRunnerStyles() && (this.hasParent);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
@@ -973,6 +960,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.errors.forEach(err => {
         err.updateText();
       });
+    }
+  }
+  public dispose() {
+    super.dispose();
+    if(this.titleToolbarValue) {
+      this.titleToolbarValue.dispose();
     }
   }
 }

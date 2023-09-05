@@ -17,7 +17,10 @@ ko.components.register("sv-list", {
       model.initListContainerHtmlElement(componentInfo.element);
       return {
         model: model,
-        dispose: () => { _implementor.dispose(); },
+        dispose: () => {
+          _implementor.dispose();
+          model.initListContainerHtmlElement(undefined as any);
+        },
         afterItemRender: (_: any, action: Action) => {
           !!ko.tasks && ko.tasks.runEarly();
           model.onLastItemRended(action);

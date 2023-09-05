@@ -408,7 +408,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (this.matrix.isColumnLayoutHorizontal) {
       for (var i = 0; i < this.matrix.visibleColumns.length; i++) {
         var column = this.matrix.visibleColumns[i];
-        if (!column.hasVisibleCell) continue;
+        if (!column.isColumnVisible) continue;
         if (this.matrix.IsMultiplyColumn(column)) {
           this.createMutlipleColumnsHeader(column);
         } else {
@@ -430,7 +430,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     if (this.hasActionCellInRows("end")) {
-      this.headerRow.cells.push(this.createHeaderCell(null));
+      this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
   }
   protected buildFooter() {
@@ -450,7 +450,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var cells = this.matrix.visibleTotalRow.cells;
     for (var i = 0; i < cells.length; i++) {
       var cell = cells[i];
-      if (!cell.column.hasVisibleCell) continue;
+      if (!cell.column.isColumnVisible) continue;
       if (this.matrix.IsMultiplyColumn(cell.column)) {
         this.createMutlipleColumnsFooter(this.footerRow, cell);
       } else {
@@ -644,13 +644,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     for (let i = 0; i < row.cells.length; i++) {
       const cell = row.cells[i];
       if(!cell.hasQuestion) {
-        res.cells.push(this.createEmptyCell());
+        res.cells.push(this.createEmptyCell(true));
       }
       else if (this.matrix.IsMultiplyColumn(cell.cell.column)) {
         if(cell.isFirstChoice) {
           res.cells.push(this.createErrorCell(cell.cell));
         } else {
-          res.cells.push(this.createEmptyCell());
+          res.cells.push(this.createEmptyCell(true));
         }
       }
       else {
@@ -686,7 +686,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     for (var i = 0; i < row.cells.length; i++) {
       let cell = row.cells[i];
-      if (!cell.column.hasVisibleCell) continue;
+      if (!cell.column.isColumnVisible) continue;
       if (this.matrix.IsMultiplyColumn(cell.column)) {
         this.createMutlipleEditCells(res, cell);
       } else {
@@ -762,7 +762,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     var renderedRows = [];
     for (var i = 0; i < columns.length; i++) {
       var col = columns[i];
-      if (col.isVisible && col.hasVisibleCell) {
+      if (col.isColumnVisible) {
         if (this.matrix.IsMultiplyColumn(col)) {
           this.createMutlipleVerticalRows(renderedRows, col, i);
         } else {
@@ -1005,12 +1005,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
     return cell;
   }
-  private createEmptyCell(): QuestionMatrixDropdownRenderedCell {
+  private createEmptyCell(isError: boolean = false): QuestionMatrixDropdownRenderedCell {
     const res = this.createTextCell(null);
     res.isEmpty = true;
     res.className = new CssClassBuilder()
       .append(this.cssClasses.cell)
       .append(this.cssClasses.emptyCell)
+      .append(this.cssClasses.errorsCell, isError)
       .toString();
     return res;
   }

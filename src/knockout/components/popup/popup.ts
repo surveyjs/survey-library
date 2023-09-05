@@ -4,13 +4,22 @@ import { ImplementorBase } from "../../kobase";
 const template = require("html-loader?interpolate!val-loader!./popup.html");
 
 export class PopupViewModel {
+  private _popupImplementor: ImplementorBase;
+  private _popupModelImplementor: ImplementorBase;
   constructor(public popupViewModel: PopupBaseViewModel) {
-    new ImplementorBase(popupViewModel.model);
-    new ImplementorBase(popupViewModel);
+    this._popupModelImplementor = new ImplementorBase(popupViewModel.model);
+    this._popupImplementor = new ImplementorBase(popupViewModel);
     popupViewModel.model.onVisibilityChanged.add(this.visibilityChangedHandler);
   }
   dispose() {
+    this._popupModelImplementor.dispose();
+    this._popupModelImplementor = undefined;
+    this._popupImplementor.dispose();
+    this._popupImplementor = undefined;
+    this.popupViewModel.resetComponentElement();
     this.popupViewModel.model.onVisibilityChanged.remove(this.visibilityChangedHandler);
+    this.popupViewModel.dispose();
+    this.visibilityChangedHandler = undefined;
   }
   visibilityChangedHandler = (s: any, option: { isVisible: boolean }) => {
     if (option.isVisible) {
@@ -46,10 +55,10 @@ export function showModal(
 }
 export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
   dialogOptions.onHide = () => {
-    viewModel.dispose();
     ko.cleanNode(popupViewModel.container);
     popupViewModel.container.remove();
     popupViewModel.dispose();
+    viewModel.dispose();
   };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
   var viewModel = new PopupViewModel(popupViewModel);

@@ -636,3 +636,68 @@ QUnit.test("Set incorrect value into matrix dropdown", function (assert) {
   survey.data = { matrix: { row1: 1 } };
   assert.equal(matrix.isEmpty(), false, "Set correct value");
 });
+QUnit.test("column.visible property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text", visible: false },
+          { name: "col3", cellType: "text" }
+        ],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.columns[0].visible, true, "The default column.visible is true");
+  assert.equal(matrix.columns[1].visible, false, "The second column.visible is false");
+  let table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 2, "Header: One column is invisible, #1");
+  assert.equal(table.rows[1].cells.length, 1 + 2, "Row: One column is invisible, #1");
+  assert.equal(table.headerRow.cells[2].headers, "col3", "The second column is col3, #1");
+  matrix.columns[1].visible = true;
+  assert.notStrictEqual(table, matrix.renderedTable);
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 3, "Header: All columns are visible, #2");
+  assert.equal(table.rows[1].cells.length, 1 + 3, "Row: All columns are visible, #2");
+  assert.equal(table.headerRow.cells[2].headers, "col2", "The second column is col2, #2");
+  matrix.columns[2].visible = false;
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 2, "Header: the last column is invisible, #3");
+  assert.equal(table.rows[1].cells.length, 1 + 2, "Row: the last column is invisible, #3");
+  assert.equal(table.headerRow.cells[2].headers, "col2", "The last column is col2, #3");
+});
+QUnit.test("column.visible property and design time", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text", visible: false },
+          { name: "col3", cellType: "text" }
+        ],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.columns[0].visible, true, "Column is visible by default");
+  assert.equal(matrix.columns[1].visible, false, "visible property is false");
+  assert.equal(matrix.columns[1].hasVisibleCell, true, "It is visible");
+  let table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 3, "Header: One column is invisible, but it is visible in design-time, #1");
+  assert.equal(table.rows[1].cells.length, 1 + 3, "Row: One column is invisible, but it is visible in design-time, #1");
+  assert.equal(table.headerRow.cells[3].headers, "col3", "The last column is col3, #1");
+  matrix.columns[2].visible = false;
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 3, "Header: Two columns are invisible, but it is visible in design-time, #2");
+  assert.equal(table.rows[1].cells.length, 1 + 3, "Row: Two columns are invisible, but it is visible in design-time, #2");
+  assert.equal(table.headerRow.cells[3].headers, "col3", "The last column is col3, #2");
+});

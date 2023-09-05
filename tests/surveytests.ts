@@ -15763,6 +15763,32 @@ QUnit.test("Check navigation bar css update", function (assert) {
   survey.css = { actionBar: { root: "custom-navigation", defaultSizeMode: "" }, footer: "custom-footer" };
   assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });
+QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      }
+    ]
+  });
+  survey.css = defaultV2Css;
+  assert.equal(survey.getRootCss(), "sd-root-modern");
+
+  survey.setIsMobile(true);
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
+
+  survey.mode = "display";
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
+
+  survey.mode = "edit";
+  survey.setIsMobile(false);
+  survey["isCompact"] = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact");
+
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact sd-root-modern--full-container");
+});
 QUnit.test("Set correct activePage on fromSurvey and update buttons visibility", function (assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -17605,4 +17631,15 @@ QUnit.test("page/panel delete do it recursively", function (assert) {
   survey.currentPage.delete();
   assert.equal(p1.isDisposed, true, "p1.isDisposed");
   assert.equal(q1.isDisposed, true, "q1.isDisposed");
+});
+QUnit.test("SurveyModel: Check that popups inside survey are closed when scrolling container", (assert): any => {
+  const model = new SurveyModel({ elements: [{ type: "dropdown", name: "q1", choices: ["Item1", "Item2", "Item3"] }] });
+  const question = <QuestionDropdownModel>model.getAllQuestions()[0];
+  question.dropdownListModel.popupModel.toggleVisibility();
+  assert.ok(model["onScrollCallback"]);
+  assert.ok(question.dropdownListModel.popupModel.isVisible);
+  model.onScroll();
+  assert.notOk(question.dropdownListModel.popupModel.isVisible);
+  assert.notOk(model["onScrollCallback"]);
+  model.onScroll();
 });

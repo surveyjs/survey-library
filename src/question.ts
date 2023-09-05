@@ -260,9 +260,13 @@ export class Question extends SurveyElement<Question>
   public getPanel(): IPanel {
     return null;
   }
-  public delete(): void {
+  public delete(doDispose: boolean = true): void {
     this.removeFromParent();
-    this.dispose();
+    if(doDispose) {
+      this.dispose();
+    } else {
+      this.resetDependedQuestions();
+    }
   }
   protected removeFromParent(): void {
     if (!!this.parent) {
@@ -897,12 +901,8 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
       .toString();
   }
-  protected getIsErrorsModeTooltip() {
-    return super.getIsErrorsModeTooltip() && !this.customWidget;
-  }
-
   public showErrorOnCore(location: string): boolean {
-    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
+    return !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
   }
 
   public get showErrorOnTop(): boolean {
@@ -911,15 +911,8 @@ export class Question extends SurveyElement<Question>
   public get showErrorOnBottom(): boolean {
     return this.showErrorOnCore("bottom");
   }
-  protected getIsTooltipErrorSupportedByParent(): boolean {
-    if (this.parentQuestion) {
-      return this.parentQuestion.getIsTooltipErrorInsideSupported();
-    } else {
-      return super.getIsTooltipErrorSupportedByParent();
-    }
-  }
   private get showErrorsOutsideQuestion(): boolean {
-    return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
+    return this.isDefaultV2Theme;
   }
   public get showErrorsAboveQuestion(): boolean {
     return this.showErrorsOutsideQuestion && this.getErrorLocation() === "top";
@@ -941,7 +934,6 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.error.outsideQuestion, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
       .append(cssClasses.error.belowQuestion, this.showErrorsBelowQuestion)
       .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
-      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip)
       .append(cssClasses.error.locationTop, this.showErrorOnTop)
       .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
@@ -1352,6 +1344,8 @@ export class Question extends SurveyElement<Question>
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  public get hasFilteredValue(): boolean { return false; }
+  public getFilteredValue(): any { return this.value; }
   public get valueForSurvey(): any {
     if (!!this.valueToDataCallback) {
       return this.valueToDataCallback(this.value);
@@ -2324,10 +2318,13 @@ export class Question extends SurveyElement<Question>
   }
   public dispose(): void {
     super.dispose();
+    this.resetDependedQuestions();
+    this.destroyResizeObserver();
+  }
+  private resetDependedQuestions(): void {
     for (var i = 0; i < this.dependedQuestions.length; i++) {
       this.dependedQuestions[i].resetDependedQuestion();
     }
-    this.destroyResizeObserver();
   }
 }
 function makeNameValid(str: string): string {

@@ -36,6 +36,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private currentY: number;
   // save event.target node from the frameworks update. See  https://stackoverflow.com/questions/33298828/touch-move-event-dont-fire-after-touch-start-target-is-removed
   private savedTargetNode: any;
+  private savedTargetNodeParent: any;
   private scrollIntervalId: number = null;
 
   constructor(private dd: IDragDropEngine, private longTap: boolean = true) {}
@@ -101,6 +102,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
           clip: rect(1px 1px 1px 1px);
           clip: rect(1px, 1px, 1px, 1px);
         `;
+        this.savedTargetNodeParent = this.savedTargetNode.parentElement;
         this.rootElement.appendChild(this.savedTargetNode);
       }
 
@@ -268,9 +270,14 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.scrollIntervalId = null;
 
     if (IsTouch) {
+      this.savedTargetNode.style.cssText = null;
       this.savedTargetNode && this.savedTargetNode.parentElement.removeChild(this.savedTargetNode);
+      this.savedTargetNodeParent.appendChild(this.savedTargetNode);
       DragDropDOMAdapter.PreventScrolling = false;
     }
+    this.savedTargetNode = null;
+    this.savedTargetNodeParent = null;
+
     document.body.style.setProperty("touch-action", "");
     document.body.style.setProperty("user-select", "");
     document.body.style.setProperty("-webkit-user-select", "");

@@ -283,21 +283,6 @@ QUnit.test("Question MultipleText: koValue in TextItem", function (assert) {
   mQuestion.value = null;
   assert.equal(mQuestion.items[0].value, null, "empty the value");
 });
-QUnit.test("Question MultipleText: koRows", function (assert) {
-  var mQuestion = new QuestionMultipleText("q1");
-  mQuestion.items.push(new MultipleTextItem("i1"));
-  mQuestion.items.push(new MultipleTextItem("i2"));
-  mQuestion.colCount = 2;
-  assert.equal(mQuestion["koRows"]().length, 1, "just one row");
-  assert.equal(mQuestion["koRows"]()[0].length, 2, "two items in one row");
-  mQuestion.colCount = 1;
-  assert.equal(mQuestion["koRows"]().length, 2, "two rows now");
-  assert.equal(
-    mQuestion["koRows"]()[0].length,
-    1,
-    "just one item in the first row"
-  );
-});
 QUnit.test("koElements", function (assert) {
   var survey = new Survey();
   var page = survey.addNewPage("page1");

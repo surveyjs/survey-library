@@ -1,9 +1,18 @@
 {
     "RestResponse": {
         "result": [
-            { "alpha2_code": "US", "name": "Unated States" },
-            { "alpha2_code": "CU", "name": "Cuba" },
-            { "alpha2_code": "RO","name":"Romania" }
+            {
+                "alpha2_code": "US",
+                "name": "United States"
+            },
+            {
+                "alpha2_code": "CU",
+                "name": "Cuba"
+            },
+            {
+                "alpha2_code": "RO",
+                "name": "Romania"
+            }
         ]
     }
 }

@@ -100,6 +100,7 @@ export class SurveyImplementor extends ImplementorBase {
     if (!!this.renderedElement) {
       ko.cleanNode(this.renderedElement);
       this.renderedElement.innerHTML = "";
+      this.renderedElement = undefined;
     }
     this.survey["koAfterRenderPage"] = undefined;
     this.survey["koAfterRenderHeader"] = undefined;
@@ -125,7 +126,7 @@ export class Survey extends SurveyModel {
     super(jsonObj, renderedElement);
     this.implementor = new SurveyImplementor(this);
   }
-  render(element: any = null): void {
+  public render(element: any = null): void {
     this.implementor.render(element);
   }
   public getHtmlTemplate(): string {
@@ -133,6 +134,13 @@ export class Survey extends SurveyModel {
   }
   public makeReactive(obj: Base): void {
     new ImplementorBase(obj);
+  }
+  public dispose() {
+    super.dispose();
+    if(this.implementor) {
+      this.implementor.dispose();
+      this.implementor = undefined;
+    }
   }
 }
 

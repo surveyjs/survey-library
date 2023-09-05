@@ -1097,11 +1097,14 @@ QUnit.test("Matrixdynamic column.visibleIf", function (assert) {
   question.columns.push(new MatrixDropdownColumn("column1"));
   question.columns.push(new MatrixDropdownColumn("column2"));
   question.columns.push(new MatrixDropdownColumn("column3"));
-  question.columns[0]["choices"] = [1, 2, 3];
-  question.columns[1]["choices"] = [4, 5];
-  question.columns[2]["choices"] = [7, 8, 9, 10];
-  question.columns[2].isRequired = true;
-
+  const columns = question.columns;
+  columns[0]["choices"] = [1, 2, 3];
+  columns[1]["choices"] = [4, 5];
+  columns[2]["choices"] = [7, 8, 9, 10];
+  columns[2].isRequired = true;
+  assert.equal(columns[0].visible, true, "columns[0].visible");
+  assert.equal(columns[1].visible, true, "columns[1].visible");
+  assert.equal(columns[2].visible, true, "columns[2].visible");
   question.columns[1].visibleIf = "{row.column1} = 2";
   question.columns[2].visibleIf = "{a} = 5";
 
@@ -1327,6 +1330,7 @@ QUnit.test(
       "The second column is invisible"
     );
     survey.setValue("q2", 1);
+    let table = matrix.renderedTable;
     assert.equal(
       matrix.columns[0].hasVisibleCell,
       true,
@@ -1362,6 +1366,7 @@ QUnit.test(
       "The second column is invisible now"
     );
     survey.setValue("q2", 2);
+    table = matrix.renderedTable;
     assert.equal(
       matrix.columns[0].hasVisibleCell,
       false,
@@ -7955,10 +7960,15 @@ QUnit.test("Summary doesn't work correctly if there is invisible column and clea
     clearInvisibleValues: "onHiddenContainer"
   });
   const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const rows = matrix.visibleRows;
+  assert.equal(rows.length, 2, "two rows");
+  assert.equal(rows[0].cells.length, 4, "row[0].cells.length = 4");
+  assert.equal(rows[1].cells.length, 4, "row[1].cells.length = 4");
   matrix.visibleRows[0].cells[0].question.value = 1;
   matrix.visibleRows[0].cells[1].question.value = 2;
   matrix.visibleRows[1].cells[0].question.value = 3;
   matrix.visibleRows[1].cells[1].question.value = 4;
+  assert.equal(matrix.visibleTotalRow.cells.length, 4, "There are 4 cells");
   assert.equal(matrix.visibleTotalRow.cells[2].value, 1 + 2 + 3 + 4, "summary calculated correctly");
 });
 QUnit.test("Set empty string to expression with empty total type", function (assert) {

@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Multipletext Screenshot";
 
@@ -53,6 +53,48 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("mutlipletext.png", questionRoot, t, comparer);
       await t.click("input.sd-input");
       await takeElementScreenshot("mutlipletext-focus.png", questionRoot, t, comparer);
+    });
+  });
+  test("Check multipletext question error", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "multipletext",
+            name: "q1",
+            minWidth: "1000px",
+            maxWidth: "1000px",
+            width: "1000px",
+            colCount: 2,
+            title: "Personal Information",
+            items: [
+              {
+                name: "item1",
+                isRequired: true,
+                title: "Full Name"
+              },
+              {
+                name: "item2",
+                title: "Email Address"
+              },
+              {
+                name: "item3",
+                isRequired: true,
+                title: "ID"
+              },
+            ]
+          },
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await takeElementScreenshot("mutlipletext-error-top.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].itemErrorLocation = "bottom"; })();
+      await resetFocusToBody();
+      await takeElementScreenshot("mutlipletext-error-bottom.png", questionRoot, t, comparer);
     });
   });
 });

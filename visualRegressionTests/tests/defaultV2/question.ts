@@ -234,10 +234,69 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check questions in one row with different default heights", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question3"
+              },
+              {
+                "type": "checkbox",
+                "name": "question4",
+                "startWithNewLine": false,
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              },
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "title": "Panel"
+              },
+              {
+                "type": "checkbox",
+                "name": "question1",
+                "startWithNewLine": false,
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3",
+                  "Item 4",
+                  "Item 5",
+                  "Item 6"
+                ]
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "1000px"
+      },);
+      const rowSelector = Selector(".sd-page");
+      await resetFocusToBody();
+      await takeElementScreenshot("multiple-row-heights.png", rowSelector, t, comparer);
+    });
+  });
+
   test("Check questions in one row (overflow content)", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
-      await t.resizeWindow(1000, 1080);
+      await t.resizeWindow(900, 1080);
       await initSurvey(framework, {
         questions: [
           {

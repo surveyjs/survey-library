@@ -32,9 +32,13 @@
     .sd-multipletext__cell {
       display: block;
 
-      &:not(:last-child) {
-        padding-right: 0;
-        padding-bottom: calcSize(2);
+      &:not(:first-of-type) {
+        padding-left: 0;
+        padding-top: calcSize(1);
+      }
+
+      :not(:last-of-type) {
+        padding-bottom: calcSize(1);
       }
     }
 
@@ -43,8 +47,6 @@
     }
 
     .sd-multipletext__item-title {
-      font-size: calcFontSize(0.75);
-      line-height: calcLineHeight(1);
       height: calcSize(2);
       padding-right: 0;
       border-right: none;
@@ -52,6 +54,11 @@
       margin-top: calcSize(1);
       width: 100%;
       max-width: none;
+
+      span {
+        font-size: calcFontSize(0.75);
+        line-height: calcLineHeight(1);
+      }
     }
 
     .sd-multipletext__item {

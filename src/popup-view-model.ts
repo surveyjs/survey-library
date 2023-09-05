@@ -10,6 +10,8 @@ import { getElement } from "./utils/utils";
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  private static SubscriptionId = 0;
+  private subscriptionId = PopupBaseViewModel.SubscriptionId++;
   protected popupSelector = ".sv-popup";
   protected fixedPopupContainer = ".sv-popup";
   protected containerSelector = ".sv-popup__container";
@@ -32,7 +34,7 @@ export class PopupBaseViewModel extends Base {
   private createdContainer: HTMLElement;
 
   public getLocale(): string {
-    if(!!this.locale) return this.locale;
+    if (!!this.locale) return this.locale;
     return super.getLocale();
   }
   protected hidePopup(): void {
@@ -79,10 +81,14 @@ export class PopupBaseViewModel extends Base {
     this.minWidth = nullableValue;
   }
 
+  protected onModelChanging(newModel: PopupModel) {
+  }
+
   private setupModel(model: PopupModel) {
     if (!!this.model) {
-      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel");
+      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
     }
+    this.onModelChanging(model);
     this._model = model;
     const onIsVisibleChangedHandler = () => {
       if (!model.isVisible) {
@@ -90,7 +96,7 @@ export class PopupBaseViewModel extends Base {
       }
       this.isVisible = model.isVisible;
     };
-    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel");
+    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel" + this.subscriptionId);
     onIsVisibleChangedHandler();
   }
 
@@ -144,7 +150,7 @@ export class PopupBaseViewModel extends Base {
     return this.getLocalizationString("modalCancelButtonText");
   }
   public get footerToolbar(): ActionContainer {
-    if(!this.footerToolbarValue) {
+    if (!this.footerToolbarValue) {
       this.createFooterActionBar();
     }
     return this.footerToolbarValue;
@@ -175,9 +181,9 @@ export class PopupBaseViewModel extends Base {
   }
 
   public switchFocus(): void {
-    if(this.isFocusedContent) {
+    if (this.isFocusedContent) {
       this.focusFirstInput();
-    } else if(this.isFocusedContainer) {
+    } else if (this.isFocusedContainer) {
       this.focusContainer();
     }
   }
@@ -220,13 +226,17 @@ export class PopupBaseViewModel extends Base {
   }
   public dispose(): void {
     super.dispose();
-    if(!!this.createdContainer) {
+    if (this.model) {
+      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
+    }
+    if (!!this.createdContainer) {
       this.createdContainer.remove();
       this.createdContainer = undefined;
     }
-    if(!!this.footerToolbarValue) {
+    if (!!this.footerToolbarValue) {
       this.footerToolbarValue.dispose();
     }
+    this.resetComponentElement();
   }
   public initializePopupContainer(): void {
     if (!this.container) {
@@ -236,12 +246,13 @@ export class PopupBaseViewModel extends Base {
     }
   }
   public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
-    if(!!componentRoot) {
+    if (!!componentRoot) {
       this.containerElement = componentRoot;
     }
   }
   public resetComponentElement(): void {
     this.containerElement = undefined;
+    this.prevActiveElement = undefined;
   }
   protected preventScrollOuside(event: any, deltaY: number): void {
     let currentElement = event.target;

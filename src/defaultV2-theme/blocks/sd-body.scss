@@ -93,16 +93,6 @@
   gap: calcSize(2);
 }
 
-.sd-body__progress {
-  margin-bottom: calcSize(4);
-}
-
-.sd-body__progress--top {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-}
-
 .sd-body--empty {
   min-height: 400px;
   text-align: center;
@@ -158,6 +148,7 @@
     &:hover {
       background-color: $background-dark;
     }
+
     &:focus {
       box-shadow: 0 0 0 2px $primary;
     }

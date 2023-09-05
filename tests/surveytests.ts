@@ -17153,10 +17153,10 @@ QUnit.test("setStructuredData function", function (assert) {
     page2: { q21: 2102, q22: 2202 },
   });
   assert.deepEqual(survey.data, { q1: 102, q2: 202, q3: 302, q21: 2102, q22: 2202 }, "#3");
-  survey.setStructuredData({ page1: { q1: 103 } }, true),
-    assert.deepEqual(survey.data, { q1: 103, q2: 202, q3: 302, q21: 2102, q22: 2202 }, "#4");
-  survey.setStructuredData({ page1: { q1: 104 } }),
-    assert.deepEqual(survey.data, { q1: 104 }, "#5");
+  survey.setStructuredData({ page1: { q1: 103 } }, true);
+  assert.deepEqual(survey.data, { q1: 103, q2: 202, q3: 302, q21: 2102, q22: 2202 }, "#4");
+  survey.setStructuredData({ page1: { q1: 104 } });
+  assert.deepEqual(survey.data, { q1: 104 }, "#5");
 });
 
 QUnit.test("check titleNumInline cssClass", function (assert) {

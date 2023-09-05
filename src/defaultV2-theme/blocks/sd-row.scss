@@ -27,7 +27,7 @@
 }
 
 .sd-row--multiple {
-  row-gap: calcSize(2);
+  row-gap: var(--sd-base-vertical-padding);
   margin-left: calc(-1 * var(--sd-base-padding));
   width: calc(100% + var(--sd-base-padding));
   flex-wrap: wrap;

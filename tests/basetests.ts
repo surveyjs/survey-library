@@ -5,7 +5,7 @@ import { property, Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
-import { QuestionTextModel } from "../src/question_text";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 
 export default QUnit.module("Base");
 
@@ -736,7 +736,7 @@ QUnit.test("Subscribe localizable property", function (assert) {
   assert.equal(updaterCallCount1, 2, "update called - localizable value");
 });
 QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.resetPropertyValue()", function (assert) {
-  const question = new QuestionTextModel("q1");
+  const question = new QuestionDropdownModel("q1");
   assert.equal(question.hasDefaultPropertyValue("width"), false, "question.width has no default value");
   assert.notOk(question.getDefaultPropertyValue("width"), "question.width default value is undefined");
   question.width = "200px";
@@ -753,6 +753,18 @@ QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.
   assert.strictEqual(question.minWidth, "", "minWidth property value is empty string");
   question.resetPropertyValue("minWidth");
   assert.equal(question.minWidth, "300px", "minWidth property value is reset, #2");
+
+  assert.equal(question.hasDefaultPropertyValue("placeholder"), true, "question.placeholder has default value");
+  assert.equal(question.getDefaultPropertyValue("placeholder"), "Select...", "question.placeholder default value");
+  assert.equal(question.placeholder, "Select...", "question.placeholder value");
+  question.placeholder = "abc";
+  assert.equal(question.placeholder, "abc", "placeholder property is set to 200px");
+  question.resetPropertyValue("placeholder");
+  assert.equal(question.placeholder, "Select...", "placeholder property value is reset, #1");
+  question.placeholder = "";
+  assert.strictEqual(question.placeholder, "", "placeholder property value is empty string");
+  question.resetPropertyValue("placeholder");
+  assert.equal(question.placeholder, "Select...", "placeholder property value is reset, #2");
 });
 QUnit.test("base.resetPropertyValue() for localization string", function (assert) {
   const survey = new SurveyModel();

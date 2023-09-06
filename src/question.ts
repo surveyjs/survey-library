@@ -318,10 +318,13 @@ export class Question extends SurveyElement<Question>
     this.notifySurveyVisibilityChanged();
   }
   protected onVisibleChanged(): void {
-    this.setPropertyValue("isVisible", this.isVisible);
+    this.updateIsVisibleProp();
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];
     }
+  }
+  private updateIsVisibleProp(): void {
+    this.setPropertyValue("isVisible", this.isVisible);
   }
   /**
    * Specifies whether to use display names for question values in placeholders.
@@ -469,6 +472,9 @@ export class Question extends SurveyElement<Question>
       this.runConditions();
     }
     this.calcRenderedCommentPlaceholder();
+    if(!this.visible) {
+      this.updateIsVisibleProp();
+    }
   }
   /**
    * Returns a survey element (panel or page) that contains the question and allows you to move this question to a different survey element.

@@ -141,7 +141,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
-      await takeElementScreenshot("survey-progress-bar-bottom.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+      await takeElementScreenshot("survey-progress-bar-bottom-brand.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });
   test("Check survey with progress top buttons", async (t) => {

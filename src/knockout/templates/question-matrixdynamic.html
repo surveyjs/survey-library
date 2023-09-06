@@ -54,13 +54,13 @@
       <!-- /ko -->
       <!-- ko if: $data.isCheckbox -->
         <!-- ko let: { question: $data.matrix.getCellTemplateData($data) } -->
-          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-checkbox-item', data: { item: item, hideCaption: true } } } } -->
+          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-checkbox-item', data: item } } } -->
           <!-- /ko -->
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: $data.isRadio -->
         <!-- ko let: { question: $data.matrix.getCellTemplateData($data) } -->
-          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-radiogroup-item', data: { item: item, hideCaption: true } } } } -->
+          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-radiogroup-item', data: item } } } -->
           <!-- /ko -->  
         <!-- /ko -->   
       <!-- /ko -->

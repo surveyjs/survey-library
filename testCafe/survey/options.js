@@ -208,7 +208,7 @@ frameworks.forEach(framework => {
     await show_bottom_progress_bar();
     await t
       .expect(progressbar.visible).ok()
-      .expect(progressbar.textContent).contains("Page 1 of 3")
+      .expect(progressbar.textContent).contains("Page 1 of 3");
     if(framework === "vue") {
       await t.expect(progressRootElement.find(".sv_progress").visible).ok();
     } else {

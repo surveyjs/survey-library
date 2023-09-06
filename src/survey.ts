@@ -2529,11 +2529,11 @@ export class SurveyModel extends SurveyElementCore
   public getProgressTypeComponent(): string {
     return "sv-progress-" + this.progressBarType.toLowerCase();
   }
-  public getProgressCssClasses(): string {
+  public getProgressCssClasses(container: string = ""): string {
     return new CssClassBuilder()
       .append(this.css.progress)
-      .append(this.css.progressTop, this.isShowProgressBarOnTop)
-      .append(this.css.progressBottom, this.isShowProgressBarOnBottom)
+      .append(this.css.progressTop, this.isShowProgressBarOnTop && (!container || container == "header"))
+      .append(this.css.progressBottom, this.isShowProgressBarOnBottom && (!container || container == "footer"))
       .toString();
   }
   private canShowProresBar(): boolean {

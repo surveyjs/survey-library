@@ -283,13 +283,13 @@ export class QuestionFileModel extends Question {
     return this.isUploading && this.isDefaultV2Theme;
   }
   public get allowShowPreview(): boolean {
-    return this.previewValue && this.previewValue.length > 0 && !this.isUploading;
+    return this.previewValue && this.previewValue.length > 0 && !this.showLoadingIndicator;
   }
   get showRemoveButton(): boolean {
-    return !this.isReadOnly && !this.isEmpty() && !this.isUploading && this.cssClasses.removeButton;
+    return !this.isReadOnly && !this.isEmpty() && !this.showLoadingIndicator && this.cssClasses.removeButton;
   }
   get showRemoveButtonBottom(): boolean {
-    return !this.isReadOnly && !this.isEmpty() && !this.isUploading && this.cssClasses.removeButtonBottom;
+    return !this.isReadOnly && !this.isEmpty() && !this.showLoadingIndicator && this.cssClasses.removeButtonBottom;
   }
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;

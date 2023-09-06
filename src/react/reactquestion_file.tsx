@@ -21,12 +21,12 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     var preview = this.renderPreview();
     var fileInput: JSX.Element | null = null;
     var fileDecorator = this.renderFileDecorator();
-    var clearButton = this.renderClearButton(
-      this.question.showRemoveButton as string
-    );
-    var clearButtonBottom = this.renderClearButton(
-      this.question.showRemoveButtonBottom as string
-    );
+    var clearButton = this.question.showRemoveButton ? this.renderClearButton(
+      this.question.cssClasses.removeButton
+    ) : null;
+    var clearButtonBottom = this.question.showRemoveButtonBottom ? this.renderClearButton(
+      this.question.cssClasses.removeButtonBottom
+    ): null;
 
     let mobileFileNavigator = this.question.mobileFileNavigatorVisible?(<SurveyActionBar model = {this.question.mobileFileNavigator}></SurveyActionBar>):null;
     fileInput = (
@@ -97,7 +97,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected renderChooseButton(): JSX.Element {
     let noFileChosen: JSX.Element | null = null;
     let chooseFile: JSX.Element | null = null;
-    if(!this.question.showChooseButton) return null;
+    if(!this.question.showChooseButton) return null as any;
     chooseFile = this.question.isReadOnly ? null : attachKey2click(
       <label
         role="button"
@@ -127,7 +127,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </>);
   }
   protected renderClearButton(className: string): JSX.Element | null {
-    return className && !this.question.isUploading ? (
+    return !this.question.isUploading ? (
       <button type="button" onClick={this.question.doClean} className={className}>
         <span>{this.question.clearButtonCaption}</span>
         {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.clearButtonCaption}></SvgIcon>: null }

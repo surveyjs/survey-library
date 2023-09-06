@@ -1031,7 +1031,7 @@ function init() {
 
   //Survey.StylesManager.applyTheme("default");
   //Survey.StylesManager.applyTheme("modern");
-  Survey.StylesManager.applyTheme("defaultV2");
+  // Survey.StylesManager.applyTheme("defaultV2");
 
   var model = new Survey.Model(json);
   //model.setDesignMode(true);
@@ -1048,7 +1048,7 @@ function init() {
     });
 
   ReactDOM.render(
-    <Survey.Survey model={model} />,
+    <SurveyReact.Survey model={model} />,
     document.getElementById("surveyElement")
   );
 }

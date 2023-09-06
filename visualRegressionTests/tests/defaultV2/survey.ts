@@ -112,6 +112,38 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });
+  test("Check survey with progress bottom", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.showProgressBar = "bottom";
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-bottom.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+    });
+  });
+  test("Check survey with progress bottom with brand info and fit to container", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1800, 900);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        const container = (<any>window).document.getElementById("surveyElement");
+        container.style.position = "fixed";
+        container.style.top = 0;
+        container.style.bottom = 0;
+        container.style.left = 0;
+        container.style.right = 0;
+        (<any>window).survey.showBrandInfo = true;
+        (<any>window).survey.fitToContainer = true;
+        (<any>window).survey.showProgressBar = "bottom";
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-bottom-brand.png", Selector("#surveyElement"), t, comparer); // title + progress
+    });
+  });
   test("Check survey with progress top buttons", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -382,7 +414,7 @@ frameworks.forEach(framework => {
         const style = document.createElement("style");
         style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
         document.body.appendChild(style);
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
@@ -454,7 +486,7 @@ frameworks.forEach(framework => {
         const style = document.createElement("style");
         style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
         document.body.appendChild(style);
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
@@ -523,7 +555,7 @@ frameworks.forEach(framework => {
         ]
       };
       await ClientFunction(() => {
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
@@ -532,7 +564,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check survey progress bar freezes on top", async (t) => {
-    if(framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
+    if (framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
       await wrapVisualTest(t, async (t, comparer) => {
         await t.resizeWindow(1500, 720);
         const json = {
@@ -584,7 +616,7 @@ frameworks.forEach(framework => {
         await initSurvey(framework, json);
         await ClientFunction(() => {
           const surveyElement = document.getElementById("surveyElement");
-          if(surveyElement) {
+          if (surveyElement) {
             surveyElement.style.height = "90vh";
             surveyElement.style.overflowY = "auto";
             document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
@@ -668,16 +700,18 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
       await t.resizeWindow(1920, 900);
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = true;
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 10000); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 10000); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-saving.png", Selector(".sv-save-data_root"), t, comparer);
@@ -689,16 +723,18 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
       await t.resizeWindow(1920, 900);
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = true;
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-error.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
@@ -710,16 +746,18 @@ frameworks.forEach(framework => {
     await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
     await t.resizeWindow(1920, 900);
     await wrapVisualTest(t, async (t, comparer) => {
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = false;
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = false;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
@@ -933,7 +971,7 @@ frameworks.forEach(framework => {
   test("TOC survey navigation mobile", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 900);
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         window["Survey"]._setIsTouch(true);
       })();
 

@@ -24,6 +24,7 @@ import { onMounted, onUnmounted, ref } from "vue";
 
 const props = defineProps<{
   model: ActionContainer;
+  container?: string;
   handleClick?: boolean;
 }>();
 const root = ref<HTMLDivElement>(null as any as HTMLDivElement);

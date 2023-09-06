@@ -7300,12 +7300,13 @@ export class SurveyModel extends SurveyElementCore
    * Use this method to dispose survey model properly.
    */
   public dispose() {
-    this.rootElement = undefined;
-    this.currentPage = null;
+    this.removeScrollEventListener();
     this.destroyResizeObserver();
+    this.rootElement = undefined;
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;
+    this.currentPage = null;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].setSurveyImpl(undefined);
       this.pages[i].dispose();
@@ -7314,7 +7315,6 @@ export class SurveyModel extends SurveyElementCore
     if (this.disposeCallback) {
       this.disposeCallback();
     }
-    this.removeScrollEventListener();
   }
   disposeCallback: () => void;
 

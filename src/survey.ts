@@ -7244,7 +7244,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "contentBottom") {
+        if(container === "footer") {
           if(this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }

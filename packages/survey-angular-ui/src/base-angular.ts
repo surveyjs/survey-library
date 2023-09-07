@@ -90,7 +90,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     this.beforeUpdate();
     if (key && this.getPropertiesToUpdateSync().indexOf(key) > -1) {
       this.detectChanges();
-      this.afterUpdate();
+      this.afterUpdate(true);
     } else {
       queueMicrotask(() => {
         if (!this.isDestroyed) {
@@ -121,7 +121,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
     }
     this.setIsRendering(true);
   }
-  protected afterUpdate(): void {
+  protected afterUpdate(isSync: boolean = false): void {
     if (this.getShouldReattachChangeDetector()) {
       this.getChangeDetectorRef().reattach();
     }

@@ -31,6 +31,7 @@ export * from "./action-bar-separator.vue";
 @Component
 export class ActionBarViewModel extends BaseVue {
   @Prop() model: ActionContainer;
+  @Prop() container: string;
   @Prop() handleClick: boolean;
   constructor(props: any) {
     super(props);

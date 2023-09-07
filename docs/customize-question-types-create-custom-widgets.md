@@ -1,12 +1,4 @@
-# Create Custom Widget: Add into SurveyJS your own question
-
-- [When do you need a custom widget?](#needs)
-- [Create simple custom widget](#simplewidget)
-  - [Add functionality into existing question](#addfunctionality)
-  - [Add a new property into existing question](#addnewproperty)
-  - [Add new question using custom widget](#newquestion)
-  - [Totally replace the existing question input by custom widget](#replacequestion)
-- [Custom widget API](#api)
+# Create Custom Widgets in jQuery and Knockout
 
 <div id="needs"></div>
 

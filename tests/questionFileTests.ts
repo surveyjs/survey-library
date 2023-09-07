@@ -5,6 +5,7 @@ import { surveyLocalization } from "../src/surveyStrings";
 import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
 import { Serializer } from "../src/jsonobject";
+import { Webcam } from "../src/utils/webcam";
 
 export default QUnit.module("Survey_QuestionFile");
 
@@ -1243,4 +1244,27 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   q2.readOnly = false;
   assert.equal(q1.renderedPlaceholder.substring(0, 2), "No", "q1, readOnly => no file");
   assert.equal(q2.renderedPlaceholder.substring(0, 4), "Drag", "q2, not readOnly=> drag");
+});
+QUnit.test("QuestionFile current mode property,webcam is not available", function(assert) {
+  let callback: (devices: Array<MediaDeviceInfo>) => void = undefined;
+  Webcam.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
+    callback = cb;
+  };
+  let survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1" },
+      { type: "file", name: "q2", mode: "file" },
+      { type: "file", name: "q3", mode: "webcam" },
+      { type: "file", name: "q4", mode: "both" },
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "webcam");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "both");
+  callback([]);
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file", "#2");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "file", "#3");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file", "#4");
 });

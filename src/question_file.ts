@@ -46,6 +46,7 @@ export class QuestionFileModel extends Question {
    * Default value: `false`
    */
   @property() allowCameraAccess: boolean;
+  @property() mode: string;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -239,7 +240,9 @@ export class QuestionFileModel extends Question {
     }
     return this.renderedPlaceholderValue;
   }
-
+  public get currentMode(): string {
+    return this.getPropertyValue("currentMode", this.mode);
+  }
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
     if (this.isEmpty()) return this.chooseFileTitle;
@@ -637,7 +640,8 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
-    { name: "allowCameraAccess:switch", category: "general" }
+    { name: "allowCameraAccess:switch", category: "general" },
+    { name: "mode", choices: ["file", "webcam", "both"], default: "file", category: "general", visible: false }
   ],
   function () {
     return new QuestionFileModel("");

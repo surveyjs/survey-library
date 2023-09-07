@@ -285,11 +285,17 @@ export class QuestionFileModel extends Question {
   public get allowShowPreview(): boolean {
     return this.previewValue && this.previewValue.length > 0 && !this.showLoadingIndicator;
   }
+  get showRemoveButtonCore(): boolean {
+    const showLoadingIndicator = this.showLoadingIndicator;
+    const isReadOnly = this.isReadOnly;
+    const isEmpty = this.isEmpty();
+    return !isReadOnly && !isEmpty && !showLoadingIndicator;
+  }
   get showRemoveButton(): boolean {
-    return !this.isReadOnly && !this.isEmpty() && !this.showLoadingIndicator && this.cssClasses.removeButton;
+    return this.showRemoveButtonCore && this.cssClasses.removeButton;
   }
   get showRemoveButtonBottom(): boolean {
-    return !this.isReadOnly && !this.isEmpty() && !this.showLoadingIndicator && this.cssClasses.removeButtonBottom;
+    return this.showRemoveButtonCore && this.cssClasses.removeButtonBottom;
   }
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;

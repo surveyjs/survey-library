@@ -193,6 +193,7 @@ frameworks.forEach(framework => {
           {
             "type": "matrix",
             "name": "Quality",
+            "alternateRows": true,
             "title": "Please indicate if you agree or disagree with the following statements",
             "columns": ["Strongly Disagree",
               "Disagree",

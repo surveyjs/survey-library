@@ -737,6 +737,10 @@ QUnit.test("Allow to save empty string for localization strings", function (asse
   assert.equal(q1.placeholder, "test", "set value for placeholder, #3");
   q1.locPlaceholder.clearLocale();
   assert.equal(q1.placeholder, "Select...", "ClearLocale for placeholder");
+  q1.placeholder = "";
+  assert.equal(q1.placeholder, "", "placeholder is empty");
+  q1.locPlaceholder.clearLocale();
+  assert.equal(q1.placeholder, "Select...", "ClearLocale for placeholder, #2");
 });
 QUnit.test("Allow to save empty string for trings with default value", function (assert) {
   const q = new QuestionTextModel("q1");

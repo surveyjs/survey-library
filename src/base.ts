@@ -485,6 +485,8 @@ export class Base {
     if(!prop || prop.isCustom && this.isCreating) return undefined;
     const dValue = prop.defaultValue;
     if (!this.isPropertyEmpty(dValue) && !Array.isArray(dValue)) return dValue;
+    const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+    if(locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;

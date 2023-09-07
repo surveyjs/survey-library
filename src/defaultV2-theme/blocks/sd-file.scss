@@ -74,6 +74,10 @@
   cursor: pointer;
 }
 
+.sd-file__wrapper {
+  width: max-content;
+}
+
 .sd-question--answered {
   .sd-file__drag-area-placeholder {
     display: none;

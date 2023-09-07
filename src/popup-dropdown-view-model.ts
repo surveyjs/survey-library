@@ -5,6 +5,7 @@ import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
+import { SurveyModel } from "./survey";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {
@@ -25,8 +26,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     document.documentElement.style.setProperty("--sv-popup-overlay-height", `${visualViewport.height * visualViewport.scale}px`);
   }
   private resizeWindowCallback = () => {
-    if (!this.isOverlay) {
-      this.updatePosition(true, false);
+    if(!this.isOverlay) {
+      this.updatePosition(true, SurveyModel.platform === "vue" || SurveyModel.platform === "vue3");
     }
   };
   private clientY: number = 0;
@@ -81,12 +82,12 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     );
 
     if (!!window) {
-      const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+      const newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(
         pos.top,
         height,
         window.innerHeight
       );
-      if (!!newVerticalDimensions) {
+      if (!!newVerticalDimensions.height) {
         this.height = newVerticalDimensions.height + "px";
         pos.top = newVerticalDimensions.top;
       }

@@ -103,6 +103,7 @@ import TimerPanel from "./TimerPanel.vue";
 import LoadingIndicator from "./components/LoadingIndicator.vue";
 
 import {
+  SurveyModel,
   doKey2ClickBlur,
   doKey2ClickDown,
   doKey2ClickUp,
@@ -110,6 +111,8 @@ import {
 } from "survey-core";
 import type { App } from "vue";
 export { useBase, useLocString, useQuestion } from "./base";
+
+SurveyModel.platform = "vue3";
 
 function registerComponents(app: App) {
   app.component("SurveyComponent", SurveyVue);

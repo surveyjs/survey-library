@@ -2529,11 +2529,11 @@ export class SurveyModel extends SurveyElementCore
   public getProgressTypeComponent(): string {
     return "sv-progress-" + this.progressBarType.toLowerCase();
   }
-  public getProgressCssClasses(): string {
+  public getProgressCssClasses(container: string = ""): string {
     return new CssClassBuilder()
       .append(this.css.progress)
-      .append(this.css.progressTop, this.isShowProgressBarOnTop)
-      .append(this.css.progressBottom, this.isShowProgressBarOnBottom)
+      .append(this.css.progressTop, this.isShowProgressBarOnTop && (!container || container == "header"))
+      .append(this.css.progressBottom, this.isShowProgressBarOnBottom && (!container || container == "footer"))
       .toString();
   }
   private canShowProresBar(): boolean {
@@ -7244,7 +7244,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "contentBottom") {
+        if(container === "footer") {
           if(this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }
@@ -7300,12 +7300,13 @@ export class SurveyModel extends SurveyElementCore
    * Use this method to dispose survey model properly.
    */
   public dispose() {
-    this.rootElement = undefined;
-    this.currentPage = null;
+    this.removeScrollEventListener();
     this.destroyResizeObserver();
+    this.rootElement = undefined;
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;
+    this.currentPage = null;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].setSurveyImpl(undefined);
       this.pages[i].dispose();
@@ -7314,7 +7315,6 @@ export class SurveyModel extends SurveyElementCore
     if (this.disposeCallback) {
       this.disposeCallback();
     }
-    this.removeScrollEventListener();
   }
   disposeCallback: () => void;
 

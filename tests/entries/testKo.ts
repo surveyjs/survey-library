@@ -18,8 +18,11 @@ export { QuestionPanelDynamic } from "../../src/knockout/koquestion_paneldynamic
 export { QuestionRating } from "../../src/knockout/koquestion_rating";
 export { QuestionComment } from "../../src/knockout/koquestion_comment";
 
+export { Cover } from "../../src/knockout/components/cover/cover";
+
 // knockout
 export * from "../ko/kosurveymodeltests";
 export * from "../ko/survey_kotests";
 export * from "../ko/templatetexttests";
 export * from "../ko/actionbar";
+export * from "../ko/cover.tests";

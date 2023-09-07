@@ -1,0 +1,19 @@
+<!-- ko if: survey.titleView === 'cover' -->
+<div class="sv-cover" data-bind="style: { height: model.height, backgroundColor: model.backgroundColor }">
+  <!-- ko if: !!model.backgroundImage -->
+  <div data-bind="style: { backgroundImage: model.backgroundImage }"></div>
+  <!-- /ko -->
+  <div class="sv-conver__content" data-bind="css: { 'sv-conver__content--static': model.areaWidth === 'survey', 'sv-conver__content--responsive': model.areaWidth === 'container'}">
+    <div class="sv-cover__text" data-bind="style: { width: model.textWidth }">
+      <!-- ko if: survey.hasLogo -->
+      <div class="sv-cover__text-logo" data-bind="style: model.logoStyle">
+      <!-- ko component: { name: survey.getElementWrapperComponentName(survey, 'logo-image'), params: survey.getElementWrapperComponentData(survey, 'logo-image') } -->
+      <!-- /ko -->
+      </div>
+      <!-- /ko -->
+      <div class="sv-cover__text-title" data-bind="text: survey.title, style: model.titleStyle"></div>
+      <div class="sv-cover__text-description" data-bind="text: survey.description, style: model.descriptionStyle"></div>
+    </div>
+  </div>
+</div>
+<!-- /ko -->

@@ -1169,6 +1169,7 @@ export class SurveyModel extends SurveyElementCore
   @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
+  @property() titleView: "cover" | "title";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -7571,6 +7572,7 @@ Serializer.addClass("survey", [
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
+  { name: "titleView", default: "cover", choices: ["title", "cover"], visible: false },
   { name: "backgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

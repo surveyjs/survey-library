@@ -561,7 +561,7 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
     snapshot: "file-uploading",
-    initSurvey: survey => survey.getAllQuestions()[0].isUploading = true,
+    initSurvey: survey => survey.getAllQuestions()[0]["isUploading"] = true,
   }
   ]
 );

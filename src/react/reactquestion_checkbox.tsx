@@ -20,9 +20,13 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     return (
       <fieldset
-        role="presentation"
         className={this.question.getSelectBaseRootCss()}
         ref={(fieldset) => (this.setControl(fieldset))}
+        aria-required={this.question.a11y_input_ariaRequired}
+        aria-label={this.question.a11y_input_ariaLabel}
+        aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+        aria-invalid={this.question.a11y_input_ariaInvalid}
+        aria-describedby={this.question.a11y_input_ariaDescribedBy}
       >
         <legend role="presentation" className={"sv-hidden"}></legend>
         {this.getHeader()}
@@ -214,7 +218,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
         <label className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
           <input
             className={this.cssClasses.itemControl}
-            role="option"
             type="checkbox"
             name={this.question.name}
             value={this.item.value != "selectall" ? this.item.value : undefined}
@@ -223,7 +226,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             disabled={!this.question.getItemEnabled(this.item)}
             checked={isChecked}
             onChange={onItemChanged}
-            aria-describedby={this.question.ariaDescribedBy}
           />
           {
             this.cssClasses.materialDecorator ?

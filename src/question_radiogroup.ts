@@ -22,12 +22,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return "radiogroup";
   }
 
-  public get ariaRole(): string {
-    return "radiogroup";
-  }
-  public get titleAriaLabel(): string | null {
-    return null;
-  }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
@@ -83,6 +77,58 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     }
     return actions;
   }
+
+  //a11y
+  public get titleAriaLabel(): string | null {
+    return null;
+  }
+
+  public get ariaRole(): string {
+    return null;
+  }
+  public get ariaRequired():any {
+    return null;
+  }
+  public get ariaInvalid():any {
+    return null;
+  }
+  public get ariaLabel(): string {
+    return null;
+  }
+  public get ariaLabelledBy(): string {
+    return null;
+  }
+  public get ariaDescribedBy(): string {
+    return null;
+  }
+
+  public get a11y_input_ariaRole(): string {
+    return "radiogroup";
+  }
+  public get a11y_input_ariaRequired(): "true" | "false" {
+    return this.isRequired ? "true" : "false";
+  }
+  public get a11y_input_ariaInvalid(): "true" | "false" {
+    return this.errors.length > 0 ? "true" : "false";
+  }
+  public get a11y_input_ariaLabel(): string {
+    if (this.hasTitle) {
+      return null;
+    } else {
+      return this.locTitle.renderedHtml;
+    }
+  }
+  public get a11y_input_ariaLabelledBy(): string {
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaDescribedBy(): string {
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+  // EO a11y
 }
 
 Serializer.addClass(

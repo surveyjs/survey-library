@@ -39,9 +39,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected getDefaultItemComponent(): string {
     return "survey-checkbox-item";
   }
-  public get ariaRole(): string {
-    return "listbox";
-  }
   public getType(): string {
     return "checkbox";
   }
@@ -580,6 +577,58 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public get checkBoxSvgPath(): string {
     return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
   }
+
+  //a11y
+  public get titleAriaLabel(): string | null {
+    return null;
+  }
+
+  public get ariaRole(): string {
+    return null;
+  }
+  public get ariaRequired():any {
+    return null;
+  }
+  public get ariaInvalid():any {
+    return null;
+  }
+  public get ariaLabel(): string {
+    return null;
+  }
+  public get ariaLabelledBy(): string {
+    return null;
+  }
+  public get ariaDescribedBy(): string {
+    return null;
+  }
+
+  public get a11y_input_ariaRole(): string {
+    return "listbox";
+  }
+  public get a11y_input_ariaRequired(): "true" | "false" {
+    return this.isRequired ? "true" : "false";
+  }
+  public get a11y_input_ariaInvalid(): "true" | "false" {
+    return this.errors.length > 0 ? "true" : "false";
+  }
+  public get a11y_input_ariaLabel(): string {
+    if (this.hasTitle) {
+      return null;
+    } else {
+      return this.locTitle.renderedHtml;
+    }
+  }
+  public get a11y_input_ariaLabelledBy(): string {
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaDescribedBy(): string {
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+  // EO a11y
 }
 Serializer.addClass(
   "checkbox",

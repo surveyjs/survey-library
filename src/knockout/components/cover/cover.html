@@ -3,16 +3,28 @@
   <!-- ko if: !!model.backgroundImage -->
   <div data-bind="style: { backgroundImage: model.backgroundImage }"></div>
   <!-- /ko -->
-  <div class="sv-conver__content" data-bind="css: model.contentClasses">
-    <div class="sv-cover__text" data-bind="style: { width: model.textWidth }">
+  <div data-bind="css: model.contentClasses">
+    <div class="sv-cover__text" data-bind="css: survey.css.headerText, style: { width: model.textWidth }">
       <!-- ko if: survey.hasLogo -->
       <div class="sv-cover__text-logo" data-bind="style: model.logoStyle">
       <!-- ko component: { name: survey.getElementWrapperComponentName(survey, 'logo-image'), params: survey.getElementWrapperComponentData(survey, 'logo-image') } -->
       <!-- /ko -->
       </div>
       <!-- /ko -->
-      <div class="sv-cover__text-title" data-bind="text: survey.title, style: model.titleStyle"></div>
-      <div class="sv-cover__text-description" data-bind="text: survey.description, style: model.descriptionStyle"></div>
+      <!-- ko if: survey.hasTitle -->
+      <div class="sv-cover__text-title" data-bind="style: model.titleStyle">
+      <!-- ko component: { name: 'survey-element-title', params: { element: survey } } -->
+      <!-- /ko -->
+      </div>
+      <!-- /ko -->
+      <!-- ko if: survey.renderedHasDescription -->
+      <div class="sv-cover__text-description" data-bind="style: model.descriptionStyle">
+        <h5 data-bind="css: survey.css.description">
+          <!-- ko template: { name: 'survey-string', data: survey.locDescription } -->
+          <!-- /ko -->
+        </h5>
+      </div>
+      <!-- /ko -->
     </div>
   </div>
 </div>

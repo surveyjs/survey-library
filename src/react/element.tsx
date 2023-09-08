@@ -9,6 +9,7 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
   private rootRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
+    (this.element as Question).cssClasses;
   }
   protected getStateElement(): any {
     return this.element;
@@ -31,6 +32,14 @@ export class SurveyRowElement extends SurveyElementBase<any, any> {
   protected get css(): any {
     return this.props.css;
   }
+
+  public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
+    if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
+
+    (this.element as Question).cssClasses;
+    return true;
+  }
+
   protected renderElement(): JSX.Element {
     const element = this.element;
     const innerElement = this.createElement(element, this.index);

@@ -1,5 +1,5 @@
 ﻿<script type="text/html" id="survey-question-multipletext">
-  <table data-bind="css: question.cssClasses.root">
+  <table data-bind="css: question.getQuestionRootCss()">
     <tbody data-bind="foreach: { data:  question.getRows(), as: 'row' }">
       <!-- ko if: row.isVisible -->
       <tr data-bind="foreach: { data: row.cells, as: 'cell' }, css: question.cssClasses.row">

@@ -221,6 +221,7 @@ export var defaultV2Css = {
   },
   checkbox: {
     root: "sd-selectbase",
+    rootMobile: "sd-selectbase--mobile",
     rootRow: "sd-selectbase--row",
     rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-checkbox sd-selectbase__item",
@@ -243,6 +244,7 @@ export var defaultV2Css = {
   },
   radiogroup: {
     root: "sd-selectbase",
+    rootMobile: "sd-selectbase--mobile",
     rootRow: "sd-selectbase--row",
     rootMultiColumn: "sd-selectbase--multi-column",
     item: "sd-item sd-radio sd-selectbase__item",
@@ -314,6 +316,7 @@ export var defaultV2Css = {
   },
   multipletext: {
     root: "sd-multipletext",
+    rootMobile: "sd-multipletext--mobile",
     itemLabel: "sd-multipletext__item-container sd-input",
     itemLabelOnError: "sd-multipletext__item-container--error",
     item: "sd-multipletext__item",

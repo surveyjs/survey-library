@@ -648,6 +648,9 @@ export class QuestionMultipleTextModel extends Question
     }
     return res;
   }
+  protected allowMobileInDesignMode(): boolean {
+    return true;
+  }
   //IMultipleTextData
   getMultipleTextValue(name: string) {
     if (!this.value) return null;

@@ -215,7 +215,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
 
     return (
       <div className={itemClass} role="presentation">
-        <label className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
+        <label className={labelClass}>
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"

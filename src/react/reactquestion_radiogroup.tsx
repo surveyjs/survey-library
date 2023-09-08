@@ -197,7 +197,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         className={itemClass}
         role="presentation"
       >
-        <label onMouseDown={this.handleOnMouseDown} className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
+        <label onMouseDown={this.handleOnMouseDown} className={labelClass}>
           <input
             aria-describedby={this.question.ariaDescribedBy}
             className={this.cssClasses.itemControl}

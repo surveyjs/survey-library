@@ -420,23 +420,23 @@ export interface ProgressTextEvent {
 
 export interface TextProcessingEvent {
   /**
-   * a property name is going to be rendered
+   * The name of the property that contains the text to process.
    */
   name: string;
   /**
-   * SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered
+   * A survey element (question, panel, page, or survey) in which the text will be rendered.
    */
   element: Question | PanelModel | PageModel | SurveyModel;
 }
 export interface TextMarkdownEvent extends TextProcessingEvent {
   /**
-   * an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`
-   */
-  html?: string;
-  /**
-   * a text that is going to be rendered
+   * A string with Markdown content. Convert this content to HTML and assign the result to the `options.html` parameter.
    */
   text: string;
+  /**
+   * A property to which you should assign HTML content.
+   */
+  html?: string;
 }
 export interface TextRenderAsEvent extends TextProcessingEvent {
   /**
@@ -535,28 +535,25 @@ export interface ClearFilesEvent extends LoadFilesEvent {
 }
 export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
   /**
-   * a result that comes from the server as it is
+   * A query result as it came from the server.
    */
   serverResult: any;
   /**
-   * the loaded choices. You can change the loaded choices to before they are assigned to question
+   * An array of loaded choices. You can modify this array.
    */
   choices: Array<ItemValue>;
 }
 export interface ProcessTextValueEvent {
   /**
-   * the value of the processing text
-   */
-  value: any;
-  /**
-   * a boolean value. Set it to `true` if you want to use the value and set it to `false` if you don't
-   */
-  isExists: boolean;
-  canProcess: boolean;
-  /**
-   * the name of the processing value, for example, "state" in our example
+   * The name of the value being processed (the text in curly brackets).
    */
   name: string;
+  /**
+   * The value being processed. You can change this parameter's value.
+   */
+  value: any;
+  isExists: boolean;
+  canProcess: boolean;
   returnDisplayValue: boolean;
 }
 export interface UpdateQuestionCssClassesEvent extends QuestionEventMixin, UpdateElementCssClassesEventMixin { }
@@ -916,7 +913,7 @@ export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
 }
 export interface GetExpressionDisplayValueEvent extends GetQuestionDisplayValueEvent {
   /**
-   * The question value
+   * An expression value.
    */
   value: any;
 }

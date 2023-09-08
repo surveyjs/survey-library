@@ -8,6 +8,7 @@ const template = require("./cover.html");
 export class Cover extends Base {
   constructor() {
     super();
+    this.renderBackgroundImage = !!this.backgroundImage ? ["url(", this.backgroundImage, ")"].join("") : "";
   }
 
   public getType(): string {
@@ -21,7 +22,12 @@ export class Cover extends Base {
   @property() public glowText: boolean;
   @property() public overlap: boolean;
   @property() public backgroundColor: string;
-  @property() public backgroundImage: string;
+  @property({ onSet: (newVal: string, target: Cover) => {
+    target.renderBackgroundImage = !!newVal ? ["url(", newVal, ")"].join("") : "";
+  } }) public backgroundImage: string;
+  @property() public renderBackgroundImage: string;
+  @property() public backgroundImageFit: "cover" | "fill" | "contain";
+  @property() public backgroundImageOpacity: number;
   @property() public logoPositionX: HorizontalAlignment;
   @property() public logoPositionY: VerticalAlignment;
   @property() public titlePositionX: HorizontalAlignment;
@@ -57,6 +63,15 @@ export class Cover extends Base {
       .toString();
   }
 
+  public get backgroundImageStyle() {
+    if(!this.backgroundImage) return null;
+    return {
+      opacity: this.backgroundImageOpacity,
+      backgroundImage: this.renderBackgroundImage,
+      backgroundSize: this.backgroundImageFit === "fill" ? "100% 100%" : this.backgroundImageFit,
+    };
+  }
+
   private calcAlignSelf(positionX: HorizontalAlignment) {
     return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
   }
@@ -76,6 +91,8 @@ Serializer.addClass(
     { name: "overlap:boolean" },
     { name: "backgroundColor" },
     { name: "backgroundImage" },
+    { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
+    { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },
     { name: "logoPositionX", default: "right" },
     { name: "logoPositionY", default: "top" },
     { name: "titlePositionX", default: "left" },

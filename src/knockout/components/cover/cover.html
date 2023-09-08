@@ -1,7 +1,7 @@
 <!-- ko if: survey.titleView === 'cover' -->
 <div class="sv-cover" data-bind="style: { height: model.height, backgroundColor: model.backgroundColor }">
   <!-- ko if: !!model.backgroundImage -->
-  <div data-bind="style: { backgroundImage: model.backgroundImage }"></div>
+  <div class="sv-cover__background-image" data-bind="style: model.backgroundImageStyle"></div>
   <!-- /ko -->
   <div data-bind="css: model.contentClasses">
     <div class="sv-cover__text" data-bind="css: survey.css.headerText, style: { width: model.textWidth }">

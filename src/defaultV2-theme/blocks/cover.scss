@@ -1,15 +1,27 @@
 .sv-cover {
   padding: calcSize(5);
   box-sizing: border-box;
+  position: relative;
 }
 .sv-conver__content {
   height: 100%;
+  position: relative;
 }
 
 .sv-conver__content--static {
   max-width: calcSize(80);
   margin-left: auto;
   margin-right: auto;
+}
+
+.sv-cover__background-image {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  border: 0;
 }
 
 .sv-cover__text {

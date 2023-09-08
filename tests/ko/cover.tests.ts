@@ -132,3 +132,30 @@ QUnit.test("contentClasses",
     assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "areaWidth is container");
   }
 );
+
+QUnit.test("backgroundImageStyle",
+  function (assert) {
+    const cover = new Cover();
+    cover.backgroundImage = "some_url";
+
+    assert.deepEqual(cover.backgroundImageStyle, {
+      opacity: 1,
+      backgroundImage: "url(some_url)",
+      backgroundSize: "cover",
+    }, "default backgroundImageStyle");
+
+    cover.backgroundImageFit = "fill";
+    assert.deepEqual(cover.backgroundImageStyle, {
+      opacity: 1,
+      backgroundImage: "url(some_url)",
+      backgroundSize: "100% 100%",
+    }, "backgroundImageFit is fill");
+
+    cover.backgroundImageFit = "contain";
+    assert.deepEqual(cover.backgroundImageStyle, {
+      opacity: 1,
+      backgroundImage: "url(some_url)",
+      backgroundSize: "contain",
+    }, "backgroundImageFit is contain");
+  }
+);

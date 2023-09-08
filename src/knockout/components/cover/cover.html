@@ -3,7 +3,7 @@
   <!-- ko if: !!model.backgroundImage -->
   <div data-bind="style: { backgroundImage: model.backgroundImage }"></div>
   <!-- /ko -->
-  <div class="sv-conver__content" data-bind="css: { 'sv-conver__content--static': model.areaWidth === 'survey', 'sv-conver__content--responsive': model.areaWidth === 'container'}">
+  <div class="sv-conver__content" data-bind="css: model.contentClasses">
     <div class="sv-cover__text" data-bind="style: { width: model.textWidth }">
       <!-- ko if: survey.hasLogo -->
       <div class="sv-cover__text-logo" data-bind="style: model.logoStyle">

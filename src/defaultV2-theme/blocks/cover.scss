@@ -3,6 +3,7 @@
   box-sizing: border-box;
 }
 .sv-conver__content {
+  height: 100%;
 }
 
 .sv-conver__content--static {
@@ -21,6 +22,7 @@
 .sv-cover__text-logo {
   display: flex;
   flex-direction: row;
+  flex-grow: 1;
 }
 
 .sv-cover__text-title {

@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { Base, RendererFactory, Serializer, SurveyModel, property } from "survey-core";
+import { Base, CssClassBuilder, RendererFactory, Serializer, SurveyModel, property } from "survey-core";
 import { HorizontalAlignment, VerticalAlignment } from "../../../base-interfaces";
 import { ImplementorBase } from "src/knockout/kobase";
 
@@ -30,23 +30,38 @@ export class Cover extends Base {
   @property() public descriptionPositionY: VerticalAlignment;
 
   public get logoStyle() {
-    const result = { order: 1 };
+    const result = <any>{ order: 1 };
     result["align-self"] = this.calcAlignSelf(this.logoPositionX);
+    result["order"] = this.calcOrder(this.logoPositionY);
+    result["align-items"] = this.logoPositionY === "middle" ? "center" : (this.logoPositionY === "bottom" ? "flex-end": undefined);
     return result;
   }
   public get titleStyle() {
-    const result = { order: 2 };
+    const result = <any>{ order: 2 };
     result["align-self"] = this.calcAlignSelf(this.titlePositionX);
+    result["order"] = this.calcOrder(this.titlePositionY);
     return result;
   }
   public get descriptionStyle() {
-    const result = { order: 3 };
+    const result = <any>{ order: 3 };
     result["align-self"] = this.calcAlignSelf(this.descriptionPositionX);
+    result["order"] = this.calcOrder(this.descriptionPositionY);
     return result;
+  }
+
+  public get contentClasses(): string {
+    return new CssClassBuilder()
+      .append("sv-conver__content")
+      .append("sv-conver__content--static", this.areaWidth === "survey" && this.survey.calculateWidthMode() === "static")
+      .append("sv-conver__content--responsive", this.areaWidth === "container" || this.survey.calculateWidthMode() === "responsive")
+      .toString();
   }
 
   private calcAlignSelf(positionX: HorizontalAlignment) {
     return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
+  }
+  private calcOrder(positionY: VerticalAlignment) {
+    return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
 }
 
@@ -62,7 +77,7 @@ Serializer.addClass(
     { name: "backgroundColor" },
     { name: "backgroundImage" },
     { name: "logoPositionX", default: "right" },
-    { name: "logoPositionY", default: "bottom" },
+    { name: "logoPositionY", default: "top" },
     { name: "titlePositionX", default: "left" },
     { name: "titlePositionY", default: "bottom" },
     { name: "descriptionPositionX", default: "left" },

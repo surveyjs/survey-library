@@ -910,13 +910,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   @property({ defaultValue: true }) renderMinWidth: boolean;
 
   get rootStyle() {
-    var style: { [index: string]: any } = {};
+    let style: { [index: string]: any } = {};
+    let minWidth = this.renderMinWidth ? this.minWidth : "min(100%, " + this.minWidth + ")";
     if (this.allowRootStyle && this.renderWidth) {
       // style["width"] = this.renderWidth;
       style["flexGrow"] = 1;
       style["flexShrink"] = 1;
       style["flexBasis"] = this.renderWidth;
-      style["minWidth"] = this.renderMinWidth ? this.minWidth : "min(100%, " + this.minWidth + ")";
+      style["minWidth"] = minWidth;
       style["maxWidth"] = this.maxWidth;
     }
     return style;

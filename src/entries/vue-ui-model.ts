@@ -94,6 +94,7 @@ export { BrandInfo } from "../vue/components/brand-info.vue";
 export { NotifierComponent } from "../vue/components/notifier.vue";
 export { ComponentsContainer } from "../vue/components/container.vue";
 export { CharacterCounterComponent } from "../vue/components/character-counter.vue";
+export { LoadingIndicatorComponent } from "../vue/components/loading-indicator.vue";
 
 import { SurveyModel } from "survey-core";
 

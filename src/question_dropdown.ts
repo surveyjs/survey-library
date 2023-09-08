@@ -117,7 +117,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         i <= this.choicesMax;
         i += this.choicesStep
       ) {
-        this.minMaxChoices.push(new ItemValue(i));
+        this.minMaxChoices.push(this.createItemValue(i));
       }
     }
     res = res.concat(this.minMaxChoices);

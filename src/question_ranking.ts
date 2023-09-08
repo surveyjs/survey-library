@@ -544,6 +544,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public set useFullItemSizeForShortcut(val: boolean) {
     this.setPropertyValue("useFullItemSizeForShortcut", val);
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return false;
+  }
+  // EO a11y
 }
 
 Serializer.addClass(

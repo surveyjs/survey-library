@@ -213,6 +213,12 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     super.clearValue();
     this.dropdownListModel.clear();
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return false;
+  }
+  // EO a11y
 }
 
 Serializer.addClass(

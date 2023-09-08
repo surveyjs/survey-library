@@ -339,7 +339,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidateQuestion: EventBase<SurveyModel, ValidateQuestionEvent> = this.addEvent<SurveyModel, ValidateQuestionEvent>();
   /**
-   * An event that is raised before errors are assigned to a question. You may add/remove/modify errors for a question.
+   * An event that is raised before errors are assigned to a question. Use this event to add/remove/modify errors.
    * @see onValidateQuestion
    */
   public onSettingQuestionErrors: EventBase<SurveyModel, SettingQuestionErrorsEvent> = this.addEvent<SurveyModel, SettingQuestionErrorsEvent>();
@@ -365,11 +365,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidatePanel: EventBase<SurveyModel, ValidatePanelEvent> = this.addEvent<SurveyModel, ValidatePanelEvent>();
   /**
-   * Use the event to change the default error text.
+   * An event that is raised to change default error messages.
    */
   public onErrorCustomText: EventBase<SurveyModel, ErrorCustomTextEvent> = this.addEvent<SurveyModel, ErrorCustomTextEvent>();
   /**
-   * Use the this event to be notified when the survey finished validate questions on the current page. It commonly happens when a user try to go to the next page or complete the survey
+   * An event that is raised when the [current page](#currentPage) is being validated. Handle this event to be notified about current page validation.
    */
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
   /**
@@ -591,7 +591,7 @@ export class SurveyModel extends SurveyElementCore
   public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
 
   /**
-   * Use this event to change the visibility of an individual choice item in [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel), [Dropdown](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel), [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel), and other similar question types.
+   * An event that is raised before a [choice item](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) is displayed. Use this event to change the visibility of individual choice items in [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model), and other similar question types.
    */
   public onShowingChoiceItem: EventBase<SurveyModel, ShowingChoiceItemEvent> = this.addEvent<SurveyModel, ShowingChoiceItemEvent>();
 
@@ -739,20 +739,17 @@ export class SurveyModel extends SurveyElementCore
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 
   /**
-   * Use this event to define, whether an answer to a question is correct or not.
-   * @see Question.value
-   * @see Question.correctAnswer
+   * An event that is raised to define whether a question answer is correct. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    */
   public onIsAnswerCorrect: EventBase<SurveyModel, IsAnswerCorrectEvent> = this.addEvent<SurveyModel, IsAnswerCorrectEvent>();
 
   /**
-   * Use this event to control drag&drop operations during design mode.
-   * @see setDesignMode
+   * An event that is raised when users drag and drop survey elements while designing the survey in [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview). Use this event to control drag and drop operations.
    * @see isDesignMode
    */
   public onDragDropAllow: EventBase<SurveyModel, DragDropAllowEvent> = this.addEvent<SurveyModel, DragDropAllowEvent>();
   /**
-   * Use this event to control scrolling element to top. You can cancel the default behavior by setting options.cancel property to true.
+   * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
    */
   public onScrollingElementToTop: EventBase<SurveyModel, ScrollingElementToTopEvent> = this.addEvent<SurveyModel, ScrollingElementToTopEvent>();
 
@@ -796,8 +793,7 @@ export class SurveyModel extends SurveyElementCore
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
   /**
-   * An event that is raised after the survey element content was collapsed or expanded.
-   * @see onElementContentVisibilityChanged
+   * An event that is raised after a survey element is [expanded or collapsed](https://surveyjs.io/form-library/documentation/api-reference/question#state).
    */
   public onElementContentVisibilityChanged: EventBase<SurveyModel, ElementContentVisibilityChangedEvent> = this.addEvent<SurveyModel, ElementContentVisibilityChangedEvent>();
 
@@ -2127,8 +2123,8 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("completedHtmlOnCondition", val);
   }
   /**
-   * Calculates a given expression and returns a result value.
-   * @param expression
+   * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.
+   * @param expression An expression to calculate.
    */
   public runExpression(expression: string): any {
     if (!expression) return null;
@@ -2137,8 +2133,8 @@ export class SurveyModel extends SurveyElementCore
     return new ExpressionRunner(expression).run(values, properties);
   }
   /**
-   * Calculates a given expression and returns `true` or `false`.
-   * @param expression
+   * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns `true` or `false`.
+   * @param expression An expression to calculate.
    */
   public runCondition(expression: string): boolean {
     if (!expression) return false;
@@ -3374,6 +3370,9 @@ export class SurveyModel extends SurveyElementCore
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
   }
+  /**
+   * Indicates whether the survey is being designed in [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview).
+   */
   public get isDesignMode(): boolean {
     return this._isDesignMode;
   }
@@ -3657,12 +3656,6 @@ export class SurveyModel extends SurveyElementCore
       ? undefined
       : true;
   }
-  /**
-   * Checks whether survey elements (pages, panels, and questions) have unique question names.
-   * You can check for unique names for individual page and panel (and all their elements) or a question.
-   * If the parameter is not specified, then a survey checks that all its elements have unique names.
-   * @param element page, panel or question, it is `null` by default, that means all survey elements will be checked
-   */
   public ensureUniqueNames(element: ISurveyElement = null) {
     if (element == null) {
       for (var i = 0; i < this.pages.length; i++) {

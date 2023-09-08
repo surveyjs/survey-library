@@ -111,7 +111,7 @@ export interface CompletingEvent extends CompleteBaseEvent {
    */
   allow: boolean;
   /**
-   * Obsolete. Use `allow` instead.
+   * Obsolete. Use `options.allow` instead.
    */
   allowComplete: boolean;
 }
@@ -133,19 +133,19 @@ export interface CompleteEvent extends CompleteBaseEvent {
    */
   showSaveInProgress: (text?: string) => void;
   /**
-   * Obsolete. Use `showSaveInProgress` instead.
+   * Obsolete. Use `options.showSaveInProgress` instead.
    */
   showDataSaving: (text?: string) => void;
   /**
-   * Obsolete. Use `showSaveError` instead.
+   * Obsolete. Use `options.showSaveError` instead.
    */
   showDataSavingError: (text?: string) => void;
   /**
-   * Obsolete. Use `showSaveSuccess` instead.
+   * Obsolete. Use `options.showSaveSuccess` instead.
    */
   showDataSavingSuccess: (text?: string) => void;
   /**
-   * Obsolete. Use `clearSaveMessages` instead.
+   * Obsolete. Use `options.clearSaveMessages` instead.
    */
   showDataSavingClear: (text?: string) => void;
 }
@@ -155,7 +155,7 @@ export interface ShowingPreviewEvent {
    */
   allow: boolean;
   /**
-   * Obsolete. Use `allow` instead.
+   * Obsolete. Use `options.allow` instead.
    */
   allowShowPreview: boolean;
 }
@@ -205,7 +205,7 @@ export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
    */
   allow: boolean;
   /**
-   * Obsolete. Use `allow` instead.
+   * Obsolete. Use `options.allow` instead.
    */
   allowChanging: boolean;
 }
@@ -262,11 +262,11 @@ export interface ElementAddedEvent {
    */
   parent: PanelModelBase;
   /**
-   * Obsolete. Use `page` instead.
+   * Obsolete. Use `options.page` instead.
    */
   rootPanel: any;
   /**
-   * Obsolete. Use `parent` instead.
+   * Obsolete. Use `options.parent` instead.
    */
   parentPanel: any;
   /**
@@ -335,31 +335,29 @@ export interface ValidatePanelEvent extends PanelEventMixin {
 }
 export interface ErrorCustomTextEvent {
   /**
-   * the error name. The following error names are available:
-   * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
-   * uploadingfile, requiredinallrowserror, minrowcounterror, keyduplicationerror, custom
+   * A validation error type: `"required"`, `"requireoneanswer"`, `"requirenumeric"`, `"exceedsize"`, `"webrequest"`, `"webrequestempty"`, `"otherempty"`, `"uploadingfile"`, `"requiredinallrowserror"`, `"minrowcounterror"`, `"keyduplicationerror"`, or `"custom"`
    */
   name: string;
   /**
-   * an instance of Question, Panel or Survey object to where error is located
+   * A survey element to which the validation error belongs.
    */
   obj: Question | PanelModel | SurveyModel;
   /**
-   * an instance of the `SurveyError` object
+   * A validation error.
    */
   error: SurveyError;
   /**
-   * an error text
+   * An error message. You can assign a custom message to this parameter.
    */
   text: string;
 }
 export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
   /**
-   * the list of questions that have errors
+   * An array of questions with validation errors.
    */
   questions: Array<Question>;
   /**
-   * the list of errors
+   * An array of validation errors.
    */
   errors: Array<SurveyError>;
 }
@@ -585,13 +583,13 @@ export interface FocusInQuestionEvent extends QuestionEventMixin {
 export interface FocusInPanelEvent extends PanelEventMixin { }
 export interface ShowingChoiceItemEvent extends QuestionEventMixin {
   /**
+   * A choice item.
+   */
+  item: ItemValue;
+  /**
    * A Boolean value that specifies item visibility. Set it to `false` to hide the item.
    */
   visible: boolean;
-  /**
-   * The choice item as specified in the [choices](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choices) array.
-   */
-  item: ItemValue;
 }
 export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
   /**
@@ -633,7 +631,7 @@ export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMix
    */
   allow: boolean;
   /**
-   * Obsolete. Use `allow` instead.
+   * Obsolete. Use `options.allow` instead.
    */
   canAddRow: boolean;
 }
@@ -827,62 +825,65 @@ export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventM
 }
 export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
-   * you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question
+   * The number of correct answers in a matrix where each row is considered as one quiz question.
    */
   correctAnswers: number;
+  /**
+   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
+   */
   incorrectAnswers: number;
   /**
-   * returns `true`, if an answer is correct, or `false`, if the answer is not correct. Use questions' `value` and `correctAnswer` properties to return the correct value
+   * A Boolean property that specifies whether the answer is correct (`true`) or incorrect (`false`). Use the `options.question.value` and `options.question.correctAnswer` properties to check the answer.
    */
   result: boolean;
 }
 export interface DragDropAllowEvent {
   /**
-   * an element after the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging element to the first position within the parent container
-   */
-  insertAfter: IElement;
-  /**
-   * an element before the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging an element after the last element in a container
-   */
-  insertBefore: IElement;
-  /**
-   * a page or panel where target element is dragging
-   */
-  parent: ISurveyElement;
-  /**
-   * a source element. It can be `null`, if it is a new element, dragging from toolbox
-   */
-  source: IElement;
-  /**
-   * a target element that is dragged
+   * A survey element being dragged.
    */
   target: IElement;
   /**
-   * set it to `false` to disable dragging
+   * A survey element from which `target` is being dragged. This parameter is `null` if `target` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
+   */
+  source: IElement;
+  /**
+   * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
+   */
+  insertBefore: IElement;
+  /**
+   * A survey element after which `target` will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if `target` will be placed above all other elements within the container.
+   */
+  insertAfter: IElement;
+  /**
+   * A parent container (page or panel) within which `target` will be placed.
+   */
+  parent: ISurveyElement;
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel the drag and drop operation.
    */
   allow: boolean;
 }
 export interface ScrollingElementToTopEvent {
   /**
-   * an element that is going to be scrolled on top
+   * A survey element that will be scrolled to the top.
    */
   element: ISurveyElement;
   /**
-   * a question that is going to be scrolled on top. It can be null if options.page is not null
+   * A unique element ID within the DOM.
    */
-  question?: Question;
+  elementId: string;
   /**
-   * a page that is going to be scrolled on top. It can be null if options.question is not null
-   */
-  page?: PageModel;
-  /**
-   * set this property to true to cancel the default scrolling
+   * A Boolean property that you can set to `true` if you want to cancel the scroll operation.
    */
   cancel: boolean;
   /**
-   * the unique element DOM Id
+   * Obsolete. Use `options.element` instead.
    */
-  elementId: string;
+  question?: Question;
+  /**
+   * Obsolete. Use `options.element` instead.
+   */
+  page?: PageModel;
 }
 export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }
@@ -901,7 +902,7 @@ export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActions
 }
 export interface ElementContentVisibilityChangedEvent {
   /**
-   * Specifies which survey element content was collapsed or expanded
+   * A survey element that was expanded or collapsed.
    */
   element: ISurveyElement;
 }

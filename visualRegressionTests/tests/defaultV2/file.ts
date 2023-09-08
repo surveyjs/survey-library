@@ -101,6 +101,20 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("file-question-multiple-mobile-prev.png", questionRoot, t, comparer);
     });
   });
+  test("Check file question uploading", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const questionRoot = Selector(".sd-question");
+      await ClientFunction(()=>{
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.isUploading = true;
+      })();
+      await ClientFunction(() => {
+        (<HTMLElement>document.querySelector(".sd-loading-indicator .sv-svg-icon")).style.animation = "none";
+      })();
+      await takeElementScreenshot("file-uploading.png", questionRoot, t, comparer);
+    });
+  });
 });
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`

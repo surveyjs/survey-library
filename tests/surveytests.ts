@@ -16218,6 +16218,10 @@ QUnit.test("hasDescription is isDesignMode", function (assert) {
   const q2 = survey.getQuestionByName("q2");
   assert.notOk(q1.hasDescription, "text description is not shown");
   assert.ok(q2.hasDescription, "comment description is shown");
+  const q3 = survey.currentPage.addNewQuestion("text", "q3");
+  const q4 = survey.currentPage.addNewQuestion("comment", "q4");
+  assert.notOk(q3.hasDescription, "text description is not shown, on adding question");
+  assert.ok(q4.hasDescription, "comment description is shown, on adding question");
 
   commentDescriptionProperty.placeholder = oldValue;
   settings.supportCreatorV2 = false;

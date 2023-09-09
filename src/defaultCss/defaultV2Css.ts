@@ -319,6 +319,8 @@ export var defaultV2Css = {
     rootMobile: "sd-multipletext--mobile",
     itemLabel: "sd-multipletext__item-container sd-input",
     itemLabelOnError: "sd-multipletext__item-container--error",
+    itemLabelAllowFocus: "sd-multipletext__item-container--allow-focus",
+    itemLabelAnswered: "sd-multipletext__item-container--answered",
     item: "sd-multipletext__item",
     itemTitle: "sd-multipletext__item-title",
     content: "sd-multipletext__content sd-question__content",

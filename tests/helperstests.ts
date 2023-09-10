@@ -306,6 +306,10 @@ QUnit.test("isTwoValueEquals, undefined vs 'undefined', Bug# ", function(
 QUnit.test("isTwoValueEquals, Arrays with empty objects", function(assert) {
   assert.equal(Helpers.isTwoValueEquals([{ a: "a" }], [{ a: "a" }, {}]), false, "arrays are not equal");
 });
+QUnit.test("isTwoValueEquals, Arrays ignore orders", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals([1, 2, 3], [3, 2, 1], true), true, "arrays ignore order");
+  assert.equal(Helpers.isTwoValueEquals([1, 2, 3], [3, 2, 1], false), false, "arrays doesn't ignore order");
+});
 QUnit.test("Helpers.isNumber", function(assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");

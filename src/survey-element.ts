@@ -423,6 +423,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       this.onSetData();
     }
     if (!!this.survey) {
+      this.updateDescriptionVisibility(this.description);
       this.clearCssClasses();
     }
   }

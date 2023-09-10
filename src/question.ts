@@ -2080,7 +2080,9 @@ export class Question extends SurveyElement<Question>
       newValue = this.valueFromDataCallback(newValue);
     }
     if(!this.checkIsValueCorrect(newValue)) return;
+    this.isChangingViaDefaultValue = true;
     this.setQuestionValue(this.valueFromData(newValue));
+    this.isChangingViaDefaultValue = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
   }

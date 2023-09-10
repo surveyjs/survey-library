@@ -1451,3 +1451,8 @@ QUnit.test("year, month, day, weekday", function(assert) {
   runner = new ExpressionRunner("weekday()");
   assert.deepEqual(runner.run({}), new Date().getDay(), "current weekday");
 });
+QUnit.test("Sum two float numbers as string", function(assert) {
+  let runner = new ExpressionRunner("{a} + {b}");
+  assert.equal(runner.run({ a: "1.1", b: "2.2" }), 3.3, "#1");
+  assert.equal(runner.run({ a: "0.1", b: "0.2" }), 0.3, "#2");
+});

@@ -311,6 +311,8 @@ QUnit.test("Helpers.isNumber", function(assert) {
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
   assert.equal(Helpers.isNumber("23.3"), true, "23.3 is a number");
   assert.equal(Helpers.isNumber("abcd"), false, "abcd is not a number");
+  assert.equal(Helpers.isNumber("0.1"), true, "0.1 is number");
+  assert.equal(Helpers.isNumber("0.2"), true, "0.2 is number");
   assert.equal(
     Helpers.isNumber("0xbe0eb53f46cd790cd13851d5eff43d12404d33e8"),
     false,
@@ -493,6 +495,7 @@ QUnit.test("sumAnyValues", function(assert) {
   assert.equal(Helpers.sumAnyValues([1, 2, 3], 4), 10, "[1, 2, 3] + 10");
   assert.equal(Helpers.sumAnyValues(["a", "b", "c"], " "), "a, b, c ", "['a', 'b', 'c'] + ' '");
   assert.equal(Helpers.sumAnyValues(["a", "b", "c"], ""), "a, b, c", "['a', 'b', 'c'] + ''");
+  assert.equal(Helpers.sumAnyValues("0.1", "0.2"), "0.10.2", "'0.1' + '0.2'");
 });
 QUnit.test("isValueObject", function(assert) {
   assert.equal(Helpers.isValueObject("abc"), false, "abc");

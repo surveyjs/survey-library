@@ -156,8 +156,8 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
     }
     return null;
   }
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     this.actions.forEach(action => action.dispose());
     this.actions.length = 0;
   }

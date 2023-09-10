@@ -203,8 +203,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   public getInputId() {
     return this.inputId + "_0";
   }
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
     }

@@ -819,8 +819,8 @@ export class QuestionRatingModel extends Question {
       this.createRenderedRateItems();
     });
   }
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
     }

@@ -7299,11 +7299,14 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Use this method to dispose survey model properly.
    */
-  public dispose() {
+  public dispose(): void {
+    super.dispose();
+  }
+  protected disposeCore(): void {
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
-    super.dispose();
+    super.disposeCore();
     this.editingObj = null;
     if (!this.pages) return;
     this.currentPage = null;

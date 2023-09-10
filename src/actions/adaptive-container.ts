@@ -158,8 +158,8 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       action.mode = mode;
     });
   }
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     this.dotsItem.data.dispose();
     this.dotsItem.dispose();
     this.resetResponsivityManager();

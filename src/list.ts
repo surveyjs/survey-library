@@ -315,8 +315,8 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     }
   }
 
-  dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     if(!!this.loadingIndicatorValue) {
       this.loadingIndicatorValue.dispose();
     }

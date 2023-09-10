@@ -322,8 +322,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }
 
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     if(!!this.dropdownListModelValue) {
       this.dropdownListModelValue.dispose();
     }

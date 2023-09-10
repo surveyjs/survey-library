@@ -92,8 +92,8 @@ export class QuestionSelectBase extends Question {
   public getType(): string {
     return "selectbase";
   }
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     const q = this.getQuestionWithChoices();
     if(!!q) {
       q.removeDependedQuestion(this);

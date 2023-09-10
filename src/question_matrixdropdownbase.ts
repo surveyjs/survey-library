@@ -871,8 +871,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getType(): string {
     return "matrixdropdownbase";
   }
-  public dispose() {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     this.clearGeneratedRows();
   }
   public get hasSingleInput(): boolean { return false; }

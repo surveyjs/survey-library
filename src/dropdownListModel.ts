@@ -529,8 +529,8 @@ export class DropdownListModel extends Base {
     }
   }
 
-  dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     this.question && this.question.onPropertyChanged.remove(this.qustionPropertyChangedHandler);
     this.qustionPropertyChangedHandler = undefined;
     if (!!this.listModel) {

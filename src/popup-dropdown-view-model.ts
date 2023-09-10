@@ -257,8 +257,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     newModel.onRecalculatePosition.add(this.recalculatePositionHandler);
   }
 
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     this.updateOnHiding();
     if (!!this.model) {
       this.model.onRecalculatePosition.remove(this.recalculatePositionHandler);

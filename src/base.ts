@@ -303,7 +303,12 @@ export class Base {
     this.onBaseCreating();
     this.isCreating = false;
   }
-  public dispose() {
+  public dispose(): void {
+    if(!this.isDisposed) {
+      this.disposeCore();
+    }
+  }
+  protected disposeCore(): void {
     for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }
@@ -311,7 +316,7 @@ export class Base {
     this.isDisposedValue = true;
     Object.values(this.dependencies).forEach(dependencies => dependencies.dispose());
   }
-  public get isDisposed() {
+  public get isDisposed(): boolean {
     return this.isDisposedValue === true;
   }
   protected addEvent<T, Options = any>(): EventBase<T, Options> {

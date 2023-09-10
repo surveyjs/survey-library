@@ -224,8 +224,8 @@ export class PopupBaseViewModel extends Base {
     this.model.onCancel();
     this.hidePopup();
   }
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     if (this.model) {
       this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
     }

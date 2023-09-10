@@ -2322,8 +2322,8 @@ export class Question extends SurveyElement<Question>
       this.renderAs = this.getDesktopRenderAs();
     }
   }
-  public dispose(): void {
-    super.dispose();
+  protected disposeCore(): void {
+    super.disposeCore();
     this.resetDependedQuestions();
     this.destroyResizeObserver();
   }

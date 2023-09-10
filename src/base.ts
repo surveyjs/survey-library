@@ -309,7 +309,7 @@ export class Base {
     }
     this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
-    Object.values(this.dependencies).forEach(dependencies => dependencies.dispose());
+    Object.keys(this.dependencies).forEach(key => this.dependencies[key].dispose());
   }
   public get isDisposed() {
     return this.isDisposedValue === true;

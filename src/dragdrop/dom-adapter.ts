@@ -210,9 +210,12 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 100;
 
-    this.draggedElementShortcut.hidden = true;
+    const displayProp = this.draggedElementShortcut.style.display;
+    //this.draggedElementShortcut.hidden = true;
+    this.draggedElementShortcut.style.display = "none";
     let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    this.draggedElementShortcut.hidden = false;
+    //this.draggedElementShortcut.hidden = false;
+    this.draggedElementShortcut.style.display = displayProp || "block";
 
     let scrollableParentNode = findScrollableParent(dragOverNode);
 

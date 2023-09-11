@@ -342,6 +342,7 @@ export class Helpers {
       }
       return a + b;
     }
+    if(typeof a === "string" || typeof b === "string") return a + b;
     return Helpers.correctAfterPlusMinis(a, b, a + b);
   }
   public static correctAfterMultiple(a: number, b: number, res: number): number {

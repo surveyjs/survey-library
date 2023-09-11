@@ -2,29 +2,24 @@
   <div role="presentation">
     <label
       :class="question.getLabelClass(item)"
-      :aria-label="question.getAriaItemLabel(item)"
     >
       <input
         v-if="item == question.selectAllItem"
-        role="option"
         type="checkbox"
         :name="question.name"
         :value="isAllSelected"
         v-model="isAllSelected"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
-        :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
       /><input
         v-if="item != question.selectAllItem"
-        role="option"
         type="checkbox"
         :name="question.name"
         :value="item.value"
         v-model="question.renderedValue"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
-        :aria-describedby="question.ariaDescribedBy"
         :class="question.cssClasses.itemControl"
       /><span
         v-if="question.cssClasses.materialDecorator"

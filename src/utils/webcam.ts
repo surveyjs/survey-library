@@ -1,5 +1,5 @@
 export class Webcam {
-  public static mediaDevicesCallback: (callback: (devices: Array<MediaDeviceInfo>) => void) => void;
+  public static mediaDevicesCallback: ((callback: (devices: Array<MediaDeviceInfo>) => void) => void) | undefined;
   public static clear(): void {
     Webcam.webcamList = undefined;
   }
@@ -9,27 +9,27 @@ export class Webcam {
       this.hasWebcamCallback(callback);
       return;
     }
+    if(Webcam.mediaDevicesCallback) {
+      const devicesCallback = (devices: Array<MediaDeviceInfo>): void => {
+        this.setVideoInputs(devices);
+        this.hasWebcamCallback(callback);
+      };
+      Webcam.mediaDevicesCallback(devicesCallback);
+      return;
+    }
     if(typeof navigator !== "undefined" && navigator.mediaDevices) {
       Webcam.webcamList = null;
       this.hasWebcamCallback(callback);
     } else {
-      if(Webcam.mediaDevicesCallback) {
-        const devicesCallback = (devices: Array<MediaDeviceInfo>): void => {
+      navigator.mediaDevices.enumerateDevices()
+        .then(devices =>{
           this.setVideoInputs(devices);
           this.hasWebcamCallback(callback);
-        };
-        Webcam.mediaDevicesCallback(devicesCallback);
-      } else {
-        navigator.mediaDevices.enumerateDevices()
-          .then(devices =>{
-            this.setVideoInputs(devices);
-            this.hasWebcamCallback(callback);
-          })
-          .catch(error => {
-            Webcam.webcamList = null;
-            this.hasWebcamCallback(callback);
-          });
-      }
+        })
+        .catch(error => {
+          Webcam.webcamList = null;
+          this.hasWebcamCallback(callback);
+        });
     }
   }
   private hasWebcamCallback(callback: (res: boolean) => void): void {

@@ -1245,11 +1245,12 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   assert.equal(q1.renderedPlaceholder.substring(0, 2), "No", "q1, readOnly => no file");
   assert.equal(q2.renderedPlaceholder.substring(0, 4), "Drag", "q2, not readOnly=> drag");
 });
-QUnit.test("QuestionFile current mode property,webcam is not available", function(assert) {
-  let callback: (devices: Array<MediaDeviceInfo>) => void = undefined;
+QUnit.test("QuestionFile current mode property, webcam is not available", function(assert) {
+  const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Webcam.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
-    callback = cb;
+    callbacks.push(cb);
   };
+  Webcam.clear();
   let survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
@@ -1262,9 +1263,49 @@ QUnit.test("QuestionFile current mode property,webcam is not available", functio
   assert.equal(survey.getQuestionByName("q2").currentMode, "file");
   assert.equal(survey.getQuestionByName("q3").currentMode, "webcam");
   assert.equal(survey.getQuestionByName("q4").currentMode, "both");
-  callback([]);
+  assert.equal(callbacks.length, 2, "callbacks are set");
+  callbacks.forEach(cb => cb([]));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1");
   assert.equal(survey.getQuestionByName("q2").currentMode, "file", "#2");
   assert.equal(survey.getQuestionByName("q3").currentMode, "file", "#3");
   assert.equal(survey.getQuestionByName("q4").currentMode, "file", "#4");
+  callbacks.splice(0, callbacks.length);
+  survey.getQuestionByName("q1").mode = "webcam";
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#5");
+  callbacks.forEach(cb => cb([]));
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#6");
+  Webcam.mediaDevicesCallback = undefined;
+});
+const devices: Array<MediaDeviceInfo> = [{ kind: "videoinput", deviceId: "1", groupId: "1", label: "test", toJSON: (): any => {} }];
+QUnit.test("QuestionFile current mode property, webcam is available", function(assert) {
+  const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
+  Webcam.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
+    callbacks.push(cb);
+  };
+  Webcam.clear();
+  let survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1" },
+      { type: "file", name: "q2", mode: "file" },
+      { type: "file", name: "q3", mode: "webcam" },
+      { type: "file", name: "q4", mode: "both" },
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "webcam");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "both");
+  assert.equal(callbacks.length, 2, "callbacks are set");
+
+  callbacks.forEach(cb => cb(devices));
+  assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1");
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file", "#2");
+  assert.equal(survey.getQuestionByName("q3").currentMode, "webcam", "#3");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "both", "#4");
+  callbacks.splice(0, callbacks.length);
+  survey.getQuestionByName("q1").mode = "webcam";
+  assert.equal(survey.getQuestionByName("q1").currentMode, "webcam", "#5");
+  callbacks.forEach(cb => cb(devices));
+  assert.equal(survey.getQuestionByName("q1").currentMode, "webcam", "#6");
+  Webcam.mediaDevicesCallback = undefined;
 });

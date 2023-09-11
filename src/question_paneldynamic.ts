@@ -1460,7 +1460,7 @@ export class QuestionPanelDynamicModel extends Question
     loc.localizationName = (this.isReadOnly || !this.allowAddPanel) ? "noEntriesReadonlyText" : "noEntriesText";
     loc.strChanged();
   }
-  public onSurveyLoad() {
+  public onSurveyLoad(): void {
     this.template.readOnly = this.isReadOnly;
     this.template.onSurveyLoad();
     if (this.getPropertyValue("panelCount") > 0) {

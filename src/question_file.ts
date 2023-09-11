@@ -10,6 +10,7 @@ import { confirmActionAsync, detectIEOrEdge, loadFileFromBase64 } from "./utils/
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
+import { Webcam } from "./utils/webcam";
 
 /**
  * A class that describes the File Upload question type.
@@ -46,7 +47,11 @@ export class QuestionFileModel extends Question {
    * Default value: `false`
    */
   @property() allowCameraAccess: boolean;
-  @property() mode: string;
+  @property({ onSet: (val: string, obj: QuestionFileModel) => {
+    if(!obj.isLoadingFromJson) {
+      obj.updateCurrentMode();
+    }
+  } }) mode: string;
 
   public mobileFileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -129,7 +134,7 @@ export class QuestionFileModel extends Question {
    *
    * Default value: `false`
    */
-  public get allowMultiple() {
+  public get allowMultiple(): boolean {
     return this.getPropertyValue("allowMultiple");
   }
   public set allowMultiple(val: boolean) {
@@ -242,6 +247,17 @@ export class QuestionFileModel extends Question {
   }
   public get currentMode(): string {
     return this.getPropertyValue("currentMode", this.mode);
+  }
+  protected updateCurrentMode(): void {
+    if(!this.isDesignMode) {
+      if(this.mode !== "file") {
+        new Webcam().hasWebcam((res: boolean) => {
+          this.setPropertyValue("currentMode", res ? this.mode : "file");
+        });
+      } else {
+        this.setPropertyValue("currentMode", this.mode);
+      }
+    }
   }
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
@@ -542,8 +558,9 @@ export class QuestionFileModel extends Question {
     }
   }
 
-  endLoadingFromJson() {
+  endLoadingFromJson(): void {
     super.endLoadingFromJson();
+    this.updateCurrentMode();
     this.loadPreview(this.value);
   }
 

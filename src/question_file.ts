@@ -87,6 +87,32 @@ export class QuestionFileModel extends Question {
     });
     this.mobileFileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
+  public get videoId(): string { return this.id + "_video"; }
+  public get hasVideoUI(): boolean { return this.currentMode !== "file"; }
+  public get hasFileUI(): boolean { return this.currentMode !== "webcame"; }
+  private videoStream: MediaStream;
+  public startVideo(): void {
+    if(this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
+    this.setIsPlayingVideo(true);
+    new Webcam().startVideo(this.videoId, (stream: MediaStream) => {
+      this.videoStream = stream;
+      if(!stream) {
+        this.stopVideo();
+      }
+    });
+  }
+  public stopVideo(): void {
+    this.setIsPlayingVideo(false);
+    this.closeVideoStream();
+  }
+  private closeVideoStream(): void {
+    if(!!this.videoStream) {
+      this.videoStream.getTracks().forEach(track => {
+        track.stop();
+      });
+      this.videoStream = undefined;
+    }
+  }
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
     this.prevFileAction.iconName = this.cssClasses.leftIconId;
@@ -102,7 +128,7 @@ export class QuestionFileModel extends Question {
     this.containsMultiplyFiles = this.previewValue.length > 1;
   }
 
-  public isPreviewVisible(index: number) {
+  public isPreviewVisible(index: number): boolean {
     return !this.isMobile || index === this.indexToShow;
   }
 
@@ -248,7 +274,13 @@ export class QuestionFileModel extends Question {
   public get currentMode(): string {
     return this.getPropertyValue("currentMode", this.mode);
   }
-  protected updateCurrentMode(): void {
+  public get isPlayingVideo(): boolean {
+    return this.getPropertyValue("isPlayingVideo", false);
+  }
+  private setIsPlayingVideo(show: boolean): void {
+    this.setPropertyValue("isPlayingVideo", show);
+  }
+  private updateCurrentMode(): void {
     if(!this.isDesignMode) {
       if(this.mode !== "file") {
         new Webcam().hasWebcam((res: boolean) => {
@@ -563,24 +595,29 @@ export class QuestionFileModel extends Question {
     this.updateCurrentMode();
     this.loadPreview(this.value);
   }
+  public dispose(): void {
+    this.closeVideoStream();
+    super.dispose();
+  }
 
   //#region
   // web-based methods
   private rootElement: HTMLElement;
-  afterRender(el: HTMLElement) {
+  private canDragDrop(): boolean { return !this.isInputReadOnly && this.currentState !== "webcam" && !this.isPlayingVideo; }
+  afterRender(el: HTMLElement): void {
     this.rootElement = el;
     super.afterRender(el);
   }
   private dragCounter: number = 0;
   onDragEnter = (event: any) => {
-    if (!this.isInputReadOnly) {
+    if (this.canDragDrop()) {
       event.preventDefault();
       this.isDragging = true;
       this.dragCounter ++;
     }
   }
   onDragOver = (event: any) => {
-    if (this.isInputReadOnly) {
+    if (!this.canDragDrop()) {
       event.returnValue = false;
       return false;
     }
@@ -588,7 +625,7 @@ export class QuestionFileModel extends Question {
     event.preventDefault();
   }
   onDrop = (event: any) => {
-    if (!this.isInputReadOnly) {
+    if (this.canDragDrop()) {
       this.isDragging = false;
       this.dragCounter = 0;
       event.preventDefault();
@@ -597,7 +634,7 @@ export class QuestionFileModel extends Question {
     }
   }
   onDragLeave = (event: any) => {
-    if (!this.isInputReadOnly) {
+    if (this.canDragDrop()) {
       this.dragCounter --;
       if(this.dragCounter === 0) {
         this.isDragging = false;

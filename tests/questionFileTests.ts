@@ -738,6 +738,7 @@ QUnit.test("check file d&d readonly", (assert) => {
   var survey = new SurveyModel(json);
   var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
   let onChangeCalledCount = 0;
+  assert.equal(q["canDragDrop"](), true, "canDragDrop");
   q["onChange"] = () => { onChangeCalledCount++; };
   const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
   const checkDD = () => {
@@ -1276,13 +1277,22 @@ QUnit.test("QuestionFile current mode property, webcam is not available", functi
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#6");
   Webcam.mediaDevicesCallback = undefined;
 });
-const devices: Array<MediaDeviceInfo> = [{ kind: "videoinput", deviceId: "1", groupId: "1", label: "test", toJSON: (): any => {} }];
+function createDevices(info: Array<any>): Array<MediaDeviceInfo> {
+  const res = new Array<MediaDeviceInfo>();
+  let id = 1;
+  info.forEach(i => {
+    res.push({ kind: "videoinput", deviceId: id.toString(), groupId: "group1", label: i.label, toJSON: (): any => {} });
+    id++;
+  });
+  return res;
+}
 QUnit.test("QuestionFile current mode property, webcam is available", function(assert) {
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Webcam.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
     callbacks.push(cb);
   };
   Webcam.clear();
+  const devices = createDevices([{ label: "user" }]);
   let survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
@@ -1308,4 +1318,12 @@ QUnit.test("QuestionFile current mode property, webcam is available", function(a
   callbacks.forEach(cb => cb(devices));
   assert.equal(survey.getQuestionByName("q1").currentMode, "webcam", "#6");
   Webcam.mediaDevicesCallback = undefined;
+});
+QUnit.test("QuestionFile current mode property, webcam is available", function(assert) {
+  let mConst: any = new Webcam().getMediaConstraints(createDevices([{ label: "dfdf" }, { label: "user" }]));
+  assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
+  mConst = new Webcam().getMediaConstraints(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  assert.equal(mConst.video.deviceId.exact, 3, "Device is correct");
+  mConst = new Webcam().getMediaConstraints(createDevices([{ label: "dfdf" }, { label: "enviroment" }]));
+  assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
 });

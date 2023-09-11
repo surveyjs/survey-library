@@ -16,7 +16,8 @@ import {
   IFindElement,
   ISurveyLayoutElement,
   IPlainDataOptions,
-  LayoutElementContainer
+  LayoutElementContainer,
+  IValueItemCustomPropValues
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -49,7 +50,19 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
-import { TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent, ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent, QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent, ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, ProgressTextEvent, TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent, ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent, AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent, ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent, MatrixAllowRemoveRowEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent } from "./survey-events-api";
+import { TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
+  ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
+  QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
+  ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, ProgressTextEvent,
+  TextMarkdownEvent, TextRenderAsEvent, SendResultEvent, GetResultEvent, UploadFilesEvent, DownloadFileEvent, ClearFilesEvent, LoadChoicesFromServerEvent,
+  ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
+  AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
+  ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
+  MatrixAllowRemoveRowEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent,
+  MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
+  IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent,
+  GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent,
+  MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
@@ -179,7 +192,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle))
+   * Alternatively, you can handle the [`onCurrentPageChanged`](#onCurrentPageChanged) and [`onValueChanged`](#onValueChanged) events, as shown in the following demo: [Continue an Incomplete Survey](https://surveyjs.io/form-library/examples/survey-editprevious/).
    */
   public onPartialSend: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
   /**
@@ -204,7 +217,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValueChanging: EventBase<SurveyModel, ValueChangingEvent> = this.addEvent<SurveyModel, ValueChangingEvent>();
   /**
-   * An event that is raised after a question value is changed
+   * An event that is raised after a question value is changed.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -725,6 +738,11 @@ export class SurveyModel extends SurveyElementCore
   public onDynamicPanelItemValueChanged: EventBase<SurveyModel, DynamicPanelItemValueChangedEvent> = this.addEvent<SurveyModel, DynamicPanelItemValueChangedEvent>();
 
   /**
+   * An event that is raised before a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) renders [tab titles](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle). Use this event to change individual tab titles.
+   */
+  public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
+
+  /**
    * Use this event to define, whether an answer to a question is correct or not.
    * @see Question.value
    * @see Question.correctAnswer
@@ -924,6 +942,16 @@ export class SurveyModel extends SurveyElementCore
     this.notifier = new Notifier(this.css.saveData);
     this.notifier.addAction(this.createTryAgainAction(), "error");
 
+    this.onPopupVisibleChanged.add((_, opt) => {
+      if(opt.visible) {
+        this.onScrollCallback = () => {
+          opt.popup.toggleVisibility();
+        };
+      } else {
+        this.onScrollCallback = undefined;
+      }
+    });
+
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -1046,6 +1074,14 @@ export class SurveyModel extends SurveyElementCore
     this.containerCss = this.css.container;
     this.completedCss = new CssClassBuilder().append(this.css.body)
       .append(this.css.completedPage).toString(); // for completed page
+    this.completedBeforeCss = new CssClassBuilder()
+      .append(this.css.body)
+      .append(this.css.completedBeforePage)
+      .toString();
+    this.loadingBodyCss = new CssClassBuilder()
+      .append(this.css.body)
+      .append(this.css.bodyLoading)
+      .toString();
   }
   private updateCss() {
     this.rootCss = this.getRootCss();
@@ -1129,6 +1165,8 @@ export class SurveyModel extends SurveyElementCore
     return this.css.bodyContainer;
   }
   @property() completedCss: string;
+  @property() completedBeforeCss: string;
+  @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
 
@@ -1242,7 +1280,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies whether to save survey results when respondents switch between pages. Handle the [`onPartialSend`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onPartialSend) event to implement the save operation.
    *
-   * [Continue an Incomplete Survey](https://surveyjs.io/form-library/documentation/handle-survey-results-continue-incomplete (linkStyle))
+   * Alternatively, you can handle the [`onCurrentPageChanged`](#onCurrentPageChanged) and [`onValueChanged`](#onValueChanged) events, as shown in the following demo: [Continue an Incomplete Survey](https://surveyjs.io/form-library/examples/survey-editprevious/).
    */
   public get sendResultOnPageNext(): boolean {
     return this.getPropertyValue("sendResultOnPageNext");
@@ -2491,11 +2529,11 @@ export class SurveyModel extends SurveyElementCore
   public getProgressTypeComponent(): string {
     return "sv-progress-" + this.progressBarType.toLowerCase();
   }
-  public getProgressCssClasses(): string {
+  public getProgressCssClasses(container: string = ""): string {
     return new CssClassBuilder()
       .append(this.css.progress)
-      .append(this.css.progressTop, this.isShowProgressBarOnTop)
-      .append(this.css.progressBottom, this.isShowProgressBarOnBottom)
+      .append(this.css.progressTop, this.isShowProgressBarOnTop && (!container || container == "header"))
+      .append(this.css.progressBottom, this.isShowProgressBarOnBottom && (!container || container == "footer"))
       .toString();
   }
   private canShowProresBar(): boolean {
@@ -2801,6 +2839,12 @@ export class SurveyModel extends SurveyElementCore
       var key = keys[i];
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
+    this.getAllQuestions().forEach(q => {
+      if(q.hasFilteredValue) {
+        values[q.getValueName()] = q.getFilteredValue();
+      }
+    });
+
     return values;
   }
   private addCalculatedValuesIntoFilteredValues(values: {
@@ -4514,6 +4558,7 @@ export class SurveyModel extends SurveyElementCore
       htmlElement: htmlElement,
     });
     this.rootElement = htmlElement;
+    this.addScrollEventListener();
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
@@ -4631,7 +4676,7 @@ export class SurveyModel extends SurveyElementCore
   loadQuestionChoices(options: { question: Question, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void {
     this.onChoicesLazyLoad.fire(this, options);
   }
-  getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void {
+  getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void {
     if(this.onGetChoiceDisplayValue.isEmpty) {
       options.setItems(null);
     } else {
@@ -4762,11 +4807,15 @@ export class SurveyModel extends SurveyElementCore
     this.onDynamicPanelRemoving.fire(this, options);
     return options.allow;
   }
-  dynamicPanelItemValueChanged(question: IQuestion, options: any) {
+  dynamicPanelItemValueChanged(question: IQuestion, options: any): void {
     options.question = question;
     options.panelIndex = options.itemIndex;
     options.panelData = options.itemValue;
     this.onDynamicPanelItemValueChanged.fire(this, options);
+  }
+  dynamicPanelGetTabTitle(question: IQuestion, options: any): void {
+    options.question = question;
+    this.onGetDynamicPanelTabTitle.fire(this, options);
   }
   dragAndDropAllow(options: DragDropAllowEvent): boolean {
     this.onDragDropAllow.fire(this, options);
@@ -5074,9 +5123,11 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns a question by its name.
-   * @param name a question name
-   * @param caseInsensitive
+   * Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   * @param name A question name
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A question with a specified name.
+   * @see getAllQuestions
    * @see getQuestionByValueName
    */
   public getQuestionByName(
@@ -5098,27 +5149,29 @@ export class SurveyModel extends SurveyElementCore
     return this.getQuestionByName(name);
   }
   /**
-   * Returns a question by its value name
-   * @param valueName a question name
-   * @param caseInsensitive
+   * Returns a question with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName).
+   *
+   * > Since `valueName` does not have to be unique, multiple questions can have the same `valueName` value. In this case, the `getQuestionByValueName()` method returns the first such question. If you need to get all questions with the same `valueName`, call the `getQuestionsByValueName()` method.
+   * @param valueName A question's `valueName` property value.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A question with a specified `valueName`.
+   * @see getAllQuestions
    * @see getQuestionByName
-   * @see getQuestionsByValueName
-   * @see Question.valueName
    */
   public getQuestionByValueName(
     valueName: string,
     caseInsensitive: boolean = false
-  ): IQuestion {
+  ): Question {
     var res = this.getQuestionsByValueName(valueName, caseInsensitive);
     return !!res ? res[0] : null;
   }
   /**
-   * Returns all questions by their valueName. name property is used if valueName property is empty.
-   * @param valueName a question name
-   * @param caseInsensitive
+   * Returns all questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName). If a question's `valueName` is undefined, its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name) property is used.
+   * @param valueName A question's `valueName` property value.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns An array of questions with a specified `valueName`.
+   * @see getAllQuestions
    * @see getQuestionByName
-   * @see getQuestionByValueName
-   * @see Question.valueName
    */
   public getQuestionsByValueName(
     valueName: string,
@@ -5139,9 +5192,11 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   /**
-   * Gets a list of questions by their names.
-   * @param names an array of question names
-   * @param caseInsensitive
+   * Returns an array of questions with specified [names](https://surveyjs.io/form-library/documentation/api-reference/question#name).
+   * @param names An array of question names.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns An array of questions with specified names
+   * @see getAllQuestions
    */
   public getQuestionsByNames(
     names: string[],
@@ -5199,10 +5254,12 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a list of all questions in the survey.
+   * Returns a list of all [questions](https://surveyjs.io/form-library/documentation/api-reference/question) in the survey.
    * @param visibleOnly A Boolean value that specifies whether to include only visible questions.
    * @param includeDesignTime For internal use.
    * @param includeNested A Boolean value that specifies whether to include nested questions, such as questions within matrix cells.
+   * @returns An array of questions.
+   * @see getQuestionByName
    */
   public getAllQuestions(
     visibleOnly: boolean = false,
@@ -5227,7 +5284,10 @@ export class SurveyModel extends SurveyElementCore
     return res2;
   }
   /**
-   * Returns quiz questions. All visible questions that has input(s) widgets.
+   * Returns an array of quiz questions. A question counts if it is visible, has an input field, and specifies [`correctAnswer`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#correctAnswer).
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns An array of quiz questions.
    * @see getQuizQuestionCount
    */
   public getQuizQuestions(): Array<IQuestion> {
@@ -5246,10 +5306,11 @@ export class SurveyModel extends SurveyElementCore
     return result;
   }
   /**
-   * Returns a panel by its name.
-   * @param name a panel name
-   * @param caseInsensitive
-   * @see getQuestionByName
+   * Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
+   * @param name A panel name.
+   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the panel. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @returns A panel with a specified name.
+   * @see getAllPanels
    */
   public getPanelByName(
     name: string,
@@ -5265,7 +5326,11 @@ export class SurveyModel extends SurveyElementCore
     return null;
   }
   /**
-   * Returns a list of all survey's panels.
+   * Returns a list of all [panels](https://surveyjs.io/form-library/documentation/api-reference/panel-model) in the survey.
+   * @param visibleOnly A Boolean value that specifies whether to include only visible panels.
+   * @param includeDesignTime For internal use.
+   * @returns An array of panels.
+   * @see getPanelByName
    */
   public getAllPanels(
     visibleOnly: boolean = false,
@@ -5963,7 +6028,7 @@ export class SurveyModel extends SurveyElementCore
     textValue.value = processor.getValue(textValue.name, data);
     textValue.isExists = processor.hasValue(textValue.name, data);
   }
-  private getFirstName(name: string): IQuestion {
+  private getFirstName(name: string): Question {
     name = name.toLowerCase();
     var question;
     do {
@@ -6007,9 +6072,13 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns a variable value. Variable, unlike values, are not stored in the survey results.
-   * @param name A variable name
-   * @see SetVariable
+   * Returns a variable value.
+   *
+   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @param name A variable name.
+   * @return A variable value.
+   * @see setVariable
+   * @see getVariableNames
    */
   public getVariable(name: string): any {
     if (!name) return null;
@@ -6023,10 +6092,13 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   /**
-   * Sets a variable value. Variable, unlike values, are not stored in the survey results.
-   * @param name A variable name
-   * @param newValue A variable new value
-   * @see GetVariable
+   * Sets a variable value.
+   *
+   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @param name A variable name.
+   * @param newValue A new variable value.
+   * @see getVariable
+   * @see getVariableNames
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
@@ -6040,7 +6112,10 @@ export class SurveyModel extends SurveyElementCore
     this.onVariableChanged.fire(this, { name: name, value: newValue });
   }
   /**
-   * Returns all variables in the survey. Use setVariable function to create a new variable.
+   * Returns the names of all variables in the survey.
+   *
+   * [Variables help topic](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#variables (linkStyle))
+   * @returns An array of variable names.
    * @see getVariable
    * @see setVariable
    */
@@ -6057,8 +6132,9 @@ export class SurveyModel extends SurveyElementCore
     return Helpers.getUnbindValue(value);
   }
   /**
-   * Returns a question value (answer) by a question's name.
-   * @param name A question name
+   * Returns a value (answer) for a question with a specified `name`.
+   * @param name A question name.
+   * @returns A question value (answer).
    * @see data
    * @see setValue
    */
@@ -6068,16 +6144,15 @@ export class SurveyModel extends SurveyElementCore
     return this.getUnbindValue(value);
   }
   /**
-   * Sets a question value (answer). It runs all triggers and conditions (`visibleIf` properties).
+   * Sets a question value (answer).
    *
-   * Goes to the next page if `goNextPageAutomatic` is `true` and all questions on the current page are answered correctly.
-   * @param name A question name
-   * @param newValue A new question value
+   * > This method executes all triggers and reevaluates conditions (`visibleIf`, `requiredId`, and others). It also switches the survey to the next page if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is enabled and all questions on the current page have correct answers.
+   * @param name A question name.
+   * @param newValue A new question value.
+   * @param locNotification For internal use.
+   * @param allowNotifyValueChanged For internal use.
    * @see data
    * @see getValue
-   * @see PageModel.visibleIf
-   * @see Question.visibleIf
-   * @see goNextPageAutomatic
    */
   public setValue(
     name: string,
@@ -6101,7 +6176,7 @@ export class SurveyModel extends SurveyElementCore
     )
       return;
     var oldValue = this.getValue(name);
-    if (this.isValueEmpty(newValue, false)) {
+    if (this.isValueEmpyOnSetValue(name, newValue)) {
       this.deleteDataValueCore(this.valuesHash, name);
     } else {
       newValue = this.getUnbindValue(newValue);
@@ -6114,6 +6189,11 @@ export class SurveyModel extends SurveyElementCore
       locNotification,
       allowNotifyValueChanged
     );
+  }
+  private isValueEmpyOnSetValue(name: string, val: any): boolean {
+    if(!this.isValueEmpty(val, false)) return false;
+    if(!this.editingObj || val === null || val === undefined) return true;
+    return this.editingObj.getDefaultPropertyValue(name) === val;
   }
   private updateOnSetValue(
     name: string,
@@ -6209,8 +6289,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Returns the comment value.
-   * @param name A comment's name.
+   * Returns a comment value from a question with a specified `name`.
+   * @param name A question name.
+   * @returns A comment.
    * @see setComment
    */
   public getComment(name: string): string {
@@ -6218,9 +6299,10 @@ export class SurveyModel extends SurveyElementCore
     return res || "";
   }
   /**
-   * Sets a comment value.
-   * @param name A comment name.
+   * Sets a comment value to a question with a specified `name`.
+   * @param name A question name.
    * @param newValue A new comment value.
+   * @param locNotification For internal use.
    * @see getComment
    */
   public setComment(
@@ -6540,16 +6622,26 @@ export class SurveyModel extends SurveyElementCore
     return options.html;
   }
   public getCorrectedAnswerCount(): number {
-    return this.getCorrectedAnswerCountCore(true);
+    return this.getCorrectAnswerCount();
   }
   /**
-   * Returns an amount of corrected quiz answers.
+   * Returns the number of correct answers in a quiz.
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns The number of correct answers in a quiz.
+   * @see getQuizQuestionCount
+   * @see getInCorrectAnswerCount
    */
   public getCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(true);
   }
   /**
-   * Returns quiz question number. It may be different from `getQuizQuestions.length` because some widgets like matrix may have several questions.
+   * Returns the number of quiz questions. A question counts if it is visible, has an input field, and specifies [`correctAnswer`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#correctAnswer).
+   *
+   * This number may be different from `getQuizQuestions().length` because certain question types (for instance, matrix-like types) include more than one question.
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns The number of quiz questions.
    * @see getQuizQuestions
    */
   public getQuizQuestionCount(): number {
@@ -6561,10 +6653,14 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   public getInCorrectedAnswerCount(): number {
-    return this.getCorrectedAnswerCountCore(false);
+    return this.getInCorrectAnswerCount();
   }
   /**
-   * Returns an amount of incorrect quiz answers.
+   * Returns the number of incorrect answers in a quiz.
+   *
+   * For more information about quizzes, refer to the following tutorial: [Create a Quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * @returns The number of incorrect answers in a quiz.
+   * @see getCorrectAnswerCount
    */
   public getInCorrectAnswerCount(): number {
     return this.getCorrectedAnswerCountCore(false);
@@ -6577,30 +6673,13 @@ export class SurveyModel extends SurveyElementCore
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();
     var counter = 0;
-    const options: IsAnswerCorrectEvent = {
-      question: <Question>null,
-      result: false,
-      correctAnswers: 0,
-      incorrectAnswers: 0,
-    };
-    for (var i = 0; i < questions.length; i++) {
-      var q = <Question>questions[i];
-      var quizQuestionCount = q.quizQuestionCount;
-      options.question = q;
-      options.correctAnswers = q.correctAnswerCount;
-      options.incorrectAnswers = quizQuestionCount - options.correctAnswers;
-      options.result = options.question.isAnswerCorrect();
-      this.onIsAnswerCorrect.fire(this, options);
-      if (isCorrect) {
-        if (options.result || options.correctAnswers < quizQuestionCount) {
-          var addCount = options.correctAnswers;
-          if (addCount == 0 && options.result) addCount = 1;
-          counter += addCount;
-        }
+    for (let i = 0; i < questions.length; i++) {
+      const q = <Question>questions[i];
+      const correctCount = q.correctAnswerCount;
+      if(isCorrect) {
+        counter += correctCount;
       } else {
-        if (!options.result || options.incorrectAnswers < quizQuestionCount) {
-          counter += options.incorrectAnswers;
-        }
+        counter += q.quizQuestionCount - correctCount;
       }
     }
     return counter;
@@ -7148,7 +7227,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "contentBottom") {
+        if(container === "footer") {
           if(this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }
@@ -7204,11 +7283,13 @@ export class SurveyModel extends SurveyElementCore
    * Use this method to dispose survey model properly.
    */
   public dispose() {
-    this.currentPage = null;
+    this.removeScrollEventListener();
     this.destroyResizeObserver();
+    this.rootElement = undefined;
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;
+    this.currentPage = null;
     for (var i = 0; i < this.pages.length; i++) {
       this.pages[i].setSurveyImpl(undefined);
       this.pages[i].dispose();
@@ -7219,6 +7300,22 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   disposeCallback: () => void;
+
+  private onScrollCallback: () => void;
+  public onScroll(): void {
+    if(this.onScrollCallback) {
+      this.onScrollCallback();
+    }
+  }
+  public addScrollEventListener(): void {
+    this.scrollHandler = () => { this.onScroll(); };
+    this.rootElement.addEventListener("scroll", this.scrollHandler);
+  }
+  public removeScrollEventListener(): void {
+    if (!!this.rootElement && !!this.scrollHandler) {
+      this.rootElement.removeEventListener("scroll", this.scrollHandler);
+    }
+  }
 }
 
 function isStrCiEqual(a: string, b: string) {

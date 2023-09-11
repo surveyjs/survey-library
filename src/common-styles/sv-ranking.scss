@@ -56,6 +56,16 @@
   height: calcSize(4);
 }
 
+.sv-ranking-item--disabled.sv-ranking-item--disabled {
+  cursor: initial;
+
+  .sv-ranking-item__icon-container.sv-ranking-item__icon-container {
+    .sv-ranking-item__icon.sv-ranking-item__icon {
+      visibility: hidden;
+    }
+  }
+}
+
 .sv-ranking-item__icon.sv-ranking-item__icon {
   visibility: hidden;
   fill: $primary;

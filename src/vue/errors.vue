@@ -24,30 +24,14 @@
 import Vue from "vue";
 import { BaseVue } from "./base";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyElement, TooltipManager, Base, Question, PanelModel } from "survey-core";
+import { Base, Question, PanelModel } from "survey-core";
 
 @Component
 export class Errors extends BaseVue {
   @Prop() element: Question | PanelModel;
   @Prop() location: String;
-  private tooltipManager: TooltipManager;
   protected getModel(): Base {
     return this.element;
-  }
-  updated() {
-    if (this.location == "tooltip" && this.$el instanceof HTMLElement) {
-      if (!this.tooltipManager || this.$el !== this.tooltipManager.tooltipElement) {
-        this.tooltipManager = new TooltipManager(<HTMLElement>this.$el);
-      }
-    }
-    if (!(this.$el instanceof HTMLElement) && !!this.tooltipManager) {
-      this.tooltipManager.dispose();
-    }
-  }
-  destroyed() {
-    if (!!this.tooltipManager) {
-      this.tooltipManager.dispose();
-    }
   }
 }
 Vue.component("survey-errors", Errors);

@@ -17,7 +17,7 @@ import { Helpers } from "./helpers";
  * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
 export class QuestionFileModel extends Question {
-  private isUploading: boolean = false;
+  @property() public isUploading: boolean = false;
   @property() isDragging: boolean = false;
   /**
    * An event that is raised after the upload state has changed.
@@ -276,11 +276,26 @@ export class QuestionFileModel extends Question {
   get multipleRendered() {
     return this.allowMultiple ? "multiple" : undefined;
   }
-  get showRemoveButton() {
-    return !this.isReadOnly && !this.isEmpty() && this.cssClasses.removeButton;
+  public get showChooseButton(): boolean {
+    return !this.showLoadingIndicator;
   }
-  get showRemoveButtonBottom() {
-    return !this.isReadOnly && !this.isEmpty() && this.cssClasses.removeButtonBottom;
+  public get showLoadingIndicator(): boolean {
+    return this.isUploading && this.isDefaultV2Theme;
+  }
+  public get allowShowPreview(): boolean {
+    return this.previewValue && this.previewValue.length > 0 && !this.showLoadingIndicator;
+  }
+  get showRemoveButtonCore(): boolean {
+    const showLoadingIndicator = this.showLoadingIndicator;
+    const isReadOnly = this.isReadOnly;
+    const isEmpty = this.isEmpty();
+    return !isReadOnly && !isEmpty && !showLoadingIndicator;
+  }
+  get showRemoveButton(): boolean {
+    return this.showRemoveButtonCore && this.cssClasses.removeButton;
+  }
+  get showRemoveButtonBottom(): boolean {
+    return this.showRemoveButtonCore && this.cssClasses.removeButtonBottom;
   }
   defaultImage(data: any) {
     return !this.canPreviewImage(data) && !!this.cssClasses.defaultImage;

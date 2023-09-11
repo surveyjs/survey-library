@@ -100,6 +100,7 @@ export { CharacterCounterComponent } from "../react/components/character-counter
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
+export { LoadingIndicatorComponent } from "../react/components/loading-indicator";
 
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

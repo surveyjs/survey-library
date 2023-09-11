@@ -1006,26 +1006,23 @@ QUnit.test("Check calculatePosition with window size method", (assert) => {
   );
 });
 
-QUnit.test(
-  "Check updateVerticalDimensions if both directions do not fit",
-  (assert) => {
-    let newVerticalDimensions = PopupUtils.updateVerticalDimensions(
-      -20,
-      200,
-      300
-    );
-    assert.equal(newVerticalDimensions.height, 180);
-    assert.equal(newVerticalDimensions.top, 0);
+QUnit.test("Check getCorrectedVerticalDimensions if both directions do not fit", (assert) => {
+  let newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(-20, 200, 300);
+  assert.equal(newVerticalDimensions.height, 180);
+  assert.equal(newVerticalDimensions.top, 0);
 
-    newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 200, 300);
-    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
-    assert.equal(newVerticalDimensions.top, 150);
+  newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 200, 300);
+  assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
+  assert.equal(newVerticalDimensions.top, 150);
 
-    newVerticalDimensions = PopupUtils.updateVerticalDimensions(150, 450, 300);
-    assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
-    assert.equal(newVerticalDimensions.top, 150);
-  }
-);
+  newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(150, 450, 300);
+  assert.equal(newVerticalDimensions.height, 150 - PopupUtils.bottomIndent);
+  assert.equal(newVerticalDimensions.top, 150);
+
+  newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(10, 200, 300);
+  assert.equal(newVerticalDimensions.height, 200);
+  assert.equal(newVerticalDimensions.top, 10);
+});
 
 QUnit.test("Check updateHorizontalDimensions", (assert) => {
   let newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(-20, 200, 300, "center");

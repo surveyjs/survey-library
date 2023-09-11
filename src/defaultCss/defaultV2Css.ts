@@ -31,6 +31,7 @@ export var defaultV2Css = {
   clockTimerMinorText: "sd-timer__text--minor",
   clockTimerMajorText: "sd-timer__text--major",
   bodyEmpty: "sd-body sd-body--empty",
+  bodyLoading: "sd-body--loading",
   footer: "sd-footer sd-body__navigation sd-clearfix",
   title: "sd-title",
   description: "sd-description",
@@ -41,6 +42,7 @@ export var defaultV2Css = {
   navigationButton: "",
   bodyNavigationButton: "sd-btn",
   completedPage: "sd-completedpage",
+  completedBeforePage: "sd-completed-before-page",
   timerRoot: "sd-body__timer",
   navigation: {
     complete: "sd-btn--action sd-navigation__complete-btn",
@@ -318,7 +320,10 @@ export var defaultV2Css = {
     itemTitle: "sd-multipletext__item-title",
     content: "sd-multipletext__content sd-question__content",
     row: "sd-multipletext__row",
-    cell: "sd-multipletext__cell"
+    cell: "sd-multipletext__cell",
+    cellError: "sd-multipletext__cell--error",
+    cellErrorTop: "sd-multipletext__cell--error-top",
+    cellErrorBottom: "sd-multipletext__cell--error-bottom"
   },
   dropdown: {
     root: "sd-selectbase",

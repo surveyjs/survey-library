@@ -35,7 +35,16 @@ export class LocalizableString implements ILocalizableString {
   private htmlValues = {};
   private renderedText: string;
   private calculatedTextValue: string;
-  public localizationName: string;
+  private _localizationName: string;
+  public get localizationName(): string {
+    return this._localizationName;
+  }
+  public set localizationName(val: string) {
+    if (this._localizationName != val) {
+      this._localizationName = val;
+      this.strChanged();
+    }
+  }
   public onGetTextCallback: (str: string) => string;
   public onGetDefaultTextCallback: () => string;
   public storeDefaultText: boolean;
@@ -55,11 +64,11 @@ export class LocalizableString implements ILocalizableString {
   }
   public getIsMultiple(): boolean { return false; }
   public get locale(): string {
-    if(this.owner && this.owner.getLocale) {
+    if (this.owner && this.owner.getLocale) {
       const res = this.owner.getLocale();
-      if(!!res || !this.sharedData) return res;
+      if (!!res || !this.sharedData) return res;
     }
-    if(!!this.sharedData) return this.sharedData.locale;
+    if (!!this.sharedData) return this.sharedData.locale;
     return "";
   }
   public strChanged(): void {
@@ -105,21 +114,21 @@ export class LocalizableString implements ILocalizableString {
     var loc = this.locale;
     if (!loc) loc = this.defaultLoc;
     var res = this.getValue(loc);
-    if (!res && loc === this.defaultLoc) {
+    if (this.isValueEmpty(res) && loc === this.defaultLoc) {
       res = this.getValue(surveyLocalization.defaultLocale);
     }
-    if(!res) {
+    if (this.isValueEmpty(res)) {
       const dialect = this.getRootDialect(loc);
-      if(!!dialect) {
+      if (!!dialect) {
         res = this.getValue(dialect);
       }
     }
-    if (!res && loc !== this.defaultLoc) {
+    if (this.isValueEmpty(res) && loc !== this.defaultLoc) {
       res = this.getValue(this.defaultLoc);
     }
-    if (!res && !!this.getLocalizationName()) {
+    if (this.isValueEmpty(res) && !!this.getLocalizationName()) {
       res = this.getLocalizationStr();
-      if(!!this.onGetLocalizationTextCallback) {
+      if (!!this.onGetLocalizationTextCallback) {
         res = this.onGetLocalizationTextCallback(res);
       }
     }
@@ -127,7 +136,7 @@ export class LocalizableString implements ILocalizableString {
     return res;
   }
   private getRootDialect(loc: string): string {
-    if(!loc) return loc;
+    if (!loc) return loc;
     const index = loc.indexOf("-");
     return index > -1 ? loc.substring(0, index) : "";
   }
@@ -136,52 +145,60 @@ export class LocalizableString implements ILocalizableString {
   }
   private getLocalizationStr(): string {
     const name = this.getLocalizationName();
-    return !!name ? surveyLocalization.getString(name, this.locale): "";
+    return !!name ? surveyLocalization.getString(name, this.locale) : "";
   }
   public get hasHtml(): boolean {
     return this.hasHtmlValue();
   }
-  public get html() {
+  public get html(): string {
     if (!this.hasHtml) return "";
     return this.getHtmlValue();
   }
   public get isEmpty(): boolean {
     return this.getValuesKeys().length == 0;
   }
-  public get textOrHtml() {
+  public get textOrHtml(): string {
     return this.hasHtml ? this.getHtmlValue() : this.calculatedText;
   }
-  public get renderedHtml() {
+  public get renderedHtml(): string {
     return this.textOrHtml;
   }
   public getLocaleText(loc: string): string {
-    if (!loc) loc = this.defaultLoc;
-    var res = this.getValue(loc);
+    const res = this.getLocaleTextCore(loc);
     return res ? res : "";
   }
-  private getLocaleTextWithDefault(loc: string): string {
-    let res = this.getLocaleText(loc);
-    if(!res && this.onGetDefaultTextCallback) {
-      return this.onGetDefaultTextCallback();
+  private getLocaleTextCore(loc: string): string {
+    if (!loc) loc = this.defaultLoc;
+    return this.getValue(loc);
+  }
+  private isLocaleTextEqualsWithDefault(loc: string, val: string): boolean {
+    let res = this.getLocaleTextCore(loc);
+    if (!res && this.onGetDefaultTextCallback) {
+      res = this.onGetDefaultTextCallback();
     }
-    return res;
+    if (res === val) return true;
+    return this.isValueEmpty(res) && this.isValueEmpty(val);
+  }
+  public clear(): void {
+    this.setJson(undefined);
+  }
+  public clearLocale(loc?: string): void {
+    this.setLocaleText(loc, undefined);
   }
   public setLocaleText(loc: string, value: string): void {
     loc = this.getValueLoc(loc);
-    if (!this.storeDefaultText && value == this.getLocaleTextWithDefault(loc)) {
-      if(!!value || !!loc && loc !== this.defaultLoc) return;
+    if (!this.storeDefaultText && this.isLocaleTextEqualsWithDefault(loc, value)) {
+      if (!this.isValueEmpty(value) || !!loc && loc !== this.defaultLoc) return;
       let dl = surveyLocalization.defaultLocale;
       let oldValue = this.getValue(dl);
-      if(!!dl && !!oldValue) {
+      if (!!dl && !this.isValueEmpty(oldValue)) {
         this.setValue(dl, value);
         this.fireStrChanged(dl, oldValue);
       }
       return;
     }
     if (!settings.localization.storeDuplicatedTranslations &&
-      value &&
-      loc &&
-      loc != this.defaultLoc &&
+      !this.isValueEmpty(value) && loc && loc != this.defaultLoc &&
       !this.getValue(loc) &&
       value == this.getLocaleText(this.defaultLoc)
     )
@@ -190,8 +207,8 @@ export class LocalizableString implements ILocalizableString {
     if (!loc) loc = this.defaultLoc;
     var oldValue = this.onStrChanged && loc === curLoc ? this.pureText : undefined;
     delete (<any>this).htmlValues[loc];
-    if (!value) {
-      if (this.getValue(loc)) this.deleteValue(loc);
+    if (this.isValueEmpty(value)) {
+      this.deleteValue(loc);
     } else {
       if (typeof value === "string") {
         if (this.canRemoveLocValue(loc, value)) {
@@ -206,16 +223,21 @@ export class LocalizableString implements ILocalizableString {
     }
     this.fireStrChanged(loc, oldValue);
   }
+  private isValueEmpty(val: string): boolean {
+    if (val === undefined || val === null) return true;
+    if (this.localizationName) return false;
+    return val === "";
+  }
   private get curLocale(): string {
     return !!this.locale ? this.locale : this.defaultLoc;
   }
   private canRemoveLocValue(loc: string, val: string): boolean {
-    if(settings.localization.storeDuplicatedTranslations) return false;
-    if(loc === this.defaultLoc) return false;
+    if (settings.localization.storeDuplicatedTranslations) return false;
+    if (loc === this.defaultLoc) return false;
     const dialect = this.getRootDialect(loc);
-    if(!!dialect) {
+    if (!!dialect) {
       const dialectVal = this.getLocaleText(dialect);
-      if(!!dialectVal) return dialectVal == val;
+      if (!!dialectVal) return dialectVal == val;
       return this.canRemoveLocValue(dialect, val);
     } else {
       return val == this.getLocaleText(this.defaultLoc);
@@ -223,7 +245,7 @@ export class LocalizableString implements ILocalizableString {
   }
   private fireStrChanged(loc: string, oldValue: string) {
     this.strChanged();
-    if(!this.onStrChanged) return;
+    if (!this.onStrChanged) return;
     const value = this.pureText;
     if (loc !== this.curLocale || oldValue !== value) {
       this.onStrChanged(oldValue, value);
@@ -258,7 +280,7 @@ export class LocalizableString implements ILocalizableString {
     }
     this.values = {};
     this.htmlValues = {};
-    if (!value) return;
+    if (value === null || value === undefined) return;
     if (typeof value === "string") {
       this.setLocaleText(null, value);
     } else {
@@ -304,17 +326,17 @@ export class LocalizableString implements ILocalizableString {
     }
     return this.searchIndex != undefined;
   }
-  public onChanged() {}
+  public onChanged() { }
   public onStringChanged: EventBase<LocalizableString> = new EventBase<LocalizableString>();
-  protected onCreating() {}
+  protected onCreating() { }
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;
     var loc = this.locale;
     if (!loc) loc = this.defaultLoc;
-    if((<any>this).htmlValues[loc] !== undefined) return !!(<any>this).htmlValues[loc];
+    if ((<any>this).htmlValues[loc] !== undefined) return !!(<any>this).htmlValues[loc];
     var renderedText = this.calculatedText;
     if (!renderedText) return false;
-    if(!!this.getLocalizationName() && renderedText === this.getLocalizationStr()) return false;
+    if (!!this.getLocalizationName() && renderedText === this.getLocalizationStr()) return false;
     const res = this.owner.getMarkdownHtml(renderedText, this.name);
     (<any>this).htmlValues[loc] = res;
     return !!res;
@@ -325,7 +347,7 @@ export class LocalizableString implements ILocalizableString {
     return (<any>this).htmlValues[loc];
   }
   private deleteValuesEqualsToDefault(defaultValue: string) {
-    if(settings.localization.storeDuplicatedTranslations) return;
+    if (settings.localization.storeDuplicatedTranslations) return;
     var keys = this.getValuesKeys();
     for (var i = 0; i < keys.length; i++) {
       if (keys[i] == this.defaultLoc) continue;
@@ -347,7 +369,7 @@ export class LocalizableString implements ILocalizableString {
     else delete (<any>this).values[this.getValueLoc(loc)];
   }
   private getValueLoc(loc: string): string {
-    if(this.disableLocalization) return settings.localization.defaultLocaleName;
+    if (this.disableLocalization) return settings.localization.defaultLocaleName;
     return loc;
   }
   private getValuesKeys(): string[] {
@@ -364,7 +386,7 @@ export class LocalizableString implements ILocalizableString {
 export class LocalizableStrings implements ILocalizableString {
   private values: any = {};
   public onValueChanged: (oldValue: any, newValue: any) => void;
-  constructor(public owner: ILocalizableOwner) {}
+  constructor(public owner: ILocalizableOwner) { }
   public getIsMultiple(): boolean { return true; }
   public get locale() {
     return this.owner && this.owner.getLocale ? this.owner.getLocale() : "";
@@ -410,7 +432,7 @@ export class LocalizableStrings implements ILocalizableString {
     } else {
       this.values[loc] = val;
     }
-    if(!!this.onValueChanged) {
+    if (!!this.onValueChanged) {
       this.onValueChanged(oldValue, this.values);
     }
   }

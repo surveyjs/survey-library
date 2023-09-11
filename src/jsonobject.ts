@@ -43,14 +43,19 @@ function getLocStringValue(
   return "";
 }
 
-export function property(options?: IPropertyDecoratorOptions) {
-  return function (target: any, key: string) {
+export function property(options: IPropertyDecoratorOptions = {}) {
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  return function (target: any, key: string): void {
     let processComputedUpdater = (obj: any, val: any) => {
       if (!!val && typeof val === "object" && val.type === ComputedUpdater.ComputedUpdaterType) {
         Base.startCollectDependencies(() => obj[key] = val.updater(), obj, key);
         const result = val.updater();
         const dependencies = Base.finishCollectDependencies();
         val.setDependencies(dependencies);
+        if(obj.dependencies[key]) {
+          obj.dependencies[key].dispose();
+        }
+        obj.dependencies[key] = val;
         return result;
       }
       return val;
@@ -322,10 +327,10 @@ export class JsonObjectProperty implements IObject {
     if (!Helpers.isValueEmpty(this.defaultValue)) {
       return Helpers.isTwoValueEquals(value, this.defaultValue, false, true, false);
     }
+    if(this.isLocalizable) return value === null || value === undefined;
     return (
       (value === false && (this.type == "boolean" || this.type == "switch")) ||
-      value === "" ||
-      Helpers.isValueEmpty(value)
+      value === "" || Helpers.isValueEmpty(value)
     );
   }
   public getValue(obj: any): any {
@@ -349,7 +354,7 @@ export class JsonObjectProperty implements IObject {
     if (!this.onSettingValue || obj.isLoadingFromJson) return value;
     return this.onSettingValue(obj, value);
   }
-  public setValue(obj: any, value: any, jsonConv: JsonObject) {
+  public setValue(obj: any, value: any, jsonConv: JsonObject): void {
     if (this.onSetValue) {
       this.onSetValue(obj, value, jsonConv);
     } else {
@@ -1603,7 +1608,7 @@ export class JsonObject {
     }
   }
   public valueToObj(value: any, obj: any, property: JsonObjectProperty) {
-    if (value == null) return;
+    if (value === null || value === undefined) return;
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {
       property.setValue(obj, value, this);

@@ -34,9 +34,13 @@ export class ListComponent extends BaseAngular implements AfterViewInit {
     return ["renderElements"];
   }
   ngAfterViewInit(): void {
-    if(!!this.listContainerElement?.nativeElement) {
+    if (!!this.listContainerElement?.nativeElement) {
       this.model.initListContainerHtmlElement(this.listContainerElement.nativeElement);
     }
+  }
+  override ngOnDestroy(): void {
+    this.model.initListContainerHtmlElement(undefined as any);
+    super.ngOnDestroy();
   }
 }
 

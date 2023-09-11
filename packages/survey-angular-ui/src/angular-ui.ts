@@ -75,8 +75,9 @@ export * from "./utils/safe-html.pipe";
 export * from "./questions/comment.component";
 export * from "./questions/signature.component";
 export * from "./questions/multipletext.component";
-export * from "./errors.component";
 export * from "./questions/multipletextitem.component";
+export * from "./questions/multipletextrow.component";
+export * from "./errors.component";
 export * from "./utils/dynamic.directive";
 export * from "./questions/ranking.component";
 export * from "./questions/ranking-item.component";
@@ -106,6 +107,7 @@ export * from "./components/brand-info/brand-info.component";
 export * from "./questions/custom.component";
 export * from "./questions/composite.component";
 export * from "./base-angular";
+export * from "./components/loading-indicator/loading-indicator.component";
 
 export * from "./component-factory";
 export * from "./angular-ui.module";

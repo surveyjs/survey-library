@@ -40,15 +40,6 @@ export class PopupSurveyModel extends Base {
     this.width = this.survey.width;
     this.updateCss();
     this.onCreating();
-    this.survey.onPopupVisibleChanged.add((_, opt) => {
-      if(opt.visible) {
-        this.onScrollCallback = () => {
-          opt.popup.toggleVisibility();
-        };
-      } else {
-        this.onScrollCallback = undefined;
-      }
-    });
   }
   protected onCreating(): void { }
   public getType(): string {
@@ -223,11 +214,8 @@ export class PopupSurveyModel extends Base {
           : 0;
     }
   }
-  private onScrollCallback: () => void;
   public onScroll(): void {
-    if(this.onScrollCallback) {
-      this.onScrollCallback();
-    }
+    this.survey.onScroll();
   }
 }
 /**

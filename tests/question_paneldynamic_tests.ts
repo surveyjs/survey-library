@@ -5759,6 +5759,37 @@ QUnit.test("renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", f
   assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "#1 q1-value");
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 q3-value!");
 });
+QUnit.test("renderMode: tab, additionalTitleToolbar&titles&survey.onGetPanelDynamicTabTitle", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 2,
+        renderMode: "tab"
+      }],
+  });
+  survey.onGetDynamicPanelTabTitle.add((sender, options) => {
+    if(options.visiblePanelIndex === 0) {
+      const val = options.panel.getQuestionByName("q1").value;
+      options.title = "First tab" + (!!val ? " " + val.toString() : "");
+    }
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panelTabToolbar = panel.additionalTitleToolbar;
+  assert.ok(panelTabToolbar.actions[0].locTitle.owner, "Owner is set");
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2");
+  panel.templateTabTitle = "#{panelIndex} {panel.q1}";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+  panel.panels[0].getQuestionByName("q1").value = "q1-value";
+  assert.equal(panelTabToolbar.actions[0].locTitle.textOrHtml, "First tab q1-value");
+  assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "#2 ");
+});
 QUnit.test("templateVisibleIf", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -6068,4 +6099,91 @@ QUnit.test("panel property in custom function", function (assert) {
   panel.getQuestionByName("q1").value = "abc";
   assert.equal(panel.getQuestionByName("q2").value, "abcabc", "Custom function with row property works correctly");
   FunctionFactory.Instance.unregister("panelCustomFunc");
+});
+QUnit.test("nested panel.panelCount&expression question", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+          {
+            "type": "paneldynamic",
+            "name": "panel2",
+            "templateElements": [
+              {
+                "type": "expression",
+                "name": "q2",
+                "expression": "{panelIndex}"
+              }
+            ],
+            "panelCount": 3
+          }
+        ],
+        "panelCount": 1
+      }
+    ]
+  });
+  const rootPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.equal(rootPanel.panels.length, 1);
+  const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
+  assert.equal(panel1.panels.length, 3, "It should be 3 panels");
+});
+QUnit.test("nested panel.panelCount&expression question", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "valueName": "shared",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "A"
+          }
+        ],
+        "panelCount": 1
+      },
+      {
+        "type": "paneldynamic",
+        "name": "panel2",
+        "valueName": "shared",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "B"
+          },
+          {
+            "type": "text",
+            "name": "C",
+            "defaultValueExpression": "{panel.A}",
+            "readOnly": true
+          },
+          {
+            "type": "text",
+            "name": "D",
+            "defaultValueExpression": "{panel.B}+{panel.C}",
+            "readOnly": true
+          },
+          {
+            "type": "expression",
+            "name": "E",
+            "expression": "{panel.B}+{panel.C}"
+          }
+        ]
+      }
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel1.panels[0].getQuestionByName("A").value = 1;
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  const panel = panel2.panels[0];
+  panel.getQuestionByName("B").value = 2;
+  assert.equal(panel.getQuestionByName("C").value, 1, "C");
+  assert.equal(panel.getQuestionByName("D").value, 3, "D");
+  assert.equal(panel.getQuestionByName("E").value, 3, "E");
 });

@@ -3,22 +3,20 @@ import {
   LocalizableString,
   LocalizableStrings,
 } from "../src/localizablestring";
-import { JsonObject, propertyArray, Serializer } from "../src/jsonobject";
+import { JsonObject, Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { HashTable } from "../src/helpers";
 import { settings } from "../src/settings";
 import { surveyLocalization } from "../src/surveyStrings";
 import { englishStrings } from "../src/localization/english";
 import { Base } from "../src/base";
-import { Question } from "../src/question";
-import { SurveyElementCore } from "../src/survey-element";
 
 export default QUnit.module("LocalizableString");
 
 class LocalizableOwnerTester implements ILocalizableOwner {
   public values: HashTable<string> = {};
   public static MarkdownText = "it is a markdown";
-  constructor(public locale: string) {}
+  constructor(public locale: string) { }
   public getLocale(): string {
     return this.locale;
   }
@@ -39,7 +37,7 @@ class LocalizableOwnerTester implements ILocalizableOwner {
     }
     return text;
   }
-  public doPropertyValueChangedCallback() {}
+  public doPropertyValueChangedCallback() { }
 }
 
 class LocalizableStringTester extends LocalizableString {
@@ -51,7 +49,7 @@ class LocalizableStringTester extends LocalizableString {
   ) {
     super(owner, useMarkdown);
     this.onStrChanged = (oldValue: string, newValue: string): void => {
-      this.onStrChangedCounter ++;
+      this.onStrChangedCounter++;
     };
   }
   public onChanged() {
@@ -83,7 +81,7 @@ Serializer.addClass("locstringtester", [
   { name: "text", serializationProperty: "locText" },
 ]);
 
-QUnit.test("Simple get/set tests", function(assert) {
+QUnit.test("Simple get/set tests", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner);
   locString.text = "val1";
@@ -117,7 +115,7 @@ QUnit.test("Simple get/set tests", function(assert) {
   assert.equal(locString.getLocaleText("en"), "val2", "Check5_2. 'en' locale");
 });
 
-QUnit.test("Test set JSON", function(assert) {
+QUnit.test("Test set JSON", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner);
   locString.setJson("val1");
@@ -133,7 +131,7 @@ QUnit.test("Test set JSON", function(assert) {
   assert.equal(locString.getLocaleText("fr"), "val5", "Check6");
 });
 
-QUnit.test("Test getJson", function(assert) {
+QUnit.test("Test getJson", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner);
 
@@ -178,7 +176,7 @@ QUnit.test("Test getJson", function(assert) {
   settings.serializeLocalizableStringAsObject = false;
 });
 
-QUnit.test("Test hasNonDefaultText", function(assert) {
+QUnit.test("Test hasNonDefaultText", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner);
 
@@ -215,7 +213,7 @@ QUnit.test("Test hasNonDefaultText", function(assert) {
   );
 });
 
-QUnit.test("Test json deserialization", function(assert) {
+QUnit.test("Test json deserialization", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var tester = new LocalizableObjectTester(owner);
   new JsonObject().toObject({ text: { default: "val2", en: "val3" } }, tester);
@@ -223,7 +221,7 @@ QUnit.test("Test json deserialization", function(assert) {
   assert.equal(tester.locText.getLocaleText("en"), "val3", "Check2");
 });
 
-QUnit.test("Test json serialization", function(assert) {
+QUnit.test("Test json serialization", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var tester = new LocalizableObjectTester(owner);
   tester.text = "val2";
@@ -271,7 +269,7 @@ class BaseItemValueArrayTester extends Base implements ILocalizableOwner {
   }
 }
 
-QUnit.test("Array<ItemValue> localization", function(assert) {
+QUnit.test("Array<ItemValue> localization", function (assert) {
   var owner = new BaseItemValueArrayTester("");
   var items = owner.items;
   items.push(new ItemValue("val1", "text1"));
@@ -290,7 +288,7 @@ QUnit.test("Array<ItemValue> localization", function(assert) {
   items[0].locText.setLocaleText("", null);
   assert.equal(items[0].calculatedText, "val1", "Check6, use value");
 });
-QUnit.test("ItemValue.value = 0, #538", function(assert) {
+QUnit.test("ItemValue.value = 0, #538", function (assert) {
   var owner = new BaseItemValueArrayTester("");
   var items = owner.items;
 
@@ -298,7 +296,7 @@ QUnit.test("ItemValue.value = 0, #538", function(assert) {
   assert.equal(items[0].locText.textOrHtml, "0", "value 0, text should be '0'");
 });
 
-QUnit.test("Array<ItemValue> localization serialize", function(assert) {
+QUnit.test("Array<ItemValue> localization serialize", function (assert) {
   var owner = new BaseItemValueArrayTester("");
   var items = owner.items;
   items.push(new ItemValue("val1", "text1"));
@@ -321,7 +319,7 @@ QUnit.test("Array<ItemValue> localization serialize", function(assert) {
     "serialize localization, with empty text in the second item"
   );
 });
-QUnit.test("Array<ItemValue> localization deserialize/setData", function(
+QUnit.test("Array<ItemValue> localization deserialize/setData", function (
   assert
 ) {
   var owner = new BaseItemValueArrayTester("");
@@ -353,7 +351,7 @@ QUnit.test("Array<ItemValue> localization deserialize/setData", function(
 
 QUnit.test(
   "Array<ItemValue> localization deserialize/setData, no default value",
-  function(assert) {
+  function (assert) {
     var owner = new BaseItemValueArrayTester("");
     var items = owner.items;
     var json = [{ value: "val1", text: { de: "de-text1" } }];
@@ -366,7 +364,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Localization string markdown test", function(assert) {
+QUnit.test("Localization string markdown test", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner, true);
   locString.text = "val1";
@@ -391,7 +389,7 @@ QUnit.test("Localization string markdown test", function(assert) {
   assert.equal(locString.textOrHtml, "markdown", "html is empty");
 });
 
-QUnit.test("ItemValue markdown support", function(assert) {
+QUnit.test("ItemValue markdown support", function (assert) {
   var owner = new BaseItemValueArrayTester("");
   var items = owner.items;
   var json = [
@@ -415,7 +413,7 @@ QUnit.test("ItemValue markdown support", function(assert) {
 
 QUnit.test(
   "Do not call changed on setting value for locale, if there is the same value in default locale",
-  function(assert) {
+  function (assert) {
     var owner = new LocalizableOwnerTester("");
 
     var locString = new LocalizableStringTester(owner, true);
@@ -433,7 +431,7 @@ QUnit.test(
   }
 );
 QUnit.test("Call changed on setting value for non-default locale. It used in Creator",
-  function(assert) {
+  function (assert) {
     var owner = new LocalizableOwnerTester("");
 
     var locString = new LocalizableStringTester(owner, true);
@@ -446,7 +444,7 @@ QUnit.test("Call changed on setting value for non-default locale. It used in Cre
     assert.equal(locString.onStrChangedCounter, 2, "onStrChanged called on changing de locale");
   });
 
-QUnit.test("getProcessedText, cached text", function(assert) {
+QUnit.test("getProcessedText, cached text", function (assert) {
   var owner = new LocalizableOwnerTester("");
   owner.values["name"] = "John Snow";
   var locString = new LocalizableStringTester(owner, true);
@@ -463,7 +461,7 @@ QUnit.test("getProcessedText, cached text", function(assert) {
   assert.deepEqual(locString.getJson(), "enText", "Only default text is set");
 });
 
-QUnit.test("Value without title loctext", function(assert) {
+QUnit.test("Value without title loctext", function (assert) {
   var itemValue = new ItemValue("val1");
   var counter = 0;
 
@@ -476,11 +474,11 @@ QUnit.test("Value without title loctext", function(assert) {
   assert.equal(counter, 1);
 });
 
-QUnit.test("Using shared values", function(assert) {
+QUnit.test("Using shared values", function (assert) {
   var owner = new LocalizableOwnerTester("");
   owner.values["value"] = "My Value";
   var locString = new LocalizableString(owner, true);
-  locString.onGetTextCallback = function(text) {
+  locString.onGetTextCallback = function (text) {
     return "*" + text + "*";
   };
   locString.text = "A {value} B";
@@ -498,7 +496,7 @@ QUnit.test("Using shared values", function(assert) {
   );
 });
 
-QUnit.test("Using sharedData and translated strings", function(assert) {
+QUnit.test("Using sharedData and translated strings", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner, true);
   locString.localizationName = "completeText";
@@ -507,12 +505,12 @@ QUnit.test("Using sharedData and translated strings", function(assert) {
   assert.equal(sharedString.renderedHtml, "Complete", "Use localization name from sharedData");
 });
 
-QUnit.test("text property should not be changed by onGetTextCallback", function(
+QUnit.test("text property should not be changed by onGetTextCallback", function (
   assert
 ) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner, true);
-  locString.onGetTextCallback = function(text) {
+  locString.onGetTextCallback = function (text) {
     return "*" + text + "*";
   };
   locString.text = "A";
@@ -521,7 +519,7 @@ QUnit.test("text property should not be changed by onGetTextCallback", function(
 });
 QUnit.test(
   "Can get value from localization if default value is empty",
-  function(assert) {
+  function (assert) {
     var owner = new LocalizableOwnerTester("");
     var locString = new LocalizableString(owner, true);
     locString.localizationName = "completeText";
@@ -541,7 +539,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("Search text", function(assert) {
+QUnit.test("Search text", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locString = new LocalizableString(owner, true);
   var counter = 0;
@@ -573,7 +571,7 @@ QUnit.test("Search text", function(assert) {
     "Search text index should be cleaned"
   );
 });
-QUnit.test("Localizable strings get/set tests", function(assert) {
+QUnit.test("Localizable strings get/set tests", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locStrings = new LocalizableStrings(owner);
   assert.deepEqual(locStrings.value, [], "Empty by default");
@@ -593,7 +591,7 @@ QUnit.test("Localizable strings get/set tests", function(assert) {
     "get value via text property"
   );
 });
-QUnit.test("Localizable strings getLocaleText/setLocaleText tests", function(
+QUnit.test("Localizable strings getLocaleText/setLocaleText tests", function (
   assert
 ) {
   var owner = new LocalizableOwnerTester("");
@@ -616,7 +614,7 @@ QUnit.test("Localizable strings getLocaleText/setLocaleText tests", function(
     "get default/en values"
   );
 });
-QUnit.test("Localizable strings getJson/setJson", function(assert) {
+QUnit.test("Localizable strings getJson/setJson", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locStrings = new LocalizableStrings(owner);
   assert.equal(locStrings.isEmpty, true, "it is empty");
@@ -631,7 +629,7 @@ QUnit.test("Localizable strings getJson/setJson", function(assert) {
     "return an object"
   );
 });
-QUnit.test("Localization strings hasValue() and value property for different locales, Bug#3378", function(assert) {
+QUnit.test("Localization strings hasValue() and value property for different locales, Bug#3378", function (assert) {
   var owner = new LocalizableOwnerTester("");
   var locStrings = new LocalizableStrings(owner);
   assert.equal(locStrings.isEmpty, true, "it is empty");
@@ -655,7 +653,7 @@ QUnit.test("Localization strings hasValue() and value property for different loc
   locStrings.setJson(["val1", "val2"]);
   assert.equal(locStrings.hasValue(), true, "hasValue() - default");
 });
-QUnit.test("Localization strings should return copy on getJson", function(assert) {
+QUnit.test("Localization strings should return copy on getJson", function (assert) {
   const owner = new LocalizableOwnerTester("");
   const locStrings = new LocalizableStrings(owner);
   locStrings.setJson({
@@ -666,17 +664,17 @@ QUnit.test("Localization strings should return copy on getJson", function(assert
   json.fr = "dummy";
   assert.equal(locStrings.getLocaleText("fr"), "val1-fr\nval2-fr", "Do not touch object");
 });
-QUnit.test("Survey localization string name", function(assert) {
+QUnit.test("Survey localization string name", function (assert) {
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner);
   locString.localizationName = "pageNextText";
   assert.equal(locString.text, "Next", "English next");
 });
-QUnit.test("External localization string name", function(assert) {
+QUnit.test("External localization string name", function (assert) {
   surveyLocalization.onGetExternalString = (name: string, locale: string): string => {
-    if(name === "ed.test") {
-      if(locale === "de") return "ExternalStr-de";
-      if(locale === "en") return "ExternalStr-en";
+    if (name === "ed.test") {
+      if (locale === "de") return "ExternalStr-de";
+      if (locale === "en") return "ExternalStr-en";
       return "ExternalStr";
     }
     return "";
@@ -691,7 +689,7 @@ QUnit.test("External localization string name", function(assert) {
   owner.locale = "";
   assert.equal(locString.text, "ExternalStr", "Default locale");
 });
-QUnit.test("Get/set language dialect", function(assert) {
+QUnit.test("Get/set language dialect", function (assert) {
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner, true);
   locString.setJson({
@@ -734,7 +732,7 @@ QUnit.test("Get/set language dialect", function(assert) {
     "pt-BR": "Portuguese BR"
   }, "Add en-UK");
 });
-QUnit.test("Do not reset values in any locale", function(assert) {
+QUnit.test("Do not reset values in any locale", function (assert) {
   settings.storeDuplicatedTranslations = true;
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner, true);
@@ -752,7 +750,7 @@ QUnit.test("Do not reset values in any locale", function(assert) {
   }, "Do not reset any locale value");
   settings.storeDuplicatedTranslations = false;
 });
-QUnit.test("Do not reset values in any locale on changing the default", function(assert) {
+QUnit.test("Do not reset values in any locale on changing the default", function (assert) {
   settings.storeDuplicatedTranslations = true;
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner, true);
@@ -779,7 +777,7 @@ QUnit.test("Do not reset values in any locale on changing the default", function
   }, "Do not remove keys, #2");
   settings.storeDuplicatedTranslations = false;
 });
-QUnit.test("Support disableLocalization", function(assert) {
+QUnit.test("Support disableLocalization", function (assert) {
   const owner = new LocalizableOwnerTester("");
   const locString = new LocalizableString(owner, true);
   let oldStr, newStr;
@@ -809,4 +807,31 @@ QUnit.test("Support disableLocalization", function(assert) {
   assert.equal(newStr, "default-fr", "onStrChanged, newStr #4");
   locString.setJson("default-2");
   assert.deepEqual(locString.getJson(), "default-2", "#4");
+});
+QUnit.test("Allow to set empty string if there is localization name", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  locString.localizationName = "completeText";
+  assert.equal(locString.renderedHtml, "Complete", "get value from localizationName, renderedHtml");
+  assert.equal(locString.text, "Complete", "get value from localizationName, text");
+  locString.text = "";
+  assert.equal(locString.renderedHtml, "", "empty rendred html");
+  assert.equal(locString.text, "", "empty text");
+  assert.strictEqual(locString.getJson(), "", "Return empty string in getJson()");
+  const locString2 = new LocalizableString(owner, true);
+  locString2.localizationName = "completeText";
+  assert.equal(locString2.renderedHtml, "Complete", "locString2 = default value, renderedHtml");
+  locString2.setJson("");
+  assert.equal(locString2.renderedHtml, "", "locString2 = empty string after setJson, renderedHtml");
+});
+QUnit.test("Fire onStringChanged when localizationName is set", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locString = new LocalizableString(owner, true);
+  let callCount = 0;
+  locString.onStringChanged.add(() => {
+    callCount++;
+  });
+  assert.equal(callCount, 0, "no calls");
+  locString.localizationName = "completeText";
+  assert.equal(callCount, 1, "onStringChanged is called");
 });

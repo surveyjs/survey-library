@@ -318,10 +318,13 @@ export class Question extends SurveyElement<Question>
     this.notifySurveyVisibilityChanged();
   }
   protected onVisibleChanged(): void {
-    this.setPropertyValue("isVisible", this.isVisible);
+    this.updateIsVisibleProp();
     if (!this.isVisible && this.errors && this.errors.length > 0) {
       this.errors = [];
     }
+  }
+  private updateIsVisibleProp(): void {
+    this.setPropertyValue("isVisible", this.isVisible);
   }
   /**
    * Specifies whether to use display names for question values in placeholders.
@@ -469,6 +472,9 @@ export class Question extends SurveyElement<Question>
       this.runConditions();
     }
     this.calcRenderedCommentPlaceholder();
+    if(!this.visible) {
+      this.updateIsVisibleProp();
+    }
   }
   /**
    * Returns a survey element (panel or page) that contains the question and allows you to move this question to a different survey element.
@@ -901,12 +907,8 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.descriptionUnderInput, this.hasDescriptionUnderInput)
       .toString();
   }
-  protected getIsErrorsModeTooltip() {
-    return super.getIsErrorsModeTooltip() && !this.customWidget;
-  }
-
   public showErrorOnCore(location: string): boolean {
-    return !this.isErrorsModeTooltip && !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
+    return !this.showErrorsAboveQuestion && !this.showErrorsBelowQuestion && this.getErrorLocation() === location;
   }
 
   public get showErrorOnTop(): boolean {
@@ -915,15 +917,8 @@ export class Question extends SurveyElement<Question>
   public get showErrorOnBottom(): boolean {
     return this.showErrorOnCore("bottom");
   }
-  protected getIsTooltipErrorSupportedByParent(): boolean {
-    if (this.parentQuestion) {
-      return this.parentQuestion.getIsTooltipErrorInsideSupported();
-    } else {
-      return super.getIsTooltipErrorSupportedByParent();
-    }
-  }
   private get showErrorsOutsideQuestion(): boolean {
-    return this.isDefaultV2Theme && !(this.hasParent && this.getIsTooltipErrorSupportedByParent());
+    return this.isDefaultV2Theme;
   }
   public get showErrorsAboveQuestion(): boolean {
     return this.showErrorsOutsideQuestion && this.getErrorLocation() === "top";
@@ -945,7 +940,6 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.error.outsideQuestion, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
       .append(cssClasses.error.belowQuestion, this.showErrorsBelowQuestion)
       .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
-      .append(cssClasses.error.tooltip, this.isErrorsModeTooltip)
       .append(cssClasses.error.locationTop, this.showErrorOnTop)
       .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
@@ -1356,6 +1350,8 @@ export class Question extends SurveyElement<Question>
   public set value(newValue: any) {
     this.setNewValue(newValue);
   }
+  public get hasFilteredValue(): boolean { return false; }
+  public getFilteredValue(): any { return this.value; }
   public get valueForSurvey(): any {
     if (!!this.valueToDataCallback) {
       return this.valueToDataCallback(this.value);
@@ -1612,16 +1608,18 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.checkIfAnswerCorrect()? 1 : 0;
+    return this.checkIfAnswerCorrect() ? 1 : 0;
   }
   protected checkIfAnswerCorrect(): boolean {
-    const isEqual = this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true);
-    const options = { result: isEqual, correctAnswer: isEqual ? 1 : 0 };
+    const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
+    const correct = isEqual ? 1 : 0;
+    const options = { result: isEqual, correctAnswer: correct, correctAnswers: correct, incorrectAnswers: this.quizQuestionCount - correct };
     if(!!this.survey) {
       this.survey.onCorrectQuestionAnswer(this, options);
     }
     return options.result;
   }
+  protected getAnswerCorrectIgnoreOrder(): boolean { return false; }
   /**
   * Returns `true` if a question answer matches the `correctAnswer` property value.
   *
@@ -2084,7 +2082,9 @@ export class Question extends SurveyElement<Question>
       newValue = this.valueFromDataCallback(newValue);
     }
     if(!this.checkIsValueCorrect(newValue)) return;
+    this.isChangingViaDefaultValue = true;
     this.setQuestionValue(this.valueFromData(newValue));
+    this.isChangingViaDefaultValue = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
   }

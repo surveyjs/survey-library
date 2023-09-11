@@ -12,13 +12,13 @@ export class ComponentsContainer extends React.Component<any, any> {
     if(!needRenderWrapper) {
       return <>
         {components.map(component => {
-          return ReactElementFactory.Instance.createElement(component.component as string, { survey: this.props.survey, model: component.data, key: component.id });
+          return ReactElementFactory.Instance.createElement(component.component as string, { survey: this.props.survey, model: component.data, container: this.props.container, key: component.id });
         })}
       </>;
     }
     return <div className="sv-components-column">
       {components.map(component => {
-        return ReactElementFactory.Instance.createElement(component.component as string, { survey: this.props.survey, model: component.data, key: component.id });
+        return ReactElementFactory.Instance.createElement(component.component as string, { survey: this.props.survey, model: component.data, container: this.props.container, key: component.id });
       })}
     </div>;
   }

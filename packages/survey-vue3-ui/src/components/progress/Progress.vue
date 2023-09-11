@@ -1,5 +1,5 @@
 <template>
-  <div :class="survey.getProgressCssClasses()">
+  <div :class="survey.getProgressCssClasses(container)">
     <div
       :class="survey.css.progressBar"
       :style="{ width: progress }"
@@ -23,6 +23,7 @@ import { SurveyModel, SurveyProgressModel } from "survey-core";
 
 const props = defineProps<{
   survey: SurveyModel;
+  container?: string;
   css?: any;
 }>();
 const progress = computed(() => props.survey.progressValue + "%");

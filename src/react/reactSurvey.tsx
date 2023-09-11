@@ -71,6 +71,8 @@ export class Survey extends SurveyElementBase<any, any>
   }
   destroySurvey() {
     if (this.survey) {
+      this.survey.renderCallback = undefined as any;
+      this.survey.onPartialSend.clear();
       this.survey.stopTimer();
       this.survey.destroyResizeObserver();
     }
@@ -90,6 +92,8 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderCompletedBefore();
     } else if (this.survey.state == "loading") {
       renderResult = this.renderLoading();
+    } else if (this.survey.state == "empty") {
+      renderResult = this.renderEmptySurvey();
     } else {
       renderResult = this.renderSurvey();
     }
@@ -147,13 +151,13 @@ export class Survey extends SurveyElementBase<any, any>
   protected renderCompletedBefore(): JSX.Element {
     var htmlValue = { __html: this.survey.processedCompletedBeforeHtml };
     return (
-      <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
+      <div dangerouslySetInnerHTML={htmlValue} className={this.survey.completedBeforeCss} />
     );
   }
   protected renderLoading(): JSX.Element {
     var htmlValue = { __html: this.survey.processedLoadingHtml };
     return (
-      <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
+      <div dangerouslySetInnerHTML={htmlValue} className={this.survey.loadingBodyCss} />
     );
   }
   protected renderSurvey(): JSX.Element {
@@ -164,10 +168,6 @@ export class Survey extends SurveyElementBase<any, any>
     var pageId = this.survey.activePage ? this.survey.activePage.id : "";
 
     let className = this.survey.bodyCss;
-    if (!activePage) {
-      className = this.css.bodyEmpty;
-      activePage = this.renderEmptySurvey();
-    }
     const style: any = {};
     if(!!this.survey.renderedWidth) {
       style.maxWidth = this.survey.renderedWidth;
@@ -199,7 +199,7 @@ export class Survey extends SurveyElementBase<any, any>
     );
   }
   protected renderEmptySurvey(): JSX.Element {
-    return <span>{this.survey.emptySurveyText}</span>;
+    return <div className={this.css.bodyEmpty}>{this.survey.emptySurveyText}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};

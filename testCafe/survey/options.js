@@ -202,14 +202,18 @@ frameworks.forEach(framework => {
   });
 
   test("show bottom progress bar", async t => {
-    const questionElements = Selector(".sv_body > .sv-components-column > div");
+    const progressRootElement = Selector(".sv_main > form > .sv_container .sv-components-row ~ div");
     await t.expect(progressbar.exists).notOk();
 
     await show_bottom_progress_bar();
     await t
       .expect(progressbar.visible).ok()
-      .expect(progressbar.textContent).contains("Page 1 of 3")
-      .expect(questionElements.classNames).contains("sv_progress");
+      .expect(progressbar.textContent).contains("Page 1 of 3");
+    if(framework === "vue") {
+      await t.expect(progressRootElement.find(".sv_progress").visible).ok();
+    } else {
+      await t.expect(progressRootElement.classNames).contains("sv_progress");
+    }
   });
 
   test("check progress bar page 2", async t => {

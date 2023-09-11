@@ -5,7 +5,7 @@ import { BaseAngular } from "./base-angular";
   selector: "popup-survey",
   templateUrl: "./popup.survey.component.html",
   styleUrls: ["./popup.survey.component.scss"]
-  })
+})
 export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implements OnChanges {
   @Input() model!: SurveyModel;
   @Input() isExpanded?: boolean;
@@ -24,7 +24,7 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
     return false;
   }
   ngOnChanges(changes: SimpleChanges): void {
-    if(changes["model"]?.currentValue !== changes["model"]?.previousValue) {
+    if (changes["model"]?.currentValue !== changes["model"]?.previousValue) {
       this.popup = new PopupSurveyModel(null, this.model);
     }
     if (this.isExpanded !== undefined) {
@@ -38,5 +38,9 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
     }
     this.popup.isShowing = true;
     this.changeDetectorRef.detectChanges();
+  }
+  override ngOnDestroy(): void {
+    super.ngOnDestroy();
+    this.popup.dispose();
   }
 }

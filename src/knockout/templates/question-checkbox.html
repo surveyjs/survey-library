@@ -47,13 +47,13 @@
     </fieldset>
 </script>
 <script type="text/html" id="survey-checkbox-item">
-  <div role="presentation" data-bind="css: question.getItemClass(item)">
-      <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.getAriaItemLabel(item) }">
-          <!-- ko if: item == question.selectAllItem -->
-          <input role="option" type="checkbox" value="" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled(item), css: question.cssClasses.itemControl"/>
+  <div role="presentation" data-bind="css: question.getItemClass($data)">
+      <label data-bind="css: question.getLabelClass($data), attr: { 'aria-label': question.getAriaItemLabel($data) }">
+          <!-- ko if: $data == question.selectAllItem -->
+          <input role="option" type="checkbox" value="" data-bind="attr: {name: question.name, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
           <!-- /ko -->
-          <!-- ko if: item != question.selectAllItem -->
-          <input role="option" type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.koValue, enable: question.getItemEnabled(item), css: question.cssClasses.itemControl"/>
+          <!-- ko if: $data != question.selectAllItem -->
+          <input role="option" type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.koValue, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
           <!-- /ko -->
               <!-- ko if: question.cssClasses.materialDecorator -->
               <span data-bind="css: question.cssClasses.materialDecorator">
@@ -64,9 +64,9 @@
                 <!-- /ko -->
               </span>
               <!-- /ko -->
-          <!-- ko if: !item.hideCaption -->
+          <!-- ko if: !$data.hideCaption -->
           <span data-bind="css: question.cssClasses.controlLabel">
-          <!-- ko template: { name: 'survey-string', data: item.locText } -->
+          <!-- ko template: { name: 'survey-string', data: $data.locText } -->
           <!-- /ko -->
           </span>
           <!-- /ko -->

@@ -35,6 +35,56 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-simple-question.png", Selector(".sd-question"), t, comparer);
     });
   });
+
+  test("Check simple question on smartphone screen", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        "elements": [{
+          "name": "username",
+          "type": "text",
+          "title": "Username",
+          "maxLength": 25
+        }, {
+          "name": "email",
+          "type": "text",
+          "title": "E-mail address",
+          "inputType": "email",
+          "placeholder": "foobar@example.com",
+          "isRequired": true,
+          "autocomplete": "email"
+        }, {
+          "name": "password",
+          "type": "text",
+          "title": "Password",
+          "description": "Enter 8 characters minimum.",
+          "inputType": "password",
+          "isRequired": true,
+          "autocomplete": "password",
+          "validators": [{
+            "type": "text",
+            "minLength": 8,
+            "text": "Your password must be at least 8 characters long."
+          }]
+        }, {
+          "name": "url",
+          "type": "text",
+          "title": "URL",
+          "inputType": "url",
+          "placeholder": "https://www.example.com",
+          "validators": [{
+            "type": "regex",
+            "regex": "https://.*",
+            "text": "Your answer must match the URL pattern."
+          }]
+        }],
+        "showQuestionNumbers": false
+      });
+      await ClientFunction(() => { document.body.style.maxWidth = "375px"; document.body.style.maxHeight = "667px"; })();
+      await takeElementScreenshot("responsiveness-simple-question-mobile.png", Selector("body"), t, comparer);
+      await ClientFunction(() => { document.body.style.removeProperty("maxWidth"); document.body.style.removeProperty("maxHeight"); })();
+    });
+  });
+
   test("Check simple question in small screen with rtl", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
@@ -162,6 +212,37 @@ frameworks.forEach(framework => {
         document.body.focus();
       })();
       await takeElementScreenshot("responsiveness-matrix.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check matrix on small screen - alt rows", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            "type": "matrix",
+            "name": "Quality",
+            "alternateRows": true,
+            "title": "Please indicate if you agree or disagree with the following statements",
+            "columns": ["Strongly Disagree",
+              "Disagree",
+              "Neutral",
+              "Agree",
+              "Strongly Agree",
+            ],
+            "rows": [
+              "Product is affordable",
+              "Product does what it claims",
+              "Product is better than other products on the market"
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+      await takeElementScreenshot("responsiveness-matrix-alt-rows.png", Selector(".sd-question"), t, comparer);
     });
   });
   test("Check matrixdynamic on small screen", async (t) => {

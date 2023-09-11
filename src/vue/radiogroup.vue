@@ -1,5 +1,11 @@
 <template>
-  <fieldset role="presentation" :class="question.getSelectBaseRootCss()">
+  <fieldset :class="question.getSelectBaseRootCss()" 
+    :aria-required="question.a11y_input_ariaRequired"
+    :aria-label="question.a11y_input_ariaLabel"
+    :aria-labelledby="question.a11y_input_ariaLabelledBy"
+    :aria-invalid="question.a11y_input_ariaInvalid"
+    :aria-describedby="question.a11y_input_ariaDescribedBy"
+  >
     <survey-radiogroup-item
       v-if="!question.hasColumns && !question.blockedRow"
       v-for="(item, index) in question.visibleChoices"

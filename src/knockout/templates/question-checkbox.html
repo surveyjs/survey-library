@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-checkbox">
-  <fieldset data-bind="css: question.getSelectBaseRootCss()" role="presentation">
+  <fieldset data-bind="css: question.getSelectBaseRootCss(), attr: { 'aria-required': question.a11y_input_ariaRequired, 'aria-labelledby': question.a11y_input_ariaLabelledBy, 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, 'aria-label': question.a11y_input_ariaLabel }">
       <legend role="presentation" class="sv-hidden"></legend>
       <!-- ko if: question.hasHeadItems  -->
         <!-- ko foreach: { data: question.headItems, as: 'item', afterRender: question.koAfterRender }  -->
@@ -48,12 +48,12 @@
 </script>
 <script type="text/html" id="survey-checkbox-item">
   <div role="presentation" data-bind="css: question.getItemClass($data)">
-      <label data-bind="css: question.getLabelClass($data), attr: { 'aria-label': question.getAriaItemLabel($data) }">
+      <label data-bind="css: question.getLabelClass($data)">
           <!-- ko if: $data == question.selectAllItem -->
-          <input role="option" type="checkbox" value="" data-bind="attr: {name: question.name, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checked: question.koAllSelected, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
+          <input type="checkbox" value="" data-bind="attr: {name: question.name, id: question.getItemId($data)}, checked: question.koAllSelected, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
           <!-- /ko -->
           <!-- ko if: $data != question.selectAllItem -->
-          <input role="option" type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.koValue, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
+          <input type="checkbox" data-bind="attr: {name: question.name, id: question.getItemId($data)}, checkedValue: $data.value, checked: question.koValue, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
           <!-- /ko -->
               <!-- ko if: question.cssClasses.materialDecorator -->
               <span data-bind="css: question.cssClasses.materialDecorator">

@@ -70,7 +70,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
       showPlaceholder = !!(property?.placeholder);
     }
-    this.hasDescription = !!newDescription || showPlaceholder;
+    this.hasDescription = !!newDescription || (showPlaceholder && this.isDesignMode);
   }
 
   get locDescription(): LocalizableString {

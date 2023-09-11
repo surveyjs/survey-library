@@ -101,6 +101,7 @@ export class Question extends SurveyElement<Question>
   protected setIsMobile(val: boolean) { }
 
   @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+    target.renderMinWidth = !val;
     target.setIsMobile(val);
   } }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;

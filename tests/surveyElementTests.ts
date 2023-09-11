@@ -237,6 +237,33 @@ QUnit.test("allowRootStyle", function (assert) {
   survey.css = defaultV2Css;
   assert.deepEqual(q1.rootStyle, {});
 });
+QUnit.test("rootStyle on mobile", function (assert) {
+  StylesManager.applyTheme("default");
+  const survey = new SurveyModel({
+    elements: [{
+      type: "text",
+      name: "q1"
+    }]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.ok(q1.renderMinWidth);
+  assert.deepEqual(q1.rootStyle, {
+    "flexBasis": "100%",
+    "flexGrow": 1,
+    "flexShrink": 1,
+    "maxWidth": "100%",
+    "minWidth": "300px",
+  });
+  survey.setIsMobile(true);
+  assert.notOk(q1.renderMinWidth);
+  assert.deepEqual(q1.rootStyle, {
+    "flexBasis": "100%",
+    "flexGrow": 1,
+    "flexShrink": 1,
+    "maxWidth": "100%",
+    "minWidth": "min(100%, 300px)"
+  });
+});
 QUnit.test("question.errorLocation", function (assert) {
   const survey = new SurveyModel({
     elements: [

@@ -111,6 +111,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     }
     super.setNewValue(newValue);
   }
+  protected getValueSeparator(): string { return "\n"; }
   public get className() {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }

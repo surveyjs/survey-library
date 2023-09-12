@@ -105,9 +105,9 @@ export class Question extends SurveyElement<Question>
     this.setIsMobile((<SurveyModel>this.survey)._isMobile);
   }
   public setIsMobile(val: boolean) {
+    this.renderMinWidth = !val;
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
   }
-
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
@@ -1622,16 +1622,18 @@ export class Question extends SurveyElement<Question>
     return 1;
   }
   protected getCorrectAnswerCount(): number {
-    return this.checkIfAnswerCorrect()? 1 : 0;
+    return this.checkIfAnswerCorrect() ? 1 : 0;
   }
   protected checkIfAnswerCorrect(): boolean {
-    const isEqual = this.isTwoValueEquals(this.value, this.correctAnswer, !settings.comparator.caseSensitive, true);
-    const options = { result: isEqual, correctAnswer: isEqual ? 1 : 0 };
+    const isEqual = Helpers.isTwoValueEquals(this.value, this.correctAnswer, this.getAnswerCorrectIgnoreOrder(), settings.comparator.caseSensitive, true);
+    const correct = isEqual ? 1 : 0;
+    const options = { result: isEqual, correctAnswer: correct, correctAnswers: correct, incorrectAnswers: this.quizQuestionCount - correct };
     if(!!this.survey) {
       this.survey.onCorrectQuestionAnswer(this, options);
     }
     return options.result;
   }
+  protected getAnswerCorrectIgnoreOrder(): boolean { return false; }
   /**
   * Returns `true` if a question answer matches the `correctAnswer` property value.
   *
@@ -2062,12 +2064,9 @@ export class Question extends SurveyElement<Question>
   protected canSetValueToSurvey(): boolean {
     return true;
   }
-  protected valueFromData(val: any): any {
-    return val;
-  }
-  protected valueToData(val: any): any {
-    return val;
-  }
+  protected valueFromData(val: any): any { return val; }
+  protected valueToData(val: any): any { return val; }
+  protected convertToCorrectValue(val: any): any { return val; }
   protected onValueChanged(): void { }
   protected isMouseDown: boolean;
   onMouseDown(): void {
@@ -2094,7 +2093,9 @@ export class Question extends SurveyElement<Question>
       newValue = this.valueFromDataCallback(newValue);
     }
     if(!this.checkIsValueCorrect(newValue)) return;
+    this.isChangingViaDefaultValue = true;
     this.setQuestionValue(this.valueFromData(newValue));
+    this.isChangingViaDefaultValue = false;
     this.updateDependedQuestions();
     this.updateIsAnswered();
   }
@@ -2106,6 +2107,7 @@ export class Question extends SurveyElement<Question>
     this.isValueChangedDirectly = true;
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    newValue = this.convertToCorrectValue(newValue);
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
       this.setValueChangedDirectly();

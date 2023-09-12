@@ -422,10 +422,22 @@ Each question type has an icon that is displayed next to the type name in the [T
 ```js
 import { ..., SvgRegistry } from "survey-core"
 
+const CUSTOM_TYPE = "color-picker";
+
 SvgRegistry.registerIconFromSvg(
   CUSTOM_TYPE,
   '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="..." /></svg>'
 );
+```
+
+Alternatively, you can use one of [built-in SurveyJS icons](https://surveyjs.io/form-library/documentation/icons#built-in-icons). The code below shows how to use the Text icon:
+
+```js
+import { ..., settings } from "survey-core";
+
+const CUSTOM_TYPE = "color-picker";
+
+settings.customIcons["icon-" + CUSTOM_TYPE] = "icon-text";
 ```
 
 <details>

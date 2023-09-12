@@ -107,6 +107,7 @@ export * from "./components/brand-info/brand-info.component";
 export * from "./questions/custom.component";
 export * from "./questions/composite.component";
 export * from "./base-angular";
+export * from "./components/loading-indicator/loading-indicator.component";
 
 export * from "./component-factory";
 export * from "./angular-ui.module";

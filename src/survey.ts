@@ -6622,7 +6622,7 @@ export class SurveyModel extends SurveyElementCore
     return options.html;
   }
   public getCorrectedAnswerCount(): number {
-    return this.getCorrectedAnswerCountCore(true);
+    return this.getCorrectAnswerCount();
   }
   /**
    * Returns the number of correct answers in a quiz.
@@ -6653,7 +6653,7 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   public getInCorrectedAnswerCount(): number {
-    return this.getCorrectedAnswerCountCore(false);
+    return this.getInCorrectAnswerCount();
   }
   /**
    * Returns the number of incorrect answers in a quiz.
@@ -6673,30 +6673,13 @@ export class SurveyModel extends SurveyElementCore
   private getCorrectedAnswerCountCore(isCorrect: boolean): number {
     var questions = this.getQuizQuestions();
     var counter = 0;
-    const options: IsAnswerCorrectEvent = {
-      question: <Question>null,
-      result: false,
-      correctAnswers: 0,
-      incorrectAnswers: 0,
-    };
-    for (var i = 0; i < questions.length; i++) {
-      var q = <Question>questions[i];
-      var quizQuestionCount = q.quizQuestionCount;
-      options.question = q;
-      options.correctAnswers = q.correctAnswerCount;
-      options.incorrectAnswers = quizQuestionCount - options.correctAnswers;
-      options.result = options.question.isAnswerCorrect();
-      this.onIsAnswerCorrect.fire(this, options);
-      if (isCorrect) {
-        if (options.result || options.correctAnswers < quizQuestionCount) {
-          var addCount = options.correctAnswers;
-          if (addCount == 0 && options.result) addCount = 1;
-          counter += addCount;
-        }
+    for (let i = 0; i < questions.length; i++) {
+      const q = <Question>questions[i];
+      const correctCount = q.correctAnswerCount;
+      if(isCorrect) {
+        counter += correctCount;
       } else {
-        if (!options.result || options.incorrectAnswers < quizQuestionCount) {
-          counter += options.incorrectAnswers;
-        }
+        counter += q.quizQuestionCount - correctCount;
       }
     }
     return counter;

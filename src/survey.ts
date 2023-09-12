@@ -369,7 +369,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onErrorCustomText: EventBase<SurveyModel, ErrorCustomTextEvent> = this.addEvent<SurveyModel, ErrorCustomTextEvent>();
   /**
-   * An event that is raised when the [current page](#currentPage) is being validated. Handle this event to be notified about current page validation.
+   * An event that is raised when the [current page](#currentPage) is being validated. Handle this event to be notified of current page validation.
    */
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
   /**
@@ -4398,7 +4398,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    *
-   * To specify the HTML content, use the [`completedHtml`](#completedHtml) property.
+   * To specify HTML content, use the [`completedHtml`](#completedHtml) property.
    */
   public get processedCompletedHtml(): string {
     var html = this.renderedCompletedHtml;
@@ -4407,7 +4407,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName) or [client ID](#clientId).
    *
-   * To specify the HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
+   * To specify HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
    */
   public get processedCompletedBeforeHtml(): string {
     return this.locCompletedBeforeHtml.textOrHtml;
@@ -4415,7 +4415,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns HTML content displayed while a survey JSON schema is being loaded from [SurveyJS Service](https://api.surveyjs.io).
    *
-   * To specify the HTML content, use the [`loadingHtml`](#loadingHtml) property.
+   * To specify HTML content, use the [`loadingHtml`](#loadingHtml) property.
    */
   public get processedLoadingHtml(): string {
     return this.locLoadingHtml.textOrHtml;

@@ -339,7 +339,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidateQuestion: EventBase<SurveyModel, ValidateQuestionEvent> = this.addEvent<SurveyModel, ValidateQuestionEvent>();
   /**
-   * An event that is raised before errors are assigned to a question. You may add/remove/modify errors for a question.
+   * An event that is raised before errors are assigned to a question. Use this event to add/remove/modify errors.
    * @see onValidateQuestion
    */
   public onSettingQuestionErrors: EventBase<SurveyModel, SettingQuestionErrorsEvent> = this.addEvent<SurveyModel, SettingQuestionErrorsEvent>();
@@ -351,6 +351,7 @@ export class SurveyModel extends SurveyElementCore
    * [View Demo](https://surveyjs.io/form-library/examples/javascript-server-side-form-validation/ (linkStyle))
    * @see onValidateQuestion
    * @see onValidatePanel
+   * @see isValidatingOnServer
    */
   public onServerValidateQuestions: EventBase<SurveyModel, ServerValidateQuestionsEvent> = this.addEvent<SurveyModel, ServerValidateQuestionsEvent>();
   /**
@@ -364,11 +365,11 @@ export class SurveyModel extends SurveyElementCore
    */
   public onValidatePanel: EventBase<SurveyModel, ValidatePanelEvent> = this.addEvent<SurveyModel, ValidatePanelEvent>();
   /**
-   * Use the event to change the default error text.
+   * An event that is raised to change default error messages.
    */
   public onErrorCustomText: EventBase<SurveyModel, ErrorCustomTextEvent> = this.addEvent<SurveyModel, ErrorCustomTextEvent>();
   /**
-   * Use the this event to be notified when the survey finished validate questions on the current page. It commonly happens when a user try to go to the next page or complete the survey
+   * An event that is raised when the [current page](#currentPage) is being validated. Handle this event to be notified of current page validation.
    */
   public onValidatedErrorsOnCurrentPage: EventBase<SurveyModel, ValidatedErrorsOnCurrentPageEvent> = this.addEvent<SurveyModel, ValidatedErrorsOnCurrentPageEvent>();
   /**
@@ -418,16 +419,14 @@ export class SurveyModel extends SurveyElementCore
    */
   public onProgressText: EventBase<SurveyModel, ProgressTextEvent> = this.addEvent<SurveyModel, ProgressTextEvent>();
   /**
-   * Use this event to process the markdown text.
+   * An event that is raised to convert Markdown content to HTML.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/ (linkStyle))
    */
   public onTextMarkdown: EventBase<SurveyModel, TextMarkdownEvent> = this.addEvent<SurveyModel, TextMarkdownEvent>();
-  /**
-   * Use this event to specity render component name used for text rendering.
-   */
+
   public onTextRenderAs: EventBase<SurveyModel, TextRenderAsEvent> = this.addEvent<SurveyModel, TextRenderAsEvent>();
   /**
    * An event that is raised after a request to save survey results on [SurveyJS Service](https://api.surveyjs.io/) has been completed. Use this event to find out if the results have been saved successfully.
@@ -472,23 +471,20 @@ export class SurveyModel extends SurveyElementCore
    */
   public onClearFiles: EventBase<SurveyModel, ClearFilesEvent> = this.addEvent<SurveyModel, ClearFilesEvent>();
   /**
-   * An event that is raised after choices for radiogroup, checkbox, and dropdown has been loaded from a RESTful service and before they are assigned to a question.
-   * You may change the choices, before they are assigned or disable/enabled make visible/invisible question, based on loaded results.
+   * An event that is raised after choices are loaded from a server but before they are assigned to a choice-based question, such as [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model) or [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model). Handle this event if you need to modify the loaded choices.
    */
   public onLoadChoicesFromServer: EventBase<SurveyModel, LoadChoicesFromServerEvent> = this.addEvent<SurveyModel, LoadChoicesFromServerEvent>();
 
   /**
-   * An event that is raised after survey is loaded from api.surveyjs.io service.
-   * You can use this event to perform manipulation with the survey model after it was loaded from the web service.
+   * An event that is raised after a survey JSON schema is loaded from the [SurveyJS Service](https://api.surveyjs.io). Use this event to modify the loaded schema.
    * @see surveyId
+   * @see clientId
    * @see loadSurveyFromService
    */
   public onLoadedSurveyFromService: EventBase<SurveyModel, {}> = this.addEvent<SurveyModel, {}>();
 
   /**
-   * An event that is raised on processing the text when it finds a text in brackets: `{somevalue}`. By default, it uses the value of survey question values and variables.
-   * For example, you may use the text processing in loading choices from the web. If your `choicesByUrl.url` equals to "UrlToServiceToGetAllCities/{country}/{state}",
-   * you may set on this event `options.value` to "all" or empty string when the "state" value/question is non selected by a user.
+   * An event that is raised when the survey processes [dynamic texts](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#dynamic-texts) and any text in curly brackets. Use this event, for instance, to substitute parameters in a RESTful URL with real values when you [load choices by URL](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#choicesByUrl).
    */
   public onProcessTextValue: EventBase<SurveyModel, ProcessTextValueEvent> = this.addEvent<SurveyModel, ProcessTextValueEvent>();
 
@@ -595,7 +591,7 @@ export class SurveyModel extends SurveyElementCore
   public onFocusInPanel: EventBase<SurveyModel, FocusInPanelEvent> = this.addEvent<SurveyModel, FocusInPanelEvent>();
 
   /**
-   * Use this event to change the visibility of an individual choice item in [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel), [Dropdown](https://surveyjs.io/Documentation/Library?id=questiondropdownmodel), [Radiogroup](https://surveyjs.io/Documentation/Library?id=questionradiogroupmodel), and other similar question types.
+   * An event that is raised before a [choice item](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choices) is displayed. Use this event to change the visibility of individual choice items in [Checkboxes](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model), [Dropdown](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model), [Radio Button Group](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model), and other similar question types.
    */
   public onShowingChoiceItem: EventBase<SurveyModel, ShowingChoiceItemEvent> = this.addEvent<SurveyModel, ShowingChoiceItemEvent>();
 
@@ -743,20 +739,17 @@ export class SurveyModel extends SurveyElementCore
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 
   /**
-   * Use this event to define, whether an answer to a question is correct or not.
-   * @see Question.value
-   * @see Question.correctAnswer
+   * An event that is raised to define whether a question answer is correct. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
    */
   public onIsAnswerCorrect: EventBase<SurveyModel, IsAnswerCorrectEvent> = this.addEvent<SurveyModel, IsAnswerCorrectEvent>();
 
   /**
-   * Use this event to control drag&drop operations during design mode.
-   * @see setDesignMode
+   * An event that is raised when users drag and drop survey elements while designing the survey in [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview). Use this event to control drag and drop operations.
    * @see isDesignMode
    */
   public onDragDropAllow: EventBase<SurveyModel, DragDropAllowEvent> = this.addEvent<SurveyModel, DragDropAllowEvent>();
   /**
-   * Use this event to control scrolling element to top. You can cancel the default behavior by setting options.cancel property to true.
+   * An event this is raised before a survey element (usually page) is scrolled to the top. Use this event to cancel the scroll operation.
    */
   public onScrollingElementToTop: EventBase<SurveyModel, ScrollingElementToTopEvent> = this.addEvent<SurveyModel, ScrollingElementToTopEvent>();
 
@@ -800,13 +793,12 @@ export class SurveyModel extends SurveyElementCore
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
   /**
-   * An event that is raised after the survey element content was collapsed or expanded.
-   * @see onElementContentVisibilityChanged
+   * An event that is raised after a survey element is [expanded or collapsed](https://surveyjs.io/form-library/documentation/api-reference/question#state).
    */
   public onElementContentVisibilityChanged: EventBase<SurveyModel, ElementContentVisibilityChangedEvent> = this.addEvent<SurveyModel, ElementContentVisibilityChangedEvent>();
 
   /**
-   * An event that is raised before expression question convert it's value into display value for rendering.
+   * An event that is raised before an [Expression](https://surveyjs.io/form-library/documentation/api-reference/expression-model) question displays a value. Use this event to override the display value.
    */
   public onGetExpressionDisplayValue: EventBase<SurveyModel, GetExpressionDisplayValueEvent> = this.addEvent<SurveyModel, GetExpressionDisplayValueEvent>();
 
@@ -1018,8 +1010,8 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * The list of errors on loading survey JSON. If the list is empty after loading a JSON, then the JSON is correct and has no errors.
-   * @see JsonError
+   * A list of errors in a survey JSON schema.
+   * @see ensureUniqueNames
    */
   public jsonErrors: Array<JsonError> = null;
 
@@ -1178,11 +1170,15 @@ export class SurveyModel extends SurveyElementCore
   @property() showBrandInfo: boolean;
   @property() enterKeyAction: "moveToNextEditor" | "loseFocus" | "default";
   /**
-   * By default all rows are rendered no matters if they are visible or not.
-   * Set it true, and survey markup rows will be rendered only if they are visible in viewport.
-   * This feature is experimantal and might do not support all the use cases.
+   * Specifies whether to enable lazy rendering.
+   *
+   * In default mode, a survey renders the entire current page. With lazy rendering, the survey renders the page gradually as a user scrolls it. This helps reduce survey startup time and oprimizes large surveys for low-end devices.
+   *
+   * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
+   *
+   * > This is an experimental feature that may not work properly in certain cases.
    */
   public get lazyRendering(): boolean {
     return this.lazyRenderingValue === true;
@@ -1269,7 +1265,7 @@ export class SurveyModel extends SurveyElementCore
    * A cookie name used to save information about survey completion.
    *
    * When this property has a value, the survey creates a cookie with the specified name on completion. This cookie helps ensure that users do not pass the same survey twice. On the second run, they will see the [Completed Before page](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#completedBeforeHtml).
-   * @see cliendId
+   * @see clientId
    */
   public get cookieName(): string {
     return this.getPropertyValue("cookieName", "");
@@ -1289,7 +1285,9 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("sendResultOnPageNext", val);
   }
   /**
-   * Gets or sets whether to show the progress on saving/sending data into the [api.surveyjs.io](https://api.surveyjs.io) service.
+   * Specifies whether to show progress when the survey sends data to [SurveyJS Service](https://api.surveyjs.io).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/save-survey-results-and-load-surveys-from-surveyjs-service/ (linkStyle))
    * @see surveyPostId
    */
   public get surveyShowDataSaving(): boolean {
@@ -1465,10 +1463,11 @@ export class SurveyModel extends SurveyElementCore
     navigateToUrl(options.url);
   }
   /**
-   * Gets or sets the required question mark. The required question mark is a char or string that is rendered in the required questions' titles.
-   * @see Question.title
+   * Specifies one or multiple characters that designate required questions.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/survey-processtext/ (linkStyle))
+   * Default value: `*`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/modify-question-title/ (linkStyle))
    */
   public get requiredText(): string {
     return this.getPropertyValue("requiredText", "*");
@@ -1477,23 +1476,26 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("requiredText", val);
   }
   /**
-   * Gets or sets whether to hide all required errors.
+   * Specifies whether to hide validation errors thrown by the Required validation in the UI.
+   *
+   * [Built-In Client-Side Validators](https://surveyjs.io/form-library/documentation/data-validation#built-in-client-side-validators (linkStyle))
+   * @see ignoreValidation
    */
   public hideRequiredErrors: boolean = false;
   beforeSettingQuestionErrors(
     question: Question,
     errors: Array<SurveyError>
   ): void {
-    this.maakeRequiredErrorsInvisibgle(errors);
+    this.makeRequiredErrorsInvisible(errors);
     this.onSettingQuestionErrors.fire(this, {
       question: question,
       errors: errors,
     });
   }
   beforeSettingPanelErrors(question: IPanel, errors: Array<SurveyError>): void {
-    this.maakeRequiredErrorsInvisibgle(errors);
+    this.makeRequiredErrorsInvisible(errors);
   }
-  private maakeRequiredErrorsInvisibgle(errors: Array<SurveyError>) {
+  private makeRequiredErrorsInvisible(errors: Array<SurveyError>) {
     if (!this.hideRequiredErrors) return;
     for (var i = 0; i < errors.length; i++) {
       var erType = errors[i].getErrorType();
@@ -1628,14 +1630,16 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("allowResizeComment", val);
   }
   /**
-   * Gets or sets a value that specifies how the survey updates its questions' text values.
+   * Specifies when to update the question value in questions with a text input field.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `onBlur` (default) - the value is updated after an input loses the focus.
-   * - `onTyping` - update the value of text questions, "text" and "comment", on every key press.
+   * - `"onBlur"` (default) - Updates the value after the input field loses focus.
+   * - `"onTyping"` - Updates the value on every key press.
    *
-   * Note, that setting to "onTyping" may lead to a performance degradation, in case you have many expressions in the survey.
+   * > Do not use the `"onTyping"` mode if your survey contains many expressions. Expressions are reevaluated each time a question value is changed. In `"onTyping"` mode, the question value changes frequently. This may cause performance degradation.
+   *
+   * You can override this setting for individual questions: [`textUpdateMode`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#textUpdateMode).
    */
   public get textUpdateMode(): string {
     return this.getPropertyValue("textUpdateMode");
@@ -2119,8 +2123,8 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("completedHtmlOnCondition", val);
   }
   /**
-   * Calculates a given expression and returns a result value.
-   * @param expression
+   * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns a result value.
+   * @param expression An expression to calculate.
    */
   public runExpression(expression: string): any {
     if (!expression) return null;
@@ -2129,8 +2133,8 @@ export class SurveyModel extends SurveyElementCore
     return new ExpressionRunner(expression).run(values, properties);
   }
   /**
-   * Calculates a given expression and returns `true` or `false`.
-   * @param expression
+   * Calculates a given [expression](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) and returns `true` or `false`.
+   * @param expression An expression to calculate.
    */
   public runCondition(expression: string): boolean {
     if (!expression) return false;
@@ -2168,9 +2172,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * HTML content displayed to a user who has completed the survey before.
-   * @see clientId
-   * @see cookieName
+   * HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName) or [client ID](#clientId).
    * @see processedCompletedBeforeHtml
    */
   public get completedBeforeHtml(): string {
@@ -2480,16 +2482,18 @@ export class SurveyModel extends SurveyElementCore
     this.updateVisibleIndexes();
   }
   /**
-   * Gets or sets the survey progress bar position.
+   * Controls the visibility of the progress bar and specifies its position.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `off` (default) - don't show progress bar
-   * - `top` - show progress bar in the top
-   * - `bottom` - show progress bar in the bottom
-   * - `both` - show progress bar in both sides: top and bottom.
+   * - `"off"` (default) - Hides the progress bar.
+   * - `"top"` - Displays the progress bar above survey content.
+   * - `"bottom"` - Displays the progress bar below survey content.
+   * - `"both"` - Displays the progress bar above and below survey content.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
+   * @see progressBarType
+   * @see progressValue
    */
   public get showProgressBar(): string {
     return this.getPropertyValue("showProgressBar");
@@ -2498,17 +2502,18 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showProgressBar", newValue.toLowerCase());
   }
   /**
-   * Gets or sets the type of info in the progress bar.
+   * Specifies the type of information displayed by the progress bar. Applies only when [`showProgressBar`](#showProgressBar) is not `"off"`.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `pages` (default),
-   * - `questions`,
-   * - `requiredQuestions`,
-   * - `correctQuestions`,
-   * - `buttons`
+   * - `"pages"` (default) - The number of completed pages.
+   * - `"questions"` - The number of answered questions.
+   * - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
+   * - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
+   * - `"buttons"` - Adds jump links to the progress bar.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
+   * @see progressValue
    */
   public get progressBarType(): string {
     return this.getPropertyValue("progressBarType");
@@ -2605,12 +2610,12 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("questionDescriptionLocation", value);
   }
   /**
-   * Gets or sets the survey edit mode.
+   * Specifies whether users can take the survey or only view it.
    *
-   * The following options are available:
+   * Possible values:
    *
-   * - `edit` (default) - make a survey editable,
-   * - `display` - make a survey read-only.
+   * - `"edit"` (default) - Allows users to take the survey.
+   * - `"display"` - Makes the survey read-only.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-displaymode/ (linkStyle))
    */
@@ -2942,7 +2947,8 @@ export class SurveyModel extends SurveyElementCore
     return this.isDesignMode || page.isVisible && !page.isStartPage;
   }
   /**
-   * Returns `true` if the survey contains no pages. The survey is empty.
+   * Returns `true` if the survey contains zero pages.
+   * @see emptySurveyText
    */
   public get isEmpty(): boolean {
     return this.pages.length == 0;
@@ -3063,9 +3069,6 @@ export class SurveyModel extends SurveyElementCore
   public set matrixDragHandleArea(val: string) {
     this.setPropertyValue("matrixDragHandleArea", val);
   }
-  /**
-   * Survey is showing a page right now. It is in "running", "preview" or starting state.
-   */
   public get isShowingPage(): boolean {
     return this.state == "running" || this.state == "preview" || this.isShowStartingPage;
   }
@@ -3307,12 +3310,6 @@ export class SurveyModel extends SurveyElementCore
       isAfterPreview: this.changeCurrentPageFromPreview === true
     };
   }
-  /**
-   * Returns the progress that a user made while going through the survey.
-   * It depends from progressBarType property
-   * @see progressBarType
-   * @see progressValue
-   */
   public getProgress(): number {
     if (this.currentPage == null) return 0;
     if (this.progressBarType !== "pages") {
@@ -3334,16 +3331,14 @@ export class SurveyModel extends SurveyElementCore
     return Math.ceil((index * 100) / visPages.length);
   }
   /**
-   * Returns the progress that a user made while going through the survey.
-   * It depends from progressBarType property
+   * Returns a percentage value that indicates user progress in the survey.
+   * @see showProgressBar
    * @see progressBarType
+   * @see progressText
    */
   public get progressValue(): number {
     return this.getPropertyValue("progressValue", 0);
   }
-  /**
-   * Returns the navigation buttons (i.e., 'Prev', 'Next', or 'Complete' and 'Preview') position.
-   */
   public get isNavigationButtonsShowing(): string {
     if (this.isDesignMode) return "none";
     var page = this.currentPage;
@@ -3356,15 +3351,9 @@ export class SurveyModel extends SurveyElementCore
     }
     return this.showNavigationButtons;
   }
-  /**
-   * Returns true if the navigation buttons (i.e., 'Prev', 'Next', or 'Complete' and 'Preview') are shows on top.
-   */
   public get isNavigationButtonsShowingOnTop(): boolean {
     return this.getIsNavigationButtonsShowingOn("top");
   }
-  /**
-   * Returns true if the navigation buttons (i.e., 'Prev', 'Next', or 'Complete' and 'Preview') are shows on bottom.
-   */
   public get isNavigationButtonsShowingOnBottom(): boolean {
     return this.getIsNavigationButtonsShowingOn("bottom");
   }
@@ -3372,18 +3361,9 @@ export class SurveyModel extends SurveyElementCore
     var res = this.isNavigationButtonsShowing;
     return res == "both" || res == buttonPosition;
   }
-  /**
-   * Returns `true` if the survey is in edit mode.
-   * @see mode
-   */
   public get isEditMode(): boolean {
     return this.mode == "edit";
   }
-  /**
-   * Returns `true` if the survey is in display mode or in preview mode.
-   * @see mode
-   * @see showPreviewBeforeComplete
-   */
   public get isDisplayMode(): boolean {
     return this.mode == "display" || this.state == "preview";
   }
@@ -3391,17 +3371,12 @@ export class SurveyModel extends SurveyElementCore
     return this.textUpdateMode == "onTyping";
   }
   /**
-   * Returns `true` if the survey is in design mode. It is used by SurveyJS Editor.
-   * @see setDesignMode
+   * Indicates whether the survey is being designed in [Survey Creator](https://surveyjs.io/survey-creator/documentation/overview).
    */
   public get isDesignMode(): boolean {
     return this._isDesignMode;
   }
   private _isDesignMode: boolean = false;
-  /**
-   * Sets the survey into design mode.
-   * @param value use true to set the survey into the design mode.
-   */
   public setDesignMode(value: boolean) {
     if(!!this._isDesignMode != !!value) {
       this._isDesignMode = !!value;
@@ -3409,7 +3384,9 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Gets or sets whether to show all elements in the survey, regardless their visibility. The default value is `false`.
+   * Specifies whether to show all survey elements, regardless of their visibility.
+   *
+   * Default value: `false`
    */
   public get showInvisibleElements(): boolean {
     return this.getPropertyValue("showInvisibleElements", false);
@@ -3479,20 +3456,21 @@ export class SurveyModel extends SurveyElementCore
     document.cookie = this.cookieName + "=;";
   }
   /**
-   * Gets or sets whether the survey must ignore validation like required questions and others, on `nextPage` and `completeLastPage` function calls. The default is `false`.
+   * Specifies whether to skip validation when you switch between pages or complete the survey programmatically or when users do that in the UI.
+   *
+   * Default value: `false`
+   * @see hideRequiredErrors
    * @see nextPage
+   * @see isPrevPage
    * @see completeLastPage
-   * @see mode
    */
   public ignoreValidation: boolean = false;
   /**
-   * Navigates user to the next page.
+   * Switches the survey to the next page.
    *
-   * Returns `false` in the following cases:
-   *
-   * - if the current page is the last page.
-   * - if the current page contains errors (for example, a required question is empty).
-   * @see isCurrentPageValid
+   * This method returns a Boolean value that indicates whether the page was successfully switched. `false` is returned if the current page is the last page or if it contains validation errors.
+   * @returns `true` if the page was successfully switched; `false` otherwise.
+   * @see isLastPage
    * @see prevPage
    * @see completeLastPage
    */
@@ -3678,12 +3656,6 @@ export class SurveyModel extends SurveyElementCore
       ? undefined
       : true;
   }
-  /**
-   * Checks whether survey elements (pages, panels, and questions) have unique question names.
-   * You can check for unique names for individual page and panel (and all their elements) or a question.
-   * If the parameter is not specified, then a survey checks that all its elements have unique names.
-   * @param element page, panel or question, it is `null` by default, that means all survey elements will be checked
-   */
   public ensureUniqueNames(element: ISurveyElement = null) {
     if (element == null) {
       for (var i = 0; i < this.pages.length; i++) {
@@ -3796,8 +3768,12 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   /**
-   * Navigates user to a previous page. If the current page is the first page, `prevPage` returns `false`. `prevPage` does not perform any checks, required questions can be empty.
+   * Switches the survey to the previous page.
+   *
+   * This method returns a Boolean value that indicates whether the page was successfully switched. `false` is returned if the current page is the first page.
+   * @returns `true` if the page was successfully switched; `false` otherwise.
    * @see isFirstPage
+   * @see nextPage
    */
   public prevPage(): boolean {
     if (this.isFirstPage || this.state === "starting") return false;
@@ -4102,13 +4078,15 @@ export class SurveyModel extends SurveyElementCore
     return res;
   }
   /**
-   * Gets whether the current page is the first one.
+   * Indicates whether the [current page](#currentPage) is the first page.
+   *
+   * > If the survey displays the [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page), this property contains `false`. Use the [`isShowStartingPage`](#isShowStartingPage) property to find out whether the start page is currently displayed.
    */
   public get isFirstPage(): boolean {
     return this.getPropertyValue("isFirstPage");
   }
   /**
-   * Gets whether the current page is the last one.
+   * Indicates whether the [current page](#currentPage) is the last page.
    */
   public get isLastPage(): boolean {
     return this.getPropertyValue("isLastPage");
@@ -4264,8 +4242,9 @@ export class SurveyModel extends SurveyElementCore
     return options.allowComplete && options.allow;
   }
   /**
-   * Starts the survey. Changes the survey mode from "starting" to "running". Call this function if your survey has a start page, otherwise this function does nothing.
+   * Starts the survey. Applies only if the survey has a [start page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#start-page).
    * @see firstPageIsStarted
+   * @see completeLastPage
    */
   public start(): boolean {
     if (!this.firstPageIsStarted) return false;
@@ -4281,8 +4260,7 @@ export class SurveyModel extends SurveyElementCore
     return true;
   }
   /**
-   * Gets whether the question values on the current page are validating on the server at the current moment.
-   * @see onServerValidateQuestions
+   * Indicates whether the current page is being [validated on a server](#onServerValidateQuestions).
    */
   public get isValidatingOnServer(): boolean {
     return this.getPropertyValue("isValidatingOnServer", false);
@@ -4418,23 +4396,26 @@ export class SurveyModel extends SurveyElementCore
     return this.completedByTriggers[key];
   }
   /**
-   * Returns the HTML content for the complete page.
-   * @see completedHtml
+   * Returns HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   *
+   * To specify HTML content, use the [`completedHtml`](#completedHtml) property.
    */
   public get processedCompletedHtml(): string {
     var html = this.renderedCompletedHtml;
     return !!html ? this.processHtml(html, "completed") : "";
   }
   /**
-   * Returns the HTML content, that is shown to a user that had completed the survey before.
-   * @see completedHtml
-   * @see cookieName
+   * Returns HTML content displayed to a user who has completed the survey before. To identify such users, the survey uses a [cookie name](#cookieName) or [client ID](#clientId).
+   *
+   * To specify HTML content, use the [`completedBeforeHtml`](#completedBeforeHtml) property.
    */
   public get processedCompletedBeforeHtml(): string {
     return this.locCompletedBeforeHtml.textOrHtml;
   }
   /**
-   * Returns the HTML content, that is shows when a survey loads the survey JSON.
+   * Returns HTML content displayed while a survey JSON schema is being loaded from [SurveyJS Service](https://api.surveyjs.io).
+   *
+   * To specify HTML content, use the [`loadingHtml`](#loadingHtml) property.
    */
   public get processedLoadingHtml(): string {
     return this.locLoadingHtml.textOrHtml;
@@ -4444,7 +4425,10 @@ export class SurveyModel extends SurveyElementCore
     return SurveyElement.getProgressInfoByElements(pages, false);
   }
   /**
-   * Returns the text for the current progress.
+   * Returns text displayed by the progress bar (for instance, "Page 2 of 3" or "Answered 3/8 questions"). Handle the [`onProgressText`](#onProgressText) event to change this text.
+   * @see progressValue
+   * @see showProgressBar
+   * @see progressBarType
    */
   public get progressText(): string {
     var res = this.getPropertyValue("progressText", "");
@@ -5111,8 +5095,16 @@ export class SurveyModel extends SurveyElementCore
     return page;
   }
   /**
-   * Removes a page from a survey.
-   * @param page
+   * Removes a page from the survey.
+   *
+   * Pass a `PageModel` object to this method. You can get this object in different ways. For example, you can call the [`getPageByName()`](#getPageByName) method to obtain a `PageModel` object with a specific name or use the [`currentPage`](#currentPage) property to access and delete the current page, as shown in the code below.
+   *
+   * ```js
+   * // Delete the current page
+   * survey.removePage(survey.currentPage);
+   * ```
+   * @param page A page to remove.
+   * @see addNewPage
    */
   public removePage(page: PageModel) {
     var index = this.pages.indexOf(page);
@@ -5714,27 +5706,24 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   /**
-   * Loads the survey JSON from the [api.surveyjs.io](https://api.surveyjs.io) service.
-   * If `clientId` is not `null` and a user had completed a survey before, the survey switches to `completedbefore` state.
-   * @param surveyId [api.surveyjs.io](https://api.surveyjs.io) service surveyId
-   * @param clientId users' indentifier, for example an e-mail or a unique customer id in your web application.
-   * @see state
-   * @see onLoadedSurveyFromService
+   * Loads a survey JSON schema from the [SurveyJS Service](https://api.surveyjs.io). You can handle the [`onLoadedSurveyFromService`](#onLoadedSurveyFromService) event to modify the schema after loading if required.
+   * @param surveyId The identifier of a survey JSON schema to load. Refer to the following help topic for more information: [Store Survey Results in the SurveyJS Service](https://surveyjs.io/form-library/documentation/handle-survey-results-store#store-survey-results-in-the-surveyjs-service).
+   * @param clientId A user identifier (e-mail or other unique ID) used to determine whether the user has already taken the survey.
    */
   public loadSurveyFromService(
     surveyId: string = null,
-    cliendId: string = null
+    clientId: string = null
   ) {
     if (surveyId) {
       this.surveyId = surveyId;
     }
-    if (cliendId) {
-      this.clientId = cliendId;
+    if (clientId) {
+      this.clientId = clientId;
     }
     var self = this;
     this.isLoading = true;
     this.onLoadingSurveyFromService();
-    if (cliendId) {
+    if (clientId) {
       this.createSurveyService().getSurveyJsonAndIsCompleted(
         this.surveyId,
         this.clientId,
@@ -6341,8 +6330,8 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   /**
-   * Removes a value from the survey results.
-   * @param {string} name The name of the value. Typically it is a question name.
+   * Deletes an answer from survey results.
+   * @param {string} name An object property that stores the answer to delete. Pass a question's [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName) or [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    */
   public clearValue(name: string) {
     this.setValue(name, null);
@@ -6740,13 +6729,13 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-    * Gets or sets a value that specifies how the survey width is calculated.
+    * Specifies how to calculate the survey width.
     *
-    * The available options:
+    * Possible values:
     *
-    * - `static` - A survey has a fixed width that mostly depends upon the applied theme. Resizing a browser window does not affect the survey width.
-    * - `responsive` - A survey takes all available horizontal space. A survey stretches or shrinks horizonally according to the screen size.
-    * - `auto` - Depends on the question type and corresponds to the static or responsive mode.
+    * - `"static"` - A survey has a [fixed width](#width).
+    * - `"responsive"` - A survey occupies all available horizontal space and stretches or shrinks horizontally to fit in the screen size.
+    * - `"auto"` (default) - Survey width depends on a question type and corresponds to the `"static"` or `"responsive"` mode.
   */
   // `custom/precise` - The survey width is specified by the width property. // in-future
   public get widthMode(): string {
@@ -7280,7 +7269,9 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Use this method to dispose survey model properly.
+   * Disposes of the survey model.
+   *
+   * Call this method to release resources if your application contains multiple survey models or if you re-create a survey model at runtime.
    */
   public dispose() {
     this.removeScrollEventListener();

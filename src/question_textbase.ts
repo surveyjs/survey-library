@@ -59,7 +59,7 @@ export class QuestionTextBase extends Question {
     return super.isEmpty() || this.value === "";
   }
   /**
-   * Gets or sets a value that specifies when to update the question value.
+   * Specifies when to update the question value.
    *
    * Possible values:
    *

@@ -105,10 +105,11 @@ export class Question extends SurveyElement<Question>
     this.setIsMobile((<SurveyModel>this.survey)._isMobile);
   }
   public setIsMobile(val: boolean) {
-    this.renderMinWidth = !val;
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
   }
-  @property({ defaultValue: false }) isMobile: boolean;
+  @property({ defaultValue: false, onSet: (val, target) => {
+    target.renderMinWidth = !val;
+  } }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
   constructor(name: string) {

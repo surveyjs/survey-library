@@ -99,7 +99,7 @@ export class QuestionFileModel extends Question {
       if(!stream) {
         this.stopVideo();
       }
-    });
+    }, this.imageWidth, this.imageHeight);
   }
   public stopVideo(): void {
     this.setIsPlayingVideo(false);
@@ -109,7 +109,7 @@ export class QuestionFileModel extends Question {
     if(!this.isPlayingVideo) return;
     const blobCallback = (blob: Blob | null): void => {
       if(blob) {
-        const file = new File([blob], "snap_picture.png");
+        const file = new File([blob], "snap_picture.png", { type: "image/png" });
         this.loadFiles([file]);
       }
     };

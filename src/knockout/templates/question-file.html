@@ -1,7 +1,7 @@
 ﻿<script type="text/html" id="survey-question-file">
   <div data-bind="css: question.fileRootCss">
       <!-- ko if: question.isPlayingVideo -->
-        <video autoplay playsinline width="640" height="480" data-bind="attr: { id: question.videoId }, click: () => { question.snapPicture(); }"></video>
+        <video autoplay playsinline data-bind="attr: { id: question.videoId }, click: () => { question.snapPicture(); }"></video>
       <!-- /ko -->
       <!-- ko ifnot: question.isPlayingVideo -->
         <!-- ko ifnot: question.isInputReadOnly -->

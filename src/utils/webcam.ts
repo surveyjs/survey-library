@@ -1,4 +1,4 @@
-import { settings } from "survey-core";
+import { IElement, settings } from "survey-core";
 
 export class Webcam {
   public static mediaDevicesCallback: ((callback: (devices: Array<MediaDeviceInfo>) => void) => void) | undefined;
@@ -34,7 +34,7 @@ export class Webcam {
       this.hasWebcamCallback(callback);
     }
   }
-  public getMediaConstraints(devices?: Array<MediaDeviceInfo>): MediaStreamConstraints {
+  public getMediaConstraints(devices?: Array<MediaDeviceInfo>, videoEl?: any): MediaStreamConstraints {
     if(!devices) devices = Webcam.webcamList;
     if(!Array.isArray(devices)) return undefined;
     let selDevice: MediaDeviceInfo;
@@ -59,8 +59,10 @@ export class Webcam {
     } else {
       videoConstraints.facingMode = "user";
     }
-    //videoConstraints.width = { exact: this._webcamElement.width};
-    //videoConstraints.height = {exact: this._webcamElement.height};
+    if(videoEl) {
+      videoConstraints.width = { exact: videoEl.width ? videoEl.width : videoEl.scrollWidth };
+      videoConstraints.height = { exact: videoEl.height ? videoEl.height : videoEl.scrollHeight };
+    }
     return {
       video: videoConstraints,
       audio: false
@@ -72,13 +74,23 @@ export class Webcam {
     if(lbl.indexOf("enviroment") > -1) return "enviroment";
     return "";
   }
-  public startVideo(videoElementId: string, callback: (stream: MediaStream) => void): void {
+  public startVideo(videoElementId: string, callback: (stream: MediaStream) => void, imageWidth?: string, imageHeight?: string): void {
     const videoEl: any = settings.environment.root?.getElementById(videoElementId);
     if(!videoEl) {
       callback(undefined);
       return;
     }
-    navigator.mediaDevices.getUserMedia(this.getMediaConstraints()).then(stream => {
+    if(imageWidth) {
+      videoEl.width = imageWidth;
+    } else {
+      videoEl.style.width = "100%";
+    }
+    if(imageHeight) {
+      videoEl.height = imageHeight;
+    } else {
+      videoEl.style.height = "100%";
+    }
+    navigator.mediaDevices.getUserMedia(this.getMediaConstraints(undefined, videoEl)).then(stream => {
       videoEl.srcObject = stream;
       videoEl.play();
       callback(stream);

@@ -62,7 +62,7 @@ export class PopupSurveyModel extends Base {
   /**
    * Indicates whether the pop-up survey appears on the page, regardless of its [expand state](#isExpanded).
    *
-   * You can set this property to `true` or `false` to control the visibility of the pop-up survey. Alternatively, you can use the [`show()`](#show) and [`hide()`](#hide) methods.
+   * You can set this property to `true` or `false` to control visibility of the pop-up survey. Alternatively, you can use the [`show()`](#show) and [`hide()`](#hide) methods.
    */
   public get isShowing(): boolean {
     return this.getPropertyValue("isShowing", false);

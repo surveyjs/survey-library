@@ -101,6 +101,7 @@ export class Question extends SurveyElement<Question>
   protected setIsMobile(val: boolean) { }
 
   @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+    target.renderMinWidth = !val;
     target.setIsMobile(val);
   } }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
@@ -2028,12 +2029,9 @@ export class Question extends SurveyElement<Question>
   protected canSetValueToSurvey(): boolean {
     return true;
   }
-  protected valueFromData(val: any): any {
-    return val;
-  }
-  protected valueToData(val: any): any {
-    return val;
-  }
+  protected valueFromData(val: any): any { return val; }
+  protected valueToData(val: any): any { return val; }
+  protected convertToCorrectValue(val: any): any { return val; }
   protected onValueChanged(): void { }
   protected isMouseDown: boolean;
   onMouseDown(): void {
@@ -2074,6 +2072,7 @@ export class Question extends SurveyElement<Question>
     this.isValueChangedDirectly = true;
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    newValue = this.convertToCorrectValue(newValue);
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
       this.setValueChangedDirectly();

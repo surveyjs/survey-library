@@ -106,6 +106,15 @@ textarea {
   width: calcSize(3);
 }
 
+.sd-input[type="time"],
+.sd-input[type="date"],
+.sd-input[type="datetime-local"],
+.sd-input[type="week"],
+.sd-input[type="month"],
+.sd-input[type="tel"],
+.sd-input[type="password"],
+.sd-input[type="url"],
+.sd-input[type="email"],
 .sd-input[type="color"],
 .sd-input[type="range"] {
   box-sizing: content-box;

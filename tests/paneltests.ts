@@ -783,6 +783,10 @@ QUnit.test(
       page._showDescription,
       "Entered description is visible in DesignMode"
     );
+    page.title = "";
+    page.description = "";
+    assert.notOk(page.hasTitle, "No title");
+    assert.notOk(page._showDescription, "No description");
   }
 );
 

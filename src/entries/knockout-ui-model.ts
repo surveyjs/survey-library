@@ -79,6 +79,7 @@ export { SurveyNavigationButton } from "../knockout/components/survey-actions/su
 export * from "../knockout/components/paneldynamic-actions/paneldynamic-actions";
 export * from "../knockout/components/brand-info/brand-info";
 export * from "../knockout/components/notifier/notifier";
+export * from "../knockout/components/loading-indicator/loading-indicator";
 
 import * as ko from "knockout";
 import { SurveyModel } from "survey-core";

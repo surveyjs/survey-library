@@ -7639,48 +7639,24 @@ QUnit.test(
     q1.choices = [1, 2, 3, 4];
     q1.correctAnswer = [2, 3];
     q1.value = [1];
-    assert.equal(
-      survey.getCorrectedAnswerCount(),
-      0,
-      "The answer is incorrected"
-    );
-    assert.equal(
-      survey.getCorrectAnswerCount(),
-      0,
-      "The answer is incorrect"
-    );
+    assert.equal(survey.getQuizQuestions().length, 1, "survey.getQuizQuestions().length");
+    assert.equal(survey.getCorrectAnswerCount(), 0, "The answer is incorrect, #1");
     q1.value = [3, 2];
-    assert.equal(
-      survey.getCorrectedAnswerCount(),
-      1,
-      "The answer is corrected now"
-    );
-    assert.equal(
-      survey.getCorrectAnswerCount(),
-      1,
-      "The answer is correct now"
-    );
+    assert.equal(q1.correctAnswerCount, 1, "q1.correctAnswerCount, #1");
+    assert.equal(survey.getCorrectAnswerCount(), 1, "The answer is correct now, #2");
+    let counter = 0;
     survey.onIsAnswerCorrect.add(function (survey, options) {
-      var x = options.question.value;
-      var y = options.question.correctAnswer;
-      var res = x.length == y.length;
-      if (res) {
-        for (var i = 0; i < x.length; i++) {
-          if (x[i] != y[i]) {
-            res = false;
-            break;
-          }
-        }
-      }
-      options.result = res;
+      counter ++;
+      const q = options.question;
+      options.result = Helpers.isTwoValueEquals(q.value, q.correctAnswer, false);
     });
-    assert.equal(
-      survey.getCorrectedAnswerCount(),
-      0,
-      "The order is important now"
-    );
+    assert.equal(q1.correctAnswerCount, 0, "q1.correctAnswerCount, #2");
+    assert.equal(counter, 1, "counter #1");
+    assert.equal(survey.getCorrectedAnswerCount(), 0, "The order is important now, #3");
+    assert.equal(counter, 2, "counter #2");
     q1.value = [2, 3];
-    assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct");
+    assert.equal(survey.getCorrectedAnswerCount(), 1, "The order is correct, #4");
+    assert.equal(counter, 3, "counter #3");
   }
 );
 QUnit.test("Quiz, correct, incorrect answers and onIsAnswerCorrect event", function (assert) {
@@ -7738,21 +7714,31 @@ QUnit.test("question.isCorrectAnswer() and onIsAnswerCorrect event", function (a
       { type: "text", name: "q2", correctAnswer: 2 }
     ]
   });
+  let counter = 0;
   survey.onIsAnswerCorrect.add((sender, options) => {
+    counter++;
     const q = options.question;
     options.result = Math.abs(q.value - q.correctAnswer) < 2;
   });
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
+  assert.equal(counter, 0, "counter #1");
   assert.equal(q1.isAnswerCorrect(), false, "Value is empty");
+  assert.equal(counter, 0, "counter #2");
   q1.value = 1;
   assert.equal(q1.isAnswerCorrect(), true, "q1.value = 1");
+  assert.equal(counter, 1, "counter #3");
   q1.value = 5;
   assert.equal(q1.isAnswerCorrect(), false, "q1.value = 5");
+  assert.equal(counter, 2, "counter #4");
   q1.value = 2;
   assert.equal(q1.isAnswerCorrect(), true, "q1.value = 2");
+  assert.equal(counter, 3, "counter #5");
   q2.value = 3;
   assert.equal(q2.isAnswerCorrect(), true, "q2.value = 3");
+  assert.equal(counter, 4, "counter #6");
+  assert.equal(q2.isAnswerCorrect(), true, "q2.value = 3");
+  assert.equal(counter, 5, "counter #7");
 });
 QUnit.test(
   "Quiz, correct, trim value on checking correct answers, https://surveyjs.answerdesk.io/ticket/details/T6569",
@@ -16218,6 +16204,10 @@ QUnit.test("hasDescription is isDesignMode", function (assert) {
   const q2 = survey.getQuestionByName("q2");
   assert.notOk(q1.hasDescription, "text description is not shown");
   assert.ok(q2.hasDescription, "comment description is shown");
+  const q3 = survey.currentPage.addNewQuestion("text", "q3");
+  const q4 = survey.currentPage.addNewQuestion("comment", "q4");
+  assert.notOk(q3.hasDescription, "text description is not shown, on adding question");
+  assert.ok(q4.hasDescription, "comment description is shown, on adding question");
 
   commentDescriptionProperty.placeholder = oldValue;
   settings.supportCreatorV2 = false;

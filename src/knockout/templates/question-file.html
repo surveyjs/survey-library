@@ -8,6 +8,11 @@
       <!-- /ko -->
       <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     
         <div data-bind="css: question.getFileDecoratorCss()">
+          <!-- ko if: question.showLoadingIndicator -->
+          <!-- ko component: { name: "sv-loading-indicator" } -->
+          <!-- /ko -->
+          <!-- /ko -->
+          <!-- ko if: question.showChooseButton -->
           <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.renderedPlaceholder"></span>
           <div data-bind="css: question.cssClasses.wrapper">
             <!-- ko ifnot: isReadOnly -->
@@ -22,10 +27,11 @@
             <span data-bind="css: question.cssClasses.noFileChosen, text: question.noFileChosenCaption"></span>
             <!-- /ko -->
           </div>
+          <!-- /ko -->
         </div>
         <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButton} } --><!-- /ko -->
         <!-- ko if: question.showPreview -->
-        <!-- ko if: question.koHasValue -->
+        <!-- ko if: question.koHasValue && question.allowShowPreview -->
         <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
             <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
               <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->

@@ -318,8 +318,6 @@ frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
     .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
     await applyTheme(themeName);
-    await initSurvey(framework, json);
-    await t.resizeWindow(1000, 1000);
   });
   test("check hidden action content has non-zero width", async (t) => {
     await initSurvey(framework, json, {
@@ -338,7 +336,7 @@ frameworks.forEach((framework) => {
     const hiddenAction = Selector("h5 .sv-action.sv-action--hidden");
     await t
       .expect(hiddenAction.find(".sv-action__content").offsetWidth).gt(0)
-      .expect(await ClientFunction(() => {
+      .expect(ClientFunction(() => {
         return window["survey"].getAllQuestions()[0].getTitleToolbar().actions[0].maxDimension;
       })()).gt(0);
   });

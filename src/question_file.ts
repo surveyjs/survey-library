@@ -105,6 +105,17 @@ export class QuestionFileModel extends Question {
     this.setIsPlayingVideo(false);
     this.closeVideoStream();
   }
+  public snapPicture(): void {
+    if(!this.isPlayingVideo) return;
+    const blobCallback = (blob: Blob | null): void => {
+      if(blob) {
+        const file = new File([blob], "snap_picture.png");
+        this.loadFiles([file]);
+      }
+    };
+    new Webcam().snap(this.videoId, blobCallback);
+    this.stopVideo();
+  }
   private closeVideoStream(): void {
     if(!!this.videoStream) {
       this.videoStream.getTracks().forEach(track => {

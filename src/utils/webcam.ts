@@ -87,6 +87,26 @@ export class Webcam {
         callback(undefined);
       });
   }
+  public snap(videoElementId: string, callback: BlobCallback): boolean {
+    if("undefined" === typeof document) return false;
+    const root = document;
+    const videoEl: any = root.getElementById(videoElementId);
+    if(!videoEl) return false;
+    const canvasEl = root.createElement("canvas");
+    canvasEl.height = videoEl.scrollHeight;
+    canvasEl.width = videoEl.scrollWidth;
+    let context = canvasEl.getContext("2d");
+    /*
+    if(this._facingMode == 'user'){
+      context.translate(canvasEl.width, 0);
+      context.scale(-1, 1);
+    }
+    */
+    context.clearRect(0, 0, canvasEl.width, canvasEl.height);
+    context.drawImage(videoEl, 0, 0, canvasEl.width, canvasEl.height);
+    canvasEl.toBlob(callback, "image/png");
+    return true;
+  }
 
   private hasWebcamCallback(callback: (res: boolean) => void): void {
     callback(Array.isArray(Webcam.webcamList));

@@ -37,7 +37,6 @@ frameworks.forEach(framework => {
     await t.resizeWindow(500, 600);
     await registerNPSComponet();
     await initSurvey(framework, json);
-    await t.wait(300);
 
     await t
       .click(questionDropdownSelect)
@@ -47,8 +46,7 @@ frameworks.forEach(framework => {
       .pressKey("down")
       .pressKey("enter");
 
-    await t.wait(300)
-      .click(Selector("input[value='Complete']"));
+    await t.click(Selector("input[value='Complete']"));
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.q1).eql(3);

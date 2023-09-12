@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey, url_test, applyTheme } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "titleActions";
 
@@ -309,5 +309,37 @@ frameworks.forEach((framework) => {
       .resizeWindow(800, 600)
       .expect(myAction.visible).ok()
       .expect(dotsItem.visible).notOk();
+  });
+});
+
+const themeName = "defaultV2";
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`
+    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
+    await applyTheme(themeName);
+    await initSurvey(framework, json);
+    await t.resizeWindow(1000, 1000);
+  });
+  test("check hidden action content has non-zero width", async (t) => {
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        opt.titleActions = [
+          {
+            title: "Action",
+            visible: false,
+            action: () => {
+              opt.question.state = "expanded";
+            },
+          },
+        ];
+      },
+    });
+    const hiddenAction = Selector("h5 .sv-action.sv-action--hidden");
+    await t
+      .expect(hiddenAction.find(".sv-action__content").offsetWidth).gt(0)
+      .expect(await ClientFunction(() => {
+        return window["survey"].getAllQuestions()[0].getTitleToolbar().actions[0].maxDimension;
+      })()).gt(0);
   });
 });

@@ -4,7 +4,7 @@ import { LocalizableString } from "./localizablestring";
 import { property } from "./jsonobject";
 
 /**
- * A Model for a survey running in the Popup Window.
+ * A class that renders a survey in a pop-up window.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/popup-survey/ (linkStyle))
  */
@@ -46,20 +46,23 @@ export class PopupSurveyModel extends Base {
     return "popupsurvey";
   }
   /**
-   * A survey object.
-   * @see SurveyModel
+   * A [`SurveyModel`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model) instance rendered in the pop-up window.
    */
   public get survey(): SurveyModel {
     return this.surveyValue;
   }
   /**
-   * Set this value to negative value, for example -1, to avoid closing the popup window on completing the survey. Leave it equals to 0 (default value) to close the popup window immediately, or set it to 3, 5, 10, ... to close the popup window in 3, 5, 10 seconds.
+   * Specifies how many seconds the pop-up window should remain open after users complete the survey.
+   *
+   * Default value: 0 (the window is closed immediately)
+   *
+   * Set this property to a negative value (for instance, -1) to keep the pop-up window open without a time limit.
    */
   public closeOnCompleteTimeout: number = 0;
   /**
-   * Returns true if the popup window is currently showing. Set it to true to show the popup window and false to hide it.
-   * @see show
-   * @see hide
+   * Indicates whether the pop-up survey appears on the page, regardless of its [expand state](#isExpanded).
+   *
+   * You can set this property to `true` or `false` to control the visibility of the pop-up survey. Alternatively, you can use the [`show()`](#show) and [`hide()`](#hide) methods.
    */
   public get isShowing(): boolean {
     return this.getPropertyValue("isShowing", false);
@@ -68,25 +71,29 @@ export class PopupSurveyModel extends Base {
     this.setPropertyValue("isShowing", val);
   }
   /**
-   * Show the popup window
+   * Shows the pop-up survey. The survey may appear [expanded or collapsed](#isExpanded).
+   *
+   * As an alternative to this method, you can set the [`isShowing`](#isShowing) property to `true`.
    * @see hide
-   * @see isShowing
    */
   public show(): void {
     this.isShowing = true;
   }
   /**
-   * Hide the popup window
+   * Hides the pop-up survey.
+   *
+   * As an alternative to this method, you can set the [`isShowing`](#isShowing) property to `false`.
    * @see show
-   * @see isShowing
+   * @see expand
+   * @see collapse
    */
   public hide(): void {
     this.isShowing = false;
   }
   /**
-   * Returns true if the popup window is expanded. Set it to true to expand the popup window or false to collapse it.
-   * @see expand
-   * @see collapse
+   * Indicates whether the pop-up window is expanded or collapsed.
+   *
+   * You can set this property to `true` or `false` to control the expand state of the pop-up survey. Alternatively, you can use the [`expand()`](#expand) and [`collapse()`](#collapse) methods.
    */
   public get isExpanded(): boolean {
     return this.getPropertyValue("isExpanded", false);
@@ -101,7 +108,7 @@ export class PopupSurveyModel extends Base {
     this.updateCssButton();
   }
   /**
-   * The popup window and survey title.
+   * A title for the pop-up window. If this property is undefined, the title is taken from [`SurveyModel`](#survey)'s [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) property.
    */
   public get title(): string {
     return this.survey.title;
@@ -113,13 +120,19 @@ export class PopupSurveyModel extends Base {
     return this.survey.locTitle;
   }
   /**
-   * Expand the popup window to show the survey.
+   * Expands the pop-up window.
+   *
+   * As an alternative to this method, you can set the [`isExpanded`](#isExpanded) property to `true`.
+   * @see collapse
    */
   public expand(): void {
     this.isExpanded = true;
   }
   /**
-   * Collapse the popup window and show survey title only.
+   * Collapses the pop-up window, leaving only the survey title visible.
+   *
+   * As an alternative to this method, you can set the [`isExpanded`](#isExpanded) property to `false`.
+   * @see expand
    */
   public collapse(): void {
     this.isExpanded = false;
@@ -132,7 +145,7 @@ export class PopupSurveyModel extends Base {
    *
    * Default value: `false`
    *
-   * If you allow users to close the pop-up window, make sure to implement a UI element that opens it. This element should call the [`show()`](https://surveyjs.io/form-library/documentation/api-reference/pop-up-survey-model#show) method.
+   * If you allow users to close the pop-up window, make sure to implement a UI element that opens it. This element should call the [`show()`](#show) method or enable the [`isShowing`](#isShowing) property.
    * @see expand
    * @see collapse
    * @see hide

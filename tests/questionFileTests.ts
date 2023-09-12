@@ -1327,3 +1327,33 @@ QUnit.test("QuestionFile current mode property, webcam is available", function(a
   mConst = new Webcam().getMediaConstraints(createDevices([{ label: "dfdf" }, { label: "enviroment" }]));
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
 });
+QUnit.test("QuestionFile stop playing video on hiding question", function(assert) {
+  let survey = new SurveyModel({
+    elements: [{ type: "file", name: "q1" }]
+  });
+  let q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.equal(q1.isPlayingVideo, true);
+  q1.visible = false;
+  assert.equal(q1.isPlayingVideo, false, "question invisible");
+  q1.visible = true;
+  q1.setPropertyValue("isPlayingVideo", true);
+  q1.state = "collapse";
+  assert.equal(q1.isPlayingVideo, false, "question content is collapsed");
+  survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1",
+        elements: [{ type: "file", name: "q1" }]
+      }
+    ]
+  });
+  let panel = survey.getPanelByName("panel1");
+  q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.equal(q1.isPlayingVideo, true);
+  panel.visible = false;
+  assert.equal(q1.isPlayingVideo, false, "panel invisible");
+  q1.setPropertyValue("isPlayingVideo", true);
+  panel.state = "collapse";
+  assert.equal(q1.isPlayingVideo, false, "panel content is collapsed");
+});

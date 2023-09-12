@@ -17675,3 +17675,16 @@ QUnit.test("Copy panel with invisible questions at design-time", (assert): any =
   assert.equal(q3.isVisible, true, "q3.isVisible = true");
   assert.equal(q3.getPropertyValue("isVisible"), true, "q3.isVisible via getPropertyValue");
 });
+QUnit.test("Use variables as default values in expression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValueExpression: "1",
+      }]
+  });
+  survey.data = { q1: 2 };
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.value, 2, "Get data from survey");
+});

@@ -2358,6 +2358,9 @@ export class Question extends SurveyElement<Question>
   //EO a11y
 
   //new a11y
+  public get a11y_input_ariaRole(): string {
+    return null;
+  }
   public get a11y_input_ariaRequired(): "true" | "false" {
     return this.isRequired ? "true" : "false";
   }

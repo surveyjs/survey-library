@@ -582,6 +582,9 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public get isNewA11yStructure(): boolean {
     return true;
   }
+  public get a11y_input_ariaRole(): string {
+    return "listbox";
+  }
   // EO a11y
 }
 Serializer.addClass(

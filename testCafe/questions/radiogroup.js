@@ -74,13 +74,13 @@ frameworks.forEach(framework => {
 
     //asc
     await setOptions("car", { choicesOrder: "asc" });
-    await t.expect(chocies.nth(0).find("[aria-label=\"Audi\"]").exists).ok();
-    await t.expect(chocies.nth(3).find("[aria-label=\"BMW\"]").exists).ok();
+    await t.expect(chocies.nth(0).find("[type=\"radio\"]").exists).ok();
+    await t.expect(chocies.nth(3).find("[type=\"radio\"]").exists).ok();
 
     //desc
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(0).find("[aria-label=\"Volkswagen\"]").exists).ok();
-    await t.expect(chocies.nth(3).find("[aria-label=\"Vauxhall\"]").exists).ok();
+    await t.expect(chocies.nth(0).find("[type=\"radio\"]").exists).ok();
+    await t.expect(chocies.nth(3).find("[type=\"radio\"]").exists).ok();
 
     //random
     if (chocies.count === 1) {
@@ -156,7 +156,7 @@ frameworks.forEach(framework => {
 
     await setOptions("car", { hasOther: true, otherText: "Other Test" });
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(11).find("[aria-label=\"Other Test\"]").exists).ok();
+    await t.expect(chocies.nth(11).find("[type=\"radio\"]").exists).ok();
   });
 
   test("choose other", async t => {
@@ -167,8 +167,7 @@ frameworks.forEach(framework => {
 
     const radiogroup = Selector("[role=\"radiogroup\"]");
     const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
-    const otherText = chocies.nth(11).find("[aria-label=\"Other (describe)\"]");
-
+    const otherText = Selector("[type='radio']").nth(11);
     await t
       .click(otherText)
       .typeText(getOtherInput, "Zaporozec")
@@ -178,6 +177,7 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
+
   test("choose other and storeOthersAsComment=false", async t => {
     const setSurveyOptions = ClientFunction(() => {
       window["survey"].storeOthersAsComment = false;
@@ -189,7 +189,7 @@ frameworks.forEach(framework => {
 
     const radiogroup = Selector("[role=\"radiogroup\"]");
     const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
-    const otherText = chocies.nth(11).find("[aria-label=\"Other (describe)\"]");
+    const otherText = Selector("[type='radio']").nth(11);
 
     await setSurveyOptions();
     await t

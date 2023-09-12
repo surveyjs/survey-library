@@ -1,5 +1,6 @@
 <template>
   <fieldset :class="question.getSelectBaseRootCss()" 
+    :role="question.a11y_input_ariaRole"
     :aria-required="question.a11y_input_ariaRequired"
     :aria-label="question.a11y_input_ariaLabel"
     :aria-labelledby="question.a11y_input_ariaLabelledBy"

@@ -22,6 +22,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
       <fieldset
         className={this.question.getSelectBaseRootCss()}
         ref={(fieldset) => (this.setControl(fieldset))}
+        role={this.question.a11y_input_ariaRole}
         aria-required={this.question.a11y_input_ariaRequired}
         aria-label={this.question.a11y_input_ariaLabel}
         aria-labelledby={this.question.a11y_input_ariaLabelledBy}

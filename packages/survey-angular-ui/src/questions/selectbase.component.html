@@ -1,4 +1,5 @@
 <fieldset [class]="model.getSelectBaseRootCss()" #contentElement 
+  [attr.role]="model.a11y_input_ariaRole"
   [attr.aria-required]="model.a11y_input_ariaRequired"
   [attr.aria-label]="model.a11y_input_ariaLabel"
   [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"

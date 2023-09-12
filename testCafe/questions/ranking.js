@@ -82,13 +82,13 @@ frameworks.forEach((framework) => {
 
   const PriceItem = Selector("span")
     .withText("Please rank the following smartphone features in order of importance:")
-    .parent("[aria-labelledby]")
+    .parent("[data-name]")
     .find("span")
     .withText("Price");
 
   const BatteryItem = Selector("span")
     .withText("Please rank the following smartphone features in order of importance:")
-    .parent("[aria-labelledby]")
+    .parent("[data-name]")
     .find("span")
     .withText("Battery life");
 
@@ -157,28 +157,28 @@ frameworks.forEach((framework) => {
     });
     const rankAudiItem = Selector("span")
       .withText("What car did you enjoy the most?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Audi");
     const rankMercedesBenzItem = Selector("span")
       .withText("What car did you enjoy the most?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Mercedes-Benz");
 
     const checkboxAudiItem = Selector("span")
       .withText("What cars have you being drived?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Audi");
     const checkboxMerscedesItem = Selector("span")
       .withText("What cars have you being drived?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Mercedes-Benz");
     const checkboxToyotaItem = Selector("span")
       .withText("What cars have you being drived?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Toyota");
 
@@ -263,13 +263,13 @@ frameworks.forEach((framework) => {
 
     const FirstItem = Selector("span")
       .withText(newName)
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("one");
 
     const SecondItem = Selector("span")
       .withText(newName)
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("two");
 

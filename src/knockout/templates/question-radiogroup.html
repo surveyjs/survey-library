@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-radiogroup">
 
-  <fieldset data-bind="css: question.getSelectBaseRootCss(), attr: { 'aria-required': question.a11y_input_ariaRequired, 'aria-labelledby': question.a11y_input_ariaLabelledBy, 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, 'aria-label': question.a11y_input_ariaLabel }">
+  <fieldset data-bind="css: question.getSelectBaseRootCss(), attr: { 'role': question.a11y_input_ariaRole, 'aria-required': question.a11y_input_ariaRequired, 'aria-labelledby': question.a11y_input_ariaLabelledBy, 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, 'aria-label': question.a11y_input_ariaLabel }">
     <!-- ko ifnot: question.hasColumns -->
       <!-- ko if: question.blockedRow -->
       <div data-bind="css: question.cssClasses.rootRow">

@@ -23,7 +23,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
       }
     }
     return (
-      <table className={cssClasses.root}>
+      <table className={this.question.getQuestionRootCss()}>
         <tbody>{rows}</tbody>
       </table>
     );

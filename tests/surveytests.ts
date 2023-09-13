@@ -15778,6 +15778,57 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
   survey.fitToContainer = true;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact sd-root-modern--full-container");
 });
+
+QUnit.test("Check survey isMobile in design mode", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      },
+      {
+        type: "multipletext",
+        name: "q2",
+        items: [
+          {
+            "name": "text1"
+          }
+        ]
+      },
+      {
+        type: "checkbox",
+        name: "q3",
+        choices: ["Item1", "Item2"]
+      }
+    ]
+  });
+  survey.css = defaultV2Css;
+  survey.setDesignMode(true);
+  const textQuestion = survey.getQuestionByName("q1");
+  const multipleTextQuestion = survey.getQuestionByName("q2");
+  const checkboxQuestion = survey.getQuestionByName("q3");
+  survey.setIsMobile(true);
+  assert.ok(survey._isMobile);
+  assert.notOk(survey.isMobile);
+  assert.notOk(textQuestion.isMobile);
+  assert.ok(multipleTextQuestion.isMobile);
+  assert.ok(checkboxQuestion.isMobile);
+});
+QUnit.test("Check survey isMobile is set correctly on adding new question", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        type: "text",
+        name: "q1",
+      },
+    ]
+  });
+  survey.css = defaultV2Css;
+  survey.setIsMobile(true);
+  survey.pages[0].addNewQuestion("text", "q2", 0);
+  const question = survey.getQuestionByName("q2");
+  assert.ok(question.isMobile);
+});
 QUnit.test("Set correct activePage on fromSurvey and update buttons visibility", function (assert) {
   const survey = new SurveyModel({
     "elements": [

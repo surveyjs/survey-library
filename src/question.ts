@@ -98,11 +98,17 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly && settings.readOnly.commentRenderMode === "div";
   }
 
-  protected setIsMobile(val: boolean) { }
-
-  @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+  protected allowMobileInDesignMode() {
+    return false;
+  }
+  public updateIsMobileFromSurvey() {
+    this.setIsMobile((<SurveyModel>this.survey)._isMobile);
+  }
+  public setIsMobile(val: boolean) {
+    this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+  }
+  @property({ defaultValue: false, onSet: (val, target) => {
     target.renderMinWidth = !val;
-    target.setIsMobile(val);
   } }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
@@ -476,6 +482,7 @@ export class Question extends SurveyElement<Question>
     if(!this.visible) {
       this.updateIsVisibleProp();
     }
+    this.updateIsMobileFromSurvey();
   }
   /**
    * Returns a survey element (panel or page) that contains the question and allows you to move this question to a different survey element.
@@ -950,6 +957,13 @@ export class Question extends SurveyElement<Question>
       .append(this.cssRoot)
       .append(this.cssClasses.disabled, this.isReadOnly)
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
+      .toString();
+  }
+
+  public getQuestionRootCss() {
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.rootMobile, this.isMobile)
       .toString();
   }
   public updateElementCss(reNew?: boolean): void {

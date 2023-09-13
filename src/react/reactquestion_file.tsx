@@ -5,6 +5,7 @@ import { SvgIcon } from "./components/svg-icon/svg-icon";
 import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { attachKey2click } from "./reactSurvey";
+import { LoadingIndicatorComponent } from "./components/loading-indicator";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -13,16 +14,19 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
   protected get question(): QuestionFileModel {
     return this.questionBase as QuestionFileModel;
   }
+  protected renderLoadingIndicator(): JSX.Element {
+    return this.question.showLoadingIndicator ? <LoadingIndicatorComponent></LoadingIndicatorComponent> : null as any;
+  }
   protected renderElement(): JSX.Element {
     var preview = this.renderPreview();
     var fileInput: JSX.Element | null = null;
     var fileDecorator = this.renderFileDecorator();
-    var clearButton = this.renderClearButton(
-      this.question.showRemoveButton
-    );
-    var clearButtonBottom = this.renderClearButton(
-      this.question.showRemoveButtonBottom
-    );
+    var clearButton = this.question.showRemoveButton ? this.renderClearButton(
+      this.question.cssClasses.removeButton
+    ) : null;
+    var clearButtonBottom = this.question.showRemoveButtonBottom ? this.renderClearButton(
+      this.question.cssClasses.removeButtonBottom
+    ): null;
 
     let mobileFileNavigator = this.question.mobileFileNavigatorVisible?(<SurveyActionBar model = {this.question.mobileFileNavigator}></SurveyActionBar>):null;
     fileInput = (
@@ -79,9 +83,21 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderFileDecorator(): JSX.Element {
-    const questionCss = this.question.cssClasses;
+    const loadingIndicator = this.renderLoadingIndicator();
+    const chooseButton = this.renderChooseButton();
+    return (
+      <div
+        className={this.question.getFileDecoratorCss()}
+      >
+        {loadingIndicator}
+        {chooseButton}
+      </div>
+    );
+  }
+  protected renderChooseButton(): JSX.Element {
     let noFileChosen: JSX.Element | null = null;
     let chooseFile: JSX.Element | null = null;
+    if(!this.question.showChooseButton) return null as any;
     chooseFile = this.question.isReadOnly ? null : attachKey2click(
       <label
         role="button"
@@ -102,19 +118,16 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       );
     }
     return (
-      <div
-        className={this.question.getFileDecoratorCss()}
-      >
+      <>
         <span className={this.question.cssClasses.dragAreaPlaceholder}>{this.question.renderedPlaceholder}</span>
         <div className={this.question.cssClasses.wrapper}>
           {chooseFile}
           {noFileChosen}
         </div>
-      </div>
-    );
+      </>);
   }
   protected renderClearButton(className: string): JSX.Element | null {
-    return className ? (
+    return !this.question.isUploading ? (
       <button type="button" onClick={this.question.doClean} className={className}>
         <span>{this.question.clearButtonCaption}</span>
         {(!!this.question.cssClasses.removeButtonIconId) ? <SvgIcon iconName={this.question.cssClasses.removeButtonIconId} size={"auto"} title={this.question.clearButtonCaption}></SvgIcon>: null }
@@ -140,7 +153,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
     );
   }
   protected renderPreview(): JSX.Element | null {
-    if (!this.question.previewValue || !this.question.previewValue.length) return null;
+    if (!this.question.allowShowPreview) return null;
     var previews = this.question.previewValue.map((val, index) => {
       if (!val) return null;
       return (

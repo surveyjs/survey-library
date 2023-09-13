@@ -7211,3 +7211,21 @@ QUnit.test("question.onHidingContent() call on going to another page or complete
   survey.doComplete();
   assert.equal(counter, 3, "complete survey");
 });
+QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "comment", name: "q2" },
+      { type: "expression", name: "q3" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = ["item1", "item2", "item3"];
+  q2.value = ["item1", "item2", "item3"];
+  q3.value = ["item1", "item2", "item3"];
+  assert.equal(q1.value, "item1, item2, item3", "q1");
+  assert.equal(q2.value, "item1\nitem2\nitem3", "q2");
+  assert.equal(q3.value, "item1, item2, item3", "q3");
+});

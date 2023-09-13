@@ -59,7 +59,7 @@ export class QuestionTextBase extends Question {
     return super.isEmpty() || this.value === "";
   }
   /**
-   * Gets or sets a value that specifies when to update the question value.
+   * Specifies when to update the question value.
    *
    * Possible values:
    *
@@ -120,6 +120,11 @@ export class QuestionTextBase extends Question {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateRemainingCharacterCounter(newValue);
   }
+  protected convertToCorrectValue(val: any): any {
+    if(Array.isArray(val)) return val.join(this.getValueSeparator());
+    return val;
+  }
+  protected getValueSeparator(): string { return ", "; }
   public disableNativeUndoRedo = false;
   protected checkForUndo(event: KeyboardEvent) {
     if (this.disableNativeUndoRedo && this.isInputTextUpdate && (event.ctrlKey || event.metaKey)) {

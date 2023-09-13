@@ -237,13 +237,13 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
 
     const val = this.renderedValue as Array<any>;
-    return val.map((item: any) => new ItemValue(item));
+    return val.map((item: any) => this.createItemValue(item));
   }
-
+  protected getAnswerCorrectIgnoreOrder(): boolean { return true; }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
-  ) {
+  ):void {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (isOnValueChanged) return;
 

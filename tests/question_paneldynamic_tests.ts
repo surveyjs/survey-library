@@ -6175,3 +6175,57 @@ QUnit.test("templateElements question.onHidingContent", function (assert) {
   panel.currentIndex = 1;
   assert.equal(counter, 1, "Go to another tab");
 });
+QUnit.test("nested panel.panelCount&expression question", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "paneldynamic",
+        "name": "panel1",
+        "valueName": "shared",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "A"
+          }
+        ],
+        "panelCount": 1
+      },
+      {
+        "type": "paneldynamic",
+        "name": "panel2",
+        "valueName": "shared",
+        "templateElements": [
+          {
+            "type": "text",
+            "name": "B"
+          },
+          {
+            "type": "text",
+            "name": "C",
+            "defaultValueExpression": "{panel.A}",
+            "readOnly": true
+          },
+          {
+            "type": "text",
+            "name": "D",
+            "defaultValueExpression": "{panel.B}+{panel.C}",
+            "readOnly": true
+          },
+          {
+            "type": "expression",
+            "name": "E",
+            "expression": "{panel.B}+{panel.C}"
+          }
+        ]
+      }
+    ]
+  });
+  const panel1 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  panel1.panels[0].getQuestionByName("A").value = 1;
+  const panel2 = <QuestionPanelDynamicModel>survey.getQuestionByName("panel2");
+  const panel = panel2.panels[0];
+  panel.getQuestionByName("B").value = 2;
+  assert.equal(panel.getQuestionByName("C").value, 1, "C");
+  assert.equal(panel.getQuestionByName("D").value, 3, "D");
+  assert.equal(panel.getQuestionByName("E").value, 3, "E");
+});

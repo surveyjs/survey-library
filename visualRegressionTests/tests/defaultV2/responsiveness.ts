@@ -424,6 +424,9 @@ frameworks.forEach(framework => {
         ]
       });
       const inputSelector = Selector(".sd-input");
+      await takeElementScreenshot("responsiveness-multipletext-empty.png", Selector(".sd-question"), t, comparer);
+      await t.click(inputSelector.nth(0));
+      await takeElementScreenshot("responsiveness-multipletext-focus.png", Selector(".sd-question"), t, comparer);
       await t.typeText(inputSelector.nth(0), "Jon Snow")
         .typeText(inputSelector.nth(2), "jon@snow.com")
         .typeText(inputSelector.nth(4), "1234-56789");

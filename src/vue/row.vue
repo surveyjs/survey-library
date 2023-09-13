@@ -1,24 +1,14 @@
 <template>
   <div :class="row.getRowCss()">
-    <div v-for="element in elements" :style="element.rootStyle">
-    <survey-element
-      v-if="!element.isPanel" 
+    <survey-row-element
+      v-for="element in elements"
       :key="element.id"
       :element="element"
       :survey="survey"
       :css="css"
       :row="row"
-      :style="element.getRootStyle()"
     >
-    </survey-element>
-    <survey-panel
-      v-if="element.isPanel"
-      :key="element.id"
-      :question="element"
-      :css="css">
-    </survey-panel>
-
-    </div>
+    </survey-row-element>
   </div>
 </template>
 

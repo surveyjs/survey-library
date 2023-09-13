@@ -656,6 +656,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       super.focus(onError);
     }
   }
+  public afterRender(el: any): void {
+    super.afterRender(el);
+    if (!!this.contentQuestion) {
+      this.contentQuestion.afterRender(el);
+    }
+  }
   public get contentQuestion(): Question {
     return this.questionWrapper;
   }

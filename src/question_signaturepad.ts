@@ -120,12 +120,12 @@ export class QuestionSignaturePadModel extends Question {
 
     this.updateColors(signaturePad);
 
-    signaturePad.addEventListener("beginStroke", () => {
+    (signaturePad as any).addEventListener("beginStroke", () => {
       this.isDrawingValue = true;
       canvas.focus();
     }, { once: false });
 
-    signaturePad.addEventListener("endStroke", () => {
+    (signaturePad as any).addEventListener("endStroke", () => {
       this.isDrawingValue = false;
       this.updateValue();
     }, { once: false });

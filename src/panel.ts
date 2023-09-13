@@ -322,9 +322,9 @@ export class PanelModelBase extends SurveyElement<Question>
   protected canShowTitle(): boolean { return true; }
   @property({ defaultValue: true }) showDescription: boolean;
   get _showDescription(): boolean {
+    if(!this.hasTitle && this.isDesignMode) return false;
     return this.survey && (<any>this.survey).showPageTitles && this.hasDescription ||
       (this.showDescription && this.isDesignMode &&
-        settings.designMode.showEmptyTitles &&
         settings.designMode.showEmptyDescriptions);
   }
   public localeChanged() {

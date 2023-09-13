@@ -124,9 +124,10 @@ export class QuestionFileModel extends Question {
   }
 
   public isPreviewVisible(index: number) {
+    const isUploading = this.isUploading;
     const isFileNavigatorVisible = this.fileNavigatorVisible;
     const isPreviewVisible = (this.indexToShow * this.pageSize <= index && index < (this.indexToShow + 1) * this.pageSize);
-    return !isFileNavigatorVisible || isPreviewVisible;
+    return !isUploading && (!isFileNavigatorVisible || isPreviewVisible);
   }
 
   public getType(): string {

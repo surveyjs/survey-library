@@ -56,7 +56,10 @@ export class QuestionFileModel extends Question {
   protected fileIndexAction: Action;
 
   get fileNavigatorVisible(): boolean {
-    return this.containsMultiplyFiles && this.pageSize < this.previewValue.length && this.isDefaultV2Theme;
+    const isUploading = this.isUploading;
+    const containsMultipleFiles = this.containsMultiplyFiles;
+    const needToShowFileNavigator = this.pageSize < this.previewValue.length;
+    return !isUploading && containsMultipleFiles && needToShowFileNavigator && this.isDefaultV2Theme;
   }
   private get pagesCount() {
     return Math.ceil(this.previewValue.length / this.pageSize);
@@ -124,10 +127,9 @@ export class QuestionFileModel extends Question {
   }
 
   public isPreviewVisible(index: number) {
-    const isUploading = this.isUploading;
     const isFileNavigatorVisible = this.fileNavigatorVisible;
     const isPreviewVisible = (this.indexToShow * this.pageSize <= index && index < (this.indexToShow + 1) * this.pageSize);
-    return !isUploading && (!isFileNavigatorVisible || isPreviewVisible);
+    return !isFileNavigatorVisible || isPreviewVisible;
   }
 
   public getType(): string {

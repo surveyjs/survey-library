@@ -372,10 +372,10 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
       questions[i].clearValue();
     }
   }
-  public onAnyValueChanged(name: string) {
+  public onAnyValueChanged(name: string, questionName: string): void {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].onAnyValueChanged(name);
+      questions[i].onAnyValueChanged(name, questionName);
     }
   }
   public getDataValueCore(valuesHash: any, key: string): any {
@@ -438,7 +438,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
-    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName);
+    this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName, "");
   }
 
   private updateQuestionsValue(
@@ -2084,7 +2084,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       : newValue;
   }
   private isDoingonAnyValueChanged = false;
-  onAnyValueChanged(name: string) {
+  onAnyValueChanged(name: string, questionName: string): void {
     if (
       this.isUpdateLocked ||
       this.isDoingonAnyValueChanged ||
@@ -2094,11 +2094,11 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.isDoingonAnyValueChanged = true;
     var rows = this.visibleRows;
     for (var i = 0; i < rows.length; i++) {
-      rows[i].onAnyValueChanged(name);
+      rows[i].onAnyValueChanged(name, questionName);
     }
     var totalRow = this.visibleTotalRow;
     if (!!totalRow) {
-      totalRow.onAnyValueChanged(name);
+      totalRow.onAnyValueChanged(name, questionName);
     }
     this.isDoingonAnyValueChanged = false;
   }

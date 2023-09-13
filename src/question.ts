@@ -2057,7 +2057,8 @@ export class Question extends SurveyElement<Question>
         this.getValueName(),
         newValue,
         this.getDataLocNotification(),
-        this.allowNotifyValueChanged
+        this.allowNotifyValueChanged,
+        this.name
       );
     }
     this.isMouseDown = false;
@@ -2162,7 +2163,7 @@ export class Question extends SurveyElement<Question>
     this.errors = [];
   }
   public clearUnusedValues(): void { }
-  onAnyValueChanged(name: string): void { }
+  onAnyValueChanged(name: string, questionName: string): void { }
   checkBindings(valueName: string, value: any): void {
     if (this.bindings.isEmpty() || !this.data) return;
     var props = this.bindings.getPropertiesByValueName(valueName);

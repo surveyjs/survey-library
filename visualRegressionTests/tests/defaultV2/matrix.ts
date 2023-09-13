@@ -693,6 +693,33 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix detail questions in one row", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "matrix",
+            rowCount: 2,
+            detailPanelMode: "underRow",
+            columns: [{ name: "col1" }],
+            detailElements: [{ type: "text", name: "q1" }, { type: "text", name: "q2", startWithNewLine: false }],
+            minWidth: "800px",
+            maxWidth: "800px",
+            width: "800px"
+          },
+        ],
+      });
+      await t
+        .click(Selector("#show-detail").nth(0))
+        .click(Selector("body"), { offsetX: 5, offsetY: 5 });
+
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-matrix-detail-one-row.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Matrix many columns", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

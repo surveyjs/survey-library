@@ -648,6 +648,9 @@ export class QuestionMultipleTextModel extends Question
     }
     return res;
   }
+  protected allowMobileInDesignMode(): boolean {
+    return true;
+  }
   //IMultipleTextData
   getMultipleTextValue(name: string) {
     if (!this.value) return null;
@@ -706,7 +709,12 @@ export class QuestionMultipleTextModel extends Question
     // do nothing
   }
   public getItemLabelCss(item: MultipleTextItemModel): string {
-    return new CssClassBuilder().append(this.cssClasses.itemLabel).append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0).toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemLabel)
+      .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
+      .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
+      .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)
+      .toString();
   }
   public getItemCss(): string {
     return new CssClassBuilder().append(this.cssClasses.item).toString();

@@ -100,6 +100,7 @@ import CharacterCounterComponent from "./components/CharacterCounter.vue";
 import Composite from "./Composite.vue";
 import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
+import LoadingIndicator from "./components/LoadingIndicator.vue";
 
 import {
   SurveyModel,
@@ -225,6 +226,7 @@ function registerComponents(app: App) {
   app.component("survey-composite", Composite);
   app.component("survey-custom", Custom);
   app.component("sv-timerpanel", TimerPanel);
+  app.component("sv-loading-indicator", LoadingIndicator);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

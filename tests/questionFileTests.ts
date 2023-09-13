@@ -1338,7 +1338,7 @@ QUnit.test("QuestionFile stop playing video on hiding question", function(assert
   assert.equal(q1.isPlayingVideo, false, "question invisible");
   q1.visible = true;
   q1.setPropertyValue("isPlayingVideo", true);
-  q1.state = "collapse";
+  q1.collapse();
   assert.equal(q1.isPlayingVideo, false, "question content is collapsed");
   survey = new SurveyModel({
     elements: [
@@ -1354,6 +1354,34 @@ QUnit.test("QuestionFile stop playing video on hiding question", function(assert
   panel.visible = false;
   assert.equal(q1.isPlayingVideo, false, "panel invisible");
   q1.setPropertyValue("isPlayingVideo", true);
-  panel.state = "collapse";
+  panel.collapse();
   assert.equal(q1.isPlayingVideo, false, "panel content is collapsed");
+});
+QUnit.test("QuestionFile stop playing video on going to another page or complete", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q2" }] },
+      { elements: [{ type: "file", name: "q1" }] },
+      { elements: [{ type: "text", name: "q3" }] }
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  survey.currentPageNo = 1;
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.equal(q1.isPlayingVideo, true);
+  survey.nextPage();
+  assert.equal(q1.isPlayingVideo, false, "Go to next page");
+
+  survey.currentPageNo = 1;
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.equal(q1.isPlayingVideo, true);
+  survey.currentPageNo = 0;
+  assert.equal(q1.isPlayingVideo, false, "Go to prev page");
+
+  survey.pages[2].visible = false;
+  survey.currentPageNo = 1;
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.equal(q1.isPlayingVideo, true);
+  survey.doComplete();
+  assert.equal(q1.isPlayingVideo, false, "complete survey");
 });

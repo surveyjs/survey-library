@@ -1224,14 +1224,23 @@ export class PanelModelBase extends SurveyElement<Question>
       const questions = this.questions;
       const isVisible = this.isVisible;
       for (var i = 0; i < questions.length; i++) {
+        const q = questions[i];
         if (!isVisible) {
-          questions[i].clearValueIfInvisible("onHiddenContainer");
+          q.clearValueIfInvisible("onHiddenContainer");
+          q.onHidingContent();
         } else {
-          questions[i].updateValueWithDefaults();
+          q.updateValueWithDefaults();
         }
       }
     }
   }
+  protected notifyStateChanged(): void {
+    super.notifyStateChanged();
+    if(this.isCollapsed) {
+      this.questions.forEach(q => q.onHidingContent());
+    }
+  }
+
   /**
    * Returns `true` if the panel/page is visible or the survey is currently in design mode.
    *

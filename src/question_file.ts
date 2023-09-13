@@ -124,6 +124,10 @@ export class QuestionFileModel extends Question {
       this.videoStream = undefined;
     }
   }
+  public onHidingContent(): void {
+    super.onHidingContent();
+    this.stopVideo();
+  }
   protected updateElementCssCore(cssClasses: any): void {
     super.updateElementCssCore(cssClasses);
     this.prevFileAction.iconName = this.cssClasses.leftIconId;

@@ -7157,3 +7157,57 @@ QUnit.test("Dynamic error text in expression validator, bug#6790", function (ass
   assert.strictEqual(error, q2.errors[0], "Same errors");
   assert.equal(errorTextChangedCounter, 1, "text has been updated");
 });
+QUnit.test("question.onHidingContent() call on making question or parent invisible or on making question content or parent invisible ", function(assert) {
+  let survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }]
+  });
+  let counter = 0;
+  let q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  q1.visible = false;
+  assert.equal(counter, 1, "question invisible");
+  q1.visible = true;
+  q1.collapse();
+  assert.equal(counter, 2, "question content is collapsed");
+  survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1",
+        elements: [{ type: "file", name: "q1" }]
+      },
+      { type: "file", name: "q2" }
+    ]
+  });
+  const panel = survey.getPanelByName("panel1");
+  q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  counter = 0;
+  panel.visible = false;
+  assert.equal(counter, 1, "panel invisible");
+  panel.visible = true;
+  panel.collapse();
+  assert.equal(counter, 2, "panel content is collapsed");
+});
+QUnit.test("question.onHidingContent() call on going to another page or complete", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q2" }] },
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q3" }] }
+    ]
+  });
+  let counter = 0;
+  const q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  survey.currentPageNo = 1;
+  assert.equal(counter, 0, "Initial");
+  survey.nextPage();
+  assert.equal(counter, 1, "Go to next page");
+  survey.currentPageNo = 1;
+  survey.currentPageNo = 0;
+  assert.equal(counter, 2, "Go to prev page");
+
+  survey.pages[2].visible = false;
+  survey.currentPageNo = 1;
+  survey.doComplete();
+  assert.equal(counter, 3, "complete survey");
+});

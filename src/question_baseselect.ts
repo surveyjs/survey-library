@@ -137,6 +137,7 @@ export class QuestionSelectBase extends Question {
     super.localeChanged();
     if (this.choicesOrder !== "none") {
       this.updateVisibleChoices();
+      this.onVisibleChoicesChanged();
     }
   }
   public locStrsChanged(): void {

@@ -1276,3 +1276,24 @@ QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + val
   assert.equal(q2_q2.visibleChoices[0].value, "aaa", "the first value is correct");
   assert.equal(q2_q2.visibleChoices[1].value, "bbb", "the second value is correct");
 });
+QUnit.test("SelectBase visibleChoices order & locale change", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choicesOrder: "asc",
+      choices: [{ value: "A", text: { default: "AA", de: "BAA" } },
+        { value: "B", text: { default: "BB", de: "ABB" } }] }
+  ] });
+  const question = <QuestionSelectBase>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 2, "There are 4 items");
+  assert.equal(question.visibleChoices[0].value, "A", "the first item");
+  assert.equal(question.visibleChoices[1].value, "B", "the second item");
+  survey.locale = "de";
+  assert.equal(question.choicesOrder, "asc", "The order is correct");
+  assert.equal(question.getLocale(), "de", "question locale is correct");
+  assert.equal(question.choices[0].calculatedText, "BAA", "the first item calculatedText, de");
+  assert.equal(question.choices[1].calculatedText, "ABB", "the second item calculatedText, de");
+  assert.equal(question.choices[0].getLocale(), "de", "ItemValue locText locale is correct");
+  assert.equal(question.visibleChoices[0].value, "B", "the first item, de");
+  assert.equal(question.visibleChoices[1].value, "A", "the second item, de");
+  assert.equal(question.visibleChoices[0].calculatedText, "ABB", "the first visible item calculatedText, de");
+  assert.equal(question.visibleChoices[1].calculatedText, "BAA", "the second visible item calculatedText, de");
+});

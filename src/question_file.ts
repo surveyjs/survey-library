@@ -622,7 +622,8 @@ export class QuestionFileModel extends Question {
     this._width = availableWidth;
     if(this.rootElement) {
       if((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
-        const fileListElement = this.rootElement.querySelector(this.getFileListSelector());
+        const fileListSelector = this.getFileListSelector();
+        const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
         if(fileListElement) {
           this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(fileListElement).gap));
           const firstVisibleItem = Array.from(fileListElement.children).filter((_, index) => this.isPreviewVisible(index))[0];

@@ -74,13 +74,13 @@ frameworks.forEach(framework => {
 
     //asc
     await setOptions("car", { choicesOrder: "asc" });
-    await t.expect(chocies.nth(0).find("[type=\"radio\"]").exists).ok();
-    await t.expect(chocies.nth(3).find("[type=\"radio\"]").exists).ok();
+    await t.expect(chocies.nth(0).find("label").withExactText("Audi").exists).ok();
+    await t.expect(chocies.nth(3).find("label").withExactText("BMW").exists).ok();
 
     //desc
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(0).find("[type=\"radio\"]").exists).ok();
-    await t.expect(chocies.nth(3).find("[type=\"radio\"]").exists).ok();
+    await t.expect(chocies.nth(0).find("label").withExactText("Volkswagen").exists).ok();
+    await t.expect(chocies.nth(3).find("label").withExactText("Vauxhall").exists).ok();
 
     //random
     if (chocies.count === 1) {
@@ -156,7 +156,7 @@ frameworks.forEach(framework => {
 
     await setOptions("car", { hasOther: true, otherText: "Other Test" });
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(11).find("[type=\"radio\"]").exists).ok();
+    await t.expect(chocies.nth(11).find("label").withExactText("Other Test").exists).ok();
   });
 
   test("choose other", async t => {
@@ -167,7 +167,8 @@ frameworks.forEach(framework => {
 
     const radiogroup = Selector("[role=\"radiogroup\"]");
     const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
-    const otherText = Selector("[type='radio']").nth(11);
+    const otherText = chocies.nth(11).find("label").withExactText("Other (describe)");
+
     await t
       .click(otherText)
       .typeText(getOtherInput, "Zaporozec")
@@ -189,7 +190,7 @@ frameworks.forEach(framework => {
 
     const radiogroup = Selector("[role=\"radiogroup\"]");
     const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
-    const otherText = Selector("[type='radio']").nth(11);
+    const otherText = chocies.nth(11).find("label").withExactText("Other (describe)");
 
     await setSurveyOptions();
     await t

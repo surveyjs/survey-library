@@ -2345,3 +2345,48 @@ QUnit.test("Single & getValue/setValue, #6475", function (assert) {
   assert.equal(q1.contentQuestion.value, 4, "#2");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: onHidingContent", function (assert) {
+  let counter = 0;
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "text" },
+    onCreated: (question: Question): void => {
+      question.contentQuestion.onHidingContent = (): void => { counter ++; };
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }],
+  });
+  assert.equal(counter, 0, "Initial");
+  survey.doComplete();
+  assert.equal(counter, 1, "onComplete");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Complex: onHidingContent", function (assert) {
+  let counter = 0;
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ],
+    onCreated: (question: Question): void => {
+      const questions = question.contentPanel.questions;
+      questions[0].onHidingContent = (): void => { counter ++; };
+      questions[1].onHidingContent = (): void => { counter ++; };
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }],
+  });
+  assert.equal(counter, 0, "Initial");
+  survey.doComplete();
+  assert.equal(counter, 2, "onComplete");
+  ComponentCollection.Instance.clear();
+});

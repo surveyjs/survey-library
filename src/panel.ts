@@ -1214,6 +1214,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("isVisible", this.isVisible);
     if (!this.isLoadingFromJson) this.onVisibleChanged();
   }
+  public onHidingContent(): void {
+    this.questions.forEach(q => q.onHidingContent());
+  }
   protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);

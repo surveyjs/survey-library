@@ -545,11 +545,24 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set currentPanel(val: PanelModel) {
     if(this.isRenderModeList || this.useTemplatePanel) return;
-    if(!!val && this.visiblePanels.indexOf(val) < 0 || val === this.getPropertyValue("currentPanel")) return;
+    const curPanel = this.getPropertyValue("currentPanel");
+    if(!!val && this.visiblePanels.indexOf(val) < 0 || val === curPanel) return;
+    if(curPanel) {
+      curPanel.onHidingContent();
+    }
     this.setPropertyValue("currentPanel", val);
     this.updateFooterActions();
     this.updateTabToolbarItemsPressedState();
     this.fireCallback(this.currentIndexChangedCallback);
+  }
+  public onHidingContent(): void {
+    super.onHidingContent();
+    if(this.currentPanel) {
+      this.currentPanel.onHidingContent();
+    }
+    else {
+      this.visiblePanels.forEach(panel => panel.onHidingContent());
+    }
   }
   /**
    * Specifies whether to display a confirmation dialog when a respondent wants to delete a panel.

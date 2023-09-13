@@ -290,6 +290,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     return !!this.data ? this.data.getIsDetailPanelShowing(this) : false;
   }
   private setIsDetailPanelShowing(val: boolean) {
+    if(!val && this.detailPanel) {
+      this.detailPanel.onHidingContent();
+    }
     if (!!this.data) {
       this.data.setIsDetailPanelShowing(this, val);
     }
@@ -1796,6 +1799,12 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         objects.push(obj);
       }
     }
+  }
+  public onHidingContent(): void {
+    super.onHidingContent();
+    const questions: Question[] = [];
+    this.collectNestedQuestions(questions, true);
+    questions.forEach(q => q.onHidingContent());
   }
   protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
     const rows = this.visibleRows;

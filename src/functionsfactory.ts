@@ -361,3 +361,10 @@ function displayValue(params: any[]): any {
   return q ? q.displayValue : "";
 }
 FunctionFactory.Instance.register("displayValue", displayValue);
+
+function propertyValue(params: any[]): any {
+  if(params.length !== 2 || !params[0] || !params[1]) return undefined;
+  const q = getQuestionValueByContext(this, params[0]);
+  return q ? q[params[1]] : undefined;
+}
+FunctionFactory.Instance.register("propertyValue", propertyValue);

@@ -17806,3 +17806,54 @@ QUnit.test("Test getDisplayValue() function", function (assert) {
     q2: [{ q2_q1: [2, 3], q2_q1_exp: "Item 2, Item 3" }],
     q3: [{ col1: [1, 3], col1_exp: "Item 1, Item 3", q3_q1: [1, 2, 3], q3_q1_exp: "Item 1, Item 2, Item 3" }] }, "displayValue works correctly");
 });
+QUnit.test("Test propertyValue() function", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: "Q1"
+      },
+      {
+        type: "expression",
+        name: "q1_exp",
+        expression: "propertyValue('q1', 'title')"
+      },
+      {
+        type: "paneldynamic",
+        name: "q2",
+        templateElements: [{
+          type: "text",
+          name: "q2_q1",
+          title: "Q2_Q1"
+        },
+        {
+          type: "expression",
+          name: "q2_q1_exp",
+          expression: "propertyValue('q2_q1', 'title')"
+        }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "q3",
+        rowCount: 0,
+        columns: [{
+          cellType: "text",
+          title: "Column 1",
+          name: "col1"
+        },
+        {
+          cellType: "expression",
+          name: "col1_exp",
+          expression: "propertyValue('col1', 'title')"
+        }]
+      }
+    ]
+  });
+  survey.getQuestionByName("q2").addPanel();
+  survey.getQuestionByName("q3").addRow();
+  assert.deepEqual(survey.data, {
+    q1_exp: "Q1",
+    q2: [{ q2_q1_exp: "Q2_Q1" }],
+    q3: [{ col1_exp: "Column 1" }] }, "propertyValue works correctly");
+});

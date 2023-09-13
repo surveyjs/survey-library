@@ -596,7 +596,7 @@ export class QuestionFileModel extends Question {
     return true;
   }
   protected getObservedElementSelector(): string {
-    return classesToSelector(this.cssClasses.root);
+    return classesToSelector(this.cssClasses.dragArea);
   }
   private getFileListSelector(): string {
     return classesToSelector(this.cssClasses.fileList);
@@ -619,7 +619,7 @@ export class QuestionFileModel extends Question {
   protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth;
     if(this.rootElement) {
-      if(!this.calculatedGapBetweenItems || !this.calculatedItemWidth) {
+      if((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListElement = this.rootElement.querySelector(this.getFileListSelector());
         if(fileListElement) {
           this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(fileListElement).gap));

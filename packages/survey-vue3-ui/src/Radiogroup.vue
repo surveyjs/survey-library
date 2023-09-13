@@ -1,8 +1,13 @@
 <template>
   <fieldset
-    role="presentation"
     :class="question.getSelectBaseRootCss()"
     ref="root"
+    :role="question.a11y_input_ariaRole"
+    :aria-required="question.a11y_input_ariaRequired"
+    :aria-label="question.a11y_input_ariaLabel"
+    :aria-labelledby="question.a11y_input_ariaLabelledBy"
+    :aria-invalid="question.a11y_input_ariaInvalid"
+    :aria-describedby="question.a11y_input_ariaDescribedBy"
   >
     <survey-radiogroup-item
       v-if="!question.hasColumns && !question.blockedRow"

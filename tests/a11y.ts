@@ -82,3 +82,40 @@ QUnit.test(
     assert.equal(question.ariaDescribedBy, null, "aria-describedby is NULL because we don't have any errors");
   }
 );
+
+QUnit.test(
+  "a11y: aria-labelledby",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "radiogroup",
+          choices: [1, 2, 3],
+          title: "Title",
+          name: "q1",
+          isRequired: true
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+
+    assert.equal(question.isNewA11yStructure, true, "new a11y structure");
+
+    assert.equal(question.ariaLabel, null, "old aria-label is null");
+    assert.equal(question.ariaRole, null, "old aria-role is null");
+    assert.equal(question.ariaRequired, null, "old aria-required is null");
+    assert.equal(question.ariaInvalid, null, "old aria-invalid is null");
+    assert.equal(question.ariaLabelledBy, null, "old aria-labelledby is null");
+    assert.equal(question.ariaExpanded, null, "old aria-expanded is null");
+    assert.equal(question.ariaDescribedBy, null, "old aria-describedby is null");
+
+    assert.equal(question.a11y_input_ariaLabel, null, "aria-label does not exist because we have a title");
+    assert.equal(question.a11y_input_ariaLabelledBy.indexOf("_ariaTitle") !== -1, true, "aria-labelledby is correct");
+    assert.equal(question.a11y_input_ariaRole, "radiogroup", "aria-role is radiogroup");
+    assert.equal(question.a11y_input_ariaRequired, "true", "aria-required is true");
+    assert.equal(question.a11y_input_ariaInvalid, "false", "aria-invalid is false");
+    assert.equal(question.a11y_input_ariaExpanded, null, "aria-expanded is null");
+    assert.equal(question.a11y_input_ariaDescribedBy, null, "aria-describedby is null");
+  }
+);

@@ -31,8 +31,13 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
     return (
       <fieldset
         className={this.question.getSelectBaseRootCss()}
-        role="presentation"
         ref={(fieldset) => (this.setControl(fieldset))}
+        role={this.question.a11y_input_ariaRole}
+        aria-required={this.question.a11y_input_ariaRequired}
+        aria-label={this.question.a11y_input_ariaLabel}
+        aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+        aria-invalid={this.question.a11y_input_ariaInvalid}
+        aria-describedby={this.question.a11y_input_ariaDescribedBy}
       >
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
@@ -193,7 +198,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
         className={itemClass}
         role="presentation"
       >
-        <label onMouseDown={this.handleOnMouseDown} className={labelClass} aria-label={this.question.getAriaItemLabel(this.item)}>
+        <label onMouseDown={this.handleOnMouseDown} className={labelClass}>
           <input
             aria-describedby={this.question.ariaDescribedBy}
             className={this.cssClasses.itemControl}

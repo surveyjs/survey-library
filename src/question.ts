@@ -233,25 +233,6 @@ export class Question extends SurveyElement<Question>
   public get isReady(): boolean {
     return this.isReadyValue;
   }
-  public get ariaRequired() {
-    return this.isRequired ? "true" : "false";
-  }
-  public get ariaInvalid() {
-    return this.errors.length > 0 ? "true" : "false";
-  }
-  public get ariaLabelledBy(): string {
-    if (this.hasTitle) {
-      return this.ariaTitleId;
-    } else {
-      return null;
-    }
-  }
-  public get ariaExpanded(): string {
-    return null;
-  }
-  public get ariaDescribedBy(): string {
-    return this.errors.length > 0 ? this.id + "_errors" : null;
-  }
 
   public choicesLoaded(): void { }
   /**
@@ -1162,9 +1143,6 @@ export class Question extends SurveyElement<Question>
   }
   public get commentId(): string {
     return this.id + "_comment";
-  }
-  public get ariaRole(): string {
-    return "textbox";
   }
   /**
    * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
@@ -2349,6 +2327,78 @@ export class Question extends SurveyElement<Question>
       this.dependedQuestions[i].resetDependedQuestion();
     }
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return false;
+  }
+  public get ariaLabel(): string {
+    if (this.isNewA11yStructure) return null;
+
+    return this.locTitle.renderedHtml;
+  }
+  public get ariaRole(): string {
+    if (this.isNewA11yStructure) return null;
+
+    return "textbox";
+  }
+  public get ariaRequired() {
+    if (this.isNewA11yStructure) return null;
+
+    return this.isRequired ? "true" : "false";
+  }
+  public get ariaInvalid() {
+    if (this.isNewA11yStructure) return null;
+
+    return this.errors.length > 0 ? "true" : "false";
+  }
+  public get ariaLabelledBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
+  public get ariaExpanded(): string {
+    return null;
+  }
+  public get ariaDescribedBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+  //EO a11y
+
+  //new a11y
+  public get a11y_input_ariaRole(): string {
+    return null;
+  }
+  public get a11y_input_ariaRequired(): "true" | "false" {
+    return this.isRequired ? "true" : "false";
+  }
+  public get a11y_input_ariaInvalid(): "true" | "false" {
+    return this.errors.length > 0 ? "true" : "false";
+  }
+  public get a11y_input_ariaLabel(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return null;
+    } else {
+      return this.locTitle.renderedHtml;
+    }
+  }
+  public get a11y_input_ariaLabelledBy(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaDescribedBy(): string {
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+  //EO new a11y
 }
 function makeNameValid(str: string): string {
   if(!str) return str;

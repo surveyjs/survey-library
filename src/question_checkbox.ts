@@ -39,9 +39,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected getDefaultItemComponent(): string {
     return "survey-checkbox-item";
   }
-  public get ariaRole(): string {
-    return "listbox";
-  }
   public getType(): string {
     return "checkbox";
   }
@@ -580,6 +577,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public get checkBoxSvgPath(): string {
     return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "listbox";
+  }
+  // EO a11y
 }
 Serializer.addClass(
   "checkbox",

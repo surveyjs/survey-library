@@ -240,6 +240,8 @@ frameworks.forEach(framework => {
       .resizeWindow(620, 1080)
       .expect(fileNavigatorSelector.exists)
       .ok()
-      .expect(fileNavigatorSelector.find(".sv-action-bar-item__title").withText("1 of 2").exists).ok();
+      .expect(fileNavigatorSelector.find(".sv-action-bar-item__title").withText("1 of 2").exists).ok()
+      .resizeWindow(1920, 1080)
+      .expect(fileNavigatorSelector.exists).notOk();
   });
 });

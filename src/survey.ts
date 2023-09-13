@@ -2029,14 +2029,14 @@ export class SurveyModel extends SurveyElementCore
 
   @property() _isMobile = false;
   public setIsMobile(newVal = true) {
-    if (this.isMobile !== newVal) {
+    if (this._isMobile !== newVal) {
       this._isMobile = newVal;
       this.updateCss();
-      this.getAllQuestions().map(q => q.isMobile = newVal);
+      this.getAllQuestions().map(q => q.setIsMobile(newVal));
     }
   }
-  private get isMobile() {
-    return this._isMobile;
+  public get isMobile() {
+    return this._isMobile && !this.isDesignMode;
   }
   @property() private _isCompact: boolean = false;
   private set isCompact(newVal: boolean) {

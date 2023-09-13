@@ -187,6 +187,9 @@ button.sv-action-bar-item {
   height: 0px;
   overflow: hidden;
   visibility: hidden;
+  .sv-action__content {
+    min-width: fit-content;
+  }
 }
 
 .sv-action__content {

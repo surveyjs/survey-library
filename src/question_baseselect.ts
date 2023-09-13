@@ -1659,9 +1659,12 @@ export class QuestionSelectBase extends Question {
   }
   public getSelectBaseRootCss(): string {
     return new CssClassBuilder()
-      .append(this.cssClasses.root)
+      .append(this.getQuestionRootCss())
       .append(this.cssClasses.rootRow, this.rowLayout)
       .toString();
+  }
+  protected allowMobileInDesignMode(): boolean {
+    return true;
   }
 
   public getAriaItemLabel(item: ItemValue) {

@@ -1238,4 +1238,41 @@ QUnit.test("Allow to override default value fro choicesByUrl.path Bug#6766", fun
   assert.equal(q1.choicesByUrl.path, "list", "get new default value for path");
   prop.defaultValue = undefined;
 });
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-1", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[0].value, "aaa", "the first value is correct");
+  assert.equal(q2.visibleChoices[1].value, "bbb", "the second value is correct");
+});
 
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-2", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "paneldynamic", name: "q2", valueName: "sharedData",
+      templateElements: [{ name: "q2-q2", type: "checkbox", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }]
+    }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionPanelDynamicModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  const q2_q2 = q2.panels[0].getQuestionByName("q2-q2");
+  assert.equal(q2_q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2_q2.visibleChoices[0].value, "aaa", "the first value is correct");
+  assert.equal(q2_q2.visibleChoices[1].value, "bbb", "the second value is correct");
+});

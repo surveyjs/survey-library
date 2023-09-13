@@ -610,10 +610,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected getElement(): SurveyElement {
     return this.contentQuestion;
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     if (!!this.contentQuestion) {
-      this.contentQuestion.onAnyValueChanged(name);
+      this.contentQuestion.onAnyValueChanged(name, questionName);
     }
   }
   protected getQuestionByName(name: string): IQuestion {
@@ -848,11 +848,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       questions[i].clearValueIfInvisible(reason);
     }
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].onAnyValueChanged(name);
+      questions[i].onAnyValueChanged(name, questionName);
     }
   }
   public get hasSingleInput(): boolean { return false; }

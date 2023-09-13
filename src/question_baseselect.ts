@@ -1191,12 +1191,13 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
     super.onSurveyLoad();
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     if (name != this.getValueName()) {
       this.runChoicesByUrl();
     }
-    if (!!name && name == this.choicesFromQuestion) {
+    const chQuestion = this.choicesFromQuestion;
+    if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion)) {
       this.onVisibleChoicesChanged();
     }
   }

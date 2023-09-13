@@ -1427,10 +1427,10 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.runConditionCore(values, properties);
   }
-  onAnyValueChanged(name: string) {
+  onAnyValueChanged(name: string, questionName: string): void {
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
-      els[i].onAnyValueChanged(name);
+      els[i].onAnyValueChanged(name, questionName);
     }
   }
   checkBindings(valueName: string, value: any) {

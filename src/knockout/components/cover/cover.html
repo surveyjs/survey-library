@@ -1,10 +1,10 @@
-<!-- ko if: survey.titleView === 'cover' -->
-<div class="sv-cover" data-bind="style: { height: model.height, backgroundColor: model.backgroundColor }">
+<!-- ko if: (survey.titleView === 'cover' && survey.renderedHasHeader) -->
+<div class="sv-cover" data-bind="style: { height: model.renderedHeight, backgroundColor: model.backgroundColor }">
   <!-- ko if: !!model.backgroundImage -->
-  <div class="sv-cover__background-image" data-bind="style: model.backgroundImageStyle"></div>
+  <div data-bind="style: model.backgroundImageStyle, css: model.backgroundImageClasses"></div>
   <!-- /ko -->
   <div data-bind="css: model.contentClasses">
-    <div class="sv-cover__text" data-bind="css: survey.css.headerText, style: { width: model.textWidth }">
+    <div class="sv-cover__text" data-bind="css: survey.css.headerText, style: { width: model.renderedTextWidth }">
       <!-- ko if: survey.hasLogo -->
       <div class="sv-cover__text-logo" data-bind="style: model.logoStyle">
       <!-- ko component: { name: survey.getElementWrapperComponentName(survey, 'logo-image'), params: survey.getElementWrapperComponentData(survey, 'logo-image') } -->

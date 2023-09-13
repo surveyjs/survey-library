@@ -1,5 +1,5 @@
-import { Cover } from "../../src/knockout/components/cover/cover";
-import { SurveyModel } from "../../src/survey";
+import { Cover } from "../src/cover";
+import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("cover");
 

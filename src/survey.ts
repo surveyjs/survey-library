@@ -43,7 +43,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
@@ -69,6 +69,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
+import { Cover } from "./cover";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -2069,7 +2070,7 @@ export class SurveyModel extends SurveyElementCore
   @property() renderBackgroundImage: string;
   private updateRenderBackgroundImage(): void {
     const path = this.backgroundImage;
-    this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
+    this.renderBackgroundImage = wrapUrlForBackgroundImage(path);
   }
   @property() backgroundImageFit: ImageFit;
   @property() backgroundImageAttachment: ImageAttachment;
@@ -7269,7 +7270,20 @@ export class SurveyModel extends SurveyElementCore
 
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
+
+    this.titleView = !!theme["cover"] ? "cover" : "title";
     Object.keys(theme).forEach((key: keyof ITheme) => {
+      if(key === "cover") {
+        this.removeLayoutElement("cover");
+        const newCoverModel = new Cover();
+        newCoverModel.fromJSON(theme[key]);
+        this.layoutElements.push({
+          id: "cover",
+          container: "header",
+          component: "sv-cover",
+          data: newCoverModel
+        });
+      }
       if(key === "isPanelless") {
         this.isCompact = theme[key];
       } else {

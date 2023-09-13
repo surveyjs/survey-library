@@ -210,6 +210,7 @@ export {
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
 export { Notifier } from "../../notifier";
+export { Cover } from "../../cover";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";

@@ -22,6 +22,11 @@
   left: 0;
   right: 0;
   border: 0;
+  background-position-x: center;
+}
+
+.sv-cover__background-image--contain {
+  background-repeat: no-repeat;
 }
 
 .sv-cover__text {

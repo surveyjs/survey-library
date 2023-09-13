@@ -8,4 +8,5 @@ export interface ITheme {
   backgroundImageAttachment?: ImageAttachment;
   backgroundOpacity?: number;
   isPanelless?: boolean;
+  cover?: {[index: string]: any};
 }

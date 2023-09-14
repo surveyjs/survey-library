@@ -442,11 +442,11 @@ Returns the total number of items in an array taken from a given question proper
 
 #### `displayValue`
 
-*Definition*: `displayValue(questionName: expression): any`
+*Definition*: `displayValue(questionName: string): any`
 
 Returns a question's display text. Supports questions nested within panels or matrices.
 
-*Example*: `"expression": "displayValue({question1})"`
+*Example*: `"expression": "displayValue('question1')"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/f70cd9a367659f475e28e0a317b9583931cdf185/src/functionsfactory.ts#L359-L363 (linkStyle))
 
@@ -454,11 +454,11 @@ Returns a question's display text. Supports questions nested within panels or ma
 
 #### `propertyValue`
 
-*Definition*: `propertyValue(questionName: expression, propertyName: string): any`
+*Definition*: `propertyValue(questionName: string, propertyName: string): any`
 
 Returns the value of a property specified for a given question. Supports questions nested within panels or matrices.
 
-*Example*: `"expression": "propertyValue({question1}, 'visible')"`
+*Example*: `"expression": "propertyValue('question1', 'visible')"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/f70cd9a367659f475e28e0a317b9583931cdf185/src/functionsfactory.ts#L365-L370 (linkStyle))
 

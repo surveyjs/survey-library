@@ -28,7 +28,7 @@ export class QuestionMatrixDynamicImplementor extends QuestionMatrixBaseImplemen
   public getKoPopupIsVisible(row: MatrixDropdownRowModelBase) {
     return <any>ko.observable(row.isDetailPanelShowing);
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     (<any>this.question)["getKoPopupIsVisible"] = undefined;
   }
@@ -46,7 +46,7 @@ export class QuestionMatrixDynamic extends QuestionMatrixDynamicModel {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixDynamicImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

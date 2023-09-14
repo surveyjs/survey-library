@@ -693,7 +693,7 @@ export class FileLoader {
       }
     });
   }
-  dispose(): void {
+  public dispose(): void {
     this.fileQuestion = undefined;
     this.callback = undefined;
   }

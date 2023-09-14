@@ -20,7 +20,7 @@ export class StringEditorViewModel {
   onClick(sender: StringEditorViewModel, event: any) {
     event.stopPropagation();
   }
-  dispose() {
+  public dispose(): void {
     this.locString.onSearchChanged = undefined;
   }
 }

@@ -24,7 +24,7 @@ export class QuestionRating extends QuestionRatingModel {
     super.onBaseCreating();
     this._implementor = new QuestionRatingImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

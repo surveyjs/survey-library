@@ -720,7 +720,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   }
   private onEditingObjPropertyChanged: (sender: Base, options: any) => void;
   private editingObjValue: Base;
-  public dispose() {
+  public dispose(): void {
     if (!!this.editingObj) {
       this.editingObj.onPropertyChanged.remove(
         this.onEditingObjPropertyChanged
@@ -871,7 +871,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   public getType(): string {
     return "matrixdropdownbase";
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this.clearGeneratedRows();
   }

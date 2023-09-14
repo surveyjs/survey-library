@@ -7277,7 +7277,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Call this method to release resources if your application contains multiple survey models or if you re-create a survey model at runtime.
    */
-  public dispose() {
+  public dispose(): void {
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;

@@ -119,7 +119,7 @@ export class QuestionImplementor extends ImplementorBase {
       }
     }, 0);
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     for (let i = 0; i < this.disposedObjects.length; i++) {
       const name = this.disposedObjects[i];

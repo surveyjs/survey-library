@@ -11,7 +11,7 @@ export class PopupViewModel {
     this._popupImplementor = new ImplementorBase(popupViewModel);
     popupViewModel.model.onVisibilityChanged.add(this.visibilityChangedHandler);
   }
-  dispose() {
+  public dispose(): void {
     this._popupModelImplementor.dispose();
     this._popupModelImplementor = undefined;
     this._popupImplementor.dispose();

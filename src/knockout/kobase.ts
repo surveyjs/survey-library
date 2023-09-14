@@ -51,7 +51,7 @@ export class ImplementorBase {
     };
     (<any>element)[this.implementedMark] = true;
   }
-  public dispose() {
+  public dispose(): void {
     this.element.iteratePropertiesHash((hash, key) => {
       hash[key] = ko.unwrap(hash[key]);
       if(Array.isArray(hash[key])) {

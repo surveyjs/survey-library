@@ -225,7 +225,7 @@ export class QuestionRowModel extends Base {
     return false;
   }
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this.stopLazyRendering();
   }
@@ -1500,7 +1500,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   //ITitleOwner
   public get no(): string { return ""; }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     if (this.rows) {
       for (var i = 0; i < this.rows.length; i++) {

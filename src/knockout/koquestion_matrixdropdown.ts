@@ -110,7 +110,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
   }
-  public dispose() {
+  public dispose(): void {
     if (!!this._tableImplementor) {
       this._tableImplementor.dispose();
     }
@@ -133,7 +133,7 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixBaseImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this._implementor.dispose();
     this._implementor = undefined;

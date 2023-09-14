@@ -135,7 +135,7 @@ export class Survey extends SurveyModel {
   public makeReactive(obj: Base): void {
     new ImplementorBase(obj);
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     if(this.implementor) {
       this.implementor.dispose();

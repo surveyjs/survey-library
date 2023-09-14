@@ -1319,13 +1319,36 @@ QUnit.test("QuestionFile current mode property, camera is available", function(a
   assert.equal(survey.getQuestionByName("q1").currentMode, "camera", "#6");
   Camera.mediaDevicesCallback = undefined;
 });
-QUnit.test("QuestionFile current mode property, camera is available", function(assert) {
-  let mConst: any = new Camera().getMediaConstraints(createDevices([{ label: "dfdf" }, { label: "user" }]));
+QUnit.test("new Camera().getMediaConstraints", function(assert) {
+  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
+  let mConst: any = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
-  mConst = new Camera().getMediaConstraints(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  mConst = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 3, "Device is correct");
-  mConst = new Camera().getMediaConstraints(createDevices([{ label: "dfdf" }, { label: "enviroment" }]));
+  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "enviroment" }]));
+  mConst = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
+  Camera.clear();
+});
+QUnit.test("new Camera().flip", function(assert) {
+  assert.equal(new Camera().canFlip(), false, "There is no devices");
+  Camera.setCameraList(createDevices([{ label: "abd" }]));
+  assert.equal(new Camera().canFlip(), false, "There is one device");
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  assert.equal(new Camera().canFlip(), true, "There are 3 devices");
+  let mConst: any = new Camera().getMediaConstraints();
+  assert.equal(mConst.video.deviceId.exact, 3, "Device is correct");
+  new Camera().flip();
+  mConst = new Camera().getMediaConstraints();
+  assert.equal(mConst.video.deviceId.exact, 2, "Flip #1");
+  new Camera().flip();
+  mConst = new Camera().getMediaConstraints();
+  assert.equal(mConst.video.deviceId.exact, 1, "Flip #2");
+  new Camera().flip();
+  mConst = new Camera().getMediaConstraints();
+  assert.equal(mConst.video.deviceId.exact, 3, "Flip #2");
+  Camera.clear();
 });
 QUnit.test("QuestionFile stop playing video on hiding question", function(assert) {
   let survey = new SurveyModel({

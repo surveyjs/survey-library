@@ -94,6 +94,9 @@ export class QuestionFileModel extends Question {
   public startVideo(): void {
     if(this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
     this.setIsPlayingVideo(true);
+    this.startVideoInCamera();
+  }
+  private startVideoInCamera(): void {
     new Camera().startVideo(this.videoId, (stream: MediaStream) => {
       this.videoStream = stream;
       if(!stream) {
@@ -115,6 +118,15 @@ export class QuestionFileModel extends Question {
     };
     new Camera().snap(this.videoId, blobCallback);
     this.stopVideo();
+  }
+  public canFlipCamera(): boolean {
+    return this.isPlayingVideo && new Camera().canFlip();
+  }
+  public flipCamera(): void {
+    if(!this.canFlipCamera()) return;
+    this.closeVideoStream();
+    new Camera().flip();
+    this.startVideoInCamera();
   }
   private closeVideoStream(): void {
     if(!!this.videoStream) {

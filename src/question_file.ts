@@ -10,7 +10,7 @@ import { confirmActionAsync, detectIEOrEdge, loadFileFromBase64 } from "./utils/
 import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
-import { Webcam } from "./utils/webcam";
+import { Camera } from "./utils/camera";
 
 /**
  * A class that describes the File Upload question type.
@@ -89,12 +89,12 @@ export class QuestionFileModel extends Question {
   }
   public get videoId(): string { return this.id + "_video"; }
   public get hasVideoUI(): boolean { return this.currentMode !== "file"; }
-  public get hasFileUI(): boolean { return this.currentMode !== "webcame"; }
+  public get hasFileUI(): boolean { return this.currentMode !== "camera"; }
   private videoStream: MediaStream;
   public startVideo(): void {
     if(this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
     this.setIsPlayingVideo(true);
-    new Webcam().startVideo(this.videoId, (stream: MediaStream) => {
+    new Camera().startVideo(this.videoId, (stream: MediaStream) => {
       this.videoStream = stream;
       if(!stream) {
         this.stopVideo();
@@ -113,7 +113,7 @@ export class QuestionFileModel extends Question {
         this.loadFiles([file]);
       }
     };
-    new Webcam().snap(this.videoId, blobCallback);
+    new Camera().snap(this.videoId, blobCallback);
     this.stopVideo();
   }
   private closeVideoStream(): void {
@@ -298,7 +298,7 @@ export class QuestionFileModel extends Question {
   private updateCurrentMode(): void {
     if(!this.isDesignMode) {
       if(this.mode !== "file") {
-        new Webcam().hasWebcam((res: boolean) => {
+        new Camera().hasCamera((res: boolean) => {
           this.setPropertyValue("currentMode", res ? this.mode : "file");
         });
       } else {
@@ -633,7 +633,7 @@ export class QuestionFileModel extends Question {
   //#region
   // web-based methods
   private rootElement: HTMLElement;
-  private canDragDrop(): boolean { return !this.isInputReadOnly && this.currentState !== "webcam" && !this.isPlayingVideo; }
+  private canDragDrop(): boolean { return !this.isInputReadOnly && this.currentState !== "camera" && !this.isPlayingVideo; }
   afterRender(el: HTMLElement): void {
     this.rootElement = el;
     super.afterRender(el);
@@ -725,7 +725,7 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
     { name: "allowCameraAccess:switch", category: "general" },
-    { name: "mode", choices: ["file", "webcam", "both"], default: "file", category: "general", visible: false }
+    { name: "mode", choices: ["file", "camera", "both"], default: "file", category: "general", visible: false }
   ],
   function () {
     return new QuestionFileModel("");

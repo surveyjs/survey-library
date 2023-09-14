@@ -62,9 +62,9 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
       >
         <div
           className={this.css.progressButtonsPageTitle}
-          title={page.navigationTitle || page.name}
+          title={page.renderedNavigationTitle}
         >
-          {page.navigationTitle || page.name}
+          {page.renderedNavigationTitle}
         </div>
         <div
           className={this.css.progressButtonsPageDescription}

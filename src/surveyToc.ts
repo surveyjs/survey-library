@@ -32,7 +32,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
   var items = (pagesSource || []).map(page => {
     return new Action({
       id: page.name,
-      title: ((<any>page)["navigationTitle"]) || page.title || page.name,
+      title: page.renderedNavigationTitle,
       action: () => {
         if (typeof document !== undefined && !!document.activeElement) {
           !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();

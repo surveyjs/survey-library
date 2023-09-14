@@ -327,17 +327,20 @@ export class PanelModelBase extends SurveyElement<Question>
       (this.showDescription && this.isDesignMode &&
         settings.designMode.showEmptyDescriptions);
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     for (var i = 0; i < this.elements.length; i++) {
       (<Base>(<any>this.elements[i])).localeChanged();
     }
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].locStrsChanged();
     }
+  }
+  public get renderedNavigationTitle(): string {
+    return this.title || this.name;
   }
   /**
    * Returns a character or text string that indicates a required panel/page.

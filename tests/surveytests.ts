@@ -232,6 +232,21 @@ QUnit.test(
     );
   }
 );
+QUnit.test("PageModel.renderedNavigationTitle", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1" },
+      { name: "page2", title: "Page 2" },
+      { name: "page3", title: "Page 3", navigationTitle: "NavPage 3" },
+      { name: "page4", navigationTitle: "NavPage 4" },
+    ]
+  });
+  assert.equal(survey.pages[0].renderedNavigationTitle, "page1", "page1");
+  assert.equal(survey.pages[1].renderedNavigationTitle, "Page 2", "page2");
+  assert.equal(survey.pages[2].renderedNavigationTitle, "NavPage 3", "page3");
+  assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4", "page4");
+});
+
 QUnit.test("PageModel passed property", function (assert) {
   var json = {
     pages: [

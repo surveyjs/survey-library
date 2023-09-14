@@ -226,7 +226,7 @@ registerMarkupTests(
     },
     snapshot: "file-2-zip-png",
     initSurvey(survey) {
-      survey.getAllQuestions()[0].pageSize = 2;
+      survey.getAllQuestions()[0]["pageSize"] = 2;
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
@@ -258,7 +258,7 @@ registerMarkupTests(
     },
     snapshot: "file-2-zip-png-file-navigator",
     initSurvey(survey) {
-      survey.getAllQuestions()[0].pageSize = 1;
+      survey.getAllQuestions()[0]["pageSize"] = 1;
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
@@ -291,7 +291,7 @@ registerMarkupTests(
     },
     snapshot: "file-2-zip-png-ro",
     initSurvey(survey) {
-      survey.getAllQuestions()[0].pageSize = 2;
+      survey.getAllQuestions()[0]["pageSize"] = 2;
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),

@@ -225,6 +225,41 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-zip-png",
+    initSurvey(survey) {
+      survey.getAllQuestions()[0]["pageSize"] = 2;
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
+  {
+    name: "Test multiply file question (defaultV2) with file navigator",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+          allowMultiple: true,
+          defaultValue: [
+            {
+              "name": "item1.zip",
+              "type": "application/x-zip-compressed",
+              "content": "#item1.zip"
+            },
+            {
+              "name": "item2.png",
+              "type": "image/png",
+              "content": "#item2.png"
+            }
+          ],
+        }
+      ]
+    },
+    snapshot: "file-2-zip-png-file-navigator",
+    initSurvey(survey) {
+      survey.getAllQuestions()[0]["pageSize"] = 1;
+    },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },
@@ -255,6 +290,9 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-zip-png-ro",
+    initSurvey(survey) {
+      survey.getAllQuestions()[0]["pageSize"] = 2;
+    },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },

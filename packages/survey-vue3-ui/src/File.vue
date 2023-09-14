@@ -167,8 +167,8 @@
         ></sv-svg-icon>
       </button>
       <sv-action-bar
-        v-if="question.mobileFileNavigatorVisible"
-        :model="question.mobileFileNavigator"
+        v-if="question.fileNavigatorVisible"
+        :model="question.fileNavigator"
       ></sv-action-bar>
     </div>
   </div>

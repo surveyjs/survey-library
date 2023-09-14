@@ -544,6 +544,7 @@ export var defaultV2Css = {
   expression: "sd-expression",
   file: {
     root: "sd-file",
+    rootDragging: "sd-file--dragging",
     other: "sd-input sd-comment",
     placeholderInput: "sd-visuallyhidden",
     preview: "sd-file__preview",

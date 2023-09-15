@@ -8,37 +8,42 @@ QUnit.test("logoStyle",
     const cover = new Cover();
 
     assert.deepEqual({
-      order: 1,
-      "align-self": "flex-end",
-      "align-items": undefined
+      gridColumn: 3,
+      gridRow: 1,
+      justifyContent: "flex-end",
+      alignItems: "flex-start",
     }, cover.logoStyle, "default logoStyle");
 
     cover.logoPositionX = "left";
     assert.deepEqual({
-      order: 1,
-      "align-self": "flex-start",
-      "align-items": undefined
+      gridColumn: 1,
+      gridRow: 1,
+      justifyContent: "flex-start",
+      alignItems: "flex-start",
     }, cover.logoStyle, "logoStyle left");
 
     cover.logoPositionX = "center";
     assert.deepEqual({
-      order: 1,
-      "align-self": "center",
-      "align-items": undefined
+      gridColumn: 2,
+      gridRow: 1,
+      justifyContent: "center",
+      alignItems: "flex-start",
     }, cover.logoStyle, "logoStyle center");
 
     cover.logoPositionY = "middle";
     assert.deepEqual({
-      order: 2,
-      "align-self": "center",
-      "align-items": "center"
+      gridColumn: 2,
+      gridRow: 2,
+      justifyContent: "center",
+      alignItems: "center",
     }, cover.logoStyle, "logoStyle middle");
 
     cover.logoPositionY = "bottom";
     assert.deepEqual({
-      order: 3,
-      "align-self": "center",
-      "align-items": "flex-end"
+      gridColumn: 2,
+      gridRow: 3,
+      justifyContent: "center",
+      alignItems: "flex-end",
     }, cover.logoStyle, "logoStyle bottom");
   }
 );
@@ -48,32 +53,47 @@ QUnit.test("titleStyle",
     const cover = new Cover();
 
     assert.deepEqual({
-      order: 3,
-      "align-self": "flex-start"
+      maxWidth: "512px",
+      gridColumn: 1,
+      gridRow: 3,
+      justifyContent: "flex-start",
+      alignItems: "flex-end",
     }, cover.titleStyle, "default titleStyle");
 
     cover.titlePositionX = "right";
     assert.deepEqual({
-      order: 3,
-      "align-self": "flex-end"
+      maxWidth: "512px",
+      gridColumn: 3,
+      gridRow: 3,
+      justifyContent: "flex-end",
+      alignItems: "flex-end",
     }, cover.titleStyle, "titleStyle right");
 
     cover.titlePositionX = "center";
     assert.deepEqual({
-      order: 3,
-      "align-self": "center"
+      maxWidth: "512px",
+      gridColumn: 2,
+      gridRow: 3,
+      justifyContent: "center",
+      alignItems: "flex-end",
     }, cover.titleStyle, "titleStyle center");
 
     cover.titlePositionY = "top";
     assert.deepEqual({
-      order: 1,
-      "align-self": "center"
+      maxWidth: "512px",
+      gridColumn: 2,
+      gridRow: 1,
+      justifyContent: "center",
+      alignItems: "flex-start",
     }, cover.titleStyle, "titleStyle top");
 
     cover.titlePositionY = "middle";
     assert.deepEqual({
-      order: 2,
-      "align-self": "center"
+      maxWidth: "512px",
+      gridColumn: 2,
+      gridRow: 2,
+      justifyContent: "center",
+      alignItems: "center",
     }, cover.titleStyle, "titleStyle middle");
   }
 );
@@ -83,35 +103,104 @@ QUnit.test("descriptionPositionX",
     const cover = new Cover();
 
     assert.deepEqual({
-      order: 3,
-      "align-self": "flex-start"
+      maxWidth: "512px",
+      gridColumn: 1,
+      gridRow: 4,
+      justifyContent: "flex-start",
+      alignItems: "flex-end",
     }, cover.descriptionStyle, "default descriptionStyle");
 
     cover.descriptionPositionX = "right";
     assert.deepEqual({
-      order: 3,
-      "align-self": "flex-end"
+      maxWidth: "512px",
+      gridColumn: 3,
+      gridRow: 3,
+      justifyContent: "flex-end",
+      alignItems: "flex-end",
     }, cover.descriptionStyle, "descriptionStyle right");
 
     cover.descriptionPositionX = "center";
     assert.deepEqual({
-      order: 3,
-      "align-self": "center"
+      maxWidth: "512px",
+      gridColumn: 2,
+      gridRow: 3,
+      justifyContent: "center",
+      alignItems: "flex-end",
     }, cover.descriptionStyle, "descriptionStyle center");
 
     cover.descriptionPositionY = "top";
     assert.deepEqual({
-      order: 1,
-      "align-self": "center"
+      maxWidth: "512px",
+      gridColumn: 2,
+      gridRow: 1,
+      justifyContent: "center",
+      alignItems: "flex-start",
     }, cover.descriptionStyle, "descriptionStyle top");
 
     cover.descriptionPositionY = "middle";
     assert.deepEqual({
-      order: 2,
-      "align-self": "center"
+      maxWidth: "512px",
+      gridColumn: 2,
+      gridRow: 2,
+      justifyContent: "center",
+      alignItems: "center",
     }, cover.descriptionStyle, "descriptionStyle middle");
   }
 );
+
+QUnit.test("update grid row: all elements center+middle", function (assert) {
+  const cover = new Cover();
+
+  cover.logoPositionX = "center";
+  cover.logoPositionY = "middle";
+  cover.titlePositionX = "center";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "middle";
+
+  assert.equal(cover.logoStyle.gridRow, 2, "logoStyle.gridRow");
+  assert.equal(cover.logoStyle.gridColumn, 2, "logoStyle.gridColumn");
+  assert.equal(cover.titleStyle.gridRow, 3, "titleStyle.gridRow");
+  assert.equal(cover.titleStyle.gridColumn, 2, "titleStyle.gridColumn");
+  assert.equal(cover.descriptionStyle.gridRow, 4, "descriptionStyle.gridRow");
+  assert.equal(cover.descriptionStyle.gridColumn, 2, "descriptionStyle.gridColumn");
+});
+
+QUnit.test("update grid row: 2 elements into one cell", function (assert) {
+  const cover = new Cover();
+
+  cover.logoPositionX = "right";
+  cover.logoPositionY = "top";
+  cover.titlePositionX = "right";
+  cover.titlePositionY = "top";
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "middle";
+
+  assert.equal(cover.logoStyle.gridRow, 1, "logoStyle.gridRow");
+  assert.equal(cover.logoStyle.gridColumn, 3, "logoStyle.gridColumn");
+  assert.equal(cover.titleStyle.gridRow, 2, "titleStyle.gridRow");
+  assert.equal(cover.titleStyle.gridColumn, 3, "titleStyle.gridColumn");
+  assert.equal(cover.descriptionStyle.gridRow, 3, "descriptionStyle.gridRow");
+  assert.equal(cover.descriptionStyle.gridColumn, 2, "descriptionStyle.gridColumn");
+});
+
+QUnit.test("update grid row: 2 elements into one row and different columns", function (assert) {
+  const cover = new Cover();
+
+  cover.logoPositionX = "right";
+  cover.logoPositionY = "top";
+  cover.titlePositionX = "left";
+  cover.titlePositionY = "top";
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "middle";
+
+  assert.equal(cover.logoStyle.gridRow, 1, "logoStyle.gridRow");
+  assert.equal(cover.logoStyle.gridColumn, 3, "logoStyle.gridColumn");
+  assert.equal(cover.titleStyle.gridRow, 1, "titleStyle.gridRow");
+  assert.equal(cover.titleStyle.gridColumn, 1, "titleStyle.gridColumn");
+  assert.equal(cover.descriptionStyle.gridRow, 2, "descriptionStyle.gridRow");
+  assert.equal(cover.descriptionStyle.gridColumn, 2, "descriptionStyle.gridColumn");
+});
 
 QUnit.test("contentClasses",
   function (assert) {

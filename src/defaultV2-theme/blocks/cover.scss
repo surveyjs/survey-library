@@ -32,22 +32,19 @@
 .sv-cover__text {
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  gap: 0;
+  grid-auto-rows: min-content;
 }
 
 .sv-cover__text-logo {
   display: flex;
-  flex-direction: row;
-  flex-grow: 1;
 }
 
 .sv-cover__text-title {
   display: flex;
-  flex-direction: row;
 }
 
 .sv-cover__text-description {
   display: flex;
-  flex-direction: row;
 }

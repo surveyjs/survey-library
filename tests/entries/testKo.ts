@@ -23,4 +23,3 @@ export * from "../ko/kosurveymodeltests";
 export * from "../ko/survey_kotests";
 export * from "../ko/templatetexttests";
 export * from "../ko/actionbar";
-export * from "../coverTests";

@@ -4,7 +4,7 @@
   <div data-bind="style: model.backgroundImageStyle, css: model.backgroundImageClasses"></div>
   <!-- /ko -->
   <div data-bind="css: model.contentClasses">
-    <div class="sv-cover__text" data-bind="css: survey.css.headerText, style: { width: model.renderedTextWidth }">
+    <div class="sv-cover__text" data-bind="css: survey.css.headerText">
       <!-- ko if: survey.hasLogo -->
       <div class="sv-cover__text-logo" data-bind="style: model.logoStyle">
       <!-- ko component: { name: survey.getElementWrapperComponentName(survey, 'logo-image'), params: survey.getElementWrapperComponentData(survey, 'logo-image') } -->

@@ -6,9 +6,74 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { wrapUrlForBackgroundImage } from "./utils/utils";
 
 export class Cover extends Base {
+  private calcRow(positionY: VerticalAlignment): any {
+    return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
+  }
+  private calcColumn(positionX: HorizontalAlignment): any {
+    return positionX === "left" ? 1 : (positionX === "center" ? 2 : 3);
+  }
+  private calcBackgroundSize(backgroundImageFit: "cover" | "fill" | "contain" | "tile") : string {
+    if(backgroundImageFit === "fill") {
+      return "100% 100%";
+    }
+    if(backgroundImageFit === "tile") {
+      return "contain";
+    }
+    return backgroundImageFit;
+  }
+  private calcJustifyContent(positionX: HorizontalAlignment) {
+    return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
+  }
+  private calcAlignItems(positionY: VerticalAlignment) {
+    return positionY === "top" ? "flex-start" : (positionY === "middle" ? "center" : "flex-end");
+  }
+  private getLogoStyle() {
+    const result = <any>{ };
+    result["gridColumn"] = this.calcColumn(this.logoPositionX);
+    result["gridRow"] = this.calcRow(this.logoPositionY);
+    result["justifyContent"] = this.calcJustifyContent(this.logoPositionX);
+    result["alignItems"] = this.calcAlignItems(this.logoPositionY);
+    return result;
+  }
+  private getTitleStyle() {
+    const result = <any>{ };
+    result["maxWidth"] = this.renderedTextWidth;
+    result["gridColumn"] = this.calcColumn(this.titlePositionX);
+    result["gridRow"] = this.calcRow(this.titlePositionY);
+    result["justifyContent"] = this.calcJustifyContent(this.titlePositionX);
+    result["alignItems"] = this.calcAlignItems(this.titlePositionY);
+    return result;
+  }
+  private getDescriptionStyle() {
+    const result = <any>{ };
+    result["maxWidth"] = this.renderedTextWidth;
+    result["gridColumn"] = this.calcColumn(this.descriptionPositionX);
+    result["gridRow"] = this.calcRow(this.descriptionPositionY);
+    result["justifyContent"] = this.calcJustifyContent(this.descriptionPositionX);
+    result["alignItems"] = this.calcAlignItems(this.descriptionPositionY);
+    return result;
+  }
+  private updateElementStyles() {
+    this.logoStyle = this.getLogoStyle();
+    this.titleStyle = this.getTitleStyle();
+    this.descriptionStyle = this.getDescriptionStyle();
+
+    if(this.logoStyle.gridRow === this.titleStyle.gridRow && this.logoStyle.gridColumn === this.titleStyle.gridColumn) {
+      this.titleStyle = Object.assign({}, this.titleStyle, { gridRow: this.titleStyle.gridRow + 1 });
+      this.descriptionStyle = Object.assign({}, this.descriptionStyle, { gridRow: this.descriptionStyle.gridRow + 1 });
+    }
+    if(this.logoStyle.gridRow === this.descriptionStyle.gridRow && this.logoStyle.gridColumn === this.descriptionStyle.gridColumn) {
+      this.descriptionStyle = Object.assign({}, this.descriptionStyle, { gridRow: this.descriptionStyle.gridRow + 1 });
+    }
+    if(this.titleStyle.gridRow === this.descriptionStyle.gridRow && this.titleStyle.gridColumn === this.descriptionStyle.gridColumn) {
+      this.descriptionStyle = Object.assign({}, this.descriptionStyle, { gridRow: this.descriptionStyle.gridRow + 1 });
+    }
+  }
+
   constructor() {
     super();
     this.renderBackgroundImage = wrapUrlForBackgroundImage(this.backgroundImage);
+    this.updateElementStyles();
   }
 
   public getType(): string {
@@ -36,32 +101,15 @@ export class Cover extends Base {
   @property() public titlePositionY: VerticalAlignment;
   @property() public descriptionPositionX: HorizontalAlignment;
   @property() public descriptionPositionY: VerticalAlignment;
+  @property() logoStyle: { gridColumn: number, gridRow: number };
+  @property() titleStyle: { gridColumn: number, gridRow: number };
+  @property() descriptionStyle: { gridColumn: number, gridRow: number };
 
   public get renderedHeight(): string {
     return this.height ? this.height + "px" : undefined;
   }
   public get renderedTextWidth(): string {
     return this.textWidth ? this.textWidth + "px" : undefined;
-  }
-
-  public get logoStyle() {
-    const result = <any>{ order: 1 };
-    result["align-self"] = this.calcAlignSelf(this.logoPositionX);
-    result["order"] = this.calcOrder(this.logoPositionY);
-    result["align-items"] = this.logoPositionY === "middle" ? "center" : (this.logoPositionY === "bottom" ? "flex-end": undefined);
-    return result;
-  }
-  public get titleStyle() {
-    const result = <any>{ order: 2 };
-    result["align-self"] = this.calcAlignSelf(this.titlePositionX);
-    result["order"] = this.calcOrder(this.titlePositionY);
-    return result;
-  }
-  public get descriptionStyle() {
-    const result = <any>{ order: 3 };
-    result["align-self"] = this.calcAlignSelf(this.descriptionPositionX);
-    result["order"] = this.calcOrder(this.descriptionPositionY);
-    return result;
   }
 
   public get contentClasses(): string {
@@ -87,30 +135,19 @@ export class Cover extends Base {
       backgroundSize: this.calcBackgroundSize(this.backgroundImageFit),
     };
   }
-
-  private calcBackgroundSize(backgroundImageFit: "cover" | "fill" | "contain" | "tile") : string {
-    if(backgroundImageFit === "fill") {
-      return "100% 100%";
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    if(["logoPositionX", "logoPositionY", "titlePositionX", "titlePositionY", "descriptionPositionX", "descriptionPositionY"].indexOf(name) !== -1) {
+      this.updateElementStyles();
     }
-    if(backgroundImageFit === "tile") {
-      return "contain";
-    }
-    return backgroundImageFit;
-  }
-  private calcAlignSelf(positionX: HorizontalAlignment) {
-    return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
-  }
-  private calcOrder(positionY: VerticalAlignment) {
-    return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
 }
 
 Serializer.addClass(
   "cover",
   [
-    { name: "height:number", minValue: 0 },
+    { name: "height:number", minValue: 0, default: 256 },
     { name: "areaWidth", default: "survey" },
-    { name: "textWidth:number", minValue: 0 },
+    { name: "textWidth:number", minValue: 0, default: 512 },
     { name: "invertText:boolean" },
     { name: "glowText:boolean" },
     { name: "overlap:boolean" },

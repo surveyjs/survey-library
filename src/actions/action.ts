@@ -163,6 +163,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {
+      if(newAction.hasTitle) {
+        newAction.title = item.title;
+      }
       listOptions.onSelectionChanged(item);
       innerPopupModel.toggleVisibility();
     },

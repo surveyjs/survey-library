@@ -1,4 +1,7 @@
 const Theme = {
+  "themeName": "threedimensional",
+  "colorPalette": "light",
+  "isPanelless": false,
   "cssVariables": {
     "--sjs-general-backcolor": "rgba(248, 248, 248, 1)",
     "--sjs-general-backcolor-dark": "rgba(242, 242, 242, 1)",
@@ -85,8 +88,7 @@ const Theme = {
     "--sjs-article-font-default-lineHeight": "28px",
     "--sjs-article-font-default-paragraphIndent": "0px",
     "--sjs-article-font-default-textCase": "none"
-  },
-  "isPanelless": false
+  }
 };
 export default Theme;
 export const ThreeDimensionalLight = Theme;

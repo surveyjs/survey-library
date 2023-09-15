@@ -232,6 +232,21 @@ QUnit.test(
     );
   }
 );
+QUnit.test("PageModel.renderedNavigationTitle", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "page1" },
+      { name: "page2", title: "Page 2" },
+      { name: "page3", title: "Page 3", navigationTitle: "NavPage 3" },
+      { name: "page4", navigationTitle: "NavPage 4" },
+    ]
+  });
+  assert.equal(survey.pages[0].renderedNavigationTitle, "page1", "page1");
+  assert.equal(survey.pages[1].renderedNavigationTitle, "Page 2", "page2");
+  assert.equal(survey.pages[2].renderedNavigationTitle, "NavPage 3", "page3");
+  assert.equal(survey.pages[3].renderedNavigationTitle, "NavPage 4", "page4");
+});
+
 QUnit.test("PageModel passed property", function (assert) {
   var json = {
     pages: [
@@ -17738,4 +17753,122 @@ QUnit.test("Use variables as default values in expression", function (assert) {
   survey.data = { q1: 2 };
   const q1 = survey.getQuestionByName("q1");
   assert.equal(q1.value, 2, "Get data from survey");
+});
+QUnit.test("Test getDisplayValue() function", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" }]
+      },
+      {
+        type: "expression",
+        name: "q1_exp",
+        expression: "displayValue('q1')"
+      },
+      {
+        type: "paneldynamic",
+        name: "q2",
+        templateElements: [{
+          type: "checkbox",
+          name: "q2_q1",
+          choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" }]
+        },
+        {
+          type: "expression",
+          name: "q2_q1_exp",
+          expression: "displayValue('q2_q1')"
+        }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "q3",
+        rowCount: 0,
+        columns: [{
+          cellType: "checkbox",
+          name: "col1",
+          choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" }]
+        },
+        {
+          cellType: "expression",
+          name: "col1_exp",
+          expression: "displayValue('col1')"
+        }],
+        detailPanelMode: "underRow",
+        detailElements: [{
+          type: "checkbox",
+          name: "q3_q1",
+          choices: [{ value: 1, text: "Item 1" }, { value: 2, text: "Item 2" }, { value: 3, text: "Item 3" }]
+        },
+        {
+          type: "expression",
+          name: "q3_q1_exp",
+          expression: "displayValue('q3_q1')"
+        }],
+      }
+    ]
+  });
+  survey.data = { q1: [1, 2], q2: [{ q2_q1: [2, 3] }] };
+  const matrix = survey.getQuestionByName("q3");
+  matrix.addRow();
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  row.getQuestionByName("col1").value = [1, 3];
+  row.getQuestionByName("q3_q1").value = [1, 2, 3];
+  assert.deepEqual(survey.data, {
+    q1: [1, 2], q1_exp: "Item 1, Item 2",
+    q2: [{ q2_q1: [2, 3], q2_q1_exp: "Item 2, Item 3" }],
+    q3: [{ col1: [1, 3], col1_exp: "Item 1, Item 3", q3_q1: [1, 2, 3], q3_q1_exp: "Item 1, Item 2, Item 3" }] }, "displayValue works correctly");
+});
+QUnit.test("Test propertyValue() function", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: "Q1"
+      },
+      {
+        type: "expression",
+        name: "q1_exp",
+        expression: "propertyValue('q1', 'title')"
+      },
+      {
+        type: "paneldynamic",
+        name: "q2",
+        templateElements: [{
+          type: "text",
+          name: "q2_q1",
+          title: "Q2_Q1"
+        },
+        {
+          type: "expression",
+          name: "q2_q1_exp",
+          expression: "propertyValue('q2_q1', 'title')"
+        }]
+      },
+      {
+        type: "matrixdynamic",
+        name: "q3",
+        rowCount: 0,
+        columns: [{
+          cellType: "text",
+          title: "Column 1",
+          name: "col1"
+        },
+        {
+          cellType: "expression",
+          name: "col1_exp",
+          expression: "propertyValue('col1', 'title')"
+        }]
+      }
+    ]
+  });
+  survey.getQuestionByName("q2").addPanel();
+  survey.getQuestionByName("q3").addRow();
+  assert.deepEqual(survey.data, {
+    q1_exp: "Q1",
+    q2: [{ q2_q1_exp: "Q2_Q1" }],
+    q3: [{ col1_exp: "Column 1" }] }, "propertyValue works correctly");
 });

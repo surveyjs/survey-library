@@ -162,7 +162,7 @@ function getThemeObject(themeName, isPanelless, isDarkMode) {
   if (isPanelless) {
     Object.assign(newTheme, predefinedThemes[getFullThemeName(themeName, isDarkMode) + "-lw"]);
   }
-  return { cssVariables: newTheme, isPanelless: isPanelless };
+  return { themeName, colorPalette: isDarkMode ? "dark": "light", isPanelless, cssVariables: newTheme };
 }
 
 function writeTheme(themeName, isPanelless, isDarkMode) {

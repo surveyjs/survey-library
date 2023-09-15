@@ -864,3 +864,20 @@ QUnit.test("Dropdown should noy be open on click in design mode", (assert) => {
   dropdownListModel.onClick(new Event("click"));
   assert.notOk(dropdownListModel.popupModel.isVisible);
 });
+QUnit.test("order & locale change", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choicesOrder: "asc",
+      choices: [{ value: "A", text: { default: "AA", de: "BAA" } },
+        { value: "B", text: { default: "BB", de: "ABB" } }] }
+  ] });
+  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  let list: ListModel = question.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 2, "Two items");
+  assert.equal(list.actions[0].id, "A", "action[0].id");
+  assert.equal(list.actions[1].id, "B", "action[1].id");
+  survey.locale = "de";
+  list = question.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 2, "Two items");
+  assert.equal(list.actions[0].id, "B", "action[0].id, de");
+  assert.equal(list.actions[1].id, "A", "action[1].id, de");
+});

@@ -1,4 +1,7 @@
 const Theme = {
+  "themeName": "plain",
+  "colorPalette": "dark",
+  "isPanelless": true,
   "cssVariables": {
     "--sjs-general-backcolor": "rgba(36, 36, 36, 1)",
     "--sjs-general-backcolor-dark": "rgba(47, 47, 47, 1)",
@@ -85,8 +88,7 @@ const Theme = {
     "--sjs-article-font-default-lineHeight": "28px",
     "--sjs-article-font-default-paragraphIndent": "0px",
     "--sjs-article-font-default-textCase": "none"
-  },
-  "isPanelless": true
+  }
 };
 export default Theme;
 export const PlainDarkPanelless = Theme;

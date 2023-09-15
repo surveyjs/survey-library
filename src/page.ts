@@ -73,6 +73,9 @@ export class PageModel extends PanelModelBase implements IPage {
     this.locNavigationTitle.strChanged();
     this.locNavigationDescription.strChanged();
   }
+  public get renderedNavigationTitle(): string {
+    return this.locNavigationTitle.renderedHtml || this.title || this.name;
+  }
   public get passed(): boolean {
     return this.getPropertyValue("passed", false);
   }

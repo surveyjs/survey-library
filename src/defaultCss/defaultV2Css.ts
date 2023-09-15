@@ -300,7 +300,7 @@ export var defaultV2Css = {
     checkboxItemIndeterminate: "sd-checkbox--intermediate",
     checkboxItemChecked: "sd-item--checked sd-checkbox--checked",
     checkboxItemDecorator: "sd-item__svg sd-checkbox__svg",
-    checkboxItemDisabled: "sd-checkbox--disabled",
+    checkboxItemDisabled: "sd-item--disabled sd-checkbox--disabled",
     controlCheckbox: "sd-visuallyhidden sd-item__control sd-checkbox__control",
     checkboxMaterialDecorator: "sd-item__decorator sd-checkbox__decorator",
     checkboxControlLabel: "sd-item__control-label",
@@ -544,6 +544,7 @@ export var defaultV2Css = {
   expression: "sd-expression",
   file: {
     root: "sd-file",
+    rootDragging: "sd-file--dragging",
     other: "sd-input sd-comment",
     placeholderInput: "sd-visuallyhidden",
     preview: "sd-file__preview",

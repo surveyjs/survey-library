@@ -6,7 +6,7 @@ import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
 import { Serializer } from "../src/jsonobject";
 import { Camera } from "../src/utils/camera";
-
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 export default QUnit.module("Survey_QuestionFile");
 
 QUnit.test("QuestionFile value initialization strings", function(assert) {
@@ -789,8 +789,8 @@ QUnit.test("Question File responsive", (assert) => {
       },
     ],
   };
-  StylesManager.applyTheme("default");
   var survey = new SurveyModel(json);
+  survey.css = defaultV2Css;
   survey.locale = "";
   var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
 
@@ -804,46 +804,41 @@ QUnit.test("Question File responsive", (assert) => {
   });
 
   q1.cssClasses.mobile = "m";
-  assert.equal(q1.fileRootCss, "sv_q_file");
+  assert.equal(q1.fileRootCss, "sd-file");
   q1.isMobile = true;
-  assert.equal(q1.fileRootCss, "sv_q_file m");
-  assert.equal(q1.mobileFileNavigatorVisible, false);
-
+  q1.pageSize = 1;
+  assert.equal(q1.fileRootCss, "sd-file m");
+  assert.equal(q1.fileNavigatorVisible, false);
   var files1: any = [{ name: "f1", type: "t1" }];
   q1.loadFiles(files1);
 
-  assert.equal(q1.mobileFileNavigatorVisible, false);
+  assert.equal(q1.fileNavigatorVisible, false);
 
   var files2: any = [{ name: "f2", type: "t2", size: 100000 }];
   q1.loadFiles(files2);
 
-  assert.equal(q1.mobileFileNavigatorVisible, true);
+  assert.equal(q1.fileNavigatorVisible, true);
 
-  assert.equal(q1["fileIndexAction"].title, "1 of 2");
-  q1["nextFileAction"].action();
   assert.equal(q1["fileIndexAction"].title, "2 of 2");
   q1["nextFileAction"].action();
   assert.equal(q1["fileIndexAction"].title, "1 of 2");
-  q1["prevFileAction"].action();
+  q1["nextFileAction"].action();
   assert.equal(q1["fileIndexAction"].title, "2 of 2");
   q1["prevFileAction"].action();
   assert.equal(q1["fileIndexAction"].title, "1 of 2");
+  q1["prevFileAction"].action();
+  assert.equal(q1["fileIndexAction"].title, "2 of 2");
 
-  assert.equal(q1.isPreviewVisible(0), true);
-  assert.equal(q1.isPreviewVisible(1), false);
-
-  q1["nextFileAction"].action();
   assert.equal(q1.isPreviewVisible(0), false);
   assert.equal(q1.isPreviewVisible(1), true);
 
-  q1.isMobile = false;
+  q1["nextFileAction"].action();
   assert.equal(q1.isPreviewVisible(0), true);
-  assert.equal(q1.isPreviewVisible(1), true);
+  assert.equal(q1.isPreviewVisible(1), false);
 
-  q1.isMobile = true;
-  assert.equal(q1.mobileFileNavigatorVisible, true);
+  assert.equal(q1.fileNavigatorVisible, true);
   q1.clear();
-  assert.equal(q1.mobileFileNavigatorVisible, false);
+  assert.equal(q1.fileNavigatorVisible, false);
 });
 
 QUnit.test("QuestionFile inside a panel set value", async function(assert) {
@@ -1201,11 +1196,13 @@ QUnit.test("File Question on Smaller Screens: navigation bar doesn't appear when
   };
   const survey = new SurveyModel(json);
   const question = <QuestionFileModel>survey.getAllQuestions()[0];
+  survey.css = defaultV2Css;
   question.isMobile = true;
+  question.pageSize = 1;
   assert.equal(question.indexToShow, 0);
   assert.equal(question["fileIndexAction"].title, "1 of 0");
   assert.equal(question.containsMultiplyFiles, false);
-  assert.equal(question.mobileFileNavigatorVisible, false);
+  assert.equal(question.fileNavigatorVisible, false);
 
   survey.onDownloadFile.add(function (survey, options) {
     const timers = {
@@ -1226,10 +1223,154 @@ QUnit.test("File Question on Smaller Screens: navigation bar doesn't appear when
     assert.equal(question.indexToShow, 0);
     assert.equal(question["fileIndexAction"].title, "1 of 3");
     assert.equal(question.containsMultiplyFiles, true);
-    assert.equal(question.mobileFileNavigatorVisible, true);
+    assert.equal(question.fileNavigatorVisible, true);
     done();
   }, 100);
 });
+
+QUnit.test("Check file question navigator with different items count visible", (assert) => {
+  const json = {
+    showPreviewBeforeComplete: "showAnsweredQuestions",
+    elements: [
+      {
+        type: "file",
+        name: "file",
+        storeDataAsText: false,
+        allowMultiple: true
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+  survey.css = defaultV2Css;
+  question.pageSize = 3;
+  assert.equal(question.indexToShow, 0);
+  assert.equal(question["fileIndexAction"].title, "1 of 0");
+  assert.equal(question.containsMultiplyFiles, false);
+  assert.equal(question.fileNavigatorVisible, false);
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback(
+      "success",
+      options.files.map((file) => {
+        return { file: file, content: file.name + "_url" };
+      })
+    );
+  });
+  question.loadFiles([{ name: "f1", type: "t1" } as any]);
+  assert.equal(question.fileNavigatorVisible, false);
+  question.loadFiles([{ name: "f2", type: "t2" } as any]);
+  assert.equal(question.fileNavigatorVisible, false);
+  question.loadFiles([{ name: "f3", type: "t3" } as any]);
+  assert.equal(question.fileNavigatorVisible, false);
+  question.loadFiles([{ name: "f4", type: "t4" } as any]);
+  assert.equal(question.fileNavigatorVisible, true);
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  assert.notOk(question.isPreviewVisible(0));
+  assert.notOk(question.isPreviewVisible(1));
+  assert.notOk(question.isPreviewVisible(2));
+  assert.ok(question.isPreviewVisible(3));
+  question["prevFileAction"].action();
+  assert.equal(question.indexToShow, 0);
+  assert.equal(question["fileIndexAction"].title, "1 of 2");
+  assert.ok(question.isPreviewVisible(0));
+  assert.ok(question.isPreviewVisible(1));
+  assert.ok(question.isPreviewVisible(2));
+  assert.notOk(question.isPreviewVisible(3));
+  question["nextFileAction"].action();
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  assert.notOk(question.isPreviewVisible(0));
+  assert.notOk(question.isPreviewVisible(1));
+  assert.notOk(question.isPreviewVisible(2));
+  assert.ok(question.isPreviewVisible(3));
+  question["nextFileAction"].action();
+  assert.equal(question.indexToShow, 0);
+  assert.equal(question["fileIndexAction"].title, "1 of 2");
+  assert.ok(question.isPreviewVisible(0));
+  assert.ok(question.isPreviewVisible(1));
+  assert.ok(question.isPreviewVisible(2));
+  assert.notOk(question.isPreviewVisible(3));
+  question["prevFileAction"].action();
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  assert.notOk(question.isPreviewVisible(0));
+  assert.notOk(question.isPreviewVisible(1));
+  assert.notOk(question.isPreviewVisible(2));
+  assert.ok(question.isPreviewVisible(3));
+
+  //check index position on load files
+  question.loadFiles([{ name: "f5", type: "t5" } as any, { name: "f6", type: "t6" } as any]);
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  question.loadFiles([{ name: "f7", type: "t7" } as any, { name: "f8", type: "t8" } as any]);
+  assert.equal(question.indexToShow, 2);
+  assert.equal(question["fileIndexAction"].title, "3 of 3");
+  //check index position on deleting files
+  question.removeFile(question.previewValue[7].name);
+  assert.equal(question.indexToShow, 2);
+  assert.equal(question["fileIndexAction"].title, "3 of 3");
+  question.removeFile(question.previewValue[6].name);
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  question.removeFile(question.previewValue[5].name);
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  question.removeFile(question.previewValue[4].name);
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  //check index position change on itemsCountToShow change
+  question.pageSize = 2;
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 2");
+  assert.notOk(question.isPreviewVisible(0));
+  assert.notOk(question.isPreviewVisible(1));
+  assert.ok(question.isPreviewVisible(2));
+  assert.ok(question.isPreviewVisible(3));
+  question.pageSize = 1;
+  assert.equal(question.indexToShow, 1);
+  assert.equal(question["fileIndexAction"].title, "2 of 4");
+  assert.notOk(question.isPreviewVisible(0));
+  assert.ok(question.isPreviewVisible(1));
+  assert.notOk(question.isPreviewVisible(2));
+  assert.notOk(question.isPreviewVisible(3));
+});
+QUnit.test("Check file question processResponsiveness method", (assert) => {
+  const json = {
+    showPreviewBeforeComplete: "showAnsweredQuestions",
+    elements: [
+      {
+        type: "file",
+        name: "file",
+        storeDataAsText: false,
+        allowMultiple: true
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+  survey.css = defaultV2Css;
+  question["calculatedGapBetweenItems"] = 32;
+  question["calculatedItemWidth"] = 96;
+  question["processResponsiveness"](0, 400);
+  assert.equal(question.pageSize, 3);
+
+  question["calculatedGapBetweenItems"] = 32;
+  question["calculatedItemWidth"] = 96;
+  question["processResponsiveness"](0, 250);
+  assert.equal(question.pageSize, 2);
+
+  question["calculatedGapBetweenItems"] = 32;
+  question["calculatedItemWidth"] = 50;
+  question["processResponsiveness"](0, 250);
+  assert.equal(question.pageSize, 3);
+
+  question["calculatedGapBetweenItems"] = 8;
+  question["calculatedItemWidth"] = 50;
+  question["processResponsiveness"](0, 250);
+  assert.equal(question.pageSize, 4);
+});
+
 QUnit.test("QuestionFile download file content on preview", function(assert) {
   const survey = new SurveyModel({
     elements: [

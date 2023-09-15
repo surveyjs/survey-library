@@ -53,6 +53,10 @@ frameworks.forEach(framework => {
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
       await takeElementScreenshot("file-question-multiple.png", questionRoot, t, comparer);
+      await t
+        .setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"])
+        .click(Selector(".sd-file #prevPage"));
+      await takeElementScreenshot("file-question-multiple-navigator.png", questionRoot, t, comparer);
     });
   });
 
@@ -81,10 +85,12 @@ frameworks.forEach(framework => {
       await ClientFunction(()=>{
         (window as any).survey.resizeObserver.disconnect();
         (window as any).survey.setIsMobile(false);
+        (window as any).survey.getAllQuestions()[0].resizeObserver.disconnect();
+        (window as any).survey.getAllQuestions()[0].processResponsiveness = () => {};
+        (window as any).survey.getAllQuestions()[0].pageSize = 1;
         (window as any).survey.getAllQuestions()[0].isMobile = true;
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
-
       const questionRoot = Selector(".sd-question");
       await ClientFunction(()=>{
         const question = (window as any).survey.getQuestionByName("file_question");
@@ -92,6 +98,11 @@ frameworks.forEach(framework => {
         question.clear();
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
+      await ClientFunction(()=>{
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.indexToShow = 0;
+        question.fileIndexAction.title = question.getFileIndexCaption();
+      })();
       await takeElementScreenshot("file-question-multiple-mobile.png", questionRoot, t, comparer);
 
       await t.click(Selector(".sd-file #nextPage"));

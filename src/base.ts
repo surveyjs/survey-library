@@ -137,7 +137,7 @@ export class Dependencies {
     target.registerPropertyChangedHandlers([property], this.currentDependency, this.id);
 
   }
-  dispose(): void {
+  public dispose(): void {
     this.dependencies.forEach(dependency => {
       dependency.obj.unregisterPropertyChangedHandlers([dependency.prop], dependency.id);
     });
@@ -303,7 +303,7 @@ export class Base {
     this.onBaseCreating();
     this.isCreating = false;
   }
-  public dispose() {
+  public dispose(): void {
     for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }

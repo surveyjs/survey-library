@@ -5424,7 +5424,7 @@ export class SurveyModel extends SurveyElementCore
     }
     return res;
   }
-  protected notifyQuestionOnValueChanged(valueName: string, newValue: any) {
+  protected notifyQuestionOnValueChanged(valueName: string, newValue: any, questionName: string): void {
     if (this.isLoadingFromJson) return;
     var questions = this.getQuestionsByValueName(valueName);
     if (!!questions) {
@@ -5447,7 +5447,7 @@ export class SurveyModel extends SurveyElementCore
     }
     if (this.isDisposed) return;
     this.checkElementsBindings(valueName, newValue);
-    this.notifyElementsOnAnyValueOrVariableChanged(valueName);
+    this.notifyElementsOnAnyValueOrVariableChanged(valueName, questionName);
   }
   private isRunningElementsBindings: boolean;
   private updateVisibleIndexAfterBindings: boolean;
@@ -5462,14 +5462,14 @@ export class SurveyModel extends SurveyElementCore
       this.updateVisibleIndexAfterBindings = false;
     }
   }
-  private notifyElementsOnAnyValueOrVariableChanged(name: string) {
+  private notifyElementsOnAnyValueOrVariableChanged(name: string, questionName?: string) {
     if (this.isEndLoadingFromJson === "processing") return;
     if (this.isRunningConditions) {
       this.conditionNotifyElementsOnAnyValueOrVariableChanged = true;
       return;
     }
     for (var i = 0; i < this.pages.length; i++) {
-      this.pages[i].onAnyValueChanged(name);
+      this.pages[i].onAnyValueChanged(name, questionName);
     }
     if (!this.isEndLoadingFromJson) {
       this.locStrsChanged();
@@ -6154,8 +6154,9 @@ export class SurveyModel extends SurveyElementCore
     name: string,
     newQuestionValue: any,
     locNotification: any = false,
-    allowNotifyValueChanged: boolean = true
-  ) {
+    allowNotifyValueChanged: boolean = true,
+    questionName?: string
+  ):void {
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
@@ -6183,7 +6184,8 @@ export class SurveyModel extends SurveyElementCore
       newValue,
       oldValue,
       locNotification,
-      allowNotifyValueChanged
+      allowNotifyValueChanged,
+      questionName
     );
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
@@ -6196,16 +6198,18 @@ export class SurveyModel extends SurveyElementCore
     newValue: any,
     oldValue: any,
     locNotification: any = false,
-    allowNotifyValueChanged: boolean = true
+    allowNotifyValueChanged: boolean = true,
+    questionName?: string
   ) {
     this.updateQuestionValue(name, newValue);
     if (locNotification === true || this.isDisposed || this.isRunningElementsBindings) return;
+    questionName = questionName || name;
     var triggerKeys: { [index: string]: any } = {};
     triggerKeys[name] = { newValue: newValue, oldValue: oldValue };
     this.runConditionOnValueChanged(name, newValue);
     this.checkTriggers(triggerKeys, false, false, name);
     if (allowNotifyValueChanged)
-      this.notifyQuestionOnValueChanged(name, newValue);
+      this.notifyQuestionOnValueChanged(name, newValue, questionName);
     if (locNotification !== "text") {
       this.tryGoNextPageAutomatic(name);
     }
@@ -7280,7 +7284,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Call this method to release resources if your application contains multiple survey models or if you re-create a survey model at runtime.
    */
-  public dispose() {
+  public dispose(): void {
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;

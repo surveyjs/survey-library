@@ -225,7 +225,7 @@ export class QuestionRowModel extends Base {
     return false;
   }
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this.stopLazyRendering();
   }
@@ -327,17 +327,20 @@ export class PanelModelBase extends SurveyElement<Question>
       (this.showDescription && this.isDesignMode &&
         settings.designMode.showEmptyDescriptions);
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     for (var i = 0; i < this.elements.length; i++) {
       (<Base>(<any>this.elements[i])).localeChanged();
     }
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].locStrsChanged();
     }
+  }
+  public get renderedNavigationTitle(): string {
+    return this.title || this.name;
   }
   /**
    * Returns a character or text string that indicates a required panel/page.
@@ -1439,10 +1442,10 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.runConditionCore(values, properties);
   }
-  onAnyValueChanged(name: string) {
+  onAnyValueChanged(name: string, questionName: string): void {
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
-      els[i].onAnyValueChanged(name);
+      els[i].onAnyValueChanged(name, questionName);
     }
   }
   checkBindings(valueName: string, value: any) {
@@ -1509,7 +1512,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   //ITitleOwner
   public get no(): string { return ""; }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     if (this.rows) {
       for (var i = 0; i < this.rows.length; i++) {

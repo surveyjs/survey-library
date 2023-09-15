@@ -1547,13 +1547,11 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.isValueChangingInternally = false;
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     for (var i = 0; i < this.panels.length; i++) {
-      this.panels[i].onAnyValueChanged(name);
-      this.panels[i].onAnyValueChanged(
-        QuestionPanelDynamicItem.ItemVariableName
-      );
+      this.panels[i].onAnyValueChanged(name, questionName);
+      this.panels[i].onAnyValueChanged(QuestionPanelDynamicItem.ItemVariableName, "");
     }
   }
   private hasKeysDuplicated(fireCallback: boolean, rec: any = null) {

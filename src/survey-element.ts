@@ -966,7 +966,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       });
     }
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     if(this.titleToolbarValue) {
       this.titleToolbarValue.dispose();

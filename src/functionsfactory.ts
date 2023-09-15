@@ -343,3 +343,28 @@ function weekday(params: any[]): any {
   return date.getDay();
 }
 FunctionFactory.Instance.register("weekday", weekday);
+
+function getQuestionValueByContext(context: any, name: string): any {
+  if(!context || !name) return undefined;
+  const keys = ["row", "panel", "survey"];
+  for(let i = 0; i < keys.length; i ++) {
+    const ctx = context[keys[i]];
+    if(ctx && ctx.getQuestionByName) {
+      const res = ctx.getQuestionByName(name);
+      if(res) return res;
+    }
+  }
+  return null;
+}
+function displayValue(params: any[]): any {
+  const q = getQuestionValueByContext(this, params[0]);
+  return q ? q.displayValue : "";
+}
+FunctionFactory.Instance.register("displayValue", displayValue);
+
+function propertyValue(params: any[]): any {
+  if(params.length !== 2 || !params[0] || !params[1]) return undefined;
+  const q = getQuestionValueByContext(this, params[0]);
+  return q ? q[params[1]] : undefined;
+}
+FunctionFactory.Instance.register("propertyValue", propertyValue);

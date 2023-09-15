@@ -22,12 +22,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return "radiogroup";
   }
 
-  public get ariaRole(): string {
-    return "radiogroup";
-  }
-  public get titleAriaLabel(): string | null {
-    return null;
-  }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
@@ -83,6 +77,15 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     }
     return actions;
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "radiogroup";
+  }
+  // EO a11y
 }
 
 Serializer.addClass(

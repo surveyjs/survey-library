@@ -633,5 +633,35 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("dropdown-question-overlay-popup-selected.png", Selector(".sv-popup.sv-single-select-list"), t, comparer);
     });
   });
+  test("Check long text in disabled dropdown question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 700);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "mode": "display",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "dropdown",
+                "name": "question1",
+                "defaultValue": "Item 1",
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "Some long text goes here Some long text goes here Some long text goes here "
+                  },
+                  "Item 2",
+                  "Item 3"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("dropdown-question-disabled-long-text.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 
 });

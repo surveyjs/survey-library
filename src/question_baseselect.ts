@@ -1094,7 +1094,7 @@ export class QuestionSelectBase extends Question {
         res.push(this.copyChoiceItem(choices[i]));
       }
     }
-    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+    if (this.choicesFromQuestionMode === "selected" && !this.showOtherItem && question.isOtherSelected && !!question.comment) {
       res.push(this.createItemValue(question.otherItem.value, question.comment));
     }
     return res;

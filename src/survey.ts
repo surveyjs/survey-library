@@ -128,8 +128,6 @@ export class SurveyModel extends SurveyElementCore
   private variablesHash: HashTable<any> = {};
   private editingObjValue: Base;
 
-  private textPreProcessor: TextPreProcessor;
-
   private timerModelValue: SurveyTimerModel;
 
   private navigationBarValue: ActionContainer;
@@ -827,10 +825,6 @@ export class SurveyModel extends SurveyElementCore
     this.createLocalizableString("editText", this, false, true);
     this.createLocalizableString("questionTitleTemplate", this, true);
 
-    this.textPreProcessor = new TextPreProcessor();
-    this.textPreProcessor.onProcess = (textValue: TextPreProcessorValue) => {
-      this.getProcessedTextValue(textValue);
-    };
     this.timerModelValue = new SurveyTimerModel(this);
     this.timerModelValue.onTimer = (page: PageModel): void => {
       this.doTimer(page);
@@ -6595,6 +6589,16 @@ export class SurveyModel extends SurveyElementCore
     };
     res.hasAllValuesOnLastRun = this.textPreProcessor.hasAllValuesOnLastRun;
     return res;
+  }
+  private textPreProcessorValue: TextPreProcessor;
+  private get textPreProcessor(): TextPreProcessor {
+    if(!this.textPreProcessorValue) {
+      this.textPreProcessorValue = new TextPreProcessor();
+      this.textPreProcessorValue.onProcess = (textValue: TextPreProcessorValue) => {
+        this.getProcessedTextValue(textValue);
+      };
+    }
+    return this.textPreProcessorValue;
   }
   private processTextCore(
     text: string,

@@ -6189,7 +6189,8 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
   assert.equal(panel.getQuestionByName("E").value, 3, "E");
 });
 QUnit.test("Footer css for nested panels", function(assert) {
-  //defaultStandardCss.paneldynamic["panelFooter"] = "abcd";
+  const footerCss = "abcd";
+  defaultStandardCss.paneldynamic["panelFooter"] = footerCss;
   const survey = new SurveyModel({
     questions: [
       {
@@ -6209,10 +6210,10 @@ QUnit.test("Footer css for nested panels", function(assert) {
     ],
   });
   const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q");
-  assert.equal(question.panels[0].getFooterToolbar().containerCss, "sd-paneldynamic__panel-footer", "root footer container css");
+  assert.equal(question.panels[0].getFooterToolbar().containerCss, footerCss, "root footer container css");
   const nested = <QuestionPanelDynamicModel>question.panels[0].getQuestionByName("qq");
-  assert.equal(nested.panels[0].getFooterToolbar().containerCss, "sd-paneldynamic__panel-footer", "nested footer container css on loading");
+  assert.equal(nested.panels[0].getFooterToolbar().containerCss, footerCss, "nested footer container css on loading");
   nested.addPanel();
-  assert.equal(nested.panels[1].getFooterToolbar().containerCss, "sd-paneldynamic__panel-footer", "nested footer container css on creating");
-  //delete defaultStandardCss.paneldynamic["panelFooter"];
+  assert.equal(nested.panels[1].getFooterToolbar().containerCss, footerCss, "nested footer container css on creating");
+  delete defaultStandardCss.paneldynamic["panelFooter"];
 });

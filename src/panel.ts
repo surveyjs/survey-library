@@ -1758,17 +1758,8 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   private footerToolbarValue: ActionContainer;
 
-  private footerToolbarCssValue: string;
-
-  public set footerToolbarCss(val: string) {
-    this.footerToolbarCssValue = val;
-  }
-
-  public get footerToolbarCss(): string {
-    return this.footerToolbarCssValue || this.cssClasses.panel?.footer;
-  }
   public onGetFooterActionsCallback: () => Array<IAction>;
-
+  public onGetFooterToolbarCssCallback: () => string;
   public getFooterToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
       var actions = this.footerActions;
@@ -1786,9 +1777,13 @@ export class PanelModel extends PanelModelBase implements IElement {
         actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
-      // if (!!this.cssClasses.panel) {
-      this.footerToolbarValue.containerCss = this.footerToolbarCss;
-      // }
+      let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
+      if(!footerCss) {
+        footerCss = this.cssClasses.panel?.footer;
+      }
+      if(footerCss) {
+        this.footerToolbarValue.containerCss = footerCss;
+      }
       this.footerToolbarValue.setItems(actions);
     }
     return this.footerToolbarValue;

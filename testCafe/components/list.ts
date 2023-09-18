@@ -63,6 +63,9 @@ function getActionByText(text: string) {
 }
 
 frameworks.forEach(async framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: "(function(){})()" }).beforeEach(async t => {
+  });
+
   test("check custom markup in list behavior", async t => {
     await registerCustomToolboxComponent(framework);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addTitleAction });
@@ -108,6 +111,9 @@ frameworks.forEach(async framework => {
 
 ["knockout", "react"].forEach(async framework => {
   if (frameworks.indexOf(framework) === -1) return;
+
+  fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: "(function(){})()" }).beforeEach(async t => {
+  });
 
   test("check list filter", async t => {
 

@@ -52,9 +52,9 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, json);
-    });
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
   test("Paneldynamic progressTop mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
@@ -94,16 +94,16 @@ frameworks.forEach(framework => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, json, {
-        onGetPanelFooterActions: (_, opt) => {
-          opt.actions.push({
-            title: "Duplicate",
-            action: () => { }
-          });
-        }
-      });
+    await applyTheme(theme);
+    await initSurvey(framework, json, {
+      onGetPanelFooterActions: (_, opt) => {
+        opt.actions.push({
+          title: "Duplicate",
+          action: () => { }
+        });
+      }
     });
+  });
   test("Check paneldynamic with custom actions", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -152,9 +152,9 @@ frameworks.forEach(framework => {
   };
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, json);
-    });
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
   test("Two Paneldynamics in one row", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1920);
@@ -259,9 +259,9 @@ frameworks.forEach(framework => {
   };
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, json);
-    });
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
   test("Navigation panel by tabs", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
@@ -378,9 +378,9 @@ frameworks.forEach(framework => {
   };
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, json);
-    });
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
   test("Paneldynamic without buttons", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);

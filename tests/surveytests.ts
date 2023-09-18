@@ -7661,7 +7661,7 @@ QUnit.test(
     assert.equal(survey.getCorrectAnswerCount(), 1, "The answer is correct now, #2");
     let counter = 0;
     survey.onIsAnswerCorrect.add(function (survey, options) {
-      counter ++;
+      counter++;
       const q = options.question;
       options.result = Helpers.isTwoValueEquals(q.value, q.correctAnswer, false);
     });
@@ -15608,6 +15608,7 @@ class CustomResizeObserver {
 }
 
 QUnit.test("Check survey resize observer double process", function (assert) {
+  window.requestAnimationFrame = (func: any) => !!func && func();
   const getComputedStyle = window.getComputedStyle;
   window.getComputedStyle = <any>((el: HTMLElement) => {
     return el.style;
@@ -17717,7 +17718,8 @@ QUnit.test("Copy panel with invisible questions at design-time", (assert): any =
   survey.setDesignMode(true);
   survey.fromJSON({
     elements: [
-      { type: "panel", name: "panel1",
+      {
+        type: "panel", name: "panel1",
         elements: [
           { type: "text", name: "q1", visible: false },
           { type: "text", name: "q2" }
@@ -17819,7 +17821,8 @@ QUnit.test("Test getDisplayValue() function", function (assert) {
   assert.deepEqual(survey.data, {
     q1: [1, 2], q1_exp: "Item 1, Item 2",
     q2: [{ q2_q1: [2, 3], q2_q1_exp: "Item 2, Item 3" }],
-    q3: [{ col1: [1, 3], col1_exp: "Item 1, Item 3", q3_q1: [1, 2, 3], q3_q1_exp: "Item 1, Item 2, Item 3" }] }, "displayValue works correctly");
+    q3: [{ col1: [1, 3], col1_exp: "Item 1, Item 3", q3_q1: [1, 2, 3], q3_q1_exp: "Item 1, Item 2, Item 3" }]
+  }, "displayValue works correctly");
 });
 QUnit.test("Test propertyValue() function", function (assert) {
   const survey = new SurveyModel({
@@ -17870,7 +17873,8 @@ QUnit.test("Test propertyValue() function", function (assert) {
   assert.deepEqual(survey.data, {
     q1_exp: "Q1",
     q2: [{ q2_q1_exp: "Q2_Q1" }],
-    q3: [{ col1_exp: "Column 1" }] }, "propertyValue works correctly");
+    q3: [{ col1_exp: "Column 1" }]
+  }, "propertyValue works correctly");
 });
 QUnit.test("Error on pre-processing localizable string Bug#6967", function (assert) {
   const prevVal = surveyLocalization.locales.en.completeText;

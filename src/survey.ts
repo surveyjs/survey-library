@@ -4532,9 +4532,6 @@ export class SurveyModel extends SurveyElementCore
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
           window.requestAnimationFrame((): void | undefined => {
-            if (!Array.isArray(entries) || !entries.length) {
-              return;
-            }
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {

@@ -2282,9 +2282,6 @@ export class Question extends SurveyElement<Question>
       };
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
         window.requestAnimationFrame((): void | undefined => {
-          if (!Array.isArray(entries) || !entries.length) {
-            return;
-          }
           this.triggerResponsiveness(false);
         });
       });

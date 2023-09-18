@@ -601,3 +601,54 @@ QUnit.test("complete trigger for showOtherItem, Bug#6792", function (assert) {
   assert.equal(survey.state, "running", "Survey is not completed");
   settings.triggers.executeCompleteOnValueChanged = oldSettings;
 });
+QUnit.test("complete trigger and next/complete buttons, Bug#6970", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question2} notempty"
+      }
+    ] });
+  const q2 = survey.getQuestionByName("question2");
+  survey.nextPage();
+  assert.equal(survey.isCompleteButtonVisible, false, "complete button is invisible, #1");
+  assert.equal(survey.isShowNextButton, true, "next button is visible, #1");
+  q2.value = "a";
+  assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible, #2");
+  assert.equal(survey.isShowNextButton, false, "next button is invisible, #2");
+  survey.prevPage();
+  assert.equal(survey.isCompleteButtonVisible, false, "complete button is invisible, #3");
+  assert.equal(survey.isShowNextButton, true, "next button is visible, #3");
+  survey.nextPage();
+  assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible, #4");
+  assert.equal(survey.isShowNextButton, false, "next button is invisible, #4");
+});

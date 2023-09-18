@@ -4371,7 +4371,7 @@ export class SurveyModel extends SurveyElementCore
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
     if(!this.completedByTriggers) this.completedByTriggers = {};
     if(isCompleted) {
-      this.completedByTriggers[trigger.id] = trigger;
+      this.completedByTriggers[trigger.id] = { trigger: trigger, pageId: this.currentPage?.id };
     } else {
       delete this.completedByTriggers[trigger.id];
     }
@@ -4379,15 +4379,22 @@ export class SurveyModel extends SurveyElementCore
       this.updateButtonsVisibility();
     }
   }
-  private completedByTriggers: HashTable<Trigger>;
+  private completedByTriggers: HashTable<any>;
   private get canBeCompletedByTrigger(): boolean {
     if(!this.completedByTriggers) return false;
-    return Object.keys(this.completedByTriggers).length > 0;
+    const keys = Object.keys(this.completedByTriggers);
+    if(keys.length === 0) return false;
+    const id = this.currentPage?.id;
+    if(!id) return true;
+    for(let i = 0; i < keys.length; i ++) {
+      if(id === this.completedByTriggers[keys[i]].pageId) return true;
+    }
+    return false;
   }
   private get completedTrigger(): Trigger {
     if(!this.canBeCompletedByTrigger) return undefined;
     const key = Object.keys(this.completedByTriggers)[0];
-    return this.completedByTriggers[key];
+    return this.completedByTriggers[key].trigger;
   }
   /**
    * Returns HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).

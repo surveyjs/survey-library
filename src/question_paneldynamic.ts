@@ -722,7 +722,8 @@ export class QuestionPanelDynamicModel extends Question
       super.setValueCore(newValue);
     }
   }
-  protected setIsMobile(val: boolean) {
+  public setIsMobile(val: boolean) {
+    super.setIsMobile(val);
     (this.panels || []).forEach(panel => panel.elements.forEach(element => {
       if(element instanceof Question) {
         (element as Question).isMobile = val;
@@ -1533,13 +1534,11 @@ export class QuestionPanelDynamicModel extends Question
     }
     this.isValueChangingInternally = false;
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     for (var i = 0; i < this.panels.length; i++) {
-      this.panels[i].onAnyValueChanged(name);
-      this.panels[i].onAnyValueChanged(
-        QuestionPanelDynamicItem.ItemVariableName
-      );
+      this.panels[i].onAnyValueChanged(name, questionName);
+      this.panels[i].onAnyValueChanged(QuestionPanelDynamicItem.ItemVariableName, "");
     }
   }
   private hasKeysDuplicated(fireCallback: boolean, rec: any = null) {
@@ -1770,7 +1769,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
     };
-    panel.footerToolbarCss = this.cssClasses.panelFooter;
+    panel.onGetFooterToolbarCssCallback = () => { return this.cssClasses.panelFooter; };
     panel.registerPropertyChangedHandlers(["visible"], () => {
       if(panel.visible) this.onPanelAdded(panel);
       else this.onPanelRemoved(panel);

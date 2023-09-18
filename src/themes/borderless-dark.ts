@@ -1,4 +1,7 @@
 const Theme = {
+  "themeName": "borderless",
+  "colorPalette": "dark",
+  "isPanelless": false,
   "cssVariables": {
     "--sjs-general-backcolor": "rgba(43, 48, 63, 1)",
     "--sjs-general-backcolor-dark": "rgba(50, 55, 72, 1)",
@@ -85,8 +88,7 @@ const Theme = {
     "--sjs-article-font-default-lineHeight": "28px",
     "--sjs-article-font-default-paragraphIndent": "0px",
     "--sjs-article-font-default-textCase": "none"
-  },
-  "isPanelless": false
+  }
 };
 export default Theme;
 export const BorderlessDark = Theme;

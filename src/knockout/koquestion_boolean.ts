@@ -21,7 +21,7 @@ export class QuestionBoolean extends QuestionBooleanModel {
   public onKeyDown(data: any, event: any): boolean {
     return this.onKeyDownCore(event);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

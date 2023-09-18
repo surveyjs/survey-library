@@ -1,4 +1,7 @@
 const Theme = {
+  "themeName": "contrast",
+  "colorPalette": "dark",
+  "isPanelless": false,
   "cssVariables": {
     "--sjs-general-backcolor": "rgba(255, 216, 77, 1)",
     "--sjs-general-backcolor-dark": "rgba(255, 255, 255, 1)",
@@ -85,8 +88,7 @@ const Theme = {
     "--sjs-article-font-default-lineHeight": "28px",
     "--sjs-article-font-default-paragraphIndent": "0px",
     "--sjs-article-font-default-textCase": "none"
-  },
-  "isPanelless": false
+  }
 };
 export default Theme;
 export const ContrastDark = Theme;

@@ -18,7 +18,7 @@ export class koMultipleTextEditorModel extends MultipleTextEditorModel {
     super.onBaseCreating();
     this._implementor = new QuestionTextImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();
@@ -73,7 +73,7 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   protected createTextItem(name: string, title: string): MultipleTextItemModel {
     return new MultipleTextItem(name, title);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     this.koRows = undefined;

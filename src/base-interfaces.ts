@@ -19,7 +19,8 @@ export interface ISurveyData {
     name: string,
     newValue: any,
     locNotification: any,
-    allowNotifyValueChanged?: boolean
+    allowNotifyValueChanged?: boolean,
+    questionName?: string
   ): any;
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
@@ -283,7 +284,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;
   removeElement(el: IElement): boolean;
-  onAnyValueChanged(name: string): any;
+  onAnyValueChanged(name: string, questionName: string): void;
   updateCustomWidgets(): any;
   clearIncorrectValues(): any;
   clearErrors(): any;

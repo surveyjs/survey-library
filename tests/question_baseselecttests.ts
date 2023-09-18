@@ -984,6 +984,84 @@ QUnit.test("SelectBase visibleChoices order", function (assert) {
   assert.equal(question.visibleChoices[0].value, "B", "the first item");
   assert.equal(question.visibleChoices[3].value, "C", "the last item");
 });
+QUnit.test("choicesFromQuestion & showNoneItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showNoneItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", showNoneItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  assert.equal(q1.visibleChoices.length, 4, "q1 length");
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q1.visibleChoices[3].value, "none", "q1 none");
+  assert.equal(q2.visibleChoices[3].value, "none", "q2 none");
+});
+QUnit.test("choicesFromQuestion & showOtherItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showOtherItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", showOtherItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [1, 2, "other"];
+  q1.comment = "other comment";
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  assert.equal(q1.visibleChoices.length, 4, "q1 length");
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q1.visibleChoices[3].value, "other", "q1 other");
+  assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
+});
+QUnit.test("choicesFromQuestion & showNoneItem & mode=selected", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showNoneItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected", showNoneItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2, 3];
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q2.visibleChoices[3].value, "none", "q2 none");
+  q1.value = ["none"];
+  assert.equal(q2.visibleChoices.length, 1, "q2 length, #1");
+  assert.equal(q3.visibleChoices.length, 0, "q3 length, #2");
+  assert.equal(q2.visibleChoices[0].value, "none", "q2 none");
+});
+QUnit.test("choicesFromQuestion & showOtherItem & mode=selected", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showOtherItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected", showOtherItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2, 3];
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
+  q1.value = [1, 2, 3, "other"];
+  q1.comment = "other comment";
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 4, "q3 length");
+  assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
+  assert.equal(q3.visibleChoices[3].value, "other", "q3 other");
+});
 QUnit.test("Check isUsingCarryForward on changing question name", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
@@ -1238,4 +1316,62 @@ QUnit.test("Allow to override default value fro choicesByUrl.path Bug#6766", fun
   assert.equal(q1.choicesByUrl.path, "list", "get new default value for path");
   prop.defaultValue = undefined;
 });
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-1", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[0].value, "aaa", "the first value is correct");
+  assert.equal(q2.visibleChoices[1].value, "bbb", "the second value is correct");
+});
 
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-2", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "paneldynamic", name: "q2", valueName: "sharedData",
+      templateElements: [{ name: "q2-q2", type: "checkbox", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }]
+    }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionPanelDynamicModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  const q2_q2 = q2.panels[0].getQuestionByName("q2-q2");
+  assert.equal(q2_q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2_q2.visibleChoices[0].value, "aaa", "the first value is correct");
+  assert.equal(q2_q2.visibleChoices[1].value, "bbb", "the second value is correct");
+});
+QUnit.test("SelectBase visibleChoices order & locale change", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choicesOrder: "asc",
+      choices: [{ value: "A", text: { default: "AA", de: "BAA" } },
+        { value: "B", text: { default: "BB", de: "ABB" } }] }
+  ] });
+  const question = <QuestionSelectBase>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 2, "There are 4 items");
+  assert.equal(question.visibleChoices[0].value, "A", "the first item");
+  assert.equal(question.visibleChoices[1].value, "B", "the second item");
+  survey.locale = "de";
+  assert.equal(question.choicesOrder, "asc", "The order is correct");
+  assert.equal(question.getLocale(), "de", "question locale is correct");
+  assert.equal(question.choices[0].calculatedText, "BAA", "the first item calculatedText, de");
+  assert.equal(question.choices[1].calculatedText, "ABB", "the second item calculatedText, de");
+  assert.equal(question.choices[0].getLocale(), "de", "ItemValue locText locale is correct");
+  assert.equal(question.visibleChoices[0].value, "B", "the first item, de");
+  assert.equal(question.visibleChoices[1].value, "A", "the second item, de");
+  assert.equal(question.visibleChoices[0].calculatedText, "ABB", "the first visible item calculatedText, de");
+  assert.equal(question.visibleChoices[1].calculatedText, "BAA", "the second visible item calculatedText, de");
+});

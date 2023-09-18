@@ -98,11 +98,17 @@ export class Question extends SurveyElement<Question>
     return this.isReadOnly && settings.readOnly.commentRenderMode === "div";
   }
 
-  protected setIsMobile(val: boolean) { }
-
-  @property({ defaultValue: false, onSet: (val: boolean, target: Question) => {
+  protected allowMobileInDesignMode() {
+    return false;
+  }
+  public updateIsMobileFromSurvey() {
+    this.setIsMobile((<SurveyModel>this.survey)._isMobile);
+  }
+  public setIsMobile(val: boolean) {
+    this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+  }
+  @property({ defaultValue: false, onSet: (val, target) => {
     target.renderMinWidth = !val;
-    target.setIsMobile(val);
   } }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
@@ -226,25 +232,6 @@ export class Question extends SurveyElement<Question>
   }
   public get isReady(): boolean {
     return this.isReadyValue;
-  }
-  public get ariaRequired() {
-    return this.isRequired ? "true" : "false";
-  }
-  public get ariaInvalid() {
-    return this.errors.length > 0 ? "true" : "false";
-  }
-  public get ariaLabelledBy(): string {
-    if (this.hasTitle) {
-      return this.ariaTitleId;
-    } else {
-      return null;
-    }
-  }
-  public get ariaExpanded(): string {
-    return null;
-  }
-  public get ariaDescribedBy(): string {
-    return this.errors.length > 0 ? this.id + "_errors" : null;
   }
 
   public choicesLoaded(): void { }
@@ -476,6 +463,7 @@ export class Question extends SurveyElement<Question>
     if(!this.visible) {
       this.updateIsVisibleProp();
     }
+    this.updateIsMobileFromSurvey();
   }
   /**
    * Returns a survey element (panel or page) that contains the question and allows you to move this question to a different survey element.
@@ -952,6 +940,13 @@ export class Question extends SurveyElement<Question>
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
+
+  public getQuestionRootCss() {
+    return new CssClassBuilder()
+      .append(this.cssClasses.root)
+      .append(this.cssClasses.rootMobile, this.isMobile)
+      .toString();
+  }
   public updateElementCss(reNew?: boolean): void {
     super.updateElementCss(reNew);
     if (reNew) {
@@ -1148,9 +1143,6 @@ export class Question extends SurveyElement<Question>
   }
   public get commentId(): string {
     return this.id + "_comment";
-  }
-  public get ariaRole(): string {
-    return "textbox";
   }
   /**
    * Specifies whether to display the "Other" choice item. Incompatible with the `showCommentArea` property.
@@ -2043,7 +2035,8 @@ export class Question extends SurveyElement<Question>
         this.getValueName(),
         newValue,
         this.getDataLocNotification(),
-        this.allowNotifyValueChanged
+        this.allowNotifyValueChanged,
+        this.name
       );
     }
     this.isMouseDown = false;
@@ -2080,7 +2073,7 @@ export class Question extends SurveyElement<Question>
       newValue = this.valueFromDataCallback(newValue);
     }
     if(!this.checkIsValueCorrect(newValue)) return;
-    this.isChangingViaDefaultValue = true;
+    this.isChangingViaDefaultValue = this.isValueEmpty(newValue);
     this.setQuestionValue(this.valueFromData(newValue));
     this.isChangingViaDefaultValue = false;
     this.updateDependedQuestions();
@@ -2148,7 +2141,7 @@ export class Question extends SurveyElement<Question>
     this.errors = [];
   }
   public clearUnusedValues(): void { }
-  onAnyValueChanged(name: string): void { }
+  onAnyValueChanged(name: string, questionName: string): void { }
   checkBindings(valueName: string, value: any): void {
     if (this.bindings.isEmpty() || !this.data) return;
     var props = this.bindings.getPropertiesByValueName(valueName);
@@ -2335,6 +2328,78 @@ export class Question extends SurveyElement<Question>
       this.dependedQuestions[i].resetDependedQuestion();
     }
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return false;
+  }
+  public get ariaLabel(): string {
+    if (this.isNewA11yStructure) return null;
+
+    return this.locTitle.renderedHtml;
+  }
+  public get ariaRole(): string {
+    if (this.isNewA11yStructure) return null;
+
+    return "textbox";
+  }
+  public get ariaRequired() {
+    if (this.isNewA11yStructure) return null;
+
+    return this.isRequired ? "true" : "false";
+  }
+  public get ariaInvalid() {
+    if (this.isNewA11yStructure) return null;
+
+    return this.errors.length > 0 ? "true" : "false";
+  }
+  public get ariaLabelledBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    if (this.hasTitle) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
+  public get ariaExpanded(): string {
+    return null;
+  }
+  public get ariaDescribedBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+  //EO a11y
+
+  //new a11y
+  public get a11y_input_ariaRole(): string {
+    return null;
+  }
+  public get a11y_input_ariaRequired(): "true" | "false" {
+    return this.isRequired ? "true" : "false";
+  }
+  public get a11y_input_ariaInvalid(): "true" | "false" {
+    return this.errors.length > 0 ? "true" : "false";
+  }
+  public get a11y_input_ariaLabel(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return null;
+    } else {
+      return this.locTitle.renderedHtml;
+    }
+  }
+  public get a11y_input_ariaLabelledBy(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaTitleId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaDescribedBy(): string {
+    return this.errors.length > 0 ? this.id + "_errors" : null;
+  }
+  //EO new a11y
 }
 function makeNameValid(str: string): string {
   if(!str) return str;

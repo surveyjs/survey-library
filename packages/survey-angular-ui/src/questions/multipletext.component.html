@@ -1,4 +1,4 @@
-<table [class]="model.cssClasses.root" #contentElement>
+<table [class]="model.getQuestionRootCss()" #contentElement>
   <tbody>
     <ng-container *ngFor="let row of model.getRows(); index as rowIndex; trackBy: trackRowBy">
       <sv-ng-multipletext-row [model]="row" [question]="model"></sv-ng-multipletext-row>

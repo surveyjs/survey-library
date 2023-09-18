@@ -13,7 +13,7 @@ export class QuestionSignaturePad extends QuestionSignaturePadModel {
     super.onBaseCreating();
     this._implementor = new QuestionImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

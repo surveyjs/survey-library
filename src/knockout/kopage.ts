@@ -55,7 +55,7 @@ export class QuestionRow extends QuestionRowModel {
       });
     }
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this.koElementAfterRender = undefined;
   }
@@ -87,7 +87,7 @@ export class Panel extends PanelModel {
   protected onNumChanged(value: number) {
     this.locTitle.strChanged();
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();
@@ -111,7 +111,7 @@ export class Page extends PageModel {
   protected onNumChanged(value: number) {
     this.locTitle.strChanged();
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this._implementor.dispose();
     this._implementor = undefined;

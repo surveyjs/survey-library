@@ -28,7 +28,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       this.question.cssClasses.removeButtonBottom
     ): null;
 
-    let mobileFileNavigator = this.question.mobileFileNavigatorVisible?(<SurveyActionBar model = {this.question.mobileFileNavigator}></SurveyActionBar>):null;
+    let fileNavigator = this.question.fileNavigatorVisible?(<SurveyActionBar model = {this.question.fileNavigator}></SurveyActionBar>):null;
     fileInput = (
       this.isDisplayMode ?
         <input
@@ -77,7 +77,7 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           {clearButton}
           {preview}
           {clearButtonBottom}
-          {mobileFileNavigator}
+          {fileNavigator}
         </div>
       </div>
     );

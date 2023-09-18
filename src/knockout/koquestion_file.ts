@@ -79,7 +79,7 @@ export class QuestionFile extends QuestionFileModel {
     super.onBaseCreating();
     this._implementor = new QuestionFileImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this.onUploadStateChanged.remove(this.updateState);
     this._implementor.dispose();
     this._implementor = undefined;

@@ -3,6 +3,7 @@
 const webpackCommonConfigCreator = require("../webpack.common");
 const { merge } = require("webpack-merge");
 var FixStyleOnlyEntriesPlugin = require("webpack-fix-style-only-entries");
+const DtsGeneratorPlugin = require("../webpack-dts-generator");
 var path = require("path");
 
 const config = {
@@ -50,10 +51,27 @@ const config = {
     "index": path.resolve(__dirname, "../../src/themes/index.ts"),
   },
   plugins: [new FixStyleOnlyEntriesPlugin()],
+  externals: {
+    "survey-core": {
+      root: "Survey",
+      commonjs2: "survey-core",
+      commonjs: "survey-core",
+      amd: "survey-core"
+    }
+  }
 };
 
 module.exports = function (options) {
   options.platform = "";
   options.libraryName = "SurveyTheme";
+  if (options.buildType !== "prod") {
+    config.plugins.push(new DtsGeneratorPlugin({
+      tsConfigPath: "./build-scripts/survey-core/tsconfig.plugins.themes.typing.json",
+      filePath: "build/survey-core/themes/index.d.ts",
+      moduleName: "survey-core/themes",
+      importName: "index"
+    }));
+  }
+
   return merge(webpackCommonConfigCreator(options, { "name": "survey-themes" }, "survey.themes", "survey-core/themes"), config);
 };

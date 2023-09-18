@@ -137,6 +137,7 @@ export class QuestionSelectBase extends Question {
     super.localeChanged();
     if (this.choicesOrder !== "none") {
       this.updateVisibleChoices();
+      this.onVisibleChoicesChanged();
     }
   }
   public locStrsChanged(): void {
@@ -1093,7 +1094,7 @@ export class QuestionSelectBase extends Question {
         res.push(this.copyChoiceItem(choices[i]));
       }
     }
-    if (this.choicesFromQuestionMode === "selected" && question.isOtherSelected && !!question.comment) {
+    if (this.choicesFromQuestionMode === "selected" && !this.showOtherItem && question.isOtherSelected && !!question.comment) {
       res.push(this.createItemValue(question.otherItem.value, question.comment));
     }
     return res;
@@ -1191,12 +1192,13 @@ export class QuestionSelectBase extends Question {
     this.onVisibleChoicesChanged();
     super.onSurveyLoad();
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     if (name != this.getValueName()) {
       this.runChoicesByUrl();
     }
-    if (!!name && name == this.choicesFromQuestion) {
+    const chQuestion = this.choicesFromQuestion;
+    if (!!name && chQuestion && (name === chQuestion || questionName === chQuestion)) {
       this.onVisibleChoicesChanged();
     }
   }
@@ -1659,9 +1661,12 @@ export class QuestionSelectBase extends Question {
   }
   public getSelectBaseRootCss(): string {
     return new CssClassBuilder()
-      .append(this.cssClasses.root)
+      .append(this.getQuestionRootCss())
       .append(this.cssClasses.rootRow, this.rowLayout)
       .toString();
+  }
+  protected allowMobileInDesignMode(): boolean {
+    return true;
   }
 
   public getAriaItemLabel(item: ItemValue) {

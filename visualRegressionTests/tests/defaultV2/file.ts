@@ -127,6 +127,9 @@ frameworks.forEach(framework => {
   });
 });
 frameworks.forEach(framework => {
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+  });
   test("Check file question placeholder mobile", async t => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1000);

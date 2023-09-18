@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Question Screenshot";
 
@@ -16,9 +16,8 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await explicitErrorHandler();
-    await applyTheme(theme);
-  });
+      await applyTheme(theme);
+    });
 
   test("Check question without title", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -149,7 +148,7 @@ frameworks.forEach(framework => {
         ]
       });
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
+      await ClientFunction(() => { (<any>window).survey.showInvisibleElements = true; })();
       await resetFocusToBody();
       await takeElementScreenshot("question-invisible.png", questionRoot, t, comparer);
     });
@@ -171,14 +170,16 @@ frameworks.forEach(framework => {
             title: "Personal information"
           },
         ]
-      }, { onGetQuestionTitleActions: (_, opt) => {
-        opt.titleActions.push(
-          {
-            title: "Reset to Default",
-            action: () => {}
-          }
-        );
-      } });
+      }, {
+        onGetQuestionTitleActions: (_, opt) => {
+          opt.titleActions.push(
+            {
+              title: "Reset to Default",
+              action: () => { }
+            }
+          );
+        }
+      });
       const questionRoot = Selector(".sd-question");
       await takeElementScreenshot("question-title-actions.png", questionRoot, t, comparer);
     });
@@ -324,7 +325,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check question error", async(t)=> {
+  test("Check question error", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
@@ -355,7 +356,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check question error with title location left", async(t)=> {
+  test("Check question error with title location left", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
@@ -377,7 +378,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check question errors bottom", async(t) => {
+  test("Check question errors bottom", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
@@ -401,7 +402,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check title location Left", async(t)=> {
+  test("Check title location Left", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
       await t.resizeWindow(1920, 1080);
@@ -438,7 +439,7 @@ frameworks.forEach(framework => {
               }
             ],
             onCreated(question) {
-            // Hide the title for component/root location
+              // Hide the title for component/root location
               question.titleLocation = "hidden";
             }
           });

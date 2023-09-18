@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, initSurvey, explicitErrorHandler, getQuestionValue, getQuestionJson, applyTheme } from "../helper";
+import { frameworks, url, url_test, initSurvey, getQuestionValue, getQuestionJson, applyTheme } from "../helper";
 import { ClientFunction, Selector, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -212,7 +212,6 @@ frameworks.forEach((framework) => {
       } });
     });
   test("Check actions", async (t) => {
-    await explicitErrorHandler();
     await t
       .expect(Selector(".sv-string-viewer").withText("21").exists).ok()
       .expect(Selector(".sv-string-viewer").withText("Description!").exists).notOk()

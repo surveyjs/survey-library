@@ -1,4 +1,4 @@
-import { url_test, initSurvey, getSurveyResult, frameworks, explicitErrorHandler } from "../helper";
+import { url_test, initSurvey, getSurveyResult, frameworks } from "../helper";
 import { Selector, ClientFunction } from "testcafe";
 const title = "Custom Components";
 const themeName = "defaultV2";
@@ -33,7 +33,6 @@ frameworks.forEach(framework => {
   );
   test("Show rating in component as dropdown", async t => {
     const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
-    await explicitErrorHandler();
     await t.resizeWindow(500, 600);
     await registerNPSComponet();
     await initSurvey(framework, json);

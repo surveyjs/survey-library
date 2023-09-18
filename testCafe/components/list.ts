@@ -2,15 +2,6 @@ import { url, initSurvey, registerCustomToolboxComponent, frameworks } from "../
 import { Selector, ClientFunction } from "testcafe";
 const title = "list";
 
-const explicitErrorHandler = () => {
-  window.addEventListener("error", e => {
-    if (e.message === "ResizeObserver loop completed with undelivered notifications." ||
-      e.message === "ResizeObserver loop limit exceeded") {
-      e.stopImmediatePropagation();
-    }
-  });
-};
-
 const json = {
   elements: [
     {
@@ -46,7 +37,8 @@ function addTitleActions2(_, opt) {
   const item1 = window["Survey"].createDropdownActionModel({
     title: "Open popup",
     showTitle: true,
-    action: () => {} }, { items: items }
+    action: () => { }
+  }, { items: items }
   );
   const item2 = new window["Survey"].Action({
     title: "Set items",
@@ -71,9 +63,6 @@ function getActionByText(text: string) {
 }
 
 frameworks.forEach(async framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: `(${explicitErrorHandler.toString()})()` }).beforeEach(async t => {
-  });
-
   test("check custom markup in list behavior", async t => {
     await registerCustomToolboxComponent(framework);
     await initSurvey(framework, json, { onGetQuestionTitleActions: addTitleAction });
@@ -119,9 +108,6 @@ frameworks.forEach(async framework => {
 
 ["knockout", "react"].forEach(async framework => {
   if (frameworks.indexOf(framework) === -1) return;
-
-  fixture`${framework} ${title}`.page`${url}${framework}`.clientScripts({ content: `(${explicitErrorHandler.toString()})()` }).beforeEach(async t => {
-  });
 
   test("check list filter", async t => {
 

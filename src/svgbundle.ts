@@ -8,10 +8,15 @@ export class SvgIconRegistry {
   icons: SvgIconData = {};
   private iconPrefix = "icon-";
 
+  private processId(iconId: string, iconPrefix: string) {
+    if (iconId.indexOf(iconPrefix) == 0) iconId = iconId.substring(iconPrefix.length);
+    return iconId;
+  }
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {
     this.icons[iconId] = iconSymbolSvg;
   }
   public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix) {
+    iconId = this.processId(iconId, iconPrefix);
     let divSvg = document.createElement("div");
     divSvg.innerHTML = iconSvg;
     let symbol = document.createElement("symbol");
@@ -26,6 +31,7 @@ export class SvgIconRegistry {
     this.registerIconFromSymbol(iconId, symbol.outerHTML);
   }
   public registerIconFromSvg(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix): boolean {
+    iconId = this.processId(iconId, iconPrefix);
     const startStr = "<svg ";
     const endStr = "</svg>";
     iconSvg = iconSvg.trim();

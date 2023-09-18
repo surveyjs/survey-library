@@ -17872,3 +17872,17 @@ QUnit.test("Test propertyValue() function", function (assert) {
     q2: [{ q2_q1_exp: "Q2_Q1" }],
     q3: [{ col1_exp: "Column 1" }] }, "propertyValue works correctly");
 });
+QUnit.test("Error on pre-processing localizable string Bug#6967", function (assert) {
+  const prevVal = surveyLocalization.locales.en.completeText;
+  surveyLocalization.locales.en.completeText = "{q1}";
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1"
+      }]
+  });
+  survey.data = { q1: 2 };
+  assert.equal(survey.locCompleteText.renderedHtml, "2", "Preprocess correctly");
+  surveyLocalization.locales.en.completeText = prevVal;
+});

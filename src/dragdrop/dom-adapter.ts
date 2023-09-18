@@ -82,8 +82,6 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.startX = event.pageX;
     this.startY = event.pageY;
     document.body.style.setProperty("touch-action", "none", "important");
-    document.body.style.setProperty("user-select", "none", "important");
-    document.body.style.setProperty("-webkit-user-select", "none", "important");
     document.body.style.setProperty("-webkit-touch-callout", "none", "important");
 
     this.timeoutID = setTimeout(() => {
@@ -323,6 +321,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   public rootContainer: HTMLElement;
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
+    document.body.style.setProperty("user-select", "none", "important");
+    document.body.style.setProperty("-webkit-user-select", "none", "important");
     if (IsTouch) {
       this.startLongTapProcessing(
         event,

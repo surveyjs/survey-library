@@ -23,12 +23,12 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-      await applyTheme(theme);
-      await initSurvey(framework, json);
-      await ClientFunction(() => {
-        document.body.focus();
-      })();
-    });
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+    await ClientFunction(() => {
+      document.body.focus();
+    })();
+  });
   test("Check brand info banner", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

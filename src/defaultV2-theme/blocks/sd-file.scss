@@ -110,6 +110,10 @@
 
 .sd-file__actions-container {
   margin-top: calcSize(0.5);
+
+  .sv-action--hidden {
+    display: none;
+  }
 }
 
 .sd-file--answered .sd-file__actions-container {
@@ -329,6 +333,7 @@
 .sd-file__loading-indicator {
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
   position: absolute;
   border: 1px dashed $border;
   left: 0;

@@ -1388,6 +1388,7 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   assert.equal(q2.renderedPlaceholder.substring(0, 4), "Drag", "q2, not readOnly=> drag");
 });
 QUnit.test("QuestionFile current mode property, camera is not available", function(assert) {
+  StylesManager.applyTheme("defaultV2");
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Camera.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
     callbacks.push(cb);
@@ -1417,6 +1418,7 @@ QUnit.test("QuestionFile current mode property, camera is not available", functi
   callbacks.forEach(cb => cb([]));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#6");
   Camera.mediaDevicesCallback = undefined;
+  StylesManager.applyTheme("default");
 });
 function createDevices(info: Array<any>): Array<MediaDeviceInfo> {
   const res = new Array<MediaDeviceInfo>();
@@ -1428,6 +1430,7 @@ function createDevices(info: Array<any>): Array<MediaDeviceInfo> {
   return res;
 }
 QUnit.test("QuestionFile current mode property, camera is available", function(assert) {
+  StylesManager.applyTheme("defaultV2");
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Camera.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
     callbacks.push(cb);
@@ -1459,6 +1462,7 @@ QUnit.test("QuestionFile current mode property, camera is available", function(a
   callbacks.forEach(cb => cb(devices));
   assert.equal(survey.getQuestionByName("q1").currentMode, "camera", "#6");
   Camera.mediaDevicesCallback = undefined;
+  StylesManager.applyTheme("default");
 });
 QUnit.test("new Camera().getMediaConstraints", function(assert) {
   Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
@@ -1548,4 +1552,69 @@ QUnit.test("QuestionFile stop playing video on going to another page or complete
   assert.equal(q1.isPlayingVideo, true);
   survey.doComplete();
   assert.equal(q1.isPlayingVideo, false, "complete survey");
+});
+
+QUnit.test("QuestionFile check actions container", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "file", name: "q1", mode: "file" }] }
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  q1.chooseButtonCaption = "choose_test";
+  q1.takePictureCaption = "take_picture_test";
+  q1.clearButtonCaption = "clear_test";
+  survey.css = defaultV2Css;
+  assert.ok(q1.actionsContainerVisible);
+  q1.readOnly = true;
+  assert.notOk(q1.actionsContainerVisible);
+  q1.readOnly = false;
+  q1.isUploading = true;
+  assert.notOk(q1.actionsContainerVisible);
+  q1.isUploading = false;
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.notOk(q1.actionsContainerVisible);
+  q1.setPropertyValue("isPlayingVideo", false);
+  assert.ok(q1.actionsContainerVisible);
+  const chooseFileAction = q1.actionsContainer.getActionById("sv-file-choose-file");
+  const startCameraAction = q1.actionsContainer.getActionById("sv-file-start-camera");
+  const cleanAction = q1.actionsContainer.getActionById("sv-file-clean");
+  assert.equal(startCameraAction.title, "take_picture_test");
+  assert.equal(cleanAction.title, "clear_test");
+  assert.ok(chooseFileAction.visible);
+  assert.notOk(startCameraAction.visible);
+  assert.notOk(cleanAction.visible);
+  assert.ok(startCameraAction.showTitle);
+  q1.setPropertyValue("currentMode", "camera");
+  assert.notOk(chooseFileAction.visible);
+  assert.ok(startCameraAction.visible);
+  assert.notOk(cleanAction.visible);
+  q1.setPropertyValue("currentMode", "both");
+  assert.ok(chooseFileAction.visible);
+  assert.ok(startCameraAction.visible);
+  assert.notOk(cleanAction.visible);
+  q1.setPropertyValue("isAnswered", true);
+  assert.ok(chooseFileAction.visible);
+  assert.ok(startCameraAction.visible);
+  assert.ok(cleanAction.visible);
+  assert.notOk(startCameraAction.showTitle);
+});
+
+QUnit.test("QuestionFile check video actions", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "file", name: "q1", mode: "camera" }] }
+    ]
+  });
+  Camera.setCameraList(createDevices([{ label: "dfdf" }]));
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  assert.ok(q1.takePictureAction.visible);
+  assert.ok(q1.closeCameraAction.visible);
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.notOk(q1.changeCameraAction.visible);
+  q1.setPropertyValue("isPlayingVideo", false);
+
+  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "afaf" }]));
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.ok(q1.changeCameraAction.visible);
 });

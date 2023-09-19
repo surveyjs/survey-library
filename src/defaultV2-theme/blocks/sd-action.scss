@@ -1,6 +1,8 @@
 .sd-action {
   appearance: none;
   border: none;
+  display: flex;
+  gap: calcSize(1);
   background: transparent;
   padding: calcSize(1) calcSize(3);
   color: $primary;
@@ -21,7 +23,19 @@
   padding: calcSize(1);
 }
 
+.sd-action__icon {
+  margin-left: calcSize(-1);
+
+  use {
+    fill: $primary;
+  }
+}
+
 .sd-action--icon {
+  .sd-action__icon {
+    margin-left: 0;
+  }
+
   use {
     fill: $foreground-light;
   }
@@ -53,11 +67,7 @@ svg.sd-action--icon {
   &.sd-action--negative {
     background-color: $red-light;
 
-    &.sd-action--icon {
-      use {
-        fill: $red;
-      }
-    }
+    &.sd-action--icon {}
   }
 
   &:active {

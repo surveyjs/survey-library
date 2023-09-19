@@ -287,6 +287,7 @@ export abstract class BaseAction extends Base implements IAction {
   public getActionBarItemCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
+      .append(this.cssClasses.itemWithTitle, this.hasTitle)
       .append(this.cssClasses.itemAsIcon, !this.hasTitle)
       .append(this.cssClasses.itemActive, !!this.active)
       .append(this.cssClasses.itemPressed, !!this.pressed)

@@ -610,12 +610,12 @@ registerMarkupTests(
           type: "file",
           title: "Question title",
           titleLocation: "hidden",
-          mode: "both"
         }
       ]
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
       survey.getAllQuestions()[0].setPropertyValue("currentMode", "both");
     },
     after: () => StylesManager.applyTheme("default"),
@@ -630,12 +630,12 @@ registerMarkupTests(
           type: "file",
           title: "Question title",
           titleLocation: "hidden",
-          mode: "camera"
         }
       ]
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
       survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
     },
     after: () => StylesManager.applyTheme("default"),
@@ -650,13 +650,14 @@ registerMarkupTests(
           type: "file",
           title: "Question title",
           titleLocation: "hidden",
-          mode: "camera"
         }
       ]
     },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
     initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
       survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", true);
     },
     snapshot: "file-playing-video",

@@ -112,6 +112,7 @@ export class QuestionFileModel extends Question {
     });
     this.takePictureAction = new Action({
       iconName: "icon-takepicture",
+      id: "sv-file-take-picture",
       iconSize: "auto",
       innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.takePictureButton).toString()) as any),
       title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
@@ -122,6 +123,7 @@ export class QuestionFileModel extends Question {
     });
     this.closeCameraAction = new Action({
       iconName: "icon-closecamera",
+      id: "sv-file-close-camera",
       iconSize: "auto",
       innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.closeCameraButton).toString()) as any),
       action: () => {
@@ -130,6 +132,7 @@ export class QuestionFileModel extends Question {
     });
     this.changeCameraAction = new Action({
       iconName: "icon-changecamera",
+      id: "sv-file-change-camera",
       iconSize: "auto",
       innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.changeCameraButton).toString()) as any),
       visible: <boolean>(new ComputedUpdater<boolean>(() => this.canFlipCamera()) as any),
@@ -181,7 +184,9 @@ export class QuestionFileModel extends Question {
   public startVideo(): void {
     if(this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
     this.setIsPlayingVideo(true);
-    this.startVideoInCamera();
+    setTimeout(() => {
+      this.startVideoInCamera();
+    }, 0);
   }
   private startVideoInCamera(): void {
     new Camera().startVideo(this.videoId, (stream: MediaStream) => {

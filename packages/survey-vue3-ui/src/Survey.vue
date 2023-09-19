@@ -71,6 +71,12 @@
             v-html="getProcessedCompletedHtml()"
             :class="vueSurvey.completedCss"
           ></div>
+          <component
+            :is="'sv-components-container'"
+            :survey="vueSurvey"
+            :container="'completePage'"
+            :needRenderWrapper="true"
+          ></component>
         </div>
         <div
           v-if="vueSurvey.state === 'completedbefore'"

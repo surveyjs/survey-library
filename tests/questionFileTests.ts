@@ -663,7 +663,7 @@ QUnit.test("Check choose button text", function(assert) {
   var survey = new SurveyModel(json);
   var q: QuestionFileModel = <any>survey.getQuestionByName("file1");
 
-  assert.equal(q.chooseButtonText, "Choose file");
+  assert.equal(q.chooseButtonText, "Select File");
   q.value = [{
     content: "https://api.surveyjs.io/public/v1/Survey/file?filePath=dcc81e2a-586f-45dd-b734-ee86bcbad8db.png",
     name: "name.png",
@@ -672,9 +672,9 @@ QUnit.test("Check choose button text", function(assert) {
   assert.equal(q.chooseButtonText, "Replace file");
 
   q.allowMultiple = true;
-  assert.equal(q.chooseButtonText, "Choose file");
+  assert.equal(q.chooseButtonText, "Select File");
   q.value = undefined;
-  assert.equal(q.chooseButtonText, "Choose file");
+  assert.equal(q.chooseButtonText, "Select File");
 });
 
 QUnit.test("check file d&d", (assert) => {
@@ -1387,6 +1387,7 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   assert.equal(q1.renderedPlaceholder.substring(0, 2), "No", "q1, readOnly => no file");
   assert.equal(q2.renderedPlaceholder.substring(0, 4), "Drag", "q2, not readOnly=> drag");
 });
+
 QUnit.test("QuestionFile current mode property, camera is not available", function(assert) {
   StylesManager.applyTheme("defaultV2");
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
@@ -1562,7 +1563,7 @@ QUnit.test("QuestionFile check actions container", function(assert) {
   });
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
   q1.chooseButtonCaption = "choose_test";
-  q1.takePictureCaption = "take_picture_test";
+  q1.takePhotoCaption = "take_picture_test";
   q1.clearButtonCaption = "clear_test";
   survey.css = defaultV2Css;
   assert.ok(q1.actionsContainerVisible);
@@ -1617,4 +1618,22 @@ QUnit.test("QuestionFile check video actions", function(assert) {
   Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "afaf" }]));
   q1.setPropertyValue("isPlayingVideo", true);
   assert.ok(q1.changeCameraAction.visible);
+});
+
+QUnit.test("QuestionFile check renderedPlaceholder in different modes", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1" },
+    ]
+  });
+
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  q1.dragAreaPlaceholder = "file_mod_placeholder";
+  q1.cameraPlaceholder = "camera_mod_placeholder";
+  q1.fileCameraDragAreaPlaceholder = "both_mod_placeholder";
+  assert.equal(q1.renderedPlaceholder, "file_mod_placeholder");
+  q1.setPropertyValue("currentMode", "camera");
+  assert.equal(q1.renderedPlaceholder, "camera_mod_placeholder");
+  q1.setPropertyValue("currentMode", "both");
+  assert.equal(q1.renderedPlaceholder, "both_mod_placeholder");
 });

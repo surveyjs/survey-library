@@ -114,7 +114,7 @@ export class QuestionFileModel extends Question {
       iconName: "icon-takepicture",
       iconSize: "auto",
       innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.takePictureButton).toString()) as any),
-      title: <string>(new ComputedUpdater<string>(() => this.takePictureCaption) as any),
+      title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
       showTitle: false,
       action: () => {
         this.snapPicture();
@@ -149,7 +149,7 @@ export class QuestionFileModel extends Question {
       iconName: "icon-takepicture_24x24",
       id: "sv-file-start-camera",
       iconSize: "auto",
-      title: <string>(new ComputedUpdater<string>(() => this.takePictureCaption) as any),
+      title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
       visible: <boolean>(new ComputedUpdater<boolean>(() => this.hasVideoUI) as any),
       showTitle: <boolean>(new ComputedUpdater<boolean>(() => !this.isAnswered) as any),
       action: () => {
@@ -389,12 +389,14 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  @property({ localizable: { defaultStr: "takePictureCaption" } }) takePictureCaption: string;
+  @property({ localizable: { defaultStr: "takePhotoCaption" } }) takePhotoCaption: string;
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
   @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
+  @property({ localizable: { defaultStr: "fileCameraDragAreaPlaceHolder" } }) fileCameraDragAreaPlaceholder: string;
+  @property({ localizable: { defaultStr: "cameraPlaceHolder" } }) cameraPlaceholder: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
 
   @property() renderedPlaceholderValue: string;
@@ -402,10 +404,26 @@ export class QuestionFileModel extends Question {
     if(this.renderedPlaceholderValue === undefined) {
       this.renderedPlaceholderValue = <string><unknown>(new ComputedUpdater<string>(() => {
         const dragAreaText = this.dragAreaPlaceholder;
+        const fileCameraDragAreaPlaceHolder = this.fileCameraDragAreaPlaceholder;
+        const cameraPlaceHolder = this.cameraPlaceholder;
         const readOnlyText = this.noFileChosenCaption;
         const isReadOnly = this.isReadOnly;
         const hasFileUI = this.hasFileUI;
-        return isReadOnly ? readOnlyText : hasFileUI ? dragAreaText : "";
+        const hasVideoUI = this.hasVideoUI;
+        let renderedPlaceholder = "";
+        if(isReadOnly) {
+          renderedPlaceholder = readOnlyText;
+        }
+        else if(hasFileUI) {
+          if(hasVideoUI) {
+            renderedPlaceholder = fileCameraDragAreaPlaceHolder;
+          } else {
+            renderedPlaceholder = dragAreaText;
+          }
+        } else {
+          renderedPlaceholder = cameraPlaceHolder;
+        }
+        return renderedPlaceholder;
       }));
     }
     return this.renderedPlaceholderValue;

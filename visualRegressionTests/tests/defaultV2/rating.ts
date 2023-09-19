@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, explicitErrorHandler, resetFocusToBody, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, resetFocusToBody, wrapVisualTest } from "../../helper";
 
 const title = "Rating Screenshot";
 
@@ -16,13 +16,12 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await explicitErrorHandler();
     await applyTheme(theme);
   });
   test("Check rating question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      const focusBody = ClientFunction(()=>{ document.body.focus(); });
+      const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
         questions: [
@@ -43,7 +42,7 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await focusBody();
       await takeElementScreenshot("question-rating.png", questionRoot, t, comparer);
-      await ClientFunction(()=> { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); })();
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); })();
       await takeElementScreenshot("question-rating-focus.png", questionRoot, t, comparer);
       await t.click(".sd-rating__item");
       await takeElementScreenshot("question-rating-focus-selected.png", questionRoot, t, comparer);
@@ -55,7 +54,7 @@ frameworks.forEach(framework => {
   test("Check rating disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      const focusBody = ClientFunction(()=>{ document.body.focus(); });
+      const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
         questions: [

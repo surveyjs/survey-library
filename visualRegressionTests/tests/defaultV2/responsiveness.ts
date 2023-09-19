@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { imageSource } from "../../constants";
-import { url, takeElementScreenshot, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, resetHoverToBody } from "../../helper";
+import { url, takeElementScreenshot, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, resetHoverToBody } from "../../helper";
 
 const title = "Responsiveness Screenshot";
 
@@ -17,7 +17,6 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await explicitErrorHandler();
     await applyTheme(theme);
   });
   test("Check simple question in small screen", async (t) => {
@@ -402,7 +401,8 @@ frameworks.forEach(framework => {
       await initSurvey(framework, {
         showQuestionNumbers: "off",
         questions: [
-          { type: "multipletext",
+          {
+            type: "multipletext",
             name: "q1",
             title: "Personal Information",
             colCount: 2,
@@ -493,7 +493,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-ranking-hover-item.png", Selector(".sd-question"), t, comparer);
     });
   });
-  test("check survey layout in mobile mode", async(t) => {
+  test("check survey layout in mobile mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework,

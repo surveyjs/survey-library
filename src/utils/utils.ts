@@ -1,4 +1,6 @@
+import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
+import { IDialogOptions } from "../popup";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -15,10 +17,42 @@ function compareVersions(a: any, b: any) {
   return segmentsA.length - segmentsB.length;
 }
 function confirmAction(message: string): boolean {
-  if (!!settings && !!settings.confirmActionFunc)
-    return settings.confirmActionFunc(message);
-  return confirm(message);
+  showConfirmDialog(()=>{}, ()=>{});
+  return;
+  // if (!!settings && !!settings.confirmActionFunc)
+  //   return settings.confirmActionFunc(message);
+  // return confirm(message);
 }
+
+function showConfirmDialog(onLeaving: () => void, onStaying: () => void): boolean {
+  if (!settings.showDialog) return false;
+  const locStr = new LocalizableString(undefined);
+  //locStr.text = getLocString("ed.lg.uncompletedRule_text");
+  const popupModel = settings.showDialog(<IDialogOptions>{
+    componentName: "sv-string-viewer",
+    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+    onApply: () => {
+      onLeaving();
+      return true;
+    },
+    onCancel: () => {
+      onStaying();
+      return true;
+    },
+    //title: getLocString("ed.lg.uncompletedRule_title"),
+    title: "aa",
+    displayMode: "popup"
+  }, /*this.options.rootElement*/document.body);
+  // const toolbar = popupModel.footerToolbar;
+  // const applyBtn = toolbar.getActionById("apply");
+  // const cancelBtn = toolbar.getActionById("cancel");
+  // cancelBtn.title = this.getLocString("ed.lg.uncompletedRule_cancel");
+  // applyBtn.title = this.getLocString("ed.lg.uncompletedRule_apply");
+  // applyBtn.innerCss += " svc-logic-tab__leave-apply-button";
+  // popupModel.width = "800px";
+  return true;
+}
+
 function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
   const callbackFunc = (res: boolean): void => {
     if(res) funcOnYes();

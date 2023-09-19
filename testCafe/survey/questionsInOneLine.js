@@ -120,6 +120,11 @@ frameworks.forEach((framework) => {
 
     assert(await isInputAboveHeader());
     await changeTitleLocation("left");
+    const newTitle = "Change title to ensure question re-rendered";
+    await ClientFunction((newTitle) => {
+      window["survey"].getQuestionByName("city").title = newTitle;
+    })(newTitle);
+    await t.expect(Selector("span").withText(newTitle).visible).ok();
 
     assert(await isHeaderToTheLeftOfInput());
   });

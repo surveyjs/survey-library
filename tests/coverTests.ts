@@ -1,206 +1,56 @@
-import { Cover } from "../src/cover";
+import { Cover, CoverCell } from "../src/cover";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("cover");
 
-QUnit.test("logoStyle",
+const surveyWithLogoTitkleAndDescription = new SurveyModel({
+  title: "Survey New Design Test",
+  description: "Survey Description",
+  logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+  logoPosition: "right",
+  questions: [
+    {
+      name: "signature",
+      type: "signaturepad",
+      title: "Sign here",
+      isRequired: true
+    }
+  ]
+});
+
+QUnit.test("cell calculations",
   function (assert) {
     const cover = new Cover();
 
-    assert.deepEqual({
-      gridColumn: 3,
-      gridRow: 1,
-      justifyContent: "flex-end",
-      alignItems: "flex-start",
-    }, cover.logoStyle, "default logoStyle");
-
-    cover.logoPositionX = "left";
-    assert.deepEqual({
+    assert.deepEqual(cover.cells[0].style, {
       gridColumn: 1,
       gridRow: 1,
+    }, "top left");
+    assert.deepEqual(cover.cells[0].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "flex-start",
-    }, cover.logoStyle, "logoStyle left");
-
-    cover.logoPositionX = "center";
-    assert.deepEqual({
+      textAlign: "start"
+    }, "top left");
+    assert.deepEqual(cover.cells[1].style, {
       gridColumn: 2,
       gridRow: 1,
-      justifyContent: "center",
-      alignItems: "flex-start",
-    }, cover.logoStyle, "logoStyle center");
-
-    cover.logoPositionY = "middle";
-    assert.deepEqual({
-      gridColumn: 2,
-      gridRow: 2,
-      justifyContent: "center",
-      alignItems: "center",
-    }, cover.logoStyle, "logoStyle middle");
-
-    cover.logoPositionY = "bottom";
-    assert.deepEqual({
-      gridColumn: 2,
-      gridRow: 3,
-      justifyContent: "center",
-      alignItems: "flex-end",
-    }, cover.logoStyle, "logoStyle bottom");
-  }
-);
-
-QUnit.test("titleStyle",
-  function (assert) {
-    const cover = new Cover();
-
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 1,
-      gridRow: 3,
+    }, "top center");
+    assert.deepEqual(cover.cells[1].contentStyle, {
       justifyContent: "flex-start",
-      alignItems: "flex-end",
-    }, cover.titleStyle, "default titleStyle");
-
-    cover.titlePositionX = "right";
-    assert.deepEqual({
-      maxWidth: "512px",
+      alignItems: "center",
+      textAlign: "center"
+    }, "top center");
+    assert.deepEqual(cover.cells[2].style, {
       gridColumn: 3,
-      gridRow: 3,
-      justifyContent: "flex-end",
-      alignItems: "flex-end",
-    }, cover.titleStyle, "titleStyle right");
-
-    cover.titlePositionX = "center";
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 2,
-      gridRow: 3,
-      justifyContent: "center",
-      alignItems: "flex-end",
-    }, cover.titleStyle, "titleStyle center");
-
-    cover.titlePositionY = "top";
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 2,
       gridRow: 1,
-      justifyContent: "center",
-      alignItems: "flex-start",
-    }, cover.titleStyle, "titleStyle top");
-
-    cover.titlePositionY = "middle";
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 2,
-      gridRow: 2,
-      justifyContent: "center",
-      alignItems: "center",
-    }, cover.titleStyle, "titleStyle middle");
-  }
-);
-
-QUnit.test("descriptionPositionX",
-  function (assert) {
-    const cover = new Cover();
-
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 1,
-      gridRow: 4,
+    }, "top right");
+    assert.deepEqual(cover.cells[2].contentStyle, {
       justifyContent: "flex-start",
       alignItems: "flex-end",
-    }, cover.descriptionStyle, "default descriptionStyle");
-
-    cover.descriptionPositionX = "right";
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 3,
-      gridRow: 3,
-      justifyContent: "flex-end",
-      alignItems: "flex-end",
-    }, cover.descriptionStyle, "descriptionStyle right");
-
-    cover.descriptionPositionX = "center";
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 2,
-      gridRow: 3,
-      justifyContent: "center",
-      alignItems: "flex-end",
-    }, cover.descriptionStyle, "descriptionStyle center");
-
-    cover.descriptionPositionY = "top";
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 2,
-      gridRow: 1,
-      justifyContent: "center",
-      alignItems: "flex-start",
-    }, cover.descriptionStyle, "descriptionStyle top");
-
-    cover.descriptionPositionY = "middle";
-    assert.deepEqual({
-      maxWidth: "512px",
-      gridColumn: 2,
-      gridRow: 2,
-      justifyContent: "center",
-      alignItems: "center",
-    }, cover.descriptionStyle, "descriptionStyle middle");
+      textAlign: "end"
+    }, "top right");
   }
 );
-
-QUnit.test("update grid row: all elements center+middle", function (assert) {
-  const cover = new Cover();
-
-  cover.logoPositionX = "center";
-  cover.logoPositionY = "middle";
-  cover.titlePositionX = "center";
-  cover.titlePositionY = "middle";
-  cover.descriptionPositionX = "center";
-  cover.descriptionPositionY = "middle";
-
-  assert.equal(cover.logoStyle.gridRow, 2, "logoStyle.gridRow");
-  assert.equal(cover.logoStyle.gridColumn, 2, "logoStyle.gridColumn");
-  assert.equal(cover.titleStyle.gridRow, 3, "titleStyle.gridRow");
-  assert.equal(cover.titleStyle.gridColumn, 2, "titleStyle.gridColumn");
-  assert.equal(cover.descriptionStyle.gridRow, 4, "descriptionStyle.gridRow");
-  assert.equal(cover.descriptionStyle.gridColumn, 2, "descriptionStyle.gridColumn");
-});
-
-QUnit.test("update grid row: 2 elements into one cell", function (assert) {
-  const cover = new Cover();
-
-  cover.logoPositionX = "right";
-  cover.logoPositionY = "top";
-  cover.titlePositionX = "right";
-  cover.titlePositionY = "top";
-  cover.descriptionPositionX = "center";
-  cover.descriptionPositionY = "middle";
-
-  assert.equal(cover.logoStyle.gridRow, 1, "logoStyle.gridRow");
-  assert.equal(cover.logoStyle.gridColumn, 3, "logoStyle.gridColumn");
-  assert.equal(cover.titleStyle.gridRow, 2, "titleStyle.gridRow");
-  assert.equal(cover.titleStyle.gridColumn, 3, "titleStyle.gridColumn");
-  assert.equal(cover.descriptionStyle.gridRow, 3, "descriptionStyle.gridRow");
-  assert.equal(cover.descriptionStyle.gridColumn, 2, "descriptionStyle.gridColumn");
-});
-
-QUnit.test("update grid row: 2 elements into one row and different columns", function (assert) {
-  const cover = new Cover();
-
-  cover.logoPositionX = "right";
-  cover.logoPositionY = "top";
-  cover.titlePositionX = "left";
-  cover.titlePositionY = "top";
-  cover.descriptionPositionX = "center";
-  cover.descriptionPositionY = "middle";
-
-  assert.equal(cover.logoStyle.gridRow, 1, "logoStyle.gridRow");
-  assert.equal(cover.logoStyle.gridColumn, 3, "logoStyle.gridColumn");
-  assert.equal(cover.titleStyle.gridRow, 1, "titleStyle.gridRow");
-  assert.equal(cover.titleStyle.gridColumn, 1, "titleStyle.gridColumn");
-  assert.equal(cover.descriptionStyle.gridRow, 2, "descriptionStyle.gridRow");
-  assert.equal(cover.descriptionStyle.gridColumn, 2, "descriptionStyle.gridColumn");
-});
 
 QUnit.test("contentClasses",
   function (assert) {
@@ -246,5 +96,112 @@ QUnit.test("backgroundImageStyle",
       backgroundImage: "url(some_url)",
       backgroundSize: "contain",
     }, "backgroundImageFit is contain");
+  }
+);
+
+QUnit.test("grid cells - defaults", function (assert) {
+  const cover = new Cover();
+  cover.survey = surveyWithLogoTitkleAndDescription;
+
+  cover.cells.forEach(cell => {
+    assert.equal(cell.showLogo, cell["positionX"] === "right" && cell["positionY"] === "top", "logo in top right");
+    assert.equal(cell.showTitle, cell["positionX"] === "left" && cell["positionY"] === "bottom", "title in bottom left");
+    assert.equal(cell.showDescription, cell["positionX"] === "left" && cell["positionY"] === "bottom", "description in bottom left");
+  });
+
+  assert.equal(cover.cells[2].css, "sv-cover__cell sv-cover__cell--right sv-cover__cell--top", "top right cell css");
+  assert.deepEqual(cover.cells[2].style, {
+    "gridColumn": 3,
+    "gridRow": 1
+  }, "top right cell style");
+  assert.deepEqual(cover.cells[2].contentStyle, {
+    "alignItems": "flex-end",
+    "justifyContent": "flex-start",
+    "textAlign": "end"
+  }, "top right cell content style");
+
+  assert.equal(cover.cells[6].css, "sv-cover__cell sv-cover__cell--left sv-cover__cell--bottom", "bottom left cell css");
+  assert.deepEqual(cover.cells[6].style, {
+    "gridColumn": 1,
+    "gridRow": 3
+  }, "bottom left cell style");
+  assert.deepEqual(cover.cells[6].contentStyle, {
+    "alignItems": "flex-start",
+    "justifyContent": "flex-end",
+    "textAlign": "start"
+  }, "bottom left cell content style");
+});
+
+QUnit.test("grid cells - all elements center+middle", function (assert) {
+  const cover = new Cover();
+  cover.survey = surveyWithLogoTitkleAndDescription;
+
+  cover.logoPositionX = "center";
+  cover.logoPositionY = "middle";
+  cover.titlePositionX = "center";
+  cover.titlePositionY = "middle";
+  cover.descriptionPositionX = "center";
+  cover.descriptionPositionY = "middle";
+
+  cover.cells.forEach((cell, index) => {
+    assert.equal(cell.showLogo, index === 4, "logo in middle center");
+    assert.equal(cell.showTitle, index === 4, "title in middle center");
+    assert.equal(cell.showDescription, index === 4, "description in middle center");
+  });
+
+  assert.equal(cover.cells[4].css, "sv-cover__cell sv-cover__cell--center sv-cover__cell--middle", "middle center cell css");
+  assert.deepEqual(cover.cells[4].style, {
+    "gridColumn": 2,
+    "gridRow": 2
+  }, "middle center cell style");
+  assert.deepEqual(cover.cells[4].contentStyle, {
+    "alignItems": "center",
+    "justifyContent": "center",
+    "textAlign": "center"
+  }, "middle center cell content style");
+});
+
+QUnit.test("grid cells - empty survey", function (assert) {
+  const cover = new Cover();
+  cover.survey = new SurveyModel({});
+
+  cover.cells.forEach((cell, index) => {
+    assert.equal(cell.showLogo, false, "no logo");
+    assert.equal(cell.showTitle, false, "no title");
+    assert.equal(cell.showDescription, false, "no description");
+  });
+
+  cover.survey.title = "title";
+  cover.cells.forEach((cell, index) => {
+    assert.equal(cell.showLogo, false, "no logo");
+    assert.equal(cell.showTitle, index === 6, "title only");
+    assert.equal(cell.showDescription, false, "no description");
+  });
+
+  cover.survey.description = "description";
+  cover.cells.forEach((cell, index) => {
+    assert.equal(cell.showLogo, false, "no logo");
+    assert.equal(cell.showTitle, index === 6, "title and description");
+    assert.equal(cell.showDescription, index === 6, "title and description");
+  });
+
+  cover.survey.logo = "logoURL";
+  cover.cells.forEach((cell, index) => {
+    assert.equal(cell.showLogo, index === 2, "logo, title and description");
+    assert.equal(cell.showTitle, index === 6, "logo, title and description");
+    assert.equal(cell.showDescription, index === 6, "logo, title and description");
+  });
+});
+
+QUnit.test("cell calculations - test width",
+  function (assert) {
+    const cover = new Cover();
+
+    assert.equal(cover.cells[0].textWidth, "512px", "default");
+    assert.equal(cover.cells[0].textWidth, cover.textWidth + "px", "equal to cover + px");
+
+    cover.textWidth = 120;
+    assert.equal(cover.textWidth, 120, "cover text width");
+    assert.equal(cover.cells[0].textWidth, "120px", "cell text width");
   }
 );

@@ -5,81 +5,87 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { wrapUrlForBackgroundImage } from "./utils/utils";
 
-export class Cover extends Base {
+export class CoverCell {
+  static CLASSNAME = "sv-cover__cell";
   private calcRow(positionY: VerticalAlignment): any {
     return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
   private calcColumn(positionX: HorizontalAlignment): any {
     return positionX === "left" ? 1 : (positionX === "center" ? 2 : 3);
   }
-  private calcBackgroundSize(backgroundImageFit: "cover" | "fill" | "contain" | "tile") : string {
-    if(backgroundImageFit === "fill") {
+  private calcAlignItems(positionX: HorizontalAlignment) {
+    return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
+  }
+  private calcAlignText(positionX: HorizontalAlignment) {
+    return positionX === "left" ? "start" : (positionX === "center" ? "center" : "end");
+  }
+  private calcJustifyContent(positionY: VerticalAlignment) {
+    return positionY === "top" ? "flex-start" : (positionY === "middle" ? "center" : "flex-end");
+  }
+
+  constructor(private cover: Cover, private positionX: HorizontalAlignment, private positionY: VerticalAlignment) {
+  }
+  get survey(): SurveyModel {
+    return this.cover.survey;
+  }
+  get css(): string {
+    const result = `${CoverCell.CLASSNAME} ${CoverCell.CLASSNAME}--${this.positionX} ${CoverCell.CLASSNAME}--${this.positionY}`;
+    return result;
+  }
+  get style(): any {
+    const result: any = {};
+    result["gridColumn"] = this.calcColumn(this.positionX);
+    result["gridRow"] = this.calcRow(this.positionY);
+    return result;
+  }
+  get contentStyle(): any {
+    const result: any = {};
+    result["textAlign"] = this.calcAlignText(this.positionX);
+    result["alignItems"] = this.calcAlignItems(this.positionX);
+    result["justifyContent"] = this.calcJustifyContent(this.positionY);
+    return result;
+  }
+  get showLogo(): boolean {
+    return this.survey.hasLogo && this.positionX === this.cover.logoPositionX && this.positionY === this.cover.logoPositionY;
+  }
+  get showTitle(): boolean {
+    return this.survey.hasTitle && this.positionX === this.cover.titlePositionX && this.positionY === this.cover.titlePositionY;
+  }
+  get showDescription(): boolean {
+    return this.survey.renderedHasDescription && this.positionX === this.cover.descriptionPositionX && this.positionY === this.cover.descriptionPositionY;
+  }
+  get textWidth(): string {
+    if (!this.cover.textWidth) {
+      return "";
+    }
+    return "" + this.cover.textWidth + "px";
+  }
+}
+
+export class Cover extends Base {
+  private calcBackgroundSize(backgroundImageFit: "cover" | "fill" | "contain" | "tile"): string {
+    if (backgroundImageFit === "fill") {
       return "100% 100%";
     }
-    if(backgroundImageFit === "tile") {
+    if (backgroundImageFit === "tile") {
       return "contain";
     }
     return backgroundImageFit;
-  }
-  private calcJustifyContent(positionX: HorizontalAlignment) {
-    return positionX === "left" ? "flex-start" : (positionX === "center" ? "center" : "flex-end");
-  }
-  private calcAlignItems(positionY: VerticalAlignment) {
-    return positionY === "top" ? "flex-start" : (positionY === "middle" ? "center" : "flex-end");
-  }
-  private getLogoStyle() {
-    const result = <any>{ };
-    result["gridColumn"] = this.calcColumn(this.logoPositionX);
-    result["gridRow"] = this.calcRow(this.logoPositionY);
-    result["justifyContent"] = this.calcJustifyContent(this.logoPositionX);
-    result["alignItems"] = this.calcAlignItems(this.logoPositionY);
-    return result;
-  }
-  private getTitleStyle() {
-    const result = <any>{ };
-    result["maxWidth"] = this.renderedTextWidth;
-    result["gridColumn"] = this.calcColumn(this.titlePositionX);
-    result["gridRow"] = this.calcRow(this.titlePositionY);
-    result["justifyContent"] = this.calcJustifyContent(this.titlePositionX);
-    result["alignItems"] = this.calcAlignItems(this.titlePositionY);
-    return result;
-  }
-  private getDescriptionStyle() {
-    const result = <any>{ };
-    result["maxWidth"] = this.renderedTextWidth;
-    result["gridColumn"] = this.calcColumn(this.descriptionPositionX);
-    result["gridRow"] = this.calcRow(this.descriptionPositionY);
-    result["justifyContent"] = this.calcJustifyContent(this.descriptionPositionX);
-    result["alignItems"] = this.calcAlignItems(this.descriptionPositionY);
-    return result;
-  }
-  private updateElementStyles() {
-    this.logoStyle = this.getLogoStyle();
-    this.titleStyle = this.getTitleStyle();
-    this.descriptionStyle = this.getDescriptionStyle();
-
-    if(this.logoStyle.gridRow === this.titleStyle.gridRow && this.logoStyle.gridColumn === this.titleStyle.gridColumn) {
-      this.titleStyle = Object.assign({}, this.titleStyle, { gridRow: this.titleStyle.gridRow + 1 });
-      this.descriptionStyle = Object.assign({}, this.descriptionStyle, { gridRow: this.descriptionStyle.gridRow + 1 });
-    }
-    if(this.logoStyle.gridRow === this.descriptionStyle.gridRow && this.logoStyle.gridColumn === this.descriptionStyle.gridColumn) {
-      this.descriptionStyle = Object.assign({}, this.descriptionStyle, { gridRow: this.descriptionStyle.gridRow + 1 });
-    }
-    if(this.titleStyle.gridRow === this.descriptionStyle.gridRow && this.titleStyle.gridColumn === this.descriptionStyle.gridColumn) {
-      this.descriptionStyle = Object.assign({}, this.descriptionStyle, { gridRow: this.descriptionStyle.gridRow + 1 });
-    }
   }
 
   constructor() {
     super();
     this.renderBackgroundImage = wrapUrlForBackgroundImage(this.backgroundImage);
-    this.updateElementStyles();
+    ["top", "middle", "bottom"].forEach((positionY: VerticalAlignment) =>
+      ["left", "center", "right"].forEach((positionX: HorizontalAlignment) => this.cells.push(new CoverCell(this, positionX, positionY)))
+    );
   }
 
   public getType(): string {
     return "cover";
   }
   public survey: SurveyModel;
+  public cells: CoverCell[] = [];
   @property() public height: number;
   @property() public areaWidth: "survey" | "container";
   @property() public textWidth: number;
@@ -128,17 +134,12 @@ export class Cover extends Base {
       .toString();
   }
   public get backgroundImageStyle() {
-    if(!this.backgroundImage) return null;
+    if (!this.backgroundImage) return null;
     return {
       opacity: this.backgroundImageOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.calcBackgroundSize(this.backgroundImageFit),
     };
-  }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
-    if(["logoPositionX", "logoPositionY", "titlePositionX", "titlePositionY", "descriptionPositionX", "descriptionPositionY"].indexOf(name) !== -1) {
-      this.updateElementStyles();
-    }
   }
 }
 

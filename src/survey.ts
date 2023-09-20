@@ -50,7 +50,8 @@ import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
-import { TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
+import {
+  TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEvent, NavigateToUrlEvent, CurrentPageChangingEvent, CurrentPageChangedEvent,
   ValueChangingEvent, ValueChangedEvent, VariableChangedEvent, QuestionVisibleChangedEvent, PageVisibleChangedEvent, PanelVisibleChangedEvent, QuestionCreatedEvent,
   QuestionAddedEvent, QuestionRemovedEvent, PanelAddedEvent, PanelRemovedEvent, PageAddedEvent, ValidateQuestionEvent, SettingQuestionErrorsEvent, ValidatePanelEvent,
   ErrorCustomTextEvent, ValidatedErrorsOnCurrentPageEvent, ProcessHtmlEvent, GetQuestionTitleEvent, GetTitleTagNameEvent, GetQuestionNoEvent, ProgressTextEvent,
@@ -62,7 +63,8 @@ import { TriggerExecutedEvent, CompletingEvent, CompleteEvent, ShowingPreviewEve
   MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
   IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent,
   GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent,
-  MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent } from "./survey-events-api";
+  MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent
+} from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionFileModel } from "./question_file";
@@ -930,7 +932,7 @@ export class SurveyModel extends SurveyElementCore
     this.notifier.addAction(this.createTryAgainAction(), "error");
 
     this.onPopupVisibleChanged.add((_, opt) => {
-      if(opt.visible) {
+      if (opt.visible) {
         this.onScrollCallback = () => {
           opt.popup.toggleVisibility();
         };
@@ -989,7 +991,7 @@ export class SurveyModel extends SurveyElementCore
       id: "save-again",
       title: this.getLocalizationString("saveAgainButton"),
       action: () => {
-        if(this.isCompleted) {
+        if (this.isCompleted) {
           this.saveDataOnComplete();
         } else {
           this.doComplete();
@@ -1000,7 +1002,7 @@ export class SurveyModel extends SurveyElementCore
   private createHtmlLocString(name: string, locName: string, func: (str: string) => string, reason?: string): void {
     const res = this.createLocalizableString(name, this, false, locName);
     res.onGetLocalizationTextCallback = func;
-    if(reason) {
+    if (reason) {
       res.onGetTextCallback = (str: string): string => { return this.processHtml(str, reason); };
     }
   }
@@ -1777,7 +1779,7 @@ export class SurveyModel extends SurveyElementCore
   public locStrsChanged(): void {
     super.locStrsChanged();
     if (!this.currentPage) return;
-    if(this.isDesignMode) {
+    if (this.isDesignMode) {
       this.pages.forEach(page => page.locStrsChanged());
     } else {
       var page = this.activePage;
@@ -2018,7 +2020,7 @@ export class SurveyModel extends SurveyElementCore
   }
   //#endregion
 
-  @property({ defaultValue: {} }) private cssVariables: {[index: string]: string} = {};
+  @property({ defaultValue: {} }) private cssVariables: { [index: string]: string } = {};
   public get themeVariables() {
     return Object.assign({}, this.cssVariables);
   }
@@ -2036,7 +2038,7 @@ export class SurveyModel extends SurveyElementCore
   }
   @property() private _isCompact: boolean = false;
   private set isCompact(newVal: boolean) {
-    if(newVal !== this._isCompact) {
+    if (newVal !== this._isCompact) {
       this._isCompact = newVal;
       this.updateElementCss();
     }
@@ -2692,13 +2694,13 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllQuestionsValue();
   }
-  public getStructuredData(includePages: boolean = true, level: number = -1) : any {
-    if(level === 0) return this.data;
+  public getStructuredData(includePages: boolean = true, level: number = -1): any {
+    if (level === 0) return this.data;
     const data: any = {};
     this.pages.forEach(p => {
-      if(includePages) {
+      if (includePages) {
         const pageValues = {};
-        if(p.collectValues(pageValues, level - 1)) {
+        if (p.collectValues(pageValues, level - 1)) {
           data[p.name] = pageValues;
         }
       } else {
@@ -2707,35 +2709,35 @@ export class SurveyModel extends SurveyElementCore
     });
     return data;
   }
-  public setStructuredData(data: any, doMerge: boolean = false) : void {
-    if(!data) return;
+  public setStructuredData(data: any, doMerge: boolean = false): void {
+    if (!data) return;
     const res: any = {};
-    for(let key in data) {
+    for (let key in data) {
       const q = this.getQuestionByValueName(key);
-      if(q) {
+      if (q) {
         res[key] = data[key];
       }
       else {
         let panel: PanelModelBase = this.getPageByName(key);
-        if(!panel) {
+        if (!panel) {
           panel = this.getPanelByName(key);
         }
-        if(panel) {
+        if (panel) {
           this.collectDataFromPanel(panel, res, data[key]);
         }
       }
     }
-    if(doMerge) {
+    if (doMerge) {
       this.mergeData(res);
     } else {
       this.data = res;
     }
   }
   private collectDataFromPanel(panel: PanelModelBase, output: any, data: any): void {
-    for(let key in data) {
+    for (let key in data) {
       let el = panel.getElementByName(key);
-      if(!el) continue;
-      if(el.isPanel) {
+      if (!el) continue;
+      if (el.isPanel) {
         this.collectDataFromPanel(<PanelModel>el, output, data[key]);
       } else {
         output[key] = data[key];
@@ -2841,7 +2843,7 @@ export class SurveyModel extends SurveyElementCore
       values[key] = this.getDataValueCore(this.valuesHash, key);
     }
     this.getAllQuestions().forEach(q => {
-      if(q.hasFilteredValue) {
+      if (q.hasFilteredValue) {
         values[q.getValueName()] = q.getFilteredValue();
       }
     });
@@ -3020,7 +3022,7 @@ export class SurveyModel extends SurveyElementCore
       newPage.setWasShown(true);
     }
     this.locStrsChanged();
-    if(!this.isShowingPreview) {
+    if (!this.isShowingPreview) {
       this.currentPageChanged(newPage, oldValue);
     }
   }
@@ -3059,7 +3061,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"entireItem"` (default) - Users can use the entire matrix row as a drag handle.
    * - `"icon"` - Users can only use a drag icon as a drag handle.
    */
-  public get matrixDragHandleArea():string {
+  public get matrixDragHandleArea(): string {
     return this.getPropertyValue("matrixDragHandleArea", "entireItem");
   }
   public set matrixDragHandleArea(val: string) {
@@ -3374,7 +3376,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private _isDesignMode: boolean = false;
   public setDesignMode(value: boolean) {
-    if(!!this._isDesignMode != !!value) {
+    if (!!this._isDesignMode != !!value) {
       this._isDesignMode = !!value;
       this.onQuestionsOnPageModeChanged("standard");
     }
@@ -3417,8 +3419,8 @@ export class SurveyModel extends SurveyElementCore
   }
   private get isAnyQuestionAnswered(): boolean {
     const questions = this.getAllQuestions(true);
-    for(let i = 0; i < questions.length; i ++) {
-      if(!questions[i].isEmpty()) return true;
+    for (let i = 0; i < questions.length; i++) {
+      if (!questions[i].isEmpty()) return true;
     }
     return false;
   }
@@ -3795,7 +3797,7 @@ export class SurveyModel extends SurveyElementCore
    * @see nextPage
    */
   public completeLastPage(): boolean {
-    if(this.isValidateOnComplete) {
+    if (this.isValidateOnComplete) {
       this.cancelPreview();
     }
     let res = this.doCurrentPageComplete(true);
@@ -3955,7 +3957,7 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateAllElementsVisibility(this.pages);
     this.updateVisibleIndexes();
-    if(this.isShowingPreview) {
+    if (this.isShowingPreview) {
       this.currentPageNo = 0;
     } else {
       let curPage = this.gotoPageFromPreview;
@@ -4371,30 +4373,30 @@ export class SurveyModel extends SurveyElementCore
   canBeCompleted(trigger: Trigger, isCompleted: boolean): void {
     if (!settings.triggers.changeNavigationButtonsOnComplete) return;
     const prevCanBeCompleted = this.canBeCompletedByTrigger;
-    if(!this.completedByTriggers) this.completedByTriggers = {};
-    if(isCompleted) {
+    if (!this.completedByTriggers) this.completedByTriggers = {};
+    if (isCompleted) {
       this.completedByTriggers[trigger.id] = { trigger: trigger, pageId: this.currentPage?.id };
     } else {
       delete this.completedByTriggers[trigger.id];
     }
-    if(prevCanBeCompleted !== this.canBeCompletedByTrigger) {
+    if (prevCanBeCompleted !== this.canBeCompletedByTrigger) {
       this.updateButtonsVisibility();
     }
   }
   private completedByTriggers: HashTable<any>;
   private get canBeCompletedByTrigger(): boolean {
-    if(!this.completedByTriggers) return false;
+    if (!this.completedByTriggers) return false;
     const keys = Object.keys(this.completedByTriggers);
-    if(keys.length === 0) return false;
+    if (keys.length === 0) return false;
     const id = this.currentPage?.id;
-    if(!id) return true;
-    for(let i = 0; i < keys.length; i ++) {
-      if(id === this.completedByTriggers[keys[i]].pageId) return true;
+    if (!id) return true;
+    for (let i = 0; i < keys.length; i++) {
+      if (id === this.completedByTriggers[keys[i]].pageId) return true;
     }
     return false;
   }
   private get completedTrigger(): Trigger {
-    if(!this.canBeCompletedByTrigger) return undefined;
+    if (!this.canBeCompletedByTrigger) return undefined;
     const key = Object.keys(this.completedByTriggers)[0];
     return this.completedByTriggers[key].trigger;
   }
@@ -4530,12 +4532,14 @@ export class SurveyModel extends SurveyElementCore
       const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
-        this.resizeObserver = new ResizeObserver(() => {
-          if (isProcessed || !isContainerVisible(observedElement)) {
-            isProcessed = false;
-          } else {
-            isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
-          }
+        this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+          window.requestAnimationFrame((): void | undefined => {
+            if (isProcessed || !isContainerVisible(observedElement)) {
+              isProcessed = false;
+            } else {
+              isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
+            }
+          });
         });
         this.resizeObserver.observe(observedElement);
       }
@@ -4664,7 +4668,7 @@ export class SurveyModel extends SurveyElementCore
     this.onChoicesLazyLoad.fire(this, options);
   }
   getChoiceDisplayValue(options: { question: Question, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void {
-    if(this.onGetChoiceDisplayValue.isEmpty) {
+    if (this.onGetChoiceDisplayValue.isEmpty) {
       options.setItems(null);
     } else {
       this.onGetChoiceDisplayValue.fire(this, options);
@@ -5261,7 +5265,7 @@ export class SurveyModel extends SurveyElementCore
     includeDesignTime: boolean = false,
     includeNested: boolean = false
   ): Array<Question> {
-    if(includeNested) includeDesignTime = false;
+    if (includeNested) includeDesignTime = false;
     var res: Array<Question> = [];
     for (var i: number = 0; i < this.pages.length; i++) {
       this.pages[i].addQuestionsToList(
@@ -5270,7 +5274,7 @@ export class SurveyModel extends SurveyElementCore
         includeDesignTime
       );
     }
-    if(!includeNested) return res;
+    if (!includeNested) return res;
     const res2: Array<Question> = [];
     res.forEach(q => {
       res2.push(q);
@@ -5527,7 +5531,7 @@ export class SurveyModel extends SurveyElementCore
       return;
     }
     let isQuestionInvalid = false;
-    if(!isOnComplete && name && this.hasRequiredValidQuestionTrigger) {
+    if (!isOnComplete && name && this.hasRequiredValidQuestionTrigger) {
       const question = <Question>this.getQuestionByValueName(name);
       isQuestionInvalid = question && !question.validate(false);
     }
@@ -5538,7 +5542,7 @@ export class SurveyModel extends SurveyElementCore
     let prevCanBeCompleted = this.canBeCompletedByTrigger;
     for (let i = 0; i < this.triggers.length; i++) {
       const trigger = this.triggers[i];
-      if(isQuestionInvalid && trigger.requireValidQuestion) continue;
+      if (isQuestionInvalid && trigger.requireValidQuestion) continue;
       trigger.checkExpression(isOnNextPage, isOnComplete,
         this.triggerKeys,
         this.triggerValues,
@@ -5552,7 +5556,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private get hasRequiredValidQuestionTrigger(): boolean {
     for (let i = 0; i < this.triggers.length; i++) {
-      if(this.triggers[i].requireValidQuestion) return true;
+      if (this.triggers[i].requireValidQuestion) return true;
     }
     return false;
   }
@@ -6094,7 +6098,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public setVariable(name: string, newValue: any): void {
     if (!name) return;
-    if(!!this.valuesHash) {
+    if (!!this.valuesHash) {
       delete this.valuesHash[name];
     }
     name = name.toLowerCase();
@@ -6152,7 +6156,7 @@ export class SurveyModel extends SurveyElementCore
     locNotification: any = false,
     allowNotifyValueChanged: boolean = true,
     questionName?: string
-  ):void {
+  ): void {
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
@@ -6185,8 +6189,8 @@ export class SurveyModel extends SurveyElementCore
     );
   }
   private isValueEmpyOnSetValue(name: string, val: any): boolean {
-    if(!this.isValueEmpty(val, false)) return false;
-    if(!this.editingObj || val === null || val === undefined) return true;
+    if (!this.isValueEmpty(val, false)) return false;
+    if (!this.editingObj || val === null || val === undefined) return true;
     return this.editingObj.getDefaultPropertyValue(name) === val;
   }
   private updateOnSetValue(
@@ -6222,7 +6226,7 @@ export class SurveyModel extends SurveyElementCore
     if (!page.name) page.name = this.generateNewName(this.pages, "page");
     this.questionHashesPanelAdded(page);
     this.updateVisibleIndexes();
-    if(!!this.runningPages) return;
+    if (!!this.runningPages) return;
     if (!this.isLoadingFromJson) {
       this.updateProgressText();
       this.updateCurrentPage();
@@ -6232,7 +6236,7 @@ export class SurveyModel extends SurveyElementCore
   }
   protected doOnPageRemoved(page: PageModel) {
     page.setSurveyImpl(null);
-    if(!!this.runningPages) return;
+    if (!!this.runningPages) return;
     if (page === this.currentPage) {
       this.updateCurrentPage();
     }
@@ -6358,8 +6362,8 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("clearValueOnDisableItems", val);
   }
   getQuestionClearIfInvisible(questionClearIf: string): string {
-    if(this.isShowingPreview || this.runningPages) return "none";
-    if(questionClearIf !== "default") return questionClearIf;
+    if (this.isShowingPreview || this.runningPages) return "none";
+    if (questionClearIf !== "default") return questionClearIf;
     return this.clearInvisibleValues;
   }
   questionVisibilityChanged(question: Question, newValue: boolean) {
@@ -6579,7 +6583,7 @@ export class SurveyModel extends SurveyElementCore
     return options.error ? new CustomError(options.error, this) : null;
   }
   processHtml(html: string, reason?: string): string {
-    if(!reason) reason = "";
+    if (!reason) reason = "";
     var options = { html: html, reason: reason };
     this.onProcessHtml.fire(this, options);
     return this.processText(options.html, true);
@@ -6601,7 +6605,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private textPreProcessorValue: TextPreProcessor;
   private get textPreProcessor(): TextPreProcessor {
-    if(!this.textPreProcessorValue) {
+    if (!this.textPreProcessorValue) {
       this.textPreProcessorValue = new TextPreProcessor();
       this.textPreProcessorValue.onProcess = (textValue: TextPreProcessorValue) => {
         this.getProcessedTextValue(textValue);
@@ -6672,7 +6676,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getCorrectedAnswerCountCore(false);
   }
   onCorrectQuestionAnswer(question: IQuestion, options: any): void {
-    if(this.onIsAnswerCorrect.isEmpty) return;
+    if (this.onIsAnswerCorrect.isEmpty) return;
     options.question = question;
     this.onIsAnswerCorrect.fire(this, options);
   }
@@ -6682,7 +6686,7 @@ export class SurveyModel extends SurveyElementCore
     for (let i = 0; i < questions.length; i++) {
       const q = <Question>questions[i];
       const correctCount = q.correctAnswerCount;
-      if(isCorrect) {
+      if (isCorrect) {
         counter += correctCount;
       } else {
         counter += q.quizQuestionCount - correctCount;
@@ -7059,7 +7063,7 @@ export class SurveyModel extends SurveyElementCore
   copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {
     if (!name || !fromName) return;
     let value;
-    if(copyDisplayValue) {
+    if (copyDisplayValue) {
       value = this.processText("{" + fromName + "}", true);
     } else {
       const processor = new ProcessValue();
@@ -7095,11 +7099,11 @@ export class SurveyModel extends SurveyElementCore
   focusQuestionByInstance(question: Question, onError: boolean = false): boolean {
     if (!question || !question.isVisible || !question.page) return false;
     const oldQuestion = this.focusingQuestionInfo?.question;
-    if(oldQuestion === question) return false;
+    if (oldQuestion === question) return false;
     this.focusingQuestionInfo = { question: question, onError: onError };
     this.skippedPages.push({ from: this.currentPage, to: question.page });
     const isNeedWaitForPageRendered = this.activePage !== question.page && !question.page.isStartPage;
-    if(isNeedWaitForPageRendered) {
+    if (isNeedWaitForPageRendered) {
       this.currentPage = <PageModel>question.page;
     }
     if (!isNeedWaitForPageRendered) {
@@ -7109,7 +7113,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private focusQuestionInfo(): void {
     const question = this.focusingQuestionInfo?.question;
-    if(!!question && !question.isDisposed) {
+    if (!!question && !question.isDisposed) {
       question.focus(this.focusingQuestionInfo.onError);
     }
     this.focusingQuestionInfo = undefined;
@@ -7206,7 +7210,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
     const layoutElement = this.layoutElements.filter(a => a.id === layoutElementId)[0];
-    if(!!layoutElement) {
+    if (!!layoutElement) {
       const layoutElementIndex = this.layoutElements.indexOf(layoutElement);
       this.layoutElements.splice(layoutElementIndex, 1);
     }
@@ -7215,53 +7219,53 @@ export class SurveyModel extends SurveyElementCore
 
   public getContainerContent(container: LayoutElementContainer) {
     const containerLayoutElements = [];
-    for(let layoutElement of this.layoutElements) {
-      if(isStrCiEqual(layoutElement.id, "timerpanel")) {
-        if(container === "header") {
-          if(this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
+    for (let layoutElement of this.layoutElements) {
+      if (isStrCiEqual(layoutElement.id, "timerpanel")) {
+        if (container === "header") {
+          if (this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "footer") {
-          if(this.isTimerPanelShowingOnBottom && !this.isShowStartingPage) {
+        if (container === "footer") {
+          if (this.isTimerPanelShowingOnBottom && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        if(container === "header") {
-          if(this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+        if (container === "header") {
+          if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "footer") {
-          if(this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
+        if (container === "footer") {
+          if (this.isShowProgressBarOnBottom && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(isStrCiEqual(layoutElement.id, "navigationbuttons")) {
-        if(container === "contentTop") {
-          if(["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+      } else if (isStrCiEqual(layoutElement.id, "navigationbuttons")) {
+        if (container === "contentTop") {
+          if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "contentBottom") {
-          if(["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
+        if (container === "contentBottom") {
+          if (["bottom", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if(this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
-        if(container === "left") {
-          if(["left", "both"].indexOf(this.tocLocation) !== -1) {
+      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "toc-navigation") && this.showTOC) {
+        if (container === "left") {
+          if (["left", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
-        if(container === "right") {
-          if(["right", "both"].indexOf(this.tocLocation) !== -1) {
+        if (container === "right") {
+          if (["right", "both"].indexOf(this.tocLocation) !== -1) {
             containerLayoutElements.push(layoutElement);
           }
         }
       } else {
-        if(Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
+        if (Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
           containerLayoutElements.push(layoutElement);
         }
       }
@@ -7277,7 +7281,7 @@ export class SurveyModel extends SurveyElementCore
 
     this.titleView = !!theme["cover"] ? "cover" : "title";
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      if(key === "cover") {
+      if (key === "cover") {
         this.removeLayoutElement("cover");
         const newCoverModel = new Cover();
         newCoverModel.fromJSON(theme[key]);
@@ -7288,7 +7292,7 @@ export class SurveyModel extends SurveyElementCore
           data: newCoverModel
         });
       }
-      if(key === "isPanelless") {
+      if (key === "isPanelless") {
         this.isCompact = theme[key];
       } else {
         (this as any)[key] = theme[key];
@@ -7324,7 +7328,7 @@ export class SurveyModel extends SurveyElementCore
 
   private onScrollCallback: () => void;
   public onScroll(): void {
-    if(this.onScrollCallback) {
+    if (this.onScrollCallback) {
       this.onScrollCallback();
     }
   }
@@ -7340,8 +7344,8 @@ export class SurveyModel extends SurveyElementCore
 }
 
 function isStrCiEqual(a: string, b: string) {
-  if(!a) return false;
-  if(!b) return false;
+  if (!a) return false;
+  if (!b) return false;
   return a.toUpperCase() === b.toUpperCase();
 }
 
@@ -7478,7 +7482,8 @@ Serializer.addClass("survey", [
     name: "showTOC:switch",
     default: false
   },
-  { name: "tocLocation", default: "left", choices: ["left", "right"],
+  {
+    name: "tocLocation", default: "left", choices: ["left", "right"],
     dependsOn: ["showTOC"],
     visibleIf: (survey: any) => { return !!survey && survey.showTOC; }
   },

@@ -4,7 +4,7 @@ import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("imagepicker");
 
-QUnit.test("Add choices in runtime", function(assert) {
+QUnit.test("Add choices in runtime", function (assert) {
   let survey = new SurveyModel({});
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
@@ -34,7 +34,7 @@ QUnit.test("Add choices in runtime", function(assert) {
   );
 });
 
-QUnit.test("Localized imageLink", function(assert) {
+QUnit.test("Localized imageLink", function (assert) {
   let survey = new SurveyModel({});
   let page = survey.addNewPage();
   let question = <QuestionImagePickerModel>page.addNewQuestion("imagepicker");
@@ -73,7 +73,7 @@ QUnit.test("Localized imageLink", function(assert) {
   survey.locale = "";
 });
 
-QUnit.test("check dependency getItemClass method on colCount", function(
+QUnit.test("check dependency getItemClass method on colCount", function (
   assert
 ) {
   let survey = new SurveyModel({});
@@ -86,7 +86,7 @@ QUnit.test("check dependency getItemClass method on colCount", function(
     "sv_q_imgsel sv_q_imagepicker_inline"
   );
 });
-QUnit.test("check process responsiveness for imagepicker, colCount == 0", function(assert) {
+QUnit.test("check process responsiveness for imagepicker, colCount == 0", function (assert) {
   let survey = new SurveyModel({});
   survey.css = defaultV2Css;
   let page = survey.addNewPage();
@@ -113,7 +113,7 @@ QUnit.test("check process responsiveness for imagepicker, colCount == 0", functi
   assert.equal(question.renderedImageHeight, 100);
 });
 
-QUnit.test("check process responsiveness for imagepicker, colCount !== 0", function(assert) {
+QUnit.test("check process responsiveness for imagepicker, colCount !== 0", function (assert) {
   let survey = new SurveyModel({});
   survey.css = defaultV2Css;
   let page = survey.addNewPage();
@@ -148,7 +148,7 @@ QUnit.test("check process responsiveness for imagepicker, colCount !== 0", funct
   assert.equal(question.renderedImageHeight, "50");
 });
 
-QUnit.test("check isResponsive getter", function(assert) {
+QUnit.test("check isResponsive getter", function (assert) {
   let survey = new SurveyModel({});
   survey.css = defaultV2Css;
   let page = survey.addNewPage();
@@ -161,7 +161,7 @@ QUnit.test("check isResponsive getter", function(assert) {
   assert.notOk(question["isResponsive"]);
 });
 
-QUnit.test("check isResponsive getter after end of loading json", function(assert) {
+QUnit.test("check isResponsive getter after end of loading json", function (assert) {
   let survey = new SurveyModel(
     {
       "elements": [
@@ -205,17 +205,18 @@ QUnit.test("check isResponsive getter after end of loading json", function(asser
 });
 
 export class CustomResizeObserver {
-  constructor(private callback: () => void) {}
+  constructor(private callback: () => void) { }
   observe() {
     this.call();
   }
   call() {
     this.callback();
   }
-  disconnect() {}
+  disconnect() { }
 }
 
-QUnit.test("check resizeObserver behavior", function(assert) {
+QUnit.test("check resizeObserver behavior", function (assert) {
+  window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const setTimeout = window.setTimeout;
   window.ResizeObserver = <any>CustomResizeObserver;
@@ -265,7 +266,8 @@ QUnit.test("check resizeObserver behavior", function(assert) {
   rootEl.remove();
 });
 
-QUnit.test("check resizeObserver not process if container is not visible", function(assert) {
+QUnit.test("check resizeObserver not process if container is not visible", function (assert) {
+  window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;
   const rootEl = document.createElement("div");
@@ -310,7 +312,7 @@ QUnit.test("check resizeObserver not process if container is not visible", funct
   rootEl.remove();
 });
 
-QUnit.test("check contentNotLoaded and contentMode flags behavior", function(assert) {
+QUnit.test("check contentNotLoaded and contentMode flags behavior", function (assert) {
   const survey = new SurveyModel(
     {
       "elements": [
@@ -328,7 +330,7 @@ QUnit.test("check contentNotLoaded and contentMode flags behavior", function(ass
     }
   );
   const question = <QuestionImagePickerModel>survey.getAllQuestions()[0];
-  const choice = <ImageItemValue> question.visibleChoices[0];
+  const choice = <ImageItemValue>question.visibleChoices[0];
   assert.notOk(choice.contentNotLoaded);
   question.onContentLoaded(choice, { target: {} });
   assert.notOk(choice.contentNotLoaded);
@@ -341,7 +343,7 @@ QUnit.test("check contentNotLoaded and contentMode flags behavior", function(ass
   assert.ok(choice.contentNotLoaded);
 });
 
-QUnit.test("check reCalcGap", function(assert) {
+QUnit.test("check reCalcGap", function (assert) {
   const survey = new SurveyModel(
     {
       "elements": [

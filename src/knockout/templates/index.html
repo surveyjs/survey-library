@@ -37,6 +37,7 @@
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
+              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "completePage", needRenderWrapper: false } } --><!-- /ko -->
               <!-- /ko -->
               <!-- ko if: state == "completedbefore" -->
               <div data-bind="html: locCompletedBeforeHtml.koRenderedHtml, css: completedBeforeCss"></div>

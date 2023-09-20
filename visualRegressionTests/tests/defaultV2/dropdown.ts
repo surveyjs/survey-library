@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { getListItemByText, registerCustomItemComponent } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Dropdown Screenshot";
 
@@ -18,7 +18,6 @@ frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
-      await explicitErrorHandler();
       await applyTheme(theme);
     });
   test("Check dropdown select question", async (t) => {
@@ -453,13 +452,14 @@ frameworks.forEach(framework => {
             ]
           }
         ]
-      }, { "onTextMarkdown": (sender, options) => {
-        var converter = new window["showdown"].Converter();
-        var str = converter.makeHtml(options.text);
-        str = str.substring(3);
-        str = str.substring(0, str.length - 4);
-        options.html = str;
-      }
+      }, {
+        "onTextMarkdown": (sender, options) => {
+          var converter = new window["showdown"].Converter();
+          var str = converter.makeHtml(options.text);
+          str = str.substring(3);
+          str = str.substring(0, str.length - 4);
+          options.html = str;
+        }
       });
 
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");

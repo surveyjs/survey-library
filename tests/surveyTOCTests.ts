@@ -1,3 +1,5 @@
+import { Action } from "../src/actions/action";
+import { PageModel } from "../src/page";
 import { SurveyModel } from "../src/survey";
 import { createTOCListModel, getTocRootCss } from "../src/surveyToc";
 
@@ -274,4 +276,33 @@ QUnit.test("TOC respects markup", function (assert) {
   // TODO - eliminate duplicated call
   assert.equal(tocListModel.visibleItems[1].locTitle.textOrHtml, "markup markup Text with <em>emphasys text</em>", "Page 2 - nav title");
   assert.equal(tocListModel.visibleItems[2].locTitle.textOrHtml, "markup page3", "Page 3");
+});
+
+QUnit.test("TOC shouldn't affect page title", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "title": "Page 1 title",
+        "navigationTitle": "Text with <em>emphasys text</em>",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey: SurveyModel = new SurveyModel(json);
+
+  const page = survey.pages[0];
+  assert.equal(page.locTitle.textOrHtml, "Page 1 title", "Page 1 title");
+  assert.equal(page.locNavigationTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title");
+
+  const tocListModel = createTOCListModel(survey);
+  assert.equal(page.locNavigationTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title");
+  assert.equal(tocListModel.visibleItems.length, 1, "2 items is TOC");
+  assert.equal(tocListModel.visibleItems[0].locTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title in TOC");
+  assert.equal(page.locTitle.textOrHtml, "Page 1 title", "Page 1 title");
 });

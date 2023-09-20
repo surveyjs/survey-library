@@ -231,3 +231,36 @@ QUnit.test("survey.onValueChanging, bug#6548", function (assert) {
   assert.equal(q.value, 35, "correct value on survey.onValueChanging event, #2");
   assert.deepEqual(survey.data, { weightKg: 100, heightCm: 169, bmi: 35 }, "survey.data is correct, #2");
 });
+QUnit.test("Handle Infinity", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "q1",
+        "type": "text"
+      },
+      {
+        "name": "q2",
+        "type": "text",
+        "inputType": "number"
+      },
+      {
+        "name": "q3",
+        "type": "expression",
+        "expression": "({q1}^-1)*(2^{q2})",
+      }
+    ]
+  });
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    if(options.name === "q3") counter ++;
+  });
+  const q3 = survey.getQuestionByName("q3");
+  survey.setValue("q2", 1);
+  assert.equal(counter, 0, "is not updated");
+  survey.setValue("q2", 3);
+  assert.equal(counter, 0, "is not updated yet");
+  assert.equal(q3.isEmpty(), true, "expression question is undefined");
+  survey.setValue("q1", 2);
+  assert.equal(counter, 1, "updated one time");
+  assert.equal(q3.value, 4, "calculated correctly");
+});

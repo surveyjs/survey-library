@@ -7580,7 +7580,7 @@ Serializer.addClass("survey", [
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
-  { name: "titleView", default: "cover", choices: ["title", "cover"], visible: false },
+  { name: "titleView", default: "title", choices: ["title", "cover"], visible: false },
   { name: "backgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

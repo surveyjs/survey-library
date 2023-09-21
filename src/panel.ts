@@ -800,7 +800,6 @@ export class PanelModelBase extends SurveyElement<Question>
   protected hasErrorsCore(rec: any) {
     var elements = this.elements;
     var element = null;
-
     for (var i = 0; i < elements.length; i++) {
       element = elements[i];
 
@@ -810,7 +809,6 @@ export class PanelModelBase extends SurveyElement<Question>
         (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
       } else {
         var question = <Question>element;
-        if (question.isReadOnly) continue;
         if (!question.validate(rec.fireCallback, rec)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;

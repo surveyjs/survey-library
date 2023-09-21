@@ -1903,7 +1903,7 @@ export class Question extends SurveyElement<Question>
     return qErrors;
   }
   protected canCollectErrors(): boolean {
-    return !this.isReadOnly;
+    return !this.isReadOnly || settings.readOnly.enableValidation;
   }
   private collectErrors(
     qErrors: Array<SurveyError>,

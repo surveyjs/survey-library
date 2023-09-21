@@ -7,13 +7,13 @@
     </div>
     <!-- /ko -->
     <!-- ko if: showTitle -->
-    <div class="sv-cover__title" data-bind="max-width: textWidth">
+    <div class="sv-cover__title" data-bind="style: { maxWidth: textWidth }">
     <!-- ko component: { name: 'survey-element-title', params: { element: survey } } -->
     <!-- /ko -->
     </div>
     <!-- /ko -->
     <!-- ko if: showDescription -->
-    <div class="sv-cover__description" data-bind="max-width: textWidth">
+    <div class="sv-cover__description" data-bind="style: { maxWidth: textWidth }">
       <h5 data-bind="css: survey.css.description">
         <!-- ko template: { name: 'survey-string', data: survey.locDescription } -->
         <!-- /ko -->

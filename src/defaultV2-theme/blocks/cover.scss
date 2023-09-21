@@ -4,6 +4,10 @@
   position: relative;
 }
 
+.sv-conver__without-background {
+  padding-bottom: 0;
+}
+
 .sv-conver__content {
   height: 100%;
   position: relative;
@@ -57,6 +61,18 @@
   display: flex;
 }
 
+.sv-cover__title .sd-title {
+  color: $foreground-dim;
+  font-family: $font-surveytitle-family;
+  font-size: $font-surveytitle-size;
+  font-weight: $font-surveytitle-weight;
+  line-height: multiply(1.25, $font-surveytitle-size);
+}
+
 .sv-cover__description {
   display: flex;
+}
+
+.sv-cover__description .sd-description {
+  color: $foreground-dim-light;
 }

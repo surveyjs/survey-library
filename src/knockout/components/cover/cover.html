@@ -1,5 +1,5 @@
 <!-- ko if: (survey.titleView === 'cover' && survey.renderedHasHeader) -->
-<div class="sv-cover" data-bind="style: { height: model.renderedHeight, backgroundColor: model.backgroundColor }">
+<div data-bind="css: model.coverClasses, style: { height: model.renderedHeight, backgroundColor: model.backgroundColor }">
   <!-- ko if: !!model.backgroundImage -->
   <div data-bind="style: model.backgroundImageStyle, css: model.backgroundImageClasses"></div>
   <!-- /ko -->

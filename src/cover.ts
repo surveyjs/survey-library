@@ -118,6 +118,12 @@ export class Cover extends Base {
     return this.textWidth ? this.textWidth + "px" : undefined;
   }
 
+  public get coverClasses(): string {
+    return new CssClassBuilder()
+      .append("sv-cover")
+      .append("sv-conver__without-background", !this.backgroundColor && !this.backgroundImage)
+      .toString();
+  }
   public get contentClasses(): string {
     return new CssClassBuilder()
       .append("sv-conver__content")

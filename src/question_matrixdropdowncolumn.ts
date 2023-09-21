@@ -329,6 +329,18 @@ export class MatrixDropdownColumn extends Base
   public set requiredIf(val: string) {
     this.templateQuestion.requiredIf = val;
   }
+  public get clearValueIf(): string {
+    return this.templateQuestion.clearValueIf;
+  }
+  public set clearValueIf(val: string) {
+    this.templateQuestion.clearValueIf = val;
+  }
+  public get defaultValueExpression(): string {
+    return this.templateQuestion.defaultValueExpression;
+  }
+  public set defaultValueExpression(val: string) {
+    this.templateQuestion.defaultValueExpression = val;
+  }
   public get isUnique(): boolean {
     return this.getPropertyValue("isUnique");
   }

@@ -2504,7 +2504,7 @@ Serializer.addClass("question", [
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   {
-    name: "clearValueIf:expression",
+    name: "clearValueIf:condition",
     category: "logic", visible: false
   },
   "defaultValue:value",

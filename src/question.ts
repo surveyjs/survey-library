@@ -127,6 +127,7 @@ export class Question extends SurveyElement<Question>
       (obj: Base) => { return !this.areInvisibleElementsShowing; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
+    this.addExpressionProperty("clearValueIf", (obj: Base, res: any) => { if(res) this.clearValue(); });
 
     this.createLocalizableString("commentText", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
@@ -1365,6 +1366,7 @@ export class Question extends SurveyElement<Question>
     if (!!this.comment) {
       this.comment = undefined;
     }
+    this.isValueChangedDirectly = false;
   }
   public unbindValue(): void {
     this.clearValue();
@@ -1512,6 +1514,12 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("defaultValueExpression", val);
     this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
+  }
+  public get clearValueIf(): string {
+    return this.getPropertyValue("clearValueIf");
+  }
+  public set clearValueIf(val: string) {
+    this.setPropertyValue("clearValueIf", val);
   }
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
@@ -2495,6 +2503,10 @@ Serializer.addClass("question", [
   },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
+  {
+    name: "clearValueIf:expression",
+    category: "logic", visible: false
+  },
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

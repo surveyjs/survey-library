@@ -7175,3 +7175,49 @@ QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
   assert.equal(q2.value, "item1\nitem2\nitem3", "q2");
   assert.equal(q3.value, "item1, item2, item3", "q3");
 });
+QUnit.test("question.clearValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "clearValueIf": "{q1} = 1"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.clearValueIf, "{q1} = 1", "Load from JSON");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+});
+QUnit.test("question.clearValueIf & quesiton.defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "clearValueIf": "{q1} = 1",
+      "defaultValueExpression": "iif({q3} > 2, {q3}, '')"
+    },
+    {
+      "name": "q3", "type": "text"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q2.value = "abc";
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set directly");
+  q1.value = 1;
+  assert.equal(q2.value, 3, "value is set from defaultValueExpression");
+});

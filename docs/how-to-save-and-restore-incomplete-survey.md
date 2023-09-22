@@ -1,3 +1,8 @@
+---
+title: "Continuing an Incomplete Survey: How to Save and Restore Survey Progress | SurveyJS"
+description: Learn how to allow respondents to continue an unfinished survey session by saving and restoring their progress. Read these step-by-step instructions to enable this feature in your SurveyJS form builder, making it easy for users to pick up where they left off.
+---
+
 # Continue an Incomplete Survey
 
 Respondents may not complete your survey in a single session. In this case, you can restore their answers from the previous session next time they get to the survey. Incomplete results can be loaded from your database or the browser's [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage).

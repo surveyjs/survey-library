@@ -319,6 +319,11 @@
   left: 50%;
   transform: translateX(-50%);
   padding: calcSize(2);
+
+  &:hover,
+  &:focus {
+    box-shadow: 0 0 0 2px $red;
+  }
 }
 
 .sd-file__video-container {

@@ -241,4 +241,29 @@ frameworks.forEach((framework) => {
       name: " ",
     });
   });
+
+  test("Mask", async (t) => {
+    await initSurvey(framework, {
+      questions: [
+        {
+          name: "phone",
+          type: "text",
+          mask: "+{1}(000)00-000-000",
+        }]
+    });
+
+    await t.typeText(Selector("input"), "555123456789");
+    await t.expect(Selector("input").value).eql("+1(555)12-345-678");
+
+    await ClientFunction(() => { window["survey"].getQuestionByName("phone").mask = "+{2}(000)00-000-000"; })();
+    await t.expect(Selector("input").value).eql("+2(555)12-345-678");
+    await ClientFunction(() => { window["survey"].getQuestionByName("phone").mask = ""; })();
+    await t.typeText(Selector("input"), "abc");
+    await t.expect(Selector("input").value).eql("+2(555)12-345-678abc");
+
+    await ClientFunction(() => { window["survey"].getQuestionByName("phone").mask = "+{3}(000)00-000-000"; })();
+    await t.expect(Selector("input").value).eql("+3(255)51-234-567");
+
+  });
+
 });

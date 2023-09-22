@@ -1,5 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer } from "./jsonobject";
+import { Serializer, property } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
 import { EmailValidator } from "./validator";
@@ -10,6 +10,8 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 
+const IMask = require("imask");
+
 /**
  * A class that describes the Single-Line Input question type.
  *
@@ -19,6 +21,8 @@ export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
+  private maskInstance: any;
+  private element: HTMLElement;
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
@@ -31,6 +35,12 @@ export class QuestionTextModel extends QuestionTextBase {
       ["min", "max", "inputType", "minValueExpression", "maxValueExpression"],
       () => {
         this.setRenderedMinMax();
+      }
+    );
+    this.registerPropertyChangedHandlers(
+      ["mask"],
+      () => {
+        if (this.mask) this.updateMaskInstance(); else this.destroyMaskInstance();
       }
     );
     this.registerPropertyChangedHandlers(["inputType", "size"], () => {
@@ -459,6 +469,29 @@ export class QuestionTextModel extends QuestionTextBase {
   public onFocus = (event: any): void => {
     this.updateRemainingCharacterCounter(event.target.value);
   }
+
+  @property() mask: string;
+  private updateMaskInstance() {
+    if (!this.maskInstance) {
+      this.maskInstance = new IMask.InputMask(this.element, { mask: this.mask });
+    } else {
+      this.maskInstance.updateOptions({ mask: this.mask });
+    }
+  }
+  private destroyMaskInstance() {
+    if (this.maskInstance) this.maskInstance.destroy();
+    this.maskInstance = null;
+  }
+  public afterRenderQuestionElement(el: HTMLElement) {
+    if (!!el) {
+      this.element = el;
+      if (this.mask) this.updateMaskInstance();
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement) {
+    this.destroyMaskInstance();
+  }
 }
 
 const minMaxTypes = [
@@ -610,6 +643,9 @@ Serializer.addClass(
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
       },
+    },
+    {
+      name: "mask"
     },
     {
       name: "step:number",

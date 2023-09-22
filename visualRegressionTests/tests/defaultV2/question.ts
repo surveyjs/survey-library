@@ -235,6 +235,43 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check questions in one row", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "text",
+            name: "question_with_num",
+            title: "Personal information"
+          },
+          {
+            type: "text",
+            name: "question_with_num",
+            startWithNewLine: false,
+            title: "Contact information"
+          },
+        ]
+      },);
+      const rowSelector = Selector(".sd-row");
+      await resetFocusToBody();
+      await takeElementScreenshot("multiple-row.png", rowSelector, t, comparer);
+
+      await ClientFunction(() => {
+        window["survey"].questionTitleLocation = "bottom";
+        window["survey"].render();
+      })();
+      await takeElementScreenshot("multiple-row-title-bottom.png", rowSelector, t, comparer);
+
+      await ClientFunction(() => {
+        window["survey"].questionTitleLocation = "left";
+        window["survey"].render();
+      })();
+      await takeElementScreenshot("multiple-row-title-left.png", rowSelector, t, comparer);
+    });
+  });
+
   test("Check questions in one row with different default heights", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 

@@ -16,52 +16,18 @@ function compareVersions(a: any, b: any) {
   }
   return segmentsA.length - segmentsB.length;
 }
-function confirmAction(message: string): boolean {
-  showConfirmDialog(()=>{}, ()=>{});
-  return;
-  // if (!!settings && !!settings.confirmActionFunc)
-  //   return settings.confirmActionFunc(message);
-  // return confirm(message);
-}
 
-function showConfirmDialog(onLeaving: () => void, onStaying: () => void): boolean {
-  if (!settings.showDialog) return false;
-  const locStr = new LocalizableString(undefined);
-  //locStr.text = getLocString("ed.lg.uncompletedRule_text");
-  const popupModel = settings.showDialog(<IDialogOptions>{
-    componentName: "sv-string-viewer",
-    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
-    onApply: () => {
-      onLeaving();
-      return true;
-    },
-    onCancel: () => {
-      onStaying();
-      return true;
-    },
-    //title: getLocString("ed.lg.uncompletedRule_title"),
-    title: "aa",
-    displayMode: "popup"
-  }, /*this.options.rootElement*/document.body);
-  // const toolbar = popupModel.footerToolbar;
-  // const applyBtn = toolbar.getActionById("apply");
-  // const cancelBtn = toolbar.getActionById("cancel");
-  // cancelBtn.title = this.getLocString("ed.lg.uncompletedRule_cancel");
-  // applyBtn.title = this.getLocString("ed.lg.uncompletedRule_apply");
-  // applyBtn.innerCss += " svc-logic-tab__leave-apply-button";
-  // popupModel.width = "800px";
-  return true;
-}
-
-function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
+function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo = () => {}): void {
   const callbackFunc = (res: boolean): void => {
     if(res) funcOnYes();
     else if(!!funcOnNo) funcOnNo();
   };
+
   if(!!settings && !!settings.confirmActionAsync) {
     if(settings.confirmActionAsync(message, callbackFunc)) return;
   }
-  callbackFunc(confirmAction(message));
+
+  settings.confirmActionFunc(message, callbackFunc);
 }
 function detectIEBrowser(): boolean {
   if (typeof window === "undefined") return false;
@@ -429,13 +395,40 @@ export class Logger {
   }
 }
 
+export function showConfirmDialog(message: string, callback: (res: boolean) => void): void {
+  const locStr = new LocalizableString(undefined);
+  //locStr.text = getLocString("ed.lg.uncompletedRule_text");
+  const popupModel = settings.showDialog(<IDialogOptions>{
+    componentName: "sv-string-viewer",
+    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+    onApply: () => {
+      callback(true);
+      return true;
+    },
+    onCancel: () => {
+      callback(false);
+      return false;
+    },
+    //title: getLocString("ed.lg.uncompletedRule_title"),
+    title: message,
+    displayMode: "popup"
+  }, /*this.options.rootElement*/document.body); //TODO survey root
+  // const toolbar = popupModel.footerToolbar;
+  // const applyBtn = toolbar.getActionById("apply");
+  // const cancelBtn = toolbar.getActionById("cancel");
+  // cancelBtn.title = this.getLocString("ed.lg.uncompletedRule_cancel");
+  // applyBtn.title = this.getLocString("ed.lg.uncompletedRule_apply");
+  // applyBtn.innerCss += " svc-logic-tab__leave-apply-button";
+  // popupModel.width = "800px";
+  //return true;
+}
+
 export {
   mergeValues,
   getElementWidth,
   isContainerVisible,
   classesToSelector,
   compareVersions,
-  confirmAction,
   confirmActionAsync,
   detectIEOrEdge,
   detectIEBrowser,

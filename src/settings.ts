@@ -1,4 +1,5 @@
 import { IDialogOptions } from "./popup";
+import { showConfirmDialog } from "./utils/utils";
 
 export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
@@ -488,8 +489,8 @@ export var settings = {
    * Set this property to a function that renders your custom dialog window. This function should return `true` if a user confirms an action or `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    */
-  confirmActionFunc: function (message: string): boolean {
-    return confirm(message);
+  confirmActionFunc: function (message: string, callback: (res: boolean) => void): void {
+    showConfirmDialog(message, callback);
   },
   /**
    * A property that allows you to display a custom confirm dialog instead of the standard browser dialog in async mode.

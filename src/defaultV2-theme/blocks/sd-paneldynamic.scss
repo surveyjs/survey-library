@@ -40,6 +40,10 @@
     border: none;
 }
 
+.sd-paneldynamic__separator:only-child {
+    display: none;
+}
+
 .sd-paneldynamic__panel-wrapper {
     padding-bottom: calc(1 * var(--sd-base-padding));
 }

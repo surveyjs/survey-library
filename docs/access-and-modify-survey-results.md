@@ -1,3 +1,8 @@
+---
+title: Access and Modify Survey Results | SurveyJS
+description: Learn how to access, modify, and manage individual question values and full survey results using ready-to-use code examples of this comprehensive guide.
+---
+
 # Access Survey Results
 
 This help topic describes how you can access, modify, and display individual question values and full survey results.

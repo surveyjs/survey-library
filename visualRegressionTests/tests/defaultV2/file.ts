@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "File Screenshot";
 
@@ -27,7 +27,6 @@ const json = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await explicitErrorHandler();
     await applyTheme(theme);
     await initSurvey(framework, json);
     await ClientFunction(() => {
@@ -46,7 +45,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("file-question-single-file-small-image.png", questionRoot, t, comparer);
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Portfolio.pdf"]);
       await takeElementScreenshot("file-question-single-file.png", questionRoot, t, comparer);
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.allowMultiple = true;
         question.clear();
@@ -63,7 +62,7 @@ frameworks.forEach(framework => {
   test("Check file question - long names", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.allowMultiple = true;
         question.value = [
@@ -82,23 +81,23 @@ frameworks.forEach(framework => {
   test("Check file question mobile mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         (window as any).survey.resizeObserver.disconnect();
         (window as any).survey.setIsMobile(false);
         (window as any).survey.getAllQuestions()[0].resizeObserver.disconnect();
-        (window as any).survey.getAllQuestions()[0].processResponsiveness = () => {};
+        (window as any).survey.getAllQuestions()[0].processResponsiveness = () => { };
         (window as any).survey.getAllQuestions()[0].pageSize = 1;
-        (window as any).survey.getAllQuestions()[0].isMobile = true;
+        (window as any).survey.getAllQuestions()[0].setIsMobile(true);
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.allowMultiple = true;
         question.clear();
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.indexToShow = 0;
         question.fileIndexAction.title = question.getFileIndexCaption();
@@ -116,7 +115,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const questionRoot = Selector(".sd-question");
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.isUploading = true;
       })();
@@ -130,7 +129,6 @@ frameworks.forEach(framework => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await explicitErrorHandler();
   });
   test("Check file question placeholder mobile", async t => {
     await wrapVisualTest(t, async (t, comparer) => {

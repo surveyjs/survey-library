@@ -1,5 +1,5 @@
 import { Selector, ClientFunction, t } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Tagbox Screenshot (modern)";
 
@@ -15,7 +15,6 @@ frameworks.forEach(async framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
-      await explicitErrorHandler();
       await applyTheme(theme);
     });
 

@@ -69,15 +69,15 @@
       "Title": "Handle Survey Results",
       "Items": [
         {
-          "Name": "handle-survey-results-access",
+          "Name": "access-and-modify-survey-results",
           "Title": "Access Survey Results"
         },
         {
-          "Name": "handle-survey-results-store",
+          "Name": "how-to-store-survey-results",
           "Title": "Store Survey Results"
         },
         {
-          "Name": "handle-survey-results-continue-incomplete",
+          "Name": "how-to-save-and-restore-incomplete-survey",
           "Title": "Continue an Incomplete Survey"
         }
       ]

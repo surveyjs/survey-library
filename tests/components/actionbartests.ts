@@ -1,4 +1,4 @@
-import { Action, ActionDropdownViewModel, IAction } from "../../src/actions/action";
+import { Action, ActionDropdownViewModel, IAction, createDropdownActionModel } from "../../src/actions/action";
 import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
 import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
 import { LocalizableString } from "../../src/localizablestring";
@@ -228,4 +228,52 @@ QUnit.test("Dispose dots item and all it content", (assert) => {
   assert.equal(model.dotsItem.isDisposed, true, "dotsItem is disposed");
   assert.equal(model.dotsItem.popupModel.isDisposed, true, "popup model is disposed");
   assert.equal(model.dotsItem.data.isDisposed, true, "list model is disposed");
+});
+QUnit.test("createDropdownActionModel: switch action title", (assert) => {
+  let items: Array<any> = [];
+  for (let index = 0; index < 20; index++) {
+    items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
+  }
+
+  let selectedValue;
+  const dropdownAction = createDropdownActionModel(
+    { title: "Test", showTitle: true },
+    { items: items, onSelectionChanged: (item: Action) => { selectedValue = item.id; } }
+  );
+  const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(selectedValue, undefined);
+  assert.equal(dropdownAction.title, "Test");
+
+  list.onItemClick(items[1]);
+  assert.equal(selectedValue, "1");
+  assert.equal(dropdownAction.title, "item1");
+
+  list.onItemClick(items[10]);
+  assert.equal(selectedValue, "10");
+  assert.equal(dropdownAction.title, "item10");
+});
+QUnit.test("createDropdownActionModel: title is not changed", (assert) => {
+  let items: Array<any> = [];
+  for (let index = 0; index < 20; index++) {
+    items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
+  }
+
+  let selectedValue;
+  const dropdownAction = createDropdownActionModel(
+    { title: "Test", showTitle: false, iconName: "test-icon" },
+    { items: items, onSelectionChanged: (item: Action) => { selectedValue = item.id; } }
+  );
+  const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(selectedValue, undefined);
+  assert.equal(dropdownAction.title, "Test");
+
+  list.onItemClick(items[1]);
+  assert.equal(selectedValue, "1");
+  assert.equal(dropdownAction.title, "Test");
+
+  list.onItemClick(items[10]);
+  assert.equal(selectedValue, "10");
+  assert.equal(dropdownAction.title, "Test");
 });

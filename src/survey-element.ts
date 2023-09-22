@@ -66,7 +66,7 @@ export abstract class SurveyElementCore extends Base implements ILocalizableOwne
   }) description: string;
   public updateDescriptionVisibility(newDescription: any) {
     let showPlaceholder = false;
-    if(this.isDesignMode) {
+    if (this.isDesignMode) {
       const property: JsonObjectProperty = Serializer.findProperty(this.getType(), "description");
       showPlaceholder = !!(property?.placeholder);
     }
@@ -543,7 +543,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public get cssTitleNumber(): any {
     const css = this.cssClasses;
-    if(css.number) return css.number;
+    if (css.number) return css.number;
     return css.panel ? css.panel.number : undefined;
   }
   protected calcCssClasses(css: any): any { return undefined; }
@@ -797,7 +797,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.survey && (<SurveyModel>this.survey)["isCompact"];
   }
 
-  protected getHasFrameV2() : boolean {
+  protected getHasFrameV2(): boolean {
     return this.shouldAddRunnerStyles() && (!this.hasParent);
   }
   protected getIsNested(): boolean {
@@ -890,8 +890,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public getRootStyle(): object {
     const style: any = {};
-    if(!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }
-    if(!!this.paddingRight) { style["--sv-element-add-padding-right"] = this.paddingRight; }
+    if (!!this.paddingLeft) { style["--sv-element-add-padding-left"] = this.paddingLeft; }
+    if (!!this.paddingRight) { style["--sv-element-add-padding-right"] = this.paddingRight; }
     return style;
   }
   get paddingLeft(): string {
@@ -923,9 +923,28 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     }
     return style;
   }
+  private isContainsSelection(el: any) {
+    let elementWithSelection: any = undefined;
+    if ((document as any)["selection"]) {
+      elementWithSelection = (document as any)["selection"].createRange().parentElement();
+    }
+    else {
+      var selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        if (range.startOffset !== range.endOffset) {
+          elementWithSelection = range.startContainer.parentNode;
+        }
+      }
+    }
+    return elementWithSelection == el;
+  }
   public get clickTitleFunction(): any {
     if (this.needClickTitleFunction()) {
-      return () => {
+      return (event?: MouseEvent) => {
+        if (!!event && this.isContainsSelection(event.target)) {
+          return;
+        }
         return this.processTitleClick();
       };
     }
@@ -942,7 +961,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public get additionalTitleToolbar(): ActionContainer {
     return this.getAdditionalTitleToolbar();
   }
-  protected getAdditionalTitleToolbar() : ActionContainer | null {
+  protected getAdditionalTitleToolbar(): ActionContainer | null {
     return null;
   }
   protected getCssTitle(cssClasses: any) {
@@ -968,7 +987,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public dispose(): void {
     super.dispose();
-    if(this.titleToolbarValue) {
+    if (this.titleToolbarValue) {
       this.titleToolbarValue.dispose();
     }
   }

@@ -2,7 +2,6 @@
   color: var(--text-color, $text-color);
   font-size: var(--font-size, $font-size);
   font-family: var(--font-family, $font-family);
-  margin-bottom: calcSize(10);
 }
 
 .sv-container-modern__title {

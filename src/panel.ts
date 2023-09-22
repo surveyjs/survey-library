@@ -800,7 +800,6 @@ export class PanelModelBase extends SurveyElement<Question>
   protected hasErrorsCore(rec: any) {
     var elements = this.elements;
     var element = null;
-
     for (var i = 0; i < elements.length; i++) {
       element = elements[i];
 
@@ -810,7 +809,6 @@ export class PanelModelBase extends SurveyElement<Question>
         (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
       } else {
         var question = <Question>element;
-        if (question.isReadOnly) continue;
         if (!question.validate(rec.fireCallback, rec)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;
@@ -1770,17 +1768,8 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   private footerToolbarValue: ActionContainer;
 
-  private footerToolbarCssValue: string;
-
-  public set footerToolbarCss(val: string) {
-    this.footerToolbarCssValue = val;
-  }
-
-  public get footerToolbarCss(): string {
-    return this.footerToolbarCssValue || this.cssClasses.panel?.footer;
-  }
   public onGetFooterActionsCallback: () => Array<IAction>;
-
+  public onGetFooterToolbarCssCallback: () => string;
   public getFooterToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
       var actions = this.footerActions;
@@ -1798,9 +1787,13 @@ export class PanelModel extends PanelModelBase implements IElement {
         actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
-      // if (!!this.cssClasses.panel) {
-      this.footerToolbarValue.containerCss = this.footerToolbarCss;
-      // }
+      let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
+      if(!footerCss) {
+        footerCss = this.cssClasses.panel?.footer;
+      }
+      if(footerCss) {
+        this.footerToolbarValue.containerCss = footerCss;
+      }
       this.footerToolbarValue.setItems(actions);
     }
     return this.footerToolbarValue;

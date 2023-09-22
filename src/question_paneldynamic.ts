@@ -1782,7 +1782,7 @@ export class QuestionPanelDynamicModel extends Question
     panel.onGetFooterActionsCallback = () => {
       return this.getPanelActions(panel);
     };
-    panel.footerToolbarCss = this.cssClasses.panelFooter;
+    panel.onGetFooterToolbarCssCallback = () => { return this.cssClasses.panelFooter; };
     panel.registerPropertyChangedHandlers(["visible"], () => {
       if(panel.visible) this.onPanelAdded(panel);
       else this.onPanelRemoved(panel);

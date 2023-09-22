@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey, url_test, applyTheme, explicitErrorHandler } from "../helper";
+import { frameworks, url, initSurvey, url_test, applyTheme } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "titleActions";
 
@@ -320,7 +320,6 @@ frameworks.forEach((framework) => {
     await applyTheme(themeName);
   });
   test("check hidden action content has non-zero width", async (t) => {
-    await explicitErrorHandler();
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => {
         opt.titleActions = [

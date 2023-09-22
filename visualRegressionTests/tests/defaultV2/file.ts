@@ -87,7 +87,7 @@ frameworks.forEach(framework => {
         (window as any).survey.getAllQuestions()[0].resizeObserver.disconnect();
         (window as any).survey.getAllQuestions()[0].processResponsiveness = () => { };
         (window as any).survey.getAllQuestions()[0].pageSize = 1;
-        (window as any).survey.getAllQuestions()[0].isMobile = true;
+        (window as any).survey.getAllQuestions()[0].setIsMobile(true);
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
       const questionRoot = Selector(".sd-question");

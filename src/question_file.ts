@@ -189,7 +189,7 @@ export class QuestionFileModel extends Question {
     }, 0);
   }
   private startVideoInCamera(): void {
-    new Camera().startVideo(this.videoId, (stream: MediaStream) => {
+    this.camera.startVideo(this.videoId, (stream: MediaStream) => {
       this.videoStream = stream;
       if(!stream) {
         this.stopVideo();
@@ -208,16 +208,22 @@ export class QuestionFileModel extends Question {
         this.loadFiles([file]);
       }
     };
-    new Camera().snap(this.videoId, blobCallback);
+    this.camera.snap(this.videoId, blobCallback);
     this.stopVideo();
   }
+  @property() private canFlipCameraValue: boolean = undefined;
   public canFlipCamera(): boolean {
-    return this.isPlayingVideo && new Camera().canFlip();
+    if(this.canFlipCameraValue === undefined) {
+      this.canFlipCameraValue = this.camera.canFlip((res: boolean) => {
+        this.canFlipCameraValue = res;
+      });
+    }
+    return this.canFlipCameraValue;
   }
   public flipCamera(): void {
     if(!this.canFlipCamera()) return;
     this.closeVideoStream();
-    new Camera().flip();
+    this.camera.flip();
     this.startVideoInCamera();
   }
   private closeVideoStream(): void {
@@ -445,7 +451,7 @@ export class QuestionFileModel extends Question {
   private updateCurrentMode(): void {
     if(!this.isDesignMode) {
       if(this.mode !== "file") {
-        new Camera().hasCamera((res: boolean) => {
+        this.camera.hasCamera((res: boolean) => {
           this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.mode : "file");
         });
       } else {
@@ -606,6 +612,13 @@ export class QuestionFileModel extends Question {
     } else {
       this.clear(loadFilesProc);
     }
+  }
+  private cameraValue: Camera;
+  protected get camera(): Camera {
+    if(!this.cameraValue) {
+      this.cameraValue = new Camera();
+    }
+    return this.cameraValue;
   }
   public canPreviewImage(fileItem: any): boolean {
     return this.allowImagesPreview && !!fileItem && this.isFileImage(fileItem);
@@ -941,6 +954,7 @@ export class QuestionFileModel extends Question {
   }
   //#endregion
   public dispose(): void {
+    this.cameraValue = undefined;
     this.closeVideoStream();
     super.dispose();
   }

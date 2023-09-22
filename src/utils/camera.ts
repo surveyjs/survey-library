@@ -37,6 +37,8 @@ export class Camera {
   }
   private static cameraList: Array<MediaDeviceInfo>;
   private static cameraIndex: number = -1;
+  private static cameraFacingMode: string = "user";
+  private static canSwitchFacingMode: boolean = false;
   public hasCamera(callback: (res: boolean) => void): void {
     if(Camera.cameraList !== undefined) {
       this.hasCameraCallback(callback);
@@ -55,6 +57,7 @@ export class Camera {
         .then(devices =>{
           this.setVideoInputs(devices);
           this.hasCameraCallback(callback);
+          this.updateCanFlipValue();
         })
         .catch(error => {
           Camera.cameraList = null;
@@ -74,7 +77,7 @@ export class Camera {
     if (selDevice && selDevice.deviceId) {
       videoConstraints.deviceId = { exact: selDevice.deviceId };
     } else {
-      videoConstraints.facingMode = "user";
+      videoConstraints.facingMode = Camera.cameraFacingMode;
     }
     if(videoEl) {
       videoConstraints.width = { exact: videoEl.width ? videoEl.width : videoEl.scrollWidth };
@@ -101,8 +104,13 @@ export class Camera {
     } else {
       videoEl.style.height = "100%";
     }
-    navigator.mediaDevices.getUserMedia(this.getMediaConstraints(videoEl)).then(stream => {
+    const mediaConstraints = this.getMediaConstraints(videoEl);
+    navigator.mediaDevices.getUserMedia(mediaConstraints).then(stream => {
       videoEl.srcObject = stream;
+      if(!Camera.cameraList[Camera.cameraIndex]?.deviceId && !!stream.getTracks()[0].getCapabilities().facingMode) {
+        Camera.canSwitchFacingMode = true;
+        this.updateCanFlipValue();
+      }
       videoEl.play();
       callback(stream);
     })
@@ -130,13 +138,31 @@ export class Camera {
     canvasEl.toBlob(callback, "image/png");
     return true;
   }
-  public canFlip(): boolean {
+
+  private canFlipValue: boolean = undefined;
+
+  private updateCanFlipValue() {
     const list = Camera.cameraList;
-    return Array.isArray(list) && list.length > 1;
+    this.canFlipValue = Array.isArray(list) && list.length > 1 || Camera.canSwitchFacingMode;
+    if(this.onCanFlipChangedCallback) this.onCanFlipChangedCallback(this.canFlipValue);
+  }
+  private onCanFlipChangedCallback?: (res: boolean) => void;
+
+  public canFlip(onCanFlipChangedCallback?: (res: boolean) => void): boolean {
+    if(this.canFlipValue === undefined) {
+      this.updateCanFlipValue();
+    }
+    if(onCanFlipChangedCallback) {
+      this.onCanFlipChangedCallback = onCanFlipChangedCallback;
+    }
+    return this.canFlipValue;
   }
   public flip(): void {
     if(!this.canFlip()) return;
-    if(Camera.cameraIndex >= Camera.cameraList.length - 1) {
+    if(Camera.canSwitchFacingMode) {
+      Camera.cameraFacingMode = Camera.cameraFacingMode === "user" ? "environment" : "user";
+    }
+    else if(Camera.cameraIndex >= Camera.cameraList.length - 1) {
       Camera.cameraIndex = 0;
     } else {
       Camera.cameraIndex ++;

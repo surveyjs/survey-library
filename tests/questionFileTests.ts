@@ -1496,6 +1496,39 @@ QUnit.test("new Camera().flip", function(assert) {
   assert.equal(mConst.video.deviceId.exact, 3, "Flip #2");
   Camera.clear();
 });
+QUnit.test("Check file question change camera action", function(assert) {
+  let survey = new SurveyModel({
+    elements: [{ type: "file", name: "q1" }]
+  });
+  let q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  const changeCameraAction = q1.changeCameraAction;
+  q1.setPropertyValue("isPlayingVideo", true);
+  assert.notOk(changeCameraAction.visible);
+  Camera.setCameraList(createDevices([{ label: "abd" }, { label: "enviroment" }, { label: "user" }]));
+  assert.notOk(changeCameraAction.visible);
+  q1["camera"]["updateCanFlipValue"]();
+  assert.ok(changeCameraAction.visible);
+  Camera["cameraIndex"] = 0;
+  q1["camera"].flip();
+  assert.equal(Camera["cameraIndex"], 1);
+  q1["camera"].flip();
+  assert.equal(Camera["cameraIndex"], 2);
+  q1["camera"].flip();
+  assert.equal(Camera["cameraIndex"], 0);
+
+  Camera.setCameraList(createDevices([{ label: "enviroment" }]));
+  q1["camera"]["updateCanFlipValue"]();
+  assert.notOk(changeCameraAction.visible);
+  Camera["canSwitchFacingMode"] = true;
+  q1["camera"]["updateCanFlipValue"]();
+  assert.ok(changeCameraAction.visible);
+  assert.equal(Camera["cameraFacingMode"], "user");
+  q1["camera"].flip();
+  assert.equal(Camera["cameraFacingMode"], "environment");
+  q1["camera"].flip();
+  assert.equal(Camera["cameraFacingMode"], "user");
+  Camera.clear();
+});
 QUnit.test("QuestionFile stop playing video on hiding question", function(assert) {
   let survey = new SurveyModel({
     elements: [{ type: "file", name: "q1" }]
@@ -1599,25 +1632,6 @@ QUnit.test("QuestionFile check actions container", function(assert) {
   assert.ok(startCameraAction.visible);
   assert.ok(cleanAction.visible);
   assert.notOk(startCameraAction.showTitle);
-});
-
-QUnit.test("QuestionFile check video actions", function(assert) {
-  const survey = new SurveyModel({
-    pages: [
-      { elements: [{ type: "file", name: "q1", mode: "camera" }] }
-    ]
-  });
-  Camera.setCameraList(createDevices([{ label: "dfdf" }]));
-  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
-  assert.ok(q1.takePictureAction.visible);
-  assert.ok(q1.closeCameraAction.visible);
-  q1.setPropertyValue("isPlayingVideo", true);
-  assert.notOk(q1.changeCameraAction.visible);
-  q1.setPropertyValue("isPlayingVideo", false);
-
-  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "afaf" }]));
-  q1.setPropertyValue("isPlayingVideo", true);
-  assert.ok(q1.changeCameraAction.visible);
 });
 
 QUnit.test("QuestionFile check renderedPlaceholder in different modes", function(assert) {

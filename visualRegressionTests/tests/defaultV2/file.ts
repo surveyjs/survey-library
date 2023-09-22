@@ -151,7 +151,6 @@ frameworks.forEach(framework => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await explicitErrorHandler();
   });
   test("Check file question camera", async t => {
     await wrapVisualTest(t, async (t, comparer) => {

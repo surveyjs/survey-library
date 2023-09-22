@@ -17,7 +17,7 @@ function compareVersions(a: any, b: any) {
   return segmentsA.length - segmentsB.length;
 }
 
-function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo = () => {}): void {
+function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
   const callbackFunc = (res: boolean): void => {
     if(res) funcOnYes();
     else if(!!funcOnNo) funcOnNo();

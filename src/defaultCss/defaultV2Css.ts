@@ -84,6 +84,7 @@ export var defaultV2Css = {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
     empty: "sd-question--empty",
     root: "sd-paneldynamic",
+    iconRemove: "sd-hidden",
     navigation: "sd-paneldynamic__navigation",
     title: "sd-title sd-element__title sd-question__title",
     header: "sd-paneldynamic__header sd-element__header",

@@ -1437,7 +1437,7 @@ export class QuestionSelectBase extends Question {
     if (!this.hasValueToClearIncorrectValues()) return;
     if (
       !!this.survey &&
-      this.survey.questionCountByValueName(this.getValueName()) > 1
+      this.survey.questionsByValueName(this.getValueName()).length > 1
     )
       return;
     if (

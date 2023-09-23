@@ -1465,9 +1465,18 @@ QUnit.test("choicesByUrl + isReady (not ready before call and ready after)", fun
   question.doResultsCallback();
   assert.equal(question.isReady, true, "IsReady should be true after load survey");
 });
-/*
+
 QUnit.test("choicesByUrl + isReady for questions with the same valueName (not ready before call and ready after)", function(assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("p1");
+  const panel = new QuestionPanelDynamicModel("q2");
+  panel.template.addNewQuestion("text", "q2_2");
+  panel.valueName = "q1";
+  survey.pages[0].addQuestion(panel);
   var question = new QuestionCheckboxModelTester("q1");
+  question.valuePropertyName = "val1";
+  survey.pages[0].addQuestion(question);
+  assert.equal(question.isReady, true, "Question is not loaded yet");
   question.hasItemsCallbackDelay = true;
   question.choicesByUrl.url = "something";
   question.choicesByUrl.valueName = "identity";
@@ -1477,13 +1486,6 @@ QUnit.test("choicesByUrl + isReady for questions with the same valueName (not re
     { identity: { id: 1023 }, localizedData: { id: "A3" } },
     { identity: { id: 1024 }, localizedData: { id: "A4" } },
   ];
-  question.valuePropertyName = "val1";
-  const survey = new SurveyModel();
-  survey.addNewPage("q1");
-  survey.pages[0].addQuestion(question);
-  const panel = new QuestionPanelDynamicModel("q2");
-  panel.template.addNewQuestion("text", "q2_2");
-  panel.valueName = "q1";
   question.onSurveyLoad();
   assert.equal(question.isReady, false, "It is not ready yet");
   assert.equal(panel.isReady, false, "Related question is not ready");
@@ -1491,7 +1493,7 @@ QUnit.test("choicesByUrl + isReady for questions with the same valueName (not re
   assert.equal(question.isReady, true, "IsReady should be true after load survey");
   assert.equal(panel.isReady, true, "Related question is ready");
 });
-*/
+
 QUnit.test("isUsing cache", function(assert) {
   var question = new QuestionDropdownModelTester("q1");
   question.choicesByUrl.url = "someurl";

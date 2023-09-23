@@ -221,22 +221,60 @@ export class Question extends SurveyElement<Question>
   public get isReady(): boolean {
     return this.isReadyValue;
   }
-  protected updateIsReady(raiseEvent: boolean = true): void {
-    this.setIsReady(this.getIsQuestionReady(), raiseEvent);
+  protected updateIsReady(): void {
+    let res = this.getIsQuestionReady();
+    if(res) {
+      const questions = this.getIsReadyDependsOn();
+      for(let i = 0; i < questions.length; i ++) {
+        if(!questions[i].getIsQuestionReady()) {
+          res = false;
+          break;
+        }
+      }
+    }
+    this.setIsReady(res);
   }
   protected getIsQuestionReady(): boolean {
+    return this.getAreNestedQuestionsReady();
+  }
+  private getAreNestedQuestionsReady(): boolean {
+    const questions = this.getIsReadyNestedQuestions();
+    if(!Array.isArray(questions)) return true;
+    for(let i = 0; i < questions.length; i ++) {
+      if(!questions[i].isReady) return false;
+    }
     return true;
   }
-  private setIsReady(val: boolean, raiseEvent: boolean): void {
+  protected getIsReadyNestedQuestions(): Array<Question> {
+    return this.getNestedQuestions();
+  }
+  private setIsReady(val: boolean): void {
     const oldIsReady = this.isReadyValue;
     this.isReadyValue = val;
-    if (raiseEvent && oldIsReady != val) {
+    if (oldIsReady != val) {
+      this.getIsReadyDependends().forEach(q => q.updateIsReady());
       this.onReadyChanged.fire(this, {
         question: this,
         isReady: val,
         oldIsReady: oldIsReady,
       });
     }
+  }
+  private getIsReadyDependsOn(): Array<Question> {
+    return this.getIsReadyDependendCore(true);
+  }
+  private getIsReadyDependends(): Array<Question> {
+    return this.getIsReadyDependendCore(false);
+  }
+  private getIsReadyDependendCore(isDependOn: boolean): Array<Question> {
+    if(!this.survey) return [];
+    const questions = this.survey.questionsByValueName(this.getValueName());
+    const res = new Array<Question>();
+    questions.forEach(q => { if(q !== this) res.push(<Question>q); });
+    if(!isDependOn && this.parentQuestion) {
+      res.push(this.parentQuestion);
+    }
+    return res;
   }
   public choicesLoaded(): void { }
   /**

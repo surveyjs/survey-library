@@ -573,6 +573,9 @@ export class QuestionSelectBase extends Question {
     if(!val) return false;
     return this.hasUnknownValue(val, true, false);
   }
+  protected getIsQuestionReady(): boolean {
+    return super.getIsQuestionReady() && !this.waitingChoicesByURL && !this.waitingGetChoiceDisplayValueResponse;
+  }
   protected updateSelectedItemValues(): void {
     if(this.waitingGetChoiceDisplayValueResponse || !this.survey || this.isEmpty()) return;
     const value = this.value;
@@ -580,7 +583,7 @@ export class QuestionSelectBase extends Question {
     const hasItemWithoutValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
     if (hasItemWithoutValues) {
       this.waitingGetChoiceDisplayValueResponse = true;
-      this.isReady = !this.waitingAcyncOperations;
+      this.updateIsReady();
       this.survey.getChoiceDisplayValue({
         question: this,
         values: valueArray,
@@ -595,7 +598,7 @@ export class QuestionSelectBase extends Question {
           else {
             this.selectedItemValues = items[0];
           }
-          this.isReady = !this.waitingAcyncOperations;
+          this.updateIsReady();
         }
       });
     }
@@ -1256,7 +1259,7 @@ export class QuestionSelectBase extends Question {
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
-    this.isReadyValue = !this.waitingAcyncOperations;
+    this.updateIsReady();
     this.isRunningChoices = true;
     this.choicesByUrl.run(processor);
     this.isRunningChoices = false;
@@ -1628,7 +1631,7 @@ export class QuestionSelectBase extends Question {
 
   public choicesLoaded(): void {
     this.isChoicesLoaded = true;
-    this.isReady = !this.waitingAcyncOperations;
+    this.updateIsReady();
     if (this.survey) {
       this.survey.loadedChoicesFromServer(this);
     }

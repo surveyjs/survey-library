@@ -76,7 +76,7 @@ export class Question extends SurveyElement<Question>
   onUpdateCssClassesCallback: (css: any) => void;
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
-  protected isReadyValue: boolean = true;
+  private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
 
@@ -218,10 +218,19 @@ export class Question extends SurveyElement<Question>
       this.valueName ? this.valueName : oldValue
     );
   }
-  public set isReady(val: boolean) {
+  public get isReady(): boolean {
+    return this.isReadyValue;
+  }
+  protected updateIsReady(raiseEvent: boolean = true): void {
+    this.setIsReady(this.getIsQuestionReady(), raiseEvent);
+  }
+  protected getIsQuestionReady(): boolean {
+    return true;
+  }
+  private setIsReady(val: boolean, raiseEvent: boolean): void {
     const oldIsReady = this.isReadyValue;
     this.isReadyValue = val;
-    if (oldIsReady != val) {
+    if (raiseEvent && oldIsReady != val) {
       this.onReadyChanged.fire(this, {
         question: this,
         isReady: val,
@@ -229,10 +238,6 @@ export class Question extends SurveyElement<Question>
       });
     }
   }
-  public get isReady(): boolean {
-    return this.isReadyValue;
-  }
-
   public choicesLoaded(): void { }
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.

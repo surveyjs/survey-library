@@ -1039,13 +1039,24 @@ export class QuestionSelectBase extends Question {
     this.setCarryForwardQuestionType(!!selBaseQuestion, !!arrayQuestion);
     return !!selBaseQuestion || !!arrayQuestion ? question : null;
   }
+  protected getIsReadyDependsOn(): Array<Question> {
+    const res = super.getIsReadyDependsOn();
+    if(this.carryForwardQuestion) {
+      res.push(this.carryForwardQuestion);
+    }
+    return res;
+  }
   private getQuestionWithChoices(): QuestionSelectBase {
     return this.getQuestionWithChoicesCore(this.findCarryForwardQuestion());
   }
+  private carryForwardQuestion: Question;
   private findCarryForwardQuestion(data?: ISurveyData): Question {
     if(!data) data = this.data;
-    if (!this.choicesFromQuestion || !data) return null;
-    return <Question>data.findQuestionByName(this.choicesFromQuestion);
+    this.carryForwardQuestion = null;
+    if (this.choicesFromQuestion && data) {
+      this.carryForwardQuestion = <Question>data.findQuestionByName(this.choicesFromQuestion);
+    }
+    return this.carryForwardQuestion;
   }
   private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
     if(!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)

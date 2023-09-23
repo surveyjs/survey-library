@@ -263,7 +263,7 @@ export class Question extends SurveyElement<Question>
       });
     }
   }
-  private getIsReadyDependsOn(): Array<Question> {
+  protected getIsReadyDependsOn(): Array<Question> {
     return this.getIsReadyDependendCore(true);
   }
   private getIsReadyDependends(): Array<Question> {
@@ -274,8 +274,13 @@ export class Question extends SurveyElement<Question>
     const questions = this.survey.questionsByValueName(this.getValueName());
     const res = new Array<Question>();
     questions.forEach(q => { if(q !== this) res.push(<Question>q); });
-    if(!isDependOn && this.parentQuestion) {
-      res.push(this.parentQuestion);
+    if(!isDependOn) {
+      if(this.parentQuestion) {
+        res.push(this.parentQuestion);
+      }
+      if(this.dependedQuestions.length > 0) {
+        this.dependedQuestions.forEach(q => res.push(q));
+      }
     }
     return res;
   }

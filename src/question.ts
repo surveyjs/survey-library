@@ -221,6 +221,9 @@ export class Question extends SurveyElement<Question>
   public get isReady(): boolean {
     return this.isReadyValue;
   }
+  protected onAsyncRunningChanged(): void {
+    this.updateIsReady();
+  }
   protected updateIsReady(): void {
     let res = this.getIsQuestionReady();
     if(res) {
@@ -235,7 +238,7 @@ export class Question extends SurveyElement<Question>
     this.setIsReady(res);
   }
   protected getIsQuestionReady(): boolean {
-    return this.getAreNestedQuestionsReady();
+    return !this.isAsyncExpressionRunning && this.getAreNestedQuestionsReady();
   }
   private getAreNestedQuestionsReady(): boolean {
     const questions = this.getIsReadyNestedQuestions();
@@ -1689,7 +1692,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
     if (!runner && !!expression) {
-      runner = new ExpressionRunner(expression);
+      runner = this.createExpressionRunner(expression);
     }
     if (!!runner) {
       runner.expression = expression;

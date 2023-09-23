@@ -1160,13 +1160,21 @@ QUnit.test("Several async functions in expression", function(assert) {
   var runner = new ConditionRunner(
     "asyncFunc1() + asyncFunc2() + asyncFunc3() = 10"
   );
+  let idBefore: number = -1;
+  let idAfter: number = -1;
+  runner.onBeforeAsyncRun = (id: number) => { idBefore = id; };
+  runner.onAfterAsyncRun = (id: number) => { idAfter = id; };
   var runnerResult = null;
   runner.onRunComplete = function(result: any) {
     runnerResult = result;
   };
   assert.equal(runner.isAsync, true, "The condition is async");
   var values = { a: 3 };
+  assert.equal(idBefore, -1, "idBefore #1");
+  assert.equal(idAfter, -1, "idAfter #1");
   runner.run(values);
+  assert.equal(idBefore, runner.id, "idBefore #2");
+  assert.equal(idAfter, -1, "idAfter #2");
   assert.equal(
     runnerResult,
     null,
@@ -1178,14 +1186,20 @@ QUnit.test("Several async functions in expression", function(assert) {
     null,
     "It is not ready, asyncfunc1 and asyncfunc3 functions do not return anything"
   );
+  assert.equal(idBefore, runner.id, "idBefore #3");
+  assert.equal(idAfter, -1, "idAfter #3");
   returnResult1(7);
   assert.equal(
     runnerResult,
     null,
     "It is not ready, asyncfunc3 function doesn't return anything"
   );
+  assert.equal(idBefore, runner.id, "idBefore #4");
+  assert.equal(idAfter, -1, "idAfter #4");
   returnResult3(1);
   assert.equal(runnerResult, true, "evulate successfull");
+  assert.equal(idBefore, runner.id, "idBefore #5");
+  assert.equal(idAfter, runner.id, "idAfter #5");
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
   FunctionFactory.Instance.unregister("asyncFunc3");

@@ -1446,6 +1446,7 @@ export class QuestionSelectBase extends Question {
   }
   public clearIncorrectValues() {
     if (!this.hasValueToClearIncorrectValues()) return;
+    if(this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return;
     if (
       !!this.survey &&
       this.survey.questionsByValueName(this.getValueName()).length > 1

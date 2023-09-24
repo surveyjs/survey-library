@@ -4374,6 +4374,7 @@ QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function
         name: "panel",
         type: "paneldynamic",
         templateElements: [
+          { type: "expression", name: "q5", expression: "{panel.q4} + {panel.q3}" },
           { type: "text", name: "q1", defaultValue: 1 },
           { type: "text", name: "q2", defaultValue: 2 },
           { type: "text", name: "q3", defaultValueExpression: "{panel.q1} + {panel.q2}" },
@@ -4389,10 +4390,10 @@ QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function
   });
   const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
   panel.addPanel();
-  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4 }], "panel.value #1");
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }], "panel.value #1");
   assert.equal(counter, 1, "survey.onValueChanged call times #1");
   panel.addPanel();
-  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4 }, { q1: 1, q2: 2, q3: 3, q4: 4 }], "panel.value #2");
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }], "panel.value #2");
   assert.equal(counter, 2, "survey.onValueChanged call times #2");
 });
 QUnit.test(

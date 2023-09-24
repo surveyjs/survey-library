@@ -2163,6 +2163,21 @@ QUnit.test("Matrixdynamic addRowLocation", function (assert) {
   );
 });
 
+QUnit.test("Matrixdynamic showAddRow", function (assert) {
+  var question = new QuestionMatrixDynamicModel("matrix");
+  assert.equal(question.renderedTable.showAddRow, true, "#1");
+  question.readOnly = true;
+  assert.equal(question.renderedTable.showAddRow, false, "#2");
+  question.readOnly = false;
+  assert.equal(question.renderedTable.showAddRow, true, "#3");
+  question.rowCount = 0;
+  question.allowAddRows = false;
+  assert.equal(question.canAddRow, false, "question.canAddRow");
+  assert.equal(question.renderedTable.showAddRowOnTop, false, "showAddRowOnTop");
+  assert.equal(question.renderedTable.showAddRowOnBottom, false, "showAddRowOnBottom");
+  assert.equal(question.renderedTable.showAddRow, false, "#4");
+});
+
 QUnit.test("matrix.rowsVisibleIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

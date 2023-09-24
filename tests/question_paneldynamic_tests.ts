@@ -4367,6 +4367,34 @@ QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
     "the first panel title set correctly again"
   );
 });
+QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function(assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        name: "panel",
+        type: "paneldynamic",
+        templateElements: [
+          { type: "text", name: "q1", defaultValue: 1 },
+          { type: "text", name: "q2", defaultValue: 2 },
+          { type: "text", name: "q3", defaultValueExpression: "{panel.q1} + {panel.q2}" },
+          { type: "text", name: "q4", defaultValueExpression: "{val1}" }
+        ]
+      }
+    ],
+  });
+  survey.setValue("val1", 4);
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.addPanel();
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4 }], "panel.value #1");
+  assert.equal(counter, 1, "survey.onValueChanged call times #1");
+  panel.addPanel();
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4 }, { q1: 1, q2: 2, q3: 3, q4: 4 }], "panel.value #2");
+  assert.equal(counter, 2, "survey.onValueChanged call times #2");
+});
 QUnit.test(
   "Dependend choices not working properly in PanelDynamic Bug #2851",
   function(assert) {

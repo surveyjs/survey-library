@@ -475,7 +475,7 @@ export var defaultV2Css = {
     actionsCellDrag: "sd-table__cell--drag",
     buttonAdd: "sd-matrixdynamic__add-btn",
     buttonRemove: "sd-action--negative sd-matrixdynamic__remove-btn",
-    iconAdd: "",
+    iconAdd: "sd-hidden",
     iconRemove: "",
     dragElementDecorator: "sd-drag-element__svg",
     iconDragElement: "#icon-v2dragelement_16x16",
@@ -489,7 +489,7 @@ export var defaultV2Css = {
     errorsCell: "sd-table__cell--error",
     errorsCellTop: "sd-table__cell--error-top",
     errorsCellBottom: "sd-table__cell--error-bottom",
-    compact: "sd-element--with-frame sd-element--compact"
+    compact: "sd-element--with-frame sd-element--compact",
   },
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",

@@ -6284,3 +6284,37 @@ QUnit.test("question.clearValueOn & quesiton.defaultValueExpression", function (
   q3.value = 4;
   assert.equal(q2.value, "edf", "value is stay, #3");
 });
+QUnit.test("question.clearValueOn based on root and row questions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "text" },
+          { name: "q2", type: "text", clearValueOn: "{panel.q1} = 1 and {q4} = 4" },
+          { name: "q3", type: "text" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ]
+  });
+  const panel = survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  const q3 = panel.panels[0].getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "q2.value #1");
+  q1.value = 1;
+  assert.equal(q2.value, "abc", "q2.value #2");
+  q4.value = 4;
+  assert.equal(q2.isEmpty(), true, "q2.value #3");
+  q2.value = "edf";
+  q1.value = 2;
+  assert.equal(q2.value, "edf", "q2.value, #4");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "q2.value #5");
+});

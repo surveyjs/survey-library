@@ -65,6 +65,7 @@ export interface IMatrixDropdownData {
   ): Question;
   onTotalValueChanged(): any;
   getSurvey(): ISurvey;
+  getDataFilteredValues(): any;
 }
 
 export class MatrixDropdownCell {
@@ -338,14 +339,15 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     return this.value;
   }
   getFilteredValues(): any {
-    var allValues = this.getAllValues();
+    const res = this.data ? this.data.getDataFilteredValues() : {};
     var values: any = this.validationValues;
-    if(!values) values = {};
-    values.row = allValues;
-    for (var key in allValues) {
-      values[key] = allValues[key];
+    if(values) {
+      for (var key in values) {
+        res[key] = values[key];
+      }
     }
-    return values;
+    res.row = this.getAllValues();
+    return res;
   }
   getFilteredProperties(): any {
     return { survey: this.getSurvey(), row: this };
@@ -1367,6 +1369,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       counter < 3
     );
   }
+  public runTriggers(name: string, value: any): void {
+    super.runTriggers(name, value);
+    this.runFuncForCellQuestions((q: Question) => { q.runTriggers(name, value); });
+  }
   protected shouldRunColumnExpression(): boolean {
     return false;
   }
@@ -2340,6 +2346,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         false
       );
     }
+  }
+  getDataFilteredValues(): any {
+    return this.data ? this.data.getFilteredValues(): {};
   }
   getParentTextProcessor(): ITextProcessor {
     if (!this.parentQuestion || !this.parent) return null;

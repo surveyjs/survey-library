@@ -445,11 +445,14 @@ export class Question extends SurveyElement<Question>
     };
   }
   private clearValueOnExpression: ExpressionRunner;
+  private isRunningClearValueOn: boolean;
   public runTriggers(name: string, value: any): void {
-    if(this.isReadOnly || !this.clearValueOn || this.isEmpty()) return;
+    if(this.isRunningClearValueOn || !this.isVisible || this.isReadOnly || !this.clearValueOn || this.isEmpty()) return;
+    if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
     if(!this.clearValueOnExpression) {
       this.clearValueOnExpression = new ExpressionRunner(this.clearValueOn);
       this.clearValueOnExpression.onRunComplete = (res: any): void => {
+        this.isRunningClearValueOn = false;
         if(res === true) {
           this.clearValue();
           this.updateValueWithDefaults();
@@ -461,6 +464,7 @@ export class Question extends SurveyElement<Question>
     const keys: any = {};
     keys[name] = value;
     if(!new ProcessValue().isAnyKeyChanged(keys, this.clearValueOnExpression.getVariables())) return;
+    this.isRunningClearValueOn = true;
     this.clearValueOnExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditions() {

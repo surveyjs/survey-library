@@ -1505,6 +1505,12 @@ export class QuestionPanelDynamicModel extends Question
     super.runCondition(values, properties);
     this.runPanelsCondition(values, properties);
   }
+  public runTriggers(name: string, value: any): void {
+    super.runTriggers(name, value);
+    this.visiblePanels.forEach(p => {
+      p.questions.forEach(q => q.runTriggers(name, value));
+    });
+  }
   private reRunCondition() {
     if (!this.data) return;
     this.runCondition(

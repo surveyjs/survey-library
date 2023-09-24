@@ -3,7 +3,7 @@
     <span
       v-for="(val, index) in question.previewValue"
       :key="question.inputId + '_' + index"
-      v-show="val && question.isPreviewVisible(index)"
+      v-show="val && question.isPreviewVisible(index as number)"
       :class="question.cssClasses.preview"
     >
       <div

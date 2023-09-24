@@ -94,12 +94,6 @@ import { default as QuestionVue } from "./question";
 import { QuestionFileModel } from "survey-core";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
-  doRemoveFile(data: any) {
-    this.question.doRemoveFile(data);
-  }
-  isPreviewVisible(index: any) {
-    return this.question.isPreviewVisible(index);
-  }
 }
 Vue.component("survey-file", File);
 export default File;

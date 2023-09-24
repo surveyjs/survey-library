@@ -20,6 +20,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
+import { ProcessValue } from "./conditionProcessValue";
 
 export interface IConditionObject {
   name: string;
@@ -127,7 +128,6 @@ export class Question extends SurveyElement<Question>
       (obj: Base) => { return !this.areInvisibleElementsShowing; });
     this.addExpressionProperty("enableIf", (obj: Base, res: any) => { this.readOnly = res === false; });
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
-    this.addExpressionProperty("clearValueIf", (obj: Base, res: any) => { if(res) this.clearValue(); });
 
     this.createLocalizableString("commentText", this, true, "otherItemText");
     this.locTitle.onGetDefaultTextCallback = (): string => {
@@ -443,6 +443,25 @@ export class Question extends SurveyElement<Question>
       requiredQuestionCount: this.isRequired ? 1 : 0,
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
+  }
+  private clearValueOnExpression: ExpressionRunner;
+  public runTriggers(name: string, value: any): void {
+    if(this.isReadOnly || !this.clearValueOn || this.isEmpty()) return;
+    if(!this.clearValueOnExpression) {
+      this.clearValueOnExpression = new ExpressionRunner(this.clearValueOn);
+      this.clearValueOnExpression.onRunComplete = (res: any): void => {
+        if(res === true) {
+          this.clearValue();
+          this.updateValueWithDefaults();
+        }
+      };
+    } else {
+      this.clearValueOnExpression.expression = this.clearValueOn;
+    }
+    const keys: any = {};
+    keys[name] = value;
+    if(!new ProcessValue().isAnyKeyChanged(keys, this.clearValueOnExpression.getVariables())) return;
+    this.clearValueOnExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
@@ -1515,11 +1534,11 @@ export class Question extends SurveyElement<Question>
     this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
   }
-  public get clearValueIf(): string {
-    return this.getPropertyValue("clearValueIf");
+  public get clearValueOn(): string {
+    return this.getPropertyValue("clearValueOn");
   }
-  public set clearValueIf(val: string) {
-    this.setPropertyValue("clearValueIf", val);
+  public set clearValueOn(val: string) {
+    this.setPropertyValue("clearValueOn", val);
   }
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
@@ -2504,7 +2523,7 @@ Serializer.addClass("question", [
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   {
-    name: "clearValueIf:condition",
+    name: "clearValueOn:condition",
     category: "logic", visible: false
   },
   "defaultValue:value",

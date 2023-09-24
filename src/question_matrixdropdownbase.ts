@@ -438,6 +438,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     const isDeleting = newColumnValue == null && !changedQuestion ||
       isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
+    if(changedName) {
+      this.runTriggers(MatrixDropdownTotalRowModel.RowVariableName + "." + changedName, newValue);
+    }
     this.onAnyValueChanged(MatrixDropdownRowModelBase.RowVariableName, "");
   }
 
@@ -463,7 +466,10 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     }
     this.isSettingValue = false;
   }
-
+  public runTriggers(name: string, value: any): void {
+    if(!name) return;
+    this.questions.forEach(q => q.runTriggers(name, value));
+  }
   private hasQuestonError(question: Question): boolean {
     if (!question) return false;
     if (
@@ -2123,11 +2129,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       column: this.getColumnByName(columnName)
     };
   }
-  protected onCellValueChanged(
-    row: MatrixDropdownRowModelBase,
-    columnName: string,
-    rowValue: any
-  ) {
+  protected onCellValueChanged(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): void {
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     if (!!this.onCellValueChangedCallback) {
@@ -2135,11 +2137,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     this.survey.matrixCellValueChanged(this, options);
   }
-  validateCell(
-    row: MatrixDropdownRowModelBase,
-    columnName: string,
-    rowValue: any
-  ): SurveyError {
+  validateCell(row: MatrixDropdownRowModelBase, columnName: string, rowValue: any): SurveyError {
     if (!this.survey) return;
     var options = this.getOnCellValueChangedOptions(row, columnName, rowValue);
     return this.survey.matrixCellValidate(this, options);

@@ -6217,22 +6217,17 @@ QUnit.test("Footer css for nested panels", function(assert) {
   assert.equal(nested.panels[1].getFooterToolbar().containerCss, footerCss, "nested footer container css on creating");
   delete defaultStandardCss.paneldynamic["panelFooter"];
 });
-QUnit.test("question.clearValueIf, basic functionality", function (assert) {
+QUnit.test("question.clearValueOn, basic functionality", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
         type: "paneldynamic",
         name: "panel",
         panelCount: 1,
-        templateElements: [{
-          name: "q1",
-          type: "text"
-        },
-        {
-          name: "q2",
-          type: "text",
-          clearValueIf: "{panel.q1} = 1"
-        }
+        templateElements: [
+          { name: "q1", type: "text" },
+          { name: "q2", type: "text", clearValueOn: "{panel.q1} = 1" },
+          { name: "q3", type: "text" }
         ]
       }
     ]
@@ -6240,14 +6235,19 @@ QUnit.test("question.clearValueIf, basic functionality", function (assert) {
   const panel = survey.getQuestionByName("panel");
   const q1 = panel.panels[0].getQuestionByName("q1");
   const q2 = panel.panels[0].getQuestionByName("q2");
-  assert.equal(q2.clearValueIf, "{panel.q1} = 1", "Load from JSON");
+  const q3 = panel.panels[0].getQuestionByName("q3");
+  assert.equal(q2.clearValueOn, "{panel.q1} = 1", "Load from JSON");
   q2.value = "abc";
   q1.value = 2;
   assert.equal(q2.value, "abc", "value is set");
   q1.value = 1;
   assert.equal(q2.isEmpty(), true, "value is cleared");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 3;
+  assert.equal(q2.value, "edf", "value is stay, #3");
 });
-QUnit.test("question.clearValueIf & quesiton.defaultValueExpression", function (assert) {
+QUnit.test("question.clearValueOn & quesiton.defaultValueExpression", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6261,7 +6261,7 @@ QUnit.test("question.clearValueIf & quesiton.defaultValueExpression", function (
         {
           name: "q2",
           type: "text",
-          clearValueIf: "{panel.q1} = 1",
+          clearValueOn: "{panel.q1} = 1",
           defaultValueExpression: "iif({panel.q3} > 2, {panel.q3}, '')"
         },
         {
@@ -6279,4 +6279,8 @@ QUnit.test("question.clearValueIf & quesiton.defaultValueExpression", function (
   assert.equal(q2.value, "abc", "value is set directly");
   q1.value = 1;
   assert.equal(q2.value, 3, "value is set from defaultValueExpression");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set directly, #2");
+  q3.value = 4;
+  assert.equal(q2.value, "edf", "value is stay, #3");
 });

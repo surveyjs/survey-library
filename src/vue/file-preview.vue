@@ -3,7 +3,7 @@
     <span
       v-for="(val, index) in question.previewValue"
       :key="question.inputId + '_' + index"
-      v-show="val && question.isPreviewVisible(index as number)"
+      v-show="val && isPreviewVisible(index)"
       :class="question.cssClasses.preview"
     >
       <div
@@ -75,6 +75,9 @@ import { QuestionFileModel } from "survey-core";
 @Component
 export class FilePreview extends Vue {
   @Prop() question: QuestionFileModel;
+  isPreviewVisible(index: any) {
+    return this.question.isPreviewVisible(index);
+  }
 }
 Vue.component("sv-file-preview", FilePreview);
 export default FilePreview;

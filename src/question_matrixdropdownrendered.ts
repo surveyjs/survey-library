@@ -290,7 +290,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== "topBottom") {
       showAddRowOnBottom = !showAddRowOnTop;
     }
-    this.setPropertyValue("showAddRow", showAddRow);
+    this.setPropertyValue("showAddRow", this.matrix.canAddRow);
     this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
     this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }

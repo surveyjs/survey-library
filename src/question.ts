@@ -3,15 +3,14 @@ import { JsonObject, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
-import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
+import { TextPreProcessorValue } from "./textPreProcessor";
 import { LocalizableString } from "./localizablestring";
-import { ConditionRunner, ExpressionRunner } from "./conditions";
+import { ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
-import { settings, ISurveyEnvironment } from "./settings";
+import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
@@ -427,6 +426,9 @@ export class Question extends SurveyElement<Question>
     if (this.areInvisibleElementsShowing) return true;
     return this.isVisibleCore();
   }
+  public get isVisibleInSurvey(): boolean {
+    return this.isVisible && this.isParentVisible;
+  }
   protected isVisibleCore(): boolean {
     return this.visible;
   }
@@ -590,7 +592,7 @@ export class Question extends SurveyElement<Question>
     if (!this.visible) {
       this.clearValueOnHidding(isClearOnHidden);
     }
-    if (isClearOnHidden && this.isVisible) {
+    if (isClearOnHidden && this.isVisibleInSurvey) {
       this.updateValueWithDefaults();
     }
   }
@@ -1282,7 +1284,7 @@ export class Question extends SurveyElement<Question>
     if (!properties) properties = {};
     properties["question"] = this;
     this.runConditionCore(values, properties);
-    if (!this.isValueChangedDirectly) {
+    if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
       this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
     }
@@ -1447,7 +1449,7 @@ export class Question extends SurveyElement<Question>
   }
   private canClearValueAsInvisible(reason: string): boolean {
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;
-    if (this.isVisible && this.isParentVisible) return false;
+    if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey || !this.valueName) return true;
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
@@ -1474,6 +1476,7 @@ export class Question extends SurveyElement<Question>
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
+      this.isValueChangedDirectly = undefined;
     }
   }
   /**

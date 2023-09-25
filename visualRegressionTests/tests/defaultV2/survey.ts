@@ -100,7 +100,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-body.png", Selector(".sd-body"), t, comparer);
     });
   });
-  test.only("Check survey default cover", async (t) => {
+  test("Check survey default cover", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {

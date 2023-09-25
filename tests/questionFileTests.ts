@@ -1048,28 +1048,18 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
     ],
   });
   const question = survey.getAllQuestions()[0];
-  let done = assert.async();
   let log = "";
+  const callbacks = new Array<any>();
+  const contents = new Array<string>();
   survey.onDownloadFile.add((survey, options) => {
     assert.equal(options.question.isReady, false);
-    setTimeout(() => {
-      log += "->" + options.fileValue.name;
-      options.callback("success", (<string>options.content).replace("url", "content"));
-    });
+    contents.push(options.content.replace("url", "content"));
+    callbacks.push(options.callback);
+    log += "->" + options.fileValue.name;
   });
+  const readyLogs = new Array<boolean>();
   question.onReadyChanged.add(() => {
-    assert.equal(log, "->file1.png->file2.png");
-    assert.deepEqual(question.previewValue, [{
-      content: "content1",
-      name: "file1.png",
-      type: "image/png"
-    }, {
-      content: "content2",
-      name: "file2.png",
-      type: "image/png"
-    }]);
-    assert.ok(question.isReady);
-    done();
+    readyLogs.push(question.isReady);
   });
   survey.data = { "file1": [{
     content: "url1",
@@ -1080,7 +1070,25 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
     name: "file2.png",
     type: "image/png"
   }] };
-  assert.equal(question.isReady, false);
+  assert.equal(question.isReady, false, "question is not ready");
+  assert.equal(log, "->file1.png->file2.png");
+  assert.equal(callbacks.length, 2, "Two callbacks");
+  for(let i = 0; i < callbacks.length; i ++) {
+    callbacks[i]("success", contents[i]);
+  }
+  assert.equal(question.isReady, true, "question is ready");
+  assert.deepEqual(question.previewValue, [{
+    content: "content1",
+    name: "file1.png",
+    type: "image/png"
+  }, {
+    content: "content2",
+    name: "file2.png",
+    type: "image/png"
+  }]);
+  assert.equal(readyLogs.length, 2, "readyLogs.length");
+  assert.equal(readyLogs[0], false, "readyLogs[0]");
+  assert.equal(readyLogs[1], true, "readyLogs[1]");
 });
 
 QUnit.test("QuestionFile remove file by preview value", function(assert) {

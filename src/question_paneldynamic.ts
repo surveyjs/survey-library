@@ -1478,7 +1478,7 @@ export class QuestionPanelDynamicModel extends Question
         this.survey.dynamicPanelAdded(this);
       }
     }
-    this.recalculateIsReadyValue();
+    this.updateIsReady();
     if(this.isReadOnly || !this.allowAddPanel) {
       this.updateNoEntriesTextDefaultLoc();
     }
@@ -1826,7 +1826,7 @@ export class QuestionPanelDynamicModel extends Question
     if (newValue === undefined) {
       this.setValueBasedOnPanelCount();
     }
-    this.recalculateIsReadyValue();
+    this.updateIsReady();
   }
   private isAllPanelsEmpty(): boolean {
     for (var i = 0; i < this.panels.length; i++) {
@@ -1855,24 +1855,7 @@ export class QuestionPanelDynamicModel extends Question
       q.onSurveyValueChanged(values[q.getValueName()]);
     }
   }
-  private onReadyChangedCallback = () => {
-    this.recalculateIsReadyValue();
-  };
-  recalculateIsReadyValue(): void {
-    let isReady: boolean = true;
-    this.panels.forEach(panel => {
-      panel.questions.forEach(q => {
-        if(!q.isReady) {
-          isReady = false;
-          q.onReadyChanged.add(this.onReadyChangedCallback);
-        } else {
-          q.onReadyChanged.remove(this.onReadyChangedCallback);
-        }
-      });
-    });
-    this.isReady = isReady;
-  }
-  protected onSetData() {
+  protected onSetData(): void {
     super.onSetData();
     if (this.useTemplatePanel) {
       this.setTemplatePanelSurveyImpl();

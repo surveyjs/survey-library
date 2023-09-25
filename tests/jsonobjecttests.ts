@@ -2606,6 +2606,15 @@ QUnit.test("Change question isRequired default value", function (assert) {
   Serializer.findProperty("question", "isRequired").defaultValue = false;
   assert.equal(new Question("q1").isRequired, false, "It is false again");
 });
+QUnit.test("Change question readOnly default value", function (assert) {
+  assert.equal(new Question("q1").readOnly, false, "It is false by defult");
+  Serializer.findProperty("question", "readOnly").defaultValue = true;
+  assert.equal(new Question("q1").readOnly, true, "It is true now");
+  assert.deepEqual(new Question("q1").toJSON(), { name: "q1" }, "no readOnly attribute in JSON, #1");
+  Serializer.findProperty("question", "readOnly").defaultValue = false;
+  assert.equal(new Question("q1").readOnly, false, "It is false again");
+  assert.deepEqual(new Question("q1").toJSON(), { name: "q1" }, "no readOnly attribute in JSON, #2");
+});
 QUnit.test("Load localizable @property", function (assert) {
   Serializer.addClass("new_declared_props", [{
     name: "str1",

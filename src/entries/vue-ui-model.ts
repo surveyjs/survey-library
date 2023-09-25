@@ -96,6 +96,8 @@ export { NotifierComponent } from "../vue/components/notifier.vue";
 export { ComponentsContainer } from "../vue/components/container.vue";
 export { CharacterCounterComponent } from "../vue/components/character-counter.vue";
 export { LoadingIndicatorComponent } from "../vue/components/loading-indicator.vue";
+export { CoverCellViewModel } from "../vue/components/cover/cover-cell.vue";
+export { CoverViewModel } from "../vue/components/cover/cover.vue";
 
 import { SurveyModel } from "survey-core";
 

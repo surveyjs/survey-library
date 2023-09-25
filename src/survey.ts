@@ -1158,7 +1158,31 @@ export class SurveyModel extends SurveyElementCore
   @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
-  @property() titleView: "cover" | "title";
+  @property({
+    onSet: (newValue, target: SurveyModel) => {
+      if (newValue === "cover") {
+        const layoutElement = target.layoutElements.filter(a => a.id === newValue)[0];
+        if (!layoutElement) {
+          var cover = new Cover();
+          cover.logoPositionX = target.logoPosition === "right" ? "right" : "left";
+          cover.logoPositionY = "middle";
+          cover.titlePositionX = target.logoPosition === "right" ? "left" : "right";
+          cover.titlePositionY = "middle";
+          cover.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
+          cover.descriptionPositionY = "middle";
+          cover.survey = target;
+          target.layoutElements.unshift({
+            id: "cover",
+            container: "header",
+            component: "sv-cover",
+            data: cover
+          });
+        }
+      } else {
+        target.removeLayoutElement("cover");
+      }
+    }
+  }) titleView: "cover" | "title";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)

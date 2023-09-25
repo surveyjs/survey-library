@@ -49,9 +49,26 @@
   position: absolute;
   width: max-content;
   top: 0;
-  right: 0;
-  left: 0;
   bottom: 0;
+}
+
+.sv-cover__cell--left {
+  .sv-cover__cell-content {
+    left: 0;
+  }
+}
+
+// .sv-cover__cell--center {
+//   .sv-cover__cell-content {
+//     left: 0;
+//     right: 0;
+//   }
+// }
+
+.sv-cover__cell--right {
+  .sv-cover__cell-content {
+    right: 0;
+  }
 }
 
 .sv-cover__logo {

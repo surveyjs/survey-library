@@ -969,6 +969,7 @@ export class Question extends SurveyElement<Question>
     return new CssClassBuilder()
       .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
+      .append(cssClasses.titleEmpty, !this.title.trim())
       .toString();
   }
   public get cssDescription(): string {

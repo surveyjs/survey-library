@@ -647,7 +647,7 @@ export class QuestionFileModel extends Question {
       if (!!this._previewLoader) {
         this._previewLoader.dispose();
       }
-      this.isReadyValue = false;
+      this.isFileLoading = true;
       this._previewLoader = new FileLoader(this, (status, loaded) => {
         if (status === "loaded") {
           loaded.forEach((val) => {
@@ -655,13 +655,22 @@ export class QuestionFileModel extends Question {
           });
           this.previewValueChanged();
         }
-        this.isReady = true;
+        this.isFileLoading = false;
         this._previewLoader.dispose();
         this._previewLoader = undefined;
       });
       this._previewLoader.load(newValues);
     }
     this.previewValueChanged();
+  }
+  private isFileLoadingValue: boolean;
+  protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
+  protected set isFileLoading(val: boolean) {
+    this.isFileLoadingValue = val;
+    this.updateIsReady();
+  }
+  protected getIsQuestionReady(): boolean {
+    return super.getIsQuestionReady() && !this.isFileLoading;
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,

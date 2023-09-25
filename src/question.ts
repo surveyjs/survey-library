@@ -358,12 +358,25 @@ export class Question extends SurveyElement<Question>
   }
   protected onVisibleChanged(): void {
     this.updateIsVisibleProp();
-    if (!this.isVisible && this.errors && this.errors.length > 0) {
+    if (!this.isVisible &&this.errors && this.errors.length > 0) {
       this.errors = [];
     }
   }
+  protected notifyStateChanged(): void {
+    super.notifyStateChanged();
+    if(this.isCollapsed) {
+      this.onHidingContent();
+    }
+  }
   private updateIsVisibleProp(): void {
-    this.setPropertyValue("isVisible", this.isVisible);
+    const prev = this.getPropertyValue("isVisible");
+    const val = this.isVisible;
+    if(prev !== val) {
+      this.setPropertyValue("isVisible", val);
+      if(!val) {
+        this.onHidingContent();
+      }
+    }
   }
   /**
    * Specifies whether to use display names for question values in placeholders.
@@ -427,6 +440,7 @@ export class Question extends SurveyElement<Question>
   public get visibleIndex(): number {
     return this.getPropertyValue("visibleIndex", -1);
   }
+  public onHidingContent(): void {}
   /**
    * Hides the question number from the title and excludes the question from numbering.
    *

@@ -112,6 +112,7 @@ import { NotifierComponent } from "./components/notifier/notifier.component";
 import { ComponentsContainerComponent } from "./components-container.component";
 import { MultipleTextRowComponent } from "./questions/multipletextrow.component";
 import { LoadingIndicatorComponent } from "./angular-ui";
+import { ChooseFileBtn } from "./components/file-actions/choose-file.component";
 @NgModule({
   declarations: [
     VisibleDirective, Key2ClickDirective, PanelDynamicAddBtn, PanelDynamicNextBtn, PanelDynamicPrevBtn, PanelDynamicProgressText, ElementComponent, TemplateRendererComponent,
@@ -128,7 +129,7 @@ import { LoadingIndicatorComponent } from "./angular-ui";
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, ChooseFileBtn
   ],
   imports: [
     CommonModule, FormsModule

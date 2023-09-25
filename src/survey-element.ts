@@ -274,7 +274,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("state", val);
     this.notifyStateChanged();
   }
-  private notifyStateChanged() {
+  protected notifyStateChanged(): void {
     if (this.survey) {
       this.survey.elementContentVisibilityChanged(this);
     }

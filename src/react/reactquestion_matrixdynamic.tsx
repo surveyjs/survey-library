@@ -41,7 +41,7 @@ export class SurveyQuestionMatrixDynamic extends SurveyQuestionMatrixDropdownBas
   protected renderNoRowsContent(cssClasses: any): JSX.Element {
     const text: JSX.Element = this.renderLocString(this.matrix.locEmptyRowsText);
     const textDiv: JSX.Element = <div className={cssClasses.emptyRowsText}>{text}</div>;
-    const btn: JSX.Element = this.renderAddRowButton(cssClasses, true);
+    const btn: JSX.Element|undefined = this.matrix.renderedTable.showAddRow ? this.renderAddRowButton(cssClasses, true) : undefined;
     return (
       <div className={cssClasses.emptyRowsSection}>
         {textDiv}

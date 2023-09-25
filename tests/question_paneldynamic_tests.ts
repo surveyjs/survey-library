@@ -6169,6 +6169,48 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
   const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
   assert.equal(panel1.panels.length, 3, "It should be 3 panels");
 });
+QUnit.test("templateElements question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  let counter = 0;
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  panel.panels[1].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  survey.doComplete();
+  assert.equal(counter, 2, "on do complete");
+});
+QUnit.test("templateElements question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "renderMode": "tab",
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  let counter = 0;
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  panel.currentIndex = 1;
+  assert.equal(counter, 1, "Go to another tab");
+});
 QUnit.test("nested panel.panelCount&expression question", function (assert) {
   const survey = new SurveyModel({
     "elements": [

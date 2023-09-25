@@ -75,6 +75,10 @@ export var czechSurveyStrings = {
   clearCaption: "Vymazat",
   signaturePlaceHolder: "Podepište se zde",
   chooseFileCaption: "Vyberte soubor",
+  takePhotoCaption: "Pořídit fotografii",
+  cameraPlaceHolder: "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu.",
+  fileCameraDragAreaPlaceHolder: "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu.",
+  replaceFileCaption: "Nahradit soubor",
   removeFileCaption: "Odeberte tento soubor",
   booleanCheckedLabel: "Ano",
   booleanUncheckedLabel: "Ne",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["cs"] = "čeština";
 // more: "More" => "Více"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Všechny možnosti jsou seřazeny"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Přetáhněte volby zde a seřaďte je"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Přetáhněte volby zde a seřaďte je"// takePhotoCaption: "Take Photo" => "Pořídit fotografii"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu."
+// replaceFileCaption: "Replace file" => "Nahradit soubor"

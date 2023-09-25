@@ -75,6 +75,10 @@ export var icelandicSurveyStrings = {
   clearCaption: "Hreinsa",
   signaturePlaceHolder: "Kvittađu hér",
   chooseFileCaption: "Veldu skrá",
+  takePhotoCaption: "Taka mynd",
+  cameraPlaceHolder: "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni.",
+  fileCameraDragAreaPlaceHolder: "Dragðu og slepptu eða veldu skrá til að hlaða upp eða taka mynd með myndavélinni.",
+  replaceFileCaption: "Skipta út skrá",
   removeFileCaption: "Fjarlægðu þessa skrá",
   booleanCheckedLabel: "Já",
   booleanUncheckedLabel: "Nei",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["is"] = "íslenska";
 // more: "More" => "Fleiri"
 // tagboxDoneButtonCaption: "OK" => "ÓKEI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Öllum valkostum er raðað"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dragðu og slepptu valkostum hér til að raða þeim"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dragðu og slepptu valkostum hér til að raða þeim"// takePhotoCaption: "Take Photo" => "Taka mynd"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dragðu og slepptu eða veldu skrá til að hlaða upp eða taka mynd með myndavélinni."
+// replaceFileCaption: "Replace file" => "Skipta út skrá"

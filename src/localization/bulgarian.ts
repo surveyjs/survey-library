@@ -75,6 +75,10 @@ export var bulgarianStrings = {
   clearCaption: "Начално състояние",
   signaturePlaceHolder: "Подпишете тук",
   chooseFileCaption: "Изберете файл",
+  takePhotoCaption: "Направете снимка",
+  cameraPlaceHolder: "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата.",
+  fileCameraDragAreaPlaceHolder: "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата.",
+  replaceFileCaption: "Заместване на файл",
   removeFileCaption: "Премахване на файла",
   booleanCheckedLabel: "Да",
   booleanUncheckedLabel: "Не",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["bg"] = "български";
 // more: "More" => "Още"
 // tagboxDoneButtonCaption: "OK" => "Добре"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Всички възможности за избор са класирани"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Плъзнете и пуснете опции тук, за да ги класирате"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Плъзнете и пуснете опции тук, за да ги класирате"// takePhotoCaption: "Take Photo" => "Направете снимка"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата."
+// replaceFileCaption: "Replace file" => "Заместване на файл"

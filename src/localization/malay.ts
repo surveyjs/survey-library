@@ -75,6 +75,10 @@ export var malaySurveyStrings = {
   clearCaption: "Kosongkan",
   signaturePlaceHolder: "Tandatangan di sini",
   chooseFileCaption: "Pilih fail",
+  takePhotoCaption: "Ambil gambar",
+  cameraPlaceHolder: "Klik butang di bawah untuk mengambil gambar menggunakan kamera.",
+  fileCameraDragAreaPlaceHolder: "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera.",
+  replaceFileCaption: "Gantikan fail",
   removeFileCaption: "Alih keluar fail ini",
   booleanCheckedLabel: "Ya",
   booleanUncheckedLabel: "Tidak",
@@ -106,4 +110,7 @@ surveyLocalization.localeNames["ms"] = "melayu";
 // more: "More" => "Lebih banyak"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Semua pilihan disenaraikan"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepaskan pilihan di sini untuk meletakkannya"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepaskan pilihan di sini untuk meletakkannya"// takePhotoCaption: "Take Photo" => "Ambil gambar"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klik butang di bawah untuk mengambil gambar menggunakan kamera."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera."
+// replaceFileCaption: "Replace file" => "Gantikan fail"

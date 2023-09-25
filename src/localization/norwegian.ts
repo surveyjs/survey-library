@@ -75,6 +75,10 @@ export var norwegianSurveyStrings = {
   clearCaption: "Klar",
   signaturePlaceHolder: "Logg inn her",
   chooseFileCaption: "Velg Fil",
+  takePhotoCaption: "Ta bilde",
+  cameraPlaceHolder: "Klikk på knappen nedenfor for å ta et bilde med kameraet.",
+  fileCameraDragAreaPlaceHolder: "Dra og slipp eller velg en fil for å laste opp eller ta et bilde med kameraet.",
+  replaceFileCaption: "Erstatt fil",
   removeFileCaption: "Fjern denne filen",
   booleanCheckedLabel: "Ja",
   booleanUncheckedLabel: "Nei",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["no"] = "norsk";
 // more: "More" => "Mer"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle valg er rangert"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra og slipp valg her for å rangere dem"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra og slipp valg her for å rangere dem"// takePhotoCaption: "Take Photo" => "Ta bilde"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klikk på knappen nedenfor for å ta et bilde med kameraet."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra og slipp eller velg en fil for å laste opp eller ta et bilde med kameraet."
+// replaceFileCaption: "Replace file" => "Erstatt fil"

@@ -25,6 +25,7 @@
         <survey-string :locString="question.locEmptyRowsText" />
       </div>
       <button
+        v-if="question.renderedTable.showAddRow"
         type="button"
         :class="question.getAddRowButtonCss(true)"
         @click="addRowClick"

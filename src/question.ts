@@ -106,12 +106,9 @@ export class Question extends SurveyElement<Question>
   }
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+    this.renderMinWidth = !val;
   }
-  @property({
-    defaultValue: false, onSet: (val, target) => {
-      target.renderMinWidth = !val;
-    }
-  }) isMobile: boolean;
+  @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
   constructor(name: string) {
@@ -1903,7 +1900,7 @@ export class Question extends SurveyElement<Question>
     return qErrors;
   }
   protected canCollectErrors(): boolean {
-    return !this.isReadOnly;
+    return !this.isReadOnly || settings.readOnly.enableValidation;
   }
   private collectErrors(
     qErrors: Array<SurveyError>,

@@ -15823,12 +15823,16 @@ QUnit.test("Check survey isMobile in design mode", function (assert) {
   const textQuestion = survey.getQuestionByName("q1");
   const multipleTextQuestion = survey.getQuestionByName("q2");
   const checkboxQuestion = survey.getQuestionByName("q3");
+  assert.ok(textQuestion.renderMinWidth);
   survey.setIsMobile(true);
   assert.ok(survey._isMobile);
   assert.notOk(survey.isMobile);
   assert.notOk(textQuestion.isMobile);
+  assert.notOk(textQuestion.renderMinWidth);
   assert.ok(multipleTextQuestion.isMobile);
+  assert.notOk(multipleTextQuestion.renderMinWidth);
   assert.ok(checkboxQuestion.isMobile);
+  assert.notOk(checkboxQuestion.renderMinWidth);
 });
 QUnit.test("Check survey isMobile is set correctly on adding new question", function (assert) {
   const survey = new SurveyModel({

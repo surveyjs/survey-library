@@ -1499,7 +1499,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
-    this.runPanelsCondition(values, properties);
+    this.runPanelsCondition(this.panels, values, properties);
   }
   private reRunCondition() {
     if (!this.data) return;
@@ -1508,10 +1508,7 @@ export class QuestionPanelDynamicModel extends Question
       this.getDataFilteredProperties()
     );
   }
-  protected runPanelsCondition(
-    values: HashTable<any>,
-    properties: HashTable<any>
-  ) {
+  protected runPanelsCondition(panels: PanelModel[], values: HashTable<any>, properties: HashTable<any>): void {
     var cachedValues: { [index: string]: any } = {};
     if (values && values instanceof Object) {
       cachedValues = JSON.parse(JSON.stringify(values));
@@ -1520,8 +1517,8 @@ export class QuestionPanelDynamicModel extends Question
       cachedValues[QuestionPanelDynamicItem.ParentItemVariableName] = (<any>this.parent).getValue();
     }
     this.isValueChangingInternally = true;
-    for (var i = 0; i < this.panels.length; i++) {
-      const panel = this.panels[i];
+    for (var i = 0; i < panels.length; i++) {
+      const panel = panels[i];
       var panelValues = this.getPanelItemData(panel.data);
       //Should be unique for every panel due async expression support
       const newValues = Helpers.createCopy(cachedValues);
@@ -1760,6 +1757,9 @@ export class QuestionPanelDynamicModel extends Question
     panel.renderWidth = "100%";
     panel.updateCustomWidgets();
     new QuestionPanelDynamicItem(this, panel);
+    if(!this.isDesignMode && !this.isReadOnly && !this.isValueEmpty(panel.getValue())) {
+      this.runPanelsCondition([panel], this.getDataFilteredValues(), this.getDataFilteredProperties());
+    }
     panel.onFirstRendering();
     var questions = panel.questions;
     for (var i = 0; i < questions.length; i++) {

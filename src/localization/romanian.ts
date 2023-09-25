@@ -75,6 +75,10 @@ export var romanianSurveyStrings: any = {
   clearCaption: "clar",
   signaturePlaceHolder: "Semnează aici",
   chooseFileCaption: "Alege fișierul",
+  takePhotoCaption: "Faceți o fotografie",
+  cameraPlaceHolder: "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera.",
+  fileCameraDragAreaPlaceHolder: "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera.",
+  replaceFileCaption: "Înlocuire fișier",
   removeFileCaption: "Eliminați acest fișier",
   booleanCheckedLabel: "da",
   booleanUncheckedLabel: "Nu",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["ro"] = "română";
 // more: "More" => "Mai mult"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Toate opțiunile sunt clasificate"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Glisați și fixați opțiunile aici pentru a le clasifica"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Glisați și fixați opțiunile aici pentru a le clasifica"// takePhotoCaption: "Take Photo" => "Faceți o fotografie"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera."
+// replaceFileCaption: "Replace file" => "Înlocuire fișier"

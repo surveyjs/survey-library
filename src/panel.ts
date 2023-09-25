@@ -1215,6 +1215,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("isVisible", this.isVisible);
     if (!this.isLoadingFromJson) this.onVisibleChanged();
   }
+  public onHidingContent(): void {
+    this.questions.forEach(q => q.onHidingContent());
+  }
   protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);
@@ -1225,14 +1228,23 @@ export class PanelModelBase extends SurveyElement<Question>
       const questions = this.questions;
       const isVisible = this.isVisible;
       for (var i = 0; i < questions.length; i++) {
+        const q = questions[i];
         if (!isVisible) {
-          questions[i].clearValueIfInvisible("onHiddenContainer");
+          q.clearValueIfInvisible("onHiddenContainer");
+          q.onHidingContent();
         } else {
-          questions[i].updateValueWithDefaults();
+          q.updateValueWithDefaults();
         }
       }
     }
   }
+  protected notifyStateChanged(): void {
+    super.notifyStateChanged();
+    if(this.isCollapsed) {
+      this.questions.forEach(q => q.onHidingContent());
+    }
+  }
+
   /**
    * Returns `true` if the panel/page is visible or the survey is currently in design mode.
    *

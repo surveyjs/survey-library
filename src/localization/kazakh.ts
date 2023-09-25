@@ -75,6 +75,10 @@ export var kazakhStrings = {
   clearCaption: "Тазалау",
   signaturePlaceHolder: "Осында кіру",
   chooseFileCaption: "Файл таңдаңыз",
+  takePhotoCaption: "Фотосуретке түсу",
+  cameraPlaceHolder: "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз.",
+  fileCameraDragAreaPlaceHolder: "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз.",
+  replaceFileCaption: "Файлды ауыстыру",
   removeFileCaption: "Файлды жойыңыз",
   booleanCheckedLabel: "Иә",
   booleanUncheckedLabel: "Жоқ",
@@ -115,4 +119,7 @@ surveyLocalization.localeNames["kk"] = "Kazakh";
 // more: "More" => "Қосымша"
 // tagboxDoneButtonCaption: "OK" => "ЖАҚСЫ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Барлық таңдаулар ранжирленген"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Таңдауды рангтеу үшін осында апарып тастау"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Таңдауды рангтеу үшін осында апарып тастау"// takePhotoCaption: "Take Photo" => "Фотосуретке түсу"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз."
+// replaceFileCaption: "Replace file" => "Файлды ауыстыру"

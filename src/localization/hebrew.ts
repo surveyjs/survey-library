@@ -75,6 +75,10 @@ export var hebrewSurveyStrings = {
   clearCaption: "ברור",
   signaturePlaceHolder: "חתום כאן",
   chooseFileCaption: "בחר קובץ",
+  takePhotoCaption: "צלם תמונה",
+  cameraPlaceHolder: "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה.",
+  fileCameraDragAreaPlaceHolder: "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה.",
+  replaceFileCaption: "החלפת קובץ",
   removeFileCaption: "הסר קובץ זה",
   booleanCheckedLabel: "כן",
   booleanUncheckedLabel: "לא",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["he"] = "עברית";
 // more: "More" => "עוד"
 // tagboxDoneButtonCaption: "OK" => "אוקיי"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "כל האפשרויות מדורגות"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"// takePhotoCaption: "Take Photo" => "צלם תמונה"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה."
+// replaceFileCaption: "Replace file" => "החלפת קובץ"

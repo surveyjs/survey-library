@@ -7157,6 +7157,60 @@ QUnit.test("Dynamic error text in expression validator, bug#6790", function (ass
   assert.strictEqual(error, q2.errors[0], "Same errors");
   assert.equal(errorTextChangedCounter, 1, "text has been updated");
 });
+QUnit.test("question.onHidingContent() call on making question or parent invisible or on making question content or parent invisible ", function(assert) {
+  let survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }]
+  });
+  let counter = 0;
+  let q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  q1.visible = false;
+  assert.equal(counter, 1, "question invisible");
+  q1.visible = true;
+  q1.collapse();
+  assert.equal(counter, 2, "question content is collapsed");
+  survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1",
+        elements: [{ type: "file", name: "q1" }]
+      },
+      { type: "file", name: "q2" }
+    ]
+  });
+  const panel = survey.getPanelByName("panel1");
+  q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  counter = 0;
+  panel.visible = false;
+  assert.equal(counter, 1, "panel invisible");
+  panel.visible = true;
+  panel.collapse();
+  assert.equal(counter, 2, "panel content is collapsed");
+});
+QUnit.test("question.onHidingContent() call on going to another page or complete", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q2" }] },
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q3" }] }
+    ]
+  });
+  let counter = 0;
+  const q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  survey.currentPageNo = 1;
+  assert.equal(counter, 0, "Initial");
+  survey.nextPage();
+  assert.equal(counter, 1, "Go to next page");
+  survey.currentPageNo = 1;
+  survey.currentPageNo = 0;
+  assert.equal(counter, 2, "Go to prev page");
+
+  survey.pages[2].visible = false;
+  survey.currentPageNo = 1;
+  survey.doComplete();
+  assert.equal(counter, 3, "complete survey");
+});
 QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -7233,4 +7287,86 @@ QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (
   assert.equal(q2.value, "edf", "value is set directly, #2");
   q3.value = 4;
   assert.equal(q2.value, "edf", "value is set directly, #3");
+});
+QUnit.test("question.isReady & async functions in expression", function (assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  var returnResult3: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  function asyncFunc3(params: any): any {
+    returnResult3 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  FunctionFactory.Instance.register("asyncFunc3", asyncFunc3, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", minValueExpression: "asyncFunc1()", defaultValueExpression: "asyncFunc2()" },
+      { type: "expression", name: "q2", expression: "asyncFunc3()" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  assert.equal(q1.isReady, false, "q1 is not ready #1");
+  assert.equal(q2.isReady, false, "q2 is not ready #1");
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #2");
+  assert.equal(q1.isReady, false, "q1 is not ready #2");
+  assert.equal(q2.isReady, false, "q2 is not ready #2");
+  returnResult2(2);
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #3");
+  assert.equal(q2.isReady, false, "q2 is not ready #3");
+  returnResult3(3);
+  returnResult2(2);
+  returnResult1(1);
+  assert.equal(q1.isReady, true, "q1 is ready #4");
+  assert.equal(q2.isReady, true, "q2 is ready #4");
+  assert.equal(q1.value, 2, "q1.value");
+  assert.equal(q2.value, 3, "q2.value");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+  FunctionFactory.Instance.unregister("asyncFunc3");
+});
+QUnit.test("question.isReady & async functions in conditions, visibleIf&enabledIf", function (assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", visibleIf: "asyncFunc1()", enableIf: "asyncFunc2()" },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  assert.equal(q1.isReady, false, "q1 is not ready #1");
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #2");
+  assert.equal(q1.isReady, false, "q1 is not ready #2");
+  returnResult2(2);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #3");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
 });

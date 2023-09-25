@@ -75,6 +75,10 @@ export var ukrainianSurveyStrings = {
   clearCaption: "Очистити",
   signaturePlaceHolder: "Підпишіться тут",
   chooseFileCaption: "Виберіть файл",
+  takePhotoCaption: "Зробити фото",
+  cameraPlaceHolder: "Натисніть кнопку нижче, щоб зробити фото за допомогою камери.",
+  fileCameraDragAreaPlaceHolder: "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери.",
+  replaceFileCaption: "Замінити файл",
   removeFileCaption: "Видалити файл",
   booleanCheckedLabel: "Так",
   booleanUncheckedLabel: "Ні",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["ua"] = "українська";
 // more: "More" => "Більше"
 // tagboxDoneButtonCaption: "OK" => "ГАРАЗД"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Всі варіанти ранжуються"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетягніть варіанти тут, щоб оцінити їх"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетягніть варіанти тут, щоб оцінити їх"// takePhotoCaption: "Take Photo" => "Зробити фото"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Натисніть кнопку нижче, щоб зробити фото за допомогою камери."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери."
+// replaceFileCaption: "Replace file" => "Замінити файл"

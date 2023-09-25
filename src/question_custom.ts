@@ -423,11 +423,18 @@ export abstract class QuestionCustomModelBase extends Question
     }
   }
   public onFirstRendering() {
-    var el = this.getElement();
+    const el = this.getElement();
     if (!!el) {
       el.onFirstRendering();
     }
     super.onFirstRendering();
+  }
+  public onHidingContent(): void {
+    super.onHidingContent();
+    const el: any = this.getElement();
+    if (!!el) {
+      el.onHidingContent();
+    }
   }
   public getProgressInfo(): IProgressInfo {
     let res = super.getProgressInfo();

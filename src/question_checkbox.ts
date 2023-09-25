@@ -527,7 +527,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected convertValueToObject(val: any): any {
     if (!this.valuePropertyName) return val;
     let dest = undefined;
-    if (!!this.survey && this.survey.questionCountByValueName(this.getValueName()) > 1) {
+    if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) {
       dest = this.data.getValue(this.getValueName());
     }
     return Helpers.convertArrayValueToObject(val, this.valuePropertyName, dest);

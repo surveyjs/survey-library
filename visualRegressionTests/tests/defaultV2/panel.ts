@@ -589,4 +589,49 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("panel-with-errors-without-title.png", panelRoot, t, comparer);
     });
   });
+  test("Check question min size inside panels in design mode", async (t) => {
+    if (framework == "vue") return;
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(350, 800);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "panel",
+                    "name": "panel2",
+                    "elements": [
+                      {
+                        "type": "panel",
+                        "name": "panel3",
+                        "elements": [
+                          {
+                            "type": "text",
+                            "name": "question1"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-body");
+      await ClientFunction(() => {
+        (window as any).survey.setDesignMode(true);
+        (window as any).survey.setIsMobile(true);
+      })();
+      await resetFocusToBody();
+
+      await takeElementScreenshot("responsive-question-inside-panels-in-creator.png", panelRoot, t, comparer);
+    });
+  });
 });

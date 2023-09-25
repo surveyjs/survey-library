@@ -75,6 +75,10 @@ export var slovakSurveyStrings = {
   clearCaption: "Vymazať",
   signaturePlaceHolder: "Podpísať tu",
   chooseFileCaption: "Vybrať súbor",
+  takePhotoCaption: "Odfotiť",
+  cameraPlaceHolder: "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu.",
+  fileCameraDragAreaPlaceHolder: "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu.",
+  replaceFileCaption: "Nahradenie súboru",
   removeFileCaption: "Odstrániť tento súbor",
   booleanCheckedLabel: "Áno",
   booleanUncheckedLabel: "Nie",
@@ -106,4 +110,7 @@ surveyLocalization.localeNames["sk"] = "slovenčina";
 // more: "More" => "Viacej"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Všetky možnosti sú zoradené"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Presuňte sem voľby, aby ste ich zoradili"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Presuňte sem voľby, aby ste ich zoradili"// takePhotoCaption: "Take Photo" => "Odfotiť"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu."
+// replaceFileCaption: "Replace file" => "Nahradenie súboru"

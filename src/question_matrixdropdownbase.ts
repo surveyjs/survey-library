@@ -291,6 +291,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     return !!this.data ? this.data.getIsDetailPanelShowing(this) : false;
   }
   private setIsDetailPanelShowing(val: boolean) {
+    if(!val && this.detailPanel) {
+      this.detailPanel.onHidingContent();
+    }
     if (!!this.data) {
       this.data.setIsDetailPanelShowing(this, val);
     }
@@ -1809,8 +1812,25 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       }
     }
   }
+  public onHidingContent(): void {
+    super.onHidingContent();
+    const questions: Question[] = [];
+    this.collectNestedQuestions(questions, true);
+    questions.forEach(q => q.onHidingContent());
+  }
+  protected getIsReadyNestedQuestions(): Array<Question> {
+    if(!this.generatedVisibleRows) return [];
+    const res = new Array<Question>();
+    this.collectNestedQuestonsInRows(this.generatedVisibleRows, res, false);
+    if(!!this.generatedTotalRow) {
+      this.collectNestedQuestonsInRows([this.generatedTotalRow], res, false);
+    }
+    return res;
+  }
   protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
-    const rows = this.visibleRows;
+    this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly);
+  }
+  protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean): void {
     rows.forEach(row => {
       row.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
     });

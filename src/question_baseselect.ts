@@ -573,6 +573,9 @@ export class QuestionSelectBase extends Question {
     if(!val) return false;
     return this.hasUnknownValue(val, true, false);
   }
+  protected getIsQuestionReady(): boolean {
+    return super.getIsQuestionReady() && !this.waitingChoicesByURL && !this.waitingGetChoiceDisplayValueResponse;
+  }
   protected updateSelectedItemValues(): void {
     if(this.waitingGetChoiceDisplayValueResponse || !this.survey || this.isEmpty()) return;
     const value = this.value;
@@ -580,7 +583,7 @@ export class QuestionSelectBase extends Question {
     const hasItemWithoutValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
     if (hasItemWithoutValues) {
       this.waitingGetChoiceDisplayValueResponse = true;
-      this.isReady = !this.waitingAcyncOperations;
+      this.updateIsReady();
       this.survey.getChoiceDisplayValue({
         question: this,
         values: valueArray,
@@ -595,7 +598,7 @@ export class QuestionSelectBase extends Question {
           else {
             this.selectedItemValues = items[0];
           }
-          this.isReady = !this.waitingAcyncOperations;
+          this.updateIsReady();
         }
       });
     }
@@ -1036,13 +1039,24 @@ export class QuestionSelectBase extends Question {
     this.setCarryForwardQuestionType(!!selBaseQuestion, !!arrayQuestion);
     return !!selBaseQuestion || !!arrayQuestion ? question : null;
   }
+  protected getIsReadyDependsOn(): Array<Question> {
+    const res = super.getIsReadyDependsOn();
+    if(this.carryForwardQuestion) {
+      res.push(this.carryForwardQuestion);
+    }
+    return res;
+  }
   private getQuestionWithChoices(): QuestionSelectBase {
     return this.getQuestionWithChoicesCore(this.findCarryForwardQuestion());
   }
+  private carryForwardQuestion: Question;
   private findCarryForwardQuestion(data?: ISurveyData): Question {
     if(!data) data = this.data;
-    if (!this.choicesFromQuestion || !data) return null;
-    return <Question>data.findQuestionByName(this.choicesFromQuestion);
+    this.carryForwardQuestion = null;
+    if (this.choicesFromQuestion && data) {
+      this.carryForwardQuestion = <Question>data.findQuestionByName(this.choicesFromQuestion);
+    }
+    return this.carryForwardQuestion;
   }
   private getQuestionWithChoicesCore(question: Question): QuestionSelectBase {
     if(!!question && !!question.visibleChoices && (Serializer.isDescendantOf(question.getType(), "selectbase")) && question !== this)
@@ -1256,7 +1270,7 @@ export class QuestionSelectBase extends Question {
       : this.textProcessor;
     if (!processor) processor = this.survey;
     if (!processor) return;
-    this.isReadyValue = !this.waitingAcyncOperations;
+    this.updateIsReady();
     this.isRunningChoices = true;
     this.choicesByUrl.run(processor);
     this.isRunningChoices = false;
@@ -1432,9 +1446,10 @@ export class QuestionSelectBase extends Question {
   }
   public clearIncorrectValues() {
     if (!this.hasValueToClearIncorrectValues()) return;
+    if(this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return;
     if (
       !!this.survey &&
-      this.survey.questionCountByValueName(this.getValueName()) > 1
+      this.survey.questionsByValueName(this.getValueName()).length > 1
     )
       return;
     if (
@@ -1628,7 +1643,7 @@ export class QuestionSelectBase extends Question {
 
   public choicesLoaded(): void {
     this.isChoicesLoaded = true;
-    this.isReady = !this.waitingAcyncOperations;
+    this.updateIsReady();
     if (this.survey) {
       this.survey.loadedChoicesFromServer(this);
     }

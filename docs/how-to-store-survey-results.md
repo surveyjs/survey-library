@@ -1,3 +1,8 @@
+---
+title: How to Store Survey Results | SurveyJS
+description: With SurveyJS, you can store survey results in your own database or use Azure storage facilities of the SurveyJS Service. Read these step-by-step instructions to learn more about secure survey data management and storage options for your survey data.
+---
+
 # Store Survey Results
 
 Survey results are JSON objects that you can store in your own database or in the SurveyJS Service.

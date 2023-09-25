@@ -217,6 +217,9 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get showHeader(): boolean {
     return this.getPropertyValue("showHeader");
   }
+  public get showAddRow(): boolean {
+    return this.getPropertyValue("showAddRow", false);
+  }
   public get showAddRowOnTop(): boolean {
     return this.getPropertyValue("showAddRowOnTop", false);
   }
@@ -287,6 +290,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     if (showAddRowOnBottom && this.matrix.getAddRowLocation() !== "topBottom") {
       showAddRowOnBottom = !showAddRowOnTop;
     }
+    this.setPropertyValue("showAddRow", this.matrix.canAddRow);
     this.setPropertyValue("showAddRowOnTop", showAddRowOnTop);
     this.setPropertyValue("showAddRowOnBottom", showAddRowOnBottom);
   }

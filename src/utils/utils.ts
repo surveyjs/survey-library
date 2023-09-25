@@ -398,9 +398,10 @@ export class Logger {
 export function showConfirmDialog(message: string, callback: (res: boolean) => void): void {
   const locStr = new LocalizableString(undefined);
   //locStr.text = getLocString("ed.lg.uncompletedRule_text");
+
   const popupModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
-    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+    data: { locStr: message, locString: message, model: message }, //TODO fix in library
     onApply: () => {
       callback(true);
       return true;
@@ -413,12 +414,12 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
     title: message,
     displayMode: "popup"
   }, /*this.options.rootElement*/document.body); //TODO survey root
-  // const toolbar = popupModel.footerToolbar;
-  // const applyBtn = toolbar.getActionById("apply");
+  const toolbar = popupModel.footerToolbar;
+  const applyBtn = toolbar.getActionById("apply");
   // const cancelBtn = toolbar.getActionById("cancel");
   // cancelBtn.title = this.getLocString("ed.lg.uncompletedRule_cancel");
   // applyBtn.title = this.getLocString("ed.lg.uncompletedRule_apply");
-  // applyBtn.innerCss += " svc-logic-tab__leave-apply-button";
+  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button--danger sd-btn sd-btn--action";
   // popupModel.width = "800px";
   //return true;
 }

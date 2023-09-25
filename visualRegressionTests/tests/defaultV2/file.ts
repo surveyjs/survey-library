@@ -147,3 +147,37 @@ frameworks.forEach(framework => {
     });
   });
 });
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+  });
+  test("Check file question camera", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1980, 1000);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [{
+          type: "file",
+          title: "Question With Camera",
+          allowMultiple: true,
+          minWidth: "704px",
+          width: "704px",
+          maxWidth: "704px",
+          name: "file_question",
+        }]
+      });
+      await resetFocusToBody();
+      const questionRoot = Selector(".sd-question");
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera"); })();
+      await takeElementScreenshot("file-question-camera-mode.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "both"); })();
+      await takeElementScreenshot("file-question-both-mode.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", true); })();
+      await takeElementScreenshot("file-question-video.png", questionRoot, t, comparer);
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", false); })();
+      await t.setFilesToUpload(Selector(".sd-file input"), ["files/Read Me.txt"]);
+      await takeElementScreenshot("file-question-both-mode-answered.png", questionRoot, t, comparer);
+    });
+  });
+});

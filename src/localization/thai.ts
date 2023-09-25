@@ -75,6 +75,10 @@ export var thaiStrings = {
   clearCaption: "เคลียร์",
   signaturePlaceHolder: "ลงชื่อที่นี่",
   chooseFileCaption: "เลือกไฟล์",
+  takePhotoCaption: "ถ่ายรูป",
+  cameraPlaceHolder: "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง",
+  fileCameraDragAreaPlaceHolder: "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง",
+  replaceFileCaption: "แทนที่ไฟล์",
   removeFileCaption: "นำไฟล์นี้ออก",
   booleanCheckedLabel: "ใช่",
   booleanUncheckedLabel: "ไม่ใช่",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["th"] = "ไทย";
 // more: "More" => "อีก"
 // tagboxDoneButtonCaption: "OK" => "ตกลง, ได้"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "ตัวเลือกทั้งหมดจะถูกจัดอันดับ"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ"// takePhotoCaption: "Take Photo" => "ถ่ายรูป"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง"
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง"
+// replaceFileCaption: "Replace file" => "แทนที่ไฟล์"

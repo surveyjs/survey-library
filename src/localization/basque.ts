@@ -75,6 +75,10 @@ export var basqueSurveyStrings = {
   clearCaption: "Hustu",
   signaturePlaceHolder: "Sinatu hemen",
   chooseFileCaption: "Fitxategia hautatu",
+  takePhotoCaption: "Argazkia hartu",
+  cameraPlaceHolder: "Egin klik beheko botoian, kamerarekin argazki bat hartzeko.",
+  fileCameraDragAreaPlaceHolder: "Arrastatu eta askatu artxibo bat kamerarekin argazki bat kargatzeko edo hartzeko.",
+  replaceFileCaption: "Artxiboa ordeztu",
   removeFileCaption: "Fitxategi hau ezabatu",
   booleanCheckedLabel: "Bai",
   booleanUncheckedLabel: "Ez",
@@ -109,4 +113,7 @@ surveyLocalization.localeNames["eu"] = "Euskara";
 // more: "More" => "Gehiago"
 // tagboxDoneButtonCaption: "OK" => "Ados"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Aukera guztiak sailkatuta daude"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastaka eta askatzen ditu hemen sailkatzeko"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastaka eta askatzen ditu hemen sailkatzeko"// takePhotoCaption: "Take Photo" => "Argazkia hartu"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Egin klik beheko botoian, kamerarekin argazki bat hartzeko."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastatu eta askatu artxibo bat kamerarekin argazki bat kargatzeko edo hartzeko."
+// replaceFileCaption: "Replace file" => "Artxiboa ordeztu"

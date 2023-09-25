@@ -80,10 +80,22 @@
 
 .sd-file__choose-btn--text {
   display: block;
-  margin-top: calcSize(1);
   font-weight: 600;
   color: $primary;
   cursor: pointer;
+
+  .sv-svg-icon {
+    margin-left: calcSize(-1);
+    width: 24px;
+    height: 24px;
+    fill: $primary;
+  }
+}
+
+.sd-file__choose-btn--icon {
+  &>span {
+    display: none;
+  }
 }
 
 .sd-file__wrapper {
@@ -96,36 +108,27 @@
   }
 }
 
-.sd-file__choose-btn--text {
-  svg {
+.sd-file__actions-container {
+  margin-top: calcSize(0.5);
+
+  .sv-action--hidden {
     display: none;
   }
 }
 
-.sd-file__choose-btn--icon {
+.sd-file--answered .sd-file__actions-container {
   z-index: 2;
-
-  span:first-child {
-    display: none;
-  }
+  margin-top: 0;
+  gap: calcSize(1)
 }
 
-.sd-file__choose-btn--icon,
-.sd-file__clean-btn {
+.sd-file--answered .sd-file__actions-container {
   top: calcSize(1);
+  right: calcSize(1);
   position: absolute;
 }
 
-.sd-file__clean-btn {
-  z-index: 2;
-  inset-inline-end: calcSize(1);
-
-  span:first-child {
-    display: none;
-  }
-}
-
-.sd-file__choose-btn--icon {
+.sd-file--chose-btn--as .sd-file--answered .sd-file__actions-container {
   inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
 }
 
@@ -218,7 +221,7 @@
   }
 }
 
-.sd-file--mobile {
+.sd-file--mobile:first-child {
   .sd-file__list {
     height: calc(100% - 4 * #{$base-unit});
   }
@@ -272,6 +275,7 @@
     use {
       fill: $primary;
     }
+
   }
 
   &:not(.sd-file__choose-btn--icon) {
@@ -283,4 +287,66 @@
   position: static;
   width: 100%;
   height: 100%;
+}
+
+.sd-file__change-camera-button {
+  position: absolute;
+  z-index: 2;
+  left: calcSize(1);
+  top: calcSize(1);
+}
+
+.sd-file__close-camera-button {
+  position: absolute;
+  z-index: 2;
+  right: calcSize(1);
+  top: calcSize(1);
+}
+
+.sd-context-btn.sd-file__take-picture-button {
+  .sv-svg-icon {
+    height: calcSize(4);
+    width: calcSize(4);
+
+    use {
+      fill: $background;
+    }
+  }
+
+  background-color: $red;
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: calcSize(2);
+
+  &:hover,
+  &:focus {
+    box-shadow: 0 0 0 2px $red;
+  }
+}
+
+.sd-file__video-container {
+  background-color: $background-dim;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sd-file__loading-indicator {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  position: absolute;
+  border: 1px dashed $border;
+  left: 0;
+
+  .sd-loading-indicator {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 }

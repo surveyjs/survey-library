@@ -35,6 +35,11 @@ export { Dropdown } from "../vue/dropdown.vue";
 export { DropdownSelect } from "../vue/dropdown-select.vue";
 export { Tagbox } from "../vue/tagbox.vue";
 export { File } from "../vue/file.vue";
+export { FilePreview } from "../vue/file-preview.vue";
+export { FileCleanButton } from "../vue/file-clean-button.vue";
+export { FileVideo } from "../vue/file-video.vue";
+export { FileChooseButton } from "../vue/components/file-actions/file-choose-button.vue";
+
 export { MatrixCell } from "../vue/matrixcell.vue";
 export { MatrixHeaderRequired } from "../vue/matrixheaderrequired.vue";
 export { MatrixTable } from "../vue/matrixtable.vue";

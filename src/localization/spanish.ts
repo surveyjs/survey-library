@@ -75,6 +75,10 @@ export var spanishSurveyStrings = {
   clearCaption: "Despejen",
   signaturePlaceHolder: "Firma aqui",
   chooseFileCaption: "Elija el archivo",
+  takePhotoCaption: "Tomar foto",
+  cameraPlaceHolder: "Haga clic en el botón de abajo para tomar una foto con la cámara.",
+  fileCameraDragAreaPlaceHolder: "Arrastre y suelte o seleccione un archivo para cargar o tomar una foto con la cámara.",
+  replaceFileCaption: "Reemplazar archivo",
   removeFileCaption: "Elimina este archivo",
   booleanCheckedLabel: "Sí",
   booleanUncheckedLabel: "No",
@@ -104,4 +108,7 @@ surveyLocalization.localeNames["es"] = "español";
 // more: "More" => "Más"
 // tagboxDoneButtonCaption: "OK" => "De acuerdo"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Todas las opciones están clasificadas"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastra y suelta opciones aquí para clasificarlas"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastra y suelta opciones aquí para clasificarlas"// takePhotoCaption: "Take Photo" => "Tomar foto"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Haga clic en el botón de abajo para tomar una foto con la cámara."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastre y suelte o seleccione un archivo para cargar o tomar una foto con la cámara."
+// replaceFileCaption: "Replace file" => "Reemplazar archivo"

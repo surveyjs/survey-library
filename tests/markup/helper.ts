@@ -314,6 +314,9 @@ function clearAttributes(el: Element, removeIds = false) {
   if((<any>el).checked) {
     el.setAttribute("checked", "");
   }
+  if((<any>el).autoplay) {
+    el.setAttribute("autoplay", "");
+  }
   if((<any>el).multiple) {
     el.setAttribute("multiple", "");
   }

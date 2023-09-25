@@ -135,7 +135,7 @@ export class Survey extends SurveyModel {
   public makeReactive(obj: Base): void {
     new ImplementorBase(obj);
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     if(this.implementor) {
       this.implementor.dispose();
@@ -171,7 +171,7 @@ LocalizableString.prototype["onCreating"] = function () {
 };
 
 ItemValue.prototype["onCreating"] = function () {
-  // new ImplementorBase(this);
+  new ImplementorBase(this);
   this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
 };
 

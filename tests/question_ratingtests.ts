@@ -85,6 +85,7 @@ QUnit.test("check rating initResponsiveness", (assert) => {
 });
 
 QUnit.test("check rating resize observer behavior", (assert) => {
+  window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const getComputedStyle = window.getComputedStyle;
   window.ResizeObserver = <any>CustomResizeObserver;

@@ -21,9 +21,9 @@
           >
             <div
               :class="css.progressButtonsPageTitle"
-              :title="page.locNavigationTitle.renderedHtml || page.name"
+              :title="page.renderedNavigationTitle"
             >
-              {{ page.locNavigationTitle.renderedHtml || page.name }}
+              {{ page.renderedNavigationTitle }}
             </div>
             <div
               :class="css.progressButtonsPageDescription"

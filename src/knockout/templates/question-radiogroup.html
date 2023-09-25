@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-radiogroup">
 
-  <fieldset data-bind="css: question.getSelectBaseRootCss()" role="presentation">
+  <fieldset data-bind="css: question.getSelectBaseRootCss(), attr: { 'role': question.a11y_input_ariaRole, 'aria-required': question.a11y_input_ariaRequired, 'aria-labelledby': question.a11y_input_ariaLabelledBy, 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, 'aria-label': question.a11y_input_ariaLabel }">
     <!-- ko ifnot: question.hasColumns -->
       <!-- ko if: question.blockedRow -->
       <div data-bind="css: question.cssClasses.rootRow">
@@ -51,11 +51,11 @@
   </fieldset>
 </script>
 <script type="text/html" id="survey-radiogroup-item">
-  <div role="presentation" data-bind="css: question.getItemClass(item)">
-    <label data-bind="css: question.getLabelClass(item), attr: { 'aria-label': question.getAriaItemLabel(item) }, event: { mousedown: question.koMouseDown }">
+  <div role="presentation" data-bind="css: question.getItemClass($data)">
+    <label data-bind="css: question.getLabelClass($data), event: { mousedown: question.koMouseDown }">
       <input
         type="radio"
-        data-bind="attr: { name: question.questionName, id: question.getItemId(item), 'aria-describedby': question.ariaDescribedBy }, checkedValue: item.value, checked: question.renderedValue, enable: question.getItemEnabled(item), css: question.cssClasses.itemControl"
+        data-bind="attr: { name: question.questionName, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.renderedValue, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"
       />
       <!-- ko if: question.cssClasses.materialDecorator -->
       <span data-bind="css: question.cssClasses.materialDecorator">
@@ -66,9 +66,9 @@
         <!-- /ko -->
       </span>
       <!-- /ko -->
-      <!-- ko if: !item.hideCaption -->
-      <span data-bind="css: question.getControlLabelClass(item)">
-        <!-- ko template: { name: 'survey-string', data: item.locText } -->
+      <!-- ko if: !$data.hideCaption -->
+      <span data-bind="css: question.getControlLabelClass($data)">
+        <!-- ko template: { name: 'survey-string', data: $data.locText } -->
         <!-- /ko -->
       </span>
       <!-- /ko -->

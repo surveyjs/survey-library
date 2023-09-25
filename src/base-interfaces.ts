@@ -19,7 +19,8 @@ export interface ISurveyData {
     name: string,
     newValue: any,
     locNotification: any,
-    allowNotifyValueChanged?: boolean
+    allowNotifyValueChanged?: boolean,
+    questionName?: string
   ): any;
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
@@ -85,7 +86,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;
-  questionCountByValueName(valueName: string): number;
+  questionsByValueName(valueName: string): Array<IQuestion>;
   processHtml(html: string, reason: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
   getRendererForString(element: Base, name: string): string;
@@ -283,7 +284,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;
   removeElement(el: IElement): boolean;
-  onAnyValueChanged(name: string): any;
+  onAnyValueChanged(name: string, questionName: string): void;
   updateCustomWidgets(): any;
   clearIncorrectValues(): any;
   clearErrors(): any;

@@ -88,7 +88,7 @@
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.105",
+  "version": "1.9.109",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -129,7 +129,7 @@
     "github-api": "^3.3.0",
     "html-loader": "0.4.4",
     "http-server": "^0.12.3",
-    "husky": "^7.0.0",
+    "husky": "^8",
     "jest": "^26.1.0",
     "jest-canvas-mock": "^2.2.0",
     "jquery": "^3.5.1",

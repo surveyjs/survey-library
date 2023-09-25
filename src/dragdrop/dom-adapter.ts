@@ -53,9 +53,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.currentX = pointerMoveEvent.pageX;
     this.currentY = pointerMoveEvent.pageY;
     if (this.isMicroMovement) return;
-    document.body.style.setProperty("touch-action", "");
-    document.body.style.setProperty("user-select", "");
-    document.body.style.setProperty("-webkit-user-select", "");
+    this.returnUserSelectBack();
     this.stopLongTap();
   };
   // see https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
@@ -81,8 +79,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.startX = event.pageX;
     this.startY = event.pageY;
     document.body.style.setProperty("touch-action", "none", "important");
-    document.body.style.setProperty("user-select", "none", "important");
-    document.body.style.setProperty("-webkit-user-select", "none", "important");
+    document.body.style.setProperty("-webkit-touch-callout", "none", "important");
 
     this.timeoutID = setTimeout(() => {
       this.doStartDrag(
@@ -210,9 +207,12 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     cancelAnimationFrame(this.scrollIntervalId);
     const startScrollBoundary = 100;
 
-    this.draggedElementShortcut.hidden = true;
+    const displayProp = this.draggedElementShortcut.style.display;
+    //this.draggedElementShortcut.hidden = true;
+    this.draggedElementShortcut.style.display = "none";
     let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    this.draggedElementShortcut.hidden = false;
+    //this.draggedElementShortcut.hidden = false;
+    this.draggedElementShortcut.style.display = displayProp || "block";
 
     let scrollableParentNode = findScrollableParent(dragOverNode);
 
@@ -278,9 +278,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.savedTargetNode = null;
     this.savedTargetNodeParent = null;
 
-    document.body.style.setProperty("touch-action", "");
-    document.body.style.setProperty("user-select", "");
-    document.body.style.setProperty("-webkit-user-select", "");
+    this.returnUserSelectBack();
   };
   private drop = () => {
     this.dd.drop();
@@ -313,10 +311,19 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     }
   }
 
+  private returnUserSelectBack() {
+    document.body.style.setProperty("touch-action", "auto");
+    document.body.style.setProperty("user-select", "auto");
+    document.body.style.setProperty("-webkit-user-select", "auto");
+    document.body.style.setProperty("-webkit-touch-callout", "default");
+  }
+
   public draggedElementShortcut: any = null;
   public rootContainer: HTMLElement;
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
+    document.body.style.setProperty("user-select", "none", "important");
+    document.body.style.setProperty("-webkit-user-select", "none", "important");
     if (IsTouch) {
       this.startLongTapProcessing(
         event,

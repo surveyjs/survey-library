@@ -1,4 +1,7 @@
 const Theme = {
+  "themeName": "solid",
+  "colorPalette": "dark",
+  "isPanelless": true,
   "cssVariables": {
     "--sjs-general-backcolor": "rgba(53, 55, 63, 1)",
     "--sjs-general-backcolor-dark": "rgba(60, 63, 74, 1)",
@@ -85,8 +88,7 @@ const Theme = {
     "--sjs-article-font-default-lineHeight": "28px",
     "--sjs-article-font-default-paragraphIndent": "0px",
     "--sjs-article-font-default-textCase": "none"
-  },
-  "isPanelless": true
+  }
 };
 export default Theme;
 export const SolidDarkPanelless = Theme;

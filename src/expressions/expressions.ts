@@ -264,7 +264,7 @@ export class Const extends Operand {
       return value.substring(1, value.length - 1);
     if (OperandMaker.isNumeric(value)) {
       if (value.indexOf("0x") == 0) return parseInt(value);
-      if (value.length > 1 && value[0] == "0") return value;
+      if (value.length > 1 && value[0] == "0" && (value.length < 2 || (value[1] !== "." && value[1] !== ","))) return value;
       return parseFloat(value);
     }
     return value;

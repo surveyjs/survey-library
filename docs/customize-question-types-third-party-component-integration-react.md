@@ -242,6 +242,16 @@ const svg = ReactDOMServer.renderToString(<ColorPickerIcon />);
 SvgRegistry.registerIconFromSvg(CUSTOM_TYPE, svg);
 ```
 
+Alternatively, you can use one of [built-in SurveyJS icons](https://surveyjs.io/form-library/documentation/icons#built-in-icons). The code below shows how to use the Text icon:
+
+```js
+import { ..., settings } from "survey-core";
+
+const CUSTOM_TYPE = "color-picker";
+
+settings.customIcons["icon-" + CUSTOM_TYPE] = "icon-text";
+```
+
 ## Use the Custom Component as an Editor in the Property Grid
 
 The [Property Grid](/Documentation/Survey-Creator?id=property-grid) is built upon a regular survey and can be customized using the same techniques. It means that if you integrate a third-party component into a survey, you can integrate it into the Property Grid with little effort. For example, the following code shows how to register the Color Picker configured in this tutorial as an editor for the properties of the `"color"` type:

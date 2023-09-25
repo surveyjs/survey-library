@@ -9,7 +9,7 @@ const json = {
     {
       "type": "html",
       "name": "question1",
-      "html": "<svg id=\"svg-icon-test\"><use xlink:href=\"#icon-icon-test\"></use></svg>"
+      "html": "<svg id=\"svg-icon-test\"><use xlink:href=\"#icon-icn-test\"></use></svg>"
     }
   ]
 };
@@ -18,7 +18,7 @@ frameworks.forEach(async framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
       await ClientFunction(() => {
-        window["Survey"].SvgRegistry.registerIconFromSvg("icon-test", "<svg viewBox=\"1 2 3 4\"></svg>");
+        window["Survey"].SvgRegistry.registerIconFromSvg("icn-test", "<svg viewBox=\"1 2 3 4\"></svg>");
       })();
       await initSurvey(framework, json);
     }
@@ -29,7 +29,7 @@ frameworks.forEach(async framework => {
     });
     await t
       .expect(Selector("#sv-icon-holder-global-container").exists).ok()
-      .expect(svgContainer()).contains("<symbol id=\"icon-icon-test\" viewBox=\"1 2 3 4\"></symbol>")
+      .expect(svgContainer()).contains("<symbol id=\"icon-icn-test\" viewBox=\"1 2 3 4\"></symbol>")
       .expect(svgContainer()).contains("<symbol id=\"icon-left\"");
   });
 });

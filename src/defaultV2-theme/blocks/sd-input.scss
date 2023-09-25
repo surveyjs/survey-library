@@ -22,6 +22,14 @@
   outline: none;
 }
 
+//for IPHONE
+input,
+textarea {
+  &.sd-input:disabled:not(.sd-input--disabled) {
+    opacity: 1;
+  }
+}
+
 .sd-input--disabled {
   background-color: $editor-background;
   -webkit-user-select: none;
@@ -38,8 +46,8 @@
   user-select: none;
 }
 
-.sd-input--disabled,
-.sd-input--disabled::placeholder {
+.sd-input.sd-input--disabled,
+.sd-input.sd-input--disabled::placeholder {
   color: $foreground;
   opacity: 0.25;
 }
@@ -98,6 +106,15 @@
   width: calcSize(3);
 }
 
+.sd-input[type="time"],
+.sd-input[type="date"],
+.sd-input[type="datetime-local"],
+.sd-input[type="week"],
+.sd-input[type="month"],
+.sd-input[type="tel"],
+.sd-input[type="password"],
+.sd-input[type="url"],
+.sd-input[type="email"],
 .sd-input[type="color"],
 .sd-input[type="range"] {
   box-sizing: content-box;

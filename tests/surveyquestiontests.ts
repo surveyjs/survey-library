@@ -7157,3 +7157,103 @@ QUnit.test("Dynamic error text in expression validator, bug#6790", function (ass
   assert.strictEqual(error, q2.errors[0], "Same errors");
   assert.equal(errorTextChangedCounter, 1, "text has been updated");
 });
+QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "comment", name: "q2" },
+      { type: "expression", name: "q3" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = ["item1", "item2", "item3"];
+  q2.value = ["item1", "item2", "item3"];
+  q3.value = ["item1", "item2", "item3"];
+  assert.equal(q1.value, "item1, item2, item3", "q1");
+  assert.equal(q2.value, "item1\nitem2\nitem3", "q2");
+  assert.equal(q3.value, "item1, item2, item3", "q3");
+});
+QUnit.test("question.isReady & async functions in expression", function (assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  var returnResult3: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  function asyncFunc3(params: any): any {
+    returnResult3 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  FunctionFactory.Instance.register("asyncFunc3", asyncFunc3, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", minValueExpression: "asyncFunc1()", defaultValueExpression: "asyncFunc2()" },
+      { type: "expression", name: "q2", expression: "asyncFunc3()" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  assert.equal(q1.isReady, false, "q1 is not ready #1");
+  assert.equal(q2.isReady, false, "q2 is not ready #1");
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #2");
+  assert.equal(q1.isReady, false, "q1 is not ready #2");
+  assert.equal(q2.isReady, false, "q2 is not ready #2");
+  returnResult2(2);
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #3");
+  assert.equal(q2.isReady, false, "q2 is not ready #3");
+  returnResult3(3);
+  returnResult2(2);
+  returnResult1(1);
+  assert.equal(q1.isReady, true, "q1 is ready #4");
+  assert.equal(q2.isReady, true, "q2 is ready #4");
+  assert.equal(q1.value, 2, "q1.value");
+  assert.equal(q2.value, 3, "q2.value");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+  FunctionFactory.Instance.unregister("asyncFunc3");
+});
+QUnit.test("question.isReady & async functions in conditions, visibleIf&enabledIf", function (assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", visibleIf: "asyncFunc1()", enableIf: "asyncFunc2()" },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  assert.equal(q1.isReady, false, "q1 is not ready #1");
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #2");
+  assert.equal(q1.isReady, false, "q1 is not ready #2");
+  returnResult2(2);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #3");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});

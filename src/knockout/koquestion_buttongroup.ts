@@ -12,7 +12,7 @@ export class QuestionButtonGroup extends QuestionButtonGroupModel {
     super.onBaseCreating();
     this._implementor = new QuestionCheckboxBaseImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

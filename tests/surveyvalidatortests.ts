@@ -14,6 +14,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { Serializer } from "../src/jsonobject";
 import { FunctionFactory } from "../src/functionsfactory";
+import { settings } from "../src/settings";
 
 export default QUnit.module("Validators");
 
@@ -508,4 +509,23 @@ QUnit.test("question with async validators", function(assert) {
 
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
+});
+QUnit.test("settings.readOnly.enableValidation option", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        readOnly: true,
+        isRequired: true
+      }
+    ]
+  });
+  var q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  survey.validate(true);
+  assert.equal(q1.errors.length, 0, "No errors");
+  settings.readOnly.enableValidation = true;
+  survey.validate(true);
+  assert.equal(q1.errors.length, 1, "There is an error");
+  settings.readOnly.enableValidation = false;
 });

@@ -34,33 +34,38 @@
       @dragenter="question.onDragEnter"
     >
       <div :class="question.getFileDecoratorCss()">
-        <span :class="question.cssClasses.dragAreaPlaceholder">{{
-          question.renderedPlaceholder
-        }}</span>
-        <div :class="question.cssClasses.wrapper">
-          <label
-            v-if="!question.isReadOnly"
-            role="button"
-            tabindex="0"
-            :class="question.getChooseFileCss()"
-            :for="question.inputId"
-            v-bind:aria-label="question.chooseButtonText"
-            v-key2click
-          >
-            <span>{{ question.chooseButtonText }}</span>
-            <sv-svg-icon
-              v-if="question.cssClasses.chooseFileIconId"
-              :title="question.chooseButtonText"
-              :iconName="question.cssClasses.chooseFileIconId"
-              :size="'auto'"
-            ></sv-svg-icon>
-          </label>
-          <span
-            :class="question.cssClasses.noFileChosen"
-            v-if="question.isEmpty()"
-            >{{ question.noFileChosenCaption }}</span
-          >
-        </div>
+        <sv-loading-indicator
+          v-if="question.showLoadingIndicator"
+        ></sv-loading-indicator>
+        <template v-if="question.showChooseButton">
+          <span :class="question.cssClasses.dragAreaPlaceholder">{{
+            question.renderedPlaceholder
+          }}</span>
+          <div :class="question.cssClasses.wrapper">
+            <label
+              v-if="!question.isReadOnly"
+              role="button"
+              tabindex="0"
+              :class="question.getChooseFileCss()"
+              :for="question.inputId"
+              v-bind:aria-label="question.chooseButtonText"
+              v-key2click
+            >
+              <span>{{ question.chooseButtonText }}</span>
+              <sv-svg-icon
+                v-if="question.cssClasses.chooseFileIconId"
+                :title="question.chooseButtonText"
+                :iconName="question.cssClasses.chooseFileIconId"
+                :size="'auto'"
+              ></sv-svg-icon>
+            </label>
+            <span
+              :class="question.cssClasses.noFileChosen"
+              v-if="question.isEmpty()"
+              >{{ question.noFileChosenCaption }}</span
+            >
+          </div>
+        </template>
       </div>
       <button
         type="button"
@@ -78,7 +83,7 @@
       </button>
       <div
         :class="question.cssClasses.fileList || undefined"
-        v-if="!question.isEmpty()"
+        v-if="question.allowShowPreview"
       >
         <span
           v-for="(val, index) in question.previewValue"
@@ -162,8 +167,8 @@
         ></sv-svg-icon>
       </button>
       <sv-action-bar
-        v-if="question.mobileFileNavigatorVisible"
-        :model="question.mobileFileNavigator"
+        v-if="question.fileNavigatorVisible"
+        :model="question.fileNavigator"
       ></sv-action-bar>
     </div>
   </div>

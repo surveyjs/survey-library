@@ -32,13 +32,14 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
   var items = (pagesSource || []).map(page => {
     return new Action({
       id: page.name,
-      title: ((<any>page)["navigationTitle"]) || page.title || page.name,
+      locTitle: (page as PageModel).locNavigationTitle?.text ? (page as PageModel).locNavigationTitle : (page.locTitle?.text ? page.locTitle : undefined),
+      title: page.renderedNavigationTitle,
       action: () => {
         if (typeof document !== undefined && !!document.activeElement) {
           !!(<any>document.activeElement).blur && (<any>document.activeElement).blur();
         }
         !!onAction && onAction();
-        if(page instanceof PageModel) {
+        if (page instanceof PageModel) {
           return tryNavigateToPage(survey, page);
         }
         return tryFocusPage(survey, page);

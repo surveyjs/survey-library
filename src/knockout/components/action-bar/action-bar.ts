@@ -25,7 +25,7 @@ export class ActionContainerImplementor extends ImplementorBase {
     });
   }
 
-  dispose() {
+  public dispose(): void {
     super.dispose();
     this.itemsSubscription.dispose();
     this.model.resetResponsivityManager();

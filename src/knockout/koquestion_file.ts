@@ -3,8 +3,10 @@ import { Serializer, QuestionFactory, QuestionFileModel, getOriginalEvent } from
 import { QuestionImplementor } from "./koquestion";
 
 class QuestionFileImplementor extends QuestionImplementor {
+  public koRecalc: any;
   constructor(question: QuestionFile) {
     super(question);
+    this.koRecalc = ko.observable(0);
     this.setObservaleObj("koState", ko.observable<string>("empty"));
     this.setObservaleObj(
       "koHasValue",
@@ -20,7 +22,10 @@ class QuestionFileImplementor extends QuestionImplementor {
       })
     );
     this.setObservaleObj("ko", ko.observable<string>());
-    this.setObservaleObj("koInputTitle", ko.observable<string>());
+    this.setObservaleObj("koInputTitle", ko.computed<string>(() => {
+      this.koRecalc();
+      return this.question.inputTitle;
+    }));
     this.setObservaleObj(
       "koChooseFileCss",
       ko.pureComputed(() => {
@@ -63,7 +68,7 @@ export class QuestionFile extends QuestionFileModel {
   private _implementor: QuestionFileImplementor;
   private updateState = (sender: QuestionFileModel, options: any) => {
     this.koState(options.state);
-    this.koInputTitle(this.inputTitle);
+    this._implementor.koRecalc(this._implementor.koRecalc() + 1);
   };
   constructor(name: string) {
     super(name);
@@ -74,7 +79,7 @@ export class QuestionFile extends QuestionFileModel {
     super.onBaseCreating();
     this._implementor = new QuestionFileImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this.onUploadStateChanged.remove(this.updateState);
     this._implementor.dispose();
     this._implementor = undefined;

@@ -147,6 +147,7 @@ export class Survey extends SurveyElementBase<any, any>
           dangerouslySetInnerHTML={htmlValue}
           className={this.survey.completedCss}
         />
+        <ComponentsContainer survey={this.survey} container={"completePage"} needRenderWrapper={false}></ComponentsContainer>
       </React.Fragment>
     );
   }

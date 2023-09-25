@@ -1,5 +1,5 @@
 <template>
-  <table :class="question.cssClasses.root" ref="root">
+  <table :class="question.getQuestionRootCss()" ref="root">
     <tbody>
       <template
         v-for="(row, rowIndex) in question.getRows()"

@@ -1,5 +1,12 @@
 <template>
-  <fieldset :class="question.getSelectBaseRootCss()" role="presentation">
+  <fieldset :class="question.getSelectBaseRootCss()" 
+    :role="question.a11y_input_ariaRole"
+    :aria-required="question.a11y_input_ariaRequired"
+    :aria-label="question.a11y_input_ariaLabel"
+    :aria-labelledby="question.a11y_input_ariaLabelledBy"
+    :aria-invalid="question.a11y_input_ariaInvalid"
+    :aria-describedby="question.a11y_input_ariaDescribedBy"
+  >
     <legend role="presentation" class="sv-hidden"></legend>
     <survey-checkbox-item
         v-for="(item, index) in question.headItems"

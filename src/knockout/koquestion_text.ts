@@ -44,7 +44,7 @@ export class QuestionText extends QuestionTextModel {
     super.onBaseCreating();
     this._implementor = new QuestionTextImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

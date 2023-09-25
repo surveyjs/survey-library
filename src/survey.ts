@@ -6056,9 +6056,9 @@ export class SurveyModel extends SurveyElementCore
     }
     return false;
   }
-  questionCountByValueName(valueName: string): number {
+  questionsByValueName(valueName: string): Array<IQuestion> {
     var questions = this.getQuestionsByValueName(valueName);
-    return !!questions ? questions.length : 0;
+    return !!questions ? questions : [];
   }
   private clearInvisibleQuestionValues() {
     const reason = this.clearInvisibleValues === "none" ? "none" : "onComplete";

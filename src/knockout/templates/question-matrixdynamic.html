@@ -20,6 +20,7 @@
         <div data-bind="css: question.cssClasses.emptyRowsText">
           <!-- ko template: { name: 'survey-string', data: question.locEmptyRowsText } --><!-- /ko -->
         </div>
+        <!-- ko if: question.koTable().showAddRow -->  
         <button
           type="button"
           data-bind="click:question.koAddRowClick, css: question.getAddRowButtonCss(true), disable: question.isInputReadOnly"
@@ -27,6 +28,7 @@
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
           <span data-bind="css: question.cssClasses.iconAdd"></span>
         </button>
+        <!-- /ko -->
       </div>
       <!-- /ko -->
       <!-- ko if: question.koTable().showAddRowOnBottom -->

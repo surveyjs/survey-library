@@ -506,28 +506,28 @@ export class Question extends SurveyElement<Question>
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
   }
-  private clearValueOnExpression: ExpressionRunner;
-  private isRunningClearValueOn: boolean;
+  private resetValueIfExpression: ExpressionRunner;
+  private isRunningResetValueIf: boolean;
   public runTriggers(name: string, value: any): void {
-    if(this.isRunningClearValueOn || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty()) return;
+    if(this.isRunningResetValueIf || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty()) return;
     if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
-    if(!this.clearValueOnExpression) {
-      this.clearValueOnExpression = new ExpressionRunner(this.resetValueIf);
-      this.clearValueOnExpression.onRunComplete = (res: any): void => {
-        this.isRunningClearValueOn = false;
+    if(!this.resetValueIfExpression) {
+      this.resetValueIfExpression = new ExpressionRunner(this.resetValueIf);
+      this.resetValueIfExpression.onRunComplete = (res: any): void => {
+        this.isRunningResetValueIf = false;
         if(res === true) {
           this.clearValue();
           this.updateValueWithDefaults();
         }
       };
     } else {
-      this.clearValueOnExpression.expression = this.resetValueIf;
+      this.resetValueIfExpression.expression = this.resetValueIf;
     }
     const keys: any = {};
     keys[name] = value;
-    if(!new ProcessValue().isAnyKeyChanged(keys, this.clearValueOnExpression.getVariables())) return;
-    this.isRunningClearValueOn = true;
-    this.clearValueOnExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    if(!new ProcessValue().isAnyKeyChanged(keys, this.resetValueIfExpression.getVariables())) return;
+    this.isRunningResetValueIf = true;
+    this.resetValueIfExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {

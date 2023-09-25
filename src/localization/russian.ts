@@ -75,6 +75,10 @@ export var russianSurveyStrings = {
   clearCaption: "Очистить",
   signaturePlaceHolder: "Подпишите здесь",
   chooseFileCaption: "Выберите файл",
+  takePhotoCaption: "Сделать фото",
+  cameraPlaceHolder: "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры.",
+  fileCameraDragAreaPlaceHolder: "Перетащите или выберите файл для загрузки или съемки с помощью камеры.",
+  replaceFileCaption: "Заменить файл",
   removeFileCaption: "Удалить файл",
   booleanCheckedLabel: "Да",
   booleanUncheckedLabel: "Нет",
@@ -104,4 +108,7 @@ surveyLocalization.localeNames["ru"] = "русский";
 // more: "More" => "Больше"
 // tagboxDoneButtonCaption: "OK" => "ХОРОШО"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Все варианты ранжируются"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетащите сюда варианты, чтобы ранжировать их"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетащите сюда варианты, чтобы ранжировать их"// takePhotoCaption: "Take Photo" => "Сделать фото"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетащите или выберите файл для загрузки или съемки с помощью камеры."
+// replaceFileCaption: "Replace file" => "Заменить файл"

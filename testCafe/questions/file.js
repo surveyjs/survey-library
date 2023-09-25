@@ -50,7 +50,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await ClientFunction(() => {
-      document.querySelector("label[aria-label=\"Choose file\"]").click = () => { window.chooseFileClickedTest = "yes"; };
+      document.querySelector("label[aria-label=\"Select File\"]").click = () => { window.chooseFileClickedTest = "yes"; };
     })();
     await t.pressKey("tab");
     await t.pressKey("enter");

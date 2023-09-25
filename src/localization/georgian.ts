@@ -75,6 +75,10 @@ export var georgianSurveyStrings = {
   clearCaption: "მოწმენდილი ცა",
   signaturePlaceHolder: "შესვლა აქ",
   chooseFileCaption: "ვაუჩერის ნახვა",
+  takePhotoCaption: "გადაიღეთ ფოტო",
+  cameraPlaceHolder: "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით.",
+  fileCameraDragAreaPlaceHolder: "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად.",
+  replaceFileCaption: "ფაილის შეცვლა",
   removeFileCaption: "ამ ფაილის წაშლა",
   booleanCheckedLabel: "დიახ",
   booleanUncheckedLabel: "არა",
@@ -169,4 +173,7 @@ surveyLocalization.localeNames["ka"] = "ქართული";
 // more: "More" => "სრულად"
 // tagboxDoneButtonCaption: "OK" => "კარგი"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "ყველა არჩევანი რანჟირებულია"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი"// takePhotoCaption: "Take Photo" => "გადაიღეთ ფოტო"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად."
+// replaceFileCaption: "Replace file" => "ფაილის შეცვლა"

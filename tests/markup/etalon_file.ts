@@ -600,6 +600,67 @@ registerMarkupTests(
     after: () => StylesManager.applyTheme("default"),
     snapshot: "file-uploading",
     initSurvey: survey => survey.getAllQuestions()[0]["isUploading"] = true,
-  }
+  },
+  {
+    name: "Test file question mode: 'both'",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "both");
+    },
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "file-mode-both",
+  },
+  {
+    name: "Test file question mode: 'camera'",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
+    },
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "file-mode-camera",
+  },
+  {
+    name: "Test file question playing video",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
+      survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", true);
+    },
+    snapshot: "file-playing-video",
+  },
   ]
 );

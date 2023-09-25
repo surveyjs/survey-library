@@ -3288,11 +3288,16 @@ export class SurveyModel extends SurveyElementCore
     return allow;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    this.notifyQuestionsOnHidingContent(oldValue);
     const options = this.createPageChangeEventOptions(newValue, oldValue);
     if (options.isNextPage) {
       oldValue.passed = true;
     }
     this.onCurrentPageChanged.fire(this, options);
+  }
+  private notifyQuestionsOnHidingContent(page: PageModel): void {
+    if(!page) return;
+    page.questions.forEach(q => q.onHidingContent());
   }
   private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
     const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;
@@ -4183,6 +4188,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.checkOnPageTriggers(true);
     this.stopTimer();
+    this.notifyQuestionsOnHidingContent(this.currentPage);
     this.isCompleted = true;
     this.clearUnusedValues();
     this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
@@ -4247,6 +4253,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCurrentPageRendering = true;
     if (this.checkIsPageHasErrors(this.startedPage, true)) return false;
     this.isStartedState = false;
+    this.notifyQuestionsOnHidingContent(this.pages[0]);
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
     this.updateVisibleIndexes();
@@ -6054,9 +6061,9 @@ export class SurveyModel extends SurveyElementCore
     }
     return false;
   }
-  questionCountByValueName(valueName: string): number {
+  questionsByValueName(valueName: string): Array<IQuestion> {
     var questions = this.getQuestionsByValueName(valueName);
-    return !!questions ? questions.length : 0;
+    return !!questions ? questions : [];
   }
   private clearInvisibleQuestionValues() {
     const reason = this.clearInvisibleValues === "none" ? "none" : "onComplete";

@@ -75,6 +75,10 @@ export var hungarianSurveyStrings = {
   clearCaption: "Egyértelmű",
   signaturePlaceHolder: "Írja alá itt",
   chooseFileCaption: "Válassz fájlt",
+  takePhotoCaption: "Fotó készítése",
+  cameraPlaceHolder: "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel.",
+  fileCameraDragAreaPlaceHolder: "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával.",
+  replaceFileCaption: "Fájl cseréje",
   removeFileCaption: "Távolítsa el ezt a fájlt",
   booleanCheckedLabel: "Igen",
   booleanUncheckedLabel: "Nem",
@@ -115,4 +119,7 @@ surveyLocalization.localeNames["hu"] = "magyar";
 // more: "More" => "Több"
 // tagboxDoneButtonCaption: "OK" => "OKÉ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Minden választási lehetőség rangsorolva van"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Húzza ide a választási lehetőségeket a rangsoroláshoz"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Húzza ide a választási lehetőségeket a rangsoroláshoz"// takePhotoCaption: "Take Photo" => "Fotó készítése"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával."
+// replaceFileCaption: "Replace file" => "Fájl cseréje"

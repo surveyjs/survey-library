@@ -79,7 +79,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.startX = event.pageX;
     this.startY = event.pageY;
     document.body.style.setProperty("touch-action", "none", "important");
-    document.body.style.setProperty("-webkit-touch-callout", "none", "important");
+    //document.body.style.setProperty("-webkit-touch-callout", "none", "important");
 
     this.timeoutID = setTimeout(() => {
       this.doStartDrag(
@@ -315,7 +315,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     document.body.style.setProperty("touch-action", "auto");
     document.body.style.setProperty("user-select", "auto");
     document.body.style.setProperty("-webkit-user-select", "auto");
-    document.body.style.setProperty("-webkit-touch-callout", "default");
+    //document.body.style.setProperty("-webkit-touch-callout", "default");
   }
 
   public draggedElementShortcut: any = null;

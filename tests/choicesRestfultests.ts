@@ -1446,17 +1446,86 @@ QUnit.test(
   }
 );
 
-QUnit.test("choicesByUrl + isReady", function(assert) {
-  var question = new QuestionDropdownModelTester("q1");
-  question.value = "Algeria";
-  question.choicesByUrl.url = "allcountries";
-  question.choicesByUrl.path = "RestResponse;result";
+QUnit.test("choicesByUrl + isReady (not ready before call and ready after)", function(assert) {
+  var question = new QuestionCheckboxModelTester("q1");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "identity";
+  question.restFulTest.items = [
+    { identity: { id: 1021 }, localizedData: { id: "A1" } },
+    { identity: { id: 1022 }, localizedData: { id: "A2" } },
+    { identity: { id: 1023 }, localizedData: { id: "A3" } },
+    { identity: { id: 1024 }, localizedData: { id: "A4" } },
+  ];
+  const survey = new SurveyModel();
+  survey.addNewPage("q1");
+  survey.pages[0].addQuestion(question);
   question.onSurveyLoad();
-  assert.equal(
-    question.isReady,
-    true,
-    "IsReady should be true after load survey"
-  );
+  assert.equal(question.isReady, false, "It is not ready yet");
+  question.doResultsCallback();
+  assert.equal(question.isReady, true, "IsReady should be true after load survey");
+});
+
+QUnit.test("choicesByUrl + isReady for questions with the same valueName (not ready before call and ready after)", function(assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("p1");
+  const panel = new QuestionPanelDynamicModel("q2");
+  panel.template.addNewQuestion("text", "q2_2");
+  panel.valueName = "q1";
+  survey.pages[0].addQuestion(panel);
+  var question = new QuestionCheckboxModelTester("q1");
+  question.valuePropertyName = "val1";
+  survey.pages[0].addQuestion(question);
+  assert.equal(question.isReady, true, "Question is not loaded yet");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "identity";
+  question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
+  question.onSurveyLoad();
+  assert.equal(question.isReady, false, "It is not ready yet");
+  assert.equal(panel.isReady, false, "Related question is not ready");
+  question.doResultsCallback();
+  assert.equal(question.isReady, true, "IsReady should be true after load survey");
+  assert.equal(panel.isReady, true, "Related question is ready");
+});
+QUnit.test("choicesByUrl + isReady for carry-forward)", function(assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("p1");
+  var question = new QuestionCheckboxModelTester("q1");
+  survey.pages[0].addQuestion(question);
+  const dropdown = new QuestionDropdownModel("q2");
+  survey.pages[0].addQuestion(dropdown);
+  dropdown.choicesFromQuestion = "q1";
+  assert.equal(question.isReady, true, "Question is not loaded yet");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "identity";
+  question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
+  question.onSurveyLoad();
+  assert.equal(question.isReady, false, "It is not ready yet");
+  assert.equal(dropdown.isReady, false, "Related question is not ready");
+  question.doResultsCallback();
+  assert.equal(question.isReady, true, "IsReady should be true after load survey");
+  assert.equal(dropdown.isReady, true, "Related question is ready");
+});
+QUnit.test("choicesByUrl & carry-forward & value)", function(assert) {
+  const survey = new SurveyModel();
+  survey.addNewPage("p1");
+  var question = new QuestionCheckboxModelTester("q1");
+  survey.pages[0].addQuestion(question);
+  const dropdown = new QuestionCheckboxModel("q2");
+  survey.pages[0].addQuestion(dropdown);
+  dropdown.choicesFromQuestion = "q1";
+  assert.equal(question.isReady, true, "Question is not loaded yet");
+  question.hasItemsCallbackDelay = true;
+  question.choicesByUrl.url = "something";
+  question.choicesByUrl.valueName = "identity";
+  question.restFulTest.items = ["item1", "item2", "item3", "item4", "item5"];
+  question.onSurveyLoad();
+  survey.data = { q1: ["item2", "item3"], q2: ["item1", "item4"] };
+  question.doResultsCallback();
+  assert.deepEqual(question.value, ["item2", "item3"], "question.value");
+  assert.deepEqual(dropdown.value, ["item1", "item4"], "dropdown.value");
 });
 
 QUnit.test("isUsing cache", function(assert) {

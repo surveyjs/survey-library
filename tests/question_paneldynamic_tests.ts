@@ -4367,6 +4367,35 @@ QUnit.test("templateTitle test + survey.onValueChanged", function(assert) {
     "the first panel title set correctly again"
   );
 });
+QUnit.test("defaultValue &  survey.onValueChanged on adding new panel", function(assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        name: "panel",
+        type: "paneldynamic",
+        templateElements: [
+          { type: "expression", name: "q5", expression: "{panel.q4} + {panel.q3}" },
+          { type: "text", name: "q1", defaultValue: 1 },
+          { type: "text", name: "q2", defaultValue: 2 },
+          { type: "text", name: "q3", defaultValueExpression: "{panel.q1} + {panel.q2}" },
+          { type: "text", name: "q4", defaultValueExpression: "{val1}" }
+        ]
+      }
+    ],
+  });
+  survey.setValue("val1", 4);
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    counter ++;
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.addPanel();
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }], "panel.value #1");
+  assert.equal(counter, 1, "survey.onValueChanged call times #1");
+  panel.addPanel();
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 7 }], "panel.value #2");
+  assert.equal(counter, 2, "survey.onValueChanged call times #2");
+});
 QUnit.test(
   "Dependend choices not working properly in PanelDynamic Bug #2851",
   function(assert) {
@@ -4986,32 +5015,18 @@ QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (asse
   });
   const panel = survey.getAllQuestions()[0];
   const question = panel.panels[0].questions[0];
-  let done = assert.async();
   let log = "";
+  const callbacks = new Array<any>();
+  const contents = new Array<string>();
   survey.onDownloadFile.add((survey, options) => {
     assert.equal(options.question.isReady, false);
-    setTimeout(() => {
-      log += "->" + options.fileValue.name;
-      options.callback("success", (<string>options.content).replace("url", "content"));
-    });
+    contents.push(options.content.replace("url", "content"));
+    callbacks.push(options.callback);
+    log += "->" + options.fileValue.name;
   });
-  panel.onReadyChanged.add((_, opt) => {
-    if(opt.isReady) {
-      assert.equal(log, "->file1.png->file2.png");
-      assert.equal(question.isReady, true);
-      assert.equal(question.onReadyChanged.isEmpty, true);
-      assert.deepEqual(panel.panels[0].questions[0].previewValue, [{
-        content: "content1",
-        name: "file1.png",
-        type: "image/png"
-      }, {
-        content: "content2",
-        name: "file2.png",
-        type: "image/png"
-      }]);
-      assert.ok(panel.isReady);
-      done();
-    }
+  const readyLogs = new Array<boolean>();
+  panel.onReadyChanged.add(() => {
+    readyLogs.push(question.isReady);
   });
   survey.data = { panel: [{
     "file1": [{
@@ -5024,7 +5039,27 @@ QUnit.test("Check paneldynamic isReady flag with onDownloadFile callback", (asse
       type: "image/png"
     }]
   }] };
-  assert.equal(panel.isReady, false);
+
+  assert.equal(panel.isReady, false, "panel is not ready");
+  assert.equal(log, "->file1.png->file2.png");
+  assert.equal(callbacks.length, 2, "Two callbacks");
+  for(let i = 0; i < callbacks.length; i ++) {
+    callbacks[i]("success", contents[i]);
+  }
+  assert.equal(panel.isReady, true, "panel is ready");
+  assert.deepEqual(panel.panels[0].questions[0].previewValue, [{
+    content: "content1",
+    name: "file1.png",
+    type: "image/png"
+  }, {
+    content: "content2",
+    name: "file2.png",
+    type: "image/png"
+  }]);
+  assert.equal(readyLogs.length, 2, "readyLogs.length");
+  assert.equal(readyLogs[0], false, "readyLogs[0]");
+  assert.equal(readyLogs[1], true, "readyLogs[1]");
+
 });
 QUnit.test("Two nested invisible dynamic panels do not clear itself correctly, Bug#5206", (assert) => {
   const survey = new SurveyModel({
@@ -6133,6 +6168,48 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
   assert.equal(rootPanel.panels.length, 1);
   const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
   assert.equal(panel1.panels.length, 3, "It should be 3 panels");
+});
+QUnit.test("templateElements question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  let counter = 0;
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  panel.panels[1].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  survey.doComplete();
+  assert.equal(counter, 2, "on do complete");
+});
+QUnit.test("templateElements question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "renderMode": "tab",
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  let counter = 0;
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  panel.currentIndex = 1;
+  assert.equal(counter, 1, "Go to another tab");
 });
 QUnit.test("nested panel.panelCount&expression question", function (assert) {
   const survey = new SurveyModel({

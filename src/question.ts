@@ -447,10 +447,10 @@ export class Question extends SurveyElement<Question>
   private clearValueOnExpression: ExpressionRunner;
   private isRunningClearValueOn: boolean;
   public runTriggers(name: string, value: any): void {
-    if(this.isRunningClearValueOn || !this.isVisible || this.isReadOnly || !this.clearValueOn || this.isEmpty()) return;
+    if(this.isRunningClearValueOn || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty()) return;
     if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
     if(!this.clearValueOnExpression) {
-      this.clearValueOnExpression = new ExpressionRunner(this.clearValueOn);
+      this.clearValueOnExpression = new ExpressionRunner(this.resetValueIf);
       this.clearValueOnExpression.onRunComplete = (res: any): void => {
         this.isRunningClearValueOn = false;
         if(res === true) {
@@ -459,7 +459,7 @@ export class Question extends SurveyElement<Question>
         }
       };
     } else {
-      this.clearValueOnExpression.expression = this.clearValueOn;
+      this.clearValueOnExpression.expression = this.resetValueIf;
     }
     const keys: any = {};
     keys[name] = value;
@@ -1538,11 +1538,11 @@ export class Question extends SurveyElement<Question>
     this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
   }
-  public get clearValueOn(): string {
-    return this.getPropertyValue("clearValueOn");
+  public get resetValueIf(): string {
+    return this.getPropertyValue("resetValueIf");
   }
-  public set clearValueOn(val: string) {
-    this.setPropertyValue("clearValueOn", val);
+  public set resetValueIf(val: string) {
+    this.setPropertyValue("resetValueIf", val);
   }
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
@@ -2527,7 +2527,7 @@ Serializer.addClass("question", [
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   {
-    name: "clearValueOn:condition",
+    name: "resetValueIf:condition",
     category: "logic", visible: false
   },
   "defaultValue:value",

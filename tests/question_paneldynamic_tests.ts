@@ -6217,7 +6217,7 @@ QUnit.test("Footer css for nested panels", function(assert) {
   assert.equal(nested.panels[1].getFooterToolbar().containerCss, footerCss, "nested footer container css on creating");
   delete defaultStandardCss.paneldynamic["panelFooter"];
 });
-QUnit.test("question.clearValueOn, basic functionality", function (assert) {
+QUnit.test("question.resetValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6226,7 +6226,7 @@ QUnit.test("question.clearValueOn, basic functionality", function (assert) {
         panelCount: 1,
         templateElements: [
           { name: "q1", type: "text" },
-          { name: "q2", type: "text", clearValueOn: "{panel.q1} = 1" },
+          { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1" },
           { name: "q3", type: "text" }
         ]
       }
@@ -6236,7 +6236,7 @@ QUnit.test("question.clearValueOn, basic functionality", function (assert) {
   const q1 = panel.panels[0].getQuestionByName("q1");
   const q2 = panel.panels[0].getQuestionByName("q2");
   const q3 = panel.panels[0].getQuestionByName("q3");
-  assert.equal(q2.clearValueOn, "{panel.q1} = 1", "Load from JSON");
+  assert.equal(q2.resetValueIf, "{panel.q1} = 1", "Load from JSON");
   q2.value = "abc";
   q1.value = 2;
   assert.equal(q2.value, "abc", "value is set");
@@ -6247,7 +6247,7 @@ QUnit.test("question.clearValueOn, basic functionality", function (assert) {
   q3.value = 3;
   assert.equal(q2.value, "edf", "value is stay, #3");
 });
-QUnit.test("question.clearValueOn & quesiton.defaultValueExpression", function (assert) {
+QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6261,7 +6261,7 @@ QUnit.test("question.clearValueOn & quesiton.defaultValueExpression", function (
         {
           name: "q2",
           type: "text",
-          clearValueOn: "{panel.q1} = 1",
+          resetValueIf: "{panel.q1} = 1",
           defaultValueExpression: "iif({panel.q3} > 2, {panel.q3}, '')"
         },
         {
@@ -6284,7 +6284,7 @@ QUnit.test("question.clearValueOn & quesiton.defaultValueExpression", function (
   q3.value = 4;
   assert.equal(q2.value, "edf", "value is stay, #3");
 });
-QUnit.test("question.clearValueOn based on root and row questions", function (assert) {
+QUnit.test("question.resetValueIf based on root and row questions", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -6293,7 +6293,7 @@ QUnit.test("question.clearValueOn based on root and row questions", function (as
         panelCount: 1,
         templateElements: [
           { name: "q1", type: "text" },
-          { name: "q2", type: "text", clearValueOn: "{panel.q1} = 1 and {q4} = 4" },
+          { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1 and {q4} = 4" },
           { name: "q3", type: "text" }
         ]
       },

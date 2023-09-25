@@ -7175,7 +7175,7 @@ QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
   assert.equal(q2.value, "item1\nitem2\nitem3", "q2");
   assert.equal(q3.value, "item1, item2, item3", "q3");
 });
-QUnit.test("question.clearValueOn, basic functionality", function (assert) {
+QUnit.test("question.resetValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
     elements: [{
       "name": "q1",
@@ -7184,7 +7184,7 @@ QUnit.test("question.clearValueOn, basic functionality", function (assert) {
     {
       "name": "q2",
       "type": "text",
-      "clearValueOn": "{q1} = 1"
+      "resetValueIf": "{q1} = 1"
     },
     {
       "name": "q3",
@@ -7194,7 +7194,7 @@ QUnit.test("question.clearValueOn, basic functionality", function (assert) {
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
   const q3 = survey.getQuestionByName("q3");
-  assert.equal(q2.clearValueOn, "{q1} = 1", "Load from JSON");
+  assert.equal(q2.resetValueIf, "{q1} = 1", "Load from JSON");
   q2.value = "abc";
   q1.value = 2;
   assert.equal(q2.value, "abc", "value is set");
@@ -7205,7 +7205,7 @@ QUnit.test("question.clearValueOn, basic functionality", function (assert) {
   q3.value = 3;
   assert.equal(q2.value, "edf", "value is stay, #3");
 });
-QUnit.test("question.clearValueOn & quesiton.defaultValueExpression", function (assert) {
+QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
   const survey = new SurveyModel({
     elements: [{
       "name": "q1",
@@ -7214,7 +7214,7 @@ QUnit.test("question.clearValueOn & quesiton.defaultValueExpression", function (
     {
       "name": "q2",
       "type": "text",
-      "clearValueOn": "{q1} = 1",
+      "resetValueIf": "{q1} = 1",
       "defaultValueExpression": "iif({q3} > 2, {q3}, '')"
     },
     {

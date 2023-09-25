@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-question-title">
-  <div data-bind="css: question.cssHeader, click: function(m, e) { question.clickTitleFunction(e); }">
+  <div data-bind="css: question.cssHeader, click: function(m, e) { question.clickTitleFunction && question.clickTitleFunction(e); }">
     <!-- ko component: { name: 'survey-element-title', params: { element: $data } } --><!-- /ko -->
     <!-- ko if: $data.hasDescriptionUnderTitle -->
     <div data-bind="css: $data.cssDescription, visible: $data.hasDescription">

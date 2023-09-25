@@ -257,9 +257,11 @@ frameworks.forEach((framework) => {
 
     await ClientFunction(() => { window["survey"].getQuestionByName("phone").mask = "+{2}(000)00-000-000"; })();
     await t.expect(Selector("input").value).eql("+2(555)12-345-678");
+    await t.click("body", { offsetX: 1, offsetY: 1 }); // blur editor, because next line resets value in react (need check?)
     await ClientFunction(() => { window["survey"].getQuestionByName("phone").mask = ""; })();
-    await t.typeText(Selector("input"), "55512345678abc", { replace: true });
-    await t.expect(Selector("input").value).eql("55512345678abc");
+    await t.click(Selector("input"), { offsetX: 1, offsetY: 1 });
+    await t.pressKey("a b c");
+    await t.expect(Selector("input").value).eql("abc+2(555)12-345-678");
 
     await ClientFunction(() => { window["survey"].getQuestionByName("phone").mask = "+{3}(000)00-000-000"; })();
     await t.expect(Selector("input").value).eql("+3(255)51-234-567");

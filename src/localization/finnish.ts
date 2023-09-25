@@ -75,6 +75,10 @@ export var finnishSurveyStrings = {
   clearCaption: "Tyhjennä",
   signaturePlaceHolder: "Allekirjoita tähän",
   chooseFileCaption: "Valitse tiedosto",
+  takePhotoCaption: "Ota valokuva",
+  cameraPlaceHolder: "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla.",
+  fileCameraDragAreaPlaceHolder: "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla.",
+  replaceFileCaption: "Korvaa tiedosto",
   removeFileCaption: "Poista tämä tiedosto",
   booleanCheckedLabel: "Kyllä",
   booleanUncheckedLabel: "Ei",
@@ -104,4 +108,7 @@ surveyLocalization.localeNames["fi"] = "suomi";
 // more: "More" => "Enemmän"
 // tagboxDoneButtonCaption: "OK" => "OKEI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Kaikki valinnat asetetaan paremmuusjärjestykseen"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"// takePhotoCaption: "Take Photo" => "Ota valokuva"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla."
+// replaceFileCaption: "Replace file" => "Korvaa tiedosto"

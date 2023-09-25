@@ -75,6 +75,10 @@ export var serbianStrings = {
   clearCaption: "Poništi",
   signaturePlaceHolder: "Potpišite ovde",
   chooseFileCaption: "Izaberi fajl",
+  takePhotoCaption: "Fotografisanje",
+  cameraPlaceHolder: "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata.",
+  fileCameraDragAreaPlaceHolder: "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata.",
+  replaceFileCaption: "Zameni datoteku",
   removeFileCaption: "Ukloni ovaj fajl",
   booleanCheckedLabel: "Da",
   booleanUncheckedLabel: "Ne",
@@ -111,4 +115,7 @@ surveyLocalization.localeNames["rs"] = "Srpski";
 // more: "More" => "Viљe"
 // tagboxDoneButtonCaption: "OK" => "U redu"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Svi izbori su rangirani"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Prevucite i otpustite izbor ovde da biste ih rangirali"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Prevucite i otpustite izbor ovde da biste ih rangirali"// takePhotoCaption: "Take Photo" => "Fotografisanje"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata."
+// replaceFileCaption: "Replace file" => "Zameni datoteku"

@@ -75,6 +75,10 @@ export var teluguStrings = {
   clearCaption: "స్పష్టమ్",
   signaturePlaceHolder: "ఇక్కడ సంతకం చేయండి",
   chooseFileCaption: "ఫైల్ ఎంచుకోండి",
+  takePhotoCaption: "ఫోటో తీసుకోండి",
+  cameraPlaceHolder: "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి.",
+  fileCameraDragAreaPlaceHolder: "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి.",
+  replaceFileCaption: "ఫైలు మార్చండి",
   removeFileCaption: "ఈ ఫైల్ తీసేయండి",
   booleanCheckedLabel: "అవును",
   booleanUncheckedLabel: "లేదు",
@@ -117,4 +121,7 @@ surveyLocalization.localeNames["tel"] = "Telugu";
 // more: "More" => "ఎక్కువ"
 // tagboxDoneButtonCaption: "OK" => "సరే"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"// takePhotoCaption: "Take Photo" => "ఫోటో తీసుకోండి"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి."
+// replaceFileCaption: "Replace file" => "ఫైలు మార్చండి"

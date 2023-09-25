@@ -75,6 +75,10 @@ export var koreanStrings = {
   clearCaption: "지우기",
   signaturePlaceHolder: "서명하세요.",
   chooseFileCaption: "파일 선택",
+  takePhotoCaption: "사진 찍기",
+  cameraPlaceHolder: "아래 버튼을 클릭하여 카메라로 사진을 찍습니다.",
+  fileCameraDragAreaPlaceHolder: "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다.",
+  replaceFileCaption: "파일 바꾸기",
   removeFileCaption: "파일 제거",
   booleanCheckedLabel: "예",
   booleanUncheckedLabel: "아니오",
@@ -103,4 +107,7 @@ surveyLocalization.localeNames["ko"] = "한국어";
 // noEntriesReadonlyText: "There are no entries." => "항목이 없습니다."
 // tagboxDoneButtonCaption: "OK" => "그래"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "모든 선택 항목이 순위가 매겨집니다."
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."// takePhotoCaption: "Take Photo" => "사진 찍기"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "아래 버튼을 클릭하여 카메라로 사진을 찍습니다."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다."
+// replaceFileCaption: "Replace file" => "파일 바꾸기"

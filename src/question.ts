@@ -1600,6 +1600,13 @@ export class Question extends SurveyElement<Question>
     this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
   }
+  /**
+   * A Boolean expression. If it evaluates to `true`, the question value is reset to [default](#defaultValue).
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   */
   public get resetValueIf(): string {
     return this.getPropertyValue("resetValueIf");
   }

@@ -58,10 +58,6 @@
 
   .sv-string-viewer {
     white-space: normal;
-
-    &:empty::before {
-        content: " ";
-    }
   }
 }
 

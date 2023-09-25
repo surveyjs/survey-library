@@ -19,9 +19,9 @@
 import type { Question, PanelModel } from "survey-core";
 
 const props = defineProps<{ element: Question | PanelModel; css?: any }>();
-const clickTitleFunction = () => {
+const clickTitleFunction = (e: any) => {
   if (typeof props.element.clickTitleFunction === "function") {
-    props.element.clickTitleFunction();
+    props.element.clickTitleFunction(e);
   }
 };
 </script>

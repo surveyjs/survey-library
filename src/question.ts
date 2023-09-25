@@ -77,7 +77,7 @@ export class Question extends SurveyElement<Question>
   onUpdateCssClassesCallback: (css: any) => void;
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
-  protected isReadyValue: boolean = true;
+  private isReadyValue: boolean = true;
   private commentElements: Array<HTMLElement>;
   private dependedQuestions: Array<Question> = [];
 
@@ -107,12 +107,9 @@ export class Question extends SurveyElement<Question>
   }
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
+    this.renderMinWidth = !val;
   }
-  @property({
-    defaultValue: false, onSet: (val, target) => {
-      target.renderMinWidth = !val;
-    }
-  }) isMobile: boolean;
+  @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
   constructor(name: string) {
@@ -222,10 +219,44 @@ export class Question extends SurveyElement<Question>
       this.valueName ? this.valueName : oldValue
     );
   }
-  public set isReady(val: boolean) {
+  public get isReady(): boolean {
+    return this.isReadyValue;
+  }
+  protected onAsyncRunningChanged(): void {
+    this.updateIsReady();
+  }
+  protected updateIsReady(): void {
+    let res = this.getIsQuestionReady();
+    if(res) {
+      const questions = this.getIsReadyDependsOn();
+      for(let i = 0; i < questions.length; i ++) {
+        if(!questions[i].getIsQuestionReady()) {
+          res = false;
+          break;
+        }
+      }
+    }
+    this.setIsReady(res);
+  }
+  protected getIsQuestionReady(): boolean {
+    return !this.isAsyncExpressionRunning && this.getAreNestedQuestionsReady();
+  }
+  private getAreNestedQuestionsReady(): boolean {
+    const questions = this.getIsReadyNestedQuestions();
+    if(!Array.isArray(questions)) return true;
+    for(let i = 0; i < questions.length; i ++) {
+      if(!questions[i].isReady) return false;
+    }
+    return true;
+  }
+  protected getIsReadyNestedQuestions(): Array<Question> {
+    return this.getNestedQuestions();
+  }
+  private setIsReady(val: boolean): void {
     const oldIsReady = this.isReadyValue;
     this.isReadyValue = val;
     if (oldIsReady != val) {
+      this.getIsReadyDependends().forEach(q => q.updateIsReady());
       this.onReadyChanged.fire(this, {
         question: this,
         isReady: val,
@@ -233,10 +264,27 @@ export class Question extends SurveyElement<Question>
       });
     }
   }
-  public get isReady(): boolean {
-    return this.isReadyValue;
+  protected getIsReadyDependsOn(): Array<Question> {
+    return this.getIsReadyDependendCore(true);
   }
-
+  private getIsReadyDependends(): Array<Question> {
+    return this.getIsReadyDependendCore(false);
+  }
+  private getIsReadyDependendCore(isDependOn: boolean): Array<Question> {
+    if(!this.survey) return [];
+    const questions = this.survey.questionsByValueName(this.getValueName());
+    const res = new Array<Question>();
+    questions.forEach(q => { if(q !== this) res.push(<Question>q); });
+    if(!isDependOn) {
+      if(this.parentQuestion) {
+        res.push(this.parentQuestion);
+      }
+      if(this.dependedQuestions.length > 0) {
+        this.dependedQuestions.forEach(q => res.push(q));
+      }
+    }
+    return res;
+  }
   public choicesLoaded(): void { }
   /**
    * Returns a page to which the question belongs and allows you to move this question to a different page.
@@ -1680,7 +1728,7 @@ export class Question extends SurveyElement<Question>
   }
   protected getDefaultRunner(runner: ExpressionRunner, expression: string): ExpressionRunner {
     if (!runner && !!expression) {
-      runner = new ExpressionRunner(expression);
+      runner = this.createExpressionRunner(expression);
     }
     if (!!runner) {
       runner.expression = expression;

@@ -126,10 +126,15 @@ export class ExpressionRunnerBase {
   private expressionExecutor: IExpresionExecutor;
   private variables: string[];
   private containsFunc: boolean;
+  private static IdCounter = 1;
+  private _id: number = ExpressionRunnerBase.IdCounter ++;
+  public onBeforeAsyncRun: (id: number) => void;
+  public onAfterAsyncRun: (id: number) => void;
 
   public constructor(expression: string) {
     this.expression = expression;
   }
+  public get id(): number { return this._id; }
   public get expression(): string {
     return !!this.expressionExecutor ? this.expressionExecutor.expression : "";
   }
@@ -166,9 +171,16 @@ export class ExpressionRunnerBase {
     values: HashTable<any>,
     properties: HashTable<any> = null
   ): any {
+    if(this.onBeforeAsyncRun && this.isAsync) {
+      this.onBeforeAsyncRun(this.id);
+    }
     return this.expressionExecutor.run(values, properties);
   }
-  protected doOnComplete(res: any): void {}
+  protected doOnComplete(res: any): void {
+    if(this.onAfterAsyncRun && this.isAsync) {
+      this.onAfterAsyncRun(this.id);
+    }
+  }
 }
 
 export class ConditionRunner extends ExpressionRunnerBase {
@@ -181,6 +193,7 @@ export class ConditionRunner extends ExpressionRunnerBase {
   }
   protected doOnComplete(res: any): void {
     if (!!this.onRunComplete) this.onRunComplete(res == true);
+    super.doOnComplete(res);
   }
 }
 
@@ -191,5 +204,6 @@ export class ExpressionRunner extends ExpressionRunnerBase {
   }
   protected doOnComplete(res: any): void {
     if (!!this.onRunComplete) this.onRunComplete(res);
+    super.doOnComplete(res);
   }
 }

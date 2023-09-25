@@ -22,9 +22,9 @@ export class ElementHeader extends Vue {
   @Prop() element: Question | PanelModel;
   @Prop() css: any;
   
-  clickTitleFunction() {
+  clickTitleFunction(e: any) {
     if(typeof (<any>this.element).clickTitleFunction === "function") {
-      (<any>this.element).clickTitleFunction();
+      (<any>this.element).clickTitleFunction(e);
     }
   }
 }

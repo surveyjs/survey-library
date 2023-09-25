@@ -20,6 +20,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
+import { ProcessValue } from "./conditionProcessValue";
 
 export interface IConditionObject {
   name: string;
@@ -504,6 +505,29 @@ export class Question extends SurveyElement<Question>
       requiredQuestionCount: this.isRequired ? 1 : 0,
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
+  }
+  private resetValueIfExpression: ExpressionRunner;
+  private isRunningResetValueIf: boolean;
+  public runTriggers(name: string, value: any): void {
+    if(this.isRunningResetValueIf || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty()) return;
+    if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
+    if(!this.resetValueIfExpression) {
+      this.resetValueIfExpression = new ExpressionRunner(this.resetValueIf);
+      this.resetValueIfExpression.onRunComplete = (res: any): void => {
+        this.isRunningResetValueIf = false;
+        if(res === true) {
+          this.clearValue();
+          this.updateValueWithDefaults();
+        }
+      };
+    } else {
+      this.resetValueIfExpression.expression = this.resetValueIf;
+    }
+    const keys: any = {};
+    keys[name] = value;
+    if(!new ProcessValue().isAnyKeyChanged(keys, this.resetValueIfExpression.getVariables())) return;
+    this.isRunningResetValueIf = true;
+    this.resetValueIfExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
@@ -1427,6 +1451,7 @@ export class Question extends SurveyElement<Question>
     if (!!this.comment) {
       this.comment = undefined;
     }
+    this.isValueChangedDirectly = false;
   }
   public unbindValue(): void {
     this.clearValue();
@@ -1574,6 +1599,19 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("defaultValueExpression", val);
     this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
+  }
+  /**
+   * A Boolean expression. If it evaluates to `true`, the question value is reset to [default](#defaultValue).
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   */
+  public get resetValueIf(): string {
+    return this.getPropertyValue("resetValueIf");
+  }
+  public set resetValueIf(val: string) {
+    this.setPropertyValue("resetValueIf", val);
   }
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
@@ -2557,6 +2595,10 @@ Serializer.addClass("question", [
   },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
+  {
+    name: "resetValueIf:condition",
+    category: "logic", visible: false
+  },
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

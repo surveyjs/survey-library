@@ -124,6 +124,8 @@ export class ExpressionExecutor implements IExpresionExecutor {
 
 export class ExpressionRunnerBase {
   private expressionExecutor: IExpresionExecutor;
+  private variables: string[];
+  private containsFunc: boolean;
   private static IdCounter = 1;
   private _id: number = ExpressionRunnerBase.IdCounter ++;
   public onBeforeAsyncRun: (id: number) => void;
@@ -141,14 +143,22 @@ export class ExpressionRunnerBase {
     if(!!this.expressionExecutor && value === this.expression) return;
     this.expressionExecutor = ExpressionExecutor.createExpressionExecutor(value);
     this.expressionExecutor.onComplete = (res: any) => { this.doOnComplete(res); };
+    this.variables = undefined;
+    this.containsFunc = undefined;
   }
 
   public getVariables(): Array<string> {
-    return this.expressionExecutor.getVariables();
+    if(this.variables === undefined) {
+      this.variables = this.expressionExecutor.getVariables();
+    }
+    return this.variables;
   }
 
   public hasFunction(): boolean {
-    return this.expressionExecutor.hasFunction();
+    if(this.containsFunc === undefined) {
+      this.containsFunc = this.expressionExecutor.hasFunction();
+    }
+    return this.containsFunc;
   }
   public get isAsync(): boolean {
     return this.expressionExecutor.isAsync;

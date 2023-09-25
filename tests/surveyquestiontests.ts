@@ -7229,6 +7229,65 @@ QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
   assert.equal(q2.value, "item1\nitem2\nitem3", "q2");
   assert.equal(q3.value, "item1, item2, item3", "q3");
 });
+QUnit.test("question.resetValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "{q1} = 1"
+    },
+    {
+      "name": "q3",
+      "type": "text"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.resetValueIf, "{q1} = 1", "Load from JSON");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 3;
+  assert.equal(q2.value, "edf", "value is stay, #3");
+});
+QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "{q1} = 1",
+      "defaultValueExpression": "iif({q3} > 2, {q3}, '')"
+    },
+    {
+      "name": "q3", "type": "text"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q2.value = "abc";
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set directly");
+  q1.value = 1;
+  assert.equal(q2.value, 3, "value is set from defaultValueExpression");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set directly, #2");
+  q3.value = 4;
+  assert.equal(q2.value, "edf", "value is set directly, #3");
+});
 QUnit.test("question.isReady & async functions in expression", function (assert) {
   var returnResult1: (res: any) => void;
   var returnResult2: (res: any) => void;

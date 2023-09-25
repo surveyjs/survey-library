@@ -5618,6 +5618,7 @@ export class SurveyModel extends SurveyElementCore
       this.isValueChangedOnRunningCondition = true;
     } else {
       this.runConditions();
+      this.runQuestionsTriggers(name, value);
     }
   }
   private runConditionsCore(properties: any) {
@@ -5633,9 +5634,14 @@ export class SurveyModel extends SurveyElementCore
       );
     }
     super.runConditionCore(this.conditionValues, properties);
-    for (var i = 0; i < pages.length; i++) {
+    for (let i = 0; i < pages.length; i++) {
       pages[i].runCondition(this.conditionValues, properties);
     }
+  }
+  private runQuestionsTriggers(name: string, value: any): void {
+    if(this.isDisplayMode || this.isDesignMode) return;
+    const questions = this.getAllQuestions(true);
+    questions.forEach(q => q.runTriggers(name, value));
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
     var newCurrentPageIndex = this.pages.indexOf(this.currentPage);

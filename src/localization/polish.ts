@@ -75,6 +75,10 @@ export var polishSurveyStrings = {
   clearCaption: "Wyczyść",
   signaturePlaceHolder: "Podpisz tutaj",
   chooseFileCaption: "Wybierz plik",
+  takePhotoCaption: "Zrób zdjęcie",
+  cameraPlaceHolder: "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem.",
+  fileCameraDragAreaPlaceHolder: "Przeciągnij i upuść lub wybierz plik, który chcesz przesłać lub zrobić zdjęcie za pomocą aparatu.",
+  replaceFileCaption: "Zastąp plik",
   removeFileCaption: "Usuń ten plik",
   booleanCheckedLabel: "Tak",
   booleanUncheckedLabel: "Nie",
@@ -104,4 +108,7 @@ surveyLocalization.localeNames["pl"] = "polski";
 // more: "More" => "Więcej"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Wszystkie wybory są uszeregowane"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Przeciągnij i upuść tutaj wybory, aby je uszeregować"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Przeciągnij i upuść tutaj wybory, aby je uszeregować"// takePhotoCaption: "Take Photo" => "Zrób zdjęcie"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Przeciągnij i upuść lub wybierz plik, który chcesz przesłać lub zrobić zdjęcie za pomocą aparatu."
+// replaceFileCaption: "Replace file" => "Zastąp plik"

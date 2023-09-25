@@ -113,6 +113,10 @@ import {
   type IAttachKey2clickOptions,
 } from "survey-core";
 import type { App } from "vue";
+import FileCleanButton from "./FileCleanButton.vue";
+import FilePreview from "./FilePreview.vue";
+import FileVideo from "./FileVideo.vue";
+import FileChooseButton from "./components/file-actions/FileChooseButton.vue";
 export { useBase, useLocString, useQuestion } from "./base";
 
 SurveyModel.platform = "vue3";
@@ -144,6 +148,10 @@ function registerComponents(app: App) {
   app.component("survey-image", Image);
   app.component("survey-expression", Expression);
   app.component("survey-file", File);
+  app.component("sv-file-choose-btn", FileChooseButton);
+  app.component("sv-file-clean-btn", FileCleanButton);
+  app.component("sv-file-preview", FilePreview);
+  app.component("sv-file-video", FileVideo);
   app.component("survey-imagepicker", ImagePicker);
   app.component("survey-imagepicker-item", ImagePickerItem);
   app.component("survey-comment", Comment);

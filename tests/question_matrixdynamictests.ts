@@ -2163,6 +2163,31 @@ QUnit.test("Matrixdynamic addRowLocation", function (assert) {
   );
 });
 
+QUnit.test("Matrixdynamic showAddRow", function (assert) {
+  var question = new QuestionMatrixDynamicModel("matrix");
+  assert.equal(question.renderedTable.showAddRow, true, "#1");
+  question.readOnly = true;
+  assert.equal(question.renderedTable.showAddRow, false, "#2");
+  question.readOnly = false;
+  assert.equal(question.renderedTable.showAddRow, true, "#3");
+  question.rowCount = 0;
+  question.allowAddRows = false;
+  assert.equal(question.canAddRow, false, "question.canAddRow");
+  assert.equal(question.renderedTable.showAddRowOnTop, false, "showAddRowOnTop");
+  assert.equal(question.renderedTable.showAddRowOnBottom, false, "showAddRowOnBottom");
+  assert.equal(question.renderedTable.showAddRow, false, "#4");
+  question.hideColumnsIfEmpty = true;
+  assert.equal(question.canAddRow, false, "question.canAddRow, #5");
+  assert.equal(question.renderedTable.showAddRowOnTop, false, "showAddRowOnTop, #5");
+  assert.equal(question.renderedTable.showAddRowOnBottom, false, "showAddRowOnBottom, #5");
+  assert.equal(question.renderedTable.showAddRow, false, "#5");
+  assert.equal(question.renderedTable.showTable, false, "#5");
+  question.allowAddRows = true;
+  assert.equal(question.canAddRow, true, "question.canAddRow, #6");
+  assert.equal(question.renderedTable.showAddRow, true, "showAddRow #6");
+  assert.equal(question.renderedTable.showTable, false, "showTable #6");
+});
+
 QUnit.test("matrix.rowsVisibleIf", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");

@@ -75,6 +75,10 @@ export var arabicSurveyStrings = {
   clearCaption: "واضح",
   signaturePlaceHolder: "وقع هنا",
   chooseFileCaption: "اختر ملف",
+  takePhotoCaption: "التقاط صورة",
+  cameraPlaceHolder: "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا.",
+  fileCameraDragAreaPlaceHolder: "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا.",
+  replaceFileCaption: "استبدال الملف",
   removeFileCaption: "قم بإزالة هذا الملف",
   booleanCheckedLabel: "نعم",
   booleanUncheckedLabel: "لا",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["ar"] = "العربية";
 // more: "More" => "أكثر"
 // tagboxDoneButtonCaption: "OK" => "موافق"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "يتم ترتيب جميع الخيارات"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "قم بسحب وإسقاط الخيارات هنا لترتيبها"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "قم بسحب وإسقاط الخيارات هنا لترتيبها"// takePhotoCaption: "Take Photo" => "التقاط صورة"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا."
+// replaceFileCaption: "Replace file" => "استبدال الملف"

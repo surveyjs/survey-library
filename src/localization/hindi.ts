@@ -75,6 +75,10 @@ export var hindiStrings = {
   clearCaption: "स्पष्ट",
   signaturePlaceHolder: "यहां साइन करें",
   chooseFileCaption: "फ़ाइल चुनें",
+  takePhotoCaption: "फोटो ले लो",
+  cameraPlaceHolder: "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।",
+  fileCameraDragAreaPlaceHolder: "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें.",
+  replaceFileCaption: "फ़ाइल बदलें",
   removeFileCaption: "इस फाइल को निकालें",
   booleanCheckedLabel: "हाँ",
   booleanUncheckedLabel: "नहीं",
@@ -117,4 +121,7 @@ surveyLocalization.localeNames["hi"] = "hindi";
 // more: "More" => "अधिक"
 // tagboxDoneButtonCaption: "OK" => "ठीक है"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "सभी विकल्पों को रैंक किया गया है"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें"// takePhotoCaption: "Take Photo" => "फोटो ले लो"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।"
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें."
+// replaceFileCaption: "Replace file" => "फ़ाइल बदलें"

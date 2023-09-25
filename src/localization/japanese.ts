@@ -75,6 +75,10 @@ export var japaneseSurveyStrings = {
   clearCaption: "空白",
   signaturePlaceHolder: "ここに署名",
   chooseFileCaption: "ファイルを選択",
+  takePhotoCaption: "写真を撮る",
+  cameraPlaceHolder: "下のボタンをクリックして、カメラを使用して写真を撮ります。",
+  fileCameraDragAreaPlaceHolder: "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。",
+  replaceFileCaption: "ファイルの置換",
   removeFileCaption: "このファイルを削除",
   booleanCheckedLabel: "噫",
   booleanUncheckedLabel: "否",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["ja"] = "日本語";
 // more: "More" => "もっとその"
 // tagboxDoneButtonCaption: "OK" => "わかりました"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "すべての選択肢がランク付けされます"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ここに選択肢をドラッグアンドドロップしてランク付けします"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ここに選択肢をドラッグアンドドロップしてランク付けします"// takePhotoCaption: "Take Photo" => "写真を撮る"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "下のボタンをクリックして、カメラを使用して写真を撮ります。"
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。"
+// replaceFileCaption: "Replace file" => "ファイルの置換"

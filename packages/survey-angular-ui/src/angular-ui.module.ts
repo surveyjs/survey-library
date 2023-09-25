@@ -114,6 +114,7 @@ import { MultipleTextRowComponent } from "./questions/multipletextrow.component"
 import { LoadingIndicatorComponent } from "./angular-ui";
 import { CoverComponent } from "./components/cover/cover.component";
 import { CoverCellComponent } from "./components/cover/cover-cell.component";
+import { ChooseFileBtn } from "./components/file-actions/choose-file.component";
 
 @NgModule({
   declarations: [
@@ -131,7 +132,7 @@ import { CoverCellComponent } from "./components/cover/cover-cell.component";
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, CoverComponent, CoverCellComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, CoverComponent, CoverCellComponent, ChooseFileBtn
   ],
   imports: [
     CommonModule, FormsModule

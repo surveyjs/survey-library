@@ -75,6 +75,10 @@ export var danishSurveyStrings = {
   clearCaption: "Fjern",
   signaturePlaceHolder: "Tilmeld dig her",
   chooseFileCaption: "Vælg fil",
+  takePhotoCaption: "Tag billede",
+  cameraPlaceHolder: "Klik på knappen nedenfor for at tage et billede med kameraet.",
+  fileCameraDragAreaPlaceHolder: "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet.",
+  replaceFileCaption: "Erstat fil",
   removeFileCaption: "Fjern denne fil",
   booleanCheckedLabel: "Ja",
   booleanUncheckedLabel: "Ingen",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["da"] = "dansk";
 // more: "More" => "Mere"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle valg er rangeret"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Træk og slip valg her for at rangere dem"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Træk og slip valg her for at rangere dem"// takePhotoCaption: "Take Photo" => "Tag billede"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klik på knappen nedenfor for at tage et billede med kameraet."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet."
+// replaceFileCaption: "Replace file" => "Erstat fil"

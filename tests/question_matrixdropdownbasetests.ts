@@ -701,3 +701,32 @@ QUnit.test("column.visible property and design time", function (assert) {
   assert.equal(table.rows[1].cells.length, 1 + 3, "Row: Two columns are invisible, but it is visible in design-time, #2");
   assert.equal(table.headerRow.cells[3].headers, "col3", "The last column is col3, #2");
 });
+QUnit.test("question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: ["item1"],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  let counter1 = 0;
+  let counter2 = 0;
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.getQuestionByName("col1").onHidingContent = (): void => { counter1 ++; };
+  row.showDetailPanel();
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  row.hideDetailPanel();
+  assert.equal(counter2, 1, "Close detail");
+  row.showDetailPanel();
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  survey.doComplete();
+  assert.equal(counter1, 1, "cell on complete");
+  assert.equal(counter2, 2, "detail questions");
+});

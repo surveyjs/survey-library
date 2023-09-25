@@ -75,6 +75,10 @@ export var macedonianSurveyStrings = {
   clearCaption: "Да расчисти",
   signaturePlaceHolder: "Потпиши се овде.",
   chooseFileCaption: "Изберете датотека",
+  takePhotoCaption: "Фотографирајте",
+  cameraPlaceHolder: "Кликнете на копчето подолу за да фотографирате користејќи ја камерата.",
+  fileCameraDragAreaPlaceHolder: "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата.",
+  replaceFileCaption: "Заменете го фајлот.",
   removeFileCaption: "Отстранете ја оваа датотека",
   booleanCheckedLabel: "Да",
   booleanUncheckedLabel: "Не",
@@ -110,4 +114,7 @@ surveyLocalization.localeNames["mk"] = "Македонски";
 // more: "More" => "Повеќе"
 // tagboxDoneButtonCaption: "OK" => "ДОБРО"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Сите избори се рангирани"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Влечете и фрлете го изборот овде за да ги рангирате"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Влечете и фрлете го изборот овде за да ги рангирате"// takePhotoCaption: "Take Photo" => "Фотографирајте"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Кликнете на копчето подолу за да фотографирате користејќи ја камерата."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата."
+// replaceFileCaption: "Replace file" => "Заменете го фајлот."

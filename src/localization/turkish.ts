@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var turkishSurveyStrings = {
@@ -77,6 +75,10 @@ export var turkishSurveyStrings = {
   clearCaption: "Temizle",
   signaturePlaceHolder: "Burayı imzalayın",
   chooseFileCaption: "Dosya seçin",
+  takePhotoCaption: "Fotoğraf Çekin",
+  cameraPlaceHolder: "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın.",
+  fileCameraDragAreaPlaceHolder: "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin.",
+  replaceFileCaption: "Dosyayı değiştir",
   removeFileCaption: "Bu dosyayı kaldır",
   booleanCheckedLabel: "Evet",
   booleanUncheckedLabel: "Hayır",
@@ -92,8 +94,15 @@ export var turkishSurveyStrings = {
   more: "Daha fazla",
   tagboxDoneButtonCaption: "TAMAM",
   selectToRankEmptyRankedAreaText: "Tüm seçenekler sıralanmıştır",
-  selectToRankEmptyUnrankedAreaText: "Seçimleri sıralamak için buraya sürükleyip bırakın",
+  selectToRankEmptyUnrankedAreaText: "Seçimleri sıralamak için buraya sürükleyip bırakın"
 };
 
 surveyLocalization.locales["tr"] = turkishSurveyStrings;
 surveyLocalization.localeNames["tr"] = "türkçe";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// takePhotoCaption: "Take Photo" => "Fotoğraf Çekin"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin."
+// replaceFileCaption: "Replace file" => "Dosyayı değiştir"

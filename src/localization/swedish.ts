@@ -75,6 +75,10 @@ export var swedishSurveyStrings = {
   clearCaption: "Klar",
   signaturePlaceHolder: "Signera här",
   chooseFileCaption: "Välj fil",
+  takePhotoCaption: "Ta foto",
+  cameraPlaceHolder: "Klicka på knappen nedan för att ta ett foto med kameran.",
+  fileCameraDragAreaPlaceHolder: "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran.",
+  replaceFileCaption: "Ersätt fil",
   removeFileCaption: "Ta bort den här filen",
   booleanCheckedLabel: "Ja",
   booleanUncheckedLabel: "Nej",
@@ -104,4 +108,7 @@ surveyLocalization.localeNames["sv"] = "svenska";
 // noEntriesReadonlyText: "There are no entries." => "Det finns inga poster."
 // tagboxDoneButtonCaption: "OK" => "OKEJ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alla val rangordnas"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra och släpp val här för att rangordna dem"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra och släpp val här för att rangordna dem"// takePhotoCaption: "Take Photo" => "Ta foto"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klicka på knappen nedan för att ta ett foto med kameran."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran."
+// replaceFileCaption: "Replace file" => "Ersätt fil"

@@ -6,7 +6,9 @@
     <sv-ng-matrix-table *ngIf="model.renderedTable?.showTable" [question]="model" [table]="model.renderedTable"></sv-ng-matrix-table>
     <div *ngIf="!model.renderedTable.showTable" [class]="model.cssClasses.emptyRowsSection">
       <div [class]="model.cssClasses.emptyRowsText" [model]="model.locEmptyRowsText" sv-ng-string></div>
-      <ng-container *ngTemplateOutlet="addRowButton"></ng-container>
+      <ng-container *ngIf="model.renderedTable.showAddRow">
+        <ng-container  *ngTemplateOutlet="addRowButton"></ng-container>
+      </ng-container>
     </div>
     <div *ngIf="model.renderedTable.showAddRowOnBottom" [class]="model.cssClasses.footer">
       <ng-container *ngTemplateOutlet="addRowButton"></ng-container>

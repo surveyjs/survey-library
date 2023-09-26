@@ -7370,3 +7370,47 @@ QUnit.test("question.isReady & async functions in conditions, visibleIf&enabledI
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
 });
+
+QUnit.test("Test", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "dropdown",
+            name: "q2",
+            showCommentArea: true
+          },
+        ],
+      },
+    ],
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.choicesByUrl.isEmpty, true, "choicesByUrl.isEmpty");
+  assert.equal(q2.choicesByUrl.url, "", "choicesByUrl.url");
+  assert.equal(q2.choicesByUrl.path, "", "choicesByUrl.path");
+  let counter = 0;
+  q2.onReadyChanged.add((sender, options) => {
+    counter ++;
+  });
+  const data1 = {
+    q1: "q1_value",
+    q2: "q2_value",
+  };
+  survey.data = data1;
+  assert.deepEqual(survey.data, data1, "#1");
+  assert.equal(counter, 0, "#1");
+  const data2 = {
+    q1: "q1_value",
+    q2: "q2_value",
+    "q2-Comment": "r32r2r23r23r",
+  };
+  survey.data = data2;
+  assert.deepEqual(survey.data, data2, "#2");
+  assert.equal(counter, 0, "#2");
+});

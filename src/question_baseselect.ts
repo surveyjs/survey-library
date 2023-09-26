@@ -36,9 +36,6 @@ export class QuestionSelectBase extends Question {
   private get waitingChoicesByURL(): boolean {
     return !this.isChoicesLoaded && !this.choicesByUrl.isEmpty;
   }
-  private get waitingAcyncOperations(): boolean {
-    return this.waitingChoicesByURL || this.waitingGetChoiceDisplayValueResponse;
-  }
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
   } }) protected selectedItemValues: any;
@@ -581,7 +578,7 @@ export class QuestionSelectBase extends Question {
     const value = this.value;
     const valueArray: Array<any> = Array.isArray(value) ? value : [value];
     const hasItemWithoutValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
-    if (hasItemWithoutValues) {
+    if (hasItemWithoutValues && (this.choicesLazyLoadEnabled || !this.choicesByUrl.isEmpty)) {
       this.waitingGetChoiceDisplayValueResponse = true;
       this.updateIsReady();
       this.survey.getChoiceDisplayValue({

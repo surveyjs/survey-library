@@ -137,7 +137,7 @@ export class Dependencies {
     target.registerPropertyChangedHandlers([property], this.currentDependency, this.id);
 
   }
-  dispose(): void {
+  public dispose(): void {
     this.dependencies.forEach(dependency => {
       dependency.obj.unregisterPropertyChangedHandlers([dependency.prop], dependency.id);
     });
@@ -303,7 +303,7 @@ export class Base {
     this.onBaseCreating();
     this.isCreating = false;
   }
-  public dispose() {
+  public dispose(): void {
     for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }
@@ -715,13 +715,40 @@ export class Base {
     if(!expression) return;
     if(!!info.canRun && !info.canRun(this)) return;
     if(!info.runner) {
-      info.runner = new ExpressionRunner(expression);
+      info.runner = this.createExpressionRunner(expression);
       info.runner.onRunComplete = (res: any) => {
         info.onExecute(this, res);
       };
     }
     info.runner.expression = expression;
     info.runner.run(values, properties);
+  }
+  private asynExpressionHash: any;
+  private doBeforeAsynRun(id: number): void {
+    if(!this.asynExpressionHash) this.asynExpressionHash = [];
+    const isChanged = !this.isAsyncExpressionRunning;
+    this.asynExpressionHash[id] = true;
+    if(isChanged) {
+      this.onAsyncRunningChanged();
+    }
+  }
+  private doAfterAsynRun(id: number): void {
+    if(!!this.asynExpressionHash) {
+      delete this.asynExpressionHash[id];
+      if(!this.isAsyncExpressionRunning) {
+        this.onAsyncRunningChanged();
+      }
+    }
+  }
+  protected onAsyncRunningChanged(): void {}
+  public get isAsyncExpressionRunning(): boolean {
+    return !!this.asynExpressionHash && Object.keys(this.asynExpressionHash).length > 0;
+  }
+  protected createExpressionRunner(expression: string): ExpressionRunner {
+    const res = new ExpressionRunner(expression);
+    res.onBeforeAsyncRun = (id: number): void => { this.doBeforeAsynRun(id); };
+    res.onAfterAsyncRun = (id: number): void => { this.doAfterAsynRun(id); };
+    return res;
   }
   /**
    * Registers a function to call when a property value changes.

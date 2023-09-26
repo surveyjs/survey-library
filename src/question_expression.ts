@@ -18,7 +18,7 @@ export class QuestionExpressionModel extends Question {
     this.createLocalizableString("format", this);
     this.registerPropertyChangedHandlers(["expression"], () => {
       if (this.expressionRunner) {
-        this.expressionRunner = new ExpressionRunner(this.expression);
+        this.expressionRunner = this.createRunner();
       }
     });
     this.registerPropertyChangedHandlers(["format", "currency", "displayStyle"], () => {
@@ -71,12 +71,8 @@ export class QuestionExpressionModel extends Question {
       return;
     this.locCalculation();
     if (!this.expressionRunner) {
-      this.expressionRunner = new ExpressionRunner(this.expression);
+      this.expressionRunner = this.createRunner();
     }
-    this.expressionRunner.onRunComplete = (newValue) => {
-      this.value = this.roundValue(newValue);
-      this.unlocCalculation();
-    };
     this.expressionRunner.run(values, properties);
   }
   protected canCollectErrors(): boolean {
@@ -84,6 +80,14 @@ export class QuestionExpressionModel extends Question {
   }
   protected hasRequiredError(): boolean {
     return false;
+  }
+  private createRunner(): ExpressionRunner {
+    const res = this.createExpressionRunner(this.expression);
+    res.onRunComplete = (newValue) => {
+      this.value = this.roundValue(newValue);
+      this.unlocCalculation();
+    };
+    return res;
   }
   /**
    * The maximum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
@@ -209,6 +213,7 @@ export class QuestionExpressionModel extends Question {
     this.setPropertyValue("precision", val);
   }
   private roundValue(val: any): any {
+    if(val === Infinity) return undefined;
     if(this.precision < 0) return val;
     if(!Helpers.isNumber(val)) return val;
     return parseFloat(val.toFixed(this.precision));
@@ -235,6 +240,10 @@ export class QuestionExpressionModel extends Question {
       return val.toLocaleString(locale, options);
     }
     return val.toString();
+  }
+  protected convertToCorrectValue(val: any): any {
+    if(Array.isArray(val)) return val.join(", ");
+    return val;
   }
 }
 

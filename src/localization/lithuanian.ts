@@ -75,6 +75,10 @@ export var lithuaniaSurveyStrings = {
   clearCaption: "Valyti",
   signaturePlaceHolder: "Pasirašykite čia",
   chooseFileCaption: "Pasirinkti failą",
+  takePhotoCaption: "Fotografuoti",
+  cameraPlaceHolder: "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu.",
+  fileCameraDragAreaPlaceHolder: "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą.",
+  replaceFileCaption: "Pakeiskite failą",
   removeFileCaption: "Ištrinti šį failą",
   booleanCheckedLabel: "Taip",
   booleanUncheckedLabel: "Ne",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["lt"] = "lietuvių";
 // more: "More" => "Daugiau"
 // tagboxDoneButtonCaption: "OK" => "GERAI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Visi pasirinkimai yra reitinguojami"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte"// takePhotoCaption: "Take Photo" => "Fotografuoti"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą."
+// replaceFileCaption: "Replace file" => "Pakeiskite failą"

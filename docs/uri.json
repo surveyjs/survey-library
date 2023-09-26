@@ -7,7 +7,10 @@
     "design-survey-question-titles": "design-survey-configure-question-titles",
     "design-survey-conditional-display": "design-survey-conditional-logic",
     "design-survey-predefine-answers": "design-survey-pre-populate-form-fields",
-    "localization": "survey-localization"
+    "localization": "survey-localization",
+    "handle-survey-results-access": "access-and-modify-survey-results",
+    "handle-survey-results-store": "how-to-store-survey-results",
+    "handle-survey-results-continue-incomplete": "how-to-save-and-restore-incomplete-survey"
   },
   "classRename": {
     "surveymodel": "survey-data-model",

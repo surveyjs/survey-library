@@ -225,7 +225,7 @@ export class QuestionRowModel extends Base {
     return false;
   }
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this.stopLazyRendering();
   }
@@ -327,17 +327,20 @@ export class PanelModelBase extends SurveyElement<Question>
       (this.showDescription && this.isDesignMode &&
         settings.designMode.showEmptyDescriptions);
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     for (var i = 0; i < this.elements.length; i++) {
       (<Base>(<any>this.elements[i])).localeChanged();
     }
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].locStrsChanged();
     }
+  }
+  public get renderedNavigationTitle(): string {
+    return this.title || this.name;
   }
   /**
    * Returns a character or text string that indicates a required panel/page.
@@ -797,7 +800,6 @@ export class PanelModelBase extends SurveyElement<Question>
   protected hasErrorsCore(rec: any) {
     var elements = this.elements;
     var element = null;
-
     for (var i = 0; i < elements.length; i++) {
       element = elements[i];
 
@@ -807,7 +809,6 @@ export class PanelModelBase extends SurveyElement<Question>
         (<PanelModelBase>(<any>element)).hasErrorsCore(rec);
       } else {
         var question = <Question>element;
-        if (question.isReadOnly) continue;
         if (!question.validate(rec.fireCallback, rec)) {
           if (rec.focuseOnFirstError && rec.firstErrorQuestion == null) {
             rec.firstErrorQuestion = question;
@@ -1214,6 +1215,9 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("isVisible", this.isVisible);
     if (!this.isLoadingFromJson) this.onVisibleChanged();
   }
+  public onHidingContent(): void {
+    this.questions.forEach(q => q.onHidingContent());
+  }
   protected onVisibleChanged(): void {
     if (this.isRandomizing) return;
     this.setPropertyValue("isVisible", this.isVisible);
@@ -1224,14 +1228,23 @@ export class PanelModelBase extends SurveyElement<Question>
       const questions = this.questions;
       const isVisible = this.isVisible;
       for (var i = 0; i < questions.length; i++) {
+        const q = questions[i];
         if (!isVisible) {
-          questions[i].clearValueIfInvisible("onHiddenContainer");
+          q.clearValueIfInvisible("onHiddenContainer");
+          q.onHidingContent();
         } else {
-          questions[i].updateValueWithDefaults();
+          q.updateValueWithDefaults();
         }
       }
     }
   }
+  protected notifyStateChanged(): void {
+    super.notifyStateChanged();
+    if(this.isCollapsed) {
+      this.questions.forEach(q => q.onHidingContent());
+    }
+  }
+
   /**
    * Returns `true` if the panel/page is visible or the survey is currently in design mode.
    *
@@ -1427,10 +1440,10 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.runConditionCore(values, properties);
   }
-  onAnyValueChanged(name: string) {
+  onAnyValueChanged(name: string, questionName: string): void {
     var els = this.elements;
     for (var i = 0; i < els.length; i++) {
-      els[i].onAnyValueChanged(name);
+      els[i].onAnyValueChanged(name, questionName);
     }
   }
   checkBindings(valueName: string, value: any) {
@@ -1497,7 +1510,7 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   //ITitleOwner
   public get no(): string { return ""; }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     if (this.rows) {
       for (var i = 0; i < this.rows.length; i++) {
@@ -1755,17 +1768,8 @@ export class PanelModel extends PanelModelBase implements IElement {
   }
   private footerToolbarValue: ActionContainer;
 
-  private footerToolbarCssValue: string;
-
-  public set footerToolbarCss(val: string) {
-    this.footerToolbarCssValue = val;
-  }
-
-  public get footerToolbarCss(): string {
-    return this.footerToolbarCssValue || this.cssClasses.panel?.footer;
-  }
   public onGetFooterActionsCallback: () => Array<IAction>;
-
+  public onGetFooterToolbarCssCallback: () => string;
   public getFooterToolbar(): ActionContainer {
     if (!this.footerToolbarValue) {
       var actions = this.footerActions;
@@ -1783,9 +1787,13 @@ export class PanelModel extends PanelModelBase implements IElement {
         actions = this.survey?.getUpdatedPanelFooterActions(this, actions);
       }
       this.footerToolbarValue = this.createActionContainer(this.allowAdaptiveActions);
-      // if (!!this.cssClasses.panel) {
-      this.footerToolbarValue.containerCss = this.footerToolbarCss;
-      // }
+      let footerCss = this.onGetFooterToolbarCssCallback ? this.onGetFooterToolbarCssCallback() : "";
+      if(!footerCss) {
+        footerCss = this.cssClasses.panel?.footer;
+      }
+      if(footerCss) {
+        this.footerToolbarValue.containerCss = footerCss;
+      }
       this.footerToolbarValue.setItems(actions);
     }
     return this.footerToolbarValue;

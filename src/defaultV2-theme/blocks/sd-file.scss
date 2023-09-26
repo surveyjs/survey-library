@@ -1,14 +1,17 @@
 .sd-file {
-  min-height: calcSize(36);
   position: relative;
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
+  min-height: calcSize(36);
+  box-sizing: border-box;
+  padding: 0 calcSize(6);
 
   .sv-action-bar {
     padding: calcSize(1) 0;
     justify-content: center;
     position: absolute;
     width: 100%;
+    left: 0;
     bottom: 0;
 
     .sv-action-bar-item {
@@ -20,6 +23,7 @@
     #fileIndex {
       .sv-action-bar-item {
         padding: calcSize(0.5) 0;
+        font-weight: 600;
 
         &:hover {
           background-color: $background;
@@ -37,19 +41,22 @@
   display: flex;
   flex-direction: column;
   position: absolute;
+  position: absolute;
+  left: calcSize(0);
   width: 100%;
   height: 100%;
   box-sizing: border-box;
-  border: 1px dashed $border;
   justify-content: center;
   align-items: center;
+  padding: 0 calcSize(8);
+  border: 1px dashed $border;
 }
 
 .sd-file__decorator--drag {
-  border: 1px solid $primary;
-  box-shadow: inset 0 0 0 1px $primary;
-  background: $primary-light;
   z-index: 1;
+  border: 1px solid $primary;
+  background: $primary-light;
+  box-shadow: inset 0 0 0 1px $primary;
 }
 
 .sd-file__no-file-chosen {
@@ -57,7 +64,6 @@
 }
 
 .sd-file__drag-area-placeholder {
-  padding: 0 calcSize(8);
   text-align: center;
   word-break: break-word;
   white-space: normal;
@@ -67,17 +73,29 @@
 }
 
 .sd-root-modern--mobile {
-  .sd-file__drag-area-placeholder {
+  .sd-file__decorator {
     padding: 0 calcSize(4);
   }
 }
 
 .sd-file__choose-btn--text {
   display: block;
-  margin-top: calcSize(1);
   font-weight: 600;
   color: $primary;
   cursor: pointer;
+
+  .sv-svg-icon {
+    margin-left: calcSize(-1);
+    width: 24px;
+    height: 24px;
+    fill: $primary;
+  }
+}
+
+.sd-file__choose-btn--icon {
+  &>span {
+    display: none;
+  }
 }
 
 .sd-file__wrapper {
@@ -90,50 +108,40 @@
   }
 }
 
-.sd-file__choose-btn--text {
-  svg {
+.sd-file__actions-container {
+  margin-top: calcSize(0.5);
+
+  .sv-action--hidden {
     display: none;
   }
 }
 
-.sd-file__choose-btn--icon {
+.sd-file--answered .sd-file__actions-container {
   z-index: 2;
-
-  span:first-child {
-    display: none;
-  }
+  margin-top: 0;
+  gap: calcSize(1)
 }
 
-.sd-file__choose-btn--icon,
-.sd-file__clean-btn {
+.sd-file--answered .sd-file__actions-container {
   top: calcSize(1);
+  right: calcSize(1);
   position: absolute;
 }
 
-.sd-file__clean-btn {
-  z-index: 2;
-  inset-inline-end: calcSize(1);
-
-  span:first-child {
-    display: none;
-  }
-}
-
-.sd-file__choose-btn--icon {
+.sd-file--chose-btn--as .sd-file--answered .sd-file__actions-container {
   inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
 }
 
 .sd-file__list {
-  overflow: auto;
   display: flex;
+  gap: calcSize(4);
   box-sizing: content-box;
   flex-direction: row;
   align-items: stretch;
-  justify-content: space-between;
+  justify-content: center;
   padding: calcSize(10.5) 0;
   min-height: calcSize(15);
   max-height: calcSize(15);
-  position: absolute;
   width: 100%;
 }
 
@@ -143,7 +151,7 @@
   align-items: center;
   flex-direction: column;
   min-height: 100%;
-  margin: 0 auto;
+  margin: 0;
 
   .sd-file__default-image {
     width: calcSize(7);
@@ -213,7 +221,7 @@
   }
 }
 
-.sd-file--mobile {
+.sd-file--mobile:first-child {
   .sd-file__list {
     height: calc(100% - 4 * #{$base-unit});
   }
@@ -228,6 +236,8 @@
   }
 
   .sd-file__list {
+    position: absolute;
+    left: 0;
     padding: 0;
     height: 100%;
     max-height: 100%;
@@ -265,6 +275,7 @@
     use {
       fill: $primary;
     }
+
   }
 
   &:not(.sd-file__choose-btn--icon) {
@@ -273,7 +284,69 @@
 }
 
 .sd-file__drag-area {
-  position: absolute;
+  position: static;
   width: 100%;
   height: 100%;
+}
+
+.sd-file__change-camera-button {
+  position: absolute;
+  z-index: 2;
+  left: calcSize(1);
+  top: calcSize(1);
+}
+
+.sd-file__close-camera-button {
+  position: absolute;
+  z-index: 2;
+  right: calcSize(1);
+  top: calcSize(1);
+}
+
+.sd-context-btn.sd-file__take-picture-button {
+  .sv-svg-icon {
+    height: calcSize(4);
+    width: calcSize(4);
+
+    use {
+      fill: $background;
+    }
+  }
+
+  background-color: $red;
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: calcSize(2);
+
+  &:hover,
+  &:focus {
+    box-shadow: 0 0 0 2px $red;
+  }
+}
+
+.sd-file__video-container {
+  background-color: $background-dim;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.sd-file__loading-indicator {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  position: absolute;
+  border: 1px dashed $border;
+  left: 0;
+
+  .sd-loading-indicator {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+  }
 }

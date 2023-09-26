@@ -11,9 +11,9 @@ export class ElementHeaderComponent {
   @HostBinding("class") get rootClass(): string {
     return this.element.cssHeader;
   }
-  @HostListener("click") click(): void {
-    if(this.element.clickTitleFunction !== undefined) {
-      this.element.clickTitleFunction();
+  @HostListener("click", ["$event"]) click(e: MouseEvent): void {
+    if (this.element.clickTitleFunction !== undefined) {
+      this.element.clickTitleFunction(e);
     }
   }
 }

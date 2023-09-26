@@ -225,6 +225,41 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-zip-png",
+    initSurvey(survey) {
+      survey.getAllQuestions()[0]["pageSize"] = 2;
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+  },
+  {
+    name: "Test multiply file question (defaultV2) with file navigator",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+          allowMultiple: true,
+          defaultValue: [
+            {
+              "name": "item1.zip",
+              "type": "application/x-zip-compressed",
+              "content": "#item1.zip"
+            },
+            {
+              "name": "item2.png",
+              "type": "image/png",
+              "content": "#item2.png"
+            }
+          ],
+        }
+      ]
+    },
+    snapshot: "file-2-zip-png-file-navigator",
+    initSurvey(survey) {
+      survey.getAllQuestions()[0]["pageSize"] = 1;
+    },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },
@@ -255,6 +290,9 @@ registerMarkupTests(
       ]
     },
     snapshot: "file-2-zip-png-ro",
+    initSurvey(survey) {
+      survey.getAllQuestions()[0]["pageSize"] = 2;
+    },
     before: () => StylesManager.applyTheme("defaultV2"),
     after: () => StylesManager.applyTheme("default"),
   },
@@ -562,6 +600,67 @@ registerMarkupTests(
     after: () => StylesManager.applyTheme("default"),
     snapshot: "file-uploading",
     initSurvey: survey => survey.getAllQuestions()[0]["isUploading"] = true,
-  }
+  },
+  {
+    name: "Test file question mode: 'both'",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
+    },
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "file-mode-both",
+  },
+  {
+    name: "Test file question mode: 'camera'",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
+    },
+    after: () => StylesManager.applyTheme("default"),
+    snapshot: "file-mode-camera",
+  },
+  {
+    name: "Test file question playing video",
+    json: {
+      questions: [
+        {
+          name: "name",
+          type: "file",
+          title: "Question title",
+          titleLocation: "hidden",
+        }
+      ]
+    },
+    before: () => StylesManager.applyTheme("defaultV2"),
+    after: () => StylesManager.applyTheme("default"),
+    initSurvey: (survey) => {
+      survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera");
+      survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", true);
+    },
+    snapshot: "file-playing-video",
+  },
   ]
 );

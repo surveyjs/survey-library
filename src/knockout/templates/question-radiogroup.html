@@ -1,6 +1,6 @@
 <script type="text/html" id="survey-question-radiogroup">
 
-  <fieldset data-bind="css: question.getSelectBaseRootCss()" role="presentation">
+  <fieldset data-bind="css: question.getSelectBaseRootCss(), attr: { 'role': question.a11y_input_ariaRole, 'aria-required': question.a11y_input_ariaRequired, 'aria-labelledby': question.a11y_input_ariaLabelledBy, 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, 'aria-label': question.a11y_input_ariaLabel }">
     <!-- ko ifnot: question.hasColumns -->
       <!-- ko if: question.blockedRow -->
       <div data-bind="css: question.cssClasses.rootRow">
@@ -52,7 +52,7 @@
 </script>
 <script type="text/html" id="survey-radiogroup-item">
   <div role="presentation" data-bind="css: question.getItemClass($data)">
-    <label data-bind="css: question.getLabelClass($data), attr: { 'aria-label': question.getAriaItemLabel($data) }, event: { mousedown: question.koMouseDown }">
+    <label data-bind="css: question.getLabelClass($data), event: { mousedown: question.koMouseDown }">
       <input
         type="radio"
         data-bind="attr: { name: question.questionName, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.renderedValue, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"

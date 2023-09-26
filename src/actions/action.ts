@@ -163,6 +163,9 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {
+      if (newAction.hasTitle) {
+        newAction.title = item.title;
+      }
       listOptions.onSelectionChanged(item);
       innerPopupModel.toggleVisibility();
     },
@@ -287,6 +290,7 @@ export abstract class BaseAction extends Base implements IAction {
   public getActionBarItemCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
+      .append(this.cssClasses.itemWithTitle, this.hasTitle)
       .append(this.cssClasses.itemAsIcon, !this.hasTitle)
       .append(this.cssClasses.itemActive, !!this.active)
       .append(this.cssClasses.itemPressed, !!this.pressed)
@@ -334,7 +338,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        (<any>this)[key] = (<any>innerItem)[key];
+        if (key !== "locTitle") {
+          (<any>this)[key] = (<any>innerItem)[key];
+        }
       }
     }
     if (!!this.locTitleName) {

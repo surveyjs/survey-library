@@ -423,11 +423,18 @@ export abstract class QuestionCustomModelBase extends Question
     }
   }
   public onFirstRendering() {
-    var el = this.getElement();
+    const el = this.getElement();
     if (!!el) {
       el.onFirstRendering();
     }
     super.onFirstRendering();
+  }
+  public onHidingContent(): void {
+    super.onHidingContent();
+    const el: any = this.getElement();
+    if (!!el) {
+      el.onHidingContent();
+    }
   }
   public getProgressInfo(): IProgressInfo {
     let res = super.getProgressInfo();
@@ -610,10 +617,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected getElement(): SurveyElement {
     return this.contentQuestion;
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     if (!!this.contentQuestion) {
-      this.contentQuestion.onAnyValueChanged(name);
+      this.contentQuestion.onAnyValueChanged(name, questionName);
     }
   }
   protected getQuestionByName(name: string): IQuestion {
@@ -647,6 +654,12 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.contentQuestion.focus(onError);
     } else {
       super.focus(onError);
+    }
+  }
+  public afterRender(el: any): void {
+    super.afterRender(el);
+    if (!!this.contentQuestion) {
+      this.contentQuestion.afterRender(el);
     }
   }
   public get contentQuestion(): Question {
@@ -842,11 +855,11 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       questions[i].clearValueIfInvisible(reason);
     }
   }
-  onAnyValueChanged(name: string) {
-    super.onAnyValueChanged(name);
+  onAnyValueChanged(name: string, questionName: string): void {
+    super.onAnyValueChanged(name, questionName);
     var questions = this.contentPanel.questions;
     for (var i = 0; i < questions.length; i++) {
-      questions[i].onAnyValueChanged(name);
+      questions[i].onAnyValueChanged(name, questionName);
     }
   }
   public get hasSingleInput(): boolean { return false; }

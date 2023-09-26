@@ -185,3 +185,9 @@
   overflow: visible;
   max-width: 100%;
 }
+.sd-question__title--empty {
+  .sv-string-viewer {
+    display: inline-block;
+    height: calcSize(3);
+  }
+}

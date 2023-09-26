@@ -3,7 +3,6 @@
     <label
       @mousedown="question.onMouseDown()"
       :class="getLabelClass(item)"
-      :aria-label="question.getAriaItemLabel(item)"
     >
       <input
         type="radio"

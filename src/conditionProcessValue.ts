@@ -60,6 +60,30 @@ export class ProcessValue {
     valueInfo.path = res.hasValue ? res.path : null;
     valueInfo.sctrictCompare = res.sctrictCompare;
   }
+  public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
+    for (var i = 0; i < usedNames.length; i++) {
+      var name = usedNames[i];
+      if (keys.hasOwnProperty(name)) return true;
+      var firstName = this.getFirstName(name);
+      if (!keys.hasOwnProperty(firstName)) continue;
+      if (name === firstName) return true;
+      var keyValue = keys[firstName];
+      if (keyValue == undefined) continue;
+      if (
+        !keyValue.hasOwnProperty("oldValue") ||
+        !keyValue.hasOwnProperty("newValue")
+      )
+        return true;
+      var v: any = {};
+      v[firstName] = keyValue["oldValue"];
+      var oldValue = this.getValue(name, v);
+      v[firstName] = keyValue["newValue"];
+      var newValue = this.getValue(name, v);
+      if(!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
+    }
+    return false;
+
+  }
   private getValueFromPath(path: Array<string | number>, values: any): any {
     if(path.length === 2 && path[0] === surveyBuiltInVarible) {
       return this.getValueFromSurvey(<string>path[1]);

@@ -1,11 +1,14 @@
-export type ImageFit = "auto" | "contain" |"cover";
+export type ImageFit = "auto" | "contain" | "cover";
 export type ImageAttachment = "fixed" | "scroll";
 
 export interface ITheme {
-  cssVariables?: {[index: string]: string};
+  themeName?: string;
+  colorPalette?: string;
+  isPanelless?: boolean;
   backgroundImage?: string;
   backgroundImageFit?: ImageFit;
   backgroundImageAttachment?: ImageAttachment;
   backgroundOpacity?: number;
-  isPanelless?: boolean;
+  cover?: {[index: string]: any};
+  cssVariables?: { [index: string]: string };
 }

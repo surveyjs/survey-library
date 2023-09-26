@@ -52,7 +52,7 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     this.koAllSelected(this.isAllSelected);
     this.isAllSelectedUpdating = false;
   }
-  public dispose() {
+  public dispose(): void {
     if(this._selectAllItemImpl) {
       this._selectAllItemImpl.dispose();
       this._selectAllItemImpl = undefined;

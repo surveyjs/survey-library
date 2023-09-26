@@ -4,7 +4,7 @@
     <form onsubmit="return false;">
       <div class="sv_custom_header" [hidden]="model.hasLogo"></div>
       <div [class]="model.css.container">
-        <div *ngIf="model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
+        <div *ngIf="model.titleView === 'title' && model.renderedHasHeader" [class]="model.css.header" [survey]="model" sv-ng-survey-header></div>
         <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'header', needRenderWrapper: false } }"></ng-template>
         <div *ngIf="model.isShowingPage" [class]="model.bodyContainerCss">
           <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'left' } }"></ng-template>
@@ -26,6 +26,7 @@
         <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer', needRenderWrapper: false } }"></ng-template>
         <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
           [innerHtml]="model.processedCompletedHtml"></div>
+        <ng-template *ngIf="model.state === 'completed' && model.showCompletedPage" [component]="{ name: 'sv-components-container', data: { survey: model, container: 'completePage' } }"></ng-template>
         <div *ngIf="model.state === 'completedbefore'" [class]="model.completedBeforeCss"
           [innerHtml]="model.processedCompletedBeforeHtml"></div>
         <div *ngIf="model.state === 'loading'" [class]="model.loadingBodyCss" [innerHtml]="model.processedLoadingHtml"></div>

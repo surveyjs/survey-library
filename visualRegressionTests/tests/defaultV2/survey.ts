@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { setData } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler, resetFocusToBody, resetHoverToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
@@ -75,7 +75,6 @@ frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
-      await explicitErrorHandler();
       await applyTheme(theme);
     });
 
@@ -99,6 +98,28 @@ frameworks.forEach(framework => {
       })();
       await takeElementScreenshot("survey-title-descr.png", Selector(".sd-title"), t, comparer);
       await takeElementScreenshot("survey-body.png", Selector(".sd-body"), t, comparer);
+    });
+  });
+  test("Check survey default cover", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.titleView = "cover";
+      })();
+      await takeElementScreenshot("survey-cover-default.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
   test("Check survey with progress top", async (t) => {

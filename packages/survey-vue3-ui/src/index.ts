@@ -102,6 +102,9 @@ import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
 import LoadingIndicator from "./components/LoadingIndicator.vue";
 
+import Cover from "./components/cover/Cover.vue";
+import CoverCell from "./components/cover/CoverCell.vue";
+
 import {
   SurveyModel,
   doKey2ClickBlur,
@@ -110,6 +113,10 @@ import {
   type IAttachKey2clickOptions,
 } from "survey-core";
 import type { App } from "vue";
+import FileCleanButton from "./FileCleanButton.vue";
+import FilePreview from "./FilePreview.vue";
+import FileVideo from "./FileVideo.vue";
+import FileChooseButton from "./components/file-actions/FileChooseButton.vue";
 export { useBase, useLocString, useQuestion } from "./base";
 
 SurveyModel.platform = "vue3";
@@ -141,6 +148,10 @@ function registerComponents(app: App) {
   app.component("survey-image", Image);
   app.component("survey-expression", Expression);
   app.component("survey-file", File);
+  app.component("sv-file-choose-btn", FileChooseButton);
+  app.component("sv-file-clean-btn", FileCleanButton);
+  app.component("sv-file-preview", FilePreview);
+  app.component("sv-file-video", FileVideo);
   app.component("survey-imagepicker", ImagePicker);
   app.component("survey-imagepicker-item", ImagePickerItem);
   app.component("survey-comment", Comment);
@@ -227,6 +238,9 @@ function registerComponents(app: App) {
   app.component("survey-custom", Custom);
   app.component("sv-timerpanel", TimerPanel);
   app.component("sv-loading-indicator", LoadingIndicator);
+
+  app.component("sv-cover", Cover);
+  app.component("sv-cover-cell", CoverCell);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

@@ -11,7 +11,9 @@
       <form onsubmit="return false;">
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: containerCss">
+              <!-- ko if: titleView === 'title' -->
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
+              <!-- /ko -->
               <!-- /ko -->
               <!-- ko if: isShowingPage -->
               <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "header", needRenderWrapper: false } } --><!-- /ko -->
@@ -35,6 +37,7 @@
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
+              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "completePage", needRenderWrapper: false } } --><!-- /ko -->
               <!-- /ko -->
               <!-- ko if: state == "completedbefore" -->
               <div data-bind="html: locCompletedBeforeHtml.koRenderedHtml, css: completedBeforeCss"></div>

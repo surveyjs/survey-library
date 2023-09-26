@@ -75,6 +75,10 @@ export var portugueseSurveyStrings = {
   clearCaption: "Limpar",
   signaturePlaceHolder: "Assine aqui",
   chooseFileCaption: "Escolher ficheiro",
+  takePhotoCaption: "Tirar foto",
+  cameraPlaceHolder: "Clique no botão abaixo para tirar uma foto usando a câmera.",
+  fileCameraDragAreaPlaceHolder: "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera.",
+  replaceFileCaption: "Substituir arquivo",
   removeFileCaption: "Remover este ficheiro",
   booleanCheckedLabel: "Sim",
   booleanUncheckedLabel: "Não",
@@ -101,4 +105,7 @@ surveyLocalization.localeNames["pt"] = "português";
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "Painel {panelIndex}"
 // noEntriesReadonlyText: "There are no entries." => "Não há entradas."
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Todas as opções são classificadas"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arraste e solte as opções aqui para classificá-las"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arraste e solte as opções aqui para classificá-las"// takePhotoCaption: "Take Photo" => "Tirar foto"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Clique no botão abaixo para tirar uma foto usando a câmera."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera."
+// replaceFileCaption: "Replace file" => "Substituir arquivo"

@@ -54,12 +54,9 @@ export class Trigger extends Base {
     return Trigger.operatorsValue;
   }
   private conditionRunner: ConditionRunner;
-  private usedNames: Array<string>;
-  private hasFunction: boolean;
   private idValue: number = (Trigger.idCounter ++);
   constructor() {
     super();
-    this.usedNames = [];
     this.registerPropertyChangedHandlers(["operator", "value", "name"], () => {
       this.oldPropertiesChanged();
     });
@@ -160,8 +157,6 @@ export class Trigger extends Base {
     this.onExpressionChanged();
   }
   private onExpressionChanged() {
-    this.usedNames = [];
-    this.hasFunction = false;
     this.conditionRunner = null;
   }
   public buildExpression(): string {
@@ -178,32 +173,11 @@ export class Trigger extends Base {
   }
   private isCheckRequired(keys: any): boolean {
     if (!keys) return false;
-    this.buildUsedNames();
-    if (this.hasFunction === true) return true;
-    var processValue = new ProcessValue();
-    for (var i = 0; i < this.usedNames.length; i++) {
-      var name = this.usedNames[i];
-      if (keys.hasOwnProperty(name)) return true;
-      var firstName = processValue.getFirstName(name);
-      if (!keys.hasOwnProperty(firstName)) continue;
-      if (name === firstName) return true;
-      var keyValue = keys[firstName];
-      if (keyValue == undefined) continue;
-      if (
-        !keyValue.hasOwnProperty("oldValue") ||
-        !keyValue.hasOwnProperty("newValue")
-      )
-        return true;
-      var v: any = {};
-      v[firstName] = keyValue["oldValue"];
-      var oldValue = processValue.getValue(name, v);
-      v[firstName] = keyValue["newValue"];
-      var newValue = processValue.getValue(name, v);
-      if(!this.isTwoValueEquals(oldValue, newValue)) return true;
-    }
-    return false;
+    this.createConditionRunner();
+    if (this.conditionRunner.hasFunction() === true) return true;
+    return new ProcessValue().isAnyKeyChanged(keys, this.conditionRunner.getVariables());
   }
-  private buildUsedNames() {
+  private createConditionRunner() {
     if (!!this.conditionRunner) return;
     var expression = this.expression;
     if (!expression) {
@@ -211,8 +185,6 @@ export class Trigger extends Base {
     }
     if (!expression) return;
     this.conditionRunner = new ConditionRunner(expression);
-    this.hasFunction = this.conditionRunner.hasFunction();
-    this.usedNames = this.conditionRunner.getVariables();
   }
   private get isRequireValue(): boolean {
     return this.operator !== "empty" && this.operator != "notempty";

@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, url_test } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -50,7 +50,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await ClientFunction(() => {
-      document.querySelector("label[aria-label=\"Choose file\"]").click = () => { window.chooseFileClickedTest = "yes"; };
+      document.querySelector("label[aria-label=\"Select File\"]").click = () => { window.chooseFileClickedTest = "yes"; };
     })();
     await t.pressKey("tab");
     await t.pressKey("enter");
@@ -80,7 +80,7 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.image[1].name, "small_Dashka.jpg");
   });
   test("check clean button", async t => {
-    await ClientFunction(()=>{
+    await ClientFunction(() => {
       window.survey.getAllQuestions()[0].needConfirmRemoveFile = false;
     })();
     await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
@@ -209,4 +209,39 @@ frameworks.forEach(framework => {
   //     surveyResult = await getSurveyResult();
   //     assert(surveyResult.image.indexOf('image/jpeg') !== -1);
   // });
+});
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, {
+        elements: [
+          {
+            type: "file",
+            title: "Please upload your photo",
+            name: "image",
+            storeDataAsText: true,
+            allowMultiple: true,
+          }
+        ]
+      });
+    }
+  );
+
+  test("Check file navigator appear on smaller screen", async t => {
+    await t.resizeWindow(1920, 1080);
+    const fileNavigatorSelector = Selector(".sd-file .sv-action-bar");
+    await t
+      .setFilesToUpload("input[type=file]", "../resources/stub.txt")
+      .setFilesToUpload("input[type=file]", "../resources/small_Dashka.jpg")
+      .setFilesToUpload("input[type=file]", "../resources/big_Dashka.jpg")
+      .expect(fileNavigatorSelector.exists)
+      .notOk()
+      .resizeWindow(620, 1080)
+      .expect(fileNavigatorSelector.exists)
+      .ok()
+      .expect(fileNavigatorSelector.find(".sv-action-bar-item__title").withText("1 of 2").exists).ok()
+      .resizeWindow(1920, 1080)
+      .expect(fileNavigatorSelector.exists).notOk();
+  });
 });

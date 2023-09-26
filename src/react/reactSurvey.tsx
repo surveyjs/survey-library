@@ -98,7 +98,7 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderSurvey();
     }
     const backgroundImage = !!this.survey.renderBackgroundImage ? <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div> : null;
-    const header: JSX.Element = <SurveyHeader survey={this.survey}></SurveyHeader>;
+    const header: JSX.Element | null = this.survey.titleView === "title" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
     const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
@@ -145,6 +145,7 @@ export class Survey extends SurveyElementBase<any, any>
           dangerouslySetInnerHTML={htmlValue}
           className={this.survey.completedCss}
         />
+        <ComponentsContainer survey={this.survey} container={"completePage"} needRenderWrapper={false}></ComponentsContainer>
       </React.Fragment>
     );
   }

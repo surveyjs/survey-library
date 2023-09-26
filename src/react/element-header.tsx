@@ -20,7 +20,7 @@ export class SurveyElementHeader extends React.Component<any, any> {
     const additionalTitleToolbarElement = !!element.additionalTitleToolbar ? <SurveyActionBar model= {element.additionalTitleToolbar}></SurveyActionBar> : null;
 
     return (
-      <div className={element.cssHeader} onClick={element.clickTitleFunction}>
+      <div className={element.cssHeader} onClick={(e) => element.clickTitleFunction && element.clickTitleFunction(e.nativeEvent)}>
         {title}
         {description}
         {additionalTitleToolbarElement}

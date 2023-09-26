@@ -75,6 +75,10 @@ export var indonesianStrings = {
   clearCaption: "Bersihkan",
   signaturePlaceHolder: "Tanda tangan di sini",
   chooseFileCaption: "Pilih File",
+  takePhotoCaption: "Ambil Foto",
+  cameraPlaceHolder: "Klik tombol di bawah ini untuk mengambil foto menggunakan kamera.",
+  fileCameraDragAreaPlaceHolder: "Seret dan lepas atau pilih file untuk diunggah atau mengambil foto menggunakan kamera.",
+  replaceFileCaption: "Ganti file",
   removeFileCaption: "Hapus berkas ini",
   booleanCheckedLabel: "Iya",
   booleanUncheckedLabel: "Tidak",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["id"] = "bahasa Indonesia";
 // more: "More" => "Lebih"
 // tagboxDoneButtonCaption: "OK" => "OKE"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Semua pilihan diberi peringkat"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepas pilihan di sini untuk memberi peringkat"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepas pilihan di sini untuk memberi peringkat"// takePhotoCaption: "Take Photo" => "Ambil Foto"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klik tombol di bawah ini untuk mengambil foto menggunakan kamera."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih file untuk diunggah atau mengambil foto menggunakan kamera."
+// replaceFileCaption: "Replace file" => "Ganti file"

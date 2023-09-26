@@ -59,7 +59,7 @@ export class QuestionTextBase extends Question {
     return super.isEmpty() || this.value === "";
   }
   /**
-   * Gets or sets a value that specifies when to update the question value.
+   * Specifies when to update the question value.
    *
    * Possible values:
    *
@@ -120,6 +120,11 @@ export class QuestionTextBase extends Question {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateRemainingCharacterCounter(newValue);
   }
+  protected convertToCorrectValue(val: any): any {
+    if(Array.isArray(val)) return val.join(this.getValueSeparator());
+    return val;
+  }
+  protected getValueSeparator(): string { return ", "; }
   public disableNativeUndoRedo = false;
   protected checkForUndo(event: KeyboardEvent) {
     if (this.disableNativeUndoRedo && this.isInputTextUpdate && (event.ctrlKey || event.metaKey)) {
@@ -137,50 +142,8 @@ export class QuestionTextBase extends Question {
   }
 
   //a11y
-  public get ariaRole(): string {
-    return null;
-  }
-  public get ariaRequired():any {
-    return null;
-  }
-  public get ariaInvalid():any {
-    return null;
-  }
-  public get ariaLabel(): string {
-    return null;
-  }
-  public get ariaLabelledBy(): string {
-    return null;
-  }
-  public get ariaDescribedBy(): string {
-    return null;
-  }
-
-  public get a11y_input_ariaRole(): string {
-    return "textbox";
-  }
-  public get a11y_input_ariaRequired(): "true" | "false" {
-    return this.isRequired ? "true" : "false";
-  }
-  public get a11y_input_ariaInvalid(): "true" | "false" {
-    return this.errors.length > 0 ? "true" : "false";
-  }
-  public get a11y_input_ariaLabel(): string {
-    if (this.hasTitle && !this.parentQuestion) {
-      return null;
-    } else {
-      return this.locTitle.renderedHtml;
-    }
-  }
-  public get a11y_input_ariaLabelledBy(): string {
-    if (this.hasTitle && !this.parentQuestion) {
-      return this.ariaTitleId;
-    } else {
-      return null;
-    }
-  }
-  public get a11y_input_ariaDescribedBy(): string {
-    return this.errors.length > 0 ? this.id + "_errors" : null;
+  public get isNewA11yStructure(): boolean {
+    return true;
   }
   // EO a11y
 }

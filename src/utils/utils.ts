@@ -1,7 +1,7 @@
 import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
 import { IDialogOptions } from "../popup";
-import { surveyLocalization } from "src/surveyStrings";
+import { surveyLocalization } from "../surveyStrings";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;

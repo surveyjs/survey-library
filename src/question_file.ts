@@ -44,12 +44,16 @@ export class QuestionFileModel extends Question {
     target.updateFileNavigator();
   } }) pageSize: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
-  /**
-   * Specifies whether users can capture and upload a photo. Applies only to mobile devices.
-   *
-   * Default value: `false`
-   */
   @property() allowCameraAccess: boolean;
+  /**
+   * Specifies the source of uploaded files.
+   *
+   * Possible values:
+   *
+   * - `"file"` (default) - Allows respondents to select a local file.
+   * - `"camera"` - Allows respondents to capture and upload a photo.
+   * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   */
   @property({ onSet: (val: string, obj: QuestionFileModel) => {
     if(!obj.isLoadingFromJson) {
       obj.updateCurrentMode();

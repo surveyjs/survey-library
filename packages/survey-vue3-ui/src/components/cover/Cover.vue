@@ -10,7 +10,7 @@
   </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { Base, SurveyModel, Cover, CoverCell } from "survey-core";
 import { useBase } from "@/base";
 import { onMounted, onUnmounted, ref } from "vue";

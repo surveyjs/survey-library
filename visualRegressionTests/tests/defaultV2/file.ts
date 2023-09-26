@@ -171,7 +171,7 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera"); })();
       await takeElementScreenshot("file-question-camera-mode.png", questionRoot, t, comparer);
-      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "both"); })();
+      await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera"); })();
       await takeElementScreenshot("file-question-both-mode.png", questionRoot, t, comparer);
       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", true); })();
       await takeElementScreenshot("file-question-video.png", questionRoot, t, comparer);

@@ -1633,7 +1633,7 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue", assert => {
     log += `->onReadyChanged: ${opt.isReady}`;
     if(opt.isReady) {
       assert.ok(question.isReady);
-      assert.notOk(question["waitingAcyncOperations"]);
+      assert.ok(question.isReady);
       assert.notOk(question["waitingChoicesByURL"]);
       assert.notOk(question["waitingGetChoiceDisplayValueResponse"]);
       assert.equal(log, "->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
@@ -1643,7 +1643,6 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue", assert => {
   });
   survey.data = { "q1": "ford" };
   assert.notOk(question.isReady);
-  assert.ok(question["waitingAcyncOperations"]);
   assert.notOk(question["waitingChoicesByURL"]);
   assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
 });
@@ -1671,7 +1670,6 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
     log += `->onReadyChanged: ${opt.isReady}`;
     if(opt.isReady) {
       assert.ok(question.isReady);
-      assert.notOk(question["waitingAcyncOperations"]);
       assert.notOk(question["waitingChoicesByURL"]);
       assert.notOk(question["waitingGetChoiceDisplayValueResponse"]);
       assert.equal(log, "->onReadyChanged: false->onGetChoiceDisplayValue->onReadyChanged: true");
@@ -1681,12 +1679,10 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert =>
   question.choicesByUrl.url = "some url";
   survey.data = { "q1": "ford" };
   assert.notOk(question.isReady);
-  assert.ok(question["waitingAcyncOperations"]);
   assert.ok(question["waitingChoicesByURL"]);
   assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
   question.choicesLoaded();
   assert.notOk(question.isReady);
-  assert.ok(question["waitingAcyncOperations"]);
   assert.notOk(question["waitingChoicesByURL"]);
   assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
 });

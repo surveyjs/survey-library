@@ -102,6 +102,9 @@ import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
 import LoadingIndicator from "./components/LoadingIndicator.vue";
 
+import Cover from "./components/cover/Cover.vue";
+import CoverCell from "./components/cover/CoverCell.vue";
+
 import {
   SurveyModel,
   doKey2ClickBlur,
@@ -235,6 +238,9 @@ function registerComponents(app: App) {
   app.component("survey-custom", Custom);
   app.component("sv-timerpanel", TimerPanel);
   app.component("sv-loading-indicator", LoadingIndicator);
+
+  app.component("sv-cover", Cover);
+  app.component("sv-cover-cell", CoverCell);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

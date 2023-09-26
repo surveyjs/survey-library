@@ -701,6 +701,111 @@ QUnit.test("column.visible property and design time", function (assert) {
   assert.equal(table.rows[1].cells.length, 1 + 3, "Row: Two columns are invisible, but it is visible in design-time, #2");
   assert.equal(table.headerRow.cells[3].headers, "col3", "The last column is col3, #2");
 });
+QUnit.test("question.resetValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { name: "q1", cellType: "text" },
+          { name: "q2", cellType: "text", resetValueIf: "{row.q1} = 1" },
+          { name: "q3", cellType: "text" },
+        ]
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  const col2 = matrix.getColumnByName("q2");
+  assert.equal(col2.resetValueIf, "{row.q1} = 1", "Load from JSON, column");
+  assert.equal(q2.resetValueIf, "{row.q1} = 1", "Load from JSON, question");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 3;
+  assert.equal(q2.value, "edf", "value is set, #3");
+});
+QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [{
+          name: "q1",
+          cellType: "text"
+        },
+        {
+          name: "q2",
+          cellType: "text",
+          resetValueIf: "{row.q1} = 1",
+          defaultValueExpression: "iif({row.q3} > 2, {row.q3}, '')"
+        },
+        {
+          name: "q3", cellType: "text"
+        }]
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  q2.value = "abc";
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set directly");
+  q1.value = 1;
+  assert.equal(q2.value, 3, "value is set from defaultValueExpression");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set directly, #2");
+  q3.value = 4;
+  assert.equal(q2.value, "edf", "value is set directly, #3");
+});
+QUnit.test("question.resetValueIf based on root and row questions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { name: "q1", cellType: "text" },
+          { name: "q2", cellType: "text", resetValueIf: "{row.q1} = 1 and {q4}=4" },
+          { name: "q3", cellType: "text" },
+        ]
+      },
+      { type: "text", name: "q4" }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q2.value = "abc";
+  assert.equal(q2.value, "abc", "q2.value #1");
+  q1.value = 1;
+  assert.equal(q2.value, "abc", "q2.value #2");
+  q4.value = 4;
+  assert.equal(q2.isEmpty(), true, "q2.value #3");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "q2.value #4");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "q2.value #5");
+});
 QUnit.test("question.onHidingContent", function (assert) {
   const survey = new SurveyModel({
     questionErrorLocation: "bottom",

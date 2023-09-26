@@ -9,5 +9,6 @@ export interface ITheme {
   backgroundImageFit?: ImageFit;
   backgroundImageAttachment?: ImageAttachment;
   backgroundOpacity?: number;
+  cover?: {[index: string]: any};
   cssVariables?: { [index: string]: string };
 }

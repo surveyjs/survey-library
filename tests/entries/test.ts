@@ -64,6 +64,7 @@ export * from "../responsivityTests";
 export * from "../svgRegistryTests";
 export * from "../utilstests";
 export * from "../stylesManagerTests";
+export * from "../coverTests";
 
 // localization
 import "../../src/localization/russian";

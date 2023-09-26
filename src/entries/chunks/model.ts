@@ -8,7 +8,7 @@ Version = `${process.env.VERSION}`;
 ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {
-  if(Version != ver) {
+  if (Version != ver) {
     const str = "survey-core has version '" + Version + "' and " + libraryName
       + " has version '" + ver + "'. SurveyJS libraries should have the same versions to work correctly.";
     /* eslint no-console: ["error", { allow: ["error"] }] */
@@ -23,25 +23,25 @@ export function hasLicense(index: number): boolean {
 }
 const lic: any = {};
 function slk(k: any, lh: any, rd: any) {
-  if(!k) return;
+  if (!k) return;
   const en = (s: string) => {
-    var e: any={}, i, b=0, c, x, l=0, a, r="", w=String.fromCharCode, L=s.length;
-    var A="ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-    for(i=0; i<64; i++) { e[A.charAt(i)]=i; }
-    for(x=0; x<L; x++) {
-      let c=e[s.charAt(x)]; b=(b<<6)+c; l+=6;
-      while(l>=8) { ((a=(b>>>(l-=8))&0xff)||(x<(L-2)))&&(r+=w(a)); }
+    var e: any = {}, i, b = 0, c, x, l = 0, a, r = "", w = String.fromCharCode, L = s.length;
+    var A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    for (i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
+    for (x = 0; x < L; x++) {
+      let c = e[s.charAt(x)]; b = (b << 6) + c; l += 6;
+      while (l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
     }
     return r;
   };
   let v = en(k);
-  if(!v) return;
+  if (!v) return;
   let index = v.indexOf(";");
-  if(index < 0) return;
+  if (index < 0) return;
   v = v.substring(index + 1);
   v.split(",").forEach(s => {
     let i = s.indexOf("=");
-    if(i > 0) {
+    if (i > 0) {
       lh[s.substring(0, i)] = new Date(rd) <= new Date(s.substring(i + 1));
     }
   });
@@ -210,6 +210,7 @@ export {
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
 export { Notifier } from "../../notifier";
+export { Cover, CoverCell } from "../../cover";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";

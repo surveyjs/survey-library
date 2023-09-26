@@ -366,6 +366,8 @@ export type ISurveyEnvironment = {
 }
 
 export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
+export type HorizontalAlignment = "left" | "center" | "right";
+export type VerticalAlignment = "top" | "middle" | "bottom";
 
 export interface ISurveyLayoutElement {
   id: string;

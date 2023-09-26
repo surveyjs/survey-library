@@ -1406,15 +1406,15 @@ QUnit.test("QuestionFile current mode property, camera is not available", functi
   let survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
-      { type: "file", name: "q2", mode: "file" },
-      { type: "file", name: "q3", mode: "camera" },
-      { type: "file", name: "q4", mode: "both" },
+      { type: "file", name: "q2", sourceType: "file" },
+      { type: "file", name: "q3", sourceType: "camera" },
+      { type: "file", name: "q4", sourceType: "file-camera" },
     ]
   });
   assert.equal(survey.getQuestionByName("q1").currentMode, "file");
   assert.equal(survey.getQuestionByName("q2").currentMode, "file");
   assert.equal(survey.getQuestionByName("q3").currentMode, "camera");
-  assert.equal(survey.getQuestionByName("q4").currentMode, "both");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera");
   assert.equal(callbacks.length, 2, "callbacks are set");
   callbacks.forEach(cb => cb([]));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1");
@@ -1422,7 +1422,7 @@ QUnit.test("QuestionFile current mode property, camera is not available", functi
   assert.equal(survey.getQuestionByName("q3").currentMode, "file", "#3");
   assert.equal(survey.getQuestionByName("q4").currentMode, "file", "#4");
   callbacks.splice(0, callbacks.length);
-  survey.getQuestionByName("q1").mode = "camera";
+  survey.getQuestionByName("q1").sourceType = "camera";
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#5");
   callbacks.forEach(cb => cb([]));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#6");
@@ -1449,28 +1449,52 @@ QUnit.test("QuestionFile current mode property, camera is available", function(a
   let survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
-      { type: "file", name: "q2", mode: "file" },
-      { type: "file", name: "q3", mode: "camera" },
-      { type: "file", name: "q4", mode: "both" },
+      { type: "file", name: "q2", sourceType: "file" },
+      { type: "file", name: "q3", sourceType: "camera" },
+      { type: "file", name: "q4", sourceType: "file-camera" },
     ]
   });
   assert.equal(survey.getQuestionByName("q1").currentMode, "file");
   assert.equal(survey.getQuestionByName("q2").currentMode, "file");
   assert.equal(survey.getQuestionByName("q3").currentMode, "camera");
-  assert.equal(survey.getQuestionByName("q4").currentMode, "both");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera");
   assert.equal(callbacks.length, 2, "callbacks are set");
 
   callbacks.forEach(cb => cb(devices));
   assert.equal(survey.getQuestionByName("q1").currentMode, "file", "#1");
   assert.equal(survey.getQuestionByName("q2").currentMode, "file", "#2");
   assert.equal(survey.getQuestionByName("q3").currentMode, "camera", "#3");
-  assert.equal(survey.getQuestionByName("q4").currentMode, "both", "#4");
+  assert.equal(survey.getQuestionByName("q4").currentMode, "file-camera", "#4");
   callbacks.splice(0, callbacks.length);
-  survey.getQuestionByName("q1").mode = "camera";
+  survey.getQuestionByName("q1").sourceType = "camera";
   assert.equal(survey.getQuestionByName("q1").currentMode, "camera", "#5");
   callbacks.forEach(cb => cb(devices));
   assert.equal(survey.getQuestionByName("q1").currentMode, "camera", "#6");
   Camera.mediaDevicesCallback = undefined;
+  StylesManager.applyTheme("default");
+});
+QUnit.test("QuestionFile check file actions visibility when camera is available from start point", function(assert) {
+  StylesManager.applyTheme("defaultV2");
+  Camera.setCameraList(<any>[{ label: "test" }]);
+  let survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", sourceType: "camera" },
+      { type: "file", name: "q2", sourceType: "file" },
+      { type: "file", name: "q3", sourceType: "file-camera" }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").currentMode, "camera");
+  assert.notOk(survey.getQuestionByName("q1").actionsContainer.actions[0].visible);
+  assert.ok(survey.getQuestionByName("q1").actionsContainer.actions[1].visible);
+
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
+  assert.ok(survey.getQuestionByName("q2").actionsContainer.actions[0].visible);
+  assert.notOk(survey.getQuestionByName("q2").actionsContainer.actions[1].visible);
+
+  assert.equal(survey.getQuestionByName("q3").currentMode, "file-camera");
+  assert.ok(survey.getQuestionByName("q3").actionsContainer.actions[0].visible);
+  assert.ok(survey.getQuestionByName("q3").actionsContainer.actions[1].visible);
+  Camera.clear();
   StylesManager.applyTheme("default");
 });
 QUnit.test("new Camera().getMediaConstraints", function(assert) {
@@ -1599,7 +1623,7 @@ QUnit.test("QuestionFile stop playing video on going to another page or complete
 QUnit.test("QuestionFile check actions container", function(assert) {
   const survey = new SurveyModel({
     pages: [
-      { elements: [{ type: "file", name: "q1", mode: "file" }] }
+      { elements: [{ type: "file", name: "q1", sourceType: "file" }] }
     ]
   });
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
@@ -1631,7 +1655,7 @@ QUnit.test("QuestionFile check actions container", function(assert) {
   assert.notOk(chooseFileAction.visible);
   assert.ok(startCameraAction.visible);
   assert.notOk(cleanAction.visible);
-  q1.setPropertyValue("currentMode", "both");
+  q1.setPropertyValue("currentMode", "file-camera");
   assert.ok(chooseFileAction.visible);
   assert.ok(startCameraAction.visible);
   assert.notOk(cleanAction.visible);
@@ -1656,6 +1680,6 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes", function
   assert.equal(q1.renderedPlaceholder, "file_mod_placeholder");
   q1.setPropertyValue("currentMode", "camera");
   assert.equal(q1.renderedPlaceholder, "camera_mod_placeholder");
-  q1.setPropertyValue("currentMode", "both");
+  q1.setPropertyValue("currentMode", "file-camera");
   assert.equal(q1.renderedPlaceholder, "both_mod_placeholder");
 });

@@ -44,17 +44,21 @@ export class QuestionFileModel extends Question {
     target.updateFileNavigator();
   } }) pageSize: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
-  /**
-   * Specifies whether users can capture and upload a photo. Applies only to mobile devices.
-   *
-   * Default value: `false`
-   */
   @property() allowCameraAccess: boolean;
+  /**
+   * Specifies the source of uploaded files.
+   *
+   * Possible values:
+   *
+   * - `"file"` (default) - Allows respondents to select a local file.
+   * - `"camera"` - Allows respondents to capture and upload a photo.
+   * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   */
   @property({ onSet: (val: string, obj: QuestionFileModel) => {
     if(!obj.isLoadingFromJson) {
       obj.updateCurrentMode();
     }
-  } }) mode: string;
+  } }) sourceType: string;
 
   public fileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -144,7 +148,6 @@ export class QuestionFileModel extends Question {
       iconName: "icon-choosefile",
       id: "sv-file-choose-file",
       iconSize: "auto",
-      visible: <boolean>(new ComputedUpdater<boolean>(() => this.hasFileUI) as any),
       data: { question: this },
       component: "sv-file-choose-btn"
     });
@@ -153,7 +156,6 @@ export class QuestionFileModel extends Question {
       id: "sv-file-start-camera",
       iconSize: "auto",
       title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
-      visible: <boolean>(new ComputedUpdater<boolean>(() => this.hasVideoUI) as any),
       showTitle: <boolean>(new ComputedUpdater<boolean>(() => !this.isAnswered) as any),
       action: () => {
         this.startVideo();
@@ -163,7 +165,6 @@ export class QuestionFileModel extends Question {
       iconName: "icon-clear",
       id: "sv-file-clean",
       iconSize: "auto",
-      visible: <boolean>(new ComputedUpdater<boolean>(() => !!this.isAnswered) as any),
       title: <string>(new ComputedUpdater<string>(() => this.clearButtonCaption) as any),
       showTitle: false,
       innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.removeButton) as any),
@@ -174,6 +175,11 @@ export class QuestionFileModel extends Question {
     [this.closeCameraAction, this.changeCameraAction, this.takePictureAction].forEach((action) => {
       action.cssClasses = {};
     });
+    this.registerFunctionOnPropertiesValueChanged(["currentMode", "isAnswered"], () => {
+      this.updateActions();
+    });
+    this.updateActions();
+
     this.actionsContainer.actions = [this.chooseFileAction, this.startCameraAction, this.cleanAction];
     this.fileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
@@ -440,7 +446,7 @@ export class QuestionFileModel extends Question {
     return this.renderedPlaceholderValue;
   }
   public get currentMode(): string {
-    return this.getPropertyValue("currentMode", this.mode);
+    return this.getPropertyValue("currentMode", this.sourceType);
   }
   public get isPlayingVideo(): boolean {
     return this.getPropertyValue("isPlayingVideo", false);
@@ -450,14 +456,19 @@ export class QuestionFileModel extends Question {
   }
   private updateCurrentMode(): void {
     if(!this.isDesignMode) {
-      if(this.mode !== "file") {
+      if(this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
-          this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.mode : "file");
+          this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
         });
       } else {
-        this.setPropertyValue("currentMode", this.mode);
+        this.setPropertyValue("currentMode", this.sourceType);
       }
     }
+  }
+  private updateActions() {
+    this.chooseFileAction.visible = this.hasFileUI;
+    this.startCameraAction.visible = this.hasVideoUI;
+    this.cleanAction.visible = !!this.isAnswered;
   }
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
@@ -833,6 +844,7 @@ export class QuestionFileModel extends Question {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     this.updateCurrentMode();
+    this.updateActions();
     this.loadPreview(this.value);
   }
   protected needResponsiveness(): boolean {
@@ -986,7 +998,7 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
     { name: "allowCameraAccess:switch", category: "general" },
-    { name: "mode", choices: ["file", "camera", "both"], default: "file", category: "general", visible: false }
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true }
   ],
   function () {
     return new QuestionFileModel("");

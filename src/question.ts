@@ -3,15 +3,14 @@ import { JsonObject, Serializer, property } from "./jsonobject";
 import { Base, EventBase } from "./base";
 import { IElement, IQuestion, IPanel, IConditionRunner, ISurveyImpl, IPage, ITitleOwner, IProgressInfo, ISurvey, IPlainDataOptions } from "./base-interfaces";
 import { SurveyElement } from "./survey-element";
-import { surveyLocalization } from "./surveyStrings";
 import { AnswerRequiredError, CustomError } from "./error";
 import { SurveyValidator, IValidatorOwner, ValidatorRunner } from "./validator";
-import { TextPreProcessor, TextPreProcessorValue } from "./textPreProcessor";
+import { TextPreProcessorValue } from "./textPreProcessor";
 import { LocalizableString } from "./localizablestring";
-import { ConditionRunner, ExpressionRunner } from "./conditions";
+import { ExpressionRunner } from "./conditions";
 import { QuestionCustomWidget } from "./questionCustomWidgets";
 import { CustomWidgetCollection } from "./questionCustomWidgets";
-import { settings, ISurveyEnvironment } from "./settings";
+import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { PanelModel } from "./panel";
 import { RendererFactory } from "./rendererFactory";
@@ -20,6 +19,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./utils/utils";
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
+import { ProcessValue } from "./conditionProcessValue";
 
 export interface IConditionObject {
   name: string;
@@ -427,6 +427,9 @@ export class Question extends SurveyElement<Question>
     if (this.areInvisibleElementsShowing) return true;
     return this.isVisibleCore();
   }
+  public get isVisibleInSurvey(): boolean {
+    return this.isVisible && this.isParentVisible;
+  }
   protected isVisibleCore(): boolean {
     return this.visible;
   }
@@ -504,6 +507,29 @@ export class Question extends SurveyElement<Question>
       requiredQuestionCount: this.isRequired ? 1 : 0,
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
+  }
+  private resetValueIfExpression: ExpressionRunner;
+  private isRunningResetValueIf: boolean;
+  public runTriggers(name: string, value: any): void {
+    if(this.isRunningResetValueIf || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty()) return;
+    if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
+    if(!this.resetValueIfExpression) {
+      this.resetValueIfExpression = new ExpressionRunner(this.resetValueIf);
+      this.resetValueIfExpression.onRunComplete = (res: any): void => {
+        this.isRunningResetValueIf = false;
+        if(res === true) {
+          this.clearValue();
+          this.updateValueWithDefaults();
+        }
+      };
+    } else {
+      this.resetValueIfExpression.expression = this.resetValueIf;
+    }
+    const keys: any = {};
+    keys[name] = value;
+    if(!new ProcessValue().isAnyKeyChanged(keys, this.resetValueIfExpression.getVariables())) return;
+    this.isRunningResetValueIf = true;
+    this.resetValueIfExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
@@ -590,7 +616,7 @@ export class Question extends SurveyElement<Question>
     if (!this.visible) {
       this.clearValueOnHidding(isClearOnHidden);
     }
-    if (isClearOnHidden && this.isVisible) {
+    if (isClearOnHidden && this.isVisibleInSurvey) {
       this.updateValueWithDefaults();
     }
   }
@@ -945,6 +971,7 @@ export class Question extends SurveyElement<Question>
     return new CssClassBuilder()
       .append(super.getCssTitle(cssClasses))
       .append(cssClasses.titleOnAnswer, !this.containsErrors && this.isAnswered)
+      .append(cssClasses.titleEmpty, !this.title.trim())
       .toString();
   }
   public get cssDescription(): string {
@@ -1282,7 +1309,7 @@ export class Question extends SurveyElement<Question>
     if (!properties) properties = {};
     properties["question"] = this;
     this.runConditionCore(values, properties);
-    if (!this.isValueChangedDirectly) {
+    if (!this.isValueChangedDirectly && (!this.isClearValueOnHidden || this.isVisibleInSurvey)) {
       this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
       this.runDefaultValueExpression(this.defaultValueRunner, values, properties);
     }
@@ -1427,6 +1454,7 @@ export class Question extends SurveyElement<Question>
     if (!!this.comment) {
       this.comment = undefined;
     }
+    this.isValueChangedDirectly = false;
   }
   public unbindValue(): void {
     this.clearValue();
@@ -1447,7 +1475,7 @@ export class Question extends SurveyElement<Question>
   }
   private canClearValueAsInvisible(reason: string): boolean {
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;
-    if (this.isVisible && this.isParentVisible) return false;
+    if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey || !this.valueName) return true;
     return !this.survey.hasVisibleQuestionByValueName(this.valueName);
@@ -1474,6 +1502,7 @@ export class Question extends SurveyElement<Question>
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
+      this.isValueChangedDirectly = undefined;
     }
   }
   /**
@@ -1574,6 +1603,19 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("defaultValueExpression", val);
     this.defaultValueRunner = undefined;
     this.updateValueWithDefaults();
+  }
+  /**
+   * A Boolean expression. If it evaluates to `true`, the question value is reset to [default](#defaultValue).
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   */
+  public get resetValueIf(): string {
+    return this.getPropertyValue("resetValueIf");
+  }
+  public set resetValueIf(val: string) {
+    this.setPropertyValue("resetValueIf", val);
   }
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
@@ -2557,6 +2599,10 @@ Serializer.addClass("question", [
   },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
+  {
+    name: "resetValueIf:condition",
+    category: "logic", visible: false
+  },
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

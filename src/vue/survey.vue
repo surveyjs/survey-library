@@ -6,7 +6,7 @@
     <form onsubmit="return false;">
       <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
       <div :class="css.container">
-        <survey-header :survey="vueSurvey" />
+        <survey-header v-if="vueSurvey.titleView === 'title'" :survey="vueSurvey" />
         <component :is="'sv-components-container'" :survey="vueSurvey" :container="'header'"></component>
         <template
           v-if="vueSurvey.isShowingPage"

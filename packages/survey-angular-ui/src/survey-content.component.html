@@ -34,7 +34,8 @@
           <div *ngIf="model.state === 'empty'" [class]="model.css.bodyEmpty">{{model.emptySurveyText}}</div>
         </div>
       </form>
-    <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
-    <sv-notifier [notifier]="model.notifier"></sv-notifier>
+      <sv-brand-info *ngIf="model.showBrandInfo"></sv-brand-info>
+      <sv-notifier [notifier]="model.notifier"></sv-notifier>
+    </div>
   </div>
 </ng-template>

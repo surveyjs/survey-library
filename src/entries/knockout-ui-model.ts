@@ -67,6 +67,8 @@ export * from "../knockout/components/dropdown/dropdown";
 export * from "../knockout/components/dropdown-select/dropdown-select";
 export * from "../knockout/components/tagbox/tagbox-item";
 export * from "../knockout/components/tagbox/tagbox";
+export * from "../knockout/components/cover/cover";
+export * from "../knockout/components/cover/cover-cell";
 export * from "../knockout/components/file-actions/choose-file";
 
 export * from "../knockout/components/list/list";

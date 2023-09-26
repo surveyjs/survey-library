@@ -59,7 +59,7 @@ import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
-import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent } from "../src/utils/utils";
+import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrlForBackgroundImage } from "../src/utils/utils";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
@@ -17331,7 +17331,7 @@ QUnit.test("backgroundImage", assert => {
     "backgroundImage": imageUrl,
   });
   assert.equal(survey.backgroundImage, imageUrl, "backgroundImage");
-  assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
+  assert.equal(survey.renderBackgroundImage, wrapUrlForBackgroundImage(imageUrl), "renderBackgroundImage");
 });
 
 QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {

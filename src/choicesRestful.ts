@@ -259,13 +259,7 @@ export class ChoicesRestful extends Base {
     return "choicesByUrl";
   }
   public get isEmpty(): boolean {
-    return (
-      !this.url &&
-      !this.path &&
-      !this.valueName &&
-      !this.titleName &&
-      !this.imageLinkName
-    );
+    return !this.url && !this.path;
   }
   public getCustomPropertiesNames(): Array<string> {
     var properties = this.getCustomProperties();

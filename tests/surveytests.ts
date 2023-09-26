@@ -17894,3 +17894,38 @@ QUnit.test("Error on pre-processing localizable string Bug#6967", function (asse
   assert.equal(survey.locCompleteText.renderedHtml, "2", "Preprocess correctly");
   surveyLocalization.locales.en.completeText = prevVal;
 });
+QUnit.test("clearInvisibleValues onHiddenContainer breaks defaultValueExpression for text input #7010", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+            "defaultValueExpression": "iif({q1} = 'A', 42, iif({q1} = 'B', 24, 0))"
+          }
+        ],
+        "visibleIf": "{q1} anyof ['other', 'A', 'B']"
+      }
+    ],
+    "clearInvisibleValues": "onHiddenContainer"
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "initial value on loading and clear on becoming invisible");
+  q1.value = "A";
+  assert.equal(q2.value, 42, "q1.value = A");
+  q1.value = "B";
+  assert.equal(q2.value, 24, "q1.value = B");
+});
+

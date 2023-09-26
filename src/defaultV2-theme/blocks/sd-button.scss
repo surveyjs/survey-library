@@ -49,3 +49,8 @@
   color: $primary-foreground-disabled;
   pointer-events: none;
 }
+
+.sd-btn--danger {
+  background-color: $red;
+  color: $primary-foreground;
+}

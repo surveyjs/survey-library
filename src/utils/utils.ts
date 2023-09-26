@@ -419,7 +419,7 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   // const cancelBtn = toolbar.getActionById("cancel");
   // cancelBtn.title = this.getLocString("ed.lg.uncompletedRule_cancel");
   // applyBtn.title = this.getLocString("ed.lg.uncompletedRule_apply");
-  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button--danger sd-btn sd-btn--action";
+  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button--danger sd-btn sd-btn--danger";
   // popupModel.width = "800px";
   //return true;
 }

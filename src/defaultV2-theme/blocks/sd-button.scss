@@ -54,3 +54,13 @@
   background-color: $red;
   color: $primary-foreground;
 }
+
+.sd-btn--danger:hover {
+  background-color: $red;
+  color: $primary-foreground;
+}
+
+.sd-btn--danger:disabled {
+  color: $red-forecolor;
+  pointer-events: none;
+}

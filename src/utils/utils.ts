@@ -17,6 +17,12 @@ function compareVersions(a: any, b: any) {
   return segmentsA.length - segmentsB.length;
 }
 
+function confirmAction(message: string): boolean {
+  if (!!settings && !!settings.confirmActionFunc)
+    return settings.confirmActionFunc(message);
+  return confirm(message);
+}
+
 function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
   const callbackFunc = (res: boolean): void => {
     if(res) funcOnYes();
@@ -27,7 +33,7 @@ function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: (
     if(settings.confirmActionAsync(message, callbackFunc)) return;
   }
 
-  settings.confirmActionFunc(message, callbackFunc);
+  callbackFunc(confirmAction(message));
 }
 function detectIEBrowser(): boolean {
   if (typeof window === "undefined") return false;
@@ -395,7 +401,7 @@ export class Logger {
   }
 }
 
-export function showConfirmDialog(message: string, callback: (res: boolean) => void): void {
+export function showConfirmDialog(message: string, callback: (res: boolean) => void): boolean {
   const locStr = new LocalizableString(undefined);
   //locStr.text = getLocString("ed.lg.uncompletedRule_text");
 
@@ -421,7 +427,7 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   // applyBtn.title = this.getLocString("ed.lg.uncompletedRule_apply");
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button--danger sd-btn sd-btn--danger";
   // popupModel.width = "800px";
-  //return true;
+  return true;
 }
 
 export {

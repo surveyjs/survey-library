@@ -3,7 +3,9 @@
   <div [class]="model.css" [style]="model.style">
     <div class="sv-cover__cell-content" [style]="model.contentStyle">
       <div *ngIf="model.showLogo" class="sv-cover__logo">
-        <ng-template [component]="{ name: model.survey.getElementWrapperComponentName(model.survey, 'logo-image'), data: { data: model.survey.getElementWrapperComponentData(model.survey, 'logo-image') } }"></ng-template>
+        <div [class]="model.survey.logoClassNames">
+          <ng-template [component]="{ name: model.survey.getElementWrapperComponentName(model.survey, 'logo-image'), data: { data: model.survey.getElementWrapperComponentData(model.survey, 'logo-image') } }"></ng-template>
+        </div>
       </div>
       <div *ngIf="model.showTitle" class="sv-cover__title" [style]="{ maxWidth: model.textWidth }">
         <sv-ng-element-title [element]="model.survey"></sv-ng-element-title>

@@ -484,7 +484,7 @@ export var settings = {
    */
   tagboxCloseOnSelect: false,
   /**
-   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog.
+   * A property that allows you to display a custom confirm dialog.
    *
    * Set this property to a function that renders your custom dialog window. This function should return `true` if a user confirms an action or `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
@@ -493,9 +493,20 @@ export var settings = {
     return confirm(message);
   },
   /**
-   * A property that allows you to display a custom confirm dialog instead of the standard browser dialog in async mode.
+   * A property that allows you to display a custom confirm dialog in async mode or activate the standard browser dialog.
    *
-   * Set this property to a function that renders your custom dialog window. This function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
+   * To display a custom confirm dialog, set this property to a function that renders it. This function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
+   *
+   * To activate the standard browser dialog, set the `confirmActionAsync` property to a function that returns `false`. With this configuration, a survey falls back to the [`confirmActionFunc`](#confirmActionFunc) function, which renders the standard browser dialog by default.
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * // Display the standard browser dialog
+   * settings.confirmActionAsync = () => {
+   *    return false;
+   * }
+   * ```
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */

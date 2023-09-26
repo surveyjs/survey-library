@@ -159,6 +159,10 @@ function navigateToUrl(url: string): void {
   window.location.href = url;
 }
 
+function wrapUrlForBackgroundImage(url: string): string {
+  return !!url ? ["url(", url, ")"].join("") : "";
+}
+
 function getIconNameFromProxy(iconName: string): string {
   if (!iconName) return iconName;
   var proxyName = (<any>settings.customIcons)[iconName];
@@ -413,6 +417,7 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   navigateToUrl,
+  wrapUrlForBackgroundImage,
   createSvg,
   getIconNameFromProxy,
   increaseHeightByContent,

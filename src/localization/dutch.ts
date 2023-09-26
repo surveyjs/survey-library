@@ -75,6 +75,10 @@ export var dutchSurveyStrings = {
   clearCaption: "Verwijder",
   signaturePlaceHolder: "Hier tekenen",
   chooseFileCaption: "Gekozen bestand",
+  takePhotoCaption: "Foto maken",
+  cameraPlaceHolder: "Klik op de onderstaande knop om een foto te maken met de camera.",
+  fileCameraDragAreaPlaceHolder: "Sleep en zet neer of selecteer een bestand om te uploaden of maak een foto met de camera.",
+  replaceFileCaption: "Bestand vervangen",
   removeFileCaption: "Verwijder dit bestand",
   booleanCheckedLabel: "Ja",
   booleanUncheckedLabel: "Nee",
@@ -114,4 +118,7 @@ surveyLocalization.localeNames["nl"] = "nederlands";
 // more: "More" => "Meer"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle keuzes zijn gerangschikt"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Drag en drop keuzes hier om ze te rangschikken"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Drag en drop keuzes hier om ze te rangschikken"// takePhotoCaption: "Take Photo" => "Foto maken"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klik op de onderstaande knop om een foto te maken met de camera."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Sleep en zet neer of selecteer een bestand om te uploaden of maak een foto met de camera."
+// replaceFileCaption: "Replace file" => "Bestand vervangen"

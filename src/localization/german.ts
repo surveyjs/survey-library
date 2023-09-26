@@ -75,6 +75,10 @@ export var germanSurveyStrings = {
   clearCaption: "Auswahl entfernen",
   signaturePlaceHolder: "Hier unterschreiben",
   chooseFileCaption: "Datei auswählen",
+  takePhotoCaption: "Foto machen",
+  cameraPlaceHolder: "Klicken Sie auf die Schaltfläche unten, um ein Foto mit der Kamera aufzunehmen.",
+  fileCameraDragAreaPlaceHolder: "Ziehen Sie eine Datei per Drag & Drop oder wählen Sie sie aus, um sie hochzuladen oder ein Foto mit der Kamera aufzunehmen.",
+  replaceFileCaption: "Datei ersetzen",
   removeFileCaption: "Datei löschen",
   booleanCheckedLabel: "Ja",
   booleanUncheckedLabel: "Nein",
@@ -102,4 +106,7 @@ surveyLocalization.localeNames["de"] = "deutsch";
 // noEntriesReadonlyText: "There are no entries." => "Es gibt keine Einträge."
 // tagboxDoneButtonCaption: "OK" => "OKAY"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle Auswahlmöglichkeiten sind in einer Rangfolge angeordnet"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Ziehen Sie die Auswahl hierher, um sie zu ordnen"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Ziehen Sie die Auswahl hierher, um sie zu ordnen"// takePhotoCaption: "Take Photo" => "Foto machen"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klicken Sie auf die Schaltfläche unten, um ein Foto mit der Kamera aufzunehmen."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Ziehen Sie eine Datei per Drag & Drop oder wählen Sie sie aus, um sie hochzuladen oder ein Foto mit der Kamera aufzunehmen."
+// replaceFileCaption: "Replace file" => "Datei ersetzen"

@@ -59,7 +59,7 @@ import { ArrayChanges } from "../src/base";
 import { settings } from "../src/settings";
 import { CalculatedValue } from "../src/calculatedValue";
 import { LocalizableString } from "../src/localizablestring";
-import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent } from "../src/utils/utils";
+import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrlForBackgroundImage } from "../src/utils/utils";
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
@@ -17331,7 +17331,7 @@ QUnit.test("backgroundImage", assert => {
     "backgroundImage": imageUrl,
   });
   assert.equal(survey.backgroundImage, imageUrl, "backgroundImage");
-  assert.equal(survey.renderBackgroundImage, ["url(", imageUrl, ")"].join(""), "renderBackgroundImage");
+  assert.equal(survey.renderBackgroundImage, wrapUrlForBackgroundImage(imageUrl), "renderBackgroundImage");
 });
 
 QUnit.test("If localizable string has isLocalizable set to false then it should have only one value", assert => {
@@ -17894,3 +17894,38 @@ QUnit.test("Error on pre-processing localizable string Bug#6967", function (asse
   assert.equal(survey.locCompleteText.renderedHtml, "2", "Preprocess correctly");
   surveyLocalization.locales.en.completeText = prevVal;
 });
+QUnit.test("clearInvisibleValues onHiddenContainer breaks defaultValueExpression for text input #7010", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "radiogroup",
+        "name": "q1",
+        "choices": [
+          "A",
+          "B"
+        ]
+      },
+      {
+        "type": "panel",
+        "name": "panel1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "q2",
+            "defaultValueExpression": "iif({q1} = 'A', 42, iif({q1} = 'B', 24, 0))"
+          }
+        ],
+        "visibleIf": "{q1} anyof ['other', 'A', 'B']"
+      }
+    ],
+    "clearInvisibleValues": "onHiddenContainer"
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "initial value on loading and clear on becoming invisible");
+  q1.value = "A";
+  assert.equal(q2.value, 42, "q1.value = A");
+  q1.value = "B";
+  assert.equal(q2.value, 24, "q1.value = B");
+});
+

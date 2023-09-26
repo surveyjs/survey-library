@@ -274,7 +274,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     this.setPropertyValue("state", val);
     this.notifyStateChanged();
   }
-  private notifyStateChanged() {
+  protected notifyStateChanged(): void {
     if (this.survey) {
       this.survey.elementContentVisibilityChanged(this);
     }
@@ -492,7 +492,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see readOnly
    */
   public get isReadOnly(): boolean {
-    return false;
+    return this.readOnly;
   }
   /**
    * Makes the survey element read-only.
@@ -501,7 +501,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * @see isReadOnly
    */
   public get readOnly(): boolean {
-    return this.getPropertyValue("readOnly", false);
+    return this.getPropertyValue("readOnly");
   }
   public set readOnly(val: boolean) {
     if (this.readOnly == val) return;

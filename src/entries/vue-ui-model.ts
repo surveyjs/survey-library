@@ -35,6 +35,11 @@ export { Dropdown } from "../vue/dropdown.vue";
 export { DropdownSelect } from "../vue/dropdown-select.vue";
 export { Tagbox } from "../vue/tagbox.vue";
 export { File } from "../vue/file.vue";
+export { FilePreview } from "../vue/file-preview.vue";
+export { FileCleanButton } from "../vue/file-clean-button.vue";
+export { FileVideo } from "../vue/file-video.vue";
+export { FileChooseButton } from "../vue/components/file-actions/file-choose-button.vue";
+
 export { MatrixCell } from "../vue/matrixcell.vue";
 export { MatrixHeaderRequired } from "../vue/matrixheaderrequired.vue";
 export { MatrixTable } from "../vue/matrixtable.vue";
@@ -96,6 +101,8 @@ export { NotifierComponent } from "../vue/components/notifier.vue";
 export { ComponentsContainer } from "../vue/components/container.vue";
 export { CharacterCounterComponent } from "../vue/components/character-counter.vue";
 export { LoadingIndicatorComponent } from "../vue/components/loading-indicator.vue";
+export { CoverCellViewModel } from "../vue/components/cover/cover-cell.vue";
+export { CoverViewModel } from "../vue/components/cover/cover.vue";
 
 import { SurveyModel } from "survey-core";
 

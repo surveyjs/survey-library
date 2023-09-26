@@ -75,6 +75,10 @@ export var welshSurveyStrings = {
   clearCaption: "Clirio",
   signaturePlaceHolder: "Arwydd yma",
   chooseFileCaption: "Dewiswch ffeil ",
+  takePhotoCaption: "Tynnu Llun",
+  cameraPlaceHolder: "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera.",
+  fileCameraDragAreaPlaceHolder: "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera.",
+  replaceFileCaption: "Amnewid ffeil",
   removeFileCaption: "Tynnu’r ffeil hon ",
   booleanCheckedLabel: "Iawn",
   booleanUncheckedLabel: "Na",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["cy"] = "cymraeg";
 // more: "More" => "Rhagor"
 // tagboxDoneButtonCaption: "OK" => "OCÊ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Mae'r holl ddewisiadau yn cael eu rhestru"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dewisiadau llusgo a gollwng yma i'w graddio"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dewisiadau llusgo a gollwng yma i'w graddio"// takePhotoCaption: "Take Photo" => "Tynnu Llun"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera."
+// replaceFileCaption: "Replace file" => "Amnewid ffeil"

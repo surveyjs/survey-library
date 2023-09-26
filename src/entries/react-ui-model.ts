@@ -48,6 +48,7 @@ export {
 } from "../react/reactquestion_matrix";
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";
+export { SurveyFileChooseButton } from "../react/components/file-actions/file-choose-button";
 export { SurveyQuestionMultipleText } from "../react/reactquestion_multipletext";
 export { SurveyQuestionRadiogroup, SurveyQuestionRadioItem } from "../react/reactquestion_radiogroup";
 export { SurveyQuestionText } from "../react/reactquestion_text";
@@ -97,6 +98,7 @@ export { Skeleton } from "../react/components/skeleton";
 export { NotifierComponent } from "../react/components/notifier";
 export { ComponentsContainer } from "../react/components/components-container";
 export { CharacterCounterComponent } from "../react/components/character-counter";
+export * from "../react/components/cover";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

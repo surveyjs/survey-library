@@ -6169,6 +6169,48 @@ QUnit.test("nested panel.panelCount&expression question", function (assert) {
   const panel1 = rootPanel.panels[0].getQuestionByName("panel2");
   assert.equal(panel1.panels.length, 3, "It should be 3 panels");
 });
+QUnit.test("templateElements question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  let counter = 0;
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  panel.panels[1].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  survey.doComplete();
+  assert.equal(counter, 2, "on do complete");
+});
+QUnit.test("templateElements question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [{
+      "name": "panel",
+      "type": "paneldynamic",
+      "panelCount": 2,
+      "renderMode": "tab",
+      "templateElements": [
+        {
+          "name": "q1",
+          "type": "text",
+        }
+      ]
+    }]
+  });
+  let counter = 0;
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.panels[0].getQuestionByName("q1").onHidingContent = (): void => { counter ++; };
+  panel.currentIndex = 1;
+  assert.equal(counter, 1, "Go to another tab");
+});
 QUnit.test("nested panel.panelCount&expression question", function (assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -6251,4 +6293,105 @@ QUnit.test("Footer css for nested panels", function(assert) {
   nested.addPanel();
   assert.equal(nested.panels[1].getFooterToolbar().containerCss, footerCss, "nested footer container css on creating");
   delete defaultStandardCss.paneldynamic["panelFooter"];
+});
+QUnit.test("question.resetValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "text" },
+          { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1" },
+          { name: "q3", type: "text" }
+        ]
+      }
+    ]
+  });
+  const panel = survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  const q3 = panel.panels[0].getQuestionByName("q3");
+  assert.equal(q2.resetValueIf, "{panel.q1} = 1", "Load from JSON");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 3;
+  assert.equal(q2.value, "edf", "value is stay, #3");
+});
+QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [{
+          name: "q1",
+          type: "text"
+        },
+        {
+          name: "q2",
+          type: "text",
+          resetValueIf: "{panel.q1} = 1",
+          defaultValueExpression: "iif({panel.q3} > 2, {panel.q3}, '')"
+        },
+        {
+          name: "q3", type: "text"
+        }]
+      }
+    ]
+  });
+  const panel = survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  const q3 = panel.panels[0].getQuestionByName("q3");
+  q2.value = "abc";
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set directly");
+  q1.value = 1;
+  assert.equal(q2.value, 3, "value is set from defaultValueExpression");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set directly, #2");
+  q3.value = 4;
+  assert.equal(q2.value, "edf", "value is stay, #3");
+});
+QUnit.test("question.resetValueIf based on root and row questions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "text" },
+          { name: "q2", type: "text", resetValueIf: "{panel.q1} = 1 and {q4} = 4" },
+          { name: "q3", type: "text" }
+        ]
+      },
+      { type: "text", name: "q4" }
+    ]
+  });
+  const panel = survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  const q3 = panel.panels[0].getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "q2.value #1");
+  q1.value = 1;
+  assert.equal(q2.value, "abc", "q2.value #2");
+  q4.value = 4;
+  assert.equal(q2.isEmpty(), true, "q2.value #3");
+  q2.value = "edf";
+  q1.value = 2;
+  assert.equal(q2.value, "edf", "q2.value, #4");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "q2.value #5");
 });

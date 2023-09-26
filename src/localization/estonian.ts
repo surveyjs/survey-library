@@ -75,6 +75,10 @@ export var estonianSurveyStrings = {
   clearCaption: "Puhasta",
   signaturePlaceHolder: "Allkirjasta siin",
   chooseFileCaption: "Vali fail",
+  takePhotoCaption: "Pildistamine",
+  cameraPlaceHolder: "Kaamera abil pildistamiseks klõpsake allolevat nuppu.",
+  fileCameraDragAreaPlaceHolder: "Pukseerige või valige üleslaaditav fail või pildistage seda kaamera abil.",
+  replaceFileCaption: "Asenda fail",
   removeFileCaption: "Eemalda see fail",
   booleanCheckedLabel: "Jah",
   booleanUncheckedLabel: "Ei",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["et"] = "eesti keel";
 // more: "More" => "Rohkem"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Kõik valikud on järjestatud"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Lohistage valikuid siia, et neid järjestada"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Lohistage valikuid siia, et neid järjestada"// takePhotoCaption: "Take Photo" => "Pildistamine"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kaamera abil pildistamiseks klõpsake allolevat nuppu."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Pukseerige või valige üleslaaditav fail või pildistage seda kaamera abil."
+// replaceFileCaption: "Replace file" => "Asenda fail"

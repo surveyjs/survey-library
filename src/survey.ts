@@ -43,7 +43,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
@@ -71,6 +71,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
+import { Cover } from "./cover";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1161,6 +1162,31 @@ export class SurveyModel extends SurveyElementCore
   @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
+  @property({
+    onSet: (newValue, target: SurveyModel) => {
+      if (newValue === "cover") {
+        const layoutElement = target.layoutElements.filter(a => a.id === newValue)[0];
+        if (!layoutElement) {
+          var cover = new Cover();
+          cover.logoPositionX = target.logoPosition === "right" ? "right" : "left";
+          cover.logoPositionY = "middle";
+          cover.titlePositionX = target.logoPosition === "right" ? "left" : "right";
+          cover.titlePositionY = "middle";
+          cover.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
+          cover.descriptionPositionY = "middle";
+          cover.survey = target;
+          target.layoutElements.unshift({
+            id: "cover",
+            container: "header",
+            component: "sv-cover",
+            data: cover
+          });
+        }
+      } else {
+        target.removeLayoutElement("cover");
+      }
+    }
+  }) titleView: "cover" | "title";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -2072,7 +2098,7 @@ export class SurveyModel extends SurveyElementCore
   @property() renderBackgroundImage: string;
   private updateRenderBackgroundImage(): void {
     const path = this.backgroundImage;
-    this.renderBackgroundImage = !!path ? ["url(", path, ")"].join("") : "";
+    this.renderBackgroundImage = wrapUrlForBackgroundImage(path);
   }
   @property() backgroundImageFit: ImageFit;
   @property({ onSet: (newValue, target: SurveyModel) => {
@@ -3303,11 +3329,16 @@ export class SurveyModel extends SurveyElementCore
     return allow;
   }
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
+    this.notifyQuestionsOnHidingContent(oldValue);
     const options = this.createPageChangeEventOptions(newValue, oldValue);
     if (options.isNextPage) {
       oldValue.passed = true;
     }
     this.onCurrentPageChanged.fire(this, options);
+  }
+  private notifyQuestionsOnHidingContent(page: PageModel): void {
+    if(!page) return;
+    page.questions.forEach(q => q.onHidingContent());
   }
   private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
     const diff = !!newValue && !!oldValue ? newValue.visibleIndex - oldValue.visibleIndex : 0;
@@ -4198,6 +4229,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.checkOnPageTriggers(true);
     this.stopTimer();
+    this.notifyQuestionsOnHidingContent(this.currentPage);
     this.isCompleted = true;
     this.clearUnusedValues();
     this.saveDataOnComplete(isCompleteOnTrigger, completeTrigger);
@@ -4262,6 +4294,7 @@ export class SurveyModel extends SurveyElementCore
     this.isCurrentPageRendering = true;
     if (this.checkIsPageHasErrors(this.startedPage, true)) return false;
     this.isStartedState = false;
+    this.notifyQuestionsOnHidingContent(this.pages[0]);
     this.startTimerFromUI();
     this.onStarted.fire(this, {});
     this.updateVisibleIndexes();
@@ -5626,6 +5659,7 @@ export class SurveyModel extends SurveyElementCore
       this.isValueChangedOnRunningCondition = true;
     } else {
       this.runConditions();
+      this.runQuestionsTriggers(name, value);
     }
   }
   private runConditionsCore(properties: any) {
@@ -5641,9 +5675,14 @@ export class SurveyModel extends SurveyElementCore
       );
     }
     super.runConditionCore(this.conditionValues, properties);
-    for (var i = 0; i < pages.length; i++) {
+    for (let i = 0; i < pages.length; i++) {
       pages[i].runCondition(this.conditionValues, properties);
     }
+  }
+  private runQuestionsTriggers(name: string, value: any): void {
+    if(this.isDisplayMode || this.isDesignMode) return;
+    const questions = this.getAllQuestions(true);
+    questions.forEach(q => q.runTriggers(name, value));
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
     var newCurrentPageIndex = this.pages.indexOf(this.currentPage);
@@ -7291,7 +7330,19 @@ export class SurveyModel extends SurveyElementCore
 
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
+
     Object.keys(theme).forEach((key: keyof ITheme) => {
+      if (key === "cover") {
+        this.removeLayoutElement("cover");
+        const newCoverModel = new Cover();
+        newCoverModel.fromJSON(theme[key]);
+        this.layoutElements.push({
+          id: "cover",
+          container: "header",
+          component: "sv-cover",
+          data: newCoverModel
+        });
+      }
       if (key === "isPanelless") {
         this.isCompact = theme[key];
       } else {
@@ -7586,6 +7637,7 @@ Serializer.addClass("survey", [
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
+  { name: "titleView", default: "title", choices: ["title", "cover"], visible: false },
   { name: "backgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

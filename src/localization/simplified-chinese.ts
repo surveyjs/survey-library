@@ -75,6 +75,10 @@ export var simplifiedChineseSurveyStrings = {
   clearCaption: "清除",
   signaturePlaceHolder: "在此签名",
   chooseFileCaption: "选择文件",
+  takePhotoCaption: "拍照",
+  cameraPlaceHolder: "单击下面的按钮使用相机拍照。",
+  fileCameraDragAreaPlaceHolder: "拖放或选择要上传的文件或使用相机拍摄照片。",
+  replaceFileCaption: "替换文件",
   removeFileCaption: "移除文件",
   booleanCheckedLabel: "是",
   booleanUncheckedLabel: "否",
@@ -110,4 +114,7 @@ surveyLocalization.localeNames["zh-cn"] = "简体中文";
 // more: "More" => "更多"
 // tagboxDoneButtonCaption: "OK" => "还行"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "所有选择均已排名"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "将选项拖放到此处进行排名"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "将选项拖放到此处进行排名"// takePhotoCaption: "Take Photo" => "拍照"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "单击下面的按钮使用相机拍照。"
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "拖放或选择要上传的文件或使用相机拍摄照片。"
+// replaceFileCaption: "Replace file" => "替换文件"

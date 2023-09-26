@@ -75,6 +75,10 @@ export var vietnameseSurveyStrings = {
   clearCaption: "Xóa",
   signaturePlaceHolder: "Ký tên tại đây",
   chooseFileCaption: "Chọn tập tin",
+  takePhotoCaption: "Chụp ảnh",
+  cameraPlaceHolder: "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh.",
+  fileCameraDragAreaPlaceHolder: "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh.",
+  replaceFileCaption: "Thay thế tập tin",
   removeFileCaption: "Xóa tập tin",
   booleanCheckedLabel: "Có",
   booleanUncheckedLabel: "Không",
@@ -117,4 +121,7 @@ surveyLocalization.localeNames["vi"] = "Việt Nam";
 // more: "More" => "Nhiều hơn"
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tất cả các lựa chọn được xếp hạng"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"// takePhotoCaption: "Take Photo" => "Chụp ảnh"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh."
+// replaceFileCaption: "Replace file" => "Thay thế tập tin"

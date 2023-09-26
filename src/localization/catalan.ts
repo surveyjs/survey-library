@@ -75,6 +75,10 @@ export var catalanSurveyStrings = {
   clearCaption: "Clar",
   signaturePlaceHolder: "Inscriu-te aquí",
   chooseFileCaption: "Tria un fitxer",
+  takePhotoCaption: "Fer foto",
+  cameraPlaceHolder: "Feu clic al botó següent per fer una foto amb la càmera.",
+  fileCameraDragAreaPlaceHolder: "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera.",
+  replaceFileCaption: "Substitueix el fitxer",
   removeFileCaption: "Suprimeix aquest fitxer",
   booleanCheckedLabel: "Sí",
   booleanUncheckedLabel: "No",
@@ -156,4 +160,7 @@ surveyLocalization.localeNames["ca"] = "català";
 // more: "More" => "Més"
 // tagboxDoneButtonCaption: "OK" => "D'ACORD"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Totes les opcions estan classificades"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrossegueu i deixeu anar les opcions aquí per classificar-les"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrossegueu i deixeu anar les opcions aquí per classificar-les"// takePhotoCaption: "Take Photo" => "Fer foto"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Feu clic al botó següent per fer una foto amb la càmera."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera."
+// replaceFileCaption: "Replace file" => "Substitueix el fitxer"

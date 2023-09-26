@@ -75,6 +75,10 @@ export var persianSurveyStrings = {
   clearCaption: "خالی کردن",
   signaturePlaceHolder: "اینجا را امضا کنید",
   chooseFileCaption: "انتخاب فایل",
+  takePhotoCaption: "گرفتن عکس",
+  cameraPlaceHolder: "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید.",
+  fileCameraDragAreaPlaceHolder: "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین.",
+  replaceFileCaption: "جایگزینی پرونده",
   removeFileCaption: "حذف این فایل",
   booleanCheckedLabel: "بله",
   booleanUncheckedLabel: "خیر",
@@ -116,4 +120,7 @@ surveyLocalization.localeNames["fa"] = "فارْسِى";
 // more: "More" => "بیشتر"
 // tagboxDoneButtonCaption: "OK" => "باشه"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "همه انتخاب ها رتبه بندی می شوند"
-// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها"// takePhotoCaption: "Take Photo" => "گرفتن عکس"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین."
+// replaceFileCaption: "Replace file" => "جایگزینی پرونده"

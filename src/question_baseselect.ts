@@ -1697,6 +1697,9 @@ export class QuestionSelectBase extends Question {
     return !this.isInputReadOnly && item.isEnabled;
   }
   protected rootElement: HTMLElement;
+  public getRootElement() {
+    return this.rootElement;
+  }
   public afterRender(el: HTMLElement) {
     super.afterRender(el);
     this.rootElement = el;

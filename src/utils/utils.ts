@@ -1,6 +1,7 @@
 import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
 import { IDialogOptions } from "../popup";
+import { surveyLocalization } from "src/surveyStrings";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -403,11 +404,9 @@ export class Logger {
 
 export function showConfirmDialog(message: string, callback: (res: boolean) => void): boolean {
   const locStr = new LocalizableString(undefined);
-  //locStr.text = getLocString("ed.lg.uncompletedRule_text");
-
   const popupModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
-    data: { locStr: message, locString: message, model: message }, //TODO fix in library
+    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
     onApply: () => {
       callback(true);
       return true;
@@ -416,17 +415,18 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
       callback(false);
       return false;
     },
-    //title: getLocString("ed.lg.uncompletedRule_title"),
     title: message,
-    displayMode: "popup"
+    displayMode: "popup",
+    cssClass: "sv-popup--confirm-delete"
   }, /*this.options.rootElement*/document.body); //TODO survey root
   const toolbar = popupModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
-  // const cancelBtn = toolbar.getActionById("cancel");
-  // cancelBtn.title = this.getLocString("ed.lg.uncompletedRule_cancel");
-  // applyBtn.title = this.getLocString("ed.lg.uncompletedRule_apply");
-  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button--danger sd-btn sd-btn--danger";
-  // popupModel.width = "800px";
+  const cancelBtn = toolbar.getActionById("cancel");
+  cancelBtn.title = surveyLocalization.getString("modalCancelButtonText");
+  cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
+  applyBtn.title = surveyLocalization.getString("modalApplyButtonText");
+  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
+  popupModel.width = "452px";
   return true;
 }
 

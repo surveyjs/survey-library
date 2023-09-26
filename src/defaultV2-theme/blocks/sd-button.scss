@@ -21,6 +21,11 @@
   outline: none;
 }
 
+.sd-btn--small {
+  flex-grow: 1;
+  padding: calcSize(2) calcSize(4);
+}
+
 .sd-btn:hover {
   background-color: $background-dark;
 }

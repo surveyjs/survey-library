@@ -144,7 +144,6 @@ export class QuestionFileModel extends Question {
       iconName: "icon-choosefile",
       id: "sv-file-choose-file",
       iconSize: "auto",
-      visible: <boolean>(new ComputedUpdater<boolean>(() => this.hasFileUI) as any),
       data: { question: this },
       component: "sv-file-choose-btn"
     });
@@ -153,7 +152,6 @@ export class QuestionFileModel extends Question {
       id: "sv-file-start-camera",
       iconSize: "auto",
       title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
-      visible: <boolean>(new ComputedUpdater<boolean>(() => this.hasVideoUI) as any),
       showTitle: <boolean>(new ComputedUpdater<boolean>(() => !this.isAnswered) as any),
       action: () => {
         this.startVideo();
@@ -163,7 +161,6 @@ export class QuestionFileModel extends Question {
       iconName: "icon-clear",
       id: "sv-file-clean",
       iconSize: "auto",
-      visible: <boolean>(new ComputedUpdater<boolean>(() => !!this.isAnswered) as any),
       title: <string>(new ComputedUpdater<string>(() => this.clearButtonCaption) as any),
       showTitle: false,
       innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.removeButton) as any),
@@ -174,6 +171,11 @@ export class QuestionFileModel extends Question {
     [this.closeCameraAction, this.changeCameraAction, this.takePictureAction].forEach((action) => {
       action.cssClasses = {};
     });
+    this.registerFunctionOnPropertiesValueChanged(["currentMode", "isAnswered"], () => {
+      this.updateActions();
+    });
+    this.updateActions();
+
     this.actionsContainer.actions = [this.chooseFileAction, this.startCameraAction, this.cleanAction];
     this.fileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
@@ -458,6 +460,11 @@ export class QuestionFileModel extends Question {
         this.setPropertyValue("currentMode", this.mode);
       }
     }
+  }
+  private updateActions() {
+    this.chooseFileAction.visible = this.hasFileUI;
+    this.startCameraAction.visible = this.hasVideoUI;
+    this.cleanAction.visible = !!this.isAnswered;
   }
   get inputTitle(): string {
     if (this.isUploading) return this.loadingFileTitle;
@@ -833,6 +840,7 @@ export class QuestionFileModel extends Question {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     this.updateCurrentMode();
+    this.updateActions();
     this.loadPreview(this.value);
   }
   protected needResponsiveness(): boolean {

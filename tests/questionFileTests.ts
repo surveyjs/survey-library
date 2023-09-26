@@ -1473,6 +1473,30 @@ QUnit.test("QuestionFile current mode property, camera is available", function(a
   Camera.mediaDevicesCallback = undefined;
   StylesManager.applyTheme("default");
 });
+QUnit.test("QuestionFile check file actions visibility when camera is available from start point", function(assert) {
+  StylesManager.applyTheme("defaultV2");
+  Camera.setCameraList(<any>[{ label: "test" }]);
+  let survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", mode: "camera" },
+      { type: "file", name: "q2", mode: "file" },
+      { type: "file", name: "q3", mode: "both" }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").currentMode, "camera");
+  assert.notOk(survey.getQuestionByName("q1").actionsContainer.actions[0].visible);
+  assert.ok(survey.getQuestionByName("q1").actionsContainer.actions[1].visible);
+
+  assert.equal(survey.getQuestionByName("q2").currentMode, "file");
+  assert.ok(survey.getQuestionByName("q2").actionsContainer.actions[0].visible);
+  assert.notOk(survey.getQuestionByName("q2").actionsContainer.actions[1].visible);
+
+  assert.equal(survey.getQuestionByName("q3").currentMode, "both");
+  assert.ok(survey.getQuestionByName("q3").actionsContainer.actions[0].visible);
+  assert.ok(survey.getQuestionByName("q3").actionsContainer.actions[1].visible);
+  Camera.clear();
+  StylesManager.applyTheme("default");
+});
 QUnit.test("new Camera().getMediaConstraints", function(assert) {
   Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
   let mConst: any = new Camera().getMediaConstraints();

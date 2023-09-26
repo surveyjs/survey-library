@@ -9,7 +9,7 @@
           :width="model.survey.renderedLogoWidth"
           :height="model.survey.renderedLogoHeight"
           :alt="model.survey.locTitle.renderedHtml"
-          v-bind:style="{ objectFit: model.survey.logoFit, width: model.survey.renderedStyleLogoWidth, height: model.survey.renderedStyleLogoHeight }"
+          :style="{ 'objectFit': model.survey.logoFit, 'width': model.survey.renderedStyleLogoWidth, 'height': model.survey.renderedStyleLogoHeight }"
         />
       </div>
       </div>

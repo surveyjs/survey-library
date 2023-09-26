@@ -54,7 +54,7 @@ export class QuestionFileModel extends Question {
     if(!obj.isLoadingFromJson) {
       obj.updateCurrentMode();
     }
-  } }) mode: string;
+  } }) sourceType: string;
 
   public fileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -442,7 +442,7 @@ export class QuestionFileModel extends Question {
     return this.renderedPlaceholderValue;
   }
   public get currentMode(): string {
-    return this.getPropertyValue("currentMode", this.mode);
+    return this.getPropertyValue("currentMode", this.sourceType);
   }
   public get isPlayingVideo(): boolean {
     return this.getPropertyValue("isPlayingVideo", false);
@@ -452,12 +452,12 @@ export class QuestionFileModel extends Question {
   }
   private updateCurrentMode(): void {
     if(!this.isDesignMode) {
-      if(this.mode !== "file") {
+      if(this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
-          this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.mode : "file");
+          this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
         });
       } else {
-        this.setPropertyValue("currentMode", this.mode);
+        this.setPropertyValue("currentMode", this.sourceType);
       }
     }
   }
@@ -994,7 +994,7 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
     { name: "allowCameraAccess:switch", category: "general" },
-    { name: "mode", choices: ["file", "camera", "both"], default: "file", category: "general", visible: false }
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true }
   ],
   function () {
     return new QuestionFileModel("");

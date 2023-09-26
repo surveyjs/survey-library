@@ -616,7 +616,7 @@ registerMarkupTests(
     before: () => StylesManager.applyTheme("defaultV2"),
     initSurvey: (survey) => {
       survey.getAllQuestions()[0]["updateCurrentMode"] = () => {};
-      survey.getAllQuestions()[0].setPropertyValue("currentMode", "both");
+      survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
     },
     after: () => StylesManager.applyTheme("default"),
     snapshot: "file-mode-both",

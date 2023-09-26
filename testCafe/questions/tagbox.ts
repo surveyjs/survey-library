@@ -950,4 +950,95 @@ frameworks.forEach((framework) => {
 
       .resizeWindow(1280, 1100);
   });
+
+  test.page(`${url_test}${theme}/${framework}`)("Check tagbox popup opens after beak click", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "tagbox",
+          name: "cars",
+          title: "Tagbox",
+          searchEnabled: false,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .expect(dropdownWidth).gt(550)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Check tagbox popup opens after beak click - search enabled", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "tagbox",
+          name: "cars",
+          title: "Tagbox",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .expect(dropdownWidth).gt(550)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
+  });
 });

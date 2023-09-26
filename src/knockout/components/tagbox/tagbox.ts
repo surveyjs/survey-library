@@ -13,6 +13,9 @@ ko.components.register("sv-tagbox", {
       const click = (_: any, e: any) => {
         q.dropdownListModel?.onClick(e);
       };
+      const chevronButtonClick = (_: any, e: any) => {
+        q.dropdownListModel?.chevronButtonClick(e);
+      };
       const clear = (_: any, e: any) => {
         q.dropdownListModel?.onClear(e);
       };
@@ -34,7 +37,7 @@ ko.components.register("sv-tagbox", {
         q.dropdownListModel = new DropdownMultiSelectListModel(q);
       }
       new ImplementorBase(q.dropdownListModel);
-      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, focus: focus, inputKeyHandler: inputKeyHandler };
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, focus: focus, inputKeyHandler: inputKeyHandler, chevronButtonClick: chevronButtonClick };
     },
   },
   template: template,

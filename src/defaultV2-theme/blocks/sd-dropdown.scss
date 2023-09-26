@@ -10,8 +10,7 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  padding-inline-end: calcSize(6); //padding-right
-  padding-inline-start: calcSize(2); //padding-left
+  padding: 0;
 
   opacity: 1;
   display: flex;
@@ -48,7 +47,9 @@
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
   font-size: $font-editorfont-size;
-
+  padding: calcSize(1.5);
+    padding-inline-end: calcSize(6); //padding-right
+    padding-inline-start: calcSize(2); //padding-left
   position: relative;
 }
 
@@ -58,6 +59,9 @@
   align-items: center;
   padding: 0 calcSize(1);
   margin: auto 0;
+  position: absolute;
+    height: 100%;
+    right: calcSize(6);
 }
 
 .sd-dropdown_chevron-button {
@@ -76,6 +80,8 @@
 .sd-dropdown_clean-button-svg {
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
+  cursor: pointer;
+    z-index: 3000;
 }
 
 .sd-input.sd-dropdown:focus-within {
@@ -96,7 +102,10 @@
   max-width: 100%;
   border: none;
   outline: none;
-  padding: 0;
+  padding: calcSize(1.5);
+    padding-inline-end: calcSize(6); //padding-right
+    padding-inline-start: calcSize(2); //padding-left
+    box-sizing: border-box;
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
@@ -128,7 +137,10 @@
 
 .sd-dropdown__hint-prefix {
   color: $font-editorfont-placeholdercolor;
-
+  padding: calcSize(1.5);
+    padding-inline-end: calcSize(0); //padding-right
+    padding-inline-start: calcSize(2); //padding-left
+    margin-inline-end: calcSize(-2);
   span {
     white-space: pre;
   }

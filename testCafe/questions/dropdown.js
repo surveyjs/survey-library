@@ -1943,6 +1943,57 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).ok()
 
       .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click - search enabled", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .expect(dropdownWidth).gt(550)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
       .expect(popupContainer.visible).notOk();
   });
 

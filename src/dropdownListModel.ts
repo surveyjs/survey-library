@@ -362,11 +362,16 @@ export class DropdownListModel extends Base {
     if (this.question.readOnly || this.question.isDesignMode) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    if (this.searchEnabled && !!event && !!event.target) {
-      const input = event.target.querySelector("input");
-      if (!!input) {
+    if (!!event && !!event.target) {
+      const input = event.target.closest("." + this.question.cssClasses.root).querySelector("input");
+      if (!!input && this._popupModel.isVisible) {
         input.focus();
       }
+    }
+  }
+  public chevronButtonClick(event: any): void {
+    if (this._popupModel.isVisible) {
+      event.preventDefault();
     }
   }
 

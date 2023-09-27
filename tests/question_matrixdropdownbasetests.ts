@@ -806,6 +806,52 @@ QUnit.test("question.resetValueIf based on root and row questions", function (as
   q1.value = 1;
   assert.equal(q2.isEmpty(), true, "q2.value #5");
 });
+QUnit.test("question.resetValueIf, cycle calls", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 1,
+        "columns": [
+          {
+            "name": "dog",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.none} notempty",
+            "choices": ["dog"]
+          },
+          {
+            "name": "cat",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.none} notempty",
+            "choices": ["cat"]
+          },
+          {
+            "name": "none",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.dog} notempty or {row.cat} notempty",
+            "choices": ["none"]
+          }]
+      }
+    ] });
+  const row = survey.getQuestionByName("matrix").visibleRows[0];
+  const q1 = row.getQuestionByName("dog");
+  const q2 = row.getQuestionByName("cat");
+  const q3 = row.getQuestionByName("none");
+  q1.value = ["dog"];
+  q2.value = ["cat"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #1");
+  assert.deepEqual(q2.value, ["cat"], "q2.value #1");
+  assert.equal(q3.isEmpty(), true, "q3.value #1");
+  q3.value = ["none"];
+  assert.equal(q1.isEmpty(), true, "q1.value #2");
+  assert.equal(q2.isEmpty(), true, "q2.value #2");
+  assert.deepEqual(q3.value, ["none"], "q3.value #2");
+  q1.value = ["dog"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #3");
+  assert.equal(q3.isEmpty(), true, "q2.value #3");
+  assert.equal(q3.isEmpty(), true, "q3.value #3");
+});
 QUnit.test("question.onHidingContent", function (assert) {
   const survey = new SurveyModel({
     questionErrorLocation: "bottom",

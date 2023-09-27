@@ -182,6 +182,8 @@ ko.components.register("survey", {
       ensureSurvey(survey);
       setTimeout(() => {
         var surveyRoot = document.createElement("div");
+        surveyRoot.style.width = "100%";
+        surveyRoot.style.height = "100%";
         componentInfo.element.appendChild(surveyRoot);
         survey.render(surveyRoot);
       }, 1);

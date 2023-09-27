@@ -49,6 +49,9 @@ export class QuestionHtmlModel extends QuestionNonValue {
   private processHtml(html: string): string {
     return this.survey ? this.survey.processHtml(html, "html-question") : this.html;
   }
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
 }
 Serializer.addClass(
   "html",

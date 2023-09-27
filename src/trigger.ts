@@ -117,9 +117,14 @@ export class Trigger extends Base {
     if (!this.isCheckRequired(keys)) return;
     if (!!this.conditionRunner) {
       this.perform(values, properties);
+    } else {
+      if(this.canSuccessOnEmptyExpression()) {
+        this.triggerResult(true, values, properties);
+      }
     }
   }
-  public check(value: any) {
+  protected canSuccessOnEmptyExpression(): boolean { return false; }
+  public check(value: any): void {
     var triggerResult = Trigger.operators[this.operator](value, this.value);
     if (triggerResult) {
       this.onSuccess({}, null);
@@ -174,8 +179,12 @@ export class Trigger extends Base {
   private isCheckRequired(keys: any): boolean {
     if (!keys) return false;
     this.createConditionRunner();
-    if (this.conditionRunner.hasFunction() === true) return true;
-    return new ProcessValue().isAnyKeyChanged(keys, this.conditionRunner.getVariables());
+    if (this.conditionRunner && this.conditionRunner.hasFunction() === true) return true;
+    return new ProcessValue().isAnyKeyChanged(keys, this.getUsedVariables());
+  }
+  protected getUsedVariables(): string[] {
+    if(!this.conditionRunner) return [];
+    return this.conditionRunner.getVariables();
   }
   private createConditionRunner() {
     if (!!this.conditionRunner) return;
@@ -430,6 +439,14 @@ export class SurveyTriggerCopyValue extends SurveyTrigger {
   protected onSuccess(values: HashTable<any>, properties: HashTable<any>): void {
     if (!this.setToName || !this.owner) return;
     this.owner.copyTriggerValue(this.setToName, this.fromName, this.copyDisplayValue);
+  }
+  protected canSuccessOnEmptyExpression(): boolean { return true; }
+  protected getUsedVariables(): string[] {
+    const res = super.getUsedVariables();
+    if(res.length === 0 && !!this.fromName) {
+      res.push(this.fromName);
+    }
+    return res;
   }
 }
 

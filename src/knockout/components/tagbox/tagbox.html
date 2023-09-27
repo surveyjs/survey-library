@@ -69,7 +69,7 @@
   </div>
   <!-- /ko -->
   <!-- ko if: question.cssClasses.chevronButtonIconId -->
-  <div data-bind="css: question.cssClasses.chevronButton, event: {pointerdown: chevronButtonClick}">
+  <div data-bind="css: question.cssClasses.chevronButton, event: {pointerdown: chevronPointerDown}">
     <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: 'auto' } } -->
     <!-- /ko -->
   </div>

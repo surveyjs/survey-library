@@ -49,7 +49,7 @@
     </div>
     <div
       :class="question.cssClasses.chevronButton"
-        v-on:pointerdown="chevronButtonClick"
+          v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
     >
       <sv-svg-icon
@@ -88,8 +88,8 @@ export class TagboxComponent extends BaseVue {
   public clear(event: any) {
     this.question.dropdownListModel?.onClear(event);
   }
-  public chevronButtonClick(event: any) {
-    this.question.dropdownListModel?.chevronButtonClick(event);
+  public chevronPointerDown(event: any) {
+    this.question.dropdownListModel?.chevronPointerDown(event);
   }
   public keyhandler(event: any) {
     this.question.dropdownListModel?.keyHandler(event);

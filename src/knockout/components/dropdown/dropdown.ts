@@ -13,8 +13,8 @@ ko.components.register("sv-dropdown", {
       const click = (_: any, e: any) => {
         q.dropdownListModel?.onClick(e);
       };
-      const chevronButtonClick = (_: any, e: any) => {
-        q.dropdownListModel?.chevronButtonClick(e);
+      const chevronPointerDown = (_: any, e: any) => {
+        q.dropdownListModel?.chevronPointerDown(e);
       };
       const clear = (_: any, e: any) => {
         q.dropdownListModel?.onClear(e);
@@ -33,7 +33,7 @@ ko.components.register("sv-dropdown", {
         q.dropdownListModel = new DropdownListModel(params.question);
       }
       new ImplementorBase(q.dropdownListModel);
-      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, focus: focus, chevronButtonClick: chevronButtonClick };
+      return { question: q, model: q.dropdownListModel, click: click, clear: clear, keyhandler: keyhandler, blur: blur, focus: focus, chevronPointerDown: chevronPointerDown };
     },
   },
   template: template,

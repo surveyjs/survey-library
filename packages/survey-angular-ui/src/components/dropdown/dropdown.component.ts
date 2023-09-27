@@ -26,8 +26,8 @@ export class DropdownComponent extends BaseAngular implements OnInit {
     click(event: any) {
       this.dropdownModel?.onClick(event);
     }
-    chevronButtonClick(event: any) {
-      this.dropdownModel?.chevronButtonClick(event);
+  chevronPointerDown(event: any) {
+    this.dropdownModel?.chevronPointerDown(event);
     }
     clear(event: any) {
       this.dropdownModel?.onClear(event);

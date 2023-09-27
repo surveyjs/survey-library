@@ -364,7 +364,7 @@ export class DropdownListModel extends Base {
     this.focusItemOnClickAndPopup();
     this.question.focus();
   }
-  public chevronButtonClick(event: any): void {
+  public chevronPointerDown(event: any): void {
     if (this._popupModel.isVisible) {
       event.preventDefault();
     }

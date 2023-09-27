@@ -245,6 +245,7 @@ export {
 } from "../../question_buttongroup";
 export { IsMobile, IsTouch, _setIsTouch } from "../../utils/devices";
 export {
+  confirmAction,
   confirmActionAsync,
   detectIEOrEdge,
   doKey2ClickUp,

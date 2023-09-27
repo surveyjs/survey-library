@@ -384,8 +384,8 @@ export class QuestionPanelDynamicModel extends Question
    *
    * The template can contain the following placeholders:
    *
-   * - `{panelIndex}` - A zero-based index of a panel in the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
-   * - `{visiblePanelIndex}` - A zero-based index of a panel in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array.
+   * - `{panelIndex}` - A panel index within the collection of all panels. Starts with 1.
+   * - `{visiblePanelIndex}` - A panel index within the collection of visible panels. Starts with 1.
    * @see template
    * @see templateDescription
    * @see templateElements
@@ -406,8 +406,8 @@ export class QuestionPanelDynamicModel extends Question
    *
    * The template can contain the following placeholders:
    *
-   * - `{panelIndex}` - A zero-based index of a panel in the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
-   * - `{visiblePanelIndex}` - A zero-based index of a panel in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array.
+   * - `{panelIndex}` - A panel index within the collection of all panels. Starts with 1.
+   * - `{visiblePanelIndex}` - A panel index within the collection of visible panels. Starts with 1.
    * @see templateTitle
    * @see renderMode
    */

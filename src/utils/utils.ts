@@ -428,9 +428,9 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const toolbar = popupViewModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
-  cancelBtn.title = surveyLocalization.getString("modalCancelButtonText");
+  cancelBtn.title = surveyLocalization.getString("cancel");
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
-  applyBtn.title = surveyLocalization.getString("modalApplyButtonText");
+  applyBtn.title = surveyLocalization.getString("ok");
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
   popupViewModel.width = "452px";
   return true;

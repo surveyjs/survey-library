@@ -170,7 +170,6 @@ frameworks.forEach(framework => {
     await t.click(".sv_q_file_remove_button").click(".sv-popup--confirm-delete .sd-btn--danger");
     assert.equal(await checkValue(), true);
 
-
     // await t
     //   .setNativeDialogHandler(() => {
     //     return false;

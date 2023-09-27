@@ -202,7 +202,7 @@ frameworks.forEach(framework => {
   });
 
   test("show bottom progress bar", async t => {
-    const progressRootElement = Selector(".sv_main > form > .sv_container .sv-components-row ~ div");
+    const progressRootElement = Selector(".sv_main > div > form > .sv_container .sv-components-row ~ div");
     await t.expect(progressbar.exists).notOk();
 
     await show_bottom_progress_bar();

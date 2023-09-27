@@ -442,6 +442,7 @@ export {
   isContainerVisible,
   classesToSelector,
   compareVersions,
+  confirmAction,
   confirmActionAsync,
   detectIEOrEdge,
   detectIEBrowser,

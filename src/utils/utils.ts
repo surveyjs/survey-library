@@ -2,6 +2,7 @@ import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
 import { IDialogOptions } from "../popup";
 import { surveyLocalization } from "../surveyStrings";
+import { PopupBaseViewModel } from "../popup-view-model";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -408,7 +409,7 @@ export class Logger {
 
 export function showConfirmDialog(message: string, callback: (res: boolean) => void): boolean {
   const locStr = new LocalizableString(undefined);
-  const popupModel = settings.showDialog(<IDialogOptions>{
+  const popupViewModel:PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
     data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
     onApply: () => {
@@ -421,16 +422,17 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
     },
     title: message,
     displayMode: "popup",
+    isFocusedContent: false,
     cssClass: "sv-popup--confirm-delete"
-  }, /*this.options.rootElement*/document.body); //TODO survey root
-  const toolbar = popupModel.footerToolbar;
+  }, /*settings.rootElement*/document.body); //TODO survey root
+  const toolbar = popupViewModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
   cancelBtn.title = surveyLocalization.getString("modalCancelButtonText");
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
   applyBtn.title = surveyLocalization.getString("modalApplyButtonText");
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
-  popupModel.width = "452px";
+  popupViewModel.width = "452px";
   return true;
 }
 

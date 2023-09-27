@@ -64,12 +64,17 @@ sv-popup {
 }
 
 .sv-popup--confirm-delete {
+  .sv-popup__container {
+    border-radius: calcSize(1);
+    box-shadow: none;
+  }
+
   .sv-popup__body-header {
     color: $font-editorfont-color;
     margin-bottom: 0;
 
     /* UI/Default */
-    font-family: Open Sans;
+    font-family: $font-family;
     font-size: calcFontSize(1);
     font-style: normal;
     font-weight: 400;
@@ -84,7 +89,7 @@ sv-popup {
     padding-bottom: 0;
 
     .sv-action-bar {
-      gap: calc(2);
+      gap: calcSize(2);
     }
   }
 }

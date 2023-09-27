@@ -20,6 +20,7 @@ export interface IDialogOptions extends IPopupOptionsBase {
   componentName: string;
   data: any;
   onApply: () => boolean;
+  isFocusedContent?: boolean;
 }
 export interface IPopupModel<T = any> extends IDialogOptions {
   contentComponentName: string;

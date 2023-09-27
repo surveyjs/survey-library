@@ -472,8 +472,8 @@ export abstract class QuestionCustomModelBase extends Question
   public afterRenderQuestionElement(el: HTMLElement) {
     //Do nothing
   }
-  public afterRender(el: any) {
-    super.afterRender(el);
+  public afterRenderCore(el: any): void {
+    super.afterRenderCore(el);
     if (!!this.customQuestion) {
       this.customQuestion.onAfterRender(this, el);
     }
@@ -656,8 +656,8 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       super.focus(onError);
     }
   }
-  public afterRender(el: any): void {
-    super.afterRender(el);
+  public afterRenderCore(el: any): void {
+    super.afterRenderCore(el);
     if (!!this.contentQuestion) {
       this.contentQuestion.afterRender(el);
     }

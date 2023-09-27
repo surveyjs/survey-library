@@ -944,6 +944,9 @@ body {
   }
 }
 
+.sv_q_dropdown_control input[readonly] {
+  pointer-events: none;
+}
 @import "./main.rtl.scss";
 @import "./main.m600.scss";
 

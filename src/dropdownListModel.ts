@@ -362,12 +362,7 @@ export class DropdownListModel extends Base {
     if (this.question.readOnly || this.question.isDesignMode) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    if (this.question.getRootElement()) {
-      const input = this.question.getRootElement().querySelector("input");
-      if (!!input && this._popupModel.isVisible) {
-        input.focus();
-      }
-    }
+    this.question.focus();
   }
   public chevronButtonClick(event: any): void {
     if (this._popupModel.isVisible) {

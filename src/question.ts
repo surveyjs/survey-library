@@ -848,6 +848,7 @@ export class Question extends SurveyElement<Question>
     this.survey.afterRenderQuestionInput(this, el);
   }
   public afterRender(el: HTMLElement): void {
+    this.afterRenderCore(el);
     if (!this.survey) return;
     this.survey.afterRenderQuestion(this, el);
     if (!!this.afterRenderQuestionCallback) {
@@ -864,6 +865,8 @@ export class Question extends SurveyElement<Question>
       this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
+  }
+  public afterRenderCore(el: HTMLElement): void {
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId];

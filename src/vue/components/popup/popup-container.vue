@@ -105,11 +105,12 @@ export function showModal(
 export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElement): PopupBaseViewModel {
   dialogOptions.onHide = () => {
     popup.$destroy();
+    popupViewModel.container.remove();
     popupViewModel.dispose();
   };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(dialogOptions, rootElement);
   const popup = new PopupContainer({
-    el: popupViewModel.container.appendChild(document.createElement("div")),
+    el: (<HTMLElement>popupViewModel.container).appendChild(document.createElement("div")),
     propsData: { model: popupViewModel },
   });
   popupViewModel.model.isVisible = true;

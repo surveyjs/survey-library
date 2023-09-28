@@ -8,7 +8,7 @@
       <option v-for="item in question.dataList" :value="item"></option>
     </datalist>
   </div>
-  <survey-text-input v-else :question="question" ref="root" />
+    <survey-text-input v-else :question="question" :get-ref="(ref: any) => { root = ref }" />
 </template>
 
 <script lang="ts" setup>

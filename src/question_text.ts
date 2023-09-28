@@ -10,7 +10,7 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 
-const IMask = require("imask");
+import IMask from "imask";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -22,7 +22,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
   private maskInstance: any;
-  private element: HTMLElement;
+  private input: HTMLInputElement;
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
@@ -473,7 +473,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() mask: string;
   private updateMaskInstance() {
     if (!this.maskInstance) {
-      this.maskInstance = new IMask.InputMask(this.element, { mask: this.mask });
+      this.maskInstance = new IMask.InputMask(this.input, { mask: this.mask });
     } else {
       this.maskInstance.updateOptions({ mask: this.mask });
     }
@@ -484,7 +484,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
-      this.element = el;
+      this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");
       if (this.mask) this.updateMaskInstance();
     }
     super.afterRenderQuestionElement(el);

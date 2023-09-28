@@ -511,7 +511,7 @@ export class Question extends SurveyElement<Question>
   private resetValueIfExpression: ExpressionRunner;
   private isRunningResetValueIf: boolean;
   public runTriggers(name: string, value: any): void {
-    if(this.isRunningResetValueIf || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty()) return;
+    if(this.isRunningResetValueIf || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty() || this.isSettingQuestionValue) return;
     if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
     if(!this.resetValueIfExpression) {
       this.resetValueIfExpression = new ExpressionRunner(this.resetValueIf);
@@ -2083,13 +2083,16 @@ export class Question extends SurveyElement<Question>
   public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;
   private isOldAnswered: boolean;
+  private isSettingQuestionValue: boolean;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
     this.isOldAnswered = this.isAnswered;
+    this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
+    this.isSettingQuestionValue = false;
     if (this.isAnswered !== this.isOldAnswered) {
       this.updateQuestionCss();
     }

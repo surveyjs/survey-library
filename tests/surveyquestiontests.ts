@@ -7288,6 +7288,43 @@ QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (
   q3.value = 4;
   assert.equal(q2.value, "edf", "value is set directly, #3");
 });
+QUnit.test("question.resetValueIf, cycle calls", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "dog",
+      "type": "checkbox",
+      "resetValueIf": "{none} notempty",
+      "choices": ["dog"]
+    },
+    {
+      "name": "cat",
+      "type": "checkbox",
+      "resetValueIf": "{none} notempty",
+      "choices": ["cat"]
+    },
+    {
+      "name": "none",
+      "type": "checkbox",
+      "resetValueIf": "{dog} notempty or {cat} notempty",
+      "choices": ["none"]
+    }] });
+  const q1 = survey.getQuestionByName("dog");
+  const q2 = survey.getQuestionByName("cat");
+  const q3 = survey.getQuestionByName("none");
+  q1.value = ["dog"];
+  q2.value = ["cat"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #1");
+  assert.deepEqual(q2.value, ["cat"], "q2.value #1");
+  assert.equal(q3.isEmpty(), true, "q3.value #1");
+  q3.value = ["none"];
+  assert.equal(q1.isEmpty(), true, "q1.value #2");
+  assert.equal(q2.isEmpty(), true, "q2.value #2");
+  assert.deepEqual(q3.value, ["none"], "q3.value #2");
+  q1.value = ["dog"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #3");
+  assert.equal(q3.isEmpty(), true, "q2.value #3");
+  assert.equal(q3.isEmpty(), true, "q3.value #3");
+});
 QUnit.test("question.isReady & async functions in expression", function (assert) {
   var returnResult1: (res: any) => void;
   var returnResult2: (res: any) => void;

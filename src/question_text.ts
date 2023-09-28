@@ -10,7 +10,7 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 
-const IMask = require("imask");
+import IMask from "imask";
 
 /**
  * A class that describes the Single-Line Input question type.

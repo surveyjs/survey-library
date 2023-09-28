@@ -12,6 +12,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   click = (event: any) => {
     this.question.dropdownListModel?.onClick(event);
   };
+  chevronPointerDown = (event: any) => {
+    this.question.dropdownListModel?.chevronPointerDown(event);
+  };
   clear = (event: any) => {
     this.question.dropdownListModel?.onClear(event);
   };
@@ -157,7 +160,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     if (!this.question.cssClasses.chevronButtonIconId) return null;
 
     return (
-      <div className={this.question.cssClasses.chevronButton}>
+      <div className={this.question.cssClasses.chevronButton}
+        onPointerDown={this.chevronPointerDown}>
         <SvgIcon
           className={this.question.cssClasses.chevronButtonSvg}
           iconName={this.question.cssClasses.chevronButtonIconId}

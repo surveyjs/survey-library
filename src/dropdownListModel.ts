@@ -362,11 +362,11 @@ export class DropdownListModel extends Base {
     if (this.question.readOnly || this.question.isDesignMode) return;
     this._popupModel.toggleVisibility();
     this.focusItemOnClickAndPopup();
-    if (this.searchEnabled && !!event && !!event.target) {
-      const input = event.target.querySelector("input");
-      if (!!input) {
-        input.focus();
-      }
+    this.question.focus();
+  }
+  public chevronPointerDown(event: any): void {
+    if (this._popupModel.isVisible) {
+      event.preventDefault();
     }
   }
 

@@ -60,6 +60,7 @@
     </div>
     <div
       :class="question.cssClasses.chevronButton"
+          v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
     >
       <sv-svg-icon
@@ -87,6 +88,9 @@ const model = computed(() => {
 });
 const click = (event: any) => {
   model.value?.onClick(event);
+};
+const chevronPointerDown = (event: any) => {
+  model.value?.chevronPointerDown(event);
 };
 const clear = (event: any) => {
   model.value?.onClear(event);

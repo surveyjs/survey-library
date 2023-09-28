@@ -45,7 +45,7 @@
         <sv-ng-string *ngIf="model.selectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
         <div>{{ model.readOnlyText }}</div>
     </div>
-    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)">
         <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
     </div>
 </div>

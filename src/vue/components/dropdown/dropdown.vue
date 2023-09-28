@@ -87,6 +87,7 @@
     </div>
     <div
       :class="question.cssClasses.chevronButton"
+          v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
     >
       <sv-svg-icon
@@ -126,6 +127,9 @@ export class DropdownComponent extends BaseVue {
 
   public click(event: any) {
     this.model?.onClick(event);
+  }
+  public chevronPointerDown(event: any) {
+    this.model?.chevronPointerDown(event);
   }
   public clear(event: any) {
     this.model?.onClear(event);

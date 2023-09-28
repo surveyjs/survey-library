@@ -76,17 +76,23 @@ export class TOCModel {
   constructor(public survey: SurveyModel) {
     this.listModel = createTOCListModel(survey, () => { this.popupModel.isVisible = false; });
     this.popupModel = new PopupModel("sv-list", { model: this.listModel });
-    this.popupModel.displayMode = this.isMobile ? "overlay" : "popup";
+    this.popupModel.displayMode = <any>new ComputedUpdater(() => this.isMobile ? "overlay" : "popup");
   }
 
-  isMobile = IsTouch;
+  get isMobile(): boolean {
+    return this.survey.isMobile;
+  }
   get containerCss(): string {
     return getTocRootCss(this.survey, this.isMobile);
   }
   listModel: ListModel<Action>;
   popupModel: PopupModel;
   icon = "icon-navmenu_24x24";
-  togglePopup = () => {
+  togglePopup = (): void => {
     this.popupModel.toggleVisibility();
+  }
+  public dispose(): void {
+    this.popupModel.dispose();
+    this.listModel.dispose();
   }
 }

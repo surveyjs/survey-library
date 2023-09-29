@@ -2,6 +2,7 @@ import { Base } from "./base";
 import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
 import { Serializer, property } from "./jsonobject";
 import { SurveyModel } from "./survey";
+import { ITheme } from "./themes";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { wrapUrlForBackgroundImage } from "./utils/utils";
 
@@ -68,9 +69,15 @@ export class Cover extends Base {
       return "100% 100%";
     }
     if (backgroundImageFit === "tile") {
-      return "contain";
+      return "auto";
     }
     return backgroundImageFit;
+  }
+  public fromTheme(theme: ITheme): void {
+    super.fromJSON(theme.cover);
+    if(!!theme.cssVariables) {
+      this.backgroundColor = theme.cssVariables["--sjs-cover-backcolor"];
+    }
   }
 
   constructor() {
@@ -122,6 +129,7 @@ export class Cover extends Base {
     return new CssClassBuilder()
       .append("sv-cover")
       .append("sv-conver__without-background", !this.backgroundColor && !this.backgroundImage)
+      .append("sv-conver__overlap", this.overlap)
       .toString();
   }
   public get contentClasses(): string {
@@ -158,7 +166,6 @@ Serializer.addClass(
     { name: "invertText:boolean" },
     { name: "glowText:boolean" },
     { name: "overlap:boolean" },
-    { name: "backgroundColor" },
     { name: "backgroundImage" },
     { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
     { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },

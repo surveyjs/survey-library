@@ -264,7 +264,7 @@ frameworks.forEach((framework) => {
     await t.expect(Selector("input").value).eql("abc+2(555)12-345-678");
 
     await ClientFunction(() => { window["survey"].getQuestionByName("phone").mask = "+{3}(000)00-000-000"; })();
-    await t.expect(Selector("input").value).eql("+3(555)12-345-678");
+    await t.expect(Selector("input").value).eql("+3(255)51-234-567");
 
   });
 

@@ -25,6 +25,7 @@ frameworks.forEach(framework => {
       await initSurvey(framework, {
         "title": "Static",
         "description": "",
+        "showQuestionNumbers": false,
         "widthMode": "static",
         "pages": [{
           "name": "page1",
@@ -78,6 +79,7 @@ frameworks.forEach(framework => {
       await initSurvey(framework, {
         "title": "Static",
         "description": "",
+        "showQuestionNumbers": false,
         "widthMode": "static",
         "pages": [{
           "name": "page1",
@@ -131,6 +133,7 @@ frameworks.forEach(framework => {
       await initSurvey(framework, {
         "title": "Responsive",
         "description": "",
+        "showQuestionNumbers": false,
         "widthMode": "responsive",
         "pages": [{
           "name": "page1",
@@ -184,6 +187,7 @@ frameworks.forEach(framework => {
       await initSurvey(framework, {
         "title": "Responsive",
         "description": "",
+        "showQuestionNumbers": false,
         "widthMode": "responsive",
         "pages": [{
           "name": "page1",

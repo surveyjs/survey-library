@@ -736,6 +736,10 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised before a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) renders [tab titles](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle). Use this event to change individual tab titles.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    */
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 

@@ -33,6 +33,11 @@ frameworks.forEach(framework => {
               type: "text",
               name: "question1",
               title: "Question",
+            },
+            {
+              type: "text",
+              name: "question2",
+              title: "Second Question",
             }
           ]
         }]
@@ -81,6 +86,11 @@ frameworks.forEach(framework => {
               type: "text",
               name: "question1",
               title: "Question",
+            },
+            {
+              type: "text",
+              name: "question2",
+              title: "Second Question",
             }
           ]
         }]
@@ -129,6 +139,11 @@ frameworks.forEach(framework => {
               type: "text",
               name: "question1",
               title: "Question",
+            },
+            {
+              type: "text",
+              name: "question2",
+              title: "Second Question",
             }
           ]
         }]
@@ -177,6 +192,11 @@ frameworks.forEach(framework => {
               type: "text",
               name: "question1",
               title: "Question",
+            },
+            {
+              type: "text",
+              name: "question2",
+              title: "Second Question",
             }
           ]
         }]

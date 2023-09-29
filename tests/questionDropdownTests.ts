@@ -1647,6 +1647,24 @@ QUnit.test("isReady flag + onGetChoiceDisplayValue", assert => {
   assert.ok(question["waitingGetChoiceDisplayValueResponse"]);
 });
 
+QUnit.test("isReady flag + onGetChoiceDisplayValue + setItems with empty array", assert => {
+  const json = {
+    questions: [{
+      "type": "dropdown",
+      "name": "q1",
+      "choicesLazyLoadEnabled": true,
+    }]
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  survey.onGetChoiceDisplayValue.add((_, opt) => {
+    opt.setItems([]);
+  });
+  survey.data = { "q1": "ford" };
+  assert.ok(question.isReady);
+  assert.equal(question.displayValue, "ford");
+});
+
 QUnit.test("isReady flag + onGetChoiceDisplayValue + choicesRestfull", assert => {
   const done = assert.async();
 

@@ -18,7 +18,7 @@ import { QuestionTextModel } from "../src/question_text";
 import { SurveyElement } from "../src/survey-element";
 import { Action } from "../src/actions/action";
 import { MatrixDropdownColumn, matrixDropdownColumnTypes } from "../src/question_matrixdropdowncolumn";
-import { QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
+import { QuestionMatrixDropdownRenderedErrorRow, QuestionMatrixDropdownRenderedRow } from "../src/question_matrixdropdownrendered";
 
 export default QUnit.module("Survey_QuestionMatrixDynamic");
 
@@ -3531,6 +3531,46 @@ QUnit.test("matrix dropdown + renderedTable.rows", function (assert) {
     "row3.col2 cellType-text"
   );
   assert.equal(cells[3].cell.column.name, "col2", "row3.col2 correct column");
+});
+
+QUnit.test("matrix dropdown + renderedTable.rows - title width", function (assert) {
+  var matrix = new QuestionMatrixDropdownModel("q1");
+  matrix.addColumn("col1");
+  matrix.columns[0].cellType = "text";
+  matrix.addColumn("col2");
+  matrix.rows = ["row1", "row2"];
+
+  var rows;
+  var cells;
+  rows = matrix.renderedTable.rows.filter(r => !(r instanceof QuestionMatrixDropdownRenderedErrorRow));
+
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells[0].width, "", "header row col1 width get from rowTitleWidth");
+  assert.equal(cells[0].minWidth, "", "header row col1 min-width get from rowTitleWidth");
+
+  cells = rows[0].cells;
+  assert.equal(cells[0].width, "", "row 1 col1 width get from rowTitleWidth");
+  assert.equal(cells[0].minWidth, "", "row 1 col1 min-width get from rowTitleWidth");
+
+  cells = rows[1].cells;
+  assert.equal(cells[0].width, "", "row 2 col1 width get from rowTitleWidth");
+  assert.equal(cells[0].minWidth, "", "row 2 col1 min-width get from rowTitleWidth");
+
+  matrix.rowTitleWidth = "400px";
+  rows = matrix.renderedTable.rows.filter(r => !(r instanceof QuestionMatrixDropdownRenderedErrorRow));
+
+  cells = matrix.renderedTable.headerRow.cells;
+  assert.equal(cells[0].width, "400px", "header row col1 width get from rowTitleWidth");
+  assert.equal(cells[0].minWidth, "400px", "header row col1 min-width get from rowTitleWidth");
+
+  cells = rows[0].cells;
+  assert.equal(cells[0].width, "400px", "row 1 col1 width get from rowTitleWidth");
+  assert.equal(cells[0].minWidth, "400px", "row 1 col1 min-width get from rowTitleWidth");
+
+  cells = rows[1].cells;
+  assert.equal(cells[0].width, "400px", "row 2 col1 width get from rowTitleWidth");
+  assert.equal(cells[0].minWidth, "400px", "row 2 col1 min-width get from rowTitleWidth");
+
 });
 
 QUnit.test("matrix dynamic + renderedTable.rows", function (assert) {

@@ -48,16 +48,19 @@ frameworks.forEach(framework => {
 
       await ClientFunction((pageTitle) => {
         (<any>window).survey.pages[0].title = pageTitle;
+        (<any>window).survey.render();
       })(pageTitle);
       await takeElementScreenshot("page-layout-panels-title-nodescription.png", bodyRoot, t, comparer);
 
       await ClientFunction((pageDescription) => {
         (<any>window).survey.pages[0].description = pageDescription;
+        (<any>window).survey.render();
       })(pageDescription);
       await takeElementScreenshot("page-layout-panels-title-description.png", bodyRoot, t, comparer);
 
       await ClientFunction(() => {
         (<any>window).survey.pages[0].title = "";
+        (<any>window).survey.render();
       })();
       await takeElementScreenshot("page-layout-panels-notitle-description.png", bodyRoot, t, comparer);
 
@@ -93,16 +96,19 @@ frameworks.forEach(framework => {
 
       await ClientFunction((pageTitle) => {
         (<any>window).survey.pages[0].title = pageTitle;
+        (<any>window).survey.render();
       })(pageTitle);
       await takeElementScreenshot("page-layout-compact-title-nodescription.png", bodyRoot, t, comparer);
 
       await ClientFunction((pageDescription) => {
         (<any>window).survey.pages[0].description = pageDescription;
+        (<any>window).survey.render();
       })(pageDescription);
       await takeElementScreenshot("page-layout-compact-title-description.png", bodyRoot, t, comparer);
 
       await ClientFunction(() => {
         (<any>window).survey.pages[0].title = "";
+        (<any>window).survey.render();
       })();
       await takeElementScreenshot("page-layout-compact-notitle-description.png", bodyRoot, t, comparer);
 
@@ -138,15 +144,18 @@ frameworks.forEach(framework => {
 
       await ClientFunction((pageTitle) => {
         (<any>window).survey.pages[0].title = pageTitle;
+        (<any>window).survey.render();
       })(pageTitle);
       await takeElementScreenshot("page-layout-responsive-panels-title-nodescription.png", bodyRoot, t, comparer);
 
       await ClientFunction((pageDescription) => {
         (<any>window).survey.pages[0].description = pageDescription;
+        (<any>window).survey.render();
       })(pageDescription);
       await takeElementScreenshot("page-layout-responsive-panels-title-description.png", bodyRoot, t, comparer);
 
       await ClientFunction(() => {
+        (<any>window).survey.render();
         (<any>window).survey.pages[0].title = "";
       })();
       await takeElementScreenshot("page-layout-responsive-panels-notitle-description.png", bodyRoot, t, comparer);
@@ -183,16 +192,19 @@ frameworks.forEach(framework => {
 
       await ClientFunction((pageTitle) => {
         (<any>window).survey.pages[0].title = pageTitle;
+        (<any>window).survey.render();
       })(pageTitle);
       await takeElementScreenshot("page-layout-responsive-compact-title-nodescription.png", bodyRoot, t, comparer);
 
       await ClientFunction((pageDescription) => {
         (<any>window).survey.pages[0].description = pageDescription;
+        (<any>window).survey.render();
       })(pageDescription);
       await takeElementScreenshot("page-layout-responsive-compact-title-description.png", bodyRoot, t, comparer);
 
       await ClientFunction(() => {
         (<any>window).survey.pages[0].title = "";
+        (<any>window).survey.render();
       })();
       await takeElementScreenshot("page-layout-responsive-compact-notitle-description.png", bodyRoot, t, comparer);
 

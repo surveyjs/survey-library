@@ -2101,10 +2101,11 @@ export class SurveyModel extends SurveyElementCore
     this.renderBackgroundImage = wrapUrlForBackgroundImage(path);
   }
   @property() backgroundImageFit: ImageFit;
-  @property({ onSet: (newValue, target: SurveyModel) => {
-    target.backgroundImageFixed = newValue === "fixed";
-    target.updateCss(); } }) backgroundImageAttachment: ImageAttachment;
-  @property() backgroundImageFixed: boolean;
+  @property({
+    onSet: (newValue, target: SurveyModel) => {
+      target.updateCss();
+    }
+  }) backgroundImageAttachment: ImageAttachment;
   /**
    * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
@@ -2127,7 +2128,7 @@ export class SurveyModel extends SurveyElementCore
   public updateWrapperFormCss(): void {
     this.wrapperFormCss = new CssClassBuilder()
       .append(this.css.rootWrapper)
-      .append(this.css.rootWrapperFixed, this.backgroundImageFixed)
+      .append(this.css.rootWrapperFixed, this.backgroundImageAttachment === "fixed")
       .toString();
   }
   /**
@@ -7386,6 +7387,9 @@ export class SurveyModel extends SurveyElementCore
   public addScrollEventListener(): void {
     this.scrollHandler = () => { this.onScroll(); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
+    if(!!this.rootElement.getElementsByTagName("form")[0]) {
+      this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
+    }
     if(!!this.css.rootWrapper) {
       this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.addEventListener("scroll", this.scrollHandler);
     }
@@ -7393,6 +7397,9 @@ export class SurveyModel extends SurveyElementCore
   public removeScrollEventListener(): void {
     if (!!this.rootElement && !!this.scrollHandler) {
       this.rootElement.removeEventListener("scroll", this.scrollHandler);
+      if(!!this.rootElement.getElementsByTagName("form")[0]) {
+        this.rootElement.getElementsByTagName("form")[0].removeEventListener("scroll", this.scrollHandler);
+      }
       if(!!this.css.rootWrapper) {
         this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.removeEventListener("scroll", this.scrollHandler);
       }

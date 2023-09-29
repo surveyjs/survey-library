@@ -1350,6 +1350,11 @@ sv-popup {
   background-color: var(--background-dim, #f3f3f3);
 }
 
+.sv-popup__button.sv-popup__button--danger {
+  background-color: var(--sjs-special-red, #E50A3E);
+  color: var(--primary-foreground, #fff);
+}
+
 //eo popup
 //list
 .sv-list {

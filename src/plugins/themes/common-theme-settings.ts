@@ -424,6 +424,7 @@ export function setStyles(): void {
     ".sv-popup__button:disabled:hover": "box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.15);",
     ".sv-popup__button.sv-popup__button--apply": "background-color: var(--primary, #19b394); color: var(--primary-foreground, #fff);",
     ".sv-popup__button.sv-popup__button--apply:disabled": "background-color: var(--background-dim, #f3f3f3);",
+    ".sv-popup__button.sv-popup__button--danger": "background-color: var(--sjs-special-red, #E50A3E); color: var(--primary-foreground, #fff);",
     //eo popup
     //list
     ".sv-list": "padding: 0; margin: 0; background: var(--background, #fff); list-style-type: none; overflow-y: auto;",

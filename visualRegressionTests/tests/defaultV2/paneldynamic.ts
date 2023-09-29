@@ -391,3 +391,37 @@ frameworks.forEach(framework => {
     });
   });
 });
+
+frameworks.forEach(framework => {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [{
+          "type": "paneldynamic",
+          "panelCount": 1,
+          "name": "question1",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ],
+          "confirmDelete": true
+        }]
+      }
+    ]
+  };
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
+  test("Paneldynamic confirm dialog", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await t.click(Selector(".sd-paneldynamic__remove-btn"));
+      await takeElementScreenshot("paneldynamic-confirm-dialog", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
+    });
+  });
+});

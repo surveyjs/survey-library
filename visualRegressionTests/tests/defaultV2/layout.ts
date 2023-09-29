@@ -42,7 +42,7 @@ frameworks.forEach(framework => {
         // (<any>window).survey.showPreview();
       })();
 
-      const bodyRoot = Selector(".sd-body");
+      const bodyRoot = Selector(".sd-container-modern");
 
       await takeElementScreenshot("page-layout-panels-notitle-nodescription.png", bodyRoot, t, comparer);
 
@@ -90,7 +90,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.isCompact = true;
       })();
 
-      const bodyRoot = Selector(".sd-body");
+      const bodyRoot = Selector(".sd-container-modern");
 
       await takeElementScreenshot("page-layout-compact-notitle-nodescription.png", bodyRoot, t, comparer);
 
@@ -138,7 +138,7 @@ frameworks.forEach(framework => {
         // (<any>window).survey.showPreview();
       })();
 
-      const bodyRoot = Selector(".sd-body");
+      const bodyRoot = Selector(".sd-container-modern");
 
       await takeElementScreenshot("page-layout-responsive-panels-notitle-nodescription.png", bodyRoot, t, comparer);
 
@@ -186,7 +186,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.isCompact = true;
       })();
 
-      const bodyRoot = Selector(".sd-body");
+      const bodyRoot = Selector(".sd-container-modern");
 
       await takeElementScreenshot("page-layout-responsive-compact-notitle-nodescription.png", bodyRoot, t, comparer);
 

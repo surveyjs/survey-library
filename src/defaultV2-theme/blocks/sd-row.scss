@@ -19,7 +19,7 @@
 }
 
 .sd-page__title~.sd-row.sd-page__row {
-  margin-top: calcSize(2);
+  margin-top: calcSize(3);
 
   &.sd-row--compact {
     margin-top: var(--sd-base-vertical-padding);
@@ -43,6 +43,7 @@
 .sd-panel {
   .sd-row--multiple {
     row-gap: var(--sd-base-vertical-padding);
+
     &>div {
       padding-left: var(--sd-base-padding);
     }
@@ -54,6 +55,7 @@
     padding-left: var(--sd-base-padding);
   }
 }
+
 .sd-page__row.sd-row--multiple {
   margin-left: calcSize(-2);
   width: calc(100% + 2 * var(--sjs-base-unit, var(--base-unit, 8px)));
@@ -64,7 +66,7 @@
     margin-left: calc(-1 * var(--sd-base-padding));
     width: calc(100% + var(--sd-base-padding));
   }
-  
+
 }
 
 .sd-row__panel {

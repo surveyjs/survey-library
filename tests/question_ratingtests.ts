@@ -8,6 +8,7 @@ import { ListModel } from "../src/list";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { settings } from "../src/settings";
+import { _setIsTouch } from "../src/utils/devices";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -458,6 +459,39 @@ QUnit.test("check stars highlighting design mode", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+});
+
+QUnit.test("check stars highlighting on touch device", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "stars",
+        name: "q1",
+      },
+    ],
+  };
+  _setIsTouch(true);
+  const survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemStar = "";
+  q1.cssClasses.itemStarHighlighted = "sv_q_high";
+  q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
+
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  q1.onItemMouseIn(q1.renderedRateItems[3]);
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  _setIsTouch(false);
 });
 
 QUnit.test("check stars styles", (assert) => {

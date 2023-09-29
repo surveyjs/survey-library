@@ -101,6 +101,8 @@ export var englishStrings = {
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "All choices are ranked",
   selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them",
+  ok: "OK",
+  cancel: "Cancel",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

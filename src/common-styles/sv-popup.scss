@@ -63,6 +63,40 @@ sv-popup {
   }
 }
 
+.sv-popup--confirm-delete {
+  .sv-popup__container {
+    border-radius: calcSize(1);
+  }
+
+  .sv-popup__body-content {
+    border-radius: calcSize(1);
+  }
+
+  .sv-popup__body-header {
+    color: $font-editorfont-color;
+    margin-bottom: 0;
+
+    /* UI/Default */
+    font-family: $font-family;
+    font-size: calcFontSize(1);
+    font-style: normal;
+    font-weight: 400;
+    line-height: calcLineHeight(1.5);/* 150% */
+  }
+
+  .sv-popup__scrolling-content {
+    display: none;
+  }
+
+  .sv-popup__body-footer {
+    padding-bottom: 0;
+
+    .sv-action-bar {
+      gap: calcSize(2);
+    }
+  }
+}
+
 .sv-popup.sv-popup--modal>.sv-popup__container {
   position: static;
 }

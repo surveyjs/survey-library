@@ -2607,7 +2607,7 @@ Serializer.addClass("question", [
   "enableIf:condition",
   {
     name: "resetValueIf:condition",
-    category: "logic", visible: false
+    category: "logic"
   },
   "defaultValue:value",
   {

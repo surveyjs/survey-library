@@ -1,5 +1,5 @@
 <template>
-  <div :class="model.coverClasses" :style="{ 'height': model.renderedHeight, 'backgroundColor': model.backgroundColor }">
+  <div :class="model.coverClasses" :style="{ 'height': model.renderedHeight }">
     <div v-if="!!model.backgroundImage" :class="model.backgroundImageClasses" :style="model.backgroundImageStyle"></div>
     <div :class="model.contentClasses">
     <sv-cover-cell

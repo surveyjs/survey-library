@@ -1,10 +1,11 @@
 @mixin page_title {
+  --default-font-size: var(--sjs-font-pagetitle-size, calc(1.5 * (var(--sjs-font-size, 16px))));
   font-family: $font-pagetitle-family;
   font-weight: $font-pagetitle-weight;
-  font-size: $font-pagetitle-size;
+  font-size: var(--default-font-size);
   color: $font-pagetitle-color;
   position: static;
-  line-height: multiply(1.33, $font-pagetitle-size);
+  line-height: multiply(1.33, var(--default-font-size));
   margin: calcSize(0.5) 0px;
 }
 

@@ -19,7 +19,7 @@ sv-components-container,
 }
 
 .sv-components-row {
-  .sv-components-column--expandable {
+  &>.sv-components-column--expandable {
     width: 1px;
   }
 }

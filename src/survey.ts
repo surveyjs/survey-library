@@ -7340,7 +7340,7 @@ export class SurveyModel extends SurveyElementCore
       if (key === "cover") {
         this.removeLayoutElement("cover");
         const newCoverModel = new Cover();
-        newCoverModel.fromJSON(theme[key]);
+        newCoverModel.fromTheme(theme);
         this.layoutElements.push({
           id: "cover",
           container: "header",

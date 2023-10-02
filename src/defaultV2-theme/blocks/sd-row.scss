@@ -18,8 +18,21 @@
   margin-top: 0;
 }
 
-.sd-page__title~.sd-row:first-of-type.sd-page__row {
-  margin-top: calcSize(3);
+.sd-page__title,
+.sd-page__description {
+  &~.sd-row.sd-page__row:not(.sd-row--compact) {
+    margin-top: calcSize(3);
+  }
+
+  &~.sd-page__row.sd-row--compact {
+    margin-top: var(--sd-base-vertical-padding);
+  }
+}
+
+.sd-row.sd-page__row:not(.sd-row--compact) {
+  &~.sd-row.sd-page__row:not(.sd-row--compact) {
+    margin-top: calcSize(2);
+  }
 }
 
 .sd-row--multiple {

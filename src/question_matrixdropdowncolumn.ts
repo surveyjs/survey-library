@@ -738,6 +738,7 @@ Serializer.addClass(
     "visibleIf:condition",
     "enableIf:condition",
     "requiredIf:condition",
+    "resetValueIf:condition",
     {
       name: "showInMultipleColumns:boolean",
       dependsOn: "cellType",

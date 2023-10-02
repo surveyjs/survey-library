@@ -1,6 +1,6 @@
 import { HashTable } from "./helpers";
 import { ProcessValue } from "./conditionProcessValue";
-
+import { ConsoleWarnings } from "./console-warnings";
 import { Operand, FunctionOperand } from "./expressions/expressions";
 import { ConditionsParser } from "./conditionsParser";
 
@@ -90,8 +90,12 @@ export class ExpressionExecutor implements IExpresionExecutor {
     values: HashTable<any>,
     properties: HashTable<any> = null
   ): any {
-    if (!this.operand) return null;
-
+    if (!this.operand) {
+      if(!!this.expression) {
+        ConsoleWarnings.warn("Invalid expression: " + this.expression);
+      }
+      return null;
+    }
     this.processValue.values = values;
     this.processValue.properties = properties;
     if (!this.isAsync) return this.runValues();

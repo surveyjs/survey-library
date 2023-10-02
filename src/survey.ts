@@ -736,6 +736,10 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised before a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) renders [tab titles](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle). Use this event to change individual tab titles.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    */
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 
@@ -5682,7 +5686,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private runQuestionsTriggers(name: string, value: any): void {
     if(this.isDisplayMode || this.isDesignMode) return;
-    const questions = this.getAllQuestions(true);
+    const questions = this.getAllQuestions();
     questions.forEach(q => q.runTriggers(name, value));
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
@@ -7336,7 +7340,7 @@ export class SurveyModel extends SurveyElementCore
       if (key === "cover") {
         this.removeLayoutElement("cover");
         const newCoverModel = new Cover();
-        newCoverModel.fromJSON(theme[key]);
+        newCoverModel.fromTheme(theme);
         this.layoutElements.push({
           id: "cover",
           container: "header",

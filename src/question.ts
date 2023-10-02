@@ -511,7 +511,7 @@ export class Question extends SurveyElement<Question>
   private resetValueIfExpression: ExpressionRunner;
   private isRunningResetValueIf: boolean;
   public runTriggers(name: string, value: any): void {
-    if(this.isRunningResetValueIf || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty() || this.isSettingQuestionValue) return;
+    if(this.isRunningResetValueIf || this.isReadOnly || !this.resetValueIf || this.isEmpty() || this.isSettingQuestionValue) return;
     if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
     if(!this.resetValueIfExpression) {
       this.resetValueIfExpression = new ExpressionRunner(this.resetValueIf);
@@ -2607,7 +2607,7 @@ Serializer.addClass("question", [
   "enableIf:condition",
   {
     name: "resetValueIf:condition",
-    category: "logic", visible: false
+    category: "logic"
   },
   "defaultValue:value",
   {

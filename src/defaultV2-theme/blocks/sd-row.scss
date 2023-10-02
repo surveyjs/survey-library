@@ -18,12 +18,8 @@
   margin-top: 0;
 }
 
-.sd-page__title~.sd-row.sd-page__row {
+.sd-page__title~.sd-row:first-of-type.sd-page__row {
   margin-top: calcSize(3);
-
-  &.sd-row--compact {
-    margin-top: var(--sd-base-vertical-padding);
-  }
 }
 
 .sd-row--multiple {

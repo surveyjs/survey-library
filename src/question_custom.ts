@@ -122,7 +122,7 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
    * A custom question.
-   * - `propertyName`: `String`\
+   * - `propertyName`: `string`\
    * The name of the changed property.
    * - `newValue`: `any`\
    * A new value for the property.
@@ -139,7 +139,7 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
    * A custom question.
-   * - `name`: `String`\
+   * - `name`: `string`\
    * The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
    * - `newValue`: `any`\
    * A new value for the question.
@@ -154,7 +154,7 @@ export interface ICustomQuestionTypeConfiguration {
    *
    * - `question`: [Question](https://surveyjs.io/Documentation/Library?id=Question)\
    * A custom question.
-   * - `name`: `String`\
+   * - `name`: `string`\
    * The question's [name](https://surveyjs.io/Documentation/Library?id=Question#name).
    * - `newValue`: `any`\
    * A new value for the question.
@@ -169,9 +169,9 @@ export interface ICustomQuestionTypeConfiguration {
    * A custom question.
    * - `options.obj`: [ItemValue](https://surveyjs.io/Documentation/Library?id=itemvalue)\
    * An `ItemValue` object.
-   * - `options.propertyName`: `String`\
+   * - `options.propertyName`: `string`\
    * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
-   * - `options.name`: `String`\
+   * - `options.name`: `string`\
    * The name of the changed property: `"text"` or `"value"`.
    * - `options.newValue`: `any`\
    * A new value for the property.

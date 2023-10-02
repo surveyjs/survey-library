@@ -101,10 +101,10 @@ If you need to get survey results as an array of JavaScript objects, call the Su
 
 ```js
 {
-  name: String, // Question name
-  title: String, // Question title
+  name: string, // Question name
+  title: string, // Question title
   value: any, // Question value
-  displayValue: String, // Question value converted to a string
+  displayValue: string, // Question value converted to a string
   isNode: Boolean, // `true` if the question contains more than one value
   // Details about the values. Present only if `isNode` is `true`
   data: Array<{ name, title, value, displayValue, isNode, data}>
@@ -123,10 +123,10 @@ The previous section described the default format of survey results. If you want
 
 ```js
 {
-  name: String, // Question name
-  title: String, // Question title
+  name: string, // Question name
+  title: string, // Question title
   value: any, // Question value
-  displayValue: String // Question value converted to a string
+  displayValue: string // Question value converted to a string
 }
 ```
 

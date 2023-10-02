@@ -5686,7 +5686,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private runQuestionsTriggers(name: string, value: any): void {
     if(this.isDisplayMode || this.isDesignMode) return;
-    const questions = this.getAllQuestions(true);
+    const questions = this.getAllQuestions();
     questions.forEach(q => q.runTriggers(name, value));
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {

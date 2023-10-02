@@ -418,7 +418,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * Creates and adds a new row to the matrix.
-   * @param setFocus *Optional.* Pass `true` to focus the cell in the first column.
+   * @param setFocus *(Optional)* Pass `true` to focus the cell in the first column.
    */
   public addRow(setFocus?: boolean): void {
     const oldRowCount = this.rowCount;
@@ -554,7 +554,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * Removes a matrix row with a specified index.
    * @param index A zero-based row index.
-   * @param confirmDelete *Optional.* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
+   * @param confirmDelete *(Optional)* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
   public removeRow(index: number, confirmDelete?: boolean): void {
     if (!this.canRemoveRows) return;

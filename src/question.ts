@@ -1963,7 +1963,7 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Validates this question and returns `false` if the validation fails.
-   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, rec: any = null): boolean {

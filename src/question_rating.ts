@@ -11,6 +11,7 @@ import { mergeValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
+import { IsTouch } from "./utils/devices";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -553,6 +554,7 @@ export class QuestionRatingModel extends Question {
     }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
+    if (IsTouch) return;
     if (this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;
     let high = true;
     let selected = this.value != null;
@@ -567,6 +569,7 @@ export class QuestionRatingModel extends Question {
     }
   }
   public onItemMouseOut(item: RenderedRatingItem) {
+    if (IsTouch) return;
     this.renderedRateItems.forEach(item => item.highlight = "none");
   }
 

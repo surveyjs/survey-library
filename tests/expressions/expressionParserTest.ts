@@ -7,7 +7,7 @@ import {
 import { ConditionRunner, ExpressionRunner } from "../../src/conditions";
 
 import { ConditionsParser } from "../../src/conditionsParser";
-
+import { ConsoleWarnings } from "../../src/console-warnings";
 import {
   Const,
   Variable,
@@ -1469,4 +1469,31 @@ QUnit.test("Sum two float numbers as string", function(assert) {
   let runner = new ExpressionRunner("{a} + {b}");
   assert.equal(runner.run({ a: "1.1", b: "2.2" }), 3.3, "#1");
   assert.equal(runner.run({ a: "0.1", b: "0.2" }), 0.3, "#2");
+});
+QUnit.test("Warn in console if the expression is invalid", function(assert) {
+  const prev = ConsoleWarnings.warn;
+  let reportText: string = "";
+  ConsoleWarnings.warn = (text: string) => {
+    reportText = text;
+  };
+  const runner = new ExpressionRunner("{a} ++");
+  assert.notOk(reportText);
+  runner.run({ a: 1 });
+  assert.equal(reportText, "Invalid expression: {a} ++");
+
+  reportText = "";
+  runner.expression = "{a} + 1";
+  runner.run({ a: 1 });
+  assert.notOk(reportText);
+
+  runner.expression = "tooday()";
+  assert.notOk(reportText);
+  runner.run({});
+  assert.equal(reportText, "Function name is unknown: tooday");
+
+  reportText = "";
+  runner.expression = "today";
+  runner.run({});
+  assert.notOk(reportText);
+  ConsoleWarnings.warn = prev;
 });

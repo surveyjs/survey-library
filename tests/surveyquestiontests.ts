@@ -7325,6 +7325,27 @@ QUnit.test("question.resetValueIf, cycle calls", function (assert) {
   assert.equal(q3.isEmpty(), true, "q2.value #3");
   assert.equal(q3.isEmpty(), true, "q3.value #3");
 });
+QUnit.test("question.resetValueIf and invisibleQuestions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "{q1} = 1",
+      "visible": false
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q2.value = "abc";
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+});
+
 QUnit.test("question.isReady & async functions in expression", function (assert) {
   var returnResult1: (res: any) => void;
   var returnResult2: (res: any) => void;

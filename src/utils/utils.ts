@@ -1,4 +1,8 @@
+import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
+import { IDialogOptions } from "../popup";
+import { surveyLocalization } from "../surveyStrings";
+import { PopupBaseViewModel } from "../popup-view-model";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -14,19 +18,23 @@ function compareVersions(a: any, b: any) {
   }
   return segmentsA.length - segmentsB.length;
 }
+
 function confirmAction(message: string): boolean {
   if (!!settings && !!settings.confirmActionFunc)
     return settings.confirmActionFunc(message);
   return confirm(message);
 }
+
 function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
   const callbackFunc = (res: boolean): void => {
     if(res) funcOnYes();
     else if(!!funcOnNo) funcOnNo();
   };
+
   if(!!settings && !!settings.confirmActionAsync) {
     if(settings.confirmActionAsync(message, callbackFunc)) return;
   }
+
   callbackFunc(confirmAction(message));
 }
 function detectIEBrowser(): boolean {
@@ -397,6 +405,35 @@ export class Logger {
   public get result() {
     return this._result;
   }
+}
+
+export function showConfirmDialog(message: string, callback: (res: boolean) => void): boolean {
+  const locStr = new LocalizableString(undefined);
+  const popupViewModel:PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
+    componentName: "sv-string-viewer",
+    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+    onApply: () => {
+      callback(true);
+      return true;
+    },
+    onCancel: () => {
+      callback(false);
+      return false;
+    },
+    title: message,
+    displayMode: "popup",
+    isFocusedContent: false,
+    cssClass: "sv-popup--confirm-delete"
+  }, /*settings.rootElement*/document.body); //TODO survey root
+  const toolbar = popupViewModel.footerToolbar;
+  const applyBtn = toolbar.getActionById("apply");
+  const cancelBtn = toolbar.getActionById("cancel");
+  cancelBtn.title = surveyLocalization.getString("cancel");
+  cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
+  applyBtn.title = surveyLocalization.getString("ok");
+  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
+  popupViewModel.width = "452px";
+  return true;
 }
 
 export {

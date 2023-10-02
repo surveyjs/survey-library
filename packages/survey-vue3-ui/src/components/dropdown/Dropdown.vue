@@ -28,8 +28,8 @@
 
       <div :class="question.cssClasses.controlValue">
         <survey-string
-          v-if="question.showSelectedItemLocText"
-          :locString="question.selectedItemLocText"
+          v-if="showSelectedItemLocText"
+          :locString="selectedItemLocText"
         />
         <div
           v-if="model.showHintString"
@@ -105,7 +105,7 @@
     </div>
     <div
       :class="question.cssClasses.chevronButton"
-          v-on:pointerdown="chevronPointerDown"
+      v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
     >
       <sv-svg-icon
@@ -165,6 +165,11 @@ const focus = (event: any) => {
 const inputChange = (event: any) => {
   model.value.inputStringRendered = event.target.value;
 };
+
+const showSelectedItemLocText = computed(
+  () => props.question.showSelectedItemLocText
+);
+const selectedItemLocText = computed(() => props.question.selectedItemLocText);
 
 useBase(() => model.value);
 

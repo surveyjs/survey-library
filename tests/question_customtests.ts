@@ -981,14 +981,15 @@ QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (
     elements: [{ type: "newquestion", name: "q1" }],
   });
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-  q.afterRender(5);
+  const el: HTMLElement = <any>({ a: 5 });
+  q.afterRender(el);
   assert.equal(
     afterRenderQuestion.name,
     "q1",
     "onAfterRender, question parameter is correct"
   );
   assert.equal(
-    afterRenderHtmlElement,
+    (<any>afterRenderHtmlElement).a,
     5,
     "onAfterRender, htmlElement parameter is correct"
   );
@@ -1046,14 +1047,15 @@ QUnit.test("Composite: onAfterRender and onAfterRenderContentElement", function 
     elements: [{ type: "fullname", name: "q1" }],
   });
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-  q.afterRender(5);
+  const el: HTMLElement = <any>({ a: 5 });
+  q.afterRender(el);
   assert.equal(
     afterRenderQuestion.name,
     "q1",
     "onAfterRender, question parameter is correct"
   );
   assert.equal(
-    afterRenderHtmlElement,
+    (<any>afterRenderHtmlElement).a,
     5,
     "onAfterRender, htmlElement parameter is correct"
   );

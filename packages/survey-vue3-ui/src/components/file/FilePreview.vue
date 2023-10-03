@@ -1,5 +1,8 @@
 <template>
-  <div :class="question.cssClasses.fileList || undefined">
+  <div
+    v-if="question.showPreviewContainer"
+    :class="question.cssClasses.fileList || undefined"
+  >
     <span
       v-for="(val, index) in question.previewValue"
       :key="question.inputId + '_' + index"

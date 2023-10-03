@@ -1,4 +1,4 @@
-
+<!-- ko if: question.koHasValue && question.showPreviewContainer -->
 <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
   <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
     <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
@@ -23,3 +23,4 @@
     <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSignBottom} } --><!-- /ko -->
   </span>
 </div>
+<!-- /ko -->

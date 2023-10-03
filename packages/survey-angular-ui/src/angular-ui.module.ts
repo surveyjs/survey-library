@@ -115,6 +115,7 @@ import { LoadingIndicatorComponent } from "./angular-ui";
 import { CoverComponent } from "./components/cover/cover.component";
 import { CoverCellComponent } from "./components/cover/cover-cell.component";
 import { ChooseFileBtn } from "./components/file-actions/choose-file.component";
+import { FilePreviewComponent } from "./components/file-actions/file-preview.component";
 
 @NgModule({
   declarations: [
@@ -132,7 +133,7 @@ import { ChooseFileBtn } from "./components/file-actions/choose-file.component";
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, CoverComponent, CoverCellComponent, ChooseFileBtn
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, CoverComponent, CoverCellComponent, ChooseFileBtn, FilePreviewComponent
   ],
   imports: [
     CommonModule, FormsModule
@@ -153,7 +154,7 @@ import { ChooseFileBtn } from "./components/file-actions/choose-file.component";
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupQuestionComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, CoverComponent, CoverCellComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, CoverComponent, CoverCellComponent, FilePreviewComponent
   ],
   providers: [PopupService],
 })

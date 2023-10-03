@@ -1,0 +1,30 @@
+<ng-template #template>
+    <div [class]="question.cssClasses.fileList || undefined">
+        <span *ngFor="let val of question.previewValue; index as index; trackBy: trackFilesFn"
+            [visible]="val && question.isPreviewVisible(index)" [class]="question.cssClasses.preview">
+            <div *ngIf="val.name && question.cssClasses.fileSign" [class]="question.cssClasses.fileSign">
+                <a (click)="question.doDownloadFile($event, val)" [attr.href]="val.content | safeUrl"
+                    [attr.title]="val.name" [attr.download]="val.name" [style.width]="question.imageWidth">{{ val.name
+                    }}</a>
+            </div>
+            <div [class]="question.cssClasses.imageWrapper">
+                <img *ngIf="question.canPreviewImage(val)" [attr.src]="val.content | safeUrl"
+                    [style.height]="question.imageHeight" [style.width]="question.imageWidth" alt="File preview" />
+                <svg *ngIf="question.defaultImage(val)" [iconName]="question.cssClasses.defaultImageIconId"
+                    [partCss]="question.cssClasses.defaultImage" [size]="'auto'" sv-ng-svg-icon></svg>
+                <div *ngIf="val.name && !question.isReadOnly" [class]="question.getRemoveButtonCss()"
+                    (click)="question.doRemoveFile(val)">
+                    <span [class]="question.cssClasses.removeFile">{{ question.removeFileCaption }}</span>
+                    <svg *ngIf="question.cssClasses.removeFileSvgIconId" [title]="question.removeFileCaption"
+                        [partCss]="question.cssClasses.removeFileSvg"
+                        [iconName]="question.cssClasses.removeFileSvgIconId" [size]="'auto'" sv-ng-svg-icon></svg>
+                </div>
+            </div>
+            <div *ngIf="val.name && question.cssClasses.fileSignBottom" [class]="question.cssClasses.fileSignBottom">
+                <a (click)="question.doDownloadFile($event, val)" [attr.href]="val.content | safeUrl"
+                    [attr.title]="val.name" [attr.download]="val.name" [style.width]="question.imageWidth">{{ val.name
+                    }}</a>
+            </div>
+        </span>
+    </div>
+</ng-template>

@@ -92,12 +92,11 @@
 }
 
 .sv-cover__title .sd-title {
+  @include cover_title;
   margin: 0;
   color: $cover-title-forecolor;
   font-family: $font-surveytitle-family;
-  font-size: $font-surveytitle-size;
   font-weight: $font-surveytitle-weight;
-  line-height: multiply(1.25, $font-surveytitle-size);
 }
 
 .sv-cover__description {

@@ -65,6 +65,7 @@ export * from "./panel.component";
 export * from "./components/popup/modal-container.component";
 export * from "./components/popup/popup.service";
 export * from "./components/survey-actions/survey-nav-btn.component";
+export * from "./components/file/file-preview.component";
 export * from "./questions/matrix.component";
 export * from "./components/svg-icon/svg-icon.component";
 export * from "./questions/file.component";

@@ -7,7 +7,7 @@ import { ReactQuestionFactory } from "./reactquestion_factory";
 import { attachKey2click } from "./reactSurvey";
 import { LoadingIndicatorComponent } from "./components/loading-indicator";
 import { SurveyAction } from "./components/action-bar/action-bar-item";
-import { SurveyFileChooseButton } from "../entries/react-ui-model";
+import { ReactElementFactory, SurveyFileChooseButton } from "../entries/react-ui-model";
 
 export class SurveyQuestionFile extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -112,23 +112,8 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       </button>
     ) : null;
   }
-  protected renderFileSign(className: string, val: any): JSX.Element | null {
-    if(!className || !val.name) return null;
-    return (
-      <div className={className}>
-        <a
-          href={val.content}
-          onClick={event => {
-            this.question.doDownloadFile(event, val);
-          }}
-          title={val.name}
-          download={val.name}
-          style={{ width: this.question.imageWidth }}
-        >
-          {val.name}
-        </a>
-      </div>
-    );
+  protected renderPreview(): JSX.Element {
+    return ReactElementFactory.Instance.createElement("sv-file-preview", { question: this.question });
   }
   protected renderLoadingIndicator(): JSX.Element {
     return <div className={this.question.cssClasses.loadingIndicator}><LoadingIndicatorComponent></LoadingIndicatorComponent></div>;
@@ -140,44 +125,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
       <video autoPlay playsInline id={this.question.videoId} className={this.question.cssClasses.video}></video>
       <SurveyAction item={this.question.takePictureAction}></SurveyAction>
     </div>);
-  }
-  protected renderPreview(): JSX.Element {
-    var previews = this.question.previewValue.map((val, index) => {
-      if (!val) return null;
-      return (
-        <span
-          key={this.question.inputId + "_" + index}
-          className={this.question.cssClasses.preview}
-          style={{ display: this.question.isPreviewVisible(index) ? undefined : "none" }}
-        >
-          {this.renderFileSign(this.question.cssClasses.fileSign, val)}
-          <div className={this.question.cssClasses.imageWrapper}>
-            {this.question.canPreviewImage(val) ? (
-              <img
-                src={val.content}
-                style={{ height: this.question.imageHeight, width: this.question.imageWidth }}
-                alt="File preview"
-              />
-            ) : (this.question.cssClasses.defaultImage?(
-              <SvgIcon iconName={this.question.cssClasses.defaultImageIconId} size={"auto"} className={this.question.cssClasses.defaultImage}></SvgIcon>
-            ):null)}
-            {val.name && !this.question.isReadOnly ? (
-              <div className={this.question.getRemoveButtonCss()} onClick={() => this.question.doRemoveFile(val)}>
-                <span
-                  className={this.question.cssClasses.removeFile}
-                >
-                  {this.question.removeFileCaption}
-                </span>
-                {(this.question.cssClasses.removeFileSvgIconId) ?
-                  (<SvgIcon title={this.question.removeFileCaption} iconName={this.question.cssClasses.removeFileSvgIconId} size={"auto"} className={this.question.cssClasses.removeFileSvg}></SvgIcon>): null }
-              </div>
-            ) : null}
-          </div>
-          {this.renderFileSign(this.question.cssClasses.fileSignBottom, val)}
-        </span>
-      );
-    });
-    return <div className={this.question.cssClasses.fileList || undefined}>{previews}</div>;
   }
 }
 

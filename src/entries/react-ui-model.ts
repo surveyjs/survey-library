@@ -48,7 +48,8 @@ export {
 } from "../react/reactquestion_matrix";
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";
-export { SurveyFileChooseButton } from "../react/components/file-actions/file-choose-button";
+export { SurveyFileChooseButton } from "../react/components/file/file-choose-button";
+export { SurveyFilePreview } from "../react/components/file/file-preview";
 export { SurveyQuestionMultipleText } from "../react/reactquestion_multipletext";
 export { SurveyQuestionRadiogroup, SurveyQuestionRadioItem } from "../react/reactquestion_radiogroup";
 export { SurveyQuestionText } from "../react/reactquestion_text";

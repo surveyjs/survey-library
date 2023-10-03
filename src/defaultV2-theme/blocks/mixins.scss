@@ -1,12 +1,18 @@
 @mixin page_title {
-  --default-font-size: var(--sjs-font-pagetitle-size, calc(1.5 * (var(--sjs-font-size, 16px))));
+  --page-title-font-size: var(--sjs-font-pagetitle-size, calc(1.5 * (var(--sjs-font-size, 16px))));
   font-family: $font-pagetitle-family;
   font-weight: $font-pagetitle-weight;
-  font-size: var(--default-font-size);
+  font-size: var(--page-title-font-size);
   color: $font-pagetitle-color;
   position: static;
-  line-height: multiply(1.33, var(--default-font-size));
+  line-height: multiply(1.33, var(--page-title-font-size));
   margin: calcSize(0.5) 0px;
+}
+
+@mixin cover_title {
+  --cover-title-font-size: var(--sjs-font-surveytitle-size, calc(2 * (var(--sjs-font-size, 16px))));
+  font-size: var(--cover-title-font-size);
+  line-height: multiply(1.25, var(--cover-title-font-size));
 }
 
 @mixin page_description {

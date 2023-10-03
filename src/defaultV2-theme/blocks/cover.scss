@@ -80,12 +80,10 @@
 }
 
 .sv-cover__title .sd-title {
-  --default-font-size: var(--sjs-font-surveytitle-size, calc(2 * (var(--sjs-font-size, 16px))));
+  @include cover_title;
   color: $foreground-dim;
   font-family: $font-surveytitle-family;
-  font-size: var(--default-font-size);
   font-weight: $font-surveytitle-weight;
-  line-height: multiply(1.25, var(--default-font-size));
 }
 
 .sv-cover__description {

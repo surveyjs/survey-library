@@ -173,8 +173,8 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("page-layout-responsive-panels-title-description.png", bodyRoot, t, comparer);
 
       await ClientFunction(() => {
-        (<any>window).survey.render();
         (<any>window).survey.pages[0].title = "";
+        (<any>window).survey.render();
       })();
       await takeElementScreenshot("page-layout-responsive-panels-notitle-description.png", bodyRoot, t, comparer);
 

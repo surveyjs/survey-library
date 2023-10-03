@@ -86,6 +86,19 @@
   }
 }
 
+.sd-root--compact {
+  .sd-body {
+
+    &.sd-body--responsive,
+    &.sd-body--static {
+
+      .sd-body__navigation {
+        padding-top: calcSize(7);
+      }
+    }
+  }
+}
+
 .sd-body__navigation.sd-action-bar {
   box-sizing: border-box;
   padding: calcSize(2) calcSize(2);

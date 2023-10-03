@@ -255,7 +255,7 @@ export class Base {
    *
    * - `sender`: `this`\
    * A SurveyJS object whose property has changed.
-   * - `options.name`: `String`\
+   * - `options.name`: `string`\
    * The name of the changed property.
    * - `options.newValue`: `any`\
    * A new value for the property.
@@ -272,7 +272,7 @@ export class Base {
    * A SurveyJS object whose property contains an array of `ItemValue` objects.
    * - `options.obj`: [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue)\
    * An `ItemValue` object.
-   * - `options.propertyName`: `String`\
+   * - `options.propertyName`: `string`\
    * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
    * - `options.name`: `"text"` | `"value"`\
    * The name of the changed property.

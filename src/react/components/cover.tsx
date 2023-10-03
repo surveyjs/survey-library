@@ -63,7 +63,7 @@ export class CoverComponent extends SurveyElementBase<ILayoutElementProps<Cover>
     }
 
     return (
-      <div className={this.model.coverClasses} style={{ height: this.model.renderedHeight, backgroundColor: this.model.backgroundColor }}>
+      <div className={this.model.coverClasses} style={{ height: this.model.renderedHeight }}>
         {this.model.backgroundImage ? <div style={this.model.backgroundImageStyle} className={this.model.backgroundImageClasses}></div> : null}
         <div className={this.model.contentClasses}>
           {this.model.cells.map((cell, index) => <CoverCellComponent key={index} model={cell}/>)}

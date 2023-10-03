@@ -2,6 +2,16 @@
   padding: calcSize(5);
   box-sizing: border-box;
   position: relative;
+  background-color: $cover-backcolor;
+}
+
+.sv-conver__overlap {
+  margin-bottom: calcSize(-13);
+  padding-bottom: calcSize(13);
+}
+
+.sv-conver__overlap.sv-conver__without-background {
+  margin-bottom: calcSize(-8);
 }
 
 .sv-conver__without-background {
@@ -50,6 +60,7 @@
   width: max-content;
   top: 0;
   bottom: 0;
+  gap: calcSize(1);
 }
 
 .sv-cover__cell--left {
@@ -73,6 +84,7 @@
 
 .sv-cover__logo {
   display: flex;
+  margin-bottom: calcSize(2);
 }
 
 .sv-cover__title {
@@ -81,7 +93,8 @@
 
 .sv-cover__title .sd-title {
   @include cover_title;
-  color: $foreground-dim;
+  margin: 0;
+  color: $cover-title-forecolor;
   font-family: $font-surveytitle-family;
   font-weight: $font-surveytitle-weight;
 }
@@ -91,5 +104,6 @@
 }
 
 .sv-cover__description .sd-description {
+  margin: 0;
   color: $foreground-dim-light;
 }

@@ -50,10 +50,10 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `showEmptyDescriptions`: `Boolean`\
+   * - `showEmptyDescriptions`: `boolean`\
    * Specifies whether to display an empty description for pages and panels. Default value: `true`.
    *
-   * - `showEmptyTitles`: `Boolean`\
+   * - `showEmptyTitles`: `boolean`\
    * Specifies whether to display an empty title for pages and panels. Default value: `true`.
    */
   designMode: {
@@ -78,13 +78,13 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `useLocalTimeZone`: `Boolean`\
+   * - `useLocalTimeZone`: `boolean`\
    * Disable this property if you want internal SurveyJS functions to use methods that work with UTC date and time (`setUTCDate()` `setUTCHours()`, etc.) instead of methods that work with local date and time (`setYear`, `setHours()`, etc.). Default value: `true`.
    *
-   * - `defaultLocaleName`: `String`\
+   * - `defaultLocaleName`: `string`\
    * A property key that stores a translation for the default locale. Default value: `"default"`.
    *
-   * - `storeDuplicatedTranslations`: `Boolean`\
+   * - `storeDuplicatedTranslations`: `boolean`\
    * Specifies whether surveys should store translation strings that equal the translation strings in the default locale. Default value: `false`.
    */
   localization: {
@@ -114,16 +114,16 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `encodeUrlParams`: `Boolean`\
+   * - `encodeUrlParams`: `boolean`\
    * Specifies whether to encode URL parameters when you access a web service. Default value: `true`.
    *
-   * - `cacheLoadedChoices`: `Boolean`\
+   * - `cacheLoadedChoices`: `boolean`\
    * Specifies whether to cache [choices](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#choicesByUrl) loaded from a web service. Default value: `true`.
    *
-   * - `disableQuestionWhileLoadingChoices`: `Boolean`\
+   * - `disableQuestionWhileLoadingChoices`: `boolean`\
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
    *
-   * - `surveyServiceUrl`: `String`\
+   * - `surveyServiceUrl`: `string`\
    * The URL of the SurveyJS Service API endpoint.
    */
   web: {
@@ -162,14 +162,14 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `changeNavigationButtonsOnComplete`: `Boolean`\
+   * - `changeNavigationButtonsOnComplete`: `boolean`\
    * Specifies whether to re-evaluate an expression associated with the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `false`.\
    * Keep this property set to `false` if you want to re-evaluate the Complete trigger's expression only when the respondents navigate to another page.
    *
-   * - `executeCompleteOnValueChanged`: `Boolean`\
+   * - `executeCompleteOnValueChanged`: `boolean`\
    * Specifies whether to replace the Next button with the Complete button when the [Complete trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete) is going to be executed. Default value: `true`.
    *
-   * - `executeSkipOnValueChanged`: `Boolean`\
+   * - `executeSkipOnValueChanged`: `boolean`\
    * Specifies whether to re-evaluate an expression associated with the [Skip trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#skip) immediately when a question value changes. If the expression evaluates to `true`, the trigger is executed. Default value: `true`.\
    * Disable this property if you want to re-evaluate the Skip trigger's expression only when respondents navigate to another page.
    */
@@ -201,13 +201,13 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `itemValueSerializeAsObject`: `Boolean`\
+   * - `itemValueSerializeAsObject`: `boolean`\
    * Enable this property if you want to serialize [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) instances as objects even when they include only the `value` property. Default value: `false`. View an example below.
    *
-   * - `itemValueSerializeDisplayText`: `Boolean`\
+   * - `itemValueSerializeDisplayText`: `boolean`\
    * Enable this property if you want to serialize the `text` property of [`ItemValue`](https://surveyjs.io/form-library/documentation/api-reference/itemvalue) objects even when it is empty or equal to the `value` property. Default value: `false`. View an example below.
    *
-   * - `localizableStringSerializeAsObject`: `Boolean`\
+   * - `localizableStringSerializeAsObject`: `boolean`\
    * Enable this property if you want to serialize [`LocalizableString`](https://surveyjs.io/form-library/documentation/api-reference/localizablestring) instances as objects even when they include only a translation string for the default locale. For example, `"Custom String"` will be serialized as `{ default: "Custom String" }`. Default value: `false`.
    *
    * ```js
@@ -251,7 +251,7 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `enabled`: `Boolean`\
+   * - `enabled`: `boolean`\
    * Specifies whether to add questions to the DOM only when they get into the viewport. Default value: `false`.
    *
    * > Lazy rendering is an experimental feature that may not work as expected in all use cases.
@@ -274,28 +274,28 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `defaultRowName`: `String`\
+   * - `defaultRowName`: `string`\
    * A property key that stores an object with default cell values. Default value: "default".
    *
-   * - `defaultCellType`: `String`\
+   * - `defaultCellType`: `string`\
    * The default type of matrix cells. Default value: `"dropdown"`.\
    * You can specify this setting for individual questions or matrix columns: [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#cellType). Refer to the `cellType` property description for information on possible values.
    *
-   * - `totalsSuffix`: `String`\
+   * - `totalsSuffix`: `string`\
    * A suffix added to the name of the property that stores total values. The resulting property name consists of the matrix name and the suffix. Default value: `"-total"`.
    *
-   * - `maxRowCount`: `Number`\
+   * - `maxRowCount`: `number`\
    * A maximum number of rows in a Dynamic Matrix. Default value: 1000.\
    * You can specify this setting for an individual Dynamic Matrix: [`maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#maxRowCount).
    *
-   * - `maxRowCountInCondition`: `Number`\
+   * - `maxRowCountInCondition`: `number`\
    * A maximum number of matrix rows included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
    * If you set this property to 0, the Condition menu does not include any matrix rows. Users still can specify conditions that use matrix rows but only with Manual Entry.
    *
-   * - `renderRemoveAsIcon`: `Boolean`\
+   * - `renderRemoveAsIcon`: `boolean`\
    * Disable this property if you want to render the Remove action in Dynamic Matrix as a button. Otherwise, the action is rendered as an icon. Default value: `true`.
    *
-   * - `columnWidthsByType`: `Object`\
+   * - `columnWidthsByType`: `object`\
    * An object that specifies fixed and minimum column width based on the column type.\
    * Example: `settings.matrix.columnWidthsByType = { "tagbox": { minWidth: "240px", width: "300px" } }`
    *
@@ -349,11 +349,11 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `maxPanelCount`: `Number`\
+   * - `maxPanelCount`: `number`\
    * A maximum number of panels in Dynamic Panel. Default value: 100.\
    * You can specify this setting for an individual Dynamic Panel: [`maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#maxPanelCount).
    *
-   * - `maxPanelCountInCondition`: `Number`\
+   * - `maxPanelCountInCondition`: `number`\
    * A maximum number of Dynamic Panel panels included in the Condition drop-down menu in Survey Creator. This menu is used to configure conditional survey logic. Default value: 1.\
    * If you set this property to 0, the Condition menu does not include any panel questions. Users still can specify conditions that use panel questions but only with Manual Entry.
    */
@@ -406,10 +406,10 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `includeQuestionsWithHiddenNumber`: `Boolean`\
+   * - `includeQuestionsWithHiddenNumber`: `boolean`\
    * Specifies whether to number questions whose [`hideNumber`](https://surveyjs.io/form-library/documentation/api-reference/question#hideNumber) property is enabled. Default value: `false`.
    *
-   * - `includeQuestionsWithHiddenTitle`: `Boolean`\
+   * - `includeQuestionsWithHiddenTitle`: `boolean`\
    * Specifies whether to number questions whose [`titleLocation`](https://surveyjs.io/form-library/documentation/api-reference/question#titleLocation) property is set to `"hidden"`. Default value: `false`.
    */
   numbering: {
@@ -443,10 +443,10 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `trimStrings`: `Boolean`\
+   * - `trimStrings`: `boolean`\
    * Specifies whether to remove whitespace from both ends of a string before the comparison. Default value: `true`.
    *
-   * - `caseSensitive`: `Boolean`\
+   * - `caseSensitive`: `boolean`\
    * Specifies whether to differentiate between capital and lower-case letters. Default value: `false`.
    */
   comparator: {
@@ -540,7 +540,7 @@ export var settings = {
    *
    * Nested properties:
    *
-   * - `lifetime`: `Number`\
+   * - `lifetime`: `number`\
    * Specifies a time period during which a notification is displayed; measured in milliseconds.
    */
   notifications: {

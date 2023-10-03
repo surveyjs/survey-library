@@ -87,9 +87,9 @@ export class Question extends SurveyElement<Question>
    *
    * - `sender`: `SurveyModel`\
    * A survey instance that contains the question whose ready state has changed.
-   * - `options.isReady`: `Boolean`\
+   * - `options.isReady`: `boolean`\
    * Indicates whether the question is ready.
-   * - `options.oldIsReady`: `Boolean`\
+   * - `options.oldIsReady`: `boolean`\
    * Indicates the previous ready state.
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
@@ -1409,27 +1409,27 @@ export class Question extends SurveyElement<Question>
    *
    * | Question type | Value type(s) |
    * | ------------- | ------------- |
-   * | Checkboxes | `Array<String \| Number>` |
-   * | Dropdown | `String` \| `Number` |
-   * | Dynamic Matrix | `Array<Object>` |
-   * | Dynamic Panel | `Array<Object>` |
-   * | Expression | `String` \| `Number` \| `Boolean` |
+   * | Checkboxes | `Array<string \| number>` |
+   * | Dropdown | `string` \| `number` |
+   * | Dynamic Matrix | `Array<object>` |
+   * | Dynamic Panel | `Array<object>` |
+   * | Expression | `string` \| `number` \| `boolean` |
    * | File Upload | `File` \| `Array<File>` |
    * | HTML | (no value) |
    * | Image | (no value) |
-   * | Image Picker | `Array<String \| Number>` |
-   * | Long Text | `String` |
-   * | Multi-Select Dropdown | `Object` |
-   * | Multi-Select Matrix | `Object` |
-   * | Multiple Textboxes | `Array<String>` |
+   * | Image Picker | `Array<string \| number>` |
+   * | Long Text | `string` |
+   * | Multi-Select Dropdown | `object` |
+   * | Multi-Select Matrix | `object` |
+   * | Multiple Textboxes | `Array<string>` |
    * | Panel | (no value) |
-   * | Radio Button Group | `String` \| `Number` |
-   * | Ranking | `Array<String \| Number>` |
-   * | Rating Scale | `Number` \| `String` |
-   * | Signature | `String` (base64-encoded image) |
-   * | Single-Line Input | `String` \| `Number` \| `Date` |
-   * | Single-Select Matrix | `Object` |
-   * | Yes/No (Boolean) | `Boolean` \| `String` |
+   * | Radio Button Group | `string` \| `number` |
+   * | Ranking | `Array<string \| number>` |
+   * | Rating Scale | `number` \| `string` |
+   * | Signature | `string` (base64-encoded image) |
+   * | Single-Line Input | `string` \| `number` \| `Date` |
+   * | Single-Select Matrix | `object` |
+   * | Yes/No (Boolean) | `boolean` \| `string` |
    */
   public get value(): any {
     return this.getValueCore();

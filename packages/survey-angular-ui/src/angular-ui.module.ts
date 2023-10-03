@@ -114,8 +114,8 @@ import { MultipleTextRowComponent } from "./questions/multipletextrow.component"
 import { LoadingIndicatorComponent } from "./angular-ui";
 import { CoverComponent } from "./components/cover/cover.component";
 import { CoverCellComponent } from "./components/cover/cover-cell.component";
-import { ChooseFileBtn } from "./components/file-actions/choose-file.component";
-import { FilePreviewComponent } from "./components/file-actions/file-preview.component";
+import { ChooseFileBtn } from "./components/file/choose-file.component";
+import { FilePreviewComponent } from "./components/file/file-preview.component";
 
 @NgModule({
   declarations: [

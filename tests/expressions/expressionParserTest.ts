@@ -1489,7 +1489,7 @@ QUnit.test("Warn in console if the expression is invalid", function(assert) {
   runner.expression = "tooday()";
   assert.notOk(reportText);
   runner.run({});
-  assert.equal(reportText, "Function name is unknown: tooday");
+  assert.equal(reportText, "Unknown function name: tooday");
 
   reportText = "";
   runner.expression = "today";

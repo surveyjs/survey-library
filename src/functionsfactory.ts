@@ -43,7 +43,7 @@ export class FunctionFactory {
   ): any {
     var func = this.functionHash[name];
     if (!func) {
-      ConsoleWarnings.warn("Function name is unknown: " + name);
+      ConsoleWarnings.warn("Unknown function name: " + name);
       return null;
     }
     let classRunner = {

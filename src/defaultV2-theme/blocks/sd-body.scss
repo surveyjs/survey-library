@@ -2,7 +2,7 @@
   width: 100%;
 
   .sd-body__page {
-    min-width: 300px;
+    min-width: min(100%, 300px);
   }
 
   .sd-body__timer {

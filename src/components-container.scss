@@ -17,3 +17,9 @@ sv-components-container,
 .sv-components-column--expandable {
   flex-grow: 1;
 }
+
+.sv-components-row {
+  &>.sv-components-column--expandable {
+    width: 1px;
+  }
+}

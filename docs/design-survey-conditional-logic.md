@@ -198,7 +198,7 @@ Returns the `valueIfTrue` value if the `condition` is truthy or the `valueIfFals
 
 #### `isContainerReady`
 
-*Definition*: `isContainerReady(nameOfPanelOrPage: string): Boolean`
+*Definition*: `isContainerReady(nameOfPanelOrPage: string): boolean`
 
 Returns `true` if all questions in a given panel or page have valid input; otherwise, returns `false`. An empty question value is considered valid if neither validators nor required status is defined for it.
 
@@ -210,7 +210,7 @@ Returns `true` if all questions in a given panel or page have valid input; other
 
 #### `isDisplayMode`
 
-*Definition*: `isDisplayMode(): Boolean`
+*Definition*: `isDisplayMode(): boolean`
 
 Returns `true` if the survey is in display or preview mode.
 

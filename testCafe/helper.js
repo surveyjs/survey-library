@@ -12,6 +12,7 @@ export const frameworks = environment
 // eslint-disable-next-line no-console
 console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
+export const urlV2 = "http://127.0.0.1:8080/examples_test/defaultV2/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 

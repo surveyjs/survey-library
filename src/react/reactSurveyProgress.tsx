@@ -28,6 +28,7 @@ export class SurveyProgress extends SurveyNavigationBase {
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-label="progress"
         >
           <span
             className={SurveyProgressModel.getProgressTextInBarCss(this.css)}

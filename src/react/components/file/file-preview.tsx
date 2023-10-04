@@ -67,6 +67,9 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
     });
     return <div className={this.question.cssClasses.fileList || undefined}>{previews}</div>;
   }
+  protected canRender(): boolean {
+    return this.question.showPreviewContainer;
+  }
 }
 ReactElementFactory.Instance.registerElement(
   "sv-file-preview",

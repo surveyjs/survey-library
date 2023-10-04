@@ -522,7 +522,10 @@ export class QuestionFileModel extends Question {
   public get allowShowPreview(): boolean {
     const isShowLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;
-    return this.previewValue && this.previewValue.length > 0 && !isShowLoadingIndicator && !isPlayingVideo;
+    return !isShowLoadingIndicator && !isPlayingVideo;
+  }
+  public get showPreviewContainer(): boolean {
+    return this.previewValue && this.previewValue.length > 0;
   }
   //todo: remove in V2
   get showRemoveButtonCore(): boolean {

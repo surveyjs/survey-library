@@ -41,6 +41,12 @@ export interface IQuestionPlainData {
   [key: string]: any;
 }
 
+class TriggerExpressionInfo {
+  runner: ExpressionRunner;
+  isRunning: boolean;
+  constructor(public name: string, public canRun: () => boolean, public doComplete: () => void) {}
+}
+
 /**
  * A base class for all questions.
  */
@@ -131,6 +137,11 @@ export class Question extends SurveyElement<Question>
     };
     this.locTitle.storeDefaultText = true;
     this.createLocalizableString("requiredErrorText", this);
+    this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
+      this.clearValue();
+      this.updateValueWithDefaults();
+    });
+    this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
@@ -508,28 +519,54 @@ export class Question extends SurveyElement<Question>
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
   }
-  private resetValueIfExpression: ExpressionRunner;
-  private isRunningResetValueIf: boolean;
-  public runTriggers(name: string, value: any): void {
-    if(this.isRunningResetValueIf || this.isReadOnly || !this.resetValueIf || this.isEmpty() || this.isSettingQuestionValue) return;
-    if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
-    if(!this.resetValueIfExpression) {
-      this.resetValueIfExpression = new ExpressionRunner(this.resetValueIf);
-      this.resetValueIfExpression.onRunComplete = (res: any): void => {
-        this.isRunningResetValueIf = false;
+  private setValueExpressionRunner: ExpressionRunner;
+  private runSetValueExpression(): void {
+    if(!this.setValueExpression) {
+      this.clearValue();
+    } else {
+      if(!this.setValueExpressionRunner) {
+        this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
+        this.setValueExpressionRunner.onRunComplete = (res: any): void => {
+          if(!this.isTwoValueEquals(this.value, res)) {
+            this.value = res;
+          }
+        };
+      } else {
+        this.setValueExpressionRunner.expression = this.setValueExpression;
+      }
+      this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    }
+  }
+  private triggersInfo: Array<TriggerExpressionInfo> = [];
+  private addTriggerInfo(name: string, canRun: ()=> boolean, doComplete: () => void): void {
+    this.triggersInfo.push(new TriggerExpressionInfo(name, canRun, doComplete));
+  }
+  private runTriggerInfo(info: TriggerExpressionInfo, name: string, value: any): void {
+    const expression = this[info.name];
+    if(!expression || info.isRunning || !info.canRun()) return;
+    if(!info.runner) {
+      info.runner = new ExpressionRunner(expression);
+      info.runner.onRunComplete = (res: any): void => {
         if(res === true) {
-          this.clearValue();
-          this.updateValueWithDefaults();
+          info.doComplete();
         }
+        info.isRunning = false;
       };
     } else {
-      this.resetValueIfExpression.expression = this.resetValueIf;
+      info.runner.expression = expression;
     }
     const keys: any = {};
     keys[name] = value;
-    if(!new ProcessValue().isAnyKeyChanged(keys, this.resetValueIfExpression.getVariables())) return;
-    this.isRunningResetValueIf = true;
-    this.resetValueIfExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    if(!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables())) return;
+    info.isRunning = true;
+    info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+  }
+  public runTriggers(name: string, value: any): void {
+    if(this.isReadOnly || this.isSettingQuestionValue ||
+      (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    this.triggersInfo.forEach(info => {
+      this.runTriggerInfo(info, name, value);
+    });
   }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
@@ -1620,6 +1657,18 @@ export class Question extends SurveyElement<Question>
   public set resetValueIf(val: string) {
     this.setPropertyValue("resetValueIf", val);
   }
+  public get setValueIf(): string {
+    return this.getPropertyValue("setValueIf");
+  }
+  public set setValueIf(val: string) {
+    this.setPropertyValue("setValueIf", val);
+  }
+  public get setValueExpression(): string {
+    return this.getPropertyValue("setValueExpression");
+  }
+  public set setValueExpression(val: string) {
+    this.setPropertyValue("setValueExpression", val);
+  }
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
   }
@@ -2605,10 +2654,9 @@ Serializer.addClass("question", [
   },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
-  {
-    name: "resetValueIf:condition",
-    category: "logic"
-  },
+  "resetValueIf:condition",
+  { name: "setValueIf:condition", visible: false },
+  { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

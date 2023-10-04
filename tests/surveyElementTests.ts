@@ -231,7 +231,7 @@ QUnit.test("allowRootStyle", function (assert) {
     "flexGrow": 1,
     "flexShrink": 1,
     "maxWidth": "100%",
-    "minWidth": "300px",
+    "minWidth": "min(100%, 300px)",
   });
   q1.allowRootStyle = false;
   survey.css = defaultV2Css;
@@ -252,7 +252,7 @@ QUnit.test("rootStyle on mobile", function (assert) {
     "flexGrow": 1,
     "flexShrink": 1,
     "maxWidth": "100%",
-    "minWidth": "300px",
+    "minWidth": "min(100%, 300px)",
   });
   survey.setIsMobile(true);
   assert.notOk(q1.renderMinWidth);

@@ -191,6 +191,7 @@ export class DropdownListModel extends Base {
     this.resetFilterString();
   }
   protected onSetFilterString(): void {
+    if (!this.filterString && !this.popupModel.isVisible) return;
     if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }
@@ -508,11 +509,11 @@ export class DropdownListModel extends Base {
       this._popupModel.isVisible = true;
       return;
     }
+    doKey2ClickBlur(event);
+    this._popupModel.isVisible = false;
     this.resetFilterString();
     this.inputString = null;
     this.hintString = "";
-    doKey2ClickBlur(event);
-    this._popupModel.isVisible = false;
     event.stopPropagation();
   }
   onFocus(event: any): void {

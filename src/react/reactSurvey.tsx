@@ -98,7 +98,7 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderSurvey();
     }
     const backgroundImage = !!this.survey.backgroundImage ? <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div> : null;
-    const header: JSX.Element | null = this.survey.titleView === "title" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
+    const header: JSX.Element | null = this.survey.headerView === "basic" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
 
     const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();

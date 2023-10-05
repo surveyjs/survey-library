@@ -323,6 +323,25 @@ QUnit.test("Deserialize choicesByUrl", function (assert) {
     "data is copied correctly"
   );
 });
+QUnit.test("Change choicesByUrl.path default value", function (assert) {
+  const prop = Serializer.findProperty("choicesByUrl", "path");
+  assert.ok(prop, "Property is here");
+  prop.defaultValue = "list";
+  let question = new QuestionDropdownModel("q1");
+  assert.equal(question.choicesByUrl.path, "list", "Get value from property default value");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "question1",
+        choicesByUrl: {
+          valueName: "name"
+        }
+      }] });
+  question = <QuestionDropdownModel>survey.getQuestionByName("question1");
+  assert.equal(question.choicesByUrl.path, "list", "Get value from property default value, #2");
+  prop.defaultValue = undefined;
+});
 QUnit.test("MatrixDropdown serialize and deserialize", function (assert) {
   var matrix = new QuestionMatrixDropdownModelBase("q1");
   matrix.columns.push(new MatrixDropdownColumn("col1"));

@@ -1169,7 +1169,7 @@ export class SurveyModel extends SurveyElementCore
   @property({
     onSet: (newValue, target: SurveyModel) => {
       if (newValue === "advanced") {
-        const layoutElement = target.layoutElements.filter(a => a.id === newValue)[0];
+        const layoutElement = target.layoutElements.filter(a => a.id === "cover")[0];
         if (!layoutElement) {
           var cover = new Cover();
           cover.logoPositionX = target.logoPosition === "right" ? "right" : "left";

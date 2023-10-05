@@ -117,7 +117,7 @@ frameworks.forEach(framework => {
         ]
       });
       await ClientFunction(() => {
-        (<any>window).survey.titleView = "cover";
+        (<any>window).survey.headerView = "advanced";
       })();
       await takeElementScreenshot("survey-cover-default.png", Selector(".sd-root-modern"), t, comparer);
     });

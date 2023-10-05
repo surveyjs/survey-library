@@ -14,7 +14,7 @@
       <form onsubmit="return false;">
         <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
         <div :class="css.container">
-          <survey-header v-if="vueSurvey.titleView === 'title'" :survey="vueSurvey" />
+          <survey-header v-if="vueSurvey.headerView === 'basic'" :survey="vueSurvey" />
           <component
             :is="'sv-components-container'"
             :survey="vueSurvey"

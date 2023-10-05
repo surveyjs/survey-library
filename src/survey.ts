@@ -1168,8 +1168,8 @@ export class SurveyModel extends SurveyElementCore
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
   @property({
     onSet: (newValue, target: SurveyModel) => {
-      if (newValue === "cover") {
-        const layoutElement = target.layoutElements.filter(a => a.id === newValue)[0];
+      if (newValue === "advanced") {
+        const layoutElement = target.layoutElements.filter(a => a.id === "cover")[0];
         if (!layoutElement) {
           var cover = new Cover();
           cover.logoPositionX = target.logoPosition === "right" ? "right" : "left";
@@ -1190,7 +1190,7 @@ export class SurveyModel extends SurveyElementCore
         target.removeLayoutElement("cover");
       }
     }
-  }) titleView: "cover" | "title";
+  }) headerView: "advanced" | "basic";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -7648,7 +7648,7 @@ Serializer.addClass("survey", [
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
-  { name: "titleView", default: "title", choices: ["title", "cover"], visible: false },
+  { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },

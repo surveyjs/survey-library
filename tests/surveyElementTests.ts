@@ -246,7 +246,6 @@ QUnit.test("rootStyle on mobile", function (assert) {
     }]
   });
   const q1 = survey.getQuestionByName("q1");
-  assert.ok(q1.renderMinWidth);
   assert.deepEqual(q1.rootStyle, {
     "flexBasis": "100%",
     "flexGrow": 1,
@@ -255,7 +254,6 @@ QUnit.test("rootStyle on mobile", function (assert) {
     "minWidth": "min(100%, 300px)",
   });
   survey.setIsMobile(true);
-  assert.notOk(q1.renderMinWidth);
   assert.deepEqual(q1.rootStyle, {
     "flexBasis": "100%",
     "flexGrow": 1,

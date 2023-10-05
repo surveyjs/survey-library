@@ -12,6 +12,7 @@ const applyTheme = ClientFunction(theme => {
 });
 var json = {
   showQuestionNumbers: "off",
+  width: "800px",
   questions: [
     {
       type: "paneldynamic",

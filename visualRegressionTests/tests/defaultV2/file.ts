@@ -14,6 +14,7 @@ const applyTheme = ClientFunction(theme => {
 const theme = "defaultV2";
 const json = {
   showQuestionNumbers: "off",
+  width: "800px",
   questions: [{
     type: "file",
     title: "Upload everything what you’d like to.",
@@ -157,6 +158,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1980, 1000);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [{
           type: "file",
           title: "Question With Camera",

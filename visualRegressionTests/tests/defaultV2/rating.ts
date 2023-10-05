@@ -24,6 +24,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -57,6 +58,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -85,6 +87,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -110,6 +113,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -137,6 +141,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -246,6 +251,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -285,6 +291,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -318,6 +325,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -346,6 +354,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -386,6 +395,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -425,6 +435,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -466,6 +477,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -508,6 +520,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",
@@ -538,6 +551,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "800px",
         questions: [
           {
             type: "rating",

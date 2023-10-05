@@ -73,6 +73,27 @@ export class Cover extends Base {
     }
     return backgroundImageFit;
   }
+  private updateCoverClasses(): void {
+    this.coverClasses = new CssClassBuilder()
+      .append("sv-cover")
+      .append("sv-conver__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
+      .append("sv-conver__overlap", this.overlapEnabled)
+      .toString();
+  }
+  private updateContentClasses(): void {
+    this.contentClasses = new CssClassBuilder()
+      .append("sv-conver__content")
+      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!this.survey && this.survey.calculateWidthMode() === "static")
+      .append("sv-conver__content--responsive", this.inheritWidthFrom === "page" || (!!this.survey && this.survey.calculateWidthMode() === "responsive"))
+      .toString();
+  }
+  private updateBackgroundImageClasses(): void {
+    this.backgroundImageClasses = new CssClassBuilder()
+      .append("sv-cover__background-image")
+      .append("sv-cover__background-image--contain", this.backgroundImageFit === "contain")
+      .append("sv-cover__background-image--tile", this.backgroundImageFit === "tile")
+      .toString();
+  }
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.cover);
     if(!!theme.cssVariables) {
@@ -86,6 +107,9 @@ export class Cover extends Base {
     ["top", "middle", "bottom"].forEach((positionY: VerticalAlignment) =>
       ["left", "center", "right"].forEach((positionX: HorizontalAlignment) => this.cells.push(new CoverCell(this, positionX, positionY)))
     );
+    this.updateCoverClasses();
+    this.updateContentClasses();
+    this.updateBackgroundImageClasses();
   }
 
   public getType(): string {
@@ -116,6 +140,9 @@ export class Cover extends Base {
   @property() logoStyle: { gridColumn: number, gridRow: number };
   @property() titleStyle: { gridColumn: number, gridRow: number };
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
+  @property() coverClasses: string;
+  @property() contentClasses: string;
+  @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
     return this.height ? this.height + "px" : undefined;
@@ -124,28 +151,6 @@ export class Cover extends Base {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
   }
 
-  public get coverClasses(): string {
-    return new CssClassBuilder()
-      .append("sv-cover")
-      .append("sv-conver__without-background", !this.backgroundColor && !this.backgroundImage)
-      .append("sv-conver__overlap", this.overlapEnabled)
-      .toString();
-  }
-  public get contentClasses(): string {
-    return new CssClassBuilder()
-      .append("sv-conver__content")
-      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && this.survey.calculateWidthMode() === "static")
-      .append("sv-conver__content--responsive", this.inheritWidthFrom === "page" || this.survey.calculateWidthMode() === "responsive")
-      .toString();
-  }
-
-  public get backgroundImageClasses(): string {
-    return new CssClassBuilder()
-      .append("sv-cover__background-image")
-      .append("sv-cover__background-image--contain", this.backgroundImageFit === "contain")
-      .append("sv-cover__background-image--tile", this.backgroundImageFit === "tile")
-      .toString();
-  }
   public get backgroundImageStyle() {
     if (!this.backgroundImage) return null;
     return {
@@ -153,6 +158,18 @@ export class Cover extends Base {
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.calcBackgroundSize(this.backgroundImageFit),
     };
+  }
+  protected propertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    super.propertyValueChanged(name, oldValue, newValue);
+    if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
+      this.updateCoverClasses();
+    }
+    if (name === "inheritWidthFrom") {
+      this.updateContentClasses();
+    }
+    if (name === "backgroundImageFit") {
+      this.updateBackgroundImageClasses();
+    }
   }
 }
 

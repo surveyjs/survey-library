@@ -32,7 +32,8 @@ $foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
 $cover-backcolor: var(--sjs-cover-backcolor);
-$cover-title-forecolor: var(--sjs-cover-title-forecolor, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
+$cover-title-forecolor: var(--sjs-cover-title-forecolor, #{$foreground-dim});
+$cover-description-forecolor: var(--sjs-cover-description-forecolor, #{$foreground-dim-light});
 
 $border: var(--sjs-border-default, var(--border, #d6d6d6));
 $border-light: var(--sjs-border-light, var(--border-light, #eaeaea));

@@ -11,7 +11,7 @@
 }
 
 .sv-conver__overlap.sv-conver__without-background {
-  margin-bottom: calcSize(-8);
+  margin-bottom: 0;
 }
 
 .sv-conver__without-background {
@@ -69,12 +69,11 @@
   }
 }
 
-// .sv-cover__cell--center {
-//   .sv-cover__cell-content {
-//     left: 0;
-//     right: 0;
-//   }
-// }
+.sv-cover__cell--center {
+  .sv-cover__cell-content {
+    min-width: 100%;
+  }
+}
 
 .sv-cover__cell--right {
   .sv-cover__cell-content {
@@ -105,5 +104,8 @@
 
 .sv-cover__description .sd-description {
   margin: 0;
-  color: $foreground-dim-light;
+  color: $cover-description-forecolor;
+}
+.sv-conver__content .sd-header__text h3 {
+  margin: 0;
 }

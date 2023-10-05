@@ -2672,7 +2672,7 @@ Serializer.addClass("question", [
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   "resetValueIf:condition",
-  { name: "setValueIf:condition", visible: false },
+  "setValueIf:condition",
   { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
   "defaultValue:value",
   {

@@ -341,6 +341,18 @@ export class MatrixDropdownColumn extends Base
   public set defaultValueExpression(val: string) {
     this.templateQuestion.defaultValueExpression = val;
   }
+  public get setValueIf(): string {
+    return this.templateQuestion.setValueIf;
+  }
+  public set setValueIf(val: string) {
+    this.templateQuestion.setValueIf = val;
+  }
+  public get setValueExpession(): string {
+    return this.templateQuestion.setValueExpession;
+  }
+  public set setValueExpession(val: string) {
+    this.templateQuestion.setValueExpession = val;
+  }
   public get isUnique(): boolean {
     return this.getPropertyValue("isUnique");
   }
@@ -739,11 +751,12 @@ Serializer.addClass(
     "enableIf:condition",
     "requiredIf:condition",
     "resetValueIf:condition",
+    { name: "setValueIf:condition", visible: false },
+    { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
     {
       name: "showInMultipleColumns:boolean",
       dependsOn: "cellType",
-      visibleIf: function (obj: any) {
-        if (!obj) return false;
+      visibleIf: (obj: any): boolean => {
         return obj.isSupportMultipleColumns;
       },
     },

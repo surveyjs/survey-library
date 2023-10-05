@@ -852,6 +852,43 @@ QUnit.test("question.resetValueIf, cycle calls", function (assert) {
   assert.equal(q3.isEmpty(), true, "q2.value #3");
   assert.equal(q3.isEmpty(), true, "q3.value #3");
 });
+QUnit.test("question.setValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { name: "q1", cellType: "text" },
+          { name: "q2", cellType: "text", setValueIf: "{row.q1} = 1", setValueExpression: "{row.q1} + {row.q3}" },
+          { name: "q3", cellType: "text" },
+        ]
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  const col2 = matrix.getColumnByName("q2");
+  assert.equal(col2.setValueIf, "{row.q1} = 1", "Load from JSON, column.setValueIf");
+  assert.equal(q2.setValueIf, "{row.q1} = 1", "Load from JSON, question.setValueIf");
+  assert.equal(col2.setValueExpression, "{row.q1} + {row.q3}", "Load from JSON, column.setValueExpression");
+  assert.equal(q2.setValueExpression, "{row.q1} + {row.q3}", "Load from JSON, question.setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.value, 4, "value is set correctly");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is set, #3");
+});
+
 QUnit.test("question.onHidingContent", function (assert) {
   const survey = new SurveyModel({
     questionErrorLocation: "bottom",

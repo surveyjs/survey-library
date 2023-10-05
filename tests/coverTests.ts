@@ -58,7 +58,7 @@ QUnit.test("contentClasses",
     cover.survey = new SurveyModel();
 
     assert.equal(cover.survey.widthMode, "auto", "default widthMode");
-    assert.equal(cover.areaWidth, "survey", "default areaWidth");
+    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
     assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--static", "default contentClasses");
 
     cover.survey.widthMode = "responsive";
@@ -67,8 +67,8 @@ QUnit.test("contentClasses",
     cover.survey.widthMode = "static";
     assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--static", "survey.widthMode is static");
 
-    cover.areaWidth = "container";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "areaWidth is container");
+    cover.inheritWidthFrom = "page";
+    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "inheritWidthFrom is page");
   }
 );
 
@@ -197,11 +197,11 @@ QUnit.test("cell calculations - test width",
   function (assert) {
     const cover = new Cover();
 
-    assert.equal(cover.cells[0].textWidth, "512px", "default");
-    assert.equal(cover.cells[0].textWidth, cover.textWidth + "px", "equal to cover + px");
+    assert.equal(cover.cells[0].textAreaWidth, "512px", "default");
+    assert.equal(cover.cells[0].textAreaWidth, cover.textAreaWidth + "px", "equal to cover + px");
 
-    cover.textWidth = 120;
-    assert.equal(cover.textWidth, 120, "cover text width");
-    assert.equal(cover.cells[0].textWidth, "120px", "cell text width");
+    cover.textAreaWidth = 120;
+    assert.equal(cover.textAreaWidth, 120, "cover text width");
+    assert.equal(cover.cells[0].textAreaWidth, "120px", "cell text width");
   }
 );

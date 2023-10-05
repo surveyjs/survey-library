@@ -55,11 +55,11 @@ export class CoverCell {
   get showDescription(): boolean {
     return this.survey.renderedHasDescription && this.positionX === this.cover.descriptionPositionX && this.positionY === this.cover.descriptionPositionY;
   }
-  get textWidth(): string {
-    if (!this.cover.textWidth) {
+  get textAreaWidth(): string {
+    if (!this.cover.textAreaWidth) {
       return "";
     }
-    return "" + this.cover.textWidth + "px";
+    return "" + this.cover.textAreaWidth + "px";
   }
 }
 
@@ -94,11 +94,10 @@ export class Cover extends Base {
   public survey: SurveyModel;
   public cells: CoverCell[] = [];
   @property() public height: number;
-  @property() public areaWidth: "survey" | "container";
-  @property() public textWidth: number;
-  @property() public invertText: boolean;
-  @property() public glowText: boolean;
-  @property() public overlap: boolean;
+  @property() public inheritWidthFrom: "survey" | "page";
+  @property() public textAreaWidth: number;
+  @property() public textGlowEnabled: boolean;
+  @property() public overlapEnabled: boolean;
   @property() public backgroundColor: string;
   @property({
     onSet: (newVal: string, target: Cover) => {
@@ -121,22 +120,22 @@ export class Cover extends Base {
   public get renderedHeight(): string {
     return this.height ? this.height + "px" : undefined;
   }
-  public get renderedTextWidth(): string {
-    return this.textWidth ? this.textWidth + "px" : undefined;
+  public get renderedtextAreaWidth(): string {
+    return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
   }
 
   public get coverClasses(): string {
     return new CssClassBuilder()
       .append("sv-cover")
       .append("sv-conver__without-background", !this.backgroundColor && !this.backgroundImage)
-      .append("sv-conver__overlap", this.overlap)
+      .append("sv-conver__overlap", this.overlapEnabled)
       .toString();
   }
   public get contentClasses(): string {
     return new CssClassBuilder()
       .append("sv-conver__content")
-      .append("sv-conver__content--static", this.areaWidth === "survey" && this.survey.calculateWidthMode() === "static")
-      .append("sv-conver__content--responsive", this.areaWidth === "container" || this.survey.calculateWidthMode() === "responsive")
+      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && this.survey.calculateWidthMode() === "static")
+      .append("sv-conver__content--responsive", this.inheritWidthFrom === "page" || this.survey.calculateWidthMode() === "responsive")
       .toString();
   }
 
@@ -161,11 +160,10 @@ Serializer.addClass(
   "cover",
   [
     { name: "height:number", minValue: 0, default: 256 },
-    { name: "areaWidth", default: "survey" },
-    { name: "textWidth:number", minValue: 0, default: 512 },
-    { name: "invertText:boolean" },
-    { name: "glowText:boolean" },
-    { name: "overlap:boolean" },
+    { name: "inheritWidthFrom", default: "survey" },
+    { name: "textAreaWidth:number", minValue: 0, default: 512 },
+    { name: "textGlowEnabled:boolean" },
+    { name: "overlapEnabled:boolean" },
     { name: "backgroundImage" },
     { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
     { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },

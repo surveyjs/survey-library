@@ -7,10 +7,10 @@
           <ng-template [component]="{ name: model.survey.getElementWrapperComponentName(model.survey, 'logo-image'), data: { data: model.survey.getElementWrapperComponentData(model.survey, 'logo-image') } }"></ng-template>
         </div>
       </div>
-      <div *ngIf="model.showTitle" class="sv-cover__title" [style]="{ maxWidth: model.textWidth }">
+      <div *ngIf="model.showTitle" class="sv-cover__title" [style]="{ maxWidth: model.textAreaWidth }">
         <sv-ng-element-title [element]="model.survey"></sv-ng-element-title>
       </div>
-      <div *ngIf="model.showDescription" class="sv-cover__description" [style]="{ maxWidth: model.textWidth }">
+      <div *ngIf="model.showDescription" class="sv-cover__description" [style]="{ maxWidth: model.textAreaWidth }">
         <h5 *ngIf="model.survey.renderedHasDescription" [class]="model.survey.css.description" [model]="model.survey.locDescription" sv-ng-string></h5>
       </div>
     </div>

@@ -1635,6 +1635,7 @@ export class Question extends SurveyElement<Question>
    *
    * An expression can also include built-in and custom functions for advanced calculations. For example, if the `defaultValue` should be today's date, set the `defaultValueExpression` to `"today()"`, and the corresponding built-in function will be executed each time the survey is loaded. Refer to the following help topic for more information: [Built-In Functions](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#built-in-functions).
    * @see defaultValue
+   * @see setValueExpression
    */
   public get defaultValueExpression(): any {
     return this.getPropertyValue("defaultValueExpression");
@@ -1650,6 +1651,7 @@ export class Question extends SurveyElement<Question>
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see setValueIf
    */
   public get resetValueIf(): string {
     return this.getPropertyValue("resetValueIf");
@@ -1657,12 +1659,27 @@ export class Question extends SurveyElement<Question>
   public set resetValueIf(val: string) {
     this.setPropertyValue("resetValueIf", val);
   }
+  /**
+   * A Boolean expression. If it evaluates to `true`, the question value is set to a value calculated using the [`setValueExpression`](#setValueExpression).
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see resetValueIf
+   */
   public get setValueIf(): string {
     return this.getPropertyValue("setValueIf");
   }
   public set setValueIf(val: string) {
     this.setPropertyValue("setValueIf", val);
   }
+  /**
+   * An expression used to calculate the question value. Applies only when the [`setValueIf`](#setValueIf) expression evaluates to `true`.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see defaultValueExpression
+   * @see resetValueIf
+   */
   public get setValueExpression(): string {
     return this.getPropertyValue("setValueExpression");
   }

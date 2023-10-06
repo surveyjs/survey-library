@@ -15,7 +15,7 @@ const theme = "defaultV2";
 
 const json = {
   showQuestionNumbers: "off",
-  width: "800px",
+  width: "900px",
   questions: [
     {
       type: "Paneldynamic",

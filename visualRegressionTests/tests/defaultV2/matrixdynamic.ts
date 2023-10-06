@@ -18,7 +18,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
-        width: "800px",
+        width: "900px",
         elements: [
           {
             type: "matrixdynamic",
@@ -44,7 +44,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
-        width: "800px",
+        width: "900px",
         elements: [
           {
             type: "matrixdynamic",
@@ -137,7 +137,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
-        width: "800px",
+        width: "900px",
         elements: [
           {
             type: "matrixdynamic",
@@ -181,7 +181,7 @@ frameworks.forEach(framework => {
       await initSurvey(framework, {
         questionErrorLocation: "bottom",
         showQuestionNumbers: "off",
-        width: "800px",
+        width: "900px",
         elements: [
           {
             type: "matrixdynamic",

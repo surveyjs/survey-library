@@ -83,6 +83,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await ClientFunction(() => {
+        (window as any).survey.width = undefined;
         (window as any).survey.resizeObserver.disconnect();
         (window as any).survey.setIsMobile(false);
         (window as any).survey.getAllQuestions()[0].resizeObserver.disconnect();
@@ -158,7 +159,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1980, 1000);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
-        width: "900px",
+        widthMode: "900px",
         questions: [{
           type: "file",
           title: "Question With Camera",

@@ -112,7 +112,6 @@ export class Question extends SurveyElement<Question>
   }
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
-    this.renderMinWidth = !val;
   }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;

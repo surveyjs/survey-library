@@ -9,7 +9,7 @@ var webpackConfig = webpackConfigCreator({
   packageJson
 );
 
-process.env.CHROME_BIN = require("puppeteer").executablePath();
+//process.env.CHROME_BIN = require("puppeteer").executablePath();
 
 /*setup ts config file for tests ("noImplicitAny": false)*/
 webpackConfig.module.rules[0].options.configFile = "build-scripts/tsconfig.tests.json";

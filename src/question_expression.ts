@@ -241,10 +241,6 @@ export class QuestionExpressionModel extends Question {
     }
     return val.toString();
   }
-  protected convertToCorrectValue(val: any): any {
-    if(Array.isArray(val)) return val.join(", ");
-    return val;
-  }
 }
 
 export function getCurrecyCodes(): Array<string> {

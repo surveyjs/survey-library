@@ -49,7 +49,6 @@
       :id="question.getInputId()"
       :tabindex="model.inputReadOnly ? undefined : -1"
       :readonly="!model.searchEnabled ? true : null"
-      :aria-label="question.placeholder"
       :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"

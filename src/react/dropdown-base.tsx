@@ -118,7 +118,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           ref={(element) => (this.inputElement = element)}
           className={this.question.cssClasses.filterStringInput}
           role={dropdownListModel.filterStringEnabled ? this.question.ariaRole : undefined}
-          aria-label={this.question.placeholder}
           aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
           aria-controls={dropdownListModel.listElementId}
           aria-activedescendant={dropdownListModel.ariaActivedescendant}

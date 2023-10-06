@@ -58,7 +58,6 @@
           :id="question.getInputId()"
           :tabindex="model.inputReadOnly ? undefined : -1"
           :readonly="!model.searchEnabled ? true : undefined"
-          :aria-label="question.placeholder"
           :aria-expanded="
             question.ariaExpanded === null
               ? undefined

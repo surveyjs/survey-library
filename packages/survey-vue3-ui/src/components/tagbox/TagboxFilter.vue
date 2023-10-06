@@ -22,7 +22,6 @@
         :disabled="question.isInputReadOnly"
         :inputmode="model.inputMode"
         :role="model.filterStringEnabled ? question.ariaRole : undefined"
-        :aria-label="question.placeholder"
         :aria-expanded="
           question.ariaExpanded === null
             ? undefined

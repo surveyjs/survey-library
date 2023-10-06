@@ -7433,7 +7433,7 @@ Serializer.addClass("survey", [
     serializationProperty: "locDescription",
     dependsOn: "locale",
   },
-  { name: "logo", serializationProperty: "locLogo" },
+  { name: "logo:url", serializationProperty: "locLogo" },
   { name: "logoWidth", default: "300px", minValue: 0 },
   { name: "logoHeight", default: "200px", minValue: 0 },
   {
@@ -7649,7 +7649,7 @@ Serializer.addClass("survey", [
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
   { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
-  { name: "backgroundImage", visible: false },
+  { name: "backgroundImage:url", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

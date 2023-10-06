@@ -745,10 +745,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   public setIsMobile(val: boolean) {
     super.setIsMobile(val);
-    (this.panels || []).forEach(panel => panel.elements.forEach(element => {
-      if(element instanceof Question) {
-        (element as Question).isMobile = val;
-      }
+    (this.panels || []).forEach(panel => panel.getQuestions(true).forEach(question => {
+      question.setIsMobile(val);
     }));
   }
 

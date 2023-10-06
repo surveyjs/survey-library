@@ -37,10 +37,8 @@
           <!-- ko template: { name: 'survey-question-file-video', data: { question: question } } --><!-- /ko -->          
           <!-- /ko -->
           <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButton} } --><!-- /ko -->
-          <!-- ko if: question.showPreview -->
-          <!-- ko if: question.koHasValue && question.allowShowPreview -->
+          <!-- ko if: question.allowShowPreview -->
           <!-- ko component: { name: 'sv-file-preview', data: { question: question } } --><!-- /ko -->          
-          <!-- /ko -->
           <!-- /ko -->
           <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButtonBottom} } --><!-- /ko -->
           <!-- ko if: question.fileNavigatorVisible -->

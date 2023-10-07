@@ -2055,7 +2055,10 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return false;
   }
   private addDuplicationError(question: Question) {
-    question.addError(new KeyDuplicationError(this.keyDuplicationError, this));
+    const keyError = question.errors.find(error => error.getErrorType() === "keyduplicationerror");
+    if(!keyError) {
+      question.addError(new KeyDuplicationError(this.keyDuplicationError, this));
+    }
   }
   public getFirstQuestionToFocus(withError: boolean): Question {
     return this.getFirstCellQuestion(withError);

@@ -67,7 +67,11 @@ svg.sd-action--icon {
   &.sd-action--negative {
     background-color: $red-light;
 
-    &.sd-action--icon {}
+    &.sd-action--icon {
+      use {
+        fill: $red;
+      }
+    }
   }
 
   &:active {

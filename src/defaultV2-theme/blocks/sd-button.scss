@@ -21,6 +21,11 @@
   outline: none;
 }
 
+.sd-btn--small {
+  flex-grow: 1;
+  padding: calcSize(1.5) calcSize(4);
+}
+
 .sd-btn:hover {
   background-color: $background-dark;
 }
@@ -47,5 +52,20 @@
 
 .sd-btn--action:disabled {
   color: $primary-foreground-disabled;
+  pointer-events: none;
+}
+
+.sd-btn--danger {
+  background-color: $red;
+  color: $primary-foreground;
+}
+
+.sd-btn--danger:hover {
+  background-color: $red;
+  color: $primary-foreground;
+}
+
+.sd-btn--danger:disabled {
+  color: $red-forecolor;
   pointer-events: none;
 }

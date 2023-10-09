@@ -49,7 +49,6 @@
       :id="question.getInputId()"
       :tabindex="model.inputReadOnly ? undefined : -1"
       :readonly="!model.searchEnabled ? true : null"
-      :aria-label="question.placeholder"
       :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
@@ -87,6 +86,7 @@
     </div>
     <div
       :class="question.cssClasses.chevronButton"
+          v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
     >
       <sv-svg-icon
@@ -126,6 +126,9 @@ export class DropdownComponent extends BaseVue {
 
   public click(event: any) {
     this.model?.onClick(event);
+  }
+  public chevronPointerDown(event: any) {
+    this.model?.chevronPointerDown(event);
   }
   public clear(event: any) {
     this.model?.onClear(event);

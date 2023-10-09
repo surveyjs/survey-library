@@ -61,7 +61,7 @@ registerMarkupTests(
       },
       event: "onAfterRenderSurvey",
       getSnapshot: el => {
-        return el.children[0].outerHTML;
+        return el.children[0].children[0].outerHTML;
       },
       snapshot: "survey-theme-backgroundImage"
     },

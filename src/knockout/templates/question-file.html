@@ -37,10 +37,8 @@
           <!-- ko template: { name: 'survey-question-file-video', data: { question: question } } --><!-- /ko -->          
           <!-- /ko -->
           <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButton} } --><!-- /ko -->
-          <!-- ko if: question.showPreview -->
-          <!-- ko if: question.koHasValue && question.allowShowPreview -->
-          <!-- ko template: { name: 'survey-question-file-preview', data: { question: question } } --><!-- /ko -->          
-          <!-- /ko -->
+          <!-- ko if: question.allowShowPreview -->
+          <!-- ko component: { name: 'sv-file-preview', data: { question: question } } --><!-- /ko -->          
           <!-- /ko -->
           <!-- ko template: { name: 'survey-question-file-clean-button', data: {question: question, showRemoveButton: question.showRemoveButtonBottom} } --><!-- /ko -->
           <!-- ko if: question.fileNavigatorVisible -->
@@ -57,13 +55,6 @@
   </button>
   <!-- /ko -->
 </script>
-<script type="text/html" id="survey-question-file-sign">
-  <!-- ko if: item.name && fileSignCss -->
-  <div data-bind="css: fileSignCss">
-    <a data-bind="style: { width: question.imageWidth }, click: question.dodownload, text: item.name, attr: { href: item.content, title: item.name, download: item.name }"></a>
-  </div>
-  <!-- /ko -->
-</script>
 <script type="text/html" id="survey-question-file-video">
   <div data-bind="css: question.cssClasses.videoContainer">
     <!-- ko component: { name: 'sv-action', params: { item: question.changeCameraAction } } --><!-- /ko -->
@@ -72,29 +63,10 @@
     <!-- ko component: { name: 'sv-action', params: { item: question.takePictureAction } } --><!-- /ko -->
   </div>
 </script>
-<script type="text/html" id="survey-question-file-preview">
-  <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
-    <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
-      <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
-      <div data-bind="css: question.cssClasses.imageWrapper">
-        <!-- ko if: question.canPreviewImage($data) -->
-        <img data-bind="attr: { src: $data.content }, style : { height: question.imageHeight, width: question.imageWidth }" alt="File preview">
-        <!-- /ko -->
-        <!-- ko if: question.defaultImage($data) -->
-        <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.defaultImage, iconName: question.cssClasses.defaultImageIconId, size: 'auto' } } --><!-- /ko -->
-        <!-- /ko -->
-        <!-- ko if: $data.name -->
-        <!-- ko ifnot: question.isReadOnly -->
-        <div data-bind="click: question.doremovefile, css: question.getRemoveButtonCss()">
-            <span data-bind="css: question.cssClasses.removeFile, text: question.removeFileCaption"></span>
-            <!-- ko if: question.cssClasses.removeFileSvgIconId -->
-              <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.removeFileSvg, title: question.removeFileCaption, iconName: question.cssClasses.removeFileSvgIconId, size: 'auto' } } --><!-- /ko -->
-            <!-- /ko -->
-        </div>
-        <!-- /ko -->
-        <!-- /ko -->
-      </div>
-      <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSignBottom} } --><!-- /ko -->
-    </span>
-</div>
+<script type="text/html" id="survey-question-file-sign">
+  <!-- ko if: item.name && fileSignCss -->
+  <div data-bind="css: fileSignCss">
+    <a data-bind="style: { width: question.imageWidth }, click: question.dodownload, text: item.name, attr: { href: item.content, title: item.name, download: item.name }"></a>
+  </div>
+  <!-- /ko -->
 </script>

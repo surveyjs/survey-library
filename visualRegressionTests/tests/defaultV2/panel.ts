@@ -15,14 +15,13 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => { await applyTheme(theme); });
 
   test("Check oridinary panel", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
@@ -56,6 +55,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
@@ -95,6 +95,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
@@ -132,6 +133,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
@@ -273,6 +275,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
@@ -311,6 +314,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
@@ -350,6 +354,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questionErrorLocation: "bottom",
         questions: [
           {
@@ -387,6 +392,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
@@ -592,7 +598,7 @@ frameworks.forEach(framework => {
   test("Check question min size inside panels in design mode", async (t) => {
     if (framework == "vue") return;
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(350, 800);
+      await t.resizeWindow(370, 800);
       await initSurvey(framework, {
         "pages": [
           {
@@ -630,7 +636,6 @@ frameworks.forEach(framework => {
         (window as any).survey.setIsMobile(true);
       })();
       await resetFocusToBody();
-
       await takeElementScreenshot("responsive-question-inside-panels-in-creator.png", panelRoot, t, comparer);
     });
   });

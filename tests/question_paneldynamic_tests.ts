@@ -6395,3 +6395,35 @@ QUnit.test("question.resetValueIf based on root and row questions", function (as
   q1.value = 1;
   assert.equal(q2.isEmpty(), true, "q2.value #5");
 });
+QUnit.test("question.setValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "text" },
+          { name: "q2", type: "text", setValueIf: "{panel.q1} = 1", setValueExpression: "{panel.q1} + {panel.q3}" },
+          { name: "q3", type: "text" }
+        ]
+      }
+    ]
+  });
+  const panel = survey.getQuestionByName("panel");
+  const q1 = panel.panels[0].getQuestionByName("q1");
+  const q2 = panel.panels[0].getQuestionByName("q2");
+  const q3 = panel.panels[0].getQuestionByName("q3");
+  assert.equal(q2.setValueIf, "{panel.q1} = 1", "Load from JSON setValueIf");
+  assert.equal(q2.setValueExpression, "{panel.q1} + {panel.q3}", "Load from JSON setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.value, 4, "value is set correctly");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is stay, #3");
+});

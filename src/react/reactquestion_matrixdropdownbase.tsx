@@ -316,7 +316,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     if (!!q) return q;
     return !!this.cell ? this.cell.question : null;
   }
-  protected doAfterRender() {
+  protected doAfterRender(): void {
     var el = this.cellRef.current;
     if (
       el &&
@@ -326,7 +326,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
       el.getAttribute("data-rendered") !== "r"
     ) {
       el.setAttribute("data-rendered", "r");
-      var options = {
+      const options = {
         cell: this.cell,
         cellQuestion: this.question,
         htmlElement: el,
@@ -334,6 +334,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         column: this.cell.cell.column,
       };
       this.question.survey.matrixAfterCellRender(this.question, options);
+      this.question.afterRenderCore(el);
     }
   }
   protected getShowErrors(): boolean {

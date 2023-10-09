@@ -25,7 +25,6 @@
             [attr.inputmode]="dropdownModel.inputMode"
             [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
-            [attr.aria-label]="model.placeholder"
             [attr.aria-controls]="dropdownModel.listElementId"
             [attr.aria-expanded]="model.ariaExpanded"
             [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant"
@@ -45,7 +44,7 @@
         <sv-ng-string *ngIf="model.selectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
         <div>{{ model.readOnlyText }}</div>
     </div>
-    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)">
         <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
     </div>
 </div>

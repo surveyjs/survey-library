@@ -806,6 +806,89 @@ QUnit.test("question.resetValueIf based on root and row questions", function (as
   q1.value = 1;
   assert.equal(q2.isEmpty(), true, "q2.value #5");
 });
+QUnit.test("question.resetValueIf, cycle calls", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 1,
+        "columns": [
+          {
+            "name": "dog",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.none} notempty",
+            "choices": ["dog"]
+          },
+          {
+            "name": "cat",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.none} notempty",
+            "choices": ["cat"]
+          },
+          {
+            "name": "none",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.dog} notempty or {row.cat} notempty",
+            "choices": ["none"]
+          }]
+      }
+    ] });
+  const row = survey.getQuestionByName("matrix").visibleRows[0];
+  const q1 = row.getQuestionByName("dog");
+  const q2 = row.getQuestionByName("cat");
+  const q3 = row.getQuestionByName("none");
+  q1.value = ["dog"];
+  q2.value = ["cat"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #1");
+  assert.deepEqual(q2.value, ["cat"], "q2.value #1");
+  assert.equal(q3.isEmpty(), true, "q3.value #1");
+  q3.value = ["none"];
+  assert.equal(q1.isEmpty(), true, "q1.value #2");
+  assert.equal(q2.isEmpty(), true, "q2.value #2");
+  assert.deepEqual(q3.value, ["none"], "q3.value #2");
+  q1.value = ["dog"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #3");
+  assert.equal(q3.isEmpty(), true, "q2.value #3");
+  assert.equal(q3.isEmpty(), true, "q3.value #3");
+});
+QUnit.test("question.setValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { name: "q1", cellType: "text" },
+          { name: "q2", cellType: "text", setValueIf: "{row.q1} = 1", setValueExpression: "{row.q1} + {row.q3}" },
+          { name: "q3", cellType: "text" },
+        ]
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  const col2 = matrix.getColumnByName("q2");
+  assert.equal(col2.setValueIf, "{row.q1} = 1", "Load from JSON, column.setValueIf");
+  assert.equal(q2.setValueIf, "{row.q1} = 1", "Load from JSON, question.setValueIf");
+  assert.equal(col2.setValueExpression, "{row.q1} + {row.q3}", "Load from JSON, column.setValueExpression");
+  assert.equal(q2.setValueExpression, "{row.q1} + {row.q3}", "Load from JSON, question.setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.value, 4, "value is set correctly");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is set, #3");
+});
+
 QUnit.test("question.onHidingContent", function (assert) {
   const survey = new SurveyModel({
     questionErrorLocation: "bottom",
@@ -834,4 +917,24 @@ QUnit.test("question.onHidingContent", function (assert) {
   survey.doComplete();
   assert.equal(counter1, 1, "cell on complete");
   assert.equal(counter2, 2, "detail questions");
+});
+QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1", isUnique: true }]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a" }, { col1: "a" }];
+  const row = matrix.visibleRows[0];
+  const q = row.getQuestionByColumnName("col1");
+  matrix.checkIfValueInRowDuplicated(row, q);
+  matrix.checkIfValueInRowDuplicated(row, q);
+  matrix.checkIfValueInRowDuplicated(row, q);
+  assert.equal(q.errors.length, 1, "One error only");
+  assert.equal(q.errors[0].getErrorType(), "keyduplicationerror", "Correct error is added");
 });

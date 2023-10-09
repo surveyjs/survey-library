@@ -1,5 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { settings } from "./settings";
+import { ConsoleWarnings } from "./console-warnings";
 
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
@@ -41,7 +42,10 @@ export class FunctionFactory {
     properties: HashTable<any> = null
   ): any {
     var func = this.functionHash[name];
-    if (!func) return null;
+    if (!func) {
+      ConsoleWarnings.warn("Unknown function name: " + name);
+      return null;
+    }
     let classRunner = {
       func: func,
     };

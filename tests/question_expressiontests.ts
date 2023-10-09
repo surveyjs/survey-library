@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionExpressionModel } from "../src/question_expression";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("QuestionExpression");
 
@@ -263,4 +264,35 @@ QUnit.test("Handle Infinity", function (assert) {
   survey.setValue("q1", 2);
   assert.equal(counter, 1, "updated one time");
   assert.equal(q3.value, 4, "calculated correctly");
+});
+QUnit.test("Custom function returns object&array, #7050", function (assert) {
+  function func1(params: any[]): any {
+    return { a: 1, b: 2 };
+  }
+  function func2(params: any[]): any {
+    return [{ a: 1 }, { b: 2 }];
+  }
+  FunctionFactory.Instance.register("func1", func1);
+  FunctionFactory.Instance.register("func2", func2);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "q1",
+        "type": "expression",
+        "expression": "func1()",
+      },
+      {
+        "name": "q2",
+        "type": "expression",
+        "expression": "func2()",
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.deepEqual(q1.value, { a: 1, b: 2 }, "function returns object");
+  assert.deepEqual(q2.value, [{ a: 1 }, { b: 2 }], "function returns array");
+
+  FunctionFactory.Instance.unregister("func1");
+  FunctionFactory.Instance.unregister("func2");
 });

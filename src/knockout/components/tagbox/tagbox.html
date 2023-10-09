@@ -41,7 +41,6 @@
             size: !model.inputStringRendered ? 1 : null, 
             id: question.getInputId(), 
             role: model.filterStringEnabled ? question.ariaRole : undefined,
-            'aria-label': question.placeholder,
             'aria-expanded': question.ariaExpanded,
             'aria-controls': model.listElementId,
             'aria-activedescendant': model.ariaActivedescendant,
@@ -69,7 +68,7 @@
   </div>
   <!-- /ko -->
   <!-- ko if: question.cssClasses.chevronButtonIconId -->
-  <div data-bind="css: question.cssClasses.chevronButton">
+  <div data-bind="css: question.cssClasses.chevronButton, event: {pointerdown: chevronPointerDown}">
     <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: 'auto' } } -->
     <!-- /ko -->
   </div>

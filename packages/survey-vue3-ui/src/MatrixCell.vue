@@ -104,13 +104,18 @@ onMounted(() => {
   props.cell.question.registerPropertyChangedHandlers(["isVisible"], () => {
     onVisibilityChanged();
   });
-  var options = {
+  const el = root.value;
+  const cQ = props.cell.question;
+  const options = {
     cell: props.cell.cell,
-    cellQuestion: props.cell.question,
-    htmlElement: root.value,
+    cellQuestion: cQ,
+    htmlElement: el,
     row: props.cell.row,
     column: props.cell.cell.column,
   };
   props.question.survey.matrixAfterCellRender(props.question, options);
+  if (cQ) {
+    cQ.afterRenderCore(el);
+  }
 });
 </script>

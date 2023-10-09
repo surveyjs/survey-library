@@ -114,9 +114,9 @@ import {
 } from "survey-core";
 import type { App } from "vue";
 import FileCleanButton from "./FileCleanButton.vue";
-import FilePreview from "./FilePreview.vue";
 import FileVideo from "./FileVideo.vue";
-import FileChooseButton from "./components/file-actions/FileChooseButton.vue";
+import FileChooseButton from "./components/file/FileChooseButton.vue";
+import FilePreview from "./components/file/FilePreview.vue";
 export { useBase, useLocString, useQuestion } from "./base";
 
 SurveyModel.platform = "vue3";

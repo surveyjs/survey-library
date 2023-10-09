@@ -384,8 +384,8 @@ export class QuestionPanelDynamicModel extends Question
    *
    * The template can contain the following placeholders:
    *
-   * - `{panelIndex}` - A zero-based index of a panel in the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
-   * - `{visiblePanelIndex}` - A zero-based index of a panel in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array.
+   * - `{panelIndex}` - A panel index within the collection of all panels. Starts with 1.
+   * - `{visiblePanelIndex}` - A panel index within the collection of visible panels. Starts with 1.
    * @see template
    * @see templateDescription
    * @see templateElements
@@ -406,8 +406,12 @@ export class QuestionPanelDynamicModel extends Question
    *
    * The template can contain the following placeholders:
    *
-   * - `{panelIndex}` - A zero-based index of a panel in the [`panels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#panels) array.
-   * - `{visiblePanelIndex}` - A zero-based index of a panel in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array.
+   * - `{panelIndex}` - A panel index within the collection of all panels. Starts with 1.
+   * - `{visiblePanelIndex}` - A panel index within the collection of visible panels. Starts with 1.
+   *
+   * If you want to customize individual tab titles, handle `SurveyModel`'s [`onGetDynamicPanelTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetDynamicPanelTabTitle) event.
+   *
+   * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    * @see templateTitle
    * @see renderMode
    */
@@ -741,10 +745,8 @@ export class QuestionPanelDynamicModel extends Question
   }
   public setIsMobile(val: boolean) {
     super.setIsMobile(val);
-    (this.panels || []).forEach(panel => panel.elements.forEach(element => {
-      if(element instanceof Question) {
-        (element as Question).isMobile = val;
-      }
+    (this.panels || []).forEach(panel => panel.getQuestions(true).forEach(question => {
+      question.setIsMobile(val);
     }));
   }
 
@@ -991,11 +993,11 @@ export class QuestionPanelDynamicModel extends Question
    *
    * Possible values:
    *
-   * - `"list"` - Renders panels one under the other. [View Demo](https://surveyjs.io/form-library/examples/how-to-use-expressions-in-dynamic-panel/)
+   * - `"list"` (default) - Renders panels one under the other. [View Demo](https://surveyjs.io/form-library/examples/how-to-use-expressions-in-dynamic-panel/)
    * - `"progressTop"` - Renders each panel as a card and displays a progress bar at the top. [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)
    * - `"progressBottom"` - Renders each panel panel as a card and displays a progress bar at the bottom.
    * - `"progressTopBottom"` - Renders each panel as a card and displays a progress bar at the top and bottom.
-   * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles.
+   * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/)
    */
   public get renderMode(): string {
     return this.getPropertyValue("renderMode");

@@ -73,6 +73,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
         column: !!cell.cell ? cell.cell.column : null,
       };
       this.question.survey.matrixAfterCellRender(this.question, options);
+      if(cell.question) {
+        cell.question.afterRenderCore(el);
+      }
     }, 0);
   }
   private cellQuestionAfterRender(elements: any, con: any) {

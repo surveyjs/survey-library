@@ -1,13 +1,7 @@
-import {
-  parse,
-  SyntaxError,
-  ParseFunction,
-} from "../../src/expressions/expressionParser";
-
+import { parse } from "../../src/expressions/expressionParser";
 import { ConditionRunner, ExpressionRunner } from "../../src/conditions";
-
 import { ConditionsParser } from "../../src/conditionsParser";
-
+import { ConsoleWarnings } from "../../src/console-warnings";
 import {
   Const,
   Variable,
@@ -1469,4 +1463,49 @@ QUnit.test("Sum two float numbers as string", function(assert) {
   let runner = new ExpressionRunner("{a} + {b}");
   assert.equal(runner.run({ a: "1.1", b: "2.2" }), 3.3, "#1");
   assert.equal(runner.run({ a: "0.1", b: "0.2" }), 0.3, "#2");
+});
+QUnit.test("Warn in console if the expression is invalid", function(assert) {
+  const prev = ConsoleWarnings.warn;
+  let reportText: string = "";
+  ConsoleWarnings.warn = (text: string) => {
+    reportText = text;
+  };
+  const runner = new ExpressionRunner("{a} ++");
+  assert.notOk(reportText);
+  runner.run({ a: 1 });
+  assert.equal(reportText, "Invalid expression: {a} ++");
+
+  reportText = "";
+  runner.expression = "{a} + 1";
+  runner.run({ a: 1 });
+  assert.notOk(reportText);
+
+  runner.expression = "tooday()";
+  assert.notOk(reportText);
+  runner.run({});
+  assert.equal(reportText, "Unknown function name: tooday");
+
+  reportText = "";
+  runner.expression = "today";
+  runner.run({});
+  assert.notOk(reportText);
+  ConsoleWarnings.warn = prev;
+});
+QUnit.test("Custom function returns object&array, #7050", function(assert) {
+  function func1(params: any[]): any {
+    return { a: 1, b: 2 };
+  }
+  function func2(params: any[]): any {
+    return [{ a: 1 }, { b: 2 }];
+  }
+  FunctionFactory.Instance.register("func1", func1);
+  FunctionFactory.Instance.register("func2", func2);
+
+  let runner = new ExpressionRunner("func1()");
+  assert.deepEqual(runner.run({}, {}), { a: 1, b: 2 }, "function returns object");
+  runner.expression = "func2()";
+  assert.deepEqual(runner.run({}, {}), [{ a: 1 }, { b: 2 }], "function returns array");
+
+  FunctionFactory.Instance.unregister("func1");
+  FunctionFactory.Instance.unregister("func2");
 });

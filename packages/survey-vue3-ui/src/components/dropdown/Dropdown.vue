@@ -28,8 +28,8 @@
 
       <div :class="question.cssClasses.controlValue">
         <survey-string
-          v-if="question.showSelectedItemLocText"
-          :locString="question.selectedItemLocText"
+          v-if="showSelectedItemLocText"
+          :locString="selectedItemLocText"
         />
         <div
           v-if="model.showHintString"
@@ -58,7 +58,6 @@
           :id="question.getInputId()"
           :tabindex="model.inputReadOnly ? undefined : -1"
           :readonly="!model.searchEnabled ? true : undefined"
-          :aria-label="question.placeholder"
           :aria-expanded="
             question.ariaExpanded === null
               ? undefined
@@ -105,6 +104,7 @@
     </div>
     <div
       :class="question.cssClasses.chevronButton"
+      v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
     >
       <sv-svg-icon
@@ -134,6 +134,9 @@ const model = computed(() => {
 const click = (event: any) => {
   model.value?.onClick(event);
 };
+const chevronPointerDown = (event: any) => {
+  model.value?.chevronPointerDown(event);
+};
 const clear = (event: any) => {
   model.value?.onClear(event);
 };
@@ -161,6 +164,11 @@ const focus = (event: any) => {
 const inputChange = (event: any) => {
   model.value.inputStringRendered = event.target.value;
 };
+
+const showSelectedItemLocText = computed(
+  () => props.question.showSelectedItemLocText
+);
+const selectedItemLocText = computed(() => props.question.selectedItemLocText);
 
 useBase(() => model.value);
 

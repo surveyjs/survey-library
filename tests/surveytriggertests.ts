@@ -392,6 +392,31 @@ QUnit.test("copyvalue from checkbox", function(assert) {
   q1.value = [1, 2];
   assert.deepEqual(q2.value, "Item1, Item2", "Copy value correctly");
 });
+QUnit.test("copyvalue without expression, bug#7030", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" }
+
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "fromName": "q1",
+        "setToName": "q2"
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = "A";
+  assert.equal(q2.value, "A", "Copy value correctly");
+  q2.value = "B";
+  q3.value = "C";
+  assert.equal(q2.value, "B", "Do not copy value");
+});
 
 QUnit.test("Execute trigger on complete", function(assert) {
   class TriggerExprssionTester extends SurveyTriggerRunExpression {

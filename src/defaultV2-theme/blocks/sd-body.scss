@@ -2,7 +2,7 @@
   width: 100%;
 
   .sd-body__page {
-    min-width: 300px;
+    min-width: min(100%, 300px);
   }
 
   .sd-body__timer {
@@ -81,6 +81,19 @@
         padding-left: 0;
         padding-right: 0;
         padding-bottom: 0;
+      }
+    }
+  }
+}
+
+.sd-root--compact {
+  .sd-body {
+
+    &.sd-body--responsive,
+    &.sd-body--static {
+
+      .sd-body__navigation {
+        padding-top: calcSize(7);
       }
     }
   }

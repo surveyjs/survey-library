@@ -198,7 +198,7 @@ Returns the `valueIfTrue` value if the `condition` is truthy or the `valueIfFals
 
 #### `isContainerReady`
 
-*Definition*: `isContainerReady(nameOfPanelOrPage: string): Boolean`
+*Definition*: `isContainerReady(nameOfPanelOrPage: string): boolean`
 
 Returns `true` if all questions in a given panel or page have valid input; otherwise, returns `false`. An empty question value is considered valid if neither validators nor required status is defined for it.
 
@@ -210,7 +210,7 @@ Returns `true` if all questions in a given panel or page have valid input; other
 
 #### `isDisplayMode`
 
-*Definition*: `isDisplayMode(): Boolean`
+*Definition*: `isDisplayMode(): boolean`
 
 Returns `true` if the survey is in display or preview mode.
 
@@ -381,11 +381,11 @@ Returns the average of passed numbers.
 
 #### `sumInArray`
 
-*Definition*: `sumInArray(questionName: expression, propertyName: string): number`
+*Definition*: `sumInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the sum of numbers in an array taken from a given question property.
+Returns the sum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "sumInArray({matrixdynamic1}, 'total') > 1000"`
+*Example*: `"expression": "sumInArray({matrixdynamic}, 'total') > 1000"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171 (linkStyle))
 [View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression#content-js (linkStyle))
@@ -394,11 +394,11 @@ Returns the sum of numbers in an array taken from a given question property.
 
 #### `maxInArray`
 
-*Definition*: `maxInArray(questionName: expression, propertyName: string): number`
+*Definition*: `maxInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the maximum of numbers in an array taken from a given question property.
+Returns the maximum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "maxInArray({matrixdynamic4}, 'quantity') > 20"`
+*Example*: `"expression": "maxInArray({matrixdynamic}, 'quantity') > 20"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L181-L187 (linkStyle))
 
@@ -406,11 +406,11 @@ Returns the maximum of numbers in an array taken from a given question property.
 
 #### `minInArray`
 
-*Definition*: `minInArray(questionName: expression, propertyName: string): number`
+*Definition*: `minInArray(questionName: expression, dataFieldName: string): number`
  
-Returns the minimum of numbers in an array taken from a given question property.
+Returns the minimum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "minInArray({matrixdynamic3}, 'quantity') > 5"`
+*Example*: `"expression": "minInArray({matrixdynamic}, 'quantity') > 5"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L173-L179 (linkStyle))
 
@@ -418,11 +418,11 @@ Returns the minimum of numbers in an array taken from a given question property.
 
 #### `avgInArray`
 
-*Definition*: `avgInArray(questionName: expression, propertyName: string): number`
+*Definition*: `avgInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the average of numbers in an array taken from a given question property.
+Returns the average of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "avgInArray({matrixdynamic2}, 'quantity') > 10"`
+*Example*: `"expression": "avgInArray({matrixdynamic}, 'quantity') > 10"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L198-L203 (linkStyle))  
 
@@ -430,11 +430,11 @@ Returns the average of numbers in an array taken from a given question property.
 
 #### `countInArray`
 
-*Definition*: `countInArray(questionName: expression, propertyName: string): number`
+*Definition*: `countInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the total number of items in an array taken from a given question property.
+Returns the total number of array items in which a specified data field has a value other than `null` or `undefined`. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "countInArray({matrixdynamic5}) > 10"`
+*Example*: `"expression": "countInArray({matrixdynamic}, 'quantity') > 10"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L189-L196 (linkStyle))
 

@@ -41,6 +41,12 @@ export interface IQuestionPlainData {
   [key: string]: any;
 }
 
+class TriggerExpressionInfo {
+  runner: ExpressionRunner;
+  isRunning: boolean;
+  constructor(public name: string, public canRun: () => boolean, public doComplete: () => void) {}
+}
+
 /**
  * A base class for all questions.
  */
@@ -87,9 +93,9 @@ export class Question extends SurveyElement<Question>
    *
    * - `sender`: `SurveyModel`\
    * A survey instance that contains the question whose ready state has changed.
-   * - `options.isReady`: `Boolean`\
+   * - `options.isReady`: `boolean`\
    * Indicates whether the question is ready.
-   * - `options.oldIsReady`: `Boolean`\
+   * - `options.oldIsReady`: `boolean`\
    * Indicates the previous ready state.
    */
   public onReadyChanged: EventBase<Question> = this.addEvent<Question>();
@@ -106,7 +112,6 @@ export class Question extends SurveyElement<Question>
   }
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
-    this.renderMinWidth = !val;
   }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
@@ -131,6 +136,11 @@ export class Question extends SurveyElement<Question>
     };
     this.locTitle.storeDefaultText = true;
     this.createLocalizableString("requiredErrorText", this);
+    this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
+      this.clearValue();
+      this.updateValueWithDefaults();
+    });
+    this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
@@ -508,28 +518,54 @@ export class Question extends SurveyElement<Question>
       requiredAnsweredQuestionCount: !this.isEmpty() && this.isRequired ? 1 : 0,
     };
   }
-  private resetValueIfExpression: ExpressionRunner;
-  private isRunningResetValueIf: boolean;
-  public runTriggers(name: string, value: any): void {
-    if(this.isRunningResetValueIf || !this.isVisible || this.isReadOnly || !this.resetValueIf || this.isEmpty()) return;
-    if(this.parentQuestion && this.parentQuestion.getValueName() === name) return;
-    if(!this.resetValueIfExpression) {
-      this.resetValueIfExpression = new ExpressionRunner(this.resetValueIf);
-      this.resetValueIfExpression.onRunComplete = (res: any): void => {
-        this.isRunningResetValueIf = false;
+  private setValueExpressionRunner: ExpressionRunner;
+  private runSetValueExpression(): void {
+    if(!this.setValueExpression) {
+      this.clearValue();
+    } else {
+      if(!this.setValueExpressionRunner) {
+        this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
+        this.setValueExpressionRunner.onRunComplete = (res: any): void => {
+          if(!this.isTwoValueEquals(this.value, res)) {
+            this.value = res;
+          }
+        };
+      } else {
+        this.setValueExpressionRunner.expression = this.setValueExpression;
+      }
+      this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    }
+  }
+  private triggersInfo: Array<TriggerExpressionInfo> = [];
+  private addTriggerInfo(name: string, canRun: ()=> boolean, doComplete: () => void): void {
+    this.triggersInfo.push(new TriggerExpressionInfo(name, canRun, doComplete));
+  }
+  private runTriggerInfo(info: TriggerExpressionInfo, name: string, value: any): void {
+    const expression = this[info.name];
+    if(!expression || info.isRunning || !info.canRun()) return;
+    if(!info.runner) {
+      info.runner = new ExpressionRunner(expression);
+      info.runner.onRunComplete = (res: any): void => {
         if(res === true) {
-          this.clearValue();
-          this.updateValueWithDefaults();
+          info.doComplete();
         }
+        info.isRunning = false;
       };
     } else {
-      this.resetValueIfExpression.expression = this.resetValueIf;
+      info.runner.expression = expression;
     }
     const keys: any = {};
     keys[name] = value;
-    if(!new ProcessValue().isAnyKeyChanged(keys, this.resetValueIfExpression.getVariables())) return;
-    this.isRunningResetValueIf = true;
-    this.resetValueIfExpression.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+    if(!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables())) return;
+    info.isRunning = true;
+    info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
+  }
+  public runTriggers(name: string, value: any): void {
+    if(this.isReadOnly || this.isSettingQuestionValue ||
+      (this.parentQuestion && this.parentQuestion.getValueName() === name)) return;
+    this.triggersInfo.forEach(info => {
+      this.runTriggerInfo(info, name, value);
+    });
   }
   private runConditions() {
     if (this.data && !this.isLoadingFromJson) {
@@ -848,6 +884,7 @@ export class Question extends SurveyElement<Question>
     this.survey.afterRenderQuestionInput(this, el);
   }
   public afterRender(el: HTMLElement): void {
+    this.afterRenderCore(el);
     if (!this.survey) return;
     this.survey.afterRenderQuestion(this, el);
     if (!!this.afterRenderQuestionCallback) {
@@ -864,6 +901,8 @@ export class Question extends SurveyElement<Question>
       this.updateCommentElements();
     }
     this.checkForResponsiveness(el);
+  }
+  public afterRenderCore(el: HTMLElement): void {
   }
   protected getCommentElementsId(): Array<string> {
     return [this.commentId];
@@ -1406,27 +1445,27 @@ export class Question extends SurveyElement<Question>
    *
    * | Question type | Value type(s) |
    * | ------------- | ------------- |
-   * | Checkboxes | `Array<String \| Number>` |
-   * | Dropdown | `String` \| `Number` |
-   * | Dynamic Matrix | `Array<Object>` |
-   * | Dynamic Panel | `Array<Object>` |
-   * | Expression | `String` \| `Number` \| `Boolean` |
+   * | Checkboxes | `Array<string \| number>` |
+   * | Dropdown | `string` \| `number` |
+   * | Dynamic Matrix | `Array<object>` |
+   * | Dynamic Panel | `Array<object>` |
+   * | Expression | `string` \| `number` \| `boolean` |
    * | File Upload | `File` \| `Array<File>` |
    * | HTML | (no value) |
    * | Image | (no value) |
-   * | Image Picker | `Array<String \| Number>` |
-   * | Long Text | `String` |
-   * | Multi-Select Dropdown | `Object` |
-   * | Multi-Select Matrix | `Object` |
-   * | Multiple Textboxes | `Array<String>` |
+   * | Image Picker | `Array<string \| number>` |
+   * | Long Text | `string` |
+   * | Multi-Select Dropdown | `object` |
+   * | Multi-Select Matrix | `object` |
+   * | Multiple Textboxes | `Array<string>` |
    * | Panel | (no value) |
-   * | Radio Button Group | `String` \| `Number` |
-   * | Ranking | `Array<String \| Number>` |
-   * | Rating Scale | `Number` \| `String` |
-   * | Signature | `String` (base64-encoded image) |
-   * | Single-Line Input | `String` \| `Number` \| `Date` |
-   * | Single-Select Matrix | `Object` |
-   * | Yes/No (Boolean) | `Boolean` \| `String` |
+   * | Radio Button Group | `string` \| `number` |
+   * | Ranking | `Array<string \| number>` |
+   * | Rating Scale | `number` \| `string` |
+   * | Signature | `string` (base64-encoded image) |
+   * | Single-Line Input | `string` \| `number` \| `Date` |
+   * | Single-Select Matrix | `object` |
+   * | Yes/No (Boolean) | `boolean` \| `string` |
    */
   public get value(): any {
     return this.getValueCore();
@@ -1595,6 +1634,7 @@ export class Question extends SurveyElement<Question>
    *
    * An expression can also include built-in and custom functions for advanced calculations. For example, if the `defaultValue` should be today's date, set the `defaultValueExpression` to `"today()"`, and the corresponding built-in function will be executed each time the survey is loaded. Refer to the following help topic for more information: [Built-In Functions](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#built-in-functions).
    * @see defaultValue
+   * @see setValueExpression
    */
   public get defaultValueExpression(): any {
     return this.getPropertyValue("defaultValueExpression");
@@ -1610,12 +1650,40 @@ export class Question extends SurveyElement<Question>
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see setValueIf
    */
   public get resetValueIf(): string {
     return this.getPropertyValue("resetValueIf");
   }
   public set resetValueIf(val: string) {
     this.setPropertyValue("resetValueIf", val);
+  }
+  /**
+   * A Boolean expression. If it evaluates to `true`, the question value is set to a value calculated using the [`setValueExpression`](#setValueExpression).
+   *
+   * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see resetValueIf
+   */
+  public get setValueIf(): string {
+    return this.getPropertyValue("setValueIf");
+  }
+  public set setValueIf(val: string) {
+    this.setPropertyValue("setValueIf", val);
+  }
+  /**
+   * An expression used to calculate the question value. Applies only when the [`setValueIf`](#setValueIf) expression evaluates to `true`.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see defaultValueExpression
+   * @see resetValueIf
+   */
+  public get setValueExpression(): string {
+    return this.getPropertyValue("setValueExpression");
+  }
+  public set setValueExpression(val: string) {
+    this.setPropertyValue("setValueExpression", val);
   }
   public get resizeStyle() {
     return this.allowResizeComment ? "both" : "none";
@@ -1960,7 +2028,7 @@ export class Question extends SurveyElement<Question>
   }
   /**
    * Validates this question and returns `false` if the validation fails.
-   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
+   * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
    * @see [Data Validation](https://surveyjs.io/form-library/documentation/data-validation)
    */
   public validate(fireCallback: boolean = true, rec: any = null): boolean {
@@ -2083,13 +2151,16 @@ export class Question extends SurveyElement<Question>
   public allowSpaceAsAnswer: boolean;
   private isValueChangedInSurvey = false;
   private isOldAnswered: boolean;
+  private isSettingQuestionValue: boolean;
   protected allowNotifyValueChanged = true;
   protected setNewValue(newValue: any): void {
     if (this.isNewValueEqualsToValue(newValue)) return;
     if (!this.checkIsValueCorrect(newValue)) return;
     this.isOldAnswered = this.isAnswered;
+    this.isSettingQuestionValue = true;
     this.setNewValueInData(newValue);
     this.allowNotifyValueChanged && this.onValueChanged();
+    this.isSettingQuestionValue = false;
     if (this.isAnswered !== this.isOldAnswered) {
       this.updateQuestionCss();
     }
@@ -2599,10 +2670,9 @@ Serializer.addClass("question", [
   },
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
-  {
-    name: "resetValueIf:condition",
-    category: "logic", visible: false
-  },
+  "resetValueIf:condition",
+  "setValueIf:condition",
+  { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

@@ -1,7 +1,7 @@
 <ng-template #template>
   <div [class]="model.getProgressCssClasses(container)">
     <div [class]="model.css.progressBar" [style.width]="model.progressValue + '%'"
-        role="progressbar" aria-valuemin="0" aria-valuemax="100">
+        role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
         <span [class]="getProgressTextInBarCss(model.css)">
           {{ model.progressText }}
         </span>

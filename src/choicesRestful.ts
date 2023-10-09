@@ -259,13 +259,7 @@ export class ChoicesRestful extends Base {
     return "choicesByUrl";
   }
   public get isEmpty(): boolean {
-    return (
-      !this.url &&
-      !this.path &&
-      !this.valueName &&
-      !this.titleName &&
-      !this.imageLinkName
-    );
+    return !this.url && !this.path;
   }
   public getCustomPropertiesNames(): Array<string> {
     var properties = this.getCustomProperties();
@@ -445,12 +439,12 @@ export class ChoicesRestful extends Base {
     if (prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
   }
-  public clear() {
-    this.url = "";
-    this.path = "";
-    this.valueName = "";
-    this.titleName = "";
-    this.imageLinkName = "";
+  public clear(): void {
+    this.url = undefined;
+    this.path = undefined;
+    this.valueName = undefined;
+    this.titleName = undefined;
+    this.imageLinkName = undefined;
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
       if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";

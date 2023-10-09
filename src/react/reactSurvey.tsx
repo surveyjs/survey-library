@@ -97,8 +97,9 @@ export class Survey extends SurveyElementBase<any, any>
     } else {
       renderResult = this.renderSurvey();
     }
-    const backgroundImage = !!this.survey.renderBackgroundImage ? <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div> : null;
-    const header: JSX.Element | null = this.survey.titleView === "title" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
+    const backgroundImage = !!this.survey.backgroundImage ? <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div> : null;
+    const header: JSX.Element | null = this.survey.headerView === "basic" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
+
     const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
@@ -111,18 +112,20 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
-        {backgroundImage}
-        <form onSubmit={onSubmit}>
-          {customHeader}
-          <div className={this.css.container}>
-            {header}
-            <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
-            {renderResult}
-            <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
-          </div>
-        </form>
-        { this.survey.showBrandInfo ? <BrandInfo/> : null }
-        <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
+        <div className={this.survey.wrapperFormCss}>
+          {backgroundImage}
+          <form onSubmit={onSubmit}>
+            {customHeader}
+            <div className={this.css.container}>
+              {header}
+              <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
+              {renderResult}
+              <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
+            </div>
+          </form>
+          { this.survey.showBrandInfo ? <BrandInfo/> : null }
+          <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
+        </div>
       </div>
     );
   }

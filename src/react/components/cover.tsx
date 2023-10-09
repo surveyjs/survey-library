@@ -33,11 +33,11 @@ export class CoverCellComponent extends React.Component<any, any> {
         {this.model.showLogo ? (<div className="sv-cover__logo">
           {this.renderLogoImage()}
         </div>) : null}
-        {this.model.showTitle ? (<div className="sv-cover__title" style={{ maxWidth: this.model.textWidth }}>
+        {this.model.showTitle ? (<div className="sv-cover__title" style={{ maxWidth: this.model.textAreaWidth }}>
           {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model.survey })} */}
           <TitleElement element={this.model.survey}/>
         </div>) : null}
-        {this.model.showDescription ? (<div className="sv-cover__description" style={{ maxWidth: this.model.textWidth }}>
+        {this.model.showDescription ? (<div className="sv-cover__description" style={{ maxWidth: this.model.textAreaWidth }}>
           <h5 className={this.model.survey.css.description}>
             {SurveyElementBase.renderLocString(this.model.survey.locDescription)}
           </h5>
@@ -58,12 +58,12 @@ export class CoverComponent extends SurveyElementBase<ILayoutElementProps<Cover>
   renderElement(): JSX.Element | null {
     this.model.survey = this.props.survey;
 
-    if(!(this.props.survey.titleView === "cover" && this.props.survey.renderedHasHeader)) {
+    if(!(this.props.survey.headerView === "advanced" && this.props.survey.renderedHasHeader)) {
       return null;
     }
 
     return (
-      <div className={this.model.coverClasses} style={{ height: this.model.renderedHeight, backgroundColor: this.model.backgroundColor }}>
+      <div className={this.model.coverClasses} style={{ height: this.model.renderedHeight }}>
         {this.model.backgroundImage ? <div style={this.model.backgroundImageStyle} className={this.model.backgroundImageClasses}></div> : null}
         <div className={this.model.contentClasses}>
           {this.model.cells.map((cell, index) => <CoverCellComponent key={index} model={cell}/>)}

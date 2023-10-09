@@ -24,7 +24,7 @@
     >
       <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item
-          v-for="(item, index) in question.selectedChoices"
+          v-for="(item, index) in selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
@@ -60,6 +60,7 @@
     </div>
     <div
       :class="question.cssClasses.chevronButton"
+      v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
     >
       <sv-svg-icon
@@ -88,6 +89,9 @@ const model = computed(() => {
 const click = (event: any) => {
   model.value?.onClick(event);
 };
+const chevronPointerDown = (event: any) => {
+  model.value?.chevronPointerDown(event);
+};
 const clear = (event: any) => {
   model.value?.onClear(event);
 };
@@ -97,6 +101,7 @@ const keyhandler = (event: any) => {
 const blur = (event: any) => {
   model.value?.onBlur(event);
 };
+const selectedChoices = computed(() => props.question.selectedChoices);
 
 useBase(() => model.value);
 </script>

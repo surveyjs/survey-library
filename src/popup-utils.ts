@@ -26,6 +26,7 @@ export function createPopupModalViewModel(options: IDialogOptions, rootElement?:
     options.title
   );
   popupModel.displayMode = options.displayMode || "popup";
+  popupModel.isFocusedContent = options.isFocusedContent ?? true;
   const popupViewModel: PopupBaseViewModel = new PopupModalViewModel(popupModel);
   if(!!rootElement && !!rootElement.appendChild) {
     var container: HTMLElement = document.createElement("div");

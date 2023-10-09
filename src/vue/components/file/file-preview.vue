@@ -1,9 +1,9 @@
 <template>
-  <div :class="question.cssClasses.fileList || undefined">
+  <div v-if="question.showPreviewContainer" :class="question.cssClasses.fileList || undefined">
     <span
       v-for="(val, index) in question.previewValue"
       :key="question.inputId + '_' + index"
-      v-show="val && question.isPreviewVisible(index)"
+      v-show="val && isPreviewVisible(index)"
       :class="question.cssClasses.preview"
     >
       <div
@@ -68,8 +68,17 @@
     </span>
   </div>
 </template>
-
-<script setup lang="ts">
-import type { QuestionFileModel } from "survey-core";
-defineProps<{ question: QuestionFileModel }>();
+<script lang="ts">
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { QuestionFileModel } from "survey-core";
+@Component
+export class FilePreview extends Vue {
+  @Prop() question: QuestionFileModel;
+  isPreviewVisible(index: any) {
+    return this.question.isPreviewVisible(index);
+  }
+}
+Vue.component("sv-file-preview", FilePreview);
+export default FilePreview;
 </script>

@@ -7215,8 +7215,7 @@ QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "text", name: "q1" },
-      { type: "comment", name: "q2" },
-      { type: "expression", name: "q3" }
+      { type: "comment", name: "q2" }
     ]
   });
   const q1 = survey.getQuestionByName("q1");
@@ -7224,10 +7223,24 @@ QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
   const q3 = survey.getQuestionByName("q3");
   q1.value = ["item1", "item2", "item3"];
   q2.value = ["item1", "item2", "item3"];
-  q3.value = ["item1", "item2", "item3"];
   assert.equal(q1.value, "item1, item2, item3", "q1");
   assert.equal(q2.value, "item1\nitem2\nitem3", "q2");
-  assert.equal(q3.value, "item1, item2, item3", "q3");
+});
+QUnit.test("Set array and convert it to a string & defaultValueExpression, bug#6886", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: ["a", "b", "c", "d"] },
+      { type: "comment", name: "q2", defaultValueExpression: "{q1}" },
+      { type: "text", name: "q3", defaultValueExpression: "{q1}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = ["a", "b", "c"];
+  assert.deepEqual(q1.value, ["a", "b", "c"], "q1");
+  assert.equal(q2.value, "a\nb\nc", "q2");
+  assert.equal(q3.value, "a, b, c", "q3");
 });
 QUnit.test("question.resetValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
@@ -7288,6 +7301,97 @@ QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (
   q3.value = 4;
   assert.equal(q2.value, "edf", "value is set directly, #3");
 });
+QUnit.test("question.resetValueIf, cycle calls", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "dog",
+      "type": "checkbox",
+      "resetValueIf": "{none} notempty",
+      "choices": ["dog"]
+    },
+    {
+      "name": "cat",
+      "type": "checkbox",
+      "resetValueIf": "{none} notempty",
+      "choices": ["cat"]
+    },
+    {
+      "name": "none",
+      "type": "checkbox",
+      "resetValueIf": "{dog} notempty or {cat} notempty",
+      "choices": ["none"]
+    }] });
+  const q1 = survey.getQuestionByName("dog");
+  const q2 = survey.getQuestionByName("cat");
+  const q3 = survey.getQuestionByName("none");
+  q1.value = ["dog"];
+  q2.value = ["cat"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #1");
+  assert.deepEqual(q2.value, ["cat"], "q2.value #1");
+  assert.equal(q3.isEmpty(), true, "q3.value #1");
+  q3.value = ["none"];
+  assert.equal(q1.isEmpty(), true, "q1.value #2");
+  assert.equal(q2.isEmpty(), true, "q2.value #2");
+  assert.deepEqual(q3.value, ["none"], "q3.value #2");
+  q1.value = ["dog"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #3");
+  assert.equal(q3.isEmpty(), true, "q2.value #3");
+  assert.equal(q3.isEmpty(), true, "q3.value #3");
+});
+QUnit.test("question.resetValueIf and invisibleQuestions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "{q1} = 1",
+      "visible": false
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q2.value = "abc";
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+});
+QUnit.test("question.setValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "setValueIf": "{q1} = 1",
+      "setValueExpression": "{q1} + {q3}"
+    },
+    {
+      "name": "q3",
+      "type": "text"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.setValueIf, "{q1} = 1", "Load from JSON, setValueIf");
+  assert.equal(q2.setValueExpression, "{q1} + {q3}", "Load from JSON, setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.value, 4, "value is set");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is stay, #3");
+});
+
 QUnit.test("question.isReady & async functions in expression", function (assert) {
   var returnResult1: (res: any) => void;
   var returnResult2: (res: any) => void;
@@ -7369,4 +7473,48 @@ QUnit.test("question.isReady & async functions in conditions, visibleIf&enabledI
 
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
+});
+
+QUnit.test("Test", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "dropdown",
+            name: "q2",
+            showCommentArea: true
+          },
+        ],
+      },
+    ],
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.choicesByUrl.isEmpty, true, "choicesByUrl.isEmpty");
+  assert.equal(q2.choicesByUrl.url, "", "choicesByUrl.url");
+  assert.equal(q2.choicesByUrl.path, "", "choicesByUrl.path");
+  let counter = 0;
+  q2.onReadyChanged.add((sender, options) => {
+    counter ++;
+  });
+  const data1 = {
+    q1: "q1_value",
+    q2: "q2_value",
+  };
+  survey.data = data1;
+  assert.deepEqual(survey.data, data1, "#1");
+  assert.equal(counter, 0, "#1");
+  const data2 = {
+    q1: "q1_value",
+    q2: "q2_value",
+    "q2-Comment": "r32r2r23r23r",
+  };
+  survey.data = data2;
+  assert.deepEqual(survey.data, data2, "#2");
+  assert.equal(counter, 0, "#2");
 });

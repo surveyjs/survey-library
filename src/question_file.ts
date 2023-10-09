@@ -27,7 +27,7 @@ export class QuestionFileModel extends Question {
    *
    * - `sender`: `SurveyModel`\
    * A survey instance that raised the event.
-   * - `options.state`: `String`\
+   * - `options.state`: `string`\
    * The current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
   public onUploadStateChanged: EventBase<QuestionFileModel> = this.addEvent<
@@ -522,7 +522,10 @@ export class QuestionFileModel extends Question {
   public get allowShowPreview(): boolean {
     const isShowLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;
-    return this.previewValue && this.previewValue.length > 0 && !isShowLoadingIndicator && !isPlayingVideo;
+    return !isShowLoadingIndicator && !isPlayingVideo;
+  }
+  public get showPreviewContainer(): boolean {
+    return this.previewValue && this.previewValue.length > 0;
   }
   //todo: remove in V2
   get showRemoveButtonCore(): boolean {

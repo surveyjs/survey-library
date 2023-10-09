@@ -117,7 +117,7 @@ frameworks.forEach(framework => {
         ]
       });
       await ClientFunction(() => {
-        (<any>window).survey.titleView = "cover";
+        (<any>window).survey.headerView = "advanced";
       })();
       await takeElementScreenshot("survey-cover-default.png", Selector(".sd-root-modern"), t, comparer);
     });
@@ -991,7 +991,7 @@ frameworks.forEach(framework => {
   });
   test("TOC survey navigation mobile", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(800, 900);
+      await t.resizeWindow(600, 900);
       await ClientFunction(() => {
         window["Survey"]._setIsTouch(true);
       })();
@@ -1060,5 +1060,217 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
     });
   });
-});
+  test("TOC survey navigation responsive", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
 
+      const json = {
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(600, 900);
+      await takeElementScreenshot("survey-navigation-toc-mobile.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+  test("TOC survey navigation wide questions fit total width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+
+      const json = {
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                type: "matrixdynamic",
+                name: "teachersRate",
+                title: "Matrix Dynamic",
+                addRowText: "Add Subject",
+                horizontalScroll: true,
+                columnMinWidth: "130px",
+                columnColCount: 1,
+                cellType: "radiogroup",
+                choices: [
+                  {
+                    value: 1,
+                    text: "Yes"
+                  },
+                  {
+                    value: 0,
+                    text: "Sometimes"
+                  },
+                  {
+                    value: -1,
+                    text: "No"
+                  }
+                ],
+                columns: [
+                  {
+                    name: "subject",
+                    cellType: "dropdown",
+                    title: "Select a subject",
+                    isRequired: true,
+                    minWidth: "300px",
+                    choices: [
+                      "English: American Literature",
+                      "English: British and World Literature",
+                      "Math: Consumer Math",
+                      "Math: Practical Math",
+                      "Math: Developmental Algebra",
+                      "Math: Continuing Algebra",
+                      "Math: Pre-Algebra",
+                      "Math: Algebra",
+                      "Math: Geometry",
+                      "Math: Integrated Mathematics",
+                      "Science: Physical Science",
+                      "Science: Earth Science",
+                      "Science: Biology",
+                      "Science: Chemistry",
+                      "History: World History",
+                      "History: Modern World Studies",
+                      "History: U.S. History",
+                      "History: Modern U.S. History",
+                      "Social Sciences: U.S. Government and Politics",
+                      "Social Sciences: U.S. and Global Economics",
+                      "World Languages: Spanish",
+                      "World Languages: French",
+                      "World Languages: German",
+                      "World Languages: Latin",
+                      "World Languages: Chinese",
+                      "World Languages: Japanese"
+                    ]
+                  },
+                  {
+                    name: "explains",
+                    title: "Clearly explains the objectives"
+                  },
+                  {
+                    name: "interesting",
+                    title: "Makes class interesting"
+                  },
+                  {
+                    name: "effective",
+                    title: "Uses class time effectively"
+                  },
+                  {
+                    name: "knowledge",
+                    title: "Knows the subject matter"
+                  },
+                  {
+                    name: "recognition",
+                    title: "Recognizes and acknowledges effort"
+                  },
+                  {
+                    name: "inform",
+                    title: "Keeps me informed of my progress"
+                  },
+                  {
+                    name: "opinion",
+                    title: "Encourages and accepts different opinions"
+                  },
+                  {
+                    name: "respect",
+                    title: "Has the respect of the student"
+                  },
+                  {
+                    name: "cooperation",
+                    title: "Encourages cooperation and participation"
+                  },
+                  {
+                    name: "parents",
+                    title: "Communicates with my parents"
+                  },
+                  {
+                    name: "selfthinking",
+                    title: "Encourages me to think for myself"
+                  },
+                  {
+                    name: "frusturation",
+                    cellType: "comment",
+                    title: "Is there anything about this class that frustrates you?",
+                    minWidth: "250px"
+                  },
+                  {
+                    name: "likeTheBest",
+                    cellType: "comment",
+                    title: "What do you like best about this class and/or teacher?",
+                    minWidth: "250px"
+                  },
+                  {
+                    name: "improvements",
+                    cellType: "comment",
+                    title:
+                      "What do you wish this teacher would do differently that would improve this class?",
+                    minWidth: "250px"
+                  }
+                ],
+                rowCount: 2
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-matrix-fit-width.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+});

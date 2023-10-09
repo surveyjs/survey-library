@@ -26,7 +26,7 @@
     <div disabled *ngIf="model.isReadOnly" [class]="model.getControlClass()" [attr.id]="model.inputId">
         <div>{{ model.readOnlyText }}</div>
     </div>
-    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton">
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)">
         <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
     </div>
 </div>

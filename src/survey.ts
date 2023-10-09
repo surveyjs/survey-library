@@ -736,6 +736,10 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * An event that is raised before a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) renders [tab titles](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle). Use this event to change individual tab titles.
+   *
+   * For information on event handler parameters, refer to descriptions within the interface.
+   *
+   * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    */
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 
@@ -878,6 +882,9 @@ export class SurveyModel extends SurveyElementCore
       () => { this.onStateAndCurrentPageChanged(); });
     this.registerPropertyChangedHandlers(["logo", "logoPosition"], () => { this.updateHasLogo(); });
     this.registerPropertyChangedHandlers(["backgroundImage"], () => { this.updateRenderBackgroundImage(); });
+    this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
+      this.updateBackgroundImageStyle();
+    });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1076,6 +1083,7 @@ export class SurveyModel extends SurveyElementCore
     this.rootCss = this.getRootCss();
     this.updateNavigationCss();
     this.updateCompletedPageCss();
+    this.updateWrapperFormCss();
   }
   /**
    * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
@@ -1160,8 +1168,8 @@ export class SurveyModel extends SurveyElementCore
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
   @property({
     onSet: (newValue, target: SurveyModel) => {
-      if (newValue === "cover") {
-        const layoutElement = target.layoutElements.filter(a => a.id === newValue)[0];
+      if (newValue === "advanced") {
+        const layoutElement = target.layoutElements.filter(a => a.id === "cover")[0];
         if (!layoutElement) {
           var cover = new Cover();
           cover.logoPositionX = target.logoPosition === "right" ? "right" : "left";
@@ -1182,7 +1190,7 @@ export class SurveyModel extends SurveyElementCore
         target.removeLayoutElement("cover");
       }
     }
-  }) titleView: "cover" | "title";
+  }) headerView: "advanced" | "basic";
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -2097,7 +2105,11 @@ export class SurveyModel extends SurveyElementCore
     this.renderBackgroundImage = wrapUrlForBackgroundImage(path);
   }
   @property() backgroundImageFit: ImageFit;
-  @property() backgroundImageAttachment: ImageAttachment;
+  @property({
+    onSet: (newValue, target: SurveyModel) => {
+      target.updateCss();
+    }
+  }) backgroundImageAttachment: ImageAttachment;
   /**
    * A value from 0 to 1 that specifies how transparent the [background image](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#backgroundImage) should be: 0 makes the image completely transparent, and 1 makes it opaque.
    */
@@ -2107,13 +2119,21 @@ export class SurveyModel extends SurveyElementCore
   public set backgroundOpacity(val: number) {
     this.setPropertyValue("backgroundOpacity", val);
   }
-  public get backgroundImageStyle() {
-    return {
+  @property() backgroundImageStyle: any;
+  public updateBackgroundImageStyle() {
+    this.backgroundImageStyle = {
       opacity: this.backgroundOpacity,
       backgroundImage: this.renderBackgroundImage,
       backgroundSize: this.backgroundImageFit,
-      backgroundAttachment: this.backgroundImageAttachment
+      backgroundAttachment: !this.fitToContainer ? this.backgroundImageAttachment : undefined
     };
+  }
+  @property() wrapperFormCss: string;
+  public updateWrapperFormCss(): void {
+    this.wrapperFormCss = new CssClassBuilder()
+      .append(this.css.rootWrapper)
+      .append(this.css.rootWrapperFixed, this.backgroundImageAttachment === "fixed")
+      .toString();
   }
   /**
    * HTML content displayed on the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
@@ -3260,8 +3280,8 @@ export class SurveyModel extends SurveyElementCore
   }
   /**
    * Resets the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) and, optionally, [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data). If `state` is `"completed"`, it becomes `"running"`.
-   * @param clearData *Optional.* Specifies whether to clear survey data. Default value: `true`.
-   * @param goToFirstPage *Optional.* Specifies whether to switch the survey to the first page. Default value: `true`.
+   * @param clearData *(Optional)* Specifies whether to clear survey data. Default value: `true`.
+   * @param goToFirstPage *(Optional)* Specifies whether to switch the survey to the first page. Default value: `true`.
    */
   public clear(clearData: boolean = true, goToFirstPage: boolean = true) {
     this.isCompleted = false;
@@ -3586,7 +3606,7 @@ export class SurveyModel extends SurveyElementCore
    * Validates all questions on the current page and returns `false` if the validation fails.
    *
    * If you use validation expressions and at least one of them calls an async function, the `validateCurrentPage` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
-   * @param onAsyncValidation *Optional.* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
+   * @param onAsyncValidation *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
    * @see currentPage
    * @see validate
    * @see validateCurrentPage
@@ -3609,7 +3629,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * If you use validation expressions and at least one of them calls an async function, the `validatePage` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
    * @param page Pass the `PageModel` that you want to validate. You can pass `undefined` to validate the [`activePage`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#activePage).
-   * @param onAsyncValidation *Optional.* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
+   * @param onAsyncValidation *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
    * @see validate
    * @see validateCurrentPage
    */
@@ -3643,9 +3663,9 @@ export class SurveyModel extends SurveyElementCore
    * Validates all questions and returns `false` if the validation fails.
    *
    * If you use validation expressions and at least one of them calls an async function, the `validate` method returns `undefined`. In this case, you should pass a callback function as the `onAsyncValidation` parameter. The function's `hasErrors` Boolean parameter will contain the validation result.
-   * @param fireCallback *Optional.* Pass `false` if you do not want to show validation errors in the UI.
-   * @param focusOnFirstError *Optional.* Pass `true` if you want to focus the first question with a validation error. The survey will be switched to the page that contains this question if required.
-   * @param onAsyncValidation *Optional.* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
+   * @param fireCallback *(Optional)* Pass `false` if you do not want to show validation errors in the UI.
+   * @param focusOnFirstError *(Optional)* Pass `true` if you want to focus the first question with a validation error. The survey will be switched to the page that contains this question if required.
+   * @param onAsyncValidation *(Optional)* Pass a callback function. It accepts a Boolean `hasErrors` parameter that equals `true` if the validation fails or `false` otherwise.
    * @see validateCurrentPage
    * @see validatePage
    */
@@ -5666,7 +5686,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private runQuestionsTriggers(name: string, value: any): void {
     if(this.isDisplayMode || this.isDesignMode) return;
-    const questions = this.getAllQuestions(true);
+    const questions = this.getAllQuestions();
     questions.forEach(q => q.runTriggers(name, value));
   }
   private checkIfNewPagesBecomeVisible(oldCurrentPageIndex: number) {
@@ -7224,13 +7244,13 @@ export class SurveyModel extends SurveyElementCore
    *
    * This method accepts an object with the following layout element properties:
    *
-   * - `id`: `String` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"navigationbuttons"`\
+   * - `id`: `string` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"navigationbuttons"`\
    * A layout element identifier. You can use possible values to access and relocate or customize predefined layout elements.
    *
    * - `container`: `"header"` | `"footer"` | `"left"` | `"right"` | `"contentTop"` | `"contentBottom"`\
    * A layout container that holds the element. If you want to display the element within multiple containers, set this property to an array of possible values.
    *
-   * - `component`: `String`\
+   * - `component`: `string`\
    * The name of the component that renders the layout element.
    *
    * - `data`: `any`\
@@ -7320,7 +7340,7 @@ export class SurveyModel extends SurveyElementCore
       if (key === "cover") {
         this.removeLayoutElement("cover");
         const newCoverModel = new Cover();
-        newCoverModel.fromJSON(theme[key]);
+        newCoverModel.fromTheme(theme);
         this.layoutElements.push({
           id: "cover",
           container: "header",
@@ -7371,10 +7391,22 @@ export class SurveyModel extends SurveyElementCore
   public addScrollEventListener(): void {
     this.scrollHandler = () => { this.onScroll(); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
+    if(!!this.rootElement.getElementsByTagName("form")[0]) {
+      this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
+    }
+    if(!!this.css.rootWrapper) {
+      this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.addEventListener("scroll", this.scrollHandler);
+    }
   }
   public removeScrollEventListener(): void {
     if (!!this.rootElement && !!this.scrollHandler) {
       this.rootElement.removeEventListener("scroll", this.scrollHandler);
+      if(!!this.rootElement.getElementsByTagName("form")[0]) {
+        this.rootElement.getElementsByTagName("form")[0].removeEventListener("scroll", this.scrollHandler);
+      }
+      if(!!this.css.rootWrapper) {
+        this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.removeEventListener("scroll", this.scrollHandler);
+      }
     }
   }
 }
@@ -7401,7 +7433,7 @@ Serializer.addClass("survey", [
     serializationProperty: "locDescription",
     dependsOn: "locale",
   },
-  { name: "logo", serializationProperty: "locLogo" },
+  { name: "logo:url", serializationProperty: "locLogo" },
   { name: "logoWidth", default: "300px", minValue: 0 },
   { name: "logoHeight", default: "200px", minValue: 0 },
   {
@@ -7616,8 +7648,8 @@ Serializer.addClass("survey", [
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
-  { name: "titleView", default: "title", choices: ["title", "cover"], visible: false },
-  { name: "backgroundImage", visible: false },
+  { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
+  { name: "backgroundImage:url", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

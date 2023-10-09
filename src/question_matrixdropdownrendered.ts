@@ -678,9 +678,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       var renderedCell = this.createTextCell(row.locText);
       renderedCell.row = row;
       res.cells.push(renderedCell);
-      if (useAsHeader) {
-        this.setHeaderCellWidth(null, renderedCell);
-      }
+      this.setHeaderCellWidth(null, renderedCell);
+
       renderedCell.className = new CssClassBuilder()
         .append(renderedCell.className)
         .append(this.cssClasses.rowTextCell)

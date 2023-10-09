@@ -156,6 +156,8 @@ export class Cover extends Base {
     return this._survey;
   }
   public set survey(newValue: SurveyModel) {
+    if(this._survey === newValue) return;
+
     this._survey = newValue;
     if(!!newValue) {
       this.updateContentClasses();

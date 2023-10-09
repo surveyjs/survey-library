@@ -244,6 +244,10 @@
 }
 
 .sv-ranking--select-to-rank-horizontal {
+  .sv-ranking__container {
+    max-width: calc(50% - 1px);
+  }
+
   .sv-ranking__containers-divider {
     width: 1px;
   }

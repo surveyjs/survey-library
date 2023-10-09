@@ -3272,10 +3272,11 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("completedStateText", text);
     if (this.state === "completed" && this.showCompletedPage && !!this.completedState) {
-      this.notify(this.completedStateText, this.completedState);
+      this.notify(this.completedStateText, this.completedState, true);
     }
   }
-  public notify(message: string, type: string): void {
+  public notify(message: string, type: string, showActions: boolean = false): void {
+    this.notifier.showActions = showActions;
     this.notifier.notify(message, type, type === "error");
   }
   /**

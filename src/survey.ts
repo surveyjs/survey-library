@@ -766,11 +766,13 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-titleactions/ (linkStyle))
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
   */
   public onGetQuestionTitleActions: EventBase<SurveyModel, GetQuestionTitleActionsEvent> = this.addEvent<SurveyModel, GetQuestionTitleActionsEvent>();
 
   /**
    * An event that allows you to add, delete, or modify actions in a panel title.
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPanelTitleActions: EventBase<SurveyModel, GetPanelTitleActionsEvent> = this.addEvent<SurveyModel, GetPanelTitleActionsEvent>();
 
@@ -780,11 +782,13 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/modify-titles-of-survey-elements/ (linkStyle))
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPageTitleActions: EventBase<SurveyModel, GetPageTitleActionsEvent> = this.addEvent<SurveyModel, GetPageTitleActionsEvent>();
 
   /**
    * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel).
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
   /**
@@ -793,7 +797,7 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/employee-information-form/ (linkStyle))
-   * @see IAction
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 

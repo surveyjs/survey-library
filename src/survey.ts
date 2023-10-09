@@ -7339,7 +7339,7 @@ export class SurveyModel extends SurveyElementCore
 
   /**
    * Applies a specified theme to the survey.
-   * 
+   *
    * [Themes & Styles](/form-library/documentation/manage-default-themes-and-styles (linkStyle))
    * @param theme An [`ITheme`](/form-library/documentation/api-reference/itheme) object with theme settings.
    * @see onThemeApplied

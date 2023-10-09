@@ -12,7 +12,7 @@ SurveyJS Form Library is shipped with several predefined UI themes. You can see 
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To use a theme, you need to reference a SurveyJS style sheet. Refer to the following sections of Get Started help topics for detailed instructions: 
+To use a theme, you need to reference a SurveyJS style sheet. Refer to the following sections of Get Started help topics for detailed instructions:
 
 - [Configure Styles in Angular](https://surveyjs.io/form-library/documentation/get-started-angular#configure-styles)
 - [Configure Styles in Vue](https://surveyjs.io/form-library/documentation/get-started-vue#configure-styles)

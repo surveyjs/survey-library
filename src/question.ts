@@ -112,7 +112,6 @@ export class Question extends SurveyElement<Question>
   }
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
-    this.renderMinWidth = !val;
   }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
@@ -2672,7 +2671,7 @@ Serializer.addClass("question", [
   { name: "valueName", onSettingValue: (obj: any, val: any): any => { return makeNameValid(val); } },
   "enableIf:condition",
   "resetValueIf:condition",
-  { name: "setValueIf:condition", visible: false },
+  "setValueIf:condition",
   { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
   "defaultValue:value",
   {

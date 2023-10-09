@@ -1,11 +1,5 @@
-import {
-  parse,
-  SyntaxError,
-  ParseFunction,
-} from "../../src/expressions/expressionParser";
-
+import { parse } from "../../src/expressions/expressionParser";
 import { ConditionRunner, ExpressionRunner } from "../../src/conditions";
-
 import { ConditionsParser } from "../../src/conditionsParser";
 import { ConsoleWarnings } from "../../src/console-warnings";
 import {
@@ -1496,4 +1490,22 @@ QUnit.test("Warn in console if the expression is invalid", function(assert) {
   runner.run({});
   assert.notOk(reportText);
   ConsoleWarnings.warn = prev;
+});
+QUnit.test("Custom function returns object&array, #7050", function(assert) {
+  function func1(params: any[]): any {
+    return { a: 1, b: 2 };
+  }
+  function func2(params: any[]): any {
+    return [{ a: 1 }, { b: 2 }];
+  }
+  FunctionFactory.Instance.register("func1", func1);
+  FunctionFactory.Instance.register("func2", func2);
+
+  let runner = new ExpressionRunner("func1()");
+  assert.deepEqual(runner.run({}, {}), { a: 1, b: 2 }, "function returns object");
+  runner.expression = "func2()";
+  assert.deepEqual(runner.run({}, {}), [{ a: 1 }, { b: 2 }], "function returns array");
+
+  FunctionFactory.Instance.unregister("func1");
+  FunctionFactory.Instance.unregister("func2");
 });

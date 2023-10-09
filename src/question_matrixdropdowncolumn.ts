@@ -751,7 +751,7 @@ Serializer.addClass(
     "enableIf:condition",
     "requiredIf:condition",
     "resetValueIf:condition",
-    { name: "setValueIf:condition", visible: false },
+    "setValueIf:condition",
     { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
     {
       name: "showInMultipleColumns:boolean",

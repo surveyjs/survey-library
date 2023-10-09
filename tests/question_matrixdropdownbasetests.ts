@@ -918,3 +918,23 @@ QUnit.test("question.onHidingContent", function (assert) {
   assert.equal(counter1, 1, "cell on complete");
   assert.equal(counter2, 2, "detail questions");
 });
+QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1", isUnique: true }]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a" }, { col1: "a" }];
+  const row = matrix.visibleRows[0];
+  const q = row.getQuestionByColumnName("col1");
+  matrix.checkIfValueInRowDuplicated(row, q);
+  matrix.checkIfValueInRowDuplicated(row, q);
+  matrix.checkIfValueInRowDuplicated(row, q);
+  assert.equal(q.errors.length, 1, "One error only");
+  assert.equal(q.errors[0].getErrorType(), "keyduplicationerror", "Correct error is added");
+});

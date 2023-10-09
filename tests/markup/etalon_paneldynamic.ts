@@ -176,7 +176,7 @@ registerMarkupTests(
     snapshot: "paneldynamic-no-footer-1",
     removeIds: true,
     excludePlatform: "Vue",
-    before: () => StylesManager.applyTheme("defaultV2"),
+    before: () => { StylesManager.applyTheme("defaultV2"); },
     after: () => StylesManager.applyTheme("default"),
   },
   {

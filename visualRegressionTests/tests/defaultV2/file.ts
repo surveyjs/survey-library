@@ -14,6 +14,7 @@ const applyTheme = ClientFunction(theme => {
 const theme = "defaultV2";
 const json = {
   showQuestionNumbers: "off",
+  width: "900px",
   questions: [{
     type: "file",
     title: "Upload everything what you’d like to.",
@@ -82,6 +83,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await ClientFunction(() => {
+        (window as any).survey.width = undefined;
         (window as any).survey.resizeObserver.disconnect();
         (window as any).survey.setIsMobile(false);
         (window as any).survey.getAllQuestions()[0].resizeObserver.disconnect();
@@ -157,6 +159,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1980, 1000);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        widthMode: "900px",
         questions: [{
           type: "file",
           title: "Question With Camera",

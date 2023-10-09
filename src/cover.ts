@@ -197,7 +197,7 @@ Serializer.addClass(
     { name: "textAreaWidth:number", minValue: 0, default: 512 },
     { name: "textGlowEnabled:boolean" },
     { name: "overlapEnabled:boolean" },
-    { name: "backgroundImage" },
+    { name: "backgroundImage:url" },
     { name: "backgroundImageOpacity:number", minValue: 0, maxValue: 1, default: 1 },
     { name: "backgroundImageFit", default: "cover", choices: ["cover", "fill", "contain"] },
     { name: "logoPositionX", default: "right" },

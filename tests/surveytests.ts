@@ -15823,16 +15823,12 @@ QUnit.test("Check survey isMobile in design mode", function (assert) {
   const textQuestion = survey.getQuestionByName("q1");
   const multipleTextQuestion = survey.getQuestionByName("q2");
   const checkboxQuestion = survey.getQuestionByName("q3");
-  assert.ok(textQuestion.renderMinWidth);
   survey.setIsMobile(true);
   assert.ok(survey._isMobile);
   assert.notOk(survey.isMobile);
   assert.notOk(textQuestion.isMobile);
-  assert.notOk(textQuestion.renderMinWidth);
   assert.ok(multipleTextQuestion.isMobile);
-  assert.notOk(multipleTextQuestion.renderMinWidth);
   assert.ok(checkboxQuestion.isMobile);
-  assert.notOk(checkboxQuestion.renderMinWidth);
 });
 QUnit.test("Check survey isMobile is set correctly on adding new question", function (assert) {
   const survey = new SurveyModel({
@@ -15848,6 +15844,44 @@ QUnit.test("Check survey isMobile is set correctly on adding new question", func
   survey.pages[0].addNewQuestion("text", "q2", 0);
   const question = survey.getQuestionByName("q2");
   assert.ok(question.isMobile);
+});
+QUnit.test("Check survey isMobile is set correctly on question in nested dynamic panels", function (assert) {
+  const survey = new SurveyModel({
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "question1",
+            "templateElements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  });
+  survey.css = defaultV2Css;
+  survey.data = {
+    "question1": [
+      {}
+    ]
+  };
+  assert.notOk(survey.isMobile);
+  survey.setIsMobile(true);
+  assert.ok(survey.isMobile);
+  assert.ok(survey.getQuestionByName("question1").panels[0].getQuestionByName("question2").isMobile);
 });
 QUnit.test("Set correct activePage on fromSurvey and update buttons visibility", function (assert) {
   const survey = new SurveyModel({

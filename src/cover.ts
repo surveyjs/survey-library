@@ -64,6 +64,8 @@ export class CoverCell {
 }
 
 export class Cover extends Base {
+  private _survey: SurveyModel;
+
   private calcBackgroundSize(backgroundImageFit: "cover" | "fill" | "contain" | "tile"): string {
     if (backgroundImageFit === "fill") {
       return "100% 100%";
@@ -115,7 +117,7 @@ export class Cover extends Base {
   public getType(): string {
     return "cover";
   }
-  public survey: SurveyModel;
+
   public cells: CoverCell[] = [];
   @property() public height: number;
   @property() public inheritWidthFrom: "survey" | "page";
@@ -149,6 +151,20 @@ export class Cover extends Base {
   }
   public get renderedtextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
+  }
+  public get survey(): SurveyModel {
+    return this._survey;
+  }
+  public set survey(newValue: SurveyModel) {
+    this._survey = newValue;
+    if(!!newValue) {
+      this.updateContentClasses();
+      this._survey.onPropertyChanged.add((sender: any, options: any) => {
+        if (options.name == "widthMode") {
+          this.updateContentClasses();
+        }
+      });
+    }
   }
 
   public get backgroundImageStyle() {

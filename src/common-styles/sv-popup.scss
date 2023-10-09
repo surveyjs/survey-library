@@ -64,6 +64,10 @@ sv-popup {
 }
 
 .sv-popup--confirm-delete {
+  .sv-popup__shadow {
+    height: initial;
+  }
+
   .sv-popup__container {
     border-radius: calcSize(1);
   }

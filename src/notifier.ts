@@ -14,6 +14,7 @@ export class Notifier extends Base {
   timer: any = undefined;
   private actionsVisibility: { [key: string]: string } = {};
   public actionBar: ActionContainer;
+  public showActions: boolean = true;
 
   constructor(private cssClasses: { root: string, info: string, error: string, success: string, button: string, shown: string }) {
     super();
@@ -35,7 +36,7 @@ export class Notifier extends Base {
   }
 
   updateActionsVisibility(type: string): void {
-    this.actionBar.actions.forEach(action => action.visible = (this.actionsVisibility[action.id] === type));
+    this.actionBar.actions.forEach(action => action.visible = this.showActions && (this.actionsVisibility[action.id] === type));
   }
 
   notify(message: string, type: string = "info", waitUserAction = false): void {

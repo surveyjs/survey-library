@@ -12,7 +12,7 @@ SurveyJS Form Library is shipped with several predefined UI themes. You can see 
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To use a theme, you need to reference a SurveyJS style sheet. Refer to the following sections of Get Started help topics for detailed instructions: 
+To use a theme, you need to reference a SurveyJS style sheet. Refer to the following sections of Get Started help topics for detailed instructions:
 
 - [Configure Styles in Angular](https://surveyjs.io/form-library/documentation/get-started-angular#configure-styles)
 - [Configure Styles in Vue](https://surveyjs.io/form-library/documentation/get-started-vue#configure-styles)
@@ -22,25 +22,73 @@ To use a theme, you need to reference a SurveyJS style sheet. Refer to the follo
 
 ## Apply a Predefined Theme
 
-Predefined themes are distributed as JSON objects that specify CSS variables and other theme settings. You can find a full list of predefined themes and their variations on GitHub: [survey-core/themes](https://github.com/surveyjs/survey-library/tree/master/src/themes). To apply a predefined theme, import its module or reference its script _after_ `survey-core`. The following code shows how to apply the Layered Dark Panelless theme by importing a module:
+Predefined themes are distributed as JSON objects that specify CSS variables and other theme settings. You can find a full list of predefined themes and their variations on GitHub: [survey-core/themes](https://github.com/surveyjs/survey-library/tree/master/src/themes).
+
+To apply a predefined theme in modular applications, import the theme object from its module and pass the object to `SurveyModel`'s [`applyTheme(theme)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#applyTheme) method. The following code shows how to apply the Layered Dark Panelless theme:
 
 ```js
 import { Model } from "survey-core";
-import "survey-core/themes/layered-dark-panelless";
+/*
+  Don't forget to import or reference the Default V2 style sheet
+  as described in the Get Started with SurveyJS article for your framework
+*/
+import { LayeredDarkPanelless } "survey-core/themes/layered-dark-panelless";
+
+const surveyJson = { ... };
+const survey = new Model(surveyJson);
+survey.applyTheme(LayeredDarkPanelless);
 ```
 
-The code below applies the same theme by referencing a script:
+In classic script applications, reference a theme script _after_ the `survey-core` script and style sheet. Pass the theme object to the `applyTheme(theme)` method, as shown below:
 
 ```html
 <head>
     <!-- ... -->
+    <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
-    <script type="text/javascript" src="https://unpkg.com/survey-core/layered-dark-panelless.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-core/themes/layered-dark-panelless.min.js"></script>
     <!-- ... -->
 </head>
 ```
 
-If you want to add more than one theme, refer to the [Switch Between Themes](#switch-between-themes) section for more information.
+```js
+const surveyJson = { ... };
+const survey = new Survey.Model(surveyJson);
+survey.applyTheme(SurveyTheme.LayeredDarkPanelless);
+```
+
+## Switch Between Themes
+
+If you want to add more than one SurveyJS theme to your application, import them or reference their scripts and call `SurveyModel`'s [`applyTheme(theme)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#applyTheme) method to specify an active theme. For example, the following code imports the Contrast Dark and Contrast Light themes and applies the latter:
+
+```js
+// In modular applications:
+import { Model } from "survey-core";
+import { ContrastDark } from "survey-core/themes/contrast-dark";
+import { ContrastLight } from "survey-core/themes/contrast-light";
+
+const surveyJson = { ... };
+const survey = new Model(surveyJson);
+survey.applyTheme(ContrastLight);
+```
+
+```html
+<!-- In classic script applications: -->
+<head>
+    <!-- ... -->
+    <link href="https://unpkg.com/survey-core/defaultV2.min.css" type="text/css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/survey-core/survey.core.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-core/themes/contrast-dark.min.js"></script>
+    <script type="text/javascript" src="https://unpkg.com/survey-core/themes/contrast-light.min.js"></script>
+    <!-- ... -->
+</head>
+```
+
+```js
+const surveyJson = { ... };
+const survey = new Survey.Model(surveyJson);
+survey.applyTheme(SurveyTheme.ContrastLight);
+```
 
 ## Create a Custom Theme
 
@@ -52,7 +100,7 @@ Theme Editor is integrated into Survey Creator. Open our [all-in-one demo](/crea
 
 <img src="images/theme-export.png" alt="SurveyJS Theme Export">
 
-To apply your custom theme, pass the downloaded JSON object to `SurveyModel`'s `applyTheme()` method:
+To apply your custom theme, pass the downloaded JSON object to `SurveyModel`'s [`applyTheme(theme)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#applyTheme) method:
 
 ```js
 import { Model } from "survey-core";
@@ -60,27 +108,13 @@ const surveyJson = { ... };
 const survey = new Model(surveyJson);
 
 survey.applyTheme({
-    "cssVariables": {
-        // ...
-    },
-    "themeName": "double",
-    "colorPalette": "dark",
-    "isPanelless": true
+  "cssVariables": {
+      // ...
+  },
+  "themeName": "doubleborder",
+  "colorPalette": "dark",
+  "isPanelless": true
 });
-```
-
-## Switch Between Themes
-
-If you want to add more than one SurveyJS theme to your application, import them using named imports and call `SurveyModel`'s `applyTheme()` method to specify an active theme. For example, the following code imports the Contrast Dark and Contrast Light themes and applies the latter:
-
-```js
-import { Model } from "survey-core";
-import { ContrastLight } from "survey-core/themes/contrast-light";
-import { ContrastDark } from "survey-core/themes/contrast-dark";
-
-const surveyJson = { ... };
-const survey = new Model(surveyJson);
-survey.applyTheme(ContrastLight)
 ```
 
 ## Apply Custom CSS Classes

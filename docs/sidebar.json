@@ -233,18 +233,20 @@
           "Title": "Panel Dynamic"
         },
         {
-          "Name": "settings",
-          "Title": "Global Settings"
+          "Name": "IAction",
+          "Title": "IAction"
         },
         {
-          "Name": "IAction",
-          "Title": "IAction",
-          "IsHidden": true
+          "Name": "ITheme",
+          "Title": "ITheme"
         },
         {
           "Name": "ICustomQuestionTypeConfiguration",
-          "Title": "ICustomQuestionTypeConfiguration",
-          "IsHidden": true
+          "Title": "ICustomQuestionTypeConfiguration"
+        },
+        {
+          "Name": "settings",
+          "Title": "Global Settings"
         }
       ]
     }

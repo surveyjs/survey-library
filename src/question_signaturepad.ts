@@ -321,7 +321,7 @@ Serializer.addClass(
       default: true,
     },
     {
-      name: "backgroundImage:url",
+      name: "backgroundImage:file",
       category: "general",
     },
     {

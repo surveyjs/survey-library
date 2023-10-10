@@ -423,7 +423,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
 }
 Serializer.addClass(
   "imageitemvalue",
-  [{ name: "imageLink:url", serializationProperty: "locImageLink" }],
+  [{ name: "imageLink:file", serializationProperty: "locImageLink" }],
   (value: any) => new ImageItemValue(value),
   "itemvalue"
 );

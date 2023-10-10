@@ -136,6 +136,10 @@ export class SurveyModel extends SurveyElementCore
   private navigationBarValue: ActionContainer;
 
   onThemeApplying: EventBase<SurveyModel> = new EventBase<SurveyModel>();
+  /**
+   * An event that is raised after a [theme](/form-library/documentation/manage-default-themes-and-styles) is [applied](#applyTheme) to the survey.
+   * @see applyTheme
+   */
   onThemeApplied: EventBase<SurveyModel> = new EventBase<SurveyModel>();
 
   //#region Event declarations
@@ -3347,7 +3351,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCurrentPageChanged.fire(this, options);
   }
   private notifyQuestionsOnHidingContent(page: PageModel): void {
-    if(!page) return;
+    if (!page) return;
     page.questions.forEach(q => q.onHidingContent());
   }
   private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
@@ -5690,7 +5694,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private runQuestionsTriggers(name: string, value: any): void {
-    if(this.isDisplayMode || this.isDesignMode) return;
+    if (this.isDisplayMode || this.isDesignMode) return;
     const questions = this.getAllQuestions();
     questions.forEach(q => q.runTriggers(name, value));
   }
@@ -7338,6 +7342,13 @@ export class SurveyModel extends SurveyElementCore
     this.onPopupVisibleChanged.fire(this, { question, popup, visible });
   }
 
+  /**
+   * Applies a specified theme to the survey.
+   *
+   * [Themes & Styles](/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+   * @param theme An [`ITheme`](/form-library/documentation/api-reference/itheme) object with theme settings.
+   * @see onThemeApplied
+   */
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
@@ -7396,20 +7407,20 @@ export class SurveyModel extends SurveyElementCore
   public addScrollEventListener(): void {
     this.scrollHandler = () => { this.onScroll(); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
-    if(!!this.rootElement.getElementsByTagName("form")[0]) {
+    if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
     }
-    if(!!this.css.rootWrapper) {
+    if (!!this.css.rootWrapper) {
       this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.addEventListener("scroll", this.scrollHandler);
     }
   }
   public removeScrollEventListener(): void {
     if (!!this.rootElement && !!this.scrollHandler) {
       this.rootElement.removeEventListener("scroll", this.scrollHandler);
-      if(!!this.rootElement.getElementsByTagName("form")[0]) {
+      if (!!this.rootElement.getElementsByTagName("form")[0]) {
         this.rootElement.getElementsByTagName("form")[0].removeEventListener("scroll", this.scrollHandler);
       }
-      if(!!this.css.rootWrapper) {
+      if (!!this.css.rootWrapper) {
         this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.removeEventListener("scroll", this.scrollHandler);
       }
     }
@@ -7438,7 +7449,7 @@ Serializer.addClass("survey", [
     serializationProperty: "locDescription",
     dependsOn: "locale",
   },
-  { name: "logo:url", serializationProperty: "locLogo" },
+  { name: "logo:file", serializationProperty: "locLogo" },
   { name: "logoWidth", default: "300px", minValue: 0 },
   { name: "logoHeight", default: "200px", minValue: 0 },
   {
@@ -7654,7 +7665,7 @@ Serializer.addClass("survey", [
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
   { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
-  { name: "backgroundImage:url", visible: false },
+  { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

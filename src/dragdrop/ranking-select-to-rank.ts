@@ -92,7 +92,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     let toIndex = toChoicesArray.indexOf(this.dropTarget);
 
-    if(toIndex === -1) toIndex = toChoicesArray.length;
+    if (toIndex === -1) toIndex = questionModel.value.length;
 
     rankFunction(questionModel, fromIndex, toIndex);
     this.doUIEffects(dropTargetNode, fromIndex, toIndex);

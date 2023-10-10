@@ -13,6 +13,7 @@ import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
+import { ITheme } from "./themes";
 import { Trigger } from "./trigger";
 
 export interface QuestionEventMixin {
@@ -941,4 +942,8 @@ export interface PopupVisibleChangedEvent extends QuestionEventMixin {
    * Indicates whether the popup is visible now.
    */
   visible: boolean;
+}
+
+export interface ThemeAppliedEvent {
+  theme: ITheme;
 }

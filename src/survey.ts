@@ -63,7 +63,7 @@ import {
   MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
   IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent,
   GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent,
-  MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent
+  MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ThemeAppliedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -140,7 +140,7 @@ export class SurveyModel extends SurveyElementCore
    * An event that is raised after a [theme](/form-library/documentation/manage-default-themes-and-styles) is [applied](#applyTheme) to the survey.
    * @see applyTheme
    */
-  onThemeApplied: EventBase<SurveyModel> = new EventBase<SurveyModel>();
+  onThemeApplied: EventBase<SurveyModel, ThemeAppliedEvent> = new EventBase<SurveyModel, ThemeAppliedEvent>();
 
   //#region Event declarations
   /**
@@ -7353,7 +7353,7 @@ export class SurveyModel extends SurveyElementCore
     if (!theme) return;
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      if (key === "cover") {
+      if (key === "header") {
         this.removeLayoutElement("cover");
         const newCoverModel = new Cover();
         newCoverModel.fromTheme(theme);

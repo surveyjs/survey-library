@@ -218,7 +218,7 @@ function getCorrectImageLink(val: string): string {
 Serializer.addClass(
   "image",
   [
-    { name: "imageLink:url", serializationProperty: "locImageLink" },
+    { name: "imageLink:file", serializationProperty: "locImageLink" },
     { name: "altText", serializationProperty: "locAltText", alternativeName: "text", category: "general" },
     {
       name: "contentMode",

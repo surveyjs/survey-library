@@ -58,7 +58,7 @@ export interface ITheme {
   /**
    * An object with survey header settings.
    */
-  cover?: {[index: string]: any};
+  header?: {[index: string]: any};
   /**
    * An object with CSS variables.
    */

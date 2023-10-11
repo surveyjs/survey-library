@@ -1,24 +1,25 @@
 .sv-cover {
-  padding: calcSize(5);
-  box-sizing: border-box;
   position: relative;
   background-color: $cover-backcolor;
 }
 
 .sv-conver__overlap {
-  margin-bottom: calcSize(-13);
-  padding-bottom: calcSize(13);
+  margin-bottom: calcSize(-14);
+  padding-bottom: calcSize(8);
 }
 
 .sv-conver__overlap.sv-conver__without-background {
   margin-bottom: 0;
+  padding-bottom: 0;
 }
 
-.sv-conver__without-background {
+.sv-conver__without-background .sv-conver__content {
   padding-bottom: 0;
 }
 
 .sv-conver__content {
+  padding: calcSize(5);
+  box-sizing: border-box;
   height: 100%;
   position: relative;
   display: grid;
@@ -29,7 +30,7 @@
 }
 
 .sv-conver__content--static {
-  max-width: calcSize(80);
+  max-width: calcSize(88);
   margin-left: auto;
   margin-right: auto;
 }

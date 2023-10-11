@@ -945,5 +945,8 @@ export interface PopupVisibleChangedEvent extends QuestionEventMixin {
 }
 
 export interface ThemeAppliedEvent {
+  /**
+   * An applied theme's [configuration](https://surveyjs.io/form-library/documentation/api-reference/itheme).
+   */
   theme: ITheme;
 }

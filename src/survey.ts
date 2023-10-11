@@ -135,14 +135,14 @@ export class SurveyModel extends SurveyElementCore
 
   private navigationBarValue: ActionContainer;
 
+  //#region Event declarations
   onThemeApplying: EventBase<SurveyModel> = new EventBase<SurveyModel>();
   /**
    * An event that is raised after a [theme](/form-library/documentation/manage-default-themes-and-styles) is [applied](#applyTheme) to the survey.
    * @see applyTheme
    */
-  onThemeApplied: EventBase<SurveyModel, ThemeAppliedEvent> = new EventBase<SurveyModel, ThemeAppliedEvent>();
+  onThemeApplied: EventBase<SurveyModel, ThemeAppliedEvent> = this.addEvent<SurveyModel, ThemeAppliedEvent>();
 
-  //#region Event declarations
   /**
    * An event that is raised after a [trigger](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#triggers) is executed.
    *

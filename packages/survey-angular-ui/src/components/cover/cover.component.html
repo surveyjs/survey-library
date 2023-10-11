@@ -1,7 +1,7 @@
 <ng-template #template>
   <div *ngIf="(survey.headerView === 'advanced' && survey.renderedHasHeader)" [class]="model.coverClasses" [style]="{ height: model.renderedHeight }">
     <div *ngIf="!!model.backgroundImage" [style]="model.backgroundImageStyle" [class]="model.backgroundImageClasses"></div>
-    <div [class]="model.contentClasses">
+    <div [class]="model.contentClasses" [style.width]="model.maxWidth">
       <ng-container *ngFor="let cell of model.cells">
         <sv-ng-cover-cell [model]="cell"></sv-ng-cover-cell>
       </ng-container>

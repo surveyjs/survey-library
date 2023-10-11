@@ -52,6 +52,28 @@ QUnit.test("cell calculations",
   }
 );
 
+QUnit.test("cover maxWidth",
+  function (assert) {
+    const cover = new Cover();
+    cover.survey = new SurveyModel();
+    assert.equal(cover.maxWidth, undefined, "survey.maxWidth is default");
+
+    cover.survey.width = "500";
+    assert.equal(cover.survey.widthMode, "auto", "default widthMode");
+    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
+    assert.equal(cover.maxWidth, "500px", "default maxWidth");
+
+    cover.survey = new SurveyModel({ widthMode: "responsive", width: "500" });
+    assert.equal(cover.maxWidth, false, "survey.maxWidth is responsive");
+
+    cover.survey = new SurveyModel({ widthMode: "static", width: "500" });
+    assert.equal(cover.maxWidth, "500px", "survey.maxWidth is static");
+
+    cover.inheritWidthFrom = "page";
+    assert.equal(cover.maxWidth, false, "inheritWidthFrom is page");
+  }
+);
+
 QUnit.test("contentClasses",
   function (assert) {
     const cover = new Cover();

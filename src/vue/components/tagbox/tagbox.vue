@@ -31,7 +31,7 @@
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
-        v-show="!question.isEmpty()"
+        v-show="question.showClearButton"
         @click="clear"
       >
         <sv-svg-icon

@@ -93,7 +93,7 @@ export class QuestionSignaturePadModel extends Question {
       this.destroySignaturePad(el);
     }
   }
-  public setTheme(theme: ITheme): void {
+  public themeChanged(theme: ITheme): void {
     if(!!this.signaturePad) {
       this.updateColors(this.signaturePad);
     }

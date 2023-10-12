@@ -7362,8 +7362,10 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
-
-    this.getAllQuestions().forEach(q => q.setTheme(theme));
+    this.themeChanged(theme);
+  }
+  public themeChanged(theme: ITheme): void {
+    this.getAllQuestions().forEach(q => q.themeChanged(theme));
   }
 
   /**

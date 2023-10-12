@@ -812,7 +812,7 @@ export class QuestionRatingModel extends Question {
     }
     return classes;
   }
-  public setTheme(theme: ITheme): void {
+  public themeChanged(theme: ITheme): void {
     this.colorsCalculated = false;
     this.updateColors(theme.cssVariables);
     this.createRenderedRateItems();

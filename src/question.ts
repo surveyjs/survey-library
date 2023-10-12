@@ -114,7 +114,7 @@ export class Question extends SurveyElement<Question>
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
   }
-  public setTheme(theme: ITheme): void { }
+  public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 

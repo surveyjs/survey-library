@@ -750,11 +750,11 @@ export class QuestionPanelDynamicModel extends Question
       question.setIsMobile(val);
     }));
   }
-  public setTheme(theme: ITheme): void {
-    super.setTheme(theme);
+  public themeChanged(theme: ITheme): void {
+    super.themeChanged(theme);
     (this.panels || []).forEach(panel =>
       panel.getQuestions(true).forEach(question => {
-        question.setTheme(theme);
+        question.themeChanged(theme);
       })
     );
   }

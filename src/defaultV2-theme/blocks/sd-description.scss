@@ -10,9 +10,9 @@
 }
 
 .sd-description.sd-question__description--under-input {
-  padding-top: calcSize(2);
+  padding-top: calc(0.375 * var(--sd-base-vertical-padding));
 }
 
 .sd-element__header .sd-description {
-  margin-top: calcSize(0.5);
+  margin-top: calc(0.25 * var(--sd-base-vertical-padding) - 0.5 * #{$base-unit});
 }

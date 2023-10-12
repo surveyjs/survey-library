@@ -11,7 +11,7 @@
   >
     <survey-radiogroup-item
       v-if="!question.hasColumns && !question.blockedRow"
-      v-for="(item, index) in question.visibleChoices"
+      v-for="(item, index) in question.bodyItems"
       :key="item.value"
       :class="question.getItemClass(item)"
       :question="question"

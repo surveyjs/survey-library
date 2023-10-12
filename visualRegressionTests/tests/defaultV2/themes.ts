@@ -153,4 +153,55 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-questiontitle-font-weight.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
+  test("Check items colors", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 1600);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "showQuestionNumbers": "off",
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "question6",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "ranking",
+            "name": "question1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question4",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "rating",
+            "name": "question5"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
+            "--sjs-font-questiontitle-size": "22px",
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-theme-questiontitle-font-color-for-items.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
 });

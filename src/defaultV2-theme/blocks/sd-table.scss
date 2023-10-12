@@ -426,6 +426,7 @@
   .sd-table__cell.sd-matrix__cell {
     display: flex;
     align-items: flex-start;
+    border-top: none;
     border-bottom: none;
 
     .sd-matrix__responsive-title {
@@ -450,8 +451,8 @@
   }
 
   .sd-matrix__table {
-    tr+tr {
-      margin-top: calcSize(1);
+    .sd-table__row {
+      padding-top: calcSize(1);
     }
   }
 

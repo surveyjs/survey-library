@@ -83,10 +83,12 @@ export class Cover extends Base {
       .toString();
   }
   private updateContentClasses(): void {
+    const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
+    this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.renderedWidth;
     this.contentClasses = new CssClassBuilder()
       .append("sv-conver__content")
-      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!this.survey && this.survey.calculateWidthMode() === "static")
-      .append("sv-conver__content--responsive", this.inheritWidthFrom === "page" || (!!this.survey && this.survey.calculateWidthMode() === "responsive"))
+      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
+      .append("sv-conver__content--responsive", this.inheritWidthFrom === "page" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
       .toString();
   }
   private updateBackgroundImageClasses(): void {
@@ -144,6 +146,7 @@ export class Cover extends Base {
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
   @property() coverClasses: string;
   @property() contentClasses: string;
+  @property() maxWidth: string;
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
@@ -162,7 +165,7 @@ export class Cover extends Base {
     if(!!newValue) {
       this.updateContentClasses();
       this._survey.onPropertyChanged.add((sender: any, options: any) => {
-        if (options.name == "widthMode") {
+        if (options.name == "widthMode" || options.name == "width") {
           this.updateContentClasses();
         }
       });

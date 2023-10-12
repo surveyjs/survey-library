@@ -3,7 +3,7 @@
   <!-- ko if: !!model.backgroundImage -->
   <div data-bind="style: model.backgroundImageStyle, css: model.backgroundImageClasses"></div>
   <!-- /ko -->
-  <div data-bind="css: model.contentClasses">
+  <div data-bind="css: model.contentClasses, style: { maxWidth: model.maxWidth }">
   <!-- ko foreach: model.cells -->
     <!-- ko component: { name: 'sv-cover-cell', params: { model: $data } } -->
     <!-- /ko -->

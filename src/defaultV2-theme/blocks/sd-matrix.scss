@@ -18,6 +18,6 @@
   padding: calcSize(2);
 }
 .sd-matrix__cell:first-of-type {
-  font-weight: 600;
+  font-weight: $font-questiontitle-weight;
   text-align: left;
 }

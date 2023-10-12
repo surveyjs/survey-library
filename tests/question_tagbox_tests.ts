@@ -1292,3 +1292,31 @@ QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert)
   assert.equal(q.readOnlyText, "en-sel", "Empty en, #3");
   assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en, #3");
 });
+QUnit.test("question.showClearButton", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "tagbox",
+        "name": "q1",
+        "optionsCaption": "New optionsCaption",
+        "choices": [
+          "Ford",
+          "Vauxhall",
+          "Volkswagen"
+        ]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q = <QuestionTagboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.showClearButton, false, "question is empty");
+  q.value = "Ford";
+  assert.equal(q.showClearButton, true, "question is not empty");
+  q.allowClear = false;
+  assert.equal(q.showClearButton, false, "allowClear is false");
+  q.allowClear = true;
+  survey.setDesignMode(true);
+  assert.equal(q.showClearButton, false, "design mode");
+  settings.supportCreatorV2 = true;
+  assert.equal(q.showClearButton, true, "Creator V2");
+  settings.supportCreatorV2 = false;
+});

@@ -186,6 +186,7 @@
   span {
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
+    font-weight: $font-questiontitle-weight;
   }
 }
 
@@ -276,7 +277,7 @@
 }
 
 .sd-table__cell--row-text {
-  font-weight: 600;
+  font-weight: $font-questiontitle-weight;
   color: $font-questiontitle-color;
   text-align: left;
   min-width: calcSize(12);

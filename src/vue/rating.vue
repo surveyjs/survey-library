@@ -8,7 +8,7 @@
         </span>
         <component
           v-for="(item, index) in question.renderedRateItems"
-            :is="question.itemComponentName"
+              :is="question.itemComponent"
           :item="item"
           :index="index"
           :question="question"

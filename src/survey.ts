@@ -63,7 +63,7 @@ import {
   MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
   IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent, GetPageTitleActionsEvent,
   GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent, ServerValidateQuestionsEvent,
-  MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ThemeAppliedEvent
+  MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -134,13 +134,6 @@ export class SurveyModel extends SurveyElementCore
   private timerModelValue: SurveyTimerModel;
 
   private navigationBarValue: ActionContainer;
-
-  onThemeApplying: EventBase<SurveyModel> = new EventBase<SurveyModel>();
-  /**
-   * An event that is raised after a [theme](/form-library/documentation/manage-default-themes-and-styles) is [applied](#applyTheme) to the survey.
-   * @see applyTheme
-   */
-  onThemeApplied: EventBase<SurveyModel, ThemeAppliedEvent> = new EventBase<SurveyModel, ThemeAppliedEvent>();
 
   //#region Event declarations
   /**
@@ -2070,7 +2063,7 @@ export class SurveyModel extends SurveyElementCore
     if (this._isMobile !== newVal) {
       this._isMobile = newVal;
       this.updateCss();
-      this.getAllQuestions().map(q => q.setIsMobile(newVal));
+      this.getAllQuestions().forEach(q => q.setIsMobile(newVal));
     }
   }
   public get isMobile() {
@@ -7347,7 +7340,6 @@ export class SurveyModel extends SurveyElementCore
    *
    * [Themes & Styles](/form-library/documentation/manage-default-themes-and-styles (linkStyle))
    * @param theme An [`ITheme`](/form-library/documentation/api-reference/itheme) object with theme settings.
-   * @see onThemeApplied
    */
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
@@ -7370,8 +7362,10 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
-
-    this.onThemeApplied.fire(this, { theme: theme });
+    this.themeChanged(theme);
+  }
+  public themeChanged(theme: ITheme): void {
+    this.getAllQuestions().forEach(q => q.themeChanged(theme));
   }
 
   /**

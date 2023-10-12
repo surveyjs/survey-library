@@ -48,7 +48,10 @@
 
     .sd-question--table {
       .sd-question__content {
-        padding-top: calcSize(0);
+        padding-bottom: calcSize(0.25);
+        margin-bottom: calcSize(-0.25);
+        padding-top: calcSize(1);
+        margin-top: calcSize(-1);
       }
 
       &>.sd-question__header {
@@ -384,13 +387,6 @@
     &>.sd-question__content {
       min-width: auto;
       overflow-x: auto;
-    }
-
-    &>.sd-question__content {
-      padding-bottom: calcSize(0.25);
-      margin-bottom: calcSize(-0.25);
-      padding-top: calcSize(1);
-      margin-top: calcSize(-1);
     }
   }
 

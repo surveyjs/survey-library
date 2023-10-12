@@ -117,7 +117,7 @@
 }
 
 .sv-ranking-item--disabled .sv-ranking-item__text {
-  color: $font-questiontitle-color;
+  color: $font-questiondescription-color;
   opacity: 0.25;
 }
 
@@ -282,7 +282,7 @@
 }
 
 .sv-ranking__container-placeholder {
-  color: $foreground-dim-light;
+  color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
   @include defaultFont;
   white-space: break-spaces;
   display: flex;

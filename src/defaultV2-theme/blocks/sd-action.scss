@@ -38,12 +38,12 @@
   }
 
   use {
-    fill: $foreground-light;
+    fill: $font-questiondescription-color;
   }
 }
 
 svg.sd-action--icon {
-  fill: $foreground-light;
+  fill: $font-questiondescription-color;
 }
 
 .sd-action:disabled,

@@ -85,38 +85,38 @@
     margin-left: calcSize(1);
     margin-right: calcSize(1);
     width: calc(100% - 2 * #{$base-unit});
-  
+
     .sd-table__cell:not(.sd-table__cell--header):first-of-type {
       padding-left: calcSize(2);
     }
-  
+
     .sd-table__cell:last-of-type {
       padding-right: calcSize(2);
     }
-  
+
     .sd-table__row:nth-of-type(odd) {
-  
+
       &>td,
       td:first-of-type {
         background-color: $background-dim-light;
-  
+
         &.sd-matrix__text--checked {
           background-color: $primary-light;
         }
-  
+
         .sd-input {
           background-color: $primary-foreground;
         }
-  
+
         .sd-item:not(.sd-item--error) {
           .sd-item__decorator {
             background-color: var(--sjs-general-backcolor, var(--background, #fff));
           }
-  
+
           &.sd-item--checked .sd-item__decorator {
             background-color: $primary;
           }
-  
+
           &.sd-radio--checked .sd-radio__control:focus+.sd-radio__decorator:after {
             background-color: $primary-foreground;
           }
@@ -124,7 +124,7 @@
       }
     }
   }
-} 
+}
 
 .sd-table__cell {
   font-weight: normal;
@@ -426,6 +426,7 @@
   .sd-table__cell.sd-matrix__cell {
     display: flex;
     align-items: flex-start;
+    border-bottom: none;
 
     .sd-matrix__responsive-title {
       margin-left: calcSize(1);
@@ -591,6 +592,14 @@
 .sd-table__question-wrapper {
   .sd-boolean-root {
     margin: auto;
+  }
+}
+
+.sd-root-modern--mobile {
+  .sd-table__question-wrapper {
+    .sd-boolean-root {
+      margin: initial;
+    }
   }
 }
 

@@ -530,10 +530,19 @@ export class QuestionRatingModel extends Question {
   public get isSmiley() {
     return this.rateType == "smileys";
   }
-  public get itemComponentName() {
+  protected getDefaultItemComponent(): string {
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
+  }
+  /**
+   * The name of a component used to render items.
+   */
+  public get itemComponent(): string {
+    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
+  }
+  public set itemComponent(value: string) {
+    this.setPropertyValue("itemComponent", value);
   }
 
   protected valueToData(val: any): any {
@@ -949,7 +958,8 @@ Serializer.addClass(
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
       visibleIndex: 20
-    }
+    },
+    { name: "itemComponent", visible: false }
   ],
   function () {
     return new QuestionRatingModel("");

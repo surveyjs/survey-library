@@ -154,13 +154,29 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check items colors", async (t) => {
+  test("Check items size & colors", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(800, 1600);
+      await t.resizeWindow(800, 2000);
       await initSurvey(framework, {
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "elements": [
+          {
+            type: "dropdown",
+            name: "cars",
+            choices: [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+              "Nissan",
+              "Audi",
+              "Mercedes-Benz",
+              "BMW",
+              "Peugeot",
+              "Toyota",
+              "Citroen"
+            ]
+          },
           {
             "type": "checkbox",
             "name": "question6",
@@ -191,6 +207,20 @@ frameworks.forEach(framework => {
           {
             "type": "rating",
             "name": "question5"
+          },
+          {
+            type: "imagepicker",
+            name: "choosepicture",
+            showLabel: true,
+            choices: [{
+              value: "lion",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
+            },
+            {
+              value: "giraffe",
+              imageLink: "https://surveyjs.io/Content/Images/examples/image-picker/giraffe.jpg"
+            },
+            ]
           }
         ]
       });
@@ -198,11 +228,14 @@ frameworks.forEach(framework => {
         (<any>window).survey.applyTheme({
           "cssVariables": {
             "--sjs-font-questiontitle-color": "rgba(242, 2, 2, 1)",
-            "--sjs-font-questiontitle-size": "22px",
+            "--sjs-font-editorfont-size": "24px"
           }
         });
       })();
       await takeElementScreenshot("survey-theme-questiontitle-font-color-for-items.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.click(".sd-dropdown");
+      await takeElementScreenshot("survey-theme-questiontitle-font-color-for-dropdown-list-items.png", Selector(".sv-popup.sv-dropdown-popup .sv-popup__container"), t, comparer);
     });
   });
 });

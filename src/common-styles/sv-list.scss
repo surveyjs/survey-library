@@ -46,7 +46,7 @@
   padding-block: calcSize(1);
   padding-inline-end: calcSize(8);
   padding-inline-start: calcSize(2);
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-weight: normal;
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
@@ -147,7 +147,7 @@ li:focus .sv-list__item.sv-list__item--selected {
 .sv-multi-select-list .sv-list__item.sv-list__item--selected:hover {
   .sv-list__item-body {
     background-color: $primary-light;
-    color: $foreground;
+    color: $font-questiontitle-color;
     font-weight: 400;
   }
 }

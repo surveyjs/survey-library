@@ -531,6 +531,7 @@ export class QuestionRatingModel extends Question {
     return this.rateType == "smileys";
   }
   protected getDefaultItemComponent(): string {
+    if (this.renderAs == "dropdown") return "";
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";

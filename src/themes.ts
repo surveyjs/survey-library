@@ -60,14 +60,14 @@ export interface ITheme {
   /**
    * An object with survey header settings.
    */
-  header?: IAdvancedHeader;
+  header?: IHeader;
   /**
    * An object with CSS variables.
    */
   cssVariables?: { [index: string]: string };
 }
 
-export interface IAdvancedHeader {
+export interface IHeader {
   height: number;
   inheritWidthFrom: "survey" | "page";
   textAreaWidth: number;

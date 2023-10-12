@@ -153,6 +153,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-questiontitle-font-weight.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
+
   test("Check items colors", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);

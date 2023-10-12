@@ -41,45 +41,44 @@
   padding-top: calcSize(3);
 }
 .sd-panel:not(.sd-panel--as-page) {
-  .sd-panel__content {
-    .sd-table--no-header {
-      padding-top: 0;
+  .sd-table--no-header {
+    padding-top: 0;
+  }
+
+  .sd-question--table {
+    .sd-question__content {
+      padding-top: calcSize(0);
     }
 
-    .sd-question--table {
-      .sd-question__content {
-        padding-top: calcSize(0);
-      }
+    &>.sd-question__header {
+      &+.sd-question__content {
+        padding-top: calcSize(2);
 
-      &>.sd-question__header {
-        &+.sd-question__content {
-          padding-top: calcSize(2);
-
-          .sd-table--no-header {
-            padding-top: calcSize(4);
-          }
+        .sd-table--no-header {
+          padding-top: calcSize(4);
         }
       }
     }
+  }
 
 
-    .sd-question--table>.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(-3);
-    }
+  .sd-question--table>.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+    margin-top: calcSize(-3);
+  }
 
-    &>.sd-row:not(:first-of-type) .sd-question--table>.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(-2);
-    }
+  &>.sd-row:not(:first-of-type) .sd-question--table>.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+    margin-top: calcSize(-2);
+  }
 
-    .sd-question--table>.sd-question__header+.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(1);
-    }
+  .sd-question--table>.sd-question__header+.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+    margin-top: calcSize(1);
+  }
 
-    &>.sd-row:not(:first-of-type) .sd-question--table>.sd-question__header+.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
-      margin-top: calcSize(1);
-    }
+  &>.sd-row:not(:first-of-type) .sd-question--table>.sd-question__header+.sd-question__content .sd-table-wrapper .sd-table:not(.sd-table--no-header) {
+    margin-top: calcSize(1);
   }
 }
+
 .sd-root-modern:not(.sd-root-modern--mobile) {
   .sd-table--alternate-rows {
     margin-left: calcSize(1);

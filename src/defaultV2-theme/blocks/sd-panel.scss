@@ -28,7 +28,7 @@
     }
   }
 
-  .sd-panel__header+.sd-panel__content {
+  &>.sd-panel__header+.sd-panel__content {
     margin-top: calcSize(2);
   }
 
@@ -60,4 +60,10 @@
 
 .sd-panel__content {
   padding-top: var(--sd-base-padding);
+}
+
+.sd-panel.sd-element--nested {
+  &>.sd-panel__content {
+    padding-bottom: var(--sd-base-padding);
+  }
 }

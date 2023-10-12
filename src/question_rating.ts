@@ -12,6 +12,7 @@ import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
+import { ITheme } from "./themes";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -811,16 +812,15 @@ export class QuestionRatingModel extends Question {
     }
     return classes;
   }
+  public themeChanged(theme: ITheme): void {
+    this.colorsCalculated = false;
+    this.updateColors(theme.cssVariables);
+    this.createRenderedRateItems();
+  }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     if (!this.survey) return;
     this.updateColors((this.survey as SurveyModel).themeVariables);
-
-    (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
-      this.colorsCalculated = false;
-      this.updateColors(options.theme.cssVariables);
-      this.createRenderedRateItems();
-    });
   }
   public dispose(): void {
     super.dispose();

@@ -20,6 +20,7 @@ import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
+import { ITheme } from "./themes";
 
 export interface IConditionObject {
   name: string;
@@ -113,6 +114,7 @@ export class Question extends SurveyElement<Question>
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
   }
+  public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
@@ -960,13 +962,19 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    const hasError = this.errors.length > 0;
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot)
       .append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft)
-      .append(cssClasses.hasError, this.errors.length > 0)
+      .append(cssClasses.titleTopRoot, !this.isFlowLayout && this.hasTitleOnTop)
+      .append(cssClasses.titleBottomRoot, !this.isFlowLayout && this.hasTitleOnBottom)
+      .append(cssClasses.descriptionUnderInputRoot, !this.isFlowLayout && this.hasDescriptionUnderInput)
+      .append(cssClasses.hasError, hasError)
+      .append(cssClasses.hasErrorTop, hasError && this.getErrorLocation() == "top")
+      .append(cssClasses.hasErrorBottom, hasError && this.getErrorLocation() == "bottom")
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
       .toString();

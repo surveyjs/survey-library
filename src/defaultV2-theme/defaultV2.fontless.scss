@@ -183,32 +183,3 @@ body {
     }
   }
 }
-
-.sv-popup.sv-popup--dropdown.sv-popup--dropdown {
-  .sv-popup__shadow {
-    box-shadow: $shadow-medium;
-  }
-
-  .sv-popup__body-content {
-    background-color: $background;
-    padding: calcSize(1) 0;
-    height: 100%;
-  }
-}
-
-.sv-popup.sv-popup--modal {
-  .sv-popup__body-content {
-    box-shadow: $shadow-large;
-    background-color: $background-dim-light;
-  }
-
-  .sv-popup__body-footer {
-    padding-bottom: 2px;
-  }
-}
-
-.sv-popup.sv-popup--overlay {
-  .sv-popup__body-content {
-    background-color: $background-dim;
-  }
-}

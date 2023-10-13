@@ -238,4 +238,54 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-questiontitle-font-color-for-dropdown-list-items.png", Selector(".sv-popup.sv-dropdown-popup .sv-popup__container"), t, comparer);
     });
   });
+
+  test("Check input element placeholder", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 1600);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "boolean",
+                "name": "question1"
+              },
+              {
+                "type": "multipletext",
+                "name": "question2",
+                "items": [
+                  {
+                    "name": "text1"
+                  },
+                  {
+                    "name": "text2"
+                  }
+                ]
+              },
+              {
+                "type": "dropdown",
+                "name": "question3",
+                "defaultValue": "Item 1",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-editorfont-placeholdercolor": "rgba(66, 123, 215, 1)"
+          }
+        });
+      })();
+      await takeElementScreenshot("survey-theme-editorfont-placeholdercolor.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
 });

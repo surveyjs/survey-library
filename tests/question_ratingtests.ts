@@ -1484,3 +1484,10 @@ QUnit.test("rating items custom component", (assert) => {
   const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
   assert.equal(q2.itemComponent, "custom-item");
 });
+QUnit.test("Generate empty rating", (assert) => {
+  const q1 = new QuestionRatingModel("q1");
+  assert.deepEqual(q1.toJSON(), { name: "q1" });
+  q1.rateType = "stars";
+  assert.deepEqual(q1.toJSON(), { name: "q1", rateType: "stars" });
+  q1.rateType = "stars";
+});

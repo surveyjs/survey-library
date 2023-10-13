@@ -531,7 +531,7 @@ export class QuestionRatingModel extends Question {
   public get isSmiley() {
     return this.rateType == "smileys";
   }
-  protected getDefaultItemComponent(): string {
+  getDefaultItemComponent(): string {
     if (this.renderAs == "dropdown") return "";
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
@@ -960,7 +960,8 @@ Serializer.addClass(
       choices: ["auto", "buttons", "dropdown"],
       visibleIndex: 20
     },
-    { name: "itemComponent", visible: false }
+    { name: "itemComponent", visible: false,
+      defaultFunc: (obj: any): any => { return !!obj ? obj.getDefaultItemComponent(): "sv-rating-item"; } }
   ],
   function () {
     return new QuestionRatingModel("");

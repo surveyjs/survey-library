@@ -29,6 +29,7 @@ import { ActionContainer } from "./actions/container";
 import { Action, IAction } from "./actions/action";
 import { ComputedUpdater } from "./base";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
+import { ITheme } from "./themes";
 
 export interface IQuestionPanelDynamicData {
   getItemIndex(item: ISurveyData): number;
@@ -748,6 +749,14 @@ export class QuestionPanelDynamicModel extends Question
     (this.panels || []).forEach(panel => panel.getQuestions(true).forEach(question => {
       question.setIsMobile(val);
     }));
+  }
+  public themeChanged(theme: ITheme): void {
+    super.themeChanged(theme);
+    (this.panels || []).forEach(panel =>
+      panel.getQuestions(true).forEach(question => {
+        question.themeChanged(theme);
+      })
+    );
   }
 
   /**

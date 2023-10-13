@@ -1454,3 +1454,33 @@ QUnit.test("show only 10 items when switching to smileys mode", (assert) => {
   assert.equal(q1.rateValues.length, 10);
 
 });
+
+QUnit.test("rating items custom component", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.itemComponent, "sv-rating-item");
+
+  q1.renderAs = "dropdown";
+  assert.equal(q1.itemComponent, "");
+
+  var json2 = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        itemComponent: "custom-item"
+      },
+    ],
+  };
+  const survey2 = new SurveyModel(json2);
+  const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
+  assert.equal(q2.itemComponent, "custom-item");
+});

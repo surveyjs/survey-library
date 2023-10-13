@@ -335,4 +335,24 @@ frameworks.forEach(framework => {
       .expect(Selector(".sv-string-viewer").withText(oldOtherText).count).eql(0)
       .expect(Selector(".sv-string-viewer").withText(newOtherText).count).eql(2);
   });
+  test("showNoneItem&separateSpecialChoices", async t => {
+    const currentJson = {
+      elements: [
+        {
+          type: "radiogroup",
+          separateSpecialChoices: true,
+          showNoneItem: true,
+          name: "car",
+          choices: [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, currentJson);
+    await t
+      .expect(Selector(".sv-string-viewer").withText("None").count).eql(1);
+  });
 });

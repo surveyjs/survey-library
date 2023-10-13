@@ -8,7 +8,7 @@
       <component
         v-for="(item, index) in question.renderedRateItems"
         :key="getInputId(index)"
-        :is="question.itemComponentName"
+          :is="question.itemComponent"
         :item="item"
         :index="index"
         :question="question"

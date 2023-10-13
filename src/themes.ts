@@ -1,3 +1,5 @@
+import { HorizontalAlignment, VerticalAlignment } from "./base-interfaces";
+
 export type ImageFit = "auto" | "contain" | "cover";
 export type ImageAttachment = "fixed" | "scroll";
 
@@ -58,9 +60,26 @@ export interface ITheme {
   /**
    * An object with survey header settings.
    */
-  header?: {[index: string]: any};
+  header?: IHeader;
   /**
    * An object with CSS variables.
    */
   cssVariables?: { [index: string]: string };
+}
+
+export interface IHeader {
+  height: number;
+  inheritWidthFrom: "survey" | "page";
+  textAreaWidth: number;
+  // textGlowEnabled: boolean;
+  overlapEnabled: boolean;
+  backgroundImage: string;
+  backgroundImageOpacity: number;
+  backgroundImageFit: "cover" | "fill" | "contain" | "tile";
+  logoPositionX: HorizontalAlignment;
+  logoPositionY: VerticalAlignment;
+  titlePositionX: HorizontalAlignment;
+  titlePositionY: VerticalAlignment;
+  descriptionPositionX: HorizontalAlignment;
+  descriptionPositionY: VerticalAlignment;
 }

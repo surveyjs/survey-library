@@ -60,7 +60,7 @@ function getShadowSettings(shadowGroup) {
 }
 
 if(!!MikeThemes["article"] && Object.keys(MikeThemes["article"]).length > 0) {
-  const allowedSettings = ["fontSize", "textDecoration", "fontWeight", "fontStyle", "fontStretch", "letterSpacing", "lineHeight", "paragraphIndent", "textCase"];
+  const allowedSettings = ["textDecoration", "fontWeight", "fontStyle", "fontStretch", "letterSpacing", "lineHeight", "paragraphIndent", "textCase"];
   Object.keys(MikeThemes["article"]).forEach(fontSettingsName => {
     const fontSettings = MikeThemes["article"][fontSettingsName];
     if(!!fontSettings && Object.keys(fontSettings).length > 0) {

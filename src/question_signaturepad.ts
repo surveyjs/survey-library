@@ -7,6 +7,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { ConsoleWarnings } from "./console-warnings";
+import { ITheme } from "./themes";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -92,15 +93,10 @@ export class QuestionSignaturePadModel extends Question {
       this.destroySignaturePad(el);
     }
   }
-  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
-    super.setSurveyImpl(value, isLight);
-    if (!this.survey) return;
-
-    (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
-      if(!!this.signaturePad) {
-        this.updateColors(this.signaturePad);
-      }
-    });
+  public themeChanged(theme: ITheme): void {
+    if(!!this.signaturePad) {
+      this.updateColors(this.signaturePad);
+    }
   }
 
   initSignaturePad(el: HTMLElement) {

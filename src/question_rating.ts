@@ -12,6 +12,7 @@ import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
+import { ITheme } from "./themes";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -530,10 +531,20 @@ export class QuestionRatingModel extends Question {
   public get isSmiley() {
     return this.rateType == "smileys";
   }
-  public get itemComponentName() {
+  protected getDefaultItemComponent(): string {
+    if (this.renderAs == "dropdown") return "";
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
+  }
+  /**
+   * The name of a component used to render items.
+   */
+  public get itemComponent(): string {
+    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
+  }
+  public set itemComponent(value: string) {
+    this.setPropertyValue("itemComponent", value);
   }
 
   protected valueToData(val: any): any {
@@ -811,16 +822,15 @@ export class QuestionRatingModel extends Question {
     }
     return classes;
   }
+  public themeChanged(theme: ITheme): void {
+    this.colorsCalculated = false;
+    this.updateColors(theme.cssVariables);
+    this.createRenderedRateItems();
+  }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     if (!this.survey) return;
     this.updateColors((this.survey as SurveyModel).themeVariables);
-
-    (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
-      this.colorsCalculated = false;
-      this.updateColors(options.theme.cssVariables);
-      this.createRenderedRateItems();
-    });
   }
   public dispose(): void {
     super.dispose();
@@ -949,7 +959,8 @@ Serializer.addClass(
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
       visibleIndex: 20
-    }
+    },
+    { name: "itemComponent", visible: false }
   ],
   function () {
     return new QuestionRatingModel("");

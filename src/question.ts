@@ -20,6 +20,7 @@ import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
+import { ITheme } from "./themes";
 
 export interface IConditionObject {
   name: string;
@@ -113,6 +114,7 @@ export class Question extends SurveyElement<Question>
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
   }
+  public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 

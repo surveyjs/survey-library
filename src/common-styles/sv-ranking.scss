@@ -304,7 +304,7 @@
 }
 
 .sv-ranking__containers-divider {
-  background: $border-inside;
+  background: var(--sjs-border-default, #{$border-inside});
 }
 
 .sv-ranking__container--from {

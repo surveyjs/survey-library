@@ -44,10 +44,13 @@
     "build_react_ui": "webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-react-ui/webpack.config.js --env.buildType prod",
     "build_vue": "npm run build_vue_dev && npm run build_vue_prod",
     "build_vue_ui": "webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType dev && webpack --config ./build-scripts/survey-vue-ui/webpack.config.js --env.buildType prod",
-    "build_core": "npm run build_core_dev && npm run build_core_prod && rimraf build/survey-core/ts3.4 && downlevel-dts build/survey-core build/survey-core/ts3.4",
+    "build_core": "npm run build_core_dev && npm run build_core_prod && npm run build-themes && rimraf build/survey-core/ts3.4 && downlevel-dts build/survey-core build/survey-core/ts3.4",
     "build-plugins": "npm run build-plugins-dev && npm run build-plugins-prod",
     "build-plugins-dev": "concurrently \"webpack --config ./build-scripts/survey-core/webpack.plugins.bootstrap.config.js --env.buildType dev\" \"webpack --config ./build-scripts/survey-core/webpack.plugins.bootstrap.material.config.js --env.buildType dev\"",
     "build-plugins-prod": "concurrently \"webpack --config ./build-scripts/survey-core/webpack.plugins.bootstrap.config.js --env.buildType prod\" \"webpack --config ./build-scripts/survey-core/webpack.plugins.bootstrap.material.config.js --env.buildType prod\"",
+    "build-themes": "npm run build-themes-dev && npm run build-themes-prod",
+    "build-themes-dev": "webpack --config ./build-scripts/survey-core/webpack.themes.config.js --env.buildType dev",
+    "build-themes-prod": "webpack --config ./build-scripts/survey-core/webpack.themes.config.js --env.buildType prod",
     "build_i18n": "npm run build_i18n_dev && npm run build_i18n_prod",
     "build_jquery": "npm run build_jquery_dev && npm run build_jquery_prod",
     "build_angular": "npm run build_angular_dev && npm run build_angular_prod && rimraf build/survey-angular/ts3.4 && downlevel-dts build/survey-angular build/survey-angular/ts3.4",
@@ -77,11 +80,15 @@
     "visual-regression-tests:ci:react": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=react",
     "visual-regression-tests:ci:vue": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"http-server\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue",
     "visual-regression-tests:file": "testcafe chrome:headless --app \"http-server\" ./visualRegressionTests/tests/defaultV2/paneldynamic.ts --screenshots ./ --reporter minimal --selector-timeout 1500",
+    "visual-regression-tests:ci:vue3": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless ./visualRegressionTests/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3",
+    "visual-regression-tests:vue3": "testcafe -c 4 -q chrome ./visualRegressionTests/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example\" --screenshots ./ --selector-timeout 1500 --reporter minimal --env=vue3",
+    "testcafe:ci:vue3": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example\" --selector-timeout 1500 --reporter minimal --env=vue3",
+    "testcafe:vue3": "testcafe chrome testCafe/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example \" --selector-timeout 1500 --reporter minimal --env=vue3",
     "testcafe:angular": "testcafe chrome testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install"
   },
-  "version": "1.9.92",
+  "version": "1.9.112",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -100,7 +107,7 @@
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
     "ace-builds": "1.2.2",
-    "ajv": "4.11.2",
+    "ajv": "6.12.3",
     "axe-core": "^3.5.6",
     "axe-testcafe": "^3.0.0",
     "babel-loader": "8.2.5",
@@ -122,7 +129,7 @@
     "github-api": "^3.3.0",
     "html-loader": "0.4.4",
     "http-server": "^0.12.3",
-    "husky": "^7.0.0",
+    "husky": "^8",
     "jest": "^26.1.0",
     "jest-canvas-mock": "^2.2.0",
     "jquery": "^3.5.1",
@@ -169,11 +176,15 @@
     "webpack-dev-server": "^3.11.0",
     "webpack-fix-style-only-entries": "^0.6.1",
     "webpack-merge": "^5.7.3",
-    "webpack-svgstore-plugin": "4.0.1"
+    "webpack-svgstore-plugin": "4.0.1",
+    "get-func-name": "2.0.0"
   },
   "overrides": {
     "karma-webpack": {
       "webpack": "^4.43.0"
+    },
+    "downlevel-dts": {
+      "typescript": "5.1.6"
     }
   },
   "husky": {

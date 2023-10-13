@@ -122,7 +122,9 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
     }
     if(q.getType() === "matrixdynamic" || q.getType() === "matrixdropdown") {
       q.renderedTable.rows.forEach((row: any, rowIndex: number) => {
-        row.row.idValue = `${q.id}row${rowIndex}`;
+        if(row.row) {
+          row.row.idValue = `${q.id}row${rowIndex}`;
+        }
         row.cells.forEach((cell: any, cellIndex: number) => {
           if(cell.hasQuestion) {
             cell.question.id = `${q.id}row${rowIndex}cell${cellIndex}`;
@@ -153,6 +155,9 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       const newEl = document.createElement("div");
       newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
       let str = newEl.children[0].innerHTML;
+      if(newEl.getElementsByTagName("form").length) {
+        str = newEl.getElementsByTagName("form")[0].innerHTML;
+      }
       if(!!test.getSnapshot) {
         str = test.getSnapshot(htmlElement);
       }
@@ -297,11 +302,20 @@ function clearAttributes(el: Element, removeIds = false) {
   if(el.getAttribute("style") === "") {
     el.removeAttribute("style");
   }
+  if((el.classList.contains("sv-popup__container") || el.classList.contains("sv-popup__pointer")) && el.hasAttribute("style")) {
+    el.removeAttribute("style");
+  }
   if(el.getAttribute("src") === "") {
     el.removeAttribute("src");
   }
+  if(el.classList.contains("sv-list__input") && el.getAttribute("value") === "") {
+    el.removeAttribute("value");
+  }
   if((<any>el).checked) {
     el.setAttribute("checked", "");
+  }
+  if((<any>el).autoplay) {
+    el.setAttribute("autoplay", "");
   }
   if((<any>el).multiple) {
     el.setAttribute("multiple", "");
@@ -341,8 +355,30 @@ function sortInlineStyles(str: string) {
   div.innerHTML = str;
   div.querySelectorAll("*").forEach(el => {
     if(!!el.getAttribute("style")) {
-      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(";");
-      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1"))).join("; ") + ";");
+      const inlineStyle = (<string>el.getAttribute("style")).replace(/(;)\s+|;$/g, "$1").split(/;(?![^(]*\))/);
+      if(el.tagName === "CANVAS") {
+        const excludeStyle = "touch-action: none";
+        if(inlineStyle.indexOf(excludeStyle) !== -1) {
+          inlineStyle.splice(inlineStyle.indexOf(excludeStyle), 1);
+        }
+      }
+      const flexRules = ["flex-grow", "flex-shrink", "flex-basis"];
+      const flexStyles: Array<string> = [];
+      flexRules.forEach(rule => {
+        const flexStyle = inlineStyle.filter(style => style.includes(rule))[0];
+        if(flexStyle) {
+          flexStyles.push(flexStyle);
+        }
+      }
+      );
+      if(flexStyles.length == 3) {
+        inlineStyle.push(`flex:${flexStyles.map((style => {
+          inlineStyle.splice(inlineStyle.indexOf(style), 1);
+          const match = style.replace(/\s*(:)\s*/, "$1").match(/:(.*)/);
+          return match ? match[1] : "";
+        })).join(" ")}`);
+      }
+      el.setAttribute("style", inlineStyle.sort((a: string, b: string) => a.localeCompare(b)).map((style => style.replace(/\s*(:)\s*/, "$1").replace(/url\(([^"].*[^"])\)/, "url(\"$1\")"))).join("; ") + ";");
     }
   });
   return div.innerHTML;

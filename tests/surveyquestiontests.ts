@@ -36,7 +36,7 @@ import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownb
 import { PanelModel } from "../src/panel";
 import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
-import { PageModel } from "../src/page";
+import { ConsoleWarnings } from "../src/console-warnings";
 import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey_Questions");
@@ -445,10 +445,11 @@ QUnit.test("Matrix Question: visible rows", function (assert) {
 });
 QUnit.test("Matrix Question: get/set values for empty rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.value, undefined, "the matrix initial value");
-  matrix.value = "col1";
-  assert.equal(matrix.value, "col1", "the matrix value changed correctly");
+  matrix.value = { row1: "col1" };
+  assert.deepEqual(matrix.value, { row1: "col1" }, "the matrix value changed correctly");
 });
 QUnit.test("Matrix Question: get/set values for two rows", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
@@ -544,13 +545,16 @@ QUnit.test("Matrix Question supportGoNextPageAutomatic property", function (
   matrix.rows = ["row1", "row2"];
   matrix.columns = ["col1", "col2"];
   assert.equal(matrix.supportGoNextPageAutomatic(), false, "Rows are not set");
+  matrix.onMouseDown();
   matrix.value = { row1: "col1" };
   assert.equal(
     matrix.supportGoNextPageAutomatic(),
     false,
     "The second row is not set"
   );
+  matrix.onMouseDown();
   matrix.value = { row1: "col1", row2: "col1" };
+  matrix.onMouseDown();
   assert.equal(matrix.supportGoNextPageAutomatic(), true, "Both rows are set");
 });
 
@@ -2325,6 +2329,15 @@ QUnit.test("question.addConditionObjectsByContext", function (assert) {
     "addConditionObjectsByContext work correctly"
   );
 });
+QUnit.test("question.getNextedQuestions", function (assert) {
+  const q = new QuestionMultipleTextModel("q_mt");
+  q.addItem("item1", "Item 1 title");
+  q.addItem("item2");
+  const nQuestions = q.getNestedQuestions();
+  assert.equal(nQuestions.length, 2, "We have 2 items");
+  assert.equal(nQuestions[0].name, "item1", "#1");
+  assert.equal(nQuestions[1].name, "item2", "#2");
+});
 
 QUnit.test("question.getConditionJson", function (assert) {
   var json = new QuestionHtmlModel("q_html").getConditionJson("equals");
@@ -2422,7 +2435,7 @@ QUnit.test("question.clearIncorrectValues and choicesByUrl", function (assert) {
   );
 });
 
-QUnit.test("questiontext.maxLength", function (assert) {
+QUnit.test("questiontext.maxLength & make it works for text input type only, #6750", function (assert) {
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var qText = new QuestionTextModel("q1");
@@ -2434,6 +2447,16 @@ QUnit.test("questiontext.maxLength", function (assert) {
   assert.equal(qText.getMaxLength(), null, "makes it undefined");
   qText.maxLength = 5;
   assert.equal(qText.getMaxLength(), 5, "gets 5 from question");
+  qText.maxLength = -1;
+  assert.equal(qText.getMaxLength(), 10, "get from survey again");
+  qText.inputType = "date";
+  assert.equal(qText.getMaxLength(), null, "input type is 'date'");
+  qText.inputType = "number";
+  assert.equal(qText.getMaxLength(), null, "input type is 'number'");
+  qText.inputType = "color";
+  assert.equal(qText.getMaxLength(), null, "input type is 'color'");
+  qText.inputType = "text";
+  assert.equal(qText.getMaxLength(), 10, "input type is 'text'");
 });
 
 QUnit.test("Display Current/Maximum Allowed Characters when a maximum length is defined for input fields", function (assert) {
@@ -4058,6 +4081,18 @@ QUnit.test("QuestionImagePickerModel.supportGoNextPageAutomatic", function (asse
   q.multiSelect = false;
   assert.equal(q.supportGoNextPageAutomatic(), true, "multiselect is false");
 });
+QUnit.test("QuestionTextModel.supportGoNextPageAutomatic", function (assert) {
+  const q = new QuestionTextModel("q");
+  assert.equal(q.supportGoNextPageAutomatic(), true, "It supports by default");
+  q.inputType = "date";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "Do not support for date");
+  q.inputType = "text";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "Default inputType again");
+  q.textUpdateMode = "onTyping";
+  assert.equal(q.supportGoNextPageAutomatic(), false, "textUpdateMode = 'onTyping'");
+  q.textUpdateMode = "onBlur";
+  assert.equal(q.supportGoNextPageAutomatic(), true, "textUpdateMode = 'onBlur'");
+});
 
 QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
   const survey = new SurveyModel({
@@ -4077,6 +4112,24 @@ QUnit.test("QuestionImagePickerModel and carry forward", function (assert) {
   assert.equal(choices.length, 3, "There are 3 values");
   assert.equal(choices[0].getType(), "imageitemvalue", "choice item type is correct");
   assert.equal(choices[0].imageLink, "test1", "image link is copied");
+});
+
+QUnit.test("QuestionImagePickerModel and disable imageLink localization", function (assert) {
+  const prop = Serializer.findProperty("imageitemvalue", "imageLink");
+  prop.isLocalizable = false;
+  const survey = new SurveyModel({
+    elements: [
+      { type: "imagepicker", name: "q1",
+        choices: [
+          { value: 1, imageLink: "test1" }]
+      }]
+  });
+  const q1 = <QuestionImagePickerModel>survey.getQuestionByName("q1");
+  survey.locale = "de";
+  q1.choices[0].imageLink = "test2";
+  assert.deepEqual(q1.toJSON(), { name: "q1",
+    choices: [{ value: 1, imageLink: "test2" }] }, "no localization in imageLink");
+  prop.isLocalizable = true;
 });
 
 QUnit.test("Question<=Base propertyValueChanged", function (assert) {
@@ -5074,6 +5127,29 @@ QUnit.test("select items and then set maxSelectedChoices in checkbox", function 
   assert.equal(question.otherItem.isEnabled, false, "otherItem is disabled");
 });
 
+QUnit.test("select items and then set minSelectedChoices in checkbox", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: [1, 2, 3, 4, 5],
+        hasSelectAll: true,
+        hasOther: true,
+      },
+    ],
+  });
+  var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.minSelectedChoices = 3;
+  question.value = [2, 3];
+  question.validate();
+  assert.equal(question.hasErrors(), true, "has errors");
+
+  question.value = [2, 3, 4];
+  question.validate();
+  assert.equal(question.hasErrors(), false, "has no errors");
+});
+
 QUnit.test("Matrix Question: columns with true/false values", function (assert) {
   var matrix = new QuestionMatrixModel("q1");
   matrix.columns = [true, false, 0, "0", 1];
@@ -5428,6 +5504,32 @@ QUnit.test("Multiple Text Question: itemSize", function (assert) {
   assert.equal(q1.inputSize, 10, "q1 rendered size is 10");
   assert.equal(q2.inputSize, 0, "q2 rendered size is still empty");
   assert.equal(q3.inputSize, 15, "q3 rendered size is 15, from parent");
+});
+QUnit.test("Multiple Text Question: errorLocation", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "multipletext",
+        name: "q1",
+        items: [
+          {
+            name: "text1",
+          }
+        ],
+      },
+    ],
+  });
+  const q = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  const qItem = q.items[0].editor;
+  assert.equal(qItem.getErrorLocation(), "top", "survey, #1");
+  survey.questionErrorLocation = "bottom";
+  assert.equal(qItem.getErrorLocation(), "bottom", "survey, #2");
+  q.errorLocation = "top";
+  assert.equal(qItem.getErrorLocation(), "top", "question");
+  q.itemErrorLocation = "bottom";
+  assert.equal(q.getQuestionErrorLocation(), "bottom", "q.getQuestionErrorLocation");
+  assert.equal(qItem.parentQuestion.name, "q1", "Parent is here");
+  assert.equal(qItem.getErrorLocation(), "bottom", "itemErrorLocation");
 });
 QUnit.test(
   "multipletext question: empty string should return isEmpty(), bug #2803",
@@ -6400,7 +6502,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
       { type: "text", name: "q5", clearIfInvisible: "onComplete" }
     ]
   });
-  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
   for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
@@ -6433,7 +6535,7 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
       }
     ]
   });
-  const q = { q1: null, q2: null, q3: null, q4: null, q5: null };
+  const q: any = { q1: null, q2: null, q3: null, q4: null, q5: null };
   for (var key in q) {
     q[key] = survey.getQuestionByName(key);
     q[key].value = key;
@@ -6441,11 +6543,38 @@ QUnit.test("Test question.clearIfInvisible for survey.clearInvisibleValue='onHid
   (<PanelModel>survey.getPanelByName("panel")).visible = false;
   assert.equal(q.q1.value, undefined, "q1: default/invisible");
   assert.equal(q.q2.value, "q2", "q2: none/invisible");
-  assert.equal(q.q3.value, undefined, "q3: onHidden/invisible");
-  assert.equal(q.q4.value, undefined, "q4: onHidden/defaultValue/invisible");
+  assert.equal(q.q3.value, "q3", "q3: onHidden/invisible");
+  assert.equal(q.q4.value, "q4", "q4: onHidden/defaultValue/invisible");
   assert.equal(q.q5.value, "q5", "q3: onComplete/invisible");
   survey.doComplete();
   assert.deepEqual(survey.data, { q2: "q2" }, "q2 is none");
+});
+QUnit.test("Test question.clearIfInvisible='onHiddenContainer'", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "panel", name: "panel",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", clearIfInvisible: "none" },
+          { type: "text", name: "q3", clearIfInvisible: "onHidden" },
+          { type: "text", name: "q4", clearIfInvisible: "onHiddenContainer" },
+          { type: "text", name: "q5", clearIfInvisible: "onComplete" }
+        ]
+      },
+      { type: "text", name: "q6", clearIfInvisible: "onHiddenContainer" },
+    ]
+  });
+  for(let i = 1; i < 7; i ++) {
+    survey.setValue("q" + i, i);
+  }
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5, q6: 6 }, "initial");
+  survey.getQuestionByName("q6").visible = false;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q4: 4, q5: 5 }, "q6 invisible");
+  (<PanelModel>survey.getPanelByName("panel")).visible = false;
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3, q5: 5 }, "panel invisible");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q2: 2 }, "state is completed");
 });
 QUnit.test("QuestionTextModel isMinMaxType", function (assert) {
   const q1 = new QuestionTextModel("q1");
@@ -6621,6 +6750,8 @@ QUnit.test("remove reference to DOM elements", function (assert) {
   assert.equal(question["element"], el);
   question.beforeDestroyQuestionElement(el);
   assert.equal(question["element"], undefined);
+
+  el.remove();
 });
 QUnit.test("Rubric Matrix Question cells and onTextMarkdown, Bug#5306", function (
   assert
@@ -6846,4 +6977,544 @@ QUnit.test("cols property is invisible and non-serializable", function (assert) 
 });
 QUnit.test("survey.onMultipleTextItemAdded", function (assert) {
   assert.deepEqual(new QuestionTextModel("q1").getDataFilteredValues(), {}, "Should return empty object");
+});
+QUnit.test("question.getRootCss apply disable css correctly", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "name": "q1",
+        "type": "text"
+      }]
+  });
+  const q = survey.getQuestionByName("q1");
+  survey.setCss({ question: { titleDisabled: "css-disabled" } });
+  q.updateElementCss(true);
+  const disableCss = q.cssClasses.titleDisabled;
+  assert.equal(disableCss, "css-disabled", "#1");
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #2");
+  q.readOnly = true;
+  assert.ok(q.cssTitle.indexOf(disableCss) > -1, "disableCss is in the title, #3");
+  q.readOnly = false;
+  assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #4");
+});
+QUnit.test("numeric validator, use custom text, bug#6588", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "text",
+        "name": "q1",
+        "validators": [
+          {
+            "type": "numeric",
+            "text": "Enter only numbers"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "validators": [{ "type": "numeric" }
+        ]
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = "aa";
+  q2.value = "aa";
+  survey.hasErrors();
+  assert.equal(q1.errors.length, 1, "One error");
+  assert.equal(q1.errors[0].getText(), "Enter only numbers", "Customer error");
+  assert.equal(q2.errors.length, 1, "One error, #2");
+  assert.equal(q2.errors[0].getText(), "The value should be numeric.", "Default error");
+});
+QUnit.test("Try to set incorrect values, bug#6629", function (assert) {
+  const oldFunc = ConsoleWarnings.inCorrectQuestionValue;
+  const incorrectCalls: Array<string> = [];
+  ConsoleWarnings.inCorrectQuestionValue = (questionName: string, val: any): void => {
+    incorrectCalls.push(questionName);
+  };
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: [1, 2],
+        rows: [1, 2],
+        defaultValue: "a"
+      },
+      {
+        type: "matrixdropdown",
+        name: "q2",
+        columns: [{ cellType: "text", name: "col1" }],
+        rows: [1, 2],
+        defaultValue: "b"
+      },
+      {
+        type: "matrixdynamic",
+        name: "q3",
+        columns: [{ cellType: "text", name: "col1" }],
+        panelCount: 1,
+        defaultValue: "c"
+      },
+      {
+        type: "paneldynamic",
+        name: "q4",
+        templateElements: [{ type: "text", name: "q4_q1" }],
+        defaultValue: "d"
+      },
+      {
+        type: "multipletext",
+        name: "q5",
+        items: [{ name: "item1" }],
+        defaultValue: "e"
+      },
+      {
+        type: "checkbox",
+        name: "q6",
+        choices: [1, 2],
+        defaultValue: "f"
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = survey.getQuestionByName("q5");
+  const q6 = survey.getQuestionByName("q6");
+  assert.equal(incorrectCalls.length, 5, "Incorrect calls 5 times");
+  assert.deepEqual(incorrectCalls, ["q1", "q2", "q3", "q4", "q5"]);
+  assert.equal(q1.isEmpty(), true, "Can't set 'a' to matrix");
+  assert.equal(q2.isEmpty(), true, "Can't set 'b' to matrixdropdown");
+  assert.equal(q3.isEmpty(), true, "Can't set 'c' to matrixdynamic");
+  assert.equal(q4.isEmpty(), true, "Can't set 'd' to paneldynamic");
+  assert.equal(q5.isEmpty(), true, "Can't set 'e' to multipletext");
+  assert.deepEqual(q6.value, ["f"], "Convert to array");
+  ConsoleWarnings.inCorrectQuestionValue = oldFunc;
+});
+QUnit.test("Update on changing commentPlaceholder UI immediately, bug#6797", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        name: "q1",
+        showCommentArea: true,
+        commentPlaceholder: {
+          default: "abc",
+          de: "abc-de"
+        }
+      }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.renderedCommentPlaceholder, "abc", "Loaded from survey");
+  q1.readOnly = true;
+  assert.notOk(q1.renderedCommentPlaceholder, "Do not show when read-only");
+  q1.commentPlaceholder = "edf";
+  assert.notOk(q1.renderedCommentPlaceholder, "Do not show when read-only, #2");
+  q1.readOnly = false;
+  assert.equal(q1.renderedCommentPlaceholder, "edf", "question is not read-only");
+  q1.commentPlaceholder = "abcd";
+  assert.equal(q1.renderedCommentPlaceholder, "abcd", "comment placeholder is changed");
+  survey.locale = "de";
+  assert.equal(q1.renderedCommentPlaceholder, "abc-de", "locale is changed");
+});
+QUnit.test("Dynamic error text in expression validator, bug#6790", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        isRequired: true
+      },
+      {
+        type: "expression",
+        name: "q2",
+        expression: "100 - {q1}",
+        validators: [
+          {
+            type: "expression",
+            text: "{q2}% left.",
+            expression: "{leftover} <= 0"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 10;
+  assert.equal(q2.errors.length, 1, "Error is here, #1");
+  const error = q2.errors[0];
+  assert.equal(q2.errors[0].locText.renderedHtml, "90% left.", "Error text is correct, #1");
+  let errorTextChangedCounter = 0;
+  error.locText.onChanged = (): void => {
+    errorTextChangedCounter ++;
+  };
+  q1.value = 20;
+  assert.equal(q2.errors.length, 1, "Error is here, #2");
+  assert.equal(q2.errors[0].locText.renderedHtml, "80% left.", "Error text is correct, #2");
+  assert.equal(error.locText.renderedHtml, "80% left.", "Old error text is correct, #2");
+  assert.strictEqual(error, q2.errors[0], "Same errors");
+  assert.equal(errorTextChangedCounter, 1, "text has been updated");
+});
+QUnit.test("question.onHidingContent() call on making question or parent invisible or on making question content or parent invisible ", function(assert) {
+  let survey = new SurveyModel({
+    elements: [{ type: "text", name: "q1" }, { type: "text", name: "q2" }]
+  });
+  let counter = 0;
+  let q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  q1.visible = false;
+  assert.equal(counter, 1, "question invisible");
+  q1.visible = true;
+  q1.collapse();
+  assert.equal(counter, 2, "question content is collapsed");
+  survey = new SurveyModel({
+    elements: [
+      { type: "panel", name: "panel1",
+        elements: [{ type: "file", name: "q1" }]
+      },
+      { type: "file", name: "q2" }
+    ]
+  });
+  const panel = survey.getPanelByName("panel1");
+  q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  counter = 0;
+  panel.visible = false;
+  assert.equal(counter, 1, "panel invisible");
+  panel.visible = true;
+  panel.collapse();
+  assert.equal(counter, 2, "panel content is collapsed");
+});
+QUnit.test("question.onHidingContent() call on going to another page or complete", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q2" }] },
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q3" }] }
+    ]
+  });
+  let counter = 0;
+  const q1 = survey.getQuestionByName("q1");
+  q1.onHidingContent = (): void => { counter ++; };
+  survey.currentPageNo = 1;
+  assert.equal(counter, 0, "Initial");
+  survey.nextPage();
+  assert.equal(counter, 1, "Go to next page");
+  survey.currentPageNo = 1;
+  survey.currentPageNo = 0;
+  assert.equal(counter, 2, "Go to prev page");
+
+  survey.pages[2].visible = false;
+  survey.currentPageNo = 1;
+  survey.doComplete();
+  assert.equal(counter, 3, "complete survey");
+});
+QUnit.test("Set array and convert it to a string, bug#6886", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "comment", name: "q2" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = ["item1", "item2", "item3"];
+  q2.value = ["item1", "item2", "item3"];
+  assert.equal(q1.value, "item1, item2, item3", "q1");
+  assert.equal(q2.value, "item1\nitem2\nitem3", "q2");
+});
+QUnit.test("Set array and convert it to a string & defaultValueExpression, bug#6886", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: ["a", "b", "c", "d"] },
+      { type: "comment", name: "q2", defaultValueExpression: "{q1}" },
+      { type: "text", name: "q3", defaultValueExpression: "{q1}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = ["a", "b", "c"];
+  assert.deepEqual(q1.value, ["a", "b", "c"], "q1");
+  assert.equal(q2.value, "a\nb\nc", "q2");
+  assert.equal(q3.value, "a, b, c", "q3");
+});
+QUnit.test("question.resetValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "{q1} = 1"
+    },
+    {
+      "name": "q3",
+      "type": "text"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.resetValueIf, "{q1} = 1", "Load from JSON");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 3;
+  assert.equal(q2.value, "edf", "value is stay, #3");
+});
+QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "{q1} = 1",
+      "defaultValueExpression": "iif({q3} > 2, {q3}, '')"
+    },
+    {
+      "name": "q3", "type": "text"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q2.value = "abc";
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set directly");
+  q1.value = 1;
+  assert.equal(q2.value, 3, "value is set from defaultValueExpression");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set directly, #2");
+  q3.value = 4;
+  assert.equal(q2.value, "edf", "value is set directly, #3");
+});
+QUnit.test("question.resetValueIf, cycle calls", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "dog",
+      "type": "checkbox",
+      "resetValueIf": "{none} notempty",
+      "choices": ["dog"]
+    },
+    {
+      "name": "cat",
+      "type": "checkbox",
+      "resetValueIf": "{none} notempty",
+      "choices": ["cat"]
+    },
+    {
+      "name": "none",
+      "type": "checkbox",
+      "resetValueIf": "{dog} notempty or {cat} notempty",
+      "choices": ["none"]
+    }] });
+  const q1 = survey.getQuestionByName("dog");
+  const q2 = survey.getQuestionByName("cat");
+  const q3 = survey.getQuestionByName("none");
+  q1.value = ["dog"];
+  q2.value = ["cat"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #1");
+  assert.deepEqual(q2.value, ["cat"], "q2.value #1");
+  assert.equal(q3.isEmpty(), true, "q3.value #1");
+  q3.value = ["none"];
+  assert.equal(q1.isEmpty(), true, "q1.value #2");
+  assert.equal(q2.isEmpty(), true, "q2.value #2");
+  assert.deepEqual(q3.value, ["none"], "q3.value #2");
+  q1.value = ["dog"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #3");
+  assert.equal(q3.isEmpty(), true, "q2.value #3");
+  assert.equal(q3.isEmpty(), true, "q3.value #3");
+});
+QUnit.test("question.resetValueIf and invisibleQuestions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "resetValueIf": "{q1} = 1",
+      "visible": false
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q2.value = "abc";
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+});
+QUnit.test("question.setValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      "name": "q1",
+      "type": "text"
+    },
+    {
+      "name": "q2",
+      "type": "text",
+      "setValueIf": "{q1} = 1",
+      "setValueExpression": "{q1} + {q3}"
+    },
+    {
+      "name": "q3",
+      "type": "text"
+    }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.setValueIf, "{q1} = 1", "Load from JSON, setValueIf");
+  assert.equal(q2.setValueExpression, "{q1} + {q3}", "Load from JSON, setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.value, 4, "value is set");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is stay, #3");
+});
+
+QUnit.test("question.isReady & async functions in expression", function (assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  var returnResult3: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  function asyncFunc3(params: any): any {
+    returnResult3 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  FunctionFactory.Instance.register("asyncFunc3", asyncFunc3, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", minValueExpression: "asyncFunc1()", defaultValueExpression: "asyncFunc2()" },
+      { type: "expression", name: "q2", expression: "asyncFunc3()" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  assert.equal(q1.isReady, false, "q1 is not ready #1");
+  assert.equal(q2.isReady, false, "q2 is not ready #1");
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #2");
+  assert.equal(q1.isReady, false, "q1 is not ready #2");
+  assert.equal(q2.isReady, false, "q2 is not ready #2");
+  returnResult2(2);
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #3");
+  assert.equal(q2.isReady, false, "q2 is not ready #3");
+  returnResult3(3);
+  returnResult2(2);
+  returnResult1(1);
+  assert.equal(q1.isReady, true, "q1 is ready #4");
+  assert.equal(q2.isReady, true, "q2 is ready #4");
+  assert.equal(q1.value, 2, "q1.value");
+  assert.equal(q2.value, 3, "q2.value");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+  FunctionFactory.Instance.unregister("asyncFunc3");
+});
+QUnit.test("question.isReady & async functions in conditions, visibleIf&enabledIf", function (assert) {
+  var returnResult1: (res: any) => void;
+  var returnResult2: (res: any) => void;
+  function asyncFunc1(params: any): any {
+    returnResult1 = this.returnResult;
+    return false;
+  }
+  function asyncFunc2(params: any): any {
+    returnResult2 = this.returnResult;
+    return false;
+  }
+  FunctionFactory.Instance.register("asyncFunc1", asyncFunc1, true);
+  FunctionFactory.Instance.register("asyncFunc2", asyncFunc2, true);
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", visibleIf: "asyncFunc1()", enableIf: "asyncFunc2()" },
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #1");
+  assert.equal(q1.isReady, false, "q1 is not ready #1");
+  returnResult1(1);
+  assert.equal(q1.isAsyncExpressionRunning, true, "q1 is running async #2");
+  assert.equal(q1.isReady, false, "q1 is not ready #2");
+  returnResult2(2);
+  assert.equal(q1.isAsyncExpressionRunning, false, "q1 is not running async already");
+  assert.equal(q1.isReady, true, "q1 is ready #3");
+
+  FunctionFactory.Instance.unregister("asyncFunc1");
+  FunctionFactory.Instance.unregister("asyncFunc2");
+});
+
+QUnit.test("Test", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "dropdown",
+            name: "q2",
+            showCommentArea: true
+          },
+        ],
+      },
+    ],
+  });
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.choicesByUrl.isEmpty, true, "choicesByUrl.isEmpty");
+  assert.equal(q2.choicesByUrl.url, "", "choicesByUrl.url");
+  assert.equal(q2.choicesByUrl.path, "", "choicesByUrl.path");
+  let counter = 0;
+  q2.onReadyChanged.add((sender, options) => {
+    counter ++;
+  });
+  const data1 = {
+    q1: "q1_value",
+    q2: "q2_value",
+  };
+  survey.data = data1;
+  assert.deepEqual(survey.data, data1, "#1");
+  assert.equal(counter, 0, "#1");
+  const data2 = {
+    q1: "q1_value",
+    q2: "q2_value",
+    "q2-Comment": "r32r2r23r23r",
+  };
+  survey.data = data2;
+  assert.deepEqual(survey.data, data2, "#2");
+  assert.equal(counter, 0, "#2");
 });

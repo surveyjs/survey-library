@@ -8,7 +8,7 @@ import { preventDefaults } from "./utils/utils";
 import { ActionContainer } from "./actions/container";
 
 /**
- * A class that describes the Boolean question type.
+ * A class that describes the Yes/No (Boolean) question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-boolean/ (linkStyle))
  */
@@ -24,7 +24,7 @@ export class QuestionBooleanModel extends Question {
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
-  supportGoNextPageAutomatic() {
+  supportGoNextPageAutomatic(): boolean {
     return this.renderAs !== "checkbox";
   }
   public get isIndeterminate(): boolean {
@@ -45,7 +45,7 @@ export class QuestionBooleanModel extends Question {
     return this.value == this.getValueTrue();
   }
   public set booleanValue(val: any) {
-    if (this.isReadOnly) {
+    if (this.isReadOnly || this.isDesignMode) {
       return;
     }
     this.setBooleanValue(val);
@@ -202,6 +202,8 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
+      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === true)
+      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === false)
       .toString();
   }
 
@@ -256,9 +258,8 @@ export class QuestionBooleanModel extends Question {
   }
   public onKeyDownCore(event: any): boolean {
     if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-      preventDefaults(event);
+      event.stopPropagation();
       this.calculateBooleanValueByEvent(event, event.key === "ArrowRight");
-      return;
     }
     return true;
   }

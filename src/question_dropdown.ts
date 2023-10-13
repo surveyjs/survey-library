@@ -39,7 +39,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     this.registerPropertyChangedHandlers(["choicesMin", "choicesMax", "choicesStep"], () => {
       this.onVisibleChoicesChanged();
     });
-    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices"], () => {
+    this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
       this.updateReadOnlyText();
     });
     this.updateReadOnlyText();
@@ -53,6 +53,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   }
   public set showOptionsCaption(val: boolean) {
     this.allowClear = val;
+  }
+  public get showClearButton(): boolean {
+    return this.allowClear && !this.isEmpty() && (!this.isDesignMode || settings.supportCreatorV2);
   }
   public get optionsCaption() {
     return this.placeholder;
@@ -95,7 +98,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
       this.lastSelectedItemValue = selectedItemByValue;
     }
   }
-  supportGoNextPageAutomatic() {
+  supportGoNextPageAutomatic(): boolean {
     return true;
   }
   private minMaxChoices = <Array<ItemValue>>[];
@@ -117,7 +120,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
         i <= this.choicesMax;
         i += this.choicesStep
       ) {
-        this.minMaxChoices.push(new ItemValue(i));
+        this.minMaxChoices.push(this.createItemValue(i));
       }
     }
     res = res.concat(this.minMaxChoices);
@@ -234,7 +237,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return this.inputFieldComponent || this.itemComponent;
   }
   public get showSelectedItemLocText(): boolean {
-    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText;
+    return !this.inputHasValue && !this.inputFieldComponentName && !!this.selectedItemLocText && this.dropdownListModel.canShowSelectedItem;
   }
   public get showInputFieldComponent(): boolean {
     return !this.inputHasValue && !!this.inputFieldComponentName && !this.isEmpty();

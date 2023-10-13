@@ -12,7 +12,6 @@ import { Base, ComputedUpdater } from "./base";
 import { IShortcutText, ISurvey } from "./base-interfaces";
 import { settings } from "./settings";
 import { BaseAction } from "./actions/action";
-import { QuestionSelectBase } from "./question_baseselect";
 import { Question } from "./question";
 
 /**
@@ -235,6 +234,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   public getLocale(): string {
     return !!this.locOwner && this.locOwner.getLocale ? this.locOwner.getLocale() : "";
   }
+  public isGhost: boolean;
+  protected get isInternal(): boolean {
+    return this.isGhost === true;
+  }
   public get locText(): LocalizableString {
     return this.locTextValue;
   }
@@ -302,10 +305,10 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     }
     if (Helpers.isValueEmpty(json.value)) return json;
     const canSerializeVal = this.canSerializeValue();
-    const canSerializeAsContant = !canSerializeVal || !settings.itemValueAlwaysSerializeAsObject && !settings.itemValueAlwaysSerializeText;
+    const canSerializeAsContant = !canSerializeVal || !settings.serialization.itemValueSerializeAsObject && !settings.serialization.itemValueSerializeDisplayText;
     if (canSerializeAsContant && Object.keys(json).length == 1)
       return this.value;
-    if (settings.itemValueAlwaysSerializeText && json.text === undefined && canSerializeVal) {
+    if (settings.serialization.itemValueSerializeDisplayText && json.text === undefined && canSerializeVal) {
       json.text = this.value.toString();
     }
     return json;
@@ -405,8 +408,9 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
   //base action
   @property() selectedValue: boolean;
   public get selected(): boolean {
-    if(this._locOwner instanceof QuestionSelectBase && this.selectedValue === undefined) {
-      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => (<QuestionSelectBase>this._locOwner).isItemSelected(this)));
+    const locOwner = this._locOwner;
+    if(locOwner instanceof Question && locOwner.isItemSelected && this.selectedValue === undefined) {
+      this.selectedValue = <boolean><unknown>(new ComputedUpdater<boolean>(() => locOwner.isItemSelected(this)));
     }
     return this.selectedValue;
   }

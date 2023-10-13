@@ -1,8 +1,8 @@
 <template>
-  <div :class="question.fileRootCss">
+ <div :class="question.fileRootCss">
     <input
       :class="question.cssClasses.fileInput"
-      v-if="!question.isReadOnly"
+      v-if="!question.isReadOnly && question.hasFileUI"
       tabindex="-1"
       type="file"
       :id="question.inputId"
@@ -11,9 +11,10 @@
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"
       :aria-describedby="question.ariaDescribedBy"
-      :multiple="question.multipleRendered"
+      :multiple="question.allowMultiple"
       v-bind:title="question.inputTitle"
       v-bind:accept="question.acceptedTypes"
+      :capture="question.renderCapture"
     />
     <input
       v-if="question.isReadOnly"
@@ -21,11 +22,11 @@
       disabled
       :id="question.inputId"
       :class="question.getReadOnlyFileCss()"
-      :multiple="question.multipleRendered"
+      :multiple="question.allowMultiple"
       :placeholder="question.title"
       style="color: transparent"
     />
-    <div 
+    <div
       :class="question.cssClasses.dragArea"
       @drop="question.onDrop"
       @dragover="question.onDragOver"
@@ -34,20 +35,20 @@
     >
       <div
         :class="question.getFileDecoratorCss()"
+        v-if="question.showFileDecorator"
       >
-        <span :class="question.cssClasses.dragAreaPlaceholder">{{ question.dragAreaPlaceholder }}</span>
+        <span :class="question.cssClasses.dragAreaPlaceholder">{{
+          question.renderedPlaceholder
+        }}</span>
         <div :class="question.cssClasses.wrapper">
-          <label
-            role="button"
-            tabindex="0"
-            :class="question.getChooseFileCss()"
-            :for="question.inputId"
-            v-bind:aria-label="question.chooseButtonCaption"
-              v-key2click
-            >
-            <span>{{ question.chooseButtonCaption }}</span>
-            <sv-svg-icon v-if="question.cssClasses.chooseFileIconId" :title="question.chooseButtonCaption" :iconName="question.cssClasses.chooseFileIconId" :size="'auto'"></sv-svg-icon>
-          </label>
+          <sv-file-choose-btn
+            v-if="question.showChooseButton"
+            :data="{ question: question }"
+          ></sv-file-choose-btn>
+          <sv-action-bar
+            v-if="question.actionsContainerVisible"
+            :model="question.actionsContainer"
+          ></sv-action-bar>
           <span
             :class="question.cssClasses.noFileChosen"
             v-if="question.isEmpty()"
@@ -55,71 +56,33 @@
           >
         </div>
       </div>
-      <button
-        type="button"
+      <sv-file-clean-btn
         v-if="question.showRemoveButton"
-        :class="question.cssClasses.removeButton"
-        @click="question.doClean"
+        :question="question"
+        :css="question.showRemoveButton"
+      ></sv-file-clean-btn>
+      <div
+        :class="question.cssClasses.loadingIndicator"
+        v-if="question.showLoadingIndicator"
       >
-        <span>{{ question.clearButtonCaption }}</span>
-        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.clearButtonCaption"></sv-svg-icon>
-      </button>
-      <div :class="question.cssClasses.fileList || undefined" v-if="!question.isEmpty()">
-        <span
-          v-for="(val, index) in question.previewValue"
-          :key="question.inputId + '_' + index"
-          v-show="val && isPreviewVisible(index)"
-          :class="question.cssClasses.preview"
-        >
-          <div v-if="val.name && question.cssClasses.fileSign" :class="question.cssClasses.fileSign">
-            <a
-              @click="question.doDownloadFile($event, val)"
-              :href="val.content"
-              :title="val.name"
-              :download="val.name"
-              :style="{width: question.imageWidth}"
-              >{{ val.name }}</a
-            >
-          </div>
-          <div :class="question.cssClasses.imageWrapper">
-            <img
-              v-if="question.canPreviewImage(val)"
-              :src="val.content"
-              :style="{height: question.imageHeight, width: question.imageWidth}"
-              alt="File preview"
-            />
-            <sv-svg-icon v-if="question.defaultImage(val)" 
-              :iconName="question.cssClasses.defaultImageIconId" :class="question.cssClasses.defaultImage" :size="'auto'"></sv-svg-icon>
-            <div v-if="val.name && !question.isReadOnly" :class="question.cssClasses.removeFileButton" @click="question.doRemoveFile(val)">
-              <span
-                :class="question.cssClasses.removeFile"
-                >{{ question.removeFileCaption }}</span
-              >
-              <sv-svg-icon v-if="question.cssClasses.removeFileSvgIconId" :title="question.removeFileCaption" :class="question.cssClasses.removeFileSvg" :iconName="question.cssClasses.removeFileSvgIconId" :size="'auto'"></sv-svg-icon>
-            </div>
-          </div>
-          <div v-if="val.name && question.cssClasses.fileSignBottom" :class="question.cssClasses.fileSignBottom">
-            <a
-              @click="question.doDownloadFile($event, val)"
-              :href="val.content"
-              :title="val.name"
-              :download="val.name"
-              :style="{width: question.imageWidth}"
-              >{{ val.name }}</a
-            >
-          </div>
-        </span>
+        <sv-loading-indicator></sv-loading-indicator>
       </div>
-      <button
-        type="button"
+      <sv-file-video
+        v-if="question.isPlayingVideo"
+        :question="question"
+      ></sv-file-video>
+      <template v-if="question.allowShowPreview">
+        <sv-file-preview :question="question"></sv-file-preview>
+      </template>
+      <sv-file-clean-btn
         v-if="question.showRemoveButtonBottom"
-        :class="question.showRemoveButtonBottom"
-        @click="question.doClean"
-      >
-        <span>{{ question.clearButtonCaption }}</span>
-        <sv-svg-icon v-if="question.cssClasses.removeButtonIconId" :iconName="question.cssClasses.removeButtonIconId" :size="'auto'" :title="question.clearButtonCaption"></sv-svg-icon>
-      </button>
-      <sv-action-bar v-if="question.mobileFileNavigatorVisible" :model="question.mobileFileNavigator"></sv-action-bar>
+        :question="question"
+        :css="question.showRemoveButtonBottom"
+      ></sv-file-clean-btn>
+      <sv-action-bar
+        v-if="question.fileNavigatorVisible"
+        :model="question.fileNavigator"
+      ></sv-action-bar>
     </div>
   </div>
 </template>
@@ -131,12 +94,6 @@ import { default as QuestionVue } from "./question";
 import { QuestionFileModel } from "survey-core";
 @Component
 export class File extends QuestionVue<QuestionFileModel> {
-  doRemoveFile(data: any) {
-    this.question.doRemoveFile(data);
-  }
-  isPreviewVisible(index: any) {
-    return this.question.isPreviewVisible(index);
-  }
 }
 Vue.component("survey-file", File);
 export default File;

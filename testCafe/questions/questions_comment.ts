@@ -100,7 +100,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("check comment existing", async (t) => {
     const setQuestionId = ClientFunction(() => {

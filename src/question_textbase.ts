@@ -14,7 +14,7 @@ export class CharacterCounter extends Base {
 }
 
 /**
- * A base class for the [Text](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types.
+ * A base class for the [Single-Line Input](https://surveyjs.io/form-library/documentation/questiontextmodel) and [Long Text](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types.
  */
 export class QuestionTextBase extends Question {
   constructor(name: string) {
@@ -59,7 +59,7 @@ export class QuestionTextBase extends Question {
     return super.isEmpty() || this.value === "";
   }
   /**
-   * Gets or sets a value that specifies when to update the question value.
+   * Specifies when to update the question value.
    *
    * Possible values:
    *
@@ -83,10 +83,10 @@ export class QuestionTextBase extends Question {
   public get renderedPlaceholder(): string {
     return this.getPropertyValue("renderedPlaceholder");
   }
-  protected setRenderedPlaceholder(val: string) {
+  protected setRenderedPlaceholder(val: string): void {
     this.setPropertyValue("renderedPlaceholder", val);
   }
-  protected onReadOnlyChanged() {
+  protected onReadOnlyChanged(): void {
     super.onReadOnlyChanged();
     this.calcRenderedPlaceholder();
   }
@@ -94,7 +94,7 @@ export class QuestionTextBase extends Question {
     this.calcRenderedPlaceholder();
     super.onSurveyLoad();
   }
-  public localeChanged() {
+  public localeChanged(): void {
     super.localeChanged();
     this.calcRenderedPlaceholder();
   }
@@ -104,12 +104,12 @@ export class QuestionTextBase extends Question {
   }
   protected calcRenderedPlaceholder() {
     let res = this.placeHolder;
-    if(!!res && !this.hasPlaceHolder()) {
+    if(!!res && !this.hasPlaceholder()) {
       res = undefined;
     }
     this.setRenderedPlaceholder(res);
   }
-  protected hasPlaceHolder(): boolean {
+  protected hasPlaceholder(): boolean {
     return !this.isReadOnly;
   }
   protected setNewValue(newValue: any): void {
@@ -120,6 +120,19 @@ export class QuestionTextBase extends Question {
     super.setQuestionValue(newValue, updateIsAnswered);
     this.updateRemainingCharacterCounter(newValue);
   }
+  protected convertToCorrectValue(val: any): any {
+    if(Array.isArray(val)) return val.join(this.getValueSeparator());
+    return val;
+  }
+  protected getValueSeparator(): string { return ", "; }
+  public disableNativeUndoRedo = false;
+  protected checkForUndo(event: KeyboardEvent) {
+    if (this.disableNativeUndoRedo && this.isInputTextUpdate && (event.ctrlKey || event.metaKey)) {
+      if ([89, 90].indexOf(event.keyCode) !== -1) {
+        event.preventDefault();
+      }
+    }
+  }
   public getControlClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -129,50 +142,8 @@ export class QuestionTextBase extends Question {
   }
 
   //a11y
-  public get ariaRole(): string {
-    return null;
-  }
-  public get ariaRequired():any {
-    return null;
-  }
-  public get ariaInvalid():any {
-    return null;
-  }
-  public get ariaLabel(): string {
-    return null;
-  }
-  public get ariaLabelledBy(): string {
-    return null;
-  }
-  public get ariaDescribedBy(): string {
-    return null;
-  }
-
-  public get a11y_input_ariaRole(): string {
-    return "textbox";
-  }
-  public get a11y_input_ariaRequired(): "true" | "false" {
-    return this.isRequired ? "true" : "false";
-  }
-  public get a11y_input_ariaInvalid(): "true" | "false" {
-    return this.errors.length > 0 ? "true" : "false";
-  }
-  public get a11y_input_ariaLabel(): string {
-    if (this.hasTitle && !this.parentQuestion) {
-      return null;
-    } else {
-      return this.locTitle.renderedHtml;
-    }
-  }
-  public get a11y_input_ariaLabelledBy(): string {
-    if (this.hasTitle && !this.parentQuestion) {
-      return this.ariaTitleId;
-    } else {
-      return null;
-    }
-  }
-  public get a11y_input_ariaDescribedBy(): string {
-    return this.errors.length > 0 ? this.id + "_errors" : null;
+  public get isNewA11yStructure(): boolean {
+    return true;
   }
   // EO a11y
 }

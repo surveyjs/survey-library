@@ -29,7 +29,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.model.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.model.inputStringRendered;
       }
     }
@@ -78,7 +78,6 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
             readOnly={!this.model.searchEnabled ? true : undefined}
             size={!this.model.inputStringRendered ? 1 : undefined}
             role={this.model.filterStringEnabled ? this.question.ariaRole : undefined}
-            aria-label={this.question.placeholder}
             aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
             aria-controls={this.model.listElementId}
             aria-activedescendant={this.model.ariaActivedescendant}

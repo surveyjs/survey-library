@@ -195,7 +195,7 @@ QUnit.test("filterStringPlaceholder", (assert) => {
   const survey = new SurveyModel(jsonTagbox);
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   question.defaultValue = ["item1"];
-  const dropdownListModel = new DropdownMultiSelectListModel(question);
+  const dropdownListModel = question.dropdownListModel as DropdownMultiSelectListModel;
   const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
   assert.equal(dropdownListModel.filterStringPlaceholder, "");
 
@@ -203,6 +203,12 @@ QUnit.test("filterStringPlaceholder", (assert) => {
   assert.equal(dropdownListModel.filterStringPlaceholder, "Select...");
 
   list.onItemClick(list.actions[3]);
+  assert.equal(dropdownListModel.filterStringPlaceholder, "");
+
+  question.clearValue();
+  assert.equal(dropdownListModel.filterStringPlaceholder, "Select...");
+
+  question.value = ["item2"];
   assert.equal(dropdownListModel.filterStringPlaceholder, "");
 });
 

@@ -70,7 +70,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     return this.props.question.commentId;
   }
   protected getPlaceholder(): string {
-    return this.props.question.commentPlaceholder;
+    return this.props.question.renderedCommentPlaceholder;
   }
   protected renderElement(): JSX.Element {
     let question = this.props.question;
@@ -100,8 +100,8 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         onChange={handleOnChange}
         onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); }}
         onInput={(e) => this.onCommentInput(e)}
-        aria-required={question.isRequired}
-        aria-label={question.locTitle.renderedHtml}
+        aria-required={question.isRequired || question.a11y_input_ariaRequired}
+        aria-label={question.ariaLabel || question.a11y_input_ariaLabel}
         style={{ resize: question.resizeStyle }}
       />
     );

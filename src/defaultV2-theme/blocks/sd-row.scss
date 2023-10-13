@@ -5,57 +5,77 @@
   box-sizing: border-box;
   margin-top: var(--sd-base-vertical-padding);
 }
+
+.sd-row.sd-page__row {
+  margin-top: calcSize(2);
+}
+
+.sd-page__row.sd-row--compact {
+  margin-top: var(--sd-base-vertical-padding);
+}
+
 .sd-row:first-of-type {
   margin-top: 0;
 }
-.sd-row.sd-page__row {
-  margin-top: calcSize(2);
-  &.sd-row--compact {
+
+.sd-page__title,
+.sd-page__description {
+  &~.sd-row.sd-page__row:not(.sd-row--compact) {
+    margin-top: calcSize(3);
+  }
+
+  &~.sd-page__row.sd-row--compact {
     margin-top: var(--sd-base-vertical-padding);
   }
 }
-.sd-page__row.sd-row--multiple:not(.sd-row--compact),
-.svc-row > .sd-row--multiple {
-  background: $question-background;
-  box-shadow: 0px 1px 2px $shadow-inner;
-  border-radius: calcCornerRadius(1);
+
+.sd-row.sd-page__row:not(.sd-row--compact) {
+  &~.sd-row.sd-page__row:not(.sd-row--compact) {
+    margin-top: calcSize(2);
+  }
 }
 
-:not(.svc-row) > .sd-row--multiple {
-  row-gap: var(--sd-base-vertical-padding);
+.sd-row--multiple {
+  row-gap: calcSize(2);
   margin-left: calc(-1 * var(--sd-base-padding));
   width: calc(100% + var(--sd-base-padding));
   flex-wrap: wrap;
 
-  > div {
+  &>div {
     box-sizing: border-box;
+    padding-left: calcSize(2);
+    display: flex;
+    align-items: stretch;
+  }
+}
+
+.sd-panel {
+  .sd-row--multiple {
+    row-gap: var(--sd-base-vertical-padding);
+
+    &>div {
+      padding-left: var(--sd-base-padding);
+    }
+  }
+}
+
+.sd-row--multiple.sd-row--compact {
+  &>div {
     padding-left: var(--sd-base-padding);
   }
 }
 
-:not(.svc-row) > .sd-page__row.sd-row--multiple {
-  padding: var(--sd-base-vertical-padding) var(--sd-base-padding) var(--sd-base-padding) 0;
-  margin-left: 0;
-  width: 100%;
+.sd-page__row.sd-row--multiple {
+  margin-left: calcSize(-2);
+  width: calc(100% + 2 * var(--sjs-base-unit, var(--base-unit, 8px)));
+
+
   &.sd-row--compact {
     padding: 0;
-    width: calc(100% + var(--sd-base-padding));
     margin-left: calc(-1 * var(--sd-base-padding));
+    width: calc(100% + var(--sd-base-padding));
   }
-}
 
-.svc-row .sd-row--multiple {
-  overflow: auto;
-  margin-top: calcSize(2);
-}
-
-.svc-row--multiple {
-  .sd-row--multiple {
-    gap: calcSize(1);
-  }
-}
-.svc-row:not(.svc-row--ghost) > .sd-row {
-  min-height: 50px;
 }
 
 .sd-row__panel {

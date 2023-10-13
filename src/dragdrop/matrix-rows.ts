@@ -24,7 +24,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
           cursor: grabbing;
           position: absolute;
           z-index: 10000;
-          font-family: var(--font-family, $font-family);
+          font-family: var(--font-family, 'Open Sans');
         `;
 
     const isDeepClone = true;
@@ -35,8 +35,8 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
       const clone = <HTMLElement>(row.cloneNode(isDeepClone));
 
       clone.style.cssText = `
-        box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
-        background-color: white;
+        box-shadow: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+        background-color: var(--sjs-general-backcolor, var(--background, #fff));
         display: flex;
         flex-grow: 0;
         flex-shrink: 0;
@@ -94,7 +94,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
     let dropTargetRenderedRow;
 
     dropTargetRenderedRow = matrix.renderedTable.rows.filter(
-      (renderedRow: any) => renderedRow.row.id === dataAttributeValue
+      (renderedRow: any) => renderedRow.row && renderedRow.row.id === dataAttributeValue
     )[0];
 
     return dropTargetRenderedRow.row;
@@ -136,7 +136,7 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
     renderedRows.splice(draggedElementIndex, 1);
     renderedRows.splice(dropTargetIndex, 0, draggedRenderedRow);
-    this.toIndex = dropTargetIndex;
+    this.toIndex = this.parentElement.visibleRows.indexOf(this.dropTarget);
 
     // const matrix = this.parentElement;
     // const fromIndex = matrix.visibleRows.indexOf(this.draggedElement);

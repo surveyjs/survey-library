@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, explicitErrorHandler, resetFocusToBody, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, resetFocusToBody, wrapVisualTest } from "../../helper";
 
 const title = "Rating Screenshot";
 
@@ -15,16 +15,16 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
   });
   test("Check rating question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      const focusBody = ClientFunction(()=>{ document.body.focus(); });
+      const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -33,6 +33,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -41,7 +43,7 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await focusBody();
       await takeElementScreenshot("question-rating.png", questionRoot, t, comparer);
-      await ClientFunction(()=> { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); })();
+      await ClientFunction(() => { (<HTMLElement>document.querySelector(".sd-rating__item input")).focus(); })();
       await takeElementScreenshot("question-rating-focus.png", questionRoot, t, comparer);
       await t.click(".sd-rating__item");
       await takeElementScreenshot("question-rating-focus-selected.png", questionRoot, t, comparer);
@@ -53,9 +55,10 @@ frameworks.forEach(framework => {
   test("Check rating disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
-      const focusBody = ClientFunction(()=>{ document.body.focus(); });
+      const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -64,6 +67,8 @@ frameworks.forEach(framework => {
             rateMax: 3,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -82,6 +87,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -89,6 +95,8 @@ frameworks.forEach(framework => {
             title: "Rating",
             displayMode: "buttons",
             rateMax: 30,
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -105,6 +113,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -114,6 +123,8 @@ frameworks.forEach(framework => {
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
             renderAs: "dropdown",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -130,6 +141,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -148,6 +160,8 @@ frameworks.forEach(framework => {
                 "text": "third item"
               }
             ],
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -237,6 +251,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -246,6 +261,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -274,6 +291,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -283,6 +301,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -305,6 +325,7 @@ frameworks.forEach(framework => {
 
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -315,6 +336,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -331,6 +354,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -341,6 +365,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -369,6 +395,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -378,6 +405,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -406,6 +435,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -416,6 +446,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px"
           }
         ]
@@ -438,12 +470,57 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check rating smileys scale colored question themes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        width: "900px",
+        questions: [
+          {
+            type: "rating",
+            name: "satisfaction",
+            title: "Rating",
+            rateType: "smileys",
+            scaleColorMode: "colored",
+            defaultValue: "1",
+            rateMax: 5,
+            minRateDescription: "Not Satisfied",
+            maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px"
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        const themeJson = {
+          "cssVariables": {
+            "--sjs-special-red": "orange",
+            "--sjs-special-yellow": "magenta",
+            "--sjs-special-green": "blue"
+          },
+          "isPanelless": false
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-rating-smileys-scale-colored-theme", questionRoot, t, comparer);
+    });
+  });
+
   test("Check rating smileys disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -453,6 +530,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             defaultValue: 2,
             readOnly: true
@@ -472,6 +551,7 @@ frameworks.forEach(framework => {
       const focusBody = ClientFunction(() => { document.body.focus(); });
       await initSurvey(framework, {
         showQuestionNumbers: "off",
+        width: "900px",
         questions: [
           {
             type: "rating",
@@ -481,6 +561,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             isRequired: true
           },
@@ -493,6 +575,8 @@ frameworks.forEach(framework => {
             rateMax: 5,
             minRateDescription: "Not Satisfied",
             maxRateDescription: "Completely satisfied",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             isRequired: true
           }

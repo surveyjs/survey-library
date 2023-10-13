@@ -28,12 +28,16 @@ export class ResponsivityManager {
     private dotsItemSize: number = null,
   ) {
     this.model.updateCallback = (isResetInitialized: boolean) => {
-      if(isResetInitialized)
+      if (isResetInitialized)
         this.isInitialized = false;
       setTimeout(() => { this.process(); }, 1);
     };
     if (typeof ResizeObserver !== "undefined") {
-      this.resizeObserver = new ResizeObserver((_) => this.process());
+      this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
+        window.requestAnimationFrame((): void | undefined => {
+          this.process();
+        });
+      });
       this.resizeObserver.observe(this.container.parentElement);
     }
   }
@@ -60,7 +64,7 @@ export class ResponsivityManager {
 
   private calcMinDimension(currentAction: Action) {
     let minDimensionConst = this.minDimensionConst;
-    if(currentAction.iconSize && this.recalcMinDimensionConst) {
+    if (currentAction.iconSize && this.recalcMinDimensionConst) {
       minDimensionConst = 2 * currentAction.iconSize + this.paddingSizeConst;
     }
     return currentAction.canShrink
@@ -71,12 +75,11 @@ export class ResponsivityManager {
 
   private calcItemsSizes() {
     const actions = this.model.actions;
-    this.container
-      .querySelectorAll(this.itemsSelector)
-      .forEach((item: HTMLDivElement, index: number) => {
-        let currentAction = actions[index];
-        this.calcActionDimensions(currentAction, item);
-      });
+    const _items = this.container.querySelectorAll(this.itemsSelector);
+    (_items || []).forEach((item: HTMLDivElement, index: number) => {
+      let currentAction = actions[index];
+      this.calcActionDimensions(currentAction, item);
+    });
   }
   protected calcActionDimensions(currentAction: Action, item: HTMLDivElement) {
     currentAction.maxDimension = this.calcItemSize(item);

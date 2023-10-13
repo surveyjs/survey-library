@@ -22,7 +22,7 @@
     </div>
     <ul
       v-if="model.renderElements"
-      v-bind:class="model.cssClasses.itemsContainer"
+      v-bind:class="model.getListClass()"
       v-show="!model.isEmpty"
       role="listbox"
       :id="model.elementId"

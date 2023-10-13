@@ -126,6 +126,14 @@ QUnit.test("isTwoValueEquals, strings: trim and caseSensitive", function(assert)
   settings.comparator.trimStrings = true;
   settings.comparator.caseSensitive = false;
 });
+QUnit.test("isTwoValueEquals, strings: settings.normalizeTextCallback", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), false, "#1");
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
+    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): str;
+  };
+  assert.equal(Helpers.isTwoValueEquals("Brouillé", "Brouille"), true, "#2");
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
+});
 
 QUnit.test("Return correct value for array.length", function(assert) {
   var process = new ProcessValue();
@@ -298,11 +306,17 @@ QUnit.test("isTwoValueEquals, undefined vs 'undefined', Bug# ", function(
 QUnit.test("isTwoValueEquals, Arrays with empty objects", function(assert) {
   assert.equal(Helpers.isTwoValueEquals([{ a: "a" }], [{ a: "a" }, {}]), false, "arrays are not equal");
 });
+QUnit.test("isTwoValueEquals, Arrays ignore orders", function(assert) {
+  assert.equal(Helpers.isTwoValueEquals([1, 2, 3], [3, 2, 1], true), true, "arrays ignore order");
+  assert.equal(Helpers.isTwoValueEquals([1, 2, 3], [3, 2, 1], false), false, "arrays doesn't ignore order");
+});
 QUnit.test("Helpers.isNumber", function(assert) {
   assert.equal(Helpers.isNumber("1"), true, "1 is a number");
   assert.equal(Helpers.isNumber("0xabcd"), true, "0xabcd is a number");
   assert.equal(Helpers.isNumber("23.3"), true, "23.3 is a number");
   assert.equal(Helpers.isNumber("abcd"), false, "abcd is not a number");
+  assert.equal(Helpers.isNumber("0.1"), true, "0.1 is number");
+  assert.equal(Helpers.isNumber("0.2"), true, "0.2 is number");
   assert.equal(
     Helpers.isNumber("0xbe0eb53f46cd790cd13851d5eff43d12404d33e8"),
     false,
@@ -446,6 +460,12 @@ QUnit.test("Check compareStrings function", function(assert) {
   assert.equal(Helpers.compareStrings("item12", "item 2"), 1, "#14");
   assert.equal(Helpers.compareStrings("401", "60"), 1, "#15");
   assert.equal(Helpers.compareStrings("60", "401"), -1, "#16");
+
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
+    return reason === "compare" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, ""): str;
+  };
+  assert.equal(Helpers.compareStrings("Brouillé", "Brouille"), 0, "#17");
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });
 QUnit.test("convertArrayValueToObject function", function(assert) {
   assert.deepEqual(Helpers.convertArrayValueToObject([1, 2], "name"), [{ name: 1 }, { name: 2 }], "#1");
@@ -460,6 +480,11 @@ QUnit.test("getUnbindValue function", function(assert) {
   assert.deepEqual(obj, unbindObj, "objects are deep equal");
   const dateVal = new Date(2004, 5, 7);
   assert.strictEqual(Helpers.getUnbindValue(dateVal), dateVal, "do not convert date");
+  const arr = [1, "abc", { val: 1 }];
+  const unbindArr = Helpers.getUnbindValue(arr);
+  assert.notStrictEqual(arr, unbindArr, "new array are not strict equal");
+  assert.notStrictEqual(arr[2], unbindArr[2], "nested object in new array are not strict equal");
+  assert.deepEqual(arr, unbindArr, "Arrays are equals");
 });
 QUnit.test("convertDateToString/convertDateTimeToString functions", function(assert) {
   const d = new Date(2022, 11, 24, 10, 55, 33, 3);
@@ -474,4 +499,14 @@ QUnit.test("sumAnyValues", function(assert) {
   assert.equal(Helpers.sumAnyValues([1, 2, 3], 4), 10, "[1, 2, 3] + 10");
   assert.equal(Helpers.sumAnyValues(["a", "b", "c"], " "), "a, b, c ", "['a', 'b', 'c'] + ' '");
   assert.equal(Helpers.sumAnyValues(["a", "b", "c"], ""), "a, b, c", "['a', 'b', 'c'] + ''");
+  assert.equal(Helpers.sumAnyValues("0.1", "0.2"), "0.10.2", "'0.1' + '0.2'");
+});
+QUnit.test("isValueObject", function(assert) {
+  assert.equal(Helpers.isValueObject("abc"), false, "abc");
+  assert.equal(Helpers.isValueObject("a string", true), false, "a string, exclude array");
+  assert.equal(Helpers.isValueObject(1), false, "1");
+  assert.equal(Helpers.isValueObject([1]), true, "[1]");
+  assert.equal(Helpers.isValueObject([1], true), false, "[1], exclude array");
+  assert.equal(Helpers.isValueObject({ a: "abc" }), true, "{ a: 'abc' }");
+  assert.equal(Helpers.isValueObject({ a: "abc" }, true), true, "{ a: 'abc' }, exclude array");
 });

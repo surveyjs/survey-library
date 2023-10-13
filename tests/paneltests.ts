@@ -187,6 +187,32 @@ QUnit.test("Expand panel on validation error", function (assert) {
   assert.equal(panel1.isCollapsed, false, "Panel1 is not collapsed");
   assert.equal(panel2.isCollapsed, false, "Panel2 is not collapsed");
 });
+QUnit.test("Render name if title is empty and panel is expanded or collapsed", function (assert) {
+  const survey = new SurveyModel();
+  const page = survey.addNewPage("page1");
+  const panel = page.addNewPanel("p1");
+  assert.notOk(panel.locTitle.textOrHtml, "panel title is empty");
+  assert.notOk(panel.hasTitle, "no title, #1");
+  panel.collapse();
+  assert.equal(panel.locTitle.textOrHtml, "p1", "panel title is name");
+  assert.ok(panel.hasTitle, "has title, #2");
+  panel.state = "default";
+  assert.notOk(panel.locTitle.textOrHtml, "panel title is empty, #2");
+  assert.notOk(panel.hasTitle, "no title, #3");
+  panel.expand();
+  assert.equal(panel.locTitle.textOrHtml, "p1", "panel title is name, #2");
+  assert.ok(panel.hasTitle, "has title, #3");
+  panel.title = "some text";
+  assert.equal(panel.locTitle.textOrHtml, "some text", "panel title is not empty");
+  assert.ok(panel.hasTitle, "has title, #4");
+  panel.title = "";
+  panel.state = "default";
+  assert.notOk(panel.locTitle.textOrHtml, "panel title is empty, #3");
+  assert.notOk(panel.hasTitle, "no title, #5");
+  panel.title = "some text";
+  assert.equal(panel.locTitle.textOrHtml, "some text", "panel title is not empty, #2");
+  assert.ok(panel.hasTitle, "has title, #6");
+});
 QUnit.test("Panel.isRequired", function (assert) {
   const survey = new SurveyModel();
   const page = survey.addNewPage("page1");
@@ -228,6 +254,56 @@ QUnit.test("Panel.isRequired and hideRequiredErrors, Bug#2679", function (
     false,
     "There is error, but it is invisible"
   );
+});
+QUnit.test("Panel.isRequired&checkErrorsMode='onValueChanged', bug#6395", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+        ],
+        isRequired: true,
+      },
+      {
+        type: "panel",
+        name: "panel2",
+        elements: [
+          {
+            type: "panel",
+            name: "panel3",
+            elements: [
+              {
+                type: "text",
+                name: "q2",
+              },
+            ],
+          },
+        ],
+        isRequired: true,
+      }
+    ]
+  });
+  const panel1 = survey.getPanelByName("panel1");
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(panel1.errors.length, 0, "There is no errors in panel, #1");
+  panel1.hasErrors();
+  assert.equal(panel1.errors.length, 1, "There is an error in panel, #2");
+  q1.value = "abc";
+  assert.equal(panel1.errors.length, 0, "There is no errors in panel, #3");
+
+  const panel2 = survey.getPanelByName("panel2");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(panel2.errors.length, 0, "There is no errors in panel, #4");
+  panel2.hasErrors();
+  assert.equal(panel2.errors.length, 1, "There is an error in panel, #5");
+  q2.value = "abc";
+  assert.equal(panel2.errors.length, 0, "There is no errors in panel, #6");
 });
 
 QUnit.test("Panel with paneldynamic error focus", function (assert) {
@@ -707,30 +783,12 @@ QUnit.test(
       page._showDescription,
       "Entered description is visible in DesignMode"
     );
+    page.title = "";
+    page.description = "";
+    assert.notOk(page.hasTitle, "No title");
+    assert.notOk(page._showDescription, "No description");
   }
 );
-
-QUnit.test("QuestionRowModel setElementMaxMinWidth", function (assert) {
-  const qrm = new QuestionRowModel(<any>{ areInvisibleElementsShowing: false });
-
-  const el1: any = {
-    width: "100px",
-    minWidth: settings.minWidth,
-    maxWidth: settings.maxWidth,
-  };
-  qrm.setElementMaxMinWidth(el1);
-  assert.equal(el1.minWidth, "100px", "minWidth in 'px' is set");
-  assert.equal(el1.maxWidth, "100px", "maxWidth in 'px' is set");
-
-  const el2: any = {
-    width: "20%",
-    minWidth: settings.minWidth,
-    maxWidth: settings.maxWidth,
-  };
-  qrm.setElementMaxMinWidth(el2);
-  assert.equal(el2.minWidth, "300px", "minWidth in '%' is default");
-  assert.equal(el2.maxWidth, "100%", "maxWidth in '%' is default");
-});
 
 QUnit.test("Page/Panel.getProgressInfo()", function (assert) {
   const page = new PageModel("q1");
@@ -849,6 +907,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
   };
 
   const prevLazyRowsRenderingStartRow = settings.lazyRowsRenderingStartRow;
+  const createdDivs: Array<HTMLElement> = [];
   try {
     settings.lazyRowsRenderingStartRow = 0;
     const survey = new SurveyModel(json);
@@ -862,6 +921,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
       const div = document.createElement("div");
+      createdDivs.push(div);
       row.startLazyRendering(div, () => {
         return <any>{ scrollHeight: 200, clientHeight: 300 };
       });
@@ -876,6 +936,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=true", function (assert) {
     });
   } finally {
     settings.lazyRowsRenderingStartRow = prevLazyRowsRenderingStartRow;
+    createdDivs.forEach(div => div?.remove());
   }
 });
 
@@ -910,6 +971,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
   const prevStartRowInLazyRendering = settings.lazyRowsRenderingStartRow;
   settings.lazyRowsRendering = true;
   settings.lazyRowsRenderingStartRow = 0;
+  const createdDivs: Array<HTMLElement> = [];
   try {
     const survey = new SurveyModel(json);
     const panel: PanelModel = <PanelModel>survey.getAllPanels()[0];
@@ -921,6 +983,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
       assert.equal(row["_updateVisibility"], undefined);
       assert.equal(row.isNeedRender, false);
       const div = document.createElement("div");
+      createdDivs.push(div);
       row.startLazyRendering(div, () => {
         return <any>{ scrollHeight: 200, clientHeight: 100 };
       });
@@ -936,6 +999,7 @@ QUnit.test("Panel.startLazyRendering isNeedRender=false", function (assert) {
   } finally {
     settings.lazyRowsRendering = prevLazyRowsRendering;
     settings.lazyRowsRenderingStartRow = prevStartRowInLazyRendering;
+    createdDivs.forEach(div => div?.remove());
   }
 });
 QUnit.test("row.isNeedRender & settings.lazyRowsRenderingStartRow", function (

@@ -26,6 +26,9 @@ export class DropdownComponent extends BaseAngular implements OnInit {
     click(event: any) {
       this.dropdownModel?.onClick(event);
     }
+  chevronPointerDown(event: any) {
+    this.dropdownModel?.chevronPointerDown(event);
+    }
     clear(event: any) {
       this.dropdownModel?.onClear(event);
     }
@@ -46,7 +49,7 @@ export class DropdownComponent extends BaseAngular implements OnInit {
       if (!!this.inputElementRef?.nativeElement) {
         const control: any = this.inputElementRef.nativeElement;
         const newValue = this.model.inputStringRendered;
-        if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+        if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
           control.value = this.model.inputStringRendered || "";
         }
       }

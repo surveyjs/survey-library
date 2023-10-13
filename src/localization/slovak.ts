@@ -1,5 +1,3 @@
-// This dictionary contains 4 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var slovakSurveyStrings = {
@@ -13,15 +11,16 @@ export var slovakSurveyStrings = {
   noneItemText: "Žiadne",
   selectAllItemText: "Vybrať všetky",
   progressText: "Strana {0} z {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{0} {1}",
   panelDynamicProgressText: "Záznam {0} z {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Zodpovedané otázky {0}/{1}",
   emptySurvey: "V prieskume nie je žiadna vidieľná stránka ani otázka.",
   completingSurvey: "Ďakujeme vám za dokončenie prieskumu.",
   completingSurveyBefore: "Podľa našich záznamov ste už tento prieskum dokončili.",
   loadingSurvey: "Načítanie prieskumu...",
   placeholder: "Vybrať...",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "Vybrať...",
   value: "hodnota",
   requiredError: "Požaduje sa odozva.",
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",
@@ -76,6 +75,10 @@ export var slovakSurveyStrings = {
   clearCaption: "Vymazať",
   signaturePlaceHolder: "Podpísať tu",
   chooseFileCaption: "Vybrať súbor",
+  takePhotoCaption: "Odfotiť",
+  cameraPlaceHolder: "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu.",
+  fileCameraDragAreaPlaceHolder: "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu.",
+  replaceFileCaption: "Nahradenie súboru",
   removeFileCaption: "Odstrániť tento súbor",
   booleanCheckedLabel: "Áno",
   booleanUncheckedLabel: "Nie",
@@ -85,10 +88,29 @@ export var slovakSurveyStrings = {
   modalCancelButtonText: "Zrušiť",
   modalApplyButtonText: "Použiť",
   filterStringPlaceholder: "Vyhľadávanie písaním...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Žiadne údaje na zobrazenie",
   noEntriesText: "K dispozícii ešte nie sú žiadne zadania.\nKliknutím na nasledujúce tlačidlo pridajte nové zadanie.",
-  // more: "More"
+  noEntriesReadonlyText: "Nie sú k dispozícii žiadne záznamy.",
+  more: "Viacej",
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "Všetky možnosti sú zoradené",
+  selectToRankEmptyUnrankedAreaText: "Presuňte sem voľby, aby ste ich zoradili"
 };
 
 surveyLocalization.locales["sk"] = slovakSurveyStrings;
 surveyLocalization.localeNames["sk"] = "slovenčina";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{0} {1}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "Vybrať..."
+// emptyMessage: "No data to display" => "Žiadne údaje na zobrazenie"
+// noEntriesReadonlyText: "There are no entries." => "Nie sú k dispozícii žiadne záznamy."
+// more: "More" => "Viacej"
+// tagboxDoneButtonCaption: "OK" => "OK"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Všetky možnosti sú zoradené"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Presuňte sem voľby, aby ste ich zoradili"// takePhotoCaption: "Take Photo" => "Odfotiť"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu."
+// replaceFileCaption: "Replace file" => "Nahradenie súboru"

@@ -192,6 +192,43 @@ QUnit.test("column cell css classes by column cellType test", function (assert) 
   assert.equal(matrix.renderedTable.headerRow.cells[5].className, "sv_matrix_cell_header sv_matrix_cell--dropdown", "column 5");
 
 });
+
+QUnit.test("column cell css classes for vertical layout", function (assert) {
+  var survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "question1",
+        "columns": [
+          {
+            "name": "Column 1"
+          },
+          {
+            "name": "Column 2"
+          }
+        ],
+        "columnLayout": "vertical",
+        "choices": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "rows": [
+          "Row 1",
+          "Row 2"
+        ]
+      }
+    ]
+  });
+
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("question1");
+  assert.equal(matrix.renderedTable.headerRow.cells.length, 3);
+  assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header", "column 1");
+  assert.equal(matrix.renderedTable.headerRow.cells[2].className, "sv_matrix_cell_header", "column 2");
+});
+
 QUnit.test("column cell css classes by matrix cellType test", function (assert) {
   var survey = new SurveyModel({
     "elements": [
@@ -378,8 +415,8 @@ QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", f
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   const renderedTable = matrix.renderedTable;
   assert.equal(renderedTable.headerRow.cells[1].className, "custom-header-cell");
-  assert.equal(renderedTable.rows[0].cells[1].className, "custom-item-cell custom-radio-item-cell");
-  assert.equal(renderedTable.rows[0].cells[3].className, "custom-item-cell custom-checkbox-item-cell");
+  assert.equal(renderedTable.rows[1].cells[1].className, "custom-item-cell custom-radio-item-cell");
+  assert.equal(renderedTable.rows[1].cells[3].className, "custom-item-cell custom-checkbox-item-cell");
 });
 QUnit.test("Check matrixdropdown cells cssClasses with showInMultipleColumns", function (assert) {
   const survey = new SurveyModel({
@@ -500,4 +537,404 @@ QUnit.test("Rows with value = 0, Bug#6370", function (assert) {
   assert.equal(matrix.visibleRows[0].rowName, 0, "The rowName is 0");
   matrix.visibleRows[0].cells[0].question.value = "val1";
   assert.deepEqual(survey.data, { q1: { 0: { col1: "val1" } } }, "Set row value correctly");
+});
+QUnit.test("survey.onPropertyValueChangedCallback on column property changed", function (assert) {
+  var survey = new SurveyModel({ elements: [
+    { type: "matrixdynamic", name: "q", columns: [{ cellType: "expression", name: "col1" }] }]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q");
+  const column = matrix.columns[0];
+  let counter = 0;
+  let propertyName;
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: SurveyModel,
+    arrayChanges: any
+  ) => {
+    counter++;
+    propertyName = name;
+  };
+  assert.equal(counter, 0, "initial");
+  column.title = "col title";
+  assert.equal(counter, 1, "callback called, #1");
+  assert.equal(propertyName, "title", "title is changed, #2");
+  column["expression"] = "today()";
+  assert.equal(counter, 2, "callback called, #3");
+  assert.equal(propertyName, "expression", "expression is changed, #4");
+});
+QUnit.test("Column width is not loaded, bug in Creator #4303", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "q1",
+        columns: [{ name: "col1", width: "222px" }],
+        rows: [0, 1, 2]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q1");
+  assert.equal(matrix.columns.length, 1, "There is one column");
+  assert.equal(matrix.columns[0].width, "222px", "column width is loaded correctly");
+});
+QUnit.test("Error location from survey/matrix/properties", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  const qCell = row.cells[0].question;
+  const qDetail = row.detailPanel.getQuestionByName("q1");
+  assert.ok(qCell, "qCell");
+  assert.ok(qDetail, "qDetail");
+  assert.equal(qCell.getErrorLocation(), "bottom", "cell, #1");
+  assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #1");
+  matrix.errorLocation = "top";
+  assert.equal(qCell.getErrorLocation(), "top", "cell, #2");
+  assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #2");
+  matrix.cellErrorLocation = "bottom";
+  assert.equal(qCell.getErrorLocation(), "bottom", "cell, #3");
+  assert.equal(qDetail.getErrorLocation(), "top", "question in detail panel, #3");
+  matrix.cellErrorLocation = "default";
+  matrix.detailErrorLocation = "bottom";
+  assert.equal(qCell.getErrorLocation(), "top", "cell, #4");
+  assert.equal(qDetail.getErrorLocation(), "bottom", "question in detail panel, #4");
+});
+QUnit.test("Set incorrect value into matrix dropdown", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1", cellType: "text" }],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.value = "a string";
+  matrix.value = 4;
+  matrix.value = ["a string"];
+  assert.equal(matrix.isEmpty(), true, "Do not allow to set incorrect values");
+  assert.notOk(matrix.value, "matrix value is empty, #1");
+  survey.data = { matrix: "a string" };
+  assert.equal(matrix.isEmpty(), true, "Do not allow to set incorrect values from data");
+  assert.notOk(matrix.value, "matrix value is empty, #2");
+  survey.data = { matrix: { row1: 1 } };
+  assert.equal(matrix.isEmpty(), false, "Set correct value");
+});
+QUnit.test("column.visible property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text", visible: false },
+          { name: "col3", cellType: "text" }
+        ],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.columns[0].visible, true, "The default column.visible is true");
+  assert.equal(matrix.columns[1].visible, false, "The second column.visible is false");
+  let table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 2, "Header: One column is invisible, #1");
+  assert.equal(table.rows[1].cells.length, 1 + 2, "Row: One column is invisible, #1");
+  assert.equal(table.headerRow.cells[2].headers, "col3", "The second column is col3, #1");
+  matrix.columns[1].visible = true;
+  assert.notStrictEqual(table, matrix.renderedTable);
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 3, "Header: All columns are visible, #2");
+  assert.equal(table.rows[1].cells.length, 1 + 3, "Row: All columns are visible, #2");
+  assert.equal(table.headerRow.cells[2].headers, "col2", "The second column is col2, #2");
+  matrix.columns[2].visible = false;
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 2, "Header: the last column is invisible, #3");
+  assert.equal(table.rows[1].cells.length, 1 + 2, "Row: the last column is invisible, #3");
+  assert.equal(table.headerRow.cells[2].headers, "col2", "The last column is col2, #3");
+});
+QUnit.test("column.visible property and design time", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [
+          { name: "col1", cellType: "text" },
+          { name: "col2", cellType: "text", visible: false },
+          { name: "col3", cellType: "text" }
+        ],
+        rows: ["row1"],
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.columns[0].visible, true, "Column is visible by default");
+  assert.equal(matrix.columns[1].visible, false, "visible property is false");
+  assert.equal(matrix.columns[1].hasVisibleCell, true, "It is visible");
+  let table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 3, "Header: One column is invisible, but it is visible in design-time, #1");
+  assert.equal(table.rows[1].cells.length, 1 + 3, "Row: One column is invisible, but it is visible in design-time, #1");
+  assert.equal(table.headerRow.cells[3].headers, "col3", "The last column is col3, #1");
+  matrix.columns[2].visible = false;
+  table = matrix.renderedTable;
+  assert.equal(table.headerRow.cells.length, 1 + 3, "Header: Two columns are invisible, but it is visible in design-time, #2");
+  assert.equal(table.rows[1].cells.length, 1 + 3, "Row: Two columns are invisible, but it is visible in design-time, #2");
+  assert.equal(table.headerRow.cells[3].headers, "col3", "The last column is col3, #2");
+});
+QUnit.test("question.resetValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { name: "q1", cellType: "text" },
+          { name: "q2", cellType: "text", resetValueIf: "{row.q1} = 1" },
+          { name: "q3", cellType: "text" },
+        ]
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  const col2 = matrix.getColumnByName("q2");
+  assert.equal(col2.resetValueIf, "{row.q1} = 1", "Load from JSON, column");
+  assert.equal(q2.resetValueIf, "{row.q1} = 1", "Load from JSON, question");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is cleared");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 3;
+  assert.equal(q2.value, "edf", "value is set, #3");
+});
+QUnit.test("question.resetValueIf & quesiton.defaultValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [{
+          name: "q1",
+          cellType: "text"
+        },
+        {
+          name: "q2",
+          cellType: "text",
+          resetValueIf: "{row.q1} = 1",
+          defaultValueExpression: "iif({row.q3} > 2, {row.q3}, '')"
+        },
+        {
+          name: "q3", cellType: "text"
+        }]
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  q2.value = "abc";
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set directly");
+  q1.value = 1;
+  assert.equal(q2.value, 3, "value is set from defaultValueExpression");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set directly, #2");
+  q3.value = 4;
+  assert.equal(q2.value, "edf", "value is set directly, #3");
+});
+QUnit.test("question.resetValueIf based on root and row questions", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { name: "q1", cellType: "text" },
+          { name: "q2", cellType: "text", resetValueIf: "{row.q1} = 1 and {q4}=4" },
+          { name: "q3", cellType: "text" },
+        ]
+      },
+      { type: "text", name: "q4" }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  q2.value = "abc";
+  assert.equal(q2.value, "abc", "q2.value #1");
+  q1.value = 1;
+  assert.equal(q2.value, "abc", "q2.value #2");
+  q4.value = 4;
+  assert.equal(q2.isEmpty(), true, "q2.value #3");
+  q2.value = "abc";
+  q1.value = 2;
+  assert.equal(q2.value, "abc", "q2.value #4");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "q2.value #5");
+});
+QUnit.test("question.resetValueIf, cycle calls", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 1,
+        "columns": [
+          {
+            "name": "dog",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.none} notempty",
+            "choices": ["dog"]
+          },
+          {
+            "name": "cat",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.none} notempty",
+            "choices": ["cat"]
+          },
+          {
+            "name": "none",
+            "cellType": "checkbox",
+            "resetValueIf": "{row.dog} notempty or {row.cat} notempty",
+            "choices": ["none"]
+          }]
+      }
+    ] });
+  const row = survey.getQuestionByName("matrix").visibleRows[0];
+  const q1 = row.getQuestionByName("dog");
+  const q2 = row.getQuestionByName("cat");
+  const q3 = row.getQuestionByName("none");
+  q1.value = ["dog"];
+  q2.value = ["cat"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #1");
+  assert.deepEqual(q2.value, ["cat"], "q2.value #1");
+  assert.equal(q3.isEmpty(), true, "q3.value #1");
+  q3.value = ["none"];
+  assert.equal(q1.isEmpty(), true, "q1.value #2");
+  assert.equal(q2.isEmpty(), true, "q2.value #2");
+  assert.deepEqual(q3.value, ["none"], "q3.value #2");
+  q1.value = ["dog"];
+  assert.deepEqual(q1.value, ["dog"], "q1.value #3");
+  assert.equal(q3.isEmpty(), true, "q2.value #3");
+  assert.equal(q3.isEmpty(), true, "q3.value #3");
+});
+QUnit.test("question.setValueIf, basic functionality", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 1,
+        columns: [
+          { name: "q1", cellType: "text" },
+          { name: "q2", cellType: "text", setValueIf: "{row.q1} = 1", setValueExpression: "{row.q1} + {row.q3}" },
+          { name: "q3", cellType: "text" },
+        ]
+      }
+    ]
+  });
+  const matrix = survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const q1 = row.getQuestionByName("q1");
+  const q2 = row.getQuestionByName("q2");
+  const q3 = row.getQuestionByName("q3");
+  const col2 = matrix.getColumnByName("q2");
+  assert.equal(col2.setValueIf, "{row.q1} = 1", "Load from JSON, column.setValueIf");
+  assert.equal(q2.setValueIf, "{row.q1} = 1", "Load from JSON, question.setValueIf");
+  assert.equal(col2.setValueExpression, "{row.q1} + {row.q3}", "Load from JSON, column.setValueExpression");
+  assert.equal(q2.setValueExpression, "{row.q1} + {row.q3}", "Load from JSON, question.setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.value, 4, "value is set correctly");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is set, #3");
+});
+
+QUnit.test("question.onHidingContent", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: ["item1"],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  let counter1 = 0;
+  let counter2 = 0;
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.getQuestionByName("col1").onHidingContent = (): void => { counter1 ++; };
+  row.showDetailPanel();
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  row.hideDetailPanel();
+  assert.equal(counter2, 1, "Close detail");
+  row.showDetailPanel();
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  survey.doComplete();
+  assert.equal(counter1, 1, "cell on complete");
+  assert.equal(counter2, 2, "detail questions");
+});
+QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1", isUnique: true }]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  matrix.value = [{ col1: "a" }, { col1: "a" }];
+  const row = matrix.visibleRows[0];
+  const q = row.getQuestionByColumnName("col1");
+  matrix.checkIfValueInRowDuplicated(row, q);
+  matrix.checkIfValueInRowDuplicated(row, q);
+  matrix.checkIfValueInRowDuplicated(row, q);
+  assert.equal(q.errors.length, 1, "One error only");
+  assert.equal(q.errors[0].getErrorType(), "keyduplicationerror", "Correct error is added");
 });

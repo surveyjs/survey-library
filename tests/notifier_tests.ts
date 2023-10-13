@@ -54,9 +54,21 @@ QUnit.test("action bar: button visibility", function (assert) {
 
   notifier.updateActionsVisibility("success");
   assert.equal(testAction.visible, false);
+
+  assert.equal(notifier.showActions, true, "showActions default is true");
+  notifier.showActions = false;
+  notifier.updateActionsVisibility("error");
+  assert.equal(testAction.visible, false);
+
+  notifier.showActions = true;
+  notifier.updateActionsVisibility("error");
+  assert.equal(testAction.visible, true);
+
 });
 
 QUnit.test("message box visibility", function (assert) {
+  const oldLifeTime = settings.notifications.lifetime;
+  settings.notifications.lifetime = 10;
   const done = assert.async(4);
   const notifier = new Notifier(testCssClasses);
   notifier.notify("Test", "error");
@@ -83,8 +95,9 @@ QUnit.test("message box visibility", function (assert) {
           assert.equal(notifier.css, "alert alert-error alert-shown");
 
           done();
-        }, settings.notifications.lifetime + 120);
+          settings.notifications.lifetime = oldLifeTime;
+        }, settings.notifications.lifetime + 2);
       }, 1);
-    }, settings.notifications.lifetime + 120);
+    }, settings.notifications.lifetime + 2);
   }, 1);
 });

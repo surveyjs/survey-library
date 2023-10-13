@@ -1,6 +1,7 @@
 import { Action, IAction } from "../src/actions/action";
 import { ElementHelper } from "../src/element-helper";
 import { ListModel } from "../src/list";
+import { settings } from "../src/settings";
 import { createIActionArray, createListContainerHtmlElement } from "./utilstests";
 
 export default QUnit.module("List Model");
@@ -360,6 +361,18 @@ QUnit.test("getItemClass", (assert) => {
   assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled custom-css");
 });
 
+QUnit.test("getListClass", (assert) => {
+  const items = createIActionArray(12);
+  const list = new ListModel(items, () => { }, true);
+  assert.equal(list.getListClass(), "sv-list");
+
+  list.filterString = "test";
+  assert.equal(list.getListClass(), "sv-list");
+
+  list.filterString = "test1";
+  assert.equal(list.getListClass(), "sv-list sv-list--filtering");
+});
+
 QUnit.test("allow show selected item with disabled selection", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel(items, () => { }, false);
@@ -369,4 +382,21 @@ QUnit.test("allow show selected item with disabled selection", (assert) => {
   list.selectedItem = items[0];
   assert.equal(list.selectedItem, items[0], "first item selected");
   assert.equal(list.isItemSelected(items[0] as any), true, "selected item is true");
+});
+QUnit.test("ListModel filter & comparator.normalize text (brouillé=brouille)", function (assert) {
+  const items: Array<IAction> = [];
+  items.push(<IAction>{ id: "test1", title: "brouillé" });
+  items.push(<IAction>{ id: "test1", title: "lle" });
+  const list = new ListModel(items, () => { }, true);
+  list.filterString = "le";
+  let filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 1, "one item by default");
+
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => {
+    return reason === "filter" ? str.normalize("NFD").replace(/[\u0300-\u036f]/g, "") : str;
+  };
+  list.filterString = "lle";
+  filteredActions = list.renderedActions.filter(item => list.isItemVisible(item));
+  assert.equal(filteredActions.length, 2, "include brouillé");
+  settings.comparator.normalizeTextCallback = (str: string, reason: string): string => { return str; };
 });

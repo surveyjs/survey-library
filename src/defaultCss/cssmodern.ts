@@ -157,6 +157,9 @@ export var modernCss = {
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
     rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
+    rootSelectToRankMod: "sv-ranking--select-to-rank",
+    rootSelectToRankAlignVertical: "sv-ranking--select-to-rank-vertical",
+    rootSelectToRankAlignHorizontal: "sv-ranking--select-to-rank-horizontal",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -170,6 +173,12 @@ export var modernCss = {
     itemIconFocusMod: "sv-ranking-item__icon--focus",
     itemGhostMod: "sv-ranking-item--ghost",
     itemDragMod: "sv-ranking-item--drag",
+    container: "sv-ranking__container",
+    containerEmptyMode: "sv-ranking__container--empty",
+    containerFromMode: "sv-ranking__container--from",
+    containerToMode: "sv-ranking__container--to",
+    containerPlaceholder: "sv-ranking__container-placeholder",
+    containersDivider: "sv-ranking__containers-divider",
   },
   radiogroup: {
     root: "sv-selectbase",
@@ -406,6 +415,8 @@ export var modernCss = {
     small: "sv-row__question--small",
     controls: "sjs_sp_controls",
     placeholder: "sjs_sp_placeholder",
+    canvas: "sjs_sp_canvas",
+    backgroundImage: "sjs_sp__background-image",
     clearButton: "sjs_sp_clear",
   },
   saveData: {
@@ -428,6 +439,7 @@ export var modernCss = {
     },
   },
   variables: {
+    mobileWidth: "--sv-mobile-width",
     themeMark: "--sv-modern-mark"
   }
 };

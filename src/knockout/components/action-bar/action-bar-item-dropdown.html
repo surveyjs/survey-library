@@ -1,4 +1,4 @@
-<!-- ko with: $data.item -->
+<!-- ko with: $data.model.item -->
 <button type="button"
   data-bind="click: function(s, args) { $data.action($data, getIsTrusted(args)); }, key2click: { processEsc: false }, css: getActionBarItemCss(), attr: { disabled: $data.enabled !== undefined && !ko.unwrap($data.enabled), title: $data.tooltip || $data.title, 'role': $data.ariaRole }">
   <!-- ko if: $data.iconName -->
@@ -8,6 +8,6 @@
   <!-- ko if: $data.hasTitle -->
   <span data-bind="text: title, css: getActionBarItemTitleCss()"></span>
   <!-- /ko -->
-  <sv-popup params="model: popupModel"></sv-popup>
 </button>
+<sv-popup params="{ model: popupModel, getTarget: $parent.getTarget }"></sv-popup>
 <!-- /ko -->

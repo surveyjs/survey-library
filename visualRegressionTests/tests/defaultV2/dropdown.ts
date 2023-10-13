@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { getListItemByText, registerCustomItemComponent } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot, resetFocusToBody } from "../../helper";
 
 const title = "Dropdown Screenshot";
 
@@ -16,9 +16,8 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+    .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
-      await explicitErrorHandler();
       await applyTheme(theme);
     });
   test("Check dropdown select question", async (t) => {
@@ -453,13 +452,14 @@ frameworks.forEach(framework => {
             ]
           }
         ]
-      }, { "onTextMarkdown": (sender, options) => {
-        var converter = new window["showdown"].Converter();
-        var str = converter.makeHtml(options.text);
-        str = str.substring(3);
-        str = str.substring(0, str.length - 4);
-        options.html = str;
-      }
+      }, {
+        "onTextMarkdown": (sender, options) => {
+          var converter = new window["showdown"].Converter();
+          var str = converter.makeHtml(options.text);
+          str = str.substring(3);
+          str = str.substring(0, str.length - 4);
+          options.html = str;
+        }
       });
 
       const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
@@ -593,6 +593,74 @@ frameworks.forEach(framework => {
         (<HTMLElement>document.querySelector(".sd-question__content input")).style.backgroundColor = "red";
       })();
       await takeElementScreenshot("dropdown-custom-component.png", questionDropdownSelect, t, comparer);
+    });
+  });
+
+  test("Check overlay popup in dropdown question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 700);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "dropdown",
+            name: "dropdown",
+            hasOther: "true",
+            closeOnSelect: false,
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10",
+              "item11",
+              "item12",
+            ]
+          }
+        ]
+      });
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .click(Selector(".sd-list__item span").withText("item1"))
+        .click(Selector(".sd-dropdown__filter-string-input"));
+      await takeElementScreenshot("dropdown-question-overlay-popup-selected.png", Selector(".sv-popup.sv-single-select-list"), t, comparer);
+    });
+  });
+  test("Check long text in disabled dropdown question", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1000, 700);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "mode": "display",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "dropdown",
+                "name": "question1",
+                "defaultValue": "Item 1",
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "Some long text goes here Some long text goes here Some long text goes here "
+                  },
+                  "Item 2",
+                  "Item 3"
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("dropdown-question-disabled-long-text.png", Selector(".sd-question"), t, comparer);
     });
   });
 

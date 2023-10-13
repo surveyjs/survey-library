@@ -38,7 +38,7 @@ class SurveyTriggerVisibleOwnerTester implements ISurveyTriggerOwner {
   canBeCompleted(trigger: Trigger, isCompleted: boolean) {}
   triggerExecuted(trigger: Trigger): void {}
   setTriggerValue(name: string, value: any, isVariable: boolean) {}
-  copyTriggerValue(name: string, fromName: string) {}
+  copyTriggerValue(name: string, fromName: string, copyDisplayValue: boolean): void {}
   focusQuestion(name: string): boolean {
     return true;
   }
@@ -238,17 +238,48 @@ QUnit.test("On trigger executed && executeCompleteTriggerOnValueChanged=true", f
   });
   const triggers = [];
   let isCompleteEvent = false;
+  let completeTrigger;
   survey.onTriggerExecuted.add((sender, options) => {
     triggers.push(options.trigger.getType());
   });
   survey.onComplete.add((sender, options) => {
     isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
   });
   survey.setValue("q1", 3);
   assert.equal(survey.state, "completed");
   assert.deepEqual(triggers, ["completetrigger"]);
   assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.expression, "{q1} = 3");
   settings.executeCompleteTriggerOnValueChanged = false;
+});
+QUnit.test("On trigger executed && options.completeTrigger", function(
+  assert
+) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ],
+    triggers: [
+      {
+        type: "complete",
+        expression: "{q1} = 3"
+      },
+    ],
+  });
+  let isCompleteEvent = false;
+  let completeTrigger;
+  survey.onComplete.add((sender, options) => {
+    isCompleteEvent = options.isCompleteOnTrigger;
+    completeTrigger = options.completeTrigger;
+  });
+  survey.setValue("q1", 3);
+  assert.equal(survey.state, "running");
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed");
+  assert.equal(isCompleteEvent, true);
+  assert.equal(completeTrigger.expression, "{q1} = 3");
 });
 QUnit.test("Show complete button instead of next if complete trigger is going to be executed", function(
   assert
@@ -332,6 +363,59 @@ QUnit.test("Do not execute copy and set trigger on page changed", function(
   survey.nextPage();
   survey.doComplete();
   assert.deepEqual(survey.data, data, "We do not change anything");
+});
+QUnit.test("copyvalue from checkbox", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: [
+          { type: "checkbox", name: "q1",
+            choices: [{ value: 1, text: "Item1" }, { value: 2, text: "Item2" }, { value: 3, text: "Item3" }] },
+          { type: "text", name: "q2" },
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "expression": "{q1} notempty",
+        "fromName": "q1",
+        "setToName": "q2",
+        "copyDisplayValue": true
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = [1, 3];
+  assert.deepEqual(q2.value, "Item1, Item3", "Copy value correctly");
+  q1.value = [1, 2];
+  assert.deepEqual(q2.value, "Item1, Item2", "Copy value correctly");
+});
+QUnit.test("copyvalue without expression, bug#7030", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3" }
+
+    ],
+    "triggers": [
+      {
+        "type": "copyvalue",
+        "fromName": "q1",
+        "setToName": "q2"
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q1.value = "A";
+  assert.equal(q2.value, "A", "Copy value correctly");
+  q2.value = "B";
+  q3.value = "C";
+  assert.equal(q2.value, "B", "Do not copy value");
 });
 
 QUnit.test("Execute trigger on complete", function(assert) {
@@ -460,4 +544,136 @@ QUnit.test("Show complete button instead of next for single matrix, bug#6152", f
   q1.value = { row1: 2, row2: 1, row3: 2 };
   assert.equal(survey.isShowNextButton, false, "#7-next");
   assert.equal(survey.isCompleteButtonVisible, true, "#7-complete");
+});
+QUnit.test("skip trigger for showOtherItem, Bug#6792", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ],
+            "showOtherItem": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "question2"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "skip",
+        "expression": "{question1} notempty",
+        "gotoName": "question2"
+      }
+    ] });
+  const q1 = survey.getQuestionByName("question1");
+  q1.value = "other";
+  assert.equal(survey.currentPageNo, 0, "We are staying on the same page");
+});
+QUnit.test("complete trigger for showOtherItem, Bug#6792", function (assert) {
+  const oldSettings = settings.triggers.executeCompleteOnValueChanged;
+  settings.triggers.executeCompleteOnValueChanged = true;
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ],
+            "showOtherItem": true
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "boolean",
+            "name": "question2"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question1} notempty"
+      }
+    ] });
+  const q1 = survey.getQuestionByName("question1");
+  q1.value = "other";
+  assert.equal(survey.currentPageNo, 0, "We are staying on the same page");
+  assert.equal(survey.state, "running", "Survey is not completed");
+  settings.triggers.executeCompleteOnValueChanged = oldSettings;
+});
+QUnit.test("complete trigger and next/complete buttons, Bug#6970", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1"
+          }
+        ]
+      },
+      {
+        "name": "page2",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+      {
+        "name": "page3",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question3"
+          }
+        ]
+      }
+    ],
+    "triggers": [
+      {
+        "type": "complete",
+        "expression": "{question2} notempty"
+      }
+    ] });
+  const q2 = survey.getQuestionByName("question2");
+  survey.nextPage();
+  assert.equal(survey.isCompleteButtonVisible, false, "complete button is invisible, #1");
+  assert.equal(survey.isShowNextButton, true, "next button is visible, #1");
+  q2.value = "a";
+  assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible, #2");
+  assert.equal(survey.isShowNextButton, false, "next button is invisible, #2");
+  survey.prevPage();
+  assert.equal(survey.isCompleteButtonVisible, false, "complete button is invisible, #3");
+  assert.equal(survey.isShowNextButton, true, "next button is visible, #3");
+  survey.nextPage();
+  assert.equal(survey.isCompleteButtonVisible, true, "complete button is visible, #4");
+  assert.equal(survey.isShowNextButton, false, "next button is invisible, #4");
 });

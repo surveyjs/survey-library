@@ -20,6 +20,7 @@ export interface IDialogOptions extends IPopupOptionsBase {
   componentName: string;
   data: any;
   onApply: () => boolean;
+  isFocusedContent?: boolean;
 }
 export interface IPopupModel<T = any> extends IDialogOptions {
   contentComponentName: string;
@@ -68,7 +69,8 @@ export class PopupModel<T = any> extends Base {
     onHide = () => { },
     onShow = () => { },
     cssClass: string = "",
-    title: string = ""
+    title: string = "",
+    private onDispose = () => { }
   ) {
     super();
     this.contentComponentName = contentComponentName;
@@ -93,10 +95,10 @@ export class PopupModel<T = any> extends Base {
     }
     this.setPropertyValue("isVisible", value);
     this.onVisibilityChanged.fire(this, { model: this, isVisible: value });
-    this.refreshInnerModel();
     if (this.isVisible) {
       this.onShow();
     } else {
+      this.refreshInnerModel();
       this.onHide();
     }
   }
@@ -110,6 +112,10 @@ export class PopupModel<T = any> extends Base {
     const options = { actions: footerActions };
     this.onFooterActionsCreated.fire(this, options);
     return options.actions;
+  }
+  public dispose(): void {
+    super.dispose();
+    this.onDispose();
   }
 }
 

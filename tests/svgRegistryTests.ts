@@ -56,10 +56,26 @@ QUnit.test("svg import in the custom environment", function (assert) {
   svg.registerIconFromSvgViaElement("a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>", "sprite-");
   assert.equal(svg.iconsRenderedHtml(), "<symbol viewBox=\"0 0 100 100\" id=\"sprite-a\"><circle></circle></symbol>");
 
+  svgMountContainer.remove();
+  shadowRootWrapper.remove();
+
   settings.environment = {
     ...settings.environment,
     root: document,
     rootElement: document.body,
     svgMountContainer: document.head
   };
+});
+
+QUnit.test("svg import from svg via element - use prefix", function (assert) {
+  let svg = new SvgIconRegistry();
+  svg.registerIconFromSvgViaElement("icon-a", "<svg viewBox=\"0 0 100 100\"><circle/></symbol>");
+  assert.equal(svg.iconsRenderedHtml(), "<symbol viewBox=\"0 0 100 100\" id=\"icon-a\"><circle></circle></symbol>");
+});
+
+QUnit.test("svg import from svg via string - use prefix", function (assert) {
+  let svg = new SvgIconRegistry();
+  let res = svg.registerIconFromSvg("icon-a", "<svg viewBox=\"0 0 100 100\"><circle/></svg>");
+  assert.ok(res);
+  assert.equal(svg.iconsRenderedHtml(), "<symbol id=\"icon-a\" viewBox=\"0 0 100 100\"><circle/></symbol>");
 });

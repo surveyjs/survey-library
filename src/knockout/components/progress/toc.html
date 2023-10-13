@@ -1,3 +1,11 @@
 <div data-bind="css: containerCss">
+    <!-- ko ifnot: isMobile -->
     <sv-list params="model: listModel"></sv-list>
+    <!-- /ko -->
+    <!-- ko if: isMobile -->
+    <div class="" data-bind="click: togglePopup, key2click">
+        <sv-svg-icon class="" params="iconName: icon, size: 24"></sv-svg-icon>
+        <sv-popup params="model: popupModel"></sv-popup>
+    </div>
+    <!-- /ko -->
 </div>

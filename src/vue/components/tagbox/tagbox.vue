@@ -1,12 +1,11 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper">
+  <div :class="question.cssClasses.selectWrapper" @click="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
       :tabindex="model.inputReadOnly ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
-      @click="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -32,7 +31,7 @@
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
-        v-show="!question.isEmpty()"
+        v-show="question.showClearButton"
         @click="clear"
       >
         <sv-svg-icon
@@ -47,6 +46,18 @@
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
       <div>{{ question.readOnlyText }}</div>
+    </div>
+    <div
+      :class="question.cssClasses.chevronButton"
+          v-on:pointerdown="chevronPointerDown"
+      v-if="question.cssClasses.chevronButtonIconId"
+    >
+      <sv-svg-icon
+        :class="question.cssClasses.chevronButtonSvg"
+        :iconName="question.cssClasses.chevronButtonIconId"
+        size="auto"
+      >
+      </sv-svg-icon>
     </div>
   </div>
 </template>
@@ -76,6 +87,9 @@ export class TagboxComponent extends BaseVue {
   }
   public clear(event: any) {
     this.question.dropdownListModel?.onClear(event);
+  }
+  public chevronPointerDown(event: any) {
+    this.question.dropdownListModel?.chevronPointerDown(event);
   }
   public keyhandler(event: any) {
     this.question.dropdownListModel?.keyHandler(event);

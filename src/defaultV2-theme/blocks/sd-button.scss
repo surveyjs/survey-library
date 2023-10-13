@@ -5,8 +5,8 @@
   -webkit-appearance: none;
   -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
-  background: $background;
-  box-shadow: 0px 1px 2px $shadow-inner;
+  background: $question-background;
+  box-shadow: $shadow-small;
   border-radius: calcCornerRadius(1);
   cursor: pointer;
 
@@ -14,11 +14,16 @@
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   text-align: center;
   color: $primary;
   border: none;
   outline: none;
+}
+
+.sd-btn--small {
+  flex-grow: 1;
+  padding: calcSize(1.5) calcSize(4);
 }
 
 .sd-btn:hover {
@@ -47,5 +52,20 @@
 
 .sd-btn--action:disabled {
   color: $primary-foreground-disabled;
+  pointer-events: none;
+}
+
+.sd-btn--danger {
+  background-color: $red;
+  color: $primary-foreground;
+}
+
+.sd-btn--danger:hover {
+  background-color: $red;
+  color: $primary-foreground;
+}
+
+.sd-btn--danger:disabled {
+  color: $red-forecolor;
   pointer-events: none;
 }

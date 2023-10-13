@@ -4,11 +4,17 @@
 </script>
 
 <script type="text/html" id="survey-content-template">
-  <div data-bind="css: rootCss, style: themeVariables">
-      <form onsubmit="return false;" data-bind="style: { backgroundColor: renderBackgroundOpacity }">
+  <div data-bind="css: rootCss, elementStyle: themeVariables">
+    <div data-bind="css: wrapperFormCss">
+      <!-- ko if: !!renderBackgroundImage -->
+      <div data-bind="css: css.rootBackgroundImage, elementStyle: backgroundImageStyle"></div>
+      <!-- /ko -->
+      <form onsubmit="return false;">
           <div class="sv_custom_header" data-bind="visible: !hasLogo"></div>
           <div data-bind="css: containerCss">
+              <!-- ko if: headerView === 'basic' -->
               <!-- ko template: { name: koTitleTemplate, afterRender: koAfterRenderHeader } -->
+              <!-- /ko -->
               <!-- /ko -->
               <!-- ko if: isShowingPage -->
               <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "header", needRenderWrapper: false } } --><!-- /ko -->
@@ -32,12 +38,13 @@
               <!-- /ko -->
               <!-- ko if: state == "completed" && showCompletedPage -->
               <div data-bind="html: processedCompletedHtml, css: completedCss"></div>
+              <!-- ko component: { name: "sv-components-container", params: { survey: $data, container: "completePage", needRenderWrapper: false } } --><!-- /ko -->
               <!-- /ko -->
               <!-- ko if: state == "completedbefore" -->
-              <div data-bind="html: processedCompletedBeforeHtml, css: css.body"></div>
+              <div data-bind="html: locCompletedBeforeHtml.koRenderedHtml, css: completedBeforeCss"></div>
               <!-- /ko -->
               <!-- ko if: state == "loading" -->
-              <div data-bind="html: processedLoadingHtml, css: css.body"></div>
+              <div data-bind="html: locLoadingHtml.koRenderedHtml, css: loadingBodyCss"></div>
               <!-- /ko -->
               <!-- ko if: state == "empty" -->
               <div data-bind="text:emptySurveyText, css: css.bodyEmpty"></div>
@@ -49,5 +56,6 @@
       <!-- /ko -->
       <!-- ko component: { name: 'sv-notifier', params: { notifier: notifier } } -->
       <!-- /ko -->
+    </div>
   </div>
 </script>

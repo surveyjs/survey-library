@@ -8,6 +8,7 @@ import { ListModel } from "../src/list";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMatrixDropdownModel } from "../src/question_matrixdropdown";
 import { settings } from "../src/settings";
+import { _setIsTouch } from "../src/utils/devices";
 
 QUnit.test("check allowhover class in design mode", (assert) => {
   var json = {
@@ -79,9 +80,13 @@ QUnit.test("check rating initResponsiveness", (assert) => {
   assert.ok(q1["resizeObserver"]);
   q1.dispose();
   assert.notOk(q1["resizeObserver"]);
+
+  contentElement.remove();
+  rootElement.remove();
 });
 
 QUnit.test("check rating resize observer behavior", (assert) => {
+  window.requestAnimationFrame = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const getComputedStyle = window.getComputedStyle;
   window.ResizeObserver = <any>CustomResizeObserver;
@@ -141,6 +146,9 @@ QUnit.test("check rating resize observer behavior", (assert) => {
   assert.equal(q1.renderAs, "default", "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state");
   window.getComputedStyle = getComputedStyle;
   window.ResizeObserver = ResizeObserver;
+
+  contentElement.remove();
+  rootElement.remove();
 });
 
 QUnit.test("check rating in case of state 'collapsed'", (assert) => {
@@ -243,6 +251,8 @@ QUnit.test("Do not process responsiveness if displayMode: 'dropdown' and set ren
   assert.equal(q1.renderAs, "default");
   assert.equal(q1.isDefaultRendering(), true);
   RendererFactory.Instance.unregisterRenderer("rating", "dropdown");
+
+  container.remove();
 });
 QUnit.test("check getItemClass in display mode", (assert) => {
   var json = {
@@ -334,6 +344,36 @@ QUnit.test("Check cssClasses update when dropdownListModel is set", (assert) => 
   assert.equal(list.cssClasses.item, "original-class custom-class");
   assert.equal(list.cssClasses.itemSelected, "original-class-selected custom-class-selected");
 });
+QUnit.test("Check dropdownListModel isItemSelected works correctly", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        "rateCount": 10,
+        "rateValues": [1, 2],
+      }
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const question = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  assert.notOk(list.isItemSelected(list.actions[0]));
+  assert.notOk(list.isItemSelected(list.actions[1]));
+
+  question.value = 1;
+
+  assert.ok(list.isItemSelected(list.actions[0]));
+  assert.notOk(list.isItemSelected(list.actions[1]));
+
+  question.value = 2;
+
+  assert.notOk(list.isItemSelected(list.actions[0]));
+  assert.ok(list.isItemSelected(list.actions[1]));
+
+});
 QUnit.test("check stars highlighting", (assert) => {
   var json = {
     questions: [
@@ -419,6 +459,39 @@ QUnit.test("check stars highlighting design mode", (assert) => {
   assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
   assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
   assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+});
+
+QUnit.test("check stars highlighting on touch device", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        rateType: "stars",
+        name: "q1",
+      },
+    ],
+  };
+  _setIsTouch(true);
+  const survey = new SurveyModel(json);
+  survey.setDesignMode(true);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  q1.cssClasses.itemStar = "";
+  q1.cssClasses.itemStarHighlighted = "sv_q_high";
+  q1.cssClasses.itemStarUnhighlighted = "sv_q_unhigh";
+
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+
+  q1.onItemMouseIn(q1.renderedRateItems[3]);
+  assert.equal(q1.getItemClass(q1.renderedRateItems[0].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[1].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[2].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[3].itemValue), "");
+  assert.equal(q1.getItemClass(q1.renderedRateItems[4].itemValue), "");
+  _setIsTouch(false);
 });
 
 QUnit.test("check stars styles", (assert) => {
@@ -1226,4 +1299,188 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   q.columns[0].rateType = "labels";
   assert.equal(q1.ratingRootCss, "sv_q");
   settings.matrix.rateSize = "small";
+});
+
+QUnit.test("check rating triggerResponsiveness method", (assert) => {
+  const ResizeObserver = window.ResizeObserver;
+  window.ResizeObserver = <any>CustomResizeObserver;
+  const done = assert.async();
+
+  const rootElement = document.createElement("div");
+  const contentElement = document.createElement("div");
+  const ratingElement = document.createElement("div");
+  contentElement.className = "sd-scrollable-container";
+  contentElement.style.width = "400px";
+  contentElement.style.height = "10px";
+  contentElement.style.overflow = "auto";
+  ratingElement.style.width = "400px";
+  ratingElement.style.height = "10px";
+
+  contentElement.appendChild(ratingElement);
+  rootElement.append(contentElement);
+  document.body.appendChild(rootElement);
+
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+      },
+      {
+        type: "text",
+        name: "q2",
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  survey.css = defaultV2Css;
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+
+  q1.afterRender(rootElement);
+  q2.afterRender(rootElement);
+
+  assert.notOk(!!q2["triggerResponsivenessCallback"]);
+  assert.ok(!!q1["triggerResponsivenessCallback"]);
+  assert.ok(q1["resizeObserver"]);
+  assert.equal(q1.renderAs, "default");
+
+  contentElement.style.width = "350px";
+
+  survey.triggerResponsiveness(false);
+  assert.equal(q1.renderAs, "dropdown");
+
+  contentElement.style.width = "450px";
+  //to reset is processed flag
+  survey.triggerResponsiveness(false);
+
+  survey.triggerResponsiveness(false);
+  assert.equal(q1.renderAs, "default");
+
+  ratingElement.style.width = "500px";
+
+  survey.triggerResponsiveness(false);
+  assert.equal(q1.renderAs, "default");
+
+  survey.triggerResponsiveness(true);
+
+  setTimeout(() => {
+    assert.equal(q1.renderAs, "dropdown");
+
+    ratingElement.remove();
+    contentElement.remove();
+    rootElement.remove();
+    window.ResizeObserver = ResizeObserver;
+    done();
+  }, 1);
+
+});
+
+QUnit.test("check rating in-matrix pre-defined items", (assert) => {
+  var json = {
+    logoPosition: "right",
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "matrixdropdown",
+            name: "q",
+            columns: [
+              {
+                name: "Column 1",
+                cellType: "rating",
+                rateValues: [
+                  {
+                    value: "item1",
+                    text: "Rate Item 1"
+                  },
+                  {
+                    value: "item2",
+                    text: "Rate Item 2"
+                  },
+                  {
+                    value: "item3",
+                    text: "Rate Item 3"
+                  },
+                  {
+                    value: "item4",
+                    text: "Rate Item 4"
+                  },
+                  {
+                    value: "item5",
+                    text: "Rate Item 5"
+                  }
+                ]
+              }
+            ],
+            choices: [1, 2, 3, 4, 5],
+            rows: ["Row 1", "Row 2"]
+          }
+        ]
+      }
+    ]
+  };
+  const survey = new SurveyModel(json);
+  const q = survey.getQuestionByName("q") as QuestionMatrixDropdownModel;
+  var column = q.columns[0];
+  assert.equal(column.templateQuestion.rateValues.length, 5);
+  assert.equal(column.templateQuestion.autoGenerate, false);
+  //assert.notOk(column.autoGenerate);
+});
+
+QUnit.test("show only 10 items when switching to smileys mode", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  var changed = false;
+  q1.onPropertyChanged.add(function (sender, options) {
+    if (options.name == "rateValues") changed = true;
+  });
+
+  q1.rateCount = 20;
+  q1.autoGenerate = false;
+  changed = false;
+  q1.rateType = "smileys";
+  assert.ok(changed);
+
+  assert.equal(q1.rateValues.length, 10);
+
+});
+
+QUnit.test("rating items custom component", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.itemComponent, "sv-rating-item");
+
+  q1.renderAs = "dropdown";
+  assert.equal(q1.itemComponent, "");
+
+  var json2 = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1",
+        itemComponent: "custom-item"
+      },
+    ],
+  };
+  const survey2 = new SurveyModel(json2);
+  const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
+  assert.equal(q2.itemComponent, "custom-item");
 });

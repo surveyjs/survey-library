@@ -4,6 +4,10 @@ import { QuestionFactory } from "./questionfactory";
 import { Question } from "./question";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { SurveyModel } from "./survey";
+import { ISurveyImpl } from "./base-interfaces";
+import { ConsoleWarnings } from "./console-warnings";
+import { ITheme } from "./themes";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -34,12 +38,28 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
 }
 
 /**
- * A class that describes the Signature Page question type.
+ * A class that describes the Signature question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
  */
 export class QuestionSignaturePadModel extends Question {
   @property({ defaultValue: false }) isDrawingValue: boolean;
+
+  private getPenColorFromTheme(): string {
+    const _survey = this.survey as SurveyModel;
+    return !!_survey && !!_survey.themeVariables && _survey.themeVariables["--sjs-primary-backcolor"];
+  }
+  private updateColors(signaturePad: SignaturePad) {
+    const penColorFromTheme = this.getPenColorFromTheme();
+    const penColorProperty = this.getPropertyByName("penColor");
+    signaturePad.penColor = this.penColor || penColorFromTheme || penColorProperty.defaultValue || "#1ab394";
+
+    const backgroundColorProperty = this.getPropertyByName("backgroundColor");
+    const backgroundColorFromTheme = penColorFromTheme ? "transparent" : undefined;
+    const background = !!this.backgroundImage ? "transparent" : this.backgroundColor;
+    signaturePad.backgroundColor = background || backgroundColorFromTheme || backgroundColorProperty.defaultValue || "#ffffff";
+  }
+
   protected getCssRoot(cssClasses: any): string {
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
@@ -49,7 +69,9 @@ export class QuestionSignaturePadModel extends Question {
 
   protected updateValue() {
     if (this.signaturePad) {
-      var data = this.signaturePad.toDataURL(this.dataFormat);
+      const format = this.dataFormat === "jpeg" ? "image/jpeg" :
+        (this.dataFormat === "svg" ? "image/svg+xml" : "");
+      var data = this.signaturePad.toDataURL(format);
       this.value = data;
     }
   }
@@ -71,6 +93,11 @@ export class QuestionSignaturePadModel extends Question {
       this.destroySignaturePad(el);
     }
   }
+  public themeChanged(theme: ITheme): void {
+    if(!!this.signaturePad) {
+      this.updateColors(this.signaturePad);
+    }
+  }
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
@@ -87,18 +114,17 @@ export class QuestionSignaturePadModel extends Question {
       }
     };
 
-    signaturePad.penColor = this.penColor;
-    signaturePad.backgroundColor = this.backgroundColor;
+    this.updateColors(signaturePad);
 
-    signaturePad.addEventListener("beginStroke", () => {
+    (signaturePad as any).addEventListener("beginStroke", () => {
       this.isDrawingValue = true;
       canvas.focus();
-    }, { once: true });
+    }, { once: false });
 
-    signaturePad.addEventListener("endStroke", () => {
+    (signaturePad as any).addEventListener("endStroke", () => {
       this.isDrawingValue = false;
       this.updateValue();
-    }, { once: true });
+    }, { once: false });
 
     var updateValueHandler = () => {
       var data = this.value;
@@ -136,12 +162,16 @@ export class QuestionSignaturePadModel extends Question {
    *
    * Possible values:
    *
-   * - `""` (default) - PNG
-   * - `"image/jpeg"` - JPEG
-   * - `"image/svg+xml"` - SVG
+   * - `"png"` (default)
+   * - `"jpeg"`
+   * - `"svg"`
    */
-  @property({ defaultValue: "" }) dataFormat: string;
-
+  public get dataFormat(): string {
+    return this.getPropertyValue("dataFormat");
+  }
+  public set dataFormat(val: string) {
+    this.setPropertyValue("dataFormat", correctFormatData(val));
+  }
   /**
    * Specifies the width of the signature area. Accepts positive integer numbers.
    */
@@ -184,7 +214,13 @@ export class QuestionSignaturePadModel extends Question {
     return !this.isInputReadOnly && this.allowClear;
   }
   /**
-   * Specifies a color for the pen. Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * Specifies a color for the pen.
+   *
+   * This property accepts color values in the following formats:
+   *
+   * - Hexadecimal colors (`"#FF0000"`)
+   * - RGB colors (`"rgb(255,0,0)"`)
+   * - Color names (`"red"`)
    * @see backgroundColor
    */
   public get penColor(): string {
@@ -192,9 +228,16 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set penColor(val: string) {
     this.setPropertyValue("penColor", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
   }
   /**
-   * Specifies a color for the signature area background.  Accepts hexadecimal colors (`"#FF0000"`), RGB colors (`"rgb(255,0,0)"`), or color names (`"red"`).
+   * Specifies a color for the signature area background. Ignored if [`backgroundImage`](#backgroundImage) is set.
+   *
+   * This property accepts color values in the following formats:
+   *
+   * - Hexadecimal colors (`"#FF0000"`)
+   * - RGB colors (`"rgb(255,0,0)"`)
+   * - Color names (`"red"`)
    * @see penColor
    */
   public get backgroundColor(): string {
@@ -202,6 +245,18 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set backgroundColor(val: string) {
     this.setPropertyValue("backgroundColor", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
+  }
+  /**
+   * An image to display in the background of the signature area. Accepts a base64 or URL string value.
+   * @see backgroundColor
+   */
+  public get backgroundImage(): string {
+    return this.getPropertyValue("backgroundImage");
+  }
+  public set backgroundImage(val: string) {
+    this.setPropertyValue("backgroundImage", val);
+    !!this.signaturePad && this.updateColors(this.signaturePad);
   }
   get clearButtonCaption(): string {
     return this.getLocalizationString("clearCaption");
@@ -218,18 +273,23 @@ export class QuestionSignaturePadModel extends Question {
     super.endLoadingFromJson();
     //todo: need to remove this code
     if(this.signatureWidth === 300 && !!this.width && typeof this.width === "number" && this.width) {
-      // eslint-disable-next-line no-console
-      console.warn("Use signatureWidth property to set width for the signature pad");
+      ConsoleWarnings.warn("Use signatureWidth property to set width for the signature pad");
       this.signatureWidth = this.width;
       this.width = undefined;
     }
     if(this.signatureHeight === 200 && !!this.height) {
-      // eslint-disable-next-line no-console
-      console.warn("Use signatureHeight property to set width for the signature pad");
+      ConsoleWarnings.warn("Use signatureHeight property to set width for the signature pad");
       this.signatureHeight = this.height;
       this.height = undefined;
     }
   }
+}
+
+function correctFormatData(val: string): string {
+  if(!val) val = "png";
+  val = val.replace("image/", "").replace("+xml", "");
+  if(val !== "jpeg" && val !== "svg") val = "png";
+  return val;
 }
 
 Serializer.addClass(
@@ -257,24 +317,29 @@ Serializer.addClass(
       default: true,
     },
     {
+      name: "backgroundImage:file",
+      category: "general",
+    },
+    {
       name: "penColor:color",
       category: "general",
-      default: "#1ab394",
     },
     {
       name: "backgroundColor:color",
       category: "general",
-      default: "#ffffff",
     },
     {
       name: "dataFormat",
       category: "general",
-      default: "",
+      default: "png",
       choices: [
-        { value: "", text: "PNG" },
+        { value: "png", text: "PNG" },
         { value: "image/jpeg", text: "JPEG" },
         { value: "image/svg+xml", text: "SVG" },
       ],
+      onSettingValue: (obj: any, val: any): any => {
+        return correctFormatData(val);
+      }
     },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },

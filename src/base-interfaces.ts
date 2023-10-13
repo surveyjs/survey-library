@@ -11,6 +11,7 @@ import { IAction } from "./actions/action";
 import { PanelModel } from "./panel";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { DragDropAllowEvent } from "./survey-events-api";
+import { PopupModel } from "./popup";
 
 export interface ISurveyData {
   getValue(name: string): any;
@@ -18,7 +19,8 @@ export interface ISurveyData {
     name: string,
     newValue: any,
     locNotification: any,
-    allowNotifyValueChanged?: boolean
+    allowNotifyValueChanged?: boolean,
+    questionName?: string
   ): any;
   getVariable(name: string): any;
   setVariable(name: string, newValue: any): void;
@@ -40,10 +42,14 @@ export interface ITextProcessor {
 export interface ISurveyErrorOwner extends ILocalizableOwner {
   getErrorCustomText(text: string, error: SurveyError): string;
 }
-
+export interface IValueItemCustomPropValues {
+  propertyName: string;
+  values: Array<any>;
+}
 export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   getSkeletonComponentName(element: ISurveyElement): string;
   currentPage: IPage;
+  activePage: IPage;
   pages: Array<IPage>;
   getCss(): any;
   isPageStarted(page: IPage): boolean;
@@ -52,8 +58,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   panelVisibilityChanged(panel: IPanel, newValue: boolean): any;
   questionVisibilityChanged(question: IQuestion, newValue: boolean): any;
   isEditingSurveyElement: boolean;
-  isClearValueOnHidden: boolean;
-  isClearValueOnHiddenContainer: boolean;
+  getQuestionClearIfInvisible(questionClearIf: string): string;
   questionsOrder: string;
   matrixDragHandleArea: string;
   keepIncorrectValues: boolean;
@@ -77,10 +82,11 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     oldName: string,
     oldValueName: string
   ): any;
+  focusQuestionByInstance(question: IQuestion, onError: boolean): boolean;
   validateQuestion(question: IQuestion): SurveyError;
   validatePanel(panel: IPanel): SurveyError;
   hasVisibleQuestionByValueName(valueName: string): boolean;
-  questionCountByValueName(valueName: string): number;
+  questionsByValueName(valueName: string): Array<IQuestion>;
   processHtml(html: string, reason: string): string;
   getSurveyMarkdownHtml(element: Base, text: string, name: string): string;
   getRendererForString(element: Base, name: string): string;
@@ -102,8 +108,9 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   state: string;
   isLazyRendering: boolean;
   cancelPreviewByPage(panel: IPanel): any;
-  editText: string;
+  locEditText: LocalizableString;
   cssNavigationEdit: string;
+  rootElement?: HTMLElement;
 
   requiredText: string;
   beforeSettingQuestionErrors(
@@ -183,7 +190,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   canChangeChoiceItemsVisibility(): boolean;
   getChoiceItemVisibility(question: IQuestion, item: any, val: boolean): boolean;
   loadQuestionChoices(options: { question: IQuestion, filter: string, skip: number, take: number, setItems: (items: Array<any>, totalCount: number) => void }): void;
-  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>) => void }): void;
+  getChoiceDisplayValue(options: { question: IQuestion, values: Array<any>, setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void }): void;
   matrixRowAdded(question: IQuestion, row: any): any;
   matrixColumnAdded(question: IQuestion, column: any): void;
   matrixBeforeRowAdded(options: {
@@ -210,6 +217,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelRemoved(question: IQuestion, panelIndex: number, panel: IPanel): void;
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
+  dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
 
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
 
@@ -217,11 +225,12 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     element: ISurveyElement,
     question: IQuestion,
     page: IPage,
-    id: string
+    id: string, scrollIfVisible?: boolean
   ): any;
   runExpression(expression: string): any;
   elementContentVisibilityChanged(element: ISurveyElement): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
+  processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;
@@ -249,7 +258,7 @@ export interface ISurveyElement extends IShortcutText {
   getType(): string;
   setVisibleIndex(value: number): number;
   locStrsChanged(): any;
-  delete(): any;
+  delete(doDispose?: boolean): void;
   toggleState(): void;
   stateChangedCallback(): void;
   getTitleToolbar(): AdaptiveActionContainer;
@@ -275,7 +284,7 @@ export interface IElement extends IConditionRunner, ISurveyElement {
   getLayoutType(): string;
   isLayoutTypeSupported(layoutType: string): boolean;
   removeElement(el: IElement): boolean;
-  onAnyValueChanged(name: string): any;
+  onAnyValueChanged(name: string, questionName: string): void;
   updateCustomWidgets(): any;
   clearIncorrectValues(): any;
   clearErrors(): any;
@@ -311,11 +320,13 @@ export interface IPanel extends ISurveyElement, IParentElement {
   getChildrenLayoutType(): string;
   getQuestionTitleLocation(): string;
   getQuestionStartIndex(): string;
+  getQuestionErrorLocation(): string;
   parent: IPanel;
   elementWidthChanged(el: IElement): any;
   indexOf(el: IElement): number;
   elements: Array<IElement>;
   ensureRowsVisibility(): void;
+  validateContainerOnly(): void;
 }
 export interface IPage extends IPanel, IConditionRunner {
   isStartPage: boolean;
@@ -355,6 +366,8 @@ export type ISurveyEnvironment = {
 }
 
 export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
+export type HorizontalAlignment = "left" | "center" | "right";
+export type VerticalAlignment = "top" | "middle" | "bottom";
 
 export interface ISurveyLayoutElement {
   id: string;
@@ -362,4 +375,12 @@ export interface ISurveyLayoutElement {
   component?: string;
   template?: string;
   data?: any;
+}
+export interface IPlainDataOptions {
+  includeEmpty?: boolean;
+  includeQuestionTypes?: boolean;
+  includeValues?: boolean;
+  calculations?: Array<{
+    propertyName: string,
+  }>;
 }

@@ -14,6 +14,10 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
   @property({ defaultValue: "" }) filterStringPlaceholder: string;
   @property({ defaultValue: true }) closeOnSelect: boolean;
 
+  public locStrsChanged(): void {
+    super.locStrsChanged();
+    this.syncFilterStringPlaceholder();
+  }
   private updateListState() {
     (<MultiSelectListModel<ItemValue>>this.listModel).updateState();
     this.syncFilterStringPlaceholder();
@@ -175,5 +179,12 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
       this.hintString = "";
     }
     this.syncFilterStringPlaceholder();
+  }
+
+  protected onPropertyChangedHandler(sender: any, options: any) {
+    super.onPropertyChangedHandler(sender, options);
+    if (options.name === "value" || options.name === "renderedValue") {
+      this.syncFilterStringPlaceholder();
+    }
   }
 }

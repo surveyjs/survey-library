@@ -1,6 +1,6 @@
 import { Selector, ClientFunction, t } from "testcafe";
 import { getListItemByText } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Tagbox Screenshot";
 
@@ -14,9 +14,8 @@ const theme = "defaultV2";
 
 frameworks.forEach(async framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+    .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
-      await explicitErrorHandler();
       await applyTheme(theme);
     });
 
@@ -310,6 +309,12 @@ frameworks.forEach(async framework => {
         ]
       });
       await t.click(Selector(".sd-dropdown__filter-string-input"))
+        .click(Selector(".sd-list__item span").withText("item1"));
+      await takeElementScreenshot("tagbox-question-overlay-popup-selected.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
+
+      await t.click(Selector("span").withText("Cancel"));
+
+      await t.click(Selector(".sd-dropdown__filter-string-input"))
         .typeText(Selector(".sv-list__input"), "item1");
       await takeElementScreenshot("tagbox-question-overlay-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);
     });
@@ -377,11 +382,12 @@ frameworks.forEach(async framework => {
         window["Survey"]._setIsTouch(true);
       })();
       await initSurvey(framework,
-        { "elements": [{
-          "type": "tagbox",
-          "name": "q1",
-          "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
-        }]
+        {
+          "elements": [{
+            "type": "tagbox",
+            "name": "q1",
+            "choices": ["English: American Literature", "English: British and World Literature", "Math: Consumer Math", "Math: Practical Math", "Math: Developmental Algebra", "Math: Continuing Algebra", "Math: Pre-Algebra", "Math: Algebra", "Math: Geometry", "Math: Integrated Mathematics", "Science: Physical Science", "Science: Earth Science", "Science: Biology", "Science: Chemistry", "History: World History", "History: Modern World Studies", "History: U.S. History", "History: Modern U.S. History", "Social Sciences: U.S. Government and Politics", "Social Sciences: U.S. and Global Economics", "World Languages: Spanish", "World Languages: French", "World Languages: German", "World Languages: Latin", "World Languages: Chinese", "World Languages: Japanese"]
+          }]
         });
       await t.click(Selector(".sd-dropdown__filter-string-input"));
       await takeElementScreenshot("tagbox-question-long-items-overlay-tablet-popup.png", Selector(".sv-popup.sv-multi-select-list"), t, comparer);

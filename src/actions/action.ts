@@ -117,7 +117,7 @@ export interface IAction {
    * The action item's icon size in pixels.
    * @see iconName
    */
-  iconSize?: number;
+  iconSize?: number | string;
   /**
    * The action item's location in a matrix question's row.
    *
@@ -163,7 +163,10 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   const listModel: ListModel = new ListModel(
     listOptions.items,
     (item: Action) => {
-      listOptions.onSelectionChanged(item),
+      if (newAction.hasTitle) {
+        newAction.title = item.title;
+      }
+      listOptions.onSelectionChanged(item);
       innerPopupModel.toggleVisibility();
     },
     listOptions.allowSelection,
@@ -171,13 +174,15 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
     listOptions.onFilterStringChangedCallback
   );
   listModel.locOwner = locOwner;
-  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title);
+  const innerPopupModel: PopupModel = new PopupModel("sv-list", { model: listModel }, popupOptions?.verticalPosition, popupOptions?.horizontalPosition, popupOptions?.showPointer, popupOptions?.isModal, popupOptions?.onCancel, popupOptions?.onApply, popupOptions?.onHide, popupOptions?.onShow, popupOptions?.cssClass, popupOptions?.title, () => {
+    listModel.dispose();
+  });
   innerPopupModel.displayMode = popupOptions?.displayMode as any;
 
   const newActionOptions = Object.assign({}, actionOptions, {
     component: "sv-action-bar-item-dropdown",
     popupModel: innerPopupModel,
-    action: (action:IAction, isUserAction: boolean) => {
+    action: (action: IAction, isUserAction: boolean) => {
       !!(actionOptions.action) && actionOptions.action();
       innerPopupModel.isFocusedContent = !isUserAction || listModel.showFilter;
       innerPopupModel.toggleVisibility();
@@ -188,6 +193,10 @@ export function createDropdownActionModelAdvanced(actionOptions: IAction, listOp
   newAction.data = listModel;
 
   return newAction;
+}
+
+export function getActionDropdownButtonTarget(container: HTMLElement): HTMLElement {
+  return container?.previousElementSibling as HTMLElement;
 }
 
 export abstract class BaseAction extends Base implements IAction {
@@ -281,6 +290,7 @@ export abstract class BaseAction extends Base implements IAction {
   public getActionBarItemCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.item)
+      .append(this.cssClasses.itemWithTitle, this.hasTitle)
       .append(this.cssClasses.itemAsIcon, !this.hasTitle)
       .append(this.cssClasses.itemActive, !!this.active)
       .append(this.cssClasses.itemPressed, !!this.pressed)
@@ -299,7 +309,7 @@ export abstract class BaseAction extends Base implements IAction {
     return this.tooltip || this.title;
   }
   public getIsTrusted(args: any): boolean {
-    if(!!args.originalEvent) {
+    if (!!args.originalEvent) {
       return args.originalEvent.isTrusted;
     }
     return args.isTrusted;
@@ -328,7 +338,9 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     //Object.assign(this, item) to support IE11
     if (!!innerItem) {
       for (var key in innerItem) {
-        (<any>this)[key] = (<any>innerItem)[key];
+        if (key !== "locTitle") {
+          (<any>this)[key] = (<any>innerItem)[key];
+        }
       }
     }
     if (!!this.locTitleName) {
@@ -440,6 +452,17 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   public getComponent(): string {
     return this._component;
+  }
+  public dispose(): void {
+    this.action = undefined;
+    super.dispose();
+    if (this.popupModel) {
+      this.popupModel.dispose();
+    }
+    if (!!this.locTitleValue) {
+      this.locTitleValue.onStringChanged.remove(this.locTitleChanged);
+      this.locTitleChanged = undefined;
+    }
   }
 }
 

@@ -1,5 +1,6 @@
 import { HashTable, Helpers } from "./helpers";
 import { settings } from "./settings";
+import { ConsoleWarnings } from "./console-warnings";
 
 export class FunctionFactory {
   public static Instance: FunctionFactory = new FunctionFactory();
@@ -41,7 +42,10 @@ export class FunctionFactory {
     properties: HashTable<any> = null
   ): any {
     var func = this.functionHash[name];
-    if (!func) return null;
+    if (!func) {
+      ConsoleWarnings.warn("Unknown function name: " + name);
+      return null;
+    }
     let classRunner = {
       func: func,
     };
@@ -279,7 +283,7 @@ FunctionFactory.Instance.register("currentDate", currentDate);
 
 function today(params: any[]) {
   var res = new Date();
-  if(settings.useLocalTimeZone) {
+  if(settings.localization.useLocalTimeZone) {
     res.setHours(0, 0, 0, 0);
   } else {
     res.setUTCHours(0, 0, 0, 0);
@@ -311,3 +315,60 @@ function diffDays(params: any[]) {
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 }
 FunctionFactory.Instance.register("diffDays", diffDays);
+
+function dateFromFirstParameterOrToday(params: any[]) {
+  let date = today(undefined);
+  if (params && params[0]) {
+    date = new Date(params[0]);
+  }
+  return date;
+}
+
+function year(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getFullYear();
+}
+FunctionFactory.Instance.register("year", year);
+
+function month(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getMonth() + 1;
+}
+FunctionFactory.Instance.register("month", month);
+
+function day(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getDate();
+}
+FunctionFactory.Instance.register("day", day);
+
+function weekday(params: any[]): any {
+  let date = dateFromFirstParameterOrToday(params);
+  return date.getDay();
+}
+FunctionFactory.Instance.register("weekday", weekday);
+
+function getQuestionValueByContext(context: any, name: string): any {
+  if(!context || !name) return undefined;
+  const keys = ["row", "panel", "survey"];
+  for(let i = 0; i < keys.length; i ++) {
+    const ctx = context[keys[i]];
+    if(ctx && ctx.getQuestionByName) {
+      const res = ctx.getQuestionByName(name);
+      if(res) return res;
+    }
+  }
+  return null;
+}
+function displayValue(params: any[]): any {
+  const q = getQuestionValueByContext(this, params[0]);
+  return q ? q.displayValue : "";
+}
+FunctionFactory.Instance.register("displayValue", displayValue);
+
+function propertyValue(params: any[]): any {
+  if(params.length !== 2 || !params[0] || !params[1]) return undefined;
+  const q = getQuestionValueByContext(this, params[0]);
+  return q ? q[params[1]] : undefined;
+}
+FunctionFactory.Instance.register("propertyValue", propertyValue);

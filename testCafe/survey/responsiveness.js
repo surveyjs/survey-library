@@ -15,7 +15,7 @@ const themeName = "defaultV2";
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}.html`.beforeEach(async (t) => {
+    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
     await applyTheme(themeName);
     await initSurvey(framework, json);
     await t.resizeWindow(1000, 1000);
@@ -39,7 +39,7 @@ frameworks.forEach((framework) => {
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}.html`.beforeEach(async (t) => {
+    .page`${url_test}${themeName}/${framework}`.beforeEach(async (t) => {
     await applyTheme(themeName);
   });
   test("check rating question in survey with multiple pages on small screen", async (t) => {

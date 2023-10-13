@@ -2,7 +2,7 @@ import { QuestionFactory } from "./questionfactory";
 import { Serializer } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
-import { EmailValidator, SurveyValidator } from "./validator";
+import { EmailValidator } from "./validator";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
 import { settings } from "./settings";
@@ -11,7 +11,7 @@ import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 
 /**
- * A class that describes the Text question type.
+ * A class that describes the Single-Line Input question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-text/ (linkStyle))
  */
@@ -65,22 +65,17 @@ export class QuestionTextModel extends QuestionTextBase {
       this.step = undefined;
     }
   }
+  public getMaxLength(): any {
+    if(this.inputType !== "text") return null;
+    return super.getMaxLength();
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     super.runCondition(values, properties);
     if (!!this.minValueExpression || !!this.maxValueExpression) {
       this.setRenderedMinMax(values, properties);
     }
   }
-  public getValidators(): Array<SurveyValidator> {
-    var validators = super.getValidators();
-    if (
-      this.inputType === "email" &&
-      !this.validators.some((v) => v.getType() === "emailvalidator")
-    ) {
-      validators.push(new EmailValidator());
-    }
-    return validators;
-  }
+
   isLayoutTypeSupported(layoutType: string): boolean {
     return true;
   }
@@ -257,7 +252,21 @@ export class QuestionTextModel extends QuestionTextBase {
       ); };
       errors.push(maxError);
     }
+
+    const valName = this.getValidatorTitle();
+    var emailValidator = new EmailValidator();
+    if (
+      this.inputType === "email" &&
+      !this.validators.some((v) => v.getType() === "emailvalidator")
+    ) {
+      const validateResult = emailValidator.validate(this.value, valName);
+
+      if (!!validateResult && !!validateResult.error) {
+        errors.push(validateResult.error);
+      }
+    }
   }
+
   protected canSetValueToSurvey(): boolean {
     if (!this.isMinMaxType) return true;
     const isValid = !this.isValueLessMin && !this.isValueGreaterMax;
@@ -346,8 +355,9 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return this.step;
   }
-  supportGoNextPageAutomatic() {
-    return ["date", "datetime-local"].indexOf(this.inputType) < 0;
+  supportGoNextPageAutomatic(): boolean {
+    return !this.isSurveyInputTextUpdate &&
+      ["date", "datetime-local"].indexOf(this.inputType) < 0;
   }
   public supportGoNextPageError() {
     return ["date", "datetime-local"].indexOf(this.inputType) < 0;
@@ -385,11 +395,11 @@ export class QuestionTextModel extends QuestionTextBase {
     }
     return newValue;
   }
-  protected hasPlaceHolder(): boolean {
+  protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
   }
   public isReadOnlyRenderDiv(): boolean {
-    return this.isReadOnly && settings.readOnlyTextRenderMode === "div";
+    return this.isReadOnly && settings.readOnly.textRenderMode === "div";
   }
   get inputStyle(): any {
     var style: any = {};
@@ -400,7 +410,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private _isWaitingForEnter = false;
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
-    if (!Helpers.isTwoValueEquals(this.value, newValue)) {
+    if (!this.isTwoValueEquals(this.value, newValue)) {
       this.value = newValue;
     }
   }
@@ -426,12 +436,11 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   };
   public onKeyDown = (event: any) => {
-    if(this.isInputTextUpdate) {
+    this.checkForUndo(event);
+    if (this.isInputTextUpdate) {
       this._isWaitingForEnter = event.keyCode === 229;
     }
-    if (event.keyCode === 13) {
-      (this.survey as SurveyModel).questionEditFinishCallback(this, event);
-    }
+    this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
     if (event.target === settings.environment.root.activeElement) {

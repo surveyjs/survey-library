@@ -1,5 +1,6 @@
 import { SurveyModel } from "../src/survey";
 import { QuestionExpressionModel } from "../src/question_expression";
+import { FunctionFactory } from "../src/functionsfactory";
 
 export default QUnit.module("QuestionExpression");
 
@@ -171,4 +172,127 @@ QUnit.test("setting data doesn't calculate expressions survey.questionsOnPageMod
   assert.equal(question.value, 3, "value is correct");
   assert.equal(question.displayValue, "3", "display value is correct");
   assert.equal(question.formatedValue, "3", "formatedValue is correct");
+});
+QUnit.test("round to digits", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      { "name": "q1", "type": "expression", "expression": "1111/125" },
+      { "name": "q2", "type": "expression", "expression": "1111/125", "precision": 2 },
+      { "name": "q3", "type": "expression", "expression": "1111/125", "precision": 1 },
+      { "name": "q4", "type": "expression", "expression": "1111/125", "precision": 0 }
+    ]
+  });
+  const q1 = <QuestionExpressionModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionExpressionModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionExpressionModel>survey.getQuestionByName("q3");
+  const q4 = <QuestionExpressionModel>survey.getQuestionByName("q4");
+  assert.equal(q1.precision, -1, "precision:-1");
+  assert.equal(q2.precision, 2, "precision:2");
+  assert.equal(q3.precision, 1, "precision:1");
+  assert.equal(q4.precision, 0, "precision:0");
+  assert.equal(q1.value, 8.888, "precision - default (-1)");
+  assert.equal(q2.value, 8.89, "precision - 2");
+  assert.equal(q3.value, 8.9, "precision - 1");
+  assert.equal(q4.value, 9, "precision - 0");
+});
+QUnit.test("survey.onValueChanging, bug#6548", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "weightKg",
+        "type": "text",
+        "inputType": "number"
+      },
+      {
+        "name": "heightCm",
+        "type": "text",
+        "inputType": "number",
+      },
+      {
+        "name": "bmi",
+        "type": "expression",
+        "expression": "{weightKg}/(({heightCm}/100)^2)"
+      }
+
+    ]
+  });
+  const q = <QuestionExpressionModel>survey.getQuestionByName("bmi");
+  survey.onValueChanging.add((sender, options) => {
+    if(options.question.name === "bmi" && !!options.value) {
+      options.value = parseFloat(options.value.toFixed(0));
+    }
+  });
+  survey.data = {
+    weightKg: 88,
+    heightCm: 169
+  };
+  assert.equal(q.value, 31, "correct value on survey.onValueChanging event, #1");
+  assert.deepEqual(survey.data, { weightKg: 88, heightCm: 169, bmi: 31 }, "survey.data is correct, #1");
+  survey.setValue("weightKg", 100);
+  assert.equal(q.value, 35, "correct value on survey.onValueChanging event, #2");
+  assert.deepEqual(survey.data, { weightKg: 100, heightCm: 169, bmi: 35 }, "survey.data is correct, #2");
+});
+QUnit.test("Handle Infinity", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "q1",
+        "type": "text"
+      },
+      {
+        "name": "q2",
+        "type": "text",
+        "inputType": "number"
+      },
+      {
+        "name": "q3",
+        "type": "expression",
+        "expression": "({q1}^-1)*(2^{q2})",
+      }
+    ]
+  });
+  let counter = 0;
+  survey.onValueChanged.add((sender, options) => {
+    if(options.name === "q3") counter ++;
+  });
+  const q3 = survey.getQuestionByName("q3");
+  survey.setValue("q2", 1);
+  assert.equal(counter, 0, "is not updated");
+  survey.setValue("q2", 3);
+  assert.equal(counter, 0, "is not updated yet");
+  assert.equal(q3.isEmpty(), true, "expression question is undefined");
+  survey.setValue("q1", 2);
+  assert.equal(counter, 1, "updated one time");
+  assert.equal(q3.value, 4, "calculated correctly");
+});
+QUnit.test("Custom function returns object&array, #7050", function (assert) {
+  function func1(params: any[]): any {
+    return { a: 1, b: 2 };
+  }
+  function func2(params: any[]): any {
+    return [{ a: 1 }, { b: 2 }];
+  }
+  FunctionFactory.Instance.register("func1", func1);
+  FunctionFactory.Instance.register("func2", func2);
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "q1",
+        "type": "expression",
+        "expression": "func1()",
+      },
+      {
+        "name": "q2",
+        "type": "expression",
+        "expression": "func2()",
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.deepEqual(q1.value, { a: 1, b: 2 }, "function returns object");
+  assert.deepEqual(q2.value, [{ a: 1 }, { b: 2 }], "function returns array");
+
+  FunctionFactory.Instance.unregister("func1");
+  FunctionFactory.Instance.unregister("func2");
 });

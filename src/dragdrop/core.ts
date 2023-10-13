@@ -44,6 +44,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   }
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
+    this.domAdapter.rootContainer = this.survey?.rootElement;
     this.domAdapter.startDrag(event, draggedElement, parentElement, draggedElementNode, preventSaveTargetNode);
   }
 
@@ -56,10 +57,10 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
       draggedElementNode,
       event
     );
-    this.onStartDrag();
+    this.onStartDrag(event);
   }
 
-  protected onStartDrag(): void {
+  protected onStartDrag(event?: PointerEvent): void {
   }
 
   protected isDropTargetDoesntChanged(newIsBottom: boolean): boolean {
@@ -112,9 +113,12 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   protected doBanDropHere = (): void => { };
 
   protected findDropTargetNodeFromPoint(clientX: number, clientY: number): HTMLElement {
-    this.domAdapter.draggedElementShortcut.hidden = true;
+    const displayProp = this.domAdapter.draggedElementShortcut.style.display;
+    //this.domAdapter.draggedElementShortcut.hidden = true;
+    this.domAdapter.draggedElementShortcut.style.display = "none";
     let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    this.domAdapter.draggedElementShortcut.hidden = false;
+    // this.domAdapter.draggedElementShortcut.hidden = false;
+    this.domAdapter.draggedElementShortcut.style.display = displayProp || "block";
 
     if (!dragOverNode) return null;
 

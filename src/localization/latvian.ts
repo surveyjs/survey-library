@@ -1,11 +1,9 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var latvianSurveyStrings = {
-  pagePrevText: "Atpakaļ",
-  pageNextText: "Tālāk",
-  completeText: "Pabeigt",
+  pagePrevText: "Iepriekšēja lapa",
+  pageNextText: "Nākamā lapa",
+  completeText: "Iesniegt",
   previewText: "Priekšskatījums",
   editText: "Rediģēt",
   startSurveyText: "Sākt",
@@ -15,6 +13,7 @@ export var latvianSurveyStrings = {
   progressText: "{0}. lapa no {1}",
   indexText: "{0} no {1}",
   panelDynamicProgressText: "Ierakstīt {0} no {1}",
+  panelDynamicTabTextFormat: "Panelis {panelIndex}",
   questionsProgressText: "Atbildēts uz {0} / {1} jautājumiem",
   emptySurvey: "Nav neviena jautājuma.",
   completingSurvey: "Pateicamies Jums par anketas aizpildīšanu!",
@@ -76,6 +75,10 @@ export var latvianSurveyStrings = {
   clearCaption: "Iztīrīt",
   signaturePlaceHolder: "Parakstieties šeit",
   chooseFileCaption: "Izvēlēties failu",
+  takePhotoCaption: "Uzņemt fotoattēlu",
+  cameraPlaceHolder: "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru.",
+  fileCameraDragAreaPlaceHolder: "Velciet un nometiet vai atlasiet failu, ko augšupielādēt vai uzņemt fotoattēlu, izmantojot kameru.",
+  replaceFileCaption: "Aizstāt failu",
   removeFileCaption: "Noņemiet šo failu",
   booleanCheckedLabel: "Jā",
   booleanUncheckedLabel: "Nē",
@@ -85,10 +88,27 @@ export var latvianSurveyStrings = {
   modalCancelButtonText: "Atcelt",
   modalApplyButtonText: "Pielietot",
   filterStringPlaceholder: "Ierakstiet, lai meklētu...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Nav datu, ko rādīt",
   noEntriesText: "Vēl nav neviena ieraksta.\nNoklikšķiniet uz zemāk esošās pogas, lai pievienotu jaunu ierakstu.",
-  // more: "More"
+  noEntriesReadonlyText: "Ierakstu nav.",
+  more: "Vairāk",
+  tagboxDoneButtonCaption: "LABI",
+  selectToRankEmptyRankedAreaText: "Visas izvēles ir sarindotas",
+  selectToRankEmptyUnrankedAreaText: "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu"
 };
 
 surveyLocalization.locales["lv"] = latvianSurveyStrings;
 surveyLocalization.localeNames["lv"] = "latviešu";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panelis {panelIndex}"
+// emptyMessage: "No data to display" => "Nav datu, ko rādīt"
+// noEntriesReadonlyText: "There are no entries." => "Ierakstu nav."
+// more: "More" => "Vairāk"
+// tagboxDoneButtonCaption: "OK" => "LABI"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Visas izvēles ir sarindotas"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu"// takePhotoCaption: "Take Photo" => "Uzņemt fotoattēlu"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Velciet un nometiet vai atlasiet failu, ko augšupielādēt vai uzņemt fotoattēlu, izmantojot kameru."
+// replaceFileCaption: "Replace file" => "Aizstāt failu"

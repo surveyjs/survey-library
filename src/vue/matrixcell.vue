@@ -5,7 +5,12 @@
     :title="cell.getTitle()"
     :style="getCellStyle()"
     :colspan="cell.colSpans"
+    v-on:focusin="cell.focusIn()"
   >
+    <survey-errors
+      v-if="cell.isErrorsCell"
+      :element="cell.question"
+    />
     <sv-action-bar
       v-if="cell.isActionsCell"
       :model="cell.item.getData()"
@@ -18,7 +23,6 @@
       :css="question.cssClasses"
     ></component>
     <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
-      <survey-errors v-if="cell.showErrorOnTop" :element="cell.question" :location="'top'" />
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"
@@ -52,16 +56,6 @@
       <survey-other-choice
         v-if="cell.isOtherChoice"
         :question="cell.question"
-      />
-      <survey-errors
-        v-if="cell.showErrorOnBottom"
-        :element="cell.question"
-        :location="'bottom'"
-      />
-      <survey-errors
-        v-if="cell.question.isErrorsModeTooltip"
-        :element="cell.question"
-        :location="'tooltip'"
       />
     </div>
     <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
@@ -105,14 +99,19 @@ export class MatrixCell extends Vue {
     this.cell.question.registerPropertyChangedHandlers(["isVisible"], () => {
       this.onVisibilityChanged();
     });
-    var options = {
+    const cQ = this.cell.question; 
+    const el: any = this.$el;
+    const options = {
       cell: this.cell.cell,
-      cellQuestion: this.cell.question,
-      htmlElement: this.$el,
+      cellQuestion: cQ,
+      htmlElement: el,
       row: this.cell.row,
       column: this.cell.cell.column,
     };
     this.question.survey.matrixAfterCellRender(this.question, options);
+    if (cQ) {
+      cQ.afterRenderCore(el);
+    }
   }
   private onVisibilityChanged() {
     this.isVisible = this.cell.question.isVisible;

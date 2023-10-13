@@ -30,7 +30,7 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
       await initSurvey(framework, json);
     }
@@ -74,13 +74,13 @@ frameworks.forEach(framework => {
 
     //asc
     await setOptions("car", { choicesOrder: "asc" });
-    await t.expect(chocies.nth(0).find("[aria-label=\"Audi\"]").exists).ok();
-    await t.expect(chocies.nth(3).find("[aria-label=\"BMW\"]").exists).ok();
+    await t.expect(chocies.nth(0).find("label").withExactText("Audi").exists).ok();
+    await t.expect(chocies.nth(3).find("label").withExactText("BMW").exists).ok();
 
     //desc
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(0).find("[aria-label=\"Volkswagen\"]").exists).ok();
-    await t.expect(chocies.nth(3).find("[aria-label=\"Vauxhall\"]").exists).ok();
+    await t.expect(chocies.nth(0).find("label").withExactText("Volkswagen").exists).ok();
+    await t.expect(chocies.nth(3).find("label").withExactText("Vauxhall").exists).ok();
 
     //random
     if (chocies.count === 1) {
@@ -156,7 +156,7 @@ frameworks.forEach(framework => {
 
     await setOptions("car", { hasOther: true, otherText: "Other Test" });
     await setOptions("car", { choicesOrder: "desc" });
-    await t.expect(chocies.nth(11).find("[aria-label=\"Other Test\"]").exists).ok();
+    await t.expect(chocies.nth(11).find("label").withExactText("Other Test").exists).ok();
   });
 
   test("choose other", async t => {
@@ -167,7 +167,7 @@ frameworks.forEach(framework => {
 
     const radiogroup = Selector("[role=\"radiogroup\"]");
     const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
-    const otherText = chocies.nth(11).find("[aria-label=\"Other (describe)\"]");
+    const otherText = chocies.nth(11).find("label").withExactText("Other (describe)");
 
     await t
       .click(otherText)
@@ -178,6 +178,7 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.car, "other");
     assert.equal(surveyResult["car-Comment"], "Zaporozec");
   });
+
   test("choose other and storeOthersAsComment=false", async t => {
     const setSurveyOptions = ClientFunction(() => {
       window["survey"].storeOthersAsComment = false;
@@ -189,7 +190,7 @@ frameworks.forEach(framework => {
 
     const radiogroup = Selector("[role=\"radiogroup\"]");
     const chocies = radiogroup.find("input[type=\"radio\"]").parent("label").parent();
-    const otherText = chocies.nth(11).find("[aria-label=\"Other (describe)\"]");
+    const otherText = chocies.nth(11).find("label").withExactText("Other (describe)");
 
     await setSurveyOptions();
     await t
@@ -230,7 +231,7 @@ frameworks.forEach(framework => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
     }
@@ -273,7 +274,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("otherText changed", async t => {
     const currentJson = {
@@ -333,5 +334,25 @@ frameworks.forEach(framework => {
     await t
       .expect(Selector(".sv-string-viewer").withText(oldOtherText).count).eql(0)
       .expect(Selector(".sv-string-viewer").withText(newOtherText).count).eql(2);
+  });
+  test("showNoneItem&separateSpecialChoices", async t => {
+    const currentJson = {
+      elements: [
+        {
+          type: "radiogroup",
+          separateSpecialChoices: true,
+          showNoneItem: true,
+          name: "car",
+          choices: [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, currentJson);
+    await t
+      .expect(Selector(".sv-string-viewer").withText("None").count).eql(1);
   });
 });

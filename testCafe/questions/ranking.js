@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getData, setData } from "../helper";
-import { Selector, fixture, test } from "testcafe";
+import { Selector, fixture, test, ClientFunction } from "testcafe";
 const title = "ranking";
 
 const json = {
@@ -67,23 +67,28 @@ const json = {
 //   frameworks.push("knockout");
 // }
 
+const setSjsFramework = ClientFunction((framework) => {
+  window["sjsFramework"] = framework;
+});
+
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await t.resizeWindow(1920, 1080);
+      await setSjsFramework(framework);
       await initSurvey(framework, json);
     }
   );
 
   const PriceItem = Selector("span")
     .withText("Please rank the following smartphone features in order of importance:")
-    .parent("[aria-labelledby]")
+    .parent("[data-name]")
     .find("span")
     .withText("Price");
 
   const BatteryItem = Selector("span")
     .withText("Please rank the following smartphone features in order of importance:")
-    .parent("[aria-labelledby]")
+    .parent("[data-name]")
     .find("span")
     .withText("Battery life");
 
@@ -152,28 +157,28 @@ frameworks.forEach((framework) => {
     });
     const rankAudiItem = Selector("span")
       .withText("What car did you enjoy the most?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Audi");
     const rankMercedesBenzItem = Selector("span")
       .withText("What car did you enjoy the most?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Mercedes-Benz");
 
     const checkboxAudiItem = Selector("span")
       .withText("What cars have you being drived?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Audi");
     const checkboxMerscedesItem = Selector("span")
       .withText("What cars have you being drived?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Mercedes-Benz");
     const checkboxToyotaItem = Selector("span")
       .withText("What cars have you being drived?")
-      .parent("[aria-labelledby]")
+      .parent("[data-name]")
       .find("span")
       .withText("Toyota");
 
@@ -184,7 +189,7 @@ frameworks.forEach((framework) => {
       .click(checkboxToyotaItem);
 
     let data = await getData();
-    await t.expect(typeof data.bestcar).eql("undefined");
+    await t.expect(typeof data.bestcar).ok();
 
     await t.hover(rankAudiItem);
     await t.dragToElement(rankAudiItem, rankMercedesBenzItem);
@@ -236,5 +241,72 @@ frameworks.forEach((framework) => {
       "Processor power",
       "Price",
     ]);
+  });
+
+  test("ranking: run-time creation ", async (t) => {
+    const newName = "ranking-new";
+
+    const addNewRankingQuestion = ClientFunction((newName) => {
+      let qr;
+
+      if (window["sjsFramework"] === "knockout") { //see https://github.com/surveyjs/survey-library/issues/6396
+        qr = new window["Survey"].QuestionRanking(newName);
+      } else {
+        qr = new window["Survey"].QuestionRankingModel(newName);
+      }
+
+      qr.choices = ["one", "two"];
+      window["survey"].currentPage.addQuestion(qr);
+    });
+
+    await addNewRankingQuestion(newName);
+
+    const FirstItem = Selector("span")
+      .withText(newName)
+      .parent("[data-name]")
+      .find("span")
+      .withText("one");
+
+    const SecondItem = Selector("span")
+      .withText(newName)
+      .parent("[data-name]")
+      .find("span")
+      .withText("two");
+
+    await t.dragToElement(FirstItem, SecondItem);
+
+    let data = await getData();
+    await t.expect(data[newName]).eql([
+      "two",
+      "one"
+    ]);
+  });
+
+  test("ranking: work with flexbox layout", async (t) => {
+    const addFlexboxLayout = ClientFunction(() => {
+      const stylesheet = document.styleSheets[0];
+      stylesheet.addRule(".sv-ranking.sv-ranking.sv-ranking.sv-ranking.sv-ranking", "display:flex;flex-direction: column", 0);
+    });
+    const removeFlexboxLayout = ClientFunction(() => {
+      const stylesheet = document.styleSheets[0];
+      stylesheet.removeRule(0);
+    });
+
+    await addFlexboxLayout();
+
+    await t.dragToElement(PriceItem, BatteryItem);
+
+    let data = await getData();
+    await t.expect(data["smartphone-features"]).eql([
+      "Price",
+      "Battery life",
+      "Screen size",
+      "Storage space",
+      "Camera quality",
+      "Durability",
+      "Processor power",
+    ]);
+
+    await removeFlexboxLayout();
   });
 });

@@ -32,7 +32,46 @@ pool:
 
 jobs:
 
+- job: NPMCache
+
+  steps:
+    - checkout: self
+    - checkout: EmptyRepo
+      persistCredentials: true
+      clean: true
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "14.x"
+      displayName: "Install Node.js"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPM
+
+    - task: Npm@1
+      displayName: 'NPM install'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+
 - job: CoreAngularJquery
+  dependsOn:
+    - NPMCache
 
   steps:
     - checkout: self
@@ -138,6 +177,9 @@ jobs:
 
 
 - job: Knockout
+  dependsOn:
+    - NPMCache
+
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -244,6 +286,8 @@ jobs:
 
 
 - job: React
+  dependsOn:
+    - NPMCache
 
   steps:
     - checkout: self
@@ -345,6 +389,8 @@ jobs:
 
 
 - job: Vue
+  dependsOn:
+    - NPMCache
 
   steps:
     - checkout: self
@@ -445,6 +491,9 @@ jobs:
         publishLocation: "Container"
 
 - job: Angular
+  dependsOn:
+    - NPMCache
+
   steps:
     - checkout: self
     - checkout: EmptyRepo
@@ -559,6 +608,125 @@ jobs:
         ArtifactName: "SurveyJSLibraryBuildAngular"
         publishLocation: "Container"
 
+- job: Vue3
+  dependsOn:
+    - NPMCache
+
+  steps:
+    - checkout: self
+    - checkout: EmptyRepo
+      persistCredentials: true
+      clean: true
+
+    - task: NodeTool@0
+      inputs:
+        versionSpec: "16.x"
+      displayName: "Install Node.js"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
+        Contents: "package.json"
+        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+        OverWrite: true
+      displayName: "Copy package.json for cache key"
+
+    - task: Cache@2
+      inputs:
+        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+        path: $(Build.SourcesDirectory)/survey-library/node_modules
+        cacheHitVar: NPM_CACHE_RESTORED
+      displayName: Cache NPMs
+
+    # setup next release version
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: "specific"
+        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
+        pipeline: "47"
+        buildVersionToDownload: "latest"
+        downloadType: "single"
+        artifactName: "ReleaseVersionFile"
+        downloadPath: "$(System.ArtifactsDirectory)"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
+        Contents: "version.txt"
+        TargetFolder: "$(Build.SourcesDirectory)/"
+        OverWrite: true
+      displayName: "Copy Build Artifact - SurveyJSVersion File"
+
+    - powershell: |
+        $version = Get-Content $(Build.SourcesDirectory)/version.txt
+        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
+      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
+    ##########################################################################
+
+    - task: Npm@1
+      displayName: 'NPM install root'
+      inputs:
+        command: install
+        verbose: false
+        workingDir: $(Build.SourcesDirectory)/survey-library
+      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+  
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run build_core
+        npm run build_i18n
+        npm run build-plugins
+      displayName: "Build Core"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+        npm install
+      displayName: "NPM install packages/survey-vue3-ui"
+    
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+        npm run release -- --release-as $(SurveyJSVersion)
+        git status
+      displayName: "npm run release"
+    
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+        npm run build
+      displayName: "Build Vue3"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
+        npm install
+      displayName: "NPM install survey-vue3-ui/example"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui/example
+        npm run build
+      displayName: "Build Vue3 Example"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library/packages/survey-vue3-ui
+        npm run test:single
+      displayName: "run unit and markup tests"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
+        npm run testcafe:ci:vue3
+      displayName: "run functional tests"
+    
+    
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue3-ui"
+        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-vue3-ui"
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
+        ArtifactName: "SurveyJSLibraryBuildVue3"
+        publishLocation: "Container"
+
+
 - job: Finalize
   dependsOn:
     - CoreAngularJquery
@@ -566,6 +734,7 @@ jobs:
     - React
     - Vue
     - Angular
+    - Vue3
 
   steps:
     - checkout: self
@@ -678,6 +847,13 @@ jobs:
         artifactName: 'SurveyJSLibraryBuildAngular'
         downloadPath: '$(System.ArtifactsDirectory)'
 
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'SurveyJSLibraryBuildVue3'
+        downloadPath: '$(System.ArtifactsDirectory)'
+
     - task: CopyFiles@2
       inputs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-angular"
@@ -687,6 +863,11 @@ jobs:
       inputs:
         SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildAngular/packages/survey-angular-ui"
         TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular-ui"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildVue3/packages/survey-vue3-ui"
+        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue3-ui"
 
     - task: CopyFiles@2
       inputs:
@@ -734,7 +915,7 @@ jobs:
         git pull origin master
         git fetch --tags --force
         git add surveyjs.io/App_Data/DocsLibrary
-        git commit -m "updated survey-library docs"
+        git commit -m "updated survey-library docs [azurepipelines skip]"
         git pull origin master
         git push origin master
       displayName: "git surveyjs/service push updated docs"

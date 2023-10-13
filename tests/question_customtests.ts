@@ -981,14 +981,15 @@ QUnit.test("Single: onAfterRender and onAfterRenderContentElement", function (
     elements: [{ type: "newquestion", name: "q1" }],
   });
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
-  q.afterRender(5);
+  const el: HTMLElement = <any>({ a: 5 });
+  q.afterRender(el);
   assert.equal(
     afterRenderQuestion.name,
     "q1",
     "onAfterRender, question parameter is correct"
   );
   assert.equal(
-    afterRenderHtmlElement,
+    (<any>afterRenderHtmlElement).a,
     5,
     "onAfterRender, htmlElement parameter is correct"
   );
@@ -1046,14 +1047,15 @@ QUnit.test("Composite: onAfterRender and onAfterRenderContentElement", function 
     elements: [{ type: "fullname", name: "q1" }],
   });
   var q = <QuestionCompositeModel>survey.getAllQuestions()[0];
-  q.afterRender(5);
+  const el: HTMLElement = <any>({ a: 5 });
+  q.afterRender(el);
   assert.equal(
     afterRenderQuestion.name,
     "q1",
     "onAfterRender, question parameter is correct"
   );
   assert.equal(
-    afterRenderHtmlElement,
+    (<any>afterRenderHtmlElement).a,
     5,
     "onAfterRender, htmlElement parameter is correct"
   );
@@ -1425,6 +1427,28 @@ QUnit.test("Composite: addConditionObjectsByContext", function (assert) {
     ],
     "addConditionObjectsByContext work correctly for composite question"
   );
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite: getNestedQuestions", function (assert) {
+  var json = {
+    name: "testquestion",
+    elementsJSON: [
+      { type: "text", name: "q1" },
+      {
+        type: "dropdown",
+        name: "q2"
+      },
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "testquestion", name: "cp_question" }],
+  });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const questions = q.getNestedQuestions();
+  assert.equal(questions.length, 2, "#1");
+  assert.equal(questions[0].name, "q1", "#2");
+  assert.equal(questions[1].name, "q2", "#3");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("Composite: visibleIf and showPreview, Bug#2674", function (assert) {
@@ -2211,5 +2235,160 @@ QUnit.test("Composite & onValueChanged", function (assert) {
   assert.equal(onValueChangedCounter, 1 + 1); //+ runCondition to chagne the value
   assert.deepEqual(survey.data, { q1: { backcolor: "#ffffff", hovercolor: "#f8f8f8", corner: 4, cornerRadius: "4px", border: "0 1 2 rgba(0, 0, 0, 0.15)" } });
 
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Composite & valueToQuestion/valueFromQuestion, #6475", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "elementsettings",
+    showInToolbox: false,
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ],
+    valueToQuestion(val: any): any {
+      if(!val) return "";
+      let res = !!val.item1 ? val.item1 : "";
+      res += ",";
+      res += !!val.item2 ? val.item2 : "";
+      return res;
+    },
+    valueFromQuestion(val: any): any {
+      if(!val) return {};
+      const res = val.split(",");
+      if(res.length < 2) res.push("");
+      return { item1: res[0], item2: res[1] };
+    }
+  });
+  ComponentCollection.Instance.add({
+    name: "rootquestion",
+    showInToolbox: false,
+    elementsJSON: [
+      {
+        type: "elementsettings",
+        name: "settings"
+      }
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "elementsettings", name: "q1" },
+      { type: "rootquestion", name: "q2" }
+    ] });
+  const q1 = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const qItem1 = q1.contentPanel.getQuestionByName("item1");
+  const qItem2 = q1.contentPanel.getQuestionByName("item2");
+  qItem1.value = "val1";
+  qItem2.value = "val2";
+  assert.equal(qItem1.value, "val1", "item1 question value is correct, #1");
+  assert.equal(qItem2.value, "val2", "item2 question value is correct, #1");
+  assert.equal(q1.value, "val1,val2", "composite question value is correct, #1");
+  assert.deepEqual(survey.data, { q1: "val1,val2" }, "survey data is correct, #1");
+  q1.value = "val3,val4";
+  assert.equal(qItem1.value, "val3", "item1 question value is correct, #2");
+  assert.equal(qItem2.value, "val4", "item2 question value is correct, #2");
+  assert.equal(q1.value, "val3,val4", "composite question value is correct, #2");
+  assert.deepEqual(survey.data, { q1: "val3,val4" }, "survey data is correct, #2");
+
+  const q2 = <QuestionCompositeModel>survey.getQuestionByName("q2");
+  const q2Settings = <QuestionCompositeModel>(q2.contentPanel.getQuestionByName("settings"));
+  const q2SettingsItem1 = q2Settings.contentPanel.getQuestionByName("item1");
+  const q2SettingsItem2 = q2Settings.contentPanel.getQuestionByName("item2");
+  q2SettingsItem1.value = "val5";
+  q2SettingsItem2.value = "val6";
+  assert.equal(q2SettingsItem1.value, "val5", "item1 question value is correct, #3");
+  assert.equal(q2SettingsItem2.value, "val6", "item2 question value is correct, #3");
+  assert.equal(q2Settings.value, "val5,val6", "composite question value is correct, #3");
+  assert.deepEqual(q2.value, { settings: "val5,val6" }, "composite root question value is correct, #3");
+  assert.deepEqual(survey.data, { q1: "val3,val4", q2: { settings: "val5,val6" } }, "survey data is correct, #3");
+  q2Settings.value = "val7,val8";
+  assert.equal(q2SettingsItem1.value, "val7", "item1 question value is correct, #4");
+  assert.equal(q2SettingsItem2.value, "val8", "item2 question value is correct, #4");
+  assert.equal(q2Settings.value, "val7,val8", "composite question value is correct, #4");
+  assert.deepEqual(q2.value, { settings: "val7,val8" }, "composite root question value is correct, #4");
+  assert.deepEqual(survey.data, { q1: "val3,val4", q2: { settings: "val7,val8" } }, "survey data is correct, #4");
+  q2.value = { settings: "val9,val10" };
+  assert.equal(q2SettingsItem1.value, "val9", "item1 question value is correct, #5");
+  assert.equal(q2SettingsItem2.value, "val10", "item2 question value is correct, #5");
+  assert.equal(q2Settings.value, "val9,val10", "composite question value is correct, #5");
+  assert.deepEqual(q2.value, { settings: "val9,val10" }, "composite root question value is correct, #5");
+  assert.deepEqual(survey.data, { q1: "val3,val4", q2: { settings: "val9,val10" } }, "survey data is correct, #5");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single & getValue/setValue, #6475", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "singleq",
+    showInToolbox: false,
+    questionJSON: { type: "dropdown", choices: [1, 2, 3, 4, 5] },
+    getValue(val: any): any {
+      if(!val) return val;
+      return "val:" + val.toString();
+    },
+    setValue(val: any): any {
+      if(!val) return val;
+      val = val.replace("val:", "");
+      return Number.parseInt(val);
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "singleq", name: "q1" }
+    ] });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  q1.contentQuestion.value = 2;
+  assert.equal(q1.value, "val:2", "#1");
+  q1.value = "val:4";
+  assert.equal(q1.contentQuestion.value, 4, "#2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: onHidingContent", function (assert) {
+  let counter = 0;
+  ComponentCollection.Instance.add({
+    name: "test",
+    questionJSON: { type: "text" },
+    onCreated: (question: Question): void => {
+      question.contentQuestion.onHidingContent = (): void => { counter ++; };
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }],
+  });
+  assert.equal(counter, 0, "Initial");
+  survey.doComplete();
+  assert.equal(counter, 1, "onComplete");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Complex: onHidingContent", function (assert) {
+  let counter = 0;
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "item1"
+      },
+      {
+        type: "text",
+        name: "item2"
+      }
+    ],
+    onCreated: (question: Question): void => {
+      const questions = question.contentPanel.questions;
+      questions[0].onHidingContent = (): void => { counter ++; };
+      questions[1].onHidingContent = (): void => { counter ++; };
+    }
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "test", name: "q1" }],
+  });
+  assert.equal(counter, 0, "Initial");
+  survey.doComplete();
+  assert.equal(counter, 2, "onComplete");
   ComponentCollection.Instance.clear();
 });

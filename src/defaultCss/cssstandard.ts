@@ -143,6 +143,9 @@ export var defaultStandardCss = {
     rootDragMod: "sv-ranking--drag",
     rootDisabled: "sv-ranking--disabled",
     rootDragHandleAreaIcon: "sv-ranking--drag-handle-area-icon",
+    rootSelectToRankMod: "sv-ranking--select-to-rank",
+    rootSelectToRankAlignVertical: "sv-ranking--select-to-rank-vertical",
+    rootSelectToRankAlignHorizontal: "sv-ranking--select-to-rank-horizontal",
     item: "sv-ranking-item",
     itemContent: "sv-ranking-item__content",
     itemIndex: "sv-ranking-item__index",
@@ -156,6 +159,12 @@ export var defaultStandardCss = {
     itemIconFocusMod: "sv-ranking-item__icon--focus",
     itemGhostMod: "sv-ranking-item--ghost",
     itemDragMod: "sv-ranking-item--drag",
+    container: "sv-ranking__container",
+    containerEmptyMode: "sv-ranking__container--empty",
+    containerFromMode: "sv-ranking__container--from",
+    containerToMode: "sv-ranking__container--to",
+    containerPlaceholder: "sv-ranking__container-placeholder",
+    containersDivider: "sv-ranking__containers-divider",
   },
   comment: {
     remainingCharacterCounter: "sv-remaining-character-counter",
@@ -341,6 +350,8 @@ export var defaultStandardCss = {
     root: "sv_q_signaturepad sjs_sp_container",
     controls: "sjs_sp_controls",
     placeholder: "sjs_sp_placeholder",
+    canvas: "sjs_sp_canvas",
+    backgroundImage: "sjs_sp__background-image",
     clearButton: "sjs_sp_clear",
   },
   saveData: {
@@ -363,6 +374,7 @@ export var defaultStandardCss = {
     },
   },
   variables: {
+    mobileWidth: "--sv-mobile-width",
     themeMark: "--sv-default-mark"
   },
   tagbox: {

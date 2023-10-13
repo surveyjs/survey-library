@@ -5,10 +5,11 @@ import { PopupModel } from "./popup";
 import { PopupBaseViewModel } from "./popup-view-model";
 import { IsTouch } from "./utils/devices";
 import { settings } from "./settings";
+import { SurveyModel } from "./survey";
 
 export class PopupDropdownViewModel extends PopupBaseViewModel {
   private scrollEventCallBack = (event: any) => {
-    if(this.isOverlay && IsTouch) {
+    if (this.isOverlay && IsTouch) {
       event.stopPropagation();
       event.preventDefault();
       return;
@@ -16,7 +17,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.hidePopup();
   }
   private static readonly tabletSizeBreakpoint = 600;
-  private calculateIsTablet (windowWidth: number, windowHeight: number) {
+  private calculateIsTablet(windowWidth: number, windowHeight: number) {
     const width = Math.min(windowWidth, windowHeight);
     this.isTablet = width >= PopupDropdownViewModel.tabletSizeBreakpoint;
   }
@@ -26,7 +27,7 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
   private resizeWindowCallback = () => {
     if(!this.isOverlay) {
-      this.updatePosition(true, false);
+      this.updatePosition(true, SurveyModel.platform === "vue" || SurveyModel.platform === "vue3");
     }
   };
   private clientY: number = 0;
@@ -35,28 +36,16 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     this.clientY = event.touches[0].clientY;
   }
   private touchMoveEventCallback = (event: any) => {
-    let currentElement = event.target;
-    while (currentElement !== this.container) {
-      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
-        const { scrollHeight, scrollTop, clientHeight } = currentElement;
-        const deltaY = this.clientY - event.changedTouches[0].clientY;
-        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
-          return;
-        }
-      }
-      currentElement = currentElement.parentElement;
-    }
-    event.preventDefault();
+    this.preventScrollOuside(event, this.clientY - event.changedTouches[0].clientY);
   }
 
   private _updatePosition() {
-    if(!this.targetElement) return;
+    if (!this.targetElement) return;
     const targetElementRect = this.targetElement.getBoundingClientRect();
-    const background = <HTMLElement>this.container.children[0];
-    if(!background) return;
-    const popupContainer = <HTMLElement>background.children[0];
-    if(!popupContainer) return;
-    const scrollContent = <HTMLElement>popupContainer.querySelector(".sv-popup__scrolling-content");
+    const popupContainer = <HTMLElement>this.container?.querySelector(this.containerSelector);
+    if (!popupContainer) return;
+    const fixedPopupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer) as HTMLElement;
+    const scrollContent = <HTMLElement>popupContainer.querySelector(this.scrollingContentSelector);
     const popupComputedStyle = window.getComputedStyle(popupContainer);
     const marginLeft = (parseFloat(popupComputedStyle.marginLeft) || 0);
     const marginRight = (parseFloat(popupComputedStyle.marginRight) || 0);
@@ -68,7 +57,8 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     let actualHorizontalPosition = this.getActualHorizontalPosition();
 
     if (!!window) {
-      height = Math.ceil(Math.min(height, window.innerHeight * 0.9, window.visualViewport.height));
+      const heightValues = [height, window.innerHeight * 0.9, window.visualViewport?.height];
+      height = Math.ceil(Math.min(...heightValues.filter((each) => typeof each === "number")));
       verticalPosition = PopupUtils.updateVerticalPosition(
         targetElementRect,
         height,
@@ -92,28 +82,38 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     );
 
     if (!!window) {
-      const newVerticalDimensions = PopupUtils.updateVerticalDimensions(
+      const newVerticalDimensions = PopupUtils.getCorrectedVerticalDimensions(
         pos.top,
         height,
         window.innerHeight
       );
-      if (!!newVerticalDimensions) {
+      if (!!newVerticalDimensions.height) {
         this.height = newVerticalDimensions.height + "px";
         pos.top = newVerticalDimensions.top;
       }
 
-      const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
-        pos.left,
-        width,
-        window.innerWidth,
-        actualHorizontalPosition,
-        this.model.positionMode,
-        { left: marginLeft, right: marginRight }
-      );
-      if (!!newHorizontalDimensions) {
-        this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
-        pos.left = newHorizontalDimensions.left;
+      if (this.model.setWidthByTarget) {
+        this.width = targetElementRect.width + "px";
+        pos.left = targetElementRect.left;
+      } else {
+        const newHorizontalDimensions = PopupUtils.updateHorizontalDimensions(
+          pos.left,
+          width,
+          window.innerWidth,
+          actualHorizontalPosition,
+          this.model.positionMode,
+          { left: marginLeft, right: marginRight }
+        );
+        if (!!newHorizontalDimensions) {
+          this.width = newHorizontalDimensions.width ? newHorizontalDimensions.width + "px" : undefined;
+          pos.left = newHorizontalDimensions.left;
+        }
       }
+    }
+    if (!!fixedPopupContainer) {
+      const rect = fixedPopupContainer.getBoundingClientRect();
+      pos.top -= rect.top;
+      pos.left -= rect.left;
     }
     this.left = pos.left + "px";
     this.top = pos.top + "px";
@@ -128,18 +128,18 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
         marginLeft,
         marginRight
       );
+      this.pointerTarget.top += "px";
+      this.pointerTarget.left += "px";
     }
-    this.pointerTarget.top += "px";
-    this.pointerTarget.left += "px";
   }
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {
     let actualHorizontalPosition = this.model.horizontalPosition;
     let isRtl = !!document && document.defaultView.getComputedStyle(document.body).direction == "rtl";
-    if(isRtl) {
-      if(this.model.horizontalPosition === "left") {
+    if (isRtl) {
+      if (this.model.horizontalPosition === "left") {
         actualHorizontalPosition = "right";
-      } else if(this.model.horizontalPosition === "right") {
+      } else if (this.model.horizontalPosition === "right") {
         actualHorizontalPosition = "left";
       }
     }
@@ -163,15 +163,23 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   @property({ defaultValue: "left" }) popupDirection: string;
   @property({ defaultValue: { left: "0px", top: "0px" } }) pointerTarget: IPosition;
 
+  private recalculatePositionHandler: (_: any, options: { isResetHeight: boolean }) => void;
+
   constructor(model: PopupModel, public targetElement?: HTMLElement) {
     super(model);
-    this.model.onRecalculatePosition.add((_, options: { isResetHeight: boolean }) => {
-      if(!this.isOverlay) {
-        this.updatePosition(options.isResetHeight);
-      }
-    });
+    this.model.onRecalculatePosition.add(this.recalculatePositionHandler);
   }
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
+    super.setComponentElement(componentRoot);
 
+    if (!!componentRoot && !!componentRoot.parentElement && !this.isModal) {
+      this.targetElement = targetElement || componentRoot.parentElement;
+    }
+  }
+  public resetComponentElement() {
+    super.resetComponentElement();
+    this.targetElement = undefined;
+  }
   public updateOnShowing(): void {
     const { root } = settings.environment;
     this.prevActiveElement = <HTMLElement>root.activeElement;
@@ -184,9 +192,9 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
     this.switchFocus();
     window.addEventListener("resize", this.resizeWindowCallback);
-    if(this.shouldCreateResizeCallback) {
+    if (this.shouldCreateResizeCallback) {
       window.visualViewport.addEventListener("resize", this.resizeEventCallback);
-      if(this.container) {
+      if (this.container) {
         this.container.addEventListener("touchstart", this.touchStartEventCallback);
         this.container.addEventListener("touchmove", this.touchMoveEventCallback);
       }
@@ -200,11 +208,11 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   }
 
   public updatePosition(isResetHeight: boolean, isDelayUpdating = true): void {
-    if(isResetHeight) {
+    if (isResetHeight) {
       this.height = "auto";
     }
 
-    if(isDelayUpdating) {
+    if (isDelayUpdating) {
       setTimeout(() => {
         this._updatePosition();
       }, 1);
@@ -216,21 +224,46 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
   public updateOnHiding(): void {
     super.updateOnHiding();
     window.removeEventListener("resize", this.resizeWindowCallback);
-    if(this.shouldCreateResizeCallback) {
+    if (this.shouldCreateResizeCallback) {
       window.visualViewport.removeEventListener("resize", this.resizeEventCallback);
-      if(this.container) {
+      if (this.container) {
         this.container.removeEventListener("touchstart", this.touchStartEventCallback);
         this.container.removeEventListener("touchmove", this.touchMoveEventCallback);
       }
     }
     window.removeEventListener("scroll", this.scrollEventCallBack);
 
-    if(!this.isDisposed) {
+    if (!this.isDisposed) {
       this.top = undefined;
       this.left = undefined;
       this.height = undefined;
       this.width = undefined;
       this.minWidth = undefined;
     }
+  }
+
+  protected onModelChanging(newModel: PopupModel) {
+    if (!!this.model) {
+      this.model.onRecalculatePosition.remove(this.recalculatePositionHandler);
+    }
+    if (!this.recalculatePositionHandler) {
+      this.recalculatePositionHandler = (_: any, options: { isResetHeight: boolean }) => {
+        if (!this.isOverlay) {
+          this.updatePosition(options.isResetHeight);
+        }
+      };
+    }
+    super.onModelChanging(newModel);
+    newModel.onRecalculatePosition.add(this.recalculatePositionHandler);
+  }
+
+  public dispose(): void {
+    super.dispose();
+    this.updateOnHiding();
+    if (!!this.model) {
+      this.model.onRecalculatePosition.remove(this.recalculatePositionHandler);
+      this.recalculatePositionHandler = undefined;
+    }
+    this.resetComponentElement();
   }
 }

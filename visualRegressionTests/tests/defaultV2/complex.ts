@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Complex Screenshot";
 
@@ -15,6 +15,7 @@ const theme = "defaultV2";
 
 const json = {
   showQuestionNumbers: "off",
+  width: "900px",
   questions: [
     {
       type: "Paneldynamic",
@@ -24,6 +25,8 @@ const json = {
       templateTitle: "{panel.itemName}",
       panelRemoveText: "Remove Item",
       panelCount: 5,
+      minWidth: "708px",
+      maxWidth: "708px",
       width: "708px",
       templateElements: [
         {
@@ -87,8 +90,7 @@ const json = {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
   });
   test("Check complex question", async (t) => {

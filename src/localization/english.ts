@@ -52,7 +52,7 @@ export var englishStrings = {
   loadingFile: "Loading...",
   chooseFile: "Choose file(s)...",
   noFileChosen: "No file chosen",
-  fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload.",
+  fileDragAreaPlaceholder: "Drag and drop a file here or click the button below to select a file to upload.",
   confirmDelete: "Do you want to delete the record?",
   keyDuplicationError: "This value should be unique.",
   addColumn: "Add Column",
@@ -80,7 +80,11 @@ export var englishStrings = {
   timerLimitSurvey: "You have spent {0} of {1} in total.",
   clearCaption: "Clear",
   signaturePlaceHolder: "Sign here",
-  chooseFileCaption: "Choose file",
+  chooseFileCaption: "Select File",
+  takePhotoCaption: "Take Photo",
+  cameraPlaceHolder: "Click the button below to take a photo using the camera.",
+  fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera.",
+  replaceFileCaption: "Replace file",
   removeFileCaption: "Remove this file",
   booleanCheckedLabel: "Yes",
   booleanUncheckedLabel: "No",
@@ -94,7 +98,11 @@ export var englishStrings = {
   noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
   noEntriesReadonlyText: "There are no entries.",
   more: "More",
-  tagboxDoneButtonCaption: "OK"
+  tagboxDoneButtonCaption: "OK",
+  selectToRankEmptyRankedAreaText: "All choices are ranked",
+  selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them",
+  ok: "OK",
+  cancel: "Cancel",
 };
 
 // Uncomment the lines below if you create a custom dictionary.

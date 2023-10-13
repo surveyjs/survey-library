@@ -4,24 +4,7 @@ description: Learn how to implement branching and skip logic and add dynamic tex
 ---
 # Conditional Logic and Dynamic Texts
 
-This help topic describes how to implement custom conditional logic and add dynamic texts to your survey. Refer to the following sections for details:
-
-- [Dynamic Texts](#dynamic-texts)
-  - [Question Values](#question-values)
-  - [Variables](#variables)
-  - [Calculated Values](#calculated-values)
-- [Expressions](#expressions)
-  - [Built-In Functions](#built-in-functions)
-  - [Custom Functions](#custom-functions)
-    - [Implement a Custom Function](#implement-a-custom-function)
-    - [Access Survey Elements Within a Custom Function](#access-survey-elements-within-a-custom-function)
-    - [Asynchronous Functions](#asynchronous-functions)
-- [Conditional Visibility](#conditional-visibility)
-  - [Question Visibility](#question-visibility)
-  - [Item Visibility (Choices, Columns, Rows)](#item-visibility-choices-columns-rows)
-    - [Specify Visibility Conditions for Individual Items](#specify-visibility-conditions-for-individual-items)
-    - [Combine Visibility Conditions](#combine-visibility-conditions)
-- [Conditional Survey Logic (Triggers)](#conditional-survey-logic-triggers)
+This help topic describes how to implement custom conditional logic and add dynamic texts to your survey.
 
 ## Dynamic Texts
 
@@ -215,7 +198,7 @@ Returns the `valueIfTrue` value if the `condition` is truthy or the `valueIfFals
 
 #### `isContainerReady`
 
-*Definition*: `isContainerReady(nameOfPanelOrPage: string): Boolean`
+*Definition*: `isContainerReady(nameOfPanelOrPage: string): boolean`
 
 Returns `true` if all questions in a given panel or page have valid input; otherwise, returns `false`. An empty question value is considered valid if neither validators nor required status is defined for it.
 
@@ -227,7 +210,7 @@ Returns `true` if all questions in a given panel or page have valid input; other
 
 #### `isDisplayMode`
 
-*Definition*: `isDisplayMode(): Boolean`
+*Definition*: `isDisplayMode(): boolean`
 
 Returns `true` if the survey is in display or preview mode.
 
@@ -272,7 +255,55 @@ Returns the current date or a date shifted from the current by a given number of
 - `"expression": "today()"`
 - `"expression": "today(2)"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264 (linkStyle))  
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L257-L264 (linkStyle))
+
+---
+
+#### `year`
+
+*Definition*: `year(date?: Date): number`
+
+Returns the year of a given date.
+
+*Example*: `"expression": "year({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L323-L326 (linkStyle))
+
+---
+
+#### `month`
+
+*Definition*: `month(date?: Date): number`
+
+Returns the month of a given date as a value from 1 (January) to 12 (December).
+
+*Example*: `"expression": "month({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L329-L332 (linkStyle))
+
+---
+
+#### `day`
+
+*Definition*: `day(date?: Date): number`
+
+Returns the day of the month for a given date as a value from 1 to 31.
+
+*Example*: `"expression": "day({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L335-L338 (linkStyle))
+
+---
+
+#### `weekday`
+
+*Definition*: `weekday(date?: Date): number`
+
+Returns the day of the week for a given date as a value from 0 (Sunday) to 6 (Saturday).
+
+*Example*: `"expression": "weekday({birthdate})"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/b7ff8f2bde82ed09e948fa89b965cb0cad5f19cb/src/functionsfactory.ts#L341-L344 (linkStyle))
 
 ---
 
@@ -350,11 +381,11 @@ Returns the average of passed numbers.
 
 #### `sumInArray`
 
-*Definition*: `sumInArray(questionName: expression, propertyName: string): number`
+*Definition*: `sumInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the sum of numbers in an array taken from a given question property.
+Returns the sum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "sumInArray({matrixdynamic1}, 'total') > 1000"`
+*Example*: `"expression": "sumInArray({matrixdynamic}, 'total') > 1000"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171 (linkStyle))
 [View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression#content-js (linkStyle))
@@ -363,11 +394,11 @@ Returns the sum of numbers in an array taken from a given question property.
 
 #### `maxInArray`
 
-*Definition*: `maxInArray(questionName: expression, propertyName: string): number`
+*Definition*: `maxInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the maximum of numbers in an array taken from a given question property.
+Returns the maximum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "maxInArray({matrixdynamic4}, 'quantity') > 20"`
+*Example*: `"expression": "maxInArray({matrixdynamic}, 'quantity') > 20"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L181-L187 (linkStyle))
 
@@ -375,11 +406,11 @@ Returns the maximum of numbers in an array taken from a given question property.
 
 #### `minInArray`
 
-*Definition*: `minInArray(questionName: expression, propertyName: string): number`
+*Definition*: `minInArray(questionName: expression, dataFieldName: string): number`
  
-Returns the minimum of numbers in an array taken from a given question property.
+Returns the minimum of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "minInArray({matrixdynamic3}, 'quantity') > 5"`
+*Example*: `"expression": "minInArray({matrixdynamic}, 'quantity') > 5"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L173-L179 (linkStyle))
 
@@ -387,11 +418,11 @@ Returns the minimum of numbers in an array taken from a given question property.
 
 #### `avgInArray`
 
-*Definition*: `avgInArray(questionName: expression, propertyName: string): number`
+*Definition*: `avgInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the average of numbers in an array taken from a given question property.
+Returns the average of numbers taken from a specified data field. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "avgInArray({matrixdynamic2}, 'quantity') > 10"`
+*Example*: `"expression": "avgInArray({matrixdynamic}, 'quantity') > 10"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L198-L203 (linkStyle))  
 
@@ -399,13 +430,37 @@ Returns the average of numbers in an array taken from a given question property.
 
 #### `countInArray`
 
-*Definition*: `countInArray(questionName: expression, propertyName: string): number`
+*Definition*: `countInArray(questionName: expression, dataFieldName: string): number`
 
-Returns the total number of items in an array taken from a given question property.
+Returns the total number of array items in which a specified data field has a value other than `null` or `undefined`. This data field is searched in an array that contains a user response to a [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/) question or a [matrix](/form-library/examples/single-selection-matrix-table-question/) question of any type.
 
-*Example*: `"expression": "countInArray({matrixdynamic5}) > 10"`
+*Example*: `"expression": "countInArray({matrixdynamic}, 'quantity') > 10"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L189-L196 (linkStyle))
+
+---
+
+#### `displayValue`
+
+*Definition*: `displayValue(questionName: string): any`
+
+Returns a question's display text. Supports questions nested within panels or matrices.
+
+*Example*: `"expression": "displayValue('question1')"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/f70cd9a367659f475e28e0a317b9583931cdf185/src/functionsfactory.ts#L359-L363 (linkStyle))
+
+---
+
+#### `propertyValue`
+
+*Definition*: `propertyValue(questionName: string, propertyName: string): any`
+
+Returns the value of a property specified for a given question. Supports questions nested within panels or matrices.
+
+*Example*: `"expression": "propertyValue('question1', 'visible')"`
+
+[View Source Code](https://github.com/surveyjs/survey-library/blob/f70cd9a367659f475e28e0a317b9583931cdf185/src/functionsfactory.ts#L365-L370 (linkStyle))
 
 ### Custom Functions
 

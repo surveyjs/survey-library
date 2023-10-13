@@ -67,6 +67,10 @@ export * from "../knockout/components/dropdown/dropdown";
 export * from "../knockout/components/dropdown-select/dropdown-select";
 export * from "../knockout/components/tagbox/tagbox-item";
 export * from "../knockout/components/tagbox/tagbox";
+export * from "../knockout/components/cover/cover";
+export * from "../knockout/components/cover/cover-cell";
+export * from "../knockout/components/file/choose-file";
+export * from "../knockout/components/file/file-preview";
 
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";
@@ -74,11 +78,11 @@ export { SurveyQuestionMatrixDynamicRemoveButton } from "../knockout/components/
 export { SurveyQuestionMatrixDetailButton } from "../knockout/components/matrix-actions/detail-button/detail-button";
 export { SurveyQuestionMatrixDynamicDragDropIcon } from "../knockout/components/matrix-actions/drag-drop-icon/drag-drop-icon";
 export { ButtonGroupItemViewModel } from "../knockout/components/button-group/button-group-item";
-export { TooltipErrorViewModel } from "../knockout/components/tooltip-error/tooltip-error";
 export { SurveyNavigationButton } from "../knockout/components/survey-actions/survey-nav-button";
 export * from "../knockout/components/paneldynamic-actions/paneldynamic-actions";
 export * from "../knockout/components/brand-info/brand-info";
 export * from "../knockout/components/notifier/notifier";
+export * from "../knockout/components/loading-indicator/loading-indicator";
 
 import * as ko from "knockout";
 import { SurveyModel } from "survey-core";

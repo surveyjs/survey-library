@@ -12,7 +12,7 @@ import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
-import { confirmAction } from "./utils/utils";
+import { confirmActionAsync } from "./utils/utils";
 import { DragDropMatrixRows } from "./dragdrop/matrix-rows";
 import { IShortcutText, ISurveyImpl, IProgressInfo } from "./base-interfaces";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -128,6 +128,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   public set confirmDelete(val: boolean) {
     this.setPropertyValue("confirmDelete", val);
   }
+  public get isValueArray(): boolean { return true; }
   /**
    * Specifies a key column. Set this property to a column name, and the question will display `keyDuplicationError` if a user tries to enter a duplicate value in this column.
    * @see keyDuplicationError
@@ -172,6 +173,9 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     for (var i = val.length; i < this.minRowCount; i++) val.push({});
     return val;
   }
+  protected isNewValueCorrect(val: any): boolean {
+    return Array.isArray(val);
+  }
   protected setDefaultValue() {
     if (
       this.isValueEmpty(this.defaultRowValue) ||
@@ -201,6 +205,11 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       this.resetRenderedTable();
     }
   }
+  initDataUI(): void {
+    if(!this.generatedVisibleRows) {
+      this.visibleRows;
+    }
+  }
   /**
    * The number of rows in the matrix.
    * @see minRowCount
@@ -210,7 +219,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return this.rowCountValue;
   }
   public set rowCount(val: number) {
-    if (val < 0 || val > settings.matrixMaximumRowCount) return;
+    if (val < 0 || val > settings.matrix.maxRowCount) return;
     this.setRowCountValueFromData = false;
     var prevValue = this.rowCountValue;
     this.rowCountValue = val;
@@ -299,7 +308,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * A maximum number of rows in the matrix. Users cannot add new rows if `rowCount` equals `maxRowCount`.
    *
-   * Default value: 1000 (inherited from [`settings.matrixMaximumRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
+   * Default value: 1000 (inherited from [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/settings#matrixMaximumRowCount))
    * @see rowCount
    * @see minRowCount
    * @see allowAddRows
@@ -309,8 +318,8 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   public set maxRowCount(val: number) {
     if (val <= 0) return;
-    if (val > settings.matrixMaximumRowCount)
-      val = settings.matrixMaximumRowCount;
+    if (val > settings.matrix.maxRowCount)
+      val = settings.matrix.maxRowCount;
     if (val == this.maxRowCount) return;
     this.setPropertyValue("maxRowCount", val);
     if (val < this.minRowCount) this.minRowCount = val;
@@ -409,15 +418,18 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   }
   /**
    * Creates and adds a new row to the matrix.
-   * @param setFocus *Optional.* Pass `true` to focus the cell in the first column.
+   * @param setFocus *(Optional)* Pass `true` to focus the cell in the first column.
    */
   public addRow(setFocus?: boolean): void {
     const oldRowCount = this.rowCount;
-    var options = { question: this, canAddRow: this.canAddRow };
+    const allow = this.canAddRow;
+    var options = { question: this, canAddRow: allow, allow: allow };
     if (!!this.survey) {
       this.survey.matrixBeforeRowAdded(options);
     }
-    if (!options.canAddRow) return;
+    const newAllow = allow !== options.allow ? options.allow :
+      (allow !== options.canAddRow ? options.canAddRow : allow);
+    if (!newAllow) return;
     this.onStartRowAddingRemoving();
     this.addRowCore();
     this.onEndRowAdding();
@@ -542,7 +554,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   /**
    * Removes a matrix row with a specified index.
    * @param index A zero-based row index.
-   * @param confirmDelete *Optional.* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
+   * @param confirmDelete *(Optional)* A Boolean value that specifies whether to display a confirmation dialog. If you do not specify this parameter, the [`confirmDelete`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model#confirmDelete) property value is used.
    */
   public removeRow(index: number, confirmDelete?: boolean): void {
     if (!this.canRemoveRows) return;
@@ -554,7 +566,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     if(confirmDelete === undefined) {
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
-    if (confirmDelete && !confirmAction(this.confirmDeleteText)) return;
+    if (confirmDelete) {
+      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); });
+      return;
+    }
+    this.removeRowAsync(index, row);
+  }
+  private removeRowAsync(index: number, row: MatrixDropdownRowModelBase): void {
     if (!!row && !!this.survey && !this.survey.matrixRowRemoving(this, index, row)) return;
     this.onStartRowAddingRemoving();
     this.removeRowCore(index);
@@ -696,12 +714,12 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
   protected getConditionObjectsRowIndeces() : Array<number> {
     const res = [];
     const rowCount = Math.max(this.rowCount, 1);
-    for (var i = 0; i < Math.min(settings.matrixMaxRowCountInCondition, rowCount); i++) {
+    for (var i = 0; i < Math.min(settings.matrix.maxRowCountInCondition, rowCount); i++) {
       res.push(i);
     }
     return res;
   }
-  public supportGoNextPageAutomatic() {
+  public supportGoNextPageAutomatic(): boolean {
     return false;
   }
   public get hasRowText(): boolean {
@@ -902,7 +920,7 @@ Serializer.addClass(
     { name: "minRowCount:number", default: 0, minValue: 0 },
     {
       name: "maxRowCount:number",
-      default: settings.matrixMaximumRowCount,
+      default: settings.matrix.maxRowCount,
     },
     { name: "keyName" },
     "defaultRowValue:rowvalue",

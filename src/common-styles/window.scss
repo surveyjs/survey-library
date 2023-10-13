@@ -38,6 +38,7 @@
   background-color: #f7f7f7;
   border-bottom: 1px solid #ebebeb;
   border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
+  display: flex;
 }
 
 .sv_window_content {
@@ -54,4 +55,8 @@
   font-size: calcFontSize(0.875);
   font-style: normal;
   color: black;
+}
+
+.sv_window_button .sv-svg-icon {
+  margin: 4px;
 }

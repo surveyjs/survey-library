@@ -12,7 +12,6 @@ import { QuestionFactory } from "survey-core";
 import { Question } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
 import { ImplementorBase } from "./kobase";
-
 export class QuestionMatrixBaseImplementor extends QuestionImplementor {
   private _tableImplementor: ImplementorBase;
   koRecalc: any;
@@ -74,6 +73,9 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
         column: !!cell.cell ? cell.cell.column : null,
       };
       this.question.survey.matrixAfterCellRender(this.question, options);
+      if(cell.question) {
+        cell.question.afterRenderCore(el);
+      }
     }, 0);
   }
   private cellQuestionAfterRender(elements: any, con: any) {
@@ -111,7 +113,7 @@ export class QuestionMatrixBaseImplementor extends QuestionImplementor {
     var el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
   }
-  public dispose() {
+  public dispose(): void {
     if (!!this._tableImplementor) {
       this._tableImplementor.dispose();
     }
@@ -134,7 +136,7 @@ export class QuestionMatrixDropdown extends QuestionMatrixDropdownModel {
     super.onBaseCreating();
     this._implementor = new QuestionMatrixBaseImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     super.dispose();
     this._implementor.dispose();
     this._implementor = undefined;
@@ -146,6 +148,11 @@ export class KoQuestionMatrixDropdownRenderedTable extends QuestionMatrixDropdow
     const renderedRow = new QuestionMatrixDropdownRenderedRow(cssClasses, isDetailRow);
     new ImplementorBase(renderedRow);
     return renderedRow;
+  }
+  protected createErrorRenderedRow(cssClasses: any) {
+    const res = super.createErrorRenderedRow(cssClasses);
+    new ImplementorBase(res);
+    return res;
   }
 }
 

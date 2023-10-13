@@ -27,11 +27,18 @@ const createComponent = ClientFunction(() => {
       type: "dropdown",
       choices: ["a", "b", "c"],
     },
+    onAfterRender: (question, htmlElement) => {
+      window["newquestion_afterrender"] = question.name;
+    }
   });
 });
 
+const getAfterRenderResult = ClientFunction(() => {
+  return window["newquestion_afterrender"];
+});
+
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Component as a single question", async (t) => {
     await createComponent();
@@ -52,5 +59,11 @@ frameworks.forEach((framework) => {
       .click(completeButton);
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.matrix[0].col1).eql("b");
+  });
+  test("Component as a cell question & afterRender", async (t) => {
+    await createComponent();
+    await initSurvey(framework, json_matrix);
+    const res = await getAfterRenderResult();
+    await t.expect(res).eql("col1");
   });
 });

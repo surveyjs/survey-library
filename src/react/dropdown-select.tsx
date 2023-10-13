@@ -41,6 +41,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
     return (
       <div className={cssClasses.selectWrapper}>
         {selectElement}
+        {this.createChevronButton()}
       </div>
     );
   }

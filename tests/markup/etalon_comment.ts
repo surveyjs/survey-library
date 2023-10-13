@@ -48,8 +48,8 @@ registerMarkupTests(
         }
       ]
     },
-    before: () => settings.readOnlyCommentRenderMode = "div",
-    after: () => settings.readOnlyCommentRenderMode = "textarea",
+    before: () => settings.readOnly.commentRenderMode = "div",
+    after: () => settings.readOnly.commentRenderMode = "textarea",
     snapshot: "comment-div",
   },
   {

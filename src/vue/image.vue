@@ -8,7 +8,7 @@
       :alt="question.altText || question.title"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{ objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
       @load="(event) => { question.onLoadHandler() }"
       @error="(event) => { question.onErrorHandler() }"
     /><video
@@ -19,7 +19,7 @@
       :src="question.locImageLink.renderedHtml"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{ objectFit: question.imageFit, width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
       @loadedmetadata="(event) => { question.onLoadHandler() }"
       @error="(event) => { question.onErrorHandler() }"
     ></video>
@@ -29,7 +29,7 @@
       :src="question.locImageLink.renderedHtml"
       :width="question.renderedWidth"
       :height="question.renderedHeight"
-      v-bind:style="{ objectFit: question.imageFit }"
+      v-bind:style="{ objectFit: question.imageFit,  width: question.renderedStyleWidth, height: question.renderedStyleHeight }"
     ></iframe>
     <div v-if="!question.imageLink || question.contentNotLoaded"
       :class="question.cssClasses.noImage">

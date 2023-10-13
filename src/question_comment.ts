@@ -7,7 +7,7 @@ import { increaseHeightByContent } from "./utils/utils";
 import { settings } from "./settings";
 
 /**
- * A class that describes the Comment question type.
+ * A class that describes the Long Text question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-comment/ (linkStyle))
  */
@@ -94,6 +94,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   }
   public onKeyDown(event: any): void {
+    this.checkForUndo(event);
     if (!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {
       event.preventDefault();
       event.stopPropagation();
@@ -110,6 +111,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     }
     super.setNewValue(newValue);
   }
+  protected getValueSeparator(): string { return "\n"; }
   public get className() {
     return (this.cssClasses ? this.getControlClass() : "panel-comment-root") || undefined;
   }

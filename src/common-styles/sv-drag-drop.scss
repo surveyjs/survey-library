@@ -13,7 +13,7 @@
   font-family: var(--font-family, $font-family);
   font-size: calcFontSize(1);
   padding-left: calcSize(2.5);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
 
 .sv-matrixdynamic__drag-icon {

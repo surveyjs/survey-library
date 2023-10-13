@@ -21,13 +21,14 @@ export class SurveyProgress extends SurveyNavigationBase {
       width: this.progress + "%",
     };
     return (
-      <div className={this.survey.getProgressCssClasses()}>
+      <div className={this.survey.getProgressCssClasses(this.props.container)}>
         <div
           style={progressStyle}
           className={this.css.progressBar}
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={100}
+          aria-label="progress"
         >
           <span
             className={SurveyProgressModel.getProgressTextInBarCss(this.css)}

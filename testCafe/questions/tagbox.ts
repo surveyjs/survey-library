@@ -2,7 +2,7 @@ import { frameworks, url, initSurvey, getListItemByText, applyTheme, url_test } 
 import { Selector } from "testcafe";
 const title = "tagbox";
 
-const questionOffsetTopConst = 184;
+const questionOffsetTopConst = 176;
 
 const jsonCloseOnSelectIsTrue = {
   showQuestionNumbers: "off",
@@ -86,9 +86,11 @@ const jsonCloseOnSelectIsDefault = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   const questionTagbox = Selector(".sv_q_input.sv_q_tagbox");
+  const questionValueInput = Selector(".sv_q_tagbox__value input");
+  const questionHint = Selector(".sv_q_tagbox__hint");
   const deleteItemButton = Selector(".sv_q_tagbox-item_clean-button");
   const selectedItems = Selector(".sv-tagbox__item");
   const popupContainer = Selector(".sv-popup__container").filterVisible();
@@ -286,11 +288,14 @@ frameworks.forEach((framework) => {
 
       .pressKey("1")
       .pressKey("4")
+      .expect(questionHint.innerText).eql("item")
+      .expect(questionValueInput.value).eql("14")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
-      .expect(selectedItems.count).eql(2)
-      .expect(selectedItems.nth(0).textContent).contains("item23")
-      .expect(selectedItems.nth(1).textContent).contains("item14");
+      .expect(questionHint.innerText).eql("")
+      .expect(questionValueInput.value).eql("")
+      .expect(selectedItems.count).eql(1)
+      .expect(selectedItems.nth(0).textContent).contains("item23");
   });
 
   test("Check tagbox key press", async (t) => {
@@ -369,11 +374,15 @@ frameworks.forEach((framework) => {
 
       .pressKey("1")
       .pressKey("4")
+      .expect(questionHint.innerText).eql("item")
+      .expect(questionValueInput.value).eql("14")
+
       .pressKey("tab")
+      .expect(questionHint.innerText).eql("")
+      .expect(questionValueInput.value).eql("")
       .expect(popupContainer.visible).notOk()
-      .expect(selectedItems.count).eql(2)
-      .expect(selectedItems.nth(0).textContent).contains("item23")
-      .expect(selectedItems.nth(1).textContent).contains("item14");
+      .expect(selectedItems.count).eql(1)
+      .expect(selectedItems.nth(0).textContent).contains("item23");
   });
 
   test("Check tagbox key press. CloseOnSelect is default", async (t) => {
@@ -486,7 +495,7 @@ frameworks.forEach((framework) => {
     }, 500);
   }
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -543,7 +552,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox1.offsetTop).lt(200)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(tagbox1.find(".sv-list").scrollTop).within(560, 570)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(550, 560)
       .expect(tagbox1.find(".sv-list").scrollHeight).within(2400, 2500)
       .expect(listItems.filterVisible().count).eql(51)
 
@@ -564,7 +573,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
       .expect(tagbox2.offsetTop).eql(0)
-      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(tagbox2.find(".sv-list").scrollTop).eql(0)
       .expect(tagbox2.find(".sv-list").scrollHeight).within(1350, 1500)
       .expect(listItems.filterVisible().count).eql(31)
@@ -573,7 +582,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
       .expect(tagbox2.offsetTop).eql(0)
-      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(tagbox2.find(".sv-list").scrollTop).within(750, 850)
       .expect(tagbox2.find(".sv-list").scrollHeight).within(2600, 2650)
       .expect(listItems.filterVisible().count).eql(55)
@@ -582,7 +591,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -698,13 +707,13 @@ frameworks.forEach((framework) => {
       .expect(tagbox2.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox2.offsetTop).within(230, 240)
+      .expect(tagbox2.offsetTop).within(220, 230)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(470, 480)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox2.offsetTop).eql(776)
+      .expect(tagbox2.offsetTop).eql(768)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
@@ -713,7 +722,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -770,7 +779,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox1.offsetTop).lt(200)
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(tagbox1.find(".sv-list").scrollTop).within(560, 570)
+      .expect(tagbox1.find(".sv-list").scrollTop).within(550, 560)
       .expect(tagbox1.find(".sv-list").scrollHeight).within(2400, 2500)
       .expect(listItems.filterVisible().count).eql(51)
 
@@ -792,7 +801,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
       .expect(tagbox2.offsetTop).eql(0)
-      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(tagbox2.find(".sv-list").scrollTop).eql(0)
       .expect(tagbox2.find(".sv-list").scrollHeight).within(1350, 1500)
       .expect(listItems.filterVisible().count).eql(31)
@@ -801,7 +810,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
       .expect(tagbox2.offsetTop).eql(0)
-      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(tagbox2.find(".sv-list").scrollTop).within(750, 850)
       .expect(tagbox2.find(".sv-list").scrollHeight).within(2600, 2650)
       .expect(listItems.filterVisible().count).eql(55)
@@ -810,7 +819,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -927,18 +936,109 @@ frameworks.forEach((framework) => {
       .expect(tagbox2.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox2.offsetTop).within(230, 240)
+      .expect(tagbox2.offsetTop).within(215, 225)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).within(470, 480)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(tagbox2.find(".sv-list__empty-container").visible).notOk()
-      .expect(tagbox2.offsetTop).eql(776)
+      .expect(tagbox2.offsetTop).eql(768)
       .expect(tagbox2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
       .expect(tagbox2.visible).ok()
 
       .resizeWindow(1280, 1100);
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Check tagbox popup opens after beak click", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "tagbox",
+          name: "cars",
+          title: "Tagbox",
+          searchEnabled: false,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .expect(dropdownWidth).gt(550)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Check tagbox popup opens after beak click - search enabled", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "tagbox",
+          name: "cars",
+          title: "Tagbox",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .expect(dropdownWidth).gt(550)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
   });
 });

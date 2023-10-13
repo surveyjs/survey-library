@@ -2,6 +2,7 @@ import { SurveyModel } from "../src/survey";
 import { surveyLocalization } from "../src/surveyStrings";
 import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
+import { settings } from "../src/settings";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
@@ -407,6 +408,48 @@ QUnit.test(
     );
   }
 );
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions', onCurrentPageChanging/onCurrentPageChanged, bug#6564", function(assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { name: "p1", elements: [{ type: "text", name: "q1" }] },
+      { name: "p2", elements: [{ type: "text", name: "q2" }] },
+      { name: "p3", elements: [{ type: "text", name: "q3" }] },
+    ],
+  });
+  survey.showPreviewBeforeComplete = "showAnsweredQuestions";
+  survey.data = { q2: "2", q3: "3" };
+  survey.currentPageNo = 2;
+  survey.showPreview();
+  let changingCounter = 0;
+  let changedCounter = 0;
+  let changingIsAfterPreview = 0;
+  let changedIsAfterPreview = 0;
+  survey.onCurrentPageChanging.add((sender, options) => {
+    changingCounter ++;
+    if(options.isAfterPreview) changingIsAfterPreview ++;
+  });
+  survey.onCurrentPageChanged.add((sender, options) => {
+    changedCounter ++;
+    if(options.isAfterPreview) changedIsAfterPreview ++;
+  });
+  survey.cancelPreview(survey.pages[1]);
+  assert.equal(changingCounter, 1, "onChanging is called one time");
+  assert.equal(changedCounter, 1, "onChanging is called one time");
+  assert.equal(changingIsAfterPreview, 1, "changingIsAfterPreview is called one time");
+  assert.equal(changedIsAfterPreview, 1, "changedIsAfterPreview is called one time");
+  survey.showPreview();
+  survey.cancelPreview(survey.pages[2]);
+  assert.equal(changingCounter, 2, "onChanging is called two times");
+  assert.equal(changedCounter, 2, "onChanging is called two times");
+  assert.equal(changingIsAfterPreview, 2, "changingIsAfterPreview is called two times");
+  assert.equal(changedIsAfterPreview, 2, "changedIsAfterPreview is called two times");
+  survey.showPreview();
+  survey.cancelPreview(survey.pages[2]);
+  assert.equal(changingCounter, 3, "onChanging is called three times");
+  assert.equal(changedCounter, 3, "onChanging is called three times");
+  assert.equal(changingIsAfterPreview, 3, "changingIsAfterPreview is called three times");
+  assert.equal(changedIsAfterPreview, 3, "changedIsAfterPreview is called three times");
+});
 QUnit.test(
   "showPreviewBeforeComplete = 'showAnsweredQuestions', do not hide questions on running state",
   function(assert) {
@@ -626,7 +669,7 @@ QUnit.test(
           "elements": [
             {
               "type": "radiogroup",
-              "name": "question1",
+              "name": "q1",
               "choices": ["item1", "item2", "item3"]
             }
           ]
@@ -636,7 +679,7 @@ QUnit.test(
           "elements": [
             {
               "type": "radiogroup",
-              "name": "question2",
+              "name": "q2",
               "choices": ["item1", "item2", "item3"]
             }
           ]
@@ -645,10 +688,87 @@ QUnit.test(
       "goNextPageAutomatic": true,
       "showPreviewBeforeComplete": "showAnsweredQuestions"
     });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
     assert.equal(survey.currentPageNo, 0, "The first page");
-    survey.setValue("question1", "item1");
+    q1.onMouseDown();
+    q1.value = "item1";
     assert.equal(survey.currentPageNo, 1, "The second page");
-    survey.setValue("question2", "item1");
+    q2.onMouseDown();
+    q2.value = "item2";
     assert.equal(survey.state, "preview", "We are in preview mode");
+  }
+);
+QUnit.test(
+  "showPreviewBeforeComplete = 'showAnsweredQuestions' and all questions are empty, Bug#6497",
+  function(assert) {
+    const survey = new SurveyModel({
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "q1",
+              "choices": ["item1", "item2", "item3"]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "radiogroup",
+              "name": "q2",
+              "choices": ["item1", "item2", "item3"]
+            }
+          ]
+        }
+      ],
+      "showPreviewBeforeComplete": "showAnsweredQuestions"
+    });
+    survey.nextPage();
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "There is no errors");
+    assert.equal(survey.getAllQuestions(true).length, 2, "Show all questions");
+  }
+);
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' and all questions are empty, bug#6608",
+  function(assert) {
+    const survey = new SurveyModel({
+      "elements": [{ "type": "text", "name": "q1", "isRequired": true }],
+      "showPreviewBeforeComplete": "showAnsweredQuestions"
+    });
+    survey.showPreview();
+    assert.equal(survey.state, "running", "There is an error");
+    survey.checkErrorsMode = "onComplete";
+    survey.showPreview();
+    assert.equal(survey.state, "preview", "We do not check for errors");
+    survey.cancelPreview();
+    assert.equal(survey.state, "running", "running again");
+    survey.completeLastPage();
+    assert.equal(survey.state, "running", "We have errors, we can't fix errors");
+    survey.setValue("q1", "a");
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "No errors");
+  }
+);
+QUnit.test("showPreviewBeforeComplete = 'showAnsweredQuestions' & checkErrorsMode = 'onComplete' and all questions are empty, bug#6608",
+  function(assert) {
+    const survey = new SurveyModel({
+      "pages": [
+        { "elements": [{ "type": "text", "name": "q1", "isRequired": true }] },
+        { "elements": [{ "type": "text", "name": "q2" }] },
+      ],
+      "showPreviewBeforeComplete": "showAnsweredQuestions",
+      "checkErrorsMode": "onComplete"
+    });
+    survey.nextPage();
+    survey.showPreview();
+    survey.completeLastPage();
+    assert.equal(survey.state, "running", "We have errors, we can't fix errors");
+    survey.setValue("q1", "a");
+    survey.completeLastPage();
+    assert.equal(survey.state, "completed", "No errors");
   }
 );

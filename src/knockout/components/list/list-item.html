@@ -6,7 +6,8 @@ data-bind="css: $data.model.getItemClass($data.item), attr: { id: $data.item.ele
   <div data-bind="style: { paddingInlineStart: $data.model.getItemIndent($data.item) }, css: $data.model.cssClasses.itemBody">
   <!-- ko ifnot: $data.item.component -->
   <!-- ko if: $data.item.iconName -->
-  <sv-svg-icon data-bind="css: $data.model.cssClasses.itemIcon" params="iconName: $data.item.iconName, size: 24"></sv-svg-icon>
+  <!-- ko component: { name: "sv-svg-icon", params: { iconName: $data.item.iconName, size: $data.item.iconSize, css: $data.model.cssClasses.itemIcon } }-->
+  <!-- /ko -->
   <!-- /ko -->
   <!-- ko template: { name: 'survey-string', data: $data.item.locTitle } --><!-- /ko -->
   <!-- /ko -->

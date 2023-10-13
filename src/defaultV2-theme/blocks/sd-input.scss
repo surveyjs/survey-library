@@ -4,16 +4,15 @@
   appearance: none;
   position: static;
   width: 100%;
-  height: calcSize(6);
   box-sizing: border-box;
   padding: calcSize(1.5) calcSize(2);
-  line-height: calcSize(3);
+  line-height: multiply(1.5, $font-editorfont-size);
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
   font-size: $font-editorfont-size;
   background-color: $editor-background;
-  box-shadow: $editor-boxshadow;
+  box-shadow: $shadow-inner;
   border: none;
   border-radius: $editor-corner-radius;
   text-align: start;
@@ -21,6 +20,14 @@
 
 .sd-input.sd-input:focus {
   outline: none;
+}
+
+//for IPHONE
+input,
+textarea {
+  &.sd-input:disabled:not(.sd-input--disabled) {
+    opacity: 1;
+  }
 }
 
 .sd-input--disabled {
@@ -32,15 +39,15 @@
 }
 
 .sd-input::placeholder {
-  color: $foreground-light;
+  color: $font-editorfont-placeholdercolor;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
 }
 
-.sd-input--disabled,
-.sd-input--disabled::placeholder {
+.sd-input.sd-input--disabled,
+.sd-input.sd-input--disabled::placeholder {
   color: $foreground;
   opacity: 0.25;
 }
@@ -69,7 +76,7 @@
   align-items: flex-end;
   padding: 0px;
   font-family: $font-family;
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
   color: $foreground-light;
   position: absolute;
@@ -97,6 +104,22 @@
   background-color: $primary;
   height: calcSize(3);
   width: calcSize(3);
+}
+
+.sd-input[type="time"],
+.sd-input[type="date"],
+.sd-input[type="datetime-local"],
+.sd-input[type="week"],
+.sd-input[type="month"],
+.sd-input[type="tel"],
+.sd-input[type="password"],
+.sd-input[type="url"],
+.sd-input[type="email"],
+.sd-input[type="color"],
+.sd-input[type="range"] {
+  box-sizing: content-box;
+  width: calc(100% - 4 * #{$base-unit});
+  height: multiply(1.5, $font-editorfont-size);
 }
 
 .sd-input[type="range"]::-webkit-slider-runnable-track {

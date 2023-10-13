@@ -45,7 +45,7 @@
             <td
               data-bind="attr: { 'data-responsive-title': $data.locText.renderedHtml }, css: question.cssClasses.cell"
             >
-              <label data-bind="css: question.getItemClass(row, $data)">
+              <label data-bind="css: question.getItemClass(row, $data), event: { mousedown: question.koMouseDown }" >
                 <input
                   type="radio"
                   data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.ariaRequired, 'aria-label': $data.locText.renderedHtml, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"

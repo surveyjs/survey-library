@@ -13,7 +13,7 @@ const json = {
 
 frameworks.forEach((framework) => {
   fixture`${framework} ${title} modern`
-    .page`${url_test}modern/${framework}.html`.beforeEach(async (t) => {
+    .page`${url_test}modern/${framework}`.beforeEach(async (t) => {
     await applyTheme("modern");
     await initSurvey(framework, json);
   });

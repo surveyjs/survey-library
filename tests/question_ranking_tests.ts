@@ -3,6 +3,7 @@ import { QuestionRankingModel } from "../src/question_ranking";
 import { SurveyModel } from "../src/survey";
 import { settings as Settings } from "../src/settings";
 import { Serializer } from "../src/jsonobject";
+import { ItemValue } from "../src/itemvalue";
 
 export default QUnit.module("question ranking");
 
@@ -132,7 +133,7 @@ QUnit.test("Ranking: Carry Forward", function(assert) {
 
   // ranking question with only one choice doesn't make sense
   q1.value = ["2"];
-  assert.deepEqual(q2.isEmpty(), true);
+  assert.deepEqual(q2.isEmpty(), false);
   assert.deepEqual(survey.data, {
     q1: [2],
   });
@@ -283,6 +284,8 @@ QUnit.test("Ranking: rankingDragHandleArea Setting ", function(assert) {
   Settings.rankingDragHandleArea = "some"; // 3
   result = rankingQuestion["isDragStartNodeValid"](dragStartTargetNode);
   assert.equal(result, true);
+
+  dragStartTargetNode.remove();
 });
 
 QUnit.test("Ranking: separateSpecialChoices ", function (assert) {
@@ -314,3 +317,96 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   assert.deepEqual(q2.value, ["a", "b"], "value is correct");
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
+QUnit.test("Ranking: strict compare, Bug#6644", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "ranking", name: "q1", choices: ["a", "b", "c"] },
+      { type: "text", name: "q2", visibleIf: "{q1} = ['b', 'c', 'a']"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "not visible initially");
+  q1.value = ["a", "b", "c"];
+  assert.equal(q2.isVisible, false, "not visible #2");
+  q1.value = ["b", "c", "a"];
+  assert.equal(q2.isVisible, true, "visible #3");
+  q1.value = ["a", "c", "b"];
+  assert.equal(q2.isVisible, false, "not visible #3");
+});
+
+QUnit.test("Ranking: disabledItem", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "ranking",
+        name: "q1",
+        choices: [
+          "a",
+          {
+            "value": "b",
+            "enableIf": "False"
+          },
+          "c"
+        ]
+      }
+    ]
+  });
+  const rankingQuestion = survey.getQuestionByName("q1");
+  const disabledItem = rankingQuestion.choices[1];
+
+  assert.equal(rankingQuestion.canStartDragDueItemEnabled(disabledItem), false, "can't start drag disabled item");
+  assert.equal(rankingQuestion.getItemTabIndex(disabledItem), undefined, "can't move disabled item via keyboard");
+});
+
+// selectToRankEnabled
+function createRankingQuestionModel(selectToRankEnabled = false, withDefaultValue = false) {
+  const json = {
+    "choices": [
+      "11",
+      "22",
+      "33"
+    ]
+  };
+
+  if (selectToRankEnabled) {
+    json["selectToRankEnabled"] = true;
+  }
+
+  if (withDefaultValue) {
+    json["defaultValue"] = ["33", "22"];
+  }
+
+  const model = new QuestionRankingModel("qr1");
+  model.fromJSON(json);
+  return model;
+}
+
+QUnit.test("selectToRankEnabled : initial", function (assert) {
+  const selectToRankEnabled = true;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled);
+  assert.equal(questionModel.unRankingChoices.length, 3, "unRankingChoices count");
+  assert.equal(questionModel.rankingChoices.length, 0, "rankingChoices count");
+});
+
+QUnit.test("selectToRankEnabled : defaultValue", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = true;
+  const questionWithDefaultValueModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+  assert.equal(questionWithDefaultValueModel.unRankingChoices.length, 1, "unRankingChoices count");
+  assert.equal(questionWithDefaultValueModel.rankingChoices.length, 2, "rankingChoices count");
+});
+
+QUnit.test("selectToRankEnabled : checkMaxSelectedChoicesUnreached", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = false;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+
+  assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), true, "without MaxSelectedChoices");
+
+  questionModel.maxSelectedChoices = 2;
+  questionModel.value = ["11", "22"];
+  assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), false, "MaxSelectedChoices limit reached");
+});
+// EO selectToRankEnabled

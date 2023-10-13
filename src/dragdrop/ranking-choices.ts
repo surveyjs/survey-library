@@ -18,11 +18,12 @@ export class DragDropRankingChoices extends DragDropChoices {
           cursor: grabbing;
           position: absolute;
           z-index: 10000;
-          border-radius: 36px;
+          border-radius: calc(12.5 * var(--sjs-base-unit, var(--base-unit, 8px)));
           min-width: 100px;
-          box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1), 0px 2px 6px rgba(0, 0, 0, 0.1);
-          background-color: var(--background, white);
-          font-family: var(--font-family, $font-family);
+          max-width: 400px;
+          box-shadow: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1)), var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
+          background-color: var(--sjs-general-backcolor, var(--background, #fff));
+          font-family: var(--font-family, 'Open Sans');
         `;
 
     const isDeepClone = true;
@@ -130,8 +131,8 @@ export class DragDropRankingChoices extends DragDropChoices {
     }
   }
 
-  private updateDraggedElementShortcut(newIndex: number) {
-    const newIndexText = newIndex + "";
+  protected updateDraggedElementShortcut(newIndex: number) {
+    const newIndexText = newIndex !== null ? newIndex + "" : "";
     // TODO should avoid direct DOM manipulation, do through the frameworks instead
     const indexNode: HTMLElement = this.domAdapter.draggedElementShortcut.querySelector(
       ".sv-ranking-item__index"

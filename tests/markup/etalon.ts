@@ -20,6 +20,7 @@ export * from "./etalon_matrixdropdown";
 export * from "./etalon_matrixdynamic";
 export * from "./etalon_question";
 export * from "./etalon_survey";
+export * from "./etalon_signaturepad";
 export { markupTests } from "./helper";
 
 registerMarkupTests([

@@ -112,24 +112,24 @@ frameworks.forEach((framework) => {
     const getRequiredElement = (rowIndex) => {
       return matrixRow.nth(rowIndex).find(".sv-string-viewer").withText("Response required.");
     };
+    const getRowsCount = () => {
+      return matrixRow.count;
+    };
 
     await t
-      .expect(getRequiredElement(0).exists).notOk()
-      .expect(getRequiredElement(1).exists).notOk()
-
+      .expect(getRowsCount()).eql(2)
       .click(completeButton)
+      .expect(getRowsCount()).eql(4)
       .expect(getRequiredElement(0).visible).ok()
-      .expect(getRequiredElement(1).visible).ok();
+      .expect(getRequiredElement(2).visible).ok();
 
     let surveyResult = await getSurveyResult();
     await t.expect(typeof surveyResult).eql("undefined");
-
     await t
       .click(questionDropdownSelect.nth(0))
       .click(getListItemByText("Science: Physical Science"))
-
       .click(completeButton)
-      .expect(getRequiredElement(0).exists).notOk()
+      .expect(getRowsCount()).eql(3)
       .expect(getRequiredElement(1).visible).ok();
 
     surveyResult = await getSurveyResult();

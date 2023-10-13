@@ -44,7 +44,7 @@ export class QuestionTagbox extends QuestionTagboxModel {
     this.koAllSelected(this.isAllSelected);
     this.isAllSelectedUpdating = false;
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     this.koAllSelected = undefined;

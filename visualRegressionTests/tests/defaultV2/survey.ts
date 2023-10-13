@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { setData } from "../../../testCafe/helper";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, explicitErrorHandler, resetFocusToBody, resetHoverToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody, resetHoverToBody } from "../../helper";
 import { backgroundImage } from "../../constants";
 
 const title = "Survey Screenshot";
@@ -73,9 +73,8 @@ const json = {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`
+    .page`${url_test}${theme}/${framework}`
     .beforeEach(async t => {
-      await explicitErrorHandler();
       await applyTheme(theme);
     });
 
@@ -101,6 +100,28 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-body.png", Selector(".sd-body"), t, comparer);
     });
   });
+  test("Check survey default cover", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.headerView = "advanced";
+      })();
+      await takeElementScreenshot("survey-cover-default.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
   test("Check survey with progress top", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -110,6 +131,38 @@ frameworks.forEach(framework => {
         (<any>window).survey.currentPageNo = 1;
       })();
       await takeElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+    });
+  });
+  test("Check survey with progress bottom", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.showProgressBar = "bottom";
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-bottom.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+    });
+  });
+  test("Check survey with progress bottom with brand info and fit to container", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1800, 900);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        const container = (<any>window).document.getElementById("surveyElement");
+        container.style.position = "fixed";
+        container.style.top = 0;
+        container.style.bottom = 0;
+        container.style.left = 0;
+        container.style.right = 0;
+        (<any>window).survey.showBrandInfo = true;
+        (<any>window).survey.fitToContainer = true;
+        (<any>window).survey.showProgressBar = "bottom";
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-bottom-brand.png", Selector("#surveyElement"), t, comparer); // title + progress
     });
   });
   test("Check survey with progress top buttons", async (t) => {
@@ -382,7 +435,7 @@ frameworks.forEach(framework => {
         const style = document.createElement("style");
         style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
         document.body.appendChild(style);
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
@@ -454,7 +507,7 @@ frameworks.forEach(framework => {
         const style = document.createElement("style");
         style.innerHTML = ".sd-timer__progress--animation { transition: none !important; }";
         document.body.appendChild(style);
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
@@ -523,7 +576,7 @@ frameworks.forEach(framework => {
         ]
       };
       await ClientFunction(() => {
-        (<any>window).Survey.SurveyTimer.instance.start = () => {};
+        (<any>window).Survey.SurveyTimer.instance.start = () => { };
       })();
       await initSurvey(framework, json);
       await t.click(Selector(".sd-navigation__start-btn"));
@@ -532,7 +585,7 @@ frameworks.forEach(framework => {
     });
   });
   test("Check survey progress bar freezes on top", async (t) => {
-    if(framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
+    if (framework in ["knockout", "react", "angular"]) { // TODO: reanimate Vue after Vue3 supported
       await wrapVisualTest(t, async (t, comparer) => {
         await t.resizeWindow(1500, 720);
         const json = {
@@ -584,13 +637,12 @@ frameworks.forEach(framework => {
         await initSurvey(framework, json);
         await ClientFunction(() => {
           const surveyElement = document.getElementById("surveyElement");
-          if(surveyElement) {
+          if (surveyElement) {
             surveyElement.style.height = "90vh";
             surveyElement.style.overflowY = "auto";
             document.querySelector("[data-name='libertyordeath']")?.scrollIntoView(true);
           }
         })();
-        //t.debug();
         await takeElementScreenshot("survey-progress-top-freeze.png", Selector("body"), t, comparer);
       });
     }
@@ -667,17 +719,20 @@ frameworks.forEach(framework => {
   };
   test("Check survey notifier info type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 5000; })();
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = true;
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+      await t.resizeWindow(1920, 900);
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 10000); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-saving.png", Selector(".sv-save-data_root"), t, comparer);
@@ -687,37 +742,47 @@ frameworks.forEach(framework => {
 
   test("Check survey notifier error type", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = true;
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+      await t.resizeWindow(1920, 900);
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = true;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-error.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });
 
   test("Check survey notifier success type", async (t) => {
+    await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 10000; })();
+    await t.resizeWindow(1920, 900);
     await wrapVisualTest(t, async (t, comparer) => {
-      await initSurvey(framework, notifierJson, { onComplete: (_sender, options) => {
-        options.isCompleteOnTrigger = false;
-        options.showDataSaving();
-        let fail = false;
+      await initSurvey(framework, notifierJson, {
+        onComplete: (_sender, options) => {
+          options.isCompleteOnTrigger = false;
+          options.showDataSaving();
+          let fail = false;
 
-        new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 5000); }).then(
-          () => { options.showDataSavingSuccess(); },
-          () => { options.showDataSavingError(); }
-        );
-      } });
+          new Promise((resolve, reject) => { setTimeout(fail ? reject : resolve, 500); }).then(
+            () => { options.showDataSavingSuccess(); },
+            () => { options.showDataSavingError(); }
+          );
+        }
+      });
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-success.png", Selector(".sv-save-data_root.sv-save-data_success"), t, comparer);
+      await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });
   test("TOC survey navigation", async (t) => {
@@ -804,6 +869,51 @@ frameworks.forEach(framework => {
         showQuestionNumbers: "off",
         width: "1000px",
         pages: [{
+          elements: [
+            {
+              name: "q1",
+              title: "First Name",
+              type: "text"
+            },
+            {
+              name: "q2",
+              title: "Last Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q3",
+              title: "Middle Name",
+              startWithNewLine: false,
+              type: "text"
+            },
+            {
+              name: "q4",
+              title: "Address",
+              type: "comment"
+            }
+          ]
+        }
+        ]
+      };
+      await initSurvey(framework, json);
+      await resetFocusToBody();
+      await ClientFunction(() => {
+        document.body.style.setProperty("--background-dim", "#fff");
+        (<any>window).survey.isCompact = true;
+      })();
+      await takeElementScreenshot("survey-page-without-title-compact.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check survey in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        title: "Lightweight",
+        widthMode: "static",
+        showQuestionNumbers: "off",
+        width: "1000px",
+        pages: [{
           title: "Form Library in Action",
           description: "Form Library is extensible and allows you to change its behavior as your needs require. Take advantage of more than a hundred free demos showing functionality that includes all popular scenarios.",
           elements: [
@@ -842,5 +952,325 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-compact.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
-});
 
+  test("Check survey with panels in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "panel",
+            name: "delivery_details",
+            title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
+            width: "708px",
+            elements: [
+              {
+                type: "radiogroup",
+                name: "delivery_agent",
+                title: "Delivery agent",
+                choices: ["DHL", "Pony Express", "FedEx"]
+              },
+              {
+                type: "boolean",
+                name: "delivery_speed",
+                title: "Do you like to get the order as fast as it possible?"
+              }
+            ]
+          },
+        ]
+      });
+      await resetFocusToBody();
+      await ClientFunction(() => {
+        document.body.style.setProperty("--background-dim", "#f3f3f3");
+        (<any>window).survey.isCompact = true;
+      })();
+      await takeElementScreenshot("survey-with-panel-compact.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("TOC survey navigation mobile", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await ClientFunction(() => {
+        window["Survey"]._setIsTouch(true);
+      })();
+
+      const json = {
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+
+      await takeElementScreenshot("survey-navigation-toc-mobile.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.click(".sv_progress-toc--mobile > div");
+      await takeElementScreenshot("survey-navigation-toc-mobile-popup.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+  test("TOC survey navigation responsive", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+
+      const json = {
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "opSystem",
+                "title": "OS",
+                "hasOther": true,
+                "isRequired": true,
+                "choices": ["Windows", "Linux", "Macintosh OSX"]
+              }
+            ]
+          }, {
+            "title": "What language(s) are you currently using?",
+            "elements": [
+              {
+                "type": "checkbox",
+                "name": "langs",
+                "title": "Please select from the list",
+                "isRequired": true,
+                "choices": [
+                  "Javascript",
+                  "Java",
+                  "Python",
+                  "CSS",
+                  "PHP",
+                  "Ruby",
+                  "C++",
+                  "C",
+                  "Shell",
+                  "C#",
+                ]
+              }
+            ]
+          }, {
+            "title": "Please enter your name and e-mail",
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name:"
+              }, {
+                "type": "text",
+                "name": "email",
+                "title": "Your e-mail"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-left.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(600, 900);
+      await takeElementScreenshot("survey-navigation-toc-mobile.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+  test("TOC survey navigation wide questions fit total width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+
+      const json = {
+        title: "Software developer survey.",
+        showTOC: true,
+        pages: [
+          {
+            "title": "What operating system do you use?",
+            "elements": [
+              {
+                type: "matrixdynamic",
+                name: "teachersRate",
+                title: "Matrix Dynamic",
+                addRowText: "Add Subject",
+                horizontalScroll: true,
+                columnMinWidth: "130px",
+                columnColCount: 1,
+                cellType: "radiogroup",
+                choices: [
+                  {
+                    value: 1,
+                    text: "Yes"
+                  },
+                  {
+                    value: 0,
+                    text: "Sometimes"
+                  },
+                  {
+                    value: -1,
+                    text: "No"
+                  }
+                ],
+                columns: [
+                  {
+                    name: "subject",
+                    cellType: "dropdown",
+                    title: "Select a subject",
+                    isRequired: true,
+                    minWidth: "300px",
+                    choices: [
+                      "English: American Literature",
+                      "English: British and World Literature",
+                      "Math: Consumer Math",
+                      "Math: Practical Math",
+                      "Math: Developmental Algebra",
+                      "Math: Continuing Algebra",
+                      "Math: Pre-Algebra",
+                      "Math: Algebra",
+                      "Math: Geometry",
+                      "Math: Integrated Mathematics",
+                      "Science: Physical Science",
+                      "Science: Earth Science",
+                      "Science: Biology",
+                      "Science: Chemistry",
+                      "History: World History",
+                      "History: Modern World Studies",
+                      "History: U.S. History",
+                      "History: Modern U.S. History",
+                      "Social Sciences: U.S. Government and Politics",
+                      "Social Sciences: U.S. and Global Economics",
+                      "World Languages: Spanish",
+                      "World Languages: French",
+                      "World Languages: German",
+                      "World Languages: Latin",
+                      "World Languages: Chinese",
+                      "World Languages: Japanese"
+                    ]
+                  },
+                  {
+                    name: "explains",
+                    title: "Clearly explains the objectives"
+                  },
+                  {
+                    name: "interesting",
+                    title: "Makes class interesting"
+                  },
+                  {
+                    name: "effective",
+                    title: "Uses class time effectively"
+                  },
+                  {
+                    name: "knowledge",
+                    title: "Knows the subject matter"
+                  },
+                  {
+                    name: "recognition",
+                    title: "Recognizes and acknowledges effort"
+                  },
+                  {
+                    name: "inform",
+                    title: "Keeps me informed of my progress"
+                  },
+                  {
+                    name: "opinion",
+                    title: "Encourages and accepts different opinions"
+                  },
+                  {
+                    name: "respect",
+                    title: "Has the respect of the student"
+                  },
+                  {
+                    name: "cooperation",
+                    title: "Encourages cooperation and participation"
+                  },
+                  {
+                    name: "parents",
+                    title: "Communicates with my parents"
+                  },
+                  {
+                    name: "selfthinking",
+                    title: "Encourages me to think for myself"
+                  },
+                  {
+                    name: "frusturation",
+                    cellType: "comment",
+                    title: "Is there anything about this class that frustrates you?",
+                    minWidth: "250px"
+                  },
+                  {
+                    name: "likeTheBest",
+                    cellType: "comment",
+                    title: "What do you like best about this class and/or teacher?",
+                    minWidth: "250px"
+                  },
+                  {
+                    name: "improvements",
+                    cellType: "comment",
+                    title:
+                      "What do you wish this teacher would do differently that would improve this class?",
+                    minWidth: "250px"
+                  }
+                ],
+                rowCount: 2
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-navigation-toc-matrix-fit-width.png", Selector(".sv-components-row"), t, comparer);
+
+      await t.resizeWindow(1920, 1080);
+    });
+  });
+});

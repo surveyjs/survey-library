@@ -7,7 +7,7 @@ import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";
 
 /**
- * A class that describes the Radiogroup question type.
+ * A class that describes the Radio Button Group question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-radiogroup/ (linkStyle))
  */
@@ -22,12 +22,6 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return "radiogroup";
   }
 
-  public get ariaRole(): string {
-    return "radiogroup";
-  }
-  public get titleAriaLabel(): string | null {
-    return null;
-  }
   protected getFirstInputElementId(): string {
     return this.inputId + "_0";
   }
@@ -52,8 +46,13 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
   public get clearButtonCaption() {
     return this.getLocalizationString("clearCaption");
   }
-  supportGoNextPageAutomatic() {
-    return true;
+  supportGoNextPageAutomatic(): boolean {
+    return this.isMouseDown === true;
+  }
+  protected setNewComment(newValue: string): void {
+    this.isMouseDown = true;
+    super.setNewComment(newValue);
+    this.isMouseDown = false;
   }
   public get showClearButtonInContent(): boolean {
     return !this.isDefaultV2Theme && this.canShowClearButton;
@@ -78,6 +77,15 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     }
     return actions;
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "radiogroup";
+  }
+  // EO a11y
 }
 
 Serializer.addClass(

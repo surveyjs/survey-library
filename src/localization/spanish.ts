@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var spanishSurveyStrings = {
@@ -15,6 +13,7 @@ export var spanishSurveyStrings = {
   progressText: "Página {0} de {1}",
   indexText: "{0} de {1}",
   panelDynamicProgressText: "Registro {0} de {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Respondió a {0}/{1} preguntas",
   emptySurvey: "No hay página visible o pregunta en la encuesta.",
   completingSurvey: "¡Gracias por completar la encuesta!",
@@ -76,6 +75,10 @@ export var spanishSurveyStrings = {
   clearCaption: "Despejen",
   signaturePlaceHolder: "Firma aqui",
   chooseFileCaption: "Elija el archivo",
+  takePhotoCaption: "Tomar foto",
+  cameraPlaceHolder: "Haga clic en el botón de abajo para tomar una foto con la cámara.",
+  fileCameraDragAreaPlaceHolder: "Arrastre y suelte o seleccione un archivo para cargar o tomar una foto con la cámara.",
+  replaceFileCaption: "Reemplazar archivo",
   removeFileCaption: "Elimina este archivo",
   booleanCheckedLabel: "Sí",
   booleanUncheckedLabel: "No",
@@ -85,10 +88,27 @@ export var spanishSurveyStrings = {
   modalCancelButtonText: "Anular",
   modalApplyButtonText: "Aplicar",
   filterStringPlaceholder: "Escribe para buscar...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "No hay datos para mostrar",
   noEntriesText: "Aún no hay entradas.\nHaga clic en el botón de abajo para agregar una nueva entrada.",
-  // more: "More"
+  noEntriesReadonlyText: "No hay entradas.",
+  more: "Más",
+  tagboxDoneButtonCaption: "De acuerdo",
+  selectToRankEmptyRankedAreaText: "Todas las opciones están clasificadas",
+  selectToRankEmptyUnrankedAreaText: "Arrastra y suelta opciones aquí para clasificarlas"
 };
 
 surveyLocalization.locales["es"] = spanishSurveyStrings;
 surveyLocalization.localeNames["es"] = "español";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// emptyMessage: "No data to display" => "No hay datos para mostrar"
+// noEntriesReadonlyText: "There are no entries." => "No hay entradas."
+// more: "More" => "Más"
+// tagboxDoneButtonCaption: "OK" => "De acuerdo"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Todas las opciones están clasificadas"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastra y suelta opciones aquí para clasificarlas"// takePhotoCaption: "Take Photo" => "Tomar foto"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Haga clic en el botón de abajo para tomar una foto con la cámara."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastre y suelte o seleccione un archivo para cargar o tomar una foto con la cámara."
+// replaceFileCaption: "Replace file" => "Reemplazar archivo"

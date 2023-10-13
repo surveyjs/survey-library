@@ -1,18 +1,22 @@
 .sd-progress-buttons__image-button-left {
   display: none;
 }
+
 .sd-progress-buttons__image-button-right {
   display: none;
 }
+
 .sd-progress-buttons__image-button--hidden {
   visibility: hidden;
 }
+
 .sd-progress-buttons__list {
   display: flex;
   list-style-type: none;
   margin: 0;
   padding: 0;
 }
+
 .sd-progress-buttons__list li {
   text-align: center;
   flex-grow: 1;
@@ -21,12 +25,14 @@
   padding-top: calcSize(2);
   padding-bottom: calcSize(4);
   cursor: pointer;
+
   &:hover {
     .sd-progress-buttons__page-title {
       text-decoration-line: underline;
     }
   }
 }
+
 .sd-progress-buttons__list .sd-progress-buttons__list-element--current,
 .sd-progress-buttons__list .sd-progress-buttons__list-element--passed {
   border-top: 2px solid $primary;
@@ -39,21 +45,24 @@
 }
 
 .sd-progress-buttons__list-element--current {
+
   .sd-progress-buttons__page-title,
   .sd-progress-buttons__page-description {
     color: $primary;
   }
 }
+
 .sd-progress-buttons__page-title {
   width: 100%;
   font-size: calcFontSize(1);
   font-weight: 600;
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
+
 .sd-progress-buttons__page-description {
   width: 100%;
   font-size: calcFontSize(0.75);
-  line-height: calcSize(2);
+  line-height: calcLineHeight(1);
   font-weight: 600;
   color: $foreground-light;
 }

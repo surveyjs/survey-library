@@ -1,5 +1,5 @@
 import React from "react";
-import { QuestionRatingModel, RenderedRatingItem } from "survey-core";
+import { Base, QuestionRatingModel, RenderedRatingItem } from "survey-core";
 import { ReactElementFactory } from "../../element-factory";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { attachKey2click } from "../../reactSurvey";
@@ -12,8 +12,11 @@ export interface IRatingItemProps {
   handleOnClick: any;
   isDisplayMode: boolean;
 }
-
-export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {
+export class RatingItemBase extends SurveyElementBase<IRatingItemProps, any> {
+  constructor(props: any) {
+    super(props);
+    this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
+  }
   get question(): QuestionRatingModel {
     return this.props.question;
   }
@@ -23,13 +26,18 @@ export class RatingItem extends SurveyElementBase<IRatingItemProps, any> {
   get index(): any {
     return this.props.index;
   }
-  getStateElement() {
+  getStateElement(): Base {
     return this.item;
   }
+  handleOnMouseDown(event: any) {
+    this.question.onMouseDown();
+  }
+}
+export class RatingItem extends RatingItemBase {
   render(): JSX.Element | null {
     var itemText = this.renderLocString(this.item.locText);
     return (
-      <label className={this.question.getItemClassByText(this.item.itemValue, this.item.text)}>
+      <label onMouseDown={this.handleOnMouseDown} className={this.question.getItemClassByText(this.item.itemValue, this.item.text)}>
         <input
           type="radio"
           className="sv-visuallyhidden"

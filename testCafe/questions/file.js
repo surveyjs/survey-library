@@ -1,4 +1,4 @@
-import { frameworks, url, setOptions, initSurvey, getSurveyResult } from "../helper";
+import { frameworks, url, setOptions, initSurvey, getSurveyResult, url_test } from "../helper";
 import { ClientFunction, fixture, Selector, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -50,7 +50,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await ClientFunction(() => {
-      document.querySelector("label[aria-label=\"Choose file\"]").click = () => { window.chooseFileClickedTest = "yes"; };
+      document.querySelector("label[aria-label=\"Select File\"]").click = () => { window.chooseFileClickedTest = "yes"; };
     })();
     await t.pressKey("tab");
     await t.pressKey("enter");
@@ -80,7 +80,7 @@ frameworks.forEach(framework => {
     assert.equal(surveyResult.image[1].name, "small_Dashka.jpg");
   });
   test("check clean button", async t => {
-    await ClientFunction(()=>{
+    await ClientFunction(() => {
       window.survey.getAllQuestions()[0].needConfirmRemoveFile = false;
     })();
     await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
@@ -162,26 +162,34 @@ frameworks.forEach(framework => {
       "input[type=file]",
       "../resources/small_Dashka.jpg"
     );
-    await t
-      .setNativeDialogHandler(() => {
-        return false;
-      })
-      .click(".sv_q_file_remove");
-    await t
-      .setNativeDialogHandler(() => {
-        return false;
-      })
-      .click(".sv_q_file_remove_button");
-    const history = await t.getNativeDialogHistory();
-    await t
-      .expect(history[1].type)
-      .eql("confirm")
-      .expect(history[1].text)
-      .eql("Are you sure that you want to remove this file: small_Dashka.jpg?")
-      .expect(history[0].type)
-      .eql("confirm")
-      .expect(history[0].text)
-      .eql("Are you sure that you want to remove all files?");
+
+    const getFileName = ClientFunction(() => window["survey"].getAllQuestions()[0].value[0].name);
+    const checkValue = ClientFunction(() => window["survey"].getAllQuestions()[0].value.length === 0);
+    await t.click(".sv_q_file_remove_button").click(".sv-popup--confirm-delete .sd-btn");
+    assert.equal(await getFileName(), "small_Dashka.jpg");
+    await t.click(".sv_q_file_remove_button").click(".sv-popup--confirm-delete .sd-btn--danger");
+    assert.equal(await checkValue(), true);
+
+    // await t
+    //   .setNativeDialogHandler(() => {
+    //     return false;
+    //   })
+    //   .click(".sv_q_file_remove");
+    // await t
+    //   .setNativeDialogHandler(() => {
+    //     return false;
+    //   })
+    //   .click(".sv_q_file_remove_button");
+    // const history = await t.getNativeDialogHistory();
+    // await t
+    //   .expect(history[1].type)
+    //   .eql("confirm")
+    //   .expect(history[1].text)
+    //   .eql("Are you sure that you want to remove this file: small_Dashka.jpg?")
+    //   .expect(history[0].type)
+    //   .eql("confirm")
+    //   .expect(history[0].text)
+    //   .eql("Are you sure that you want to remove all files?");
   });
   // TODO testcafe waiting forever...
   // test(`change file max size`, async t => {
@@ -209,4 +217,39 @@ frameworks.forEach(framework => {
   //     surveyResult = await getSurveyResult();
   //     assert(surveyResult.image.indexOf('image/jpeg') !== -1);
   // });
+});
+
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url_test}defaultV2/${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, {
+        elements: [
+          {
+            type: "file",
+            title: "Please upload your photo",
+            name: "image",
+            storeDataAsText: true,
+            allowMultiple: true,
+          }
+        ]
+      });
+    }
+  );
+
+  test("Check file navigator appear on smaller screen", async t => {
+    await t.resizeWindow(1920, 1080);
+    const fileNavigatorSelector = Selector(".sd-file .sv-action-bar");
+    await t
+      .setFilesToUpload("input[type=file]", "../resources/stub.txt")
+      .setFilesToUpload("input[type=file]", "../resources/small_Dashka.jpg")
+      .setFilesToUpload("input[type=file]", "../resources/big_Dashka.jpg")
+      .expect(fileNavigatorSelector.exists)
+      .notOk()
+      .resizeWindow(620, 1080)
+      .expect(fileNavigatorSelector.exists)
+      .ok()
+      .expect(fileNavigatorSelector.find(".sv-action-bar-item__title").withText("1 of 2").exists).ok()
+      .resizeWindow(1920, 1080)
+      .expect(fileNavigatorSelector.exists).notOk();
+  });
 });

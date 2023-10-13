@@ -3,15 +3,48 @@
 //import "../../modern.scss";
 
 export var Version: string;
+export var ReleaseDate: string;
 Version = `${process.env.VERSION}`;
+ReleaseDate = `${process.env.RELEASE_DATE}`;
 
 export function checkLibraryVersion(ver: string, libraryName: string): void {
-  if(Version != ver) {
+  if (Version != ver) {
     const str = "survey-core has version '" + Version + "' and " + libraryName
       + " has version '" + ver + "'. SurveyJS libraries should have the same versions to work correctly.";
     /* eslint no-console: ["error", { allow: ["error"] }] */
     console.error(str);
   }
+}
+export function setLicenseKey(key: string): void {
+  slk(key, lic, ReleaseDate);
+}
+export function hasLicense(index: number): boolean {
+  return lic[index.toString()] === true;
+}
+const lic: any = {};
+function slk(k: any, lh: any, rd: any) {
+  if (!k) return;
+  const en = (s: string) => {
+    var e: any = {}, i, b = 0, c, x, l = 0, a, r = "", w = String.fromCharCode, L = s.length;
+    var A = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+    for (i = 0; i < 64; i++) { e[A.charAt(i)] = i; }
+    for (x = 0; x < L; x++) {
+      let c = e[s.charAt(x)]; b = (b << 6) + c; l += 6;
+      while (l >= 8) { ((a = (b >>> (l -= 8)) & 0xff) || (x < (L - 2))) && (r += w(a)); }
+    }
+    return r;
+  };
+  let v = en(k);
+  if (!v) return;
+  let index = v.indexOf(";");
+  if (index < 0) return;
+  v = v.substring(index + 1);
+  v.split(",").forEach(s => {
+    let i = s.indexOf("=");
+    if (i > 0) {
+      lh[s.substring(0, i)] = new Date(rd) <= new Date(s.substring(i + 1));
+    }
+  });
 }
 
 export { settings, ISurveyEnvironment } from "../../settings";
@@ -39,6 +72,7 @@ export {
   ISurveyData,
   ITitleOwner,
   ISurveyLayoutElement,
+  IPlainDataOptions as IPlainData,
   IShortcutText
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
@@ -112,6 +146,10 @@ export {
 export { QuestionMatrixBaseModel } from "../../martixBase";
 export {
   MultipleTextItemModel,
+  MultipleTextCell,
+  MultipleTextErrorCell,
+  MutlipleTextErrorRow,
+  MutlipleTextRow,
   QuestionMultipleTextModel,
   MultipleTextEditorModel
 } from "../../question_multipletext";
@@ -158,6 +196,7 @@ export { SurveyProgressModel } from "../../surveyProgress";
 export { SurveyProgressButtonsModel } from "../../surveyProgressButtons";
 export * from "../../themes";
 export { SurveyModel } from "../../survey";
+export * from "../../survey-events-api";
 export {
   SurveyTrigger,
   SurveyTriggerComplete,
@@ -165,11 +204,13 @@ export {
   SurveyTriggerVisible,
   SurveyTriggerCopyValue,
   SurveyTriggerRunExpression,
+  SurveyTriggerSkip,
   Trigger
 } from "../../trigger";
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
 export { Notifier } from "../../notifier";
+export { Cover, CoverCell } from "../../cover";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";
@@ -205,6 +246,7 @@ export {
 export { IsMobile, IsTouch, _setIsTouch } from "../../utils/devices";
 export {
   confirmAction,
+  confirmActionAsync,
   detectIEOrEdge,
   doKey2ClickUp,
   doKey2ClickDown,
@@ -223,3 +265,4 @@ export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/de
 
 export { DragDropCore } from "../../dragdrop/core";
 export { DragDropChoices } from "../../dragdrop/choices";
+export { DragDropRankingSelectToRank } from "../../dragdrop/ranking-select-to-rank";

@@ -19,10 +19,10 @@ frameworks.forEach((framework) => {
       const container: HTMLDivElement = document.getElementById("surveyElement") as HTMLDivElement;
       container.style.height = "500px";
       container.style.overflow = "auto";
-      window["Survey"].settings.lazyRowsRendering = true;
+      window["Survey"].settings.lazyRender.enabled = true;
     });
     const disableLR = ClientFunction(() => {
-      window["Survey"].settings.lazyRowsRendering = false;
+      window["Survey"].settings.lazyRender.enabled = false;
     });
 
     await enableLR();

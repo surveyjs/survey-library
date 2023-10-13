@@ -90,7 +90,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json);
     }
@@ -161,7 +161,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
     }
@@ -188,7 +188,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Remaining character counter", async (t) => {
     const characterCounter = Selector(".sv-remaining-character-counter");
@@ -218,5 +218,27 @@ frameworks.forEach((framework) => {
       .pressKey("backspace")
       .pressKey("backspace")
       .expect(characterCounter.textContent).eql("0/10");
+  });
+  test("Allow Space As Answer", async (t) => {
+    await initSurvey(framework, {
+      questions: [
+        {
+          name: "name",
+          type: "text",
+          maxLength: 10,
+        }]
+    });
+    await ClientFunction(() => {
+      window.survey.getQuestionByName("name").allowSpaceAsAnswer = true;
+    })();
+
+    await t
+      .pressKey("space")
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult).eql({
+      name: " ",
+    });
   });
 });

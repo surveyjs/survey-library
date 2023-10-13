@@ -2,55 +2,57 @@
   <div :class="survey.getRootCss()"
     :style="vueSurvey.themeVariables"
     >
-    <form onsubmit="return false;"
-    :style="{ backgroundColor: vueSurvey.renderBackgroundOpacity }"
-    >
-      <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
-      <div :class="css.container">
-        <survey-header :survey="vueSurvey" />
-        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'header'"></component>
-        <template
-          v-if="vueSurvey.isShowingPage"
-        >
-          <div :class="vueSurvey.bodyContainerCss">
-            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'left'"></component>
-            <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
-              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentTop'"></component>
-              <survey-page
-                :key="pageKey"
-                :survey="vueSurvey"
-                :page="vueSurvey.activePage"
-                :css="css"
-              />
-              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentBottom'"></component>
+    <div :class="vueSurvey.wrapperFormCss">
+      <div v-if="vueSurvey.renderBackgroundImage" :class="css.rootBackgroundImage" :style="vueSurvey.backgroundImageStyle"></div>
+      <form onsubmit="return false;">
+        <div v-if="!vueSurvey.hasLogo" class="sv_custom_header"></div>
+        <div :class="css.container">
+          <survey-header v-if="vueSurvey.headerView === 'basic'" :survey="vueSurvey" />
+          <component :is="'sv-components-container'" :survey="vueSurvey" :container="'header'"></component>
+          <template
+            v-if="vueSurvey.isShowingPage"
+          >
+            <div :class="vueSurvey.bodyContainerCss">
+              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'left'"></component>
+              <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
+                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentTop'"></component>
+                <survey-page
+                  :key="pageKey"
+                  :survey="vueSurvey"
+                  :page="vueSurvey.activePage"
+                  :css="css"
+                />
+                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentBottom'"></component>
+              </div>
+              <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
             </div>
-            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
+          </template>
+          <component :is="'sv-components-container'" :survey="vueSurvey" :container="'footer'"></component>
+          <div v-if="hasCompletedPage">
+            <div
+              v-html="getProcessedCompletedHtml()"
+              :class="vueSurvey.completedCss"
+            ></div>
+            <component :is="'sv-components-container'" :survey="vueSurvey" :container="'completePage'"></component>
           </div>
-        </template>
-        <component :is="'sv-components-container'" :survey="vueSurvey" :container="'footer'"></component>
-        <div v-if="hasCompletedPage">
           <div
-            v-html="getProcessedCompletedHtml()"
-            :class="vueSurvey.completedCss"
+            v-if="vueSurvey.state === 'completedbefore'"
+            :class="vueSurvey.completedBeforeCss"
+            v-html="vueSurvey.processedCompletedBeforeHtml"
           ></div>
+          <div
+            v-if="vueSurvey.state === 'loading'"
+            :class="vueSurvey.loadingBodyCss"
+            v-html="vueSurvey.processedLoadingHtml"
+          ></div>
+          <div v-if="vueSurvey.state === 'empty'" :class="css.bodyEmpty">
+            {{ vueSurvey.emptySurveyText }}
+          </div>
         </div>
-        <div
-          v-if="vueSurvey.state === 'completedbefore'"
-          :class="css.body"
-          v-html="vueSurvey.processedCompletedBeforeHtml"
-        ></div>
-        <div
-          v-if="vueSurvey.state === 'loading'"
-          :class="css.body"
-          v-html="vueSurvey.processedLoadingHtml"
-        ></div>
-        <div v-if="vueSurvey.state === 'empty'" :class="css.bodyEmpty">
-          {{ vueSurvey.emptySurveyText }}
-        </div>
-      </div>
-    </form>
-    <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
-    <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
+      </form>
+      <sv-brand-info v-if="vueSurvey.showBrandInfo"></sv-brand-info>
+      <sv-notifier :model="vueSurvey.notifier"></sv-notifier>
+    </div>
   </div>
 </template>
 

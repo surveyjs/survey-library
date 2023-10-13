@@ -12,6 +12,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   click = (event: any) => {
     this.question.dropdownListModel?.onClick(event);
   };
+  chevronPointerDown = (event: any) => {
+    this.question.dropdownListModel?.chevronPointerDown(event);
+  };
   clear = (event: any) => {
     this.question.dropdownListModel?.onClear(event);
   };
@@ -55,8 +58,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     }
 
     return (
-      <div className={cssClasses.selectWrapper}>
+      <div className={cssClasses.selectWrapper} onClick={this.click}>
         {selectElement}
+        {this.createChevronButton()}
       </div>
     );
   }
@@ -83,7 +87,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       id={this.question.inputId}
       className={this.question.getControlClass()}
       tabIndex={dropdownListModel.inputReadOnly ? undefined : 0}
-      onClick={this.click}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       disabled={this.question.isInputReadOnly}
@@ -115,7 +118,6 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           ref={(element) => (this.inputElement = element)}
           className={this.question.cssClasses.filterStringInput}
           role={dropdownListModel.filterStringEnabled ? this.question.ariaRole : undefined}
-          aria-label={this.question.placeholder}
           aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
           aria-controls={dropdownListModel.listElementId}
           aria-activedescendant={dropdownListModel.ariaActivedescendant}
@@ -136,7 +138,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   createClearButton(): JSX.Element | null {
     if (!this.question.allowClear || !this.question.cssClasses.cleanButtonIconId) return null;
 
-    const style = { display: this.question.isEmpty() ? "none" : "" };
+    const style = { display: !this.question.showClearButton ? "none" : "" };
     return (
       <div
         className={this.question.cssClasses.cleanButton}
@@ -147,6 +149,21 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           className={this.question.cssClasses.cleanButtonSvg}
           iconName={this.question.cssClasses.cleanButtonIconId}
           title={this.question.clearCaption}
+          size={"auto"}
+        ></SvgIcon>
+      </div>
+    );
+  }
+
+  createChevronButton(): JSX.Element | null {
+    if (!this.question.cssClasses.chevronButtonIconId) return null;
+
+    return (
+      <div className={this.question.cssClasses.chevronButton}
+        onPointerDown={this.chevronPointerDown}>
+        <SvgIcon
+          className={this.question.cssClasses.chevronButtonSvg}
+          iconName={this.question.cssClasses.chevronButtonIconId}
           size={"auto"}
         ></SvgIcon>
       </div>
@@ -179,7 +196,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.question.dropdownListModel.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.question.dropdownListModel.inputStringRendered;
       }
     }

@@ -4,16 +4,17 @@ const title = "dropdown";
 
 const questionDropdownSelect = Selector(".sv_q_dropdown_control");
 const listItems = Selector(".sv-list__item span");
+const questionValue = Selector(".sv_q_dropdown__value");
 const questionValueInput = Selector(".sv_q_dropdown__value input");
 const questionValueText = Selector(".sv_q_dropdown__value .sv-string-viewer");
 const questionValueHint = Selector(".sv_q_dropdown__hint-suffix");
 
 const clearButton = Selector(".sv_q_dropdown_clean-button");
 
-const questionOffsetTopConst = 184;
+const questionOffsetTopConst = 176;
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       const json = {
         questions: [
@@ -240,7 +241,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`;
+  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("open popup and blur", async (t) => {
     const json = {
@@ -754,7 +755,17 @@ frameworks.forEach((framework) => {
       .pressKey("u")
       .pressKey("tab")
       .expect(popupContainer.visible).notOk()
-      .expect(questionValueText.textContent).eql("Vauxhall");
+      .expect(questionValue.innerText).eql("")
+
+      .click(questionDropdownSelect)
+      .click(getListItemByText("Nissan"))
+      .expect(questionValueInput.value).eql("Nissan")
+
+      .pressKey("ctrl+a backspace")
+      .pressKey("a u")
+      .pressKey("tab")
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValue.innerText).eql("Nissan");
   });
 
   test("Check dropdown key press without searchEnabled", async (t) => {
@@ -1264,7 +1275,7 @@ frameworks.forEach((framework) => {
   });
 
   const theme = "defaultV2";
-  test.page(`${url_test}${theme}/${framework}.html`)("Check rating as dropdown", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check rating as dropdown", async (t) => {
     await applyTheme(theme);
 
     const jsonWithDropDown = {
@@ -1280,18 +1291,20 @@ frameworks.forEach((framework) => {
     };
     const ratingAsDropdownPlaceHolder = "Select...";
     const ratingAsDropdown = Selector(".sd-dropdown .sd-dropdown__value");
-    const ratingAsDropdownText = ratingAsDropdown.find("input");
+    const ratingAsDropdownPlaceholder = ratingAsDropdown.find("input");
+    const ratingAsDropdownText = ratingAsDropdown.find(".sv-string-viewer");
     await initSurvey(framework, jsonWithDropDown);
 
     await t
       .click(ratingAsDropdown)
       .click(getListItemByText("2"))
-      .expect(ratingAsDropdownText.getAttribute("placeholder")).eql("2")
+      .expect(ratingAsDropdownPlaceholder.getAttribute("placeholder")).eql("")
+      .expect(ratingAsDropdownText.withText("2").visible).ok()
 
       .pressKey("delete")
-      .expect(ratingAsDropdownText.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
+      .expect(ratingAsDropdownPlaceholder.getAttribute("placeholder")).eql(ratingAsDropdownPlaceHolder);
   });
-  test.page(`${url_test}${theme}/${framework}.html`)("Check dropdown popup width", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup width - long", async (t) => {
     await applyTheme(theme);
     const json = {
       "elements": [
@@ -1326,7 +1339,7 @@ frameworks.forEach((framework) => {
 
       .resizeWindow(1300, 600)
       .click(questionDropdownV2Select)
-      .expect(popupContainer.clientWidth).gte(850);
+      .expect(popupContainer.clientWidth).lte(685);
   });
 
   function choicesLazyLoad(_, opt) {
@@ -1348,7 +1361,7 @@ frameworks.forEach((framework) => {
     }, 500);
   }
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height with lazy loading", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -1402,7 +1415,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown1.offsetTop).lt(200)
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(dropdown1.find(".sv-list").scrollTop).within(560, 570)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(550, 560)
       .expect(dropdown1.find(".sv-list").scrollHeight).within(2400, 2500)
       .expect(listItems.filterVisible().count).eql(51)
 
@@ -1423,7 +1436,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(dropdown2.find(".sv-list").scrollTop).eql(0)
       .expect(dropdown2.find(".sv-list").scrollHeight).within(1350, 1500)
       .expect(listItems.filterVisible().count).eql(31)
@@ -1432,7 +1445,7 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 720)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
       .expect(dropdown2.find(".sv-list").scrollTop).within(750, 850)
       .expect(dropdown2.find(".sv-list").scrollHeight).within(2600, 2650)
       .expect(listItems.filterVisible().count).eql(55)
@@ -1441,7 +1454,7 @@ frameworks.forEach((framework) => {
       .resizeWindow(1280, 1100);
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("Check popup height and position while searching", async (t) => {
+  test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
       questions: [
@@ -1555,13 +1568,13 @@ frameworks.forEach((framework) => {
       .expect(dropdown2.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown2.offsetTop).within(230, 240)
+      .expect(dropdown2.offsetTop).within(220, 230)
       .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(470, 480)
 
       .pressKey("3")
       .expect(listItems.filterVisible().count).eql(1)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown2.offsetTop).eql(776)
+      .expect(dropdown2.offsetTop).eql(768)
       .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
 
       .pressKey("enter")
@@ -1601,7 +1614,253 @@ frameworks.forEach((framework) => {
       .expect(listSelector.exists).ok();
   });
 
-  test.page(`${url_test}${theme}/${framework}.html`)("choicesFromQuestion, bug#5818", async (t) => {
+  test("Check dropdown popup close with mouse, bug #5860", async (t) => {
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          defaultValue: "item1",
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const input = Selector(".sv_q_dropdown_control input").filterVisible();
+    const str = Selector(".sv_q_dropdown_control .sv-string-viewer");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .pressKey("enter")
+      .expect(popupContainer.visible).ok()
+      .expect(input.value).eql("item1")
+      .expect(str.visible).notOk()
+      .pressKey("tab")
+      .expect(str.visible).ok()
+      .expect(str.textContent).eql("item1")
+      .click(input)
+      .expect(input.value).eql("item1")
+      .pressKey("q")
+      .expect(input.value).eql("item1q")
+      .expect(str.visible).notOk();
+  });
+
+  test("Check dropdown close popup on selected item click", async (t) => {
+    const jsonWithDropdown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "Dropdown",
+          defaultValue: "item2",
+          choices: [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropdown);
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const listItems = Selector(".sv-list__item");
+    const selectedItem = Selector(".sv-list__item--selected");
+
+    await t
+      .expect(popupContainer.visible).notOk()
+      .click(questionDropdownSelect)
+      .expect(popupContainer.visible).ok()
+      .expect(questionValueInput.value).eql("item2")
+      .expect(selectedItem.exists).ok()
+      .click(selectedItem)
+      .expect(popupContainer.visible).notOk()
+      .expect(questionValueInput.value).eql("item2");
+  });
+
+  test("Recalculate popup position after window resize", async t => {
+    const json = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          isRequired: true,
+          hasNone: true,
+          colCount: 4,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        },
+        {
+          type: "dropdown",
+          name: "q1",
+          hasOther: "true",
+          startWithNewLine: false,
+          choices: [
+            "item1",
+            "item2",
+            "item3",
+            "item4",
+            "item5",
+            "item6",
+            "item7",
+            "item8",
+            "item9",
+            "item10",
+            "item11",
+            "item12",
+            "item13",
+            "item14",
+            "item15",
+            "item16",
+            "item17",
+            "item18",
+            "item19",
+            "item20",
+            "item21",
+            "item22",
+            "item23",
+            "item24",
+            "item25",
+            "item26",
+            "item27"
+          ]
+        }
+      ]
+    };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await initSurvey(framework, json);
+
+    await t
+      .resizeWindow(900, 600)
+      .expect(popupContainer.visible).notOk()
+      .click(questionDropdownSelect.nth(1))
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetTop).within(85, 95)
+      .expect(popupContainer.offsetLeft).within(460, 470)
+      .expect(popupContainer.offsetHeight).within(490, 500)
+      .expect(popupContainer.offsetWidth).within(395, 400)
+
+      .resizeWindow(1280, 1100)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetTop).within(85, 95)
+      .expect(popupContainer.offsetLeft).within(650, 660)
+      .expect(popupContainer.offsetHeight).within(985, 990)
+      .expect(popupContainer.offsetWidth).within(585, 595)
+
+      .resizeWindow(900, 600)
+      .expect(popupContainer.visible).ok()
+      .expect(popupContainer.offsetTop).within(85, 95)
+      .expect(popupContainer.offsetLeft).within(460, 470)
+      .expect(popupContainer.offsetHeight).within(490, 540)
+      .expect(popupContainer.offsetWidth).within(395, 440);
+  });
+
+  test("check dropdown after navigating between pages", async t => {
+    const json = {
+      "focusFirstQuestionAutomatic": false,
+      "pages": [
+        {
+          "name": "page1",
+          "elements": [
+            {
+              "type": "dropdown",
+              "name": "question1",
+              "choices": [
+                1,
+                2,
+                3,
+                4,
+                5
+              ]
+            }
+          ]
+        },
+        {
+          "name": "page2",
+          "elements": [
+            {
+              "type": "dropdown",
+              "name": "question3",
+              "choices": [
+                "Item 1",
+                "Item 2",
+                "Item 3"
+              ]
+            }
+          ]
+        }
+      ],
+      "showCompletedPage": false,
+      "showQuestionNumbers": "off",
+      "showProgressBar": "top",
+      "checkErrorsMode": "onComplete"
+    };
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await initSurvey(framework, json);
+
+    await t
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionDropdownSelect)
+      .expect(popupContainer.exists).ok()
+
+      .click(getListItemByText("3"))
+      .expect(popupContainer.exists).notOk()
+
+      .click(".sv_next_btn")
+      .click(".sv_prev_btn")
+      .expect(popupContainer.exists).notOk()
+
+      .click(questionDropdownSelect)
+      .expect(popupContainer.exists).ok()
+      .pressKey("tab")
+      .expect(questionValueText.textContent).eql("3")
+      .expect(questionValueInput.getAttribute("placeholder")).eql("")
+
+      .click(".sv_q_dropdown_clean-button")
+      .expect(questionValueText.exists).notEql()
+      .expect(questionValueInput.getAttribute("placeholder")).eql("Select...");
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("choicesFromQuestion, bug#5818", async (t) => {
     await applyTheme(theme);
 
     const json = {
@@ -1645,5 +1904,132 @@ frameworks.forEach((framework) => {
       .click(getListItemByText("Ford"))
       .click(questionDropdownV2Select)
       .click(getListItemByText("Audi"));
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          searchEnabled: false,
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .expect(dropdownWidth).gt(550)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Check dropdown popup opens after beak click - search enabled", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      questions: [
+        {
+          type: "dropdown",
+          name: "cars",
+          title: "Dropdown",
+          choices: [
+            "Ford",
+            "Vauxhall",
+            "Volkswagen",
+            "Nissan",
+            "Audi",
+            "Mercedes-Benz",
+            "BMW",
+            "Peugeot",
+            "Toyota",
+            "Citroen"
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const dropdownWidth = await questionDropdownV2Select.getBoundingClientRectProperty("width");
+    await t
+      .expect(dropdownWidth).gt(550)
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).notOk()
+
+      .click(questionDropdownV2Select, { offsetX: dropdownWidth - 20, offsetY: 20 })
+      .expect(popupContainer.visible).ok()
+
+      .click("body", { offsetX: 600, offsetY: 20 })
+      .expect(popupContainer.visible).notOk();
+  });
+
+  test.page(`${url_test}${theme}/${framework}`)("Dropdown shold not be open when disabled", async (t) => {
+    await t.resizeWindow(800, 600);
+    const jsonWithDropDown = {
+      pages: [
+        {
+          name: "page1",
+          elements: [
+            {
+              type: "boolean",
+              name: "Editable",
+              defaultValueExpression: "false"
+            },
+            {
+              type: "dropdown",
+              name: "Dropdown",
+              enableIf: "{Editable} = true",
+              choices: ["Item 1", "Item 2", "Item 3"]
+            }
+          ]
+        }
+      ]
+    };
+    await initSurvey(framework, jsonWithDropDown);
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    await t
+
+      .click(questionDropdownV2Select)
+      .expect(popupContainer.visible).notOk()
+
+      .click(Selector(".sd-boolean__label").withText("Yes"))
+      .expect(Selector(".sd-boolean__thumb-text").withText("Yes").visible).ok()
+      .expect(popupContainer.visible).notOk();
   });
 });

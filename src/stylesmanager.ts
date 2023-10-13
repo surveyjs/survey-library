@@ -282,6 +282,7 @@ export class StylesManager {
     return themeMapper;
   }
   static getIncludedThemeCss(): Array<any> {
+    if (typeof settings.environment === "undefined") return [];
     const { rootElement }: ISurveyEnvironment = settings.environment;
     const themeMapper = StylesManager.getAvailableThemes();
 
@@ -324,6 +325,7 @@ export class StylesManager {
   }
 
   public static applyTheme(themeName: string = "default", themeSelector?: string): void {
+    if (typeof settings.environment === "undefined") return;
     const { rootElement }: ISurveyEnvironment = settings.environment;
     const element = isShadowDOM(rootElement) ? rootElement.host : rootElement;
     surveyCss.currentType = themeName;

@@ -69,13 +69,21 @@ var json = {
           innerIndent: 1,
           name: "panel1",
         },
+        {
+          type: "panel",
+          name: "panel2",
+          state: "collapsed",
+          elements: [
+            { type: "text", name: "q1" }
+          ]
+        }
       ],
     },
   ],
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json);
     }
@@ -119,6 +127,14 @@ frameworks.forEach((framework) => {
     await t.click(panelTitle);
     assert.equal(await contentItem.visible, false);
   });
+  test("expand collapse title by name", async (t) => {
+    const panelTitle = Selector("h4").withText("panel2");
+    const contentItem = Selector("[data-name='q1']");
+
+    assert.equal(await contentItem.visible, false);
+    await t.click(panelTitle);
+    assert.equal(await contentItem.visible, true);
+  });
 
   test("panel description reactivity", async (t) => {
     await ClientFunction(() => {
@@ -130,7 +146,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
     }

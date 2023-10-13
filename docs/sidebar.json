@@ -1,5 +1,5 @@
 {
-  "Categories": [
+  "Items": [
     {
       "Name": "overview",
       "Title": "Overview"
@@ -69,15 +69,15 @@
       "Title": "Handle Survey Results",
       "Items": [
         {
-          "Name": "handle-survey-results-access",
+          "Name": "access-and-modify-survey-results",
           "Title": "Access Survey Results"
         },
         {
-          "Name": "handle-survey-results-store",
+          "Name": "how-to-store-survey-results",
           "Title": "Store Survey Results"
         },
         {
-          "Name": "handle-survey-results-continue-incomplete",
+          "Name": "how-to-save-and-restore-incomplete-survey",
           "Title": "Continue an Incomplete Survey"
         }
       ]
@@ -112,7 +112,7 @@
         },
         {
           "Name": "customize-question-types-create-custom-widgets",
-          "Title": "Create Custom Widgets"
+          "Title": "Create Custom Widgets in jQuery and Knockout"
         },
         {
           "Name": "customize-question-types-third-party-component-integration-angular",
@@ -233,18 +233,20 @@
           "Title": "Panel Dynamic"
         },
         {
-          "Name": "settings",
-          "Title": "Global Settings"
+          "Name": "IAction",
+          "Title": "IAction"
         },
         {
-          "Name": "IAction",
-          "Title": "IAction",
-          "IsHidden": true
+          "Name": "ITheme",
+          "Title": "ITheme"
         },
         {
           "Name": "ICustomQuestionTypeConfiguration",
-          "Title": "ICustomQuestionTypeConfiguration",
-          "IsHidden": true
+          "Title": "ICustomQuestionTypeConfiguration"
+        },
+        {
+          "Name": "settings",
+          "Title": "Global Settings"
         }
       ]
     }

@@ -66,7 +66,7 @@ export class SurveyImplementor extends ImplementorBase {
     if (typeof ko === "undefined")
       throw new Error("knockoutjs library is not loaded.");
     const page = this.survey.activePage;
-    if(!!page) {
+    if (!!page) {
       page.updateCustomWidgets();
     }
     this.survey.updateElementCss(false);
@@ -85,12 +85,12 @@ export class SurveyImplementor extends ImplementorBase {
     ko.renderTemplate(
       "survey-content",
       this.survey,
-      { },
+      {},
       this.renderedElement
     );
   }
   public koEventAfterRender(element: any, survey: any) {
-    if(survey["needRenderIcons"]) {
+    if (survey["needRenderIcons"]) {
       SvgRegistry.renderIcons();
     }
     survey.afterRenderSurvey(element);
@@ -100,6 +100,7 @@ export class SurveyImplementor extends ImplementorBase {
     if (!!this.renderedElement) {
       ko.cleanNode(this.renderedElement);
       this.renderedElement.innerHTML = "";
+      this.renderedElement = undefined;
     }
     this.survey["koAfterRenderPage"] = undefined;
     this.survey["koAfterRenderHeader"] = undefined;
@@ -125,7 +126,7 @@ export class Survey extends SurveyModel {
     super(jsonObj, renderedElement);
     this.implementor = new SurveyImplementor(this);
   }
-  render(element: any = null): void {
+  public render(element: any = null): void {
     this.implementor.render(element);
   }
   public getHtmlTemplate(): string {
@@ -133,6 +134,13 @@ export class Survey extends SurveyModel {
   }
   public makeReactive(obj: Base): void {
     new ImplementorBase(obj);
+  }
+  public dispose(): void {
+    super.dispose();
+    if(this.implementor) {
+      this.implementor.dispose();
+      this.implementor = undefined;
+    }
   }
 }
 
@@ -155,7 +163,7 @@ LocalizableString.prototype["onCreating"] = function () {
   var self = this;
   this.koHasHtml = ko.observable(this.hasHtml);
   this.koRenderedHtml = ko.observable(this.renderedHtml);
-  this.onStringChanged.add(function() {
+  this.onStringChanged.add(function () {
     const hasHtml = self.hasHtml;
     self.koHasHtml(hasHtml);
     self.koRenderedHtml(hasHtml ? self.getHtmlValue() : self.calculatedText);
@@ -163,7 +171,7 @@ LocalizableString.prototype["onCreating"] = function () {
 };
 
 ItemValue.prototype["onCreating"] = function () {
-  // new ImplementorBase(this);
+  new ImplementorBase(this);
   this.koText = ko.pureComputed(() => { return this.locText.koRenderedHtml(); });
 };
 
@@ -174,6 +182,8 @@ ko.components.register("survey", {
       ensureSurvey(survey);
       setTimeout(() => {
         var surveyRoot = document.createElement("div");
+        surveyRoot.style.width = "100%";
+        surveyRoot.style.height = "100%";
         componentInfo.element.appendChild(surveyRoot);
         survey.render(surveyRoot);
       }, 1);
@@ -257,6 +267,27 @@ export var registerTemplateEngine = (ko: any, platform: string) => {
 
   var surveyTemplateEngineInstance = new (<any>ko).surveyTemplateEngine();
   ko.setTemplateEngine(surveyTemplateEngineInstance);
+};
+
+ko.bindingHandlers["elementStyle"] = {
+  update: function (element, valueAccessor, allBindings) {
+    if (element && element.style.length) {
+      for (let index = element.style.length - 1; index >= 0; index--) {
+        const style = element.style[index] as string;
+        if (style && style.indexOf("--sjs-") === 0) {
+          element.style.removeProperty(style);
+        }
+      }
+    }
+    var value = ko.utils.unwrapObservable(valueAccessor()) || {};
+    Object.keys(value).forEach(key => {
+      if(key.indexOf("--") === 0) {
+        element.style.setProperty(key, value[key]);
+      } else {
+        element.style[key] = value[key];
+      }
+    });
+  }
 };
 
 ko.bindingHandlers["key2click"] = {

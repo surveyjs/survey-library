@@ -24,11 +24,18 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
           {this.question.placeHolderText}
         </div>
         <div>
-          <canvas tabIndex={0}></canvas>
+          {this.renderBackgroundImage()}
+          <canvas tabIndex={0} className={this.question.cssClasses.canvas}></canvas>
         </div>
         {clearButton}
       </div>
     );
+  }
+
+  renderBackgroundImage(): JSX.Element | null {
+    if(!this.question.backgroundImage) return null;
+
+    return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} width={this.question.signatureWidth} height= {this.question.signatureHeight}></img>;
   }
 
   renderCleanButton(): JSX.Element | null {

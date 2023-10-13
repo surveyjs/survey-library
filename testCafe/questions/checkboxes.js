@@ -32,7 +32,7 @@ const json = {
 };
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (ctx) => {
       await initSurvey(framework, json);
     }
@@ -388,7 +388,7 @@ frameworks.forEach((framework) => {
 });
 
 frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}.html`.beforeEach(
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
       await initSurvey(framework, json, undefined, true);
     }
@@ -439,7 +439,7 @@ frameworks.forEach((framework) => {
 frameworks.forEach((framework) => {
   const themeName = "defaultV2";
   fixture`${framework} ${title}`
-    .page`${url_test}${themeName}/${framework}.html`
+    .page`${url_test}${themeName}/${framework}`
     .beforeEach(async (t) => {
       await applyTheme(themeName);
       await initSurvey(framework, json);
@@ -460,5 +460,40 @@ frameworks.forEach((framework) => {
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.car).eql(["Nissan", "BMW"]);
+  });
+});
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {
+    await t.resizeWindow(800, 600);
+  });
+  test("maxSelectedChoices in matrix with showInMultipleColumns", async (t) => {
+    await initSurvey(framework, {
+      "elements": [
+        {
+          "type": "matrixdropdown",
+          "name": "q1",
+          "columns": [
+            {
+              "name": "col1",
+              "cellType": "checkbox",
+              "showInMultipleColumns": true,
+              "choices": ["a", "b", "c", "d", "e"],
+              "maxSelectedChoices": 2
+            }
+          ],
+          "rows": ["row1"]
+        }
+      ]
+    });
+    const checks = Selector("input[type='checkbox'");
+    await t
+      .click(checks.nth(0))
+      .click(checks.nth(1))
+      .click(checks.nth(2))
+      .click(checks.nth(3))
+      .click(checks.nth(4))
+      .click("input[value=Complete]");
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.q1.row1.col1).eql(["a", "b"]);
   });
 });

@@ -6,7 +6,7 @@
 					<div class="sd-element sd-element--complex sd-panel sd-row__panel">
 						<div class="sd-panel__content">
 							<div class="sd-clearfix sd-row">
-								<div style="flex:1 1 100%; max-width:100%; min-width:300px;">
+								<div style="flex:1 1 100%; max-width:100%; min-width:min(100%, 300px);">
 									<div class="sd-element sd-element--nested sd-question sd-row__question sd-row__question--small" data-name="question2">
 										<div class="sd-question__content sd-text__content" role="presentation">
 											<input aria-invalid="false" aria-label="question2" aria-required="false" class="sd-input sd-text" placeholder="" type="text">
@@ -19,22 +19,43 @@
 									<div class="sv-action__content">
 										<button class="sd-action sd-action--negative sd-paneldynamic__btn sd-paneldynamic__remove-btn" type="button">
 											<span>Remove</span>
-											<span>
+											<span class="sd-hidden">
 											</span>
 										</button>
 									</div>
 								</div>
 								<div class="sv-action sv-action--hidden sv-dots">
 									<div class="sv-action__content">
-										<button class="sv-action-bar-item sv-dots__item" role="button" tabindex="0" title="More" type="button">
+										<button class="sv-action-bar-item sv-action-bar-item--icon sv-dots__item" role="button" tabindex="0" title="More" type="button">
 											<svg aria-label="More" class="sv-action-bar-item__icon sv-svg-icon" role="img" style="height:24px; width:24px;">
 												<use xlink:href="#icon-more" class="">
 												</use>
 												<title class="">More</title>
 											</svg>
-											<div>
-											</div>
 										</button>
+										<div>
+											<div class="sv-popup sv-popup--dropdown sv-popup--left sv-popup--show-pointer" style="display:none;" tabindex="-1">
+												<div class="sv-popup__container">
+													<div class="sv-popup__shadow">
+														<span class="sv-popup__pointer">
+														</span>
+														<div class="sv-popup__body-content">
+															<div class="sv-popup__scrolling-content">
+																<div class="sv-popup__content">
+																	<div class="sv-list__container">
+																		<div class="sv-list__empty-container">
+																			<div aria-label="No data to display" class="sv-list__empty-text">No data to display</div>
+																		</div>
+																		<ul class="sv-list" role="listbox" style="display:none;">
+																		</ul>
+																	</div>
+																</div>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
 									</div>
 								</div>
 							</div>

@@ -23,6 +23,7 @@ if(typeof window !== "undefined") {
 export interface IDragDropDOMAdapter {
   startDrag(event: PointerEvent, draggedElement: any, parentElement: any, draggedElementNode: HTMLElement, preventSaveTargetNode: boolean): void;
   draggedElementShortcut: HTMLElement;
+  rootContainer: HTMLElement;
 }
 
 export class DragDropDOMAdapter implements IDragDropDOMAdapter {
@@ -35,18 +36,24 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private currentY: number;
   // save event.target node from the frameworks update. See  https://stackoverflow.com/questions/33298828/touch-move-event-dont-fire-after-touch-start-target-is-removed
   private savedTargetNode: any;
+  private savedTargetNodeParent: any;
   private scrollIntervalId: number = null;
 
-  constructor(private dd: IDragDropEngine, private longTap?: boolean) {
+  constructor(private dd: IDragDropEngine, private longTap: boolean = true) {}
+
+  private get rootElement() {
+    if(isShadowDOM(settings.environment.root)) {
+      return settings.environment.root.host;
+    } else {
+      return this.rootContainer || settings.environment.root.documentElement || document.body;
+    }
   }
   private stopLongTapIfMoveEnough = (pointerMoveEvent: PointerEvent) => {
     pointerMoveEvent.preventDefault();
     this.currentX = pointerMoveEvent.pageX;
     this.currentY = pointerMoveEvent.pageY;
     if (this.isMicroMovement) return;
-    document.body.style.setProperty("touch-action", "");
-    document.body.style.setProperty("user-select", "");
-    document.body.style.setProperty("-webkit-user-select", "");
+    this.returnUserSelectBack();
     this.stopLongTap();
   };
   // see https://stackoverflow.com/questions/6042202/how-to-distinguish-mouse-click-and-drag
@@ -72,8 +79,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     this.startX = event.pageX;
     this.startY = event.pageY;
     document.body.style.setProperty("touch-action", "none", "important");
-    document.body.style.setProperty("user-select", "none", "important");
-    document.body.style.setProperty("-webkit-user-select", "none", "important");
+    //document.body.style.setProperty("-webkit-touch-callout", "none", "important");
 
     this.timeoutID = setTimeout(() => {
       this.doStartDrag(
@@ -93,11 +99,12 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
           clip: rect(1px 1px 1px 1px);
           clip: rect(1px, 1px, 1px, 1px);
         `;
-        settings.environment.rootElement.appendChild(this.savedTargetNode);
+        this.savedTargetNodeParent = this.savedTargetNode.parentElement;
+        this.rootElement.appendChild(this.savedTargetNode);
       }
 
       this.stopLongTap();
-    }, this.longTap? 500: 0);
+    }, this.longTap ? 500: 0);
 
     document.addEventListener("pointerup", this.stopLongTap);
     document.addEventListener("pointermove", this.stopLongTapIfMoveEnough);
@@ -115,6 +122,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.stopPropagation();
   }
   private moveShortcutElement(event: PointerEvent) {
+    const rootElementX= this.rootElement.getBoundingClientRect().x;
+    const rootElementY = this.rootElement.getBoundingClientRect().y;
+
     this.doScroll(event.clientY, event.clientX);
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
@@ -128,55 +138,64 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       shortcutYOffset = shortcutHeight / 2;
     }
 
-    const documentBottom = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientHeight;
-    const documentRight = (isShadowDOM(settings.environment.root) ? settings.environment.root.host : settings.environment.root.documentElement).clientWidth;
-    const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(event.clientY, shortcutHeight, shortcutYOffset);
-    const shortcutRightCoordinate = this.getShortcutRightCoordinate(event.clientX, shortcutWidth, shortcutXOffset);
+    const documentBottom = document.documentElement.clientHeight;
+    const documentRight = document.documentElement.clientWidth;
 
-    if (shortcutRightCoordinate >= documentRight) {
+    const pageX = event.pageX;
+    const pageY = event.pageY;
+
+    const clientX = event.clientX;
+    const clientY = event.clientY;
+
+    const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);
+    const shortcutRightCoordinate = this.getShortcutRightCoordinate(clientX, shortcutWidth, shortcutXOffset);
+
+    if (shortcutRightCoordinate >= documentRight) { // right boundary
       this.draggedElementShortcut.style.left =
-        event.pageX -
-        event.clientX +
+        // pageX -
+        // clientX +
         documentRight -
-        shortcutWidth +
+        shortcutWidth -
+        rootElementX +
         "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYOffset + "px";
+        /*pageY*/ clientY - shortcutYOffset - rootElementY + "px";
       return;
     }
 
-    if (event.clientX - shortcutXOffset <= 0) {
+    if (clientX - shortcutXOffset <= 0) { // left boundary
       this.draggedElementShortcut.style.left =
-        event.pageX - event.clientX + "px";
+        pageX - clientX - rootElementX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - shortcutYOffset + "px";
+        /*pageY*/ clientY - rootElementY - shortcutYOffset + "px";
       return;
     }
 
-    if (shortcutBottomCoordinate >= documentBottom) {
+    if (shortcutBottomCoordinate >= documentBottom) { // bottom boundary
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXOffset + "px";
+        /*pageX*/ clientX - shortcutXOffset - rootElementX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY -
-        event.clientY +
+        // pageY -
+        // clientY +
         documentBottom -
-        shortcutHeight +
+        shortcutHeight -
+        rootElementY +
         "px";
       return;
     }
 
-    if (event.clientY - shortcutYOffset <= 0) {
+    if (clientY - shortcutYOffset <= 0) { // top  boundary
       this.draggedElementShortcut.style.left =
-        event.pageX - shortcutXOffset + "px";
+        clientX - shortcutXOffset - rootElementX + "px";
       this.draggedElementShortcut.style.top =
-        event.pageY - event.clientY + "px";
+        pageY - clientY - rootElementY + "px";
       return;
     }
 
     this.draggedElementShortcut.style.left =
-      event.pageX - shortcutXOffset + "px";
+      clientX - rootElementX - shortcutXOffset + "px";
     this.draggedElementShortcut.style.top =
-      event.pageY - shortcutYOffset + "px";
+      clientY - rootElementY - shortcutYOffset + "px";
   }
   private getShortcutBottomCoordinate(currentY: number, shortcutHeight: number, shortcutYOffset: number):number {
     return currentY + shortcutHeight - shortcutYOffset;
@@ -186,11 +205,14 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   }
   private doScroll(clientY: number, clientX: number) {
     cancelAnimationFrame(this.scrollIntervalId);
-    const startScrollBoundary = 50;
+    const startScrollBoundary = 100;
 
-    this.draggedElementShortcut.hidden = true;
+    const displayProp = this.draggedElementShortcut.style.display;
+    //this.draggedElementShortcut.hidden = true;
+    this.draggedElementShortcut.style.display = "none";
     let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
-    this.draggedElementShortcut.hidden = false;
+    //this.draggedElementShortcut.hidden = false;
+    this.draggedElementShortcut.style.display = displayProp || "block";
 
     let scrollableParentNode = findScrollableParent(dragOverNode);
 
@@ -241,19 +263,22 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     if (IsTouch) {
       this.draggedElementShortcut.removeEventListener("contextmenu", this.onContextMenu);
     }
-    settings.environment.rootElement.removeChild(this.draggedElementShortcut);
+    this.draggedElementShortcut.parentElement.removeChild(this.draggedElementShortcut);
 
     this.dd.clear();
     this.draggedElementShortcut = null;
     this.scrollIntervalId = null;
 
     if (IsTouch) {
-      this.savedTargetNode && settings.environment.rootElement.removeChild(this.savedTargetNode);
+      this.savedTargetNode.style.cssText = null;
+      this.savedTargetNode && this.savedTargetNode.parentElement.removeChild(this.savedTargetNode);
+      this.savedTargetNodeParent.appendChild(this.savedTargetNode);
       DragDropDOMAdapter.PreventScrolling = false;
     }
-    document.body.style.setProperty("touch-action", "");
-    document.body.style.setProperty("user-select", "");
-    document.body.style.setProperty("-webkit-user-select", "");
+    this.savedTargetNode = null;
+    this.savedTargetNodeParent = null;
+
+    this.returnUserSelectBack();
   };
   private drop = () => {
     this.dd.drop();
@@ -272,7 +297,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     this.dd.dragInit(event, draggedElement, parentElement, draggedElementNode);
 
-    document.body.append(this.draggedElementShortcut);
+    this.rootElement.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
     document.addEventListener("pointermove", this.dragOver);
@@ -286,9 +311,19 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     }
   }
 
+  private returnUserSelectBack() {
+    document.body.style.setProperty("touch-action", "auto");
+    document.body.style.setProperty("user-select", "auto");
+    document.body.style.setProperty("-webkit-user-select", "auto");
+    //document.body.style.setProperty("-webkit-touch-callout", "default");
+  }
+
   public draggedElementShortcut: any = null;
+  public rootContainer: HTMLElement;
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
+    document.body.style.setProperty("user-select", "none", "important");
+    document.body.style.setProperty("-webkit-user-select", "none", "important");
     if (IsTouch) {
       this.startLongTapProcessing(
         event,

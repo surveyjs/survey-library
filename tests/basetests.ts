@@ -5,6 +5,7 @@ import { property, Serializer } from "../src/jsonobject";
 import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 
 export default QUnit.module("Base");
 
@@ -664,6 +665,45 @@ QUnit.test("Update via function - nested dependencies", function (assert) {
   assert.equal(updaterCallCount1, 2, "update called - responsive");
   assert.equal(base1.propS, "responsive");
 });
+QUnit.test("Unsubscribe dependencies on dispose", function (assert) {
+  const base1 = new BaseTester1();
+  const base2 = new BaseTester2();
+  const base3 = new BaseTester3();
+  let updaterCallCount = 0;
+  const updater = new ComputedUpdater<number>(() => {
+    updaterCallCount++;
+    return base1.propA + base2.propB;
+  });
+  base3.propC = <any>updater;
+
+  assert.equal(Object.keys(base3.dependencies).length, 1, "one computed");
+  assert.equal(Object.keys(base3.dependencies)[0], "propC", "propC");
+  assert.equal(base3.dependencies["propC"]["getDependencies"]().dependencies.length, 2, "depends on two properties");
+
+  assert.equal(base1["onPropChangeFunctions"].length, 1, "base1 one subscription");
+  assert.equal(base1["onPropChangeFunctions"][0].name, "propA", "base1 one subscription to A");
+  assert.equal(base2["onPropChangeFunctions"].length, 1, "base2 one subscription");
+  assert.equal(base2["onPropChangeFunctions"][0].name, "propB", "base2 one subscription to B");
+
+  assert.equal(updaterCallCount, 1, "first time calculation");
+  assert.equal(base3.propC, 3, "1 + 2");
+  base1.propA = 2;
+  assert.equal(updaterCallCount, 2, "propA changed");
+  assert.equal(base3.propC, 4, "2 + 2");
+
+  base3.dispose();
+
+  assert.equal(Object.keys(base3.dependencies).length, 1, "one computed");
+  assert.equal(base3.dependencies["propC"]["getDependencies"](), undefined, "no dependencies");
+
+  assert.equal(base1["onPropChangeFunctions"].length, 0, "base1 no subscriptions");
+  assert.equal(base2["onPropChangeFunctions"].length, 0, "base2 no subscriptions");
+
+  base1.propA = 3;
+  assert.equal(updaterCallCount, 2, "updater doesn't react on changes");
+  assert.equal(base3.propC, 4, "no value updates");
+});
+
 QUnit.test("findParentByClassNames function", function (assert) {
   const parentElement = document.createElement("div");
   parentElement.classList.add("class1");
@@ -677,6 +717,8 @@ QUnit.test("findParentByClassNames function", function (assert) {
 
   assert.equal(findParentByClassNames(element, ["class1", "class2", ""]), element);
   assert.equal(findParentByClassNames(element, ["class1", "class22", ""]), parentElement);
+
+  parentElement.remove();
 });
 QUnit.test("Subscribe localizable property", function (assert) {
   const base4 = new BaseTester4();
@@ -692,4 +734,46 @@ QUnit.test("Subscribe localizable property", function (assert) {
   base4.propL = "localizable value";
   assert.equal(base4.propC, "localizable value");
   assert.equal(updaterCallCount1, 2, "update called - localizable value");
+});
+QUnit.test("base.hasDefaultPropertyValue, base.getDefaultPropertyValue and base.resetPropertyValue()", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  assert.equal(question.hasDefaultPropertyValue("width"), false, "question.width has no default value");
+  assert.notOk(question.getDefaultPropertyValue("width"), "question.width default value is undefined");
+  question.width = "200px";
+  question.resetPropertyValue("width");
+  assert.notOk(question.width, "width property value is empty");
+
+  assert.equal(question.hasDefaultPropertyValue("minWidth"), true, "question.minWidth has default value");
+  assert.ok(question.getDefaultPropertyValue("minWidth"), "question.minWidth default value is 300px");
+  question.minWidth = "200px";
+  assert.equal(question.minWidth, "200px", "minWidth property is set to 200px");
+  question.resetPropertyValue("minWidth");
+  assert.equal(question.minWidth, "300px", "minWidth property value is reset, #1");
+  question.minWidth = "";
+  assert.strictEqual(question.minWidth, "", "minWidth property value is empty string");
+  question.resetPropertyValue("minWidth");
+  assert.equal(question.minWidth, "300px", "minWidth property value is reset, #2");
+
+  assert.equal(question.hasDefaultPropertyValue("placeholder"), true, "question.placeholder has default value");
+  assert.equal(question.getDefaultPropertyValue("placeholder"), "Select...", "question.placeholder default value");
+  assert.equal(question.placeholder, "Select...", "question.placeholder value");
+  question.placeholder = "abc";
+  assert.equal(question.placeholder, "abc", "placeholder property is set to 200px");
+  question.resetPropertyValue("placeholder");
+  assert.equal(question.placeholder, "Select...", "placeholder property value is reset, #1");
+  question.placeholder = "";
+  assert.strictEqual(question.placeholder, "", "placeholder property value is empty string");
+  question.resetPropertyValue("placeholder");
+  assert.equal(question.placeholder, "Select...", "placeholder property value is reset, #2");
+});
+QUnit.test("base.resetPropertyValue() for localization string", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.completeText, "Complete", "default value");
+  survey.completeText = "test";
+  assert.equal(survey.completeText, "test", "set value");
+  survey.resetPropertyValue("completeText");
+  assert.equal(survey.completeText, "Complete", "default value, #2");
+  const prop = Serializer.findProperty("survey", "completeText");
+  prop.setValue(survey, "", null);
+  assert.equal(survey.completeText, "", "Empty string after prop.setValue func");
 });

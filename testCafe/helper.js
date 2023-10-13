@@ -12,6 +12,7 @@ export const frameworks = environment
 // eslint-disable-next-line no-console
 console.log("Frameworks: " + frameworks.join(", "));
 export const url = "http://127.0.0.1:8080/examples_test/default/";
+export const urlV2 = "http://127.0.0.1:8080/examples_test/defaultV2/";
 export const url_test = "http://127.0.0.1:8080/examples_test/";
 export const FLOAT_PRECISION = 0.01;
 
@@ -72,7 +73,7 @@ export const initSurvey = ClientFunction(
         el: "#surveyElement",
         data: { survey: model },
       });
-    } else if (framework === "angular") {
+    } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model);
     }
     window["survey"] = model;
@@ -89,7 +90,7 @@ export const registerCustomToolboxComponent = ClientFunction(
           },
         },
         template:
-          '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></div>',
+          '<span class="my-custom-action-class" data-bind="click: function() { $data.action() }, text: $data.title"></span>',
       });
     } else if (framework === "react") {
       class CustomActionButton extends window["React"].Component {
@@ -99,10 +100,10 @@ export const registerCustomToolboxComponent = ClientFunction(
         render() {
           return (
             // eslint-disable-next-line react/react-in-jsx-scope
-            <div className="my-custom-action-class" onClick={this.click}>
+            <span className="my-custom-action-class" onClick={this.click}>
               {" "}
               {this.props.item.title}
-            </div>
+            </span>
           );
         }
       }
@@ -119,7 +120,7 @@ export const registerCustomToolboxComponent = ClientFunction(
           item: {},
         },
         template:
-          '<div class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</div>',
+          '<span class="my-custom-action-class" data-bind="click: function() { $data.action() }">{{ item.title }}</span>',
       });
     }
   }
@@ -286,3 +287,13 @@ export const explicitErrorHandler = ClientFunction(() => {
     }
   });
 });
+export function filterIsInViewport(node) {
+  const rect = node.getBoundingClientRect();
+
+  return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+    rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+  );
+}

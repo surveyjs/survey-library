@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var finnishSurveyStrings = {
@@ -15,6 +13,7 @@ export var finnishSurveyStrings = {
   progressText: "Sivu {0} / {1}",
   indexText: "{0} / {1}",
   panelDynamicProgressText: "Osio {0} / {1}",
+  panelDynamicTabTextFormat: "Paneeli {panelIndex}",
   questionsProgressText: "Olet vastannut {0} / {1} kysymykseen.",
   emptySurvey: "Tässä kyselyssä ei ole yhtään näkyvillä olevaa sivua tai kysymystä.",
   completingSurvey: "Kiitos kyselyyn vastaamisesta!",
@@ -76,6 +75,10 @@ export var finnishSurveyStrings = {
   clearCaption: "Tyhjennä",
   signaturePlaceHolder: "Allekirjoita tähän",
   chooseFileCaption: "Valitse tiedosto",
+  takePhotoCaption: "Ota valokuva",
+  cameraPlaceHolder: "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla.",
+  fileCameraDragAreaPlaceHolder: "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla.",
+  replaceFileCaption: "Korvaa tiedosto",
   removeFileCaption: "Poista tämä tiedosto",
   booleanCheckedLabel: "Kyllä",
   booleanUncheckedLabel: "Ei",
@@ -85,10 +88,27 @@ export var finnishSurveyStrings = {
   modalCancelButtonText: "Peruuta",
   modalApplyButtonText: "Käytä",
   filterStringPlaceholder: "Hae kirjoittamalla...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Ei näytettäviä tietoja",
   noEntriesText: "Merkintöjä ei ole vielä.\nLisää uusi merkintä napsauttamalla alla olevaa painiketta.",
-  // more: "More"
+  noEntriesReadonlyText: "Merkintöjä ei ole.",
+  more: "Enemmän",
+  tagboxDoneButtonCaption: "OKEI",
+  selectToRankEmptyRankedAreaText: "Kaikki valinnat asetetaan paremmuusjärjestykseen",
+  selectToRankEmptyUnrankedAreaText: "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"
 };
 
 surveyLocalization.locales["fi"] = finnishSurveyStrings;
 surveyLocalization.localeNames["fi"] = "suomi";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Paneeli {panelIndex}"
+// emptyMessage: "No data to display" => "Ei näytettäviä tietoja"
+// noEntriesReadonlyText: "There are no entries." => "Merkintöjä ei ole."
+// more: "More" => "Enemmän"
+// tagboxDoneButtonCaption: "OK" => "OKEI"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Kaikki valinnat asetetaan paremmuusjärjestykseen"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"// takePhotoCaption: "Take Photo" => "Ota valokuva"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla."
+// replaceFileCaption: "Replace file" => "Korvaa tiedosto"

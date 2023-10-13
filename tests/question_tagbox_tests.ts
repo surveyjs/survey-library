@@ -320,8 +320,8 @@ function getNumberArray(skip = 1, count = 25, filter = ""): Array<any> {
   return result;
 }
 
-const onChoicesLazyLoadCallbackTimeOut = 300;
-const callbackTimeOutDelta = 30;
+const onChoicesLazyLoadCallbackTimeOut = 5;
+const callbackTimeOutDelta = 1;
 
 const callback = (_, opt) => {
   const total = 70;
@@ -562,7 +562,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -594,7 +594,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue", assert => {
     assert.equal(question.selectedItems[1].value, 55, "question.selectedItems[1] value");
     assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", assert => {
@@ -616,7 +616,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -646,7 +646,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: defaultValue is object", ass
     assert.equal(question.selectedItems[1].value.id, 55, "question.selectedItems[1] value");
     assert.equal(question.selectedItems[1].text, "DisplayText_55", "question.selectedItems[1] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => {
@@ -667,7 +667,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -708,7 +708,7 @@ QUnit.test("lazy loading + onGetChoiceDisplayValue: set survey data", assert => 
     assert.equal(question.selectedItems[2].value, 10, "question.selectedItems[2] value");
     assert.equal(question.selectedItems[2].text, "DisplayText_10", "question.selectedItems[2] text");
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading data is lost: defaultValue", assert => {
@@ -730,7 +730,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -757,7 +757,7 @@ QUnit.test("lazy loading data is lost: defaultValue", assert => {
     assert.deepEqual(survey.data, { "q1": [52, 55] }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading data is lost: set survey data", assert => {
@@ -778,7 +778,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
       } else {
         options.setItems(getObjectArray(options.skip + 1, total - options.skip), total);
       }
-    }, 500);
+    }, onChoicesLazyLoadCallbackTimeOut);
   });
   survey.onGetChoiceDisplayValue.add((sender, options) => {
     if (options.question.name == "q1") {
@@ -806,7 +806,7 @@ QUnit.test("lazy loading data is lost: set survey data", assert => {
     assert.deepEqual(survey.data, { "q1": [52, 55, 10] }, "after doComplete after item load");
 
     done();
-  }, 550);
+  }, onChoicesLazyLoadCallbackTimeOut);
 });
 
 QUnit.test("lazy loading + change filter string", assert => {
@@ -1265,4 +1265,58 @@ QUnit.test("TagBox displays a value if list of choices is empty", (assert) => {
   assert.equal(question.value.length, 1);
   assert.equal(question.value[0], "Item 1");
   assert.equal(question.selectedItems.length, 0);
+});
+QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "tagbox",
+      name: "q1",
+      placeholder: {
+        default: "en-sel",
+        de: "de-sel"
+      },
+      choices: ["Item 1", "Item 2", "Item 3"]
+    }]
+  });
+  const q = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  assert.equal(q.readOnlyText, "en-sel", "Empty en");
+  assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en");
+  q.value = ["Item 1"];
+  assert.equal(q.readOnlyText, "Item 1", "has value");
+  q.clearValue();
+  assert.equal(q.readOnlyText, "en-sel", "Empty en, #2");
+  survey.locale = "de";
+  assert.equal(q.readOnlyText, "de-sel", "Empty de");
+  assert.equal(q.dropdownListModel.filterStringPlaceholder, "de-sel", "dropdownlist de");
+  survey.locale = "";
+  assert.equal(q.readOnlyText, "en-sel", "Empty en, #3");
+  assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en, #3");
+});
+QUnit.test("question.showClearButton", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "tagbox",
+        "name": "q1",
+        "optionsCaption": "New optionsCaption",
+        "choices": [
+          "Ford",
+          "Vauxhall",
+          "Volkswagen"
+        ]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q = <QuestionTagboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.showClearButton, false, "question is empty");
+  q.value = "Ford";
+  assert.equal(q.showClearButton, true, "question is not empty");
+  q.allowClear = false;
+  assert.equal(q.showClearButton, false, "allowClear is false");
+  q.allowClear = true;
+  survey.setDesignMode(true);
+  assert.equal(q.showClearButton, false, "design mode");
+  settings.supportCreatorV2 = true;
+  assert.equal(q.showClearButton, true, "Creator V2");
+  settings.supportCreatorV2 = false;
 });

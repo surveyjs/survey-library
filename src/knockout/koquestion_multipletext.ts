@@ -2,11 +2,12 @@ import * as ko from "knockout";
 import { QuestionMultipleTextModel, MultipleTextItemModel } from "survey-core";
 import { QuestionTextModel } from "survey-core";
 import { QuestionImplementor } from "./koquestion";
-import { QuestionText, QuestionTextImplementor } from "./koquestion_text";
-import { Question } from "survey-core";
+import { QuestionTextImplementor } from "./koquestion_text";
 import { Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { MultipleTextEditorModel } from "survey-core";
+import { MutlipleTextRow } from "survey-core";
+import { ImplementorBase } from "./kobase";
 
 export class koMultipleTextEditorModel extends MultipleTextEditorModel {
   private _implementor: QuestionTextImplementor;
@@ -17,7 +18,7 @@ export class koMultipleTextEditorModel extends MultipleTextEditorModel {
     super.onBaseCreating();
     this._implementor = new QuestionTextImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();
@@ -60,23 +61,19 @@ export class QuestionMultipleText extends QuestionMultipleTextModel {
   koRows: any;
   constructor(name: string) {
     super(name);
-    this.koRows = ko.observableArray(this.getRows());
-    this.colCountChangedCallback = () => {
-      this.onColCountChanged();
-    };
-    this.onColCountChanged();
   }
   protected onBaseCreating() {
     super.onBaseCreating();
     this._implementor = new QuestionMultipleTextImplementor(this);
   }
-  protected onColCountChanged() {
-    this.koRows(this.getRows());
+  protected onRowCreated(row: MutlipleTextRow): MutlipleTextRow {
+    new ImplementorBase(row);
+    return row;
   }
   protected createTextItem(name: string, title: string): MultipleTextItemModel {
     return new MultipleTextItem(name, title);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     this.koRows = undefined;

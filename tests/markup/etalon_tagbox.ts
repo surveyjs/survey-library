@@ -20,6 +20,7 @@ registerMarkupTests(
           }
         ]
       },
+      removeIds: true,
       snapshot: "tagbox"
     },
     {
@@ -45,6 +46,7 @@ registerMarkupTests(
       after: () => {
         _setIsTouch(false);
       },
+      removeIds: true,
       snapshot: "tagbox-mobile"
     }, {
       name: "Test Tagbox question markup",
@@ -64,6 +66,7 @@ registerMarkupTests(
           }
         ]
       },
+      removeIds: true,
       snapshot: "tagbox-selected"
     }, {
       name: "Test Tagbox question markup Read only",
@@ -122,6 +125,7 @@ registerMarkupTests(
           }
         ]
       },
+      removeIds: true,
       snapshot: "tagbox-without-clear-button",
     }, {
       name: "Test Tagbox question searchEnabled false markup",
@@ -141,6 +145,7 @@ registerMarkupTests(
           }
         ]
       },
+      removeIds: true,
       snapshot: "tagbox-without-search",
     },
   ]);

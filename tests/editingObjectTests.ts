@@ -405,9 +405,9 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
   assert.equal(rows[2].id, row0Id, "row0 is not re-created, #1");
   assert.strictEqual(matrix.renderedTable, table, "rendered table is not recreated, #1");
   table = matrix.renderedTable;
-  assert.equal(table.rows[0].cells[1].question.value, "col2", "renderedTable:Row0Cell0, #1");
-  assert.equal(table.rows[1].cells[1].question.value, "col3", "renderedTable:Row1Cell0, #1");
-  assert.equal(table.rows[2].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #1");
+  assert.equal(table.rows[1].cells[1].question.value, "col2", "renderedTable:Row0Cell0, #1");
+  assert.equal(table.rows[3].cells[1].question.value, "col3", "renderedTable:Row1Cell0, #1");
+  assert.equal(table.rows[5].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #1");
 
   matrix.moveRowByIndex(1, 0);
   assert.equal(matrix.value.length, 3);
@@ -420,9 +420,9 @@ QUnit.test("allowRowsDragAndDrop and editingObj", function (assert) {
   assert.equal(rows[2].id, row0Id, "row0 is not re-created, #2");
   assert.strictEqual(matrix.renderedTable, table, "rendered table is not recreated, #2");
   table = matrix.renderedTable;
-  assert.equal(table.rows[0].cells[1].question.value, "col3", "renderedTable:Row0Cell0, #2");
-  assert.equal(table.rows[1].cells[1].question.value, "col2", "renderedTable:Row1Cell0, #2");
-  assert.equal(table.rows[2].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #2");
+  assert.equal(table.rows[1].cells[1].question.value, "col3", "renderedTable:Row0Cell0, #2");
+  assert.equal(table.rows[3].cells[1].question.value, "col2", "renderedTable:Row1Cell0, #2");
+  assert.equal(table.rows[5].cells[1].question.value, "col1", "renderedTable:Row1Cell0, #2");
   assert.equal(cellCreatedCallbackCounter, 0, "new cell is not created");
 });
 QUnit.test(
@@ -782,11 +782,11 @@ QUnit.test("Edit choices in matrix + detailPanel + addChoice", function (assert)
   assert.equal(rows.length, 2, "There are 2 rows");
   rows[1].showDetailPanel();
   const table = matrix.renderedTable;
-  assert.equal(table.rows.length, 3, "There are 2 rows in rendred table");
-  assert.equal(table.rows[0].row.id, rows[0].id, "row0.id is correct");
-  assert.equal(table.rows[1].row.id, rows[1].id, "row1.id is correct");
-  assert.equal(table.rows[2].isDetailRow, true, "The last row is detail row");
-  assert.equal(table.rows[2].row.id, rows[1].id, "ros1.id in detail row");
+  assert.equal(table.rows.length, 5, "There are 2 rows in rendred table");
+  assert.equal(table.rows[1].row.id, rows[0].id, "row0.id is correct");
+  assert.equal(table.rows[3].row.id, rows[1].id, "row1.id is correct");
+  assert.equal(table.rows[4].isDetailRow, true, "The last row is detail row");
+  assert.equal(table.rows[4].row.id, rows[1].id, "ros1.id in detail row");
 });
 QUnit.test("Edit custom choices in matrix with custom property", function (
   assert
@@ -1437,4 +1437,38 @@ QUnit.test("Check column min width property is set correctly to editor", functio
   assert.equal(editor.value, "300px");
   property.onPropertyEditorUpdate(column, editor);
   assert.equal(editor.value, "");
+});
+QUnit.test("Allow to set empty string into localization string & string property with default value", function (assert) {
+  const question = new QuestionDropdownModel("q1");
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "placeholder" },
+      { type: "text", name: "minWidth" },
+      { type: "text", name: "valueName" },
+    ],
+  });
+  survey.editingObj = question;
+  const placeholderQuestion = survey.getQuestionByName("placeholder");
+  const minWidthQuestion = survey.getQuestionByName("minWidth");
+  const valueNameQuestion = survey.getQuestionByName("valueName");
+  assert.equal(placeholderQuestion.value, "Select...", "placeholder - default value");
+  assert.equal(minWidthQuestion.value, "300px", "minWidth - default value");
+  assert.notOk(valueNameQuestion.value, "valueName is empty by default");
+  placeholderQuestion.value = "";
+  minWidthQuestion.value = "";
+  valueNameQuestion.value = "";
+  assert.strictEqual(placeholderQuestion.value, "", "placeholder question value is empty");
+  assert.strictEqual(minWidthQuestion.value, "", "minWidth question value is empty");
+  assert.strictEqual(question.placeholder, "", "dropdown.placeholder value is empty");
+  assert.strictEqual(question.minWidth, "", "dropdown.minWidth value is empty");
+  assert.deepEqual(question.toJSON(), {
+    name: "q1", placeholder: "", minWidth: ""
+  });
+  const q2 = Serializer.createClass("dropdown");
+  q2.fromJSON({
+    name: "q2", placeholder: "", minWidth: ""
+  });
+  assert.equal(q2.name, "q2", "set the name correctly");
+  assert.strictEqual(q2.placeholder, "", "q2.placeholder value is empty");
+  assert.strictEqual(q2.minWidth, "", "q2.minWidth value is empty");
 });

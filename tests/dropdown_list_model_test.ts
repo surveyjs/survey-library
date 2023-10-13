@@ -367,6 +367,27 @@ QUnit.test("hintString test", function (assert) {
   assert.equal(dropdownListModel.hintStringSuffix, "em3", "filter from start with value, hint suffix correct");
 });
 
+QUnit.test("showHintString for zero values", function (assert) {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      hasOther: "true",
+      searchEnabled: false,
+      choices: [
+        0,
+        "1"]
+    }
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  dropdownListModel.inputStringRendered = "1";
+  question.value = 0;
+  assert.notOk(dropdownListModel.showHintString, "no hint");
+});
+
 QUnit.test("hintString test - no search", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
@@ -376,6 +397,19 @@ QUnit.test("hintString test - no search", function (assert) {
 
   assert.equal(dropdownListModel.inputMode, "text");
   assert.notOk(dropdownListModel.showHintString, "no search, hint hidden");
+});
+
+QUnit.test("hintString test - clear, see nothing", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  question.value = "item12";
+  dropdownListModel.onFocus(null);
+  dropdownListModel.inputStringRendered = "";
+  assert.notOk(dropdownListModel.showHintString);
+  assert.notOk(question.showSelectedItemLocText);
+  dropdownListModel.onBlur({ stopPropagation: () => { } });
+  assert.ok(question.showSelectedItemLocText);
 });
 
 QUnit.test("dropdown keyboard tests", function (assert) {
@@ -458,6 +492,143 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   assert.equal(dropdownListModel.inputString, "item1", "inputString rolled back on Esc");
   assert.equal(dropdownListModel.hintString, "item1", "hintString equal to inputString when rolled back on Esc");
   assert.equal(question.value, "item1", "value rolled back on Esc");
+});
+
+QUnit.test("dropdown incorrect popup open test", function (assert) {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  question.defaultValue = "item22";
+  const dropdownListModel = new DropdownListModel(question);
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  dropdownListModel.onFocus(null);
+
+  assert.equal(dropdownListModel.inputString, "item22", "inputString is item22");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible by default");
+
+  dropdownListModel.inputStringRendered = "item2";
+  assert.equal(dropdownListModel.inputString, "item2", "inputString is item2");
+  assert.equal(dropdownListModel.hintString, "item22", "hintString is item22");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item22", "inputString is item22 on Enter");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is hidden");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item22", "inputString is item22 on Enter again");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible");
+});
+
+QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "dropdown",
+      name: "question1",
+      defaultValue: "item12",
+      choicesLazyLoadEnabled: true
+    }
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    var result: any = [];
+    for (let index = 3; index < 23; index++) {
+      result.push({ value: "item" + index, text: "item" + index });
+    }
+    result = result.filter(i => i.text.indexOf(options.filter) != -1);
+    options.setItems(result, result.length);
+  });
+  survey.onGetChoiceDisplayValue.add((_, options) => {
+    options.setItems(options.values);
+  });
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  question.showSelectedItemLocText;
+  assert.equal(question.showSelectedItemLocText, true, "check showSelectedItemLocText to raise onGetChoiceDisplayValue event");
+  dropdownListModel.onFocus(null);
+
+  assert.equal(dropdownListModel.inputString, "item12", "inputString is item12");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible by default");
+
+  dropdownListModel.inputStringRendered = "item2";
+  assert.equal(dropdownListModel.inputString, "item2", "inputString is item1");
+  assert.equal(dropdownListModel.hintString, "item20", "hintString is item20");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item20", "inputString is item22 on Enter");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item20", "inputString is item22 on Enter again");
+});
+
+QUnit.test("dropdown incorrect popup open test: lazy load, many items", function (assert) {
+  const survey = new SurveyModel({
+    elements: [{
+      type: "dropdown",
+      name: "question1",
+      defaultValue: "item500",
+      choicesLazyLoadEnabled: true
+    }
+    ]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  survey.onChoicesLazyLoad.add((sender, options) => {
+    var result: any = [];
+    for (let index = 3; index < 1000; index++) {
+      result.push({ value: "item" + index, text: "item" + index });
+    }
+    result = result.filter(i => i.text.indexOf(options.filter) != -1);
+    var res1 = result.slice(options.skip, options.take + options.skip);
+    options.setItems(res1, result.length);
+  });
+  survey.onGetChoiceDisplayValue.add((_, options) => {
+    options.setItems(options.values);
+  });
+
+  const event = {
+    keyCode: 0,
+    preventDefault: () => { },
+    stopPropagation: () => { }
+  };
+
+  question.showSelectedItemLocText;
+  assert.equal(question.showSelectedItemLocText, true, "check showSelectedItemLocText to raise onGetChoiceDisplayValue event");
+  dropdownListModel.onFocus(null);
+
+  assert.equal(dropdownListModel.inputString, "item500", "inputString is item500");
+
+  dropdownListModel.inputStringRendered = "item900";
+  assert.equal(dropdownListModel.inputString, "item900", "inputString is item900");
+  assert.equal(dropdownListModel.hintString, "item900", "hintString is item900");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item900", "inputString is item900 on Enter");
+
+  event.keyCode = 13;
+  dropdownListModel.keyHandler(event);
+  assert.equal(dropdownListModel.inputString, "item900", "inputString is item900 on Enter again");
 });
 
 QUnit.test("dropdown keyboard tests - empty question, search disabled", function (assert) {
@@ -671,6 +842,42 @@ QUnit.test("lazy loading clear value", function (assert) {
 
   dropdownListModel.inputStringRendered = "";
 
-  assert.equal(dropdownListModel.hintString, "France", "hintString");
+  assert.equal(dropdownListModel.hintString, "", "hintString");
   assert.equal(dropdownListModel.inputStringRendered, "");
+});
+
+QUnit.test("Dropdown should noy be open on click in design mode", (assert) => {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.ok(dropdownListModel.popupModel);
+
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 28);
+  assert.notOk(dropdownListModel.popupModel.isVisible);
+  dropdownListModel.onClick(new Event("click"));
+  assert.ok(dropdownListModel.popupModel.isVisible);
+  dropdownListModel.onClick(new Event("click"));
+  assert.notOk(dropdownListModel.popupModel.isVisible);
+  survey.setDesignMode(true);
+
+  dropdownListModel.onClick(new Event("click"));
+  assert.notOk(dropdownListModel.popupModel.isVisible);
+});
+QUnit.test("order & locale change", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choicesOrder: "asc",
+      choices: [{ value: "A", text: { default: "AA", de: "BAA" } },
+        { value: "B", text: { default: "BB", de: "ABB" } }] }
+  ] });
+  const question = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  let list: ListModel = question.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 2, "Two items");
+  assert.equal(list.actions[0].id, "A", "action[0].id");
+  assert.equal(list.actions[1].id, "B", "action[1].id");
+  survey.locale = "de";
+  list = question.popupModel.contentComponentData.model as ListModel;
+  assert.equal(list.actions.length, 2, "Two items");
+  assert.equal(list.actions[0].id, "B", "action[0].id, de");
+  assert.equal(list.actions[1].id, "A", "action[1].id, de");
 });

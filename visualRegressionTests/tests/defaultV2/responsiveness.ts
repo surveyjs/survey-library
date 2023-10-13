@@ -1,6 +1,6 @@
 import { Selector, ClientFunction } from "testcafe";
 import { imageSource } from "../../constants";
-import { url, takeElementScreenshot, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest } from "../../helper";
+import { url, takeElementScreenshot, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, resetHoverToBody } from "../../helper";
 
 const title = "Responsiveness Screenshot";
 
@@ -16,8 +16,7 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
   });
   test("Check simple question in small screen", async (t) => {
@@ -35,6 +34,56 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-simple-question.png", Selector(".sd-question"), t, comparer);
     });
   });
+
+  test("Check simple question on smartphone screen", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        "elements": [{
+          "name": "username",
+          "type": "text",
+          "title": "Username",
+          "maxLength": 25
+        }, {
+          "name": "email",
+          "type": "text",
+          "title": "E-mail address",
+          "inputType": "email",
+          "placeholder": "foobar@example.com",
+          "isRequired": true,
+          "autocomplete": "email"
+        }, {
+          "name": "password",
+          "type": "text",
+          "title": "Password",
+          "description": "Enter 8 characters minimum.",
+          "inputType": "password",
+          "isRequired": true,
+          "autocomplete": "password",
+          "validators": [{
+            "type": "text",
+            "minLength": 8,
+            "text": "Your password must be at least 8 characters long."
+          }]
+        }, {
+          "name": "url",
+          "type": "text",
+          "title": "URL",
+          "inputType": "url",
+          "placeholder": "https://www.example.com",
+          "validators": [{
+            "type": "regex",
+            "regex": "https://.*",
+            "text": "Your answer must match the URL pattern."
+          }]
+        }],
+        "showQuestionNumbers": false
+      });
+      await ClientFunction(() => { document.body.style.maxWidth = "375px"; document.body.style.maxHeight = "667px"; })();
+      await takeElementScreenshot("responsiveness-simple-question-mobile.png", Selector("body"), t, comparer);
+      await ClientFunction(() => { document.body.style.removeProperty("maxWidth"); document.body.style.removeProperty("maxHeight"); })();
+    });
+  });
+
   test("Check simple question in small screen with rtl", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
@@ -164,6 +213,37 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-matrix.png", Selector(".sd-question"), t, comparer);
     });
   });
+  test("Check matrix on small screen - alt rows", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            "type": "matrix",
+            "name": "Quality",
+            "alternateRows": true,
+            "title": "Please indicate if you agree or disagree with the following statements",
+            "columns": ["Strongly Disagree",
+              "Disagree",
+              "Neutral",
+              "Agree",
+              "Strongly Agree",
+            ],
+            "rows": [
+              "Product is affordable",
+              "Product does what it claims",
+              "Product is better than other products on the market"
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+      await takeElementScreenshot("responsiveness-matrix-alt-rows.png", Selector(".sd-question"), t, comparer);
+    });
+  });
   test("Check matrixdynamic on small screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
@@ -197,6 +277,83 @@ frameworks.forEach(framework => {
         document.body.focus();
       })();
       await takeElementScreenshot("responsiveness-matrixdynamic.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check matrixdynamic on small screen with errors", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "frameworks",
+            title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+            columns: [
+              {
+                "name": "Column 1",
+                "isRequired": true,
+                "title": "Framework"
+              },
+              {
+                "name": "Column 2",
+                "title": "How long do you use it?"
+              },
+              {
+                "name": "Column 3",
+                "isRequired": true,
+                "title": "What is main strength?"
+              }
+            ],
+            addRowText: "Add a New Record",
+            rowCount: 2,
+          },
+        ]
+      });
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await resetHoverToBody(t);
+
+      await takeElementScreenshot("responsiveness-matrixdynamic-with-errros.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("Check matrixdynamic on small screen with errors bottom", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questionErrorLocation: "bottom",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "frameworks",
+            title: "Please tells us your opinion about JavaScript MVVM frameworks.",
+            columns: [
+              {
+                "name": "Column 1",
+                "isRequired": true,
+                "title": "Framework"
+              },
+              {
+                "name": "Column 2",
+                "title": "How long do you use it?"
+              },
+              {
+                "name": "Column 3",
+                "isRequired": true,
+                "title": "What is main strength?"
+              }
+            ],
+            addRowText: "Add a New Record",
+            rowCount: 2,
+          },
+        ]
+      });
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await resetHoverToBody(t);
+
+      await takeElementScreenshot("responsiveness-matrixdynamic-with-errros-bottom.png", Selector(".sd-question"), t, comparer);
     });
   });
   test("Check matrixdropdown on small screen", async (t) => {
@@ -244,7 +401,8 @@ frameworks.forEach(framework => {
       await initSurvey(framework, {
         showQuestionNumbers: "off",
         questions: [
-          { type: "multipletext",
+          {
+            type: "multipletext",
             name: "q1",
             title: "Personal Information",
             colCount: 2,
@@ -266,6 +424,9 @@ frameworks.forEach(framework => {
         ]
       });
       const inputSelector = Selector(".sd-input");
+      await takeElementScreenshot("responsiveness-multipletext-empty.png", Selector(".sd-question"), t, comparer);
+      await t.click(inputSelector.nth(0));
+      await takeElementScreenshot("responsiveness-multipletext-focus.png", Selector(".sd-question"), t, comparer);
       await t.typeText(inputSelector.nth(0), "Jon Snow")
         .typeText(inputSelector.nth(2), "jon@snow.com")
         .typeText(inputSelector.nth(4), "1234-56789");
@@ -332,7 +493,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-ranking-hover-item.png", Selector(".sd-question"), t, comparer);
     });
   });
-  test("check survey layout in mobile mode", async(t) => {
+  test("check survey layout in mobile mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework,

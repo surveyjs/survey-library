@@ -13,7 +13,7 @@ import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
 import { QuestionTextModel } from "./question_text";
-import { JsonObject, Serializer } from "./jsonobject";
+import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
@@ -41,7 +41,7 @@ export class MultipleTextEditorModel extends QuestionTextModel {
 }
 
 /**
- * A class that describes an item in a [Multiple Text](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
+ * A class that describes an item in a [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
  *
  * [View Demo](/form-library/examples/multiple-text-box-question/)
  */
@@ -108,7 +108,11 @@ export class MultipleTextItemModel extends Base
       this.editor.defaultValue = data.getItemDefaultValue(this.name);
       this.editor.setSurveyImpl(this);
       this.editor.parent = data;
+      this.editor.setParentQuestion(<any>data);
     }
+  }
+  public focusIn = (): void => {
+    this.editor.focusIn();
   }
   /**
    * Set this property to true, to make the item a required. If a user doesn't fill the item then a validation error will be generated.
@@ -305,7 +309,6 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < names.length; i++) question.addItem(names[i]);
   }
 
-  colCountChangedCallback: () => void;
   constructor(name: string) {
     super(name);
     this.createNewArray("items", (item: any) => {
@@ -314,8 +317,8 @@ export class QuestionMultipleTextModel extends Question
         this.survey.multipleTextItemAdded(this, item);
       }
     });
-    this.registerPropertyChangedHandlers(["items", "colCount"], () => {
-      this.fireCallback(this.colCountChangedCallback);
+    this.registerPropertyChangedHandlers(["items", "colCount", "itemErrorLocation"], () => {
+      this.calcVisibleRows();
     });
     this.registerPropertyChangedHandlers(["itemSize"], () => { this.updateItemsSize(); });
   }
@@ -331,9 +334,8 @@ export class QuestionMultipleTextModel extends Question
   public get isAllowTitleLeft(): boolean {
     return false;
   }
-  public get hasSingleInput(): boolean {
-    return false;
-  }
+  public get hasSingleInput(): boolean { return false; }
+  public get isContainer(): boolean { return true; }
   public get id() {
     return this.getPropertyValue("id");
   }
@@ -344,7 +346,6 @@ export class QuestionMultipleTextModel extends Question
   onSurveyLoad() {
     this.editorsOnSurveyLoad();
     super.onSurveyLoad();
-    this.fireCallback(this.colCountChangedCallback);
   }
   setQuestionValue(newValue: any, updateIsAnswered: boolean = true) {
     super.setQuestionValue(newValue, updateIsAnswered);
@@ -415,10 +416,7 @@ export class QuestionMultipleTextModel extends Question
     }
     return null;
   }
-  public addConditionObjectsByContext(
-    objects: Array<IConditionObject>,
-    context: any
-  ) {
+  public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];
       objects.push({
@@ -427,6 +425,9 @@ export class QuestionMultipleTextModel extends Question
         question: this,
       });
     }
+  }
+  protected collectNestedQuestionsCore(questions: Question[], visibleOnly: boolean): void {
+    this.items.forEach(item => item.editor.collectNestedQuestions(questions, visibleOnly));
   }
   public getConditionJson(operator: string = null, path: string = null): any {
     if (!path) return super.getConditionJson();
@@ -447,6 +448,37 @@ export class QuestionMultipleTextModel extends Question
     for (var i = 0; i < this.items.length; i++) {
       this.items[i].localeChanged();
     }
+  }
+  /**
+   * Specifies the error message position relative to individual input fields.
+   *
+   * Possible values:
+   *
+   * - `"default"` (default) - Inherits the setting from the [`errorLocation`](#errorLocation) property.
+   * - `"top"` - Displays error messages above input fields.
+   * - `"bottom"` - Displays error messages below input fields.
+   */
+  public get itemErrorLocation(): string {
+    return this.getPropertyValue("itemErrorLocation");
+  }
+  public set itemErrorLocation(val: string) {
+    this.setPropertyValue("itemErrorLocation", val);
+  }
+  public getQuestionErrorLocation(): string {
+    if(this.itemErrorLocation !== "default") return this.itemErrorLocation;
+    return this.getErrorLocation();
+  }
+  public get showItemErrorOnTop(): boolean {
+    return this.getQuestionErrorLocation() == "top";
+  }
+  public get showItemErrorOnBottom(): boolean {
+    return this.getQuestionErrorLocation() == "bottom";
+  }
+  public getChildErrorLocation(child: Question): string {
+    return this.getQuestionErrorLocation();
+  }
+  protected isNewValueCorrect(val: any): boolean {
+    return Helpers.isValueObject(val, true);
   }
   supportGoNextPageAutomatic(): boolean {
     for (var i = 0; i < this.items.length; i++) {
@@ -475,32 +507,58 @@ export class QuestionMultipleTextModel extends Question
   public set itemSize(val: number) {
     this.setPropertyValue("itemSize", val);
   }
-  public getRows(): Array<any> {
-    var colCount = this.colCount;
-    var items = this.items;
-    var rows = [];
-    var index = 0;
+  @propertyArray() rows: Array<MutlipleTextRow>;
+
+  protected onRowCreated(row: MutlipleTextRow) {
+    return row;
+  }
+
+  private calcVisibleRows() {
+    const colCount = this.colCount;
+    const items = this.items;
+    let index = 0;
+    let row: MutlipleTextRow;
+    let errorRow: MutlipleTextErrorRow;
+    let rows: Array<MutlipleTextRow> = [];
     for (var i = 0; i < items.length; i++) {
-      if (index == 0) {
-        rows.push([]);
+      if(index == 0) {
+        row = this.onRowCreated(new MutlipleTextRow());
+        errorRow = <MutlipleTextErrorRow>this.onRowCreated(new MutlipleTextErrorRow());
+        if(this.showItemErrorOnTop) {
+          rows.push(errorRow);
+          rows.push(row);
+        }
+        else {
+          rows.push(row);
+          rows.push(errorRow);
+        }
       }
-      rows[rows.length - 1].push(items[i]);
+      row.cells.push(new MultipleTextCell(items[i], this));
+      errorRow.cells.push(new MultipleTextErrorCell(items[i], this));
       index++;
-      if (index >= colCount) {
+      if (index >= colCount || i == items.length - 1) {
         index = 0;
+        errorRow.onAfterCreated();
       }
     }
-    return rows;
+    this.rows = rows;
+  }
+
+  public getRows(): Array<any> {
+    if(Helpers.isValueEmpty(this.rows)) {
+      this.calcVisibleRows();
+    }
+    return this.rows;
   }
   private isMultipleItemValueChanging = false;
-  protected onValueChanged() {
+  protected onValueChanged(): void {
     super.onValueChanged();
     this.onItemValueChanged();
   }
   protected createTextItem(name: string, title: string): MultipleTextItemModel {
     return new MultipleTextItemModel(name, title);
   }
-  protected onItemValueChanged() {
+  protected onItemValueChanged(): void {
     if (this.isMultipleItemValueChanging) return;
     for (var i = 0; i < this.items.length; i++) {
       var itemValue = null;
@@ -590,6 +648,9 @@ export class QuestionMultipleTextModel extends Question
     }
     return res;
   }
+  protected allowMobileInDesignMode(): boolean {
+    return true;
+  }
   //IMultipleTextData
   getMultipleTextValue(name: string) {
     if (!this.value) return null;
@@ -644,8 +705,16 @@ export class QuestionMultipleTextModel extends Question
   ensureRowsVisibility(): void {
     // do nothing
   }
+  validateContainerOnly(): void {
+    // do nothing
+  }
   public getItemLabelCss(item: MultipleTextItemModel): string {
-    return new CssClassBuilder().append(this.cssClasses.itemLabel).append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0).toString();
+    return new CssClassBuilder()
+      .append(this.cssClasses.itemLabel)
+      .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
+      .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
+      .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)
+      .toString();
   }
   public getItemCss(): string {
     return new CssClassBuilder().append(this.cssClasses.item).toString();
@@ -653,8 +722,45 @@ export class QuestionMultipleTextModel extends Question
   public getItemTitleCss(): string {
     return new CssClassBuilder().append(this.cssClasses.itemTitle).toString();
   }
-  protected getIsTooltipErrorInsideSupported(): boolean {
-    return true;
+}
+
+export class MutlipleTextRow extends Base {
+  @property() public isVisible: boolean = true;
+  @propertyArray() public cells: Array<MultipleTextCell> = []
+}
+export class MutlipleTextErrorRow extends MutlipleTextRow {
+  public onAfterCreated(): void {
+    const callback = () => {
+      this.isVisible = this.cells.some((cell) => cell.item?.editor && cell.item?.editor.hasVisibleErrors);
+    };
+    this.cells.forEach((cell) => {
+      if(cell.item?.editor) {
+        cell.item?.editor.registerFunctionOnPropertyValueChanged("hasVisibleErrors", callback);
+      }
+    });
+    callback();
+  }
+}
+export class MultipleTextCell {
+  constructor(public item: MultipleTextItemModel, protected question: QuestionMultipleTextModel) {}
+  public isErrorsCell: boolean = false;
+  protected getClassName(): string {
+    return new CssClassBuilder().append(this.question.cssClasses.cell).toString();
+  }
+  public get className(): string {
+    return this.getClassName();
+  }
+}
+
+export class MultipleTextErrorCell extends MultipleTextCell {
+  public isErrorsCell: boolean = true;
+  protected getClassName(): string {
+    return new CssClassBuilder()
+      .append(super.getClassName())
+      .append(this.question.cssClasses.cellError)
+      .append(this.question.cssClasses.cellErrorTop, this.question.showItemErrorOnTop)
+      .append(this.question.cssClasses.cellErrorBottom, this.question.showItemErrorOnBottom)
+      .toString();
   }
 }
 
@@ -693,6 +799,7 @@ Serializer.addClass(
     { name: "!items:textitems", className: "multipletextitem" },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
+    { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
   ],
   function () {
     return new QuestionMultipleTextModel("");

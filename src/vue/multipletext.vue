@@ -1,18 +1,22 @@
 <template>
-
-  <table :class="question.cssClasses.root">
+  <table :class="question.getQuestionRootCss()">
     <tbody>
-      <tr
-        v-for="(row, rowindex) in question.getRows()"
-        :key="question.inputId + 'rowkey' + rowindex"
-        :class="question.cssClasses.row"
+      <template
+        v-for="(row, rowIndex) in question.getRows()"
       >
-        <template v-for="item in row">
-          <td :key="'item' + item.editor.id" :class="question.cssClasses.cell">
-            <survey-multipletext-item :question="question" :item="item"></survey-multipletext-item>
+        <tr :class="question.cssClasses.row" v-if="row.isVisible" :key="question.inputId + 'rowkey' + rowIndex">
+          <td
+            v-for="cell in row.cells"
+            :key="'item' + cell.item.editor.id"
+            :class="cell.className"
+          >
+            <survey-multipletext-item
+              :question="question"
+              :cell="cell"
+            ></survey-multipletext-item>
           </td>
-        </template>
-      </tr>
+        </tr>
+      </template>
     </tbody>
   </table>
 </template>

@@ -1,4 +1,4 @@
-import { Action, ActionDropdownViewModel, IAction } from "../../src/actions/action";
+import { Action, ActionDropdownViewModel, IAction, createDropdownActionModel } from "../../src/actions/action";
 import { AdaptiveActionContainer } from "../../src/actions/adaptive-container";
 import { ActionContainer, defaultActionBarCss } from "../../src/actions/container";
 import { LocalizableString } from "../../src/localizablestring";
@@ -97,7 +97,8 @@ QUnit.test("Check hideItemsGreaterN with minVisibleItemsCount", (assert) => {
 QUnit.test("Check dropdown action pressed state", (assert) => {
   const p1 = new PopupModel("", "");
   const p2 = new PopupModel("", "");
-  const action: Action = new Action({ id: "first",
+  const action: Action = new Action({
+    id: "first",
     component: "sv-action-bar-item-dropdown",
     popupModel: p1
   },);
@@ -173,7 +174,7 @@ QUnit.test("Action title in list model", (assert) => {
     locTitleName: "selectAllItemText",
     locTooltipName: "previewText"
   });
-  const list = new ListModel([action1], () => {}, true);
+  const list = new ListModel([action1], () => { }, true);
   const popupModel = new PopupModel("sv-list", list, "bottom", "center");
   survey.addNavigationItem({ id: "action1", title: "test", popupModel: popupModel });
   assert.equal(action1.locTitle.text, "Select All", "take text from en localization");
@@ -203,3 +204,76 @@ QUnit.test(
     assert.ok(action.ariaExpanded, "property exists");
   }
 );
+QUnit.test("Dispose dots item and all it content", (assert) => {
+  const model: AdaptiveActionContainer = new AdaptiveActionContainer();
+  model.setItems([
+    { id: "first", },
+    { id: "second" },
+  ]);
+  model["hideItemsGreaterN"](0);
+  assert.equal(model.actions[0].mode, "popup");
+  assert.equal(model.actions[1].mode, "popup");
+  assert.notEqual(model.dotsItem.popupModel, undefined, "popup model exists");
+  assert.equal(model.dotsItem.popupModel.isDisposed, false, "popup model is not disposed");
+  assert.notEqual(model.dotsItem.data, undefined, "list model exists");
+  assert.equal(model.dotsItem.data.isDisposed, false, "list model is not disposed");
+
+  const action1 = model.actions[0];
+  const action2 = model.actions[1];
+
+  model.dispose();
+  assert.equal(model.actions.length, 0, "actions are removed");
+  assert.equal(action1.isDisposed, true, "action 1 is disposed");
+  assert.equal(action2.isDisposed, true, "action 2 is disposed");
+  assert.equal(model.dotsItem.isDisposed, true, "dotsItem is disposed");
+  assert.equal(model.dotsItem.popupModel.isDisposed, true, "popup model is disposed");
+  assert.equal(model.dotsItem.data.isDisposed, true, "list model is disposed");
+});
+QUnit.test("createDropdownActionModel: switch action title", (assert) => {
+  let items: Array<any> = [];
+  for (let index = 0; index < 20; index++) {
+    items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
+  }
+
+  let selectedValue;
+  const dropdownAction = createDropdownActionModel(
+    { title: "Test", showTitle: true },
+    { items: items, onSelectionChanged: (item: Action) => { selectedValue = item.id; } }
+  );
+  const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(selectedValue, undefined);
+  assert.equal(dropdownAction.title, "Test");
+
+  list.onItemClick(items[1]);
+  assert.equal(selectedValue, "1");
+  assert.equal(dropdownAction.title, "item1");
+
+  list.onItemClick(items[10]);
+  assert.equal(selectedValue, "10");
+  assert.equal(dropdownAction.title, "item10");
+});
+QUnit.test("createDropdownActionModel: title is not changed", (assert) => {
+  let items: Array<any> = [];
+  for (let index = 0; index < 20; index++) {
+    items[index] = new Action(<IAction>{ id: index.toString(), title: "item" + index });
+  }
+
+  let selectedValue;
+  const dropdownAction = createDropdownActionModel(
+    { title: "Test", showTitle: false, iconName: "test-icon" },
+    { items: items, onSelectionChanged: (item: Action) => { selectedValue = item.id; } }
+  );
+  const list: ListModel = dropdownAction.popupModel.contentComponentData.model as ListModel;
+
+  assert.equal(selectedValue, undefined);
+  assert.equal(dropdownAction.title, "Test");
+
+  list.onItemClick(items[1]);
+  assert.equal(selectedValue, "1");
+  assert.equal(dropdownAction.title, "Test");
+
+  list.onItemClick(items[10]);
+  assert.equal(selectedValue, "10");
+  assert.equal(dropdownAction.title, "Test");
+});

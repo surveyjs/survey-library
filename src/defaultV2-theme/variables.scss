@@ -10,18 +10,17 @@ $secondary-backcolor-semi-light: var(--sjs-secondary-backcolor-semi-light, rgba(
 $secondary-forecolor: var(--sjs-secondary-forecolor, #fff);
 $secondary-forecolor-light: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
 
-$editor-background: var(
-  --sjs-editorpanel-backcolor,
-  var(--sjs-editor-background, var(--background-dim-light, #f9f9f9))
-);
-$question-background: var(--sjs-questionpanel-backcolor, var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff))));
+$editor-background: var(--sjs-editorpanel-backcolor,
+    var(--sjs-editor-background, var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9))));
+$question-background: var(--sjs-questionpanel-backcolor,
+    var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff))));
 
 $background: var(--sjs-general-backcolor, var(--background, #fff));
 $background-dim: var(--sjs-general-backcolor-dim, var(--background-dim, #f3f3f3));
 $background-dim-light: var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9));
 $background-semitransparent: var(--background-semitransparent, rgba(144, 144, 144, 0.5));
 $background-dark: var(--sjs-questionpanel-hovercolor, var(--sjs-general-backcolor-dark, rgb(248, 248, 248)));
-$background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-dim-backcolor-dark, rgb(243, 243, 243)));
+$background-dim-dark: var(--sjs-editorpanel-hovercolor, var(--sjs-general-backcolor-dim-dark, rgb(243, 243, 243)));
 
 $corner-radius: var(--sjs-corner-radius, 4px);
 $editor-corner-radius: var(--sjs-editorpanel-cornerRadius, var(--sjs-corner-radius, 4px));
@@ -32,12 +31,18 @@ $foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #9
 $foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
+$cover-backcolor: var(--sjs-cover-backcolor);
+$cover-title-forecolor: var(--sjs-cover-title-forecolor, #{$foreground-dim});
+$cover-description-forecolor: var(--sjs-cover-description-forecolor, #{$foreground-dim-light});
+
 $border: var(--sjs-border-default, var(--border, #d6d6d6));
 $border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
 $border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
 
-$shadow-medium: rgba(0, 0, 0, 0.1);
-$shadow-inner: rgba(0, 0, 0, 0.15);
+$shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
+$shadow-large: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
+$shadow-inner: var(--sjs-shadow-inner, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
 
 $red: var(--sjs-special-red, var(--red, #e60a3e));
 $red-light: var(--sjs-special-red-light, var(--red-light, rgba(230, 10, 62, 0.1)));
@@ -53,59 +58,100 @@ $blue-light: var(--sjs-special-blue-light, var(--blue-light, rgba(67, 127, 217, 
 $blue-forecolor: var(--sjs-special-blue-forecolor, #ffffff);
 
 $font-family: var(--font-family);
-$font-size: var(--sjs-font-size, calc(2 * var(--sjs-base-unit, var(--base-unit, 8px))));
+$font-size: var(--sjs-font-size, 16px);
 
 $font-surveytitle-family: var(--sjs-font-surveytitle-family, var(--font-family));
 $font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);
-$font-surveytitle-size: var(--sjs-font-surveytitle-size, calc(2 * var(--sjs-font-size, $font-size)));
 
 $font-pagetitle-family: var(--sjs-font-pagetitle-family, var(--font-family));
 $font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);
 $font-pagetitle-color: var(--sjs-font-pagetitle-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
-$font-pagetitle-size: var(--sjs-font-pagetitle-size, calc(1.5 * var(--sjs-font-size, $font-size)));
 
 $font-pagedescription-family: var(--sjs-font-pagedescription-family, var(--font-family));
 $font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
-$font-pagedescription-color: var(
-  --sjs-font-pagedescription-color,
-  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
-);
-$font-pagedescription-size: var(--sjs-font-pagedescription-size, calc(1 * var(--sjs-font-size, $font-size)));
+$font-pagedescription-color: var(--sjs-font-pagedescription-color,
+    var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
+$font-pagedescription-size: var(--sjs-font-pagedescription-size, $font-size);
 
 $font-questiontitle-family: var(--sjs-font-questiontitle-family, var(--font-family));
 $font-questiontitle-weight: var(--sjs-font-questiontitle-weight, 600);
-$font-questiontitle-color: var(--sjs-font-questiontitle-color, var(--sjs-general-forecolor, var(--foreground, #161616)));
-$font-questiontitle-size: var(--sjs-font-questiontitle-size, calc(1 * var(--sjs-font-size, $font-size)));
+$font-questiontitle-color: var(--sjs-font-questiontitle-color,
+    var(--sjs-general-forecolor, var(--foreground, #161616)));
+$font-questiontitle-size: var(--sjs-font-questiontitle-size, $font-size);
 
 $font-questiondescription-family: var(--sjs-font-questiondescription-family, var(--font-family));
 $font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
-$font-questiondescription-color: var(
-  --sjs-font-questiondescription-color,
-  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
-);
-$font-questiondescription-size: var(--sjs-font-questiondescription-size, calc(1 * var(--sjs-font-size, $font-size)));
+$font-questiondescription-color: var(--sjs-font-questiondescription-color,
+    var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45)));
+$font-questiondescription-size: var(--sjs-font-questiondescription-size, $font-size);
+$font-questionplaceholder-color: var(--sjs-font-questiondescription-color,
+    var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45)));
 
 $font-editorfont-family: var(--sjs-font-editorfont-family, var(--font-family));
 $font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
-$font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91)));
-$font-editorfont-size: var(--sjs-font-editorfont-size, calc(1 * var(--sjs-font-size, $font-size)));
-$questionpanel-boxshadow: var(--sjs-shadow-small, 0px 1px 2px 0px $shadow-inner);
-$editor-boxshadow: var(--sjs-shadow-inner, inset 0px 1px 2px $shadow-inner);
+$font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-forecolor, rgba(0, 0, 0, 0.91)));
+$font-editorfont-placeholdercolor: var(--sjs-font-editorfont-placeholdercolor, var(--sjs-general-forecolor-light, var(--foreground-light, #909090)));
+$font-editorfont-size: var(--sjs-font-editorfont-size, $font-size);
 $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 
+@function multiply($a, $b) {
+  @if $a ==1 {
+    $result: #{$b};
+    @return $result;
+  }
+
+  @else {
+    $result: calc(#{$a} * (#{$b}));
+    @return $result;
+  }
+}
+
 @function calcSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$base-unit});
-  @return $result;
+  @if $multiplier ==1 {
+    $result: #{$base-unit};
+    @return $result;
+  }
+
+  @else {
+    $result: calc(#{$multiplier} * (#{$base-unit}));
+    @return $result;
+  }
 }
 
 @function calcFontSize($multiplier) {
-  $result: calc(#{$multiplier} * #{$font-size});
-  @return $result;
+  @if $multiplier ==1 {
+    $result: #{$font-size};
+    @return $result;
+  }
+
+  @else {
+    $result: calc(#{$multiplier} * (#{$font-size}));
+    @return $result;
+  }
+}
+
+@function calcLineHeight($multiplier) {
+  @if $multiplier ==1 {
+    $result: #{$font-size};
+    @return $result;
+  }
+
+  @else {
+    $result: calc(#{$multiplier} * (#{$font-size}));
+    @return $result;
+  }
 }
 
 @function calcCornerRadius($multiplier) {
-  $result: calc(#{$multiplier} * #{$corner-radius});
-  @return $result;
+  @if $multiplier ==1 {
+    $result: #{$corner-radius};
+    @return $result;
+  }
+
+  @else {
+    $result: calc(#{$multiplier} * (#{$corner-radius}));
+    @return $result;
+  }
 }
 
 @mixin smallBold {
@@ -113,7 +159,7 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(0.75);
-  line-height: calcSize(2);
+  line-height: calcLineHeight(1);
 }
 
 @mixin defaultBold {
@@ -121,17 +167,87 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
 
 @mixin defaultFont {
   font-family: var(--font-family, $font-family);
   font-style: normal;
   font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  line-height: calcLineHeight(1.5);
 }
 
 @mixin borderLight {
   border: calcSize(0.25) solid $border-light;
   border-radius: calcCornerRadius(1);
+}
+
+@mixin articleXXLargeFont {
+  color: $font-questiontitle-color;
+  font-size: var(--sjs-article-font-xx-large-fontSize, 64px);
+  text-decoration: var(--sjs-article-font-xx-large-textDecoration, "none");
+  font-family: $font-family;
+  font-weight: var(--sjs-article-font-xx-large-fontWeight, 700);
+  font-style: var(--sjs-article-font-xx-large-fontStyle, "normal");
+  font-stretch: var(--sjs-article-font-xx-large-fontStretch, "normal");
+  letter-spacing: var(--sjs-article-font-xx-large-letterSpacing, 0);
+  line-height: var(--sjs-article-font-xx-large-lineHeight, 64px);
+  text-indent: var(--sjs-article-font-xx-large-paragraphIndent, 0px);
+  text-transform: var(--sjs-article-font-xx-large-textCase, "none");
+}
+
+@mixin articleXLargeFont {
+  color: $font-questiontitle-color;
+  font-size: var(--sjs-article-font-x-large-fontSize, 48px);
+  text-decoration: var(--sjs-article-font-x-large-textDecoration, "none");
+  font-family: $font-family;
+  font-weight: var(--sjs-article-font-x-large-fontWeight, 700);
+  font-style: var(--sjs-article-font-x-large-fontStyle, "normal");
+  font-stretch: var(--sjs-article-font-x-large-fontStretch, "normal");
+  letter-spacing: var(--sjs-article-font-x-large-letterSpacing, 0);
+  line-height: var(--sjs-article-font-x-large-lineHeight, 56px);
+  text-indent: var(--sjs-article-font-x-large-paragraphIndent, 0px);
+  text-transform: var(--sjs-article-font-x-large-textCase, "none");
+}
+
+@mixin articleLargeFont {
+  color: $font-questiontitle-color;
+  font-size: var(--sjs-article-font-large-fontSize, 32px);
+  text-decoration: var(--sjs-article-font-large-textDecoration, "none");
+  font-family: $font-family;
+  font-weight: var(--sjs-article-font-large-fontWeight, 700);
+  font-style: var(--sjs-article-font-large-fontStyle, "normal");
+  font-stretch: var(--sjs-article-font-large-fontStretch, "normal");
+  letter-spacing: var(--sjs-article-font-large-letterSpacing, 0);
+  line-height: var(--sjs-article-font-large-lineHeight, 40px);
+  text-indent: var(--sjs-article-font-large-paragraphIndent, 0px);
+  text-transform: var(--sjs-article-font-large-textCase, "none");
+}
+
+@mixin articleMediumFont {
+  color: $font-questiontitle-color;
+  font-size: var(--sjs-article-font-medium-fontSize, 24px);
+  text-decoration: var(--sjs-article-font-medium-textDecoration, "none");
+  font-family: $font-family;
+  font-weight: var(--sjs-article-font-medium-fontWeight, 700);
+  font-style: var(--sjs-article-font-medium-fontStyle, "normal");
+  font-stretch: var(--sjs-article-font-medium-fontStretch, "normal");
+  letter-spacing: var(--sjs-article-font-medium-letterSpacing, 0);
+  line-height: var(--sjs-article-font-medium-lineHeight, 32px);
+  text-indent: var(--sjs-article-font-medium-paragraphIndent, 0px);
+  text-transform: var(--sjs-article-font-medium-textCase, "none");
+}
+
+@mixin articleDefaultFont {
+  color: $font-questiontitle-color;
+  font-size: var(--sjs-article-font-default-fontSize, 16px);
+  text-decoration: var(--sjs-article-font-default-textDecoration, "none");
+  font-family: $font-family;
+  font-weight: var(--sjs-article-font-default-fontWeight, 400);
+  font-style: var(--sjs-article-font-default-fontStyle, "normal");
+  font-stretch: var(--sjs-article-font-default-fontStretch, "normal");
+  letter-spacing: var(--sjs-article-font-default-letterSpacing, 0);
+  line-height: var(--sjs-article-font-default-lineHeight, 28px);
+  text-indent: var(--sjs-article-font-default-paragraphIndent, 0px);
+  text-transform: var(--sjs-article-font-default-textCase, "none");
 }

@@ -4,7 +4,10 @@
             data-bind="text: placeHolderText, css: question.cssClasses.placeholder, visible: $data.needShowPlaceholder()">
         </div>
         <div>
-            <canvas tabindex='0'></canvas>
+            <!-- ko if: question.backgroundImage -->
+            <img data-bind="attr: { src: question.backgroundImage, width: question.signatureWidth, height: question.signatureHeight }, css: question.cssClasses.backgroundImage">
+            <!-- /ko -->
+            <canvas tabindex='0' data-bind="css: question.cssClasses.canvas"></canvas>
         </div>
         <!-- ko if: question.canShowClearButton -->
         <div data-bind="css: question.cssClasses.controls">

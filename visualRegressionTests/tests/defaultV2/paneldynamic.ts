@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, wrapVisualTest, takeElementScreenshot } from "../../helper";
+import { url, frameworks, initSurvey, url_test, wrapVisualTest, takeElementScreenshot } from "../../helper";
 
 const title = "Paneldynamic Screenshot";
 
@@ -12,6 +12,7 @@ const applyTheme = ClientFunction(theme => {
 });
 var json = {
   showQuestionNumbers: "off",
+  width: "900px",
   questions: [
     {
       type: "paneldynamic",
@@ -40,6 +41,8 @@ var json = {
       noEntriesText: "You can add as many applications as you want.\nJust click the button below to start.",
       panelAddText: "Add application",
       panelRemoveText: "Remove application",
+      maxWidth: "768px",
+      minWidth: "768px",
       width: "768px"
     },
   ]
@@ -49,8 +52,7 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
     await initSurvey(framework, json);
   });
@@ -92,14 +94,13 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
     await initSurvey(framework, json, {
       onGetPanelFooterActions: (_, opt) => {
         opt.actions.push({
           title: "Duplicate",
-          action: () => {}
+          action: () => { }
         });
       }
     });
@@ -151,12 +152,11 @@ frameworks.forEach(framework => {
     ]
   };
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
     await initSurvey(framework, json);
   });
-  test("Two Paneldynamics in one row", async (t)=>{
+  test("Two Paneldynamics in one row", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1920);
       await ClientFunction(() => {
@@ -247,7 +247,7 @@ frameworks.forEach(framework => {
                 isRequired: true,
                 startWithNewLine: false,
                 visibleIf:
-                "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
+                  "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
               }
             ],
             panelCount: 2,
@@ -259,12 +259,11 @@ frameworks.forEach(framework => {
     ]
   };
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
     await initSurvey(framework, json);
   });
-  test("Navigation panel by tabs", async (t)=>{
+  test("Navigation panel by tabs", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
       await ClientFunction(() => {
@@ -284,6 +283,146 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("paneldynamic-tabs-responsiveness", Selector(".sd-question--paneldynamic"), t, comparer);
       await t.hover(".sv-dots");
       await takeElementScreenshot("paneldynamic-tabs-responsiveness-hover", Selector(".sd-question--paneldynamic"), t, comparer);
+    });
+  });
+});
+
+frameworks.forEach(framework => {
+  const json = {
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            type: "paneldynamic",
+            name: "relatives",
+            title: "Panel Dynamic",
+            templateTitle: "Information about: {panel.relativeType}",
+            templateElements: [
+              {
+                name: "relativeType",
+                type: "dropdown",
+                title: "Relative",
+                choices: [
+                  "father",
+                  "mother",
+                  "brother",
+                  "sister",
+                  "son",
+                  "daughter"
+                ],
+                isRequired: true
+              },
+              {
+                name: "isalive",
+                type: "radiogroup",
+                title: "Alive?",
+                startWithNewLine: false,
+                isRequired: true,
+                colCount: 0,
+                choices: ["Yes", "No"]
+              },
+              {
+                name: "liveage",
+                type: "dropdown",
+                title: "Age",
+                isRequired: true,
+                startWithNewLine: false,
+                visibleIf: "{panel.isalive} = 'Yes'",
+                choicesMin: 1,
+                choicesMax: 115
+              },
+              {
+                name: "deceasedage",
+                type: "dropdown",
+                title: "Deceased Age",
+                isRequired: true,
+                startWithNewLine: false,
+                visibleIf: "{panel.isalive} = 'No'",
+                choices: [
+                  {
+                    value: -1,
+                    text: "Unknown"
+                  }
+                ],
+                choicesMin: 1,
+                choicesMax: 115
+              },
+              {
+                name: "causeofdeathknown",
+                type: "radiogroup",
+                title: "Cause of Death Known?",
+                isRequired: true,
+                colCount: 0,
+                startWithNewLine: false,
+                visibleIf: "{panel.isalive} = 'No'",
+                choices: ["Yes", "No"]
+              },
+              {
+                name: "causeofdeath",
+                type: "text",
+                title: "Cause of Death",
+                isRequired: true,
+                startWithNewLine: false,
+                visibleIf:
+                  "{panel.isalive} = 'No' and {panel.causeofdeathknown} = 'Yes'"
+              }
+            ],
+            panelCount: 1,
+            maxPanelCount: 1,
+            minPanelCount: 1
+          }
+        ]
+      }
+    ]
+  };
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
+  test("Paneldynamic without buttons", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+      await takeElementScreenshot("paneldynamic-without-buttons", Selector(".sd-question--paneldynamic"), t, comparer);
+    });
+  });
+});
+
+frameworks.forEach(framework => {
+  const json = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [{
+          "type": "paneldynamic",
+          "panelCount": 1,
+          "name": "question1",
+          "templateElements": [
+            {
+              "type": "text",
+              "name": "question2"
+            }
+          ],
+          "confirmDelete": true
+        }]
+      }
+    ]
+  };
+  fixture`${framework} ${title} ${theme}`
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
+    await applyTheme(theme);
+    await initSurvey(framework, json);
+  });
+  test("Paneldynamic confirm dialog", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await t.click(Selector(".sd-paneldynamic__remove-btn"));
+      await takeElementScreenshot("paneldynamic-confirm-dialog", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
     });
   });
 });

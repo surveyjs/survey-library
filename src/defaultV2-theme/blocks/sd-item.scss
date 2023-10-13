@@ -10,19 +10,20 @@
   width: calcSize(3);
   height: calcSize(3);
   box-sizing: border-box;
-  background: var(--sd-item-default-background, $editor-background);
-  box-shadow: $editor-boxshadow;
+  background-color: $editor-background;
+  box-shadow: $shadow-inner;
   border: none;
   flex-shrink: 0;
+  margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - calcSize(3)) / 2);
 }
 
 .sd-item--checked .sd-item__decorator {
   box-shadow: none;
 }
 
-.sd-item__control:focus + .sd-item__decorator {
+.sd-item__control:focus+.sd-item__decorator {
   box-shadow: 0 0 0 2px $primary;
-  background: $background;
+  background: $question-background;
   outline: none;
 }
 
@@ -36,12 +37,12 @@
 }
 
 .sd-item__control-label {
-  font-family: var(--font-family, $font-family);
+  font-family: $font-editorfont-family;
   font-style: normal;
-  font-weight: normal;
-  line-height: calcSize(3);
-  font-size: calcFontSize(1);
-  color: $foreground;
+  font-weight: $font-editorfont-weight;
+  line-height: multiply(1.5, $font-editorfont-size);
+  font-size: $font-editorfont-size;
+  color: $font-questiontitle-color;
   white-space: normal;
   word-break: break-word;
   width: 100%;
@@ -49,12 +50,12 @@
 }
 
 .sd-item--disabled .sd-item__control-label {
-  color: $foreground;
+  color: $font-questiontitle-color;
   opacity: 0.25;
 }
 
 .sd-root--readonly .sd-item--disabled .sd-item__control-label {
-  color: $foreground;
+  color: $font-questiontitle-color;
 }
 
 .sd-item--error .sd-item__decorator {

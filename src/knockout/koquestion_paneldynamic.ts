@@ -178,7 +178,7 @@ export class QuestionPanelDynamicImplementor extends QuestionImplementor {
     const el = SurveyElement.GetFirstNonTextElement(elements);
     this.question.survey.afterRenderPanel(con, el);
   }
-  public dispose() {
+  public dispose(): void {
     this.question.panelCountChangedCallback = undefined;
     this.question.renderModeChangedCallback = undefined;
     this.question.currentIndexChangedCallback = undefined;
@@ -195,7 +195,7 @@ export class QuestionPanelDynamic extends QuestionPanelDynamicModel {
     super.onBaseCreating();
     this._implementor = new QuestionPanelDynamicImplementor(this);
   }
-  public dispose() {
+  public dispose(): void {
     this._implementor.dispose();
     this._implementor = undefined;
     super.dispose();

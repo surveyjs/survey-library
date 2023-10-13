@@ -10,6 +10,12 @@ import { getElement } from "./utils/utils";
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
 export class PopupBaseViewModel extends Base {
+  private static SubscriptionId = 0;
+  private subscriptionId = PopupBaseViewModel.SubscriptionId++;
+  protected popupSelector = ".sv-popup";
+  protected fixedPopupContainer = ".sv-popup";
+  protected containerSelector = ".sv-popup__container";
+  protected scrollingContentSelector = ".sv-popup__scrolling-content";
   protected prevActiveElement: HTMLElement;
   protected footerToolbarValue: ActionContainer;
 
@@ -21,11 +27,14 @@ export class PopupBaseViewModel extends Base {
   @property({ defaultValue: false }) isVisible: boolean;
   @property() locale: string;
 
-  public container: HTMLElement;
+  public get container(): HTMLElement {
+    return this.containerElement || this.createdContainer;
+  }
+  private containerElement: HTMLElement;
   private createdContainer: HTMLElement;
 
   public getLocale(): string {
-    if(!!this.locale) return this.locale;
+    if (!!this.locale) return this.locale;
     return super.getLocale();
   }
   protected hidePopup(): void {
@@ -72,10 +81,14 @@ export class PopupBaseViewModel extends Base {
     this.minWidth = nullableValue;
   }
 
+  protected onModelChanging(newModel: PopupModel) {
+  }
+
   private setupModel(model: PopupModel) {
     if (!!this.model) {
-      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel");
+      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
     }
+    this.onModelChanging(model);
     this._model = model;
     const onIsVisibleChangedHandler = () => {
       if (!model.isVisible) {
@@ -83,7 +96,7 @@ export class PopupBaseViewModel extends Base {
       }
       this.isVisible = model.isVisible;
     };
-    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel");
+    model.registerPropertyChangedHandlers(["isVisible"], onIsVisibleChangedHandler, "PopupBaseViewModel" + this.subscriptionId);
     onIsVisibleChangedHandler();
   }
 
@@ -137,7 +150,7 @@ export class PopupBaseViewModel extends Base {
     return this.getLocalizationString("modalCancelButtonText");
   }
   public get footerToolbar(): ActionContainer {
-    if(!this.footerToolbarValue) {
+    if (!this.footerToolbarValue) {
       this.createFooterActionBar();
     }
     return this.footerToolbarValue;
@@ -168,9 +181,9 @@ export class PopupBaseViewModel extends Base {
   }
 
   public switchFocus(): void {
-    if(this.isFocusedContent) {
+    if (this.isFocusedContent) {
       this.focusFirstInput();
-    } else if(this.isFocusedContainer) {
+    } else if (this.isFocusedContainer) {
       this.focusContainer();
     }
   }
@@ -192,7 +205,8 @@ export class PopupBaseViewModel extends Base {
   }
   private focusContainer() {
     if (!this.container) return;
-    (<HTMLElement>this.container.children[0]).focus();
+    const popup = (<HTMLElement>this.container.querySelector(this.popupSelector));
+    popup?.focus();
   }
   private focusFirstInput() {
     setTimeout(() => {
@@ -202,8 +216,9 @@ export class PopupBaseViewModel extends Base {
       else this.focusContainer();
     }, 100);
   }
-  public clickOutside(): void {
+  public clickOutside(event?: Event): void {
     this.hidePopup();
+    event?.stopPropagation();
   }
   public cancel(): void {
     this.model.onCancel();
@@ -211,22 +226,45 @@ export class PopupBaseViewModel extends Base {
   }
   public dispose(): void {
     super.dispose();
-    this.unmountPopupContainer();
-    this.container = undefined;
-    if(!!this.footerToolbarValue) {
+    if (this.model) {
+      this.model.unregisterPropertyChangedHandlers(["isVisible"], "PopupBaseViewModel" + this.subscriptionId);
+    }
+    if (!!this.createdContainer) {
+      this.createdContainer.remove();
+      this.createdContainer = undefined;
+    }
+    if (!!this.footerToolbarValue) {
       this.footerToolbarValue.dispose();
     }
+    this.resetComponentElement();
   }
   public initializePopupContainer(): void {
-    if (!this.createdContainer) {
+    if (!this.container) {
       const container: HTMLElement = document.createElement("div");
-      this.container = this.createdContainer = container;
+      this.createdContainer = container;
+      getElement(settings.environment.popupMountContainer).appendChild(container);
     }
-
-    getElement(settings.environment.popupMountContainer).appendChild(this.container);
   }
-
-  public unmountPopupContainer(): void {
-    this.createdContainer.remove();
+  public setComponentElement(componentRoot: HTMLElement, targetElement?: HTMLElement | null): void {
+    if (!!componentRoot) {
+      this.containerElement = componentRoot;
+    }
+  }
+  public resetComponentElement(): void {
+    this.containerElement = undefined;
+    this.prevActiveElement = undefined;
+  }
+  protected preventScrollOuside(event: any, deltaY: number): void {
+    let currentElement = event.target;
+    while (currentElement !== this.container) {
+      if (window.getComputedStyle(currentElement).overflowY === "auto" && currentElement.scrollHeight !== currentElement.offsetHeight) {
+        const { scrollHeight, scrollTop, clientHeight } = currentElement;
+        if (!(deltaY > 0 && Math.abs(scrollHeight - clientHeight - scrollTop) < 1) && !(deltaY < 0 && scrollTop <= 0)) {
+          return;
+        }
+      }
+      currentElement = currentElement.parentElement;
+    }
+    event.preventDefault();
   }
 }

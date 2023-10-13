@@ -145,7 +145,7 @@ export class CalculatedValue extends Base {
     if (!!this.expressionRunner) return;
     this.expressionRunner = new ExpressionRunner(this.expression);
     this.expressionRunner.onRunComplete = newValue => {
-      if (!Helpers.isTwoValueEquals(newValue, this.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, this.value, false, true, false)) {
         this.setValue(newValue);
       }
       this.unlocCalculation();

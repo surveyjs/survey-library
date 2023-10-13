@@ -1,13 +1,7 @@
-import {
-  parse,
-  SyntaxError,
-  ParseFunction,
-} from "../../src/expressions/expressionParser";
-
+import { parse } from "../../src/expressions/expressionParser";
 import { ConditionRunner, ExpressionRunner } from "../../src/conditions";
-
 import { ConditionsParser } from "../../src/conditionsParser";
-
+import { ConsoleWarnings } from "../../src/console-warnings";
 import {
   Const,
   Variable,
@@ -1160,13 +1154,21 @@ QUnit.test("Several async functions in expression", function(assert) {
   var runner = new ConditionRunner(
     "asyncFunc1() + asyncFunc2() + asyncFunc3() = 10"
   );
+  let idBefore: number = -1;
+  let idAfter: number = -1;
+  runner.onBeforeAsyncRun = (id: number) => { idBefore = id; };
+  runner.onAfterAsyncRun = (id: number) => { idAfter = id; };
   var runnerResult = null;
   runner.onRunComplete = function(result: any) {
     runnerResult = result;
   };
   assert.equal(runner.isAsync, true, "The condition is async");
   var values = { a: 3 };
+  assert.equal(idBefore, -1, "idBefore #1");
+  assert.equal(idAfter, -1, "idAfter #1");
   runner.run(values);
+  assert.equal(idBefore, runner.id, "idBefore #2");
+  assert.equal(idAfter, -1, "idAfter #2");
   assert.equal(
     runnerResult,
     null,
@@ -1178,14 +1180,20 @@ QUnit.test("Several async functions in expression", function(assert) {
     null,
     "It is not ready, asyncfunc1 and asyncfunc3 functions do not return anything"
   );
+  assert.equal(idBefore, runner.id, "idBefore #3");
+  assert.equal(idAfter, -1, "idAfter #3");
   returnResult1(7);
   assert.equal(
     runnerResult,
     null,
     "It is not ready, asyncfunc3 function doesn't return anything"
   );
+  assert.equal(idBefore, runner.id, "idBefore #4");
+  assert.equal(idAfter, -1, "idAfter #4");
   returnResult3(1);
   assert.equal(runnerResult, true, "evulate successfull");
+  assert.equal(idBefore, runner.id, "idBefore #5");
+  assert.equal(idAfter, runner.id, "idAfter #5");
   FunctionFactory.Instance.unregister("asyncFunc1");
   FunctionFactory.Instance.unregister("asyncFunc2");
   FunctionFactory.Instance.unregister("asyncFunc3");
@@ -1431,4 +1439,73 @@ QUnit.test("Arrays and plus operations", function(assert) {
 QUnit.test("today(1) <= today(10)", function(assert) {
   const runner = new ExpressionRunner("today(1) <= today(10)");
   assert.deepEqual(runner.run({}), true, "today(1) <= today(10)");
+});
+
+QUnit.test("year, month, day, weekday", function(assert) {
+  let runner = new ExpressionRunner("year('2023-07-28')");
+  assert.deepEqual(runner.run({}), 2023, "year");
+  runner = new ExpressionRunner("month('2023-07-28')");
+  assert.deepEqual(runner.run({}), 7, "month");
+  runner = new ExpressionRunner("day('2023-07-28')");
+  assert.deepEqual(runner.run({}), 28, "day");
+  runner = new ExpressionRunner("weekday('2023-07-28')");
+  assert.deepEqual(runner.run({}), 5, "weekday");
+  runner = new ExpressionRunner("year()");
+  assert.deepEqual(runner.run({}), new Date().getFullYear(), "current year");
+  runner = new ExpressionRunner("month()");
+  assert.deepEqual(runner.run({}), new Date().getMonth() + 1, "current month");
+  runner = new ExpressionRunner("day()");
+  assert.deepEqual(runner.run({}), new Date().getDate(), "current day");
+  runner = new ExpressionRunner("weekday()");
+  assert.deepEqual(runner.run({}), new Date().getDay(), "current weekday");
+});
+QUnit.test("Sum two float numbers as string", function(assert) {
+  let runner = new ExpressionRunner("{a} + {b}");
+  assert.equal(runner.run({ a: "1.1", b: "2.2" }), 3.3, "#1");
+  assert.equal(runner.run({ a: "0.1", b: "0.2" }), 0.3, "#2");
+});
+QUnit.test("Warn in console if the expression is invalid", function(assert) {
+  const prev = ConsoleWarnings.warn;
+  let reportText: string = "";
+  ConsoleWarnings.warn = (text: string) => {
+    reportText = text;
+  };
+  const runner = new ExpressionRunner("{a} ++");
+  assert.notOk(reportText);
+  runner.run({ a: 1 });
+  assert.equal(reportText, "Invalid expression: {a} ++");
+
+  reportText = "";
+  runner.expression = "{a} + 1";
+  runner.run({ a: 1 });
+  assert.notOk(reportText);
+
+  runner.expression = "tooday()";
+  assert.notOk(reportText);
+  runner.run({});
+  assert.equal(reportText, "Unknown function name: tooday");
+
+  reportText = "";
+  runner.expression = "today";
+  runner.run({});
+  assert.notOk(reportText);
+  ConsoleWarnings.warn = prev;
+});
+QUnit.test("Custom function returns object&array, #7050", function(assert) {
+  function func1(params: any[]): any {
+    return { a: 1, b: 2 };
+  }
+  function func2(params: any[]): any {
+    return [{ a: 1 }, { b: 2 }];
+  }
+  FunctionFactory.Instance.register("func1", func1);
+  FunctionFactory.Instance.register("func2", func2);
+
+  let runner = new ExpressionRunner("func1()");
+  assert.deepEqual(runner.run({}, {}), { a: 1, b: 2 }, "function returns object");
+  runner.expression = "func2()";
+  assert.deepEqual(runner.run({}, {}), [{ a: 1 }, { b: 2 }], "function returns array");
+
+  FunctionFactory.Instance.unregister("func1");
+  FunctionFactory.Instance.unregister("func2");
 });

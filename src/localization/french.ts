@@ -1,5 +1,3 @@
-// This dictionary contains 2 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var frenchSurveyStrings = {
@@ -15,6 +13,7 @@ export var frenchSurveyStrings = {
   progressText: "Page {0} sur {1}",
   indexText: "{0} sur {1}",
   panelDynamicProgressText: "Enregistrement {0} sur {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "{0}/{1} question(s) répondue(s)",
   emptySurvey: "Il n'y a ni page visible ni question visible dans ce questionnaire",
   completingSurvey: "Merci d'avoir répondu au questionnaire !",
@@ -76,6 +75,10 @@ export var frenchSurveyStrings = {
   clearCaption: "Vider",
   signaturePlaceHolder: "Signez ici",
   chooseFileCaption: "Ajouter un fichier",
+  takePhotoCaption: "Prendre une photo",
+  cameraPlaceHolder: "Cliquez sur le bouton ci-dessous pour prendre une photo à l’aide de l’appareil photo.",
+  fileCameraDragAreaPlaceHolder: "Faites glisser et déposez ou sélectionnez un fichier à télécharger ou à prendre une photo à l’aide de l’appareil photo.",
+  replaceFileCaption: "Remplacer le fichier",
   removeFileCaption: "Enlever ce fichier",
   booleanCheckedLabel: "Oui",
   booleanUncheckedLabel: "Non",
@@ -85,10 +88,27 @@ export var frenchSurveyStrings = {
   modalCancelButtonText: "Annuler",
   modalApplyButtonText: "Appliquer",
   filterStringPlaceholder: "Tapez pour rechercher...",
-  // emptyMessage: "No data to display",
+  emptyMessage: "Aucune donnée à afficher",
   noEntriesText: "Il n'y a pas encore d'entrées.\nCliquez sur le bouton ci-dessous pour ajouter une nouvelle entrée.",
-  // more: "More"
+  noEntriesReadonlyText: "Il n’y a pas d’entrées.",
+  more: "Plus",
+  tagboxDoneButtonCaption: "D’ACCORD",
+  selectToRankEmptyRankedAreaText: "Tous les choix sont classés",
+  selectToRankEmptyUnrankedAreaText: "Faites glisser et déposez les choix ici pour les classer"
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;
 surveyLocalization.localeNames["fr"] = "français";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// emptyMessage: "No data to display" => "Aucune donnée à afficher"
+// noEntriesReadonlyText: "There are no entries." => "Il n’y a pas d’entrées."
+// more: "More" => "Plus"
+// tagboxDoneButtonCaption: "OK" => "D’ACCORD"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tous les choix sont classés"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Faites glisser et déposez les choix ici pour les classer"// takePhotoCaption: "Take Photo" => "Prendre une photo"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Cliquez sur le bouton ci-dessous pour prendre une photo à l’aide de l’appareil photo."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Faites glisser et déposez ou sélectionnez un fichier à télécharger ou à prendre une photo à l’aide de l’appareil photo."
+// replaceFileCaption: "Replace file" => "Remplacer le fichier"

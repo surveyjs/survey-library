@@ -24,7 +24,6 @@
                 v-bind:disabled="question.isInputReadOnly"
                 :inputmode="model.inputMode"
                 :role="model.filterStringEnabled ? question.ariaRole : null"
-                :aria-label="question.placeholder"
                 :aria-expanded="question.ariaExpanded"
                 :aria-controls="model.listElementId"
                 :aria-activedescendant="model.ariaActivedescendant"

@@ -44,7 +44,7 @@ export class SurveyError {
     return surveyLocalization.getString(locStrName, this.getLocale());
   }
   public onUpdateErrorTextCallback: (error: SurveyError) => void = undefined;
-  public updateText() {
+  public updateText(): void {
     if(this.onUpdateErrorTextCallback) {
       this.onUpdateErrorTextCallback(this);
     }

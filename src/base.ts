@@ -12,6 +12,7 @@ import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { surveyLocalization } from "./surveyStrings";
+import { ConsoleWarnings } from "./console-warnings";
 
 interface IExpressionRunnerInfo {
   onExecute: (obj: Base, res: any) => void;
@@ -136,10 +137,11 @@ export class Dependencies {
     target.registerPropertyChangedHandlers([property], this.currentDependency, this.id);
 
   }
-  dispose(): void {
+  public dispose(): void {
     this.dependencies.forEach(dependency => {
       dependency.obj.unregisterPropertyChangedHandlers([dependency.prop], dependency.id);
     });
+    // this.currentDependency = undefined;
   }
 }
 
@@ -190,6 +192,7 @@ export class Base {
     if (Base.currentDependencis === undefined) return;
     Base.currentDependencis.addDependency(target, property);
   }
+  public dependencies: {[key: string]: ComputedUpdater } = {};
   public static get commentSuffix(): string {
     return settings.commentSuffix;
   }
@@ -224,8 +227,11 @@ export class Base {
   protected isPropertyEmpty(value: any): boolean {
     return value !== "" && this.isValueEmpty(value);
   }
+  public static createPropertiesHash() {
+    return {};
+  }
 
-  private propertyHash: { [index: string]: any } = {};
+  private propertyHash: { [index: string]: any } = Base.createPropertiesHash();
   private localizableStrings: { [index: string]: LocalizableString };
   private arraysInfo: { [index: string]: any };
   private eventList: Array<EventBase<any>> = [];
@@ -240,6 +246,8 @@ export class Base {
   }>;
   protected isLoadingFromJsonValue: boolean = false;
   public loadingOwner: Base = null;
+
+  protected jsonObj: any;
   /**
    * An event that is raised when a property of this SurveyJS object has changed.
    *
@@ -247,7 +255,7 @@ export class Base {
    *
    * - `sender`: `this`\
    * A SurveyJS object whose property has changed.
-   * - `options.name`: `String`\
+   * - `options.name`: `string`\
    * The name of the changed property.
    * - `options.newValue`: `any`\
    * A new value for the property.
@@ -264,7 +272,7 @@ export class Base {
    * A SurveyJS object whose property contains an array of `ItemValue` objects.
    * - `options.obj`: [`ItemValue`](https://surveyjs.io/form-library/documentation/itemvalue)\
    * An `ItemValue` object.
-   * - `options.propertyName`: `String`\
+   * - `options.propertyName`: `string`\
    * The name of the property to which an array of `ItemValue` objects is assigned (for example, `"choices"` or `"rows"`).
    * - `options.name`: `"text"` | `"value"`\
    * The name of the changed property.
@@ -295,12 +303,13 @@ export class Base {
     this.onBaseCreating();
     this.isCreating = false;
   }
-  public dispose() {
+  public dispose(): void {
     for (var i = 0; i < this.eventList.length; i++) {
       this.eventList[i].clear();
     }
     this.onPropertyValueChangedCallback = undefined;
     this.isDisposedValue = true;
+    Object.keys(this.dependencies).forEach(key => this.dependencies[key].dispose());
   }
   public get isDisposed() {
     return this.isDisposedValue === true;
@@ -372,6 +381,7 @@ export class Base {
 
   startLoadingFromJson(json?: any) {
     this.isLoadingFromJsonValue = true;
+    this.jsonObj = json;
   }
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
@@ -411,8 +421,9 @@ export class Base {
    * @param propName A property name.
    */
   public getPropertyByName(propName: string): JsonObjectProperty {
-    if(!this.classMetaData) {
-      this.classMetaData = Serializer.findClass(this.getType());
+    const type = this.getType();
+    if(!this.classMetaData || this.classMetaData.name !== type) {
+      this.classMetaData = Serializer.findClass(type);
     }
     return !!this.classMetaData ? this.classMetaData.findProperty(propName) : null;
   }
@@ -463,20 +474,34 @@ export class Base {
     if (this.isPropertyEmpty(res)) {
       const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
       if(locStr) return locStr.text;
-      if (defaultValue != null) return defaultValue;
-      const propDefaultValue = this.getDefaultValueFromProperty(name);
+      if (defaultValue !== null && defaultValue !== undefined) return defaultValue;
+      const propDefaultValue = this.getDefaultPropertyValue(name);
       if(propDefaultValue !== undefined) return propDefaultValue;
     }
     return res;
   }
-  private getDefaultValueFromProperty(name: string): any {
+  public getDefaultPropertyValue(name: string): any {
     const prop = this.getPropertyByName(name);
     if(!prop || prop.isCustom && this.isCreating) return undefined;
     const dValue = prop.defaultValue;
     if (!this.isPropertyEmpty(dValue) && !Array.isArray(dValue)) return dValue;
+    const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+    if(locStr && locStr.localizationName) return this.getLocalizationString(locStr.localizationName);
     if (prop.type == "boolean" || prop.type == "switch") return false;
     if (prop.isCustom && !!prop.onGetValue) return prop.onGetValue(this);
     return undefined;
+  }
+  public hasDefaultPropertyValue(name: string): boolean {
+    return this.getDefaultPropertyValue(name) !== undefined;
+  }
+  public resetPropertyValue(name: string): void {
+    const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
+    if(locStr) {
+      locStr.clearLocale();
+    }
+    else {
+      this.setPropertyValue(name, undefined);
+    }
   }
   protected getPropertyValueWithoutDefault(name: string): any {
     return this.getPropertyValueCore(this.propertyHash, name);
@@ -497,8 +522,7 @@ export class Base {
       if (!this.isDisposedValue) {
         this.setPropertyValueCoreHandler(propertiesHash, name, val);
       } else {
-        // eslint-disable-next-line no-console
-        console.warn("Attempt to set property '" + name + "' of a disposed object '" + this.getType() + "'");
+        ConsoleWarnings.disposedObjectChangedProperty(name, this.getType());
       }
     }
     else propertiesHash[name] = val;
@@ -691,13 +715,40 @@ export class Base {
     if(!expression) return;
     if(!!info.canRun && !info.canRun(this)) return;
     if(!info.runner) {
-      info.runner = new ExpressionRunner(expression);
+      info.runner = this.createExpressionRunner(expression);
       info.runner.onRunComplete = (res: any) => {
         info.onExecute(this, res);
       };
     }
     info.runner.expression = expression;
     info.runner.run(values, properties);
+  }
+  private asynExpressionHash: any;
+  private doBeforeAsynRun(id: number): void {
+    if(!this.asynExpressionHash) this.asynExpressionHash = [];
+    const isChanged = !this.isAsyncExpressionRunning;
+    this.asynExpressionHash[id] = true;
+    if(isChanged) {
+      this.onAsyncRunningChanged();
+    }
+  }
+  private doAfterAsynRun(id: number): void {
+    if(!!this.asynExpressionHash) {
+      delete this.asynExpressionHash[id];
+      if(!this.isAsyncExpressionRunning) {
+        this.onAsyncRunningChanged();
+      }
+    }
+  }
+  protected onAsyncRunningChanged(): void {}
+  public get isAsyncExpressionRunning(): boolean {
+    return !!this.asynExpressionHash && Object.keys(this.asynExpressionHash).length > 0;
+  }
+  protected createExpressionRunner(expression: string): ExpressionRunner {
+    const res = new ExpressionRunner(expression);
+    res.onBeforeAsyncRun = (id: number): void => { this.doBeforeAsynRun(id); };
+    res.onAfterAsyncRun = (id: number): void => { this.doAfterAsynRun(id); };
+    return res;
   }
   /**
    * Registers a function to call when a property value changes.

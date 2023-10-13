@@ -71,6 +71,8 @@ export class Survey extends SurveyElementBase<any, any>
   }
   destroySurvey() {
     if (this.survey) {
+      this.survey.renderCallback = undefined as any;
+      this.survey.onPartialSend.clear();
       this.survey.stopTimer();
       this.survey.destroyResizeObserver();
     }
@@ -90,10 +92,14 @@ export class Survey extends SurveyElementBase<any, any>
       renderResult = this.renderCompletedBefore();
     } else if (this.survey.state == "loading") {
       renderResult = this.renderLoading();
+    } else if (this.survey.state == "empty") {
+      renderResult = this.renderEmptySurvey();
     } else {
       renderResult = this.renderSurvey();
     }
-    const header: JSX.Element = <SurveyHeader survey={this.survey}></SurveyHeader>;
+    const backgroundImage = !!this.survey.backgroundImage ? <div className={this.css.rootBackgroundImage} style={this.survey.backgroundImageStyle}></div> : null;
+    const header: JSX.Element | null = this.survey.headerView === "basic" ? <SurveyHeader survey={this.survey}></SurveyHeader> : null;
+
     const onSubmit = function (event: React.FormEvent<HTMLFormElement>) {
       event.preventDefault();
     };
@@ -103,23 +109,23 @@ export class Survey extends SurveyElementBase<any, any>
     }
     const rootCss = this.survey.getRootCss();
     const cssClasses = this.rootNodeClassName ? this.rootNodeClassName + " " + rootCss : rootCss;
-    const formStyle = {
-      backgroundColor: this.survey.renderBackgroundOpacity
-    };
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
-        <form onSubmit={onSubmit} style={formStyle}>
-          {customHeader}
-          <div className={this.css.container}>
-            {header}
-            <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
-            {renderResult}
-            <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
-          </div>
-        </form>
-        { this.survey.showBrandInfo ? <BrandInfo/> : null }
-        <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
+        <div className={this.survey.wrapperFormCss}>
+          {backgroundImage}
+          <form onSubmit={onSubmit}>
+            {customHeader}
+            <div className={this.css.container}>
+              {header}
+              <ComponentsContainer survey={this.survey} container={"header"} needRenderWrapper={false}></ComponentsContainer>
+              {renderResult}
+              <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
+            </div>
+          </form>
+          { this.survey.showBrandInfo ? <BrandInfo/> : null }
+          <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
+        </div>
       </div>
     );
   }
@@ -142,19 +148,20 @@ export class Survey extends SurveyElementBase<any, any>
           dangerouslySetInnerHTML={htmlValue}
           className={this.survey.completedCss}
         />
+        <ComponentsContainer survey={this.survey} container={"completePage"} needRenderWrapper={false}></ComponentsContainer>
       </React.Fragment>
     );
   }
   protected renderCompletedBefore(): JSX.Element {
     var htmlValue = { __html: this.survey.processedCompletedBeforeHtml };
     return (
-      <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
+      <div dangerouslySetInnerHTML={htmlValue} className={this.survey.completedBeforeCss} />
     );
   }
   protected renderLoading(): JSX.Element {
     var htmlValue = { __html: this.survey.processedLoadingHtml };
     return (
-      <div dangerouslySetInnerHTML={htmlValue} className={this.css.body} />
+      <div dangerouslySetInnerHTML={htmlValue} className={this.survey.loadingBodyCss} />
     );
   }
   protected renderSurvey(): JSX.Element {
@@ -165,10 +172,6 @@ export class Survey extends SurveyElementBase<any, any>
     var pageId = this.survey.activePage ? this.survey.activePage.id : "";
 
     let className = this.survey.bodyCss;
-    if (!activePage) {
-      className = this.css.bodyEmpty;
-      activePage = this.renderEmptySurvey();
-    }
     const style: any = {};
     if(!!this.survey.renderedWidth) {
       style.maxWidth = this.survey.renderedWidth;
@@ -200,7 +203,7 @@ export class Survey extends SurveyElementBase<any, any>
     );
   }
   protected renderEmptySurvey(): JSX.Element {
-    return <span>{this.survey.emptySurveyText}</span>;
+    return <div className={this.css.bodyEmpty}>{this.survey.emptySurveyText}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};

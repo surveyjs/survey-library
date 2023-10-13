@@ -18,7 +18,7 @@ export class QuestionExpressionModel extends Question {
     this.createLocalizableString("format", this);
     this.registerPropertyChangedHandlers(["expression"], () => {
       if (this.expressionRunner) {
-        this.expressionRunner = new ExpressionRunner(this.expression);
+        this.expressionRunner = this.createRunner();
       }
     });
     this.registerPropertyChangedHandlers(["format", "currency", "displayStyle"], () => {
@@ -71,12 +71,8 @@ export class QuestionExpressionModel extends Question {
       return;
     this.locCalculation();
     if (!this.expressionRunner) {
-      this.expressionRunner = new ExpressionRunner(this.expression);
+      this.expressionRunner = this.createRunner();
     }
-    this.expressionRunner.onRunComplete = (newValue) => {
-      this.value = newValue;
-      this.unlocCalculation();
-    };
     this.expressionRunner.run(values, properties);
   }
   protected canCollectErrors(): boolean {
@@ -85,12 +81,21 @@ export class QuestionExpressionModel extends Question {
   protected hasRequiredError(): boolean {
     return false;
   }
+  private createRunner(): ExpressionRunner {
+    const res = this.createExpressionRunner(this.expression);
+    res.onRunComplete = (newValue) => {
+      this.value = this.roundValue(newValue);
+      this.unlocCalculation();
+    };
+    return res;
+  }
   /**
    * The maximum number of fraction digits. Applies only if the `displayStyle` property is not `"none"`. Accepts values in the range from -1 to 20, where -1 disables the property.
    *
    * Default value: -1
    * @see displayStyle
    * @see minimumFractionDigits
+   * @see precision
    */
   public get maximumFractionDigits(): number {
     return this.getPropertyValue("maximumFractionDigits");
@@ -194,6 +199,24 @@ export class QuestionExpressionModel extends Question {
   }
   public set useGrouping(val: boolean) {
     this.setPropertyValue("useGrouping", val);
+  }
+  /**
+   * Specifies how many decimal digits to keep in the expression value.
+   *
+   * Default value: -1 (unlimited)
+   * @see maximumFractionDigits
+   */
+  public get precision(): number {
+    return this.getPropertyValue("precision");
+  }
+  public set precision(val: number) {
+    this.setPropertyValue("precision", val);
+  }
+  private roundValue(val: any): any {
+    if(val === Infinity) return undefined;
+    if(this.precision < 0) return val;
+    if(!Helpers.isNumber(val)) return val;
+    return parseFloat(val.toFixed(this.precision));
   }
   protected getValueAsStr(val: any): string {
     if (this.displayStyle == "date") {
@@ -423,6 +446,7 @@ Serializer.addClass(
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },
     { name: "useGrouping:boolean", default: true },
+    { name: "precision:number", default: -1, category: "data" },
     { name: "enableIf", visible: false },
     { name: "isRequired", visible: false },
     { name: "readOnly", visible: false },

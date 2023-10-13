@@ -10,9 +10,11 @@ import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IQuestion } from "./base-interfaces";
+import { SurveyError } from "./survey-error";
+import { CustomError } from "./error";
 
 /**
- * A class that describes the Checkbox question type.
+ * A class that describes the Checkboxes question type.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-checkbox/ (linkStyle))
  */
@@ -36,9 +38,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   }
   protected getDefaultItemComponent(): string {
     return "survey-checkbox-item";
-  }
-  public get ariaRole(): string {
-    return "listbox";
   }
   public getType(): string {
     return "checkbox";
@@ -167,12 +166,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val) return val;
     return !this.valuePropertyName ? val : val[this.valuePropertyName];
   }
+  public get isValueArray(): boolean { return true; }
   /**
-   * Sets a limit on the number of selected choices.
+   * Specifies the maximum number of selected choices.
    *
    * Default value: 0 (unlimited)
    *
    * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `maxSelectedChoices` value.
+   * @see minSelectedChoices
    */
   public get maxSelectedChoices(): number {
     return this.getPropertyValue("maxSelectedChoices");
@@ -181,6 +182,21 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (val < 0) val = 0;
     this.setPropertyValue("maxSelectedChoices", val);
     this.filterItems();
+  }
+  /**
+   * Specifies the minimum number of selected choices.
+   *
+   * Default value: 0 (unlimited)
+   *
+   * > This property only limits the number of choice items that can be selected by users. You can select any number of choice items in code, regardless of the `minSelectedChoices` value.
+   * @see maxSelectedChoices
+   */
+  public get minSelectedChoices(): number {
+    return this.getPropertyValue("minSelectedChoices");
+  }
+  public set minSelectedChoices(val: number) {
+    if (val < 0) val = 0;
+    this.setPropertyValue("minSelectedChoices", val);
   }
   /**
    * An array of selected choice items. Includes the "Other" and "None" choice items if they are selected, but not "Select All". Items are sorted in the order they were selected.
@@ -200,6 +216,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     return this.validateItemValues(itemValues);
   }
   public get selectedItems(): Array<ItemValue> { return this.selectedChoices; }
+  public get hasFilteredValue(): boolean { return !!this.valuePropertyName; }
+  public getFilteredValue(): any {
+    if(this.hasFilteredValue) return this.renderedValue;
+    return super.getFilteredValue();
+  }
   protected getMultipleSelectedItems(): Array<ItemValue> {
     return this.selectedChoices;
   }
@@ -213,8 +234,25 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
 
     const val = this.renderedValue as Array<any>;
-    return val.map((item: any) => new ItemValue(item));
+    return val.map((item: any) => this.createItemValue(item));
   }
+  protected getAnswerCorrectIgnoreOrder(): boolean { return true; }
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ):void {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (isOnValueChanged) return;
+
+    if (this.minSelectedChoices > 0 && this.checkMinSelectedChoicesUnreached()) {
+      const minError = new CustomError(
+        this.getLocalizationFormatString("minSelectError", this.minSelectedChoices),
+        this
+      );
+      errors.push(minError);
+    }
+  }
+
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);
@@ -242,6 +280,14 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var len = !Array.isArray(val) ? 0 : val.length;
     return len >= this.maxSelectedChoices;
   }
+
+  private checkMinSelectedChoicesUnreached(): boolean {
+    if (this.minSelectedChoices < 1) return false;
+    var val = this.value;
+    var len = !Array.isArray(val) ? 0 : val.length;
+    return len < this.minSelectedChoices;
+  }
+
   protected getItemClassCore(item: any, options: any) {
     const __dummy_value = this.value; //trigger dependencies from koValue for knockout
     options.isSelectAllItem = item === this.selectAllItem;
@@ -260,7 +306,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (Array.isArray(val)) {
       for (var i = 0; i < val.length; i++) {
         const rVal = this.getRealValue(val[i]);
-        if (this.canClearValueAnUnknow(rVal)) {
+        if (this.canClearValueAnUnknown(rVal)) {
           this.addIntoInvisibleOldValues(rVal);
         }
       }
@@ -393,7 +439,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var newValue = [];
     for (var i = 0; i < val.length; i++) {
       const rItemVal = this.getRealValue(val[i]);
-      var isUnkown = this.canClearValueAnUnknow(rItemVal);
+      var isUnkown = this.canClearValueAnUnknown(rItemVal);
       if (
         (!clearDisabled && !isUnkown) ||
         (clearDisabled && !this.isValueDisabled(rItemVal))
@@ -439,6 +485,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       json["type"] = "radiogroup";
     }
     json["maxSelectedChoices"] = 0;
+    json["minSelectedChoices"] = 0;
     return json;
   }
   public isAnswerCorrect(): boolean {
@@ -480,7 +527,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected convertValueToObject(val: any): any {
     if (!this.valuePropertyName) return val;
     let dest = undefined;
-    if (!!this.survey && this.survey.questionCountByValueName(this.getValueName()) > 1) {
+    if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) {
       dest = this.data.getValue(this.getValueName());
     }
     return Helpers.convertArrayValueToObject(val, this.valuePropertyName, dest);
@@ -530,6 +577,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   public get checkBoxSvgPath(): string {
     return "M5,13l2-2l3,3l7-7l2,2l-9,9L5,13z";
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "listbox";
+  }
+  // EO a11y
 }
 Serializer.addClass(
   "checkbox",
@@ -537,6 +593,7 @@ Serializer.addClass(
     { name: "showSelectAllItem:boolean", alternativeName: "hasSelectAll" },
     { name: "separateSpecialChoices", visible: true },
     { name: "maxSelectedChoices:number", default: 0 },
+    { name: "minSelectedChoices:number", default: 0 },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",

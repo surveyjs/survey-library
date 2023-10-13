@@ -1,11 +1,10 @@
 <template>
-  <div :class="question.cssClasses.selectWrapper">
+  <div :class="question.cssClasses.selectWrapper" @click="click">
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-bind:disabled="question.isInputReadOnly"
       :tabindex="model.inputReadOnly ? undefined : 0"
-      @click="click"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -50,7 +49,6 @@
       :id="question.getInputId()"
       :tabindex="model.inputReadOnly ? undefined : -1"
       :readonly="!model.searchEnabled ? true : null"
-      :aria-label="question.placeholder"
       :aria-expanded="question.ariaExpanded"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
@@ -63,7 +61,7 @@
       <div
         :class="question.cssClasses.cleanButton"
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
-        v-show="!question.isEmpty()"
+        v-show="question.showClearButton"
         @click="clear"
       >
         <sv-svg-icon
@@ -85,6 +83,18 @@
         :locString="question.selectedItemLocText"
       />
       <div>{{ question.readOnlyText }}</div>
+    </div>
+    <div
+      :class="question.cssClasses.chevronButton"
+          v-on:pointerdown="chevronPointerDown"
+      v-if="question.cssClasses.chevronButtonIconId"
+    >
+      <sv-svg-icon
+        :class="question.cssClasses.chevronButtonSvg"
+        :iconName="question.cssClasses.chevronButtonIconId"
+        size="auto"
+      >
+      </sv-svg-icon>
     </div>
   </div>
 </template>
@@ -117,6 +127,9 @@ export class DropdownComponent extends BaseVue {
   public click(event: any) {
     this.model?.onClick(event);
   }
+  public chevronPointerDown(event: any) {
+    this.model?.chevronPointerDown(event);
+  }
   public clear(event: any) {
     this.model?.onClear(event);
   }
@@ -142,7 +155,7 @@ export class DropdownComponent extends BaseVue {
     if (!!this.inputElement) {
       const control: any = this.inputElement;
       const newValue = this.model.inputStringRendered;
-      if (!Helpers.isTwoValueEquals(newValue, control.value)) {
+      if (!Helpers.isTwoValueEquals(newValue, control.value, false, true, false)) {
         control.value = this.model.inputStringRendered;
       }
     }

@@ -20,6 +20,7 @@
         <div data-bind="css: question.cssClasses.emptyRowsText">
           <!-- ko template: { name: 'survey-string', data: question.locEmptyRowsText } --><!-- /ko -->
         </div>
+        <!-- ko if: question.koTable().showAddRow -->  
         <button
           type="button"
           data-bind="click:question.koAddRowClick, css: question.getAddRowButtonCss(true), disable: question.isInputReadOnly"
@@ -27,6 +28,7 @@
           <!-- ko template: { name: 'survey-string', data: question.locAddRowText } --><!-- /ko -->
           <span data-bind="css: question.cssClasses.iconAdd"></span>
         </button>
+        <!-- /ko -->
       </div>
       <!-- /ko -->
       <!-- ko if: question.koTable().showAddRowOnBottom -->
@@ -46,25 +48,21 @@
 </script>
 <script type="text/html" id="survey-matrixcell">
   <td
-    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }"
+    data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }, event: {focusin: $data.focusIn }"
   >
     <div data-bind="visible: question.isVisible, css: $parentContext.question.cssClasses.cellQuestionWrapper">
-      <!-- ko if: $data.showErrorOnTop-->
-      <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
-      <!-- /ko -->
-      <!-- /ko -->
       <!-- ko if: $data.isOtherChoice -->
         <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': true } }"></div>
       <!-- /ko -->
       <!-- ko if: $data.isCheckbox -->
         <!-- ko let: { question: $data.matrix.getCellTemplateData($data) } -->
-          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-checkbox-item', data: { item: item, hideCaption: true } } } } -->
+          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-checkbox-item', data: item } } } -->
           <!-- /ko -->
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: $data.isRadio -->
         <!-- ko let: { question: $data.matrix.getCellTemplateData($data) } -->
-          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-radiogroup-item', data: { item: item, hideCaption: true } } } } -->
+          <!-- ko component: { name: $data.matrix.getCellWrapperComponentName($data), params: { componentData:  $data.matrix.getCellWrapperComponentData($data), templateData: { name:  'survey-radiogroup-item', data: item } } } -->
           <!-- /ko -->  
         <!-- /ko -->   
       <!-- /ko -->
@@ -79,14 +77,6 @@
         <!-- ko component: { name: question.getComponentName(), params: { question: question } } -->
         <!-- /ko -->
       <!-- /ko -->
-      <!-- /ko -->
-      <!-- ko if: $data.showErrorOnBottom-->
-      <!-- ko template: { name: 'survey-question-errors', data: question, as: 'question' } -->
-      <!-- /ko -->
-      <!-- /ko -->
-      <!-- ko if: $data.hasQuestion && $data.question.isErrorsModeTooltip-->
-        <!-- ko component: { name: 'sv-tooltip-error', params: { question: question } } -->
-        <!-- /ko -->
       <!-- /ko -->
     </div>
   </td>
@@ -107,6 +97,7 @@
               <!-- ko component: { name: question.getColumnHeaderWrapperComponentName($data), params: { componentData:  question.getColumnHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
                 <!-- ko if: $data.column && $data.column.isRenderedRequired -->
+                <span>&nbsp</span>
                 <span data-bind="css: question.cssClasses.cellRequiredText, text: $data.column.requiredText"></span>
                 <!-- /ko -->
               <!-- /ko -->
@@ -121,7 +112,7 @@
     <!-- /ko -->
     <tbody>
       <!-- ko foreach: question.koTable().rows -->
-      <!-- ko ifnot: $parent.detailPanelMode === "popup" && $data.isDetailRow -->
+      <!-- ko ifnot: ($parent.detailPanelMode === "popup" && $data.isDetailRow) || !$data.visible-->
       <tr data-bind="css: $data.className, attr: attributes, event: { pointerdown: function (model, event) { question.onPointerDown(event, row); return true;} }">
         <!-- ko foreach: $data.cells -->
         <!-- ko if: $data.isDragHandlerCell -->
@@ -137,15 +128,21 @@
         </td>
         <!-- /ko -->
         <!-- ko if: $data.isEmpty -->
-        <td data-bind="attr: { colspan: $data.colSpans }"></td>
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }"></td>
         <!-- /ko -->
         <!-- ko if: $data.hasPanel -->
         <td data-bind="css: $data.className, attr: { colspan: $data.colSpans }">
           <!-- ko component: { name: $data.panel.survey.getElementWrapperComponentName($data.panel), 
             params: { componentData:  $data.panel.survey.getElementWrapperComponentData($data.panel), 
-            templateData: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koElementAfterRender } } } 
+            templateData: { name: $data.panel.koElementType, data: $data.panel, afterRender: question.koPanelAfterRender } } } 
           -->
           <!-- /ko -->
+        </td>
+        <!-- /ko -->
+        <!-- ko if: $data.isErrorsCell -->
+        <td data-bind="css: $data.className, attr: { colspan: $data.colSpans, 'data-responsive-title': headers, title: $data.getTitle() }">
+            <!-- ko template: { name: 'survey-question-errors', data: $data.question, as: 'question' } -->
+            <!-- /ko -->
         </td>
         <!-- /ko -->
         <!-- ko if: $data.hasQuestion -->

@@ -7,9 +7,12 @@ import { settings } from "./settings";
 import { surveyLocalization } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
-import { HtmlConditionItem } from "./expressionItems";
 import { mergeValues } from "./utils/utils";
 import { DropdownListModel } from "./dropdownListModel";
+import { SurveyModel } from "./survey";
+import { ISurveyImpl } from "./base-interfaces";
+import { IsTouch } from "./utils/devices";
+import { ITheme } from "./themes";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -41,8 +44,6 @@ export class QuestionRatingModel extends Question {
   constructor(name: string) {
     super(name);
 
-    this.initColors();
-
     this.createItemValues("rateValues");
     this.createRenderedRateItems();
     this.createLocalizableString("ratingOptionsCaption", this, false, true);
@@ -63,7 +64,7 @@ export class QuestionRatingModel extends Question {
       });
     this.registerFunctionOnPropertiesValueChanged(["rateColorMode", "scaleColorMode"],
       () => {
-        this.initColors();
+        this.updateColors((this.survey as SurveyModel).themeVariables);
       });
     this.registerFunctionOnPropertiesValueChanged(["autoGenerate"],
       () => {
@@ -87,22 +88,16 @@ export class QuestionRatingModel extends Question {
       true
     );
     this.initPropertyDependencies();
+
   }
-  private jsonObj: any;
   private setIconsToRateValues() {
     if (this.rateType == "smileys") {
       this.rateValues.map(item => item.icon = this.getItemSmiley(item));
     }
   }
 
-  startLoadingFromJson(jsonObj: any) {
-    super.startLoadingFromJson(jsonObj);
-    this.jsonObj = jsonObj;
-  }
-
   endLoadingFromJson() {
     super.endLoadingFromJson();
-    this.initColors();
     this.hasMinRateDescription = !!this.minRateDescription;
     this.hasMaxRateDescription = !!this.maxRateDescription;
     if (this.jsonObj.rateMin !== undefined && this.jsonObj.rateCount !== undefined && this.jsonObj.rateMax === undefined) {
@@ -149,7 +144,7 @@ export class QuestionRatingModel extends Question {
       newCount = 10;
     }
     this.rateCount = newCount;
-    if (this.rateValues.length > newCount) this.rateValues.length = newCount;
+    if (this.rateValues.length > newCount) this.rateValues.splice(newCount, this.rateValues.length - newCount);
   }
   initPropertyDependencies() {
     this.registerSychProperties(["rateCount"],
@@ -171,6 +166,15 @@ export class QuestionRatingModel extends Question {
       () => {
         this.updateRateCount();
       });
+  }
+
+  @property({ defaultValue: false }) inputHasValue: boolean;
+
+  public get showSelectedItemLocText(): boolean {
+    return !this.readOnly && !this.inputHasValue && !!this.selectedItemLocText;
+  }
+  public get selectedItemLocText(): LocalizableString {
+    return !this.readOnly && this.visibleRateValues.filter(v => v.value == this.value)[0]?.locText;
   }
 
   @property({ defaultValue: true }) autoGenerate: boolean;
@@ -262,6 +266,8 @@ export class QuestionRatingModel extends Question {
    */
   @property({ defaultValue: 5 }) rateCount: number;
 
+  private static colorsCalculated: boolean = false;
+
   private static badColor: Array<number>;
   private static normalColor: Array<number>;
   private static goodColor: Array<number>;
@@ -270,13 +276,16 @@ export class QuestionRatingModel extends Question {
   private static normalColorLight: Array<number>;
   private static goodColorLight: Array<number>;
 
-  private initColors() {
+  private updateColors(themeVariables: any) {
     if (this.colorMode === "monochrome") return;
     if (typeof document === "undefined" || !document) return;
-    if (QuestionRatingModel.badColor && QuestionRatingModel.normalColor && QuestionRatingModel.goodColor) return;
-    function getRGBColor(varName: string) {
-      const style = getComputedStyle(document.documentElement);
-      const str = style.getPropertyValue && style.getPropertyValue(varName);
+    if (QuestionRatingModel.colorsCalculated) return;
+    function getRGBColor(colorName: string, varName: string) {
+      let str: string = !!themeVariables && themeVariables[colorName] as any;
+      if(!str) {
+        const style = getComputedStyle(document.documentElement);
+        str = style.getPropertyValue && style.getPropertyValue(varName);
+      }
       if (!str) return null;
       var ctx = document.createElement("canvas").getContext("2d");
       ctx.fillStyle = str;
@@ -293,15 +302,19 @@ export class QuestionRatingModel extends Question {
         1
       ] : null;
     }
-    QuestionRatingModel.badColor = getRGBColor("--sd-rating-bad-color");
-    QuestionRatingModel.normalColor = getRGBColor("--sd-rating-normal-color");
-    QuestionRatingModel.goodColor = getRGBColor("--sd-rating-good-color");
-    QuestionRatingModel.badColorLight = getRGBColor("--sd-rating-bad-color-light");
-    QuestionRatingModel.normalColorLight = getRGBColor("--sd-rating-normal-color-light");
-    QuestionRatingModel.goodColorLight = getRGBColor("--sd-rating-good-color-light");
+
+    QuestionRatingModel.badColor = getRGBColor("--sjs-special-red", "--sd-rating-bad-color");
+    QuestionRatingModel.normalColor = getRGBColor("--sjs-special-yellow", "--sd-rating-normal-color");
+    QuestionRatingModel.goodColor = getRGBColor("--sjs-special-green", "--sd-rating-good-color");
+    QuestionRatingModel.badColorLight = getRGBColor("--sjs-special-red-light", "--sd-rating-bad-color-light");
+    QuestionRatingModel.normalColorLight = getRGBColor("--sjs-special-yellow-light", "--sd-rating-normal-color-light");
+    QuestionRatingModel.goodColorLight = getRGBColor("--sjs-special-green-light", "--sd-rating-good-color-light");
+
+    this.colorsCalculated = true;
   }
 
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
+    if(!this.useRateValues) return super.getDisplayValueCore(keysAsText, value);
     var res = ItemValue.getTextOrHtmlByValue(this.visibleRateValues, value);
     return !!res ? res : value;
   }
@@ -373,11 +386,17 @@ export class QuestionRatingModel extends Question {
   public getInputId(index: number): string {
     return this.inputId + "_" + index;
   }
-  supportGoNextPageAutomatic() {
-    return true;
+  supportGoNextPageAutomatic(): boolean {
+    return this.isMouseDown === true;
   }
   public supportOther(): boolean {
     return false;
+  }
+  protected getPlainDataCalculatedValue(propName: string): any {
+    const res = super.getPlainDataCalculatedValue(propName);
+    if(res !== undefined || !this.useRateValues || this.isEmpty()) return res;
+    const item = <any>ItemValue.getItemByValue(this.visibleRateValues, this.value);
+    return item ? item[propName] : undefined;
   }
   /**
    * Specifies a description for the minimum (first) rate value.
@@ -512,10 +531,20 @@ export class QuestionRatingModel extends Question {
   public get isSmiley() {
     return this.rateType == "smileys";
   }
-  public get itemComponentName() {
+  protected getDefaultItemComponent(): string {
+    if (this.renderAs == "dropdown") return "";
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
+  }
+  /**
+   * The name of a component used to render items.
+   */
+  public get itemComponent(): string {
+    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
+  }
+  public set itemComponent(value: string) {
+    this.setPropertyValue("itemComponent", value);
   }
 
   protected valueToData(val: any): any {
@@ -536,6 +565,7 @@ export class QuestionRatingModel extends Question {
     }
   }
   public onItemMouseIn(item: RenderedRatingItem) {
+    if (IsTouch) return;
     if (this.isReadOnly || !item.itemValue.isEnabled || this.isDesignMode) return;
     let high = true;
     let selected = this.value != null;
@@ -550,6 +580,7 @@ export class QuestionRatingModel extends Question {
     }
   }
   public onItemMouseOut(item: RenderedRatingItem) {
+    if (IsTouch) return;
     this.renderedRateItems.forEach(item => item.highlight = "none");
   }
 
@@ -738,7 +769,8 @@ export class QuestionRatingModel extends Question {
     return this.visibleRateValues;
   }
   public get readOnlyText() {
-    return (this.displayValue || this.placeholder);
+    if (this.readOnly) return (this.displayValue || this.placeholder);
+    return this.isEmpty() ? this.placeholder : "";
   }
 
   public needResponsiveWidth() {
@@ -789,6 +821,16 @@ export class QuestionRatingModel extends Question {
       this.dropdownListModel.updateCssClasses(classes.popup, classes.list);
     }
     return classes;
+  }
+  public themeChanged(theme: ITheme): void {
+    this.colorsCalculated = false;
+    this.updateColors(theme.cssVariables);
+    this.createRenderedRateItems();
+  }
+  public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
+    super.setSurveyImpl(value, isLight);
+    if (!this.survey) return;
+    this.updateColors((this.survey as SurveyModel).themeVariables);
   }
   public dispose(): void {
     super.dispose();
@@ -917,7 +959,8 @@ Serializer.addClass(
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
       visibleIndex: 20
-    }
+    },
+    { name: "itemComponent", visible: false }
   ],
   function () {
     return new QuestionRatingModel("");

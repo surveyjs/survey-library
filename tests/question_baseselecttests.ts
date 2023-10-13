@@ -9,6 +9,8 @@ import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { IAction } from "../src/actions/action";
 import { surveyLocalization } from "../src/surveyStrings";
+import { Base } from "../src/base";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("baseselect");
 
@@ -561,6 +563,33 @@ QUnit.test("checkbox vs valuePropertyName, check hasOther vs storeOthersAsCommen
   assert.deepEqual(q.value, [{ fruit: "text1" }], "#2");
   assert.deepEqual(survey.data, { q1: [{ fruit: "text1" }] }, "#3");
 });
+QUnit.test("checkbox vs valuePropertyName, use in expression", (assert) => {
+  const survey = new SurveyModel({
+    storeOthersAsComment: false,
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit"
+      },
+      {
+        type: "text",
+        name: "q2",
+        visibleIf: "{q1} allof ['apple', 'orange']"
+      }
+    ]
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "#1");
+  q1.renderedValue = ["apple", "orange"];
+  assert.deepEqual(q1.value, [{ fruit: "apple" }, { fruit: "orange" }], "q1.value. #1");
+  assert.equal(q2.isVisible, true, "#2");
+  q1.renderedValue = ["orange"];
+  assert.deepEqual(q1.value, [{ fruit: "orange" }], "q1.value. #2");
+  assert.equal(q2.isVisible, false, "#3");
+});
 
 QUnit.test("check radiogroup title actions", (assert) => {
   let survey = new SurveyModel({
@@ -955,6 +984,84 @@ QUnit.test("SelectBase visibleChoices order", function (assert) {
   assert.equal(question.visibleChoices[0].value, "B", "the first item");
   assert.equal(question.visibleChoices[3].value, "C", "the last item");
 });
+QUnit.test("choicesFromQuestion & showNoneItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showNoneItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", showNoneItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  assert.equal(q1.visibleChoices.length, 4, "q1 length");
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q1.visibleChoices[3].value, "none", "q1 none");
+  assert.equal(q2.visibleChoices[3].value, "none", "q2 none");
+});
+QUnit.test("choicesFromQuestion & showOtherItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showOtherItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", showOtherItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q1.value = [1, 2, "other"];
+  q1.comment = "other comment";
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  assert.equal(q1.visibleChoices.length, 4, "q1 length");
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q1.visibleChoices[3].value, "other", "q1 other");
+  assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
+});
+QUnit.test("choicesFromQuestion & showNoneItem & mode=selected", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showNoneItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected", showNoneItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2, 3];
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q2.visibleChoices[3].value, "none", "q2 none");
+  q1.value = ["none"];
+  assert.equal(q2.visibleChoices.length, 1, "q2 length, #1");
+  assert.equal(q3.visibleChoices.length, 0, "q3 length, #2");
+  assert.equal(q2.visibleChoices[0].value, "none", "q2 none");
+});
+QUnit.test("choicesFromQuestion & showOtherItem & mode=selected", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3], showOtherItem: true },
+      { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected", showOtherItem: true },
+      { type: "checkbox", name: "q3", choicesFromQuestion: "q1", choicesFromQuestionMode: "selected" },
+    ],
+  });
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCheckboxModel>survey.getQuestionByName("q3");
+  q1.value = [1, 2, 3];
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 3, "q3 length");
+  assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
+  q1.value = [1, 2, 3, "other"];
+  q1.comment = "other comment";
+  assert.equal(q2.visibleChoices.length, 4, "q2 length");
+  assert.equal(q3.visibleChoices.length, 4, "q3 length");
+  assert.equal(q2.visibleChoices[3].value, "other", "q2 other");
+  assert.equal(q3.visibleChoices[3].value, "other", "q3 other");
+});
 QUnit.test("Check isUsingCarryForward on changing question name", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
@@ -985,4 +1092,286 @@ QUnit.test("Carry Forward and localization, bug#6352", function (assert) {
   assert.deepEqual(q2.visibleChoices[0].locText.getJson(), { default: "A de", en: "A en" });
   assert.equal(q2.visibleChoices[0].text, "A en");
   surveyLocalization.defaultLocale = "en";
+});
+QUnit.test("Carry Forward and keepIncorrectValues, bug#6490", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choices: ["A", "B", "C", "D"] },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  survey.keepIncorrectValues = true;
+  survey.data = { q1: "A", q2: "X" };
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  q1.value = "B";
+  assert.equal(q2.value, "X", "keep value");
+  survey.doComplete();
+  assert.deepEqual(survey.data, { q1: "B", q2: "X" }, "keep value on compete");
+});
+QUnit.test("Check isUsingCarryForward on deleting question", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "dropdown", name: "q1", choices: ["B", "A", "D", "C"] },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "set correctly");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  q1.delete();
+  assert.notOk(q2.choicesFromQuestion, "it is empty");
+  assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
+});
+QUnit.test("Do not notify survey on changing newItem.value", function (
+  assert
+) {
+  settings.supportCreatorV2 = true;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [{ type: "checkbox", name: "q", choices: [1] }]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q");
+  assert.equal(q.visibleChoices.length, 1 + 4, "#0");
+  let counter = 0;
+  survey.onPropertyValueChangedCallback = (
+    name: string,
+    oldValue: any,
+    newValue: any,
+    sender: Base,
+    arrayChanges: any
+  ) => {
+    counter++;
+  };
+  assert.equal(counter, 0, "#1");
+  q.choices[0].value = 2;
+  assert.equal(counter, 1, "#2");
+  q.selectAllItem.text = "Sel";
+  assert.equal(counter, 2, "#3");
+  q.newItem.text = "item 2";
+  assert.equal(counter, 2, "Do not react on newItem properties changes, #4");
+  settings.supportCreatorV2 = false;
+});
+QUnit.test("displayValue & otherItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "dropdown", name: "q1", choices: [1], hasOther: true },
+      { type: "checkbox", name: "q2", choices: [1], hasOther: true }
+    ]
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.value = "other";
+  assert.equal(q1.displayValue, "Other (describe)", "#1");
+  q1.comment = "Some comments";
+  assert.equal(q1.displayValue, "Some comments", "#2");
+  q2.value = ["other", 1];
+  q2.comment = "";
+  assert.equal(q2.displayValue, "Other (describe), 1", "#3");
+  q2.comment = "Some comments";
+  assert.equal(q2.displayValue, "Some comments, 1", "#4");
+});
+QUnit.test("Use carryForward with matrix dynamic", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "matrixdynamic", name: "q1", columns: [{ name: "col1", cellType: "text" }] },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, row is empty");
+  q1.visibleRows[0].cells[0].value = "A";
+  assert.deepEqual(survey.data, { q1: [{ col1: "A" }, {}] }, "survey.data is correct");
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.visibleChoices[0].value, "A", "the first value is correct");
+  q1.visibleRows[1].cells[0].value = "B";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[1].value, "B", "the second value is correct");
+  q1.addRow();
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, new row is empty");
+  q1.visibleRows[2].cells[0].value = "C";
+  assert.deepEqual(survey.data, { q1: [{ col1: "A" }, { col1: "B" }, { col1: "C" }] }, "survey.data is correct, #2");
+  assert.equal(q2.visibleChoices.length, 3, "There are three choice");
+  assert.equal(q2.visibleChoices[2].value, "C", "the third value is correct");
+});
+
+QUnit.test("Use carryForward with matrix dynamic + choiceValuesFromQuestion", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "matrixdynamic", name: "q1", columns: [{ name: "col1", cellType: "text" }, { name: "col2", cellType: "text" }] },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "col2" }
+  ] });
+  const q1 = <QuestionMatrixDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
+  assert.equal(q2.choiceValuesFromQuestion, "col2", "choiceValuesFromQuestion is set");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, row is empty");
+  q1.visibleRows[0].cells[0].value = "A";
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, col2 is empty");
+  q1.visibleRows[0].cells[1].value = "AA";
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.visibleChoices[0].value, "AA", "the first value is correct");
+  q1.visibleRows[1].cells[0].value = "B";
+  q1.visibleRows[1].cells[1].value = "BB";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[1].value, "BB", "the second value is correct");
+  q1.addRow();
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, new row is empty");
+  q1.visibleRows[2].cells[0].value = "C";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, col2 is empty");
+  q1.visibleRows[2].cells[1].value = "CC";
+  assert.equal(q2.visibleChoices.length, 3, "There are three choice");
+  assert.equal(q2.visibleChoices[2].value, "CC", "the third value is correct");
+});
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion&choiceTextsFromQuestion", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", panelCount: 2,
+      templateElements: [{ name: "q1-q1", type: "text" }, { name: "q1-q2", type: "text" }, { name: "q1-q3", type: "text" }]
+    },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q2", choiceTextsFromQuestion: "q1-q3" }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "choicesFromQuestion is set");
+  assert.equal(q2.choiceValuesFromQuestion, "q1-q2", "choiceValuesFromQuestion is set");
+  assert.equal(q2.choiceTextsFromQuestion, "q1-q3", "choiceTextsFromQuestion is set");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices");
+  q1.panels[0].getQuestionByName("q1-q1").value = "A";
+  assert.equal(q2.visibleChoices.length, 0, "There is no choices, q1-q2 is empty");
+  q1.panels[0].getQuestionByName("q1-q2").value = "AA";
+  q1.panels[0].getQuestionByName("q1-q3").value = "AA-aa";
+  assert.equal(q2.visibleChoices.length, 1, "There is one choice");
+  assert.equal(q2.visibleChoices[0].value, "AA", "the first value is correct");
+  assert.equal(q2.visibleChoices[0].text, "AA-aa", "the first text is correct");
+  q1.panels[1].getQuestionByName("q1-q1").value = "B";
+  q1.panels[1].getQuestionByName("q1-q2").value = "BB";
+  q1.panels[1].getQuestionByName("q1-q3").value = "BB-bb";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[1].value, "BB", "the second value is correct");
+  assert.equal(q2.visibleChoices[1].text, "BB-bb", "the second text is correct");
+  q1.addPanel();
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, new panel is empty");
+  q1.panels[2].getQuestionByName("q1-q1").value = "C";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice, q1-q2 is empty");
+  q1.panels[2].getQuestionByName("q1-q2").value = "CC";
+  q1.panels[2].getQuestionByName("q1-q3").value = "CC-cc";
+  assert.equal(q2.visibleChoices.length, 3, "There are three choice");
+  assert.equal(q2.visibleChoices[2].value, "CC", "the third value is correct");
+  assert.equal(q2.visibleChoices[2].text, "CC-cc", "the third text is correct");
+});
+QUnit.test("Check isUsingCarryForward on deleting matrix dynamic question", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "matrixdynamic", name: "q1" },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "set correctly");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  q1.delete();
+  assert.notOk(q2.choicesFromQuestion, "it is empty");
+  assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
+});
+QUnit.test("Check isUsingCarryForward on deleting matrix dynamic question with doDispose = false parameter", function (assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({ elements: [
+    { type: "matrixdynamic", name: "q1" },
+    { type: "dropdown", name: "q2", choicesFromQuestion: "q1" }
+  ] });
+  const q1 = <QuestionSelectBase>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  assert.equal(q2.choicesFromQuestion, "q1", "set correctly");
+  assert.equal(q2.isUsingCarryForward, true, "Carryforward flag is set");
+  q1.delete(false);
+  assert.notOk(q2.choicesFromQuestion, "it is empty");
+  assert.equal(q2.isUsingCarryForward, false, "Carryforward flag is unset");
+});
+QUnit.test("Use carryForward with panel dynamic + update data on survey.data=data;", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q2", choiceTextsFromQuestion: "q1-q3" },
+    { type: "paneldynamic", name: "q1", panelCount: 2,
+      templateElements: [{ name: "q1-q1", type: "text" }, { name: "q1-q2", type: "text" }, { name: "q1-q3", type: "text" }]
+    }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionSelectBase>survey.getQuestionByName("q2");
+  survey.data = { q1: [{ "q1-q2": 1, "q1-q3": "Item 1" }, { "q1-q2": 2, "q1-q3": "Item 2" }] };
+  assert.equal(q2.visibleChoices.length, 2, "Create choices");
+  assert.equal(q2.visibleChoices[0].value, 1, "the first value is correct");
+  assert.equal(q2.visibleChoices[0].text, "Item 1", "the first text is correct");
+  assert.equal(q2.visibleChoices[1].value, 2, "the second value is correct");
+  assert.equal(q2.visibleChoices[1].text, "Item 2", "the second text is correct");
+});
+QUnit.test("Allow to override default value fro choicesByUrl.path Bug#6766", function (assert) {
+  const prop = Serializer.findProperty("choicesByUrl", "path");
+  prop.defaultValue = "list";
+  const q1 = new QuestionDropdownModel("q1");
+  assert.equal(q1.choicesByUrl.path, "list", "get new default value for path");
+  prop.defaultValue = undefined;
+});
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-1", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "checkbox", name: "q2", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  assert.equal(q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2.visibleChoices[0].value, "aaa", "the first value is correct");
+  assert.equal(q2.visibleChoices[1].value, "bbb", "the second value is correct");
+});
+
+QUnit.test("Use carryForward with panel dynamic + choiceValuesFromQuestion + valueName, Bug#6948-2", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "paneldynamic", name: "q1", valueName: "sharedData",
+      templateElements: [{ name: "q1-q1", type: "text" }]
+    },
+    { type: "paneldynamic", name: "q2", valueName: "sharedData",
+      templateElements: [{ name: "q2-q2", type: "checkbox", choicesFromQuestion: "q1", choiceValuesFromQuestion: "q1-q1" }]
+    }
+  ] });
+  const q1 = <QuestionPanelDynamicModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionPanelDynamicModel>survey.getQuestionByName("q2");
+  q1.addPanel();
+  q1.panels[0].getQuestionByName("q1-q1").value = "aaa";
+  q1.addPanel();
+  q1.panels[1].getQuestionByName("q1-q1").value = "bbb";
+  const q2_q2 = q2.panels[0].getQuestionByName("q2-q2");
+  assert.equal(q2_q2.visibleChoices.length, 2, "There are two choice");
+  assert.equal(q2_q2.visibleChoices[0].value, "aaa", "the first value is correct");
+  assert.equal(q2_q2.visibleChoices[1].value, "bbb", "the second value is correct");
+});
+QUnit.test("SelectBase visibleChoices order & locale change", function (assert) {
+  const survey = new SurveyModel({ elements: [
+    { type: "dropdown", name: "q1", choicesOrder: "asc",
+      choices: [{ value: "A", text: { default: "AA", de: "BAA" } },
+        { value: "B", text: { default: "BB", de: "ABB" } }] }
+  ] });
+  const question = <QuestionSelectBase>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 2, "There are 4 items");
+  assert.equal(question.visibleChoices[0].value, "A", "the first item");
+  assert.equal(question.visibleChoices[1].value, "B", "the second item");
+  survey.locale = "de";
+  assert.equal(question.choicesOrder, "asc", "The order is correct");
+  assert.equal(question.getLocale(), "de", "question locale is correct");
+  assert.equal(question.choices[0].calculatedText, "BAA", "the first item calculatedText, de");
+  assert.equal(question.choices[1].calculatedText, "ABB", "the second item calculatedText, de");
+  assert.equal(question.choices[0].getLocale(), "de", "ItemValue locText locale is correct");
+  assert.equal(question.visibleChoices[0].value, "B", "the first item, de");
+  assert.equal(question.visibleChoices[1].value, "A", "the second item, de");
+  assert.equal(question.visibleChoices[0].calculatedText, "ABB", "the first visible item calculatedText, de");
+  assert.equal(question.visibleChoices[1].calculatedText, "BAA", "the second visible item calculatedText, de");
 });

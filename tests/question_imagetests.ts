@@ -113,14 +113,34 @@ QUnit.test("Image question: check image size css values", function (assert) {
   };
   const survey = new SurveyModel(json);
   const question = <QuestionImageModel>survey.getAllQuestions()[0];
-  assert.equal(question.renderedHeight, "400px");
-  assert.equal(question.renderedWidth, "200px");
+  assert.equal(question.renderedHeight, 400);
+  assert.equal(question.renderedWidth, 200);
+
+  assert.equal(question.renderedStyleHeight, undefined);
+  assert.equal(question.renderedStyleWidth, undefined);
+
   question.imageHeight = "500px";
   question.imageWidth = "300px";
-  assert.equal(question.renderedHeight, "500px");
-  assert.equal(question.renderedWidth, "300px");
+  assert.equal(question.renderedHeight, 500);
+  assert.equal(question.renderedWidth, 300);
+
+  assert.equal(question.renderedStyleHeight, undefined);
+  assert.equal(question.renderedStyleWidth, undefined);
+
   question.imageHeight = "50%";
   question.imageWidth = "100%";
-  assert.equal(question.renderedHeight, "50%");
-  assert.equal(question.renderedWidth, "100%");
+  assert.equal(question.renderedHeight, undefined);
+  assert.equal(question.renderedWidth, undefined);
+
+  assert.equal(question.renderedStyleHeight, "50%");
+  assert.equal(question.renderedStyleWidth, "100%");
+
+  question.imageHeight = "250";
+  question.imageWidth = "400";
+  assert.equal(question.renderedHeight, 250);
+  assert.equal(question.renderedWidth, 400);
+
+  assert.equal(question.renderedStyleHeight, undefined);
+  assert.equal(question.renderedStyleWidth, undefined);
+
 });

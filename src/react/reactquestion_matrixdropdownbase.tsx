@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase
 } from "./reactquestion_element";
-import { SurveyQuestion, SurveyQuestionAndErrorsCell } from "./reactquestion";
+import { SurveyElementErrors, SurveyQuestion, SurveyQuestionAndErrorsCell, SurveyQuestionErrorCell } from "./reactquestion";
 import {
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedRow,
@@ -235,6 +235,17 @@ export class SurveyQuestionMatrixDropdownBase extends SurveyQuestionElementBase 
         />
       );
     }
+    if(cell.isErrorsCell) {
+      if (cell.isErrorsCell) {
+        return (
+          <SurveyQuestionErrorCell
+            question={cell.question}
+            creator={this.creator}
+          >
+          </SurveyQuestionErrorCell>
+        );
+      }
+    }
     if (!cellContent) return null;
 
     const readyCell = (
@@ -283,6 +294,7 @@ class SurveyQuestionMatrixHeaderRequired extends ReactSurveyElement {
     if(!this.column.isRenderedRequired) return null;
     return (
       <>
+        <span>&nbsp;</span>
         <span className={this.question.cssClasses.cellRequiredText}>{this.column.requiredText}</span>
       </>
     );
@@ -304,7 +316,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
     if (!!q) return q;
     return !!this.cell ? this.cell.question : null;
   }
-  protected doAfterRender() {
+  protected doAfterRender(): void {
     var el = this.cellRef.current;
     if (
       el &&
@@ -314,7 +326,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
       el.getAttribute("data-rendered") !== "r"
     ) {
       el.setAttribute("data-rendered", "r");
-      var options = {
+      const options = {
         cell: this.cell,
         cellQuestion: this.question,
         htmlElement: el,
@@ -322,6 +334,7 @@ export class SurveyQuestionMatrixDropdownCell extends SurveyQuestionAndErrorsCel
         column: this.cell.cell.column,
       };
       this.question.survey.matrixAfterCellRender(this.question, options);
+      this.question.afterRenderCore(el);
     }
   }
   protected getShowErrors(): boolean {

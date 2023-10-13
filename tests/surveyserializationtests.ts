@@ -323,6 +323,25 @@ QUnit.test("Deserialize choicesByUrl", function (assert) {
     "data is copied correctly"
   );
 });
+QUnit.test("Change choicesByUrl.path default value", function (assert) {
+  const prop = Serializer.findProperty("choicesByUrl", "path");
+  assert.ok(prop, "Property is here");
+  prop.defaultValue = "list";
+  let question = new QuestionDropdownModel("q1");
+  assert.equal(question.choicesByUrl.path, "list", "Get value from property default value");
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "dropdown",
+        name: "question1",
+        choicesByUrl: {
+          valueName: "name"
+        }
+      }] });
+  question = <QuestionDropdownModel>survey.getQuestionByName("question1");
+  assert.equal(question.choicesByUrl.path, "list", "Get value from property default value, #2");
+  prop.defaultValue = undefined;
+});
 QUnit.test("MatrixDropdown serialize and deserialize", function (assert) {
   var matrix = new QuestionMatrixDropdownModelBase("q1");
   matrix.columns.push(new MatrixDropdownColumn("col1"));
@@ -671,3 +690,86 @@ QUnit.test(
     assert.ok(property.isVisible("", page), "navigationTitle visible for buttons nav");
   }
 );
+QUnit.test("choiceValuesFromQuestion properties visibility", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      { name: "q1", type: "dropdown", choices: [1, 2, 3] },
+      { name: "q2", type: "matrixdynamic" },
+      { name: "q3", type: "dropdown", choicesFromQuestion: "q1" },
+      { name: "q4", type: "dropdown", choicesFromQuestion: "q2" },
+      { name: "q5", type: "matrixdropdown",
+        columns: [
+          { name: "col1", cellType: "dropdown", choicesFromQuestion: "q1" },
+          { name: "col2", cellType: "dropdown", choicesFromQuestion: "q2" }
+        ]
+      }
+    ],
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  const q5 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q5");
+  const col1 = q5.columns[0];
+  const col2 = q5.columns[1];
+  const propMode = Serializer.findProperty("dropdown", "choicesFromQuestionMode");
+  const propValues = Serializer.findProperty("dropdown", "choiceValuesFromQuestion");
+  const propTexts = Serializer.findProperty("dropdown", "choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(q1), false, "q1.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(q1), false, "q1.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(q1), false, "q1.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(q3), true, "q3.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(q3), false, "q3.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(q3), false, "q3.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(q4), false, "q4.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(q4), true, "q4.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(q4), true, "q4.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(col1), true, "col1.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(col1), false, "col1.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(col1), false, "col1.choiceTextsFromQuestion");
+
+  assert.equal(propMode.visibleIf(col2), false, "col2.choicesFromQuestionMode");
+  assert.equal(propValues.visibleIf(col2), true, "col2.choiceValuesFromQuestion");
+  assert.equal(propTexts.visibleIf(col2), true, "col2.choiceTextsFromQuestion");
+});
+QUnit.test("Allow to save empty string for localization strings", function (assert) {
+  const survey = new SurveyModel({
+    questions: [
+      { name: "q1", type: "dropdown", choices: [1, 2, 3] }
+    ]
+  });
+  const q1 = <QuestionDropdownModel>survey.getQuestionByName("q1");
+  assert.equal(q1.placeholder, "Select...", "Default string for placeholder");
+  q1.placeholder = "test";
+  assert.equal(q1.placeholder, "test", "set value for placeholder");
+  q1.placeholder = "";
+  assert.equal(q1.placeholder, "", "set empty string for placeholder");
+  assert.strictEqual(q1.locPlaceholder.getJson(), "", "JSON has empty string");
+  q1.placeholder = "test";
+  assert.equal(q1.placeholder, "test", "set value for placeholder, #2");
+  q1.locPlaceholder.clear();
+  assert.equal(q1.placeholder, "Select...", "Clear value for placeholder");
+  q1.placeholder = "test";
+  assert.equal(q1.placeholder, "test", "set value for placeholder, #3");
+  q1.locPlaceholder.clearLocale();
+  assert.equal(q1.placeholder, "Select...", "ClearLocale for placeholder");
+  q1.placeholder = "";
+  assert.equal(q1.placeholder, "", "placeholder is empty");
+  q1.locPlaceholder.clearLocale();
+  assert.equal(q1.placeholder, "Select...", "ClearLocale for placeholder, #2");
+});
+QUnit.test("Allow to save empty string for trings with default value", function (assert) {
+  const q = new QuestionTextModel("q1");
+  assert.equal(q.minWidth, "300px", "Default value is 300px");
+  q.minWidth = "";
+  assert.equal(q.minWidth, "", "set empty width");
+  const json = q.toJSON();
+  assert.deepEqual(json, { name: "q1", minWidth: "" }, "Serialize empty minWidth");
+  q.setPropertyValue("minWidth", undefined);
+  assert.equal(q.minWidth, "300px", "Default value again");
+  q.fromJSON({ name: "q1", minWidth: "" });
+  assert.equal(q.minWidth, "", "empty width was in JSON");
+});

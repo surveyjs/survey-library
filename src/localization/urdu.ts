@@ -1,5 +1,3 @@
-// This dictionary contains 6 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var urduSurveyStrings = {
@@ -13,15 +11,16 @@ export var urduSurveyStrings = {
   noneItemText: "کوئی نہیں",
   selectAllItemText: "تمام منتخب کریں",
   progressText: "صفحہ {0} از {1}",
-  // indexText: "{0} of {1}",
+  indexText: "{1} کے {0}",
   panelDynamicProgressText: "ریکارڈ {0} {1}",
+  panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: " سوالات کا جواب دیا۔ {0}/{1}",
   emptySurvey: "سروے میں کوئی نظر آنے والا صفحہ یا سوال نہیں ہے۔",
   completingSurvey: "سروے مکمل کرنے کے لیے آپ کا شکریہ!",
   completingSurveyBefore: "ہمارے ریکارڈ سے پتہ چلتا ہے کہ آپ پہلے ہی یہ سروے مکمل کر چکے ہیں۔",
   loadingSurvey: "...سروے لوڈ کر رہا ہے",
   placeholder: "...منتخب کریں ",
-  // ratingOptionsCaption: "Select...",
+  ratingOptionsCaption: "منتخب...",
   value: "value",
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
@@ -76,6 +75,10 @@ export var urduSurveyStrings = {
   clearCaption: "صاف",
   signaturePlaceHolder: "یہاں سائن کریں۔",
   chooseFileCaption: "فائل منتخب کریں",
+  takePhotoCaption: "تصویر لیں",
+  cameraPlaceHolder: "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
+  fileCameraDragAreaPlaceHolder: "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔",
+  replaceFileCaption: "فائل کو تبدیل کریں",
   removeFileCaption: "اس فائل کو ہٹائے۔",
   booleanCheckedLabel: "جی ہاں",
   booleanUncheckedLabel: "نہیں",
@@ -84,12 +87,33 @@ export var urduSurveyStrings = {
   questionTitlePatternText: "سوال کا عنوان۔",
   modalCancelButtonText: "منسوخ کریں",
   modalApplyButtonText: "درخواست دیں",
-  // filterStringPlaceholder: "Type to search...",
-  // emptyMessage: "No data to display",
-  // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry.",
-  // more: "More"
+  filterStringPlaceholder: "تلاش کرنے کے لئے ٹائپ کریں...",
+  emptyMessage: "ظاہر کرنے کے لئے کوئی ڈیٹا نہیں",
+  noEntriesText: "ابھی تک کوئی اندراج نہیں ہے.\nنیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
+  noEntriesReadonlyText: "کوئی اندراج نہیں ہے.",
+  more: "زیادہ",
+  tagboxDoneButtonCaption: "ٹھيک ہے",
+  selectToRankEmptyRankedAreaText: "تمام اختیارات کی درجہ بندی کی جاتی ہے",
+  selectToRankEmptyUnrankedAreaText: "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
 surveyLocalization.locales["ur"] = urduSurveyStrings;
 surveyLocalization.localeNames["ur"] = "Urdu";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// indexText: "{0} of {1}" => "{1} کے {0}"
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
+// ratingOptionsCaption: "Select..." => "منتخب..."
+// filterStringPlaceholder: "Type to search..." => "تلاش کرنے کے لئے ٹائپ کریں..."
+// emptyMessage: "No data to display" => "ظاہر کرنے کے لئے کوئی ڈیٹا نہیں"
+// noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "ابھی تک کوئی اندراج نہیں ہے.\nنیا اندراج شامل کرنے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔"
+// noEntriesReadonlyText: "There are no entries." => "کوئی اندراج نہیں ہے."
+// more: "More" => "زیادہ"
+// tagboxDoneButtonCaption: "OK" => "ٹھيک ہے"
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "تمام اختیارات کی درجہ بندی کی جاتی ہے"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں"// takePhotoCaption: "Take Photo" => "تصویر لیں"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔"
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔"
+// replaceFileCaption: "Replace file" => "فائل کو تبدیل کریں"

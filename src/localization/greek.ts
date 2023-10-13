@@ -1,5 +1,3 @@
-// This dictionary contains 14 untranslated or inherited localization strings.
-// These strings are commented out. Uncomment and edit them if you want to add your translations.
 import { surveyLocalization } from "survey-core";
 
 export var greekSurveyStrings = {
@@ -15,6 +13,7 @@ export var greekSurveyStrings = {
   progressText: "Σελίδα {0} από {1}",
   indexText: "{0} από {1}",
   panelDynamicProgressText: "Εγγραφή {0} από {1}",
+  panelDynamicTabTextFormat: "Πίνακας {panelIndex}",
   questionsProgressText: "Απαντήθηκαν {0} / {1} ερωτήσεις",
   emptySurvey: "Δεν υπάρχει καμία ορατή σελίδα ή ορατή ερώτηση σε αυτό το ερωτηματολόγιο.",
   completingSurvey: "Ευχαριστούμε για την συμπλήρωση αυτού του ερωτηματολογίου!",
@@ -76,6 +75,10 @@ export var greekSurveyStrings = {
   clearCaption: "Εκκαθάριση",
   signaturePlaceHolder: "Υπογράψτε εδώ",
   chooseFileCaption: "Επιλέξτε αρχείο",
+  takePhotoCaption: "Λήψη φωτογραφίας",
+  cameraPlaceHolder: "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα.",
+  fileCameraDragAreaPlaceHolder: "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα.",
+  replaceFileCaption: "Αντικατάσταση αρχείου",
   removeFileCaption: "Διαγράψτε αυτό το αρχείο",
   booleanCheckedLabel: "Ναι",
   booleanUncheckedLabel: "Όχι",
@@ -87,9 +90,22 @@ export var greekSurveyStrings = {
   filterStringPlaceholder: "Πληκτρολογήστε για αναζήτηση...",
   emptyMessage: "Δεν υπάρχουν δεδομένα προς εμφάνιση",
   noEntriesText: "Δεν υπάρχουν ακόμη εγγραφές.\nΚάντε κλικ στο κουμπί παρακάτω για να προσθέσετε μια νέα εγγραφή.",
+  noEntriesReadonlyText: "Δεν υπάρχουν καταχωρήσεις.",
   more: "Περισσότερα",
-  tagboxDoneButtonCaption: "ΟΚ"
+  tagboxDoneButtonCaption: "ΟΚ",
+  selectToRankEmptyRankedAreaText: "Όλες οι επιλογές κατατάσσονται",
+  selectToRankEmptyUnrankedAreaText: "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε"
 };
 
 surveyLocalization.locales["gr"] = greekSurveyStrings;
 surveyLocalization.localeNames["gr"] = "ελληνικά";
+
+// The following strings have been translated by a machine translation service
+// Remove those strings that you have corrected manually
+// panelDynamicTabTextFormat: "Panel {panelIndex}" => "Πίνακας {panelIndex}"
+// noEntriesReadonlyText: "There are no entries." => "Δεν υπάρχουν καταχωρήσεις."
+// selectToRankEmptyRankedAreaText: "All choices are ranked" => "Όλες οι επιλογές κατατάσσονται"
+// selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε"// takePhotoCaption: "Take Photo" => "Λήψη φωτογραφίας"
+// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα."
+// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα."
+// replaceFileCaption: "Replace file" => "Αντικατάσταση αρχείου"

@@ -58,6 +58,31 @@ export class ProcessValue {
     valueInfo.value = res.value;
     valueInfo.hasValue = res.hasValue;
     valueInfo.path = res.hasValue ? res.path : null;
+    valueInfo.sctrictCompare = res.sctrictCompare;
+  }
+  public isAnyKeyChanged(keys: any, usedNames: string[]): boolean {
+    for (var i = 0; i < usedNames.length; i++) {
+      var name = usedNames[i];
+      if (keys.hasOwnProperty(name)) return true;
+      var firstName = this.getFirstName(name);
+      if (!keys.hasOwnProperty(firstName)) continue;
+      if (name === firstName) return true;
+      var keyValue = keys[firstName];
+      if (keyValue == undefined) continue;
+      if (
+        !keyValue.hasOwnProperty("oldValue") ||
+        !keyValue.hasOwnProperty("newValue")
+      )
+        return true;
+      var v: any = {};
+      v[firstName] = keyValue["oldValue"];
+      var oldValue = this.getValue(name, v);
+      v[firstName] = keyValue["newValue"];
+      var newValue = this.getValue(name, v);
+      if(!Helpers.isTwoValueEquals(oldValue, newValue, false, false, false)) return true;
+    }
+    return false;
+
   }
   private getValueFromPath(path: Array<string | number>, values: any): any {
     if(path.length === 2 && path[0] === surveyBuiltInVarible) {
@@ -80,7 +105,7 @@ export class ProcessValue {
   private getValueCore(text: string, values: any): any {
     const question = this.getQuestionDirectly(text);
     if(question) {
-      return { hasValue: true, value: question.value, path: [text] };
+      return { hasValue: true, value: question.value, path: [text], sctrictCompare: question.requireStrictCompare };
     }
     const res = this.getValueFromValues(text, values);
     if(!!text && !res.hasValue) {

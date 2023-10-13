@@ -1,6 +1,9 @@
 .sd-action {
   appearance: none;
   border: none;
+  display: flex;
+  align-items: center;
+  gap: calcSize(1);
   background: transparent;
   padding: calcSize(1) calcSize(3);
   color: $primary;
@@ -8,8 +11,8 @@
   font-weight: 600;
   font-family: var(--font-family, $font-family);
   font-style: normal;
-  font-size: calcFontSize(1);
-  line-height: calcSize(3);
+  font-size: $font-questiontitle-size;
+  line-height: multiply(1.5, $font-questiontitle-size);
   outline: none;
 }
 
@@ -21,7 +24,19 @@
   padding: calcSize(1);
 }
 
+.sd-action__icon {
+  margin-left: calcSize(-1);
+
+  use {
+    fill: $primary;
+  }
+}
+
 .sd-action--icon {
+  .sd-action__icon {
+    margin-left: 0;
+  }
+
   use {
     fill: $foreground-light;
   }

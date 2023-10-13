@@ -8,6 +8,7 @@ import { ItemValue } from "./itemvalue";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { IProgressInfo } from "./base-interfaces";
+import { Helpers } from "./helpers";
 
 export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   private item: ItemValue;
@@ -32,7 +33,7 @@ export class MatrixDropdownRowModel extends MatrixDropdownRowModelBase {
   }
 }
 /**
-  * A class that describes the Multiple-Choice Matrix question type. Multiple-Choice Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
+  * A class that describes the Multi-Select Matrix question type. Multi-Select Matrix allows you to use the [Dropdown](https://surveyjs.io/form-library/documentation/questiondropdownmodel), [Checkbox](https://surveyjs.io/form-library/documentation/questioncheckboxmodel), [Radiogroup](https://surveyjs.io/form-library/documentation/questionradiogroupmodel), [Text](https://surveyjs.io/form-library/documentation/questiontextmodel), and [Comment](https://surveyjs.io/form-library/documentation/questioncommentmodel) question types as cell editors.
  *
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/ (linkStyle))
  */
@@ -119,9 +120,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     for (var i = 0; i < this.rows.length; i++) res.push(i);
     return res;
   }
-  protected setNewValue(newValue: any): void {
-    if(!!newValue && typeof newValue !== "object") return;
-    super.setNewValue(newValue);
+  protected isNewValueCorrect(val: any): boolean {
+    return Helpers.isValueObject(val, true);
   }
   public clearIncorrectValues() {
     var val = this.value;
@@ -142,8 +142,8 @@ export class QuestionMatrixDropdownModel extends QuestionMatrixDropdownModelBase
     }
     super.clearIncorrectValues();
   }
-  protected clearValueIfInvisibleCore(): void {
-    super.clearValueIfInvisibleCore();
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
     this.clearInvisibleValuesInRows();
   }
   protected generateRows(): Array<MatrixDropdownRowModel> {

@@ -203,6 +203,7 @@ export class SurveyQuestionColorPicker extends SurveyQuestionElementBase {
 Register your custom class (`SurveyQuestionColorPicker`) as a class that renders a custom question type (`color-picker`):
 
 ```js
+import { createElement } from "react";
 import { ..., ReactQuestionFactory } from "survey-react-ui";
 
 const CUSTOM_TYPE = "color-picker";
@@ -240,6 +241,16 @@ const CUSTOM_TYPE = "color-picker";
 
 const svg = ReactDOMServer.renderToString(<ColorPickerIcon />);
 SvgRegistry.registerIconFromSvg(CUSTOM_TYPE, svg);
+```
+
+Alternatively, you can use one of [built-in SurveyJS icons](https://surveyjs.io/form-library/documentation/icons#built-in-icons). The code below shows how to use the Text icon:
+
+```js
+import { ..., settings } from "survey-core";
+
+const CUSTOM_TYPE = "color-picker";
+
+settings.customIcons["icon-" + CUSTOM_TYPE] = "icon-text";
 ```
 
 ## Use the Custom Component as an Editor in the Property Grid

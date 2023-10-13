@@ -205,6 +205,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
       new webpack.DefinePlugin({
         "process.env.ENVIRONMENT": JSON.stringify(options.buildType),
         "process.env.VERSION": JSON.stringify(packageJson.version),
+        "process.env.RELEASE_DATE": JSON.stringify(new Date().toISOString().slice(0, 10)),
       }),
       new MiniCssExtractPlugin({
         filename: isProductionBuild ? "[rc-name].min.css" : "[rc-name].css",
@@ -221,7 +222,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
     ],
   };
 
-  if(!!options.platform) {
+  if (!!options.platform) {
     config.plugins.unshift(new webpack.ProgressPlugin(percentage_handler));
     config.entry = {
       [packageName]: path.resolve(
@@ -232,7 +233,7 @@ module.exports = function (options, packageJson, chunkName, buildFolderName) {
   }
 
   if (isProductionBuild) {
-    if(!!options.platform) {
+    if (!!options.platform) {
       config.plugins.push(
         new GenerateJsonPlugin(
           /*buildPath +*/ "package.json",

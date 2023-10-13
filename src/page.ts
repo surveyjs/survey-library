@@ -47,7 +47,7 @@ export class PageModel extends PanelModelBase implements IPage {
     return this.survey && (<any>this.survey).showPageTitles;
   }
   /**
-   * A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when [`showProgressBar`](https://surveyjs.io/form-library/documentation/surveymodel#showProgressBar) is `true` and [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is `"buttons"`.
+   * A caption displayed on a navigation button in the TOC or progress bar. Applies when [`showTOC`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showTOC) is `true` or when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) is set to `"buttons"`.
    *
    * If navigation titles are unspecified, the navigation buttons display page [titles](https://surveyjs.io/form-library/documentation/api-reference/page-model#title) or [names](https://surveyjs.io/form-library/documentation/pagemodel#name).
    */
@@ -60,6 +60,9 @@ export class PageModel extends PanelModelBase implements IPage {
   public get locNavigationTitle(): LocalizableString {
     return this.getLocalizableString("navigationTitle");
   }
+  /**
+   * Explanatory text displayed under a navigation button in the progress bar. Applies when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and `SurveyModel`'s [`progressBarType`](https://surveyjs.io/form-library/documentation/surveymodel#progressBarType) property is set to `"buttons"`.
+   */
   public get navigationDescription(): string {
     return this.getLocalizableStringText("navigationDescription");
   }
@@ -73,18 +76,21 @@ export class PageModel extends PanelModelBase implements IPage {
     this.locNavigationTitle.strChanged();
     this.locNavigationDescription.strChanged();
   }
+  public get renderedNavigationTitle(): string {
+    return this.locNavigationTitle.renderedHtml || this.title || this.name;
+  }
   public get passed(): boolean {
     return this.getPropertyValue("passed", false);
   }
   public set passed(val: boolean) {
     this.setPropertyValue("passed", val);
   }
-  public delete() {
+  protected removeFromParent(): void {
     if (!!this.survey) {
       this.removeSelfFromList(this.survey.pages);
     }
   }
-  public onFirstRendering() {
+  public onFirstRendering(): void {
     if (this.wasShown) return;
     super.onFirstRendering();
   }
@@ -199,7 +205,7 @@ export class PageModel extends PanelModelBase implements IPage {
     }
   }
   /**
-   * A time period that a respondent spent on this page; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
+   * A time period that a respondent has spent on this page so far; measured in seconds. Applies only to [quiz surveys](https://surveyjs.io/form-library/documentation/design-survey-create-a-quiz).
    * @see maxTimeToFinish
    */
   public timeSpent = 0;

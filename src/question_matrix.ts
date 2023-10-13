@@ -9,10 +9,11 @@ import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
 import { QuestionDropdownModel } from "./question_dropdown";
-import { IConditionObject } from "./question";
+import { IConditionObject, IQuestionPlainData } from "./question";
 import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { IPlainDataOptions } from "./base-interfaces";
 
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
@@ -107,7 +108,7 @@ export class MatrixCells {
     this.valuesChanged();
   }
   public setDefaultCellText(column: any, val: string) {
-    this.setCellText(settings.matrixDefaultRowName, column, val);
+    this.setCellText(settings.matrix.defaultRowName, column, val);
   }
   public getCellLocText(row: any, column: any): LocalizableString {
     row = this.getCellRowColumnValue(row, this.rows);
@@ -118,12 +119,12 @@ export class MatrixCells {
     return this.values[row][column];
   }
   public getDefaultCellLocText(column: any, val: string): LocalizableString {
-    return this.getCellLocText(settings.matrixDefaultRowName, column);
+    return this.getCellLocText(settings.matrix.defaultRowName, column);
   }
   public getCellDisplayLocText(row: any, column: any): LocalizableString {
     var cellText = this.getCellLocText(row, column);
     if (cellText && !cellText.isEmpty) return cellText;
-    cellText = this.getCellLocText(settings.matrixDefaultRowName, column);
+    cellText = this.getCellLocText(settings.matrix.defaultRowName, column);
     if (cellText && !cellText.isEmpty) return cellText;
     if (typeof column == "number") {
       column =
@@ -139,7 +140,7 @@ export class MatrixCells {
     return loc ? loc.calculatedText : null;
   }
   public getDefaultCellText(column: any): string {
-    var loc = this.getCellLocText(settings.matrixDefaultRowName, column);
+    var loc = this.getCellLocText(settings.matrix.defaultRowName, column);
     return loc ? loc.calculatedText : null;
   }
   public getCellDisplayText(row: any, column: any): string {
@@ -206,7 +207,7 @@ export class MatrixCells {
 }
 
 /**
-  * A class that describes the Single-Choice Matrix question type.
+  * A class that describes the Single-Select Matrix question type.
   *
   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
   */
@@ -368,6 +369,9 @@ export class QuestionMatrixModel
     super.endLoadingFromJson();
     this.rows = this.sortVisibleRows(this.rows);
   }
+  protected isNewValueCorrect(val: any): boolean {
+    return Helpers.isValueObject(val, true);
+  }
   protected processRowsOnSet(newRows: Array<any>) {
     return this.sortVisibleRows(newRows);
   }
@@ -406,8 +410,8 @@ export class QuestionMatrixModel
     var loc = this.cells.getCellDisplayLocText(row, column);
     return loc ? loc : this.emptyLocalizableString;
   }
-  supportGoNextPageAutomatic() {
-    return this.hasValuesInAllRows();
+  supportGoNextPageAutomatic(): boolean {
+    return this.isMouseDown === true && this.hasValuesInAllRows();
   }
   protected onCheckForErrors(
     errors: Array<SurveyError>,
@@ -481,15 +485,10 @@ export class QuestionMatrixModel
     return res;
   }
   public getPlainData(
-    options: {
-      includeEmpty?: boolean,
-      calculations?: Array<{
-        propertyName: string,
-      }>,
-    } = {
+    options: IPlainDataOptions = {
       includeEmpty: true,
     }
-  ) {
+  ): IQuestionPlainData {
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       var values = this.createValueCopy();
@@ -548,8 +547,8 @@ export class QuestionMatrixModel
     json["type"] = question.getType();
     return json;
   }
-  protected clearValueIfInvisibleCore(): void {
-    super.clearValueIfInvisibleCore();
+  protected clearValueIfInvisibleCore(reason: string): void {
+    super.clearValueIfInvisibleCore(reason);
     if (this.hasRows) {
       this.clearInvisibleValuesInRows();
     }

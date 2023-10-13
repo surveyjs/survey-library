@@ -2,6 +2,7 @@ import * as React from "react";
 import { ISurveyCreator } from "./reactquestion";
 import { SurveyModel, Question, QuestionRowModel, IElement, Base } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
+import { SurveyRowElement } from "./element";
 import { ReactElementFactory } from "./element-factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 
@@ -34,25 +35,20 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     return !!this.row && !!this.survey && !!this.creator && this.row.visible;
   }
   protected renderElementContent(): JSX.Element {
-    const elements = this.row.visibleElements.map((element, index) => {
-      const innerElement = this.createElement(element, index);
-      const css = (element as Question).cssClassesValue;
-      const focusIn = () => {
-        const el: any = element;
-        if(el && !el.isDisposed && el.isQuestion) {
-          el.focusIn();
-        }
-      };
+    const elements = this.row.visibleElements.map((element, elementIndex) => {
+      const index = elementIndex ? "-" + elementIndex : 0;
+      const key = element.name + index;
       return (
-        <div
-          className={css.questionWrapper}
-          style={(element as any).rootStyle}
-          data-key={innerElement.key}
-          key={innerElement.key}
-          onFocus={focusIn}
+        <SurveyRowElement
+          element={element}
+          index={elementIndex}
+          row={this.row}
+          survey={this.survey}
+          creator={this.creator}
+          css={this.css}
+          key={key}
         >
-          {this.row.isNeedRender ? innerElement : ReactElementFactory.Instance.createElement(element.skeletonComponentName, { element: element, css: this.css, })}
-        </div>
+        </SurveyRowElement>
       );
     });
 

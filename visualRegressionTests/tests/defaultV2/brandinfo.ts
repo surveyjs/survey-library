@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest } from "../../helper";
 
 const title = "Brand banner Screenshot";
 
@@ -22,8 +22,7 @@ const json = {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
     await initSurvey(framework, json);
     await ClientFunction(() => {

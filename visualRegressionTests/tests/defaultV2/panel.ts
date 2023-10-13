@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, explicitErrorHandler, resetFocusToBody, wrapVisualTest, takeElementScreenshot, resetHoverToBody } from "../../helper";
+import { url, frameworks, initSurvey, url_test, resetFocusToBody, wrapVisualTest, takeElementScreenshot, resetHoverToBody } from "../../helper";
 
 const title = "Panel Screenshot";
 
@@ -15,20 +15,20 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
-    await applyTheme(theme);
-  });
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => { await applyTheme(theme); });
 
   test("Check oridinary panel", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -55,11 +55,14 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Contact",
+            minWidth: "780px",
+            maxWidth: "780px",
             width: "780px",
             elements: [
               {
@@ -83,7 +86,7 @@ frameworks.forEach(framework => {
           },
         ]
       });
-      await ClientFunction(()=> document.body.focus())();
+      await ClientFunction(() => document.body.focus())();
       const panelRoot = Selector(".sd-panel");
       await takeElementScreenshot("panel-elements-one-row.png", panelRoot, t, comparer);
     });
@@ -92,11 +95,14 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             state: "collapsed",
             elements: [
@@ -127,11 +133,14 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             visible: false,
             elements: [
@@ -151,7 +160,7 @@ frameworks.forEach(framework => {
         ]
       });
       const panelRoot = Selector(".sd-panel");
-      await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
+      await ClientFunction(() => { (<any>window).survey.showInvisibleElements = true; })();
       await resetFocusToBody();
       await takeElementScreenshot("panel-invisible.png", panelRoot, t, comparer);
     });
@@ -187,13 +196,13 @@ frameworks.forEach(framework => {
         ]
       });
       const rowRoot = Selector(".sd-row");
-      await ClientFunction(()=>{ (<any>window).survey.showInvisibleElements = true; })();
+      await ClientFunction(() => { (<any>window).survey.showInvisibleElements = true; })();
       await resetFocusToBody();
       await takeElementScreenshot("panel-in-row.png", rowRoot, t, comparer);
     });
   });
 
-  test("Check panel with actions", async(t) => {
+  test("Check panel with actions", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -206,7 +215,7 @@ frameworks.forEach(framework => {
         ]
       });
       await t.typeText(Selector(".sd-input"), "This is my answer");
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         document.body.focus();
         (<any>window).survey.showPreview();
       })();
@@ -215,7 +224,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check panel with actions", async(t) => {
+  test("Check panel with actions", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(722, 1000);
       await initSurvey(framework, {
@@ -255,7 +264,7 @@ frameworks.forEach(framework => {
           },
         ]
       });
-      await ClientFunction(()=>{
+      await ClientFunction(() => {
         document.body.focus();
       })();
       const panelRoot = Selector(".sd-panel");
@@ -266,11 +275,14 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -302,11 +314,14 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -339,12 +354,15 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questionErrorLocation: "bottom",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             elements: [
               {
@@ -374,11 +392,14 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "panel",
             name: "delivery_details",
             title: "Please, specify the delivery details.",
+            minWidth: "708px",
+            maxWidth: "708px",
             width: "708px",
             showNumber: true,
             elements: [
@@ -424,6 +445,41 @@ frameworks.forEach(framework => {
       const panelRoot = Selector(".sd-panel");
       await resetFocusToBody();
       await takeElementScreenshot("panel-single-page.png", panelRoot, t, comparer);
+    });
+  });
+  test("Check multiple panels with singlePage mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questionsOnPageMode: "singlePage",
+        pages: [
+          {
+            title: "Page title",
+            description: "Page description",
+            elements: [
+              {
+                name: "username",
+                type: "text",
+                title: "Username",
+              }
+            ]
+          },
+          {
+            title: "Page title 2",
+            description: "Page description 2",
+            elements: [
+              {
+                name: "email",
+                type: "text",
+                title: "email",
+              }
+            ]
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-container-modern");
+      await resetFocusToBody();
+      await takeElementScreenshot("multiple-panels-single-page.png", panelRoot, t, comparer);
     });
   });
   test("Check inner panel with singlePage mode", async (t) => {
@@ -537,6 +593,50 @@ frameworks.forEach(framework => {
       await resetFocusToBody();
       await t.click("input[value='Complete']");
       await takeElementScreenshot("panel-with-errors-without-title.png", panelRoot, t, comparer);
+    });
+  });
+  test("Check question min size inside panels in design mode", async (t) => {
+    if (framework == "vue") return;
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(370, 800);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "panel",
+                "name": "panel1",
+                "elements": [
+                  {
+                    "type": "panel",
+                    "name": "panel2",
+                    "elements": [
+                      {
+                        "type": "panel",
+                        "name": "panel3",
+                        "elements": [
+                          {
+                            "type": "text",
+                            "name": "question1"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      });
+      const panelRoot = Selector(".sd-body");
+      await ClientFunction(() => {
+        (window as any).survey.setDesignMode(true);
+        (window as any).survey.setIsMobile(true);
+      })();
+      await resetFocusToBody();
+      await takeElementScreenshot("responsive-question-inside-panels-in-creator.png", panelRoot, t, comparer);
     });
   });
 });

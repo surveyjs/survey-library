@@ -66,10 +66,10 @@ export class ChoicesRestful extends Base {
   private static cacheText = "{CACHE}";
   private static noCacheText = "{NOCACHE}";
   public static get EncodeParameters(): boolean {
-    return settings.webserviceEncodeParameters;
+    return settings.web.encodeUrlParams;
   }
   public static set EncodeParameters(val: boolean) {
-    settings.webserviceEncodeParameters = val;
+    settings.web.encodeUrlParams = val;
   }
   public static clearCache() {
     ChoicesRestful.itemsResult = {};
@@ -158,7 +158,7 @@ export class ChoicesRestful extends Base {
   public get isUsingCache(): boolean {
     if (this.isUsingCacheFromUrl === true) return true;
     if (this.isUsingCacheFromUrl === false) return false;
-    return settings.useCachingForChoicesRestful;
+    return settings.web.cacheLoadedChoices;
   }
   public get isRunning(): boolean {
     return this.getIsRunning();
@@ -191,12 +191,12 @@ export class ChoicesRestful extends Base {
       var pUrl = textProcessor.processTextEx(
         urlText,
         false,
-        settings.webserviceEncodeParameters
+        settings.web.encodeUrlParams
       );
       var pPath = textProcessor.processTextEx(
         this.path,
         false,
-        settings.webserviceEncodeParameters
+        settings.web.encodeUrlParams
       );
       if (!pUrl.hasAllValuesOnLastRun || !pPath.hasAllValuesOnLastRun) {
         this.processedUrl = "";
@@ -259,13 +259,7 @@ export class ChoicesRestful extends Base {
     return "choicesByUrl";
   }
   public get isEmpty(): boolean {
-    return (
-      !this.url &&
-      !this.path &&
-      !this.valueName &&
-      !this.titleName &&
-      !this.imageLinkName
-    );
+    return !this.url && !this.path;
   }
   public getCustomPropertiesNames(): Array<string> {
     var properties = this.getCustomProperties();
@@ -376,7 +370,8 @@ export class ChoicesRestful extends Base {
    */
 
   public get path(): string {
-    return this.getPropertyValue("path", "");
+    const res = this.getPropertyValue("path");
+    return !!res ? res : "";
   }
   public set path(val: string) {
     this.setPropertyValue("path", val);
@@ -444,12 +439,12 @@ export class ChoicesRestful extends Base {
     if (prop.type == "itemvalue[]") return "itemvalue";
     return prop.type;
   }
-  public clear() {
-    this.url = "";
-    this.path = "";
-    this.valueName = "";
-    this.titleName = "";
-    this.imageLinkName = "";
+  public clear(): void {
+    this.url = undefined;
+    this.path = undefined;
+    this.valueName = undefined;
+    this.titleName = undefined;
+    this.imageLinkName = undefined;
     var properties = this.getCustomPropertiesNames();
     for (var i = 0; i < properties.length; i++) {
       if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";

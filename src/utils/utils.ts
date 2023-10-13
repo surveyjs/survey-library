@@ -1,4 +1,8 @@
+import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
+import { IDialogOptions } from "../popup";
+import { surveyLocalization } from "../surveyStrings";
+import { PopupBaseViewModel } from "../popup-view-model";
 
 function compareVersions(a: any, b: any) {
   const regExStrip0: RegExp = /(\.0+)+$/;
@@ -14,19 +18,33 @@ function compareVersions(a: any, b: any) {
   }
   return segmentsA.length - segmentsB.length;
 }
+
 function confirmAction(message: string): boolean {
   if (!!settings && !!settings.confirmActionFunc)
     return settings.confirmActionFunc(message);
   return confirm(message);
 }
-function detectIEBrowser() {
+
+function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
+  const callbackFunc = (res: boolean): void => {
+    if(res) funcOnYes();
+    else if(!!funcOnNo) funcOnNo();
+  };
+
+  if(!!settings && !!settings.confirmActionAsync) {
+    if(settings.confirmActionAsync(message, callbackFunc)) return;
+  }
+
+  callbackFunc(confirmAction(message));
+}
+function detectIEBrowser(): boolean {
   if (typeof window === "undefined") return false;
   const ua: string = window.navigator.userAgent;
   const oldIe: number = ua.indexOf("MSIE ");
   const elevenIe: number = ua.indexOf("Trident/");
   return oldIe > -1 || elevenIe > -1;
 }
-function detectIEOrEdge() {
+function detectIEOrEdge(): boolean {
   if (typeof window === "undefined") return false;
   if (typeof (<any>detectIEOrEdge).isIEOrEdge === "undefined") {
     const ua: string = window.navigator.userAgent;
@@ -37,7 +55,7 @@ function detectIEOrEdge() {
   }
   return (<any>detectIEOrEdge).isIEOrEdge;
 }
-function loadFileFromBase64(b64Data: string, fileName: string) {
+function loadFileFromBase64(b64Data: string, fileName: string): void {
   try {
     const byteString: string = atob(b64Data.split(",")[1]);
 
@@ -64,7 +82,7 @@ function loadFileFromBase64(b64Data: string, fileName: string) {
     }
   } catch (err) { }
 }
-function isMobile() {
+function isMobile(): boolean {
   return (
     typeof window !== "undefined" && typeof window.orientation !== "undefined"
   );
@@ -149,6 +167,10 @@ function navigateToUrl(url: string): void {
   window.location.href = url;
 }
 
+function wrapUrlForBackgroundImage(url: string): string {
+  return !!url ? ["url(", url, ")"].join("") : "";
+}
+
 function getIconNameFromProxy(iconName: string): string {
   if (!iconName) return iconName;
   var proxyName = (<any>settings.customIcons)[iconName];
@@ -199,20 +221,44 @@ export function unwrap<T>(value: T | (() => T)): T {
   }
 }
 
-export function getSize(value: any) {
-  if (typeof value === "number") {
-    return "" + value + "px";
-  }
-  if (!!value && typeof value === "string" && value.length > 0) {
-    const lastSymbol: string = value[value.length - 1];
-    if ((lastSymbol >= "0" && lastSymbol <= "9") || lastSymbol == ".") {
-      try {
-        const num: number = parseFloat(value);
-        return "" + num + "px";
-      } catch { }
+// export function getSize(value: any): number {
+//   if (typeof value === "number") {
+//     return value;
+//   }
+//   if (typeof value === "string" && value.includes("px")) {
+//     return parseInt(value);
+//   }
+//   if (!!value && typeof value === "string" && value.length > 0) {
+//     const lastSymbol: string = value[value.length - 1];
+//     if ((lastSymbol >= "0" && lastSymbol <= "9") || lastSymbol == ".") {
+//       try {
+//         const num: number = parseInt(value);
+//         return num;
+//       } catch { }
+//     }
+//   }
+//   return value;
+// }
+
+export function getRenderedSize(val: string | number): number {
+  if(typeof val == "string") {
+    if(!isNaN(Number(val))) {
+      return Number(val);
+    }
+    else if(val.includes("px")) {
+      return parseFloat(val);
     }
   }
-  return value;
+  if(typeof val == "number") {
+    return val;
+  }
+  return undefined;
+}
+export function getRenderedStyleSize(val: string | number): string {
+  if(getRenderedSize(val) !== undefined) {
+    return undefined;
+  }
+  return val as string;
 }
 
 export interface IAttachKey2clickOptions {
@@ -220,7 +266,6 @@ export interface IAttachKey2clickOptions {
   disableTabStop?: boolean;
   __keyDownReceived?: boolean;
 }
-
 const keyFocusedClassName = "sv-focused--by-key";
 export function doKey2ClickBlur(evt: KeyboardEvent): void {
   const element: any = evt.target;
@@ -301,6 +346,15 @@ function isContainerVisible(el: HTMLElement) {
   );
 }
 
+function getFirstVisibleChild(el: HTMLElement) {
+  let result;
+  for(let index = 0; index < el.children.length; index++) {
+    if(!result && getComputedStyle(el.children[index]).display !== "none") {
+      result = el.children[index];
+    }
+  }
+  return result;
+}
 function findParentByClassNames(element: HTMLElement, classNames: Array<string>): Element {
   if (!!element) {
     if (classNames.every(className => !className || element.classList.contains(className))) {
@@ -353,6 +407,35 @@ export class Logger {
   }
 }
 
+export function showConfirmDialog(message: string, callback: (res: boolean) => void): boolean {
+  const locStr = new LocalizableString(undefined);
+  const popupViewModel:PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
+    componentName: "sv-string-viewer",
+    data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
+    onApply: () => {
+      callback(true);
+      return true;
+    },
+    onCancel: () => {
+      callback(false);
+      return false;
+    },
+    title: message,
+    displayMode: "popup",
+    isFocusedContent: false,
+    cssClass: "sv-popup--confirm-delete"
+  }, /*settings.rootElement*/document.body); //TODO survey root
+  const toolbar = popupViewModel.footerToolbar;
+  const applyBtn = toolbar.getActionById("apply");
+  const cancelBtn = toolbar.getActionById("cancel");
+  cancelBtn.title = surveyLocalization.getString("cancel");
+  cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
+  applyBtn.title = surveyLocalization.getString("ok");
+  applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
+  popupViewModel.width = "452px";
+  return true;
+}
+
 export {
   mergeValues,
   getElementWidth,
@@ -360,6 +443,7 @@ export {
   classesToSelector,
   compareVersions,
   confirmAction,
+  confirmActionAsync,
   detectIEOrEdge,
   detectIEBrowser,
   loadFileFromBase64,
@@ -370,10 +454,12 @@ export {
   findScrollableParent,
   scrollElementByChildId,
   navigateToUrl,
+  wrapUrlForBackgroundImage,
   createSvg,
   getIconNameFromProxy,
   increaseHeightByContent,
   getOriginalEvent,
   preventDefaults,
   findParentByClassNames,
+  getFirstVisibleChild,
 };

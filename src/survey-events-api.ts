@@ -1,9 +1,10 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { IElement, ISurveyElement } from "./base-interfaces";
+import { IElement, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
+import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionFileModel } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
@@ -22,7 +23,7 @@ export interface QuestionEventMixin {
 }
 export interface FileQuestionEventMixin {
   /**
-   * A File question instance for which the event is raised.
+   * A File Upload question instance for which the event is raised.
    */
   question: QuestionFileModel;
 }
@@ -34,7 +35,7 @@ export interface PanelDynamicQuestionEventMixin {
 }
 export interface MatrixDropdownQuestionEventMixin {
   /**
-   * A Multiple-Choice Matrix question instance for which the event is raised.
+   * A Multi-Select Matrix question instance for which the event is raised.
    */
   question: QuestionMatrixDropdownModelBase;
 }
@@ -70,7 +71,7 @@ export interface GetActionsEventMixin {
 }
 export interface AfterRenderElementEventMixin {
   /**
-   * The rendered HTML element.
+   * A rendered HTML element.
    */
   htmlElement: HTMLElement;
 }
@@ -96,15 +97,22 @@ export interface TriggerExecutedEvent {
 
 export interface CompleteBaseEvent {
   /**
-   * Returns `true` if survey completion is caused by the ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
+   * Returns `true` if survey completion is caused by a ["complete" trigger](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#complete).
    */
   isCompleteOnTrigger: boolean;
+  /**
+   * A "complete" trigger that has been executed. This parameter has a value only if `options.isCompleteOnTrigger` is `true`.
+   */
+  completeTrigger?: Trigger;
 }
 export interface CompletingEvent extends CompleteBaseEvent {
   /**
-   * Set this property to `false` if you want to prevent survey completion.
+   * A Boolean property that you can set to `false` if you want to prevent survey completion.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `options.allow` instead.
+   */
   allowComplete: boolean;
 }
 export interface CompleteEvent extends CompleteBaseEvent {
@@ -124,21 +132,36 @@ export interface CompleteEvent extends CompleteBaseEvent {
    * Call this method to indicate that the save operation is in progress. You can use the `text` parameter to display a custom message.
    */
   showSaveInProgress: (text?: string) => void;
+  /**
+   * Obsolete. Use `options.showSaveInProgress` instead.
+   */
   showDataSaving: (text?: string) => void;
+  /**
+   * Obsolete. Use `options.showSaveError` instead.
+   */
   showDataSavingError: (text?: string) => void;
+  /**
+   * Obsolete. Use `options.showSaveSuccess` instead.
+   */
   showDataSavingSuccess: (text?: string) => void;
+  /**
+   * Obsolete. Use `options.clearSaveMessages` instead.
+   */
   showDataSavingClear: (text?: string) => void;
 }
 export interface ShowingPreviewEvent {
   /**
-   * Set this property to `false` if you want to cancel the preview.
+   * A Boolean property that you can set to `false` if you want to cancel the preview.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `options.allow` instead.
+   */
   allowShowPreview: boolean;
 }
 export interface NavigateToUrlEvent {
   /**
-   * Set this property to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
+   * A Boolean property that you can set to `false` if you want to cancel the navigation and show the [complete page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#complete-page).
    */
   allow: boolean;
   /**
@@ -164,6 +187,10 @@ export interface CurrentPageChangedEvent {
    */
   isGoingForward: boolean;
   /**
+   * Returns `true` if the respondent is switching from the [preview page](https://surveyjs.io/form-library/documentation/design-survey/create-a-multi-page-survey#preview-page).
+   */
+  isAfterPreview: boolean;
+  /**
    * The current page.
    */
   newCurrentPage: PageModel;
@@ -174,9 +201,12 @@ export interface CurrentPageChangedEvent {
 }
 export interface CurrentPageChangingEvent extends CurrentPageChangedEvent {
   /**
-   * Set this property to `false` if you do not want to switch the current page.
+   * A Boolean property that you can set to `false` if you do not want to switch the current page.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `options.allow` instead.
+   */
   allowChanging: boolean;
 }
 
@@ -231,7 +261,13 @@ export interface ElementAddedEvent {
    * The parent container (panel or page).
    */
   parent: PanelModelBase;
+  /**
+   * Obsolete. Use `options.page` instead.
+   */
   rootPanel: any;
+  /**
+   * Obsolete. Use `options.parent` instead.
+   */
   parentPanel: any;
   /**
    * The element's index within the parent container (panel or page).
@@ -299,31 +335,29 @@ export interface ValidatePanelEvent extends PanelEventMixin {
 }
 export interface ErrorCustomTextEvent {
   /**
-   * the error name. The following error names are available:
-   * required, requireoneanswer, requirenumeric, exceedsize, webrequest, webrequestempty, otherempty,
-   * uploadingfile, requiredinallrowserror, minrowcounterror, keyduplicationerror, custom
+   * A validation error type: `"required"`, `"requireoneanswer"`, `"requirenumeric"`, `"exceedsize"`, `"webrequest"`, `"webrequestempty"`, `"otherempty"`, `"uploadingfile"`, `"requiredinallrowserror"`, `"minrowcounterror"`, `"keyduplicationerror"`, or `"custom"`
    */
   name: string;
   /**
-   * an instance of Question, Panel or Survey object to where error is located
+   * A survey element to which the validation error belongs.
    */
   obj: Question | PanelModel | SurveyModel;
   /**
-   * an instance of the `SurveyError` object
+   * A validation error.
    */
   error: SurveyError;
   /**
-   * an error text
+   * An error message. You can assign a custom message to this parameter.
    */
   text: string;
 }
 export interface ValidatedErrorsOnCurrentPageEvent extends PageEventMixin {
   /**
-   * the list of questions that have errors
+   * An array of questions with validation errors.
    */
   questions: Array<Question>;
   /**
-   * the list of errors
+   * An array of validation errors.
    */
   errors: Array<SurveyError>;
 }
@@ -339,68 +373,68 @@ export interface ProcessHtmlEvent {
 }
 export interface GetQuestionTitleEvent extends QuestionEventMixin {
   /**
-   * a calculated question title, based on question `title`, `name`
+   * A question title taken from the question's `title` or `name` property. You can change this parameter's value.
    */
   title: string;
 }
 export interface GetTitleTagNameEvent {
   /**
-   * an element title tagName that are used to render a title. You can change it from the default value
-   */
-  tagName: string;
-  /**
-   * an element (question, panel, page and survey) that SurveyJS is going to render
+   * A survey element (question, panel, page, or the survey itself) for which the event is raised.
    */
   element: Base;
+  /**
+   * A heading used to render the title (`"h1"`-`"h6"`). You can change this parameter's value.
+   */
+  tagName: string;
 }
 export interface GetQuestionNoEvent extends QuestionEventMixin {
   /**
-   * a calculated question no, based on question `visibleIndex`, survey `.questionStartIndex` properties. You can change it
+   * A question number that is calculated based upon the question's [`visibleIndex`](https://surveyjs.io/form-library/documentation/api-reference/question#visibleIndex) and survey's [`questionStartIndex`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#questionStartIndex) properties. You can change this parameter's value.
    */
   no: string;
 }
 export interface ProgressTextEvent {
   /**
-   * a number of required questions that have input(s) and an user has answered
-   */
-  requiredAnsweredQuestionCount: number;
-  /**
-   * a number of required questions that have input(s). We do not count html or expression questions
-   */
-  requiredQuestionCount: number;
-  /**
-   * a number of questions that have input(s) and an user has answered
-   */
-  answeredQuestionCount: number;
-  /**
-   * a number of questions that have input(s). We do not count html or expression questions
+   * The number of questions with input fields. [Image](https://surveyjs.io/form-library/examples/add-image-and-video-to-survey/), [HTML](https://surveyjs.io/form-library/examples/questiontype-html/), and [Expression](https://surveyjs.io/form-library/examples/questiontype-expression/) questions are not counted.
    */
   questionCount: number;
   /**
-   * a progress text, that SurveyJS will render in progress bar
+   * The number of answered questions.
+   */
+  answeredQuestionCount: number;
+  /**
+   * The number of questions marked as required.
+   */
+  requiredQuestionCount: number;
+  /**
+   * The number of answered questions marked as required.
+   */
+  requiredAnsweredQuestionCount: number;
+  /**
+   * Progress text rendered in the [progress bar](#showProgressBar). You can change this parameter's value.
    */
   text: string;
 }
 
 export interface TextProcessingEvent {
   /**
-   * a property name is going to be rendered
+   * The name of the property that contains the text to process.
    */
   name: string;
   /**
-   * SurveyJS element (a question, panel, page, or survey) where the string is going to be rendered
+   * A survey element (question, panel, page, or survey) in which the text will be rendered.
    */
   element: Question | PanelModel | PageModel | SurveyModel;
 }
 export interface TextMarkdownEvent extends TextProcessingEvent {
   /**
-   * an HTML content. It is `null` by default. Use this property to specify the HTML content rendered instead of `options.text`
-   */
-  html?: string;
-  /**
-   * a text that is going to be rendered
+   * A string with Markdown content. Convert this content to HTML and assign the result to the `options.html` parameter.
    */
   text: string;
+  /**
+   * A property to which you should assign HTML content.
+   */
+  html?: string;
 }
 export interface TextRenderAsEvent extends TextProcessingEvent {
   /**
@@ -411,103 +445,113 @@ export interface TextRenderAsEvent extends TextProcessingEvent {
 
 export interface SendResultEvent {
   /**
-   * a response from the service
+   * A server [response](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response).
    */
   response: any;
   request: any;
   /**
-   * it is `true` if the results has been sent to the service successfully
+   * A Boolean value that indicates whether survey results have been saved successfully.
    */
   success: boolean;
 }
 export interface GetResultEvent {
   /**
-   * the server response
+   * A server [response](https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response).
    */
   response: any;
   /**
-   * an array of objects `{name, value}`, where `name` is a unique value/answer to the question and `value` is a number/count of such answers
+   * A Boolean value that indicates whether survey results have been retrieved successfully.
    */
-  dataList: Array<any>;
+  success: boolean;
   /**
-   * the object `{AnswersCount, QuestionResult : {} }`. `AnswersCount` is the number of posted survey results. `QuestionResult` is an object with all possible unique answers to the question and number of these answers
+   * An object with the following structure:
+   *
+   * ```js
+   * {
+   *   AnswersCount: Number, // A total number of posted answers to the question
+   *   QuestionResult: Object // All unique answers to the question and their number
+   * }
+   * ```
    */
   data: any;
   /**
-   * it is `true` if the results were got from the service successfully
+   * An array of objects with the following structure:
+   *
+   * ```js
+   * {
+   *   name: String, // A unique answer to the question
+   *   value: Number // The number of user responses with this answer
+   * }
+   * ```
    */
-  success: boolean;
+  dataList: Array<any>;
 }
 
 export interface LoadFilesEvent extends FileQuestionEventMixin {
   /**
-   * the question name
+   * A File Upload question's name.
    */
   name: string;
 }
 export interface UploadFilesEvent extends LoadFilesEvent {
   /**
-   * a callback function to get the file upload status and the updloaded file content
+   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, the downloaded file's data.
    */
   callback: (status: string, data?: any) => any;
   /**
-   * the Javascript File objects array to upload
+   * An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
    */
   files: Array<File>;
-
 }
 export interface DownloadFileEvent extends LoadFilesEvent {
   /**
-   * a callback function to get the file downloading status and the downloaded file content
+   * A callback function that you should call when a file is downloaded successfully or when deletion fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, the downloaded file's data as a Base64 string.
    */
   callback: (status: string, data?: any) => any;
   /**
-   * single file question value
+   * The File Upload question's [`value`](https://surveyjs.io/form-library/documentation/api-reference/file-model#value) that contains metadata about uploaded files.
    */
   fileValue: any;
   /**
-   * the file content
+   * A file identifier (URL, file name, etc.) stored in survey results.
    */
   content: any;
 }
 export interface ClearFilesEvent extends LoadFilesEvent {
   /**
-   * a callback function to get the operation status
+   * A callback function that you should call when files are deleted successfully or when deletion fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, deleted files' data (`options.value`).
    */
   callback: (status: string, data?: any) => any;
   /**
-   * a removed file's name, set it to `null` to clear all files
+   * The name of a file to delete. When this parameter is `null`, all files should be deleted.
    */
   fileName: string;
   /**
-   * the question value
+   * The File Upload question's [`value`](https://surveyjs.io/form-library/documentation/api-reference/file-model#value) that contains metadata about uploaded files.
    */
   value: any;
 }
 export interface LoadChoicesFromServerEvent extends QuestionEventMixin {
   /**
-   * a result that comes from the server as it is
+   * A query result as it came from the server.
    */
   serverResult: any;
   /**
-   * the loaded choices. You can change the loaded choices to before they are assigned to question
+   * An array of loaded choices. You can modify this array.
    */
   choices: Array<ItemValue>;
 }
 export interface ProcessTextValueEvent {
   /**
-   * the value of the processing text
-   */
-  value: any;
-  /**
-   * a boolean value. Set it to `true` if you want to use the value and set it to `false` if you don't
-   */
-  isExists: boolean;
-  canProcess: boolean;
-  /**
-   * the name of the processing value, for example, "state" in our example
+   * The name of the value being processed (the text in curly brackets).
    */
   name: string;
+  /**
+   * The value being processed. You can change this parameter's value.
+   */
+  value: any;
+  isExists: boolean;
+  canProcess: boolean;
   returnDisplayValue: boolean;
 }
 export interface UpdateQuestionCssClassesEvent extends QuestionEventMixin, UpdateElementCssClassesEventMixin { }
@@ -515,15 +559,18 @@ export interface UpdatePanelCssClassesEvent extends PanelEventMixin, UpdateEleme
 export interface UpdatePageCssClassesEvent extends PageEventMixin, UpdateElementCssClassesEventMixin { }
 export interface UpdateChoiceItemCssEvent extends QuestionEventMixin {
   /**
-   * a string with css classes divided by space. You can change it
-   */
-  css: string;
-  /**
-   * a choice item of ItemValue type. You can get value or text choice properties as options.item.value or options.choice.text
+   * A choice item. To access its value and display text, use the `options.item.value` and `options.item.text` properties.
    */
   item: ItemValue;
+  /**
+   * A string with CSS classes applied to the choice item. The CSS classes are separated by a space character. You can modify this string to apply custom CSS classes.
+   */
+  css: string;
 }
 export interface AfterRenderSurveyEvent extends AfterRenderElementEventMixin {
+  /**
+   * Obsolete. Use the `sender` parameter instead.
+   */
   survey: SurveyModel;
 }
 export interface AfterRenderHeaderEvent extends AfterRenderElementEventMixin { }
@@ -536,13 +583,13 @@ export interface FocusInQuestionEvent extends QuestionEventMixin {
 export interface FocusInPanelEvent extends PanelEventMixin { }
 export interface ShowingChoiceItemEvent extends QuestionEventMixin {
   /**
+   * A choice item.
+   */
+  item: ItemValue;
+  /**
    * A Boolean value that specifies item visibility. Set it to `false` to hide the item.
    */
   visible: boolean;
-  /**
-   * The choice item as specified in the [choices](https://surveyjs.io/Documentation/Library?id=QuestionSelectBase#choices) array.
-   */
-  item: ItemValue;
 }
 export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
   /**
@@ -566,7 +613,7 @@ export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.
    */
-  setItems: (displayValues: Array<string>) => void;
+  setItems: (displayValues: Array<string>, ...customValues: Array<IValueItemCustomPropValues>) => void;
   /**
    * An array of one (in Dropdown) or more (in Tag Box) default values.
    */
@@ -574,137 +621,151 @@ export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
 }
 export interface MatrixRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a new added row
+   * An added matrix row.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
 }
 export interface MatrixBeforeRowAddedEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * specifies whether a new row can be added
+   * A Boolean property that you can set to `false` if you do not want to add the row.
+   */
+  allow: boolean;
+  /**
+   * Obsolete. Use `options.allow` instead.
    */
   canAddRow: boolean;
 }
 export interface MatrixRowRemovingEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a boolean property. Set it to `false` to disable the row removing
+   * A matrix row to be deleted. If you want to clear row data, set the `options.row.value` property to `undefined`.
    */
-  allow: boolean;
+  row: MatrixDropdownRowModelBase;
   /**
-   * a row object
-   */
-  row: any;
-  /**
-   * a row index
+   * A zero-based index of the matrix row to be deleted.
    */
   rowIndex: number;
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel row deletion.
+   */
+  allow: boolean;
 }
 export interface MatrixRowRemovedEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a removed row object
+   * A deleted matrix row.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
   /**
-   * a removed row index
+   * A zero-based index of the deleted row.
    */
   rowIndex: number;
 }
 export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMixin {
   /**
-   * a boolean property. Set it to `false` to disable the row removing
+   * A matrix row for which the event is raised.
    */
-  allow: boolean;
+  row: MatrixDropdownRowModelBase;
   /**
-   * a row object
-   */
-  row: any;
-  /**
-   * a row index
+   * A zero-based row index.
    */
   rowIndex: number;
+  /**
+   * A Boolean property that you can set to `false` if you want to hide the Remove button for this row.
+   */
+  allow: boolean;
 }
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
-   * the matrix row object
-   */
-  row: MatrixDropdownRowModelBase;
-  /**
-   * the matrix column name
-   */
-  columnName: string;
-  /**
-   * the matrix column object
+   * A matrix column to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**
-   * the value of the current row. To access a particular column's value within the current row, use: `options.rowValue["columnValue"]`
+   * The name of the matrix column to which the cell belongs.
+   */
+  columnName: string;
+  /**
+   * A matrix row to which the cell belongs.
+   */
+  row: MatrixDropdownRowModelBase;
+  /**
+   * The values of this matrix row.\
+   * To access a particular column's value, use the following code: `options.rowValue["columnName"]`
    */
   rowValue: any;
 }
 export interface MatrixCellCreatingEvent extends MatrixCellCreatingBaseEvent {
   /**
-   * the cell question type. You can change it
+   * The type of this matrix cell. You can change this property value to one of the values described in the [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#cellType) documentation.
    */
   cellType: string;
 }
 export interface MatrixCellCreatedEvent extends MatrixCellCreatingBaseEvent {
   /**
-   * the question/editor in the cell. You may customize it, change it's properties, like choices or visible
-   */
-  cellQuestion: Question;
-  /**
-   * the matrix cell
+   * A matrix cell for which the event is raised.
    */
   cell: MatrixDropdownCell;
+  /**
+   * A Question instance within the matrix cell. You can use the properties and methods exposed by the instance to customize it.
+   */
+  cellQuestion: Question;
 }
 export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRenderElementEventMixin {
   /**
-   * the matrix row object
+   * A matrix cell for which the event is raised.
    */
-  row: MatrixDropdownRowModelBase;
+  cell: MatrixDropdownCell;
   /**
-   * the matrix column object
-   */
-  column: MatrixDropdownColumn | MatrixDropdownCell;
-  /**
-   * the question/editor in the cell
+   * A Question instance within the matrix cell.
    */
   cellQuestion: Question;
   /**
-   * the matrix cell
+   * A matrix row to which the cell belongs.
    */
-  cell: MatrixDropdownCell;
+  row: MatrixDropdownRowModelBase;
+  /**
+   * A matrix column to which the cell belongs.
+   */
+  column: MatrixDropdownColumn | MatrixDropdownCell;
 }
 
 export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
-   * the function that returns the cell question by column name
-   */
-  getCellQuestion: (columnName: string) => Question;
-  /**
-   * the matrix row object
+   * A matrix row to which the cell belongs.
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * a new value
+   * A matrix column to which the cell belongs.
    */
-  value: any;
+  column: MatrixDropdownColumn;
   /**
-   * the matrix column name
+   * The name of a matrix column to which the cell belongs.
    */
   columnName: string;
+  /**
+   * A Question instance within the matrix cell. You can use the properties and methods exposed by the instance to customize it.
+   */
+  cellQuestion: Question;
+  /**
+   * A method that returns a Question instance within the matrix cell given a column name.
+   */
+  getCellQuestion: (columnName: string) => Question;
+  /**
+   * A new cell value.
+   */
+  value: any;
+
 }
 
 export interface MatrixCellValueChangedEvent extends MatrixCellValueBaseEvent {}
 export interface MatrixCellValueChangingEvent extends MatrixCellValueBaseEvent {
   /**
-   * the old value
+   * A previous cell value.
    */
   oldValue: any;
 }
 export interface MatrixCellValidateEvent extends MatrixCellValueBaseEvent {
   /**
-   * an error string. It is empty by default
+   * A field for your custom error message. Default value: `undefined`.
    */
   error?: string;
 }
@@ -716,7 +777,7 @@ export interface DynamicPanelModifiedEvent extends PanelDynamicQuestionEventMixi
 }
 export interface DynamicPanelRemovingEvent extends DynamicPanelModifiedEvent {
   /**
-   * Set this property to `false` if you want to cancel the panel deletion.
+   * A Boolean property that you can set to `false` if you want to cancel panel deletion.
    */
   allow: boolean;
 }
@@ -748,83 +809,100 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    */
   panel: PanelModel;
 }
+export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventMixin {
+  /**
+   * A panel whose tab title is being rendered.
+   */
+  panel: PanelModel;
+  /**
+   * The panel's index in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array of the Dynamic Panel.
+   */
+  visiblePanelIndex: number;
+  /**
+   * A tab title. You can change this parameter's value.
+   */
+  title: string;
+}
 export interface IsAnswerCorrectEvent extends QuestionEventMixin {
   /**
-   * you may change the default number of correct or incorrect answers in the question, for example for matrix, where each row is a quiz question
+   * The number of correct answers in a matrix where each row is considered as one quiz question.
    */
   correctAnswers: number;
+  /**
+   * The number of incorrect answers in a matrix where each row is considered as one quiz question.
+   */
   incorrectAnswers: number;
   /**
-   * returns `true`, if an answer is correct, or `false`, if the answer is not correct. Use questions' `value` and `correctAnswer` properties to return the correct value
+   * A Boolean property that specifies whether the answer is correct (`true`) or incorrect (`false`). Use the `options.question.value` and `options.question.correctAnswer` properties to check the answer.
    */
   result: boolean;
 }
 export interface DragDropAllowEvent {
   /**
-   * an element after the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging element to the first position within the parent container
-   */
-  insertAfter: IElement;
-  /**
-   * an element before the target element is dragging. It can be `null` if parent container (page or panel) is empty or dragging an element after the last element in a container
-   */
-  insertBefore: IElement;
-  /**
-   * a page or panel where target element is dragging
-   */
-  parent: ISurveyElement;
-  /**
-   * a source element. It can be `null`, if it is a new element, dragging from toolbox
-   */
-  source: IElement;
-  /**
-   * a target element that is dragged
+   * A survey element being dragged.
    */
   target: IElement;
   /**
-   * set it to `false` to disable dragging
+   * A survey element from which `target` is being dragged. This parameter is `null` if `target` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
+   */
+  source: IElement;
+  /**
+   * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
+   */
+  insertBefore: IElement;
+  /**
+   * A survey element after which `target` will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if `target` will be placed above all other elements within the container.
+   */
+  insertAfter: IElement;
+  /**
+   * A parent container (page or panel) within which `target` will be placed.
+   */
+  parent: ISurveyElement;
+  /**
+   * A Boolean property that you can set to `false` if you want to cancel the drag and drop operation.
    */
   allow: boolean;
 }
 export interface ScrollingElementToTopEvent {
   /**
-   * an element that is going to be scrolled on top
+   * A survey element that will be scrolled to the top.
    */
   element: ISurveyElement;
   /**
-   * a question that is going to be scrolled on top. It can be null if options.page is not null
+   * A unique element ID within the DOM.
    */
-  question?: Question;
+  elementId: string;
   /**
-   * a page that is going to be scrolled on top. It can be null if options.question is not null
-   */
-  page?: PageModel;
-  /**
-   * set this property to true to cancel the default scrolling
+   * A Boolean property that you can set to `true` if you want to cancel the scroll operation.
    */
   cancel: boolean;
   /**
-   * the unique element DOM Id
+   * Obsolete. Use `options.element` instead.
    */
-  elementId: string;
+  question?: Question;
+  /**
+   * Obsolete. Use `options.element` instead.
+   */
+  page?: PageModel;
 }
 export interface GetQuestionTitleActionsEvent extends QuestionEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelTitleActionsEvent extends PanelEventMixin, GetTitleActionsEventMixin { }
 export interface GetPageTitleActionsEvent extends PageEventMixin, GetTitleActionsEventMixin { }
 export interface GetPanelFooterActionsEvent extends GetActionsEventMixin, PanelEventMixin {
   /**
-   * A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel
+   * A [Dynamic Panel](https://surveyjs.io/form-library/documentation/questionpaneldynamicmodel) to which the Panel belongs. This field is `undefined` if the Panel does not belong to any Dynamic Panel.
    */
   question?: QuestionPanelDynamicModel;
 }
 export interface GetMatrixRowActionsEvent extends QuestionEventMixin, GetActionsEventMixin {
   /**
-   * A matrix row for which the event is fired
+   * A matrix row for which the event is raised.
    */
-  row: any;
+  row: MatrixDropdownRowModelBase;
 }
 export interface ElementContentVisibilityChangedEvent {
   /**
-   * Specifies which survey element content was collapsed or expanded
+   * A survey element that was expanded or collapsed.
    */
   element: ISurveyElement;
 }
@@ -836,7 +914,7 @@ export interface GetQuestionDisplayValueEvent extends QuestionEventMixin {
 }
 export interface GetExpressionDisplayValueEvent extends GetQuestionDisplayValueEvent {
   /**
-   * The question value
+   * An expression value.
    */
   value: any;
 }
@@ -849,7 +927,18 @@ export interface MultipleTextItemAddedEvent extends QuestionEventMixin {
 }
 export interface MatrixColumnAddedEvent extends QuestionEventMixin {
   /**
-   * A new added column.
+   * An added matrix column.
    */
   column: any;
+}
+
+export interface PopupVisibleChangedEvent extends QuestionEventMixin {
+  /**
+   * An object that describes the popup.
+   */
+  popup: PopupModel;
+  /**
+   * Indicates whether the popup is visible now.
+   */
+  visible: boolean;
 }

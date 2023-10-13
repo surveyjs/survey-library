@@ -3,6 +3,8 @@
 
 @import "blocks/sd-element.scss";
 @import "blocks/sd-question.scss";
+@import "blocks/sd-collapsed-element.scss";
+@import "blocks/sd-complex-element.scss";
 @import "blocks/sd-input.scss";
 @import "blocks/sd-comment.scss";
 @import "blocks/sd-panel.scss";
@@ -45,6 +47,8 @@
 @import "blocks/sd-progress-toc.scss";
 @import "blocks/sd-list.scss";
 @import "blocks/sd-timer.scss";
+@import "blocks/cover.scss";
+@import "blocks/sd-loading-indicator.scss";
 @import "../components-container.scss";
 @import "../signaturepad.scss";
 @import "./defaultV2.m600.scss";
@@ -56,11 +60,16 @@ body {
 .sd-root-modern {
   -webkit-font-smoothing: antialiased;
   --sd-mobile-width: 600px;
-  --sd-imagepicker-gap: 16px;
   --sd-timer-size: calc(18 * #{$base-unit});
   width: 100%;
   font-family: var(--font-family, $font-family);
   background-color: $background-dim;
+  position: relative;
+
+  form {
+    z-index: 1;
+    position: relative;
+  }
 
   * {
     scrollbar-width: thin;
@@ -90,12 +99,59 @@ body {
   }
 }
 
-.sd-container-modern {
-  margin-bottom: calcSize(10);
+.sd-root-modern.sd-root-modern--full-container {
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  position: static;
+
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: $border transparent;
+  }
+
+  &::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    border: 4px solid rgba(0, 0, 0, 0);
+    background-clip: padding-box;
+    border-radius: 32px;
+    background-color: $border;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    border: 2px solid rgba(0, 0, 0, 0);
+    background-color: $foreground-light;
+  }
 }
 
 .sd-root-modern--mobile {
   --sd-timer-size: calc(9 * #{$base-unit});
+}
+
+.sd-root-modern__wrapper {
+  position: relative;
+  min-height: 100%;
+}
+
+.sd-root-modern--full-container .sd-root-modern__wrapper--fixed {
+  position: static;
+  width: 100%;
+  height: 100%;
+
+  form {
+    overflow: auto;
+    width: 100%;
+    max-height: 100%;
+  }
 }
 
 .sv-popup {
@@ -130,20 +186,21 @@ body {
   }
 }
 
-.sv-popup.sv-popup--dropdown {
+.sv-popup.sv-popup--dropdown.sv-popup--dropdown {
   .sv-popup__shadow {
-    box-shadow: 0px calcSize(1) calcSize(2) rgba(0, 0, 0, 0.1);
+    box-shadow: $shadow-medium;
   }
 
   .sv-popup__body-content {
     background-color: $background;
     padding: calcSize(1) 0;
+    height: 100%;
   }
 }
 
 .sv-popup.sv-popup--modal {
   .sv-popup__body-content {
-    box-shadow: 0px calcSize(1) calcSize(2) $shadow-medium;
+    box-shadow: $shadow-large;
     background-color: $background-dim-light;
   }
 

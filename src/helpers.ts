@@ -11,7 +11,7 @@ export class Helpers {
    */
   public static isValueEmpty(value: any) {
     if (Array.isArray(value) && value.length === 0) return true;
-    if (!!value && typeof value === "object" && value.constructor === Object) {
+    if (!!value && Helpers.isValueObject(value) && value.constructor === Object) {
       for (var key in value) {
         if (!Helpers.isValueEmpty(value[key])) return false;
       }
@@ -58,8 +58,9 @@ export class Helpers {
     return true;
   }
   public static compareStrings(x: string, y: string): number {
-    if(!!x) x = x.trim();
-    if(!!y) y = y.trim();
+    const normalize = settings.comparator.normalizeTextCallback;
+    if(!!x) x = normalize(x, "compare").trim();
+    if(!!y) y = normalize(y, "compare").trim();
     if(!x && !y) return 0;
     if(!x) return -1;
     if(!y) return 1;
@@ -100,6 +101,9 @@ export class Helpers {
     if(caseSensitive === undefined) caseSensitive = settings.comparator.caseSensitive;
 
     if(typeof x === "string" && typeof y === "string") {
+      const normalize = settings.comparator.normalizeTextCallback;
+      x = normalize(x, "compare");
+      y = normalize(y, "compare");
       if(trimStrings) {
         x = x.trim();
         y = y.trim();
@@ -129,8 +133,8 @@ export class Helpers {
     if ((y === true || y === false) && typeof x == "string") {
       return y.toString() === x.toLocaleLowerCase();
     }
-    if (!(x instanceof Object) && !(y instanceof Object)) return x == y;
-    if (!(x instanceof Object) || !(y instanceof Object)) return false;
+    if (!Helpers.isValueObject(x) && !Helpers.isValueObject(y)) return x == y;
+    if (!Helpers.isValueObject(x) || !Helpers.isValueObject(y)) return false;
     if (x["equals"]) return x.equals(y);
     if (!!x.toJSON && !!y.toJSON && !!x.getType && !!y.getType) {
       if (x.isDiposed || y.isDiposed) return false;
@@ -162,13 +166,19 @@ export class Helpers {
     return array;
   }
   public static getUnbindValue(value: any): any {
-    if (!!value && value instanceof Object && !(value instanceof Date)) {
-      //do not return the same object instance!!!
+    if(Array.isArray(value)) {
+      const res = [];
+      for(let i = 0; i < value.length; i ++) {
+        res.push(Helpers.getUnbindValue(value[i]));
+      }
+      return res;
+    }
+    if (!!value && Helpers.isValueObject(value) && !(value instanceof Date)) {
       return JSON.parse(JSON.stringify(value));
     }
     return value;
   }
-  public static createCopy(obj: any) {
+  public static createCopy(obj: any): any {
     var res: any = {};
     if (!obj) return res;
     for (var key in obj) {
@@ -183,6 +193,9 @@ export class Helpers {
       !Array.isArray(value) &&
       !isNaN(value)
     );
+  }
+  public static isValueObject(val: any, excludeArray?: boolean): boolean {
+    return val instanceof Object && (!excludeArray || !Array.isArray(val));
   }
   public static isNumber(value: any): boolean {
     return !isNaN(this.getNumber(value));
@@ -215,7 +228,7 @@ export class Helpers {
     return maxLength > 0 ? maxLength : null;
   }
   public static getRemainingCharacterCounterText(newValue: string | undefined, maxLength: number | null): string {
-    if(!maxLength || maxLength <= 0) {
+    if(!maxLength || maxLength <= 0 || !settings.showMaxLengthIndicator) {
       return "";
     }
     const value = newValue ? newValue.length : "0";
@@ -329,6 +342,7 @@ export class Helpers {
       }
       return a + b;
     }
+    if(typeof a === "string" || typeof b === "string") return a + b;
     return Helpers.correctAfterPlusMinis(a, b, a + b);
   }
   public static correctAfterMultiple(a: number, b: number, res: number): number {

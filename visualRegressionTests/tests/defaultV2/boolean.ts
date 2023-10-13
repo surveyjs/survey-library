@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, setOptions, url_test, explicitErrorHandler, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, setOptions, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Boolean Screenshot";
 
@@ -15,8 +15,7 @@ const theme = "defaultV2";
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
-    .page`${url_test}${theme}/${framework}.html`.beforeEach(async t => {
-    await explicitErrorHandler();
+    .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
     await applyTheme(theme);
   });
 
@@ -33,6 +32,7 @@ frameworks.forEach(framework => {
       });
       const questionRoot = Selector(".sd-question--boolean");
       await t.wait(1000);
+      await resetFocusToBody();
       await takeElementScreenshot("boolean-question-indeterminate.png", questionRoot, t, comparer);
 
       await t.hover(".sd-boolean__thumb-ghost");
@@ -57,10 +57,13 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        width: "900px",
         questions: [
           {
             type: "boolean",
             name: "boolean_question",
+            maxWidth: "768px",
+            minWidth: "768px",
             width: "768px",
             renderAs: "radio"
           },

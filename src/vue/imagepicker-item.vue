@@ -57,7 +57,7 @@
             <div
               v-if="!item.imageLink || item.contentNotLoaded"
               :class="question.cssClasses.itemNoImage"
-              v-bind:style="{ width: question.renderedImageWidth, height: question.renderedImageHeight, objectFit: question.imageFit }"
+              v-bind:style="{ width: question.renderedImageWidth + 'px', height: question.renderedImageHeight + 'px', objectFit: question.imageFit }"
             >
               <sv-svg-icon 
                 :class="question.cssClasses.itemNoImageSvgIcon"

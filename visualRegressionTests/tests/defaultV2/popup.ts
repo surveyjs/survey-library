@@ -160,11 +160,11 @@ function addActionsWithOverlayPopupShortList(_, opt) {
     { title: "Overlay", showTitle: true },
     { items: items, isModal: true, displayMode: "overlay" }
   );
-
   const overlayWithTypePopupAction = window["Survey"].createDropdownActionModel(
     { title: "Overlay with title", showTitle: true },
     { items: items, displayMode: "overlay", title: "Title" }
   );
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "overlay";
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 
@@ -186,7 +186,7 @@ function addActionsWithOverlayPopupLongList(_, opt) {
     { title: "Overlay with title", showTitle: true, },
     { items: items, displayMode: "overlay", title: "Title" }
   );
-
+  overlayWithTypePopupAction.popupModel.overlayDisplayMode = "overlay";
   opt.titleActions = [overlayPopupAction, overlayWithTypePopupAction];
 }
 

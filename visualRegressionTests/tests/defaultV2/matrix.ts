@@ -1095,4 +1095,58 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix in single page mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "question1",
+                "titleLocation": "hidden",
+                "columns": [
+                  "Column 1",
+                  "Column 2",
+                  "Column 3"
+                ],
+                "rows": [
+                  "Row 1",
+                  "Row 2"
+                ]
+              }
+            ]
+          },
+          {
+            "name": "page2",
+            "elements": [
+              {
+                "type": "matrix",
+                "name": "question2",
+                "titleLocation": "hidden",
+                "columns": [
+                  "Column 1",
+                  "Column 2",
+                  "Column 3"
+                ],
+                "rows": [
+                  "Row 1",
+                  "Row 2"
+                ]
+              }
+            ]
+          }
+        ],
+        "questionsOnPageMode": "singlePage",
+        "focusFirstQuestionAutomatic": false,
+        "widthMode": "static"
+      });
+      //await t.click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      const pageElement = Selector(".sd-page");
+
+      await takeElementScreenshot("question-matrix--single-page.png", pageElement, t, comparer);
+    });
+  });
 });

@@ -240,7 +240,7 @@ export class JsonObjectProperty implements IObject {
   public classNamePart: string;
   public baseClassName: string;
   public defaultValueValue: any;
-  public defaultValueFunc: () => any;
+  public defaultValueFunc: (obj: Base) => any;
   public serializationProperty: string;
   public displayName: string;
   public category: string = "";
@@ -310,8 +310,8 @@ export class JsonObjectProperty implements IObject {
   public get hasToUseGetValue() {
     return this.onGetValue || this.serializationProperty;
   }
-  public get defaultValue() {
-    let result: any = !!this.defaultValueFunc ? this.defaultValueFunc() : this.defaultValueValue;
+  public getDefaultValue(obj: Base): any {
+    let result: any = !!this.defaultValueFunc ? this.defaultValueFunc(obj) : this.defaultValueValue;
     if (
       !!JsonObjectProperty.getItemValuesDefaultValue &&
       JsonObject.metaData.isDescendantOf(this.className, "itemvalue")
@@ -320,12 +320,19 @@ export class JsonObjectProperty implements IObject {
     }
     return result;
   }
-  public set defaultValue(newValue) {
+  public get defaultValue(): any {
+    return this.getDefaultValue(undefined);
+  }
+  public set defaultValue(newValue: any) {
     this.defaultValueValue = newValue;
   }
   public isDefaultValue(value: any): boolean {
-    if (!Helpers.isValueEmpty(this.defaultValue)) {
-      return Helpers.isTwoValueEquals(value, this.defaultValue, false, true, false);
+    return this.isDefaultValueByObj(undefined, value);
+  }
+  public isDefaultValueByObj(obj: Base, value: any): boolean {
+    const dValue = this.getDefaultValue(obj);
+    if (!Helpers.isValueEmpty(dValue)) {
+      return Helpers.isTwoValueEquals(value, dValue, false, true, false);
     }
     if(this.isLocalizable) return value === null || value === undefined;
     return (
@@ -1588,7 +1595,7 @@ export class JsonObject {
     )
       return;
     var value = property.getValue(obj);
-    if (!storeDefaults && property.isDefaultValue(value)) return;
+    if (!storeDefaults && property.isDefaultValueByObj(obj, value)) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {
@@ -1601,7 +1608,7 @@ export class JsonObject {
     var hasValue =
       typeof obj["getPropertyValue"] === "function" &&
       obj["getPropertyValue"](property.name, null) !== null;
-    if ((storeDefaults && hasValue) || !property.isDefaultValue(value)) {
+    if ((storeDefaults && hasValue) || !property.isDefaultValueByObj(obj, value)) {
       if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
         result[property.name] = value;
       }

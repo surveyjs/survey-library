@@ -961,7 +961,11 @@ Serializer.addClass(
       visibleIndex: 20
     },
     { name: "itemComponent", visible: false,
-      defaultFunc: (obj: any): any => { return !!obj ? obj.getDefaultItemComponent(): "sv-rating-item"; } }
+      defaultFunc: (obj: any): any => {
+        if(!obj) return "sv-rating-item";
+        if(!!obj.getOriginalObj) obj = obj.getOriginalObj();
+        return obj.getDefaultItemComponent();
+      } }
   ],
   function () {
     return new QuestionRatingModel("");

@@ -381,7 +381,7 @@ QUnit.test("showHintString for zero values", function (assert) {
     ]
   });
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
   dropdownListModel.inputStringRendered = "1";
   question.value = 0;
@@ -498,7 +498,7 @@ QUnit.test("dropdown incorrect popup open test", function (assert) {
   const survey = new SurveyModel(jsonDropdown);
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   question.defaultValue = "item22";
-  const dropdownListModel = new DropdownListModel(question);
+  const dropdownListModel = question.dropdownListModel;
   const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
 
   const event = {

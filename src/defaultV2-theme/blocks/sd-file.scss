@@ -119,7 +119,7 @@
 .sd-file--answered .sd-file__actions-container {
   z-index: 2;
   margin-top: 0;
-  gap: calcSize(1)
+  gap: calcSize(1);
 }
 
 .sd-file--answered .sd-file__actions-container {
@@ -178,7 +178,7 @@
   a {
     display: block;
     text-decoration: none;
-    color: $foreground;
+    color: $font-questiontitle-color;
     white-space: normal;
     word-break: break-all;
     width: calcSize(12);

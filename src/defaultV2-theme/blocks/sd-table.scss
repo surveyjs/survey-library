@@ -268,7 +268,7 @@
     display: block;
     width: multiply(1, $font-editorfont-size);
     height: multiply(1, $font-editorfont-size);
-    fill: $foreground-light;
+    fill: $font-questiondescription-color;
   }
 
   &:hover {

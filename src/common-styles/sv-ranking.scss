@@ -290,6 +290,8 @@
   align-items: center;
   //width: 100%;
   height: 100%;
+  padding-top: calcSize(0.5);
+  padding-bottom: calcSize(0.5);
 }
 
 .sv-ranking__container {

@@ -227,6 +227,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
   public clear(): void {
     this.dropTarget = null;
+    this.prevDropTarget = null;
     this.draggedElement = null;
     this.isBottom = null;
     this.parentElement = null;

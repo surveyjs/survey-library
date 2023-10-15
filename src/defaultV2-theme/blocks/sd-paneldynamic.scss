@@ -96,7 +96,7 @@
 .sd-paneldynamic__progress-text {
     font-size: $font-questiontitle-size;
     line-height: multiply(1.5, $font-questiontitle-size);
-    color: $foreground-light;
+    color: $font-questiondescription-color;
     margin: 0;
     margin-right: calcSize(3);
 }

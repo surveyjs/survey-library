@@ -81,7 +81,7 @@
   align-items: center;
   justify-content: center;
   background-color: $primary-light;
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: calcFontSize(1);
   border-radius: 100%;
   border: calcSize(0.25) solid transparent;
@@ -117,7 +117,7 @@
 }
 
 .sv-ranking-item--disabled .sv-ranking-item__text {
-  color: $font-questiontitle-color;
+  color: $font-questiondescription-color;
   opacity: 0.25;
 }
 
@@ -282,7 +282,7 @@
 }
 
 .sv-ranking__container-placeholder {
-  color: $foreground-dim-light;
+  color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
   @include defaultFont;
   white-space: break-spaces;
   display: flex;
@@ -306,7 +306,7 @@
 }
 
 .sv-ranking__containers-divider {
-  background: $border-inside;
+  background: var(--sjs-border-default, #{$border-inside});
 }
 
 .sv-ranking__container--from {

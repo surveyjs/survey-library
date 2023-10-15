@@ -471,7 +471,7 @@ const minMaxTypes = [
   "week",
 ];
 
-function isMinMaxType(obj: any): boolean {
+export function isMinMaxType(obj: any): boolean {
   const t = !!obj ? obj.inputType : "";
   if(!t) return false;
   return minMaxTypes.indexOf(t) > -1;

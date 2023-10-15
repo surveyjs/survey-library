@@ -3,6 +3,8 @@
 }
 
 .sd-html {
+  @include articleDefaultFont;
+
   h1 {
     @include articleXXLargeFont;
   }

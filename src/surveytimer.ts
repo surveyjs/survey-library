@@ -1,14 +1,21 @@
 import { Event } from "./base";
 
 export var surveyTimerFunctions = {
-  setTimeout: function (func: () => any): number {
-    if (typeof window === "undefined") return 0;
-    return window.setTimeout(func, 1000);
+  setTimeout: (func: () => any): number => {
+    return surveyTimerFunctions.safeTimeOut(func, 1000);
   },
-  clearTimeout: function (timerId: number) {
+  clearTimeout: (timerId: number): void => {
     if (typeof window === "undefined") return;
     window.clearTimeout(timerId);
   },
+  safeTimeOut: (func:() => any, delay: number): number => {
+    if (typeof window === "undefined" || delay <= 0) {
+      func();
+      return 0;
+    } else {
+      return window.setTimeout(func, delay);
+    }
+  }
 };
 
 export class SurveyTimer {

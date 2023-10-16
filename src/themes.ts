@@ -92,7 +92,7 @@ export interface IHeader {
    * @see [SurveyModel.width](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#width)
    * @see [SurveyModel.widthMode](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#widthMode)
    */
-  inheritWidthFrom: "survey" | "page";
+  inheritWidthFrom: "survey" | "container";
   /**
    * The width of the header area that contains the survey [title](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title) and [description](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description), measured in pixels.
    *

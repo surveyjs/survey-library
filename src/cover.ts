@@ -88,7 +88,7 @@ export class Cover extends Base {
     this.contentClasses = new CssClassBuilder()
       .append("sv-conver__content")
       .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
-      .append("sv-conver__content--responsive", this.inheritWidthFrom === "page" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
+      .append("sv-conver__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
       .toString();
   }
   private updateBackgroundImageClasses(): void {
@@ -122,7 +122,7 @@ export class Cover extends Base {
 
   public cells: CoverCell[] = [];
   @property() public height: number;
-  @property() public inheritWidthFrom: "survey" | "page";
+  @property() public inheritWidthFrom: "survey" | "container";
   @property() public textAreaWidth: number;
   @property() public textGlowEnabled: boolean;
   @property() public overlapEnabled: boolean;

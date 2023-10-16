@@ -1609,6 +1609,7 @@ export class SurveyModel extends SurveyElementCore
    * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
     return this.getPropertyValue("goNextPageAutomatic");
@@ -1620,6 +1621,7 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is `true`.
    *
    * Default value: `true`
+   * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get allowCompleteSurveyAutomatic(): boolean {
     return this.getPropertyValue("allowCompleteSurveyAutomatic", true);

@@ -66,6 +66,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         width: "900px",
         questions: [
           {
@@ -87,6 +88,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         width: "900px",
         questions: [
           {
@@ -452,6 +454,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             type: "text",
@@ -514,6 +517,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "name",
@@ -547,6 +551,7 @@ frameworks.forEach(framework => {
 
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "Range",
@@ -566,6 +571,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "name",
@@ -614,6 +620,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             "type": "matrixdynamic",
@@ -725,6 +732,7 @@ frameworks.forEach(framework => {
   test("Check question with indent", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             name: "name",
@@ -739,6 +747,7 @@ frameworks.forEach(framework => {
   test("Check question with big number", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questionStartIndex: "1.1.1",
         questions: [
           {

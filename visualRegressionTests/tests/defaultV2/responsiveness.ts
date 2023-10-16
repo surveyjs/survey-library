@@ -23,6 +23,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             type: "text",
@@ -38,6 +39,7 @@ frameworks.forEach(framework => {
   test("Check simple question on smartphone screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "elements": [{
           "name": "username",
           "type": "text",
@@ -91,6 +93,7 @@ frameworks.forEach(framework => {
         document.body.setAttribute("dir", "rtl");
       })();
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             type: "text",
@@ -498,6 +501,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(600, 1080);
       await initSurvey(framework,
         {
+          focusFirstQuestionAutomatic: true,
           description: "Survey Description",
           title: "Title",
           widthMode: "static",

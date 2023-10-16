@@ -540,7 +540,8 @@ frameworks.forEach((framework) => {
       .click("option[value=Volkswagen]")
 
       .click("select")
-      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok();
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok()
+      .click("select");
 
     const questionDropdownSelect = Selector(".sv_q_dropdown_control").nth(1);
     const popupContainer = Selector(".sv-popup__container").filterVisible();

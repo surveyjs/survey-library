@@ -1,6 +1,6 @@
 ### The list of operators
 
-| Operators         | Desciption                                                                                        | Examples                                                                    |
+| Operators         | Description                                                                                        | Examples                                                                    |
 | ----------------- | ------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | empty             | returns true if the left operand is empty                                                         | `{questionName} empty`                                                      |
 | notempty          | returns true if the left operand is not empty                                                     | `{questionName} notempty`                                                   |
@@ -12,7 +12,7 @@
 | <= lessorequal    | returns true if the left operand equal or less than the second operand                            | `{questionName} <= 2, {questionName} lessorequal 'a'`                       |
 | contains          | return true if the left operand is an array and it contains a value of the second operand         | `{questionName} contains 'a'`                                               |
 | notcontains       | return true if the left operand is an array and it does not contain a value of the second operand | `{questionName} notcontains 'a'`                                            |
-| ! not             | change the result of a condition to the oposite                                                   | `!({isLoayl} == 'yes')`                                                     |
+| ! not             | change the result of a condition to the opposite                                                   | `!({isLoayl} == 'yes')`                                                     |
 
 ### Logical operator
 

@@ -38,8 +38,11 @@ import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { StylesManager } from "../src/stylesmanager";
+import { surveyTimerFunctions } from "../src/surveytimer";
 
 export default QUnit.module("Survey_Questions");
+
+settings.autoAdvanceDelay = 0;
 
 class QuestionMatrixRandomModel extends QuestionMatrixModel {
   constructor(name: string) {
@@ -827,41 +830,79 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
     "Both text inputs are set"
   );
 });
-
-QUnit.test(
-  "Radiogroup Question: support goNextPageAutomatic + hasOther",
-  function (assert) {
-    var json = {
-      pages: [
-        {
-          elements: [
-            {
-              type: "radiogroup",
-              name: "q1",
-              hasOther: true,
-              items: [1, 2, 3],
-            },
-          ],
-        },
-        {
-          elements: [
-            {
-              type: "text",
-              name: "q2",
-            },
-          ],
-        },
-      ],
-      goNextPageAutomatic: true,
-    };
-    var survey = new SurveyModel(json);
-    var question = survey.getQuestionByName("q1");
-    question.value = "other";
-    assert.equal(survey.currentPageNo, 0, "Stay on the first page");
-    question.comment = "123";
-    assert.equal(survey.currentPageNo, 1, "Go to the second page");
-  }
-);
+QUnit.test("Use timer to go next page", function (assert) {
+  settings.autoAdvanceDelay = 250;
+  const json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            choices: ["a", "b", "c"],
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+          },
+        ],
+      },
+    ],
+    goNextPageAutomatic: true,
+  };
+  const prevFunc = surveyTimerFunctions.safeTimeOut;
+  let checkDelay: number = 0;
+  surveyTimerFunctions.safeTimeOut = (func:() => any, delay: number): number => {
+    checkDelay = delay;
+    func();
+    return 0;
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.goNextPageAutomatic, true, "The property set correctly");
+  const question = survey.getQuestionByName("q1");
+  question.onMouseDown();
+  assert.equal(question.supportGoNextPageAutomatic(), true, "questio support go next page automatic");
+  question.value = 1;
+  assert.equal(survey.currentPageNo, 1, "Go to the second page");
+  assert.equal(checkDelay, 250, "setTimeout function is called");
+  surveyTimerFunctions.safeTimeOut = prevFunc;
+  settings.autoAdvanceDelay = 0;
+});
+QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", function (assert) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            hasOther: true,
+            choices: [1, 2, 3],
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+          },
+        ],
+      },
+    ],
+    goNextPageAutomatic: true,
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.getQuestionByName("q1");
+  question.value = "other";
+  assert.equal(survey.currentPageNo, 0, "Stay on the first page");
+  question.comment = "123";
+  assert.equal(survey.currentPageNo, 1, "Go to the second page");
+});
 
 QUnit.test(
   "Radiogroup Question: support goNextPageAutomatic + hasOther + textUpdateMode = onTyping",
@@ -874,7 +915,7 @@ QUnit.test(
               type: "radiogroup",
               name: "q1",
               hasOther: true,
-              items: [1, 2, 3],
+              choices: [1, 2, 3],
             },
           ],
         },

@@ -1484,3 +1484,25 @@ QUnit.test("rating items custom component", (assert) => {
   const q2 = <QuestionRatingModel>survey2.getQuestionByName("q1");
   assert.equal(q2.itemComponent, "custom-item");
 });
+QUnit.test("Generate empty rating", (assert) => {
+  const q1 = new QuestionRatingModel("q1");
+  assert.deepEqual(q1.toJSON(), { name: "q1" });
+  q1.rateType = "stars";
+  assert.deepEqual(q1.toJSON(), { name: "q1", rateType: "stars" });
+  q1.rateType = "stars";
+});
+QUnit.test("Generate empty rating in column", (assert) => {
+  const q1 = new QuestionMatrixDropdownModel("q1");
+  const col1: any = q1.addColumn("col1");
+  col1.cellType = "rating";
+  const col2: any = q1.addColumn("col2");
+  col2.cellType = "rating";
+  col2.rateType = "stars";
+  assert.deepEqual(q1.toJSON(), { name: "q1",
+    columns: [
+      { name: "col1", cellType: "rating" },
+      { name: "col2", cellType: "rating", rateType: "stars" }
+    ] });
+  assert.equal(col1.itemComponent, "sv-rating-item");
+  assert.equal(col2.itemComponent, "sv-rating-item-star");
+});

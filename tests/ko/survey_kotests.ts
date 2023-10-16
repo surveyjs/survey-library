@@ -24,8 +24,11 @@ import { QuestionBoolean } from "../../src/knockout/koquestion_boolean";
 import * as ko from "knockout";
 import { ItemValue } from "../../src/itemvalue";
 import { StylesManager } from "../../src/stylesmanager";
+import { settings } from "../../src/settings";
 
 export default QUnit.module("koTests");
+
+settings.autoAdvanceDelay = 0;
 
 QUnit.test("koOtherVisible for one choice items", function (assert) {
   var survey = new Survey();

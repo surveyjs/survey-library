@@ -77,6 +77,7 @@ const json2 = {
   ]
 };
 const json3 = {
+  focusFirstQuestionAutomatic: true,
   goNextPageAutomatic: true,
   pages: [
     {

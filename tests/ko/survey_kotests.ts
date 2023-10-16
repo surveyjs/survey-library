@@ -28,7 +28,7 @@ import { settings } from "../../src/settings";
 
 export default QUnit.module("koTests");
 
-settings.nextPageAutomaticDelay = 0;
+settings.autoAdvanceDelay = 0;
 
 QUnit.test("koOtherVisible for one choice items", function (assert) {
   var survey = new Survey();

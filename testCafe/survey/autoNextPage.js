@@ -101,11 +101,14 @@ frameworks.forEach(framework => {
     );
     let surveyResult;
     assert.notEqual(await getProgressTextPosition(1), -1);
-    await t.click("input[type=radio]");
+    await t.click("input[type=radio]")
+      .wait(500);
     assert.notEqual(await getProgressTextPosition(2), -1);
-    await t.click("input[type=radio]");
+    await t.click("input[type=radio]")
+      .wait(500);
     assert.notEqual(await getProgressTextPosition(3), -1);
-    await t.click("input[type=radio]");
+    await t.click("input[type=radio]")
+      .wait(500);
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({
       civilwar: "1750-1800",
@@ -154,8 +157,11 @@ frameworks.forEach(framework => {
 
     await t
       .click("input[name=\"sq_100_A\"][value=\"1\"]")
+      .wait(500)
       .click("input[name=\"sq_100_B\"][value=\"2\"]")
-      .click("input[name=\"sq_100_C\"][value=\"3\"]");
+      .wait(500)
+      .click("input[name=\"sq_100_C\"][value=\"3\"]")
+      .wait(500);
 
     surveyResult = await getSurveyResult();
     assert.deepEqual(surveyResult.q1, { A: 1, B: 2, C: 3 });
@@ -187,7 +193,8 @@ frameworks.forEach(framework => {
     let surveyResult;
     const label3 = Selector("label").withText("3");
     await t
-      .click(label3);
+      .click(label3)
+      .wait(500);
 
     surveyResult = await getSurveyResult();
     assert.equal(surveyResult.q1, 3);

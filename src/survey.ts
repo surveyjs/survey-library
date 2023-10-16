@@ -6344,7 +6344,7 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     };
-    surveyTimerFunctions.safeTimeOut(goNextPage, settings.nextPageAutomaticDelay);
+    surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
   }
   /**
    * Returns a comment value from a question with a specified `name`.

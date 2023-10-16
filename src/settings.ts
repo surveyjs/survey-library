@@ -546,7 +546,7 @@ export var settings = {
   notifications: {
     lifetime: 2000
   },
-  nextPageAutomaticDelay: 300,
+  autoAdvanceDelay: 300,
   /**
    * Specifies the direction in which to lay out Checkbox and Radiogroup items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
    *

@@ -6,7 +6,7 @@ import { settings } from "../src/settings";
 
 export default QUnit.module("SurveyShowPreviewTests");
 
-settings.nextPageAutomaticDelay = 0;
+settings.autoAdvanceDelay = 0;
 
 QUnit.test("Complete and Preview button visibility", function(assert) {
   var survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });

@@ -66,7 +66,7 @@ import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey");
 
-settings.nextPageAutomaticDelay = 0;
+settings.autoAdvanceDelay = 0;
 
 QUnit.test("set data property", function (assert) {
   var survey = new SurveyModel();

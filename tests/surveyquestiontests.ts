@@ -42,7 +42,7 @@ import { surveyTimerFunctions } from "../src/surveytimer";
 
 export default QUnit.module("Survey_Questions");
 
-settings.nextPageAutomaticDelay = 0;
+settings.autoAdvanceDelay = 0;
 
 class QuestionMatrixRandomModel extends QuestionMatrixModel {
   constructor(name: string) {
@@ -831,7 +831,7 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
   );
 });
 QUnit.test("Use timer to go next page", function (assert) {
-  settings.nextPageAutomaticDelay = 250;
+  settings.autoAdvanceDelay = 250;
   const json = {
     pages: [
       {
@@ -870,7 +870,7 @@ QUnit.test("Use timer to go next page", function (assert) {
   assert.equal(survey.currentPageNo, 1, "Go to the second page");
   assert.equal(checkDelay, 250, "setTimeout function is called");
   surveyTimerFunctions.safeTimeOut = prevFunc;
-  settings.nextPageAutomaticDelay = 0;
+  settings.autoAdvanceDelay = 0;
 });
 QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", function (assert) {
   var json = {

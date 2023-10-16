@@ -5,6 +5,7 @@ const title = "tagbox";
 const questionOffsetTopConst = 176;
 
 const jsonCloseOnSelectIsTrue = {
+  focusFirstQuestionAutomatic: true,
   showQuestionNumbers: "off",
   questions: [
     {
@@ -46,6 +47,7 @@ const jsonCloseOnSelectIsTrue = {
 };
 
 const jsonCloseOnSelectIsDefault = {
+  focusFirstQuestionAutomatic: true,
   showQuestionNumbers: "off",
   questions: [
     {
@@ -498,6 +500,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "tagbox",
@@ -594,6 +597,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "tagbox",
@@ -725,6 +729,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "tagbox",
@@ -822,6 +827,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching, if closeOnSelect is false", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "tagbox",

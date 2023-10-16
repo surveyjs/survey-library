@@ -136,6 +136,7 @@ frameworks.forEach((framework) => {
     const characterCounter = Selector(".sv-remaining-character-counter");
 
     await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           name: "comment",

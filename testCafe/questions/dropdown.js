@@ -636,6 +636,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown key press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -724,6 +725,7 @@ frameworks.forEach((framework) => {
 
   test("Select item after switching focus", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -771,6 +773,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown key press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -855,6 +858,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown SPACE press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -883,6 +887,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown SPACE press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -909,6 +914,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown search", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1039,6 +1045,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown reset filter string", async (t) => {
     const jsonWithDropdown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1098,6 +1105,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown clear value by keyboard", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1169,6 +1177,7 @@ frameworks.forEach((framework) => {
 
   test("Check popup scroll", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1365,6 +1374,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1458,6 +1468,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1617,6 +1628,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown popup close with mouse, bug #5860", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",

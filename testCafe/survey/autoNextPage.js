@@ -5,6 +5,7 @@ const assert = require("assert");
 const title = "autoNextPage";
 
 const json = {
+  focusFirstQuestionAutomatic: true,
   title: "American History",
   showProgressBar: "bottom",
   goNextPageAutomatic: true,
@@ -60,6 +61,7 @@ const json = {
     "<p>Your anwers are:</p><p>When was the Civil War?: <b>{civilwar}</b>. The correct is: <b>1850-1900</b></p><p>Who said 'Give me liberty or give me death?': <b>{libertyordeath}</b>. The correct is: <b>Patrick Henry</b></p><p>What is the Magna Carta?: <b>{magnacarta}</b>. The correct is: <b>The foundation of the British parliamentary system</b></p>"
 };
 const json2 = {
+  focusFirstQuestionAutomatic: true,
   goNextPageAutomatic: true,
   pages: [
     {

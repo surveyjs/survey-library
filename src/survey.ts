@@ -29,7 +29,7 @@ import { ProcessValue } from "./conditionProcessValue";
 import { dxSurveyService } from "./dxSurveyService";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
 import { IQuestionPlainData, Question } from "./question";
@@ -46,7 +46,7 @@ import { settings } from "./settings";
 import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
-import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
@@ -72,6 +72,7 @@ import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
 import { Cover } from "./cover";
+import { surveyTimerFunctions } from "./surveytimer";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -6330,22 +6331,20 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
-    if (!this.checkIsCurrentPageHasErrors(false)) {
+    if(this.isLastPage && (this.goNextPageAutomatic !== true || !this.allowCompleteSurveyAutomatic)) return;
+    if(this.checkIsCurrentPageHasErrors(false)) return;
+    const goNextPage = () => {
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (
-          this.goNextPageAutomatic === true &&
-          this.allowCompleteSurveyAutomatic
-        ) {
-          if (this.isShowPreviewBeforeComplete) {
-            this.showPreview();
-          } else {
-            this.completeLastPage();
-          }
+        if (this.isShowPreviewBeforeComplete) {
+          this.showPreview();
+        } else {
+          this.completeLastPage();
         }
       }
-    }
+    };
+    surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
   }
   /**
    * Returns a comment value from a question with a specified `name`.

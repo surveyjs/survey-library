@@ -45,6 +45,7 @@ export class PopupModel<T = any> extends Base {
   @property({ defaultValue: () => { } }) onShow: () => void;
   @property({ defaultValue: "" }) cssClass: string;
   @property({ defaultValue: "" }) title: string;
+  @property({ defaultValue: "auto" }) overlayDisplayMode: "auto" | "overlay" | "dropdown-overlay";
   @property({ defaultValue: "popup" }) displayMode: "popup" | "overlay";
   @property({ defaultValue: "flex" }) positionMode: PositionMode;
 

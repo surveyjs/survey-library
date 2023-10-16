@@ -145,10 +145,10 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
     }
     return actualHorizontalPosition;
   }
-
   protected getStyleClass(): CssClassBuilder {
     return super.getStyleClass()
       .append("sv-popup--dropdown", !this.isOverlay)
+      .append("sv-popup--dropdown-overlay", this.isOverlay && this.model.overlayDisplayMode !== "overlay")
       .append("sv-popup--tablet", this.isTablet && this.isOverlay)
       .append("sv-popup--show-pointer", !this.isOverlay && this.showHeader)
       .append(`sv-popup--${this.popupDirection}`, !this.isOverlay && this.showHeader);

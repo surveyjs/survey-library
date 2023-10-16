@@ -7455,7 +7455,7 @@ Serializer.addClass("survey", [
     default: "left",
     choices: ["none", "left", "right", "top", "bottom"],
   },
-  { name: "focusFirstQuestionAutomatic:boolean", default: true },
+  { name: "focusFirstQuestionAutomatic:boolean" },
   { name: "focusOnFirstError:boolean", default: true },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
   {

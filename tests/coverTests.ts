@@ -69,8 +69,8 @@ QUnit.test("cover maxWidth",
     cover.survey = new SurveyModel({ widthMode: "static", width: "500" });
     assert.equal(cover.maxWidth, "500px", "survey.maxWidth is static");
 
-    cover.inheritWidthFrom = "page";
-    assert.equal(cover.maxWidth, false, "inheritWidthFrom is page");
+    cover.inheritWidthFrom = "container";
+    assert.equal(cover.maxWidth, false, "inheritWidthFrom is container");
   }
 );
 
@@ -89,8 +89,8 @@ QUnit.test("contentClasses",
     cover.survey.widthMode = "static";
     assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--static", "survey.widthMode is static");
 
-    cover.inheritWidthFrom = "page";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "inheritWidthFrom is page");
+    cover.inheritWidthFrom = "container";
+    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "inheritWidthFrom is container");
   }
 );
 

@@ -241,6 +241,10 @@
           "Title": "ITheme"
         },
         {
+          "Name": "IHeader",
+          "Title": "IHeader"
+        },
+        {
           "Name": "ICustomQuestionTypeConfiguration",
           "Title": "ICustomQuestionTypeConfiguration"
         },

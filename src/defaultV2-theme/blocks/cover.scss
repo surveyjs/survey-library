@@ -61,7 +61,6 @@
   width: max-content;
   top: 0;
   bottom: 0;
-  gap: calcSize(1);
 }
 
 .sv-cover__cell--left {
@@ -84,7 +83,6 @@
 
 .sv-cover__logo {
   display: flex;
-  margin-bottom: calcSize(2);
 }
 
 .sv-cover__title {
@@ -97,6 +95,18 @@
   color: $cover-title-forecolor;
   font-family: $font-surveytitle-family;
   font-weight: $font-surveytitle-weight;
+}
+
+.sv-cover__logo ~ .sv-cover__title {
+  margin-top: calcSize(4);
+}
+
+.sv-cover__logo ~ .sv-cover__description {
+  margin-top: calcSize(4);
+}
+
+.sv-cover__title ~ .sv-cover__description {
+  margin-top: calcSize(1);
 }
 
 .sv-cover__description {

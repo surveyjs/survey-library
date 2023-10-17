@@ -383,61 +383,6 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }, 1);
   }
 
-  // public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue) {
-  //   if (this.isDesignMode) return;
-
-  //   const key: any = event.key;
-  //   if(key !== " " && key !== "ArrowUp" && key !== "ArrowDown") return;
-
-  //   const dnd:any = this.dragDropRankingChoices; //????
-  //   const rankingChoices = this.rankingChoices;
-  //   const unRankingChoices = this.unRankingChoices;
-
-  //   const isMovedElementRanked = rankingChoices.indexOf(movedElement) !== -1;
-  //   const isMovedElementUnRanked = !isMovedElementRanked;
-
-  //   let fromIndex;
-  //   let toIndex;
-
-  //   if ((key === " " || key === "Enter") && isMovedElementUnRanked) {
-  //     fromIndex = unRankingChoices.indexOf(movedElement);
-  //     toIndex = 0;
-  //     dnd.selectToRank(this, fromIndex, toIndex);
-  //     this.setValueAfterKeydown(toIndex, "to-container");
-  //     return;
-  //   }
-
-  //   if ((key === " " || key === "Enter") && isMovedElementRanked) {
-  //     fromIndex = rankingChoices.indexOf(movedElement);
-  //     dnd.unselectFromRank(this, fromIndex);
-  //     toIndex = this.unRankingChoices.indexOf(movedElement); //'this.' leads to actual array after the 'unselectFromRank' method
-  //     this.setValueAfterKeydown(toIndex, "from-container");
-  //     return;
-  //   }
-
-  //   if (key === "ArrowUp" && isMovedElementRanked) {
-  //     fromIndex = rankingChoices.indexOf(movedElement);
-  //     toIndex = fromIndex - 1;
-
-  //     if (fromIndex < 0) return;
-
-  //     dnd.reorderRankedItem(this, fromIndex, toIndex);
-  //     this.setValueAfterKeydown(toIndex, "to-container");
-  //     return;
-  //   }
-
-  //   if (key === "ArrowDown" && isMovedElementRanked) {
-  //     fromIndex = rankingChoices.indexOf(movedElement);
-  //     toIndex = fromIndex + 1;
-
-  //     if (toIndex >= rankingChoices.length) return;
-
-  //     dnd.reorderRankedItem(this, fromIndex, toIndex);
-  //     this.setValueAfterKeydown(toIndex, "to-container");
-  //     return;
-  //   }
-  // }
-
   public handleKeydownSelectToRank(event: KeyboardEvent, movedElement: ItemValue): void {
     if (this.isDesignMode) return;
     const key: any = event.key;

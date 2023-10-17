@@ -2,3 +2,7 @@
   color: $font-questiontitle-color;
   font-size: calcFontSize(1);
 }
+.sd-question__content--left .sd-expression {
+  line-height: calcSize(3);
+  margin-top: calcSize(1.5);
+}

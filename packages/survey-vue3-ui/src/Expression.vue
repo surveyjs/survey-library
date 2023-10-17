@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.text" ref="root">
+  <div :class="question.cssClasses.root" ref="root">
     {{ question.formatedValue }}
   </div>
 </template>

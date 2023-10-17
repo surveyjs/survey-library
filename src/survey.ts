@@ -29,7 +29,7 @@ import { ProcessValue } from "./conditionProcessValue";
 import { dxSurveyService } from "./dxSurveyService";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
 import { IQuestionPlainData, Question } from "./question";
@@ -46,7 +46,7 @@ import { settings } from "./settings";
 import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
-import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
@@ -72,6 +72,7 @@ import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
 import { Cover } from "./cover";
+import { surveyTimerFunctions } from "./surveytimer";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1167,6 +1168,17 @@ export class SurveyModel extends SurveyElementCore
   @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
+  /**
+   * Specifies whether the survey header uses only basic appearance settings or applies advanced settings from the survey theme.
+   *
+   * Possible values:
+   *
+   * - `"basic"` (default)\
+   * A basic header view applies only the [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title), [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description), and logo-related properties ([`logo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logo), [`logoPosition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logoPosition), etc.).
+   *
+   * - `"advanced"`\
+   * An advanced header view applies the same properties as the basic view, plus [header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader) from the [survey theme](https://surveyjs.io/form-library/documentation/api-reference/itheme#header). The advanced view features a more flexible header layout, a capability to specify a background image, and other settings that give a more professional look to the survey header.
+   */
   @property({
     onSet: (newValue, target: SurveyModel) => {
       if (newValue === "advanced") {
@@ -1597,6 +1609,7 @@ export class SurveyModel extends SurveyElementCore
    * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
     return this.getPropertyValue("goNextPageAutomatic");
@@ -1608,6 +1621,7 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is `true`.
    *
    * Default value: `true`
+   * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get allowCompleteSurveyAutomatic(): boolean {
     return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
@@ -6330,22 +6344,20 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
-    if (!this.checkIsCurrentPageHasErrors(false)) {
+    if(this.isLastPage && (this.goNextPageAutomatic !== true || !this.allowCompleteSurveyAutomatic)) return;
+    if(this.checkIsCurrentPageHasErrors(false)) return;
+    const goNextPage = () => {
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (
-          this.goNextPageAutomatic === true &&
-          this.allowCompleteSurveyAutomatic
-        ) {
-          if (this.isShowPreviewBeforeComplete) {
-            this.showPreview();
-          } else {
-            this.completeLastPage();
-          }
+        if (this.isShowPreviewBeforeComplete) {
+          this.showPreview();
+        } else {
+          this.completeLastPage();
         }
       }
-    }
+    };
+    surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
   }
   /**
    * Returns a comment value from a question with a specified `name`.

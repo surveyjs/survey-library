@@ -547,6 +547,12 @@ export var settings = {
     lifetime: 2000
   },
   /**
+   * Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) is enabled.
+   *
+   * Default value: 300
+   */
+  autoAdvanceDelay: 300,
+  /**
    * Specifies the direction in which to lay out Checkbox and Radiogroup items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
    *
    * Possible values:

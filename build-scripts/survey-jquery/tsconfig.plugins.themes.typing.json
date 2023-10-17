@@ -1,0 +1,17 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "survey-core": [
+        "../../build/survey-core"
+      ]
+    },
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "outDir": "../../build/survey-jquery/themes/typings/"
+  },
+  "include": [
+    "../../src/themes/index.ts"
+  ]
+}

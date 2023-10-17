@@ -253,12 +253,11 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choicesEnableIf", val);
     this.filterItems();
   }
-  public surveyChoiceItemVisibilityChange() {
+  public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
-    if(this.isUsingCarryForward) return;
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -1869,13 +1868,7 @@ Serializer.addClass(
       },
     },
     "hideIfChoicesEmpty:boolean",
-    {
-      name: "choicesVisibleIf:condition",
-      dependsOn: "choicesFromQuestion",
-      visibleIf: (obj: any) => {
-        return !obj.choicesFromQuestion;
-      },
-    },
+    "choicesVisibleIf:condition",
     {
       name: "choicesEnableIf:condition",
       dependsOn: "choicesFromQuestion",

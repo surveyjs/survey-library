@@ -66,6 +66,8 @@ import { StylesManager } from "../src/stylesmanager";
 
 export default QUnit.module("Survey");
 
+settings.autoAdvanceDelay = 0;
+
 QUnit.test("set data property", function (assert) {
   var survey = new SurveyModel();
   assert.deepEqual(survey.data, {}, "there is no data");
@@ -15333,6 +15335,44 @@ QUnit.test("firstPageIsStarted = true and invisible questions and clear", functi
   survey.doComplete();
   survey.clear(true, true);
   assert.equal(q2.isVisible, false, "invisible again");
+});
+QUnit.test("firstPageIsStarted = true and clear&state='starting'", function (assert) {
+  const survey = new SurveyModel({
+    firstPageIsStarted: true,
+    goNextPageAutomatic: true,
+    showProgressBar: "bottom",
+    showTimerPanel: "top",
+    maxTimeToFinishPage: 10,
+    maxTimeToFinish: 25,
+    pages: [
+      {
+        elements: [
+          { type: "text", name: "q1" }
+        ]
+      },
+      {
+        elements: [
+          { type: "text", name: "q2" }
+        ]
+      }
+    ]
+  });
+  const startButton = survey.navigationBar.getActionById("sv-nav-start");
+  assert.equal(survey.state, "starting", "starting state #1");
+  assert.equal(survey.getPropertyValue("isStartedState"), true, "isStartedState #1");
+  assert.equal(startButton.isVisible, true, "startButton is visible, #1");
+  assert.equal(survey.showNavigationButtons, "bottom", "Show navigation on bottom");
+  survey.start();
+  assert.equal(survey.state, "running", "run survey");
+  assert.equal(survey.getPropertyValue("isStartedState"), false, "isStartedState #2");
+  survey.doComplete();
+  assert.equal(survey.state, "completed", "survey is completed");
+  assert.equal(survey.getPropertyValue("isStartedState"), false, "isStartedState #3");
+  survey.clear();
+  assert.equal(survey.state, "starting", "starting state #2");
+  assert.equal(survey.getPropertyValue("isStartedState"), true, "isStartedState #4");
+  assert.equal(startButton.isVisible, true, "startButton is visible, #2");
+  assert.equal(survey.isNavigationButtonsShowing, "bottom", "Show navigation buttons on start");
 });
 QUnit.test("skeleton component name", function (assert) {
   var survey = new SurveyModel({

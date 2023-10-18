@@ -100,7 +100,7 @@ export class Cover extends Base {
   }
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header);
-    if(!!theme.cssVariables) {
+    if (!!theme.cssVariables) {
       this.backgroundColor = theme.cssVariables["--sjs-cover-backcolor"];
     }
   }
@@ -150,7 +150,7 @@ export class Cover extends Base {
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
-    return this.height ? this.height + "px" : undefined;
+    return this.height && (this.survey && !this.survey.isMobile || !this.survey) ? this.height + "px" : undefined;
   }
   public get renderedtextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
@@ -159,10 +159,10 @@ export class Cover extends Base {
     return this._survey;
   }
   public set survey(newValue: SurveyModel) {
-    if(this._survey === newValue) return;
+    if (this._survey === newValue) return;
 
     this._survey = newValue;
-    if(!!newValue) {
+    if (!!newValue) {
       this.updateContentClasses();
       this._survey.onPropertyChanged.add((sender: any, options: any) => {
         if (options.name == "widthMode" || options.name == "width") {

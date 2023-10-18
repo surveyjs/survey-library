@@ -3,11 +3,17 @@
   <!-- ko if: !!model.backgroundImage -->
   <div data-bind="style: model.backgroundImageStyle, css: model.backgroundImageClasses"></div>
   <!-- /ko -->
+  <!-- ko ifnot: survey.isMobile -->
   <div data-bind="css: model.contentClasses, style: { maxWidth: model.maxWidth }">
   <!-- ko foreach: model.cells -->
     <!-- ko component: { name: 'sv-cover-cell', params: { model: $data } } -->
     <!-- /ko -->
   <!--/ko-->
   </div>
-</div>
+  <!--/ko-->
+  <!-- ko if: survey.isMobile -->
+    <!-- ko component: { name: 'sv-header-mobile', params: { model: survey } } -->
+    <!-- /ko -->
+  <!--/ko-->
+  </div>
 <!-- /ko -->

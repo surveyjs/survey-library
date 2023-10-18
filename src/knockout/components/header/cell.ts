@@ -1,7 +1,7 @@
 import * as ko from "knockout";
 import { ImplementorBase } from "../../kobase";
 
-const template = require("./cover-cell.html");
+const template = require("./cell.html");
 
 ko.components.register("sv-cover-cell", {
   viewModel: {

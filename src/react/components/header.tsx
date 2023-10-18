@@ -9,7 +9,43 @@ export interface ILayoutElementProps<T = Base> {
   model: T;
 }
 
-export class CoverCellComponent extends React.Component<any, any> {
+export class HeaderMobile extends React.Component<any, any> {
+  get model(): SurveyModel {
+    return this.props.model;
+  }
+  private renderLogoImage(): JSX.Element | null {
+    const componentName: string = this.model.getElementWrapperComponentName(
+      this.model,
+      "logo-image"
+    );
+    const componentData: any = this.model.getElementWrapperComponentData(
+      this.model,
+      "logo-image"
+    );
+    return ReactElementFactory.Instance.createElement(componentName, {
+      data: componentData,
+    });
+  }
+
+  render(): JSX.Element | null {
+    return (<div className="sv-cover--mobile">
+      {this.model.hasLogo ? (<div className="sv-cover__logo">
+        {this.renderLogoImage()}
+      </div>) : null}
+      {this.model.hasTitle ? (<div className="sv-cover__title" style={{ maxWidth: this.model.header.textAreaWidth }}>
+        {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model })} */}
+        <TitleElement element={this.model}/>
+      </div>) : null}
+      {this.model.renderedHasDescription ? (<div className="sv-cover__description" style={{ maxWidth: this.model.header.textAreaWidth }}>
+        <h5 className={this.model.css.description}>
+          {SurveyElementBase.renderLocString(this.model.locDescription)}
+        </h5>
+      </div>) : null}
+    </div>);
+  }
+}
+
+export class HeaderCell extends React.Component<any, any> {
   get model(): CoverCell {
     return this.props.model;
   }
@@ -47,7 +83,7 @@ export class CoverCellComponent extends React.Component<any, any> {
   }
 }
 
-export class CoverComponent extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
+export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
   get model(): Cover {
     return this.props.model;
   }
@@ -62,17 +98,24 @@ export class CoverComponent extends SurveyElementBase<ILayoutElementProps<Cover>
       return null;
     }
 
+    let headerContent: JSX.Element | null = null;
+    if(this.props.survey.isMobile) {
+      headerContent = <HeaderMobile model={this.props.survey}/>;
+    } else {
+      headerContent = (<div className={this.model.contentClasses} style={{ maxWidth: this.model.maxWidth }}>
+        {this.model.cells.map((cell, index) => <HeaderCell key={index} model={cell}/>)}
+      </div>);
+    }
+
     return (
       <div className={this.model.coverClasses} style={{ height: this.model.renderedHeight }}>
         {this.model.backgroundImage ? <div style={this.model.backgroundImageStyle} className={this.model.backgroundImageClasses}></div> : null}
-        <div className={this.model.contentClasses} style={{ maxWidth: this.model.maxWidth }}>
-          {this.model.cells.map((cell, index) => <CoverCellComponent key={index} model={cell}/>)}
-        </div>
+        {headerContent}
       </div>
     );
   }
 }
 
 ReactElementFactory.Instance.registerElement("sv-cover", (props) => {
-  return React.createElement(CoverComponent, props);
+  return React.createElement(Header, props);
 });

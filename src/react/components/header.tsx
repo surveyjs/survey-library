@@ -10,16 +10,16 @@ export interface ILayoutElementProps<T = Base> {
 }
 
 export class HeaderMobile extends React.Component<any, any> {
-  get model(): SurveyModel {
+  get model(): Cover {
     return this.props.model;
   }
   private renderLogoImage(): JSX.Element | null {
-    const componentName: string = this.model.getElementWrapperComponentName(
-      this.model,
+    const componentName: string = this.model.survey.getElementWrapperComponentName(
+      this.model.survey,
       "logo-image"
     );
-    const componentData: any = this.model.getElementWrapperComponentData(
-      this.model,
+    const componentData: any = this.model.survey.getElementWrapperComponentData(
+      this.model.survey,
       "logo-image"
     );
     return ReactElementFactory.Instance.createElement(componentName, {
@@ -29,16 +29,16 @@ export class HeaderMobile extends React.Component<any, any> {
 
   render(): JSX.Element | null {
     return (<div className="sv-header--mobile">
-      {this.model.hasLogo ? (<div className="sv-header__logo">
+      {this.model.survey.hasLogo ? (<div className="sv-header__logo">
         {this.renderLogoImage()}
       </div>) : null}
-      {this.model.hasTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.header.textAreaWidth }}>
-        {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model })} */}
-        <TitleElement element={this.model}/>
+      {this.model.survey.hasTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.textAreaWidth }}>
+        {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model.survey })} */}
+        <TitleElement element={this.model.survey}/>
       </div>) : null}
-      {this.model.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.header.textAreaWidth }}>
-        <h5 className={this.model.css.description}>
-          {SurveyElementBase.renderLocString(this.model.locDescription)}
+      {this.model.survey.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.textAreaWidth }}>
+        <h5 className={this.model.survey.css.description}>
+          {SurveyElementBase.renderLocString(this.model.survey.locDescription)}
         </h5>
       </div>) : null}
     </div>);
@@ -100,7 +100,7 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
 
     let headerContent: JSX.Element | null = null;
     if(this.props.survey.isMobile) {
-      headerContent = <HeaderMobile model={this.props.survey}/>;
+      headerContent = <HeaderMobile model={this.model}/>;
     } else {
       headerContent = (<div className={this.model.contentClasses} style={{ maxWidth: this.model.maxWidth }}>
         {this.model.cells.map((cell, index) => <HeaderCell key={index} model={cell}/>)}

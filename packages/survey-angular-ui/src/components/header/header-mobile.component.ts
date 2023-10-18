@@ -10,7 +10,7 @@ import { Cover, CoverCell, SurveyModel } from "survey-core";
   styles: [":host { display: none; }"],
 })
 export class HeaderMobileComponent extends EmbeddedViewContentComponent {
-  @Input() model!: SurveyModel;
+  @Input() model!: Cover;
   @ViewChild("actionContent", { read: ViewContainerRef, static: true }) actionContent!: ViewContainerRef;
 }
 

@@ -8,7 +8,7 @@
     ></sv-header-cell>
     </div>
     <div v-if="survey.isMobile">
-      <sv-header-mobile :model="survey"></sv-header-mobile>
+      <sv-header-mobile :model="model"></sv-header-mobile>
     </div>
   </div>
 </template>

@@ -1,23 +1,23 @@
 <template>
   <div class="sv-header--mobile">
-    <div v-if="model.hasLogo" class="sv-header__logo">
-    <div :class="model.logoClassNames">
+    <div v-if="model.survey.hasLogo" class="sv-header__logo">
+    <div :class="model.survey.logoClassNames">
       <img
-        :class="model.css.logoImage"
-        :src="model.locLogo.renderedHtml"
-        :width="model.renderedLogoWidth"
-        :height="model.renderedLogoHeight"
-        :alt="model.locTitle.renderedHtml"
-        :style="{ 'objectFit': model.logoFit, 'width': model.renderedStyleLogoWidth, 'height': model.renderedStyleLogoHeight }"
+        :class="model.survey.css.logoImage"
+        :src="model.survey.locLogo.renderedHtml"
+        :width="model.survey.renderedLogoWidth"
+        :height="model.survey.renderedLogoHeight"
+        :alt="model.survey.locTitle.renderedHtml"
+        :style="{ 'objectFit': model.survey.logoFit, 'width': model.survey.renderedStyleLogoWidth, 'height': model.survey.renderedStyleLogoHeight }"
       />
     </div>
     </div>
-    <div v-if="model.hasTitle" class="sv-header__title" :style="{ 'maxWidth': model['header'].textAreaWidth }">
-      <survey-element-title :element="model.survey" :css="model.css" />
+    <div v-if="model.survey.hasTitle" class="sv-header__title" :style="{ 'maxWidth': model.textAreaWidth }">
+      <survey-element-title :element="model.survey" :css="model.survey.css" />
     </div>
-    <div v-if="model.renderedHasDescription" class="sv-header__description" :style="{ 'maxWidth': model['header'].textAreaWidth }">
-      <h5 v-if="model.renderedHasDescription" :class="model.css.description">
-        <survey-string :locString="model.locDescription" />
+    <div v-if="model.survey.renderedHasDescription" class="sv-header__description" :style="{ 'maxWidth': model.textAreaWidth }">
+      <h5 v-if="model.survey.renderedHasDescription" :class="model.survey.css.description">
+        <survey-string :locString="model.survey.locDescription" />
       </h5>
     </div>
   </div>
@@ -28,6 +28,6 @@ import { Base, SurveyModel, Cover, CoverCell } from "survey-core";
 import { onMounted, onUnmounted, ref } from "vue";
 
 const props = defineProps<{
-  model: SurveyModel;
+  model: Cover;
 }>();
 </script>

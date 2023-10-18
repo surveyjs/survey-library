@@ -112,8 +112,9 @@ import { NotifierComponent } from "./components/notifier/notifier.component";
 import { ComponentsContainerComponent } from "./components-container.component";
 import { MultipleTextRowComponent } from "./questions/multipletextrow.component";
 import { LoadingIndicatorComponent } from "./angular-ui";
-import { CoverComponent } from "./components/cover/cover.component";
-import { CoverCellComponent } from "./components/cover/cover-cell.component";
+import { HeaderComponent } from "./components/header/header.component";
+import { HeaderCellComponent } from "./components/header/header-cell.component";
+import { HeaderMobileComponent } from "./components/header/header-mobile.component";
 import { ChooseFileBtn } from "./components/file/choose-file.component";
 import { FilePreviewComponent } from "./components/file/file-preview.component";
 
@@ -133,7 +134,7 @@ import { FilePreviewComponent } from "./components/file/file-preview.component";
     MultipleTextComponent, MultipleTextItemComponent, DynamicComponentDirective, RankingQuestionComponent, RankingItemComponent, PanelDynamicQuestionComponent, EmbeddedViewContentComponent, CustomWidgetComponent, MatrixCellComponent, MatrixTableComponent, MatrixDropdownComponent,
     MatrixDynamicComponent, MatrixDetailButtonComponent, MatrixDynamicRemoveButtonComponent, MatrixDynamicDragDropIconComponent, MatrixRequiredHeader, ExpressionComponent, SafeResourceUrlPipe, BrandInfoComponent,
     CustomQuestionComponent, CompositeQuestionComponent, ButtonGroupItemComponent, ButtonGroupQuestionComponent, MatrixRowComponent, ModalComponent, LogoImageComponent, SkeletonComponent, TimerPanelComponent, PaneldynamicRemoveButtonComponent,
-    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, CoverComponent, CoverCellComponent, ChooseFileBtn, FilePreviewComponent
+    NotifierComponent, ComponentsContainerComponent, MultipleTextRowComponent, LoadingIndicatorComponent, HeaderComponent, HeaderCellComponent, HeaderMobileComponent, ChooseFileBtn, FilePreviewComponent
   ],
   imports: [
     CommonModule, FormsModule

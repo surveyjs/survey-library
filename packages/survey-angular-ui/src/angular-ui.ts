@@ -109,8 +109,9 @@ export * from "./questions/custom.component";
 export * from "./questions/composite.component";
 export * from "./base-angular";
 export * from "./components/loading-indicator/loading-indicator.component";
-export * from "./components/cover/cover.component";
-export * from "./components/cover/cover-cell.component";
+export * from "./components/header/header.component";
+export * from "./components/header/header-cell.component";
+export * from "./components/header/header-mobile.component";
 
 export * from "./component-factory";
 export * from "./angular-ui.module";

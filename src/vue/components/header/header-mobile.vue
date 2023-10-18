@@ -1,0 +1,42 @@
+<template>
+  <div class="sv-cover--mobile">
+    <div v-if="model.hasLogo" class="sv-cover__logo">
+    <div :class="model.logoClassNames">
+      <img
+        :class="model.css.logoImage"
+        :src="model.locLogo.renderedHtml"
+        :width="model.renderedLogoWidth"
+        :height="model.renderedLogoHeight"
+        :alt="model.locTitle.renderedHtml"
+        :style="{ 'objectFit': model.logoFit, 'width': model.renderedStyleLogoWidth, 'height': model.renderedStyleLogoHeight }"
+      />
+    </div>
+    </div>
+    <div v-if="model.hasTitle" class="sv-cover__title" :style="{ 'maxWidth': model['header'].textAreaWidth }">
+      <survey-element-title :element="model.survey" :css="model.css" />
+    </div>
+    <div v-if="model.renderedHasDescription" class="sv-cover__description" :style="{ 'maxWidth': model['header'].textAreaWidth }">
+      <h5 v-if="model.renderedHasDescription" :class="model.css.description">
+        <survey-string :locString="model.locDescription" />
+      </h5>
+    </div>
+  </div>
+</template>
+
+<script lang="ts">
+import Vue from "vue";
+import { Prop, Component } from "vue-property-decorator";
+import { Base, SurveyModel, Cover, CoverCell } from "survey-core";
+import BaseVue from "../../base";
+
+@Component
+export class HeaderMobileViewModel extends Vue {
+  @Prop() model: SurveyModel;
+  constructor(props: any) {
+    super(props);
+  }
+}
+
+Vue.component("sv-header-mobile", HeaderMobileViewModel);
+export default HeaderMobileViewModel;
+</script>

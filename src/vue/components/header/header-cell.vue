@@ -32,13 +32,13 @@ import { Base, SurveyModel, Cover, CoverCell } from "survey-core";
 import BaseVue from "../../base";
 
 @Component
-export class CoverCellViewModel extends Vue {
+export class HeaderCellViewModel extends Vue {
   @Prop() model: CoverCell;
   constructor(props: any) {
     super(props);
   }
 }
 
-Vue.component("sv-cover-cell", CoverCellViewModel);
-export default CoverCellViewModel;
+Vue.component("sv-cover-cell", HeaderCellViewModel);
+export default HeaderCellViewModel;
 </script>

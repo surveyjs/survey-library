@@ -102,8 +102,9 @@ import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
 import LoadingIndicator from "./components/LoadingIndicator.vue";
 
-import Cover from "./components/cover/Cover.vue";
-import CoverCell from "./components/cover/CoverCell.vue";
+import Header from "./components/header/Header.vue";
+import HeaderCell from "./components/header/HeaderCell.vue";
+import HeaderMobile from "./components/header/HeaderMobile.vue";
 
 import {
   SurveyModel,
@@ -239,8 +240,9 @@ function registerComponents(app: App) {
   app.component("sv-timerpanel", TimerPanel);
   app.component("sv-loading-indicator", LoadingIndicator);
 
-  app.component("sv-cover", Cover);
-  app.component("sv-cover-cell", CoverCell);
+  app.component("sv-cover", Header);
+  app.component("sv-cover-cell", HeaderCell);
+  app.component("sv-header-mobile", HeaderMobile);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

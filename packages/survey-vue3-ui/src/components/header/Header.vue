@@ -1,11 +1,14 @@
 <template>
   <div :class="model.coverClasses" :style="{ 'height': model.renderedHeight }">
     <div v-if="!!model.backgroundImage" :class="model.backgroundImageClasses" :style="model.backgroundImageStyle"></div>
-    <div :class="model.contentClasses" :style="{ maxWidth: model.maxWidth }">
+    <div v-if="!survey.isMobile" :class="model.contentClasses" :style="{ maxWidth: model.maxWidth }">
     <sv-cover-cell
       v-for="cell in model.cells"
       :model="cell"
     ></sv-cover-cell>
+    </div>
+    <div v-if="survey.isMobile">
+      <sv-header-mobile :model="survey"></sv-header-mobile>
     </div>
   </div>
 </template>

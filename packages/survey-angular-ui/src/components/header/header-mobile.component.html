@@ -1,0 +1,16 @@
+
+<ng-template #template>
+  <div class="sv-cover--mobile">
+    <div *ngIf="model.hasLogo" class="sv-cover__logo">
+      <div [class]="model.logoClassNames">
+        <ng-template [component]="{ name: model.getElementWrapperComponentName(model, 'logo-image'), data: { data: model.getElementWrapperComponentData(model, 'logo-image') } }"></ng-template>
+      </div>
+    </div>
+    <div *ngIf="model.hasTitle" class="sv-cover__title" [style]="{ maxWidth: model['header'].textAreaWidth }">
+      <sv-ng-element-title [element]="model.survey"></sv-ng-element-title>
+    </div>
+    <div *ngIf="model.renderedHasDescription" class="sv-cover__description" [style]="{ maxWidth: model['header'].textAreaWidth }">
+      <h5 *ngIf="model.renderedHasDescription" [class]="model.css.description" [model]="model.locDescription" sv-ng-string></h5>
+    </div>
+  </div>
+</ng-template>

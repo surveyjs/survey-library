@@ -101,8 +101,9 @@ export { NotifierComponent } from "../vue/components/notifier.vue";
 export { ComponentsContainer } from "../vue/components/container.vue";
 export { CharacterCounterComponent } from "../vue/components/character-counter.vue";
 export { LoadingIndicatorComponent } from "../vue/components/loading-indicator.vue";
-export { CoverCellViewModel } from "../vue/components/cover/cover-cell.vue";
-export { CoverViewModel } from "../vue/components/cover/cover.vue";
+export { HeaderCellViewModel } from "../vue/components/header/header-cell.vue";
+export { HeaderMobileViewModel } from "../vue/components/header/header-mobile.vue";
+export { HeaderViewModel } from "../vue/components/header/header.vue";
 
 import { SurveyModel } from "survey-core";
 

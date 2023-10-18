@@ -5,10 +5,10 @@ import { Cover, CoverCell, SurveyModel } from "survey-core";
 
 @Component({
   selector: "sv-cover, sv-ng-cover",
-  templateUrl: "./cover.component.html",
+  templateUrl: "./header.component.html",
   styles: [":host { display: none }"]
 })
-export class CoverComponent extends BaseAngular<Cover> {
+export class HeaderComponent extends BaseAngular<Cover> {
   @Input() model!: Cover;
   @Input() survey!: SurveyModel;
   @ViewChild("container") container!: ElementRef<HTMLDivElement>;
@@ -18,4 +18,4 @@ export class CoverComponent extends BaseAngular<Cover> {
   }
 }
 
-AngularComponentFactory.Instance.registerComponent("sv-cover", CoverComponent);
+AngularComponentFactory.Instance.registerComponent("sv-cover", HeaderComponent);

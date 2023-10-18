@@ -131,7 +131,7 @@ QUnit.test("grid cells - defaults", function (assert) {
     assert.equal(cell.showDescription, cell["positionX"] === "left" && cell["positionY"] === "bottom", "description in bottom left");
   });
 
-  assert.equal(cover.cells[2].css, "sv-cover__cell sv-cover__cell--right sv-cover__cell--top", "top right cell css");
+  assert.equal(cover.cells[2].css, "sv-header__cell sv-header__cell--right sv-header__cell--top", "top right cell css");
   assert.deepEqual(cover.cells[2].style, {
     "gridColumn": 3,
     "gridRow": 1
@@ -142,7 +142,7 @@ QUnit.test("grid cells - defaults", function (assert) {
     "textAlign": "end"
   }, "top right cell content style");
 
-  assert.equal(cover.cells[6].css, "sv-cover__cell sv-cover__cell--left sv-cover__cell--bottom", "bottom left cell css");
+  assert.equal(cover.cells[6].css, "sv-header__cell sv-header__cell--left sv-header__cell--bottom", "bottom left cell css");
   assert.deepEqual(cover.cells[6].style, {
     "gridColumn": 1,
     "gridRow": 3
@@ -171,7 +171,7 @@ QUnit.test("grid cells - all elements center+middle", function (assert) {
     assert.equal(cell.showDescription, index === 4, "description in middle center");
   });
 
-  assert.equal(cover.cells[4].css, "sv-cover__cell sv-cover__cell--center sv-cover__cell--middle", "middle center cell css");
+  assert.equal(cover.cells[4].css, "sv-header__cell sv-header__cell--center sv-header__cell--middle", "middle center cell css");
   assert.deepEqual(cover.cells[4].style, {
     "gridColumn": 2,
     "gridRow": 2

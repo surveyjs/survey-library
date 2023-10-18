@@ -1,6 +1,6 @@
 <template>
-  <div class="sv-cover--mobile">
-    <div v-if="model.hasLogo" class="sv-cover__logo">
+  <div class="sv-header--mobile">
+    <div v-if="model.hasLogo" class="sv-header__logo">
     <div :class="model.logoClassNames">
       <img
         :class="model.css.logoImage"
@@ -12,10 +12,10 @@
       />
     </div>
     </div>
-    <div v-if="model.hasTitle" class="sv-cover__title" :style="{ 'maxWidth': model['header'].textAreaWidth }">
+    <div v-if="model.hasTitle" class="sv-header__title" :style="{ 'maxWidth': model['header'].textAreaWidth }">
       <survey-element-title :element="model.survey" :css="model.css" />
     </div>
-    <div v-if="model.renderedHasDescription" class="sv-cover__description" :style="{ 'maxWidth': model['header'].textAreaWidth }">
+    <div v-if="model.renderedHasDescription" class="sv-header__description" :style="{ 'maxWidth': model['header'].textAreaWidth }">
       <h5 v-if="model.renderedHasDescription" :class="model.css.description">
         <survey-string :locString="model.locDescription" />
       </h5>

@@ -28,15 +28,15 @@ export class HeaderMobile extends React.Component<any, any> {
   }
 
   render(): JSX.Element | null {
-    return (<div className="sv-cover--mobile">
-      {this.model.hasLogo ? (<div className="sv-cover__logo">
+    return (<div className="sv-header--mobile">
+      {this.model.hasLogo ? (<div className="sv-header__logo">
         {this.renderLogoImage()}
       </div>) : null}
-      {this.model.hasTitle ? (<div className="sv-cover__title" style={{ maxWidth: this.model.header.textAreaWidth }}>
+      {this.model.hasTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.header.textAreaWidth }}>
         {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model })} */}
         <TitleElement element={this.model}/>
       </div>) : null}
-      {this.model.renderedHasDescription ? (<div className="sv-cover__description" style={{ maxWidth: this.model.header.textAreaWidth }}>
+      {this.model.renderedHasDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.header.textAreaWidth }}>
         <h5 className={this.model.css.description}>
           {SurveyElementBase.renderLocString(this.model.locDescription)}
         </h5>
@@ -65,15 +65,15 @@ export class HeaderCell extends React.Component<any, any> {
 
   render(): JSX.Element | null {
     return (<div className={this.model.css} style={this.model.style}>
-      <div className="sv-cover__cell-content" style={this.model.contentStyle}>
-        {this.model.showLogo ? (<div className="sv-cover__logo">
+      <div className="sv-header__cell-content" style={this.model.contentStyle}>
+        {this.model.showLogo ? (<div className="sv-header__logo">
           {this.renderLogoImage()}
         </div>) : null}
-        {this.model.showTitle ? (<div className="sv-cover__title" style={{ maxWidth: this.model.textAreaWidth }}>
+        {this.model.showTitle ? (<div className="sv-header__title" style={{ maxWidth: this.model.textAreaWidth }}>
           {/* {ReactElementFactory.Instance.createElement("survey-element-title", { element: this.model.survey })} */}
           <TitleElement element={this.model.survey}/>
         </div>) : null}
-        {this.model.showDescription ? (<div className="sv-cover__description" style={{ maxWidth: this.model.textAreaWidth }}>
+        {this.model.showDescription ? (<div className="sv-header__description" style={{ maxWidth: this.model.textAreaWidth }}>
           <h5 className={this.model.survey.css.description}>
             {SurveyElementBase.renderLocString(this.model.survey.locDescription)}
           </h5>
@@ -116,6 +116,6 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-cover", (props) => {
+ReactElementFactory.Instance.registerElement("sv-header", (props) => {
   return React.createElement(Header, props);
 });

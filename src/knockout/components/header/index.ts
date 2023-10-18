@@ -6,7 +6,7 @@ export * from "./mobile";
 
 const template = require("./index.html");
 
-ko.components.register("sv-cover", {
+ko.components.register("sv-header", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       params.model.survey = params.survey;

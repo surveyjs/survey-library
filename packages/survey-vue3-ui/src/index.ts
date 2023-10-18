@@ -240,8 +240,8 @@ function registerComponents(app: App) {
   app.component("sv-timerpanel", TimerPanel);
   app.component("sv-loading-indicator", LoadingIndicator);
 
-  app.component("sv-cover", Header);
-  app.component("sv-cover-cell", HeaderCell);
+  app.component("sv-header", Header);
+  app.component("sv-header-cell", HeaderCell);
   app.component("sv-header-mobile", HeaderMobile);
 
   app.directive("key2click", {

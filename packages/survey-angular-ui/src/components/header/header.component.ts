@@ -4,7 +4,7 @@ import { BaseAngular } from "../../base-angular";
 import { Cover, CoverCell, SurveyModel } from "survey-core";
 
 @Component({
-  selector: "sv-cover, sv-ng-cover",
+  selector: "sv-header, sv-ng-cover",
   templateUrl: "./header.component.html",
   styles: [":host { display: none }"]
 })
@@ -18,4 +18,4 @@ export class HeaderComponent extends BaseAngular<Cover> {
   }
 }
 
-AngularComponentFactory.Instance.registerComponent("sv-cover", HeaderComponent);
+AngularComponentFactory.Instance.registerComponent("sv-header", HeaderComponent);

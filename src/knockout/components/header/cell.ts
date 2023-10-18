@@ -3,7 +3,7 @@ import { ImplementorBase } from "../../kobase";
 
 const template = require("./cell.html");
 
-ko.components.register("sv-cover-cell", {
+ko.components.register("sv-header-cell", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
       // new ImplementorBase(params.model);

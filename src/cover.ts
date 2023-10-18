@@ -7,7 +7,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { wrapUrlForBackgroundImage } from "./utils/utils";
 
 export class CoverCell {
-  static CLASSNAME = "sv-cover__cell";
+  static CLASSNAME = "sv-header__cell";
   private calcRow(positionY: VerticalAlignment): any {
     return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
@@ -77,7 +77,7 @@ export class Cover extends Base {
   }
   private updateCoverClasses(): void {
     this.coverClasses = new CssClassBuilder()
-      .append("sv-cover")
+      .append("sv-header")
       .append("sv-conver__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
       .append("sv-conver__overlap", this.overlapEnabled)
       .toString();
@@ -93,9 +93,9 @@ export class Cover extends Base {
   }
   private updateBackgroundImageClasses(): void {
     this.backgroundImageClasses = new CssClassBuilder()
-      .append("sv-cover__background-image")
-      .append("sv-cover__background-image--contain", this.backgroundImageFit === "contain")
-      .append("sv-cover__background-image--tile", this.backgroundImageFit === "tile")
+      .append("sv-header__background-image")
+      .append("sv-header__background-image--contain", this.backgroundImageFit === "contain")
+      .append("sv-header__background-image--tile", this.backgroundImageFit === "tile")
       .toString();
   }
   public fromTheme(theme: ITheme): void {

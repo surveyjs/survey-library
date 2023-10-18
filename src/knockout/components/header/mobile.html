@@ -1,18 +1,18 @@
-<div class="sv-cover--mobile">
+<div class="sv-header--mobile">
   <!-- ko if: hasLogo -->
-  <div class="sv-cover__logo">
+  <div class="sv-header__logo">
   <!-- ko component: { name: getElementWrapperComponentName($data, 'logo-image'), params: getElementWrapperComponentData($data, 'logo-image') } -->
   <!-- /ko -->
   </div>
   <!-- /ko -->
   <!-- ko if: hasTitle -->
-  <div class="sv-cover__title" data-bind="style: { maxWidth: header.textAreaWidth }">
+  <div class="sv-header__title" data-bind="style: { maxWidth: header.textAreaWidth }">
   <!-- ko component: { name: 'survey-element-title', params: { element: $data } } -->
   <!-- /ko -->
   </div>
   <!-- /ko -->
   <!-- ko if: renderedHasDescription -->
-  <div class="sv-cover__description" data-bind="style: { maxWidth: header.textAreaWidth }">
+  <div class="sv-header__description" data-bind="style: { maxWidth: header.textAreaWidth }">
     <h5 data-bind="css: css.description">
       <!-- ko template: { name: 'survey-string', data: $data.locDescription } -->
       <!-- /ko -->

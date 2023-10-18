@@ -1,9 +1,9 @@
-.sv-cover {
+.sv-header {
   position: relative;
   background-color: $cover-backcolor;
 }
 
-.sv-cover--mobile {
+.sv-header--mobile {
   padding: calcSize(3);
 }
 
@@ -39,7 +39,7 @@
   margin-right: auto;
 }
 
-.sv-cover__background-image {
+.sv-header__background-image {
   width: 100%;
   height: 100%;
   position: absolute;
@@ -50,15 +50,15 @@
   background-position-x: center;
 }
 
-.sv-cover__background-image--contain {
+.sv-header__background-image--contain {
   background-repeat: no-repeat;
 }
 
-.sv-cover__cell {
+.sv-header__cell {
   position: relative;
 }
 
-.sv-cover__cell-content {
+.sv-header__cell-content {
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -67,33 +67,33 @@
   bottom: 0;
 }
 
-.sv-cover__cell--left {
-  .sv-cover__cell-content {
+.sv-header__cell--left {
+  .sv-header__cell-content {
     left: 0;
   }
 }
 
-.sv-cover__cell--center {
-  .sv-cover__cell-content {
+.sv-header__cell--center {
+  .sv-header__cell-content {
     min-width: 100%;
   }
 }
 
-.sv-cover__cell--right {
-  .sv-cover__cell-content {
+.sv-header__cell--right {
+  .sv-header__cell-content {
     right: 0;
   }
 }
 
-.sv-cover__logo {
+.sv-header__logo {
   display: flex;
 }
 
-.sv-cover__title {
+.sv-header__title {
   display: flex;
 }
 
-.sv-cover__title .sd-title {
+.sv-header__title .sd-title {
   @include cover_title;
   margin: 0;
   color: $cover-title-forecolor;
@@ -101,23 +101,23 @@
   font-weight: $font-surveytitle-weight;
 }
 
-.sv-cover__logo~.sv-cover__title {
+.sv-header__logo~.sv-header__title {
   margin-top: calcSize(4);
 }
 
-.sv-cover__logo~.sv-cover__description {
+.sv-header__logo~.sv-header__description {
   margin-top: calcSize(4);
 }
 
-.sv-cover__title~.sv-cover__description {
+.sv-header__title~.sv-header__description {
   margin-top: calcSize(1);
 }
 
-.sv-cover__description {
+.sv-header__description {
   display: flex;
 }
 
-.sv-cover__description .sd-description {
+.sv-header__description .sd-description {
   margin: 0;
   color: $cover-description-forecolor;
 }

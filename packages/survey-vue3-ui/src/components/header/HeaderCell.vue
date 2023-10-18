@@ -1,7 +1,7 @@
 <template>
   <div :class="model.css" :style="model.style">
-    <div class="sv-cover__cell-content" :style="model.contentStyle">
-      <div v-if="model.showLogo" class="sv-cover__logo">
+    <div class="sv-header__cell-content" :style="model.contentStyle">
+      <div v-if="model.showLogo" class="sv-header__logo">
       <div :class="model.survey.logoClassNames">
         <img
           :class="model.survey.css.logoImage"
@@ -13,10 +13,10 @@
         />
       </div>
       </div>
-      <div v-if="model.showTitle" class="sv-cover__title" :style="{ 'maxWidth': model.textAreaWidth }">
+      <div v-if="model.showTitle" class="sv-header__title" :style="{ 'maxWidth': model.textAreaWidth }">
         <survey-element-title :element="model.survey" :css="model.survey.css" />
       </div>
-      <div v-if="model.showDescription" class="sv-cover__description" :style="{ 'maxWidth': model.textAreaWidth }">
+      <div v-if="model.showDescription" class="sv-header__description" :style="{ 'maxWidth': model.textAreaWidth }">
         <h5 v-if="model.survey.renderedHasDescription" :class="model.survey.css.description">
           <survey-string :locString="model.survey.locDescription" />
         </h5>

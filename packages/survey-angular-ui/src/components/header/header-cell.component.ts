@@ -14,4 +14,4 @@ export class HeaderCellComponent extends EmbeddedViewContentComponent {
   @ViewChild("actionContent", { read: ViewContainerRef, static: true }) actionContent!: ViewContainerRef;
 }
 
-AngularComponentFactory.Instance.registerComponent("sv-cover-cell", HeaderCellComponent);
+AngularComponentFactory.Instance.registerComponent("sv-header-cell", HeaderCellComponent);

@@ -47,7 +47,7 @@ export var macedonianSurveyStrings = {
   loadingFile: "Се вчитува ...",
   chooseFile: "Изберете датотека (и) ...",
   noFileChosen: "Не се избрани датотеки",
-  fileDragAreaPlaceholder: "Пуштете датотека овде или кликнете на копчето подолу за да ја вчитате датотеката.",
+  filePlaceholder: "Пуштете датотека овде или кликнете на копчето подолу за да ја вчитате датотеката.",
   confirmDelete: "Дали сакате да го избришете записот?",
   keyDuplicationError: "Оваа вредност треба да биде единствена.",
   addColumn: "Додај колона",
@@ -76,8 +76,8 @@ export var macedonianSurveyStrings = {
   signaturePlaceHolder: "Потпиши се овде.",
   chooseFileCaption: "Изберете датотека",
   takePhotoCaption: "Фотографирајте",
-  cameraPlaceHolder: "Кликнете на копчето подолу за да фотографирате користејќи ја камерата.",
-  fileCameraDragAreaPlaceHolder: "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата.",
+  photoPlaceholder: "Кликнете на копчето подолу за да фотографирате користејќи ја камерата.",
+  fileOrPhotoPlaceholder: "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата.",
   replaceFileCaption: "Заменете го фајлот.",
   removeFileCaption: "Отстранете ја оваа датотека",
   booleanCheckedLabel: "Да",
@@ -115,6 +115,6 @@ surveyLocalization.localeNames["mk"] = "Македонски";
 // tagboxDoneButtonCaption: "OK" => "ДОБРО"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Сите избори се рангирани"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Влечете и фрлете го изборот овде за да ги рангирате"// takePhotoCaption: "Take Photo" => "Фотографирајте"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Кликнете на копчето подолу за да фотографирате користејќи ја камерата."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Кликнете на копчето подолу за да фотографирате користејќи ја камерата."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата."
 // replaceFileCaption: "Replace file" => "Заменете го фајлот."

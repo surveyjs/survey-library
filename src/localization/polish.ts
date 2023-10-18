@@ -47,7 +47,7 @@ export var polishSurveyStrings = {
   loadingFile: "Ładowanie...",
   chooseFile: "Wybierz plik(i)...",
   noFileChosen: "Nie wybrano żadnego pliku",
-  fileDragAreaPlaceholder: "Upuść plik tutaj lub kliknij przycisk poniżej, aby załadować plik.",
+  filePlaceholder: "Upuść plik tutaj lub kliknij przycisk poniżej, aby załadować plik.",
   confirmDelete: "Chcesz skasować nagranie?",
   keyDuplicationError: "Ta wartość powinna być wyjątkowa.",
   addColumn: "Dodaj kolumnę",
@@ -76,8 +76,8 @@ export var polishSurveyStrings = {
   signaturePlaceHolder: "Podpisz tutaj",
   chooseFileCaption: "Wybierz plik",
   takePhotoCaption: "Zrób zdjęcie",
-  cameraPlaceHolder: "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem.",
-  fileCameraDragAreaPlaceHolder: "Przeciągnij i upuść lub wybierz plik, który chcesz przesłać lub zrobić zdjęcie za pomocą aparatu.",
+  photoPlaceholder: "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem.",
+  fileOrPhotoPlaceholder: "Przeciągnij i upuść lub wybierz plik, który chcesz przesłać lub zrobić zdjęcie za pomocą aparatu.",
   replaceFileCaption: "Zastąp plik",
   removeFileCaption: "Usuń ten plik",
   booleanCheckedLabel: "Tak",
@@ -109,6 +109,6 @@ surveyLocalization.localeNames["pl"] = "polski";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Wszystkie wybory są uszeregowane"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Przeciągnij i upuść tutaj wybory, aby je uszeregować"// takePhotoCaption: "Take Photo" => "Zrób zdjęcie"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Przeciągnij i upuść lub wybierz plik, który chcesz przesłać lub zrobić zdjęcie za pomocą aparatu."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknij przycisk poniżej, aby zrobić zdjęcie aparatem."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Przeciągnij i upuść lub wybierz plik, który chcesz przesłać lub zrobić zdjęcie za pomocą aparatu."
 // replaceFileCaption: "Replace file" => "Zastąp plik"

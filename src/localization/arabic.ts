@@ -47,7 +47,7 @@ export var arabicSurveyStrings = {
   loadingFile: "جار التحميل...",
   chooseFile: "اختر الملفات...",
   noFileChosen: "لم تقم باختيار ملف",
-  fileDragAreaPlaceholder: "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله.",
+  filePlaceholder: "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله.",
   confirmDelete: "هل تريد حذف السجل؟",
   keyDuplicationError: "يجب أن تكون هذه القيمة فريدة.",
   addColumn: "أضف العمود",
@@ -76,8 +76,8 @@ export var arabicSurveyStrings = {
   signaturePlaceHolder: "وقع هنا",
   chooseFileCaption: "اختر ملف",
   takePhotoCaption: "التقاط صورة",
-  cameraPlaceHolder: "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا.",
-  fileCameraDragAreaPlaceHolder: "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا.",
+  photoPlaceholder: "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا.",
+  fileOrPhotoPlaceholder: "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا.",
   replaceFileCaption: "استبدال الملف",
   removeFileCaption: "قم بإزالة هذا الملف",
   booleanCheckedLabel: "نعم",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["ar"] = "العربية";
 // ratingOptionsCaption: "Select..." => "اختار..."
 // minError: "The value should not be less than {0}" => "يجب ألا تقل القيمة عن {0}"
 // maxError: "The value should not be greater than {0}" => "يجب ألا تزيد القيمة عن {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "اسحب ملفا وأفلته هنا أو انقر فوق الزر أدناه واختر ملفا لتحميله."
 // emptyRowsText: "There are no rows." => "لا توجد صفوف."
 // multipletext_itemname: "text" => "نص"
 // signaturePlaceHolder: "Sign here" => "وقع هنا"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["ar"] = "العربية";
 // tagboxDoneButtonCaption: "OK" => "موافق"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "يتم ترتيب جميع الخيارات"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "قم بسحب وإسقاط الخيارات هنا لترتيبها"// takePhotoCaption: "Take Photo" => "التقاط صورة"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "انقر فوق الزر أدناه لالتقاط صورة باستخدام الكاميرا."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "قم بسحب ملف وإفلاته أو تحديده لتحميله أو التقاط صورة باستخدام الكاميرا."
 // replaceFileCaption: "Replace file" => "استبدال الملف"

@@ -47,7 +47,7 @@ export var hindiStrings = {
   loadingFile: "लोडिंग",
   chooseFile: "फ़ाइल चुनें",
   noFileChosen: "कोई फाइल नहीं चुनी गई",
-  fileDragAreaPlaceholder: "यहां एक फ़ाइल खींचें और छोड़ें या नीचे दिए गए बटन पर क्लिक करें और अपलोड करने के लिए एक फ़ाइल चुनें।",
+  filePlaceholder: "यहां एक फ़ाइल खींचें और छोड़ें या नीचे दिए गए बटन पर क्लिक करें और अपलोड करने के लिए एक फ़ाइल चुनें।",
   confirmDelete: "क्या आप रिकॉर्ड हटाना चाहते हैं",
   keyDuplicationError: "यह मान अनोखा होना चाहिए",
   addColumn: "कॉलम जोड़ें",
@@ -76,8 +76,8 @@ export var hindiStrings = {
   signaturePlaceHolder: "यहां साइन करें",
   chooseFileCaption: "फ़ाइल चुनें",
   takePhotoCaption: "फोटो ले लो",
-  cameraPlaceHolder: "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।",
-  fileCameraDragAreaPlaceHolder: "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें.",
+  photoPlaceholder: "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।",
+  fileOrPhotoPlaceholder: "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें.",
   replaceFileCaption: "फ़ाइल बदलें",
   removeFileCaption: "इस फाइल को निकालें",
   booleanCheckedLabel: "हाँ",
@@ -108,7 +108,7 @@ surveyLocalization.localeNames["hi"] = "hindi";
 // ratingOptionsCaption: "Select..." => "चुनना।।।"
 // minError: "The value should not be less than {0}" => "मान {0} से कम नहीं होना चाहिए"
 // maxError: "The value should not be greater than {0}" => "मान {0} से अधिक नहीं होना चाहिए"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "यहां एक फ़ाइल खींचें और छोड़ें या नीचे दिए गए बटन पर क्लिक करें और अपलोड करने के लिए एक फ़ाइल चुनें।"
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "यहां एक फ़ाइल खींचें और छोड़ें या नीचे दिए गए बटन पर क्लिक करें और अपलोड करने के लिए एक फ़ाइल चुनें।"
 // emptyRowsText: "There are no rows." => "कोई पंक्तियाँ नहीं हैं."
 // multipletext_itemname: "text" => "टेक्स्ट"
 // signaturePlaceHolder: "Sign here" => "यहां साइन करें"
@@ -122,6 +122,6 @@ surveyLocalization.localeNames["hi"] = "hindi";
 // tagboxDoneButtonCaption: "OK" => "ठीक है"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "सभी विकल्पों को रैंक किया गया है"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें"// takePhotoCaption: "Take Photo" => "फोटो ले लो"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।"
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।"
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें."
 // replaceFileCaption: "Replace file" => "फ़ाइल बदलें"

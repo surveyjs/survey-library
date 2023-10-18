@@ -412,9 +412,9 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
-  @property({ localizable: { defaultStr: "fileCameraDragAreaPlaceHolder" } }) fileCameraDragAreaPlaceholder: string;
-  @property({ localizable: { defaultStr: "cameraPlaceHolder" } }) cameraPlaceholder: string;
-  @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
+  @property({ localizable: { defaultStr: "fileOrPhotoPlaceholder" } }) fileOrPhotoPlaceholder: string;
+  @property({ localizable: { defaultStr: "photoPlaceholder" } }) photoPlaceholder: string;
+  @property({ localizable: { defaultStr: "filePlaceholder" } }) filePlaceholder: string;
 
   @property() locRenderedPlaceholderValue: LocalizableString;
   public get locRenderedPlaceholder(): LocalizableString {
@@ -428,13 +428,13 @@ export class QuestionFileModel extends Question {
           renderedPlaceholder = this.locNoFileChosenCaption;
         }
         else if(hasFileUI && hasVideoUI) {
-          renderedPlaceholder = this.locFileCameraDragAreaPlaceholder;
+          renderedPlaceholder = this.locFileOrPhotoPlaceholder;
         }
         else if(hasFileUI) {
-          renderedPlaceholder = this.locDragAreaPlaceholder;
+          renderedPlaceholder = this.locFilePlaceholder;
         }
         else {
-          renderedPlaceholder = this.locCameraPlaceholder;
+          renderedPlaceholder = this.locPhotoPlaceholder;
         }
         return renderedPlaceholder;
       }));
@@ -998,9 +998,9 @@ Serializer.addClass(
     { name: "needConfirmRemoveFile:boolean" },
     { name: "allowCameraAccess:switch", category: "general" },
     { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true },
-    { name: "fileCameraDragAreaPlaceholder:text", serializationProperty: "locFileCameraDragAreaPlaceholder", category: "general", visibleIf: function (obj: any) { return obj.sourceType === "file-camera"; }, },
-    { name: "cameraPlaceholder:text", serializationProperty: "locCameraPlaceholder", category: "general", visibleIf: function (obj: any) { return obj.sourceType === "camera"; }, },
-    { name: "dragAreaPlaceholder:text", serializationProperty: "locDragAreaPlaceholder", category: "general", visibleIf: function (obj: any) { return obj.sourceType === "file"; }, },
+    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general" },
+    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general" },
+    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general" },
   ],
   function () {
     return new QuestionFileModel("");

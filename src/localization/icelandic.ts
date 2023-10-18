@@ -47,7 +47,7 @@ export var icelandicSurveyStrings = {
   loadingFile: "Hleður ...",
   chooseFile: "Veldu skrár ...",
   noFileChosen: "Engin skrá valin",
-  fileDragAreaPlaceholder: "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp.",
+  filePlaceholder: "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp.",
   confirmDelete: "Viltu eyða skránni?",
   keyDuplicationError: "Þetta gildi ætti að vera einstakt.",
   addColumn: "Bæta við dálki",
@@ -76,8 +76,8 @@ export var icelandicSurveyStrings = {
   signaturePlaceHolder: "Kvittađu hér",
   chooseFileCaption: "Veldu skrá",
   takePhotoCaption: "Taka mynd",
-  cameraPlaceHolder: "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni.",
-  fileCameraDragAreaPlaceHolder: "Dragðu og slepptu eða veldu skrá til að hlaða upp eða taka mynd með myndavélinni.",
+  photoPlaceholder: "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni.",
+  fileOrPhotoPlaceholder: "Dragðu og slepptu eða veldu skrá til að hlaða upp eða taka mynd með myndavélinni.",
   replaceFileCaption: "Skipta út skrá",
   removeFileCaption: "Fjarlægðu þessa skrá",
   booleanCheckedLabel: "Já",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["is"] = "íslenska";
 // ratingOptionsCaption: "Select..." => "Velja..."
 // minError: "The value should not be less than {0}" => "Gildið má ekki vera lægra en {0}"
 // maxError: "The value should not be greater than {0}" => "Gildið má ekki vera hærra en {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dragðu og slepptu skrá hér eða smelltu á hnappinn hér að neðan og veldu skrá til að hlaða upp."
 // emptyRowsText: "There are no rows." => "Það eru engar raðir."
 // multipletext_itemname: "text" => "Texti"
 // signaturePlaceHolder: "Sign here" => "Kvittađu hér"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["is"] = "íslenska";
 // tagboxDoneButtonCaption: "OK" => "ÓKEI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Öllum valkostum er raðað"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dragðu og slepptu valkostum hér til að raða þeim"// takePhotoCaption: "Take Photo" => "Taka mynd"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dragðu og slepptu eða veldu skrá til að hlaða upp eða taka mynd með myndavélinni."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dragðu og slepptu eða veldu skrá til að hlaða upp eða taka mynd með myndavélinni."
 // replaceFileCaption: "Replace file" => "Skipta út skrá"

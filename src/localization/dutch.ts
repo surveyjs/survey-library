@@ -47,7 +47,7 @@ export var dutchSurveyStrings = {
   loadingFile: "Laden...",
   chooseFile: "Kies uw bestand(en)...",
   noFileChosen: "Geen bestand gekozen",
-  fileDragAreaPlaceholder: "Sleep het bestand naar hier",
+  filePlaceholder: "Sleep het bestand naar hier",
   confirmDelete: "Wilt u deze gegevens verwijderen?",
   keyDuplicationError: "Deze waarde moet uniek zijn.",
   addColumn: "Voeg kolom toe",
@@ -76,8 +76,8 @@ export var dutchSurveyStrings = {
   signaturePlaceHolder: "Hier tekenen",
   chooseFileCaption: "Gekozen bestand",
   takePhotoCaption: "Foto maken",
-  cameraPlaceHolder: "Klik op de onderstaande knop om een foto te maken met de camera.",
-  fileCameraDragAreaPlaceHolder: "Sleep en zet neer of selecteer een bestand om te uploaden of maak een foto met de camera.",
+  photoPlaceholder: "Klik op de onderstaande knop om een foto te maken met de camera.",
+  fileOrPhotoPlaceholder: "Sleep en zet neer of selecteer een bestand om te uploaden of maak een foto met de camera.",
   replaceFileCaption: "Bestand vervangen",
   removeFileCaption: "Verwijder dit bestand",
   booleanCheckedLabel: "Ja",
@@ -119,6 +119,6 @@ surveyLocalization.localeNames["nl"] = "nederlands";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle keuzes zijn gerangschikt"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Drag en drop keuzes hier om ze te rangschikken"// takePhotoCaption: "Take Photo" => "Foto maken"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klik op de onderstaande knop om een foto te maken met de camera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Sleep en zet neer of selecteer een bestand om te uploaden of maak een foto met de camera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik op de onderstaande knop om een foto te maken met de camera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Sleep en zet neer of selecteer een bestand om te uploaden of maak een foto met de camera."
 // replaceFileCaption: "Replace file" => "Bestand vervangen"

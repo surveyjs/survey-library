@@ -48,7 +48,7 @@ export var tajikSurveyStrings = {
   loadingFile: "Боркунӣ...",
   chooseFile: "Файл(ҳо)-ро интихоб кунед...",
   // noFileChosen: "No file chosen",
-  // fileDragAreaPlaceholder: "Drop a file here or click the button below to load the file.",
+  // filePlaceholder: "Drop a file here or click the button below to load the file.",
   confirmDelete: "Шумо мутмаин ҳастед, ки мехоҳед воридро тоза кунед?",
   keyDuplicationError: "Ин арзиш бояд беназир бошад.",
   addColumn: "Иловаи сутун",

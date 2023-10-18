@@ -1674,9 +1674,9 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes", function
   });
 
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
-  q1.dragAreaPlaceholder = "file_mod_placeholder";
-  q1.cameraPlaceholder = "camera_mod_placeholder";
-  q1.fileCameraDragAreaPlaceholder = "both_mod_placeholder";
+  q1.filePlaceholder = "file_mod_placeholder";
+  q1.photoPlaceholder = "camera_mod_placeholder";
+  q1.fileOrPhotoPlaceholder = "both_mod_placeholder";
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
   q1.setPropertyValue("currentMode", "camera");
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "camera_mod_placeholder");
@@ -1691,7 +1691,7 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes when camer
     ]
   });
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
-  q1.dragAreaPlaceholder = "file_mod_placeholder";
+  q1.filePlaceholder = "file_mod_placeholder";
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
   q1.sourceType = "camera";
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
@@ -1707,9 +1707,9 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes with desig
   });
   survey.setDesignMode(true);
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
-  q1.dragAreaPlaceholder = "file_mod_placeholder";
-  q1.cameraPlaceholder = "camera_mod_placeholder";
-  q1.fileCameraDragAreaPlaceholder = "both_mod_placeholder";
+  q1.filePlaceholder = "file_mod_placeholder";
+  q1.photoPlaceholder = "camera_mod_placeholder";
+  q1.fileOrPhotoPlaceholder = "both_mod_placeholder";
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
   q1.sourceType = "camera";
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "camera_mod_placeholder");
@@ -1723,9 +1723,9 @@ QUnit.test("QuestionFile check placeholders are serializable", function(assert) 
       {
         type: "file",
         name: "q1",
-        dragAreaPlaceholder: "file_mod_placeholder",
-        cameraPlaceholder: "camera_mod_placeholder",
-        fileCameraDragAreaPlaceholder: "both_mod_placeholder"
+        filePlaceholder: "file_mod_placeholder",
+        photoPlaceholder: "camera_mod_placeholder",
+        fileOrPhotoPlaceholder: "both_mod_placeholder"
       },
     ]
   });
@@ -1736,35 +1736,4 @@ QUnit.test("QuestionFile check placeholders are serializable", function(assert) 
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "camera_mod_placeholder");
   q1.sourceType = "file-camera";
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
-});
-
-QUnit.test("QuestionFile check placeholders serializable properties visibilty", function(assert) {
-  const survey = new SurveyModel({
-    elements: [
-      {
-        type: "file",
-        name: "q1",
-        sourceType: "file",
-        dragAreaPlaceholder: "file_mod_placeholder",
-        cameraPlaceholder: "camera_mod_placeholder",
-        fileCameraDragAreaPlaceholder: "both_mod_placeholder"
-      },
-    ]
-  });
-  survey.setDesignMode(true);
-  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
-  assert.equal(q1.getPropertyByName("dragAreaPlaceholder").visibleIf(q1), true);
-  assert.equal(q1.getPropertyByName("cameraPlaceholder").visibleIf(q1), false);
-  assert.equal(q1.getPropertyByName("fileCameraDragAreaPlaceholder").visibleIf(q1), false);
-
-  q1.sourceType = "camera";
-  assert.equal(q1.getPropertyByName("dragAreaPlaceholder").visibleIf(q1), false);
-  assert.equal(q1.getPropertyByName("cameraPlaceholder").visibleIf(q1), true);
-  assert.equal(q1.getPropertyByName("fileCameraDragAreaPlaceholder").visibleIf(q1), false);
-
-  q1.sourceType = "file-camera";
-
-  assert.equal(q1.getPropertyByName("dragAreaPlaceholder").visibleIf(q1), false);
-  assert.equal(q1.getPropertyByName("cameraPlaceholder").visibleIf(q1), false);
-  assert.equal(q1.getPropertyByName("fileCameraDragAreaPlaceholder").visibleIf(q1), true);
 });

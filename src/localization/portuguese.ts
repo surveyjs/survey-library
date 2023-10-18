@@ -47,7 +47,7 @@ export var portugueseSurveyStrings = {
   loadingFile: "A carregar...",
   chooseFile: "Selecione o(s) arquivo(s)...",
   noFileChosen: "Nenhum ficheiro escolhido",
-  fileDragAreaPlaceholder: "Arraste um ficheiro aqui ou clique no botão abaixo para carregar o ficheiro.",
+  filePlaceholder: "Arraste um ficheiro aqui ou clique no botão abaixo para carregar o ficheiro.",
   confirmDelete: "Tem a certeza que deseja apagar?",
   keyDuplicationError: "Este valor deve ser único.",
   addColumn: "Adicionar coluna",
@@ -76,8 +76,8 @@ export var portugueseSurveyStrings = {
   signaturePlaceHolder: "Assine aqui",
   chooseFileCaption: "Escolher ficheiro",
   takePhotoCaption: "Tirar foto",
-  cameraPlaceHolder: "Clique no botão abaixo para tirar uma foto usando a câmera.",
-  fileCameraDragAreaPlaceHolder: "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera.",
+  photoPlaceholder: "Clique no botão abaixo para tirar uma foto usando a câmera.",
+  fileOrPhotoPlaceholder: "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera.",
   replaceFileCaption: "Substituir arquivo",
   removeFileCaption: "Remover este ficheiro",
   booleanCheckedLabel: "Sim",
@@ -106,6 +106,6 @@ surveyLocalization.localeNames["pt"] = "português";
 // noEntriesReadonlyText: "There are no entries." => "Não há entradas."
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Todas as opções são classificadas"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arraste e solte as opções aqui para classificá-las"// takePhotoCaption: "Take Photo" => "Tirar foto"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Clique no botão abaixo para tirar uma foto usando a câmera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Clique no botão abaixo para tirar uma foto usando a câmera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera."
 // replaceFileCaption: "Replace file" => "Substituir arquivo"

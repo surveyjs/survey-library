@@ -1,5 +1,5 @@
 import Page from "./Page.vue";
-import Header from "./Header.vue";
+import HeaderBasic from "./Header.vue";
 import Row from "./Row.vue";
 import Element from "./Element.vue";
 import Panel from "./Panel.vue";
@@ -128,7 +128,7 @@ function registerComponents(app: App) {
   app.component("survey", SurveyVue);
   app.component("popup-survey", PopupSurvey);
 
-  app.component("survey-header", Header);
+  app.component("survey-header", HeaderBasic);
   app.component("survey-page", Page);
   app.component("survey-row", Row);
   app.component("survey-element", Element);

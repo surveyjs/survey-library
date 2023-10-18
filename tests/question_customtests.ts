@@ -2398,13 +2398,15 @@ QUnit.test("Single: Apply error css", function (assert) {
     questionJSON: { type: "text" },
   };
   ComponentCollection.Instance.add(json);
-  const survey = new SurveyModel({
+  const errorCss = "single_error";
+  const survey = new SurveyModel();
+  survey.css = { text: { onError: errorCss } };
+  survey.fromJSON({
     elements: [{ type: "newquestion", name: "q1", isRequired: true }],
   });
   const q = <QuestionCustomModel>survey.getAllQuestions()[0];
   const qText = <QuestionTextModel>q.contentQuestion;
-  const errorCss = qText.cssClasses.onError;
-  assert.ok(errorCss, "error css is not empty");
+  assert.equal(qText.cssClasses.onError, errorCss, "error css is correct");
   assert.equal(qText.getControlClass().indexOf(errorCss) < 0, true, "errors is not here");
   q.validate(true);
   assert.equal(qText.getControlClass().indexOf(errorCss) > -1, true, "errors is here");

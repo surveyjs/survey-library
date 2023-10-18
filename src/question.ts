@@ -68,6 +68,7 @@ export class Question extends SurveyElement<Question>
   focusCallback: () => void;
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
+  hasCssErrorCallback: () => boolean = (): boolean => false;
 
   private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
@@ -962,7 +963,7 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
-    const hasError = this.errors.length > 0;
+    const hasError = this.hasCssError();
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
@@ -1070,6 +1071,9 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.error.locationTop, this.showErrorOnTop)
       .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
+  }
+  protected hasCssError(): boolean {
+    return this.errors.length > 0 || this.hasCssErrorCallback();
   }
   public getRootCss(): string {
     return new CssClassBuilder()
@@ -2538,7 +2542,7 @@ export class Question extends SurveyElement<Question>
   public get ariaInvalid() {
     if (this.isNewA11yStructure) return null;
 
-    return this.errors.length > 0 ? "true" : "false";
+    return this.hasCssError() ? "true" : "false";
   }
   public get ariaLabelledBy(): string {
     if (this.isNewA11yStructure) return null;
@@ -2555,7 +2559,7 @@ export class Question extends SurveyElement<Question>
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;
 
-    return this.errors.length > 0 ? this.id + "_errors" : null;
+    return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO a11y
 
@@ -2567,7 +2571,7 @@ export class Question extends SurveyElement<Question>
     return this.isRequired ? "true" : "false";
   }
   public get a11y_input_ariaInvalid(): "true" | "false" {
-    return this.errors.length > 0 ? "true" : "false";
+    return this.hasCssError() ? "true" : "false";
   }
   public get a11y_input_ariaLabel(): string {
     if (this.hasTitle && !this.parentQuestion) {
@@ -2584,7 +2588,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    return this.errors.length > 0 ? this.id + "_errors" : null;
+    return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO new a11y
 }

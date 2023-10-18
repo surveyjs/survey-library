@@ -131,7 +131,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }

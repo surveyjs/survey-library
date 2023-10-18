@@ -689,6 +689,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       res.onUpdateCssClassesCallback = (css: any): void => {
         this.onUpdateQuestionCssClasses(res, css);
       };
+      res.hasCssErrorCallback = (): boolean => this.errors.length > 0;
     }
 
     return res;

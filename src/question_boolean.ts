@@ -175,7 +175,7 @@ export class QuestionBooleanModel extends Question {
   private getItemCssValue(css: any): string {
     return new CssClassBuilder()
       .append(css.item)
-      .append(css.itemOnError, this.errors.length > 0)
+      .append(css.itemOnError, this.hasCssError())
       .append(css.itemDisabled, this.isReadOnly)
       .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)

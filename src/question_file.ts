@@ -420,25 +420,21 @@ export class QuestionFileModel extends Question {
   public get locRenderedPlaceholder(): LocalizableString {
     if(this.locRenderedPlaceholderValue === undefined) {
       this.locRenderedPlaceholderValue = <LocalizableString><unknown>(new ComputedUpdater<LocalizableString>(() => {
-        const locDragAreaText = this.locDragAreaPlaceholder;
-        const locFileCameraDragAreaPlaceHolder = this.locFileCameraDragAreaPlaceholder;
-        const locCameraPlaceHolder = this.locCameraPlaceholder;
-        const locReadOnlyText = this.locNoFileChosenCaption;
         const isReadOnly = this.isReadOnly;
         const hasFileUI = (!this.isDesignMode && this.hasFileUI) || (this.isDesignMode && this.sourceType != "camera");
         const hasVideoUI = (!this.isDesignMode && this.hasVideoUI) || (this.isDesignMode && this.sourceType != "file");
         let renderedPlaceholder: LocalizableString;
         if(isReadOnly) {
-          renderedPlaceholder = locReadOnlyText;
+          renderedPlaceholder = this.locNoFileChosenCaption;
         }
-        else if (hasFileUI) {
-          if(hasVideoUI) {
-            renderedPlaceholder = locFileCameraDragAreaPlaceHolder;
-          } else {
-            renderedPlaceholder = locDragAreaText;
-          }
-        } else {
-          renderedPlaceholder = locCameraPlaceHolder;
+        else if(hasFileUI && hasVideoUI) {
+          renderedPlaceholder = this.locFileCameraDragAreaPlaceholder;
+        }
+        else if(hasFileUI) {
+          renderedPlaceholder = this.locDragAreaPlaceholder;
+        }
+        else {
+          renderedPlaceholder = this.locCameraPlaceholder;
         }
         return renderedPlaceholder;
       }));

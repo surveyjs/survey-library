@@ -11,7 +11,10 @@
         <div data-bind="css: question.cssClasses.dragArea, event: { dragenter: question.ondragenter, dragover: question.ondragover, drop: question.ondrop, dragleave: question.ondragleave }">     
           <!-- ko if: question.showFileDecorator -->
           <div data-bind="css: question.getFileDecoratorCss()">
-            <span data-bind="css: question.cssClasses.dragAreaPlaceholder, text: question.renderedPlaceholder"></span>
+            <span data-bind="css: question.cssClasses.dragAreaPlaceholder">
+              <!-- ko template: { name: 'survey-string', data: question.locRenderedPlaceholder } -->
+              <!-- /ko -->
+            </span>
             <div data-bind="css: question.cssClasses.wrapper">
               <!-- ko if: question.showChooseButton -->
                 <!-- ko component: { name: 'sv-file-choose-btn' } -->

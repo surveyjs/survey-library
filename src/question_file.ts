@@ -11,6 +11,7 @@ import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
 import { Camera } from "./utils/camera";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * A class that describes the File Upload question type.
@@ -179,7 +180,6 @@ export class QuestionFileModel extends Question {
       this.updateActions();
     });
     this.updateActions();
-
     this.actionsContainer.actions = [this.chooseFileAction, this.startCameraAction, this.cleanAction];
     this.fileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
@@ -416,34 +416,34 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "cameraPlaceHolder" } }) cameraPlaceholder: string;
   @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
 
-  @property() renderedPlaceholderValue: string;
-  public get renderedPlaceholder(): string {
-    if(this.renderedPlaceholderValue === undefined) {
-      this.renderedPlaceholderValue = <string><unknown>(new ComputedUpdater<string>(() => {
-        const dragAreaText = this.dragAreaPlaceholder;
-        const fileCameraDragAreaPlaceHolder = this.fileCameraDragAreaPlaceholder;
-        const cameraPlaceHolder = this.cameraPlaceholder;
-        const readOnlyText = this.noFileChosenCaption;
+  @property() locRenderedPlaceholderValue: LocalizableString;
+  public get locRenderedPlaceholder(): LocalizableString {
+    if(this.locRenderedPlaceholderValue === undefined) {
+      this.locRenderedPlaceholderValue = <LocalizableString><unknown>(new ComputedUpdater<LocalizableString>(() => {
+        const locDragAreaText = this.locDragAreaPlaceholder;
+        const locFileCameraDragAreaPlaceHolder = this.locFileCameraDragAreaPlaceholder;
+        const locCameraPlaceHolder = this.locCameraPlaceholder;
+        const locReadOnlyText = this.locNoFileChosenCaption;
         const isReadOnly = this.isReadOnly;
-        const hasFileUI = this.hasFileUI;
-        const hasVideoUI = this.hasVideoUI;
-        let renderedPlaceholder = "";
+        const hasFileUI = (!this.isDesignMode && this.hasFileUI) || (this.isDesignMode && this.sourceType != "camera");
+        const hasVideoUI = (!this.isDesignMode && this.hasVideoUI) || (this.isDesignMode && this.sourceType != "file");
+        let renderedPlaceholder: LocalizableString;
         if(isReadOnly) {
-          renderedPlaceholder = readOnlyText;
+          renderedPlaceholder = locReadOnlyText;
         }
-        else if(hasFileUI) {
+        else if (hasFileUI) {
           if(hasVideoUI) {
-            renderedPlaceholder = fileCameraDragAreaPlaceHolder;
+            renderedPlaceholder = locFileCameraDragAreaPlaceHolder;
           } else {
-            renderedPlaceholder = dragAreaText;
+            renderedPlaceholder = locDragAreaText;
           }
         } else {
-          renderedPlaceholder = cameraPlaceHolder;
+          renderedPlaceholder = locCameraPlaceHolder;
         }
         return renderedPlaceholder;
       }));
     }
-    return this.renderedPlaceholderValue;
+    return this.locRenderedPlaceholderValue;
   }
   public get currentMode(): string {
     return this.getPropertyValue("currentMode", this.sourceType);
@@ -1001,7 +1001,10 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
     { name: "allowCameraAccess:switch", category: "general" },
-    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true }
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true },
+    { name: "fileCameraDragAreaPlaceholder:text", serializationProperty: "locFileCameraDragAreaPlaceholder", category: "general", visibleIf: function (obj: any) { return obj.sourceType === "file-camera"; }, },
+    { name: "cameraPlaceholder:text", serializationProperty: "locCameraPlaceholder", category: "general", visibleIf: function (obj: any) { return obj.sourceType === "camera"; }, },
+    { name: "dragAreaPlaceholder:text", serializationProperty: "locDragAreaPlaceholder", category: "general", visibleIf: function (obj: any) { return obj.sourceType === "file"; }, },
   ],
   function () {
     return new QuestionFileModel("");

@@ -1388,12 +1388,12 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   });
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
   const q2 = <QuestionFileModel>survey.getQuestionByName("q2");
-  assert.equal(q1.renderedPlaceholder.substring(0, 4), "Drag", "q1 => drag");
-  assert.equal(q2.renderedPlaceholder.substring(0, 2), "No", "q2 => no file");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml.substring(0, 4), "Drag", "q1 => drag");
+  assert.equal(q2.locRenderedPlaceholder.renderedHtml.substring(0, 2), "No", "q2 => no file");
   q1.readOnly = true;
   q2.readOnly = false;
-  assert.equal(q1.renderedPlaceholder.substring(0, 2), "No", "q1, readOnly => no file");
-  assert.equal(q2.renderedPlaceholder.substring(0, 4), "Drag", "q2, not readOnly=> drag");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml.substring(0, 2), "No", "q1, readOnly => no file");
+  assert.equal(q2.locRenderedPlaceholder.renderedHtml.substring(0, 4), "Drag", "q2, not readOnly=> drag");
 });
 
 QUnit.test("QuestionFile current mode property, camera is not available", function(assert) {
@@ -1677,9 +1677,9 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes", function
   q1.dragAreaPlaceholder = "file_mod_placeholder";
   q1.cameraPlaceholder = "camera_mod_placeholder";
   q1.fileCameraDragAreaPlaceholder = "both_mod_placeholder";
-  assert.equal(q1.renderedPlaceholder, "file_mod_placeholder");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
   q1.setPropertyValue("currentMode", "camera");
-  assert.equal(q1.renderedPlaceholder, "camera_mod_placeholder");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "camera_mod_placeholder");
   q1.setPropertyValue("currentMode", "file-camera");
-  assert.equal(q1.renderedPlaceholder, "both_mod_placeholder");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
 });

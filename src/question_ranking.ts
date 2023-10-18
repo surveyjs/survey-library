@@ -47,7 +47,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.rootMobileMod, IsMobile)
       .append(this.cssClasses.rootDisabled, this.isReadOnly)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
-      .append(this.cssClasses.itemOnError, this.errors.length > 0)
+      .append(this.cssClasses.itemOnError, this.hasCssError())
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
       .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
       .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.selectToRankAreasLayout === "horizontal")

@@ -805,7 +805,7 @@ export class QuestionFileModel extends Question {
   public getFileDecoratorCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.fileDecorator)
-      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
       .toString();
   }

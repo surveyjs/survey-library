@@ -54,6 +54,9 @@ export class QuestionFileModel extends Question {
    * - `"file"` (default) - Allows respondents to select a local file.
    * - `"camera"` - Allows respondents to capture and upload a photo.
    * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   * @see filePlaceholder
+   * @see photoPlaceholder
+   * @see fileOrPhotoPlaceholder
    */
   @property({ onSet: (val: string, obj: QuestionFileModel) => {
     if(!obj.isLoadingFromJson) {
@@ -412,8 +415,23 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
+  /**
+   * A placeholder text displayed when the File Upload question doesn't contain any files or photos to upload. Applies only when [`sourceType`](#sourceType) value is `"file-camera"`.
+   * @see filePlaceholder
+   * @see photoPlaceholder
+   */
   @property({ localizable: { defaultStr: "fileOrPhotoPlaceholder" } }) fileOrPhotoPlaceholder: string;
+  /**
+   * A placeholder text displayed when the File Upload question doesn't contain any photos to upload. Applies only when the [`sourceType`](#sourceType) value is `"camera"`.
+   * @see filePlaceholder
+   * @see fileOrPhotoPlaceholder
+   */
   @property({ localizable: { defaultStr: "photoPlaceholder" } }) photoPlaceholder: string;
+  /**
+   * A placeholder text displayed when the File Upload question doesn't contain any files to upload. Applies only when the [`sourceType`](#sourceType) value is `"file"`.
+   * @see photoPlaceholder
+   * @see fileOrPhotoPlaceholder
+   */
   @property({ localizable: { defaultStr: "filePlaceholder" } }) filePlaceholder: string;
 
   @property() locRenderedPlaceholderValue: LocalizableString;

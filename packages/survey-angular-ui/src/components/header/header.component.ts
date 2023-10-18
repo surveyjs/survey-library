@@ -4,7 +4,7 @@ import { BaseAngular } from "../../base-angular";
 import { Cover, CoverCell, SurveyModel } from "survey-core";
 
 @Component({
-  selector: "sv-header, sv-ng-cover",
+  selector: "sv-header, sv-ng-header",
   templateUrl: "./header.component.html",
   styles: [":host { display: none }"]
 })

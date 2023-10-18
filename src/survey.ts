@@ -71,7 +71,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
-import { Cover } from "./cover";
+import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 
 /**

@@ -1,7 +1,7 @@
-import { Cover, CoverCell } from "../src/cover";
+import { Cover, CoverCell } from "../src/header";
 import { SurveyModel } from "../src/survey";
 
-export default QUnit.module("cover");
+export default QUnit.module("header");
 
 const surveyWithLogoTitkleAndDescription = new SurveyModel({
   title: "Survey New Design Test",

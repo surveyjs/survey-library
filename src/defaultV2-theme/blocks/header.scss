@@ -128,6 +128,8 @@
 
 .sv-header--mobile {
   padding: calcSize(3);
+  position: relative;
+  z-index: 1;
 
   .sv-header__logo~.sv-header__title {
     margin-top: calcSize(3);

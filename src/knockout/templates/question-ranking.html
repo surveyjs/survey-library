@@ -2,7 +2,7 @@
    <!-- ko ifnot: question.selectToRankEnabled -->
   <div data-bind="css: question.rootClass">
     <!-- ko foreach: { data: question.rankingChoices, as: 'item', afterRender: question.koAfterRender } -->
-      <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
+      <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { number: question.getNumberByIndex($index()), componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
       <!-- /ko -->
     <!-- /ko -->
   </div>
@@ -12,7 +12,7 @@
   <div data-bind="css: question.rootClass">
     <div data-bind="css: question.getContainerClasses('from')" data-ranking="from-container">
       <!-- ko foreach: { data: question.unRankingChoices, as: 'item', afterRender: question.koAfterRender } -->
-        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { unrankedItem: true, componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
+        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { number: '', componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.unRankingChoices.length === 0 -->
@@ -22,7 +22,7 @@
     <div data-bind="css: cssClasses.containersDivider"></div>
     <div data-bind="css: question.getContainerClasses('to')" data-ranking="to-container">
       <!-- ko foreach: { data: question.rankingChoices, as: 'item', afterRender: question.koAfterRender } -->
-        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
+        <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { number: question.getNumberByIndex($index()), componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-ranking-item', data: item } } } -->
         <!-- /ko -->
       <!-- /ko -->
       <!-- ko if: question.rankingChoices.length === 0 -->
@@ -64,9 +64,20 @@
             <path d="M6 19V15H4V19H0L5 24L10 19H6Z" />
           </svg>
         </div>
+        <!-- ko if: $parent.number -->
         <div
-          data-bind="css: question.getItemIndexClasses(item), text: $parent.unrankedItem ? '' : question.getNumberByIndex($index())"
+          data-bind="css: question.getItemIndexClasses(item), text: $parent.number"
         ></div>
+        <!-- /ko -->
+        <!-- ko ifnot: $parent.number -->
+        <div
+          data-bind="css: question.getItemIndexClasses(item)"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16">
+            <path d="M13 7H3V9H13V7Z"/>
+          </svg>
+        </div>
+        <!-- /ko -->
         <div data-bind="css: question.cssClasses.controlLabel">
           <!-- ko template: { name: 'survey-string', data: $data.locText } -->
           <!-- /ko -->

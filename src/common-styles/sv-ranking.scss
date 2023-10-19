@@ -92,11 +92,8 @@
   font-weight: 600;
   margin-left: calcSize(0);
 
-  &:empty {
-    background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAArSURBVHgB7cuhEQAwDMNAtUN4//m8RMtygcE5PxMQxAKnh6Q3mWzXd4mAD4cJBAQCqfbUAAAAAElFTkSuQmCC");
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: multiply(1, $font-editorfont-size);
+  svg {
+      fill: $font-questiontitle-color;
   }
 }
 

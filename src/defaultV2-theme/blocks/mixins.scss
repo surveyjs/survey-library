@@ -14,14 +14,9 @@
   font-size: var(--survey-title-font-size);
   line-height: multiply(1.25, var(--survey-title-font-size));
 }
-@mixin survey_title_h5 {
-  --survey-title-font-size: var(--sjs-font-surveytitle-size, var(--sjs-font-size, 16px));
-  font-size: var(--survey-title-font-size);
-  line-height: multiply(1.5, var(--survey-title-font-size));
-}
 
 @mixin survey_description {
-  --survey-description-font-size: var(--sjs-font-surveydescription-size, calc(2 * (var(--sjs-font-size, 16px))));
+  --survey-description-font-size: var(--sjs-font-surveydescription-size, var(--sjs-font-size, 16px));
   font-size: var(--survey-description-font-size);
   line-height: multiply(1.25, var(--survey-description-font-size));
 }
@@ -33,9 +28,9 @@
 }
 
 @mixin header_description {
-  --header-description-font-size: var(--sjs-font-headerdescription-size, calc(2 * (var(--sjs-font-size, 16px))));
+  --header-description-font-size: var(--sjs-font-headerdescription-size, var(--sjs-font-size, 16px));
   font-size: var(--header-description-font-size);
-  line-height: multiply(1.25, var(--header-description-font-size));
+  line-height: multiply(1.5, var(--header-description-font-size));
 }
 
 @mixin page_description {

@@ -72,9 +72,8 @@ $font-headertitle-weight: var(--sjs-font-headertitle-weight, 700);
 $font-headertitle-color: var(--sjs-font-headertitle-color, #{$foreground-dim});
 
 $font-headerdescription-family: var(--sjs-font-headerdescription-family, var(--font-family));
-$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 700);
+$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 400);
 $font-headerdescription-color: var(--sjs-font-headerdescription-color, #{$foreground-dim-light});
-$font-headerdescription-size: var(--sjs-font-headerdescription-size);
 
 $font-pagetitle-family: var(--sjs-font-pagetitle-family, var(--font-family));
 $font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);

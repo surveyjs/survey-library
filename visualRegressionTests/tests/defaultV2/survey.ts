@@ -145,6 +145,36 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-advanced-header-mobile-default.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
+  test("Check survey advanced header mobile view with background", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.applyTheme({
+          cssVariables: {
+            "--sjs-cover-backcolor": "green"
+          },
+          header: {
+          }
+        });
+        (<any>window).survey.setIsMobile(true);
+      })();
+      await takeElementScreenshot("survey-advanced-header-mobile-background.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
   test("Check survey with progress top", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

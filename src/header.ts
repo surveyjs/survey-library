@@ -75,20 +75,20 @@ export class Cover extends Base {
     }
     return backgroundImageFit;
   }
-  private updateCoverClasses(): void {
-    this.coverClasses = new CssClassBuilder()
+  private updateHeaderClasses(): void {
+    this.headerClasses = new CssClassBuilder()
       .append("sv-header")
-      .append("sv-conver__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
-      .append("sv-conver__overlap", this.overlapEnabled)
+      .append("sv-header__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
+      .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
   private updateContentClasses(): void {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
     this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.renderedWidth;
     this.contentClasses = new CssClassBuilder()
-      .append("sv-conver__content")
-      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
-      .append("sv-conver__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
+      .append("sv-header__content")
+      .append("sv-header__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
+      .append("sv-header__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
       .toString();
   }
   private updateBackgroundImageClasses(): void {
@@ -111,7 +111,7 @@ export class Cover extends Base {
     ["top", "middle", "bottom"].forEach((positionY: VerticalAlignment) =>
       ["left", "center", "right"].forEach((positionX: HorizontalAlignment) => this.cells.push(new CoverCell(this, positionX, positionY)))
     );
-    this.updateCoverClasses();
+    this.updateHeaderClasses();
     this.updateContentClasses();
     this.updateBackgroundImageClasses();
   }
@@ -144,7 +144,7 @@ export class Cover extends Base {
   @property() logoStyle: { gridColumn: number, gridRow: number };
   @property() titleStyle: { gridColumn: number, gridRow: number };
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
-  @property() coverClasses: string;
+  @property() headerClasses: string;
   @property() contentClasses: string;
   @property() maxWidth: string;
   @property() backgroundImageClasses: string;
@@ -183,7 +183,7 @@ export class Cover extends Base {
   protected propertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.propertyValueChanged(name, oldValue, newValue);
     if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
-      this.updateCoverClasses();
+      this.updateHeaderClasses();
     }
     if (name === "inheritWidthFrom") {
       this.updateContentClasses();

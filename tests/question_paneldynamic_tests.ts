@@ -6425,5 +6425,11 @@ QUnit.test("question.setValueIf, basic functionality", function (assert) {
   q2.value = "edf";
   assert.equal(q2.value, "edf", "value is set, #2");
   q3.value = 5;
-  assert.equal(q2.value, "edf", "value is stay, #3");
+  assert.equal(q2.value, 1 + 5, "value is set, #3");
+  q2.value = "klm";
+  assert.equal(q2.value, "klm", "value is set, #4");
+  q1.value = 2;
+  assert.equal(q2.value, "klm", "value is set, #5");
+  q3.value = 5;
+  assert.equal(q2.value, "klm", "value is set, #6");
 });

@@ -7401,20 +7401,10 @@ QUnit.test("question.resetValueIf and invisibleQuestions", function (assert) {
 });
 QUnit.test("question.setValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
-    elements: [{
-      "name": "q1",
-      "type": "text"
-    },
-    {
-      "name": "q2",
-      "type": "text",
-      "setValueIf": "{q1} = 1",
-      "setValueExpression": "{q1} + {q3}"
-    },
-    {
-      "name": "q3",
-      "type": "text"
-    }
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueIf": "{q1} = 1", "setValueExpression": "{q1} + {q3}" },
+      { "name": "q3", "type": "text" }
     ] });
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
@@ -7430,7 +7420,58 @@ QUnit.test("question.setValueIf, basic functionality", function (assert) {
   q2.value = "edf";
   assert.equal(q2.value, "edf", "value is set, #2");
   q3.value = 5;
-  assert.equal(q2.value, "edf", "value is stay, #3");
+  assert.equal(q2.value, 1 + 5, "{q3} is changed");
+  q2.value = "klm";
+  assert.equal(q2.value, "klm", "value is set, #3");
+  q1.value = 2;
+  assert.equal(q2.value, "klm", "value is set, #4");
+  q3.value = 7;
+  assert.equal(q2.value, "klm", "value is set, #5");
+});
+QUnit.test("question.setValueIf, setValueExpression is empty", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueIf": "{q1} = 1" },
+      { "name": "q3", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is clear");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is keep, #3");
+  q1.value = 2;
+  assert.equal(q2.value, "edf", "value is keep, #3");
+});
+QUnit.test("question.setValueIf is empty, setValueExpression is not empty", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueExpression": "{q1} + {q3}" },
+      { "name": "q3", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.setValueExpression, "{q1} + {q3}", "Load from JSON, setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, 2 + 3, "value is set");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, 2 + 5, "value is keep, #3");
+  q1.value = 3;
+  assert.equal(q2.value, 3 + 5, "value is keep, #4");
 });
 
 QUnit.test("question.isReady & async functions in expression", function (assert) {

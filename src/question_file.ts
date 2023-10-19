@@ -12,6 +12,7 @@ import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
 import { Camera } from "./utils/camera";
 import { LocalizableString } from "./localizablestring";
+import { settings } from "./settings";
 
 /**
  * A class that describes the File Upload question type.
@@ -1015,10 +1016,10 @@ Serializer.addClass(
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
     { name: "allowCameraAccess:switch", category: "general" },
-    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true },
-    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general" },
-    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general" },
-    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general" },
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true, visibleIf: () => settings.supportCreatorV2 },
+    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
+    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
+    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
   ],
   function () {
     return new QuestionFileModel("");

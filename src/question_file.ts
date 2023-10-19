@@ -820,7 +820,7 @@ export class QuestionFileModel extends Question {
   public getFileDecoratorCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.fileDecorator)
-      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.fileDecoratorDrag, this.isDragging)
       .toString();
   }
@@ -1004,7 +1004,14 @@ Serializer.addClass(
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
-    { name: "allowImagesPreview:boolean", default: true },
+    {
+      name: "allowImagesPreview:boolean",
+      default: true,
+      dependsOn: "showPreview",
+      visibleIf: (obj: any) => {
+        return !!obj.showPreview;
+      },
+    },
     "imageHeight",
     "imageWidth",
     "acceptedTypes",
@@ -1015,11 +1022,11 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
-    { name: "allowCameraAccess:switch", category: "general" },
     { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true, visibleIf: () => settings.supportCreatorV2 },
     { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
     { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
     { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
+    { name: "allowCameraAccess:switch", category: "general", visible: false },
   ],
   function () {
     return new QuestionFileModel("");

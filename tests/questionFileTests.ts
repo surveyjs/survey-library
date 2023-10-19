@@ -1737,3 +1737,14 @@ QUnit.test("QuestionFile check placeholders are serializable", function(assert) 
   q1.sourceType = "file-camera";
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
 });
+QUnit.test("QuestionFile allowImagesPreview and allowCameraAccess", function (assert) {
+  const prop1 = Serializer.getProperty("file", "allowImagesPreview");
+  assert.deepEqual(Serializer.getProperty("file", "showPreview").getDependedProperties(), [prop1.name]);
+  const q1 = new QuestionFileModel("q1");
+  q1.showPreview = true;
+  assert.equal(prop1.isVisible(undefined, q1), true);
+  q1.showPreview = false;
+  assert.equal(prop1.isVisible(undefined, q1), false);
+  const prop2 = Serializer.getProperty("file", "allowCameraAccess");
+  assert.equal(prop2.visible, false);
+});

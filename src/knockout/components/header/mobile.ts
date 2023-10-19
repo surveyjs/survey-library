@@ -1,14 +1,13 @@
 import * as ko from "knockout";
 import { ImplementorBase } from "../../kobase";
 
-const template = require("./cover.html");
+const template = require("./mobile.html");
 
-ko.components.register("sv-cover", {
+ko.components.register("sv-header-mobile", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      params.model.survey = params.survey;
-      new ImplementorBase(params.model);
-      return params;
+      // new ImplementorBase(params.model);
+      return params.model;
     },
   },
   template: template,

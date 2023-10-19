@@ -157,6 +157,6 @@
 .sd-question__title--empty {
   .sv-string-viewer {
     display: inline-block;
-    height: calcSize(3);
+    height: multiply(1.5, $font-questiontitle-size);
   }
 }

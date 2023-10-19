@@ -726,7 +726,7 @@ export class QuestionRatingModel extends Question {
       .append(itemScaleColoredClass, this.scaleColorMode == "colored")
       .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
       .append(itemUnhighlightedClass, isUnhighlighted)
-      .append(itemitemOnErrorClass, this.errors.length > 0)
+      .append(itemitemOnErrorClass, this.hasCssError())
       .append(itemSmallClass, this.itemSmallMode)
       .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
@@ -737,7 +737,7 @@ export class QuestionRatingModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }

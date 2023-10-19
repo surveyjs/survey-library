@@ -7,7 +7,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { wrapUrlForBackgroundImage } from "./utils/utils";
 
 export class CoverCell {
-  static CLASSNAME = "sv-cover__cell";
+  static CLASSNAME = "sv-header__cell";
   private calcRow(positionY: VerticalAlignment): any {
     return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
@@ -75,32 +75,32 @@ export class Cover extends Base {
     }
     return backgroundImageFit;
   }
-  private updateCoverClasses(): void {
-    this.coverClasses = new CssClassBuilder()
-      .append("sv-cover")
-      .append("sv-conver__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
-      .append("sv-conver__overlap", this.overlapEnabled)
+  private updateHeaderClasses(): void {
+    this.headerClasses = new CssClassBuilder()
+      .append("sv-header")
+      .append("sv-header__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
+      .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
   private updateContentClasses(): void {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
     this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.renderedWidth;
     this.contentClasses = new CssClassBuilder()
-      .append("sv-conver__content")
-      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
-      .append("sv-conver__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
+      .append("sv-header__content")
+      .append("sv-header__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
+      .append("sv-header__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
       .toString();
   }
   private updateBackgroundImageClasses(): void {
     this.backgroundImageClasses = new CssClassBuilder()
-      .append("sv-cover__background-image")
-      .append("sv-cover__background-image--contain", this.backgroundImageFit === "contain")
-      .append("sv-cover__background-image--tile", this.backgroundImageFit === "tile")
+      .append("sv-header__background-image")
+      .append("sv-header__background-image--contain", this.backgroundImageFit === "contain")
+      .append("sv-header__background-image--tile", this.backgroundImageFit === "tile")
       .toString();
   }
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header);
-    if(!!theme.cssVariables) {
+    if (!!theme.cssVariables) {
       this.backgroundColor = theme.cssVariables["--sjs-cover-backcolor"];
     }
   }
@@ -111,7 +111,7 @@ export class Cover extends Base {
     ["top", "middle", "bottom"].forEach((positionY: VerticalAlignment) =>
       ["left", "center", "right"].forEach((positionX: HorizontalAlignment) => this.cells.push(new CoverCell(this, positionX, positionY)))
     );
-    this.updateCoverClasses();
+    this.updateHeaderClasses();
     this.updateContentClasses();
     this.updateBackgroundImageClasses();
   }
@@ -144,13 +144,13 @@ export class Cover extends Base {
   @property() logoStyle: { gridColumn: number, gridRow: number };
   @property() titleStyle: { gridColumn: number, gridRow: number };
   @property() descriptionStyle: { gridColumn: number, gridRow: number };
-  @property() coverClasses: string;
+  @property() headerClasses: string;
   @property() contentClasses: string;
   @property() maxWidth: string;
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
-    return this.height ? this.height + "px" : undefined;
+    return this.height && (this.survey && !this.survey.isMobile || !this.survey) ? this.height + "px" : undefined;
   }
   public get renderedtextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
@@ -159,10 +159,10 @@ export class Cover extends Base {
     return this._survey;
   }
   public set survey(newValue: SurveyModel) {
-    if(this._survey === newValue) return;
+    if (this._survey === newValue) return;
 
     this._survey = newValue;
-    if(!!newValue) {
+    if (!!newValue) {
       this.updateContentClasses();
       this._survey.onPropertyChanged.add((sender: any, options: any) => {
         if (options.name == "widthMode" || options.name == "width") {
@@ -183,7 +183,7 @@ export class Cover extends Base {
   protected propertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.propertyValueChanged(name, oldValue, newValue);
     if (name === "backgroundColor" || name === "backgroundImage" || name === "overlapEnabled") {
-      this.updateCoverClasses();
+      this.updateHeaderClasses();
     }
     if (name === "inheritWidthFrom") {
       this.updateContentClasses();

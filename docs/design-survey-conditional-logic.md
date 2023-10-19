@@ -632,23 +632,24 @@ This technique has one drawback: if a question contains many items, you have to 
 
 You can specify one expression that will run against every item (choice, row, column). If the expression evaluates to `true`, the item becomes visible. Assign your expression to the [`choicesVisibleIf`](/Documentation/Library?id=QuestionSelectBase#choicesVisibleIf), [`rowsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#rowsVisibleIf), or [`columnsVisibleIf`](/Documentation/Library?id=questionmatrixmodel#columnsVisibleIf) property. To access the current item, use the `{item}` operand.
 
-The following code shows how to specify the `choicesVisibleIf` property. `choices` in the `"default"` question are filtered based on the `"installed"` question. `choices` in the `"secondChoice"` question depend on both the `"installed"` and `"default"` questions.
+The following code shows how to specify the `choicesVisibleIf` property. The `"default"` question includes selected choices from the `"installed"` question. The `"secondChoice"` question also includes selected choices from the `"installed"` question, but uses the `choiceVisibleIf` property to filter out the choice selected in the `"default"` question.
 
 ```js
 const surveyJson = {
   "elements": [{
     "name": "installed",
-    "choices": ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"],
+    "choices": ["Google Chrome", "Microsoft Edge", "Firefox", "Internet Explorer", "Safari", "Opera"],
     // ...
   }, {
     "name": "default",
-    "choices": ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"],
-    "choicesVisibleIf": "{installed} contains {item}",
+    "choicesFromQuestion": "installed",
+    "choicesFromQuestionMode": "selected"
     // ...
   }, {
     "name": "secondChoice",
-    "choices": ["Chrome", "MS Edge", "FireFox", "Internet Explorer", "Safari", "Opera"],
-    "choicesVisibleIf": "{installed} contains {item} and {item} != {default}",
+    "choicesFromQuestion": "installed",
+    "choicesFromQuestionMode": "selected",
+    "choicesVisibleIf": "{item} != {default}",
     // ...
   }]
 }

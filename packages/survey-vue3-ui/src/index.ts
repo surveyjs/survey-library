@@ -1,5 +1,5 @@
 import Page from "./Page.vue";
-import Header from "./Header.vue";
+import HeaderBasic from "./Header.vue";
 import Row from "./Row.vue";
 import Element from "./Element.vue";
 import Panel from "./Panel.vue";
@@ -102,8 +102,9 @@ import Custom from "./Custom.vue";
 import TimerPanel from "./TimerPanel.vue";
 import LoadingIndicator from "./components/LoadingIndicator.vue";
 
-import Cover from "./components/cover/Cover.vue";
-import CoverCell from "./components/cover/CoverCell.vue";
+import Header from "./components/header/Header.vue";
+import HeaderCell from "./components/header/HeaderCell.vue";
+import HeaderMobile from "./components/header/HeaderMobile.vue";
 
 import {
   SurveyModel,
@@ -127,7 +128,7 @@ function registerComponents(app: App) {
   app.component("survey", SurveyVue);
   app.component("popup-survey", PopupSurvey);
 
-  app.component("survey-header", Header);
+  app.component("survey-header", HeaderBasic);
   app.component("survey-page", Page);
   app.component("survey-row", Row);
   app.component("survey-element", Element);
@@ -239,8 +240,9 @@ function registerComponents(app: App) {
   app.component("sv-timerpanel", TimerPanel);
   app.component("sv-loading-indicator", LoadingIndicator);
 
-  app.component("sv-cover", Cover);
-  app.component("sv-cover-cell", CoverCell);
+  app.component("sv-header", Header);
+  app.component("sv-header-cell", HeaderCell);
+  app.component("sv-header-mobile", HeaderMobile);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

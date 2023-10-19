@@ -71,7 +71,7 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
-import { Cover } from "./cover";
+import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 
 /**
@@ -1195,7 +1195,7 @@ export class SurveyModel extends SurveyElementCore
           target.layoutElements.unshift({
             id: "cover",
             container: "header",
-            component: "sv-cover",
+            component: "sv-header",
             data: cover
           });
         }
@@ -6344,8 +6344,8 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
-    if(this.isLastPage && (this.goNextPageAutomatic !== true || !this.allowCompleteSurveyAutomatic)) return;
-    if(this.checkIsCurrentPageHasErrors(false)) return;
+    if (this.isLastPage && (this.goNextPageAutomatic !== true || !this.allowCompleteSurveyAutomatic)) return;
+    if (this.checkIsCurrentPageHasErrors(false)) return;
     const goNextPage = () => {
       if (!this.isLastPage) {
         this.nextPage();
@@ -7364,7 +7364,7 @@ export class SurveyModel extends SurveyElementCore
         this.layoutElements.push({
           id: "cover",
           container: "header",
-          component: "sv-cover",
+          component: "sv-header",
           data: newCoverModel
         });
       }

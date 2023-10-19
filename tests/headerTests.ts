@@ -81,16 +81,16 @@ QUnit.test("contentClasses",
 
     assert.equal(cover.survey.widthMode, "auto", "default widthMode");
     assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--static", "default contentClasses");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "default contentClasses");
 
     cover.survey.widthMode = "responsive";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "survey.widthMode is responsive");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "survey.widthMode is responsive");
 
     cover.survey.widthMode = "static";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--static", "survey.widthMode is static");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "survey.widthMode is static");
 
     cover.inheritWidthFrom = "container";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "inheritWidthFrom is container");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "inheritWidthFrom is container");
   }
 );
 

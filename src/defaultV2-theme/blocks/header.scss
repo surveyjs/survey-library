@@ -17,11 +17,11 @@
   padding-bottom: 0;
 }
 
-.sv-conver__without-background .sv-conver__content {
+.sv-conver__without-background .sv-header__content {
   padding-bottom: 0;
 }
 
-.sv-conver__content {
+.sv-header__content {
   padding: calcSize(5);
   box-sizing: border-box;
   height: 100%;
@@ -33,7 +33,7 @@
   grid-auto-rows: 1fr 1fr 1fr;
 }
 
-.sv-conver__content--static {
+.sv-header__content--static {
   max-width: calcSize(88);
   margin-left: auto;
   margin-right: auto;
@@ -94,22 +94,22 @@
 }
 
 .sv-header__title .sd-title {
-  @include cover_title;
+  @include header_title;
+  color: $font-headertitle-color;
+  font-family: $font-headertitle-family;
+  font-weight: $font-headertitle-weight;
   margin: 0;
-  color: $cover-title-forecolor;
-  font-family: $font-surveytitle-family;
-  font-weight: $font-surveytitle-weight;
 }
 
-.sv-header__logo~.sv-header__title {
+.sv-header__logo ~ .sv-header__title {
   margin-top: calcSize(4);
 }
 
-.sv-header__logo~.sv-header__description {
+.sv-header__logo ~ .sv-header__description {
   margin-top: calcSize(4);
 }
 
-.sv-header__title~.sv-header__description {
+.sv-header__title ~ .sv-header__description {
   margin-top: calcSize(1);
 }
 
@@ -118,10 +118,13 @@
 }
 
 .sv-header__description .sd-description {
+  @include header_description;
+  color: $font-headerdescription-color;
+  font-family: $font-headerdescription-family;
+  font-weight: $font-headerdescription-weight;
   margin: 0;
-  color: $cover-description-forecolor;
 }
 
-.sv-conver__content .sd-header__text h3 {
+.sv-header__content .sd-header__text h3 {
   margin: 0;
 }

@@ -86,9 +86,9 @@ export class Cover extends Base {
     const surveyWidthMode = !!this.survey && this.survey.calculateWidthMode();
     this.maxWidth = this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static" && this.survey.renderedWidth;
     this.contentClasses = new CssClassBuilder()
-      .append("sv-conver__content")
-      .append("sv-conver__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
-      .append("sv-conver__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
+      .append("sv-header__content")
+      .append("sv-header__content--static", this.inheritWidthFrom === "survey" && !!surveyWidthMode && surveyWidthMode === "static")
+      .append("sv-header__content--responsive", this.inheritWidthFrom === "container" || (!!surveyWidthMode && surveyWidthMode === "responsive"))
       .toString();
   }
   private updateBackgroundImageClasses(): void {
@@ -101,7 +101,7 @@ export class Cover extends Base {
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header);
     if (!!theme.cssVariables) {
-      this.backgroundColor = theme.cssVariables["--sjs-cover-backcolor"];
+      this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
     }
   }
 

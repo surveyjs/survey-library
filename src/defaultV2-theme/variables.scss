@@ -31,9 +31,7 @@ $foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #9
 $foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
-$cover-backcolor: var(--sjs-cover-backcolor);
-$cover-title-forecolor: var(--sjs-cover-title-forecolor, #{$foreground-dim});
-$cover-description-forecolor: var(--sjs-cover-description-forecolor, #{$foreground-dim-light});
+$header-backcolor: var(--sjs-header-backcolor);
 
 $border: var(--sjs-border-default, var(--border, #d6d6d6));
 $border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
@@ -62,6 +60,21 @@ $font-size: var(--sjs-font-size, 16px);
 
 $font-surveytitle-family: var(--sjs-font-surveytitle-family, var(--font-family));
 $font-surveytitle-weight: var(--sjs-font-surveytitle-weight, 700);
+$font-surveytitle-color: var(--sjs-font-surveytitle-color, #{$primary});
+
+$font-surveydescription-family: var(--sjs-font-surveydescription-family, var(--font-family));
+$font-surveydescription-weight: var(--sjs-font-surveydescription-weight, 400);
+$font-surveydescription-color: var(--sjs-font-surveydescription-color, #{$foreground-light});
+$font-surveydescription-size: var(--sjs-font-surveydescription-size, var(--sjs-font-size, 16px));
+
+$font-headertitle-family: var(--sjs-font-headertitle-family, var(--font-family));
+$font-headertitle-weight: var(--sjs-font-headertitle-weight, 700);
+$font-headertitle-color: var(--sjs-font-headertitle-color, #{$foreground-dim});
+
+$font-headerdescription-family: var(--sjs-font-headerdescription-family, var(--font-family));
+$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 700);
+$font-headerdescription-color: var(--sjs-font-headerdescription-color, #{$foreground-dim-light});
+$font-headerdescription-size: var(--sjs-font-headerdescription-size);
 
 $font-pagetitle-family: var(--sjs-font-pagetitle-family, var(--font-family));
 $font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);

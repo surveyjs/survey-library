@@ -100,7 +100,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-body.png", Selector(".sd-body"), t, comparer);
     });
   });
-  test("Check survey default cover", async (t) => {
+  test("Check survey default advanced header view", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
@@ -119,7 +119,30 @@ frameworks.forEach(framework => {
       await ClientFunction(() => {
         (<any>window).survey.headerView = "advanced";
       })();
-      await takeElementScreenshot("survey-cover-default.png", Selector(".sd-root-modern"), t, comparer);
+      await takeElementScreenshot("survey-advanced-header-default.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check survey default advanced header mobile view", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.setIsMobile(true);
+      })();
+      await takeElementScreenshot("survey-advanced-header-mobile-default.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
   test("Check survey with progress top", async (t) => {

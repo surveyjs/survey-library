@@ -7,7 +7,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { wrapUrlForBackgroundImage } from "./utils/utils";
 
 export class CoverCell {
-  static CLASSNAME = "sv-cover__cell";
+  static CLASSNAME = "sv-header__cell";
   private calcRow(positionY: VerticalAlignment): any {
     return positionY === "top" ? 1 : (positionY === "middle" ? 2 : 3);
   }
@@ -77,7 +77,7 @@ export class Cover extends Base {
   }
   private updateCoverClasses(): void {
     this.coverClasses = new CssClassBuilder()
-      .append("sv-cover")
+      .append("sv-header")
       .append("sv-conver__without-background", (!this.backgroundColor || this.backgroundColor === "trasparent") && !this.backgroundImage)
       .append("sv-conver__overlap", this.overlapEnabled)
       .toString();
@@ -93,14 +93,14 @@ export class Cover extends Base {
   }
   private updateBackgroundImageClasses(): void {
     this.backgroundImageClasses = new CssClassBuilder()
-      .append("sv-cover__background-image")
-      .append("sv-cover__background-image--contain", this.backgroundImageFit === "contain")
-      .append("sv-cover__background-image--tile", this.backgroundImageFit === "tile")
+      .append("sv-header__background-image")
+      .append("sv-header__background-image--contain", this.backgroundImageFit === "contain")
+      .append("sv-header__background-image--tile", this.backgroundImageFit === "tile")
       .toString();
   }
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header);
-    if(!!theme.cssVariables) {
+    if (!!theme.cssVariables) {
       this.backgroundColor = theme.cssVariables["--sjs-cover-backcolor"];
     }
   }
@@ -150,7 +150,7 @@ export class Cover extends Base {
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
-    return this.height ? this.height + "px" : undefined;
+    return this.height && (this.survey && !this.survey.isMobile || !this.survey) ? this.height + "px" : undefined;
   }
   public get renderedtextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
@@ -159,10 +159,10 @@ export class Cover extends Base {
     return this._survey;
   }
   public set survey(newValue: SurveyModel) {
-    if(this._survey === newValue) return;
+    if (this._survey === newValue) return;
 
     this._survey = newValue;
-    if(!!newValue) {
+    if (!!newValue) {
       this.updateContentClasses();
       this._survey.onPropertyChanged.add((sender: any, options: any) => {
         if (options.name == "widthMode" || options.name == "width") {

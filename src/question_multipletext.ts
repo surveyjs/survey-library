@@ -17,7 +17,7 @@ import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Helpers } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 
@@ -585,6 +585,10 @@ export class QuestionMultipleTextModel extends Question
       }
       this.items[i].onValueChanged(itemValue);
     }
+  }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runCondition(values, properties);
+    this.items.forEach(item => item.editor.runCondition(values, properties));
   }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;

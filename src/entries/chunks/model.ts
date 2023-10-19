@@ -213,7 +213,7 @@ export {
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
 export { Notifier } from "../../notifier";
-export { Cover, CoverCell } from "../../cover";
+export { Cover, CoverCell } from "../../header";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";

@@ -1,11 +1,14 @@
 <template>
   <div :class="model.coverClasses" :style="{ 'height': model.renderedHeight }">
     <div v-if="!!model.backgroundImage" :class="model.backgroundImageClasses" :style="model.backgroundImageStyle"></div>
-    <div :class="model.contentClasses" :style="{ maxWidth: model.maxWidth }">
-    <sv-cover-cell
+    <div v-if="!survey.isMobile" :class="model.contentClasses" :style="{ maxWidth: model.maxWidth }">
+    <sv-header-cell
       v-for="cell in model.cells"
       :model="cell"
-    ></sv-cover-cell>
+    ></sv-header-cell>
+    </div>
+    <div v-if="survey.isMobile">
+    <sv-header-mobile :model="model"></sv-header-mobile>
     </div>
   </div>
 </template>
@@ -16,10 +19,11 @@ import Vue from "vue";
 import { Base, SurveyModel, Cover, CoverCell } from "survey-core";
 import { BaseVue } from "../../base";
 
-export * from "./cover-cell.vue";
+export * from "./header-cell.vue";
+export * from "./header-mobile.vue";
 
 @Component
-export class CoverViewModel extends BaseVue {
+export class HeaderViewModel extends BaseVue {
   @Prop() model: Cover;
   @Prop() survey: SurveyModel;
   constructor(props: any) {
@@ -31,6 +35,6 @@ export class CoverViewModel extends BaseVue {
   }
 }
 
-Vue.component("sv-cover", CoverViewModel);
-export default CoverViewModel;
+Vue.component("sv-header", HeaderViewModel);
+export default HeaderViewModel;
 </script>

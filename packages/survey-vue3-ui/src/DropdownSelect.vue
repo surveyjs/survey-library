@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.renderCssRoot">
+  <div :class="question.renderCssRoot" ref="root">
     <div :class="question.cssClasses.selectWrapper">
       <select
         v-if="!question.isReadOnly"

@@ -1,6 +1,7 @@
 <template>
   <div
     :class="question.cssClasses.root"
+    ref="root"
     v-on:keydown="question.onKeyDownCore($event)"
   >
     <label :class="question.getItemCss()">

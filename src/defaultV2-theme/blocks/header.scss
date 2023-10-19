@@ -134,4 +134,8 @@
   .sv-header__logo~.sv-header__title {
     margin-top: calcSize(3);
   }
+
+  .sv-header__logo img {
+    max-width: 100%;
+  }
 }

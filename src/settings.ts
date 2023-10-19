@@ -9,7 +9,7 @@ export type ISurveyEnvironment = {
   stylesSheetsMountContainer: HTMLElement,
 }
 const document = globalThis.document;
-const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> (!!document ? {
+const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ? {
   root: document,
 
   _rootElement: document.body,
@@ -510,8 +510,8 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void): boolean {
-    return showConfirmDialog(message, callback);
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string): boolean {
+    return showConfirmDialog(message, callback, applyTitle);
   },
   /**
    * A minimum width value for all survey elements.
@@ -596,7 +596,7 @@ export var settings = {
       displayMode?: "popup" | "overlay"
     ) => any
     >undefined,
-  showDialog: < (options: IDialogOptions, rootElement?: HTMLElement) => any >undefined,
+  showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,
   /**

@@ -830,4 +830,37 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-descriptionLocation-underInput.png", questionRows.nth(3), t, comparer);
     });
   });
+
+  test("Question empty title height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2",
+                "startWithNewLine": false,
+                "title": " "
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "800"
+      });
+      await ClientFunction(() => {
+        document.documentElement.style.setProperty("--sjs-font-size", "8px");
+      })();
+      const questionRows = Selector(".sd-row");
+      await takeElementScreenshot("question-empty-title-height.png", questionRows.nth(0), t, comparer);
+    });
+  });
 });

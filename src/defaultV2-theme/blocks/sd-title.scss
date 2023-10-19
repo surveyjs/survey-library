@@ -50,7 +50,7 @@
     font-family: $font-surveydescription-family;
     font-weight: $font-surveydescription-weight;
     font-size: $font-surveydescription-size;
-    line-height: multiply(1.5 * (var(--sjs-font-size, 16px)));
+    line-height: multiply(1.5, (var(--sjs-font-size, 16px)));
   }
 }
 

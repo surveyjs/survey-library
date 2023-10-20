@@ -76,6 +76,8 @@
 .sv-header__cell--center {
   .sv-header__cell-content {
     min-width: 100%;
+    left: 50%;
+    transform: translateX(-50%);
   }
 }
 
@@ -87,6 +89,10 @@
 
 .sv-header__logo {
   display: flex;
+
+  img {
+    display: block;
+  }
 }
 
 .sv-header__title {

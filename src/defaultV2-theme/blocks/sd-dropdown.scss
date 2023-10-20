@@ -157,6 +157,8 @@
   .sd-list__item-body {
     line-height: multiply(1.5, $font-editorfont-size);
     font-size: $font-editorfont-size;
+    font-weight: $font-editorfont-weight;
+    font-family: $font-editorfont-family;
   }
 }
 

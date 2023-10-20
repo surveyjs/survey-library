@@ -178,7 +178,7 @@ frameworks.forEach(framework => {
             "--sjs-font-editorfont-size": "32px"
           }
         });
-      });
+      })();
       const question = Selector(".sv-ranking-item");
       await takeElementScreenshot("question-ranking-item-theme.png", question, t, comparer);
     });

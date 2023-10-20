@@ -1,4 +1,4 @@
-import { frameworks, url, initSurvey } from "../helper";
+import { frameworks, url, initSurvey } from "./helper";
 import { fixture, test } from "testcafe";
 import { axeCheck, createReport } from "axe-testcafe";
 const title = "textbase";

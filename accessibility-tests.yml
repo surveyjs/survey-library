@@ -1,0 +1,374 @@
+# Node.js
+# Build a general Node.js project with npm.
+# Add steps that analyze code, save build artifacts, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/javascript
+
+
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+  tags:
+    exclude:
+      - v*.*.*
+
+pool:
+  vmImage: 'windows-latest'
+
+jobs:
+- job: Knockout
+  steps:
+  - checkout: self
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+  - task: Cache@2
+    inputs:
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+      path: $(Build.SourcesDirectory)/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+    displayName: Cache NPM
+
+  - task: Npm@1
+    displayName: 'NPM install'
+    inputs:
+      command: install
+      verbose: false
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+  
+  - script: |
+      npm run build_knockout_prod
+    displayName: 'build prod'
+
+  - script: |
+      npm run visual-regression-tests:ci:knockout 
+    displayName: 'Visual Regression Tests'
+  
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Knockout_VRT'
+      OverWrite: true
+    condition: always()
+    displayName: 'copy vrt artifacts'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Knockout_VRT/'
+      ArtifactName: 'Library_Knockout_VRT'
+      publishLocation: 'Container'
+    condition: always()
+    displayName: 'publish vrt artifacts'
+
+- job: React
+  steps:
+  - checkout: self
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
+  
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+
+  - task: Cache@2
+    inputs:
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+      path: $(Build.SourcesDirectory)/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+    displayName: Cache NPM
+
+  - task: Npm@1
+    displayName: 'NPM install'
+    inputs:
+      command: install
+      verbose: false
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+  
+  - script: |
+      npm run build_react_prod
+    displayName: 'build prod'
+
+  - script: |
+      npm run visual-regression-tests:ci:react 
+    displayName: 'Visual Regression Tests'
+  
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_React_VRT'
+      OverWrite: true
+    condition: always()
+    displayName: 'copy vrt artifacts'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_React_VRT/'
+      ArtifactName: 'Library_React_VRT'
+      publishLocation: 'Container'
+    condition: always()
+    displayName: 'publish vrt artifacts'
+
+- job: Vue
+  steps:
+  - checkout: self
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
+  
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+  - task: Cache@2
+    inputs:
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+      path: $(Build.SourcesDirectory)/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+    displayName: Cache NPM
+
+  - task: Npm@1
+    displayName: 'NPM install'
+    inputs:
+      command: install
+      verbose: false
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+  
+  - script: |
+      npm run build_vue_prod
+    displayName: 'build prod'
+
+  - script: |
+      npm run visual-regression-tests:ci:vue 
+    displayName: 'Visual Regression Tests'
+  
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue_VRT'
+      OverWrite: true
+    condition: always()
+    displayName: 'copy vrt artifacts'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue_VRT/'
+      ArtifactName: 'Library_Vue_VRT'
+      publishLocation: 'Container'
+    condition: always()
+    displayName: 'publish vrt artifacts'
+
+- job: Angular
+  steps:
+  - checkout: self
+    persistCredentials: true
+    clean: true
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "14.x"
+    displayName: "Install Node.js"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+
+  - task: Cache@2
+    inputs:
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+      path: $(Build.SourcesDirectory)/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+    displayName: Cache NPMs
+
+  - task: Npm@1
+    displayName: 'NPM install root'
+    inputs:
+      command: install
+      verbose: false
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+  - powershell: |
+      npm run build_core
+      npm run build_i18n_dev
+      npm run build-plugins
+    displayName: "Build Core"
+
+  - script: |
+      cd packages/survey-angular-ui
+      npm install
+    displayName: "NPM install packages/survey-angular-ui"
+  
+  - script: |
+      cd packages/survey-angular-ui
+      npm run build
+    displayName: "Build Angular"
+
+  - script: |
+      cd packages/survey-angular-ui/example
+      npm install
+    displayName: "NPM install examples/angular-ui"
+
+  - script: |
+      cd packages/survey-angular-ui
+      npm run build:example
+    displayName: "Build Angular Example"
+
+  - script: |
+      npm run visual-regression-tests:ci:angular
+    displayName: "run vrt tests"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Angular_VRT'
+      OverWrite: true
+    condition: always()
+    displayName: 'copy vrt artifacts'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Angular_VRT/'
+      ArtifactName: 'Library_Angular_VRT'
+      publishLocation: 'Container'
+    condition: always()
+    displayName: 'publish vrt artifacts'
+
+- job: Vue3
+  steps:
+  - checkout: self
+    persistCredentials: true
+    clean: true
+
+  - task: PowerShell@2
+    displayName: 'update Google Chrome to latest'
+    inputs:
+      targetType: 'inline'
+      script: '$Path = $env:TEMP; $Installer = ''chrome_installer.exe''; Invoke-WebRequest -Uri ''http://dl.google.com/chrome/install/375.126/chrome_installer.exe'' -OutFile $Path\$Installer; Start-Process -FilePath $Path\$Installer -Args ''/silent /install'' -Verb RunAs -Wait; Remove-Item -Path $Path\$Installer'
+
+  - task: NodeTool@0
+    inputs:
+      versionSpec: "16.x"
+    displayName: "Install Node.js"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: "$(Build.SourcesDirectory)/"
+      Contents: "package.json"
+      TargetFolder: "$(Build.SourcesDirectory)/Temp/"
+      OverWrite: true
+    displayName: "Copy package.json for cache key"
+
+  - task: Cache@2
+    inputs:
+      key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
+      path: $(Build.SourcesDirectory)/node_modules
+      cacheHitVar: NPM_CACHE_RESTORED
+    displayName: Cache NPMs
+
+  - task: Npm@1
+    displayName: 'NPM install root'
+    inputs:
+      command: install
+      verbose: false
+    condition: ne(variables.NPM_CACHE_RESTORED, 'true')
+
+  - powershell: |
+      npm run build_core
+      npm run build_i18n_dev
+      npm run build-plugins
+    displayName: "Build Core"
+
+  - script: |
+      cd packages/survey-vue3-ui
+      npm install
+    displayName: "NPM install packages/survey-vue3-ui"
+  
+  - script: |
+      cd packages/survey-vue3-ui
+      npm run build
+    displayName: "Build Vue3"
+
+  - script: |
+      cd packages/survey-vue3-ui/example
+      npm install
+    displayName: "NPM install Vue3 example"
+
+  - script: |
+      cd packages/survey-vue3-ui/example
+      npm run build
+    displayName: "Build Vue3 Example"
+
+  - script: |
+      npm run visual-regression-tests:ci:vue3
+    displayName: "run vrt tests"
+
+  - task: CopyFiles@2
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
+      Contents: '**'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue3_VRT'
+      OverWrite: true
+    condition: always()
+    displayName: 'copy vrt artifacts'
+  
+  - task: PublishBuildArtifacts@1
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue3_VRT/'
+      ArtifactName: 'Library_Vue3_VRT'
+      publishLocation: 'Container'
+    condition: always()
+    displayName: 'publish vrt artifacts'

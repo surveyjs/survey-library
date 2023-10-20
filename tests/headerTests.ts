@@ -227,3 +227,36 @@ QUnit.test("cell calculations - test width",
     assert.equal(cover.cells[0].textAreaWidth, "120px", "cell text width");
   }
 );
+
+QUnit.test("calculateActualHeight",
+  function (assert) {
+    const cover = new Cover();
+
+    cover.logoPositionX = "left";
+    cover.logoPositionY = "middle";
+    cover.titlePositionX = "right";
+    cover.titlePositionY = "middle";
+    cover.descriptionPositionX = "right";
+    cover.descriptionPositionY = "middle";
+
+    let logoHeight = 201;
+    let titleHeight = 22;
+    let descriptionHeight = 303;
+
+    let actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
+    assert.equal(actualHeight, titleHeight + descriptionHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "365px", "title + description + 40");
+
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "256px", "default height");
+
+    logoHeight = 271;
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "311px", "logo + 40");
+  }
+);

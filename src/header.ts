@@ -121,6 +121,7 @@ export class Cover extends Base {
   }
 
   public cells: CoverCell[] = [];
+  @property({ defaultValue: 0 }) public actualHeight: number;
   @property() public height: number;
   @property() public inheritWidthFrom: "survey" | "container";
   @property() public textAreaWidth: number;
@@ -150,7 +151,7 @@ export class Cover extends Base {
   @property() backgroundImageClasses: string;
 
   public get renderedHeight(): string {
-    return this.height && (this.survey && !this.survey.isMobile || !this.survey) ? this.height + "px" : undefined;
+    return this.height && (this.survey && !this.survey.isMobile || !this.survey) ? Math.max(this.height, this.actualHeight + 40) + "px" : undefined;
   }
   public get renderedtextAreaWidth(): string {
     return this.textAreaWidth ? this.textAreaWidth + "px" : undefined;
@@ -190,6 +191,37 @@ export class Cover extends Base {
     }
     if (name === "backgroundImageFit") {
       this.updateBackgroundImageClasses();
+    }
+  }
+
+  public calculateActualHeight(logoHeight: number, titleHeight: number, descriptionHeight: number): number {
+    const positionsY = ["top", "middle", "bottom"];
+    const logoIndex = positionsY.indexOf(this.logoPositionY);
+    const titleIndex = positionsY.indexOf(this.titlePositionY);
+    const descriptionIndex = positionsY.indexOf(this.descriptionPositionY);
+    const positionsX = ["left", "center", "right"];
+    const logoIndexX = positionsX.indexOf(this.logoPositionX);
+    const titleIndexX = positionsX.indexOf(this.titlePositionX);
+    const descriptionIndexX = positionsX.indexOf(this.descriptionPositionX);
+    const heights = [
+      [0, 0, 0],
+      [0, 0, 0],
+      [0, 0, 0]
+    ];
+    heights[logoIndex][logoIndexX] = logoHeight;
+    heights[titleIndex][titleIndexX] += titleHeight;
+    heights[descriptionIndex][descriptionIndexX] += descriptionHeight;
+    return heights.reduce((total, rowArr) => total + Math.max(...rowArr), 0);
+  }
+  public processResponsiveness(width: number): void {
+    if (this.survey && this.survey.rootElement) {
+      const logoEl = this.survey.rootElement.querySelectorAll(".sv-header__logo")[0];
+      const titleEl = this.survey.rootElement.querySelectorAll(".sv-header__title")[0];
+      const descriptionEl = this.survey.rootElement.querySelectorAll(".sv-header__description")[0];
+      const logoHeight = logoEl ? logoEl.getBoundingClientRect().height : 0;
+      const titleHeight = titleEl ? titleEl.getBoundingClientRect().height : 0;
+      const descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
+      this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
     }
   }
 }

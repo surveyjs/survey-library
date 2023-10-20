@@ -82,7 +82,7 @@
   justify-content: center;
   background-color: $primary-light;
   color: $font-questiontitle-color;
-  font-size: calcFontSize(1);
+  font-size: $font-editorfont-size;
   border-radius: 100%;
   border: calcSize(0.25) solid transparent;
   width: calcSize(5);
@@ -94,6 +94,8 @@
 
   svg {
       fill: $font-questiontitle-color;
+      width: $font-editorfont-size;
+      height: $font-editorfont-size;
   }
 }
 

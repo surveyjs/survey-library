@@ -29,7 +29,13 @@
         </svg>
       </div>
 
-      <div [class]="question.getItemIndexClasses(model)">{{ unrankedItem ? "" : question.getNumberByIndex(index) }}</div>
+      <div *ngIf="!unrankedItem && question.getNumberByIndex(index); else elseBlock" [class]="question.getItemIndexClasses(model)">{{ question.getNumberByIndex(index) }}</div>
+      <ng-template #elseBlock><div [class]="question.getItemIndexClasses(model)">
+        <svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg" class="">
+          <path d="M13 7H3V9H13V7Z" class="">
+          </path>
+        </svg>
+      </div></ng-template>
       <div [class]="question.cssClasses.controlLabel">
         <sv-ng-string [model]="model.locText"></sv-ng-string>
       </div>

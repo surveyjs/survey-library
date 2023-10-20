@@ -152,6 +152,15 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
     return this.props.item;
   }
 
+  protected renderEmptyIcon(): JSX.Element {
+    return (
+      <svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+        <path d="M13 7H3V9H13V7Z">
+        </path>
+      </svg>
+    );
+  }
+
   protected renderElement(): JSX.Element {
     return (
       <div
@@ -186,7 +195,9 @@ export class SurveyQuestionRankingItem extends ReactSurveyElement {
               </svg>
             </div>
 
-            <div className={this.question.getItemIndexClasses(this.item)}>{this.unrankedItem ? "" : this.indexText}</div>
+            <div className={this.question.getItemIndexClasses(this.item)}>
+              {(!this.unrankedItem && this.indexText) ? this.indexText : this.renderEmptyIcon()}
+            </div>
             <div className={this.cssClasses.controlLabel}>{this.text}</div>
           </div>
         </div>

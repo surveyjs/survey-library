@@ -46,8 +46,12 @@
           </svg>
         </div>
 
-        <div :class="question.getItemIndexClasses(item)">
-          {{ unrankedItem ? "" : indexText }}
+          <div v-if = "!unrankedItem && indexText" :class="question.getItemIndexClasses(item)">{{ indexText }}</div>
+          <div v-else :class="question.getItemIndexClasses(item)">
+            <svg height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+              <path d="M13 7H3V9H13V7Z">
+              </path>
+            </svg>
         </div>
         <div :class="cssClasses.controlLabel">
           <survey-string :locString="text" />

@@ -159,6 +159,7 @@
     font-size: $font-editorfont-size;
     font-weight: $font-editorfont-weight;
     font-family: $font-editorfont-family;
+    padding-inline-end: calcSize(2);
   }
 }
 

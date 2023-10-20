@@ -57,7 +57,7 @@
 .sv_progress-buttons__list li {
   width: 138px;
   font-size: calcFontSize(0.875);
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   position: relative;
   text-align: center;
   vertical-align: top;

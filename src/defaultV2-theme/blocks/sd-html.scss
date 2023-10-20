@@ -63,7 +63,7 @@
       color: $primary;
       font-weight: 600;
       font-style: normal;
-      font-family: var(--font-family, $font-family);
+      font-family: $font-family;
       font-size: $font-questiontitle-size;
       line-height: multiply(1.5, $font-questiontitle-size);
     }

@@ -56,7 +56,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   width: 100%;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-size: inherit;
   color: var(--text-color, $text-color);
   position: relative;
@@ -108,7 +108,7 @@
   border: none;
   outline: none;
   padding: 0;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-size: inherit;
   background-color: transparent;
   width: 100%;
@@ -125,7 +125,7 @@
 }
 
 .sv-dropdown--empty:not(.sv-input--disabled) .sv-dropdown__filter-string-input::placeholder {
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   color: var(--text-color, $text-color);
 }
 

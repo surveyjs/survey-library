@@ -1,6 +1,6 @@
 .sd-title {
   display: block;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-style: normal;
   color: $foreground;
   flex-direction: row;
@@ -13,7 +13,7 @@
   align-items: center;
   padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
   overflow: auto;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   gap: calcSize(4);
   box-shadow: 0px 2px 0px $primary;
 

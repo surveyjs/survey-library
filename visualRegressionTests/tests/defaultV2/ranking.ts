@@ -172,15 +172,15 @@ frameworks.forEach(framework => {
         ]
       });
       await ClientFunction(() => {
-        (document.querySelector(".sv-ranking-item") as HTMLElement).style.setProperty("--sjs-font-questiontitle-color", "red");
-        (document.querySelector(".sv-ranking-item") as HTMLElement).style.setProperty("--sjs-font-editorfont-size", "32px");
-      })();
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-questiontitle-color": "red",
+            "--sjs-font-editorfont-size": "32px"
+          }
+        });
+      });
       const question = Selector(".sv-ranking-item");
       await takeElementScreenshot("question-ranking-item-theme.png", question, t, comparer);
-      await ClientFunction(() => {
-        (document.querySelector(".sv-ranking-item") as HTMLElement).style.setProperty("--sjs-font-questiontitle-color", "");
-        (document.querySelector(".sv-ranking-item") as HTMLElement).style.setProperty("--sjs-font-editorfont-size", "");
-      })();
     });
   });
 });

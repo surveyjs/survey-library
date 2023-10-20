@@ -1,6 +1,6 @@
 .sv-header {
   position: relative;
-  background-color: $cover-backcolor;
+  background-color: $header-backcolor;
 }
 
 .sv-header__overlap {
@@ -14,7 +14,6 @@
 }
 
 .sv-header__without-background {
-
   .sv-header--mobile,
   .sv-header__content {
     padding-bottom: 0;
@@ -100,22 +99,22 @@
 }
 
 .sv-header__title .sd-title {
-  @include cover_title;
+  @include header_title;
+  color: $font-headertitle-color;
+  font-family: $font-headertitle-family;
+  font-weight: $font-headertitle-weight;
   margin: 0;
-  color: $cover-title-forecolor;
-  font-family: $font-surveytitle-family;
-  font-weight: $font-surveytitle-weight;
 }
 
-.sv-header__logo~.sv-header__title {
+.sv-header__logo ~ .sv-header__title {
   margin-top: calcSize(4);
 }
 
-.sv-header__logo~.sv-header__description {
+.sv-header__logo ~ .sv-header__description {
   margin-top: calcSize(4);
 }
 
-.sv-header__title~.sv-header__description {
+.sv-header__title ~ .sv-header__description {
   margin-top: calcSize(1);
 }
 
@@ -124,8 +123,11 @@
 }
 
 .sv-header__description .sd-description {
+  @include header_description;
+  color: $font-headerdescription-color;
+  font-family: $font-headerdescription-family;
+  font-weight: $font-headerdescription-weight;
   margin: 0;
-  color: $cover-description-forecolor;
 }
 
 .sv-header__content .sd-header__text h3 {
@@ -137,7 +139,7 @@
   position: relative;
   z-index: 1;
 
-  .sv-header__logo~.sv-header__title {
+  .sv-header__logo ~ .sv-header__title {
     margin-top: calcSize(3);
   }
 

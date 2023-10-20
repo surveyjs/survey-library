@@ -101,7 +101,7 @@ export class Cover extends Base {
   public fromTheme(theme: ITheme): void {
     super.fromJSON(theme.header);
     if (!!theme.cssVariables) {
-      this.backgroundColor = theme.cssVariables["--sjs-cover-backcolor"];
+      this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
     }
   }
 

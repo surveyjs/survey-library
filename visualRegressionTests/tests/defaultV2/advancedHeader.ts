@@ -71,7 +71,7 @@ frameworks.forEach(framework => {
             "overlapEnabled": true,
           },
           "cssVariables": {
-            "--sjs-cover-backcolor": "rgba(25, 179, 148, 1)"
+            "--sjs-header-backcolor": "rgba(25, 179, 148, 1)"
           }
         });
       })();

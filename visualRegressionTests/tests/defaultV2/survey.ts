@@ -165,7 +165,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.headerView = "advanced";
         (<any>window).survey.applyTheme({
           cssVariables: {
-            "--sjs-cover-backcolor": "green"
+            "--sjs-header-backcolor": "green"
           },
           header: {
           }

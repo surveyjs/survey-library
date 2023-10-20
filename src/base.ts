@@ -564,8 +564,9 @@ export class Base {
       !!this.arraysInfo &&
       (!val || Array.isArray(val))
     ) {
-      if (this.isTwoValueEquals(oldValue, val)) return;
-      this.setArrayPropertyDirectly(name, val);
+      if (!this.isTwoValueEquals(oldValue, val)) {
+        this.setArrayPropertyDirectly(name, val);
+      }
     } else {
       this.setPropertyValueDirectly(name, val);
       if (!this.isDisposedValue && !this.isTwoValueEquals(oldValue, val)) {

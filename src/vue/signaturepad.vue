@@ -6,7 +6,9 @@
       width: question.signatureWidth + 'px',
     }"
   >
-    <div :class="question.cssClasses.placeholder" v-show="question.needShowPlaceholder()">{{ question.placeHolderText }}</div>
+    <div :class="question.cssClasses.placeholder" v-show="question.needShowPlaceholder()">
+      <survey-string :locString="question.locPlaceholder"></survey-string>
+    </div>
     <div>
       <img v-if="question.backgroundImage" :class="question.cssClasses.backgroundImage" :src="question.backgroundImage"
       :width="question.signatureWidth" :height="question.signatureHeight">

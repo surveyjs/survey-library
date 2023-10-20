@@ -261,14 +261,16 @@ export class QuestionSignaturePadModel extends Question {
   get clearButtonCaption(): string {
     return this.getLocalizationString("clearCaption");
   }
+  @property({ }) showPlaceholder: boolean;
 
   public needShowPlaceholder(): boolean {
-    return !this.isDrawingValue && this.isEmpty();
+    const showPlaceholder = this.showPlaceholder;
+    const isDrawing = this.isDrawingValue;
+    const isEmpty = this.isEmpty();
+    return showPlaceholder && !isDrawing && isEmpty;
   }
+  @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
-  get placeHolderText(): string {
-    return this.getLocalizationString("signaturePlaceHolder");
-  }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     //todo: need to remove this code
@@ -316,6 +318,12 @@ Serializer.addClass(
       category: "general",
       default: true,
     },
+    { name: "showPlaceholder:boolean", category: "general", default: true },
+    { name: "placeholder:text",
+      serializationProperty: "locPlaceholder",
+      category: "general",
+      dependsOn: "showPlaceholder",
+      visibleIf: (obj: QuestionSignaturePadModel) => obj.showPlaceholder },
     {
       name: "backgroundImage:file",
       category: "general",

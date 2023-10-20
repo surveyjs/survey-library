@@ -1196,7 +1196,8 @@ export class SurveyModel extends SurveyElementCore
             id: "cover",
             container: "header",
             component: "sv-header",
-            data: cover
+            data: cover,
+            processResponsiveness: width => cover.processResponsiveness(width)
           });
         }
       } else {
@@ -4620,6 +4621,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
+    this.layoutElements.forEach(layoutElement => layoutElement.processResponsiveness && layoutElement.processResponsiveness(width));
     if (this.isMobile === isMobile) {
       return false;
     } else {
@@ -7365,7 +7367,8 @@ export class SurveyModel extends SurveyElementCore
           id: "cover",
           container: "header",
           component: "sv-header",
-          data: newCoverModel
+          data: newCoverModel,
+          processResponsiveness: width => newCoverModel.processResponsiveness(width)
         });
       }
       if (key === "isPanelless") {

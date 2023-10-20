@@ -375,6 +375,7 @@ export interface ISurveyLayoutElement {
   component?: string;
   template?: string;
   data?: any;
+  processResponsiveness?: (width: number) => void;
 }
 export interface IPlainDataOptions {
   includeEmpty?: boolean;

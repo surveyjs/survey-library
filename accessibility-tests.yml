@@ -58,25 +58,25 @@ jobs:
     displayName: 'build prod'
 
   - script: |
-      npm run visual-regression-tests:ci:knockout 
-    displayName: 'Visual Regression Tests'
+      npm run accessibility-tests:ci:knockout 
+    displayName: 'Accessibility Tests'
   
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Knockout_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Knockout_AXE'
       OverWrite: true
     condition: always()
-    displayName: 'copy vrt artifacts'
+    displayName: 'copy accessibility artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Knockout_VRT/'
-      ArtifactName: 'Library_Knockout_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Knockout_AXE/'
+      ArtifactName: 'Library_Knockout_AXE'
       publishLocation: 'Container'
     condition: always()
-    displayName: 'publish vrt artifacts'
+    displayName: 'publish accessibility artifacts'
 
 - job: React
   steps:
@@ -120,25 +120,25 @@ jobs:
     displayName: 'build prod'
 
   - script: |
-      npm run visual-regression-tests:ci:react 
-    displayName: 'Visual Regression Tests'
+      npm run accessibility-tests:ci:react 
+    displayName: 'Accessibility Tests'
   
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_React_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_React_AXE'
       OverWrite: true
     condition: always()
-    displayName: 'copy vrt artifacts'
+    displayName: 'copy accessibility artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_React_VRT/'
-      ArtifactName: 'Library_React_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_React_AXE/'
+      ArtifactName: 'Library_React_AXE'
       publishLocation: 'Container'
     condition: always()
-    displayName: 'publish vrt artifacts'
+    displayName: 'publish accessibility artifacts'
 
 - job: Vue
   steps:
@@ -181,25 +181,25 @@ jobs:
     displayName: 'build prod'
 
   - script: |
-      npm run visual-regression-tests:ci:vue 
-    displayName: 'Visual Regression Tests'
+      npm run accessibility-tests:ci:vue 
+    displayName: 'Accessibility Tests'
   
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue_AXE'
       OverWrite: true
     condition: always()
-    displayName: 'copy vrt artifacts'
+    displayName: 'copy accessibility artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue_VRT/'
-      ArtifactName: 'Library_Vue_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue_AXE/'
+      ArtifactName: 'Library_Vue_AXE'
       publishLocation: 'Container'
     condition: always()
-    displayName: 'publish vrt artifacts'
+    displayName: 'publish accessibility artifacts'
 
 - job: Angular
   steps:
@@ -267,25 +267,25 @@ jobs:
     displayName: "Build Angular Example"
 
   - script: |
-      npm run visual-regression-tests:ci:angular
-    displayName: "run vrt tests"
+      npm run accessibility-tests:ci:angular
+    displayName: "run accessibility tests"
 
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Angular_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Angular_AXE'
       OverWrite: true
     condition: always()
-    displayName: 'copy vrt artifacts'
+    displayName: 'copy accessibility artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Angular_VRT/'
-      ArtifactName: 'Library_Angular_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Angular_AXE/'
+      ArtifactName: 'Library_Angular_AXE'
       publishLocation: 'Container'
     condition: always()
-    displayName: 'publish vrt artifacts'
+    displayName: 'publish accessibility artifacts'
 
 - job: Vue3
   steps:
@@ -353,22 +353,22 @@ jobs:
     displayName: "Build Vue3 Example"
 
   - script: |
-      npm run visual-regression-tests:ci:vue3
-    displayName: "run vrt tests"
+      npm run accessibility-tests:ci:vue3
+    displayName: "run accessibility tests"
 
   - task: CopyFiles@2
     inputs:
       SourceFolder: '$(Build.SourcesDirectory)/visualRegressionTests'
       Contents: '**'
-      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue3_VRT'
+      TargetFolder: '$(Build.ArtifactStagingDirectory)/Library_Vue3_AXE'
       OverWrite: true
     condition: always()
-    displayName: 'copy vrt artifacts'
+    displayName: 'copy accessibility artifacts'
   
   - task: PublishBuildArtifacts@1
     inputs:
-      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue3_VRT/'
-      ArtifactName: 'Library_Vue3_VRT'
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)/Library_Vue3_AXE/'
+      ArtifactName: 'Library_Vue3_AXE'
       publishLocation: 'Container'
     condition: always()
-    displayName: 'publish vrt artifacts'
+    displayName: 'publish accessibility artifacts'

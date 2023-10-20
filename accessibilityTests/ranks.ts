@@ -1,51 +1,31 @@
 import { frameworks, url, initSurvey, axeTags } from "./helper";
 import { fixture, test } from "testcafe";
 import { axeCheck, createReport } from "axe-testcafe";
-const title = "textbase";
+const title = "ranks";
 
 const json = {
   "elements": [
     {
-      name: "name",
-      type: "text",
-      indent: 1
+      type: "rating",
+      name: "satisfaction",
+      title: "Rating",
+      minRateDescription: "Not Satisfied",
+      maxRateDescription: "Completely satisfied"
     },
     {
-      "type": "text",
-      "name": "question1",
-      "title": "Username",
-      "isRequired": true,
-      "maxLength": 25
+      type: "ranking",
+      name: "smartphone-features",
+      title: "Please rank the following smartphone features in order of importance:",
+      choices: [
+        "Battery life",
+        "Screen size",
+        "Storage space",
+        "Camera quality",
+        "Durability",
+        "Processor power",
+        "Price",
+      ],
     },
-    {
-      name: "name",
-      type: "text",
-      title: "Question title",
-      titleLocation: "hidden"
-    },
-    {
-      "type": "multipletext",
-      "name": "register",
-      "title": "Root Title",
-      "items": [
-        {
-          "name": "username",
-          "isRequired": true,
-          "title": "Title 1",
-          "maxLength": 10
-        },
-        {
-          "name": "email",
-          "title": "Title 2",
-          "inputType": "email"
-        },
-        {
-          type: "comment",
-          name: "suggestions",
-          title: "Comment"
-        },
-      ]
-    }
   ]
 };
 

@@ -1,51 +1,33 @@
 import { frameworks, url, initSurvey, axeTags } from "./helper";
 import { fixture, test } from "testcafe";
 import { axeCheck, createReport } from "axe-testcafe";
-const title = "textbase";
+const title = "others";
 
 const json = {
   "elements": [
     {
-      name: "name",
-      type: "text",
-      indent: 1
+      type: "boolean",
+      name: "bool",
+      title: "Boolean",
+      label: "Are you 21 or older?",
     },
     {
-      "type": "text",
-      "name": "question1",
-      "title": "Username",
-      "isRequired": true,
-      "maxLength": 25
+      type: "image",
+      name: "banner",
+      imageHeight: "300px",
+      imageWidth: "450px",
+      imageLink:
+        "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg"
     },
     {
-      name: "name",
-      type: "text",
-      title: "Question title",
-      titleLocation: "hidden"
+      type: "file",
+      title: "File",
+      name: "image",
+      storeDataAsText: false,
+      showPreview: true,
+      imageWidth: 150,
+      maxSize: 102400
     },
-    {
-      "type": "multipletext",
-      "name": "register",
-      "title": "Root Title",
-      "items": [
-        {
-          "name": "username",
-          "isRequired": true,
-          "title": "Title 1",
-          "maxLength": 10
-        },
-        {
-          "name": "email",
-          "title": "Title 2",
-          "inputType": "email"
-        },
-        {
-          type: "comment",
-          name: "suggestions",
-          title: "Comment"
-        },
-      ]
-    }
   ]
 };
 

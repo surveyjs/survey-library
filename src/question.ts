@@ -172,7 +172,7 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly"], () => {
+    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
       this.updateQuestionCss();
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
@@ -2049,9 +2049,6 @@ export class Question extends SurveyElement<Question>
       }
     }
     this.updateContainsErrors();
-    if (oldHasErrors != errors.length > 0) {
-      this.updateQuestionCss();
-    }
     if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
       this.expand();
     }

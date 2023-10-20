@@ -1748,3 +1748,26 @@ QUnit.test("QuestionFile allowImagesPreview and allowCameraAccess", function (as
   const prop2 = Serializer.getProperty("file", "allowCameraAccess");
   assert.equal(prop2.visible, false);
 });
+
+QUnit.test("QuestionFile maxSize error doesnt update question css classes", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", maxSize: 3 },
+    ]
+  });
+  survey.css = {
+    question: {
+      hasError: "root-error",
+      hasErrorTop: "root-error-top"
+    }
+  };
+  const question = survey.getAllQuestions()[0];
+  assert.notOk(question.cssRoot.includes("root-error"));
+  assert.notOk(question.cssRoot.includes("root-error-top"));
+  question["allFilesOk"]([{ size: 2 }]);
+  assert.notOk(question.cssRoot.includes("root-error"));
+  assert.notOk(question.cssRoot.includes("root-error-top"));
+  question["allFilesOk"]([{ size: 4 }]);
+  assert.ok(question.cssRoot.includes("root-error"));
+  assert.ok(question.cssRoot.includes("root-error-top"));
+});

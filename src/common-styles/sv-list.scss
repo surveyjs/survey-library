@@ -5,13 +5,13 @@
   margin: 0;
   overflow-y: auto;
   background: $background;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   list-style-type: none;
 }
 
 .sv-list__empty-container {
   width: 100%;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   box-sizing: border-box;
   padding: calcSize(1.5) calcSize(8);
   overflow: hidden;

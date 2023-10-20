@@ -1292,7 +1292,7 @@ sv-popup {
 }
 
 .sv-popup__body-header {
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-size: calc(3 * var(--base-unit, 8px));
   line-height: calc(4 * var(--base-unit, 8px));
   font-style: normal;
@@ -1317,7 +1317,7 @@ sv-popup {
   border-radius: 4px;
   margin: 2px;
   cursor: pointer;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-style: normal;
   font-weight: 600;
   font-size: calc(2 * var(--base-unit, 8px));

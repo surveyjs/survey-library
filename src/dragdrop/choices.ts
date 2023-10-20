@@ -23,7 +23,7 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
           cursor: grabbing;
           position: absolute;
           z-index: 10000;
-          font-family: var(--font-family, 'Open Sans');
+          font-family: var(--sjs-font-family, var(--font-family, var(--sjs-default-font-family)));
         `;
 
     const isDeepClone = true;

@@ -18,7 +18,7 @@
 @mixin survey_description {
   --survey-description-font-size: var(--sjs-font-surveydescription-size, var(--sjs-font-size, 16px));
   font-size: var(--survey-description-font-size);
-  line-height: multiply(1.25, var(--survey-description-font-size));
+  line-height: multiply(1.5, var(--survey-description-font-size));
 }
 
 @mixin header_title {

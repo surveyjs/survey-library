@@ -47,7 +47,7 @@ export var serbianStrings = {
   loadingFile: "Učitavanje...",
   chooseFile: "Izaberite fajlove...",
   noFileChosen: "Nije izabran nijedan fajl",
-  fileDragAreaPlaceholder: "Prevucite i otpustite datoteku ovde ili kliknite na dugme ispod i odaberite datoteku za otpremanje.",
+  filePlaceholder: "Prevucite i otpustite datoteku ovde ili kliknite na dugme ispod i odaberite datoteku za otpremanje.",
   confirmDelete: "Da li želite da izbrišete unos?",
   keyDuplicationError: "Ova vrednost treba da bude jedinstvena.",
   addColumn: "Dodaj kolonu",
@@ -76,8 +76,8 @@ export var serbianStrings = {
   signaturePlaceHolder: "Potpišite ovde",
   chooseFileCaption: "Izaberi fajl",
   takePhotoCaption: "Fotografisanje",
-  cameraPlaceHolder: "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata.",
-  fileCameraDragAreaPlaceHolder: "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata.",
+  photoPlaceholder: "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata.",
+  fileOrPhotoPlaceholder: "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata.",
   replaceFileCaption: "Zameni datoteku",
   removeFileCaption: "Ukloni ovaj fajl",
   booleanCheckedLabel: "Da",
@@ -106,7 +106,7 @@ surveyLocalization.localeNames["rs"] = "Srpski";
 // indexText: "{0} of {1}" => "{0} {1}"
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
 // ratingOptionsCaption: "Select..." => "Izaberite..."
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Prevucite i otpustite datoteku ovde ili kliknite na dugme ispod i odaberite datoteku za otpremanje."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Prevucite i otpustite datoteku ovde ili kliknite na dugme ispod i odaberite datoteku za otpremanje."
 // signaturePlaceHolder: "Sign here" => "Potpišite ovde"
 // filterStringPlaceholder: "Type to search..." => "Otkucajte da biste pretražili..."
 // emptyMessage: "No data to display" => "Nema podataka za prikazivanje"
@@ -116,6 +116,6 @@ surveyLocalization.localeNames["rs"] = "Srpski";
 // tagboxDoneButtonCaption: "OK" => "U redu"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Svi izbori su rangirani"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Prevucite i otpustite izbor ovde da biste ih rangirali"// takePhotoCaption: "Take Photo" => "Fotografisanje"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata."
 // replaceFileCaption: "Replace file" => "Zameni datoteku"

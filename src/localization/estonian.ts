@@ -47,7 +47,7 @@ export var estonianSurveyStrings = {
   loadingFile: "Laen...",
   chooseFile: "Vali fail(id)...",
   noFileChosen: "Faili pole valitud",
-  fileDragAreaPlaceholder: "Pukseerige fail siia või klõpsake allolevat nuppu ja valige üleslaaditav fail.",
+  filePlaceholder: "Pukseerige fail siia või klõpsake allolevat nuppu ja valige üleslaaditav fail.",
   confirmDelete: "Kas tahad kirje kustutada?",
   keyDuplicationError: "See väärtus peab olema unikaalne.",
   addColumn: "Lisa veerg",
@@ -76,8 +76,8 @@ export var estonianSurveyStrings = {
   signaturePlaceHolder: "Allkirjasta siin",
   chooseFileCaption: "Vali fail",
   takePhotoCaption: "Pildistamine",
-  cameraPlaceHolder: "Kaamera abil pildistamiseks klõpsake allolevat nuppu.",
-  fileCameraDragAreaPlaceHolder: "Pukseerige või valige üleslaaditav fail või pildistage seda kaamera abil.",
+  photoPlaceholder: "Kaamera abil pildistamiseks klõpsake allolevat nuppu.",
+  fileOrPhotoPlaceholder: "Pukseerige või valige üleslaaditav fail või pildistage seda kaamera abil.",
   replaceFileCaption: "Asenda fail",
   removeFileCaption: "Eemalda see fail",
   booleanCheckedLabel: "Jah",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["et"] = "eesti keel";
 // ratingOptionsCaption: "Select..." => "Valima..."
 // minError: "The value should not be less than {0}" => "Väärtus ei tohiks olla väiksem kui {0}"
 // maxError: "The value should not be greater than {0}" => "Väärtus ei tohiks olla suurem kui {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Pukseerige fail siia või klõpsake allolevat nuppu ja valige üleslaaditav fail."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Pukseerige fail siia või klõpsake allolevat nuppu ja valige üleslaaditav fail."
 // emptyRowsText: "There are no rows." => "Ridu pole."
 // multipletext_itemname: "text" => "Tekst"
 // signaturePlaceHolder: "Sign here" => "Allkirjasta siin"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["et"] = "eesti keel";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Kõik valikud on järjestatud"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Lohistage valikuid siia, et neid järjestada"// takePhotoCaption: "Take Photo" => "Pildistamine"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kaamera abil pildistamiseks klõpsake allolevat nuppu."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Pukseerige või valige üleslaaditav fail või pildistage seda kaamera abil."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Kaamera abil pildistamiseks klõpsake allolevat nuppu."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Pukseerige või valige üleslaaditav fail või pildistage seda kaamera abil."
 // replaceFileCaption: "Replace file" => "Asenda fail"

@@ -47,7 +47,7 @@ export var greekSurveyStrings = {
   loadingFile: "Φόρτωση...",
   chooseFile: "Επιλογή αρχείων ...",
   noFileChosen: "Δεν έχει επιλεγεί αρχείο",
-  fileDragAreaPlaceholder: "Αποθέστε το αρχείο σας εδώ ή κάντε κλικ στο κουμπί παρακάτω για να φορτώσετε το αρχείο.",
+  filePlaceholder: "Αποθέστε το αρχείο σας εδώ ή κάντε κλικ στο κουμπί παρακάτω για να φορτώσετε το αρχείο.",
   confirmDelete: "Θέλετε να διαγράψετε την εγγραφή;",
   keyDuplicationError: "Αυτή η τιμή πρέπει να είναι μοναδική.",
   addColumn: "Προσθήκη στήλης",
@@ -76,8 +76,8 @@ export var greekSurveyStrings = {
   signaturePlaceHolder: "Υπογράψτε εδώ",
   chooseFileCaption: "Επιλέξτε αρχείο",
   takePhotoCaption: "Λήψη φωτογραφίας",
-  cameraPlaceHolder: "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα.",
-  fileCameraDragAreaPlaceHolder: "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα.",
+  photoPlaceholder: "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα.",
+  fileOrPhotoPlaceholder: "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα.",
   replaceFileCaption: "Αντικατάσταση αρχείου",
   removeFileCaption: "Διαγράψτε αυτό το αρχείο",
   booleanCheckedLabel: "Ναι",
@@ -106,6 +106,6 @@ surveyLocalization.localeNames["gr"] = "ελληνικά";
 // noEntriesReadonlyText: "There are no entries." => "Δεν υπάρχουν καταχωρήσεις."
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Όλες οι επιλογές κατατάσσονται"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε"// takePhotoCaption: "Take Photo" => "Λήψη φωτογραφίας"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα."
 // replaceFileCaption: "Replace file" => "Αντικατάσταση αρχείου"

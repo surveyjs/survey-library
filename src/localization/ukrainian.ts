@@ -47,7 +47,7 @@ export var ukrainianSurveyStrings = {
   loadingFile: "Завантаження...",
   chooseFile: "Виберіть файл(и)...",
   noFileChosen: "Файл не вибрано",
-  fileDragAreaPlaceholder: "Перетягніть файл сюди або натисніть кнопку нижче та виберіть файл для завантаження.",
+  filePlaceholder: "Перетягніть файл сюди або натисніть кнопку нижче та виберіть файл для завантаження.",
   confirmDelete: "Ви хочете видалити запис?",
   keyDuplicationError: "Це значення повинно бути унікальним.",
   addColumn: "Додати колонку",
@@ -76,8 +76,8 @@ export var ukrainianSurveyStrings = {
   signaturePlaceHolder: "Підпишіться тут",
   chooseFileCaption: "Виберіть файл",
   takePhotoCaption: "Зробити фото",
-  cameraPlaceHolder: "Натисніть кнопку нижче, щоб зробити фото за допомогою камери.",
-  fileCameraDragAreaPlaceHolder: "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери.",
+  photoPlaceholder: "Натисніть кнопку нижче, щоб зробити фото за допомогою камери.",
+  fileOrPhotoPlaceholder: "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери.",
   replaceFileCaption: "Замінити файл",
   removeFileCaption: "Видалити файл",
   booleanCheckedLabel: "Так",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["ua"] = "українська";
 // ratingOptionsCaption: "Select..." => "Виберіть..."
 // minError: "The value should not be less than {0}" => "Значення не повинно бути менше {0}"
 // maxError: "The value should not be greater than {0}" => "Значення не повинно бути більше {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Перетягніть файл сюди або натисніть кнопку нижче та виберіть файл для завантаження."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Перетягніть файл сюди або натисніть кнопку нижче та виберіть файл для завантаження."
 // emptyRowsText: "There are no rows." => "Рядів немає."
 // multipletext_itemname: "text" => "Текст"
 // signaturePlaceHolder: "Sign here" => "Підпишіться тут"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["ua"] = "українська";
 // tagboxDoneButtonCaption: "OK" => "ГАРАЗД"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Всі варіанти ранжуються"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетягніть варіанти тут, щоб оцінити їх"// takePhotoCaption: "Take Photo" => "Зробити фото"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Натисніть кнопку нижче, щоб зробити фото за допомогою камери."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Натисніть кнопку нижче, щоб зробити фото за допомогою камери."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери."
 // replaceFileCaption: "Replace file" => "Замінити файл"

@@ -47,7 +47,7 @@ export var malaySurveyStrings = {
   loadingFile: "Memuat...",
   chooseFile: "Pilih fail...",
   noFileChosen: "Tiada fail dipilih",
-  fileDragAreaPlaceholder: "Letakkan fail di sini atau klik butang di bawah untuk memuatkan fail.",
+  filePlaceholder: "Letakkan fail di sini atau klik butang di bawah untuk memuatkan fail.",
   confirmDelete: "Adakah anda ingin memadamkan rekod?",
   keyDuplicationError: "Nilai ini hendaklah unik.",
   addColumn: "Tambahkan lajur",
@@ -76,8 +76,8 @@ export var malaySurveyStrings = {
   signaturePlaceHolder: "Tandatangan di sini",
   chooseFileCaption: "Pilih fail",
   takePhotoCaption: "Ambil gambar",
-  cameraPlaceHolder: "Klik butang di bawah untuk mengambil gambar menggunakan kamera.",
-  fileCameraDragAreaPlaceHolder: "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera.",
+  photoPlaceholder: "Klik butang di bawah untuk mengambil gambar menggunakan kamera.",
+  fileOrPhotoPlaceholder: "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera.",
   replaceFileCaption: "Gantikan fail",
   removeFileCaption: "Alih keluar fail ini",
   booleanCheckedLabel: "Ya",
@@ -111,6 +111,6 @@ surveyLocalization.localeNames["ms"] = "melayu";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Semua pilihan disenaraikan"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepaskan pilihan di sini untuk meletakkannya"// takePhotoCaption: "Take Photo" => "Ambil gambar"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klik butang di bawah untuk mengambil gambar menggunakan kamera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik butang di bawah untuk mengambil gambar menggunakan kamera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih fail untuk memuat naik atau mengambil foto menggunakan kamera."
 // replaceFileCaption: "Replace file" => "Gantikan fail"

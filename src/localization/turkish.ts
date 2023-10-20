@@ -47,7 +47,7 @@ export var turkishSurveyStrings = {
   loadingFile: "Yükleniyor...",
   chooseFile: "Dosyaları seçin...",
   noFileChosen: "Dosya seçili değil",
-  fileDragAreaPlaceholder: "Buraya bir dosya bırakın veya dosyayı yüklemek için aşağıdaki düğmeyi tıklayın.",
+  filePlaceholder: "Buraya bir dosya bırakın veya dosyayı yüklemek için aşağıdaki düğmeyi tıklayın.",
   confirmDelete: "Kaydı silmek istiyor musunuz?",
   keyDuplicationError: "Bu değer benzersiz olmalıdır.",
   addColumn: "Sütun Ekle",
@@ -76,8 +76,8 @@ export var turkishSurveyStrings = {
   signaturePlaceHolder: "Burayı imzalayın",
   chooseFileCaption: "Dosya seçin",
   takePhotoCaption: "Fotoğraf Çekin",
-  cameraPlaceHolder: "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın.",
-  fileCameraDragAreaPlaceHolder: "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin.",
+  photoPlaceholder: "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın.",
+  fileOrPhotoPlaceholder: "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin.",
   replaceFileCaption: "Dosyayı değiştir",
   removeFileCaption: "Bu dosyayı kaldır",
   booleanCheckedLabel: "Evet",
@@ -103,6 +103,6 @@ surveyLocalization.localeNames["tr"] = "türkçe";
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // takePhotoCaption: "Take Photo" => "Fotoğraf Çekin"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Kamerayı kullanarak fotoğraf çekmek için aşağıdaki düğmeyi tıklayın."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kamerayı kullanarak fotoğraf yüklemek veya fotoğraf çekmek için bir dosyayı sürükleyip bırakın veya seçin."
 // replaceFileCaption: "Replace file" => "Dosyayı değiştir"

@@ -47,7 +47,7 @@ export var slovakSurveyStrings = {
   loadingFile: "Načítanie...",
   chooseFile: "Vyberte súbor(-y)...",
   noFileChosen: "Žiadny vybratý súbor",
-  fileDragAreaPlaceholder: "Presuňte súbor sem alebo kliknite na nasledujúce tlačidlo a načítajte súbor.",
+  filePlaceholder: "Presuňte súbor sem alebo kliknite na nasledujúce tlačidlo a načítajte súbor.",
   confirmDelete: "Chcete záznam odstrániť?",
   keyDuplicationError: "Táto hodnota má byť jedinečná.",
   addColumn: "Pridať stĺpec",
@@ -76,8 +76,8 @@ export var slovakSurveyStrings = {
   signaturePlaceHolder: "Podpísať tu",
   chooseFileCaption: "Vybrať súbor",
   takePhotoCaption: "Odfotiť",
-  cameraPlaceHolder: "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu.",
-  fileCameraDragAreaPlaceHolder: "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu.",
+  photoPlaceholder: "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu.",
+  fileOrPhotoPlaceholder: "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu.",
   replaceFileCaption: "Nahradenie súboru",
   removeFileCaption: "Odstrániť tento súbor",
   booleanCheckedLabel: "Áno",
@@ -111,6 +111,6 @@ surveyLocalization.localeNames["sk"] = "slovenčina";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Všetky možnosti sú zoradené"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Presuňte sem voľby, aby ste ich zoradili"// takePhotoCaption: "Take Photo" => "Odfotiť"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu."
 // replaceFileCaption: "Replace file" => "Nahradenie súboru"

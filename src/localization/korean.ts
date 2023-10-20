@@ -47,7 +47,7 @@ export var koreanStrings = {
   loadingFile: "로드 중...",
   chooseFile: "파일 선택...",
   noFileChosen: "선택된 파일이 없습니다.",
-  fileDragAreaPlaceholder: "파일을 여기에 놓거나 아래 버튼을 클릭하여 파일을 불러오세요.",
+  filePlaceholder: "파일을 여기에 놓거나 아래 버튼을 클릭하여 파일을 불러오세요.",
   confirmDelete: "기록을 삭제하시겠습니까?",
   keyDuplicationError: " 이 값은 고유해야합니다.",
   addColumn: "열 추가",
@@ -76,8 +76,8 @@ export var koreanStrings = {
   signaturePlaceHolder: "서명하세요.",
   chooseFileCaption: "파일 선택",
   takePhotoCaption: "사진 찍기",
-  cameraPlaceHolder: "아래 버튼을 클릭하여 카메라로 사진을 찍습니다.",
-  fileCameraDragAreaPlaceHolder: "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다.",
+  photoPlaceholder: "아래 버튼을 클릭하여 카메라로 사진을 찍습니다.",
+  fileOrPhotoPlaceholder: "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다.",
   replaceFileCaption: "파일 바꾸기",
   removeFileCaption: "파일 제거",
   booleanCheckedLabel: "예",
@@ -108,6 +108,6 @@ surveyLocalization.localeNames["ko"] = "한국어";
 // tagboxDoneButtonCaption: "OK" => "그래"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "모든 선택 항목이 순위가 매겨집니다."
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."// takePhotoCaption: "Take Photo" => "사진 찍기"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "아래 버튼을 클릭하여 카메라로 사진을 찍습니다."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "아래 버튼을 클릭하여 카메라로 사진을 찍습니다."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다."
 // replaceFileCaption: "Replace file" => "파일 바꾸기"

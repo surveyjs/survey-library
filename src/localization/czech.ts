@@ -47,7 +47,7 @@ export var czechSurveyStrings = {
   loadingFile: "Načítání...",
   chooseFile: "Vyberte soubory...",
   noFileChosen: "Není zvolený žádný soubor",
-  fileDragAreaPlaceholder: "Přetáhněte sem soubor nebo klikněte na tlačítko níže a vyberte soubor, který chcete nahrát.",
+  filePlaceholder: "Přetáhněte sem soubor nebo klikněte na tlačítko níže a vyberte soubor, který chcete nahrát.",
   confirmDelete: "Chcete záznam smazat?",
   keyDuplicationError: "Tato hodnota by měla být unikátní.",
   addColumn: "Přidat sloupec",
@@ -76,8 +76,8 @@ export var czechSurveyStrings = {
   signaturePlaceHolder: "Podepište se zde",
   chooseFileCaption: "Vyberte soubor",
   takePhotoCaption: "Pořídit fotografii",
-  cameraPlaceHolder: "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu.",
-  fileCameraDragAreaPlaceHolder: "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu.",
+  photoPlaceholder: "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu.",
+  fileOrPhotoPlaceholder: "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu.",
   replaceFileCaption: "Nahradit soubor",
   removeFileCaption: "Odeberte tento soubor",
   booleanCheckedLabel: "Ano",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["cs"] = "čeština";
 // ratingOptionsCaption: "Select..." => "Vybrat..."
 // minError: "The value should not be less than {0}" => "Hodnota by neměla být menší než {0}"
 // maxError: "The value should not be greater than {0}" => "Hodnota by neměla být větší než {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Přetáhněte sem soubor nebo klikněte na tlačítko níže a vyberte soubor, který chcete nahrát."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Přetáhněte sem soubor nebo klikněte na tlačítko níže a vyberte soubor, který chcete nahrát."
 // emptyRowsText: "There are no rows." => "Neexistují žádné řádky."
 // multipletext_itemname: "text" => "Text"
 // signaturePlaceHolder: "Sign here" => "Podepište se zde"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["cs"] = "čeština";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Všechny možnosti jsou seřazeny"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Přetáhněte volby zde a seřaďte je"// takePhotoCaption: "Take Photo" => "Pořídit fotografii"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu."
 // replaceFileCaption: "Replace file" => "Nahradit soubor"

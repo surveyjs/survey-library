@@ -47,7 +47,7 @@ export var persianSurveyStrings = {
   loadingFile: "بارگیری...",
   chooseFile: "انتخاب فایل(ها)...",
   noFileChosen: "هیچ فایلی انتخاب نشده",
-  fileDragAreaPlaceholder: "کشیدن و رها کردن یک فایل در اینجا و یا کلیک بر روی دکمه زیر و یک فایل برای اپلود را انتخاب کنید.",
+  filePlaceholder: "کشیدن و رها کردن یک فایل در اینجا و یا کلیک بر روی دکمه زیر و یک فایل برای اپلود را انتخاب کنید.",
   confirmDelete: "آیا مایل به حذف این ردیف هستید؟",
   keyDuplicationError: "این مقدار باید غیر تکراری باشد",
   addColumn: "ستون جدید",
@@ -76,8 +76,8 @@ export var persianSurveyStrings = {
   signaturePlaceHolder: "اینجا را امضا کنید",
   chooseFileCaption: "انتخاب فایل",
   takePhotoCaption: "گرفتن عکس",
-  cameraPlaceHolder: "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید.",
-  fileCameraDragAreaPlaceHolder: "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین.",
+  photoPlaceholder: "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید.",
+  fileOrPhotoPlaceholder: "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین.",
   replaceFileCaption: "جایگزینی پرونده",
   removeFileCaption: "حذف این فایل",
   booleanCheckedLabel: "بله",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["fa"] = "فارْسِى";
 // ratingOptionsCaption: "Select..." => "انتخاب..."
 // minError: "The value should not be less than {0}" => "ارزش نباید کمتر از {0}"
 // maxError: "The value should not be greater than {0}" => "ارزش نباید بیشتر از {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "کشیدن و رها کردن یک فایل در اینجا و یا کلیک بر روی دکمه زیر و یک فایل برای اپلود را انتخاب کنید."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "کشیدن و رها کردن یک فایل در اینجا و یا کلیک بر روی دکمه زیر و یک فایل برای اپلود را انتخاب کنید."
 // emptyRowsText: "There are no rows." => "هیچ ردیفی وجود ندارد."
 // multipletext_itemname: "text" => "پیامک"
 // signaturePlaceHolder: "Sign here" => "اینجا را امضا کنید"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["fa"] = "فارْسِى";
 // tagboxDoneButtonCaption: "OK" => "باشه"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "همه انتخاب ها رتبه بندی می شوند"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها"// takePhotoCaption: "Take Photo" => "گرفتن عکس"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین."
 // replaceFileCaption: "Replace file" => "جایگزینی پرونده"

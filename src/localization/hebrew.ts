@@ -47,7 +47,7 @@ export var hebrewSurveyStrings = {
   loadingFile: "טוען...",
   chooseFile: "לבחור קבצים...",
   noFileChosen: "לא נבחר קובץ",
-  fileDragAreaPlaceholder: "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה.",
+  filePlaceholder: "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה.",
   confirmDelete: "האם אתה רוצה למחוק את הרשומה?",
   keyDuplicationError: "ערך זה צריך להיות ייחודי.",
   addColumn: "הוסף עמודה",
@@ -76,8 +76,8 @@ export var hebrewSurveyStrings = {
   signaturePlaceHolder: "חתום כאן",
   chooseFileCaption: "בחר קובץ",
   takePhotoCaption: "צלם תמונה",
-  cameraPlaceHolder: "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה.",
-  fileCameraDragAreaPlaceHolder: "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה.",
+  photoPlaceholder: "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה.",
+  fileOrPhotoPlaceholder: "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה.",
   replaceFileCaption: "החלפת קובץ",
   removeFileCaption: "הסר קובץ זה",
   booleanCheckedLabel: "כן",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["he"] = "עברית";
 // ratingOptionsCaption: "Select..." => "בחר..."
 // minError: "The value should not be less than {0}" => "הערך לא צריך להיות קטן מ {0}"
 // maxError: "The value should not be greater than {0}" => "הערך לא צריך להיות גדול מ- {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "גרור ושחרר קובץ לכאן או לחץ על הלחצן למטה ובחר קובץ להעלאה."
 // emptyRowsText: "There are no rows." => "אין שורות."
 // multipletext_itemname: "text" => "טקסט"
 // signaturePlaceHolder: "Sign here" => "חתום כאן"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["he"] = "עברית";
 // tagboxDoneButtonCaption: "OK" => "אוקיי"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "כל האפשרויות מדורגות"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"// takePhotoCaption: "Take Photo" => "צלם תמונה"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה."
 // replaceFileCaption: "Replace file" => "החלפת קובץ"

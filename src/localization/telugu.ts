@@ -47,7 +47,7 @@ export var teluguStrings = {
   loadingFile: "లోడ్ అవుతున్నది",
   chooseFile: "ఫైళ్లను ఎన్నుకోండి",
   noFileChosen: "ఏ ఫైల్ ఎన్నుకో లేదు",
-  fileDragAreaPlaceholder: "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి.",
+  filePlaceholder: "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి.",
   confirmDelete: "మీరు రికార్డులను తొలగించాలని అనుకుంటున్నారా",
   keyDuplicationError: "విలువ ప్రత్యేకంగా ఉండాలి",
   addColumn: "కాలం చేర్పించండి",
@@ -76,8 +76,8 @@ export var teluguStrings = {
   signaturePlaceHolder: "ఇక్కడ సంతకం చేయండి",
   chooseFileCaption: "ఫైల్ ఎంచుకోండి",
   takePhotoCaption: "ఫోటో తీసుకోండి",
-  cameraPlaceHolder: "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి.",
-  fileCameraDragAreaPlaceHolder: "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి.",
+  photoPlaceholder: "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి.",
+  fileOrPhotoPlaceholder: "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి.",
   replaceFileCaption: "ఫైలు మార్చండి",
   removeFileCaption: "ఈ ఫైల్ తీసేయండి",
   booleanCheckedLabel: "అవును",
@@ -108,7 +108,7 @@ surveyLocalization.localeNames["tel"] = "Telugu";
 // ratingOptionsCaption: "Select..." => "ఎంచు..."
 // minError: "The value should not be less than {0}" => "విలువ {0} కంటే తక్కువగా ఉండకూడదు."
 // maxError: "The value should not be greater than {0}" => "విలువ {0} కంటే ఎక్కువ ఉండకూడదు."
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ఇక్కడ ఒక ఫైల్ ను డ్రాగ్ చేసి డ్రాప్ చేయండి లేదా దిగువ బటన్ క్లిక్ చేయండి మరియు అప్ లోడ్ చేయడానికి ఫైల్ ఎంచుకోండి."
 // emptyRowsText: "There are no rows." => "వరుసలు లేవు."
 // multipletext_itemname: "text" => "వచనం"
 // signaturePlaceHolder: "Sign here" => "ఇక్కడ సంతకం చేయండి"
@@ -122,6 +122,6 @@ surveyLocalization.localeNames["tel"] = "Telugu";
 // tagboxDoneButtonCaption: "OK" => "సరే"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "అన్ని ఎంపికలు ర్యాంక్ చేయబడతాయి"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "వాటిని ర్యాంక్ చేయడం కొరకు ఎంపికలను ఇక్కడ డ్రాగ్ మరియు డ్రాప్ చేయండి"// takePhotoCaption: "Take Photo" => "ఫోటో తీసుకోండి"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటో తీయడానికి దిగువ బటన్ మీద క్లిక్ చేయండి."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "కెమెరాను ఉపయోగించి ఫోటోను అప్ లోడ్ చేయడానికి లేదా తీయడానికి ఫైల్ ను డ్రాగ్ మరియు డ్రాప్ చేయండి లేదా ఎంచుకోండి."
 // replaceFileCaption: "Replace file" => "ఫైలు మార్చండి"

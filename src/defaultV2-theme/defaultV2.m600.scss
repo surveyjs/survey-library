@@ -62,6 +62,7 @@
 
   .sd-multipletext__item {
     flex-basis: 0;
+    min-width: 0;
 
     .sd-input {
       padding: 0;
@@ -84,7 +85,12 @@
 
     .sd-multipletext__item {
       flex-basis: auto;
+      min-width: auto;
       width: 100%;
+
+      .sd-input {
+        width: 100%;
+      }
     }
   }
 }

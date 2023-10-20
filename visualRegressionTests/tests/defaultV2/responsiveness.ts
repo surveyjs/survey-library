@@ -434,6 +434,43 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-multipletext.png", Selector(".sd-question"), t, comparer);
     });
   });
+  test("Check multipletext with inputType 'date' on small screen", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "multipletext",
+            name: "q1",
+            title: "Personal Information",
+            colCount: 2,
+            items: [
+              {
+                name: "item1",
+                inputType: "date",
+                title: "Depature Date "
+              },
+              {
+                name: "item2",
+                inputType: "date",
+                title: "Arrival Date "
+              },
+            ]
+          },
+        ]
+      });
+      const inputSelector = Selector(".sd-input");
+      await takeElementScreenshot("responsiveness-multipletext-date-empty.png", Selector(".sd-question"), t, comparer);
+      await t.click(inputSelector.nth(0));
+      await takeElementScreenshot("responsiveness-multipletext-date-focus.png", Selector(".sd-question"), t, comparer);
+      await t.typeText(inputSelector.nth(1), "2004-01-12")
+        .click(inputSelector.nth(2))
+        .typeText(inputSelector.nth(3), "2004-02-12");
+      await resetFocusToBody();
+      await takeElementScreenshot("responsiveness-multipletext-date.png", Selector(".sd-question"), t, comparer);
+    });
+  });
   test("Check multicolumn checkbox question on small screen", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1080);

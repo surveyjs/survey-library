@@ -9,7 +9,7 @@
   <div [class]="model.cssClasses.dragArea" (dragenter)="model.onDragEnter($event)" (drop)="model.onDrop($event)"
     (dragover)="model.onDragOver($event)" (dragleave)="model.onDragLeave($event)">
     <div [class]="model.getFileDecoratorCss()" *ngIf="model.showFileDecorator">
-      <span [class]="model.cssClasses.dragAreaPlaceholder">{{ model.renderedPlaceholder }}</span>
+      <span [class]="model.cssClasses.dragAreaPlaceholder" [model]="model.locRenderedPlaceholder" sv-ng-string></span>
       <div [class]="model.cssClasses.wrapper">
         <sv-ng-choose-file-btn [data]="{ question: model }" *ngIf="model.showChooseButton"></sv-ng-choose-file-btn>
         <sv-ng-action-bar [model]="model.actionsContainer" *ngIf="model.actionsContainerVisible"></sv-ng-action-bar>

@@ -47,7 +47,7 @@ export var japaneseSurveyStrings = {
   loadingFile: "読み込み中",
   chooseFile: "ファイルを選択",
   noFileChosen: "選択されたファイルはありません",
-  fileDragAreaPlaceholder: "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。",
+  filePlaceholder: "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。",
   confirmDelete: "レコードを削除しますか？",
   keyDuplicationError: "この値は一意でなければなりません。",
   addColumn: "列の追加",
@@ -76,8 +76,8 @@ export var japaneseSurveyStrings = {
   signaturePlaceHolder: "ここに署名",
   chooseFileCaption: "ファイルを選択",
   takePhotoCaption: "写真を撮る",
-  cameraPlaceHolder: "下のボタンをクリックして、カメラを使用して写真を撮ります。",
-  fileCameraDragAreaPlaceHolder: "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。",
+  photoPlaceholder: "下のボタンをクリックして、カメラを使用して写真を撮ります。",
+  fileOrPhotoPlaceholder: "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。",
   replaceFileCaption: "ファイルの置換",
   removeFileCaption: "このファイルを削除",
   booleanCheckedLabel: "噫",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["ja"] = "日本語";
 // ratingOptionsCaption: "Select..." => "選ぶ。。。"
 // minError: "The value should not be less than {0}" => "値は {0} 値より小さくすることはできません"
 // maxError: "The value should not be greater than {0}" => "値は {0} を超えてはなりません。"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。"
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ここにファイルをドラッグ&ドロップするか、下のボタンをクリックしてアップロードするファイルを選択してください。"
 // emptyRowsText: "There are no rows." => "行はありません。"
 // multipletext_itemname: "text" => "テキスト"
 // signaturePlaceHolder: "Sign here" => "ここに署名"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["ja"] = "日本語";
 // tagboxDoneButtonCaption: "OK" => "わかりました"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "すべての選択肢がランク付けされます"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ここに選択肢をドラッグアンドドロップしてランク付けします"// takePhotoCaption: "Take Photo" => "写真を撮る"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "下のボタンをクリックして、カメラを使用して写真を撮ります。"
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。"
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "下のボタンをクリックして、カメラを使用して写真を撮ります。"
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。"
 // replaceFileCaption: "Replace file" => "ファイルの置換"

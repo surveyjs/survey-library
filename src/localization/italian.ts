@@ -47,7 +47,7 @@ export var italianSurveyStrings = {
   loadingFile: "Caricamento...",
   chooseFile: "Selezionare file(s)...",
   noFileChosen: "Nessun file selezionato",
-  fileDragAreaPlaceholder: "Trascina un file qui o fai clic sul pulsante in basso per caricare il file.",
+  filePlaceholder: "Trascina un file qui o fai clic sul pulsante in basso per caricare il file.",
   confirmDelete: "Sei sicuro di voler elminare il record?",
   keyDuplicationError: "Questo valore deve essere univoco.",
   addColumn: "Aggiungi colonna",
@@ -76,8 +76,8 @@ export var italianSurveyStrings = {
   signaturePlaceHolder: "Firmare qui",
   chooseFileCaption: "Scegliere il file",
   takePhotoCaption: "Scatta foto",
-  cameraPlaceHolder: "Fai clic sul pulsante qui sotto per scattare una foto utilizzando la fotocamera.",
-  fileCameraDragAreaPlaceHolder: "Trascina e rilascia o seleziona un file da caricare o scattare una foto utilizzando la fotocamera.",
+  photoPlaceholder: "Fai clic sul pulsante qui sotto per scattare una foto utilizzando la fotocamera.",
+  fileOrPhotoPlaceholder: "Trascina e rilascia o seleziona un file da caricare o scattare una foto utilizzando la fotocamera.",
   replaceFileCaption: "Sostituisci file",
   removeFileCaption: "Rimuovere questo file",
   booleanCheckedLabel: "Sì",
@@ -109,6 +109,6 @@ surveyLocalization.localeNames["it"] = "italiano";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tutte le scelte sono classificate"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Trascina e rilascia le scelte qui per classificarle"// takePhotoCaption: "Take Photo" => "Scatta foto"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Fai clic sul pulsante qui sotto per scattare una foto utilizzando la fotocamera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Trascina e rilascia o seleziona un file da caricare o scattare una foto utilizzando la fotocamera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Fai clic sul pulsante qui sotto per scattare una foto utilizzando la fotocamera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Trascina e rilascia o seleziona un file da caricare o scattare una foto utilizzando la fotocamera."
 // replaceFileCaption: "Replace file" => "Sostituisci file"

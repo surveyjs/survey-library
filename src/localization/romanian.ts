@@ -47,7 +47,7 @@ export var romanianSurveyStrings: any = {
   loadingFile: "Se încarcă...",
   chooseFile: "Alege fisierele...",
   noFileChosen: "Niciun fișier ales",
-  fileDragAreaPlaceholder: "Glisați și fixați un fișier aici sau faceți clic pe butonul de mai jos și alegeți un fișier de încărcat.",
+  filePlaceholder: "Glisați și fixați un fișier aici sau faceți clic pe butonul de mai jos și alegeți un fișier de încărcat.",
   confirmDelete: "Sunteți sigur că doriți să ștergeți înregistrarea?",
   keyDuplicationError: "Valoarea trebuie să fie unică.",
   addColumn: "Adăugați coloană",
@@ -76,8 +76,8 @@ export var romanianSurveyStrings: any = {
   signaturePlaceHolder: "Semnează aici",
   chooseFileCaption: "Alege fișierul",
   takePhotoCaption: "Faceți o fotografie",
-  cameraPlaceHolder: "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera.",
-  fileCameraDragAreaPlaceHolder: "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera.",
+  photoPlaceholder: "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera.",
+  fileOrPhotoPlaceholder: "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera.",
   replaceFileCaption: "Înlocuire fișier",
   removeFileCaption: "Eliminați acest fișier",
   booleanCheckedLabel: "da",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["ro"] = "română";
 // ratingOptionsCaption: "Select..." => "Alege..."
 // minError: "The value should not be less than {0}" => "Valoarea nu trebuie să fie mai mică de {0}"
 // maxError: "The value should not be greater than {0}" => "Valoarea nu trebuie să fie mai mare de {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Glisați și fixați un fișier aici sau faceți clic pe butonul de mai jos și alegeți un fișier de încărcat."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Glisați și fixați un fișier aici sau faceți clic pe butonul de mai jos și alegeți un fișier de încărcat."
 // emptyRowsText: "There are no rows." => "Nu există rânduri."
 // multipletext_itemname: "text" => "Text"
 // signaturePlaceHolder: "Sign here" => "Semnează aici"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["ro"] = "română";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Toate opțiunile sunt clasificate"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Glisați și fixați opțiunile aici pentru a le clasifica"// takePhotoCaption: "Take Photo" => "Faceți o fotografie"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera."
 // replaceFileCaption: "Replace file" => "Înlocuire fișier"

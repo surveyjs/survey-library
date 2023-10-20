@@ -47,7 +47,7 @@ export var simplifiedChineseSurveyStrings = {
   loadingFile: "加载...",
   chooseFile: "选择文件...",
   noFileChosen: "未选择文件",
-  fileDragAreaPlaceholder: "将文件拖放到此处或单击下面的按钮并选择要上传的文件。",
+  filePlaceholder: "将文件拖放到此处或单击下面的按钮并选择要上传的文件。",
   confirmDelete: "删除记录?",
   keyDuplicationError: "主键不能重复",
   addColumn: "添加列",
@@ -76,8 +76,8 @@ export var simplifiedChineseSurveyStrings = {
   signaturePlaceHolder: "在此签名",
   chooseFileCaption: "选择文件",
   takePhotoCaption: "拍照",
-  cameraPlaceHolder: "单击下面的按钮使用相机拍照。",
-  fileCameraDragAreaPlaceHolder: "拖放或选择要上传的文件或使用相机拍摄照片。",
+  photoPlaceholder: "单击下面的按钮使用相机拍照。",
+  fileOrPhotoPlaceholder: "拖放或选择要上传的文件或使用相机拍摄照片。",
   replaceFileCaption: "替换文件",
   removeFileCaption: "移除文件",
   booleanCheckedLabel: "是",
@@ -105,7 +105,7 @@ surveyLocalization.localeNames["zh-cn"] = "简体中文";
 // indexText: "{0} of {1}" => "{1}{0}"
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "面板 {面板索引}"
 // ratingOptionsCaption: "Select..." => "选择。。。"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "将文件拖放到此处或单击下面的按钮并选择要上传的文件。"
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "将文件拖放到此处或单击下面的按钮并选择要上传的文件。"
 // signaturePlaceHolder: "Sign here" => "在此签名"
 // filterStringPlaceholder: "Type to search..." => "键入以搜索..."
 // emptyMessage: "No data to display" => "没有要显示的数据"
@@ -115,6 +115,6 @@ surveyLocalization.localeNames["zh-cn"] = "简体中文";
 // tagboxDoneButtonCaption: "OK" => "还行"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "所有选择均已排名"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "将选项拖放到此处进行排名"// takePhotoCaption: "Take Photo" => "拍照"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "单击下面的按钮使用相机拍照。"
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "拖放或选择要上传的文件或使用相机拍摄照片。"
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "单击下面的按钮使用相机拍照。"
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "拖放或选择要上传的文件或使用相机拍摄照片。"
 // replaceFileCaption: "Replace file" => "替换文件"

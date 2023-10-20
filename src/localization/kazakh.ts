@@ -47,7 +47,7 @@ export var kazakhStrings = {
   loadingFile: "Жүктеу...",
   chooseFile: "Файлдарды таңдаңыз...",
   noFileChosen: "Файл таңдалынбады",
-  fileDragAreaPlaceholder: "Файлды осы жерге апарып тастаңыз немесе төмендегі түймені басыңыз және кері жүктеу үшін файлды таңдаңыз.",
+  filePlaceholder: "Файлды осы жерге апарып тастаңыз немесе төмендегі түймені басыңыз және кері жүктеу үшін файлды таңдаңыз.",
   confirmDelete: "Сіз жазбаны жоятыныңызға сенімдісіз бе?",
   keyDuplicationError: "Бұл мән бірегей болу керек.",
   addColumn: "Бағана қосу",
@@ -76,8 +76,8 @@ export var kazakhStrings = {
   signaturePlaceHolder: "Осында кіру",
   chooseFileCaption: "Файл таңдаңыз",
   takePhotoCaption: "Фотосуретке түсу",
-  cameraPlaceHolder: "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз.",
-  fileCameraDragAreaPlaceHolder: "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз.",
+  photoPlaceholder: "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз.",
+  fileOrPhotoPlaceholder: "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз.",
   replaceFileCaption: "Файлды ауыстыру",
   removeFileCaption: "Файлды жойыңыз",
   booleanCheckedLabel: "Иә",
@@ -106,7 +106,7 @@ surveyLocalization.localeNames["kk"] = "Kazakh";
 // ratingOptionsCaption: "Select..." => "Таңдау..."
 // minError: "The value should not be less than {0}" => "Мәні {0} кем болмауы тиіс"
 // maxError: "The value should not be greater than {0}" => "Мән {0} артық болмауы тиіс"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Файлды осы жерге апарып тастаңыз немесе төмендегі түймені басыңыз және кері жүктеу үшін файлды таңдаңыз."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Файлды осы жерге апарып тастаңыз немесе төмендегі түймені басыңыз және кері жүктеу үшін файлды таңдаңыз."
 // emptyRowsText: "There are no rows." => "Қатарлар жоқ."
 // multipletext_itemname: "text" => "мәтін"
 // signaturePlaceHolder: "Sign here" => "Осында кіру"
@@ -120,6 +120,6 @@ surveyLocalization.localeNames["kk"] = "Kazakh";
 // tagboxDoneButtonCaption: "OK" => "ЖАҚСЫ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Барлық таңдаулар ранжирленген"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Таңдауды рангтеу үшін осында апарып тастау"// takePhotoCaption: "Take Photo" => "Фотосуретке түсу"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз."
 // replaceFileCaption: "Replace file" => "Файлды ауыстыру"

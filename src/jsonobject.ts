@@ -19,7 +19,11 @@ function ensureLocString(
 ) {
   let locString = target.getLocalizableString(key);
   if (!locString) {
-    locString = target.createLocalizableString(key, target, true);
+    let defaultStr: string;
+    if(typeof options.localizable === "object" && options.localizable.defaultStr) {
+      defaultStr = options.localizable.defaultStr;
+    }
+    locString = target.createLocalizableString(key, target, true, defaultStr);
     if (
       typeof options.localizable === "object" &&
       typeof options.localizable.onGetTextCallback === "function"

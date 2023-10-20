@@ -47,7 +47,7 @@ export var swedishSurveyStrings = {
   loadingFile: "Laddar...",
   chooseFile: "Välj fil(er) ...",
   noFileChosen: "Ingen fil vald",
-  fileDragAreaPlaceholder: "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp.",
+  filePlaceholder: "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp.",
   confirmDelete: "Vill du radera posten?",
   keyDuplicationError: "Detta värde ska vara unikt.",
   addColumn: "Lägg till kolumn",
@@ -76,8 +76,8 @@ export var swedishSurveyStrings = {
   signaturePlaceHolder: "Signera här",
   chooseFileCaption: "Välj fil",
   takePhotoCaption: "Ta foto",
-  cameraPlaceHolder: "Klicka på knappen nedan för att ta ett foto med kameran.",
-  fileCameraDragAreaPlaceHolder: "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran.",
+  photoPlaceholder: "Klicka på knappen nedan för att ta ett foto med kameran.",
+  fileOrPhotoPlaceholder: "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran.",
   replaceFileCaption: "Ersätt fil",
   removeFileCaption: "Ta bort den här filen",
   booleanCheckedLabel: "Ja",
@@ -103,12 +103,12 @@ surveyLocalization.localeNames["sv"] = "svenska";
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra och släpp en fil här eller klicka på knappen nedan och välj en fil att ladda upp."
 // emptyRowsText: "There are no rows." => "Det finns inga rader."
 // noEntriesReadonlyText: "There are no entries." => "Det finns inga poster."
 // tagboxDoneButtonCaption: "OK" => "OKEJ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alla val rangordnas"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra och släpp val här för att rangordna dem"// takePhotoCaption: "Take Photo" => "Ta foto"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klicka på knappen nedan för att ta ett foto med kameran."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Klicka på knappen nedan för att ta ett foto med kameran."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran."
 // replaceFileCaption: "Replace file" => "Ersätt fil"

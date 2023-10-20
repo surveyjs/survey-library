@@ -47,7 +47,7 @@ export var bulgarianStrings = {
   loadingFile: "Зареждане...",
   chooseFile: "Изберете файл(ове)...",
   noFileChosen: "Няма избран файл",
-  fileDragAreaPlaceholder: "Плъзнете и пуснете файл тук или щракнете върху бутона по-долу и изберете файл за качване.",
+  filePlaceholder: "Плъзнете и пуснете файл тук или щракнете върху бутона по-долу и изберете файл за качване.",
   confirmDelete: "Желаете ли да изтриете записа?",
   keyDuplicationError: "Стойността следва да бъде уникална.",
   addColumn: "Добавяне на колона",
@@ -76,8 +76,8 @@ export var bulgarianStrings = {
   signaturePlaceHolder: "Подпишете тук",
   chooseFileCaption: "Изберете файл",
   takePhotoCaption: "Направете снимка",
-  cameraPlaceHolder: "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата.",
-  fileCameraDragAreaPlaceHolder: "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата.",
+  photoPlaceholder: "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата.",
+  fileOrPhotoPlaceholder: "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата.",
   replaceFileCaption: "Заместване на файл",
   removeFileCaption: "Премахване на файла",
   booleanCheckedLabel: "Да",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["bg"] = "български";
 // ratingOptionsCaption: "Select..." => "Отбран..."
 // minError: "The value should not be less than {0}" => "Стойността не трябва да бъде по-малка от {0}"
 // maxError: "The value should not be greater than {0}" => "Стойността не трябва да бъде по-голяма от {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Плъзнете и пуснете файл тук или щракнете върху бутона по-долу и изберете файл за качване."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Плъзнете и пуснете файл тук или щракнете върху бутона по-долу и изберете файл за качване."
 // emptyRowsText: "There are no rows." => "Няма редове."
 // multipletext_itemname: "text" => "Текст"
 // signaturePlaceHolder: "Sign here" => "Подпишете тук"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["bg"] = "български";
 // tagboxDoneButtonCaption: "OK" => "Добре"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Всички възможности за избор са класирани"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Плъзнете и пуснете опции тук, за да ги класирате"// takePhotoCaption: "Take Photo" => "Направете снимка"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата."
 // replaceFileCaption: "Replace file" => "Заместване на файл"

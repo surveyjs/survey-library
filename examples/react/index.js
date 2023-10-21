@@ -1048,7 +1048,7 @@ function init() {
     });
 
   ReactDOM.render(
-    <SurveyReact.Survey model={model} />,
+    <Survey.Survey model={model} />,
     document.getElementById("surveyElement")
   );
 }

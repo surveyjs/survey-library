@@ -30,10 +30,6 @@ sv-popup {
   padding: 0;
 }
 
-.sv-popup__body-content .sv-list {
-  background-color: transparent;
-}
-
 .sv-popup__shadow {
   width: 100%;
   height: 100%;
@@ -288,6 +284,10 @@ sv-popup {
     background-color: $background;
     padding: calcSize(1) 0;
     height: 100%;
+  }
+
+  .sv-popup__body-content .sv-list {
+    background-color: transparent;
   }
 }
 

@@ -12,6 +12,7 @@ import { DropdownListModel } from "./dropdownListModel";
 import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
+import { ITheme } from "./themes";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -530,10 +531,20 @@ export class QuestionRatingModel extends Question {
   public get isSmiley() {
     return this.rateType == "smileys";
   }
-  public get itemComponentName() {
+  getDefaultItemComponent(): string {
+    if (this.renderAs == "dropdown") return "";
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";
+  }
+  /**
+   * The name of a component used to render items.
+   */
+  public get itemComponent(): string {
+    return this.getPropertyValue("itemComponent", this.getDefaultItemComponent());
+  }
+  public set itemComponent(value: string) {
+    this.setPropertyValue("itemComponent", value);
   }
 
   protected valueToData(val: any): any {
@@ -715,7 +726,7 @@ export class QuestionRatingModel extends Question {
       .append(itemScaleColoredClass, this.scaleColorMode == "colored")
       .append(itemRateColoredClass, this.rateColorMode == "scale" && isSelected)
       .append(itemUnhighlightedClass, isUnhighlighted)
-      .append(itemitemOnErrorClass, this.errors.length > 0)
+      .append(itemitemOnErrorClass, this.hasCssError())
       .append(itemSmallClass, this.itemSmallMode)
       .append(this.cssClasses.itemFixedSize, hasFixedSize)
       .toString();
@@ -726,7 +737,7 @@ export class QuestionRatingModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .toString();
   }
@@ -811,16 +822,15 @@ export class QuestionRatingModel extends Question {
     }
     return classes;
   }
+  public themeChanged(theme: ITheme): void {
+    this.colorsCalculated = false;
+    this.updateColors(theme.cssVariables);
+    this.createRenderedRateItems();
+  }
   public setSurveyImpl(value: ISurveyImpl, isLight?: boolean) {
     super.setSurveyImpl(value, isLight);
     if (!this.survey) return;
     this.updateColors((this.survey as SurveyModel).themeVariables);
-
-    (<SurveyModel>this.survey).onThemeApplied.add((survey, options) => {
-      this.colorsCalculated = false;
-      this.updateColors(options.theme.cssVariables);
-      this.createRenderedRateItems();
-    });
   }
   public dispose(): void {
     super.dispose();
@@ -949,7 +959,13 @@ Serializer.addClass(
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
       visibleIndex: 20
-    }
+    },
+    { name: "itemComponent", visible: false,
+      defaultFunc: (obj: any): any => {
+        if(!obj) return "sv-rating-item";
+        if(!!obj.getOriginalObj) obj = obj.getOriginalObj();
+        return obj.getDefaultItemComponent();
+      } }
   ],
   function () {
     return new QuestionRatingModel("");

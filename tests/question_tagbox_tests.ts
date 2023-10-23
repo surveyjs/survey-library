@@ -1292,3 +1292,158 @@ QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert)
   assert.equal(q.readOnlyText, "en-sel", "Empty en, #3");
   assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en, #3");
 });
+QUnit.test("question.showClearButton", assert => {
+  const json = {
+    questions: [
+      {
+        "type": "tagbox",
+        "name": "q1",
+        "optionsCaption": "New optionsCaption",
+        "choices": [
+          "Ford",
+          "Vauxhall",
+          "Volkswagen"
+        ]
+      }]
+  };
+  const survey = new SurveyModel(json);
+  const q = <QuestionTagboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.showClearButton, false, "question is empty");
+  q.value = "Ford";
+  assert.equal(q.showClearButton, true, "question is not empty");
+  q.allowClear = false;
+  assert.equal(q.showClearButton, false, "allowClear is false");
+  q.allowClear = true;
+  survey.setDesignMode(true);
+  assert.equal(q.showClearButton, false, "design mode");
+  settings.supportCreatorV2 = true;
+  assert.equal(q.showClearButton, true, "Creator V2");
+  settings.supportCreatorV2 = false;
+});
+QUnit.test("lazy loading: maxSelectedChoices limit stops working if you clear the value", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "defaultValue": [1],
+      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadPageSize": 30,
+      "maxSelectedChoices": 2
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.deepEqual(question.value, [1]);
+    assert.equal(question.choices.length, 30);
+    for(let index = 0; index < list.actions.length - 1; index++) {
+      assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before clear");
+    }
+
+    list.onItemClick(list.actions[1]);
+    assert.deepEqual(question.value, [1, 2]);
+    assert.ok(list.actions[0].enabled, "action 1 is enabled before clear");
+    assert.ok(list.actions[1].enabled, "action 2 is enabled before clear");
+    for(let index = 2; index < list.actions.length - 1; index++) {
+      assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before clear");
+    }
+    question.dropdownListModel.popupModel.isVisible = false;
+    question.dropdownListModel.onClear({
+      keyCode: 0,
+      preventDefault: () => { },
+      stopPropagation: () => { }
+    });
+
+    question.dropdownListModel.popupModel.toggleVisibility();
+    setTimeout(() => {
+      assert.deepEqual(question.value, [], "question value is empty");
+      list.onItemClick(list.actions[0]);
+      assert.deepEqual(question.value, [1], "question value is [1]");
+
+      for(let index = 0; index < list.actions.length - 1; index++) {
+        assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after clear");
+      }
+
+      list.onItemClick(list.actions[1]);
+      assert.deepEqual(question.value, [1, 2], "question value is [1, 2] after clear");
+      assert.ok(list.actions[0].enabled, "action 1 is enabled after clear");
+      assert.ok(list.actions[1].enabled, "action 2 is enabled after clear");
+      for(let index = 2; index < list.actions.length - 1; index++) {
+        assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled after clear");
+      }
+
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unselecting choices within a drop-down list", assert => {
+  const done1 = assert.async();
+  const done2 = assert.async();
+  const json = {
+    questions: [{
+      "type": "tagbox",
+      "name": "q1",
+      "defaultValue": [1],
+      "choicesLazyLoadEnabled": true,
+      "choicesLazyLoadPageSize": 30,
+      "maxSelectedChoices": 2
+    }]
+  };
+  const survey = new SurveyModel(json);
+  survey.onChoicesLazyLoad.add(callback);
+
+  const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: MultiSelectListModel = dropdownListModel.popupModel.contentComponentData.model as MultiSelectListModel;
+  assert.equal(question.choicesLazyLoadEnabled, true);
+  assert.equal(question.choices.length, 0);
+
+  question.dropdownListModel.popupModel.toggleVisibility();
+  setTimeout(() => {
+    assert.deepEqual(question.value, [1]);
+    assert.equal(question.choices.length, 30);
+    for(let index = 0; index < list.actions.length - 1; index++) {
+      assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled before unselecting choice");
+    }
+
+    list.onItemClick(list.actions[1]);
+    assert.deepEqual(question.value, [1, 2]);
+    assert.ok(list.actions[0].enabled, "action 1 is enabled before unselecting choice");
+    assert.ok(list.actions[1].enabled, "action 2 is enabled before unselecting choice");
+    for(let index = 2; index < list.actions.length - 1; index++) {
+      assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled before unselecting choice");
+    }
+    question.dropdownListModel.popupModel.isVisible = false;
+    question.dropdownListModel.popupModel.toggleVisibility();
+    setTimeout(() => {
+      assert.deepEqual(question.value, [1, 2], "question value is [1, 2]");
+      assert.ok(list.actions[0].enabled, "action 1 is enabled");
+      assert.ok(list.actions[1].enabled, "action 2 is enabled");
+      for(let index = 2; index < list.actions.length - 1; index++) {
+        assert.notOk(list.actions[index].enabled, list.actions[index].id + " is disabled");
+      }
+
+      list.onItemClick(list.actions[1]);
+      assert.deepEqual(question.value, [1], "question value is [1]");
+      for(let index = 0; index < list.actions.length - 1; index++) {
+        assert.ok(list.actions[index].enabled, list.actions[index].id + " is enabled after unselecting choice");
+      }
+
+      done2();
+    }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+
+    done1();
+  }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});

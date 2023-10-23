@@ -20,6 +20,7 @@ import { getElementWidth, increaseHeightByContent, isContainerVisible } from "./
 import { PopupModel } from "./popup";
 import { ConsoleWarnings } from "./console-warnings";
 import { ProcessValue } from "./conditionProcessValue";
+import { ITheme } from "./themes";
 
 export interface IConditionObject {
   name: string;
@@ -45,6 +46,7 @@ class TriggerExpressionInfo {
   runner: ExpressionRunner;
   isRunning: boolean;
   constructor(public name: string, public canRun: () => boolean, public doComplete: () => void) {}
+  runSecondCheck: (keys: any) => boolean = (keys: any): boolean => false;
 }
 
 /**
@@ -67,6 +69,7 @@ export class Question extends SurveyElement<Question>
   focusCallback: () => void;
   surveyLoadCallback: () => void;
   displayValueCallback: (text: string) => string;
+  hasCssErrorCallback: () => boolean = (): boolean => false;
 
   private defaultValueRunner: ExpressionRunner;
   private isChangingViaDefaultValue: boolean;
@@ -113,6 +116,7 @@ export class Question extends SurveyElement<Question>
   public setIsMobile(val: boolean) {
     this.isMobile = val && (this.allowMobileInDesignMode() || !this.isDesignMode);
   }
+  public themeChanged(theme: ITheme): void { }
   @property({ defaultValue: false }) isMobile: boolean;
   @property() forceIsInputReadOnly: boolean;
 
@@ -140,7 +144,8 @@ export class Question extends SurveyElement<Question>
       this.clearValue();
       this.updateValueWithDefaults();
     });
-    this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
+    const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
+    setValueIfInfo.runSecondCheck = (keys: any): boolean => this.checkExpressionIf(keys);
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
@@ -167,7 +172,7 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly"], () => {
+    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
       this.updateQuestionCss();
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
@@ -519,30 +524,47 @@ export class Question extends SurveyElement<Question>
     };
   }
   private setValueExpressionRunner: ExpressionRunner;
+  private ensureSetValueExpressionRunner(): void {
+    if(!this.setValueExpressionRunner) {
+      this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
+      this.setValueExpressionRunner.onRunComplete = (res: any): void => {
+        if(!this.isTwoValueEquals(this.value, res)) {
+          this.value = res;
+        }
+      };
+    } else {
+      this.setValueExpressionRunner.expression = this.setValueExpression;
+    }
+  }
   private runSetValueExpression(): void {
     if(!this.setValueExpression) {
       this.clearValue();
     } else {
-      if(!this.setValueExpressionRunner) {
-        this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
-        this.setValueExpressionRunner.onRunComplete = (res: any): void => {
-          if(!this.isTwoValueEquals(this.value, res)) {
-            this.value = res;
-          }
-        };
-      } else {
-        this.setValueExpressionRunner.expression = this.setValueExpression;
-      }
+      this.ensureSetValueExpressionRunner();
       this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
+  private checkExpressionIf(keys: any): boolean {
+    this.ensureSetValueExpressionRunner();
+    if(!this.setValueExpressionRunner) return false;
+    return new ProcessValue().isAnyKeyChanged(keys, this.setValueExpressionRunner.getVariables());
+  }
   private triggersInfo: Array<TriggerExpressionInfo> = [];
-  private addTriggerInfo(name: string, canRun: ()=> boolean, doComplete: () => void): void {
-    this.triggersInfo.push(new TriggerExpressionInfo(name, canRun, doComplete));
+  private addTriggerInfo(name: string, canRun: ()=> boolean, doComplete: () => void): TriggerExpressionInfo {
+    const info = new TriggerExpressionInfo(name, canRun, doComplete);
+    this.triggersInfo.push(info);
+    return info;
   }
   private runTriggerInfo(info: TriggerExpressionInfo, name: string, value: any): void {
     const expression = this[info.name];
-    if(!expression || info.isRunning || !info.canRun()) return;
+    const keys: any = {};
+    keys[name] = value;
+    if(!expression || info.isRunning || !info.canRun()) {
+      if(info.runSecondCheck(keys)) {
+        info.doComplete();
+      }
+      return;
+    }
     if(!info.runner) {
       info.runner = new ExpressionRunner(expression);
       info.runner.onRunComplete = (res: any): void => {
@@ -554,9 +576,7 @@ export class Question extends SurveyElement<Question>
     } else {
       info.runner.expression = expression;
     }
-    const keys: any = {};
-    keys[name] = value;
-    if(!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables())) return;
+    if(!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables()) && !info.runSecondCheck(keys)) return;
     info.isRunning = true;
     info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
@@ -960,13 +980,19 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("cssRoot", val);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    const hasError = this.hasCssError();
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
       .append(this.isFlowLayout && !this.isDesignMode
         ? cssClasses.flowRoot
         : cssClasses.mainRoot)
       .append(cssClasses.titleLeftRoot, !this.isFlowLayout && this.hasTitleOnLeft)
-      .append(cssClasses.hasError, this.errors.length > 0)
+      .append(cssClasses.titleTopRoot, !this.isFlowLayout && this.hasTitleOnTop)
+      .append(cssClasses.titleBottomRoot, !this.isFlowLayout && this.hasTitleOnBottom)
+      .append(cssClasses.descriptionUnderInputRoot, !this.isFlowLayout && this.hasDescriptionUnderInput)
+      .append(cssClasses.hasError, hasError)
+      .append(cssClasses.hasErrorTop, hasError && this.getErrorLocation() == "top")
+      .append(cssClasses.hasErrorBottom, hasError && this.getErrorLocation() == "bottom")
       .append(cssClasses.small, !this.width)
       .append(cssClasses.answered, this.isAnswered)
       .toString();
@@ -1062,6 +1088,9 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.error.locationTop, this.showErrorOnTop)
       .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
+  }
+  protected hasCssError(): boolean {
+    return this.errors.length > 0 || this.hasCssErrorCallback();
   }
   public getRootCss(): string {
     return new CssClassBuilder()
@@ -1673,7 +1702,9 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("setValueIf", val);
   }
   /**
-   * An expression used to calculate the question value. Applies only when the [`setValueIf`](#setValueIf) expression evaluates to `true`.
+   * An expression used to calculate the question value.
+   *
+   * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated question value applies only when `setValueIf` evaluates to `true`.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
    * @see defaultValueExpression
@@ -2018,9 +2049,6 @@ export class Question extends SurveyElement<Question>
       }
     }
     this.updateContainsErrors();
-    if (oldHasErrors != errors.length > 0) {
-      this.updateQuestionCss();
-    }
     if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
       this.expand();
     }
@@ -2530,7 +2558,7 @@ export class Question extends SurveyElement<Question>
   public get ariaInvalid() {
     if (this.isNewA11yStructure) return null;
 
-    return this.errors.length > 0 ? "true" : "false";
+    return this.hasCssError() ? "true" : "false";
   }
   public get ariaLabelledBy(): string {
     if (this.isNewA11yStructure) return null;
@@ -2547,7 +2575,7 @@ export class Question extends SurveyElement<Question>
   public get ariaDescribedBy(): string {
     if (this.isNewA11yStructure) return null;
 
-    return this.errors.length > 0 ? this.id + "_errors" : null;
+    return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO a11y
 
@@ -2559,7 +2587,7 @@ export class Question extends SurveyElement<Question>
     return this.isRequired ? "true" : "false";
   }
   public get a11y_input_ariaInvalid(): "true" | "false" {
-    return this.errors.length > 0 ? "true" : "false";
+    return this.hasCssError() ? "true" : "false";
   }
   public get a11y_input_ariaLabel(): string {
     if (this.hasTitle && !this.parentQuestion) {
@@ -2576,7 +2604,7 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
-    return this.errors.length > 0 ? this.id + "_errors" : null;
+    return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO new a11y
 }

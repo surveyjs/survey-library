@@ -12,12 +12,12 @@ import {
 import { SurveyElement } from "./survey-element";
 import { SurveyValidator, IValidatorOwner } from "./validator";
 import { Question, IConditionObject } from "./question";
-import { QuestionTextModel } from "./question_text";
+import { QuestionTextModel, isMinMaxType } from "./question_text";
 import { JsonObject, Serializer, property, propertyArray } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { SurveyError } from "./survey-error";
 import { ILocalizableOwner, LocalizableString } from "./localizablestring";
-import { Helpers } from "./helpers";
+import { HashTable, Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 
@@ -207,6 +207,24 @@ export class MultipleTextItemModel extends Base
   }
   public set size(val: number) {
     this.editor.size = val;
+  }
+  /**
+   * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
+   */
+  public get minValueExpression(): string {
+    return this.editor.minValueExpression;
+  }
+  public set minValueExpression(val: string) {
+    this.editor.minValueExpression = val;
+  }
+  /**
+   * The maximum value specified as an expression. For example, `"maxValueExpression": "today(1)"` sets the maximum value to tomorrow.
+   */
+  public get maxValueExpression(): string {
+    return this.editor.maxValueExpression;
+  }
+  public set maxValueExpression(val: string) {
+    this.editor.maxValueExpression = val;
   }
   /**
    * The list of question validators.
@@ -568,6 +586,10 @@ export class QuestionMultipleTextModel extends Question
       this.items[i].onValueChanged(itemValue);
     }
   }
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
+    super.runCondition(values, properties);
+    this.items.forEach(item => item.editor.runCondition(values, properties));
+  }
   protected getIsRunningValidators(): boolean {
     if (super.getIsRunningValidators()) return true;
     for (var i = 0; i < this.items.length; i++) {
@@ -781,6 +803,22 @@ Serializer.addClass(
     {
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
+    },
+    {
+      name: "minValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function(obj: any) {
+        return isMinMaxType(obj);
+      },
+    },
+    {
+      name: "maxValueExpression:expression",
+      category: "logic",
+      dependsOn: "inputType",
+      visibleIf: function(obj: any) {
+        return isMinMaxType(obj);
+      },
     },
     {
       name: "validators:validators",

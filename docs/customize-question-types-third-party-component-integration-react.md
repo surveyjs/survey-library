@@ -203,6 +203,7 @@ export class SurveyQuestionColorPicker extends SurveyQuestionElementBase {
 Register your custom class (`SurveyQuestionColorPicker`) as a class that renders a custom question type (`color-picker`):
 
 ```js
+import { createElement } from "react";
 import { ..., ReactQuestionFactory } from "survey-react-ui";
 
 const CUSTOM_TYPE = "color-picker";

@@ -322,7 +322,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 .sd-rating__item-text.sd-rating__item-text {
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
-  color: $font-editorfont-color;
+  color: $font-questiontitle-color;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
@@ -332,7 +332,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     margin-top: calcSize(1.25);
     margin-bottom: calcSize(1.25);
     border: 2px solid transparent;
-    color: $foreground-light;
+    color: $font-questiondescription-color;
   }
 
   &.sd-rating__min-text {

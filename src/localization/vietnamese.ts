@@ -47,7 +47,7 @@ export var vietnameseSurveyStrings = {
   loadingFile: "Đang tải...",
   chooseFile: "Chọn các tập tin...",
   noFileChosen: "Không có tập tin nào được chọn",
-  fileDragAreaPlaceholder: "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên.",
+  filePlaceholder: "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên.",
   confirmDelete: "Bạn muốn xóa dòng này?",
   keyDuplicationError: "Giá trị này không nên bị trùng lặp.",
   addColumn: "Thêm cột",
@@ -76,8 +76,8 @@ export var vietnameseSurveyStrings = {
   signaturePlaceHolder: "Ký tên tại đây",
   chooseFileCaption: "Chọn tập tin",
   takePhotoCaption: "Chụp ảnh",
-  cameraPlaceHolder: "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh.",
-  fileCameraDragAreaPlaceHolder: "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh.",
+  photoPlaceholder: "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh.",
+  fileOrPhotoPlaceholder: "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh.",
   replaceFileCaption: "Thay thế tập tin",
   removeFileCaption: "Xóa tập tin",
   booleanCheckedLabel: "Có",
@@ -108,7 +108,7 @@ surveyLocalization.localeNames["vi"] = "Việt Nam";
 // ratingOptionsCaption: "Select..." => "Lựa..."
 // minError: "The value should not be less than {0}" => "Giá trị không được nhỏ hơn {0}"
 // maxError: "The value should not be greater than {0}" => "Giá trị không được lớn hơn {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Kéo và thả tệp vào đây hoặc nhấp vào nút bên dưới và chọn tệp để tải lên."
 // emptyRowsText: "There are no rows." => "Không có hàng."
 // multipletext_itemname: "text" => "Nhắn tin"
 // signaturePlaceHolder: "Sign here" => "Ký tên tại đây"
@@ -122,6 +122,6 @@ surveyLocalization.localeNames["vi"] = "Việt Nam";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Tất cả các lựa chọn được xếp hạng"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"// takePhotoCaption: "Take Photo" => "Chụp ảnh"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh."
 // replaceFileCaption: "Replace file" => "Thay thế tập tin"

@@ -54,6 +54,9 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   public set showOptionsCaption(val: boolean) {
     this.allowClear = val;
   }
+  public get showClearButton(): boolean {
+    return this.allowClear && !this.isEmpty() && (!this.isDesignMode || settings.supportCreatorV2);
+  }
   public get optionsCaption() {
     return this.placeholder;
   }
@@ -219,7 +222,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     return new CssClassBuilder()
       .append(this.cssClasses.control)
       .append(this.cssClasses.controlEmpty, this.isEmpty())
-      .append(this.cssClasses.onError, this.errors.length > 0)
+      .append(this.cssClasses.onError, this.hasCssError())
       .append(this.cssClasses.controlDisabled, this.isReadOnly)
       .append(this.cssClasses.controlInputFieldComponent, !!this.inputFieldComponentName)
       .toString();

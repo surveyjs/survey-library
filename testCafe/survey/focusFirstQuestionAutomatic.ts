@@ -4,6 +4,7 @@ import { Selector, ClientFunction } from "testcafe";
 const title = "focusFirstQuestionAutomatic";
 
 const json = {
+  focusFirstQuestionAutomatic: true,
   pages: [
     {
       elements: [

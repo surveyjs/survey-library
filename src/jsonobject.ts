@@ -19,7 +19,11 @@ function ensureLocString(
 ) {
   let locString = target.getLocalizableString(key);
   if (!locString) {
-    locString = target.createLocalizableString(key, target, true);
+    let defaultStr: string;
+    if(typeof options.localizable === "object" && options.localizable.defaultStr) {
+      defaultStr = options.localizable.defaultStr;
+    }
+    locString = target.createLocalizableString(key, target, true, defaultStr);
     if (
       typeof options.localizable === "object" &&
       typeof options.localizable.onGetTextCallback === "function"
@@ -240,7 +244,7 @@ export class JsonObjectProperty implements IObject {
   public classNamePart: string;
   public baseClassName: string;
   public defaultValueValue: any;
-  public defaultValueFunc: () => any;
+  public defaultValueFunc: (obj: Base) => any;
   public serializationProperty: string;
   public displayName: string;
   public category: string = "";
@@ -310,8 +314,8 @@ export class JsonObjectProperty implements IObject {
   public get hasToUseGetValue() {
     return this.onGetValue || this.serializationProperty;
   }
-  public get defaultValue() {
-    let result: any = !!this.defaultValueFunc ? this.defaultValueFunc() : this.defaultValueValue;
+  public getDefaultValue(obj: Base): any {
+    let result: any = !!this.defaultValueFunc ? this.defaultValueFunc(obj) : this.defaultValueValue;
     if (
       !!JsonObjectProperty.getItemValuesDefaultValue &&
       JsonObject.metaData.isDescendantOf(this.className, "itemvalue")
@@ -320,12 +324,19 @@ export class JsonObjectProperty implements IObject {
     }
     return result;
   }
-  public set defaultValue(newValue) {
+  public get defaultValue(): any {
+    return this.getDefaultValue(undefined);
+  }
+  public set defaultValue(newValue: any) {
     this.defaultValueValue = newValue;
   }
   public isDefaultValue(value: any): boolean {
-    if (!Helpers.isValueEmpty(this.defaultValue)) {
-      return Helpers.isTwoValueEquals(value, this.defaultValue, false, true, false);
+    return this.isDefaultValueByObj(undefined, value);
+  }
+  public isDefaultValueByObj(obj: Base, value: any): boolean {
+    const dValue = this.getDefaultValue(obj);
+    if (!Helpers.isValueEmpty(dValue)) {
+      return Helpers.isTwoValueEquals(value, dValue, false, true, false);
     }
     if(this.isLocalizable) return value === null || value === undefined;
     return (
@@ -1319,7 +1330,7 @@ export class JsonMetadata {
     if (prop.hasChoices) {
       const enumRes = prop.getChoices(null);
       if(Array.isArray(enumRes) && enumRes.length > 0) {
-        res.enum = enumRes;
+        res.enum = this.getChoicesValues(enumRes);
       }
     }
     if(!!refType) {
@@ -1376,6 +1387,17 @@ export class JsonMetadata {
     if(Array.isArray(chemaProps.required)) {
       res.required = chemaProps.required;
     }
+  }
+  private getChoicesValues(enumRes: Array<any>): Array<any> {
+    const res = new Array<any>();
+    enumRes.forEach(item => {
+      if(typeof item === "object" && item.value !== undefined) {
+        res.push(item.value);
+      } else {
+        res.push(item);
+      }
+    });
+    return res;
   }
 }
 export class JsonError {
@@ -1588,7 +1610,7 @@ export class JsonObject {
     )
       return;
     var value = property.getValue(obj);
-    if (!storeDefaults && property.isDefaultValue(value)) return;
+    if (!storeDefaults && property.isDefaultValueByObj(obj, value)) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {
@@ -1601,7 +1623,7 @@ export class JsonObject {
     var hasValue =
       typeof obj["getPropertyValue"] === "function" &&
       obj["getPropertyValue"](property.name, null) !== null;
-    if ((storeDefaults && hasValue) || !property.isDefaultValue(value)) {
+    if ((storeDefaults && hasValue) || !property.isDefaultValueByObj(obj, value)) {
       if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
         result[property.name] = value;
       }

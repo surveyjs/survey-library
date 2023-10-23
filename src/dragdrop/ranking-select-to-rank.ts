@@ -3,14 +3,6 @@ import { DragDropRankingChoices } from "./ranking-choices";
 import { QuestionRankingModel } from "../question_ranking";
 
 export class DragDropRankingSelectToRank extends DragDropRankingChoices {
-  protected onStartDrag(event: PointerEvent): void {
-    const target = <HTMLElement>event.target;
-    const fromContainerNode = <HTMLElement>target.closest(".sv-ranking__container--from");
-    if (!!fromContainerNode) {
-      fromContainerNode.style.minHeight = fromContainerNode.offsetHeight + "px";
-    }
-  }
-
   protected findDropTargetNodeByDragOverNode(
     dragOverNode: HTMLElement
   ): HTMLElement {
@@ -89,16 +81,22 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   ): void {
     const questionModel: any = this.parentElement;
 
-    let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
-    let toIndex = toChoicesArray.indexOf(this.dropTarget);
-
-    if(toIndex === -1) toIndex = toChoicesArray.length;
+    let { fromIndex, toIndex } = this.getIndixies(questionModel, fromChoicesArray, toChoicesArray);
 
     rankFunction(questionModel, fromIndex, toIndex);
     this.doUIEffects(dropTargetNode, fromIndex, toIndex);
   }
 
-  private doUIEffects(dropTargetNode: HTMLElement, fromIndex: number, toIndex:number) {
+  public getIndixies(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
+    let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
+    let toIndex = toChoicesArray.indexOf(this.dropTarget);
+
+    if (toIndex === -1) toIndex = model.value.length;
+
+    return { fromIndex, toIndex };
+  }
+
+  private doUIEffects(dropTargetNode: HTMLElement, fromIndex: number, toIndex: number) {
     const questionModel: any = this.parentElement;
     const isDropToEmptyRankedContainer = this.dropTarget === "to-container" && questionModel.isEmpty();
     const isNeedToShowIndexAtShortcut = !this.isDropTargetUnranked || isDropToEmptyRankedContainer;

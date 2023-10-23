@@ -9,7 +9,7 @@ export type ISurveyEnvironment = {
   stylesSheetsMountContainer: HTMLElement,
 }
 const document = globalThis.document;
-const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment> (!!document ? {
+const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ? {
   root: document,
 
   _rootElement: document.body,
@@ -510,8 +510,8 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void): boolean {
-    return showConfirmDialog(message, callback);
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string): boolean {
+    return showConfirmDialog(message, callback, applyTitle);
   },
   /**
    * A minimum width value for all survey elements.
@@ -546,6 +546,12 @@ export var settings = {
   notifications: {
     lifetime: 2000
   },
+  /**
+   * Specifies how many milliseconds a survey should wait before it automatically switches to the next page. Applies only when [auto-advance](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) is enabled.
+   *
+   * Default value: 300
+   */
+  autoAdvanceDelay: 300,
   /**
    * Specifies the direction in which to lay out Checkbox and Radiogroup items. This setting affects the resulting UI when items are arranged in [more than one column](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#colCount).
    *
@@ -590,7 +596,7 @@ export var settings = {
       displayMode?: "popup" | "overlay"
     ) => any
     >undefined,
-  showDialog: < (options: IDialogOptions, rootElement?: HTMLElement) => any >undefined,
+  showDialog: <(options: IDialogOptions, rootElement?: HTMLElement) => any>undefined,
   supportCreatorV2: false,
   showDefaultItemsInCreatorV2: true,
   /**

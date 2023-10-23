@@ -296,7 +296,7 @@ afterRender: function (question, el) {
   };
 },
 ```
-The code looks a litle overcomplicated. If we do not use document _execCommand_ function, then we could use div onBlur event. Commonly the code is simpler. 
+The code looks a little overcomplicated. If we do not use document _execCommand_ function, then we could use div onBlur event. Commonly the code is simpler. 
 
 Here is the example for CK_Editor custom widget.
 
@@ -452,11 +452,11 @@ var richCommentWidget = {
 };
 
 //Register our widget in singleton custom widget collection
-//We have to remove the second paramter that used for registration in SurveyJS Creator Toolbox
+//We have to remove the second parameter that used for registration in SurveyJS Creator Toolbox
 Survey.CustomWidgetCollection.Instance.add(richCommentWidget);
 ```
 
-Now, on droping the comment question, end-user will see our custom widget.
+Now, on dropping the comment question, end-user will see our custom widget.
 
 <div id="api"></div>
 
@@ -502,7 +502,7 @@ var customWidgetJSON = {
      return question.getType() == "richedit";
   },
   /**
-   * SurveyJS calls this function one time on registing the custom widget.
+   * SurveyJS calls this function one time on registering the custom widget.
    * This function is optional
    */ 
   init: function() {

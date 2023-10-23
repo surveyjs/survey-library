@@ -1,6 +1,6 @@
 .sd-title {
   display: block;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-style: normal;
   color: $foreground;
   flex-direction: row;
@@ -13,7 +13,7 @@
   align-items: center;
   padding: var(--sd-page-vertical-padding) var(--sd-page-vertical-padding);
   overflow: auto;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   gap: calcSize(4);
   box-shadow: 0px 2px 0px $primary;
 
@@ -29,8 +29,8 @@
   flex-grow: 1;
 
   .sd-title {
-    @include cover_title;
-    color: $primary;
+    @include survey_title;
+    color: $font-surveytitle-color;
     font-family: $font-surveytitle-family;
     font-weight: $font-surveytitle-weight;
   }
@@ -43,6 +43,13 @@
     font-size: calcFontSize(1);
     font-weight: 400;
     line-height: calcLineHeight(1.5);
+  }
+
+  .sd-description {
+    @include survey_description;
+    color: $font-surveydescription-color;
+    font-family: $font-surveydescription-family;
+    font-weight: $font-surveydescription-weight;
   }
 }
 
@@ -61,8 +68,6 @@
 }
 
 .sd-root-modern {
-
-  .sv-conver__content,
   .sd-container-modern__title {
     .sd-header__text h3 {
       margin: 0;

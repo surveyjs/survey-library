@@ -14,7 +14,7 @@
   text-align: center;
   z-index: 1600; //todo: should overlap popup
 
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-size: calcFontSize(1);
   line-height: calcLineHeight(1.5);
 

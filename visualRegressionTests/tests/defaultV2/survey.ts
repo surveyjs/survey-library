@@ -14,6 +14,7 @@ const applyTheme = ClientFunction(theme => {
 const theme = "defaultV2";
 
 const json = {
+  focusFirstQuestionAutomatic: true,
   "title": "Minimum data reporting form – for suspected and probable cases of COVID-19",
   "pages": [{
     "name": "page1",
@@ -82,6 +83,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         widthMode: "responsive",
         questions: [
@@ -100,10 +102,11 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-body.png", Selector(".sd-body"), t, comparer);
     });
   });
-  test("Check survey default cover", async (t) => {
+  test("Check survey default advanced header view", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
         logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
@@ -119,7 +122,60 @@ frameworks.forEach(framework => {
       await ClientFunction(() => {
         (<any>window).survey.headerView = "advanced";
       })();
-      await takeElementScreenshot("survey-cover-default.png", Selector(".sd-root-modern"), t, comparer);
+      await takeElementScreenshot("survey-advanced-header-default.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check survey default advanced header mobile view", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.setIsMobile(true);
+      })();
+      await takeElementScreenshot("survey-advanced-header-mobile-default.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check survey advanced header mobile view with background", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 600);
+      await initSurvey(framework, {
+        title: "Survey Title",
+        description: "Survey description",
+        logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.headerView = "advanced";
+        (<any>window).survey.applyTheme({
+          cssVariables: {
+            "--sjs-header-backcolor": "green"
+          },
+          header: {
+          }
+        });
+        (<any>window).survey.setIsMobile(true);
+      })();
+      await takeElementScreenshot("survey-advanced-header-mobile-background.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
   test("Check survey with progress top", async (t) => {
@@ -204,6 +260,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         pages: testedPages,
         showProgressBar: "top"
       });
@@ -214,6 +271,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         pages: testedPages
       });
       await takeElementScreenshot("survey-without-tilte-and-progress.png", Selector(".sd-container-modern"), t, comparer); // without title and progress
@@ -223,6 +281,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Test",
         pages: testedPages
       });
@@ -233,6 +292,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Test",
         widthMode: "static",
         width: "900px",
@@ -245,6 +305,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(700, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Test",
         widthMode: "static",
         width: "900px",
@@ -280,6 +341,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "backgroundImage": backgroundImage,
         "backgroundOpacity": 0.7,
         "pages": [
@@ -374,6 +436,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
@@ -446,6 +509,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
@@ -519,6 +583,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       const json = {
+        focusFirstQuestionAutomatic: true,
         "title": "American History",
         "showTimerPanel": "bottom",
         "showTimerPanelMode": "survey",
@@ -789,6 +854,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1600, 900);
       const json = {
+        focusFirstQuestionAutomatic: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -997,6 +1063,7 @@ frameworks.forEach(framework => {
       })();
 
       const json = {
+        focusFirstQuestionAutomatic: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -1065,6 +1132,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1600, 900);
 
       const json = {
+        focusFirstQuestionAutomatic: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [
@@ -1132,6 +1200,7 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1600, 900);
 
       const json = {
+        focusFirstQuestionAutomatic: true,
         title: "Software developer survey.",
         showTOC: true,
         pages: [

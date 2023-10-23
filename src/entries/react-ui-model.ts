@@ -99,7 +99,7 @@ export { Skeleton } from "../react/components/skeleton";
 export { NotifierComponent } from "../react/components/notifier";
 export { ComponentsContainer } from "../react/components/components-container";
 export { CharacterCounterComponent } from "../react/components/character-counter";
-export * from "../react/components/cover";
+export * from "../react/components/header";
 
 export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";

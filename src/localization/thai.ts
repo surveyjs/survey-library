@@ -47,7 +47,7 @@ export var thaiStrings = {
   loadingFile: "กำลังโหลด...",
   chooseFile: "เลือกไฟล์...",
   noFileChosen: "ไม่ไฟล์ที่เลือก",
-  fileDragAreaPlaceholder: "ลากและวางไฟล์ที่นี่หรือคลิกปุ่มด้านล่างและเลือกไฟล์ที่จะอัปโหลด",
+  filePlaceholder: "ลากและวางไฟล์ที่นี่หรือคลิกปุ่มด้านล่างและเลือกไฟล์ที่จะอัปโหลด",
   confirmDelete: "คุณต้องการลบรายการนี้จริงหรือไม่?",
   keyDuplicationError: "ข้อมูลนี้ต้องเป็น unique.",
   addColumn: "เพิ่มคอลัมน์",
@@ -76,8 +76,8 @@ export var thaiStrings = {
   signaturePlaceHolder: "ลงชื่อที่นี่",
   chooseFileCaption: "เลือกไฟล์",
   takePhotoCaption: "ถ่ายรูป",
-  cameraPlaceHolder: "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง",
-  fileCameraDragAreaPlaceHolder: "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง",
+  photoPlaceholder: "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง",
+  fileOrPhotoPlaceholder: "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง",
   replaceFileCaption: "แทนที่ไฟล์",
   removeFileCaption: "นำไฟล์นี้ออก",
   booleanCheckedLabel: "ใช่",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["th"] = "ไทย";
 // ratingOptionsCaption: "Select..." => "เลือก   "
 // minError: "The value should not be less than {0}" => "ค่าไม่ควรน้อยกว่า {0}"
 // maxError: "The value should not be greater than {0}" => "ค่าไม่ควรเกิน{0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ลากและวางไฟล์ที่นี่หรือคลิกปุ่มด้านล่างและเลือกไฟล์ที่จะอัปโหลด"
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "ลากและวางไฟล์ที่นี่หรือคลิกปุ่มด้านล่างและเลือกไฟล์ที่จะอัปโหลด"
 // emptyRowsText: "There are no rows." => "ไม่มีแถว"
 // multipletext_itemname: "text" => "ข้อความ"
 // signaturePlaceHolder: "Sign here" => "ลงชื่อที่นี่"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["th"] = "ไทย";
 // tagboxDoneButtonCaption: "OK" => "ตกลง, ได้"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "ตัวเลือกทั้งหมดจะถูกจัดอันดับ"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ"// takePhotoCaption: "Take Photo" => "ถ่ายรูป"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง"
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง"
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง"
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง"
 // replaceFileCaption: "Replace file" => "แทนที่ไฟล์"

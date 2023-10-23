@@ -1,5 +1,5 @@
 <template>
-  <div :class="question.cssClasses.text">{{ question.formatedValue }}</div>
+  <div :class="question.cssClasses.root">{{ question.formatedValue }}</div>
 </template>
 
 <script lang="ts">

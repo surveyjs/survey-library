@@ -96,7 +96,7 @@
 .sd-paneldynamic__progress-text {
     font-size: $font-questiontitle-size;
     line-height: multiply(1.5, $font-questiontitle-size);
-    color: $foreground-light;
+    color: $font-questiondescription-color;
     margin: 0;
     margin-right: calcSize(3);
 }
@@ -189,7 +189,7 @@
     background-color: transparent;
     cursor: pointer;
 
-    font-family: var(--font-family, $font-family);
+    font-family: $font-family;
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
     color: $font-questiondescription-color;
@@ -258,4 +258,8 @@
 
 .sd-paneldynamic__header.sd-element__header.sd-paneldynamic__header-tab::after {
     bottom: 0;
+}
+
+.sd-question--paneldynamic.sd-element--with-frame {
+    padding-bottom: 0;
 }

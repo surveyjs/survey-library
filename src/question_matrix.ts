@@ -302,7 +302,7 @@ export class QuestionMatrixModel
     return new CssClassBuilder()
       .append(this.cssClasses.cell, this.hasCellText)
       .append(this.hasCellText ? this.cssClasses.cellText : this.cssClasses.label)
-      .append(this.cssClasses.itemOnError, !this.hasCellText && this.errors.length > 0)
+      .append(this.cssClasses.itemOnError, !this.hasCellText && this.hasCssError())
       .append(this.hasCellText ? this.cssClasses.cellTextSelected : this.cssClasses.itemChecked, isChecked)
       .append(this.hasCellText ? this.cssClasses.cellTextDisabled : this.cssClasses.itemDisabled, isDisabled)
       .append(this.cssClasses.itemHover, allowHover && !this.hasCellText)
@@ -419,7 +419,7 @@ export class QuestionMatrixModel
   ) {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (
-      (!isOnValueChanged || this.errors.length > 0) &&
+      (!isOnValueChanged || this.hasCssError()) &&
       this.hasErrorInRows()
     ) {
       errors.push(new RequiredInAllRowsError(null, this));

@@ -540,7 +540,8 @@ frameworks.forEach((framework) => {
       .click("option[value=Volkswagen]")
 
       .click("select")
-      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok();
+      .expect(Selector("option[value=Vauxhall]").hasAttribute("disabled")).ok()
+      .click("select");
 
     const questionDropdownSelect = Selector(".sv_q_dropdown_control").nth(1);
     const popupContainer = Selector(".sv-popup__container").filterVisible();
@@ -635,6 +636,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown key press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -723,6 +725,7 @@ frameworks.forEach((framework) => {
 
   test("Select item after switching focus", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -770,6 +773,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown key press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -854,6 +858,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown SPACE press without searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -882,6 +887,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown SPACE press with searchEnabled", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -908,6 +914,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown search", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1038,6 +1045,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown reset filter string", async (t) => {
     const jsonWithDropdown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1097,6 +1105,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown clear value by keyboard", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1168,6 +1177,7 @@ frameworks.forEach((framework) => {
 
   test("Check popup scroll", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1364,6 +1374,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height with lazy loading", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1406,25 +1417,25 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown1.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown1.offsetTop).lt(200)
-      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(688, 708)
       .expect(dropdown1.find(".sv-list").scrollTop).eql(0)
-      .expect(dropdown1.find(".sv-list").scrollHeight).within(1200, 1300)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(1208, 1308)
       .expect(listItems.filterVisible().count).eql(26)
 
       .scrollBy(dropdown1.find(".sv-list"), 0, 1000)
       .wait(500)
       .expect(dropdown1.offsetTop).lt(200)
-      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(dropdown1.find(".sv-list").scrollTop).within(550, 560)
-      .expect(dropdown1.find(".sv-list").scrollHeight).within(2400, 2500)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(688, 708)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(546, 556)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(2408, 2508)
       .expect(listItems.filterVisible().count).eql(51)
 
       .scrollBy(dropdown1.find(".sv-list"), 0, 2300)
       .wait(500)
       .expect(dropdown1.offsetTop).lt(200)
-      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(680, 700)
-      .expect(dropdown1.find(".sv-list").scrollTop).within(1700, 1800)
-      .expect(dropdown1.find(".sv-list").scrollHeight).within(2600, 2700)
+      .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).within(688, 708)
+      .expect(dropdown1.find(".sv-list").scrollTop).within(1696, 1796)
+      .expect(dropdown1.find(".sv-list").scrollHeight).within(2608, 2708)
       .expect(listItems.filterVisible().count).eql(55)
 
       .click(getListItemByText("55"))
@@ -1436,18 +1447,18 @@ frameworks.forEach((framework) => {
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(708, 718)
       .expect(dropdown2.find(".sv-list").scrollTop).eql(0)
-      .expect(dropdown2.find(".sv-list").scrollHeight).within(1350, 1500)
+      .expect(dropdown2.find(".sv-list").scrollHeight).within(1358, 1508)
       .expect(listItems.filterVisible().count).eql(31)
 
       .scrollBy(dropdown2.find(".sv-list"), 0, 1000)
       .wait(500)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
       .expect(dropdown2.offsetTop).eql(0)
-      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(700, 710)
-      .expect(dropdown2.find(".sv-list").scrollTop).within(750, 850)
-      .expect(dropdown2.find(".sv-list").scrollHeight).within(2600, 2650)
+      .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(708, 718)
+      .expect(dropdown2.find(".sv-list").scrollTop).within(746, 846)
+      .expect(dropdown2.find(".sv-list").scrollHeight).within(2608, 2658)
       .expect(listItems.filterVisible().count).eql(55)
       .click(getListItemByText("55"))
 
@@ -1457,6 +1468,7 @@ frameworks.forEach((framework) => {
   test.page(`${url_test}${theme}/${framework}`)("Check popup height and position while searching", async (t) => {
     await applyTheme(theme);
     const json = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",
@@ -1568,7 +1580,7 @@ frameworks.forEach((framework) => {
       .expect(dropdown2.visible).ok()
       .expect(listItems.filterVisible().count).eql(10)
       .expect(dropdown2.find(".sv-list__empty-container").visible).notOk()
-      .expect(dropdown2.offsetTop).within(220, 230)
+      .expect(dropdown2.offsetTop).within(228, 238)
       .expect(dropdown2.find(".sv-popup__scrolling-content").offsetHeight).within(470, 480)
 
       .pressKey("3")
@@ -1616,6 +1628,7 @@ frameworks.forEach((framework) => {
 
   test("Check dropdown popup close with mouse, bug #5860", async (t) => {
     const jsonWithDropDown = {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           type: "dropdown",

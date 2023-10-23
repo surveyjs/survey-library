@@ -253,12 +253,11 @@ export class QuestionSelectBase extends Question {
     this.setPropertyValue("choicesEnableIf", val);
     this.filterItems();
   }
-  public surveyChoiceItemVisibilityChange() {
+  public surveyChoiceItemVisibilityChange(): void {
     this.filterItems();
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     super.runCondition(values, properties);
-    if(this.isUsingCarryForward) return;
     this.runItemsEnableCondition(values, properties);
     this.runItemsCondition(values, properties);
   }
@@ -865,15 +864,18 @@ export class QuestionSelectBase extends Question {
     }
     return res;
   }
-  protected updateVisibleChoices() {
-    if (this.isLoadingFromJson) return;
+  protected updateVisibleChoices(): void {
+    if (this.isLoadingFromJson || this.isDisposed) return;
     var newValue = new Array<ItemValue>();
     var calcValue = this.calcVisibleChoices();
     if (!calcValue) calcValue = [];
     for (var i = 0; i < calcValue.length; i++) {
       newValue.push(calcValue[i]);
     }
-    this.setPropertyValue("visibleChoices", newValue);
+    const oldValue = this.visibleChoices;
+    if(!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
+      this.setArrayPropertyDirectly("visibleChoices", newValue);
+    }
   }
   private calcVisibleChoices(): Array<ItemValue> {
     if (this.canUseFilteredChoices()) return this.getFilteredChoices();
@@ -1542,7 +1544,7 @@ export class QuestionSelectBase extends Question {
       .append(this.cssClasses.item)
       .append(this.cssClasses.itemInline, !this.hasColumns && this.colCount === 0)
       .append("sv-q-col-" + this.getCurrentColCount(), !this.hasColumns && this.colCount !== 0)
-      .append(this.cssClasses.itemOnError, this.errors.length > 0);
+      .append(this.cssClasses.itemOnError, this.hasCssError());
 
     const isDisabled = this.isReadOnly || !item.isEnabled;
     const isChecked = this.isItemSelected(item) ||
@@ -1869,13 +1871,7 @@ Serializer.addClass(
       },
     },
     "hideIfChoicesEmpty:boolean",
-    {
-      name: "choicesVisibleIf:condition",
-      dependsOn: "choicesFromQuestion",
-      visibleIf: (obj: any) => {
-        return !obj.choicesFromQuestion;
-      },
-    },
+    "choicesVisibleIf:condition",
     {
       name: "choicesEnableIf:condition",
       dependsOn: "choicesFromQuestion",

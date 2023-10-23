@@ -182,6 +182,7 @@ frameworks.forEach(async framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 900);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
         questions: [
           {
@@ -419,6 +420,7 @@ frameworks.forEach(async framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 900);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
         questions: [
           {

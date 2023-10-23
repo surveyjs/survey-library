@@ -29,7 +29,7 @@ import { ProcessValue } from "./conditionProcessValue";
 import { dxSurveyService } from "./dxSurveyService";
 import { surveyLocalization } from "./surveyStrings";
 import { CustomError } from "./error";
-import { ILocalizableOwner, LocalizableString } from "./localizablestring";
+import { LocalizableString } from "./localizablestring";
 import { StylesManager } from "./stylesmanager";
 import { SurveyTimerModel, ISurveyTimerText } from "./surveyTimerModel";
 import { IQuestionPlainData, Question } from "./question";
@@ -46,7 +46,7 @@ import { settings } from "./settings";
 import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
-import { ActionContainer, defaultActionBarCss } from "./actions/container";
+import { ActionContainer } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
 import { Notifier } from "./notifier";
@@ -71,7 +71,8 @@ import { QuestionFileModel } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
-import { Cover } from "./cover";
+import { Cover } from "./header";
+import { surveyTimerFunctions } from "./surveytimer";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -134,9 +135,6 @@ export class SurveyModel extends SurveyElementCore
   private timerModelValue: SurveyTimerModel;
 
   private navigationBarValue: ActionContainer;
-
-  onThemeApplying: EventBase<SurveyModel> = new EventBase<SurveyModel>();
-  onThemeApplied: EventBase<SurveyModel> = new EventBase<SurveyModel>();
 
   //#region Event declarations
   /**
@@ -766,11 +764,13 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-titleactions/ (linkStyle))
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
   */
   public onGetQuestionTitleActions: EventBase<SurveyModel, GetQuestionTitleActionsEvent> = this.addEvent<SurveyModel, GetQuestionTitleActionsEvent>();
 
   /**
    * An event that allows you to add, delete, or modify actions in a panel title.
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPanelTitleActions: EventBase<SurveyModel, GetPanelTitleActionsEvent> = this.addEvent<SurveyModel, GetPanelTitleActionsEvent>();
 
@@ -780,11 +780,13 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/modify-titles-of-survey-elements/ (linkStyle))
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPageTitleActions: EventBase<SurveyModel, GetPageTitleActionsEvent> = this.addEvent<SurveyModel, GetPageTitleActionsEvent>();
 
   /**
    * An event that allows you to add, delete, or modify actions in the footer of a [Panel](https://surveyjs.io/form-library/documentation/panelmodel).
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetPanelFooterActions: EventBase<SurveyModel, GetPanelFooterActionsEvent> = this.addEvent<SurveyModel, GetPanelFooterActionsEvent>();
   /**
@@ -793,7 +795,7 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/employee-information-form/ (linkStyle))
-   * @see IAction
+   * @see [IAction](https://surveyjs.io/form-library/documentation/api-reference/iaction)
    */
   public onGetMatrixRowActions: EventBase<SurveyModel, GetMatrixRowActionsEvent> = this.addEvent<SurveyModel, GetMatrixRowActionsEvent>();
 
@@ -1166,6 +1168,17 @@ export class SurveyModel extends SurveyElementCore
   @property() loadingBodyCss: string;
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
+  /**
+   * Specifies whether the survey header uses only basic appearance settings or applies advanced settings from the survey theme.
+   *
+   * Possible values:
+   *
+   * - `"basic"` (default)\
+   * A basic header view applies only the [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title), [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description), and logo-related properties ([`logo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logo), [`logoPosition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logoPosition), etc.).
+   *
+   * - `"advanced"`\
+   * An advanced header view applies the same properties as the basic view, plus [header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader) from the [survey theme](https://surveyjs.io/form-library/documentation/api-reference/itheme#header). The advanced view features a more flexible header layout, a capability to specify a background image, and other settings that give a more professional look to the survey header.
+   */
   @property({
     onSet: (newValue, target: SurveyModel) => {
       if (newValue === "advanced") {
@@ -1182,8 +1195,9 @@ export class SurveyModel extends SurveyElementCore
           target.layoutElements.unshift({
             id: "cover",
             container: "header",
-            component: "sv-cover",
-            data: cover
+            component: "sv-header",
+            data: cover,
+            processResponsiveness: width => cover.processResponsiveness(width)
           });
         }
       } else {
@@ -1596,6 +1610,7 @@ export class SurveyModel extends SurveyElementCore
    * > If any of the following questions is answered last, the survey does not switch to the next page: Checkboxes, Yes/No (Boolean) (rendered as Checkbox), Long Text, Signature, Image Picker (with Multi Select), File Upload, Single-Select Matrix (not all rows are answered), Dynamic Matrix, Dynamic Panel.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/automatically-move-to-next-page-if-answer-selected/ (linkStyle))
+   * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get goNextPageAutomatic(): boolean | "autogonext" {
     return this.getPropertyValue("goNextPageAutomatic");
@@ -1607,6 +1622,7 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to complete the survey automatically after a user answers all questions on the last page. Applies only if the [`goNextPageAutomatic`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#goNextPageAutomatic) property is `true`.
    *
    * Default value: `true`
+   * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get allowCompleteSurveyAutomatic(): boolean {
     return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
@@ -2062,7 +2078,7 @@ export class SurveyModel extends SurveyElementCore
     if (this._isMobile !== newVal) {
       this._isMobile = newVal;
       this.updateCss();
-      this.getAllQuestions().map(q => q.setIsMobile(newVal));
+      this.getAllQuestions().forEach(q => q.setIsMobile(newVal));
     }
   }
   public get isMobile() {
@@ -3272,10 +3288,11 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("completedStateText", text);
     if (this.state === "completed" && this.showCompletedPage && !!this.completedState) {
-      this.notify(this.completedStateText, this.completedState);
+      this.notify(this.completedStateText, this.completedState, true);
     }
   }
-  public notify(message: string, type: string): void {
+  public notify(message: string, type: string, showActions: boolean = false): void {
+    this.notifier.showActions = showActions;
     this.notifier.notify(message, type, type === "error");
   }
   /**
@@ -3342,7 +3359,7 @@ export class SurveyModel extends SurveyElementCore
     this.onCurrentPageChanged.fire(this, options);
   }
   private notifyQuestionsOnHidingContent(page: PageModel): void {
-    if(!page) return;
+    if (!page) return;
     page.questions.forEach(q => q.onHidingContent());
   }
   private createPageChangeEventOptions(newValue: PageModel, oldValue: PageModel): any {
@@ -4604,6 +4621,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
+    this.layoutElements.forEach(layoutElement => layoutElement.processResponsiveness && layoutElement.processResponsiveness(width));
     if (this.isMobile === isMobile) {
       return false;
     } else {
@@ -5685,7 +5703,7 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private runQuestionsTriggers(name: string, value: any): void {
-    if(this.isDisplayMode || this.isDesignMode) return;
+    if (this.isDisplayMode || this.isDesignMode) return;
     const questions = this.getAllQuestions();
     questions.forEach(q => q.runTriggers(name, value));
   }
@@ -6328,22 +6346,20 @@ export class SurveyModel extends SurveyElementCore
     for (var i = 0; i < questions.length; i++) {
       if (questions[i].hasInput && questions[i].isEmpty()) return;
     }
-    if (!this.checkIsCurrentPageHasErrors(false)) {
+    if (this.isLastPage && (this.goNextPageAutomatic !== true || !this.allowCompleteSurveyAutomatic)) return;
+    if (this.checkIsCurrentPageHasErrors(false)) return;
+    const goNextPage = () => {
       if (!this.isLastPage) {
         this.nextPage();
       } else {
-        if (
-          this.goNextPageAutomatic === true &&
-          this.allowCompleteSurveyAutomatic
-        ) {
-          if (this.isShowPreviewBeforeComplete) {
-            this.showPreview();
-          } else {
-            this.completeLastPage();
-          }
+        if (this.isShowPreviewBeforeComplete) {
+          this.showPreview();
+        } else {
+          this.completeLastPage();
         }
       }
-    }
+    };
+    surveyTimerFunctions.safeTimeOut(goNextPage, settings.autoAdvanceDelay);
   }
   /**
    * Returns a comment value from a question with a specified `name`.
@@ -7333,19 +7349,26 @@ export class SurveyModel extends SurveyElementCore
     this.onPopupVisibleChanged.fire(this, { question, popup, visible });
   }
 
+  /**
+   * Applies a specified theme to the survey.
+   *
+   * [Themes & Styles](/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+   * @param theme An [`ITheme`](/form-library/documentation/api-reference/itheme) object with theme settings.
+   */
   public applyTheme(theme: ITheme): void {
     if (!theme) return;
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
-      if (key === "cover") {
+      if (key === "header") {
         this.removeLayoutElement("cover");
         const newCoverModel = new Cover();
         newCoverModel.fromTheme(theme);
         this.layoutElements.push({
           id: "cover",
           container: "header",
-          component: "sv-cover",
-          data: newCoverModel
+          component: "sv-header",
+          data: newCoverModel,
+          processResponsiveness: width => newCoverModel.processResponsiveness(width)
         });
       }
       if (key === "isPanelless") {
@@ -7354,8 +7377,10 @@ export class SurveyModel extends SurveyElementCore
         (this as any)[key] = theme[key];
       }
     });
-
-    this.onThemeApplied.fire(this, { theme: theme });
+    this.themeChanged(theme);
+  }
+  public themeChanged(theme: ITheme): void {
+    this.getAllQuestions().forEach(q => q.themeChanged(theme));
   }
 
   /**
@@ -7391,20 +7416,20 @@ export class SurveyModel extends SurveyElementCore
   public addScrollEventListener(): void {
     this.scrollHandler = () => { this.onScroll(); };
     this.rootElement.addEventListener("scroll", this.scrollHandler);
-    if(!!this.rootElement.getElementsByTagName("form")[0]) {
+    if (!!this.rootElement.getElementsByTagName("form")[0]) {
       this.rootElement.getElementsByTagName("form")[0].addEventListener("scroll", this.scrollHandler);
     }
-    if(!!this.css.rootWrapper) {
+    if (!!this.css.rootWrapper) {
       this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.addEventListener("scroll", this.scrollHandler);
     }
   }
   public removeScrollEventListener(): void {
     if (!!this.rootElement && !!this.scrollHandler) {
       this.rootElement.removeEventListener("scroll", this.scrollHandler);
-      if(!!this.rootElement.getElementsByTagName("form")[0]) {
+      if (!!this.rootElement.getElementsByTagName("form")[0]) {
         this.rootElement.getElementsByTagName("form")[0].removeEventListener("scroll", this.scrollHandler);
       }
-      if(!!this.css.rootWrapper) {
+      if (!!this.css.rootWrapper) {
         this.rootElement.getElementsByClassName(this.css.rootWrapper)[0]?.removeEventListener("scroll", this.scrollHandler);
       }
     }
@@ -7433,7 +7458,7 @@ Serializer.addClass("survey", [
     serializationProperty: "locDescription",
     dependsOn: "locale",
   },
-  { name: "logo:url", serializationProperty: "locLogo" },
+  { name: "logo:file", serializationProperty: "locLogo" },
   { name: "logoWidth", default: "300px", minValue: 0 },
   { name: "logoHeight", default: "200px", minValue: 0 },
   {
@@ -7446,7 +7471,7 @@ Serializer.addClass("survey", [
     default: "left",
     choices: ["none", "left", "right", "top", "bottom"],
   },
-  { name: "focusFirstQuestionAutomatic:boolean", default: true },
+  { name: "focusFirstQuestionAutomatic:boolean" },
   { name: "focusOnFirstError:boolean", default: true },
   { name: "completedHtml:html", serializationProperty: "locCompletedHtml" },
   {
@@ -7649,7 +7674,7 @@ Serializer.addClass("survey", [
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
   { name: "fitToContainer:boolean", default: false },
   { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
-  { name: "backgroundImage:url", visible: false },
+  { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },
   { name: "backgroundImageAttachment", default: "scroll", choices: ["scroll", "fixed"], visible: false },
   { name: "backgroundOpacity:number", minValue: 0, maxValue: 1, default: 1, visible: false },

@@ -54,6 +54,16 @@ QUnit.test("action bar: button visibility", function (assert) {
 
   notifier.updateActionsVisibility("success");
   assert.equal(testAction.visible, false);
+
+  assert.equal(notifier.showActions, true, "showActions default is true");
+  notifier.showActions = false;
+  notifier.updateActionsVisibility("error");
+  assert.equal(testAction.visible, false);
+
+  notifier.showActions = true;
+  notifier.updateActionsVisibility("error");
+  assert.equal(testAction.visible, true);
+
 });
 
 QUnit.test("message box visibility", function (assert) {

@@ -27,12 +27,12 @@ function confirmAction(message: string): boolean {
 
 function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
   const callbackFunc = (res: boolean): void => {
-    if(res) funcOnYes();
-    else if(!!funcOnNo) funcOnNo();
+    if (res) funcOnYes();
+    else if (!!funcOnNo) funcOnNo();
   };
 
-  if(!!settings && !!settings.confirmActionAsync) {
-    if(settings.confirmActionAsync(message, callbackFunc)) return;
+  if (!!settings && !!settings.confirmActionAsync) {
+    if (settings.confirmActionAsync(message, callbackFunc)) return;
   }
 
   callbackFunc(confirmAction(message));
@@ -151,7 +151,7 @@ function findScrollableParent(element: HTMLElement): HTMLElement {
 }
 
 function scrollElementByChildId(id: string) {
-  const environment : ISurveyEnvironment = settings.environment;
+  const environment: ISurveyEnvironment = settings.environment;
   if (!environment) return;
   const { root } = environment;
   const el = root.getElementById(id);
@@ -241,21 +241,21 @@ export function unwrap<T>(value: T | (() => T)): T {
 // }
 
 export function getRenderedSize(val: string | number): number {
-  if(typeof val == "string") {
-    if(!isNaN(Number(val))) {
+  if (typeof val == "string") {
+    if (!isNaN(Number(val))) {
       return Number(val);
     }
-    else if(val.includes("px")) {
+    else if (val.includes("px")) {
       return parseFloat(val);
     }
   }
-  if(typeof val == "number") {
+  if (typeof val == "number") {
     return val;
   }
   return undefined;
 }
 export function getRenderedStyleSize(val: string | number): string {
-  if(getRenderedSize(val) !== undefined) {
+  if (getRenderedSize(val) !== undefined) {
     return undefined;
   }
   return val as string;
@@ -348,8 +348,8 @@ function isContainerVisible(el: HTMLElement) {
 
 function getFirstVisibleChild(el: HTMLElement) {
   let result;
-  for(let index = 0; index < el.children.length; index++) {
-    if(!result && getComputedStyle(el.children[index]).display !== "none") {
+  for (let index = 0; index < el.children.length; index++) {
+    if (!result && getComputedStyle(el.children[index]).display !== "none") {
       result = el.children[index];
     }
   }
@@ -407,9 +407,9 @@ export class Logger {
   }
 }
 
-export function showConfirmDialog(message: string, callback: (res: boolean) => void): boolean {
+export function showConfirmDialog(message: string, callback: (res: boolean) => void, applyTitle?: string): boolean {
   const locStr = new LocalizableString(undefined);
-  const popupViewModel:PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
+  const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
     data: { locStr: locStr, locString: locStr, model: locStr }, //TODO fix in library
     onApply: () => {
@@ -430,7 +430,7 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const cancelBtn = toolbar.getActionById("cancel");
   cancelBtn.title = surveyLocalization.getString("cancel");
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
-  applyBtn.title = surveyLocalization.getString("ok");
+  applyBtn.title = applyTitle || surveyLocalization.getString("ok");
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
   popupViewModel.width = "452px";
   return true;

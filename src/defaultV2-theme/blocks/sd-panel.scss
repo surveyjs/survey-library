@@ -5,7 +5,7 @@
 .sd-panel.sd-panel--as-page {
   &>.sd-panel__header.sd-panel__header {
     padding-top: 0;
-    padding-bottom: 0;
+    padding-bottom: calcSize(3);
 
     &:after {
       content: none;
@@ -28,10 +28,6 @@
     }
   }
 
-  .sd-panel__header+.sd-panel__content {
-    margin-top: calcSize(2);
-  }
-
   &>.sd-panel__content {
     padding-top: 0;
   }
@@ -39,7 +35,7 @@
 
 .sd-row~.sd-row {
   .sd-panel--as-page {
-    padding-top: calcSize(5);
+    padding-top: calcSize(4);
   }
 }
 
@@ -60,4 +56,10 @@
 
 .sd-panel__content {
   padding-top: var(--sd-base-padding);
+}
+
+.sd-panel.sd-element--nested {
+  &>.sd-panel__content {
+    padding-bottom: var(--sd-base-padding);
+  }
 }

@@ -5,8 +5,13 @@ import { SurveyModel } from "../src/survey";
 export default QUnit.module("JsonSchemaTests");
 
 QUnit.test("generate survey schema", function (assert) {
-  Serializer.findClass;
-  var schema = Serializer.generateSchema();
+  Serializer.addProperty("survey", {
+    name: "customSurveyProperty2",
+    category: "general",
+    visibleIndex: 0,
+    choices: [{ text: "Value A", value: "a" }, "b"]
+  });
+  const schema = Serializer.generateSchema();
   assert.equal(schema.title, "SurveyJS Library json schema");
   assert.equal(schema.properties.surveyId.type, "string", "surveyId is string");
   assert.equal(
@@ -192,4 +197,10 @@ QUnit.test("generate survey schema", function (assert) {
   assert.equal(lostStringProp.default.type, "string", "has default in locString properties");
   assert.equal(lostStringProp.en.type, "string", "has en in locString properties");
   assert.equal(lostStringProp.fr.type, "string", "has fr in locString properties");
+
+  const customProp2 = schema.properties.customSurveyProperty2;
+  assert.ok(customProp2);
+  assert.equal(customProp2.type, "string", "customProp2.type");
+  assert.deepEqual(customProp2.enum, ["a", "b"], "customProp2.enum");
+  Serializer.removeProperty("survey", "customSurveyProperty2");
 });

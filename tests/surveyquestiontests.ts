@@ -38,8 +38,11 @@ import { Helpers } from "../src/helpers";
 import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { StylesManager } from "../src/stylesmanager";
+import { surveyTimerFunctions } from "../src/surveytimer";
 
 export default QUnit.module("Survey_Questions");
+
+settings.autoAdvanceDelay = 0;
 
 class QuestionMatrixRandomModel extends QuestionMatrixModel {
   constructor(name: string) {
@@ -827,41 +830,79 @@ QUnit.test("Multiple Text Question: support goNextPageAutomatic", function (
     "Both text inputs are set"
   );
 });
-
-QUnit.test(
-  "Radiogroup Question: support goNextPageAutomatic + hasOther",
-  function (assert) {
-    var json = {
-      pages: [
-        {
-          elements: [
-            {
-              type: "radiogroup",
-              name: "q1",
-              hasOther: true,
-              items: [1, 2, 3],
-            },
-          ],
-        },
-        {
-          elements: [
-            {
-              type: "text",
-              name: "q2",
-            },
-          ],
-        },
-      ],
-      goNextPageAutomatic: true,
-    };
-    var survey = new SurveyModel(json);
-    var question = survey.getQuestionByName("q1");
-    question.value = "other";
-    assert.equal(survey.currentPageNo, 0, "Stay on the first page");
-    question.comment = "123";
-    assert.equal(survey.currentPageNo, 1, "Go to the second page");
-  }
-);
+QUnit.test("Use timer to go next page", function (assert) {
+  settings.autoAdvanceDelay = 250;
+  const json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            choices: ["a", "b", "c"],
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+          },
+        ],
+      },
+    ],
+    goNextPageAutomatic: true,
+  };
+  const prevFunc = surveyTimerFunctions.safeTimeOut;
+  let checkDelay: number = 0;
+  surveyTimerFunctions.safeTimeOut = (func:() => any, delay: number): number => {
+    checkDelay = delay;
+    func();
+    return 0;
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.goNextPageAutomatic, true, "The property set correctly");
+  const question = survey.getQuestionByName("q1");
+  question.onMouseDown();
+  assert.equal(question.supportGoNextPageAutomatic(), true, "questio support go next page automatic");
+  question.value = 1;
+  assert.equal(survey.currentPageNo, 1, "Go to the second page");
+  assert.equal(checkDelay, 250, "setTimeout function is called");
+  surveyTimerFunctions.safeTimeOut = prevFunc;
+  settings.autoAdvanceDelay = 0;
+});
+QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", function (assert) {
+  var json = {
+    pages: [
+      {
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1",
+            hasOther: true,
+            choices: [1, 2, 3],
+          },
+        ],
+      },
+      {
+        elements: [
+          {
+            type: "text",
+            name: "q2",
+          },
+        ],
+      },
+    ],
+    goNextPageAutomatic: true,
+  };
+  const survey = new SurveyModel(json);
+  const question = survey.getQuestionByName("q1");
+  question.value = "other";
+  assert.equal(survey.currentPageNo, 0, "Stay on the first page");
+  question.comment = "123";
+  assert.equal(survey.currentPageNo, 1, "Go to the second page");
+});
 
 QUnit.test(
   "Radiogroup Question: support goNextPageAutomatic + hasOther + textUpdateMode = onTyping",
@@ -874,7 +915,7 @@ QUnit.test(
               type: "radiogroup",
               name: "q1",
               hasOther: true,
-              items: [1, 2, 3],
+              choices: [1, 2, 3],
             },
           ],
         },
@@ -7360,20 +7401,10 @@ QUnit.test("question.resetValueIf and invisibleQuestions", function (assert) {
 });
 QUnit.test("question.setValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
-    elements: [{
-      "name": "q1",
-      "type": "text"
-    },
-    {
-      "name": "q2",
-      "type": "text",
-      "setValueIf": "{q1} = 1",
-      "setValueExpression": "{q1} + {q3}"
-    },
-    {
-      "name": "q3",
-      "type": "text"
-    }
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueIf": "{q1} = 1", "setValueExpression": "{q1} + {q3}" },
+      { "name": "q3", "type": "text" }
     ] });
   const q1 = survey.getQuestionByName("q1");
   const q2 = survey.getQuestionByName("q2");
@@ -7389,7 +7420,58 @@ QUnit.test("question.setValueIf, basic functionality", function (assert) {
   q2.value = "edf";
   assert.equal(q2.value, "edf", "value is set, #2");
   q3.value = 5;
-  assert.equal(q2.value, "edf", "value is stay, #3");
+  assert.equal(q2.value, 1 + 5, "{q3} is changed");
+  q2.value = "klm";
+  assert.equal(q2.value, "klm", "value is set, #3");
+  q1.value = 2;
+  assert.equal(q2.value, "klm", "value is set, #4");
+  q3.value = 7;
+  assert.equal(q2.value, "klm", "value is set, #5");
+});
+QUnit.test("question.setValueIf, setValueExpression is empty", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueIf": "{q1} = 1" },
+      { "name": "q3", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, "abc", "value is set");
+  q1.value = 1;
+  assert.equal(q2.isEmpty(), true, "value is clear");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, "edf", "value is keep, #3");
+  q1.value = 2;
+  assert.equal(q2.value, "edf", "value is keep, #3");
+});
+QUnit.test("question.setValueIf is empty, setValueExpression is not empty", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { "name": "q1", "type": "text" },
+      { "name": "q2", "type": "text", "setValueExpression": "{q1} + {q3}" },
+      { "name": "q3", "type": "text" }
+    ] });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  assert.equal(q2.setValueExpression, "{q1} + {q3}", "Load from JSON, setValueExpression");
+  q2.value = "abc";
+  q1.value = 2;
+  q3.value = 3;
+  assert.equal(q2.value, 2 + 3, "value is set");
+  q2.value = "edf";
+  assert.equal(q2.value, "edf", "value is set, #2");
+  q3.value = 5;
+  assert.equal(q2.value, 2 + 5, "value is keep, #3");
+  q1.value = 3;
+  assert.equal(q2.value, 3 + 5, "value is keep, #4");
 });
 
 QUnit.test("question.isReady & async functions in expression", function (assert) {

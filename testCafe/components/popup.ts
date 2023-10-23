@@ -3,6 +3,7 @@ import { Selector, ClientFunction } from "testcafe";
 const title = "popup";
 
 const json = {
+  focusFirstQuestionAutomatic: true,
   elements: [
     {
       type: "text",

@@ -47,7 +47,7 @@ export var danishSurveyStrings = {
   loadingFile: "Indlæser...",
   chooseFile: "Vælg fil(er)...",
   noFileChosen: "Ingen fil er valgt",
-  fileDragAreaPlaceholder: "Træk og slip en fil her, eller klik på knappen nedenfor, og vælg en fil, der skal uploades.",
+  filePlaceholder: "Træk og slip en fil her, eller klik på knappen nedenfor, og vælg en fil, der skal uploades.",
   confirmDelete: "Vil du fjerne den?",
   keyDuplicationError: "Denne værdi skal være unik.",
   addColumn: "Tilføj kolonne",
@@ -76,8 +76,8 @@ export var danishSurveyStrings = {
   signaturePlaceHolder: "Tilmeld dig her",
   chooseFileCaption: "Vælg fil",
   takePhotoCaption: "Tag billede",
-  cameraPlaceHolder: "Klik på knappen nedenfor for at tage et billede med kameraet.",
-  fileCameraDragAreaPlaceHolder: "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet.",
+  photoPlaceholder: "Klik på knappen nedenfor for at tage et billede med kameraet.",
+  fileOrPhotoPlaceholder: "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet.",
   replaceFileCaption: "Erstat fil",
   removeFileCaption: "Fjern denne fil",
   booleanCheckedLabel: "Ja",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["da"] = "dansk";
 // ratingOptionsCaption: "Select..." => "Markere..."
 // minError: "The value should not be less than {0}" => "Værdien bør ikke være mindre end {0}"
 // maxError: "The value should not be greater than {0}" => "Værdien bør ikke være større end {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Træk og slip en fil her, eller klik på knappen nedenfor, og vælg en fil, der skal uploades."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Træk og slip en fil her, eller klik på knappen nedenfor, og vælg en fil, der skal uploades."
 // emptyRowsText: "There are no rows." => "Der er ingen rækker."
 // multipletext_itemname: "text" => "Tekst"
 // signaturePlaceHolder: "Sign here" => "Tilmeld dig her"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["da"] = "dansk";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle valg er rangeret"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Træk og slip valg her for at rangere dem"// takePhotoCaption: "Take Photo" => "Tag billede"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klik på knappen nedenfor for at tage et billede med kameraet."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik på knappen nedenfor for at tage et billede med kameraet."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet."
 // replaceFileCaption: "Replace file" => "Erstat fil"

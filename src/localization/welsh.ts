@@ -47,7 +47,7 @@ export var welshSurveyStrings = {
   loadingFile: "Wrthi’n llwytho...",
   chooseFile: "Dewiswch ffeil(iau)...",
   noFileChosen: "Heb ddewis ffeil ",
-  fileDragAreaPlaceholder: "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho.",
+  filePlaceholder: "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho.",
   confirmDelete: "Ydych chi am ddileu’r cofnod?",
   keyDuplicationError: "Dylai’r gwerth hwn fod yn unigryw.",
   addColumn: "Ychwanegu colofn ",
@@ -76,8 +76,8 @@ export var welshSurveyStrings = {
   signaturePlaceHolder: "Arwydd yma",
   chooseFileCaption: "Dewiswch ffeil ",
   takePhotoCaption: "Tynnu Llun",
-  cameraPlaceHolder: "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera.",
-  fileCameraDragAreaPlaceHolder: "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera.",
+  photoPlaceholder: "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera.",
+  fileOrPhotoPlaceholder: "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera.",
   replaceFileCaption: "Amnewid ffeil",
   removeFileCaption: "Tynnu’r ffeil hon ",
   booleanCheckedLabel: "Iawn",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["cy"] = "cymraeg";
 // ratingOptionsCaption: "Select..." => "Dewis..."
 // minError: "The value should not be less than {0}" => "Ni ddylai'r gwerth fod yn llai na {0}"
 // maxError: "The value should not be greater than {0}" => "Ni ddylai'r gwerth fod yn fwy na {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Llusgwch a gollwng ffeil yma neu cliciwch y botwm isod a dewiswch ffeil i'w lanlwytho."
 // emptyRowsText: "There are no rows." => "Nid oes unrhyw ffraeau."
 // multipletext_itemname: "text" => "Testun"
 // signaturePlaceHolder: "Sign here" => "Arwydd yma"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["cy"] = "cymraeg";
 // tagboxDoneButtonCaption: "OK" => "OCÊ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Mae'r holl ddewisiadau yn cael eu rhestru"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dewisiadau llusgo a gollwng yma i'w graddio"// takePhotoCaption: "Take Photo" => "Tynnu Llun"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Cliciwch y botwm isod i dynnu llun gan ddefnyddio'r camera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Llusgwch a gollwng neu dewiswch ffeil i lanlwytho neu dynnu llun gan ddefnyddio'r camera."
 // replaceFileCaption: "Replace file" => "Amnewid ffeil"

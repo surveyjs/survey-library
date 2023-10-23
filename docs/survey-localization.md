@@ -23,7 +23,7 @@ You can also create new dictionaries for unsupported languages. Use English as a
 
 ### Enable Localization and Switch Between Locales
 
-The localization engine that works with dictionaries is available as a separate script/module. Reference this script in the `<head>` tag of your page or import this module into the component that renders your survey:
+The localization engine that works with dictionaries is available as a separate script/module. This script/module imports dictionaries for all languages. Reference this script in the `<head>` tag of your page or import this module into the component that renders your survey:
 
 ```html
 <script src="https://unpkg.com/survey-core/survey.i18n.min.js"></script>
@@ -33,11 +33,25 @@ The localization engine that works with dictionaries is available as a separate 
 import "survey-core/survey.i18n";
 ```
 
-The default language for UI elements is English. To select another language, use the Survey's [`locale`](https://surveyjs.io/Documentation/Library?id=surveymodel#locale) property. For example, the following code translates the survey UI to French:
+Since SurveyJS v1.9.112, you may reference or import only the languages you need, as shown below:
+
+```html
+<script src="https://unpkg.com/survey-core/i18n/french.js"></script>
+<script src="https://unpkg.com/survey-core/i18n/german.js"></script>
+<script src="https://unpkg.com/survey-core/i18n/italian.js"></script>
+```
+
+```js
+import "survey-core/i18n/french";
+import "survey-core/i18n/german";
+import "survey-core/i18n/italian";
+```
+
+The default language for UI elements is English. To select another language, use `SurveyModel`'s [`locale`](https://surveyjs.io/Documentation/Library?id=surveymodel#locale) property. For example, the following code translates the survey UI to French:
 
 ```js
 import { Model } from "survey-core";
-import "survey-core/survey.i18n";
+import "survey-core/i18n/french";
 const surveyJson = { ... };
 const survey = new Model(surveyJson);
 
@@ -84,6 +98,7 @@ If any translation strings are missing in your custom locale, they will be taken
 
 ```js
 import { Model, surveyLocalization } from "survey-core";
+import "survey-core/i18n/french";
 
 surveyLocalization.defaultLocale = "fr";
 

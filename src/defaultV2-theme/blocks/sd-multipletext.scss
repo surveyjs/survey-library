@@ -58,7 +58,7 @@
   border-right: 1px solid $border;
   word-break: break-word;
   white-space: normal;
-  color: $foreground-light;
+  color: $font-editorfont-placeholdercolor;
 }
 
 .sd-multipletext__item {
@@ -75,10 +75,6 @@
   .sd-input--error {
     background-color: transparent;
   }
-}
-
-.sd-multipletext__item-container:hover:not(:focus-within)>.sd-question__erbox--tooltip {
-  display: inline-block;
 }
 
 .sd-multipletext__cell {

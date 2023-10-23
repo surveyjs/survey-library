@@ -2,13 +2,14 @@
   appearance: none;
   border: none;
   display: flex;
+  align-items: center;
   gap: calcSize(1);
   background: transparent;
   padding: calcSize(1) calcSize(3);
   color: $primary;
   border-radius: calcSize(12.5);
   font-weight: 600;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-style: normal;
   font-size: $font-questiontitle-size;
   line-height: multiply(1.5, $font-questiontitle-size);
@@ -37,12 +38,12 @@
   }
 
   use {
-    fill: $foreground-light;
+    fill: $font-questiondescription-color;
   }
 }
 
 svg.sd-action--icon {
-  fill: $foreground-light;
+  fill: $font-questiondescription-color;
 }
 
 .sd-action:disabled,
@@ -67,7 +68,11 @@ svg.sd-action--icon {
   &.sd-action--negative {
     background-color: $red-light;
 
-    &.sd-action--icon {}
+    &.sd-action--icon {
+      use {
+        fill: $red;
+      }
+    }
   }
 
   &:active {

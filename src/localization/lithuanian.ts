@@ -47,7 +47,7 @@ export var lithuaniaSurveyStrings = {
   loadingFile: "Prašome palaukti...",
   chooseFile: "Pasirinkti failą(us)...",
   noFileChosen: "Nepasirinktas joks failas",
-  fileDragAreaPlaceholder: "Nuvilkite failą čia arba spustelėkite žemiau esantį mygtuką ir pasirinkite failą, kurį norite įkelti.",
+  filePlaceholder: "Nuvilkite failą čia arba spustelėkite žemiau esantį mygtuką ir pasirinkite failą, kurį norite įkelti.",
   confirmDelete: "Ar norite ištrinti įrašą?",
   keyDuplicationError: "Ši reikšmė turėtų būti unikali.",
   addColumn: "Pridėti stulpelį",
@@ -76,8 +76,8 @@ export var lithuaniaSurveyStrings = {
   signaturePlaceHolder: "Pasirašykite čia",
   chooseFileCaption: "Pasirinkti failą",
   takePhotoCaption: "Fotografuoti",
-  cameraPlaceHolder: "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu.",
-  fileCameraDragAreaPlaceHolder: "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą.",
+  photoPlaceholder: "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu.",
+  fileOrPhotoPlaceholder: "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą.",
   replaceFileCaption: "Pakeiskite failą",
   removeFileCaption: "Ištrinti šį failą",
   booleanCheckedLabel: "Taip",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["lt"] = "lietuvių";
 // ratingOptionsCaption: "Select..." => "Žymėti..."
 // minError: "The value should not be less than {0}" => "Vertė neturėtų būti mažesnė nei {0}"
 // maxError: "The value should not be greater than {0}" => "Vertė neturėtų būti didesnė nei {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Nuvilkite failą čia arba spustelėkite žemiau esantį mygtuką ir pasirinkite failą, kurį norite įkelti."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Nuvilkite failą čia arba spustelėkite žemiau esantį mygtuką ir pasirinkite failą, kurį norite įkelti."
 // emptyRowsText: "There are no rows." => "Eilių nėra."
 // multipletext_itemname: "text" => "SMS žinutė"
 // signaturePlaceHolder: "Sign here" => "Pasirašykite čia"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["lt"] = "lietuvių";
 // tagboxDoneButtonCaption: "OK" => "GERAI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Visi pasirinkimai yra reitinguojami"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte"// takePhotoCaption: "Take Photo" => "Fotografuoti"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą."
 // replaceFileCaption: "Replace file" => "Pakeiskite failą"

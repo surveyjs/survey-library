@@ -172,3 +172,46 @@ QUnit.test("Check error row visibility", (assert) => {
   question.items[1].editor.value = "test";
   assert.notOk(question.getRows()[0].isVisible);
 });
+QUnit.test("Load min/maxValueExpression from JSON", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "multipletext",
+        name: "q1",
+        items: [
+          {
+            name: "item1",
+            minValueExpression: 1,
+            maxValueExpression: 10,
+          }
+        ]
+      }
+    ]
+  });
+  const question = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  assert.equal(question.items[0].minValueExpression, 1);
+  assert.equal(question.items[0].maxValueExpression, 10);
+});
+QUnit.test("min/maxValueExpression executing", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "multipletext",
+        name: "q1",
+        items: [
+          {
+            name: "item1"
+          },
+          {
+            name: "item2",
+            minValueExpression: "{q1.item1}"
+          }
+        ]
+      }
+    ]
+  });
+  const q1 = <QuestionMultipleTextModel>survey.getQuestionByName("q1");
+  q1.items[0].value = 10;
+  q1.items[1].value = 5;
+  assert.equal(q1.items[1].editor.hasErrors(), true);
+});

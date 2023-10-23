@@ -40,7 +40,7 @@
   color: $foreground;
   cursor: pointer;
 
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   overflow-x: hidden;
   white-space: nowrap;
 }
@@ -148,7 +148,7 @@ button.sv-action-bar-item {
   cursor: pointer;
   line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
 }
 
 .sv-expand-action {

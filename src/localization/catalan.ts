@@ -47,7 +47,7 @@ export var catalanSurveyStrings = {
   loadingFile: "Càrrega...",
   chooseFile: "Trieu fitxer(s)...",
   noFileChosen: "No s'ha triat cap fitxer",
-  fileDragAreaPlaceholder: "Arrossegueu i deixeu anar un fitxer aquí o feu clic al botó següent i trieu un fitxer per carregar.",
+  filePlaceholder: "Arrossegueu i deixeu anar un fitxer aquí o feu clic al botó següent i trieu un fitxer per carregar.",
   confirmDelete: "Vols eliminar el registre?",
   keyDuplicationError: "Aquest valor ha de ser únic.",
   addColumn: "Afegeix una columna",
@@ -76,8 +76,8 @@ export var catalanSurveyStrings = {
   signaturePlaceHolder: "Inscriu-te aquí",
   chooseFileCaption: "Tria un fitxer",
   takePhotoCaption: "Fer foto",
-  cameraPlaceHolder: "Feu clic al botó següent per fer una foto amb la càmera.",
-  fileCameraDragAreaPlaceHolder: "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera.",
+  photoPlaceholder: "Feu clic al botó següent per fer una foto amb la càmera.",
+  fileOrPhotoPlaceholder: "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera.",
   replaceFileCaption: "Substitueix el fitxer",
   removeFileCaption: "Suprimeix aquest fitxer",
   booleanCheckedLabel: "Sí",
@@ -121,7 +121,7 @@ surveyLocalization.localeNames["ca"] = "català";
 // loadingFile: "Loading..." => "Càrrega..."
 // chooseFile: "Choose file(s)..." => "Trieu fitxer(s)..."
 // noFileChosen: "No file chosen" => "No s'ha triat cap fitxer"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Arrossegueu i deixeu anar un fitxer aquí o feu clic al botó següent i trieu un fitxer per carregar."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Arrossegueu i deixeu anar un fitxer aquí o feu clic al botó següent i trieu un fitxer per carregar."
 // confirmDelete: "Do you want to delete the record?" => "Vols eliminar el registre?"
 // keyDuplicationError: "This value should be unique." => "Aquest valor ha de ser únic."
 // addColumn: "Add Column" => "Afegeix una columna"
@@ -161,6 +161,6 @@ surveyLocalization.localeNames["ca"] = "català";
 // tagboxDoneButtonCaption: "OK" => "D'ACORD"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Totes les opcions estan classificades"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrossegueu i deixeu anar les opcions aquí per classificar-les"// takePhotoCaption: "Take Photo" => "Fer foto"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Feu clic al botó següent per fer una foto amb la càmera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Feu clic al botó següent per fer una foto amb la càmera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrossegueu i deixeu anar o seleccioneu un fitxer per penjar-lo o fer-ne una foto amb la càmera."
 // replaceFileCaption: "Replace file" => "Substitueix el fitxer"

@@ -262,7 +262,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   /**
-   * Specifies whether users can drag and drop matrix rows to reorder them.
+   * Specifies whether users can drag and drop matrix rows to reorder them. Applies only if [`columnLayout`](#columnLayout) is `"horizontal"`.
    *
    * Default value: `false`
    */

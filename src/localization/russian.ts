@@ -47,7 +47,7 @@ export var russianSurveyStrings = {
   loadingFile: "Загрузка...",
   chooseFile: "Выберите файл(ы)...",
   noFileChosen: "Файл не выбран",
-  fileDragAreaPlaceholder: "Перетащите файл сюда или нажмите кнопку ниже, чтобы загрузить файл.",
+  filePlaceholder: "Перетащите файл сюда или нажмите кнопку ниже, чтобы загрузить файл.",
   confirmDelete: "Вы точно хотите удалить запись?",
   keyDuplicationError: "Это значение должно быть уникальным.",
   addColumn: "Добавить колонку",
@@ -76,8 +76,8 @@ export var russianSurveyStrings = {
   signaturePlaceHolder: "Подпишите здесь",
   chooseFileCaption: "Выберите файл",
   takePhotoCaption: "Сделать фото",
-  cameraPlaceHolder: "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры.",
-  fileCameraDragAreaPlaceHolder: "Перетащите или выберите файл для загрузки или съемки с помощью камеры.",
+  photoPlaceholder: "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры.",
+  fileOrPhotoPlaceholder: "Перетащите или выберите файл для загрузки или съемки с помощью камеры.",
   replaceFileCaption: "Заменить файл",
   removeFileCaption: "Удалить файл",
   booleanCheckedLabel: "Да",
@@ -109,6 +109,6 @@ surveyLocalization.localeNames["ru"] = "русский";
 // tagboxDoneButtonCaption: "OK" => "ХОРОШО"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Все варианты ранжируются"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетащите сюда варианты, чтобы ранжировать их"// takePhotoCaption: "Take Photo" => "Сделать фото"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетащите или выберите файл для загрузки или съемки с помощью камеры."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетащите или выберите файл для загрузки или съемки с помощью камеры."
 // replaceFileCaption: "Replace file" => "Заменить файл"

@@ -90,7 +90,7 @@
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   margin-top: calcSize(1);
-  color: $foreground;
+  color: $font-questiontitle-color;
 }
 
 .sd-imagepicker__no-image {

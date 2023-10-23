@@ -81,7 +81,7 @@
   align-items: center;
   justify-content: center;
   background-color: $primary-light;
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: calcFontSize(1);
   border-radius: 100%;
   border: calcSize(0.25) solid transparent;
@@ -105,19 +105,19 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: $foreground;
+  color: $font-questiontitle-color;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   margin: 0 calcSize(2);
 }
 
 .sd-ranking--disabled .sv-ranking-item__text {
-  color: $foreground;
+  color: $font-questiontitle-color;
   opacity: 0.25;
 }
 
 .sv-ranking-item--disabled .sv-ranking-item__text {
-  color: $foreground;
+  color: $font-questiondescription-color;
   opacity: 0.25;
 }
 
@@ -244,13 +244,17 @@
 }
 
 .sv-ranking--select-to-rank-horizontal {
+  .sv-ranking__container {
+    max-width: calc(50% - 1px);
+  }
+
   .sv-ranking__containers-divider {
     width: 1px;
   }
 
   .sv-ranking__container--to {
     .sv-ranking-item {
-      left: calcSize(1);
+      left: calcSize(2);
     }
   }
 
@@ -278,7 +282,7 @@
 }
 
 .sv-ranking__container-placeholder {
-  color: $foreground-dim-light;
+  color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
   @include defaultFont;
   white-space: break-spaces;
   display: flex;
@@ -286,6 +290,8 @@
   align-items: center;
   //width: 100%;
   height: 100%;
+  padding-top: calcSize(0.5);
+  padding-bottom: calcSize(0.5);
 }
 
 .sv-ranking__container {
@@ -300,7 +306,7 @@
 }
 
 .sv-ranking__containers-divider {
-  background: $border-inside;
+  background: var(--sjs-border-default, #{$border-inside});
 }
 
 .sv-ranking__container--from {

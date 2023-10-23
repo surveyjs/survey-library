@@ -47,7 +47,7 @@ export var hungarianSurveyStrings = {
   loadingFile: "Betöltés...",
   chooseFile: "Fájlok kiválasztása ...",
   noFileChosen: "Nincs kiválasztva fájl",
-  fileDragAreaPlaceholder: "Dobjon ide egy fájlt, vagy kattintson az alábbi gombra a fájl betöltéséhez.",
+  filePlaceholder: "Dobjon ide egy fájlt, vagy kattintson az alábbi gombra a fájl betöltéséhez.",
   confirmDelete: "Törli ezt a rekordot?",
   keyDuplicationError: "Az értéknek egyedinek kell lennie.",
   addColumn: "Oszlop hozzáadása",
@@ -76,8 +76,8 @@ export var hungarianSurveyStrings = {
   signaturePlaceHolder: "Írja alá itt",
   chooseFileCaption: "Válassz fájlt",
   takePhotoCaption: "Fotó készítése",
-  cameraPlaceHolder: "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel.",
-  fileCameraDragAreaPlaceHolder: "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával.",
+  photoPlaceholder: "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel.",
+  fileOrPhotoPlaceholder: "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával.",
   replaceFileCaption: "Fájl cseréje",
   removeFileCaption: "Távolítsa el ezt a fájlt",
   booleanCheckedLabel: "Igen",
@@ -120,6 +120,6 @@ surveyLocalization.localeNames["hu"] = "magyar";
 // tagboxDoneButtonCaption: "OK" => "OKÉ"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Minden választási lehetőség rangsorolva van"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Húzza ide a választási lehetőségeket a rangsoroláshoz"// takePhotoCaption: "Take Photo" => "Fotó készítése"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával."
 // replaceFileCaption: "Replace file" => "Fájl cseréje"

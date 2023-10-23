@@ -2392,3 +2392,23 @@ QUnit.test("Complex: onHidingContent", function (assert) {
   assert.equal(counter, 2, "onComplete");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: Apply error css", function (assert) {
+  const json = {
+    name: "newquestion",
+    questionJSON: { type: "text" },
+  };
+  ComponentCollection.Instance.add(json);
+  const errorCss = "single_error";
+  const survey = new SurveyModel();
+  survey.css = { text: { onError: errorCss } };
+  survey.fromJSON({
+    elements: [{ type: "newquestion", name: "q1", isRequired: true }],
+  });
+  const q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  const qText = <QuestionTextModel>q.contentQuestion;
+  assert.equal(qText.cssClasses.onError, errorCss, "error css is correct");
+  assert.equal(qText.getControlClass().indexOf(errorCss) < 0, true, "errors is not here");
+  q.validate(true);
+  assert.equal(qText.getControlClass().indexOf(errorCss) > -1, true, "errors is here");
+  ComponentCollection.Instance.clear();
+});

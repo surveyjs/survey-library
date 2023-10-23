@@ -303,6 +303,15 @@ QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
   assert.equal(questionModel.rankingChoices[1].value, "33", "item 2 is correct");
   assert.equal(questionModel.rankingChoices.length, 2, "rankingChoices count");
 });
+
+QUnit.test("DragDropRankingSelectToRank getIndixies", function (assert) {
+  const withDefaultValue = true;
+  const dndModel = new DragDropRankingSelectToRank();
+  const questionModel = createRankingQuestionModel(withDefaultValue);
+
+  let { toIndex } = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices);
+  assert.equal(toIndex, 2);
+});
 // EO selectToRankEnabled
 
 QUnit.test("rows: check matrixdynamic d&d", function (assert) {

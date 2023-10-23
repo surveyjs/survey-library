@@ -16,13 +16,16 @@ export function checkLibraryVersion(ver: string, libraryName: string): void {
   }
 }
 export function setLicenseKey(key: string): void {
-  slk(key, lic, ReleaseDate);
+  slk(key);
+}
+export function slk(key: string): void {
+  _slk(key, lic, ReleaseDate);
 }
 export function hasLicense(index: number): boolean {
   return lic[index.toString()] === true;
 }
 const lic: any = {};
-function slk(k: any, lh: any, rd: any) {
+function _slk(k: any, lh: any, rd: any) {
   if (!k) return;
   const en = (s: string) => {
     var e: any = {}, i, b = 0, c, x, l = 0, a, r = "", w = String.fromCharCode, L = s.length;
@@ -210,7 +213,7 @@ export {
 export { PopupSurveyModel, SurveyWindowModel } from "../../popup-survey";
 export { TextPreProcessor } from "../../textPreProcessor";
 export { Notifier } from "../../notifier";
-export { Cover, CoverCell } from "../../cover";
+export { Cover, CoverCell } from "../../header";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";

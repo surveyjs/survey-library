@@ -3,7 +3,7 @@
 }
 
 .sv-dropdown_select-wrapper use {
-  fill: $foreground-light;
+  fill: $font-editorfont-placeholdercolor;
 }
 
 .sd-dropdown {
@@ -33,9 +33,10 @@
 
 .sd-dropdown option {
   color: $foreground;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-size: calcFontSize(1);
 }
+
 .sd-dropdown input[readonly] {
   pointer-events: none;
 }
@@ -51,7 +52,7 @@
   font-weight: $font-editorfont-weight;
   color: $font-editorfont-color;
   font-size: $font-editorfont-size;
-  
+
   position: relative;
 }
 
@@ -61,7 +62,7 @@
   align-items: center;
   padding: 0 calcSize(1);
   margin: auto 0;
-  }
+}
 
 .sd-dropdown_chevron-button {
   position: absolute;
@@ -79,7 +80,7 @@
 .sd-dropdown_clean-button-svg {
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
-  }
+}
 
 .sd-input.sd-dropdown:focus-within {
   box-shadow: 0 0 0 2px $primary;
@@ -131,7 +132,7 @@
 
 .sd-dropdown__hint-prefix {
   color: $font-editorfont-placeholdercolor;
-  
+
   span {
     white-space: pre;
   }
@@ -151,10 +152,14 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.sv-popup.sv-popup--dropdown.sv-popup--dropdown {
+
+.sv-dropdown-popup {
   .sd-list__item-body {
     line-height: multiply(1.5, $font-editorfont-size);
     font-size: $font-editorfont-size;
+    font-weight: $font-editorfont-weight;
+    font-family: $font-editorfont-family;
+    padding-inline-end: calcSize(2);
   }
 }
 

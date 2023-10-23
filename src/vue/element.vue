@@ -1,6 +1,7 @@
 <template>
   <div :class="!element.isPanel ? element.getRootCss() : null" 
         v-if="row.isNeedRender"
+        ref="root"
         v-on:focusin="element.focusIn()"
         :id="element.id"
         :role="element.ariaRole"
@@ -66,6 +67,7 @@
   
   <component
   v-else-if="!!element.skeletonComponentName"
+  ref="root"
   :is="element.skeletonComponentName"
   :element="element"
   :css="css"
@@ -74,7 +76,7 @@
 
 <script lang="ts">
 import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+import { Component, Prop, Watch } from "vue-property-decorator";
 import { Base, SurveyModel, Question, QuestionRowModel } from "survey-core";
 import { getComponentName } from "./question";
 import { BaseVue } from "./base";
@@ -100,12 +102,22 @@ export class SurveyElementVue extends BaseVue {
   get hasErrorsOnBottom() {
     return !this.element.isPanel && (<Question>this.element).showErrorOnBottom;
   }
-  mounted() {
-    if (!this.element.isPanel) {
-      (<Question>this.element).afterRender(this.$el as HTMLElement);
+  previousElement: HTMLElement;
+  afterRender(el: HTMLElement) {
+    if (!this.element.isPanel && this.previousElement !== el && el && el instanceof HTMLElement) {
+      (<Question>this.element).afterRender(el);
     }
+    this.previousElement = el;
   }
-
+  onUpdated() {
+      this.afterRender(this.$refs.root as HTMLElement);
+  }
+  mounted(): void {
+    this.afterRender(this.$refs.root as HTMLElement)
+  }
+  destroyed(): void {
+    this.previousElement = undefined as any;
+  }
 }
 Vue.component("survey-element", SurveyElementVue);
 export default SurveyElementVue;

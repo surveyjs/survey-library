@@ -261,6 +261,11 @@ export class QuestionSignaturePadModel extends Question {
   get clearButtonCaption(): string {
     return this.getLocalizationString("clearCaption");
   }
+  /**
+   * A Boolean value that specifies whether to show the [placeholder](#placeholder).
+   *
+   * Default value: `true`
+   */
   @property({ }) showPlaceholder: boolean;
 
   public needShowPlaceholder(): boolean {
@@ -269,6 +274,9 @@ export class QuestionSignaturePadModel extends Question {
     const isEmpty = this.isEmpty();
     return showPlaceholder && !isDrawing && isEmpty;
   }
+  /**
+   * A placeholder for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
+   */
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
   endLoadingFromJson(): void {

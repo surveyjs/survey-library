@@ -294,8 +294,8 @@ frameworks.forEach((framework) => {
 
     await addFlexboxLayout();
 
-    await t.dragToElement(PriceItem, BatteryItem);
-
+    await t.dragToElement(PriceItem, BatteryItem, { destinationOffsetY: 0 });
+    await t.wait(300);
     let data = await getData();
     await t.expect(data["smartphone-features"]).eql([
       "Price",

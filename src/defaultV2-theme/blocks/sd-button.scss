@@ -10,7 +10,7 @@
   border-radius: calcCornerRadius(1);
   cursor: pointer;
 
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-style: normal;
   font-weight: 600;
   font-size: calcFontSize(1);

@@ -46,6 +46,7 @@ class TriggerExpressionInfo {
   runner: ExpressionRunner;
   isRunning: boolean;
   constructor(public name: string, public canRun: () => boolean, public doComplete: () => void) {}
+  runSecondCheck: (keys: any) => boolean = (keys: any): boolean => false;
 }
 
 /**
@@ -143,7 +144,8 @@ export class Question extends SurveyElement<Question>
       this.clearValue();
       this.updateValueWithDefaults();
     });
-    this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
+    const setValueIfInfo = this.addTriggerInfo("setValueIf", (): boolean => true, (): void => this.runSetValueExpression());
+    setValueIfInfo.runSecondCheck = (keys: any): boolean => this.checkExpressionIf(keys);
     this.registerPropertyChangedHandlers(["width"], () => {
       this.updateQuestionCss();
       if (!!this.parent) {
@@ -170,7 +172,7 @@ export class Question extends SurveyElement<Question>
         this.initCommentFromSurvey();
       }
     );
-    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly"], () => {
+    this.registerFunctionOnPropertiesValueChanged(["no", "readOnly", "hasVisibleErrors", "containsErrors"], () => {
       this.updateQuestionCss();
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
@@ -522,30 +524,47 @@ export class Question extends SurveyElement<Question>
     };
   }
   private setValueExpressionRunner: ExpressionRunner;
+  private ensureSetValueExpressionRunner(): void {
+    if(!this.setValueExpressionRunner) {
+      this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
+      this.setValueExpressionRunner.onRunComplete = (res: any): void => {
+        if(!this.isTwoValueEquals(this.value, res)) {
+          this.value = res;
+        }
+      };
+    } else {
+      this.setValueExpressionRunner.expression = this.setValueExpression;
+    }
+  }
   private runSetValueExpression(): void {
     if(!this.setValueExpression) {
       this.clearValue();
     } else {
-      if(!this.setValueExpressionRunner) {
-        this.setValueExpressionRunner = new ExpressionRunner(this.setValueExpression);
-        this.setValueExpressionRunner.onRunComplete = (res: any): void => {
-          if(!this.isTwoValueEquals(this.value, res)) {
-            this.value = res;
-          }
-        };
-      } else {
-        this.setValueExpressionRunner.expression = this.setValueExpression;
-      }
+      this.ensureSetValueExpressionRunner();
       this.setValueExpressionRunner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
     }
   }
+  private checkExpressionIf(keys: any): boolean {
+    this.ensureSetValueExpressionRunner();
+    if(!this.setValueExpressionRunner) return false;
+    return new ProcessValue().isAnyKeyChanged(keys, this.setValueExpressionRunner.getVariables());
+  }
   private triggersInfo: Array<TriggerExpressionInfo> = [];
-  private addTriggerInfo(name: string, canRun: ()=> boolean, doComplete: () => void): void {
-    this.triggersInfo.push(new TriggerExpressionInfo(name, canRun, doComplete));
+  private addTriggerInfo(name: string, canRun: ()=> boolean, doComplete: () => void): TriggerExpressionInfo {
+    const info = new TriggerExpressionInfo(name, canRun, doComplete);
+    this.triggersInfo.push(info);
+    return info;
   }
   private runTriggerInfo(info: TriggerExpressionInfo, name: string, value: any): void {
     const expression = this[info.name];
-    if(!expression || info.isRunning || !info.canRun()) return;
+    const keys: any = {};
+    keys[name] = value;
+    if(!expression || info.isRunning || !info.canRun()) {
+      if(info.runSecondCheck(keys)) {
+        info.doComplete();
+      }
+      return;
+    }
     if(!info.runner) {
       info.runner = new ExpressionRunner(expression);
       info.runner.onRunComplete = (res: any): void => {
@@ -557,9 +576,7 @@ export class Question extends SurveyElement<Question>
     } else {
       info.runner.expression = expression;
     }
-    const keys: any = {};
-    keys[name] = value;
-    if(!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables())) return;
+    if(!new ProcessValue().isAnyKeyChanged(keys, info.runner.getVariables()) && !info.runSecondCheck(keys)) return;
     info.isRunning = true;
     info.runner.run(this.getDataFilteredValues(), this.getDataFilteredProperties());
   }
@@ -1685,7 +1702,9 @@ export class Question extends SurveyElement<Question>
     this.setPropertyValue("setValueIf", val);
   }
   /**
-   * An expression used to calculate the question value. Applies only when the [`setValueIf`](#setValueIf) expression evaluates to `true`.
+   * An expression used to calculate the question value.
+   *
+   * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated question value applies only when `setValueIf` evaluates to `true`.
    *
    * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
    * @see defaultValueExpression
@@ -2030,9 +2049,6 @@ export class Question extends SurveyElement<Question>
       }
     }
     this.updateContainsErrors();
-    if (oldHasErrors != errors.length > 0) {
-      this.updateQuestionCss();
-    }
     if (this.isCollapsed && rec && fireCallback && errors.length > 0) {
       this.expand();
     }

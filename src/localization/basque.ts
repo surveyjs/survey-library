@@ -47,7 +47,7 @@ export var basqueSurveyStrings = {
   loadingFile: "Kargatzen...",
   chooseFile: "Fitxategia(k) hautatu...",
   noFileChosen: "Ez da inolako fitxategirik hautatu",
-  fileDragAreaPlaceholder: "Arrastatu eta askatu artxibo bat hemen edo klik egin beheko botoian eta aukeratu artxibo bat kargatzeko.",
+  filePlaceholder: "Arrastatu eta askatu artxibo bat hemen edo klik egin beheko botoian eta aukeratu artxibo bat kargatzeko.",
   confirmDelete: "¿Erregistroa borratu nahi al duzu?",
   keyDuplicationError: "Balio hau bakarra izan behar du.",
   addColumn: "Zutabe bat gehitu",
@@ -76,8 +76,8 @@ export var basqueSurveyStrings = {
   signaturePlaceHolder: "Sinatu hemen",
   chooseFileCaption: "Fitxategia hautatu",
   takePhotoCaption: "Argazkia hartu",
-  cameraPlaceHolder: "Egin klik beheko botoian, kamerarekin argazki bat hartzeko.",
-  fileCameraDragAreaPlaceHolder: "Arrastatu eta askatu artxibo bat kamerarekin argazki bat kargatzeko edo hartzeko.",
+  photoPlaceholder: "Egin klik beheko botoian, kamerarekin argazki bat hartzeko.",
+  fileOrPhotoPlaceholder: "Arrastatu eta askatu artxibo bat kamerarekin argazki bat kargatzeko edo hartzeko.",
   replaceFileCaption: "Artxiboa ordeztu",
   removeFileCaption: "Fitxategi hau ezabatu",
   booleanCheckedLabel: "Bai",
@@ -105,7 +105,7 @@ surveyLocalization.localeNames["eu"] = "Euskara";
 // indexText: "{0} of {1}" => "{1} {0}"
 // panelDynamicTabTextFormat: "Panel {panelIndex}" => "Panel {panelIndex}"
 // ratingOptionsCaption: "Select..." => "Aukeratu..."
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Arrastatu eta askatu artxibo bat hemen edo klik egin beheko botoian eta aukeratu artxibo bat kargatzeko."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Arrastatu eta askatu artxibo bat hemen edo klik egin beheko botoian eta aukeratu artxibo bat kargatzeko."
 // filterStringPlaceholder: "Type to search..." => "Idatzi bila..."
 // emptyMessage: "No data to display" => "Ez daturik erakusteko"
 // noEntriesText: "There are no entries yet.\nClick the button below to add a new entry." => "Oraindik ez sarrerarik.\nKlik beheko botoian klik egin sarrera berri bat eransteko."
@@ -114,6 +114,6 @@ surveyLocalization.localeNames["eu"] = "Euskara";
 // tagboxDoneButtonCaption: "OK" => "Ados"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Aukera guztiak sailkatuta daude"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arrastaka eta askatzen ditu hemen sailkatzeko"// takePhotoCaption: "Take Photo" => "Argazkia hartu"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Egin klik beheko botoian, kamerarekin argazki bat hartzeko."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastatu eta askatu artxibo bat kamerarekin argazki bat kargatzeko edo hartzeko."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Egin klik beheko botoian, kamerarekin argazki bat hartzeko."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arrastatu eta askatu artxibo bat kamerarekin argazki bat kargatzeko edo hartzeko."
 // replaceFileCaption: "Replace file" => "Artxiboa ordeztu"

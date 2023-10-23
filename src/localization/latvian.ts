@@ -47,7 +47,7 @@ export var latvianSurveyStrings = {
   loadingFile: "Notiek ielāde ...",
   chooseFile: "Izvēlieties failus ...",
   noFileChosen: "Nav izvēlēts neviens fails",
-  fileDragAreaPlaceholder: "Lai pievienotu, ievelciet failu šeit vai arī klikšķiniet uz zemāk redzamās pogas",
+  filePlaceholder: "Lai pievienotu, ievelciet failu šeit vai arī klikšķiniet uz zemāk redzamās pogas",
   confirmDelete: "Vai vēlaties izdzēst ierakstu?",
   keyDuplicationError: "Šai vērtībai jābūt unikālai.",
   addColumn: "Pievienot kolonnu",
@@ -76,8 +76,8 @@ export var latvianSurveyStrings = {
   signaturePlaceHolder: "Parakstieties šeit",
   chooseFileCaption: "Izvēlēties failu",
   takePhotoCaption: "Uzņemt fotoattēlu",
-  cameraPlaceHolder: "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru.",
-  fileCameraDragAreaPlaceHolder: "Velciet un nometiet vai atlasiet failu, ko augšupielādēt vai uzņemt fotoattēlu, izmantojot kameru.",
+  photoPlaceholder: "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru.",
+  fileOrPhotoPlaceholder: "Velciet un nometiet vai atlasiet failu, ko augšupielādēt vai uzņemt fotoattēlu, izmantojot kameru.",
   replaceFileCaption: "Aizstāt failu",
   removeFileCaption: "Noņemiet šo failu",
   booleanCheckedLabel: "Jā",
@@ -109,6 +109,6 @@ surveyLocalization.localeNames["lv"] = "latviešu";
 // tagboxDoneButtonCaption: "OK" => "LABI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Visas izvēles ir sarindotas"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Velciet un nometiet izvēles iespējas šeit, lai tās sarindotu"// takePhotoCaption: "Take Photo" => "Uzņemt fotoattēlu"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Velciet un nometiet vai atlasiet failu, ko augšupielādēt vai uzņemt fotoattēlu, izmantojot kameru."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Noklikšķiniet uz pogas zemāk, lai uzņemtu fotoattēlu, izmantojot kameru."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Velciet un nometiet vai atlasiet failu, ko augšupielādēt vai uzņemt fotoattēlu, izmantojot kameru."
 // replaceFileCaption: "Replace file" => "Aizstāt failu"

@@ -103,6 +103,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
         questions: [
           {
@@ -189,6 +190,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
         questions: [
           {
@@ -432,6 +434,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         showQuestionNumbers: "off",
         questions: [
           {
@@ -562,6 +565,7 @@ frameworks.forEach(framework => {
       await registerCustomItemComponent(framework);
 
       const jsonWithDropDown = {
+        focusFirstQuestionAutomatic: true,
         questions: [
           {
             type: "dropdown",

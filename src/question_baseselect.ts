@@ -864,15 +864,18 @@ export class QuestionSelectBase extends Question {
     }
     return res;
   }
-  protected updateVisibleChoices() {
-    if (this.isLoadingFromJson) return;
+  protected updateVisibleChoices(): void {
+    if (this.isLoadingFromJson || this.isDisposed) return;
     var newValue = new Array<ItemValue>();
     var calcValue = this.calcVisibleChoices();
     if (!calcValue) calcValue = [];
     for (var i = 0; i < calcValue.length; i++) {
       newValue.push(calcValue[i]);
     }
-    this.setPropertyValue("visibleChoices", newValue);
+    const oldValue = this.visibleChoices;
+    if(!this.isTwoValueEquals(oldValue, newValue) || this.choicesLazyLoadEnabled) {
+      this.setArrayPropertyDirectly("visibleChoices", newValue);
+    }
   }
   private calcVisibleChoices(): Array<ItemValue> {
     if (this.canUseFilteredChoices()) return this.getFilteredChoices();

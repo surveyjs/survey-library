@@ -47,7 +47,7 @@ export var finnishSurveyStrings = {
   loadingFile: "Ladataan...",
   chooseFile: "Valitse tiedosto(t)...",
   noFileChosen: "Ei tiedostoa valittuna",
-  fileDragAreaPlaceholder: "Pudota tiedosto tähän tai lataa tiedosto napsauttamalla alla olevaa painiketta.",
+  filePlaceholder: "Pudota tiedosto tähän tai lataa tiedosto napsauttamalla alla olevaa painiketta.",
   confirmDelete: "Haluatko poistaa osion?",
   keyDuplicationError: "Tämä arvo on jo käytössä. Syötä toinen arvo.",
   addColumn: "Lisää sarake",
@@ -76,8 +76,8 @@ export var finnishSurveyStrings = {
   signaturePlaceHolder: "Allekirjoita tähän",
   chooseFileCaption: "Valitse tiedosto",
   takePhotoCaption: "Ota valokuva",
-  cameraPlaceHolder: "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla.",
-  fileCameraDragAreaPlaceHolder: "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla.",
+  photoPlaceholder: "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla.",
+  fileOrPhotoPlaceholder: "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla.",
   replaceFileCaption: "Korvaa tiedosto",
   removeFileCaption: "Poista tämä tiedosto",
   booleanCheckedLabel: "Kyllä",
@@ -109,6 +109,6 @@ surveyLocalization.localeNames["fi"] = "suomi";
 // tagboxDoneButtonCaption: "OK" => "OKEI"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Kaikki valinnat asetetaan paremmuusjärjestykseen"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"// takePhotoCaption: "Take Photo" => "Ota valokuva"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla."
 // replaceFileCaption: "Replace file" => "Korvaa tiedosto"

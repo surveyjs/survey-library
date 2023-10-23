@@ -108,7 +108,7 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
     }
 
     return (
-      <div className={this.model.coverClasses} style={{ height: this.model.renderedHeight }}>
+      <div className={this.model.headerClasses} style={{ height: this.model.renderedHeight }}>
         {this.model.backgroundImage ? <div style={this.model.backgroundImageStyle} className={this.model.backgroundImageClasses}></div> : null}
         {headerContent}
       </div>

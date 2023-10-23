@@ -47,7 +47,7 @@ export var swahiliStrings = {
   loadingFile: "Inapakia...",
   chooseFile: "Chagua faili...",
   noFileChosen: "Hujachagua faili",
-  fileDragAreaPlaceholder: "Buruta na udondoshe faili hapa au bofya kitufe hapa chini na uchague faili ya kupakia.",
+  filePlaceholder: "Buruta na udondoshe faili hapa au bofya kitufe hapa chini na uchague faili ya kupakia.",
   confirmDelete: "Je! Unataka kufuta rekodi?",
   keyDuplicationError: "Thamani hii inapaswa kuwa ya kipekee.",
   addColumn: "Ongeza Kolamu",
@@ -76,8 +76,8 @@ export var swahiliStrings = {
   signaturePlaceHolder: "Ingia hapa",
   chooseFileCaption: "Chagua faili",
   takePhotoCaption: "Chukua Picha",
-  cameraPlaceHolder: "Bonyeza kitufe hapa chini ili kupiga picha kwa kutumia kamera.",
-  fileCameraDragAreaPlaceHolder: "Drag na kuacha au kuchagua faili kupakia au kuchukua picha kwa kutumia kamera.",
+  photoPlaceholder: "Bonyeza kitufe hapa chini ili kupiga picha kwa kutumia kamera.",
+  fileOrPhotoPlaceholder: "Drag na kuacha au kuchagua faili kupakia au kuchukua picha kwa kutumia kamera.",
   replaceFileCaption: "Badilisha faili",
   removeFileCaption: "Ondoa faili",
   booleanCheckedLabel: "Ndio",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["sw"] = "swahili";
 // ratingOptionsCaption: "Select..." => "Teua..."
 // minError: "The value should not be less than {0}" => "Thamani haipaswi kuwa chini ya {0}"
 // maxError: "The value should not be greater than {0}" => "Thamani haipaswi kuwa kubwa kuliko {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Buruta na udondoshe faili hapa au bofya kitufe hapa chini na uchague faili ya kupakia."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Buruta na udondoshe faili hapa au bofya kitufe hapa chini na uchague faili ya kupakia."
 // emptyRowsText: "There are no rows." => "Hakuna safu."
 // multipletext_itemname: "text" => "Ujumbe"
 // signaturePlaceHolder: "Sign here" => "Ingia hapa"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["sw"] = "swahili";
 // tagboxDoneButtonCaption: "OK" => "Sawa kabisa"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Chaguzi zote zimeorodheshwa"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Buruta na uache uchaguzi hapa ili kuziorodhesha"// takePhotoCaption: "Take Photo" => "Chukua Picha"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Bonyeza kitufe hapa chini ili kupiga picha kwa kutumia kamera."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Drag na kuacha au kuchagua faili kupakia au kuchukua picha kwa kutumia kamera."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Bonyeza kitufe hapa chini ili kupiga picha kwa kutumia kamera."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Drag na kuacha au kuchagua faili kupakia au kuchukua picha kwa kutumia kamera."
 // replaceFileCaption: "Replace file" => "Badilisha faili"

@@ -1388,12 +1388,12 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   });
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
   const q2 = <QuestionFileModel>survey.getQuestionByName("q2");
-  assert.equal(q1.renderedPlaceholder.substring(0, 4), "Drag", "q1 => drag");
-  assert.equal(q2.renderedPlaceholder.substring(0, 2), "No", "q2 => no file");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml.substring(0, 4), "Drag", "q1 => drag");
+  assert.equal(q2.locRenderedPlaceholder.renderedHtml.substring(0, 2), "No", "q2 => no file");
   q1.readOnly = true;
   q2.readOnly = false;
-  assert.equal(q1.renderedPlaceholder.substring(0, 2), "No", "q1, readOnly => no file");
-  assert.equal(q2.renderedPlaceholder.substring(0, 4), "Drag", "q2, not readOnly=> drag");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml.substring(0, 2), "No", "q1, readOnly => no file");
+  assert.equal(q2.locRenderedPlaceholder.renderedHtml.substring(0, 4), "Drag", "q2, not readOnly=> drag");
 });
 
 QUnit.test("QuestionFile current mode property, camera is not available", function(assert) {
@@ -1674,12 +1674,100 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes", function
   });
 
   const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
-  q1.dragAreaPlaceholder = "file_mod_placeholder";
-  q1.cameraPlaceholder = "camera_mod_placeholder";
-  q1.fileCameraDragAreaPlaceholder = "both_mod_placeholder";
-  assert.equal(q1.renderedPlaceholder, "file_mod_placeholder");
+  q1.filePlaceholder = "file_mod_placeholder";
+  q1.photoPlaceholder = "camera_mod_placeholder";
+  q1.fileOrPhotoPlaceholder = "both_mod_placeholder";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
   q1.setPropertyValue("currentMode", "camera");
-  assert.equal(q1.renderedPlaceholder, "camera_mod_placeholder");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "camera_mod_placeholder");
   q1.setPropertyValue("currentMode", "file-camera");
-  assert.equal(q1.renderedPlaceholder, "both_mod_placeholder");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
+});
+
+QUnit.test("QuestionFile check renderedPlaceholder in different modes when camera is not available", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1" },
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  q1.filePlaceholder = "file_mod_placeholder";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
+  q1.sourceType = "camera";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
+  q1.sourceType = "file-camera";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
+});
+
+QUnit.test("QuestionFile check renderedPlaceholder in different modes with design mode", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1" },
+    ]
+  });
+  survey.setDesignMode(true);
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  q1.filePlaceholder = "file_mod_placeholder";
+  q1.photoPlaceholder = "camera_mod_placeholder";
+  q1.fileOrPhotoPlaceholder = "both_mod_placeholder";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
+  q1.sourceType = "camera";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "camera_mod_placeholder");
+  q1.sourceType = "file-camera";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
+});
+
+QUnit.test("QuestionFile check placeholders are serializable", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "file",
+        name: "q1",
+        filePlaceholder: "file_mod_placeholder",
+        photoPlaceholder: "camera_mod_placeholder",
+        fileOrPhotoPlaceholder: "both_mod_placeholder"
+      },
+    ]
+  });
+  survey.setDesignMode(true);
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
+  q1.sourceType = "camera";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "camera_mod_placeholder");
+  q1.sourceType = "file-camera";
+  assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
+});
+QUnit.test("QuestionFile allowImagesPreview and allowCameraAccess", function (assert) {
+  const prop1 = Serializer.getProperty("file", "allowImagesPreview");
+  assert.deepEqual(Serializer.getProperty("file", "showPreview").getDependedProperties(), [prop1.name]);
+  const q1 = new QuestionFileModel("q1");
+  q1.showPreview = true;
+  assert.equal(prop1.isVisible(undefined, q1), true);
+  q1.showPreview = false;
+  assert.equal(prop1.isVisible(undefined, q1), false);
+  const prop2 = Serializer.getProperty("file", "allowCameraAccess");
+  assert.equal(prop2.visible, false);
+});
+
+QUnit.test("QuestionFile maxSize error doesnt update question css classes", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", maxSize: 3 },
+    ]
+  });
+  survey.css = {
+    question: {
+      hasError: "root-error",
+      hasErrorTop: "root-error-top"
+    }
+  };
+  const question = survey.getAllQuestions()[0];
+  assert.notOk(question.cssRoot.includes("root-error"));
+  assert.notOk(question.cssRoot.includes("root-error-top"));
+  question["allFilesOk"]([{ size: 2 }]);
+  assert.notOk(question.cssRoot.includes("root-error"));
+  assert.notOk(question.cssRoot.includes("root-error-top"));
+  question["allFilesOk"]([{ size: 4 }]);
+  assert.ok(question.cssRoot.includes("root-error"));
+  assert.ok(question.cssRoot.includes("root-error-top"));
 });

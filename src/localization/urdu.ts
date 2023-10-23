@@ -47,7 +47,7 @@ export var urduSurveyStrings = {
   loadingFile: "..لوڈ ہو رہا ہے۔",
   chooseFile: "..فائلیں منتخب کریں۔ ",
   noFileChosen: "کوئی فائل منتخب نہیں کی گئی ",
-  fileDragAreaPlaceholder: "یہاں فائل ڈراپ کریں یا فائل کو لوڈ کرنے کے لیے نیچے والے بٹن پر کلک کریں۔",
+  filePlaceholder: "یہاں فائل ڈراپ کریں یا فائل کو لوڈ کرنے کے لیے نیچے والے بٹن پر کلک کریں۔",
   confirmDelete: "کیا آپ ریکارڈ حذف کرنا چاہتے ہیں؟",
   keyDuplicationError: "یہ عدد منفرد ہونی چاہیے۔",
   addColumn: "کالم شامل کریں۔",
@@ -76,8 +76,8 @@ export var urduSurveyStrings = {
   signaturePlaceHolder: "یہاں سائن کریں۔",
   chooseFileCaption: "فائل منتخب کریں",
   takePhotoCaption: "تصویر لیں",
-  cameraPlaceHolder: "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
-  fileCameraDragAreaPlaceHolder: "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔",
+  photoPlaceholder: "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔",
+  fileOrPhotoPlaceholder: "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔",
   replaceFileCaption: "فائل کو تبدیل کریں",
   removeFileCaption: "اس فائل کو ہٹائے۔",
   booleanCheckedLabel: "جی ہاں",
@@ -114,6 +114,6 @@ surveyLocalization.localeNames["ur"] = "Urdu";
 // tagboxDoneButtonCaption: "OK" => "ٹھيک ہے"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "تمام اختیارات کی درجہ بندی کی جاتی ہے"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں"// takePhotoCaption: "Take Photo" => "تصویر لیں"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔"
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔"
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔"
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔"
 // replaceFileCaption: "Replace file" => "فائل کو تبدیل کریں"

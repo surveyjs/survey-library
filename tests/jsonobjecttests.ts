@@ -2588,6 +2588,15 @@ QUnit.test("Declared @property", function (assert) {
   assert.equal(obj.str3, "val3", "str3 get value");
   obj.locale = "";
 });
+QUnit.test("Check Declared @property localizable string defaultStr", function (assert) {
+  const obj = new TestDeclaredProps();
+  assert.ok(obj["locStr3"], "locStr3 exists");
+  assert.strictEqual(obj["locStr3"].owner, obj, "locStr3 owner is correct");
+  assert.equal(obj["locStr3"].renderedHtml, "Complete", "get renderedHtml for loc string from default string");
+  obj["locStr3"].setLocaleText("", "val3", "locStr3 set value");
+  assert.equal(obj["locStr3"].renderedHtml, "val3", "get renderedHtml for loc string from changed default string");
+  obj.locale = "";
+});
 QUnit.test("TextValidator, serialize allowDigits property", function (assert) {
   const validator = new TextValidator();
   assert.deepEqual(validator.toJSON(), {}, "validator is empty");

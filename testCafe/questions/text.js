@@ -194,6 +194,7 @@ frameworks.forEach((framework) => {
     const characterCounter = Selector(".sv-remaining-character-counter");
 
     await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           name: "name",
@@ -221,6 +222,7 @@ frameworks.forEach((framework) => {
   });
   test("Allow Space As Answer", async (t) => {
     await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
       questions: [
         {
           name: "name",

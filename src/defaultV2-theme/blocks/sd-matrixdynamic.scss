@@ -28,7 +28,7 @@
   border: none;
   line-height: calcLineHeight(1.5);
   font-size: calcFontSize(1);
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-weight: 600;
   padding: calcSize(1) 0;
 }

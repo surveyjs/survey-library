@@ -47,7 +47,7 @@ export var georgianSurveyStrings = {
   loadingFile: "იტვირთება...",
   chooseFile: "აირჩიეთ ფაილი...",
   noFileChosen: "ფაილის არჩევა არ არის",
-  fileDragAreaPlaceholder: "გადაიტანეთ და ჩამოაგდეთ ფაილი აქ ან დააჭირეთ ქვემოთ მოცემულ ღილაკს და აირჩიეთ ფაილი ასატვირთად.",
+  filePlaceholder: "გადაიტანეთ და ჩამოაგდეთ ფაილი აქ ან დააჭირეთ ქვემოთ მოცემულ ღილაკს და აირჩიეთ ფაილი ასატვირთად.",
   confirmDelete: "გსურთ ჩანაწერის წაშლა?",
   keyDuplicationError: "ეს მნიშვნელობა უნდა იყოს უნიკალური.",
   addColumn: "სვეტის დამატება",
@@ -76,8 +76,8 @@ export var georgianSurveyStrings = {
   signaturePlaceHolder: "შესვლა აქ",
   chooseFileCaption: "ვაუჩერის ნახვა",
   takePhotoCaption: "გადაიღეთ ფოტო",
-  cameraPlaceHolder: "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით.",
-  fileCameraDragAreaPlaceHolder: "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად.",
+  photoPlaceholder: "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით.",
+  fileOrPhotoPlaceholder: "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად.",
   replaceFileCaption: "ფაილის შეცვლა",
   removeFileCaption: "ამ ფაილის წაშლა",
   booleanCheckedLabel: "დიახ",
@@ -130,7 +130,7 @@ surveyLocalization.localeNames["ka"] = "ქართული";
 // loadingFile: "Loading..." => "იტვირთება..."
 // chooseFile: "Choose file(s)..." => "აირჩიეთ ფაილი..."
 // noFileChosen: "No file chosen" => "ფაილის არჩევა არ არის"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "გადაიტანეთ და ჩამოაგდეთ ფაილი აქ ან დააჭირეთ ქვემოთ მოცემულ ღილაკს და აირჩიეთ ფაილი ასატვირთად."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "გადაიტანეთ და ჩამოაგდეთ ფაილი აქ ან დააჭირეთ ქვემოთ მოცემულ ღილაკს და აირჩიეთ ფაილი ასატვირთად."
 // confirmDelete: "Do you want to delete the record?" => "გსურთ ჩანაწერის წაშლა?"
 // keyDuplicationError: "This value should be unique." => "ეს მნიშვნელობა უნდა იყოს უნიკალური."
 // addColumn: "Add Column" => "სვეტის დამატება"
@@ -174,6 +174,6 @@ surveyLocalization.localeNames["ka"] = "ქართული";
 // tagboxDoneButtonCaption: "OK" => "კარგი"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "ყველა არჩევანი რანჟირებულია"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი"// takePhotoCaption: "Take Photo" => "გადაიღეთ ფოტო"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად."
 // replaceFileCaption: "Replace file" => "ფაილის შეცვლა"

@@ -47,7 +47,7 @@ export var norwegianSurveyStrings = {
   loadingFile: "Laster inn ...",
   chooseFile: "Velg fil (er) ...",
   noFileChosen: "Ingen fil valgt",
-  fileDragAreaPlaceholder: "Dra og slipp en fil her, eller klikk på knappen nedenfor og velg en fil du vil laste opp.",
+  filePlaceholder: "Dra og slipp en fil her, eller klikk på knappen nedenfor og velg en fil du vil laste opp.",
   confirmDelete: "Ønsker du å slette posten?",
   keyDuplicationError: "Denne verdien skal være unik.",
   addColumn: "Legg til kolonne",
@@ -76,8 +76,8 @@ export var norwegianSurveyStrings = {
   signaturePlaceHolder: "Logg inn her",
   chooseFileCaption: "Velg Fil",
   takePhotoCaption: "Ta bilde",
-  cameraPlaceHolder: "Klikk på knappen nedenfor for å ta et bilde med kameraet.",
-  fileCameraDragAreaPlaceHolder: "Dra og slipp eller velg en fil for å laste opp eller ta et bilde med kameraet.",
+  photoPlaceholder: "Klikk på knappen nedenfor for å ta et bilde med kameraet.",
+  fileOrPhotoPlaceholder: "Dra og slipp eller velg en fil for å laste opp eller ta et bilde med kameraet.",
   replaceFileCaption: "Erstatt fil",
   removeFileCaption: "Fjern denne filen",
   booleanCheckedLabel: "Ja",
@@ -107,7 +107,7 @@ surveyLocalization.localeNames["no"] = "norsk";
 // ratingOptionsCaption: "Select..." => "Velge..."
 // minError: "The value should not be less than {0}" => "Verdien bør ikke være mindre enn {0}"
 // maxError: "The value should not be greater than {0}" => "Verdien bør ikke være større enn {0}"
-// fileDragAreaPlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra og slipp en fil her, eller klikk på knappen nedenfor og velg en fil du vil laste opp."
+// filePlaceholder: "Drag and drop a file here or click the button below and choose a file to upload." => "Dra og slipp en fil her, eller klikk på knappen nedenfor og velg en fil du vil laste opp."
 // emptyRowsText: "There are no rows." => "Det er ingen rader."
 // multipletext_itemname: "text" => "Tekst"
 // signaturePlaceHolder: "Sign here" => "Logg inn her"
@@ -121,6 +121,6 @@ surveyLocalization.localeNames["no"] = "norsk";
 // tagboxDoneButtonCaption: "OK" => "OK"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Alle valg er rangert"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra og slipp valg her for å rangere dem"// takePhotoCaption: "Take Photo" => "Ta bilde"
-// cameraPlaceHolder: "Click the button below to take a photo using the camera." => "Klikk på knappen nedenfor for å ta et bilde med kameraet."
-// fileCameraDragAreaPlaceHolder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra og slipp eller velg en fil for å laste opp eller ta et bilde med kameraet."
+// photoPlaceholder: "Click the button below to take a photo using the camera." => "Klikk på knappen nedenfor for å ta et bilde med kameraet."
+// fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra og slipp eller velg en fil for å laste opp eller ta et bilde med kameraet."
 // replaceFileCaption: "Replace file" => "Erstatt fil"

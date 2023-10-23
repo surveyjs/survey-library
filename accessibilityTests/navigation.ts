@@ -1,4 +1,4 @@
-import { frameworks, urlV2, initSurvey } from "../helper";
+import { frameworks, urlV2, initSurvey } from "./helper";
 import { fixture, Selector, test } from "testcafe";
 import { axeCheck, createReport } from "axe-testcafe";
 const title = "navigation";

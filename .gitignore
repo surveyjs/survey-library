@@ -43,3 +43,4 @@ visualRegressionTests/screenshots
 visualRegressionTests/artifacts
 packages/survey-angular-ui/src/**/*.js
 dist
+junit.xml

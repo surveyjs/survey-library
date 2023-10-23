@@ -22,6 +22,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "pages": [
@@ -90,10 +91,11 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-questiontitle-font-size.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
-  test("Check question title font size", async (t) => {
+  test("Check question title font size, #2", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "elements": [{
@@ -158,6 +160,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 2000);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "logoPosition": "right",
         "showQuestionNumbers": "off",
         "elements": [
@@ -243,6 +246,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 1600);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "logoPosition": "right",
         "pages": [
           {

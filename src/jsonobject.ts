@@ -19,7 +19,11 @@ function ensureLocString(
 ) {
   let locString = target.getLocalizableString(key);
   if (!locString) {
-    locString = target.createLocalizableString(key, target, true);
+    let defaultStr: string;
+    if(typeof options.localizable === "object" && options.localizable.defaultStr) {
+      defaultStr = options.localizable.defaultStr;
+    }
+    locString = target.createLocalizableString(key, target, true, defaultStr);
     if (
       typeof options.localizable === "object" &&
       typeof options.localizable.onGetTextCallback === "function"
@@ -1326,7 +1330,7 @@ export class JsonMetadata {
     if (prop.hasChoices) {
       const enumRes = prop.getChoices(null);
       if(Array.isArray(enumRes) && enumRes.length > 0) {
-        res.enum = enumRes;
+        res.enum = this.getChoicesValues(enumRes);
       }
     }
     if(!!refType) {
@@ -1383,6 +1387,17 @@ export class JsonMetadata {
     if(Array.isArray(chemaProps.required)) {
       res.required = chemaProps.required;
     }
+  }
+  private getChoicesValues(enumRes: Array<any>): Array<any> {
+    const res = new Array<any>();
+    enumRes.forEach(item => {
+      if(typeof item === "object" && item.value !== undefined) {
+        res.push(item.value);
+      } else {
+        res.push(item);
+      }
+    });
+    return res;
   }
 }
 export class JsonError {

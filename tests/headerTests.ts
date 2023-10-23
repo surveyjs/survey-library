@@ -81,16 +81,16 @@ QUnit.test("contentClasses",
 
     assert.equal(cover.survey.widthMode, "auto", "default widthMode");
     assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--static", "default contentClasses");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "default contentClasses");
 
     cover.survey.widthMode = "responsive";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "survey.widthMode is responsive");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "survey.widthMode is responsive");
 
     cover.survey.widthMode = "static";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--static", "survey.widthMode is static");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "survey.widthMode is static");
 
     cover.inheritWidthFrom = "container";
-    assert.equal(cover.contentClasses, "sv-conver__content sv-conver__content--responsive", "inheritWidthFrom is container");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "inheritWidthFrom is container");
   }
 );
 
@@ -225,5 +225,38 @@ QUnit.test("cell calculations - test width",
     cover.textAreaWidth = 120;
     assert.equal(cover.textAreaWidth, 120, "cover text width");
     assert.equal(cover.cells[0].textAreaWidth, "120px", "cell text width");
+  }
+);
+
+QUnit.test("calculateActualHeight",
+  function (assert) {
+    const cover = new Cover();
+
+    cover.logoPositionX = "left";
+    cover.logoPositionY = "middle";
+    cover.titlePositionX = "right";
+    cover.titlePositionY = "middle";
+    cover.descriptionPositionX = "right";
+    cover.descriptionPositionY = "middle";
+
+    let logoHeight = 201;
+    let titleHeight = 22;
+    let descriptionHeight = 303;
+
+    let actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
+    assert.equal(actualHeight, titleHeight + descriptionHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "365px", "title + description + 40");
+
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "256px", "default height");
+
+    logoHeight = 271;
+    actualHeight = cover.calculateActualHeight(logoHeight, titleHeight, 0);
+    assert.equal(actualHeight, logoHeight);
+    cover.actualHeight = actualHeight;
+    assert.equal(cover.renderedHeight, "311px", "logo + 40");
   }
 );

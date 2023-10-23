@@ -11,6 +11,8 @@ import { ActionContainer } from "./actions/container";
 import { Action } from "./actions/action";
 import { Helpers } from "./helpers";
 import { Camera } from "./utils/camera";
+import { LocalizableString } from "./localizablestring";
+import { settings } from "./settings";
 
 /**
  * A class that describes the File Upload question type.
@@ -53,6 +55,9 @@ export class QuestionFileModel extends Question {
    * - `"file"` (default) - Allows respondents to select a local file.
    * - `"camera"` - Allows respondents to capture and upload a photo.
    * - `"file-camera"` - Allows respondents to select a local file or capture a photo.
+   * @see filePlaceholder
+   * @see photoPlaceholder
+   * @see fileOrPhotoPlaceholder
    */
   @property({ onSet: (val: string, obj: QuestionFileModel) => {
     if(!obj.isLoadingFromJson) {
@@ -179,7 +184,6 @@ export class QuestionFileModel extends Question {
       this.updateActions();
     });
     this.updateActions();
-
     this.actionsContainer.actions = [this.chooseFileAction, this.startCameraAction, this.cleanAction];
     this.fileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
@@ -412,38 +416,49 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;
   @property({ localizable: { defaultStr: "loadingFile" } }) loadingFileTitle: string;
   @property({ localizable: { defaultStr: "chooseFile" } }) chooseFileTitle: string;
-  @property({ localizable: { defaultStr: "fileCameraDragAreaPlaceHolder" } }) fileCameraDragAreaPlaceholder: string;
-  @property({ localizable: { defaultStr: "cameraPlaceHolder" } }) cameraPlaceholder: string;
-  @property({ localizable: { defaultStr: "fileDragAreaPlaceholder" } }) dragAreaPlaceholder: string;
+  /**
+   * A placeholder text displayed when the File Upload question doesn't contain any files or photos to upload. Applies only when [`sourceType`](#sourceType) value is `"file-camera"`.
+   * @see filePlaceholder
+   * @see photoPlaceholder
+   */
+  @property({ localizable: { defaultStr: "fileOrPhotoPlaceholder" } }) fileOrPhotoPlaceholder: string;
+  /**
+   * A placeholder text displayed when the File Upload question doesn't contain any photos to upload. Applies only when the [`sourceType`](#sourceType) value is `"camera"`.
+   * @see filePlaceholder
+   * @see fileOrPhotoPlaceholder
+   */
+  @property({ localizable: { defaultStr: "photoPlaceholder" } }) photoPlaceholder: string;
+  /**
+   * A placeholder text displayed when the File Upload question doesn't contain any files to upload. Applies only when the [`sourceType`](#sourceType) value is `"file"`.
+   * @see photoPlaceholder
+   * @see fileOrPhotoPlaceholder
+   */
+  @property({ localizable: { defaultStr: "filePlaceholder" } }) filePlaceholder: string;
 
-  @property() renderedPlaceholderValue: string;
-  public get renderedPlaceholder(): string {
-    if(this.renderedPlaceholderValue === undefined) {
-      this.renderedPlaceholderValue = <string><unknown>(new ComputedUpdater<string>(() => {
-        const dragAreaText = this.dragAreaPlaceholder;
-        const fileCameraDragAreaPlaceHolder = this.fileCameraDragAreaPlaceholder;
-        const cameraPlaceHolder = this.cameraPlaceholder;
-        const readOnlyText = this.noFileChosenCaption;
+  @property() locRenderedPlaceholderValue: LocalizableString;
+  public get locRenderedPlaceholder(): LocalizableString {
+    if(this.locRenderedPlaceholderValue === undefined) {
+      this.locRenderedPlaceholderValue = <LocalizableString><unknown>(new ComputedUpdater<LocalizableString>(() => {
         const isReadOnly = this.isReadOnly;
-        const hasFileUI = this.hasFileUI;
-        const hasVideoUI = this.hasVideoUI;
-        let renderedPlaceholder = "";
+        const hasFileUI = (!this.isDesignMode && this.hasFileUI) || (this.isDesignMode && this.sourceType != "camera");
+        const hasVideoUI = (!this.isDesignMode && this.hasVideoUI) || (this.isDesignMode && this.sourceType != "file");
+        let renderedPlaceholder: LocalizableString;
         if(isReadOnly) {
-          renderedPlaceholder = readOnlyText;
+          renderedPlaceholder = this.locNoFileChosenCaption;
+        }
+        else if(hasFileUI && hasVideoUI) {
+          renderedPlaceholder = this.locFileOrPhotoPlaceholder;
         }
         else if(hasFileUI) {
-          if(hasVideoUI) {
-            renderedPlaceholder = fileCameraDragAreaPlaceHolder;
-          } else {
-            renderedPlaceholder = dragAreaText;
-          }
-        } else {
-          renderedPlaceholder = cameraPlaceHolder;
+          renderedPlaceholder = this.locFilePlaceholder;
+        }
+        else {
+          renderedPlaceholder = this.locPhotoPlaceholder;
         }
         return renderedPlaceholder;
       }));
     }
-    return this.renderedPlaceholderValue;
+    return this.locRenderedPlaceholderValue;
   }
   public get currentMode(): string {
     return this.getPropertyValue("currentMode", this.sourceType);
@@ -989,7 +1004,14 @@ Serializer.addClass(
     { name: "showCommentArea:switch", layout: "row", visible: true, category: "general" },
     { name: "showPreview:boolean", default: true },
     "allowMultiple:boolean",
-    { name: "allowImagesPreview:boolean", default: true },
+    {
+      name: "allowImagesPreview:boolean",
+      default: true,
+      dependsOn: "showPreview",
+      visibleIf: (obj: any) => {
+        return !!obj.showPreview;
+      },
+    },
     "imageHeight",
     "imageWidth",
     "acceptedTypes",
@@ -1000,8 +1022,11 @@ Serializer.addClass(
     { name: "correctAnswer", visible: false },
     { name: "validators", visible: false },
     { name: "needConfirmRemoveFile:boolean" },
-    { name: "allowCameraAccess:switch", category: "general" },
-    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true }
+    { name: "sourceType", choices: ["file", "camera", "file-camera"], default: "file", category: "general", visible: true, visibleIf: () => settings.supportCreatorV2 },
+    { name: "fileOrPhotoPlaceholder:text", serializationProperty: "locFileOrPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
+    { name: "photoPlaceholder:text", serializationProperty: "locPhotoPlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
+    { name: "filePlaceholder:text", serializationProperty: "locFilePlaceholder", category: "general", visibleIf: () => settings.supportCreatorV2 },
+    { name: "allowCameraAccess:switch", category: "general", visible: false },
   ],
   function () {
     return new QuestionFileModel("");

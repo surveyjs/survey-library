@@ -2,7 +2,7 @@ sv-brand-info {}
 
 .sv-brand-info {
   width: 100%;
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   text-align: center;
   color: #161616;
   background: white;

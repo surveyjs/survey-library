@@ -3,8 +3,10 @@
   background-repeat: no-repeat;
   background-position: center;
 }
-
-$font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+:root {
+  --sjs-default-font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+$font-family: var(--font-family, var(--sjs-default-font-family));
 
 @import "./common-styles/sv-progress-buttons.scss";
 @import "./common-styles/sv-progress-toc.scss";
@@ -404,7 +406,7 @@ body {
   // position: relative;
   width: 100%;
   //background-color: var(--body-container-background-color, $body-container-background-color);
-  font-family: var(--font-family, $font-family);
+  font-family: $font-family;
   font-size: var(--font-size, $font-size);
 
   hr {

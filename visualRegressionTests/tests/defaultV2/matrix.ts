@@ -88,6 +88,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "pages": [
           {
             "name": "page1",
@@ -209,6 +210,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "pages": [
           {
             "name": "page1",
@@ -1019,6 +1021,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         "elements": [
           {
             "type": "matrixdropdown",

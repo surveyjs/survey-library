@@ -37,9 +37,9 @@
         :class="question.getFileDecoratorCss()"
         v-if="question.showFileDecorator"
       >
-        <span :class="question.cssClasses.dragAreaPlaceholder">{{
-          question.renderedPlaceholder
-        }}</span>
+        <span :class="question.cssClasses.dragAreaPlaceholder">
+          <survey-string :locString="question.locRenderedPlaceholder"></survey-string>
+        </span>
         <div :class="question.cssClasses.wrapper">
           <sv-file-choose-btn
             v-if="question.showChooseButton"

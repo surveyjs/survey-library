@@ -23,10 +23,15 @@ sv-popup {
 }
 
 .sv-popup__container {
+  background-color: $background-dim;
   box-shadow: $shadow-large;
   border-radius: calcCornerRadius(1);
   position: absolute;
   padding: 0;
+}
+
+.sv-popup__body-content .sv-list {
+  background-color: transparent;
 }
 
 .sv-popup__shadow {

@@ -291,6 +291,7 @@ frameworks.forEach((framework) => {
 });
 
 const json3 = {
+  focusFirstQuestionAutomatic: true,
   elements: [
     {
       type: "matrixdynamic",

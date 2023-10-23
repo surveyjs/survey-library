@@ -4,6 +4,7 @@ import { Selector, ClientFunction } from "testcafe";
 const title = "focusFirstQuestionAutomatic";
 
 const json = {
+  focusFirstQuestionAutomatic: true,
   pages: [
     {
       elements: [
@@ -189,6 +190,7 @@ frameworks.forEach(async framework => {
       return window["survey_focusedName"];
     });
     await initSurvey(framework, {
+      focusFirstQuestionAutomatic: true,
       pages: [
         {
           elements: [

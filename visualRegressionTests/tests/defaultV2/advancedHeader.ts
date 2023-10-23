@@ -22,6 +22,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1000);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
         logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",
@@ -50,6 +51,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1000);
       await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
         title: "Survey Title",
         description: "Survey description",
         logo: "https://surveyjs.io/Content/Images/examples/image-picker/lion.jpg",

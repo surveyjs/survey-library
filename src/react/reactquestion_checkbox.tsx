@@ -29,7 +29,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         aria-invalid={this.question.a11y_input_ariaInvalid}
         aria-describedby={this.question.a11y_input_ariaDescribedBy}
       >
-        <legend role="presentation" className={"sv-hidden"}></legend>
+        <legend className={"sv-hidden"}>{this.question.locTitle.renderedHtml}</legend>
         {this.getHeader()}
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)

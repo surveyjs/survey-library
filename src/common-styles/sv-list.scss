@@ -13,10 +13,7 @@
   width: 100%;
   font-family: $font-family;
   box-sizing: border-box;
-  padding: calcSize(1.5) calcSize(8);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  padding: calcSize(1.5);
 }
 
 .sv-list__empty-text {
@@ -24,6 +21,9 @@
   font-size: calcFontSize(1);
   font-weight: 400;
   text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   color: $foreground-light;
 }
 

@@ -88,7 +88,7 @@ import type {
   PanelModel,
 } from "survey-core";
 import { useBase } from "./base";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
@@ -119,9 +119,18 @@ const getContentClass = (element: Question) => {
 
 useBase(() => props.element);
 
-onMounted(() => {
-  if (!props.element.isPanel) {
+const afterRender = () => {
+  if (!props.element.isPanel && root.value) {
     (props.element as Question).afterRender(root.value as HTMLElement);
   }
+};
+const stopWatch = watch(
+  () => root.value,
+  () => {
+    afterRender();
+  }
+);
+onUnmounted(() => {
+  stopWatch();
 });
 </script>

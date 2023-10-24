@@ -155,4 +155,32 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-ranking-shortcut-position-container-layout.png", Selector(".sd-question"), t, comparer);
     });
   });
+
+  test("Ranking theming", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        questions: [
+          {
+            "type": "ranking",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1", "item2"
+            ]
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-questiontitle-color": "red",
+            "--sjs-font-editorfont-size": "32px"
+          }
+        });
+      })();
+      const question = Selector(".sv-ranking-item");
+      await takeElementScreenshot("question-ranking-item-theme.png", question, t, comparer);
+    });
+  });
 });

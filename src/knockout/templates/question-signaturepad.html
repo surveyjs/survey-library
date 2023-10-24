@@ -1,7 +1,8 @@
 <script type="text/html" id="survey-question-signaturepad">
     <div data-bind="css: question.cssClasses.root, style: { height: signatureHeight, width: signatureWidth }">
-        <div 
-            data-bind="text: placeHolderText, css: question.cssClasses.placeholder, visible: $data.needShowPlaceholder()">
+        <div data-bind="css: question.cssClasses.placeholder, visible: $data.needShowPlaceholder()">
+            <!-- ko template: { name: 'survey-string', data: question.locPlaceholder } -->
+            <!-- /ko -->
         </div>
         <div>
             <!-- ko if: question.backgroundImage -->

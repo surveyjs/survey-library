@@ -271,7 +271,7 @@ sv-popup {
   }
 }
 
-.sv-popup.sv-popup--dropdown {
+.sv-popup--dropdown {
   .sv-list__filter {
     margin-bottom: calcSize(1);
   }
@@ -285,10 +285,10 @@ sv-popup {
     padding: calcSize(1) 0;
     height: 100%;
   }
+}
 
-  .sv-popup__body-content .sv-list {
-    background-color: transparent;
-  }
+.sv-popup.sv-popup--dropdown .sv-popup__body-content .sv-list {
+  background-color: transparent;
 }
 
 .sv-dropdown-popup {

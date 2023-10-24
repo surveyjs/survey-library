@@ -517,6 +517,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("useFullItemSizeForShortcut", val);
   }
 
+  public get dragDropSvgIcon(): string {
+    return this.cssClasses.dragDropSvgIconId || "#icon-drag-n-drop";
+  }
+  public get arrowsSvgIcon(): string {
+    return this.cssClasses.arrowsSvgIconId || "#icon-ranking-arrows";
+  }
+  public get dashSvgIcon(): string {
+    return this.cssClasses.dashSvgIconId || "#icon-ranking-dash";
+  }
+
   //a11y
   public get isNewA11yStructure(): boolean {
     return false;

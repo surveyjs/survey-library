@@ -1,3 +1,4 @@
+import { Serializer } from "../src/jsonobject";
 import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { SurveyModel } from "../src/survey";
 
@@ -287,4 +288,52 @@ QUnit.test("check penColor & background color if background image", (assert) => 
   assert.equal(signaturepadQuestion.backgroundColor, "#dde6db", "backgroundColor #dde6db");
   assert.equal(signaturepadQuestion.signaturePad.penColor, "#1ab394", "signaturePad.penColor #1ab394");
   assert.equal(signaturepadQuestion.signaturePad.backgroundColor, "transparent", "signaturePad.backgroundColor transparent");
+});
+
+QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
+  let json: any = {
+    questions: [
+      {
+        type: "signaturepad",
+        backgroundImage: "someUrl",
+        name: "q1",
+      },
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
+  assert.ok(question.needShowPlaceholder());
+  assert.equal(question.locPlaceholder.renderedHtml, "Sign here");
+
+  question.showPlaceholder = false;
+  assert.notOk(question.needShowPlaceholder());
+  question.placeholder = "test sign";
+  assert.equal(question.locPlaceholder.renderedHtml, "test sign");
+
+  json = {
+    questions: [
+      {
+        type: "signaturepad",
+        backgroundImage: "someUrl",
+        name: "q1",
+        showPlaceholder: false,
+        placeHolder: "test sign"
+      },
+    ],
+  };
+  survey = new SurveyModel(json);
+  question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
+  assert.notOk(question.needShowPlaceholder());
+  question.placeholder = "test sign";
+  assert.equal(question.locPlaceholder.renderedHtml, "test sign");
+});
+
+QUnit.test("check placeholder property visibility", (assert) => {
+  const prop1 = Serializer.getProperty("signaturepad", "placeholder");
+  assert.deepEqual(Serializer.getProperty("signaturepad", "showPlaceholder").getDependedProperties(), [prop1.name]);
+  const q1 = new QuestionSignaturePadModel("q1");
+  q1.showPlaceholder = true;
+  assert.equal(prop1.isVisible(undefined, q1), true);
+  q1.showPlaceholder = false;
+  assert.equal(prop1.isVisible(undefined, q1), false);
 });

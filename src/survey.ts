@@ -1343,7 +1343,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies whether to focus the first question on the page on survey startup or when users switch between pages.
    *
-   * Default value: `true`
+   * Default value: `false` in v1.9.114 and later, `true` in earlier versions
    * @see focusOnFirstError
    * @see focusFirstQuestion
    * @see focusQuestion

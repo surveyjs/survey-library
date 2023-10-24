@@ -22,6 +22,30 @@ registerMarkupTests(
       snapshot: "ranking",
     },
     {
+      name: "Test ranking with values markup",
+      json: {
+        questions: [
+          {
+            "type": "ranking",
+            "name": "name",
+            "title": "Question title",
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            "defaultValue": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      snapshot: "ranking-values",
+    },
+    {
       name: "Test ranking markup design mode",
       json: {
         questions: [

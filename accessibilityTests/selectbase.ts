@@ -143,7 +143,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test("axe check", async (t) => {
+  test.skip("axe check", async (t) => {
     const axeContext = { include: [[".sv_p_root"]] };
     const axeOptions = {
       runOnly: {

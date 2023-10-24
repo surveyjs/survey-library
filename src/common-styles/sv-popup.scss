@@ -271,7 +271,7 @@ sv-popup {
   }
 }
 
-.sv-popup--dropdown {
+.sv-popup.sv-popup--dropdown {
   .sv-list__filter {
     margin-bottom: calcSize(1);
   }

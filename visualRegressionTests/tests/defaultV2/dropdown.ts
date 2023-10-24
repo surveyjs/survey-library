@@ -427,6 +427,8 @@ frameworks.forEach(framework => {
         .typeText(".sd-dropdown__filter-string-input", "test")
         .wait(100);
       await takeElementScreenshot("dropdown-empty-list.png", popupContainer, t, comparer);
+      await t.resizeWindow(300, 500);
+      await takeElementScreenshot("dropdown-small-window-empty-list.png", popupContainer, t, comparer);
     });
   });
 

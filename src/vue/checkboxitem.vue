@@ -1,11 +1,11 @@
 <template>
   <div role="presentation">
     <label :class="question.getLabelClass(item)">
-      <input v-if="item == question.selectAllItem" type="checkbox" :name="question.name"
+      <input v-if="item == question.selectAllItem" type="checkbox" role="option" :name="question.name+item.value"
         :value="isAllSelected" v-model="isAllSelected" :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)" :class="question.cssClasses.itemControl" />
       <input v-if="item != question.selectAllItem" 
-        type="checkbox" :name="question.name" :value="item.value" v-model="question.renderedValue"
+        type="checkbox" role="option" :name="question.name+item.value" :value="item.value" v-model="question.renderedValue"
         :id="question.getItemId(item)" :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl" /><span
         v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">

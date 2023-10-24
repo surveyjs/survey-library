@@ -6,7 +6,8 @@
       <input
         v-if="item == question.selectAllItem"
         type="checkbox"
-        :name="question.name"
+        role="option" 
+        :name="question.name+item.value"
         :value="isAllSelected"
         v-model="isAllSelected"
         :id="question.getItemId(item)"
@@ -15,7 +16,8 @@
       /><input
         v-if="item != question.selectAllItem"
         type="checkbox"
-        :name="question.name"
+        role="option" 
+        :name="question.name+item.value"
         :value="item.value"
         v-model="question.renderedValue"
         :id="question.getItemId(item)"

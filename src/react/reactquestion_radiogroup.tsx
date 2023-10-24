@@ -204,7 +204,8 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             className={this.cssClasses.itemControl}
             id={this.question.getItemId(this.item)}
             type="radio"
-            name={this.question.questionName}
+            // name={this.question.questionName}
+            name={this.question.name + this.item.value}
             checked={this.isChecked}
             value={this.item.value}
             disabled={!this.question.getItemEnabled(this.item)}

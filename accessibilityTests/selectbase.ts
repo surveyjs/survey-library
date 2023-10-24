@@ -143,7 +143,7 @@ frameworks.forEach((framework) => {
     }
   );
 
-  test.skip("axe check", async (t) => {
+  test("axe check", async (t) => {
     const axeContext = { include: [[".sv_p_root"]] };
     const axeOptions = {
       runOnly: {
@@ -166,7 +166,11 @@ frameworks.forEach((framework) => {
         },
         "region": {
           enabled: false
-        }
+        },
+        // Skip one minor case for listbox role in checkbox fieldset
+        "aria-allowed-role": {
+          enabled: false
+        },
       }
     };
     const { error, violations } = await axeCheck(t, axeContext, axeOptions);

@@ -1,8 +1,8 @@
 <script type="text/html" id="survey-question-matrix">
   <div data-bind="css: question.cssClasses.tableWrapper">
     <fieldset>
-      <legend
-        data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }"
+      <legend class="sv-hidden"
+        data-bind="text: question.locTitle.renderedHtml"
       ></legend>
       <table data-bind="css: question.getTableCss()">
         <!-- ko if: question.showHeader -->

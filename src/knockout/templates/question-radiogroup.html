@@ -55,7 +55,7 @@
     <label data-bind="css: question.getLabelClass($data), event: { mousedown: question.koMouseDown }">
       <input
         type="radio"
-        data-bind="attr: { name: question.questionName, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.renderedValue, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"
+        data-bind="attr: { name: question.questionName + value, id: question.getItemId($data), 'aria-describedby': question.ariaDescribedBy }, checkedValue: $data.value, checked: question.renderedValue, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"
       />
       <!-- ko if: question.cssClasses.materialDecorator -->
       <span data-bind="css: question.cssClasses.materialDecorator">

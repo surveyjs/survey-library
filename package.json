@@ -192,6 +192,9 @@
     },
     "downlevel-dts": {
       "typescript": "5.1.6"
+    },
+    "axe-testcafe": {
+      "axe-core": "^4.8.2"
     }
   },
   "husky": {

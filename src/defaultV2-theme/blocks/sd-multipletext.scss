@@ -77,6 +77,15 @@
   }
 }
 
+.sd-multipletext-item__character-counter {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sd-question__content:focus-within .sd-multipletext-item__character-counter {
+  padding-inline-end: calcSize(8);
+}
+
 .sd-multipletext__cell {
   padding-left: 0;
   padding-right: 0;

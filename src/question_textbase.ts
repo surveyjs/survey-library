@@ -133,12 +133,14 @@ export class QuestionTextBase extends Question {
       }
     }
   }
-  public getControlClass(): string {
+  protected getControlCssClassBuilder(): CssClassBuilder {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlDisabled, this.isReadOnly)
-      .toString();
+      .append(this.cssClasses.controlDisabled, this.isReadOnly);
+  }
+  public getControlClass(): string {
+    return this.getControlCssClassBuilder().toString();
   }
 
   //a11y

@@ -9,6 +9,7 @@ import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
+import { CssClassBuilder } from "survey-core";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -397,6 +398,10 @@ export class QuestionTextModel extends QuestionTextBase {
   }
   protected hasPlaceholder(): boolean {
     return !this.isReadOnly && this.inputType !== "range";
+  }
+  protected getControlCssClassBuilder(): CssClassBuilder {
+    return super.getControlCssClassBuilder()
+      .append(this.cssClasses.constrolWithCharacterCounter, !!this.getMaxLength());
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";

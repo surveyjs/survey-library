@@ -9,6 +9,11 @@
     :aria-required="(element as Question).ariaRequired"
     :aria-invalid="(element as Question).ariaInvalid"
     :aria-labelledby="(element as Question).ariaLabelledBy"
+    :aria-expanded="
+      (element as Question).ariaExpanded === null
+        ? undefined
+        : (element as Question).ariaExpanded === 'true'
+    "
     :data-name="element.name"
   >
     <survey-errors

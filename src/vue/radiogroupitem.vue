@@ -3,7 +3,7 @@
     <label @mousedown="question.onMouseDown()" :class="getLabelClass(item)">
       <input
         type="radio"
-        :name="question.questionName+item"
+        :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
         :aria-describedby="question.ariaDescribedBy"

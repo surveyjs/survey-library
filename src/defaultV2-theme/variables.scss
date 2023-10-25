@@ -31,7 +31,7 @@ $foreground-light: var(--sjs-general-forecolor-light, var(--foreground-light, #9
 $foreground-dim: var(--sjs-general-dim-forecolor, rgba(0, 0, 0, 0.91));
 $foreground-dim-light: var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45));
 
-$header-backcolor: var(--sjs-header-backcolor);
+$header-backcolor: var(--sjs-header-backcolor, #{$primary});
 
 $border: var(--sjs-border-default, var(--border, #d6d6d6));
 $border-light: var(--sjs-border-light, var(--border-light, #eaeaea));

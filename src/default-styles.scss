@@ -545,6 +545,15 @@ f-panel {
   bottom: 0;
   width: calc(3 * var(--base-unit, 8px));
   flex-shrink: 0;
+  svg:nth-of-type(1) {
+      height: 16px;
+      width: 10px;
+  }
+  
+  svg:nth-of-type(2) {
+    height: 24px;
+    width: 10px;
+  }
 }
 
 .sv-ranking-item__icon {
@@ -566,6 +575,11 @@ f-panel {
   width: 40px;
   height: 40px;
   line-height: 1em;
+  svg {
+      fill: var(--foreground);
+      width: 16px;
+      height: 16px;
+    }
 }
 
 .sv-ranking-item__text {

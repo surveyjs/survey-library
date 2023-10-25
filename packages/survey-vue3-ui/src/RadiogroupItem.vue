@@ -6,7 +6,7 @@
     >
       <input
         type="radio"
-        :name="question.questionName+item.value"
+        :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
         :aria-describedby="question.ariaDescribedBy"

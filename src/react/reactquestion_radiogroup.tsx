@@ -82,14 +82,14 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
   }
 
   protected getBody(cssClasses: any): JSX.Element {
-    if(this.question.blockedRow) {
+    if (this.question.blockedRow) {
       return <div className={cssClasses.rootRow}>{this.getItems(cssClasses, this.question.dataChoices)}</div>;
     }
     else return <>{this.getItems(cssClasses, this.question.bodyItems)}</>;
   }
 
-  protected getItems(cssClasses: any, choices: Array <ItemValue>): Array<any> {
-    var items:Array<JSX.Element> = [];
+  protected getItems(cssClasses: any, choices: Array<ItemValue>): Array<any> {
+    var items: Array<JSX.Element> = [];
     var value = this.getStateValue();
     for (var i = 0; i < choices.length; i++) {
       var item = choices[i];
@@ -171,7 +171,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-    if(!this.question) return false;
+    if (!this.question) return false;
     return (
       !this.question.customWidget ||
       !!this.question.customWidgetData.isNeedRender ||
@@ -204,7 +204,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
             className={this.cssClasses.itemControl}
             id={this.question.getItemId(this.item)}
             type="radio"
-            name={this.question.questionName + this.item.value}
+            name={this.question.questionName}
             checked={this.isChecked}
             value={this.item.value}
             disabled={!this.question.getItemEnabled(this.item)}

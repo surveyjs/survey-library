@@ -1,23 +1,11 @@
 <template>
   <div :class="row.getRowCss()" ref="root">
     <div v-for="element in elements" :style="element.rootStyle">
-      <survey-element
-        v-if="!element.isPanel"
+      <component
         :key="element.id"
-        :element="element"
-        :survey="survey"
-        :css="css"
-        :row="row"
-        :style="element.getRootStyle()"
-      >
-      </survey-element>
-      <survey-panel
-        v-if="element.isPanel"
-        :key="element.id"
-        :question="element"
-        :css="css"
-      >
-      </survey-panel>
+        :is="getComponentName(element as any)"
+        v-bind="getComponentData(element as Question)"
+      />
     </div>
   </div>
 </template>
@@ -42,6 +30,44 @@ const elements = computed(
   () => props.row.visibleElements as any as Array<Question | PanelModel>
 );
 const root = ref<HTMLElement>();
+
+const getElementComponentName = (element: SurveyElement) => {
+  return element.isPanel ? "survey-panel": "survey-element";
+}
+const getComponentName = (element: SurveyElement) => {
+  const survey = element.survey as SurveyModel;
+  if(!!survey) {
+    const name = survey.getElementWrapperComponentName(element as any);
+    if(!!name) {
+      return name;
+    }
+  }
+  return getElementComponentName(element);
+}
+const getRootStyle = (element: SurveyElement) => {
+  if(!!element.cssClasses) {
+    return element.rootStyle;
+  } else {
+    return {};
+  }
+}
+const getComponentData = (element: SurveyElement) => {
+  const survey = element.survey as SurveyModel;
+  let data: any;
+  if(!!survey) {
+    data = survey.getElementWrapperComponentData(element as any);
+  }
+  return {
+    componentName: getElementComponentName(element),
+    componentData: {
+      element: element,
+      survey: survey,
+      row: props.row,
+      css: element.isPanel ? props.css : element.getRootStyle(),
+      data: data
+    }
+  };
+}
 
 useBase(() => props.row);
 

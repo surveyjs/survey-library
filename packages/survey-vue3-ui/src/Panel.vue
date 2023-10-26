@@ -1,34 +1,34 @@
 <template>
   <div
-    v-if="question.isVisible"
-    :class="question.getContainerCss()"
-    :id="question.id"
+    v-if="element.isVisible"
+    :class="element.getContainerCss()"
+    :id="element.id"
     ref="root"
   >
-    <survey-errors :element="question" v-if="question.showErrorsAbovePanel" />
+    <survey-errors :element="element" v-if="element.showErrorsAbovePanel" />
     <survey-element-header
-      v-if="question.hasTitle || question.hasDescription"
-      :element="question"
+      v-if="element.hasTitle || element.hasDescription"
+      :element="element"
       :css="css"
     ></survey-element-header>
-    <survey-errors :element="question" v-if="!question.showErrorsAbovePanel" />
+    <survey-errors :element="element" v-if="!element.showErrorsAbovePanel" />
     <div
-      :id="question.contentId"
-      :style="{ paddingLeft: question.innerPaddingLeft }"
+      :id="element.contentId"
+      :style="{ paddingLeft: element.innerPaddingLeft }"
       v-if="!isCollapsed"
-      :class="question.cssClasses.panel.content"
+      :class="element.cssClasses.panel.content"
     >
       <template v-for="(row, index) in rows">
         <survey-row
           v-if="row.visible"
-          :key="question.id + '_' + index"
+          :key="element.id + '_' + index"
           :row="row"
           :survey="survey"
           :css="css"
         >
         </survey-row>
       </template>
-      <sv-action-bar :model="question.getFooterToolbar()"></sv-action-bar>
+      <sv-action-bar :model="element.getFooterToolbar()"></sv-action-bar>
     </div>
   </div>
 </template>
@@ -39,30 +39,30 @@ import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{
-  question: PanelModel;
+  element: PanelModel;
   isEditMode?: boolean;
   css?: any;
 }>();
 const isCollapsedValue = ref(false);
 const root = ref<HTMLElement>(null as any);
-const rows = computed(() => props.question.rows);
-const survey = computed(() => props.question.survey);
+const rows = computed(() => props.element.rows);
+const survey = computed(() => props.element.survey);
 const isCollapsed = computed(() => isCollapsedValue.value);
 
-useBase(() => props.question);
+useBase(() => props.element);
 
 onMounted(() => {
-  if (props.question.survey) {
-    props.question.survey.afterRenderPanel(props.question, root.value);
+  if (props.element.survey) {
+    props.element.survey.afterRenderPanel(props.element, root.value);
   }
-  isCollapsedValue.value = props.question.isCollapsed;
-  const question = props.question;
-  question.stateChangedCallback = () => {
-    isCollapsedValue.value = props.question.isCollapsed;
+  isCollapsedValue.value = props.element.isCollapsed;
+  const element = props.element;
+  element.stateChangedCallback = () => {
+    isCollapsedValue.value = props.element.isCollapsed;
   };
 });
 onUnmounted(() => {
-  const question = props.question;
-  question.stateChangedCallback = null as any;
+  const element = props.element;
+  element.stateChangedCallback = null as any;
 });
 </script>

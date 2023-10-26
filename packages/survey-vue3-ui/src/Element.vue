@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="!element.isPanel ? (element as Question).getRootCss() : null"
+    :class="!element.isPanel ? (element as Question).getRootCss() : css"
     ref="root"
     v-if="row.isNeedRender"
     v-on:focusin="element.focusIn()"

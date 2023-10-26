@@ -106,6 +106,8 @@ import Header from "./components/header/Header.vue";
 import HeaderCell from "./components/header/HeaderCell.vue";
 import HeaderMobile from "./components/header/HeaderMobile.vue";
 
+import TemplateRenderer from "./TemplateRenderer.vue";
+
 import {
   SurveyModel,
   doKey2ClickBlur,
@@ -243,6 +245,8 @@ function registerComponents(app: App) {
   app.component("sv-header", Header);
   app.component("sv-header-cell", HeaderCell);
   app.component("sv-header-mobile", HeaderMobile);
+
+  app.component("sv-template-renderer", TemplateRenderer);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

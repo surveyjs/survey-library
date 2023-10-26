@@ -209,6 +209,15 @@ export class MultipleTextItemModel extends Base
     this.editor.size = val;
   }
   /**
+   * An expression used to calculate the [defaultValue](https://surveyjs.io/form-library/documentation/question#defaultValue).
+   */
+  public get defaultValueExpression(): string {
+    return this.editor.defaultValueExpression;
+  }
+  public set defaultValueExpression(val: string) {
+    this.editor.defaultValueExpression = val;
+  }
+  /**
    * The minimum value specified as an expression. For example, `"minValueExpression": "today(-1)"` sets the minimum value to yesterday.
    */
   public get minValueExpression(): string {
@@ -804,6 +813,7 @@ Serializer.addClass(
       name: "requiredErrorText:text",
       serializationProperty: "locRequiredErrorText",
     },
+    { name: "defaultValueExpression:expression", visible: false },
     {
       name: "minValueExpression:expression",
       category: "logic",

@@ -3007,3 +3007,12 @@ QUnit.test("load matrix column, visible property", function (assert) {
   assert.equal(column.title, "column1", "set column title correctly");
   assert.equal(column.visible, false, "column.visible is false");
 });
+QUnit.test("defaultValue for matrix rowTitleWidth and columnMinWidth properties", function (assert) {
+  Serializer.findProperty("matrix", "rowTitleWidth").defaultValue = "110px";
+  Serializer.findProperty("matrix", "columnMinWidth").defaultValue = "220px";
+  const matrix = new QuestionMatrixModel("q1");
+  assert.equal(matrix.rowTitleWidth, "110px", "rowTitleWidth");
+  assert.equal(matrix.columnMinWidth, "220px", "columnMinWidth");
+  Serializer.findProperty("matrix", "rowTitleWidth").defaultValue = undefined;
+  Serializer.findProperty("matrix", "columnMinWidth").defaultValue = undefined;
+});

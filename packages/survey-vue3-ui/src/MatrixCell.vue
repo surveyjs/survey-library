@@ -21,7 +21,7 @@
     <component
       v-if="cell.hasPanel"
       :is="getComponentName(cell.panel)"
-      :question="cell.panel"
+      :element="cell.panel"
       :css="question.cssClasses"
     ></component>
     <div

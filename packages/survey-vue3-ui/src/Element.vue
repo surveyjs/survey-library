@@ -10,7 +10,7 @@ import { computed } from "vue";
 const props = defineProps<{
   element: SurveyElement;
   row: QuestionRowModel;
-  css: any;
+  css?: any;
 }>();
 
 const getElementComponentName = (element: SurveyElement) => {

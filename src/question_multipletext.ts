@@ -736,6 +736,7 @@ export class QuestionMultipleTextModel extends Question
       .append(this.cssClasses.itemLabelAnswered, item.editor.isAnswered)
       .append(this.cssClasses.itemLabelAllowFocus, !this.isDesignMode)
       .append(this.cssClasses.itemLabelOnError, item.editor.errors.length > 0)
+      .append(this.cssClasses.itemWithCharacterCounter, !!item.getMaxLength())
       .toString();
   }
   public getItemCss(): string {

@@ -56,6 +56,7 @@ export class ListItem extends SurveyElementBase<IListItemProps, any> {
         <div
           style={contentWrapStyle}
           className={this.model.cssClasses.itemBody}
+          title={this.item.locTitle.calculatedText}
         >
           {content}
         </div>;

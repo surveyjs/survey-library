@@ -106,6 +106,8 @@ import Header from "./components/header/Header.vue";
 import HeaderCell from "./components/header/HeaderCell.vue";
 import HeaderMobile from "./components/header/HeaderMobile.vue";
 
+import Element from "./Element.vue";
+
 import TemplateRenderer from "./TemplateRenderer.vue";
 
 import {
@@ -247,6 +249,8 @@ function registerComponents(app: App) {
   app.component("sv-header-mobile", HeaderMobile);
 
   app.component("sv-template-renderer", TemplateRenderer);
+
+  app.component("survey-element", Element);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

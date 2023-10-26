@@ -19,6 +19,8 @@
       [attr.readonly]="!model.searchEnabled ? true : null"
       [attr.disabled]="question.isInputReadOnly ? true : null"
       [attr.size]="!model.inputStringRendered ? 1 : null"
+      [attr.aria-label]="question.a11y_input_ariaLabel"
+      [attr.aria-labelledby]="question.a11y_input_ariaLabelledBy"
       [attr.aria-controls]="model.listElementId"
       [attr.aria-expanded]="question.ariaExpanded"
       [attr.aria-activedescendant]="model.ariaActivedescendant"

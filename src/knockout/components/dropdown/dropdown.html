@@ -43,6 +43,8 @@
         'aria-expanded': question.ariaExpanded,
         'aria-controls': model.listElementId,
         'aria-activedescendant': model.ariaActivedescendant,
+        'aria-label': question.a11y_input_ariaLabel,
+        'aria-labelledby': question.a11y_input_ariaLabelledBy,
         placeholder: model.placeholderRendered, 
         readonly: !model.searchEnabled, 
         role: model.filterStringEnabled ? question.ariaRole : undefined,

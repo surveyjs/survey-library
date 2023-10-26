@@ -38,8 +38,14 @@ export class QuestionNonValue extends Question {
   public addConditionObjectsByContext(
     objects: Array<IConditionObject>,
     context: any
-  ) {}
+  ) { }
   public getConditionJson(operator: string = null, path: string = null): any {
+    return null;
+  }
+  public get ariaRole(): string {
+    return null;
+  }
+  public get ariaRequired(): any {
     return null;
   }
 }

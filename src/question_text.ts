@@ -9,7 +9,7 @@ import { settings } from "./settings";
 import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
-import { CssClassBuilder } from "survey-core";
+import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
  * A class that describes the Single-Line Input question type.

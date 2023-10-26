@@ -1,7 +1,7 @@
 import Page from "./Page.vue";
 import HeaderBasic from "./Header.vue";
 import Row from "./Row.vue";
-import Element from "./Element.vue";
+import Question from "./Question.vue";
 import Panel from "./Panel.vue";
 import ElementHeader from "./ElementHeader.vue";
 import String from "./String.vue";
@@ -133,7 +133,7 @@ function registerComponents(app: App) {
   app.component("survey-header", HeaderBasic);
   app.component("survey-page", Page);
   app.component("survey-row", Row);
-  app.component("survey-element", Element);
+  app.component("survey-question", Question);
   app.component("survey-panel", Panel);
   app.component("survey-element-header", ElementHeader);
   app.component("survey-string", String);

@@ -1,10 +1,13 @@
 <template>
   <div :class="row.getRowCss()" ref="root">
-    <div v-for="element in elements" :style="element.rootStyle">
+    <div
+      v-for="element in elements"
+      :style="getRootStyle(element)"
+      :key="element.id"
+    >
       <component
-        :key="element.id"
-        :is="getComponentName(element as any)"
-        v-bind="getComponentData(element as Question)"
+        :is="getComponentName(element)"
+        v-bind="getComponentData(element)"
       />
     </div>
   </div>
@@ -32,29 +35,31 @@ const elements = computed(
 const root = ref<HTMLElement>();
 
 const getElementComponentName = (element: SurveyElement) => {
-  return element.isPanel ? "survey-panel": "survey-element";
-}
+  return element.isPanel ? "survey-panel" : "survey-question";
+};
 const getComponentName = (element: SurveyElement) => {
   const survey = element.survey as SurveyModel;
-  if(!!survey) {
+  if (survey) {
     const name = survey.getElementWrapperComponentName(element as any);
-    if(!!name) {
+    if (name) {
       return name;
     }
   }
   return getElementComponentName(element);
-}
-const getRootStyle = (element: SurveyElement) => {
-  if(!!element.cssClasses) {
+};
+const getRootStyle: (element: SurveyElement) => any = (
+  element: SurveyElement
+) => {
+  if (element.cssClasses) {
     return element.rootStyle;
   } else {
     return {};
   }
-}
+};
 const getComponentData = (element: SurveyElement) => {
   const survey = element.survey as SurveyModel;
   let data: any;
-  if(!!survey) {
+  if (survey) {
     data = survey.getElementWrapperComponentData(element as any);
   }
   return {
@@ -64,10 +69,10 @@ const getComponentData = (element: SurveyElement) => {
       survey: survey,
       row: props.row,
       css: element.isPanel ? props.css : element.getRootStyle(),
-      data: data
-    }
+      data: data,
+    },
   };
-}
+};
 
 useBase(() => props.row);
 

@@ -29,7 +29,7 @@
     />
     <template v-for="(panel, index) in renderedPanels" :key="panel.id">
       <div :class="question.getPanelWrapperCss()">
-        <survey-panel :question="panel" :css="css" />
+        <survey-panel :element="panel" :css="css" />
         <sv-paneldynamic-remove-btn
           v-if="
             question.panelRemoveButtonLocation === 'right' &&

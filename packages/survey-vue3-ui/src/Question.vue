@@ -1,34 +1,35 @@
 <template>
   <div
-    :class="!element.isPanel ? (element as Question).getRootCss() : css"
+    :class="element.getRootCss()"
+    :style="getRootStyle()"
     ref="root"
     v-if="row.isNeedRender"
     v-on:focusin="element.focusIn()"
     :id="element.id"
-    :role="(element as Question).ariaRole"
-    :aria-required="(element as Question).ariaRequired"
-    :aria-invalid="(element as Question).ariaInvalid"
-    :aria-labelledby="(element as Question).ariaLabelledBy"
+    :role="element.ariaRole"
+    :aria-required="element.ariaRequired"
+    :aria-invalid="element.ariaInvalid"
+    :aria-labelledby="element.ariaLabelledBy"
     :aria-expanded="
-      (element as Question).ariaExpanded === null
+      element.ariaExpanded === null
         ? undefined
-        : (element as Question).ariaExpanded === 'true'
+        : element.ariaExpanded === 'true'
     "
     :data-name="element.name"
   >
     <survey-errors
-      v-if="!element.isPanel && (element as Question).showErrorsAboveQuestion"
+      v-if="element.showErrorsAboveQuestion"
       :element="element"
       :location="'top'"
     />
     <survey-element-header
-      v-if="!element.isPanel && (element as Question).hasTitleOnLeftTop"
+      v-if="element.hasTitleOnLeftTop"
       :element="element"
       :css="css"
     />
     <div
-      :class="getContentClass((element as Question)) || undefined"
-      v-show="element.isPanel || !element.isCollapsed"
+      :class="getContentClass(element) || undefined"
+      v-show="!element.isCollapsed"
       role="presentation"
     >
       <survey-errors
@@ -37,16 +38,13 @@
         :location="'top'"
       />
       <component
-        :is="getComponentName((element as Question))"
-        v-if="element.isPanel || !element.isCollapsed"
+        :is="getComponentName(element)"
+        v-if="!element.isCollapsed"
         :question="element"
       />
-      <div
-        v-if="(element as any).hasComment"
-        :class="(element as Question).getCommentAreaCss()"
-      >
+      <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
         <div>
-          <survey-string :locString="(element as Question).locCommentText" />
+          <survey-string :locString="element.locCommentText" />
         </div>
         <survey-question-comment
           :commentClass="css.comment"
@@ -59,19 +57,19 @@
         :location="'bottom'"
       />
       <div
-        v-if="!element.isPanel && (element as Question).hasDescriptionUnderInput"
+        v-if="element.hasDescriptionUnderInput"
         :class="element.cssClasses.descriptionUnderInput"
       >
         <survey-string :locString="element.locDescription" />
       </div>
     </div>
     <survey-element-header
-      v-if="!element.isPanel && (element as Question).hasTitleOnBottom"
+      v-if="element.hasTitleOnBottom"
       :element="element"
       :css="css"
     />
     <survey-errors
-      v-if="!element.isPanel && (element as Question).showErrorsBelowQuestion"
+      v-if="element.showErrorsBelowQuestion"
       :element="element"
       :location="'bottom'"
     />
@@ -85,35 +83,34 @@
   ></component>
 </template>
 
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
+
 <script lang="ts" setup>
-import type {
-  SurveyModel,
-  Question,
-  QuestionRowModel,
-  PanelModel,
-} from "survey-core";
+import type { SurveyModel, Question, QuestionRowModel } from "survey-core";
 import { useBase } from "./base";
-import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { computed, onUnmounted, ref, watch } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
-  element: Question | PanelModel;
+  element: Question;
   row: QuestionRowModel;
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
 const hasErrorsOnTop = computed(() => {
-  return !props.element.isPanel && (props.element as Question).showErrorOnTop;
+  return props.element.showErrorOnTop;
 });
 const hasErrorsOnBottom = computed(() => {
-  return (
-    !props.element.isPanel && (props.element as Question).showErrorOnBottom
-  );
+  return props.element.showErrorOnBottom;
 });
 
 const getComponentName = (element: Question) => {
   if (element.customWidget) return "survey-customwidget";
-  if (element.getType() === "panel" || element.isDefaultRendering()) {
+  if (element.isDefaultRendering()) {
     return "survey-" + element.getTemplate();
   }
   return element.getComponentName();
@@ -121,12 +118,13 @@ const getComponentName = (element: Question) => {
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };
+const getRootStyle: () => any = () => props.element.getRootStyle();
 
 useBase(() => props.element);
 
 const afterRender = () => {
-  if (!props.element.isPanel && root.value) {
-    (props.element as Question).afterRender(root.value as HTMLElement);
+  if (root.value) {
+    props.element.afterRender(root.value as HTMLElement);
   }
 };
 const stopWatch = watch(

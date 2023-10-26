@@ -33,6 +33,11 @@
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <script lang="ts" setup>
 import type { PanelModel } from "survey-core";
 import { ref, computed, onMounted, onUnmounted } from "vue";

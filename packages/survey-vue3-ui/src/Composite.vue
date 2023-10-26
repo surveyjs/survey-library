@@ -1,5 +1,5 @@
 <template>
-  <survey-panel ref="root" :question="contentPanel" :css="css" />
+  <survey-panel ref="root" :element="contentPanel" :css="css" />
 </template>
 
 <script lang="ts" setup>

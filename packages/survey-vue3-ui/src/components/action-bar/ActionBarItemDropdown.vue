@@ -31,7 +31,11 @@
   </button>
   <sv-popup :model="item.popupModel" :getTarget="getTarget"></sv-popup>
 </template>
-
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <script lang="ts" setup>
 import { useBase } from "@/base";
 import {

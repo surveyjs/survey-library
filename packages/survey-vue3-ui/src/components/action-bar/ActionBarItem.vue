@@ -32,7 +32,11 @@
     }}</span>
   </button>
 </template>
-
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <script lang="ts" setup>
 import { useBase } from "@/base";
 import type { Action } from "survey-core";

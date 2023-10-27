@@ -10,7 +10,7 @@
     "
   >
     <sv-action
-      v-for="item in model.renderedActions"
+      v-for="item in renderedActions"
       v-bind:key="item.id"
       :item="item"
     ></sv-action>
@@ -20,7 +20,7 @@
 <script lang="ts" setup>
 import type { ActionContainer } from "survey-core";
 import { useBase } from "@/base";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const props = defineProps<{
   model: ActionContainer;
@@ -30,6 +30,10 @@ const props = defineProps<{
 const root = ref<HTMLDivElement>(null as any as HTMLDivElement);
 
 useBase(() => props.model);
+
+const renderedActions = computed(() => {
+  return props.model.renderedActions;
+});
 
 onMounted(() => {
   if (!props.model.hasActions) return;

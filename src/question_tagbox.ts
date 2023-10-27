@@ -211,7 +211,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   public clearValue(): void {
     super.clearValue();
-    this.dropdownListModel.clear();
+    this.dropdownListModel?.clear();
   }
   public get showClearButton(): boolean {
     return this.allowClear && !this.isEmpty() && (!this.isDesignMode || settings.supportCreatorV2);

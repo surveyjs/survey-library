@@ -80,7 +80,7 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
         ref={root => (this.setControl(root))}
       >
         <fieldset>
-          <legend aria-label={this.question.locTitle.renderedHtml} />
+          <legend className="sv-hidden">{this.question.locTitle.renderedHtml}</legend>
           <table className={this.question.getTableCss()}>
             {header}
             <tbody>{rows}</tbody>

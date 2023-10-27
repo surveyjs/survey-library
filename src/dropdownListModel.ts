@@ -400,7 +400,7 @@ export class DropdownListModel extends Base {
   changeSelectionWithKeyboard(reverse: boolean): void {
     let focusedItem = this.listModel.focusedItem;
     if (!focusedItem && this.question.selectedItem) {
-      if (ItemValue.getItemByValue(this.question.choices, this.question.value)) {
+      if (ItemValue.getItemByValue(this.question.visibleChoices, this.question.value)) {
         this.listModel.focusedItem = this.question.selectedItem;
       }
     }

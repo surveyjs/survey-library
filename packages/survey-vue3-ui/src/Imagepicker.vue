@@ -1,9 +1,6 @@
 <template>
   <fieldset :class="question.getSelectBaseRootCss()" ref="root">
-    <legend
-      role="radio"
-      v-bind:aria-label="question.locTitle.renderedHtml"
-    ></legend>
+    <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
     <template v-if="!question.hasColumns">
       <survey-imagepicker-item
         v-for="item in question.visibleChoices"

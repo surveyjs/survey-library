@@ -64,6 +64,8 @@
               : question.ariaExpanded === 'true'
           "
           :aria-controls="model.listElementId"
+          :aria-label="question.a11y_input_ariaLabel"
+          :aria-labelledby="question.a11y_input_ariaLabelledBy"
           :aria-activedescendant="model.ariaActivedescendant"
           :placeholder="model.placeholderRendered"
           @input="inputChange"

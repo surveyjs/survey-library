@@ -4,6 +4,7 @@ import { MultiSelectListModel } from "../src/multiSelectListModel";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { _setIsTouch } from "../src/utils/devices";
 import { settings } from "../src/settings";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("Tagbox question");
 
@@ -1446,4 +1447,37 @@ QUnit.test("lazy loading & maxSelectedChoices: Items remains disabled when unsel
 
     done1();
   }, onChoicesLazyLoadCallbackTimeOut + callbackTimeOutDelta);
+});
+QUnit.test("Can clear tagbox value", assert => {
+  const json = {
+    elements: [{
+      "type": "matrixdynamic",
+      "name": "detailTable",
+      "columns": [
+        {
+          "name": "showDetails",
+        }
+      ],
+      "detailElements": [
+        {
+          "type": "tagbox",
+          "name": "detailTypes",
+          "visibleIf": "{row.showDetails} = 'true'",
+          "clearIfInvisible": "onHidden",
+          "requiredIf": "{row.showDetails} = 'true'",
+          "choices": ["a", "b"]
+        }
+      ],
+      "detailPanelMode": "underRow",
+      "cellType": "text"
+    }
+    ]
+  };
+  const survey = new SurveyModel(json);
+
+  const matrix = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  const question = row.getQuestionByName("detailTypes");
+  assert.ok(question, "There is no exception");
 });

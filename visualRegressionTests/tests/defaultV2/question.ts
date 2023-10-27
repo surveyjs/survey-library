@@ -616,6 +616,46 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Remaining character counter - mobile view", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(350, 500);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        questions: [
+          {
+            name: "name",
+            type: "text",
+            maxLength: 25,
+            defaultValue: "Tewwwwwwwwwwwwwwwwwwwwst"
+          }, {
+            "type": "multipletext",
+            "name": "question1",
+            "defaultValue": {
+              "text1": "Tewwwwwwwwwwwwwwwwwwwwst1",
+              "text2": "Tewwwwwwwwwwwwwwwwwwwwst2"
+            },
+            "items": [
+              {
+                "name": "text1",
+                "maxLength": 25
+              },
+              {
+                "name": "text2",
+                "maxLength": 25
+              }
+            ]
+          }]
+      });
+
+      await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-text__content"), t, comparer);
+      await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-multipletext__content"), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-text__content"), t, comparer);
+      await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-multipletext__content"), t, comparer);
+    });
+  });
+
   test("Remaining character counter matrixdynamic", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);

@@ -114,7 +114,7 @@
     "@typescript-eslint/parser": "^4.29.0",
     "ace-builds": "1.2.2",
     "ajv": "6.12.3",
-    "axe-core": "^3.5.6",
+    "axe-core": "^4.8.2",
     "axe-testcafe": "^3.0.0",
     "babel-loader": "8.2.5",
     "colors": "1.4.0",
@@ -192,6 +192,9 @@
     },
     "downlevel-dts": {
       "typescript": "5.1.6"
+    },
+    "axe-testcafe": {
+      "axe-core": "^4.8.2"
     }
   },
   "husky": {

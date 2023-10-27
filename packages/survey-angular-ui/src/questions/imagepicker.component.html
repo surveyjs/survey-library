@@ -1,5 +1,5 @@
   <fieldset [class]="model.getSelectBaseRootCss()" #contentElement>
-      <legend [attr.aria-label]="model.locTitle.renderedHtml" role="radio"></legend>
+      <legend class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
       <ng-container *ngIf="!model.hasColumns">
         <ng-container *ngFor="let item of model.visibleChoices">
           <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>

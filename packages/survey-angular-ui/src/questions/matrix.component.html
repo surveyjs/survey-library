@@ -1,7 +1,7 @@
 <ng-template #template>
   <div [class]="model.cssClasses.tableWrapper" #contentElement>
     <fieldset>
-      <legend [attr.aria-label]="model.locTitle.renderedHtml"></legend>
+      <legend class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
       <table [class]="model.getTableCss()">
         <thead *ngIf="model.showHeader">
           <tr>

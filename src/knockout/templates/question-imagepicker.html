@@ -1,6 +1,6 @@
 ﻿<script type="text/html" id="survey-question-imagepicker">
     <fieldset data-bind="css: question.getSelectBaseRootCss()">
-        <legend data-bind="attr: { 'aria-label': question.locTitle.renderedHtml }" role="radio"></legend>
+        <legend class="sv-hidden" data-bind="text: question.locTitle.renderedHtml"></legend>
         <!-- ko ifnot: question.hasColumns -->
         <!-- ko foreach: { data: question.visibleChoices, as: 'item', afterRender: question.koAfterRender}  -->
         <!-- ko component: { name: question.getItemValueWrapperComponentName(item), params: { componentData:  question.getItemValueWrapperComponentData(item), templateData: { name: 'survey-imagepicker-item', data: item } } } -->

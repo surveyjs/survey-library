@@ -6,7 +6,7 @@
   [attr.aria-invalid]="model.a11y_input_ariaInvalid"
   [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
 >
-  <legend *ngIf="showLegend" role="presentation" class="sv-hidden"></legend>
+  <legend *ngIf="showLegend" class="sv-hidden">{{model.locTitle.renderedHtml}}</legend>
   <ng-container *ngIf="model.hasHeadItems">
     <ng-container *ngFor="let item of model.headItems; trackBy: trackItemBy">
       <ng-template [component]="{ name: getItemValueComponentName(item), data: getItemValueComponentData(item) }"></ng-template>

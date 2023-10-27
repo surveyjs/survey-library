@@ -319,6 +319,7 @@ export var defaultV2Css = {
     root: "sd-input sd-text",
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
+    constrolWithCharacterCounter: "sd-text__character-counter",
     content: "sd-text__content sd-question__content",
     remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"
@@ -330,6 +331,7 @@ export var defaultV2Css = {
     itemLabelOnError: "sd-multipletext__item-container--error",
     itemLabelAllowFocus: "sd-multipletext__item-container--allow-focus",
     itemLabelAnswered: "sd-multipletext__item-container--answered",
+    itemWithCharacterCounter: "sd-multipletext-item__character-counter",
     item: "sd-multipletext__item",
     itemTitle: "sd-multipletext__item-title",
     content: "sd-multipletext__content sd-question__content",

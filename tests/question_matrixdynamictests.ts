@@ -6480,6 +6480,67 @@ QUnit.test("Detail panel, rendered table design mode", function (assert) {
   );
 });
 
+QUnit.test("Detail panel, rendered table mobile", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  survey.setIsMobile(true);
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.renderedTable.rows;
+
+  matrix.visibleRows[0].showDetailPanel();
+
+  assert.equal(
+    rows[2].cells[rows[2].cells.length - 1].isActionsCell,
+    true,
+    "the last cell in detail panel is actions cell"
+  );
+
+  assert.deepEqual(
+    rows[2].cells[6].item.value.actions.map(a => a.id),
+    ["show-detail-mobile", "remove-row"]
+  );
+});
+
+QUnit.test("Detail panel, rendered table mobile - expand collapse", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        rowCount: 2,
+        detailPanelMode: "underRow",
+        columns: [{ name: "col1" }, { name: "col2" }, { name: "col3" }],
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  survey.setIsMobile(true);
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  var rows = matrix.renderedTable.rows;
+
+  var action1 = rows[1].cells[rows[1].cells.length - 1].item.value.actions[0];
+  assert.notOk(matrix.visibleRows[1].isDetailPanelShowing);
+  assert.equal(action1.title, "Show Details");
+  action1.action(action1);
+  assert.ok(matrix.visibleRows[1].isDetailPanelShowing);
+  assert.equal(action1.title, "Hide Details");
+
+  action1.action(action1);
+  assert.notOk(matrix.visibleRows[1].isDetailPanelShowing);
+  assert.equal(action1.title, "Show Details");
+
+});
+
 QUnit.test("Detail panel, create elements in code", function (assert) {
   var survey = new SurveyModel({
     elements: [

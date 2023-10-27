@@ -589,4 +589,149 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-survey-layout-page2.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
+  test("check matrix-dynamic-detail in mobile mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 2000);
+      await initSurvey(framework,
+        {
+          description: "Survey Description",
+          title: "Title",
+          widthMode: "static",
+          showQuestionNumbers: "off",
+          elements: [{
+            "type": "matrixdynamic",
+            "name": "question1",
+            "title": "Users",
+            "columns": [
+              {
+                "name": "Column 1",
+                "title": "Name"
+              },
+              {
+                "name": "Column 2",
+                "title": "Email"
+              },
+              {
+                "name": "Column 3",
+                "title": "Role"
+              }
+            ],
+            "detailElements": [
+              {
+                "type": "text",
+                "name": "question3",
+                "title": "Phone"
+              },
+              {
+                "type": "text",
+                "name": "question4",
+                "title": "Department"
+              }
+            ],
+            "detailPanelMode": "underRow",
+            "cellType": "text",
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }]
+        }
+      );
+      await takeElementScreenshot("responsiveness-matrix-dynamic-detail.png", Selector(".sd-question"), t, comparer);
+      await t.click(Selector("button").withText("Show Details"));
+      await takeElementScreenshot("responsiveness-matrix-dynamic-detail-open.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+  test("check matrix-dropdown-detail in mobile mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 2080);
+      await initSurvey(framework,
+        {
+          description: "Survey Description",
+          title: "Title",
+          widthMode: "static",
+          showQuestionNumbers: "off",
+          elements: [{
+            "type": "matrixdropdown",
+            "name": "question1",
+            "title": "Users",
+            "columns": [
+              {
+                "name": "Column 1",
+                "title": "Name"
+              },
+              {
+                "name": "Column 2",
+                "title": "Email"
+              },
+              {
+                "name": "Column 3",
+                "title": "Role"
+              }
+            ],
+            "detailElements": [
+              {
+                "type": "text",
+                "name": "question3",
+                "title": "Phone"
+              },
+              {
+                "type": "text",
+                "name": "question4",
+                "title": "Department"
+              }
+            ],
+            "detailPanelMode": "underRow",
+            "cellType": "text",
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }]
+        }
+      );
+      await takeElementScreenshot("responsiveness-matrix-dropdown-detail.png", Selector(".sd-question"), t, comparer);
+      await t.click(Selector("button").withText("Show Details"));
+      await takeElementScreenshot("responsiveness-matrix-dropdown-detail-open.png", Selector(".sd-question"), t, comparer);
+    });
+  });
+
+  test("check matrix-dropdown-text in mobile mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1080);
+      await initSurvey(framework,
+        {
+          description: "Survey Description",
+          title: "Title",
+          widthMode: "static",
+          showQuestionNumbers: "off",
+          elements: [{
+            "type": "matrixdropdown",
+            "name": "question1",
+            "title": "Users",
+            "columns": [
+              {
+                "name": "Column 1",
+                "title": "Name"
+              },
+              {
+                "name": "Column 2",
+                "title": "Email"
+              },
+              {
+                "name": "Column 3",
+                "title": "Role"
+              }
+            ],
+            "cellType": "text",
+            "rows": [
+              "Row 1",
+              "Row 2"
+            ]
+          }]
+        }
+      );
+      await takeElementScreenshot("responsiveness-matrixdropdown-text-fields.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });

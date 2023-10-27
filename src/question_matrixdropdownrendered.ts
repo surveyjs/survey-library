@@ -656,7 +656,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
             showTitle: true,
             location: "end",
             action: (context) => {
-              context.title = row.isDetailPanelShowing ? "Show Details" : "Hide Details";
+              context.title = row.isDetailPanelShowing ? this.matrix.getLocalizationString("showDetails") : this.matrix.getLocalizationString("hideDetails");
               row.showHideDetailPanelClick();
             },
           })

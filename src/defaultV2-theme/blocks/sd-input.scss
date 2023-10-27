@@ -69,6 +69,15 @@ textarea {
   position: relative;
 }
 
+.sd-text__character-counter {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sd-text__character-counter:focus-within {
+  padding-inline-end: calcSize(8);
+}
+
 .sd-remaining-character-counter {
   display: none;
   flex-direction: row;

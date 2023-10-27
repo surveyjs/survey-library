@@ -463,6 +463,13 @@
  }
 
   .sd-table:not(.sd-matrix__table) {
+    .sd-table__row {
+      padding-bottom: calcSize(2);
+      &.sd-table__row--has-end-actions {
+        padding-bottom: calcSize(0);
+      }
+    }
+  
     tr:not(.sd-table__row--has-end-actions){
       &:not(:last-of-type) {
         padding-bottom: calcSize(3);
@@ -580,13 +587,6 @@
   .sd-table__cell--row-text:not(.sd-matrix__cell) {
     color: $foreground-light;
   }
-  .sd-table__row {
-    padding-bottom: calcSize(2);
-    &.sd-table__row--has-end-actions {
-      padding-bottom: calcSize(0);
-    }
-    
-  }
 
   .sd-matrixdropdown.sd-table {
     tr::after {
@@ -608,14 +608,15 @@
 
   .sd-table__cell--error-top {
     .sd-question__erbox {
-      margin-top: calcSize(2);
-      margin-bottom: calcSize(-2);
+      margin-top: calcSize(3);
+      margin-bottom: calcSize(-1);
     }
   }
 
   .sd-table__cell--error-top:first-of-type {
     .sd-question__erbox {
-      margin-bottom: calcSize(-1);
+      margin-top: calcSize(0);
+      margin-bottom: calcSize(1);
     }
   }
 }

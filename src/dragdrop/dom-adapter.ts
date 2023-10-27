@@ -101,7 +101,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
           clip: rect(1px, 1px, 1px, 1px);
         `;
         this.savedTargetNodeParent = this.savedTargetNode.parentElement;
-        this.savedTargetNodeIndex = [...this.savedTargetNodeParent.childNodes].indexOf(this.savedTargetNode);
+        this.savedTargetNodeIndex = this.getNodeIndexInParent(this.savedTargetNode);
         this.rootElement.appendChild(this.savedTargetNode);
       }
 
@@ -274,7 +274,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     if (IsTouch) {
       this.savedTargetNode.style.cssText = null;
       this.savedTargetNode && this.savedTargetNode.parentElement.removeChild(this.savedTargetNode);
-      this.savedTargetNodeParent.insertBefore(this.savedTargetNode, this.savedTargetNodeParent.childNodes[this.savedTargetNodeIndex]);
+      this.insertNodeToParentAtIndex(this.savedTargetNodeParent, this.savedTargetNode, this.savedTargetNodeIndex);
       DragDropDOMAdapter.PreventScrolling = false;
     }
     this.savedTargetNode = null;
@@ -338,5 +338,13 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
       return;
     }
     this.doStartDrag(event, draggedElement, parentElement, draggedElementNode);
+  }
+
+  private getNodeIndexInParent(node: any): number {
+    return [...node.parentElement.childNodes].indexOf(node);
+  }
+
+  private insertNodeToParentAtIndex(parent: HTMLElement, node: HTMLElement, index:number) {
+    parent.insertBefore(node, parent.childNodes[index]);
   }
 }

@@ -141,7 +141,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   @property({ defaultValue: false }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
   @property({ defaultValue: true }) visible: boolean;
-  public hasEndActions: boolean;
+  public hasEndActions: boolean = false;
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;
   private static counter = 1;

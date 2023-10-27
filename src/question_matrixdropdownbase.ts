@@ -1125,10 +1125,6 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
     return this.renderedTableValue;
   }
-  // public setIsMobile(val: boolean) {
-  //   super.setIsMobile(val);
-  //   if (this.renderedTableValue) this.renderedTableValue = this.createRenderedTable();
-  // }
   protected createRenderedTable(): QuestionMatrixDropdownRenderedTable {
     return new QuestionMatrixDropdownRenderedTable(this);
   }

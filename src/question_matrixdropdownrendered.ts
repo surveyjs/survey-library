@@ -141,7 +141,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   @property({ defaultValue: false }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
   @property({ defaultValue: true }) visible: boolean;
-  //@property({ defaultValue: true }) visible: boolean;
+  public hasEndActions: boolean;
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;
   private static counter = 1;
@@ -165,6 +165,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
       .append(this.cssClasses.detailRow, this.isDetailRow)
       .append(this.cssClasses.rowHasPanel, this.row?.hasPanel)
       .append(this.cssClasses.expandedRow, this.row?.isDetailPanelShowing && !this.isDetailRow)
+      .append(this.cssClasses.rowHasEndActions, this.hasEndActions)
       .append(this.cssClasses.ghostRow, this.isGhostRow)
       .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
       .toString();
@@ -750,6 +751,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       const actions = this.getRowActionsCell(rowIndex, location, renderedRow.isDetailRow);
       if (!!actions) {
         renderedRow.cells.push(actions);
+        renderedRow.hasEndActions = true;
       } else {
         var cell = new QuestionMatrixDropdownRenderedCell();
         cell.isEmpty = true;

@@ -3030,6 +3030,6 @@ QUnit.test("Check that .toJSON returns clean structure for all question types", 
       if (qModel.isQuestion && qModel.getType() === cls.name) {
         assert.deepEqual(qModel.toJSON(), etalon, `JSON for ${cls.name} is clean`);
       }
-    };
+    }
   }
 });

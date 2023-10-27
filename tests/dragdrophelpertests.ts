@@ -414,7 +414,7 @@ QUnit.test("DragDropDOMAdapter: insertNodeToParentAtIndex", function (assert) {
   const child2 = document.createElement("div");
 
   parent.appendChild(child1);
-  
+
   const ddengine: any = null;
   let domAdapter: any = new DragDropDOMAdapter(ddengine);
   domAdapter.insertNodeToParentAtIndex(parent, child2, 0);

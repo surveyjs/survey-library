@@ -50,8 +50,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .append(this.cssClasses.itemOnError, this.hasCssError())
       .append(this.cssClasses.rootDragHandleAreaIcon, settings.rankingDragHandleArea === "icon")
       .append(this.cssClasses.rootSelectToRankMod, this.selectToRankEnabled)
-      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.selectToRankAreasLayout === "horizontal")
-      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.selectToRankAreasLayout === "vertical")
+      .append(this.cssClasses.rootSelectToRankAlignHorizontal, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "horizontal")
+      .append(this.cssClasses.rootSelectToRankAlignVertical, this.selectToRankEnabled && this.renderedSelectToRankAreasLayout === "vertical")
       .toString();
   }
 
@@ -500,11 +500,15 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
    * @see selectToRankAreasLayout
   */
   public get selectToRankAreasLayout(): string {
-    if (IsMobile) return "vertical";
-    return this.getPropertyValue("selectToRankAreasLayout", "horizontal");
+    return this.getPropertyValue("selectToRankAreasLayout");
   }
   public set selectToRankAreasLayout(val: string) {
     this.setPropertyValue("selectToRankAreasLayout", val);
+  }
+
+  protected get renderedSelectToRankAreasLayout(): string {
+    if (IsMobile) return "vertical";
+    return this.selectToRankAreasLayout;
   }
 
   @property({ localizable: { defaultStr: "selectToRankEmptyRankedAreaText" } }) selectToRankEmptyRankedAreaText: string;

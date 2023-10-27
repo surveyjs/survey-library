@@ -393,3 +393,32 @@ QUnit.test("ranking selectToRank for ChoicesDND(creator)", function (assert) {
   ddHelper.parentElement = survey.getQuestionByName("q1");
   assert.equal(ddHelper["getVisibleChoices"]().length, 4);
 });
+
+QUnit.test("DragDropDOMAdapter: getNodeIndexInParent", function (assert) {
+  const parent = document.createElement("div");
+  const child1 = document.createElement("div");
+  const child2 = document.createElement("div");
+
+  parent.appendChild(child1);
+  parent.appendChild(child2);
+
+  const ddengine: any = null;
+  let domAdapter: any = new DragDropDOMAdapter(ddengine);
+  assert.equal(domAdapter.getNodeIndexInParent(child1), 0);
+  assert.equal(domAdapter.getNodeIndexInParent(child2), 1);
+});
+
+QUnit.test("DragDropDOMAdapter: insertNodeToParentAtIndex", function (assert) {
+  const parent = document.createElement("div");
+  const child1 = document.createElement("div");
+  const child2 = document.createElement("div");
+
+  parent.appendChild(child1);
+
+  const ddengine: any = null;
+  let domAdapter: any = new DragDropDOMAdapter(ddengine);
+  domAdapter.insertNodeToParentAtIndex(parent, child2, 0);
+
+  assert.equal(domAdapter.getNodeIndexInParent(child2), 0);
+  assert.equal(domAdapter.getNodeIndexInParent(child1), 1);
+});

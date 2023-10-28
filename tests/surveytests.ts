@@ -15044,12 +15044,12 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   let comment2 = survey.getQuestionByName("comment2");
 
   assert.equal(survey.allowResizeComment, false);
-  assert.equal(comment1.allowResize, false);
-  assert.equal(comment2.allowResize, false);
+  assert.equal(comment1.renderedAllowResize, false);
+  assert.equal(comment2.renderedAllowResize, false);
 
   survey.allowResizeComment = true;
-  assert.equal(comment1.allowResize, true);
-  assert.equal(comment2.allowResize, false);
+  assert.equal(comment1.renderedAllowResize, true);
+  assert.equal(comment2.renderedAllowResize, false);
 });
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {

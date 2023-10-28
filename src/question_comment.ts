@@ -60,13 +60,16 @@ export class QuestionCommentModel extends QuestionTextBase {
    * @see autoGrow
    */
   public get allowResize(): boolean {
-    return this.getPropertyValue("allowResize") && (this.survey && this.survey.allowResizeComment);
+    return this.getPropertyValue("allowResize");
   }
   public set allowResize(val: boolean) {
     this.setPropertyValue("allowResize", val);
   }
+  public get renderedAllowResize(): boolean {
+    return this.allowResize && (this.survey && this.survey.allowResizeComment);
+  }
   public get resizeStyle() {
-    return this.allowResize ? "both" : "none";
+    return this.renderedAllowResize ? "both" : "none";
   }
   public getType(): string {
     return "comment";

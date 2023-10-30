@@ -3033,3 +3033,30 @@ QUnit.test("Check that .toJSON returns clean structure for all question types", 
     }
   }
 });
+QUnit.test("Add a quesition into page elements array", function (assert) {
+  const prop = Serializer.findProperty("page", "elements");
+  assert.equal(prop.isArray, true, "Elements is an array");
+  const survey = new SurveyModel({
+    pages: [
+      {
+        elements: { type: "text", name: "q1" }
+      }
+    ]
+  });
+  assert.equal(survey.pages.length, 1, "There is one page");
+  assert.equal(survey.pages[0].elements.length, 1, "There is one element in the page");
+  assert.equal(survey.pages[0].elements[0].name, "q1", "Element has a correct name");
+  assert.equal(survey.jsonErrors.length, 1, "There is a JSON error");
+});
+QUnit.test("Add a quesition into survey questions array", function (assert) {
+  const prop = Serializer.findProperty("page", "elements");
+  assert.equal(prop.isArray, true, "Elements is an array");
+  const survey = new SurveyModel({
+    questions: { type: "text", name: "q1" }
+  });
+  assert.equal(survey.pages.length, 1, "There is one page");
+  assert.equal(survey.pages[0].elements.length, 1, "There is one element in the page");
+  assert.equal(survey.pages[0].elements[0].name, "q1", "Element has a correct name");
+  assert.equal(survey.jsonErrors.length, 1, "There is a JSON error");
+  assert.equal((<any>survey.jsonErrors[0]).propertyName, "questions", "Correct property name");
+});

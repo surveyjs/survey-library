@@ -7485,8 +7485,8 @@ Serializer.addClass("survey", [
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
   { name: "pages:surveypages", className: "page" },
   {
-    name: "questions",
-    alternativeName: "elements",
+    name: "elements",
+    alternativeName: "questions",
     baseClassName: "question",
     visible: false,
     isLightSerializable: false,

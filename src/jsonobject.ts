@@ -865,6 +865,7 @@ export class JsonMetadataClass {
       }
       if (propInfo.baseClassName) {
         prop.baseClassName = propInfo.baseClassName;
+        prop.isArray = true;
       }
       if (propInfo.classNamePart) {
         prop.classNamePart = propInfo.classNamePart;
@@ -1482,6 +1483,11 @@ export class JsonRequiredPropertyError extends JsonError {
     );
   }
 }
+export class JsonRequiredArrayPropertyError extends JsonError {
+  constructor(public propertyName: string, public className: string) {
+    super("arrayproperty", "The property '" + propertyName + "' should be an array in '" + className + "'.");
+  }
+}
 
 export class JsonObject {
   private static typePropertyName = "type";
@@ -1531,7 +1537,7 @@ export class JsonObject {
         }
         continue;
       }
-      this.valueToObj(jsonObj[key], obj, property);
+      this.valueToObj(jsonObj[key], obj, property, jsonObj);
     }
     if (obj.endLoadingFromJson) {
       obj.endLoadingFromJson();
@@ -1629,12 +1635,17 @@ export class JsonObject {
       }
     }
   }
-  public valueToObj(value: any, obj: any, property: JsonObjectProperty) {
+  public valueToObj(value: any, obj: any, property: JsonObjectProperty, jsonObj?: any): void {
     if (value === null || value === undefined) return;
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {
       property.setValue(obj, value, this);
       return;
+    }
+    if(property.isArray && !Array.isArray(value) && !!value) {
+      value = [value];
+      const propName = !!jsonObj && property.alternativeName && !!jsonObj[property.alternativeName] ? property.alternativeName : property.name;
+      this.addNewError(new JsonRequiredArrayPropertyError(propName, obj.getType()), !!jsonObj ? jsonObj: value, obj);
     }
     if (this.isValueArray(value)) {
       this.valueToArray(value, obj, property.name, property);

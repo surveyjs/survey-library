@@ -411,4 +411,17 @@ QUnit.test("selectToRankEnabled : checkMaxSelectedChoicesUnreached", function (a
   questionModel.value = ["11", "22"];
   assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), false, "MaxSelectedChoices limit reached");
 });
+
+QUnit.test("Ranking: Mobile: renderedSelectToRankAreasLayout", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = false;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+
+  questionModel.isMobileMode = ()=>{return true}; // set mobile env
+
+  assert.equal(questionModel.renderedSelectToRankAreasLayout, "vertical", "'vertical' by default on mobile");
+
+  questionModel.selectToRankAreasLayout = "horizontal";
+  assert.equal(questionModel.renderedSelectToRankAreasLayout, "vertical", "'vertical' always on mobile");
+});
 // EO selectToRankEnabled

@@ -44,7 +44,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public get rootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
-      .append(this.cssClasses.rootMobileMod, IsMobile)
+      .append(this.cssClasses.rootMobileMod, this.isMobileMode())
       .append(this.cssClasses.rootDisabled, this.isReadOnly)
       .append(this.cssClasses.rootDesignMode, !!this.isDesignMode)
       .append(this.cssClasses.itemOnError, this.hasCssError())
@@ -506,9 +506,13 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("selectToRankAreasLayout", val);
   }
 
-  protected get renderedSelectToRankAreasLayout(): string {
-    if (IsMobile) return "vertical";
+  public get renderedSelectToRankAreasLayout(): string {
+    if (this.isMobileMode()) return "vertical";
     return this.selectToRankAreasLayout;
+  }
+
+  public isMobileMode(): boolean {
+    return IsMobile;
   }
 
   @property({ localizable: { defaultStr: "selectToRankEmptyRankedAreaText" } }) selectToRankEmptyRankedAreaText: string;

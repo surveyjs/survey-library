@@ -61,6 +61,8 @@ export var englishStrings = {
   emptyRowsText: "There are no rows.",
   addPanel: "Add new",
   removePanel: "Remove",
+  showDetails: "Show Details",
+  hideDetails: "Hide Details",
   choices_Item: "item",
   matrix_column: "Column",
   matrix_row: "Row",

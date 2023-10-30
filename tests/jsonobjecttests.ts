@@ -3016,3 +3016,20 @@ QUnit.test("defaultValue for matrix rowTitleWidth and columnMinWidth properties"
   Serializer.findProperty("matrix", "rowTitleWidth").defaultValue = undefined;
   Serializer.findProperty("matrix", "columnMinWidth").defaultValue = undefined;
 });
+
+QUnit.test("Check that .toJSON returns clean structure for all question types", function (assert) {
+  const name = "q";
+  const etalon = { name };
+  const classes = Serializer["classes"];
+
+  for (const prop in classes) {
+    const cls = classes[prop];
+    const qModel: any = Serializer.createClass(cls.name);
+    if (!!qModel) {
+      qModel.name = name;
+      if (qModel.isQuestion && qModel.getType() === cls.name) {
+        assert.deepEqual(qModel.toJSON(), etalon, `JSON for ${cls.name} is clean`);
+      }
+    }
+  }
+});

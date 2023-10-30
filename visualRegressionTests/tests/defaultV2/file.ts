@@ -60,6 +60,45 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check file question with imageWidth/height", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await ClientFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.imageWidth = "100px";
+        question.imageHeight = "100px";
+      })();
+      await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("file-question-single-small-image.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.imageWidth = "1920px";
+        question.imageHeight = "1080px";
+      })();
+      await takeElementScreenshot("file-question-single-big-image.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.allowMultiple = true;
+        question.imageWidth = "50px";
+        question.imageHeight = "50px";
+        question.clear();
+      })();
+      await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Flamingo.png"]);
+      await takeElementScreenshot("file-question-multiple-small-images.png", questionRoot, t, comparer);
+
+      await ClientFunction(() => {
+        const question = (window as any).survey.getQuestionByName("file_question");
+        question.allowMultiple = true;
+        question.imageWidth = "1920px";
+        question.imageHeight = "1080px";
+      })();
+      await takeElementScreenshot("file-question-multiple-big-images.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check file question - long names", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

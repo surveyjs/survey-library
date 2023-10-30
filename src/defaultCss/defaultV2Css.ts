@@ -604,6 +604,7 @@ export var defaultV2Css = {
     removeFileButton: "sd-context-btn--negative sd-file__remove-file-button",
     dragAreaPlaceholder: "sd-file__drag-area-placeholder",
     imageWrapper: "sd-file__image-wrapper",
+    imageWrapperDefaultImage: "sd-file__image-wrapper--default-image",
     single: "sd-file--single",
     singleImage: "sd-file--single-image",
     mobile: "sd-file--mobile",

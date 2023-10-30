@@ -39,7 +39,7 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
           style={{ display: this.question.isPreviewVisible(index) ? undefined : "none" }}
         >
           {this.renderFileSign(this.question.cssClasses.fileSign, val)}
-          <div className={this.question.cssClasses.imageWrapper}>
+          <div className={this.question.getImageWrapperCss(val)}>
             {this.question.canPreviewImage(val) ? (
               <img
                 src={val.content}

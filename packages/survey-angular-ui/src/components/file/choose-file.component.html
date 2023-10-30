@@ -1,8 +1,8 @@
 <ng-template #template>
-    <div *ngIf="!question.isReadOnly" role="button" tabindex="0" [class]="question.getChooseFileCss()"
+    <label tabindex="0" [class]="question.getChooseFileCss()"
         [attr.for]="question.inputId" [attr.aria-label]="question.chooseButtonText" [key2click]>
         <svg *ngIf="question.cssClasses.chooseFileIconId" [title]="question.chooseButtonText"
             [iconName]="question.cssClasses.chooseFileIconId" [size]="'auto'" sv-ng-svg-icon></svg>
         <span>{{ question.chooseButtonText }}</span>
-    </div>
+</label>
 </ng-template>

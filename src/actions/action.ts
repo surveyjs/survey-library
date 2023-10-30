@@ -50,6 +50,7 @@ export interface IAction {
    * @see visible
    */
   enabled?: boolean;
+  enabledIf?: () => boolean;
   /**
    * Specifies the visibility of the action item's title.
    * @see title
@@ -441,10 +442,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public getVisible(): boolean {
     return this._visible;
   }
+
+  public enabledIf?: () => boolean;
   public setEnabled(val: boolean): void {
     this._enabled = val;
   }
   public getEnabled(): boolean {
+    if(this.enabledIf) return this.enabledIf();
     return this._enabled;
   }
   public setComponent(val: string): void {

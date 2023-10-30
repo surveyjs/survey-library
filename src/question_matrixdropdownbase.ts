@@ -2440,7 +2440,7 @@ Serializer.addClass(
   [
     {
       name: "columns:matrixdropdowncolumns",
-      className: "matrixdropdowncolumn",
+      className: "matrixdropdowncolumn", isArray: true
     },
     {
       name: "columnLayout",

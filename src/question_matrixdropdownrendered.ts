@@ -449,7 +449,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.hasActionCellInRows("start")) {
-      this.footerRow.cells.push(this.createHeaderCell(null));
+      this.footerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.matrix.hasRowText) {
       this.footerRow.cells.push(
@@ -471,7 +471,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     if (this.hasActionCellInRows("end")) {
-      this.footerRow.cells.push(this.createHeaderCell(null));
+      this.footerRow.cells.push(this.createHeaderCell(null, "action"));
     }
   }
   protected buildRows() {

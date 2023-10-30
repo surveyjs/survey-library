@@ -87,6 +87,7 @@ registerMarkupTests(
           }
         ]
       },
+      removeIds: true,
       snapshot: "matrixdynamic-totals"
     }
   ]

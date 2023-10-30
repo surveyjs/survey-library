@@ -83,6 +83,7 @@ export class Question extends SurveyElement<Question>
   valueFromDataCallback: (val: any) => any;
   valueToDataCallback: (val: any) => any;
   onUpdateCssClassesCallback: (css: any) => void;
+  setValueChangedDirectlyCallback: (val: boolean) => void;
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   private isReadyValue: boolean = true;
@@ -1522,7 +1523,7 @@ export class Question extends SurveyElement<Question>
     if (!!this.comment) {
       this.comment = undefined;
     }
-    this.isValueChangedDirectly = false;
+    this.setValueChangedDirectly(false);
   }
   public unbindValue(): void {
     this.clearValue();
@@ -1570,7 +1571,7 @@ export class Question extends SurveyElement<Question>
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
-      this.isValueChangedDirectly = undefined;
+      this.setValueChangedDirectly(undefined);
     }
   }
   /**
@@ -2288,14 +2289,17 @@ export class Question extends SurveyElement<Question>
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
-  protected setValueChangedDirectly(): void {
-    this.isValueChangedDirectly = true;
+  protected setValueChangedDirectly(val: boolean): void {
+    this.isValueChangedDirectly = val;
+    if(!!this.setValueChangedDirectlyCallback) {
+      this.setValueChangedDirectlyCallback(val);
+    }
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     newValue = this.convertToCorrectValue(newValue);
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
     if (!isEqual && !this.isChangingViaDefaultValue) {
-      this.setValueChangedDirectly();
+      this.setValueChangedDirectly(true);
     }
     this.questionValue = newValue;
     if (!isEqual) {

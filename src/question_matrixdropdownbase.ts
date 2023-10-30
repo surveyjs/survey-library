@@ -1068,7 +1068,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
     this.lockResetRenderedTable = true;
-    this.setValueChangedDirectly();
+    this.setValueChangedDirectly(true);
   }
   protected onEndRowAdding() {
     this.lockResetRenderedTable = false;

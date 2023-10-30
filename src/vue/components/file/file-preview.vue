@@ -19,7 +19,7 @@
           >{{ val.name }}</a
         >
       </div>
-      <div :class="question.cssClasses.imageWrapper">
+      <div :class="question.getImageWrapperCss(val)">
         <img
           v-if="question.canPreviewImage(val)"
           :src="val.content"

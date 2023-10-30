@@ -1,7 +1,6 @@
 <template>
-  <div
+  <label
     v-if="!question.isReadOnly"
-    role="button"
     tabindex="0"
     :class="question.getChooseFileCss()"
     :for="question.inputId"
@@ -15,7 +14,7 @@
       :size="'auto'"
     ></sv-svg-icon>
     <span>{{ question.chooseButtonText }}</span>
-  </div>
+  </label>
 </template>
 <script setup lang="ts">
 import type { QuestionFileModel, Action } from "survey-core";

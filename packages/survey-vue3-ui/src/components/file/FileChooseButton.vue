@@ -1,6 +1,5 @@
 <template>
   <label
-    v-if="!question.isReadOnly"
     tabindex="0"
     :class="question.getChooseFileCss()"
     :for="question.inputId"

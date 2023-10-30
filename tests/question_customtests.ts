@@ -696,6 +696,35 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: defaultValueExpession, bug#4836", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5]
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1", defaultValueExpression: "2" }, { type: "text", name: "q2" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.value, 2, "defaultValue is set");
+  assert.equal(q.contentQuestion.value, 2, "defaultValue is set for contentQuestion");
+  q.contentQuestion.value = 3;
+  assert.equal(q.value, 3, "defaultValue is set, #2");
+  assert.equal(q.contentQuestion.value, 3, "defaultValue is set for contentQuestion, #2");
+  survey.setValue("q2", 4);
+  assert.equal(q.value, 3, "defaultValue is set, #3");
+  assert.equal(q.contentQuestion.value, 3, "defaultValue is set for contentQuestion, #3");
+  assert.deepEqual(survey.data, { q1: 3, q2: 4 }, "set data into survey");
+  q.clearValue();
+  survey.setValue("q2", 5);
+  assert.equal(q.value, 2, "defaultValue is set, #4");
+  assert.equal(q.contentQuestion.value, 2, "defaultValue is set for contentQuestion, #4");
+  assert.deepEqual(survey.data, { q1: 2, q2: 5 }, "set data into survey, #2");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Single: matrixdropdown expressions", function (assert) {
   var json = {
     name: "order",

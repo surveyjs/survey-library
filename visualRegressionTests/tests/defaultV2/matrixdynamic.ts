@@ -275,4 +275,31 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("matrixdynamic-show-in-multiple-columns.png", matrixdynamicRoot, t, comparer);
     });
   });
+  test("Check Matrixdynamic with totals", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            type: "matrixdynamic",
+            name: "orderList",
+            addRowText: "Add new item",
+            columns: [
+              {
+                name: "phone_model",
+                title: "Phone model",
+                totalType: "count",
+                totalFormat: "Items count: {0}",
+              }
+            ]
+          }
+        ]
+      });
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdynamic-with-totals.png", matrixdynamicRoot, t, comparer);
+    });
+  });
 });

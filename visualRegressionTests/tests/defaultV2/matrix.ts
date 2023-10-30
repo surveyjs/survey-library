@@ -205,6 +205,52 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-single-select-in-panel-no-title.png", questionRoot, t, comparer);
     });
   });
+  test("Matrix single-select in panel with many columns", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework,
+        {
+          pages: [
+            {
+              name: "page1",
+              elements: [
+                {
+                  type: "panel",
+                  name: "panel1",
+                  title: "Panel",
+                  elements: [
+                    {
+                      type: "matrix",
+                      name: "question2",
+                      columns: [
+                        "Column 1",
+                        "Column 2",
+                        "Column 3",
+                        "Column 4",
+                        "Column 5",
+                        "Column 6",
+                        "Column 7",
+                        "Column 8",
+                        "Column 9",
+                        "Column 10",
+                        "Column 11",
+                        "Column 12",
+                        "Column 13",
+                        "Column 14"
+                      ],
+                      rows: ["Row 1", "Row 2"]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-single-select-in-panel-many-columns.png", questionRoot, t, comparer);
+    });
+  });
 
   test("Matrix multi-select in panel", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {

@@ -18,6 +18,7 @@
     <div
       :style="{ paddingInlineStart: model.getItemIndent(item) }"
       v-bind:class="model.cssClasses.itemBody"
+      :title="item.locTitle.calculatedText"
     >
       <sv-svg-icon
         v-if="item.iconName && !item.component"

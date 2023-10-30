@@ -417,7 +417,7 @@ QUnit.test("Ranking: Mobile: renderedSelectToRankAreasLayout", function (assert)
   const withDefaultValue = false;
   const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
 
-  questionModel.isMobileMode = ()=>{return true}; // set mobile env
+  questionModel.isMobileMode = ()=>{ return true; }; // set mobile env
 
   assert.equal(questionModel.renderedSelectToRankAreasLayout, "vertical", "'vertical' by default on mobile");
 

@@ -518,6 +518,15 @@
     margin-top: calcSize(2);
   }
 
+  .sd-table__cell--error {
+    margin-top: calcSize(0);
+    &.sd-table__cell--error-bottom {
+      .sd-question__erbox {
+        margin-top: calcSize(1);
+      }
+    }
+  }
+  
   .sd-table__cell:first-of-type,
   .sd-matrix__cell {
     margin-top: 0;

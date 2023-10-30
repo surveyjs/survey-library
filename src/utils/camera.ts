@@ -116,14 +116,19 @@ export class Camera {
         callback(undefined);
       });
   }
+  public getImageSize(videoEl:HTMLVideoElement): { width: number, height: number } {
+    return { width: videoEl.videoWidth, height: videoEl.videoHeight };
+
+  }
   public snap(videoElementId: string, callback: BlobCallback): boolean {
     if("undefined" === typeof document) return false;
     const root = document;
     const videoEl: HTMLVideoElement = root.getElementById(videoElementId) as HTMLVideoElement;
     if(!videoEl) return false;
     const canvasEl = root.createElement("canvas");
-    canvasEl.height = videoEl.videoHeight;
-    canvasEl.width = videoEl.videoWidth;
+    const imageSize = this.getImageSize(videoEl);
+    canvasEl.height = imageSize.height;
+    canvasEl.width = imageSize.width;
     let context = canvasEl.getContext("2d");
     /*
     if(this._facingMode == 'user'){

@@ -1577,6 +1577,12 @@ QUnit.test("new Camera().getMediaConstraints width and height", function(assert)
   assert.deepEqual(mConst.video.height, { ideal: 100 });
   Camera.clear();
 });
+QUnit.test("Camera: check getImageSize method", function(assert) {
+  let imageSize = new Camera().getImageSize({ videoWidth: 100, videoHeight: 200 } as any);
+  assert.deepEqual(imageSize, { width: 100, height: 200 });
+  imageSize = new Camera().getImageSize({ videoWidth: 130, videoHeight: 250 } as any);
+  assert.deepEqual(imageSize, { width: 130, height: 250 });
+});
 QUnit.test("QuestionFile stop playing video on hiding question", function(assert) {
   let survey = new SurveyModel({
     elements: [{ type: "file", name: "q1" }]

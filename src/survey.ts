@@ -7480,10 +7480,10 @@ Serializer.addClass("survey", [
   },
   {
     name: "completedHtmlOnCondition:htmlconditions",
-    className: "htmlconditionitem",
+    className: "htmlconditionitem", isArray: true
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
-  { name: "pages:surveypages", className: "page" },
+  { name: "pages:surveypages", className: "page", isArray: true },
   {
     name: "elements",
     alternativeName: "questions",
@@ -7506,7 +7506,7 @@ Serializer.addClass("survey", [
   },
   {
     name: "calculatedValues:calculatedvalues",
-    className: "calculatedvalue",
+    className: "calculatedvalue", isArray: true
   },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
@@ -7525,7 +7525,7 @@ Serializer.addClass("survey", [
   "navigateToUrl",
   {
     name: "navigateToUrlOnCondition:urlconditions",
-    className: "urlconditionitem",
+    className: "urlconditionitem", isArray: true
   },
   {
     name: "questionsOrder",

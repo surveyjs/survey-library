@@ -845,7 +845,7 @@ Serializer.addClass(
 Serializer.addClass(
   "multipletext",
   [
-    { name: "!items:textitems", className: "multipletextitem" },
+    { name: "!items:textitems", className: "multipletextitem", isArray: true },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
     { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }

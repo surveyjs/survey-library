@@ -867,6 +867,9 @@ export class JsonMetadataClass {
         prop.baseClassName = propInfo.baseClassName;
         prop.isArray = true;
       }
+      if(prop.isArray === true) {
+        prop.isArray = true;
+      }
       if (propInfo.classNamePart) {
         prop.classNamePart = propInfo.classNamePart;
       }

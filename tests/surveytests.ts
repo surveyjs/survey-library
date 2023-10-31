@@ -13748,7 +13748,7 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
-QUnit.test("Async function with invert result, Bug#7268",
+QUnit.test("Async function with negative result, Bug#7268",
   function (assert) {
     let returnResult: (res: any) => void = (res: any): void => {
       res = false;
@@ -13769,10 +13769,10 @@ QUnit.test("Async function with invert result, Bug#7268",
     const q1 = survey.getQuestionByName("q1");
     const q2 = survey.getQuestionByName("q2");
     returnResult(true);
-    assert.equal(q2.isVisible, false, "visile #1");
+    assert.equal(q2.isVisible, false, "visible #1");
     q1.value = 1;
     returnResult(false);
-    assert.equal(q2.isVisible, true, "visile #2");
+    assert.equal(q2.isVisible, true, "visible #2");
     FunctionFactory.Instance.unregister("asyncFunc");
   }
 );

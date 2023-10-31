@@ -26,6 +26,7 @@
 import type { QuestionMultipleTextModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionMultipleTextModel }>();
 const root = ref(null);
 useQuestion(props, root);

@@ -9,7 +9,7 @@
     :aria-invalid="question.a11y_input_ariaInvalid"
     :aria-describedby="question.a11y_input_ariaDescribedBy"
   >
-    <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
+    <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
     <template v-if="question.hasHeadItems">
       <survey-checkbox-item
         v-for="(item, index) in question.headItems"
@@ -83,6 +83,7 @@
 import type { QuestionCheckboxModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionCheckboxModel }>();
 const root = ref(null);
 useQuestion(props, root);

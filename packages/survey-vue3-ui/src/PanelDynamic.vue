@@ -66,6 +66,7 @@
 import type { QuestionPanelDynamicModel } from "survey-core";
 import { useQuestion } from "./base";
 import { computed, getCurrentInstance, ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionPanelDynamicModel; css?: any }>();
 const root = ref(null);
 const instance = getCurrentInstance();

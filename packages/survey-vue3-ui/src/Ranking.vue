@@ -75,6 +75,9 @@
 import type { QuestionRankingModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{ question: QuestionRankingModel }>();
 const root = ref(null);
 useQuestion<QuestionRankingModel>(props, root);

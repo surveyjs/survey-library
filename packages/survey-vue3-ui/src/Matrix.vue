@@ -1,7 +1,7 @@
 <template>
   <div :class="question.cssClasses.tableWrapper" ref="root">
     <fieldset>
-      <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
+      <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
       <table :class="question.getTableCss()">
         <thead v-if="question.showHeader">
           <tr>
@@ -100,6 +100,9 @@
 import type { QuestionMatrixModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref, shallowRef } from "vue";
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{ question: QuestionMatrixModel }>();
 const root = ref(null);
 const visibleRows = shallowRef();

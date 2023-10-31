@@ -81,6 +81,9 @@
 import type { QuestionRadiogroupModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{ question: QuestionRadiogroupModel }>();
 const root = ref(null);
 useQuestion<QuestionRadiogroupModel>(props, root);

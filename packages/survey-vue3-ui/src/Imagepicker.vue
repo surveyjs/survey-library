@@ -1,6 +1,6 @@
 <template>
   <fieldset :class="question.getSelectBaseRootCss()" ref="root">
-    <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
+    <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
     <template v-if="!question.hasColumns">
       <survey-imagepicker-item
         v-for="item in question.visibleChoices"
@@ -31,6 +31,7 @@
 import type { QuestionImagePickerModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionImagePickerModel }>();
 const root = ref(null);
 useQuestion(props, root);

@@ -6,6 +6,7 @@
 import { computed, ref } from "vue";
 import type { QuestionCompositeModel } from "survey-core";
 import { useQuestion } from "./base";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionCompositeModel; css?: object }>();
 const root = ref(null);
 useQuestion(props, root);

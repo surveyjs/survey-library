@@ -37,10 +37,11 @@
         :element="element"
         :location="'top'"
       />
+
       <component
-        :is="getComponentName(element)"
+        :is="contentComponentName"
         v-if="!element.isCollapsed"
-        :question="element"
+        v-bind="contentComponentData"
       />
       <div v-if="element.hasComment" :class="element.getCommentAreaCss()">
         <div>
@@ -108,13 +109,6 @@ const hasErrorsOnBottom = computed(() => {
   return props.element.showErrorOnBottom;
 });
 
-const getComponentName = (element: Question) => {
-  if (element.customWidget) return "survey-customwidget";
-  if (element.isDefaultRendering()) {
-    return "survey-" + element.getTemplate();
-  }
-  return element.getComponentName();
-};
 const getContentClass = (element: Question) => {
   return element.cssContent;
 };
@@ -133,6 +127,33 @@ const stopWatch = watch(
     afterRender();
   }
 );
+const componentName = computed(() => {
+  if (props.element.customWidget) return "survey-customwidget";
+  if (props.element.isDefaultRendering()) {
+    return "survey-" + props.element.getTemplate();
+  }
+  return props.element.getComponentName();
+});
+const contentComponentName = computed(() => {
+  return (
+    (
+      props.element.survey as SurveyModel
+    ).getQuestionContentWrapperComponentName(props.element) ||
+    componentName.value
+  );
+});
+const contentComponentData = computed(() => {
+  return {
+    componentName: componentName.value,
+    componentData: {
+      question: props.element,
+      data: (
+        props.element.survey as SurveyModel
+      ).getElementWrapperComponentData(props.element),
+    },
+  };
+});
+
 onUnmounted(() => {
   stopWatch();
 });

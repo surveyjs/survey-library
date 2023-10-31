@@ -122,6 +122,8 @@ import FileCleanButton from "./FileCleanButton.vue";
 import FileVideo from "./FileVideo.vue";
 import FileChooseButton from "./components/file/FileChooseButton.vue";
 import FilePreview from "./components/file/FilePreview.vue";
+import ButtonGroup from "./buttongroup/ButtonGroup.vue";
+import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
 export { useBase, useLocString, useQuestion } from "./base";
 
 SurveyModel.platform = "vue3";
@@ -251,6 +253,9 @@ function registerComponents(app: App) {
   app.component("sv-template-renderer", TemplateRenderer);
 
   app.component("survey-element", Element);
+
+  app.component("survey-buttongroup", ButtonGroup);
+  app.component("sv-button-group-item", ButtonGroupItem);
 
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...

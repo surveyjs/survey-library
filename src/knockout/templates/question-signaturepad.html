@@ -1,14 +1,14 @@
 <script type="text/html" id="survey-question-signaturepad">
-    <div data-bind="css: question.cssClasses.root">
+    <div data-bind="css: question.cssClasses.root, style: { width: question.renderedWidth }">
         <div data-bind="css: question.cssClasses.placeholder, visible: $data.needShowPlaceholder()">
             <!-- ko template: { name: 'survey-string', data: question.locPlaceholder } -->
             <!-- /ko -->
         </div>
         <div class="sd-signaturepad__canvas-container">
             <!-- ko if: question.backgroundImage -->
-            <img data-bind="attr: { src: question.backgroundImage }, css: question.cssClasses.backgroundImage">
+            <img data-bind="attr: { src: question.backgroundImage, width: question.renderedWidth }, css: question.cssClasses.backgroundImage">
             <!-- /ko -->
-            <canvas tabindex='0' data-bind="css: question.cssClasses.canvas"></canvas>
+            <canvas tabindex='0' data-bind="css: question.cssClasses.canvas, style: { width: question.renderedWidth }" ></canvas>
         </div>
         <!-- ko if: question.canShowClearButton -->
         <div data-bind="css: question.cssClasses.controls">

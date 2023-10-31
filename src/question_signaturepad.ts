@@ -12,37 +12,8 @@ import { classesToSelector } from "./utils/utils";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
-
-export function getCanvasRatio(canvas: HTMLCanvasElement): number {
-  var context: any = canvas.getContext("2d");
-  var devicePixelRatio = window.devicePixelRatio || 1;
-  var backingStoreRatio =
-    context.webkitBackingStorePixelRatio ||
-    context.mozBackingStorePixelRatio ||
-    context.msBackingStorePixelRatio ||
-    context.oBackingStorePixelRatio ||
-    context.backingStorePixelRatio ||
-    1;
-
-  return devicePixelRatio / backingStoreRatio;
-}
-
-function resizeCanvas(canvas: HTMLCanvasElement, scale: number) {
-  var context: any = canvas.getContext("2d");
-  var ratio = getCanvasRatio(canvas);
-
-  var oldWidth = canvas.width;
-  var oldHeight = canvas.height;
-
-  //canvas.width = oldWidth * ratio;
-  //canvas.height = oldHeight * ratio;
-
-  //canvas.style.width = oldWidth * 1.5 + "px";
-  //canvas.style.height = oldHeight * 1.5 + "px";
-  //canvas.style.transform = "scale(" + 1 / 1.5 + ") translate(-" + 100 / 1.5 + "%, -" + 100 / 1.5 + "%)";
-
-  context.scale(1 / scale, 1 / scale);
-}
+var defaultMinWidth = 0.5;
+var defaultMaxWidth = 2.5;
 
 /**
  * A class that describes the Signature question type.
@@ -89,19 +60,6 @@ export class QuestionSignaturePadModel extends Question {
   public getType(): string {
     return "signaturepad";
   }
-  protected supportResponsiveness(): boolean {
-    return true;
-  }
-  protected getObservedElementSelector(): string {
-    return classesToSelector(this.cssClasses.root);
-  }
-  protected processResponsiveness(requiredWidth: number, availableWidth: number): boolean {
-    const scale = this.canvas.offsetWidth / this.canvas.width;
-    //this.updateValueHandler();
-    this.canvas.parentElement.style.height = this.canvas.offsetHeight + "px";
-    super.processResponsiveness(requiredWidth, availableWidth);
-    return false;
-  }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.initSignaturePad(el);
@@ -123,10 +81,12 @@ export class QuestionSignaturePadModel extends Question {
   private updateValueHandler = () => {
     var data = this.value;
     const canvas = this.canvas;
-    canvas.width = this.signatureWidth || defaultWidth;
-    canvas.height = this.signatureHeight || defaultHeight;
+    canvas.width = this.containerWidth;
+    canvas.height = this.containerHeight;
     const scale = canvas.offsetWidth / canvas.width;
-    resizeCanvas(canvas, scale);
+    this.signaturePad.minWidth = defaultMinWidth * scale;
+    this.signaturePad.maxWidth = defaultMaxWidth * scale;
+    canvas.getContext("2d").scale(1 / scale, 1 / scale);
     if (!data) {
       this.signaturePad.clear();
     } else {
@@ -215,6 +175,23 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set signatureHeight(val: number) {
     this.setPropertyValue("signatureHeight", val);
+  }
+
+  @property({ defaultValue: false }) stretch: boolean;
+
+  private get containerHeight(): any {
+    return this.signatureHeight || defaultHeight;
+  }
+
+  private get containerWidth(): any {
+    return this.signatureWidth || defaultWidth;
+  }
+
+  public get renderedWidth(): string {
+    return this.stretch ? "100%" : "min(100%, " + this.containerWidth + "px)";
+  }
+  public get renderedHeight(): string {
+    return this.stretch ? "auto" : "min(100%, " + this.containerHeight + "px)";
   }
 
   //todo: need to remove this property
@@ -340,6 +317,11 @@ Serializer.addClass(
       name: "signatureHeight:number",
       category: "general",
       default: 200,
+    },
+    {
+      name: "stretch:boolean",
+      category: "general",
+      default: false,
     },
     //need to remove this property
     {

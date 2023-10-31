@@ -1198,4 +1198,54 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix--single-page.png", pageElement, t, comparer);
     });
   });
+  test("Check mobile multi select matrix with showHeader: false", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        elements: [
+          {
+            "type": "matrixdropdown",
+            "name": "q1",
+            "title": "Question",
+            "showHeader": false,
+            "cellType": "text",
+            "columns": [
+              {
+                "name": "Column 1",
+                "title": "Title"
+              },
+              {
+                "name": "Column 2",
+                "title": "Title"
+              },
+              {
+                "name": "Column 3",
+                "title": "Title"
+              },
+              {
+                "name": "Column 4",
+                "title": "Title"
+              },
+              {
+                "name": "Column 5",
+                "title": "Title"
+              }
+            ],
+            "rows": [
+              {
+                "value": "Row 1",
+                "text": "Title"
+              },
+              {
+                "value": "Row 2",
+                "text": "Title"
+              },
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("responsiveness-matrixdropdown-without-header.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });
+

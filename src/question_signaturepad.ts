@@ -8,6 +8,7 @@ import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
+import { classesToSelector } from "./utils/utils";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -26,20 +27,21 @@ export function getCanvasRatio(canvas: HTMLCanvasElement): number {
   return devicePixelRatio / backingStoreRatio;
 }
 
-function resizeCanvas(canvas: HTMLCanvasElement) {
+function resizeCanvas(canvas: HTMLCanvasElement, scale: number) {
   var context: any = canvas.getContext("2d");
   var ratio = getCanvasRatio(canvas);
 
   var oldWidth = canvas.width;
   var oldHeight = canvas.height;
 
-  canvas.width = oldWidth * ratio;
-  canvas.height = oldHeight * ratio;
+  //canvas.width = oldWidth * ratio;
+  //canvas.height = oldHeight * ratio;
 
-  canvas.style.width = oldWidth + "px";
-  canvas.style.height = oldHeight + "px";
+  //canvas.style.width = oldWidth * 1.5 + "px";
+  //canvas.style.height = oldHeight * 1.5 + "px";
+  //canvas.style.transform = "scale(" + 1 / 1.5 + ") translate(-" + 100 / 1.5 + "%, -" + 100 / 1.5 + "%)";
 
-  context.scale(ratio, ratio);
+  context.scale(1 / scale, 1 / scale);
 }
 
 /**
@@ -87,6 +89,19 @@ export class QuestionSignaturePadModel extends Question {
   public getType(): string {
     return "signaturepad";
   }
+  protected supportResponsiveness(): boolean {
+    return true;
+  }
+  protected getObservedElementSelector(): string {
+    return classesToSelector(this.cssClasses.root);
+  }
+  protected processResponsiveness(requiredWidth: number, availableWidth: number): boolean {
+    const scale = this.canvas.offsetWidth / this.canvas.width;
+    //this.updateValueHandler();
+    this.canvas.parentElement.style.height = this.canvas.offsetHeight + "px";
+    super.processResponsiveness(requiredWidth, availableWidth);
+    return false;
+  }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.initSignaturePad(el);
@@ -103,10 +118,27 @@ export class QuestionSignaturePadModel extends Question {
       this.updateColors(this.signaturePad);
     }
   }
+  private canvas: any;
+
+  private updateValueHandler = () => {
+    var data = this.value;
+    const canvas = this.canvas;
+    canvas.width = this.signatureWidth || defaultWidth;
+    canvas.height = this.signatureHeight || defaultHeight;
+    const scale = canvas.offsetWidth / canvas.width;
+    resizeCanvas(canvas, scale);
+    if (!data) {
+      this.signaturePad.clear();
+    } else {
+      this.signaturePad.fromDataURL(data, { width: canvas.width * scale, height: canvas.height * scale });
+    }
+  };
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
+    this.canvas = canvas;
     var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
+    this.signaturePad = signaturePad;
     if (this.isInputReadOnly) {
       signaturePad.off();
     }
@@ -122,6 +154,7 @@ export class QuestionSignaturePadModel extends Question {
     this.updateColors(signaturePad);
 
     (signaturePad as any).addEventListener("beginStroke", () => {
+      this.updateValueHandler();
       this.isDrawingValue = true;
       canvas.focus();
     }, { once: false });
@@ -131,23 +164,11 @@ export class QuestionSignaturePadModel extends Question {
       this.updateValue();
     }, { once: false });
 
-    var updateValueHandler = () => {
-      var data = this.value;
-      canvas.width = this.signatureWidth || defaultWidth;
-      canvas.height = this.signatureHeight || defaultHeight;
-      resizeCanvas(canvas);
-      if (!data) {
-        signaturePad.clear();
-      } else {
-        signaturePad.fromDataURL(data);
-      }
-    };
-    updateValueHandler();
+    this.updateValueHandler();
     this.readOnlyChangedCallback();
-    this.signaturePad = signaturePad;
     var propertyChangedHandler = (sender: any, options: any) => {
       if (options.name === "signatureWidth" || options.name === "signatureHeight" || options.name === "value") {
-        updateValueHandler();
+        this.updateValueHandler();
       }
     };
     this.onPropertyChanged.add(propertyChangedHandler);

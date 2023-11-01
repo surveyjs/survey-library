@@ -166,11 +166,19 @@ export class UnaryOperand extends Operand {
     const uOp = <UnaryOperand>op;
     return uOp.operator == this.operator && this.areOperatorsEquals(this.expression, uOp.expression);
   }
+  public hasFunction(): boolean {
+    return this.expression.hasFunction();
+  }
+  public hasAsyncFunction(): boolean {
+    return this.expression.hasAsyncFunction();
+  }
+  public addToAsyncList(list: Array<FunctionOperand>): void {
+    this.expression.addToAsyncList(list);
+  }
   public evaluate(processValue?: ProcessValue): boolean {
     let value = this.expression.evaluate(processValue);
     return this.consumer.call(this, value);
   }
-
   public setVariables(variables: Array<string>) {
     this.expression.setVariables(variables);
   }

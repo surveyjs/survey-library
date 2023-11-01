@@ -1,5 +1,5 @@
 import { frameworks, url, initSurvey, getSurveyResult } from "../helper";
-import { Selector } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 const title = "Test survey width";
 
 const json = {
@@ -58,5 +58,31 @@ frameworks.forEach((framework) => {
 
     const surveyResult = await getSurveyResult();
     await t.expect(surveyResult.question2).eql(2);
+  });
+});
+
+const json2 = {
+  elements: [
+    {
+      type: "text",
+      title: "Title",
+      name: "q1",
+      description: "<a class='test-link' href='/test'>Click</a>"
+    }
+  ]
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json2, { "onTextMarkdown": (sender, options) => {
+        options.html = options.text;
+      } });
+    }
+  );
+  test("Check link inside description is clickable", async (t) => {
+    await t
+      .click(Selector(".test-link"))
+      .expect(ClientFunction(() => window.location.pathname)()).eql("/test");
   });
 });

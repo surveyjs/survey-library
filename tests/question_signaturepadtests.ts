@@ -1,5 +1,5 @@
 import { Serializer } from "../src/jsonobject";
-import { QuestionSignaturePadModel, getCanvasRatio } from "../src/question_signaturepad";
+import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("question signaturepad");
@@ -104,7 +104,7 @@ QUnit.test("Check signaturepad signauteWidth/Height properties", (assert) => {
   const canvas = document.createElement("canvas");
   containerEl.appendChild(canvas);
   const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
-  const ratio = getCanvasRatio(canvas);
+  const ratio = 1;
   signaturepad.initSignaturePad(containerEl);
   assert.equal(signaturepad.signatureWidth, 300);
   assert.equal(signaturepad.signatureHeight, 200);

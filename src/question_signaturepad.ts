@@ -128,6 +128,7 @@ export class QuestionSignaturePadModel extends Question {
     this.readOnlyChangedCallback();
     var propertyChangedHandler = (sender: any, options: any) => {
       if (options.name === "signatureWidth" || options.name === "signatureHeight" || options.name === "value") {
+        this.scale = undefined;
         this.updateValueHandler();
       }
     };
@@ -177,7 +178,7 @@ export class QuestionSignaturePadModel extends Question {
     this.setPropertyValue("signatureHeight", val);
   }
 
-  @property({ defaultValue: false }) stretch: boolean;
+  @property({ defaultValue: false }) signatureScalingEnabled: boolean;
 
   private get containerHeight(): any {
     return this.signatureHeight || defaultHeight;
@@ -188,10 +189,10 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   public get renderedWidth(): string {
-    return this.stretch ? "100%" : "min(100%, " + this.containerWidth + "px)";
+    return this.signatureScalingEnabled ? "100%" : "min(100%, " + this.containerWidth + "px)";
   }
   public get renderedHeight(): string {
-    return this.stretch ? "auto" : "min(100%, " + this.containerHeight + "px)";
+    return this.signatureScalingEnabled ? "auto" : "min(100%, " + this.containerHeight + "px)";
   }
 
   //todo: need to remove this property
@@ -319,7 +320,7 @@ Serializer.addClass(
       default: 200,
     },
     {
-      name: "stretch:boolean",
+      name: "signatureScalingEnabled:boolean",
       category: "general",
       default: false,
     },

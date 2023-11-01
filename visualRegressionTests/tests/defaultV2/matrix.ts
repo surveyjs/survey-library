@@ -205,6 +205,52 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-single-select-in-panel-no-title.png", questionRoot, t, comparer);
     });
   });
+  test("Matrix single-select in panel with many columns", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework,
+        {
+          pages: [
+            {
+              name: "page1",
+              elements: [
+                {
+                  type: "panel",
+                  name: "panel1",
+                  title: "Panel",
+                  elements: [
+                    {
+                      type: "matrix",
+                      name: "question2",
+                      columns: [
+                        "Column 1",
+                        "Column 2",
+                        "Column 3",
+                        "Column 4",
+                        "Column 5",
+                        "Column 6",
+                        "Column 7",
+                        "Column 8",
+                        "Column 9",
+                        "Column 10",
+                        "Column 11",
+                        "Column 12",
+                        "Column 13",
+                        "Column 14"
+                      ],
+                      rows: ["Row 1", "Row 2"]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-single-select-in-panel-many-columns.png", questionRoot, t, comparer);
+    });
+  });
 
   test("Matrix multi-select in panel", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -1152,4 +1198,54 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix--single-page.png", pageElement, t, comparer);
     });
   });
+  test("Check mobile multi select matrix with showHeader: false", async (t) => {
+    await t.resizeWindow(600, 1080);
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        elements: [
+          {
+            "type": "matrixdropdown",
+            "name": "q1",
+            "title": "Question",
+            "showHeader": false,
+            "cellType": "text",
+            "columns": [
+              {
+                "name": "Column 1",
+                "title": "Title"
+              },
+              {
+                "name": "Column 2",
+                "title": "Title"
+              },
+              {
+                "name": "Column 3",
+                "title": "Title"
+              },
+              {
+                "name": "Column 4",
+                "title": "Title"
+              },
+              {
+                "name": "Column 5",
+                "title": "Title"
+              }
+            ],
+            "rows": [
+              {
+                "value": "Row 1",
+                "text": "Title"
+              },
+              {
+                "value": "Row 2",
+                "text": "Title"
+              },
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("responsiveness-matrixdropdown-without-header.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });
+

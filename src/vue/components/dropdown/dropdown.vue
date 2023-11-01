@@ -50,6 +50,8 @@
       :tabindex="model.inputReadOnly ? undefined : -1"
       :readonly="!model.searchEnabled ? true : null"
       :aria-expanded="question.ariaExpanded"
+      :aria-label="question.a11y_input_ariaLabel"
+      :aria-labelledby="question.a11y_input_ariaLabelledBy"
       :aria-controls="model.listElementId"
       :aria-activedescendant="model.ariaActivedescendant"
       :placeholder="model.placeholderRendered"

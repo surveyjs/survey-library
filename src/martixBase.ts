@@ -305,6 +305,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.noHeader, !this.showHeader)
+      .append(this.cssClasses.hasFooter, !!this.renderedTable?.showAddRowOnBottom)
       .append(this.cssClasses.rootAlternateRows, this.alternateRows)
       .append(this.cssClasses.rootVerticalAlignTop, (this.verticalAlign === "top"))
       .append(this.cssClasses.rootVerticalAlignMiddle, (this.verticalAlign === "middle")).toString();
@@ -326,7 +327,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * @see width
    */
   public get columnMinWidth(): string {
-    return this.getPropertyValue("columnMinWidth", "");
+    return this.getPropertyValue("columnMinWidth") || "";
   }
   public set columnMinWidth(val: string) {
     this.setPropertyValue("columnMinWidth", val);
@@ -336,7 +337,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
    * A width for the column that displays row titles (first column). Accepts CSS values.
    */
   public get rowTitleWidth(): string {
-    return this.getPropertyValue("rowTitleWidth", "");
+    return this.getPropertyValue("rowTitleWidth") || "";
   }
   public set rowTitleWidth(val: string) {
     this.setPropertyValue("rowTitleWidth", val);

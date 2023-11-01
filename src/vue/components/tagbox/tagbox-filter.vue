@@ -25,6 +25,8 @@
                 :inputmode="model.inputMode"
                 :role="model.filterStringEnabled ? question.ariaRole : null"
                 :aria-expanded="question.ariaExpanded"
+                :aria-label="question.a11y_input_ariaLabel"
+                :aria-labelledby="question.a11y_input_ariaLabelledBy"
                 :aria-controls="model.listElementId"
                 :aria-activedescendant="model.ariaActivedescendant"
                 :id="question.getInputId()"

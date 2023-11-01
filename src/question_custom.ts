@@ -690,6 +690,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
         this.onUpdateQuestionCssClasses(res, css);
       };
       res.hasCssErrorCallback = (): boolean => this.errors.length > 0;
+      res.setValueChangedDirectlyCallback = (val: boolean): void => { this.setValueChangedDirectly(val); };
     }
 
     return res;
@@ -744,17 +745,27 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.setContentQuestionValue(this.getUnbindValue(newValue));
     }
   }
-  onSurveyValueChanged(newValue: any) {
+  onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
     if (!!this.contentQuestion) {
       this.contentQuestion.onSurveyValueChanged(newValue);
     }
   }
-  protected getValueCore() {
+  protected getValueCore(): any {
     if (!!this.contentQuestion) return this.getContentQuestionValue();
     return super.getValueCore();
   }
-  protected initElement(el: SurveyElement) {
+  private isSettingValueChanged: boolean;
+  protected setValueChangedDirectly(val: boolean): void {
+    if(this.isSettingValueChanged) return;
+    this.isSettingValueChanged = true;
+    super.setValueChangedDirectly(val);
+    if(!!this.contentQuestion) {
+      (<any>this.contentQuestion).setValueChangedDirectly(val);
+    }
+    this.isSettingValueChanged = false;
+  }
+  protected initElement(el: SurveyElement): void {
     super.initElement(el);
     if (!!el) {
       (<Question>el).parent = this;

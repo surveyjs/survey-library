@@ -1,6 +1,6 @@
 import { property, propertyArray } from "./jsonobject";
 import { Question } from "./question";
-import { Base } from "./base";
+import { Base, ComputedUpdater } from "./base";
 import { ItemValue } from "./itemvalue";
 import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
@@ -37,6 +37,7 @@ export class QuestionMatrixDropdownRenderedCell {
   public isActionsCell: boolean = false;
   public isErrorsCell: boolean = false;
   public isDragHandlerCell: boolean = false;
+  public isDetailRowCell: boolean = false;
   private classNameValue: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
@@ -140,6 +141,7 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
   @property({ defaultValue: false }) isGhostRow: boolean;
   @property({ defaultValue: false }) isAdditionalClasses: boolean;
   @property({ defaultValue: true }) visible: boolean;
+  public hasEndActions: boolean = false;
   public row: MatrixDropdownRowModelBase;
   public isErrorsRow = false;
   private static counter = 1;
@@ -161,6 +163,9 @@ export class QuestionMatrixDropdownRenderedRow extends Base {
     return new CssClassBuilder()
       .append(this.cssClasses.row)
       .append(this.cssClasses.detailRow, this.isDetailRow)
+      .append(this.cssClasses.rowHasPanel, this.row?.hasPanel)
+      .append(this.cssClasses.expandedRow, this.row?.isDetailPanelShowing && !this.isDetailRow)
+      .append(this.cssClasses.rowHasEndActions, this.hasEndActions)
       .append(this.cssClasses.ghostRow, this.isGhostRow)
       .append(this.cssClasses.rowAdditional, this.isAdditionalClasses)
       .toString();
@@ -444,7 +449,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.hasActionCellInRows("start")) {
-      this.footerRow.cells.push(this.createHeaderCell(null));
+      this.footerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.matrix.hasRowText) {
       this.footerRow.cells.push(
@@ -466,7 +471,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       }
     }
     if (this.hasActionCellInRows("end")) {
-      this.footerRow.cells.push(this.createHeaderCell(null));
+      this.footerRow.cells.push(this.createHeaderCell(null, "action"));
     }
   }
   protected buildRows() {
@@ -542,9 +547,23 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     return cell;
   }
   private getActionsCellClassName(cell: QuestionMatrixDropdownRenderedCell = null): string {
-    return new CssClassBuilder().append(this.cssClasses.actionsCell).append(this.cssClasses.actionsCellDrag, cell?.isDragHandlerCell).append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal).toString();
+    const classBuilder =
+      new CssClassBuilder()
+        .append(this.cssClasses.actionsCell)
+        .append(this.cssClasses.actionsCellDrag, cell?.isDragHandlerCell)
+        .append(this.cssClasses.detailRowCell, cell?.isDetailRowCell)
+        .append(this.cssClasses.verticalCell, !this.matrix.isColumnLayoutHorizontal);
+    if (cell.isActionsCell) {
+      const actions = (cell.item.value as ActionContainer).actions;
+      if (this.cssClasses.actionsCellPrefix) {
+        actions.forEach(action => {
+          classBuilder.append(this.cssClasses.actionsCellPrefix + "--" + action.id);
+        });
+      }
+    }
+    return classBuilder.toString();
   }
-  private getRowActionsCell(rowIndex: number, location: "start" | "end") {
+  private getRowActionsCell(rowIndex: number, location: "start" | "end", isDetailRow: boolean = false) {
     const rowActions = this.getRowActions(rowIndex, location);
     if (!this.isValueEmpty(rowActions)) {
       const cell = new QuestionMatrixDropdownRenderedCell();
@@ -558,6 +577,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       cell.item = itemValue;
       cell.isActionsCell = true;
       cell.isDragHandlerCell = false;
+      cell.isDetailRowCell = isDetailRow;
       cell.className = this.getActionsCellClassName(cell);
       cell.row = this.matrix.visibleRows[rowIndex];
       return cell;
@@ -629,16 +649,31 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     }
 
     if (row.hasPanel) {
-      actions.push(
-        new Action({
-          id: "show-detail",
-          title: this.matrix.getLocalizationString("editText"),
-          showTitle: false,
-          location: "start",
-          component: "sv-matrix-detail-button",
-          data: { row: row, question: this.matrix },
-        })
-      );
+      if (this.matrix.isMobile) {
+        actions.unshift(
+          new Action({
+            id: "show-detail-mobile",
+            title: "Show Details",
+            showTitle: true,
+            location: "end",
+            action: (context) => {
+              context.title = row.isDetailPanelShowing ? this.matrix.getLocalizationString("showDetails") : this.matrix.getLocalizationString("hideDetails");
+              row.showHideDetailPanelClick();
+            },
+          })
+        );
+      } else {
+        actions.push(
+          new Action({
+            id: "show-detail",
+            title: this.matrix.getLocalizationString("editText"),
+            showTitle: false,
+            location: "start",
+            component: "sv-matrix-detail-button",
+            data: { row: row, question: this.matrix },
+          })
+        );
+      }
     }
   }
   private createErrorRow(
@@ -713,12 +748,14 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ) {
     var rowIndex = this.matrix.visibleRows.indexOf(row);
     if (this.hasActionCellInRows(location)) {
-      const actions = this.getRowActionsCell(rowIndex, location);
+      const actions = this.getRowActionsCell(rowIndex, location, renderedRow.isDetailRow);
       if (!!actions) {
         renderedRow.cells.push(actions);
+        renderedRow.hasEndActions = true;
       } else {
         var cell = new QuestionMatrixDropdownRenderedCell();
         cell.isEmpty = true;
+        cell.isDetailRowCell = renderedRow.isDetailRow;
         renderedRow.cells.push(cell);
       }
     }
@@ -749,8 +786,13 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       (!!actionsCell ? actionsCell.colSpans : 0);
     cell.className = this.cssClasses.detailPanelCell;
     res.cells.push(cell);
+
     if (!!actionsCell) {
-      res.cells.push(actionsCell);
+      if (this.matrix.isMobile) {
+        this.addRowActionsCell(row, res, "end");
+      } else {
+        res.cells.push(actionsCell);
+      }
     }
     if (
       typeof this.matrix.onCreateDetailPanelRenderedRowCallback === "function"

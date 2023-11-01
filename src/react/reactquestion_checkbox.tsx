@@ -29,7 +29,7 @@ export class SurveyQuestionCheckbox extends SurveyQuestionElementBase {
         aria-invalid={this.question.a11y_input_ariaInvalid}
         aria-describedby={this.question.a11y_input_ariaDescribedBy}
       >
-        <legend role="presentation" className={"sv-hidden"}></legend>
+        <legend className={"sv-hidden"}>{this.question.locTitle.renderedHtml}</legend>
         {this.getHeader()}
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
@@ -220,7 +220,8 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
           <input
             className={this.cssClasses.itemControl}
             type="checkbox"
-            name={this.question.name}
+            role="option"
+            name={this.question.name + this.item.value}
             value={this.item.value != "selectall" ? this.item.value : undefined}
             id={id}
             style={this.inputStyle}

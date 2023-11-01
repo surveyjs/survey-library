@@ -3,7 +3,7 @@
 data-bind="css: $data.model.getItemClass($data.item), attr: { id: $data.item.elementId, 'aria-selected': $data.model.isItemSelected($data.item) ? 'true' : 'false' }, click: itemClick, key2click, visible: $data.model.isItemVisible($data.item), event: { pointerdown: function (model, event) { $data.model.onPointerDown(event, $data.item); } }">  <!-- ko if: $data.item.needSeparator -->
   <div data-bind="css: $data.model.cssClasses.itemSeparator"></div>
   <!-- /ko -->
-  <div data-bind="style: { paddingInlineStart: $data.model.getItemIndent($data.item) }, css: $data.model.cssClasses.itemBody">
+  <div data-bind="style: { paddingInlineStart: $data.model.getItemIndent($data.item) }, css: $data.model.cssClasses.itemBody, attr: { title: $data.item.locTitle.calculatedText }">
   <!-- ko ifnot: $data.item.component -->
   <!-- ko if: $data.item.iconName -->
   <!-- ko component: { name: "sv-svg-icon", params: { iconName: $data.item.iconName, size: $data.item.iconSize, css: $data.model.cssClasses.itemIcon } }-->

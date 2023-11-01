@@ -12,7 +12,7 @@ import { ITheme } from "./themes";
 var defaultWidth = 300;
 var defaultHeight = 200;
 
-function resizeCanvas(canvas: HTMLCanvasElement) {
+export function getCanvasRatio(canvas: HTMLCanvasElement): number {
   var context: any = canvas.getContext("2d");
   var devicePixelRatio = window.devicePixelRatio || 1;
   var backingStoreRatio =
@@ -23,7 +23,12 @@ function resizeCanvas(canvas: HTMLCanvasElement) {
     context.backingStorePixelRatio ||
     1;
 
-  var ratio = devicePixelRatio / backingStoreRatio;
+  return devicePixelRatio / backingStoreRatio;
+}
+
+function resizeCanvas(canvas: HTMLCanvasElement) {
+  var context: any = canvas.getContext("2d");
+  var ratio = getCanvasRatio(canvas);
 
   var oldWidth = canvas.width;
   var oldHeight = canvas.height;
@@ -94,7 +99,7 @@ export class QuestionSignaturePadModel extends Question {
     }
   }
   public themeChanged(theme: ITheme): void {
-    if(!!this.signaturePad) {
+    if (!!this.signaturePad) {
       this.updateColors(this.signaturePad);
     }
   }
@@ -266,7 +271,7 @@ export class QuestionSignaturePadModel extends Question {
    *
    * Default value: `true`
    */
-  @property({ }) showPlaceholder: boolean;
+  @property({}) showPlaceholder: boolean;
 
   public needShowPlaceholder(): boolean {
     const showPlaceholder = this.showPlaceholder;
@@ -282,12 +287,12 @@ export class QuestionSignaturePadModel extends Question {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     //todo: need to remove this code
-    if(this.signatureWidth === 300 && !!this.width && typeof this.width === "number" && this.width) {
+    if (this.signatureWidth === 300 && !!this.width && typeof this.width === "number" && this.width) {
       ConsoleWarnings.warn("Use signatureWidth property to set width for the signature pad");
       this.signatureWidth = this.width;
       this.width = undefined;
     }
-    if(this.signatureHeight === 200 && !!this.height) {
+    if (this.signatureHeight === 200 && !!this.height) {
       ConsoleWarnings.warn("Use signatureHeight property to set width for the signature pad");
       this.signatureHeight = this.height;
       this.height = undefined;
@@ -296,9 +301,9 @@ export class QuestionSignaturePadModel extends Question {
 }
 
 function correctFormatData(val: string): string {
-  if(!val) val = "png";
+  if (!val) val = "png";
   val = val.replace("image/", "").replace("+xml", "");
-  if(val !== "jpeg" && val !== "svg") val = "png";
+  if (val !== "jpeg" && val !== "svg") val = "png";
   return val;
 }
 
@@ -327,11 +332,13 @@ Serializer.addClass(
       default: true,
     },
     { name: "showPlaceholder:boolean", category: "general", default: true },
-    { name: "placeholder:text",
+    {
+      name: "placeholder:text",
       serializationProperty: "locPlaceholder",
       category: "general",
       dependsOn: "showPlaceholder",
-      visibleIf: (obj: QuestionSignaturePadModel) => obj.showPlaceholder },
+      visibleIf: (obj: QuestionSignaturePadModel) => obj.showPlaceholder
+    },
     {
       name: "backgroundImage:file",
       category: "general",

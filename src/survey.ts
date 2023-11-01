@@ -1182,26 +1182,26 @@ export class SurveyModel extends SurveyElementCore
   @property({
     onSet: (newValue, target: SurveyModel) => {
       if (newValue === "advanced") {
-        const layoutElement = target.layoutElements.filter(a => a.id === "cover")[0];
+        const layoutElement = target.layoutElements.filter(a => a.id === "advanced-header")[0];
         if (!layoutElement) {
-          var cover = new Cover();
-          cover.logoPositionX = target.logoPosition === "right" ? "right" : "left";
-          cover.logoPositionY = "middle";
-          cover.titlePositionX = target.logoPosition === "right" ? "left" : "right";
-          cover.titlePositionY = "middle";
-          cover.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
-          cover.descriptionPositionY = "middle";
-          cover.survey = target;
+          var advHeader = new Cover();
+          advHeader.logoPositionX = target.logoPosition === "right" ? "right" : "left";
+          advHeader.logoPositionY = "middle";
+          advHeader.titlePositionX = target.logoPosition === "right" ? "left" : "right";
+          advHeader.titlePositionY = "middle";
+          advHeader.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
+          advHeader.descriptionPositionY = "middle";
+          advHeader.survey = target;
           target.layoutElements.unshift({
-            id: "cover",
+            id: "advanced-header",
             container: "header",
             component: "sv-header",
-            data: cover,
-            processResponsiveness: width => cover.processResponsiveness(width)
+            data: advHeader,
+            processResponsiveness: width => advHeader.processResponsiveness(width)
           });
         }
       } else {
-        target.removeLayoutElement("cover");
+        target.removeLayoutElement("advanced-header");
       }
     }
   }) headerView: "advanced" | "basic";
@@ -7337,6 +7337,10 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
+      } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
+        if (this.state === "running" && layoutElement.container === container) {
+          containerLayoutElements.push(layoutElement);
+        }
       } else {
         if (Array.isArray(layoutElement.container) && layoutElement.container.indexOf(container) !== -1 || layoutElement.container === container) {
           containerLayoutElements.push(layoutElement);
@@ -7360,15 +7364,15 @@ export class SurveyModel extends SurveyElementCore
 
     Object.keys(theme).forEach((key: keyof ITheme) => {
       if (key === "header") {
-        this.removeLayoutElement("cover");
-        const newCoverModel = new Cover();
-        newCoverModel.fromTheme(theme);
+        this.removeLayoutElement("advanced-header");
+        const advHeader = new Cover();
+        advHeader.fromTheme(theme);
         this.layoutElements.push({
-          id: "cover",
+          id: "advanced-header",
           container: "header",
           component: "sv-header",
-          data: newCoverModel,
-          processResponsiveness: width => newCoverModel.processResponsiveness(width)
+          data: advHeader,
+          processResponsiveness: width => advHeader.processResponsiveness(width)
         });
       }
       if (key === "isPanelless") {
@@ -7480,13 +7484,13 @@ Serializer.addClass("survey", [
   },
   {
     name: "completedHtmlOnCondition:htmlconditions",
-    className: "htmlconditionitem",
+    className: "htmlconditionitem", isArray: true
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
-  { name: "pages:surveypages", className: "page" },
+  { name: "pages:surveypages", className: "page", isArray: true },
   {
-    name: "questions",
-    alternativeName: "elements",
+    name: "elements",
+    alternativeName: "questions",
     baseClassName: "question",
     visible: false,
     isLightSerializable: false,
@@ -7506,7 +7510,7 @@ Serializer.addClass("survey", [
   },
   {
     name: "calculatedValues:calculatedvalues",
-    className: "calculatedvalue",
+    className: "calculatedvalue", isArray: true
   },
   { name: "surveyId", visible: false },
   { name: "surveyPostId", visible: false },
@@ -7525,7 +7529,7 @@ Serializer.addClass("survey", [
   "navigateToUrl",
   {
     name: "navigateToUrlOnCondition:urlconditions",
-    className: "urlconditionitem",
+    className: "urlconditionitem", isArray: true
   },
   {
     name: "questionsOrder",

@@ -13748,6 +13748,34 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Async function with negative result, Bug#7268",
+  function (assert) {
+    let returnResult: (res: any) => void = (res: any): void => {
+      res = false;
+    };
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        {
+          type: "text", name: "q2", visibleIf: "!asyncFunc({q1})"
+        }
+      ],
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    returnResult(true);
+    assert.equal(q2.isVisible, false, "visible #1");
+    q1.value = 1;
+    returnResult(false);
+    assert.equal(q2.isVisible, true, "visible #2");
+    FunctionFactory.Instance.unregister("asyncFunc");
+  }
+);
 
 QUnit.test(
   "Focus errored question when checkErrorsMode: `onComplete` + onServerValidateQuestions, Bug#2466",
@@ -15044,12 +15072,12 @@ QUnit.test("survey.allowResizeComment", function (assert) {
   let comment2 = survey.getQuestionByName("comment2");
 
   assert.equal(survey.allowResizeComment, false);
-  assert.equal(comment1.allowResize, false);
-  assert.equal(comment2.allowResize, false);
+  assert.equal(comment1.renderedAllowResize, false);
+  assert.equal(comment2.renderedAllowResize, false);
 
   survey.allowResizeComment = true;
-  assert.equal(comment1.allowResize, true);
-  assert.equal(comment2.allowResize, false);
+  assert.equal(comment1.renderedAllowResize, true);
+  assert.equal(comment2.renderedAllowResize, false);
 });
 QUnit.test("utils.increaseHeightByContent", assert => {
   let element = {
@@ -17185,6 +17213,57 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   survey.doComplete();
 
   assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+});
+QUnit.test("getContainerContent - do not advanced header on completed page", function (assert) {
+  const json = {
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  survey.headerView = "advanced";
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => {
+      delete item["data"];
+      delete item["processResponsiveness"];
+    });
+    return result;
+  }
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header"
+  }], "header for running survey");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("contentTop"), [], "");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "");
+  assert.deepEqual(getContainerContent("left"), [], "");
+  assert.deepEqual(getContainerContent("right"), [], "");
+
+  survey.doComplete();
+
+  assert.deepEqual(getContainerContent("header"), [], "header on complete page");
   assert.deepEqual(getContainerContent("footer"), [], "");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{

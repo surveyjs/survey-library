@@ -986,6 +986,29 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.value).eql("item20");
   });
 
+  test("Check dropdown key press with auto-generated list", async (t) => {
+    const json = {
+      focusFirstQuestionAutomatic: true,
+      questions: [
+        {
+          type: "dropdown",
+          name: "dropdown",
+          defaultValue: 2016,
+          "choicesMin": 2014,
+          "choicesMax": 2023
+        }
+      ]
+    };
+    await initSurvey(framework, json);
+
+    await t
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("down")
+      .pressKey("enter")
+      .expect(questionValueInput.value).eql("2018");
+  });
+
   test("Check reset focused item - no focus on first popup", async (t) => {
     const jsonWithDropDown = {
       questions: [

@@ -320,7 +320,9 @@ function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: 
 
   const style = getComputedStyle(element);
   element.style.height = "auto";
-  element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
+  if(!!element.scrollHeight) {
+    element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
+  }
 }
 function getOriginalEvent(event: any) {
   return event.originalEvent || event;

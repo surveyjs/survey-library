@@ -7,7 +7,7 @@
     :aria-invalid="question.a11y_input_ariaInvalid"
     :aria-describedby="question.a11y_input_ariaDescribedBy"
   >
-    <legend role="presentation" class="sv-hidden"></legend>
+    <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
     <survey-checkbox-item
         v-for="(item, index) in question.headItems"
         v-if="question.hasHeadItems"

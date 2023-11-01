@@ -1,7 +1,7 @@
 <template>
   <div :class="question.cssClasses.tableWrapper" ref="root">
     <fieldset>
-      <legend v-bind:aria-label="question.locTitle.renderedHtml"></legend>
+      <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
       <table :class="question.getTableCss()">
         <thead v-if="question.showHeader">
           <tr>

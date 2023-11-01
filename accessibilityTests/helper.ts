@@ -19,7 +19,7 @@ export const applyTheme = ClientFunction((theme) => {
 });
 
 export const initSurvey = ClientFunction(
-  (framework, json, events, isDesignMode, props) => {
+  (framework, json, events?, isDesignMode?, props?) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -72,7 +72,7 @@ export const initSurvey = ClientFunction(
         data: { survey: model },
       });
     } else if (framework === "angular" || framework == "vue3") {
-      window.setSurvey(model);
+      (window as any).setSurvey(model);
     }
     window["survey"] = model;
   }
@@ -80,3 +80,29 @@ export const initSurvey = ClientFunction(
 
 // https://www.deque.com/axe/core-documentation/api-documentation/#overview
 export const axeTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "best-practice", "section508", "wcag412"];
+
+export const axeContext = { include: [[".sv_p_root"]] };
+export const axeOptions = {
+  runOnly: {
+    type: "tag",
+    values: axeTags
+  },
+  rules: {
+    //https://github.com/dequelabs/axe-core/blob/develop/doc/rule-descriptions.md
+    "color-contrast": {
+      enabled: false
+    },
+    "document-title": {
+      enabled: false
+    },
+    "landmark-one-main": {
+      enabled: false
+    },
+    "page-has-heading-one": {
+      enabled: false
+    },
+    "region": {
+      enabled: false
+    }
+  }
+};

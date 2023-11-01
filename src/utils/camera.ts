@@ -68,7 +68,7 @@ export class Camera {
       this.hasCameraCallback(callback);
     }
   }
-  public getMediaConstraints(videoEl?: any): MediaStreamConstraints {
+  public getMediaConstraints(videoSize?: { width?: number, height?: number }): MediaStreamConstraints {
     const devices = Camera.cameraList;
     if(!Array.isArray(devices) || devices.length < 1) return undefined;
     if(Camera.cameraIndex < 0) Camera.cameraIndex = 0;
@@ -79,32 +79,30 @@ export class Camera {
     } else {
       videoConstraints.facingMode = Camera.cameraFacingMode;
     }
-    if(videoEl) {
-      videoConstraints.width = { exact: videoEl.width ? videoEl.width : videoEl.scrollWidth };
-      videoConstraints.height = { exact: videoEl.height ? videoEl.height : videoEl.scrollHeight };
+    if(videoSize) {
+      if(videoSize?.height) {
+        videoConstraints.height = { ideal: videoSize.height };
+      }
+      if(videoSize?.width) {
+        videoConstraints.width = { ideal: videoSize.width };
+      }
     }
     return {
       video: videoConstraints,
       audio: false
     };
   }
-  public startVideo(videoElementId: string, callback: (stream: MediaStream) => void, imageWidth?: string, imageHeight?: string): void {
-    const videoEl: any = settings.environment.root?.getElementById(videoElementId);
+  public startVideo(videoElementId: string, callback: (stream: MediaStream) => void, imageWidth?: number, imageHeight?: number): void {
+    const videoEl: HTMLVideoElement = settings.environment.root?.getElementById(videoElementId) as any;
     if(!videoEl) {
       callback(undefined);
       return;
     }
-    if(imageWidth) {
-      videoEl.width = imageWidth;
-    } else {
-      videoEl.style.width = "100%";
-    }
-    if(imageHeight) {
-      videoEl.height = imageHeight;
-    } else {
-      videoEl.style.height = "100%";
-    }
-    const mediaConstraints = this.getMediaConstraints(videoEl);
+    videoEl.style.width = "100%";
+    videoEl.style.height = "auto";
+    videoEl.style.height = "100%";
+    videoEl.style.objectFit = "contain";
+    const mediaConstraints = this.getMediaConstraints({ width: imageWidth, height: imageHeight });
     navigator.mediaDevices.getUserMedia(mediaConstraints).then(stream => {
       videoEl.srcObject = stream;
       if(!Camera.cameraList[Camera.cameraIndex]?.deviceId && !!stream.getTracks()[0].getCapabilities().facingMode) {
@@ -118,14 +116,19 @@ export class Camera {
         callback(undefined);
       });
   }
+  public getImageSize(videoEl:HTMLVideoElement): { width: number, height: number } {
+    return { width: videoEl.videoWidth, height: videoEl.videoHeight };
+
+  }
   public snap(videoElementId: string, callback: BlobCallback): boolean {
     if("undefined" === typeof document) return false;
     const root = document;
-    const videoEl: any = root.getElementById(videoElementId);
+    const videoEl: HTMLVideoElement = root.getElementById(videoElementId) as HTMLVideoElement;
     if(!videoEl) return false;
     const canvasEl = root.createElement("canvas");
-    canvasEl.height = videoEl.scrollHeight;
-    canvasEl.width = videoEl.scrollWidth;
+    const imageSize = this.getImageSize(videoEl);
+    canvasEl.height = imageSize.height;
+    canvasEl.width = imageSize.width;
     let context = canvasEl.getContext("2d");
     /*
     if(this._facingMode == 'user'){

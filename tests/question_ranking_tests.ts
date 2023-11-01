@@ -411,4 +411,26 @@ QUnit.test("selectToRankEnabled : checkMaxSelectedChoicesUnreached", function (a
   questionModel.value = ["11", "22"];
   assert.equal(questionModel.checkMaxSelectedChoicesUnreached(), false, "MaxSelectedChoices limit reached");
 });
+
+QUnit.test("Ranking: renderedSelectToRankAreasLayout", function (assert) {
+  const selectToRankEnabled = true;
+  const withDefaultValue = false;
+  const questionModel = createRankingQuestionModel(selectToRankEnabled, withDefaultValue);
+
+  assert.equal(questionModel.selectToRankAreasLayout, "horizontal", "default");
+  assert.equal(questionModel.renderedSelectToRankAreasLayout, "horizontal", "default");
+
+  questionModel.selectToRankAreasLayout = "vertical";
+  assert.equal(questionModel.selectToRankAreasLayout, "vertical", "set vertical");
+  assert.equal(questionModel.renderedSelectToRankAreasLayout, "vertical", "set vertical");
+
+  questionModel.isMobileMode = ()=>{ return true; }; // set mobile env
+
+  assert.equal(questionModel.selectToRankAreasLayout, "vertical", "set vertical");
+  assert.equal(questionModel.renderedSelectToRankAreasLayout, "vertical", "'vertical' by default on mobile");
+
+  questionModel.selectToRankAreasLayout = "horizontal";
+  assert.equal(questionModel.selectToRankAreasLayout, "horizontal", "default");
+  assert.equal(questionModel.renderedSelectToRankAreasLayout, "vertical", "'vertical' always on mobile");
+});
 // EO selectToRankEnabled

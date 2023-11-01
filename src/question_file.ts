@@ -13,6 +13,7 @@ import { Helpers } from "./helpers";
 import { Camera } from "./utils/camera";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
+import { getRenderedSize } from "./utils/utils";
 
 /**
  * A class that describes the File Upload question type.
@@ -92,8 +93,7 @@ export class QuestionFileModel extends Question {
     const isUploading = this.isUploading;
     const isPlayingVideo = this.isPlayingVideo;
     const isDefaultV2Theme = this.isDefaultV2Theme;
-    const isReadOnly = this.isInputReadOnly;
-    return !isUploading && !isPlayingVideo && !isReadOnly && isDefaultV2Theme;
+    return !isUploading && !isPlayingVideo && isDefaultV2Theme;
   }
 
   constructor(name: string) {
@@ -162,6 +162,7 @@ export class QuestionFileModel extends Question {
       iconSize: "auto",
       title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
       showTitle: <boolean>(new ComputedUpdater<boolean>(() => !this.isAnswered) as any),
+      enabledIf: () => !this.isInputReadOnly,
       action: () => {
         this.startVideo();
       }
@@ -172,6 +173,7 @@ export class QuestionFileModel extends Question {
       iconSize: "auto",
       title: <string>(new ComputedUpdater<string>(() => this.clearButtonCaption) as any),
       showTitle: false,
+      enabledIf: () => !this.isInputReadOnly,
       innerCss: <string>(new ComputedUpdater<string>(() => this.cssClasses.removeButton) as any),
       action: () => {
         this.doClean();
@@ -180,10 +182,9 @@ export class QuestionFileModel extends Question {
     [this.closeCameraAction, this.changeCameraAction, this.takePictureAction].forEach((action) => {
       action.cssClasses = {};
     });
-    this.registerFunctionOnPropertiesValueChanged(["currentMode", "isAnswered"], () => {
-      this.updateActions();
+    this.registerFunctionOnPropertiesValueChanged(["sourceType", "currentMode", "isAnswered"], () => {
+      this.updateActionsVisibility();
     });
-    this.updateActions();
     this.actionsContainer.actions = [this.chooseFileAction, this.startCameraAction, this.cleanAction];
     this.fileNavigator.actions = [this.prevFileAction, this.fileIndexAction, this.nextFileAction];
   }
@@ -198,13 +199,14 @@ export class QuestionFileModel extends Question {
       this.startVideoInCamera();
     }, 0);
   }
+
   private startVideoInCamera(): void {
     this.camera.startVideo(this.videoId, (stream: MediaStream) => {
       this.videoStream = stream;
       if(!stream) {
         this.stopVideo();
       }
-    }, this.imageWidth, this.imageHeight);
+    }, getRenderedSize(this.imageWidth), getRenderedSize(this.imageHeight));
   }
   public stopVideo(): void {
     this.setIsPlayingVideo(false);
@@ -480,9 +482,10 @@ export class QuestionFileModel extends Question {
       }
     }
   }
-  private updateActions() {
-    this.chooseFileAction.visible = this.hasFileUI;
-    this.startCameraAction.visible = this.hasVideoUI;
+  private updateActionsVisibility() {
+    const isDesignMode = this.isDesignMode;
+    this.chooseFileAction.visible = (!isDesignMode && this.hasFileUI) || (isDesignMode && this.sourceType !== "camera");
+    this.startCameraAction.visible = (!isDesignMode && this.hasVideoUI) || (isDesignMode && this.sourceType !== "file");
     this.cleanAction.visible = !!this.isAnswered;
   }
   get inputTitle(): string {
@@ -778,6 +781,9 @@ export class QuestionFileModel extends Question {
     }
     return questionPlainData;
   }
+  public getImageWrapperCss(data: any): string {
+    return new CssClassBuilder().append(this.cssClasses.imageWrapper).append(this.cssClasses.imageWrapperDefaultImage, this.defaultImage(data)).toString();
+  }
   protected getActionsContainerCss(css: any): string {
     return new CssClassBuilder()
       .append(css.actionsContainer)
@@ -862,7 +868,7 @@ export class QuestionFileModel extends Question {
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     this.updateCurrentMode();
-    this.updateActions();
+    this.updateActionsVisibility();
     this.loadPreview(this.value);
   }
   protected needResponsiveness(): boolean {

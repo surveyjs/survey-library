@@ -1,5 +1,5 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { Selector } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 const title = "comment";
 
 const commentQuestion = Selector(".sv_q textarea");
@@ -76,6 +76,25 @@ frameworks.forEach(framework => {
       .typeText(commentQuestion.nth(2), "a\na\na\na\n", { replace: true })
       .pressKey("tab")
       .expect(commentQuestion.nth(2).value).eql("aaaa");
+  });
+
+  test("autoGrowComment after survey data set", async t => {
+    await initSurvey(framework, {
+      "elements": [
+        {
+          "type": "comment",
+          "name": "question1",
+          "autoGrow": true,
+          "rows": 1
+        }
+      ]
+    });
+    await t.expect(commentQuestion.clientHeight).eql(32);
+
+    await ClientFunction(() =>
+      window["survey"].data = { "question1": "<h3>Thank you for your feedback.</h3> <h5> We are glad that you share with us your ideas.We highly value all suggestions from our customers. We do our best to improve the product and reach your expectation.</h5><br/>" }
+    )();
+    await t.expect(commentQuestion.clientHeight).eql(60);
   });
 
   test("fill textarea", async t => {

@@ -2717,7 +2717,7 @@ Serializer.addClass("question", [
   "enableIf:condition",
   "resetValueIf:condition",
   "setValueIf:condition",
-  { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
+  "setValueExpression:expression",
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

@@ -15,7 +15,9 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
+  test("autoGrowComment & acceptCarriageReturn", async t => {
     await initSurvey(framework, {
       "autoGrowComment": true,
       "allowResizeComment": false,
@@ -44,9 +46,6 @@ frameworks.forEach(framework => {
         }
       ],
     });
-  });
-
-  test("autoGrowComment & acceptCarriageReturn", async t => {
     await t
       .click(commentQuestion)
       .expect(commentQuestion.getStyleProperty("resize")).eql("none")
@@ -78,16 +77,9 @@ frameworks.forEach(framework => {
       .pressKey("tab")
       .expect(commentQuestion.nth(2).value).eql("aaaa");
   });
-});
-
-frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
-      await initSurvey(framework, json);
-    }
-  );
 
   test("fill textarea", async t => {
+    await initSurvey(framework, json);
     await t
       .typeText(commentQuestion, "puppies")
       .pressKey("enter")
@@ -98,25 +90,19 @@ frameworks.forEach(framework => {
   });
 
   test("change rows count", async t => {
+    await initSurvey(framework, json);
     await t.expect(Selector("textarea[rows=\"4\"]").visible).ok();
 
     await setOptions("suggestions", { rows: 2 });
     await t.expect(Selector("textarea[rows=\"2\"]").visible).ok();
   });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json, undefined, true);
-    }
-  );
 
   test("click on question title state editable", async (t) => {
     const newTitle = "MyText";
     const outerSelector = ".sv_q_title";
     const innerSelector = ".sv-string-editor";
 
+    await initSurvey(framework, json, undefined, true);
     await t
       .expect(await getQuestionValue()).eql(undefined)
       .click(outerSelector)
@@ -124,13 +110,9 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     await t.expect(await getQuestionValue()).eql(undefined);
-    const json = JSON.parse(await getQuestionJson());
-    await t.expect(json.title).eql(newTitle);
+    const questionJson = JSON.parse(await getQuestionJson());
+    await t.expect(questionJson.title).eql(newTitle);
   });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Remaining character counter", async (t) => {
     const characterCounter = Selector(".sv-remaining-character-counter");

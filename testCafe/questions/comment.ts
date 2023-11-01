@@ -79,6 +79,7 @@ frameworks.forEach(framework => {
   });
 
   test("autoGrowComment after survey data set", async t => {
+    await t.resizeWindow(1280, 900);
     await initSurvey(framework, {
       "elements": [
         {

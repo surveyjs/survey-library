@@ -2,8 +2,7 @@
   <div
     :class="question.cssClasses.root"
     v-bind:style="{
-      height: question.signatureHeight + 'px',
-      width: question.signatureWidth + 'px',
+      width: question.renderedWidth,
     }"
   >
     <div :class="question.cssClasses.placeholder" v-show="question.needShowPlaceholder()">
@@ -11,7 +10,9 @@
     </div>
     <div>
       <img v-if="question.backgroundImage" :class="question.cssClasses.backgroundImage" :src="question.backgroundImage"
-      :width="question.signatureWidth" :height="question.signatureHeight">
+        v-bind:style="{
+          width: question.renderedWidth,
+        }">
       <canvas tabindex="0" :class="question.cssClasses.canvas"></canvas>
     </div>
     <div :class="question.cssClasses.controls" v-if="question.canShowClearButton">

@@ -18,7 +18,7 @@ frameworks.forEach(framework => {
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
       await applyTheme(theme);
     });
-  test("Sgnature resize to mobile", async (t) => {
+  test("Signature resize to mobile", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -28,7 +28,9 @@ frameworks.forEach(framework => {
             type: "signaturepad",
             name: "q1",
             signatureWidth: 500,
-            signatureHeight: 100
+            signatureHeight: 100,
+            penMinWidth: 5,
+            penMaxWidth: 5,
           },
         ]
       });
@@ -44,6 +46,55 @@ frameworks.forEach(framework => {
       await t.click("canvas", { offsetX: 90, offsetY: 30 });
       await t.wait(100);
       await takeElementScreenshot("signature-mobile.png", ".sd-question", t, comparer);
+    });
+  });
+  test("Signature scaled", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        width: "900px",
+        questions: [
+          {
+            type: "signaturepad",
+            name: "q1",
+            signatureWidth: 500,
+            signatureHeight: 100,
+            penMinWidth: 5,
+            penMaxWidth: 5,
+            signatureAutoScaleEnabled: true
+          },
+        ]
+      });
+      await t.click("canvas", { offsetX: 40, offsetY: 10 });
+      await t.click("canvas", { offsetX: 370, offsetY: 50 });
+      await t.click("canvas", { offsetX: 700, offsetY: 90 });
+      await t.wait(100);
+      await takeElementScreenshot("signature-scaled.png", ".sd-question", t, comparer);
+    });
+  });
+  test("Signature update from value", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        width: "600px",
+        questions: [
+          {
+            type: "signaturepad",
+            name: "q1",
+            signatureWidth: 100,
+            signatureHeight: 100,
+            penMinWidth: 5,
+            penMaxWidth: 5,
+            signatureAutoScaleEnabled: true
+          },
+        ]
+      });
+
+      await ClientFunction(() => {
+        window["survey"].getQuestionByName("q1").value = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
+      })();
+
+      await takeElementScreenshot("signature-data.png", ".sd-question", t, comparer);
     });
   });
 });

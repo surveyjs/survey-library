@@ -12,8 +12,6 @@ import { classesToSelector } from "./utils/utils";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
-var defaultMinWidth = 0.5;
-var defaultMaxWidth = 2.5;
 
 /**
  * A class that describes the Signature question type.
@@ -50,7 +48,9 @@ export class QuestionSignaturePadModel extends Question {
       const format = this.dataFormat === "jpeg" ? "image/jpeg" :
         (this.dataFormat === "svg" ? "image/svg+xml" : "");
       var data = this.signaturePad.toDataURL(format);
+      this.valueIsUpdatingInternally = true;
       this.value = data;
+      this.valueIsUpdatingInternally = false;
     }
   }
 
@@ -77,21 +77,37 @@ export class QuestionSignaturePadModel extends Question {
     }
   }
   private canvas: any;
+  private scale: number;
+  private valueIsUpdatingInternally: boolean = false;
 
-  private updateValueHandler = () => {
+  private scaleCanvas(refresh: boolean = true) {
+    const canvas = this.canvas;
+    const scale = canvas.offsetWidth / canvas.width;
+    if (this.scale != scale) {
+      this.scale = scale;
+      canvas.width = this.containerWidth;
+      canvas.height = this.containerHeight;
+      canvas.style.width = this.renderedWidth;
+      this.signaturePad.minWidth = this.penMinWidth * scale;
+      this.signaturePad.maxWidth = this.penMaxWidth * scale;
+      canvas.getContext("2d").scale(1 / scale, 1 / scale);
+
+      if (refresh) this.refreshCanvas();
+    }
+  }
+  private refreshCanvas() {
     var data = this.value;
     const canvas = this.canvas;
-    canvas.width = this.containerWidth;
-    canvas.height = this.containerHeight;
-    const scale = canvas.offsetWidth / canvas.width;
-    this.signaturePad.minWidth = defaultMinWidth * scale;
-    this.signaturePad.maxWidth = defaultMaxWidth * scale;
-    canvas.getContext("2d").scale(1 / scale, 1 / scale);
     if (!data) {
       this.signaturePad.clear();
     } else {
-      this.signaturePad.fromDataURL(data, { width: canvas.width * scale, height: canvas.height * scale });
+      this.signaturePad.fromDataURL(data, { width: canvas.width * this.scale, height: canvas.height * this.scale });
     }
+  }
+
+  private updateValueHandler = () => {
+    this.scaleCanvas(false);
+    this.refreshCanvas();
   };
 
   initSignaturePad(el: HTMLElement) {
@@ -114,7 +130,7 @@ export class QuestionSignaturePadModel extends Question {
     this.updateColors(signaturePad);
 
     (signaturePad as any).addEventListener("beginStroke", () => {
-      this.updateValueHandler();
+      this.scaleCanvas();
       this.isDrawingValue = true;
       canvas.focus();
     }, { once: false });
@@ -128,8 +144,7 @@ export class QuestionSignaturePadModel extends Question {
     this.readOnlyChangedCallback();
     var propertyChangedHandler = (sender: any, options: any) => {
       if (options.name === "signatureWidth" || options.name === "signatureHeight" || options.name === "value") {
-        this.scale = undefined;
-        this.updateValueHandler();
+        if (!this.valueIsUpdatingInternally) this.updateValueHandler();
       }
     };
     this.onPropertyChanged.add(propertyChangedHandler);
@@ -178,7 +193,9 @@ export class QuestionSignaturePadModel extends Question {
     this.setPropertyValue("signatureHeight", val);
   }
 
-  @property({ defaultValue: false }) signatureScalingEnabled: boolean;
+  @property({ defaultValue: false }) signatureAutoScaleEnabled: boolean;
+  @property({ defaultValue: 0.5 }) penMinWidth: number;
+  @property({ defaultValue: 2.5 }) penMaxWidth: number;
 
   private get containerHeight(): any {
     return this.signatureHeight || defaultHeight;
@@ -189,10 +206,10 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   public get renderedWidth(): string {
-    return this.signatureScalingEnabled ? "100%" : "min(100%, " + this.containerWidth + "px)";
+    return this.signatureAutoScaleEnabled ? "100%" : "min(100%, " + this.containerWidth + "px)";
   }
   public get renderedHeight(): string {
-    return this.signatureScalingEnabled ? "auto" : "min(100%, " + this.containerHeight + "px)";
+    return this.signatureAutoScaleEnabled ? "auto" : "min(100%, " + this.containerHeight + "px)";
   }
 
   //todo: need to remove this property
@@ -320,9 +337,19 @@ Serializer.addClass(
       default: 200,
     },
     {
-      name: "signatureScalingEnabled:boolean",
+      name: "signatureAutoScaleEnabled:boolean",
       category: "general",
       default: false,
+    },
+    {
+      name: "penMinWidth:number",
+      category: "general",
+      default: 0.5,
+    },
+    {
+      name: "penMaxWidth:number",
+      category: "general",
+      default: 2.5,
     },
     //need to remove this property
     {

@@ -338,3 +338,34 @@ QUnit.test("check placeholder property visibility", (assert) => {
   q1.showPlaceholder = false;
   assert.equal(prop1.isVisible(undefined, q1), false);
 });
+
+QUnit.test("check rendered size properties", (assert) => {
+  const json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1",
+        "penColor": "#ff0000"
+      },
+    ],
+  };
+  const containerEl = document.createElement("div");
+  const canvas = document.createElement("canvas");
+  containerEl.appendChild(canvas);
+  let survey = new SurveyModel(json);
+  let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepadQuestion.initSignaturePad(containerEl);
+
+  assert.equal(signaturepadQuestion.renderedWidth, "min(100%, 300px)");
+  assert.equal(signaturepadQuestion.renderedHeight, "min(100%, 200px)");
+
+  signaturepadQuestion.signatureWidth = 500;
+  signaturepadQuestion.signatureHeight = 400;
+
+  assert.equal(signaturepadQuestion.renderedWidth, "min(100%, 500px)");
+  assert.equal(signaturepadQuestion.renderedHeight, "min(100%, 400px)");
+
+  signaturepadQuestion.signatureAutoScaleEnabled = true;
+  assert.equal(signaturepadQuestion.renderedWidth, "100%");
+  assert.equal(signaturepadQuestion.renderedHeight, "auto");
+});

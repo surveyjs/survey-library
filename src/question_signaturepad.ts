@@ -113,6 +113,8 @@ export class QuestionSignaturePadModel extends Question {
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
     this.canvas = canvas;
+    canvas.width = this.containerWidth;
+    canvas.height = this.containerHeight;
     var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
     this.signaturePad = signaturePad;
     if (this.isInputReadOnly) {

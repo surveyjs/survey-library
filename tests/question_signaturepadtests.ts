@@ -356,16 +356,12 @@ QUnit.test("check rendered size properties", (assert) => {
   let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
   signaturepadQuestion.initSignaturePad(containerEl);
 
-  assert.equal(signaturepadQuestion.renderedWidth, "min(100%, 300px)");
-  assert.equal(signaturepadQuestion.renderedHeight, "min(100%, 200px)");
+  assert.equal(signaturepadQuestion.renderedCanvasWidth, "min(100%, 300px)");
 
   signaturepadQuestion.signatureWidth = 500;
-  signaturepadQuestion.signatureHeight = 400;
 
-  assert.equal(signaturepadQuestion.renderedWidth, "min(100%, 500px)");
-  assert.equal(signaturepadQuestion.renderedHeight, "min(100%, 400px)");
+  assert.equal(signaturepadQuestion.renderedCanvasWidth, "min(100%, 500px)");
 
   signaturepadQuestion.signatureAutoScaleEnabled = true;
-  assert.equal(signaturepadQuestion.renderedWidth, "100%");
-  assert.equal(signaturepadQuestion.renderedHeight, "auto");
+  assert.equal(signaturepadQuestion.renderedCanvasWidth, "100%");
 });

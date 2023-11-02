@@ -16,7 +16,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
     var cssClasses = this.question.cssClasses;
     var clearButton = this.renderCleanButton();
     return (
-      <div className={cssClasses.root} ref={(root) => (this.setControl(root))} style={{ width: this.question.renderedWidth }}>
+      <div className={cssClasses.root} ref={(root) => (this.setControl(root))} style={{ width: this.question.renderedCanvasWidth }}>
         <div
           className={cssClasses.placeholder}
           style={{ display: this.question.needShowPlaceholder() ? "" : "none" }}
@@ -35,7 +35,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   renderBackgroundImage(): JSX.Element | null {
     if(!this.question.backgroundImage) return null;
 
-    return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} style={{ width: this.question.renderedWidth }}></img>;
+    return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} style={{ width: this.question.renderedCanvasWidth }}></img>;
   }
 
   renderCleanButton(): JSX.Element | null {

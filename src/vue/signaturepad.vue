@@ -2,7 +2,7 @@
   <div
     :class="question.cssClasses.root"
     v-bind:style="{
-      width: question.renderedWidth,
+      width: question.renderedCanvasWidth,
     }"
   >
     <div :class="question.cssClasses.placeholder" v-show="question.needShowPlaceholder()">
@@ -11,7 +11,7 @@
     <div>
       <img v-if="question.backgroundImage" :class="question.cssClasses.backgroundImage" :src="question.backgroundImage"
         v-bind:style="{
-          width: question.renderedWidth,
+          width: question.renderedCanvasWidth,
         }">
       <canvas tabindex="0" :class="question.cssClasses.canvas"></canvas>
     </div>

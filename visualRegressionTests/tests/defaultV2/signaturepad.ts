@@ -70,6 +70,8 @@ frameworks.forEach(framework => {
       await t.click("canvas", { offsetX: 700, offsetY: 90 });
       await t.wait(100);
       await takeElementScreenshot("signature-scaled.png", ".sd-question", t, comparer);
+      await t.click("button[title=\"Clear\"]");
+      await takeElementScreenshot("signature-clear.png", ".sd-question", t, comparer);
     });
   });
   test("Signature update from value", async (t) => {

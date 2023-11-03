@@ -99,6 +99,7 @@ export class QuestionSignaturePadModel extends Question {
     var data = this.value;
     const canvas = this.canvas;
     if (!data) {
+      canvas.getContext("2d").clearRect(0, 0, canvas.width * this.scale, canvas.height * this.scale);
       this.signaturePad.clear();
     } else {
       this.signaturePad.fromDataURL(data, { width: canvas.width * this.scale, height: canvas.height * this.scale });
@@ -208,7 +209,7 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   public get renderedCanvasWidth(): string {
-    return this.signatureAutoScaleEnabled ? "100%" : "min(100%, " + this.containerWidth + "px)";
+    return this.signatureAutoScaleEnabled ? "100%" : this.containerWidth + "px";
   }
 
   //todo: need to remove this property

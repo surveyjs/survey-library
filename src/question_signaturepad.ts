@@ -195,9 +195,25 @@ export class QuestionSignaturePadModel extends Question {
   public set signatureHeight(val: number) {
     this.setPropertyValue("signatureHeight", val);
   }
-
+  /**
+   * Specifies whether the signature area should be scaled to fit into the question width.
+   *
+   * Default value: `false`
+   *
+   * > The signature area is scaled only for display. The resulting image will have dimensions specified by the [`signatureHeight`](#signatureHeight) and [`signatureWidth`](#signatureWidth) properties.
+   */
   @property({ defaultValue: false }) signatureAutoScaleEnabled: boolean;
+  /**
+   * Speicifies the minimum width of pen strokes, measured in pixels.
+   *
+   * Default value: 0.5
+   */
   @property({ defaultValue: 0.5 }) penMinWidth: number;
+  /**
+   * Speicifies the maximum width of pen strokes, measured in pixels.
+   *
+   * Default value: 2.5
+   */
   @property({ defaultValue: 2.5 }) penMaxWidth: number;
 
   private get containerHeight(): any {

@@ -3,7 +3,6 @@
     :class="element.getRootCss()"
     :style="getRootStyle()"
     ref="root"
-    v-if="row.isNeedRender"
     v-on:focusin="element.focusIn()"
     :id="element.id"
     :role="element.ariaRole"
@@ -75,13 +74,6 @@
       :location="'bottom'"
     />
   </div>
-
-  <component
-    v-else-if="!!element.skeletonComponentName"
-    :is="element.skeletonComponentName"
-    :element="element"
-    :css="css"
-  ></component>
 </template>
 
 <script lang="ts">
@@ -91,14 +83,13 @@ export default {
 </script>
 
 <script lang="ts" setup>
-import type { SurveyModel, Question, QuestionRowModel } from "survey-core";
+import type { SurveyModel, Question } from "survey-core";
 import { useBase } from "./base";
 import { computed, onUnmounted, ref, watch } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
   element: Question;
-  row: QuestionRowModel;
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);

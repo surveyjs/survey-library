@@ -1,6 +1,16 @@
 <template>
   <div :style="getRootStyle(element)">
-    <component :is="componentName" v-bind="componentData" />
+    <component
+      :is="componentName"
+      v-bind="componentData"
+      v-if="row.isNeedRender"
+    />
+    <component
+      v-else-if="!!element.skeletonComponentName"
+      :is="element.skeletonComponentName"
+      :element="element"
+      :css="css"
+    ></component>
   </div>
 </template>
 <script lang="ts" setup>

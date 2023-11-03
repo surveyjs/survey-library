@@ -423,8 +423,8 @@ sv-popup {
 
   .sv-list__input {
     color: $foreground-light;
-    font-size: calcFontSize(1);
-    line-height: calcLineHeight(1.5);
+    font-size: max(16px, calcFontSize(1));
+    line-height: max(24px, calcLineHeight(1.5));
     font-family: $font-family;
     padding: calcSize(0.5) 0 calcSize(0.5) calcSize(2);
   }

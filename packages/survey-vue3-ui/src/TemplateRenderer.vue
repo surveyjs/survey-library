@@ -1,17 +1,15 @@
 <template>
-  <component :is="getComponentName()" v-bind="getComponentData()" />
+  <slot v-if="hasContentComponent && !componentName"></slot>
+  <component v-else :is="componentName" v-bind="componentData" />
 </template>
 
 <script lang="ts" setup>
-const props = defineProps<{
-  componentName: string;
+import { computed, useSlots } from "vue";
+defineProps<{
+  componentName?: string;
   componentData: any;
 }>();
 
-const getComponentName = () => {
-  return props.componentName;
-};
-const getComponentData = () => {
-  return props.componentData;
-};
+const slots = useSlots();
+const hasContentComponent = computed(() => !!slots.default);
 </script>

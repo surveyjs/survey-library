@@ -28,47 +28,67 @@
       v-if="cell.hasQuestion"
       :class="question.cssClasses.cellQuestionWrapper"
     >
-      <component
-        v-if="!cell.isChoice && cell.question.isDefaultRendering()"
-        v-show="isVisible"
-        :is="getComponentName(cell.question)"
-        :question="cell.question"
-      />
+      <template v-if="!cell.isChoice && cell.question.isDefaultRendering()">
+        <component
+          :is="question.getCellWrapperComponentName(cell.cell)"
+          :componentData="question.getCellWrapperComponentData(cell.cell)"
+        >
+          <component
+            v-show="isVisible"
+            :is="getComponentName(cell.question)"
+            :question="cell.question"
+          />
+        </component>
+      </template>
       <component
         v-if="!cell.isChoice && !cell.question.isDefaultRendering()"
         v-show="isVisible"
         :is="cell.question.getComponentName()"
         :question="cell.question"
       />
-      <survey-radiogroup-item
-        v-if="cell.isRadio"
-        :key="cell.item.value"
-        :class="cell.question.getItemClass(cell.item)"
-        :question="cell.question"
-        :item="cell.item"
-        :index="getCellIndex()"
-        :hideLabel="true"
-      ></survey-radiogroup-item>
-      <survey-checkbox-item
-        v-if="cell.isCheckbox"
-        :key="cell.item.value"
-        :class="cell.question.getItemClass(cell.item)"
-        :question="cell.question"
-        :item="cell.item"
-        :index="getCellIndex()"
-        :hideLabel="true"
-      ></survey-checkbox-item>
+      <template v-if="cell.isItemChoice">
+        <component
+          :is="question.getCellWrapperComponentName(cell.cell)"
+          :componentData="question.getCellWrapperComponentData(cell.cell)"
+        >
+          <survey-radiogroup-item
+            v-if="cell.isRadio"
+            :key="cell.item.value"
+            :class="cell.question.getItemClass(cell.item)"
+            :question="cell.question"
+            :item="cell.item"
+            :index="getCellIndex()"
+            :hideLabel="true"
+          ></survey-radiogroup-item>
+          <survey-checkbox-item
+            v-if="cell.isCheckbox"
+            :key="cell.item.value"
+            :class="cell.question.getItemClass(cell.item)"
+            :question="cell.question"
+            :item="cell.item"
+            :index="getCellIndex()"
+            :hideLabel="true"
+          ></survey-checkbox-item>
+        </component>
+      </template>
       <survey-other-choice
         v-if="cell.isOtherChoice"
         :question="cell.question"
       />
     </div>
-    <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
-    <span
-      v-if="!!cell.requiredText"
-      :class="question.cssClasses.cellRequiredText"
-      >{{ cell.requiredText }}</span
-    >
+    <template v-if="cell.hasTitle">
+      <component
+        :is="question.getCellWrapperComponentName(cell)"
+        :componentData="question.getCellWrapperComponentData(cell)"
+      >
+        <survey-string v-if="cell.hasTitle" :locString="cell.locTitle" />
+        <span
+          v-if="!!cell.requiredText"
+          :class="question.cssClasses.cellRequiredText"
+          >{{ cell.requiredText }}</span
+        >
+      </component>
+    </template>
   </td>
 </template>
 

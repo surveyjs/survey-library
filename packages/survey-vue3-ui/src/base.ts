@@ -76,7 +76,7 @@ export function useBase<T extends Base>(
   const stopWatch = watch(
     getModel,
     (value, oldValue) => {
-      if (onModelChanged) onModelChanged(value);
+      if (value && onModelChanged) onModelChanged(value);
       if (oldValue) {
         unMakeReactive(oldValue, isModelSubsribed);
         if (clean) clean(oldValue);

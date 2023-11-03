@@ -144,6 +144,13 @@
     user-select: none;
     outline: solid calcSize(0.25) transparent;
 
+    color: $primary;
+    font-weight: 600;
+    font-style: normal;
+    font-family: $font-family;
+    font-size: $font-questiontitle-size;
+    line-height: multiply(1.5, $font-questiontitle-size);
+
     &:hover {
       background-color: $background-dark;
     }
@@ -157,12 +164,12 @@
       align-items: center;
       flex-grow: 1;
       justify-content: center;
-      color: $primary;
-      font-weight: 600;
-      font-style: normal;
-      font-family: $font-family;
-      font-size: $font-questiontitle-size;
-      line-height: multiply(1.5, $font-questiontitle-size);
+      // color: $primary;
+      // font-weight: 600;
+      // font-style: normal;
+      // font-family: $font-family;
+      // font-size: $font-questiontitle-size;
+      // line-height: multiply(1.5, $font-questiontitle-size);
     }
   }
 }

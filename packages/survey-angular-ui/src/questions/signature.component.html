@@ -1,9 +1,9 @@
 <div
 [class]="model.cssClasses.root"
-[style.height]="model.signatureHeight + 'px'" [style.width]="model.signatureWidth + 'px'" #contentElement>
+[style.width]="model.renderedCanvasWidth" #contentElement>
 <div [class]="model.cssClasses.placeholder" [visible]="model.needShowPlaceholder()" [model]="$any(model).locPlaceholder" sv-ng-string></div>
 <div>
-  <img *ngIf="!!model.backgroundImage" [src]="model.backgroundImage" [width]="model.signatureWidth" [height]="model.signatureHeight" [class]="model.cssClasses.backgroundImage">
+  <img *ngIf="!!model.backgroundImage" [src]="model.backgroundImage" [style.width]="model.renderedCanvasWidth" [class]="model.cssClasses.backgroundImage">
   <canvas tabindex="0" [class]="model.cssClasses.canvas"></canvas>
 </div>
 <div [class]="model.cssClasses.controls" [visible]="model.canShowClearButton">

@@ -26,7 +26,7 @@
           </div>
           <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'footer', needRenderWrapper: false } }"></ng-template>
           <div *ngIf="model.state === 'completed' && model.showCompletedPage" [class]="model.completedCss"
-            [innerHtml]="model.processedCompletedHtml"></div>
+            [innerHtml]="model.processedCompletedHtml | safeHtml"></div>
           <ng-template *ngIf="model.state === 'completed' && model.showCompletedPage" [component]="{ name: 'sv-components-container', data: { survey: model, container: 'completePage' } }"></ng-template>
           <div *ngIf="model.state === 'completedbefore'" [class]="model.completedBeforeCss"
             [innerHtml]="model.processedCompletedBeforeHtml"></div>

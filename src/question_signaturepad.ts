@@ -80,16 +80,20 @@ export class QuestionSignaturePadModel extends Question {
   private scale: number;
   private valueIsUpdatingInternally: boolean = false;
 
-  private scaleCanvas(refresh: boolean = true) {
+  private resizeCanvas() {
+    this.canvas.width = this.containerWidth;
+    this.canvas.height = this.containerHeight;
+  }
+
+  private scaleCanvas(refresh: boolean = true, resize: boolean = false) {
     const canvas = this.canvas;
-    if (canvas.width != this.containerWidth) canvas.width = this.containerWidth;
-    if (canvas.height != this.containerHeight) canvas.height = this.containerHeight;
-    const scale = canvas.offsetWidth / canvas.width;
-    if (this.scale != scale) {
+    const scale = canvas.offsetWidth / this.containerWidth;
+    if (this.scale != scale || resize) {
       this.scale = scale;
       canvas.style.width = this.renderedCanvasWidth;
-      this.signaturePad.minWidth = this.penMinWidth * scale;
-      this.signaturePad.maxWidth = this.penMaxWidth * scale;
+      this.resizeCanvas();
+      canvas.width = this.containerWidth;
+      canvas.height = this.containerHeight;
       canvas.getContext("2d").scale(1 / scale, 1 / scale);
 
       if (refresh) this.refreshCanvas();
@@ -107,15 +111,14 @@ export class QuestionSignaturePadModel extends Question {
   }
 
   private updateValueHandler = () => {
-    this.scaleCanvas(false);
+    this.scaleCanvas(false, true);
     this.refreshCanvas();
   };
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
     this.canvas = canvas;
-    canvas.width = this.containerWidth;
-    canvas.height = this.containerHeight;
+    this.resizeCanvas();
     var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
     this.signaturePad = signaturePad;
     if (this.isInputReadOnly) {

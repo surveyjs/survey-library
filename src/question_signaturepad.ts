@@ -92,8 +92,8 @@ export class QuestionSignaturePadModel extends Question {
       this.scale = scale;
       canvas.style.width = this.renderedCanvasWidth;
       this.resizeCanvas();
-      canvas.width = this.containerWidth;
-      canvas.height = this.containerHeight;
+      this.signaturePad.minWidth = this.penMinWidth * scale;
+      this.signaturePad.maxWidth = this.penMaxWidth * scale;
       canvas.getContext("2d").scale(1 / scale, 1 / scale);
 
       if (refresh) this.refreshCanvas();

@@ -99,7 +99,7 @@ export class SurveyActionBarItem extends SurveyElementBase<
         role={this.item.ariaRole}
       >
         {buttonContent}
-      </button>, null, { processEsc: false });
+      </button>, this.item, { processEsc: false });
 
     return button;
   }

@@ -492,17 +492,17 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
   public onUpdateQuestionCssClasses: EventBase<SurveyModel, UpdateQuestionCssClassesEvent> = this.addEvent<SurveyModel, UpdateQuestionCssClassesEvent>();
 
   /**
-   * An event that is raised before rendering a standalone panel and panels within [Dynamic Panel](/form-library/examples/duplicate-group-of-fields-in-form/). Use it to override default panel CSS classes.
+   * An event that is raised before rendering a standalone panel and panels within [Dynamic Panel](https://surveyjs.io/form-library/examples/duplicate-group-of-fields-in-form/). Use it to override default panel CSS classes.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
   public onUpdatePanelCssClasses: EventBase<SurveyModel, UpdatePanelCssClassesEvent> = this.addEvent<SurveyModel, UpdatePanelCssClassesEvent>();
@@ -512,7 +512,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
   public onUpdatePageCssClasses: EventBase<SurveyModel, UpdatePageCssClassesEvent> = this.addEvent<SurveyModel, UpdatePageCssClassesEvent>();
@@ -522,7 +522,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    * @see css
    */
   public onUpdateChoiceItemCss: EventBase<SurveyModel, UpdateChoiceItemCssEvent> = this.addEvent<SurveyModel, UpdateChoiceItemCssEvent>();
@@ -626,7 +626,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRowAdding: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.addEvent<SurveyModel, MatrixBeforeRowAddedEvent>();
   /**
-   * This event is obsolete. Use the [`onMatrixRowAdding`](/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
+   * This event is obsolete. Use the [`onMatrixRowAdding`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRowAdding) event instead.
    */
   public onMatrixBeforeRowAdded: EventBase<SurveyModel, MatrixBeforeRowAddedEvent> = this.onMatrixRowAdding;
 
@@ -649,7 +649,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onMatrixRenderRemoveButton: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.addEvent<SurveyModel, MatrixAllowRemoveRowEvent>();
   /**
-   * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
+   * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
 
@@ -671,7 +671,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onAfterRenderMatrixCell: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.addEvent<SurveyModel, MatrixAfterCellRenderEvent>();
   /**
-   * This event is obsolete. Use the [`onAfterRenderMatrixCell`](/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
+   * This event is obsolete. Use the [`onAfterRenderMatrixCell`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onAfterRenderMatrixCell) event instead.
    */
   public onMatrixAfterCellRender: EventBase<SurveyModel, MatrixAfterCellRenderEvent> = this.onAfterRenderMatrixCell;
 
@@ -737,7 +737,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
-   * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    */
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 
@@ -1090,7 +1090,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Gets or sets an object in which keys are UI elements and values are CSS classes applied to them.
    *
-   * [View Demo](/form-library/examples/customize-survey-with-css/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/customize-survey-with-css/ (linkStyle))
    */
   public get css(): any {
     if (!this.cssValue) {
@@ -7356,8 +7356,8 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Applies a specified theme to the survey.
    *
-   * [Themes & Styles](/form-library/documentation/manage-default-themes-and-styles (linkStyle))
-   * @param theme An [`ITheme`](/form-library/documentation/api-reference/itheme) object with theme settings.
+   * [Themes & Styles](https://surveyjs.io/form-library/documentation/manage-default-themes-and-styles (linkStyle))
+   * @param theme An [`ITheme`](https://surveyjs.io/form-library/documentation/api-reference/itheme) object with theme settings.
    */
   public applyTheme(theme: ITheme): void {
     if (!theme) return;

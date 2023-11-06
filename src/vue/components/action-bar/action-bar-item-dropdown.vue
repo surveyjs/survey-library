@@ -13,10 +13,11 @@
           evt.stopPropagation();
         }
       "
-      v-bind:disabled="item.enabled !== undefined && item.enabled"
+      v-bind:disabled="item.disabled"
       v-bind:title="item.tooltip || item.title"
       v-bind:role="item.ariaRole"
       v-bind:tabindex="item.disableTabStop ? -1 : 0"
+      v-key2click
     >
       <sv-svg-icon
         v-if="item.iconName"

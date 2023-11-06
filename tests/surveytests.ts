@@ -13748,6 +13748,34 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Async function with negative result, Bug#7268",
+  function (assert) {
+    let returnResult: (res: any) => void = (res: any): void => {
+      res = false;
+    };
+    function asyncFunc(params: any): any {
+      returnResult = this.returnResult;
+      return false;
+    }
+    FunctionFactory.Instance.register("asyncFunc", asyncFunc, true);
+    const survey = new SurveyModel({
+      elements: [
+        { type: "text", name: "q1", isRequired: true },
+        {
+          type: "text", name: "q2", visibleIf: "!asyncFunc({q1})"
+        }
+      ],
+    });
+    const q1 = survey.getQuestionByName("q1");
+    const q2 = survey.getQuestionByName("q2");
+    returnResult(true);
+    assert.equal(q2.isVisible, false, "visible #1");
+    q1.value = 1;
+    returnResult(false);
+    assert.equal(q2.isVisible, true, "visible #2");
+    FunctionFactory.Instance.unregister("asyncFunc");
+  }
+);
 
 QUnit.test(
   "Focus errored question when checkErrorsMode: `onComplete` + onServerValidateQuestions, Bug#2466",

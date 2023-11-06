@@ -7283,6 +7283,21 @@ QUnit.test("Set array and convert it to a string & defaultValueExpression, bug#6
   assert.equal(q2.value, "a\nb\nc", "q2");
   assert.equal(q3.value, "a, b, c", "q3");
 });
+QUnit.test("defaultValueExpression & set data", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "text", name: "q2" },
+      { type: "text", name: "q3", defaultValueExpression: "{q1} + {q2}" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q3 = survey.getQuestionByName("q3");
+  survey.data = { q1: 1, q2: 2, q3: 3 };
+  assert.equal(q3.value, 3, "Value is set correctly");
+  q1.value = 5;
+  assert.equal(q3.value, 7, "Value is changed based on expression");
+});
 QUnit.test("question.resetValueIf, basic functionality", function (assert) {
   const survey = new SurveyModel({
     elements: [{

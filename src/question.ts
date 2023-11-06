@@ -1861,15 +1861,18 @@ export class Question extends SurveyElement<Question>
     return runner;
   }
   protected setDefaultValue(): void {
+    this.setDefaultValueCore((val: any): void => {
+      if (!this.isTwoValueEquals(this.value, val)) {
+        this.value = val;
+      }
+    });
+  }
+  private setDefaultValueCore(func: (val: any) => void): void {
     this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
     this.setValueAndRunExpression(
       this.defaultValueRunner,
       this.getUnbindValue(this.defaultValue),
-      (val) => {
-        if (!this.isTwoValueEquals(this.value, val)) {
-          this.value = val;
-        }
-      }
+      (val) => func(val)
     );
   }
   protected isValueExpression(val: any): boolean {
@@ -2279,11 +2282,21 @@ export class Question extends SurveyElement<Question>
       newValue = this.valueFromDataCallback(newValue);
     }
     if (!this.checkIsValueCorrect(newValue)) return;
-    this.isChangingViaDefaultValue = this.isValueEmpty(newValue);
-    this.setQuestionValue(this.valueFromData(newValue));
-    this.isChangingViaDefaultValue = false;
+    const isEmpty = this.isValueEmpty(newValue);
+    if(!isEmpty && this.defaultValueExpression) {
+      this.setDefaultValueCore((val: any): void => {
+        this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
+      });
+    } else {
+      this.updateValueFromSurveyCore(newValue, isEmpty);
+    }
     this.updateDependedQuestions();
     this.updateIsAnswered();
+  }
+  private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
+    this.isChangingViaDefaultValue = viaDefaultVal;
+    this.setQuestionValue(this.valueFromData(newValue));
+    this.isChangingViaDefaultValue = false;
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
@@ -2704,7 +2717,7 @@ Serializer.addClass("question", [
   "enableIf:condition",
   "resetValueIf:condition",
   "setValueIf:condition",
-  { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
+  "setValueExpression:expression",
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

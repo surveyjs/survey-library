@@ -894,6 +894,15 @@ export class Question extends SurveyElement<Question>
       this.updateCommentElements();
     }
   }
+  public onCompositionUpdateComment(event: any): void {
+    if(this.isInputTextUpdate) {
+      setTimeout(() => {
+        if (event.target) {
+          this.comment = event.target.value;
+        }
+      }, 1);
+    }
+  }
   public onCommentChange(event: any): void {
     this.comment = event.target.value;
     if (this.comment !== event.target.value) {

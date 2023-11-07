@@ -725,6 +725,44 @@ QUnit.test("Single: defaultValueExpession, bug#4836", function (assert) {
   assert.deepEqual(survey.data, { q1: 2, q2: 5 }, "set data into survey, #2");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: defaultValueExpession & operations, bug#7280", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: {
+      type: "text",
+      inputType: "number"
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "newquestion", name: "q1" },
+      { type: "newquestion", name: "q2" },
+      { type: "newquestion", name: "q3", defaultValueExpression: "{q1} + {q2}" }],
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCustomModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCustomModel>survey.getQuestionByName("q3");
+  q1.contentQuestion.value = 1;
+  q2.contentQuestion.value = 2;
+  assert.equal(q3.contentQuestion.value, 3, "q3.contentQuestion.value");
+  assert.equal(q3.value, 3, "q3.value");
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3 }, "Survey data");
+  q1.value = 3;
+  q2.value = 4;
+  assert.equal(q3.contentQuestion.value, 7, "q3.contentQuestion.value, #2");
+  assert.equal(q3.value, 7, "q3.value, #2");
+  assert.deepEqual(survey.data, { q1: 3, q2: 4, q3: 7 }, "Survey data, #2");
+  q3.contentQuestion.value = 9;
+  assert.equal(q3.contentQuestion.value, 9, "q3.contentQuestion.value, #3");
+  assert.equal(q3.value, 9, "q3.value, #3");
+  assert.deepEqual(survey.data, { q1: 3, q2: 4, q3: 9 }, "Survey data, #3");
+  q1.value = 5;
+  q2.value = 7;
+  assert.equal(q3.contentQuestion.value, 9, "q3.contentQuestion.value, #4");
+  assert.equal(q3.value, 9, "q3.value, #4");
+  assert.deepEqual(survey.data, { q1: 5, q2: 7, q3: 9 }, "Survey data, #4");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Single: matrixdropdown expressions", function (assert) {
   var json = {
     name: "order",

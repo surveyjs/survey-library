@@ -52,7 +52,7 @@ A free and open-source MIT-licensed JavaScript form builder library that allows 
     ```
 
 1. **Install dependencies**          
-Make sure that you have Node.js v6.0.0 or later and npm v2.7.0 or later installed.
+Make sure that you have Node.js v14 or later and a compatible npm version installed.
 
     ```cmd
     npm install -g karma-cli

@@ -481,7 +481,7 @@ QUnit.test(
             })
           );
         } else {
-          options.callback("error");
+          options.callback("error", "custom error text");
         }
       }, 1);
     });
@@ -504,8 +504,10 @@ QUnit.test(
     setTimeout(() => {
       assert.ok(q1.isEmpty());
       assert.equal(q1.value, undefined);
-      assert.equal(stateSec, "->loading->error");
-      assert.equal(state, "error");
+      assert.equal(stateSec, "->loading->error->loaded");
+      assert.equal(q1.errors.length, 1, "Has errors");
+      assert.equal(q1.errors[0].text, "custom error text", "Error text");
+      assert.equal(state, "loaded");
       done();
 
       isSuccess = true;

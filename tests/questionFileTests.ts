@@ -517,7 +517,7 @@ QUnit.test(
         assert.notOk(q1.isEmpty());
         assert.equal(q1.value.length, 1);
         assert.equal(q1.value[0].content, "f2_url");
-        assert.equal(stateSec, "->loading->error>loaded->loading->loaded");
+        assert.equal(stateSec, "->loading->error->loaded->loading->loaded");
         assert.equal(state, "loaded");
         done();
       }, 2);

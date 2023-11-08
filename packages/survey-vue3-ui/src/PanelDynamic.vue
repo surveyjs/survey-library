@@ -29,7 +29,10 @@
     />
     <template v-for="(panel, index) in renderedPanels" :key="panel.id">
       <div :class="question.getPanelWrapperCss()">
-        <survey-panel :element="panel" :css="css" />
+        <component
+          :is="getPanelComponentName(panel)"
+          v-bind="getPanelComponentData(panel)"
+        ></component>
         <sv-paneldynamic-remove-btn
           v-if="
             question.panelRemoveButtonLocation === 'right' &&
@@ -63,7 +66,11 @@
 </template>
 
 <script lang="ts" setup>
-import type { QuestionPanelDynamicModel } from "survey-core";
+import type {
+  PanelModel,
+  QuestionPanelDynamicModel,
+  SurveyModel,
+} from "survey-core";
 import { useQuestion } from "./base";
 import { computed, getCurrentInstance, ref } from "vue";
 defineOptions({ inheritAttrs: false });
@@ -103,5 +110,30 @@ const renderedPanels = computed(() => {
 
 const getShowLegacyNavigation = () => {
   return props.question["showLegacyNavigation"];
+};
+
+const getPanelComponentName = (panel: PanelModel): string => {
+  const survey = props.question.getSurvey() as SurveyModel;
+  if (survey) {
+    const name = survey.getElementWrapperComponentName(panel);
+    if (name) {
+      return name;
+    }
+  }
+  return "panel";
+};
+const getPanelComponentData = (panel: PanelModel): any => {
+  const survey = props.question.getSurvey() as SurveyModel;
+  let data: any;
+  if (survey) {
+    data = survey.getElementWrapperComponentData(panel);
+  }
+  return {
+    componentName: "survey-panel",
+    componentData: {
+      element: panel,
+      data: data,
+    },
+  };
 };
 </script>

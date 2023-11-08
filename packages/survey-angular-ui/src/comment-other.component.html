@@ -4,7 +4,7 @@
   [disabled]="question.isInputReadOnly"
   (change)="onOtherValueChange($event)"
   (input)="onOtherValueInput($event)"
-  (compositionupdate)="question.onCompositionUpdateOtherValue($event)"
+  (compositionupdate)="onCompositionUpdateOtherValue($event)"
   [class]="question.cssClasses.other">
 </textarea>
 <div *ngIf="question.isReadOnlyRenderDiv()">{{ otherValue }}</div>

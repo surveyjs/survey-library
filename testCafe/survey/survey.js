@@ -47,7 +47,7 @@ frameworks.forEach((framework) => {
       window.survey.fromJSON(newJson);
     });
     await t
-      .expect(Selector("span").withText("question1").visible).ok()
+      .expect(Selector("span").withText("question1").visible).ok();
     await t
       .wait(500);
     await updateSurvey();

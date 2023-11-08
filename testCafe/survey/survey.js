@@ -26,7 +26,7 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, json);
     await t.resizeWindow(1600, 900);
   });
-  test.only("Update survey via fromJSON", async (t) => {
+  test("Update survey via fromJSON", async (t) => {
     const updateSurvey = ClientFunction(() => {
       window.survey.data = { question1: "Item 1" };
       var newJson = {

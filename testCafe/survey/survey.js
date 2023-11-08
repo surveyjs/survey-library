@@ -3,6 +3,7 @@ import { Selector, ClientFunction, fixture, test } from "testcafe";
 const title = "Survey";
 
 var json = {
+  questionsOnPageMode: "questionPerPage",
   pages: [
     {
       name: "page1",
@@ -10,6 +11,16 @@ var json = {
         {
           type: "radiogroup",
           name: "question1",
+          choices: ["Item 1", "Item 2", "Item 3"]
+        }
+      ]
+    },
+    {
+      name: "page2",
+      elements: [
+        {
+          type: "radiogroup",
+          name: "question2",
           choices: ["Item 1", "Item 2", "Item 3"]
         }
       ]
@@ -57,5 +68,38 @@ frameworks.forEach((framework) => {
     await t
       .wait(500)
       .expect(Selector("span").withText("question1").visible).ok();
+  });
+  test("Change questionsOnPageMode", async (t) => {
+    await t.expect(Selector("span").withText("question1").visible).ok();
+    await t.wait(500);
+    await ClientFunction(() => {
+      window.survey.questionsOnPageMode = "singlePage";
+    })();
+    await t.wait(500);
+    await ClientFunction(() => {
+      window.survey.questionsOnPageMode = "singlePage";
+    })();
+    await t.wait(500);
+    await t.expect(Selector("span").withText("question1").visible).ok();
+    await t.wait(500);
+    await ClientFunction(() => {
+      window.survey.questionsOnPageMode = "questionPerPage";
+    })();
+    await t.wait(500);
+    await ClientFunction(() => {
+      window.survey.questionsOnPageMode = "questionPerPage";
+    })();
+    await t.wait(500);
+    await t.expect(Selector("span").withText("question1").visible).ok();
+    await t.wait(500);
+    await ClientFunction(() => {
+      window.survey.questionsOnPageMode = "standard";
+    })();
+    await t.wait(500);
+    await ClientFunction(() => {
+      window.survey.questionsOnPageMode = "standard";
+    })();
+    await t.wait(500);
+    await t.expect(Selector("span").withText("question1").visible).ok();
   });
 });

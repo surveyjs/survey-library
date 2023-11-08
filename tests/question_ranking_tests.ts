@@ -337,6 +337,22 @@ QUnit.test("Ranking: strict compare, Bug#6644", function(assert) {
   q1.value = ["a", "c", "b"];
   assert.equal(q2.isVisible, false, "not visible #3");
 });
+QUnit.test("Ranking: strict compare with not equal, Bug#7298", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "ranking", name: "q1", choices: ["a", "b", "c"] },
+      { type: "text", name: "q2", visibleIf: "{q1} != ['b', 'c', 'a']"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q2.isVisible, true, "visible initially");
+  q1.value = ["b", "c", "a"];
+  assert.equal(q2.isVisible, false, "not visible #2");
+  q1.value = ["a", "c", "b"];
+  assert.equal(q2.isVisible, true, "visible #3");
+});
 
 QUnit.test("Ranking: disabledItem", function(assert) {
   var survey = new SurveyModel({

@@ -555,8 +555,8 @@ static unaryFunctions: HashTable<Function> = {
       right = OperandMaker.convertValForDateCompare(right, left);
       return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true);
     },
-    notequal: function(left: any, right: any): boolean {
-      return !OperandMaker.binaryFunctions.equal(left, right);
+    notequal: function(left: any, right: any, strictCompare?: boolean): boolean {
+      return !OperandMaker.binaryFunctions.equal(left, right, strictCompare);
     },
     contains: function(left: any, right: any): boolean {
       return OperandMaker.binaryFunctions.containsCore(left, right, true);

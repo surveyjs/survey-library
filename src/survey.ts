@@ -4016,7 +4016,7 @@ export class SurveyModel extends SurveyElementCore
       this.setupPagesForPageModes(true);
     } else {
       if (this.runningPages) {
-        this.restoreOrigionalPages(this.runningPages);
+        this.restoreOriginalPages(this.runningPages);
       }
       this.runningPages = undefined;
     }
@@ -4044,7 +4044,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.origionalPages) {
-        this.restoreOrigionalPages(this.origionalPages);
+        this.restoreOriginalPages(this.origionalPages);
       }
       this.origionalPages = undefined;
     } else {
@@ -4056,7 +4056,7 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateVisibleIndexes();
   }
-  private restoreOrigionalPages(originalPages: Array<PageModel>) {
+  private restoreOriginalPages(originalPages: Array<PageModel>) {
     this.questionHashesClear();
     this.pages.splice(0, this.pages.length);
     for (var i = 0; i < originalPages.length; i++) {

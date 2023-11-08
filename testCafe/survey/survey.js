@@ -71,35 +71,17 @@ frameworks.forEach((framework) => {
   });
   test("Change questionsOnPageMode", async (t) => {
     await t.expect(Selector("span").withText("question1").visible).ok();
-    await t.wait(500);
     await ClientFunction(() => {
       window.survey.questionsOnPageMode = "singlePage";
     })();
-    await t.wait(500);
-    await ClientFunction(() => {
-      window.survey.questionsOnPageMode = "singlePage";
-    })();
-    await t.wait(500);
     await t.expect(Selector("span").withText("question1").visible).ok();
-    await t.wait(500);
     await ClientFunction(() => {
       window.survey.questionsOnPageMode = "questionPerPage";
     })();
-    await t.wait(500);
-    await ClientFunction(() => {
-      window.survey.questionsOnPageMode = "questionPerPage";
-    })();
-    await t.wait(500);
     await t.expect(Selector("span").withText("question1").visible).ok();
-    await t.wait(500);
     await ClientFunction(() => {
       window.survey.questionsOnPageMode = "standard";
     })();
-    await t.wait(500);
-    await ClientFunction(() => {
-      window.survey.questionsOnPageMode = "standard";
-    })();
-    await t.wait(500);
     await t.expect(Selector("span").withText("question1").visible).ok();
   });
 });

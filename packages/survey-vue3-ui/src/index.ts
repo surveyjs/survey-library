@@ -124,6 +124,7 @@ import FileChooseButton from "./components/file/FileChooseButton.vue";
 import FilePreview from "./components/file/FilePreview.vue";
 import ButtonGroup from "./buttongroup/ButtonGroup.vue";
 import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
+import Logo from "./Logo.vue";
 export { useBase, useLocString, useQuestion } from "./base";
 
 SurveyModel.platform = "vue3";
@@ -135,6 +136,7 @@ function registerComponents(app: App) {
   app.component("popup-survey", PopupSurvey);
 
   app.component("survey-header", HeaderBasic);
+  app.component("sv-logo-image", Logo);
   app.component("survey-page", Page);
   app.component("survey-row", Row);
   app.component("survey-question", Question);
@@ -247,6 +249,7 @@ function registerComponents(app: App) {
   app.component("sv-loading-indicator", LoadingIndicator);
 
   app.component("sv-header", Header);
+  app.component("sv ");
   app.component("sv-header-cell", HeaderCell);
   app.component("sv-header-mobile", HeaderMobile);
 

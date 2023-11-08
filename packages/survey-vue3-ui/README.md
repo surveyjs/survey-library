@@ -80,7 +80,7 @@ Make sure that you have Node.js v16 or later and a compatible npm version instal
     npm run dev
     ```
 
-    This command runs a local HTTP server at http://localhost:4200/.
+    This command runs a local HTTP server at http://localhost:5173/.
 
 2. **Run unit tests**
 

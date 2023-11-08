@@ -1460,7 +1460,7 @@ QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", fu
   settings.specialChoicesOrder.noneItem = [1];
   settings.specialChoicesOrder.otherItem = [2];
 });
-QUnit.test("Double noneItems and SelectAllItem", function (assert) {
+QUnit.test("Double noneItem and SelectAllItem", function (assert) {
   settings.specialChoicesOrder.noneItem = [-3, 3];
   const json = { elements: [
     { type: "checkbox", name: "q1", choices: ["a", "b", "c"], showSelectAllItem: true, showNoneItem: true, showOtherItem: true }
@@ -1473,6 +1473,29 @@ QUnit.test("Double noneItems and SelectAllItem", function (assert) {
   question.value = ["a", "b"];
   assert.equal(question.isItemSelected(question.selectAllItem), false, "Select Item is not selected");
   assert.equal(question.isAllSelected, false, "isAllSelected #2");
+  settings.specialChoicesOrder.selectAllItem = [-1];
+  settings.specialChoicesOrder.noneItem = [1];
+  settings.specialChoicesOrder.otherItem = [2];
+});
+QUnit.test("Double noneItem & selectAllItem and headItems/footItems", function (assert) {
+  settings.specialChoicesOrder.noneItem = [-2, 4];
+  settings.specialChoicesOrder.selectAllItem = [-2, 3];
+  const json = { elements: [
+    { type: "checkbox", name: "q1", choices: ["a", "b", "c"], showSelectAllItem: true, showNoneItem: true, showOtherItem: true }
+  ] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.separateSpecialChoices = true;
+
+  assert.equal(question.visibleChoices.length, 8, "There are 8 items");
+  assert.equal(question.headItems.length, 2, "There are two items in head items");
+  assert.equal(question.headItems[0].value, "none", "head none");
+  assert.equal(question.headItems[1].value, "selectall", "head selectall");
+  assert.equal(question.footItems.length, 3, "There are three items in footer items");
+  assert.equal(question.footItems[0].value, "other", "foot other");
+  assert.equal(question.footItems[1].value, "selectall", "foot selectall");
+  assert.equal(question.footItems[2].value, "none", "foot none");
+
   settings.specialChoicesOrder.selectAllItem = [-1];
   settings.specialChoicesOrder.noneItem = [1];
   settings.specialChoicesOrder.otherItem = [2];

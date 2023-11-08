@@ -388,14 +388,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.addNonChoiceItem(dict, this.selectAllItem, settings.specialChoicesOrder.selectAllItem);
     }
   }
-  protected isHeadChoice(
-    item: ItemValue,
-    question: QuestionSelectBase
-  ): boolean {
-    return (
-      item === (<QuestionCheckboxBase>question).selectAllItem
-    );
+  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
+    return item === (<QuestionCheckboxBase>question).selectAllItem || super.isBuiltInChoice(item, question);
   }
+
   public isItemInList(item: ItemValue): boolean {
     if (item == this.selectAllItem) return this.hasSelectAll;
     return super.isItemInList(item);

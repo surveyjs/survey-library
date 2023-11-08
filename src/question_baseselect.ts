@@ -899,12 +899,15 @@ export class QuestionSelectBase extends Question {
   }
   public get newItem(): ItemValue { return this.newItemValue; }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
+    this.headItemsCount = 0;
+    this.footItemsCount = 0;
     if (isAddAll) {
       if (!this.newItemValue) {
         this.newItemValue = this.createItemValue("newitem"); //TODO
         this.newItemValue.isGhost = true;
       }
       if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+        this.footItemsCount ++;
         items.push(this.newItemValue);
       }
     }
@@ -916,8 +919,14 @@ export class QuestionSelectBase extends Question {
     });
     for(let i = 0; i < dict.length; i ++) {
       const rec = dict[i];
-      if(rec.index < 0) items.splice(i, 0, rec.item);
-      else items.push(rec.item);
+      if(rec.index < 0) {
+        items.splice(i, 0, rec.item);
+        this.headItemsCount ++;
+      }
+      else {
+        items.push(rec.item);
+        this.footItemsCount ++;
+      }
     }
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
@@ -1147,27 +1156,12 @@ export class QuestionSelectBase extends Question {
     }
     return false;
   }
-  protected isHeadChoice(
-    item: ItemValue,
-    question: QuestionSelectBase
-  ): boolean {
-    return false;
-  }
-  protected isFootChoice(
-    item: ItemValue,
-    question: QuestionSelectBase
-  ): boolean {
+  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
     return (
       item === question.noneItem ||
       item === question.otherItem ||
       item === question.newItemValue
     );
-  }
-  protected isBuiltInChoice(
-    item: ItemValue,
-    question: QuestionSelectBase
-  ): boolean {
-    return this.isHeadChoice(item, question) || this.isFootChoice(item, question);
   }
   protected getChoices(): Array<ItemValue> {
     return this.choices;
@@ -1590,13 +1584,20 @@ export class QuestionSelectBase extends Question {
       .append(this.cssClasses.controlLabelChecked, this.isItemSelected(item))
       .toString() || undefined;
   }
+  private headItemsCount: number = 0;
+  private footItemsCount: number = 0;
   get headItems(): ItemValue[] {
-    return (this.separateSpecialChoices || this.isDesignMode) ?
-      this.visibleChoices.filter(choice => this.isHeadChoice(choice, this)) : [];
+    const count = (this.separateSpecialChoices || this.isDesignMode) ? this.headItemsCount : 0;
+    const res = [];
+    for(let i = 0; i < count; i ++) res.push(this.visibleChoices[i]);
+    return res;
   }
   get footItems(): ItemValue[] {
-    return (this.separateSpecialChoices || this.isDesignMode) ?
-      this.visibleChoices.filter(choice => this.isFootChoice(choice, this)) : [];
+    const count = (this.separateSpecialChoices || this.isDesignMode) ? this.footItemsCount : 0;
+    const res = [];
+    const items = this.visibleChoices;
+    for(let i = 0; i < count; i ++) res.push(items[items.length - count + i]);
+    return res;
   }
   get dataChoices(): ItemValue[] {
     return this.visibleChoices.filter((item) => !this.isBuiltInChoice(item, this));

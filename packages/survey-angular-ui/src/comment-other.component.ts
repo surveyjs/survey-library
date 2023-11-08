@@ -19,6 +19,9 @@ export class SurveyCommentOtherComponent {
   public onOtherValueInput(event: any): void {
     (<QuestionSelectBase>this.question).onOtherValueInput(event);
   }
+  public onCompositionUpdateOtherValue(event: any): void {
+    (<QuestionSelectBase>this.question).onCompositionUpdateOtherValue(event);
+  }
   public get otherId(): string {
     return (<QuestionSelectBase>this.question).otherId;
   }

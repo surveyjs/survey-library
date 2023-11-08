@@ -898,7 +898,7 @@ export class QuestionSelectBase extends Question {
     }
   }
   public get newItem(): ItemValue { return this.newItemValue; }
-  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
+  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     if (isAddAll) {
       if (!this.newItemValue) {
         this.newItemValue = this.createItemValue("newitem"); //TODO
@@ -908,16 +908,32 @@ export class QuestionSelectBase extends Question {
         items.push(this.newItemValue);
       }
     }
+    const dict = new Array<{ index: number, item: ItemValue }>();
+    this.addNonChoicesItems(dict, isAddAll);
+    dict.sort((a: { index: number, item: ItemValue }, b: { index: number, item: ItemValue }): number => {
+      if(a.index === b.index) return 0;
+      return a.index < b.index ? -1 : 1;
+    });
+    for(let i = 0; i < dict.length; i ++) {
+      const rec = dict[i];
+      if(rec.index < 0) items.splice(i, 0, rec.item);
+      else items.push(rec.item);
+    }
+  }
+  protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     if (
       this.supportNone() && this.canShowOptionItem(this.noneItem, isAddAll, this.hasNone)
     ) {
-      items.push(this.noneItem);
+      this.addNonChoiceItem(dict, this.noneItem, settings.specialChoicesOrder.noneItem);
     }
     if (
       this.supportOther() && this.canShowOptionItem(this.otherItem, isAddAll, this.hasOther)
     ) {
-      items.push(this.otherItem);
+      this.addNonChoiceItem(dict, this.otherItem, settings.specialChoicesOrder.otherItem);
     }
+  }
+  protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, order: Array<number>): void {
+    order.forEach(val => dict.push({ index: val, item: item }));
   }
   protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
     let res: boolean = (isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true)) || hasItem;

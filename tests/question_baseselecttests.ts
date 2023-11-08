@@ -1425,3 +1425,55 @@ QUnit.test("SelectBase visibleChoices order & locale change", function (assert) 
   assert.equal(question.visibleChoices[0].calculatedText, "ABB", "the first visible item calculatedText, de");
   assert.equal(question.visibleChoices[1].calculatedText, "BAA", "the second visible item calculatedText, de");
 });
+QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", function (assert) {
+  const json = { elements: [
+    { type: "checkbox", name: "q1", choices: ["a", "b", "c"], showSelectAllItem: true, showNoneItem: true, showOtherItem: true }
+  ] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  let choices = question.visibleChoices;
+  assert.equal(choices.length, 6, "6 items, #1");
+  assert.equal(choices[0].value, "selectall", "all index #1");
+  assert.equal(choices[4].value, "none", "none index #1");
+  assert.equal(choices[5].value, "other", "other index #1");
+
+  settings.specialChoicesOrder.noneItem = [3];
+  question.showNoneItem = false;
+  question.showNoneItem = true;
+  choices = question.visibleChoices;
+  assert.equal(choices.length, 6, "6 items, #2");
+  assert.equal(choices[0].value, "selectall", "all index #2");
+  assert.equal(choices[4].value, "other", "other index #2");
+  assert.equal(choices[5].value, "none", "none index #2");
+
+  settings.specialChoicesOrder.noneItem = [-3, 3];
+  question.showNoneItem = false;
+  question.showNoneItem = true;
+  choices = question.visibleChoices;
+  assert.equal(choices.length, 7, "7 items, #3");
+  assert.equal(choices[0].value, "none", "none index (up) #3");
+  assert.equal(choices[1].value, "selectall", "all index #3");
+  assert.equal(choices[5].value, "other", "other index #3");
+  assert.equal(choices[6].value, "none", "none index (bottom) #3");
+
+  settings.specialChoicesOrder.selectAllItem = [-1];
+  settings.specialChoicesOrder.noneItem = [1];
+  settings.specialChoicesOrder.otherItem = [2];
+});
+QUnit.test("Double noneItems and SelectAllItem", function (assert) {
+  settings.specialChoicesOrder.noneItem = [-3, 3];
+  const json = { elements: [
+    { type: "checkbox", name: "q1", choices: ["a", "b", "c"], showSelectAllItem: true, showNoneItem: true, showOtherItem: true }
+  ] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  question.selectAll();
+  assert.equal(question.isItemSelected(question.selectAllItem), true, "Select Item is selected");
+  assert.equal(question.isAllSelected, true, "isAllSelected #1");
+  question.value = ["a", "b"];
+  assert.equal(question.isItemSelected(question.selectAllItem), false, "Select Item is not selected");
+  assert.equal(question.isAllSelected, false, "isAllSelected #2");
+  settings.specialChoicesOrder.selectAllItem = [-1];
+  settings.specialChoicesOrder.noneItem = [1];
+  settings.specialChoicesOrder.otherItem = [2];
+});

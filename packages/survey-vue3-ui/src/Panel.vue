@@ -18,15 +18,16 @@
       v-if="!isCollapsed"
       :class="element.cssClasses.panel.content"
     >
-      <template v-for="(row, index) in rows">
-        <survey-row
-          v-if="row.visible"
-          :key="element.id + '_' + index"
-          :row="row"
-          :survey="survey"
-          :css="css"
+      <template v-for="(row, index) in rows" :key="element.id + '_' + index">
+        <component
+          :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
+          v-bind="{
+            componentData: (element.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
+          }"
         >
-        </survey-row>
+          <survey-row v-if="row.visible" :row="row" :survey="survey" :css="css">
+          </survey-row>
+        </component>
       </template>
       <sv-action-bar :model="element.getFooterToolbar()"></sv-action-bar>
     </div>
@@ -39,10 +40,12 @@ export default {
 };
 </script>
 <script lang="ts" setup>
-import type { PanelModel } from "survey-core";
+import type { PanelModel, SurveyModel } from "survey-core";
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useBase } from "./base";
-
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{
   element: PanelModel;
   isEditMode?: boolean;

@@ -4,15 +4,16 @@
     <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
     </div>
-    <template v-for="(row, index) in rows">
-      <survey-row
-        v-if="row.visible"
-        :key="page.id + '_' + index"
-        :row="row"
-        :survey="survey"
-        :css="css"
+    <template v-for="(row, index) in rows" :key="page.id + '_' + index">
+      <component
+        :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
+        v-bind="{
+            componentData: (page.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
+          }"
       >
-      </survey-row>
+        <survey-row v-if="row.visible" :row="row" :survey="survey" :css="css">
+        </survey-row>
+      </component>
     </template>
   </div>
 </template>

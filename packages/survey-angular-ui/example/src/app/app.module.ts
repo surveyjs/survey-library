@@ -14,13 +14,14 @@ import { TestModernComponent } from "./components/test/testmodern.component";
 import { TestBootstrapComponent } from "./components/test/bootstrap.component";
 import { TestCustomWidgetComponent } from "./components/test/customwidget.component";
 import { CustomActionComponent } from "./components/test-custom-components/action-custom.component";
+import { EmptyComponent } from "./components/test/empty.component";
 
 @NgModule({
   declarations: [
     AppComponent, ExampleComponent, TestComponent, TestDefaultComponent, TestDefaultV2Component, TestModernComponent, TestBootstrapComponent,
     TestCustomWidgetComponent,
     AngularItemTemplateComponent,
-    CustomActionComponent
+    CustomActionComponent, EmptyComponent
   ],
   imports: [
     BrowserModule, SurveyModule, FormsModule, AppRoutingModule

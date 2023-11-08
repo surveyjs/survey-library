@@ -44,6 +44,7 @@ export interface ICustomQuestionTypeConfiguration {
    * [UI Icons](https://surveyjs.io/form-library/documentation/icons (linkStyle))
    */
   iconName?: string;
+  internal?: boolean;
   /**
    * A function that is called when the custom question type is initialized. Use it to add, remove, or modify the type's properties (see [Override Base Question Properties](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types#override-base-question-properties)).
    */
@@ -336,21 +337,36 @@ export class ComponentCollection {
       this.onAddingJson(name, customQuestion.isComposite);
     this.customQuestionValues.push(customQuestion);
   }
+  public remove(componentName: string): boolean {
+    if(!componentName) return false;
+    const index = this.getCustomQuestionIndex(componentName.toLowerCase());
+    if(index < 0) return false;
+    this.removeByIndex(index);
+    return true;
+  }
   public get items(): Array<ComponentQuestionJSON> {
     return this.customQuestionValues;
   }
   public getCustomQuestionByName(name: string): ComponentQuestionJSON {
-    for (var i = 0; i < this.customQuestionValues.length; i++) {
-      if (this.customQuestionValues[i].name == name)
-        return this.customQuestionValues[i];
-    }
-    return null;
+    const index = this.getCustomQuestionIndex(name);
+    return index >= 0 ? this.customQuestionValues[index] : undefined;
   }
-  public clear() {
+  private getCustomQuestionIndex(name: string): number {
     for (var i = 0; i < this.customQuestionValues.length; i++) {
-      Serializer.removeClass(this.customQuestionValues[i].name);
+      if (this.customQuestionValues[i].name === name) return i;
     }
-    this.customQuestionValues = [];
+    return -1;
+  }
+  private removeByIndex(index: number): void {
+    Serializer.removeClass(this.customQuestionValues[index].name);
+    this.customQuestionValues.splice(index, 1);
+  }
+  public clear(includeInternal?: boolean): void {
+    for (let i = this.customQuestionValues.length - 1; i >= 0; i--) {
+      if(includeInternal || !this.customQuestionValues[i].json.internal) {
+        this.removeByIndex(i);
+      }
+    }
   }
   public createQuestion(
     name: string,
@@ -690,6 +706,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
         this.onUpdateQuestionCssClasses(res, css);
       };
       res.hasCssErrorCallback = (): boolean => this.errors.length > 0;
+      res.setValueChangedDirectlyCallback = (val: boolean): void => { this.setValueChangedDirectly(val); };
     }
 
     return res;
@@ -744,17 +761,27 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       this.setContentQuestionValue(this.getUnbindValue(newValue));
     }
   }
-  onSurveyValueChanged(newValue: any) {
+  onSurveyValueChanged(newValue: any): void {
     super.onSurveyValueChanged(newValue);
     if (!!this.contentQuestion) {
       this.contentQuestion.onSurveyValueChanged(newValue);
     }
   }
-  protected getValueCore() {
+  protected getValueCore(): any {
     if (!!this.contentQuestion) return this.getContentQuestionValue();
     return super.getValueCore();
   }
-  protected initElement(el: SurveyElement) {
+  private isSettingValueChanged: boolean;
+  protected setValueChangedDirectly(val: boolean): void {
+    if(this.isSettingValueChanged) return;
+    this.isSettingValueChanged = true;
+    super.setValueChangedDirectly(val);
+    if(!!this.contentQuestion) {
+      (<any>this.contentQuestion).setValueChangedDirectly(val);
+    }
+    this.isSettingValueChanged = false;
+  }
+  protected initElement(el: SurveyElement): void {
     super.initElement(el);
     if (!!el) {
       (<Question>el).parent = this;

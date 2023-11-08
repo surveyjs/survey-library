@@ -32,6 +32,8 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   }
   public set imageLink(val: string) {
     this.setLocalizableStringText("imageLink", val);
+    this.imageNotLoaded = false;
+    this.videoNotLoaded = false;
   }
   private aspectRatio: number;
 
@@ -59,7 +61,7 @@ export class ImageItemValue extends ItemValue implements ILocalizableOwner {
   }
 
   public set contentNotLoaded(val: boolean) {
-    if(this.locOwner instanceof QuestionImagePickerModel && this.locOwner.contentMode == "video") {
+    if (this.locOwner instanceof QuestionImagePickerModel && this.locOwner.contentMode == "video") {
       this.videoNotLoaded = val;
     } else {
       this.imageNotLoaded = val;
@@ -401,7 +403,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   }
 
   public triggerResponsiveness(hard: boolean = true): void {
-    if(hard && this.reCalcGapBetweenItemsCallback) {
+    if (hard && this.reCalcGapBetweenItemsCallback) {
       this.reCalcGapBetweenItemsCallback();
     }
     super.triggerResponsiveness(hard);
@@ -412,8 +414,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public afterRender(el: HTMLElement): void {
     super.afterRender(el);
     const selector = this.getObservedElementSelector();
-    const observedElement = el && selector ? el.querySelector(selector): undefined;
-    if(!!observedElement) {
+    const observedElement = el && selector ? el.querySelector(selector) : undefined;
+    if (!!observedElement) {
       this.reCalcGapBetweenItemsCallback = () => {
         this.gapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(observedElement).gap)) || 16;
       };

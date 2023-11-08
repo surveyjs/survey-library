@@ -103,6 +103,10 @@ export class QuestionCommentModel extends QuestionTextBase {
       event.stopPropagation();
     }
   }
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
+    super.setQuestionValue(newValue, updateIsAnswered);
+    this.updateElement();
+  }
   onValueChanged(): void {
     super.onValueChanged();
     this.updateElement();

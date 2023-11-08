@@ -50,6 +50,7 @@
   <td
     data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }, event: {focusin: $data.focusIn }"
   >
+    <!-- ko if: $data.matrix -->
     <div data-bind="visible: question.isVisible, css: $parentContext.question.cssClasses.cellQuestionWrapper">
       <!-- ko if: $data.isOtherChoice -->
         <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': true } }"></div>
@@ -79,6 +80,7 @@
       <!-- /ko -->
       <!-- /ko -->
     </div>
+    <!-- /ko -->
   </td>
 </script>
 <script type="text/html" id="survey-matrixtable">
@@ -170,14 +172,9 @@
     <tfoot>
       <tr>
         <!-- ko foreach: question.koTable().footerRow.cells -->
-          <!-- ko if: $data.hasQuestion -->
-            <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
-          <!-- /ko -->
-          <!-- ko if: $data.hasTitle -->
-          <td>
-            <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
-          </td>
-          <!-- /ko -->
+
+            <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix && $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
+
         <!-- /ko -->
       </tr>
     </tfoot>

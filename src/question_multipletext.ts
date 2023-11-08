@@ -43,7 +43,7 @@ export class MultipleTextEditorModel extends QuestionTextModel {
 /**
  * A class that describes an item in a [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
  *
- * [View Demo](/form-library/examples/multiple-text-box-question/)
+ * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/)
  */
 export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {
@@ -845,7 +845,7 @@ Serializer.addClass(
 Serializer.addClass(
   "multipletext",
   [
-    { name: "!items:textitems", className: "multipletextitem" },
+    { name: "!items:textitems", className: "multipletextitem", isArray: true },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
     { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }

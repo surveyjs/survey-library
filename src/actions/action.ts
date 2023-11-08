@@ -14,13 +14,13 @@ export type actionModeType = "large" | "small" | "popup" | "removed";
  *
  * Action items are used in the Toolbar, matrix rows, titles of pages, panels, questions, and other survey elements.
  *
- * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+ * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
  */
 export interface IAction {
   /**
    * A unique action item identifier.
    *
-   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   id?: string;
   /**
@@ -32,7 +32,7 @@ export interface IAction {
   /**
    * The action item's title.
    *
-   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    * @see showTitle
    * @see disableShrink
    */
@@ -50,6 +50,7 @@ export interface IAction {
    * @see visible
    */
   enabled?: boolean;
+  enabledIf?: () => boolean;
   /**
    * Specifies the visibility of the action item's title.
    * @see title
@@ -59,7 +60,7 @@ export interface IAction {
   /**
    * A function that is executed when users click the action item.
    *
-   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   action?: (context?: any) => void;
   /**
@@ -69,7 +70,7 @@ export interface IAction {
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
-   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    * @see innerCss
    */
   css?: string;
@@ -80,7 +81,7 @@ export interface IAction {
    *
    * To apply several classes, separate them with a space character: `"myclass1 myclass2"`.
    *
-   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    * @see css
    */
   innerCss?: string;
@@ -144,7 +145,7 @@ export interface IAction {
   /**
    * A number that specifies the action's position relative to other actions.
    *
-   * [View Demo](/form-library/examples/add-custom-navigation-button/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/add-custom-navigation-button/ (linkStyle))
    */
   visibleIndex?: number;
   needSpace?: boolean;
@@ -441,10 +442,13 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   public getVisible(): boolean {
     return this._visible;
   }
+
+  public enabledIf?: () => boolean;
   public setEnabled(val: boolean): void {
     this._enabled = val;
   }
   public getEnabled(): boolean {
+    if(this.enabledIf) return this.enabledIf();
     return this._enabled;
   }
   public setComponent(val: string): void {

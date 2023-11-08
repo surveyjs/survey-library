@@ -83,6 +83,7 @@ export class Question extends SurveyElement<Question>
   valueFromDataCallback: (val: any) => any;
   valueToDataCallback: (val: any) => any;
   onUpdateCssClassesCallback: (css: any) => void;
+  setValueChangedDirectlyCallback: (val: boolean) => void;
   onGetSurvey: () => ISurvey;
   private locProcessedTitle: LocalizableString;
   private isReadyValue: boolean = true;
@@ -1522,7 +1523,7 @@ export class Question extends SurveyElement<Question>
     if (!!this.comment) {
       this.comment = undefined;
     }
-    this.isValueChangedDirectly = false;
+    this.setValueChangedDirectly(false);
   }
   public unbindValue(): void {
     this.clearValue();
@@ -1570,7 +1571,7 @@ export class Question extends SurveyElement<Question>
   protected clearValueIfInvisibleCore(reason: string): void {
     if (this.canClearValueAsInvisible(reason)) {
       this.clearValue();
-      this.isValueChangedDirectly = undefined;
+      this.setValueChangedDirectly(undefined);
     }
   }
   /**
@@ -1860,15 +1861,18 @@ export class Question extends SurveyElement<Question>
     return runner;
   }
   protected setDefaultValue(): void {
+    this.setDefaultValueCore((val: any): void => {
+      if (!this.isTwoValueEquals(this.value, val)) {
+        this.value = val;
+      }
+    });
+  }
+  private setDefaultValueCore(func: (val: any) => void): void {
     this.defaultValueRunner = this.getDefaultRunner(this.defaultValueRunner, this.defaultValueExpression);
     this.setValueAndRunExpression(
       this.defaultValueRunner,
       this.getUnbindValue(this.defaultValue),
-      (val) => {
-        if (!this.isTwoValueEquals(this.value, val)) {
-          this.value = val;
-        }
-      }
+      (val) => func(val)
     );
   }
   protected isValueExpression(val: any): boolean {
@@ -2278,24 +2282,37 @@ export class Question extends SurveyElement<Question>
       newValue = this.valueFromDataCallback(newValue);
     }
     if (!this.checkIsValueCorrect(newValue)) return;
-    this.isChangingViaDefaultValue = this.isValueEmpty(newValue);
-    this.setQuestionValue(this.valueFromData(newValue));
-    this.isChangingViaDefaultValue = false;
+    const isEmpty = this.isValueEmpty(newValue);
+    if(!isEmpty && this.defaultValueExpression) {
+      this.setDefaultValueCore((val: any): void => {
+        this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
+      });
+    } else {
+      this.updateValueFromSurveyCore(newValue, isEmpty);
+    }
     this.updateDependedQuestions();
     this.updateIsAnswered();
+  }
+  private updateValueFromSurveyCore(newValue: any, viaDefaultVal: boolean): void {
+    this.isChangingViaDefaultValue = viaDefaultVal;
+    this.setQuestionValue(this.valueFromData(newValue));
+    this.isChangingViaDefaultValue = false;
   }
   updateCommentFromSurvey(newValue: any): any {
     this.questionComment = newValue;
   }
   protected onChangeQuestionValue(newValue: any): void { }
-  protected setValueChangedDirectly(): void {
-    this.isValueChangedDirectly = true;
+  protected setValueChangedDirectly(val: boolean): void {
+    this.isValueChangedDirectly = val;
+    if(!!this.setValueChangedDirectlyCallback) {
+      this.setValueChangedDirectlyCallback(val);
+    }
   }
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     newValue = this.convertToCorrectValue(newValue);
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
-    if (!isEqual && !this.isChangingViaDefaultValue) {
-      this.setValueChangedDirectly();
+    if (!isEqual && !this.isChangingViaDefaultValue && !this.isParentChangingViaDefaultValue) {
+      this.setValueChangedDirectly(true);
     }
     this.questionValue = newValue;
     if (!isEqual) {
@@ -2304,6 +2321,9 @@ export class Question extends SurveyElement<Question>
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
     if (updateIsAnswered) this.updateIsAnswered();
+  }
+  private get isParentChangingViaDefaultValue(): boolean {
+    return (<any>this.data)?.isChangingViaDefaultValue === true;
   }
   onSurveyValueChanged(newValue: any): void { }
   public setVisibleIndex(val: number): number {
@@ -2700,7 +2720,7 @@ Serializer.addClass("question", [
   "enableIf:condition",
   "resetValueIf:condition",
   "setValueIf:condition",
-  { name: "setValueExpression:expression", visibleIf: (obj: any): boolean => { return !!obj.setValueIf; } },
+  "setValueExpression:expression",
   "defaultValue:value",
   {
     name: "defaultValueExpression:expression",

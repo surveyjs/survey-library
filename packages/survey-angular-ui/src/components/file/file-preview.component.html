@@ -9,7 +9,7 @@
                         val.name
                         }}</a>
                 </div>
-                <div [class]="question.cssClasses.imageWrapper">
+                <div [class]="question.getImageWrapperCss(val)">
                     <img *ngIf="question.canPreviewImage(val)" [attr.src]="val.content | safeUrl"
                         [style.height]="question.imageHeight" [style.width]="question.imageWidth" alt="File preview" />
                     <svg *ngIf="question.defaultImage(val)" [iconName]="question.cssClasses.defaultImageIconId"

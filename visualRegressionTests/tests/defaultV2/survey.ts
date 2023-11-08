@@ -926,6 +926,38 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
     });
   });
+
+  test("Survey complete pages", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 900);
+      const json = {
+        "cookieName": "survey-id",
+        "completedHtml": "<h3>Completed</h3><button>OK</button>",
+        "completedBeforeHtml": "<h3>Already completed</h3><button>OK</button>",
+        pages: [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "name",
+                "title": "Name"
+              }
+            ]
+          }
+        ]
+      };
+      await initSurvey(framework, json);
+      await t.click(".sd-navigation__complete-btn");
+      await takeElementScreenshot("survey-completed.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => {
+        document.body.style.setProperty("--sjs-corner-radius", "0px");
+        (<any>window).survey.clear();
+        (<any>window).survey.isCompletedBefore = true;
+      })();
+      await takeElementScreenshot("survey-completed-before.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
   test("Check survey in compact mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

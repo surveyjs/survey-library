@@ -3,8 +3,8 @@
     :class="item.getActionBarItemCss()"
     type="button"
     v-on:click="
-      () => {
-        item.action();
+      (args: any) => {
+        item.action(item, !!args.pointerType);
       }
     "
     v-on:keyup="

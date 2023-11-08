@@ -2,7 +2,7 @@
 <div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
   <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
     <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
-    <div data-bind="css: question.cssClasses.imageWrapper">
+    <div data-bind="css: question.getImageWrapperCss($data)">
       <!-- ko if: question.canPreviewImage($data) -->
       <img data-bind="attr: { src: $data.content }, style : { height: question.imageHeight, width: question.imageWidth }" alt="File preview">
       <!-- /ko -->

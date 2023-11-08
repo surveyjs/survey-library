@@ -46,6 +46,26 @@ frameworks.forEach((framework) => {
     await t.expect(await getQuestionState()).eql("expanded");
   });
 
+  test("check action with disableTabStop: true", async (t) => {
+    await initSurvey(framework, json, {
+      onGetQuestionTitleActions: (_, opt) => {
+        opt.titleActions = [
+          {
+            title: "Action",
+            disableTabStop: true,
+            action: () => {
+              opt.question.state = "expanded";
+            },
+          },
+        ];
+      },
+    });
+    const visibleAction = Selector("h5 .sv-action:not(.sv-action--hidden)");
+    await t
+      .expect(visibleAction.find("button").innerText).eql("Action")
+      .expect(visibleAction.find("button").getAttribute("tabindex")).eql("-1");
+  });
+
   test("check action with icon", async (t) => {
     await initSurvey(framework, json, {
       onGetQuestionTitleActions: (_, opt) => {

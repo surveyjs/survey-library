@@ -166,11 +166,19 @@ export class UnaryOperand extends Operand {
     const uOp = <UnaryOperand>op;
     return uOp.operator == this.operator && this.areOperatorsEquals(this.expression, uOp.expression);
   }
+  public hasFunction(): boolean {
+    return this.expression.hasFunction();
+  }
+  public hasAsyncFunction(): boolean {
+    return this.expression.hasAsyncFunction();
+  }
+  public addToAsyncList(list: Array<FunctionOperand>): void {
+    this.expression.addToAsyncList(list);
+  }
   public evaluate(processValue?: ProcessValue): boolean {
     let value = this.expression.evaluate(processValue);
     return this.consumer.call(this, value);
   }
-
   public setVariables(variables: Array<string>) {
     this.expression.setVariables(variables);
   }
@@ -547,8 +555,8 @@ static unaryFunctions: HashTable<Function> = {
       right = OperandMaker.convertValForDateCompare(right, left);
       return OperandMaker.isTwoValueEquals(left, right, strictCompare !== true);
     },
-    notequal: function(left: any, right: any): boolean {
-      return !OperandMaker.binaryFunctions.equal(left, right);
+    notequal: function(left: any, right: any, strictCompare?: boolean): boolean {
+      return !OperandMaker.binaryFunctions.equal(left, right, strictCompare);
     },
     contains: function(left: any, right: any): boolean {
       return OperandMaker.binaryFunctions.containsCore(left, right, true);

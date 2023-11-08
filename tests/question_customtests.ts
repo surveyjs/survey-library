@@ -696,6 +696,73 @@ QUnit.test("Single: matrixdropdown.defaultValue", function (assert) {
   );
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Single: defaultValueExpession, bug#4836", function (assert) {
+  var json = {
+    name: "newquestion",
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3, 4, 5]
+    },
+  };
+  ComponentCollection.Instance.add(json);
+  var survey = new SurveyModel({
+    elements: [{ type: "newquestion", name: "q1", defaultValueExpression: "2" }, { type: "text", name: "q2" }],
+  });
+  var q = <QuestionCustomModel>survey.getAllQuestions()[0];
+  assert.equal(q.value, 2, "defaultValue is set");
+  assert.equal(q.contentQuestion.value, 2, "defaultValue is set for contentQuestion");
+  q.contentQuestion.value = 3;
+  assert.equal(q.value, 3, "defaultValue is set, #2");
+  assert.equal(q.contentQuestion.value, 3, "defaultValue is set for contentQuestion, #2");
+  survey.setValue("q2", 4);
+  assert.equal(q.value, 3, "defaultValue is set, #3");
+  assert.equal(q.contentQuestion.value, 3, "defaultValue is set for contentQuestion, #3");
+  assert.deepEqual(survey.data, { q1: 3, q2: 4 }, "set data into survey");
+  q.clearValue();
+  survey.setValue("q2", 5);
+  assert.equal(q.value, 2, "defaultValue is set, #4");
+  assert.equal(q.contentQuestion.value, 2, "defaultValue is set for contentQuestion, #4");
+  assert.deepEqual(survey.data, { q1: 2, q2: 5 }, "set data into survey, #2");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Single: defaultValueExpession & operations, bug#7280", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: {
+      type: "text",
+      inputType: "number"
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "newquestion", name: "q1" },
+      { type: "newquestion", name: "q2" },
+      { type: "newquestion", name: "q3", defaultValueExpression: "{q1} + {q2}" }],
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCustomModel>survey.getQuestionByName("q2");
+  const q3 = <QuestionCustomModel>survey.getQuestionByName("q3");
+  q1.contentQuestion.value = 1;
+  q2.contentQuestion.value = 2;
+  assert.equal(q3.contentQuestion.value, 3, "q3.contentQuestion.value");
+  assert.equal(q3.value, 3, "q3.value");
+  assert.deepEqual(survey.data, { q1: 1, q2: 2, q3: 3 }, "Survey data");
+  q1.value = 3;
+  q2.value = 4;
+  assert.equal(q3.contentQuestion.value, 7, "q3.contentQuestion.value, #2");
+  assert.equal(q3.value, 7, "q3.value, #2");
+  assert.deepEqual(survey.data, { q1: 3, q2: 4, q3: 7 }, "Survey data, #2");
+  q3.contentQuestion.value = 9;
+  assert.equal(q3.contentQuestion.value, 9, "q3.contentQuestion.value, #3");
+  assert.equal(q3.value, 9, "q3.value, #3");
+  assert.deepEqual(survey.data, { q1: 3, q2: 4, q3: 9 }, "Survey data, #3");
+  q1.value = 5;
+  q2.value = 7;
+  assert.equal(q3.contentQuestion.value, 9, "q3.contentQuestion.value, #4");
+  assert.equal(q3.value, 9, "q3.value, #4");
+  assert.deepEqual(survey.data, { q1: 5, q2: 7, q3: 9 }, "Survey data, #4");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Single: matrixdropdown expressions", function (assert) {
   var json = {
     name: "order",
@@ -2411,4 +2478,33 @@ QUnit.test("Single: Apply error css", function (assert) {
   q.validate(true);
   assert.equal(qText.getControlClass().indexOf(errorCss) > -1, true, "errors is here");
   ComponentCollection.Instance.clear();
+});
+QUnit.test("ComponentCollection.Instance.remove", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: { type: "text" },
+  });
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion").name, "newquestion", "it exists");
+  assert.equal(ComponentCollection.Instance.remove("aaa"), false, "aaa is not exists");
+  assert.equal(ComponentCollection.Instance.remove("newquestion"), true, "newquestion is removed");
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion"), "newquestion is not here");
+});
+QUnit.test("internal boolean flag", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion1",
+    internal: true,
+    questionJSON: { type: "text" },
+  });
+  ComponentCollection.Instance.add({
+    name: "newquestion2",
+    questionJSON: { type: "text" },
+  });
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1", "newquestion1 is here");
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion2").name, "newquestion2", "newquestion2 is here");
+  ComponentCollection.Instance.clear();
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1", "newquestion1 is here");
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion2"), "newquestion2 is not here, #1");
+  ComponentCollection.Instance.clear(true);
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion1"), "newquestion1 is not here, #2");
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion2"), "newquestion2 is not here, #2");
 });

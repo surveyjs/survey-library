@@ -481,7 +481,7 @@ QUnit.test(
             })
           );
         } else {
-          options.callback("error");
+          options.callback("error", "custom error text");
         }
       }, 1);
     });
@@ -504,8 +504,10 @@ QUnit.test(
     setTimeout(() => {
       assert.ok(q1.isEmpty());
       assert.equal(q1.value, undefined);
-      assert.equal(stateSec, "->loading->error");
-      assert.equal(state, "error");
+      assert.equal(stateSec, "->loading->error->loaded");
+      assert.equal(q1.errors.length, 1, "Has errors");
+      assert.equal(q1.errors[0].text, "custom error text", "Error text");
+      assert.equal(state, "loaded");
       done();
 
       isSuccess = true;
@@ -515,7 +517,7 @@ QUnit.test(
         assert.notOk(q1.isEmpty());
         assert.equal(q1.value.length, 1);
         assert.equal(q1.value[0].content, "f2_url");
-        assert.equal(stateSec, "->loading->error->loading->loaded");
+        assert.equal(stateSec, "->loading->error->loaded->loading->loaded");
         assert.equal(state, "loaded");
         done();
       }, 2);
@@ -1561,6 +1563,28 @@ QUnit.test("Check file question change camera action", function(assert) {
   assert.equal(Camera["cameraFacingMode"], "user");
   Camera.clear();
 });
+QUnit.test("new Camera().getMediaConstraints width and height", function(assert) {
+  Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
+  let mConst: any = new Camera().getMediaConstraints();
+  assert.strictEqual(mConst.video.width, undefined);
+  assert.strictEqual(mConst.video.height, undefined);
+  mConst = new Camera().getMediaConstraints({ width: 100 });
+  assert.deepEqual(mConst.video.width, { ideal: 100 });
+  assert.strictEqual(mConst.video.height, undefined);
+  mConst = new Camera().getMediaConstraints({ height: 100 });
+  assert.strictEqual(mConst.video.width, undefined);
+  assert.deepEqual(mConst.video.height, { ideal: 100 });
+  mConst = new Camera().getMediaConstraints({ height: 100, width: 200 });
+  assert.deepEqual(mConst.video.width, { ideal: 200 });
+  assert.deepEqual(mConst.video.height, { ideal: 100 });
+  Camera.clear();
+});
+QUnit.test("Camera: check getImageSize method", function(assert) {
+  let imageSize = new Camera().getImageSize({ videoWidth: 100, videoHeight: 200 } as any);
+  assert.deepEqual(imageSize, { width: 100, height: 200 });
+  imageSize = new Camera().getImageSize({ videoWidth: 130, videoHeight: 250 } as any);
+  assert.deepEqual(imageSize, { width: 130, height: 250 });
+});
 QUnit.test("QuestionFile stop playing video on hiding question", function(assert) {
   let survey = new SurveyModel({
     elements: [{ type: "file", name: "q1" }]
@@ -1632,9 +1656,6 @@ QUnit.test("QuestionFile check actions container", function(assert) {
   q1.clearButtonCaption = "clear_test";
   survey.css = defaultV2Css;
   assert.ok(q1.actionsContainerVisible);
-  q1.readOnly = true;
-  assert.notOk(q1.actionsContainerVisible);
-  q1.readOnly = false;
   q1.isUploading = true;
   assert.notOk(q1.actionsContainerVisible);
   q1.isUploading = false;
@@ -1717,6 +1738,59 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes with desig
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
 });
 
+QUnit.test("QuestionFile actions visibility in design mode", function(assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.setJsonObject({
+    elements: [
+      { type: "file", name: "q1" },
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  const chooseFileAction = q1.actionsContainer.getActionById("sv-file-choose-file");
+  const startCameraAction = q1.actionsContainer.getActionById("sv-file-start-camera");
+  assert.ok(chooseFileAction.visible);
+  assert.notOk(startCameraAction.visible);
+  q1.sourceType = "camera";
+  assert.notOk(chooseFileAction.visible);
+  assert.ok(startCameraAction.visible);
+  q1.sourceType = "file-camera";
+  assert.ok(chooseFileAction.visible);
+  assert.ok(startCameraAction.visible);
+});
+
+QUnit.test("QuestionFile actions are readOnly in design mode", function(assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.setJsonObject({
+    elements: [
+      { type: "file", name: "q1" },
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  const startCameraAction = q1.actionsContainer.getActionById("sv-file-start-camera");
+  const cleanAction = q1.actionsContainer.getActionById("sv-file-clean");
+  assert.notOk(startCameraAction.enabled);
+  assert.notOk(cleanAction.enabled);
+});
+
+QUnit.test("QuestionFile actions in readOnly mode", function(assert) {
+  const survey = new SurveyModel();
+  survey.setJsonObject({
+    elements: [
+      { type: "file", name: "q1" },
+    ]
+  });
+  const q1 = <QuestionFileModel>survey.getQuestionByName("q1");
+  const cleanAction = q1.actionsContainer.getActionById("sv-file-clean");
+  const startCameraAction = q1.actionsContainer.getActionById("sv-file-start-camera");
+  assert.notOk(cleanAction.disabled);
+  assert.notOk(startCameraAction.disabled);
+  q1.readOnly = true;
+  assert.ok(cleanAction.disabled);
+  assert.ok(startCameraAction.disabled);
+});
+
 QUnit.test("QuestionFile check placeholders are serializable", function(assert) {
   const survey = new SurveyModel({
     elements: [
@@ -1771,3 +1845,4 @@ QUnit.test("QuestionFile maxSize error doesnt update question css classes", func
   assert.ok(question.cssRoot.includes("root-error"));
   assert.ok(question.cssRoot.includes("root-error-top"));
 });
+

@@ -1068,7 +1068,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
   private lockResetRenderedTable: boolean = false;
   protected onStartRowAddingRemoving() {
     this.lockResetRenderedTable = true;
-    this.setValueChangedDirectly();
+    this.setValueChangedDirectly(true);
   }
   protected onEndRowAdding() {
     this.lockResetRenderedTable = false;
@@ -2440,7 +2440,7 @@ Serializer.addClass(
   [
     {
       name: "columns:matrixdropdowncolumns",
-      className: "matrixdropdowncolumn",
+      className: "matrixdropdowncolumn", isArray: true
     },
     {
       name: "columnLayout",

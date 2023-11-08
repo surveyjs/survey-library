@@ -8,39 +8,10 @@ import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
+import { classesToSelector } from "./utils/utils";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
-
-export function getCanvasRatio(canvas: HTMLCanvasElement): number {
-  var context: any = canvas.getContext("2d");
-  var devicePixelRatio = window.devicePixelRatio || 1;
-  var backingStoreRatio =
-    context.webkitBackingStorePixelRatio ||
-    context.mozBackingStorePixelRatio ||
-    context.msBackingStorePixelRatio ||
-    context.oBackingStorePixelRatio ||
-    context.backingStorePixelRatio ||
-    1;
-
-  return devicePixelRatio / backingStoreRatio;
-}
-
-function resizeCanvas(canvas: HTMLCanvasElement) {
-  var context: any = canvas.getContext("2d");
-  var ratio = getCanvasRatio(canvas);
-
-  var oldWidth = canvas.width;
-  var oldHeight = canvas.height;
-
-  canvas.width = oldWidth * ratio;
-  canvas.height = oldHeight * ratio;
-
-  canvas.style.width = oldWidth + "px";
-  canvas.style.height = oldHeight + "px";
-
-  context.scale(ratio, ratio);
-}
 
 /**
  * A class that describes the Signature question type.
@@ -77,7 +48,9 @@ export class QuestionSignaturePadModel extends Question {
       const format = this.dataFormat === "jpeg" ? "image/jpeg" :
         (this.dataFormat === "svg" ? "image/svg+xml" : "");
       var data = this.signaturePad.toDataURL(format);
+      this.valueIsUpdatingInternally = true;
       this.value = data;
+      this.valueIsUpdatingInternally = false;
     }
   }
 
@@ -103,10 +76,51 @@ export class QuestionSignaturePadModel extends Question {
       this.updateColors(this.signaturePad);
     }
   }
+  private canvas: any;
+  private scale: number;
+  private valueIsUpdatingInternally: boolean = false;
+
+  private resizeCanvas() {
+    this.canvas.width = this.containerWidth;
+    this.canvas.height = this.containerHeight;
+  }
+
+  private scaleCanvas(refresh: boolean = true, resize: boolean = false) {
+    const canvas = this.canvas;
+    const scale = canvas.offsetWidth / this.containerWidth;
+    if (this.scale != scale || resize) {
+      this.scale = scale;
+      canvas.style.width = this.renderedCanvasWidth;
+      this.resizeCanvas();
+      this.signaturePad.minWidth = this.penMinWidth * scale;
+      this.signaturePad.maxWidth = this.penMaxWidth * scale;
+      canvas.getContext("2d").scale(1 / scale, 1 / scale);
+
+      if (refresh) this.refreshCanvas();
+    }
+  }
+  private refreshCanvas() {
+    var data = this.value;
+    const canvas = this.canvas;
+    if (!data) {
+      canvas.getContext("2d").clearRect(0, 0, canvas.width * this.scale, canvas.height * this.scale);
+      this.signaturePad.clear();
+    } else {
+      this.signaturePad.fromDataURL(data, { width: canvas.width * this.scale, height: canvas.height * this.scale });
+    }
+  }
+
+  private updateValueHandler = () => {
+    this.scaleCanvas(false, true);
+    this.refreshCanvas();
+  };
 
   initSignaturePad(el: HTMLElement) {
     var canvas: any = el.getElementsByTagName("canvas")[0];
+    this.canvas = canvas;
+    this.resizeCanvas();
     var signaturePad = new SignaturePad(canvas, { backgroundColor: "#ffffff" });
+    this.signaturePad = signaturePad;
     if (this.isInputReadOnly) {
       signaturePad.off();
     }
@@ -122,6 +136,7 @@ export class QuestionSignaturePadModel extends Question {
     this.updateColors(signaturePad);
 
     (signaturePad as any).addEventListener("beginStroke", () => {
+      this.scaleCanvas();
       this.isDrawingValue = true;
       canvas.focus();
     }, { once: false });
@@ -131,23 +146,11 @@ export class QuestionSignaturePadModel extends Question {
       this.updateValue();
     }, { once: false });
 
-    var updateValueHandler = () => {
-      var data = this.value;
-      canvas.width = this.signatureWidth || defaultWidth;
-      canvas.height = this.signatureHeight || defaultHeight;
-      resizeCanvas(canvas);
-      if (!data) {
-        signaturePad.clear();
-      } else {
-        signaturePad.fromDataURL(data);
-      }
-    };
-    updateValueHandler();
+    this.updateValueHandler();
     this.readOnlyChangedCallback();
-    this.signaturePad = signaturePad;
     var propertyChangedHandler = (sender: any, options: any) => {
       if (options.name === "signatureWidth" || options.name === "signatureHeight" || options.name === "value") {
-        updateValueHandler();
+        if (!this.valueIsUpdatingInternally) this.updateValueHandler();
       }
     };
     this.onPropertyChanged.add(propertyChangedHandler);
@@ -194,6 +197,38 @@ export class QuestionSignaturePadModel extends Question {
   }
   public set signatureHeight(val: number) {
     this.setPropertyValue("signatureHeight", val);
+  }
+  /**
+   * Specifies whether the signature area should be scaled to fit into the question width.
+   *
+   * Default value: `false`
+   *
+   * > The signature area is scaled only for display. The resulting image will have dimensions specified by the [`signatureHeight`](#signatureHeight) and [`signatureWidth`](#signatureWidth) properties.
+   */
+  @property({ defaultValue: false }) signatureAutoScaleEnabled: boolean;
+  /**
+   * Speicifies the minimum width of pen strokes, measured in pixels.
+   *
+   * Default value: 0.5
+   */
+  @property({ defaultValue: 0.5 }) penMinWidth: number;
+  /**
+   * Speicifies the maximum width of pen strokes, measured in pixels.
+   *
+   * Default value: 2.5
+   */
+  @property({ defaultValue: 2.5 }) penMaxWidth: number;
+
+  private get containerHeight(): any {
+    return this.signatureHeight || defaultHeight;
+  }
+
+  private get containerWidth(): any {
+    return this.signatureWidth || defaultWidth;
+  }
+
+  public get renderedCanvasWidth(): string {
+    return this.signatureAutoScaleEnabled ? "100%" : this.containerWidth + "px";
   }
 
   //todo: need to remove this property
@@ -319,6 +354,21 @@ Serializer.addClass(
       name: "signatureHeight:number",
       category: "general",
       default: 200,
+    },
+    {
+      name: "signatureAutoScaleEnabled:boolean",
+      category: "general",
+      default: false,
+    },
+    {
+      name: "penMinWidth:number",
+      category: "general",
+      default: 0.5,
+    },
+    {
+      name: "penMaxWidth:number",
+      category: "general",
+      default: 2.5,
     },
     //need to remove this property
     {

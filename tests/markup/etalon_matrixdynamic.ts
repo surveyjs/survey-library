@@ -68,6 +68,27 @@ registerMarkupTests(
       before: () => StylesManager.applyTheme("defaultV2"),
       after: () => StylesManager.applyTheme("default"),
       snapshot: "matrixdynamic-defaultV2"
+    },
+    {
+      name: "Test matrixdynamic question (defaultV2) markup with totals",
+      json: {
+        "elements": [
+          {
+            "type": "matrixdynamic",
+            "titleLocation": "hidden",
+            "name": "question1",
+            "columns": [
+              {
+                "name": "Column 1",
+                "totalType": "count",
+                "totalFormat": "Count: {0}",
+              }
+            ]
+          }
+        ]
+      },
+      removeIds: true,
+      snapshot: "matrixdynamic-totals"
     }
   ]
 );

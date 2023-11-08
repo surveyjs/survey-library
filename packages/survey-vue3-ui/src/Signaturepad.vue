@@ -3,8 +3,7 @@
     :class="question.cssClasses.root"
     ref="root"
     v-bind:style="{
-      height: question.signatureHeight + 'px',
-      width: question.signatureWidth + 'px',
+      width: question.renderedCanvasWidth,
     }"
   >
     <div
@@ -18,8 +17,9 @@
         v-if="question.backgroundImage"
         :class="question.cssClasses.backgroundImage"
         :src="question.backgroundImage"
-        :width="question.signatureWidth"
-        :height="question.signatureHeight"
+        v-bind:style="{
+          width: question.renderedCanvasWidth,
+        }"
       />
       <canvas tabindex="0" :class="question.cssClasses.canvas"></canvas>
     </div>

@@ -4060,7 +4060,9 @@ export class SurveyModel extends SurveyElementCore
     this.questionHashesClear();
     this.pages.splice(0, this.pages.length);
     for (var i = 0; i < originalPages.length; i++) {
-      this.pages.push(originalPages[i]);
+      const page = originalPages[i];
+      page.setWasShown(false);
+      this.pages.push(page);
     }
   }
   private getPageStartIndex(): number {

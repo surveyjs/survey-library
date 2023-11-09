@@ -2589,7 +2589,7 @@ QUnit.test("Check imagepicker's koGetItemClass method (designMode, multiSelect) 
   q.defaultValue = ["->checked->->checked"];
 });
 
-QUnit.test.skip("questionsOnPageMode change from questionPerPage to standard leads to empty page content", function (assert) {
+QUnit.test("questionsOnPageMode change from questionPerPage to standard leads to empty page content", function (assert) {
   var json = {
     questionsOnPageMode: "questionPerPage",
     pages: [
@@ -2623,5 +2623,7 @@ QUnit.test.skip("questionsOnPageMode change from questionPerPage to standard lea
   const survey = new Survey(json);
   assert.equal(survey.pages[0].rows.length, 1, "one question");
   survey.questionsOnPageMode = "standard";
-  assert.equal(survey.pages[0].rows.length, 2, "two questions on the firts page");
+  assert.equal(survey.pages.length, 2, "There are two pages");
+  assert.equal(survey.pages[0].elements.length, 2, "There are two questions on the first page");
+  assert.equal(survey.pages[0].rows.length, 2, "two rows on the firts page");
 });

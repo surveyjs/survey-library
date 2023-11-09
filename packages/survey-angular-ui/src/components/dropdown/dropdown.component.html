@@ -23,7 +23,6 @@
             [attr.role]="dropdownModel.filterStringEnabled ? model.ariaRole : null"
             [attr.id]="model.getInputId()"
             [attr.inputmode]="dropdownModel.inputMode"
-            [readonly]="dropdownModel.filterReadOnly"
             [attr.tabindex]="dropdownModel.noTabIndex ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.aria-controls]="dropdownModel.listElementId"
@@ -31,7 +30,8 @@
             [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
             [attr.aria-expanded]="model.ariaExpanded"
             [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant"
-            [attr.placeholder]="dropdownModel.placeholderRendered" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
+            [attr.placeholder]="dropdownModel.placeholderRendered" 
+            [attr.readonly]="dropdownModel.filterReadOnly ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"

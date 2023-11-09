@@ -3288,12 +3288,12 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("completedStateText", text);
     if (this.state === "completed" && this.showCompletedPage && !!this.completedState) {
-      this.notify(this.completedStateText, this.completedState, true);
+      this.notify(this.completedStateText, this.completedState, true, this.completedState === "error");
     }
   }
-  public notify(message: string, type: string, showActions: boolean = false): void {
+  public notify(message: string, type: string, showActions: boolean = false, waitUserAction: boolean = false): void {
     this.notifier.showActions = showActions;
-    this.notifier.notify(message, type, type === "error");
+    this.notifier.notify(message, type, waitUserAction);
   }
   /**
    * Resets the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) and, optionally, [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data). If `state` is `"completed"`, it becomes `"running"`.

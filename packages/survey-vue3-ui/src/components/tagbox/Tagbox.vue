@@ -3,7 +3,7 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :tabindex="model.inputReadOnly ? undefined : 0"
+      :tabindex="model.noTabIndex ? undefined : 0"
       v-bind:disabled="question.isInputReadOnly ? true : null"
       @keydown="keyhandler"
       @blur="blur"

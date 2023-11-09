@@ -412,7 +412,7 @@ export class QuestionPanelDynamicModel extends Question
    *
    * If you want to customize individual tab titles, handle `SurveyModel`'s [`onGetDynamicPanelTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onGetDynamicPanelTabTitle) event.
    *
-   * [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/ (linkStyle))
    * @see templateTitle
    * @see renderMode
    */
@@ -1006,7 +1006,7 @@ export class QuestionPanelDynamicModel extends Question
    * - `"progressTop"` - Renders each panel as a card and displays a progress bar at the top. [View Demo](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/)
    * - `"progressBottom"` - Renders each panel panel as a card and displays a progress bar at the bottom.
    * - `"progressTopBottom"` - Renders each panel as a card and displays a progress bar at the top and bottom.
-   * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](/form-library/examples/tabbed-interface-for-duplicate-group-option/)
+   * - `"tab"` - Renders each panel within a tab. Use the [`templateTabTitle`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#templateTabTitle) to specify a template for tab titles. [View Demo](https://surveyjs.io/form-library/examples/tabbed-interface-for-duplicate-group-option/)
    */
   public get renderMode(): string {
     return this.getPropertyValue("renderMode");

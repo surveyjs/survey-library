@@ -1,5 +1,5 @@
 import { Serializer } from "../src/jsonobject";
-import { QuestionSignaturePadModel, getCanvasRatio } from "../src/question_signaturepad";
+import { QuestionSignaturePadModel } from "../src/question_signaturepad";
 import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("question signaturepad");
@@ -104,7 +104,7 @@ QUnit.test("Check signaturepad signauteWidth/Height properties", (assert) => {
   const canvas = document.createElement("canvas");
   containerEl.appendChild(canvas);
   const signaturepad = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
-  const ratio = getCanvasRatio(canvas);
+  const ratio = 1;
   signaturepad.initSignaturePad(containerEl);
   assert.equal(signaturepad.signatureWidth, 300);
   assert.equal(signaturepad.signatureHeight, 200);
@@ -337,4 +337,31 @@ QUnit.test("check placeholder property visibility", (assert) => {
   assert.equal(prop1.isVisible(undefined, q1), true);
   q1.showPlaceholder = false;
   assert.equal(prop1.isVisible(undefined, q1), false);
+});
+
+QUnit.test("check rendered size properties", (assert) => {
+  const json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "q1",
+        "penColor": "#ff0000"
+      },
+    ],
+  };
+  const containerEl = document.createElement("div");
+  const canvas = document.createElement("canvas");
+  containerEl.appendChild(canvas);
+  let survey = new SurveyModel(json);
+  let signaturepadQuestion = <QuestionSignaturePadModel>survey.getQuestionByName("q1");
+  signaturepadQuestion.initSignaturePad(containerEl);
+
+  assert.equal(signaturepadQuestion.renderedCanvasWidth, "300px");
+
+  signaturepadQuestion.signatureWidth = 500;
+
+  assert.equal(signaturepadQuestion.renderedCanvasWidth, "500px");
+
+  signaturepadQuestion.signatureAutoScaleEnabled = true;
+  assert.equal(signaturepadQuestion.renderedCanvasWidth, "100%");
 });

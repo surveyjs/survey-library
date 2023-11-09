@@ -39,6 +39,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
+        :tabindex="question.inputReadOnly ? -1 : 0"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"

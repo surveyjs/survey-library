@@ -326,4 +326,144 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-dropdown-elements.png", popupContainer, t, comparer);
     });
   });
+
+  const jsonWithInputs = {
+    "logoPosition": "right",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question1",
+            "defaultValue": "test1"
+          },
+          {
+            "type": "comment",
+            "name": "question2",
+            "defaultValue": "test2"
+          },
+          {
+            "type": "multipletext",
+            "name": "question3",
+            "defaultValue": {
+              "text1": "test3"
+            },
+            "items": [
+              {
+                "name": "text1"
+              },
+              {
+                "name": "text2"
+              }
+            ]
+          },
+          {
+            "type": "radiogroup",
+            "name": "question4",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "rating",
+            "name": "question5"
+          },
+          {
+            "type": "checkbox",
+            "name": "question6",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "dropdown",
+            "name": "question7",
+            "defaultValue": "Item 1",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "tagbox",
+            "name": "question8",
+            "defaultValue": [
+              "Item 2",
+              "Item 3"
+            ],
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          },
+          {
+            "type": "boolean",
+            "name": "question9"
+          },
+          {
+            "type": "ranking",
+            "name": "question10",
+            "choices": [
+              "Item 1",
+              "Item 2",
+              "Item 3"
+            ]
+          }
+        ]
+      }
+    ]
+  };
+
+  test("Desktop: Input font-size less 16px", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 3000);
+      await initSurvey(framework, jsonWithInputs);
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-editorfont-size": "12px",
+            "--sjs-font-size": "20px"
+          }
+        });
+      })();
+
+      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+      const popupContainer = Selector(".sv-popup__container").filterVisible();
+      await takeElementScreenshot("survey-theme-desktop-input-size.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.click(questionDropdownSelect);
+      await takeElementScreenshot("survey-theme-desktop-popup-input-size.png", popupContainer, t, comparer);
+    });
+  });
+
+  test("Mobile mode: input font-size is 16px", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(400, 2000);
+      await ClientFunction(() => { window["Survey"]._setIsTouch(true); })();
+      await initSurvey(framework, jsonWithInputs);
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({
+          "cssVariables": {
+            "--sjs-font-editorfont-size": "12px",
+            "--sjs-font-size": "20px"
+          }
+        });
+      })();
+
+      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+      const popupContainer = Selector(".sv-popup__container .sv-popup__content").filterVisible();
+      await takeElementScreenshot("survey-theme-mobile-input-size.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(400, 1000);
+      await t.click(questionDropdownSelect);
+      await takeElementScreenshot("survey-theme-mobile-popup-input-size.png", popupContainer, t, comparer);
+    });
+  });
 });

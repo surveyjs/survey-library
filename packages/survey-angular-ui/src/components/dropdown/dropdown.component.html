@@ -34,7 +34,7 @@
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
-            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton">
+            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton" [attr.tabindex]="model.inputReadOnly ? -1 : 0">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"
@@ -46,7 +46,7 @@
         <sv-ng-string *ngIf="model.selectedItemLocText" [model]="model.selectedItemLocText"></sv-ng-string>
         <div>{{ model.readOnlyText }}</div>
     </div>
-    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)">
+    <div *ngIf="model.cssClasses.chevronButtonIconId" [class]="model.cssClasses.chevronButton" (pointerdown)="chevronPointerDown($event)" aria-hidden="true">
         <svg [iconName]="model.cssClasses.chevronButtonIconId" [partCss]="model.cssClasses.chevronButtonSvg" [size]="'auto'" sv-ng-svg-icon></svg>
     </div>
 </div>

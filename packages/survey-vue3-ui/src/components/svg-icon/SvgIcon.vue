@@ -1,5 +1,5 @@
 <template>
-  <svg ref="svgIconElement" class="sv-svg-icon" role="img" :aria-label="title">
+  <svg ref="svgIconElement" class="sv-svg-icon" role="img">
     <use></use>
   </svg>
 </template>

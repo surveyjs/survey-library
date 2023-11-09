@@ -43,7 +43,7 @@ export class MultipleTextEditorModel extends QuestionTextModel {
 /**
  * A class that describes an item in a [Multiple Textboxes](https://surveyjs.io/form-library/documentation/api-reference/multiple-text-entry-question-model) question.
  *
- * [View Demo](/form-library/examples/multiple-text-box-question/)
+ * [View Demo](https://surveyjs.io/form-library/examples/multiple-text-box-question/)
  */
 export class MultipleTextItemModel extends Base
   implements IValidatorOwner, ISurveyData, ISurveyImpl {

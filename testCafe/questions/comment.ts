@@ -1,5 +1,5 @@
 import { frameworks, url, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson } from "../helper";
-import { Selector } from "testcafe";
+import { ClientFunction, Selector } from "testcafe";
 const title = "comment";
 
 const commentQuestion = Selector(".sv_q textarea");
@@ -15,7 +15,9 @@ const json = {
 };
 
 frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(async t => {
+  fixture`${framework} ${title}`.page`${url}${framework}`;
+
+  test("autoGrowComment & acceptCarriageReturn", async t => {
     await initSurvey(framework, {
       "autoGrowComment": true,
       "allowResizeComment": false,
@@ -44,9 +46,6 @@ frameworks.forEach(framework => {
         }
       ],
     });
-  });
-
-  test("autoGrowComment & acceptCarriageReturn", async t => {
     await t
       .click(commentQuestion)
       .expect(commentQuestion.getStyleProperty("resize")).eql("none")
@@ -78,16 +77,29 @@ frameworks.forEach(framework => {
       .pressKey("tab")
       .expect(commentQuestion.nth(2).value).eql("aaaa");
   });
-});
 
-frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
-      await initSurvey(framework, json);
-    }
-  );
+  test("autoGrowComment after survey data set", async t => {
+    await t.resizeWindow(1280, 900);
+    await initSurvey(framework, {
+      "elements": [
+        {
+          "type": "comment",
+          "name": "question1",
+          "autoGrow": true,
+          "rows": 1
+        }
+      ]
+    });
+    await t.expect(commentQuestion.clientHeight).eql(32);
+
+    await ClientFunction(() =>
+      window["survey"].data = { "question1": "<h3>Thank you for your feedback.</h3> <h5> We are glad that you share with us your ideas.We highly value all suggestions from our customers. We do our best to improve the product and reach your expectation.</h5><br/>" }
+    )();
+    await t.expect(commentQuestion.clientHeight).eql(60);
+  });
 
   test("fill textarea", async t => {
+    await initSurvey(framework, json);
     await t
       .typeText(commentQuestion, "puppies")
       .pressKey("enter")
@@ -98,25 +110,19 @@ frameworks.forEach(framework => {
   });
 
   test("change rows count", async t => {
+    await initSurvey(framework, json);
     await t.expect(Selector("textarea[rows=\"4\"]").visible).ok();
 
     await setOptions("suggestions", { rows: 2 });
     await t.expect(Selector("textarea[rows=\"2\"]").visible).ok();
   });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async (t) => {
-      await initSurvey(framework, json, undefined, true);
-    }
-  );
 
   test("click on question title state editable", async (t) => {
     const newTitle = "MyText";
     const outerSelector = ".sv_q_title";
     const innerSelector = ".sv-string-editor";
 
+    await initSurvey(framework, json, undefined, true);
     await t
       .expect(await getQuestionValue()).eql(undefined)
       .click(outerSelector)
@@ -124,13 +130,9 @@ frameworks.forEach((framework) => {
       .click("body", { offsetX: 0, offsetY: 0 });
 
     await t.expect(await getQuestionValue()).eql(undefined);
-    const json = JSON.parse(await getQuestionJson());
-    await t.expect(json.title).eql(newTitle);
+    const questionJson = JSON.parse(await getQuestionJson());
+    await t.expect(questionJson.title).eql(newTitle);
   });
-});
-
-frameworks.forEach((framework) => {
-  fixture`${framework} ${title}`.page`${url}${framework}`;
 
   test("Remaining character counter", async (t) => {
     const characterCounter = Selector(".sv-remaining-character-counter");

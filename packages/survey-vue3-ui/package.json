@@ -5,6 +5,7 @@
     "dev": "vite",
     "preview": "vite preview",
     "build-only": "vite build",
+    "watch": "vite build --watch",
     "build": "vite build && npm run build:types",
     "build:types": "vue-tsc --project tsconfig.types.json --emitDeclarationOnly",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",

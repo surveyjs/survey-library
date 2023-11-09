@@ -136,10 +136,6 @@ export class Question extends SurveyElement<Question>
     this.addExpressionProperty("requiredIf", (obj: Base, res: any) => { this.isRequired = res === true; });
 
     this.createLocalizableString("commentText", this, true, "otherItemText");
-    this.locTitle.onGetDefaultTextCallback = (): string => {
-      return this.name;
-    };
-    this.locTitle.storeDefaultText = true;
     this.createLocalizableString("requiredErrorText", this);
     this.addTriggerInfo("resetValueIf", (): boolean => !this.isEmpty(), (): void => {
       this.clearValue();
@@ -178,11 +174,13 @@ export class Question extends SurveyElement<Question>
     });
     this.registerPropertyChangedHandlers(["isMobile"], () => { this.onMobileChanged(); });
   }
+  protected getDefaultTitle(): string { return this.name; }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();
+    locTitleValue.storeDefaultText = true;
     locTitleValue.onGetTextCallback = (text: string): string => {
       if (!text) {
-        text = this.name;
+        text = this.getDefaultTitle();
       }
       if (!this.survey) return text;
       return this.survey.getUpdatedQuestionTitle(this, text);

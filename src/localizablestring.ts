@@ -46,7 +46,6 @@ export class LocalizableString implements ILocalizableString {
     }
   }
   public onGetTextCallback: (str: string) => string;
-  public onGetDefaultTextCallback: () => string;
   public storeDefaultText: boolean;
   public onGetLocalizationTextCallback: (str: string) => string;
   public onStrChanged: (oldValue: string, newValue: string) => void;
@@ -173,9 +172,6 @@ export class LocalizableString implements ILocalizableString {
   }
   private isLocaleTextEqualsWithDefault(loc: string, val: string): boolean {
     let res = this.getLocaleTextCore(loc);
-    if (!res && this.onGetDefaultTextCallback) {
-      res = this.onGetDefaultTextCallback();
-    }
     if (res === val) return true;
     return this.isValueEmpty(res) && this.isValueEmpty(val);
   }

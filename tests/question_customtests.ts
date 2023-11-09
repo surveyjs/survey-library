@@ -2508,3 +2508,23 @@ QUnit.test("internal boolean flag", function (assert) {
   assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion1"), "newquestion1 is not here, #2");
   assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion2"), "newquestion2 is not here, #2");
 });
+QUnit.test("Set title from single component into question", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: { type: "text", title: "Title from Component" },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "newquestion", name: "q1" },
+      { type: "newquestion", name: "q2", title: "Q2 title" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.pages[0].addNewQuestion("newquestion", "q3");
+  assert.equal(q1.locTitle.renderedHtml, "Title from Component", "q1 title");
+  assert.equal(q2.locTitle.renderedHtml, "Q2 title", "q2 title");
+  assert.equal(q3.name, "q3", "q3 name");
+  assert.equal(q3.locTitle.renderedHtml, "Title from Component", "q3 title");
+  assert.deepEqual(q1.toJSON(), { name: "q1" }, "Do not serialize title");
+});

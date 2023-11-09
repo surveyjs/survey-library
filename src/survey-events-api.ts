@@ -495,7 +495,7 @@ export interface LoadFilesEvent extends FileQuestionEventMixin {
 }
 export interface UploadFilesEvent extends LoadFilesEvent {
   /**
-   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, the downloaded file's data.
+   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass the uploaded file's data if file upload was successful or an error message if file upload failed.
    */
   callback: (status: string, data?: any) => any;
   /**
@@ -505,7 +505,7 @@ export interface UploadFilesEvent extends LoadFilesEvent {
 }
 export interface DownloadFileEvent extends LoadFilesEvent {
   /**
-   * A callback function that you should call when a file is downloaded successfully or when deletion fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, the downloaded file's data as a Base64 string.
+   * A callback function that you should call when a file is downloaded successfully or when deletion fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass the downloaded file's data as a Base64 string if file download was successful or an error message if file download failed.
    */
   callback: (status: string, data?: any) => any;
   /**
@@ -519,7 +519,7 @@ export interface DownloadFileEvent extends LoadFilesEvent {
 }
 export interface ClearFilesEvent extends LoadFilesEvent {
   /**
-   * A callback function that you should call when files are deleted successfully or when deletion fails. Pass `"success"` or `"error"` to indicate the operation status and, optionally, deleted files' data (`options.value`).
+   * A callback function that you should call when files are deleted successfully or when deletion fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass deleted files' data (`options.value`) if file deletion was successful or an error message if file deletion failed.
    */
   callback: (status: string, data?: any) => any;
   /**

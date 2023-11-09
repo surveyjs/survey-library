@@ -894,6 +894,15 @@ export class Question extends SurveyElement<Question>
       this.updateCommentElements();
     }
   }
+  public onCompositionUpdateComment(event: any): void {
+    if(this.isInputTextUpdate) {
+      setTimeout(() => {
+        if (event.target) {
+          this.comment = event.target.value;
+        }
+      }, 1);
+    }
+  }
   public onCommentChange(event: any): void {
     this.comment = event.target.value;
     if (this.comment !== event.target.value) {
@@ -2311,7 +2320,7 @@ export class Question extends SurveyElement<Question>
   protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     newValue = this.convertToCorrectValue(newValue);
     const isEqual = this.isTwoValueEquals(this.questionValue, newValue);
-    if (!isEqual && !this.isChangingViaDefaultValue) {
+    if (!isEqual && !this.isChangingViaDefaultValue && !this.isParentChangingViaDefaultValue) {
       this.setValueChangedDirectly(true);
     }
     this.questionValue = newValue;
@@ -2321,6 +2330,9 @@ export class Question extends SurveyElement<Question>
     !isEqual && this.allowNotifyValueChanged &&
       this.fireCallback(this.valueChangedCallback);
     if (updateIsAnswered) this.updateIsAnswered();
+  }
+  private get isParentChangingViaDefaultValue(): boolean {
+    return (<any>this.data)?.isChangingViaDefaultValue === true;
   }
   onSurveyValueChanged(newValue: any): void { }
   public setVisibleIndex(val: number): number {

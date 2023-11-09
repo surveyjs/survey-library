@@ -27,6 +27,10 @@ A platform-independent survey model for SurveyJS Form Library. This package shou
 - [Live Examples](https://surveyjs.io/Examples/Library)
 - [What's New](https://surveyjs.io/WhatsNew)
 
+## Build Survey Model from Sources
+
+Refer to instructions in the root README file: [Build the SurveyJS Form Library from Sources](https://github.com/surveyjs/survey-library#build-the-surveyjs-form-library-from-sources).
+
 ## Licensing
 
 SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

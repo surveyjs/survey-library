@@ -66,10 +66,16 @@ frameworks.forEach(framework => {
         ]
       });
       await t.click("canvas", { offsetX: 40, offsetY: 10 });
-      await t.click("canvas", { offsetX: 370, offsetY: 50 });
-      await t.click("canvas", { offsetX: 700, offsetY: 90 });
+      await t.click("canvas", { offsetX: 370, offsetY: 60 });
+      await t.click("canvas", { offsetX: 700, offsetY: 110 });
       await t.wait(100);
       await takeElementScreenshot("signature-scaled.png", ".sd-question", t, comparer);
+      await t.resizeWindow(500, 1080);
+      await t.click("canvas", { offsetX: 20, offsetY: 60 });
+      await t.click("canvas", { offsetX: 160, offsetY: 35 });
+      await t.click("canvas", { offsetX: 300, offsetY: 10 });
+      await t.wait(100);
+      await takeElementScreenshot("signature-scaled-resize.png", ".sd-question", t, comparer);
       await t.click("button[title=\"Clear\"]");
       await takeElementScreenshot("signature-clear.png", ".sd-question", t, comparer);
     });

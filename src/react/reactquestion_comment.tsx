@@ -63,6 +63,9 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected onCommentInput(event: any): void {
     this.props.question.onCommentInput(event);
   }
+  protected onCommentCompositionUpdate(event: any): void {
+    this.props.question.onCompositionUpdateComment(event);
+  }
   protected getComment(): string {
     return this.props.question.comment;
   }
@@ -100,6 +103,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         onChange={handleOnChange}
         onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); }}
         onInput={(e) => this.onCommentInput(e)}
+        onCompositionUpdate={(e) => this.onCommentCompositionUpdate(e)}
         aria-required={question.isRequired || question.a11y_input_ariaRequired}
         aria-label={question.ariaLabel || question.a11y_input_ariaLabel}
         style={{ resize: question.resizeStyle }}
@@ -113,6 +117,9 @@ export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
   }
   protected onCommentInput(event: any): void {
     this.props.question.onOtherValueInput(event);
+  }
+  protected onCommentCompositionUpdate(event: any): void {
+    this.props.question.onCompositionUpdateOtherValue(event);
   }
   protected getComment(): string {
     return this.props.question.otherValue;

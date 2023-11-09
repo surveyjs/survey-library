@@ -55,8 +55,17 @@ export class QuestionHtmlModel extends QuestionNonValue {
 }
 Serializer.addClass(
   "html",
-  [{ name: "html:html", serializationProperty: "locHtml" }],
-  function() {
+  [
+    { name: "html:html", serializationProperty: "locHtml" },
+    { name: "hideNumber", visible: false },
+    { name: "state", visible: false },
+    { name: "titleLocation", visible: false },
+    { name: "descriptionLocation", visible: false },
+    { name: "errorLocation", visible: false },
+    { name: "indent", visible: false },
+    { name: "width", visible: false },
+  ],
+  function () {
     return new QuestionHtmlModel("");
   },
   "nonvalue"

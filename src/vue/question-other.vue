@@ -14,6 +14,7 @@
       v-bind:style="{ resize: question.resizeStyle }"
       @change="(e) => { question.onOtherValueChange(e) }"
       @input="(e) => { question.onOtherValueInput(e) }"
+      @composition-update="(e) => { question.onCompositionUpdateOtherValue(e); }"
     /><div v-if="question.isReadOnlyRenderDiv()">{{ question.otherValue }}</div>
   </div>
 </template>

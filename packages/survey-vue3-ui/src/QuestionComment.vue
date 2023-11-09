@@ -24,6 +24,7 @@
         question.onCommentInput(e);
       }
     "
+    @composition-update="(e) => { question.onCompositionUpdateComment(e); }"
   />
 </template>
 

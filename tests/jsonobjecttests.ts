@@ -1,4 +1,4 @@
-﻿import {
+import {
   JsonObject,
   Serializer,
   JsonUnknownPropertyError,
@@ -2961,7 +2961,7 @@ QUnit.test("Add defaultFunc attribute support, Bug#5615", function (assert) {
   defaultValueForProp1 = 7;
   assert.equal(obj.prop1, 7, "The default value is 7 now");
 });
-QUnit.test("", function (assert) {
+QUnit.test("QuestionHtmlModel", function (assert) {
   let html = new QuestionHtmlModel("q1");
   assert.equal(html.renderAs, "default", "default is default");
   Serializer.addProperty("html", { name: "renderAs", default: "auto", choices: ["auto", "standard", "image"] });

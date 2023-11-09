@@ -2479,3 +2479,32 @@ QUnit.test("Single: Apply error css", function (assert) {
   assert.equal(qText.getControlClass().indexOf(errorCss) > -1, true, "errors is here");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("ComponentCollection.Instance.remove", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: { type: "text" },
+  });
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion").name, "newquestion", "it exists");
+  assert.equal(ComponentCollection.Instance.remove("aaa"), false, "aaa is not exists");
+  assert.equal(ComponentCollection.Instance.remove("newquestion"), true, "newquestion is removed");
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion"), "newquestion is not here");
+});
+QUnit.test("internal boolean flag", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion1",
+    internal: true,
+    questionJSON: { type: "text" },
+  });
+  ComponentCollection.Instance.add({
+    name: "newquestion2",
+    questionJSON: { type: "text" },
+  });
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1", "newquestion1 is here");
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion2").name, "newquestion2", "newquestion2 is here");
+  ComponentCollection.Instance.clear();
+  assert.equal(ComponentCollection.Instance.getCustomQuestionByName("newquestion1").name, "newquestion1", "newquestion1 is here");
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion2"), "newquestion2 is not here, #1");
+  ComponentCollection.Instance.clear(true);
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion1"), "newquestion1 is not here, #2");
+  assert.notOk(ComponentCollection.Instance.getCustomQuestionByName("newquestion2"), "newquestion2 is not here, #2");
+});

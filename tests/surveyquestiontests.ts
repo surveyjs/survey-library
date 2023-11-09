@@ -7615,3 +7615,10 @@ QUnit.test("Test", function (assert) {
   assert.deepEqual(survey.data, data2, "#2");
   assert.equal(counter, 0, "#2");
 });
+
+QUnit.test("QuestionHtmlModel hide some properties", function (assert) {
+  let html = new QuestionHtmlModel("q1");
+  ["hideNumber", "state", "titleLocation", "descriptionLocation", "errorLocation", "indent", "width"].forEach(property => {
+    assert.equal(Serializer.findProperty("html", property).visible, false, property + " should be hidden");
+  });
+});

@@ -622,7 +622,9 @@ export class QuestionFileModel extends Question {
         if (this.survey) {
           this.survey.uploadFiles(this, this.name, files, (status, data) => {
             if (status === "error") {
+              this.errors.push(new UploadingFileError(data, this));
               this.stateChanged("error");
+              this.stateChanged("loaded");
             }
             if (status === "success") {
               this.value = (this.value || []).concat(

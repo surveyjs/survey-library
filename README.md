@@ -44,6 +44,8 @@ A free and open-source MIT-licensed JavaScript form builder library that allows 
 
 ## Build the SurveyJS Form Library from Sources
 
+> The instructions below apply to SurveyJS Form Library for React, Knockout, jQuery, and Vue 2. If you are looking for instructions on how to build the library for Angular or Vue 3, refer to README files within the [`survey-angular-ui`](packages/survey-angular-ui/README.md#build-surveyjs-angular-form-library-from-sources) or [`survey-vue3-ui`](packages/survey-vue3-ui/README.md#build-surveyjs-vue-form-library-from-sources) packages.
+
 1. **Clone the repo**
 
     ```cmd
@@ -52,7 +54,7 @@ A free and open-source MIT-licensed JavaScript form builder library that allows 
     ```
 
 1. **Install dependencies**          
-Make sure that you have Node.js v6.0.0 or later and npm v2.7.0 or later installed.
+Make sure that you have Node.js v14 or later and a compatible npm version installed.
 
     ```cmd
     npm install -g karma-cli

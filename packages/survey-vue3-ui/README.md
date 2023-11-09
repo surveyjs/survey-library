@@ -40,6 +40,56 @@ To get started with SurveyJS Vue Form Library, refer to the following tutorial: 
 - [Live Examples](https://surveyjs.io/form-library/examples/nps-question/vuejs)
 - [What's New](https://surveyjs.io/WhatsNew)
 
+## Build SurveyJS Vue Form Library from Sources
+
+1. **Clone the repo**
+
+    ```cmd
+    git clone https://github.com/surveyjs/survey-library.git
+    cd survey-library
+    ```
+
+1. **Install dependencies common for all SurveyJS libraries**          
+Make sure that you have Node.js v16 or later and a compatible npm version installed.
+
+    ```cmd
+    npm install -g karma-cli
+    npm install
+    ```
+
+1. **Build the [platform-independent part](https://github.com/surveyjs/survey-library/blob/master/build-scripts/survey-core/README.md#survey-model-platform-independent-part) and plugins**
+
+    ```
+    npm run build_core
+    npm run build-plugins
+    ```
+
+1. **Install SurveyJS Vue Form Library dependencies and build this library**
+
+    ```
+    cd packages/survey-vue3-ui 
+    npm i
+    npm run build
+    ```
+
+    You can find the built scripts and style sheets in folders under the `build` directory.
+
+1. **Run a test application**
+
+    ```
+    npm run dev
+    ```
+
+    This command runs a local HTTP server at http://localhost:5173/.
+
+2. **Run unit tests**
+
+    ```
+    npm run test
+    ```
+
+    The unit tests use [Karma](https://karma-runner.github.io/6.3/index.html).
+
 ## Licensing
 
 SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

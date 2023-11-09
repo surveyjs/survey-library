@@ -15,7 +15,7 @@
     <div
       :id="element.contentId"
       :style="{ paddingLeft: element.innerPaddingLeft }"
-      v-if="!isCollapsed"
+      v-if="!element.isCollapsed"
       :class="element.cssClasses.panel.content"
     >
       <template v-for="(row, index) in rows" :key="element.id + '_' + index">
@@ -41,7 +41,7 @@ export default {
 </script>
 <script lang="ts" setup>
 import type { PanelModel, SurveyModel } from "survey-core";
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useBase } from "./base";
 defineOptions({
   inheritAttrs: false,
@@ -51,11 +51,9 @@ const props = defineProps<{
   isEditMode?: boolean;
   css?: any;
 }>();
-const isCollapsedValue = ref(false);
 const root = ref<HTMLElement>(null as any);
 const rows = computed(() => props.element.rows);
 const survey = computed(() => props.element.survey);
-const isCollapsed = computed(() => isCollapsedValue.value);
 
 useBase(() => props.element);
 
@@ -63,14 +61,5 @@ onMounted(() => {
   if (props.element.survey) {
     props.element.survey.afterRenderPanel(props.element, root.value);
   }
-  isCollapsedValue.value = props.element.isCollapsed;
-  const element = props.element;
-  element.stateChangedCallback = () => {
-    isCollapsedValue.value = props.element.isCollapsed;
-  };
-});
-onUnmounted(() => {
-  const element = props.element;
-  element.stateChangedCallback = null as any;
 });
 </script>

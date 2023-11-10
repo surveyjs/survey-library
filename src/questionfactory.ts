@@ -1,7 +1,7 @@
 import { HashTable } from "./helpers";
 import { Question } from "./question";
 import { IElement } from "./base-interfaces";
-import { surveyLocalization } from "./surveyStrings";
+import { getString } from "./surveyStrings";
 import { Serializer } from "./jsonobject";
 import { ComponentCollection } from "./question_custom";
 
@@ -9,21 +9,21 @@ export class QuestionFactory {
   public static Instance: QuestionFactory = new QuestionFactory();
   public static get DefaultChoices(): string[] {
     return [
-      surveyLocalization.getString("choices_Item") + "1",
-      surveyLocalization.getString("choices_Item") + "2",
-      surveyLocalization.getString("choices_Item") + "3",
+      getString("choices_Item") + "1",
+      getString("choices_Item") + "2",
+      getString("choices_Item") + "3",
     ];
   }
   public static get DefaultColums(): string[] {
-    var colName = surveyLocalization.getString("matrix_column") + " ";
+    var colName = getString("matrix_column") + " ";
     return [colName + "1", colName + "2", colName + "3"];
   }
   public static get DefaultRows(): string[] {
-    var rowName = surveyLocalization.getString("matrix_row") + " ";
+    var rowName = getString("matrix_row") + " ";
     return [rowName + "1", rowName + "2"];
   }
   public static get DefaultMutlipleTextItems(): string[] {
-    var itemName = surveyLocalization.getString("multipletext_itemname");
+    var itemName = getString("multipletext_itemname");
     return [itemName + "1", itemName + "2"];
   }
   public registerQuestion(questionType: string, questionCreator: (name: string) => Question): void {

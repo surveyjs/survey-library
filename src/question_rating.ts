@@ -4,7 +4,7 @@ import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
-import { surveyLocalization } from "./surveyStrings";
+import { getString } from "./surveyStrings";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { Base } from "./base";
 import { mergeValues } from "./utils/utils";
@@ -157,7 +157,7 @@ export class QuestionRatingModel extends Question {
             this.rateValues.splice(this.rateCount, this.rateValues.length - this.rateCount);
           } else {
             for (let i = this.rateValues.length; i < this.rateCount; i++) {
-              this.rateValues.push(new ItemValue(surveyLocalization.getString("choices_Item") + (i + 1)));
+              this.rateValues.push(new ItemValue(getString("choices_Item") + (i + 1)));
             }
           }
         }
@@ -893,7 +893,7 @@ Serializer.addClass(
     {
       name: "rateValues:itemvalue[]",
       baseValue: function () {
-        return surveyLocalization.getString("choices_Item");
+        return getString("choices_Item");
       },
       category: "rateValues",
       visibleIf: function (obj: any) {

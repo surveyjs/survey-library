@@ -1,7 +1,7 @@
 import { LocalizableString } from "../localizablestring";
 import { settings, ISurveyEnvironment } from "./../settings";
 import { IDialogOptions } from "../popup";
-import { surveyLocalization } from "../surveyStrings";
+import { getString } from "../surveyStrings";
 import { PopupBaseViewModel } from "../popup-view-model";
 
 function compareVersions(a: any, b: any) {
@@ -430,9 +430,9 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const toolbar = popupViewModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
-  cancelBtn.title = surveyLocalization.getString("cancel");
+  cancelBtn.title = getString("cancel");
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
-  applyBtn.title = applyTitle || surveyLocalization.getString("ok");
+  applyBtn.title = applyTitle || getString("ok");
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
   popupViewModel.width = "452px";
   return true;

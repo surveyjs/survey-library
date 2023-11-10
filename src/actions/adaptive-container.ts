@@ -2,7 +2,7 @@ import { ResponsivityManager } from "../utils/responsivity-manager";
 import { ListModel } from "../list";
 import { Action, actionModeType, createDropdownActionModelAdvanced, IAction } from "./action";
 import { ActionContainer } from "./container";
-import { surveyLocalization } from "../surveyStrings";
+import { getString } from "../surveyStrings";
 
 export class AdaptiveActionContainer<T extends Action = Action> extends ActionContainer<T> {
   public dotsItem: Action;
@@ -76,7 +76,7 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       innerCss: "sv-dots__item",
       iconName: "icon-more",
       visible: false,
-      tooltip: surveyLocalization.getString("more"),
+      tooltip: getString("more"),
     }, {
       items: [],
       onSelectionChanged: (item: T) => {

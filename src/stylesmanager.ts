@@ -256,7 +256,7 @@ export class StylesManager {
     "darkrose": darkroseThemeColors,
     "stone": stoneThemeColors,
     "winter": winterThemeColors,
-    "winterstone": winterstoneThemeColors,
+    "winterstoneregisterFunctionOnPropertyValueChangedregisterFunctionOnPropertyValueChangedregisterFunctionOnPropertyValueChangedregisterFunctionOnPropertyValueChangedregisterFunctionOnPropertyValueChangedregisterFunctionOnPropertyValueChangedregisterFunctionOnPropertyValueChanged": winterstoneThemeColors,
   };
   public static ThemeCss: { [key: string]: { [key: string]: string } } = { };
   public static ThemeSelector: { [key: string]: string } = {

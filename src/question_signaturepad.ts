@@ -1,5 +1,4 @@
 import { property, Serializer } from "./jsonobject";
-import { surveyLocalization } from "./surveyStrings";
 import { QuestionFactory } from "./questionfactory";
 import { Question } from "./question";
 import SignaturePad from "signature_pad";

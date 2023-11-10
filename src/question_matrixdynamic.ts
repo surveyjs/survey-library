@@ -6,7 +6,6 @@ import {
   MatrixDropdownRowModelBase,
   IMatrixDropdownData
 } from "./question_matrixdropdownbase";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { SurveyError } from "./survey-error";
 import { MinRowCountError } from "./error";

@@ -4,7 +4,7 @@ import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
 import { Base } from "./base";
 import { SurveyError } from "./survey-error";
-import { surveyLocalization } from "./surveyStrings";
+import { getString } from "./surveyStrings";
 import { RequiredInAllRowsError } from "./error";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString, ILocalizableOwner } from "./localizablestring";
@@ -628,13 +628,13 @@ Serializer.addClass(
     {
       name: "columns:itemvalue[]", uniqueProperty: "value",
       baseValue: function() {
-        return surveyLocalization.getString("matrix_column");
+        return getString("matrix_column");
       },
     },
     {
       name: "rows:itemvalue[]", uniqueProperty: "value",
       baseValue: function() {
-        return surveyLocalization.getString("matrix_row");
+        return getString("matrix_row");
       },
     },
     { name: "cells:cells", serializationProperty: "cells" },

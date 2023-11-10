@@ -1,7 +1,6 @@
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { QuestionCheckboxBase } from "./question_baseselect";
-import { surveyLocalization } from "./surveyStrings";
 import { ItemValue } from "./itemvalue";
 import { Action } from "./actions/action";
 import { ComputedUpdater } from "./base";

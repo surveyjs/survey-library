@@ -1,6 +1,6 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
 import { Base } from "../base";
-import { surveyLocalization } from "../surveyStrings";
+import { getString } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
 import { IPopupOptionsBase, PopupModel } from "../popup";
@@ -426,7 +426,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
   }
   private locTooltipChanged(): void {
     if (!this.locTooltipName) return;
-    this.tooltip = surveyLocalization.getString(this.locTooltipName, this.locTitle.locale);
+    this.tooltip = getString(this.locTooltipName, this.locTitle.locale);
   }
 
   //ILocalizableOwner

@@ -11,7 +11,7 @@ import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
 import { IElement, IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
-import { surveyLocalization } from "./surveyStrings";
+import { getString } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
 
 interface IExpressionRunnerInfo {
@@ -815,7 +815,7 @@ export class Base {
     return !!locOwner ? locOwner.getLocale(): "";
   }
   public getLocalizationString(strName: string): string {
-    return surveyLocalization.getString(strName, this.getLocale());
+    return getString(strName, this.getLocale());
   }
   public getLocalizationFormatString(strName: string, ...args: any[]): string {
     const str: any = this.getLocalizationString(strName);

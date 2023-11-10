@@ -5,7 +5,7 @@
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
-      tabindex: model.inputReadOnly ? undefined : 0,
+      tabindex: model.noTabIndex ? undefined : 0,
       disabled: question.isInputReadOnly,
       role: question.ariaRole,
       'aria-required': question.ariaRequired, 
@@ -48,7 +48,7 @@
             'aria-labelledby': question.a11y_input_ariaLabelledBy,
             placeholder: model.filterStringPlaceholder, 
             disabled: question.isInputReadOnly,
-            readonly: !model.searchEnabled 
+            readonly: model.filterReadOnly
           },
           event: { keydown: inputKeyHandler, blur: blur, focus: focus }"></input>
         </div>

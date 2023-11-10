@@ -1,5 +1,5 @@
 <div [class]="model.cssClasses.selectWrapper" (click)="click($event)">
-    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.inputReadOnly ? null : 0" [class]="model.getControlClass()"
+    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.noTabIndex ? null : 0" [class]="model.getControlClass()"
         [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"

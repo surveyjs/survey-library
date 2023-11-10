@@ -86,7 +86,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
     return (<div
       id={this.question.inputId}
       className={this.question.getControlClass()}
-      tabIndex={dropdownListModel.inputReadOnly ? undefined : 0}
+      tabIndex={dropdownListModel.noTabIndex ? undefined : 0}
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
       disabled={this.question.isInputReadOnly}
@@ -124,8 +124,8 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           aria-controls={dropdownListModel.listElementId}
           aria-activedescendant={dropdownListModel.ariaActivedescendant}
           placeholder={dropdownListModel.placeholderRendered}
-          readOnly={!dropdownListModel.searchEnabled ? true : undefined}
-          tabIndex={dropdownListModel.inputReadOnly ? undefined : -1}
+          readOnly={dropdownListModel.filterReadOnly ? true : undefined}
+          tabIndex={dropdownListModel.noTabIndex ? undefined : -1}
           disabled={this.question.isInputReadOnly}
           inputMode={dropdownListModel.inputMode}
           onChange={(e) => { onInputChange(e); }}

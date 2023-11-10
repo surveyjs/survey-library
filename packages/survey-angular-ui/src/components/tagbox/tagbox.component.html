@@ -14,7 +14,7 @@
             </ng-container>
             <ng-template [component]="{ name: 'sv-tagbox-filter', data: { model: dropdownModel, question: model } }"></ng-template>
         </div>
-        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton"
+        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton" [attr.tabindex]="model.inputReadOnly ? -1 : 0"
             (click)="clear($event)" [visible]="model.showClearButton">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->

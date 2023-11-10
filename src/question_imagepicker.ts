@@ -296,7 +296,9 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
     return false;
   }
-  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void { }
+  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
+    this.addNewItemToVisibleChoices(items, isAddAll);
+  }
   public getSelectBaseRootCss(): string {
     return new CssClassBuilder().append(super.getSelectBaseRootCss()).append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1).toString();
   }

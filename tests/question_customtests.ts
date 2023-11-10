@@ -2527,4 +2527,21 @@ QUnit.test("Set title from single component into question", function (assert) {
   assert.equal(q3.name, "q3", "q3 name");
   assert.equal(q3.locTitle.renderedHtml, "Title from Component", "q3 title");
   assert.deepEqual(q1.toJSON(), { name: "q1" }, "Do not serialize title");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Allow to add question via addNewQuestion for component, but not for abstract classes", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "newquestion",
+    questionJSON: { type: "text", title: "Title from Component" },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" }
+    ]
+  });
+  const q2 = survey.pages[0].addNewQuestion("newquestion", "q2");
+  const q3 = survey.pages[0].addNewQuestion("matrixdropdownbase", "q3");
+  assert.ok(q2, "component created");
+  assert.notOk(q3, "matrixdropdownbase is not created");
+  ComponentCollection.Instance.clear();
 });

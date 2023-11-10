@@ -266,6 +266,10 @@ function registerComponents(app: App) {
       const options: IAttachKey2clickOptions = { ...binding.value } || {
         processEsc: true,
       };
+      if (options.disableTabStop) {
+        el.tabIndex = -1;
+        return;
+      }
       if (!options.disableTabStop) el.tabIndex = 0;
       el.addEventListener("keyup", (evt: any) => {
         evt.preventDefault();

@@ -4,7 +4,7 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-bind:disabled="question.isInputReadOnly"
-      :tabindex="model.inputReadOnly ? undefined : 0"
+      :tabindex="model.noTabIndex ? undefined : 0"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -47,8 +47,8 @@
       :inputmode="model.inputMode"
       :role="model.filterStringEnabled ? question.ariaRole : null"
       :id="question.getInputId()"
-      :tabindex="model.inputReadOnly ? undefined : -1"
-      :readonly="!model.searchEnabled ? true : null"
+      :tabindex="model.noTabIndex ? undefined : -1"
+      :readonly="model.filterReadOnly ? true : null"
       :aria-expanded="question.ariaExpanded"
       :aria-label="question.a11y_input_ariaLabel"
       :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -65,6 +65,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
+        :tabindex="question.inputReadOnly ? -1 : 0"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
@@ -90,6 +91,7 @@
       :class="question.cssClasses.chevronButton"
           v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
+      aria-hidden="true"
     >
       <sv-svg-icon
         :class="question.cssClasses.chevronButtonSvg"

@@ -79,6 +79,6 @@ export class ElementFactory {
   public createElement(elementType: string, name: string): IElement {
     var creator = this.creatorHash[elementType];
     if (!!creator) return creator(name);
-    return null;
+    return Serializer.createClass(elementType, { name: name });
   }
 }

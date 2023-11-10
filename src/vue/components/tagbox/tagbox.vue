@@ -3,7 +3,7 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :tabindex="model.inputReadOnly ? undefined : 0"
+      :tabindex="model.noTabIndex ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
       @keydown="keyhandler"
@@ -33,6 +33,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
+        :tabindex="question.inputReadOnly ? -1 : 0"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"

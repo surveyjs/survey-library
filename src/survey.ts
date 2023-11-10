@@ -3288,12 +3288,12 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("completedStateText", text);
     if (this.state === "completed" && this.showCompletedPage && !!this.completedState) {
-      this.notify(this.completedStateText, this.completedState, true);
+      this.notify(this.completedStateText, this.completedState, value === "error");
     }
   }
   public notify(message: string, type: string, showActions: boolean = false): void {
     this.notifier.showActions = showActions;
-    this.notifier.notify(message, type, type === "error");
+    this.notifier.notify(message, type, showActions);
   }
   /**
    * Resets the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) and, optionally, [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data). If `state` is `"completed"`, it becomes `"running"`.
@@ -4016,7 +4016,7 @@ export class SurveyModel extends SurveyElementCore
       this.setupPagesForPageModes(true);
     } else {
       if (this.runningPages) {
-        this.restoreOrigionalPages(this.runningPages);
+        this.restoreOriginalPages(this.runningPages);
       }
       this.runningPages = undefined;
     }
@@ -4044,7 +4044,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.origionalPages) {
-        this.restoreOrigionalPages(this.origionalPages);
+        this.restoreOriginalPages(this.origionalPages);
       }
       this.origionalPages = undefined;
     } else {
@@ -4056,11 +4056,13 @@ export class SurveyModel extends SurveyElementCore
     this.runConditions();
     this.updateVisibleIndexes();
   }
-  private restoreOrigionalPages(originalPages: Array<PageModel>) {
+  private restoreOriginalPages(originalPages: Array<PageModel>) {
     this.questionHashesClear();
     this.pages.splice(0, this.pages.length);
     for (var i = 0; i < originalPages.length; i++) {
-      this.pages.push(originalPages[i]);
+      const page = originalPages[i];
+      page.setWasShown(false);
+      this.pages.push(page);
     }
   }
   private getPageStartIndex(): number {

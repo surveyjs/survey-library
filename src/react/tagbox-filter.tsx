@@ -75,7 +75,7 @@ export class TagboxFilterString extends SurveyElementBase<ITagboxFilterProps, an
             ref={(element) => (this.inputElement = element)}
             className={this.question.cssClasses.filterStringInput}
             disabled={this.question.isInputReadOnly}
-            readOnly={!this.model.searchEnabled ? true : undefined}
+            readOnly={this.model.filterReadOnly ? true : undefined}
             size={!this.model.inputStringRendered ? 1 : undefined}
             role={this.model.filterStringEnabled ? this.question.ariaRole : undefined}
             aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}

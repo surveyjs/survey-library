@@ -901,16 +901,7 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     this.headItemsCount = 0;
     this.footItemsCount = 0;
-    if (isAddAll) {
-      if (!this.newItemValue) {
-        this.newItemValue = this.createItemValue("newitem"); //TODO
-        this.newItemValue.isGhost = true;
-      }
-      if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
-        this.footItemsCount ++;
-        items.push(this.newItemValue);
-      }
-    }
+    this.addNewItemToVisibleChoices(items, isAddAll);
     const dict = new Array<{ index: number, item: ItemValue }>();
     this.addNonChoicesItems(dict, isAddAll);
     dict.sort((a: { index: number, item: ItemValue }, b: { index: number, item: ItemValue }): number => {
@@ -927,6 +918,17 @@ export class QuestionSelectBase extends Question {
         items.push(rec.item);
         this.footItemsCount ++;
       }
+    }
+  }
+  protected addNewItemToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
+    if (!isAddAll) return;
+    if (!this.newItemValue) {
+      this.newItemValue = this.createItemValue("newitem"); //TODO
+      this.newItemValue.isGhost = true;
+    }
+    if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      this.footItemsCount = 1;
+      items.push(this.newItemValue);
     }
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {

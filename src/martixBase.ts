@@ -342,6 +342,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   public set rowTitleWidth(val: string) {
     this.setPropertyValue("rowTitleWidth", val);
   }
+
+  public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
+    return `row ${rowTitle}, column ${columnTitle}`;
+  }
 }
 
 Serializer.addClass(

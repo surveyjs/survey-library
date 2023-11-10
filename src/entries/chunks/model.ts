@@ -217,7 +217,7 @@ export { Cover, CoverCell } from "../../header";
 
 export { dxSurveyService } from "../../dxSurveyService";
 export { englishStrings } from "../../localization/english";
-export { surveyLocalization, surveyStrings } from "../../surveyStrings";
+export { surveyLocalization, surveyStrings, getString, registerLocale } from "../../surveyStrings";
 // export { cultureInfo } from "../../cultureInfo";
 export {
   QuestionCustomWidget,

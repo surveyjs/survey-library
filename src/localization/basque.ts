@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { registerLocale } from "survey-core";
 
 export var basqueSurveyStrings = {
   pagePrevText: "Aurrekoa",
@@ -97,8 +97,7 @@ export var basqueSurveyStrings = {
   selectToRankEmptyUnrankedAreaText: "Arrastaka eta askatzen ditu hemen sailkatzeko"
 };
 
-surveyLocalization.locales["eu"] = basqueSurveyStrings;
-surveyLocalization.localeNames["eu"] = "Euskara";
+registerLocale("eu", "Euskara", basqueSurveyStrings);
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

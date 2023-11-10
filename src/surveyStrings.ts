@@ -1,5 +1,10 @@
 import { englishStrings } from "./localization/english";
 
+export function registerLocale(code: string, name: string, localeStrings: Record<string, string>) {
+  surveyLocalization.locales[code] = localeStrings;
+  surveyLocalization.localeNames[code] = name;
+}
+
 export function getString(strName: string, locale: string = null) {
   return surveyLocalization.getString(strName, locale);
 }

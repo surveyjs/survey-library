@@ -497,7 +497,7 @@ export interface UploadFilesEvent extends LoadFilesEvent {
   /**
    * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass the uploaded file's data if file upload was successful or an error message if file upload failed.
    */
-  callback: (status: string, data?: any) => any;
+  callback: (status: string | Array<any>, data?: any) => any;
   /**
    * An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
    */

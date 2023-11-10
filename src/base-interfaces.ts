@@ -152,7 +152,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question: IQuestion,
     name: string,
     files: File[],
-    uploadingCallback: (status: string, data: any) => any
+    uploadingCallback: (status: string | Array<any>, data: any) => any
   ): any;
   downloadFile(
     question: IQuestion,

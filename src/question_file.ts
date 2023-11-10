@@ -621,12 +621,7 @@ export class QuestionFileModel extends Question {
       } else {
         if (this.survey) {
           this.survey.uploadFiles(this, this.name, files, (status, data) => {
-            if (status === "error") {
-              this.errors.push(new UploadingFileError(data, this));
-              this.stateChanged("error");
-              this.stateChanged("loaded");
-            }
-            if (status === "success") {
+            if (Array.isArray(data) && data.length > 0) {
               this.value = (this.value || []).concat(
                 data.map((r: any) => {
                   return {
@@ -637,6 +632,15 @@ export class QuestionFileModel extends Question {
                 })
               );
             }
+            if (status === "error" && typeof (data) === "string") {
+              this.errors.push(new UploadingFileError(data, this));
+              this.stateChanged("error");
+            }
+            if (Array.isArray(status) && status.length > 0) {
+              status.forEach(error => this.errors.push(new UploadingFileError(error, this)));
+              this.stateChanged("error");
+            }
+            this.stateChanged("loaded");
           });
         }
       }

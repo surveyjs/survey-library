@@ -1846,3 +1846,38 @@ QUnit.test("QuestionFile maxSize error doesnt update question css classes", func
   assert.ok(question.cssRoot.includes("root-error-top"));
 });
 
+QUnit.test("QuestionFile process errors with partially loaded files",
+  async function (assert) {
+    var json = {
+      questions: [
+        {
+          type: "file",
+          name: "image1",
+          storeDataAsText: false,
+          showPreview: true,
+          allowMultiple: true
+        },
+      ],
+    };
+
+    var survey = new SurveyModel(json);
+    var q1: QuestionFileModel = <any>survey.getQuestionByName("image1");
+
+    survey.onUploadFiles.add((survey, options) => {
+      options.callback(
+        ["custom error text"],
+        options.files.map((file) => {
+          return { file: file, content: file.name + "_url" };
+        })
+      );
+    });
+
+    q1.loadFiles([<any>{ name: "f1", type: "t1" }]);
+
+    assert.equal(q1.errors.length, 1, "Has errors");
+    assert.equal(q1.errors[0].text, "custom error text", "Error text");
+    assert.notOk(q1.isEmpty());
+    assert.equal(q1.value.length, 1);
+    assert.equal(q1.value[0].content, "f1_url");
+  }
+);

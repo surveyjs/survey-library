@@ -5010,7 +5010,7 @@ export class SurveyModel extends SurveyElementCore
     question: QuestionFileModel,
     name: string,
     files: File[],
-    callback: (status: string, data: any) => any
+    callback: (status: string | Array<any>, data: any) => any
   ) {
     if (this.onUploadFiles.isEmpty) {
       callback("error", files);

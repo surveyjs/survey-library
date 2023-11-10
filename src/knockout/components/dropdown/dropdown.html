@@ -56,7 +56,7 @@
       event: { blur: blur, focus: focus }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
-    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton, attr: {tabindex: question.inputReadOnly ? -1 : 0}">
+    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton, attr: {tabindex: question.showClearButton ? 0 : -1}">
       <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.clearCaption } } -->
       <!-- /ko -->
     </div>

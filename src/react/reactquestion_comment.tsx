@@ -75,10 +75,6 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected renderElement(): JSX.Element {
     let question = this.props.question;
     let className = this.props.otherCss || this.cssClasses.comment;
-    let handleOnChange = (event: any) => {
-      this.setState({ comment: event.target.value });
-      this.onCommentChange(event);
-    };
     const questionComment = this.getComment();
     let stateComment: string = !!this.state ? this.state.comment : undefined;
     if (stateComment !== undefined && stateComment.trim() !== questionComment) {
@@ -97,8 +93,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
         placeholder={this.getPlaceholder()}
-        onChange={handleOnChange}
-        onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); }}
+        onBlur={(e) => { this.onCommentChange(e); }}
         onInput={(e) => this.onCommentInput(e)}
         aria-required={question.isRequired || question.a11y_input_ariaRequired}
         aria-label={question.ariaLabel || question.a11y_input_ariaLabel}

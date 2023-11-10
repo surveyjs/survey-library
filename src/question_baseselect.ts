@@ -1267,15 +1267,6 @@ export class QuestionSelectBase extends Question {
       this.updateCommentElements();
     }
   }
-  public onCompositionUpdateOtherValue(event: any): void {
-    if(this.isInputTextUpdate) {
-      setTimeout(() => {
-        if (event.target) {
-          this.otherValue = event.target.value;
-        }
-      }, 1);
-    }
-  }
   public onOtherValueChange(event: any): void {
     this.otherValue = event.target.value;
     if (this.otherValue !== event.target.value) {

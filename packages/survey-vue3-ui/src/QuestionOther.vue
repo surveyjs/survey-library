@@ -22,7 +22,6 @@
           question.onOtherValueInput(e);
         }
       "
-      @composition-update="(e) => { question.onCompositionUpdateOtherValue(e); }"
     />
     <div v-if="question.isReadOnlyRenderDiv()">{{ question.otherValue }}</div>
   </div>

@@ -3,11 +3,7 @@
     v-if="model.hasActions"
     ref="root"
     :class="model.getRootCss()"
-    v-on:click="
-      (event) => {
-        event.stopPropagation();
-      }
-    "
+    @click="onClick"
   >
     <sv-action
       v-for="item in renderedActions"
@@ -28,6 +24,12 @@ const props = defineProps<{
   handleClick?: boolean;
 }>();
 const root = ref<HTMLDivElement>(null as any as HTMLDivElement);
+
+const onClick = (event: MouseEvent) => {
+  if (props.handleClick ?? true) {
+    event.stopPropagation();
+  }
+};
 
 useBase(() => props.model);
 

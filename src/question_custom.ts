@@ -624,6 +624,7 @@ export abstract class QuestionCustomModelBase extends Question
 
 export class QuestionCustomModel extends QuestionCustomModelBase {
   private questionWrapper: Question;
+  private hasJSONTitle: boolean;
   public getTemplate(): string {
     return "custom";
   }
@@ -641,6 +642,10 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   protected getQuestionByName(name: string): IQuestion {
     return this.contentQuestion;
+  }
+  protected getDefaultTitle(): string {
+    if(this.hasJSONTitle && this.contentQuestion) return this.contentQuestion.title;
+    return super.getDefaultTitle();
   }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
     if(this.isValueChanging(name, newValue)) return;
@@ -665,7 +670,7 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     this.updateElementCss();
     return res;
   }
-  public focus(onError: boolean = false) {
+  public focus(onError: boolean = false): void {
     if (!!this.contentQuestion) {
       this.contentQuestion.focus(onError);
     } else {
@@ -685,7 +690,8 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     var json = this.customQuestion.json;
     var res: any = null;
     if (!!json.questionJSON) {
-      var qType = json.questionJSON.type;
+      this.hasJSONTitle = !!json.questionJSON.title;
+      let qType = json.questionJSON.type;
       if (!qType || !Serializer.findClass(qType))
         throw "type attribute in questionJSON is empty or incorrect";
       res = <Question>Serializer.createClass(qType);

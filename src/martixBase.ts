@@ -343,9 +343,16 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.setPropertyValue("rowTitleWidth", val);
   }
 
+  //a11y
   public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
     return `row ${rowTitle}, column ${columnTitle}`;
   }
+
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  // EO a11y
+
 }
 
 Serializer.addClass(

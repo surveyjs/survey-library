@@ -484,6 +484,7 @@ export class MatrixDropdownColumn extends Base
     var qType = this.calcCellQuestionType(row);
     var cellQuestion = <Question>this.createNewQuestion(qType);
     this.callOnCellQuestionUpdate(cellQuestion, row);
+    cellQuestion.title = (<any>row).data.getCellAriaLabel(row.locText.renderedHtml, cellQuestion.title); // TODO REMOVE ANY 
     return cellQuestion;
   }
   startLoadingFromJson(json?: any) {

@@ -567,6 +567,11 @@ export var settings = {
    * Default value: `"none"`
    */
   noneItemValue: "none",
+  specialChoicesOrder: {
+    selectAllItem: [-1],
+    noneItem: [1],
+    otherItem: [2]
+  },
   /**
    * A list of supported validators by question type.
    */

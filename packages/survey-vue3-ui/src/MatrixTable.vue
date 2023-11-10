@@ -41,6 +41,7 @@
         >
           <tr
             :data-sv-drop-target-matrix-row="row.row && row.row.id"
+            @pointerdown="question.onPointerDown($event, row.row)"
             :class="row.className"
             v-if="row.visible"
           >

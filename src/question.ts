@@ -1363,6 +1363,9 @@ export class Question extends SurveyElement<Question>
   protected onReadOnlyChanged(): void {
     this.setPropertyValue("isInputReadOnly", this.isInputReadOnly);
     super.onReadOnlyChanged();
+    if(this.isReadOnly) {
+      this.clearErrors();
+    }
     this.updateQuestionCss();
     this.calcRenderedCommentPlaceholder();
   }

@@ -20,9 +20,8 @@
     ></sv-action-bar>
     <component
       v-if="cell.hasPanel"
-      :is="getComponentName(cell.panel)"
-      :element="cell.panel"
-      :css="question.cssClasses"
+      :is="panelComponentName"
+      v-bind="panelComponentData"
     ></component>
     <div
       v-if="cell.hasQuestion"
@@ -90,9 +89,13 @@
 </template>
 
 <script lang="ts" setup>
-import type { Question, QuestionMatrixDropdownRenderedCell } from "survey-core";
+import type {
+  Question,
+  QuestionMatrixDropdownRenderedCell,
+  SurveyModel,
+} from "survey-core";
 import { getComponentName as getComponent } from "./base";
-import { ref, onMounted, type StyleValue } from "vue";
+import { ref, onMounted, type StyleValue, computed } from "vue";
 
 const props = defineProps<{
   question: Question;
@@ -134,5 +137,40 @@ onMounted(() => {
   if (cQ) {
     cQ.afterRenderCore(el);
   }
+});
+const panelComponentName = computed(() => {
+  const cell = props.cell;
+  if (cell.hasPanel) {
+    const panel = cell.panel;
+    const survey = panel.survey as SurveyModel;
+    if (survey) {
+      const name = survey.getElementWrapperComponentName(panel);
+      if (name) {
+        return name;
+      }
+    }
+    return "survey-panel";
+  }
+  return undefined;
+});
+const panelComponentData = computed(() => {
+  const cell = props.cell;
+  if (cell.hasPanel) {
+    const panel = props.cell.panel;
+    const survey = panel.survey as SurveyModel;
+    let data: any;
+    if (survey) {
+      data = survey.getElementWrapperComponentData(panel);
+    }
+    return {
+      componentName: "survey-panel",
+      componentData: {
+        element: panel,
+        data: data,
+        css: props.question.cssClasses,
+      },
+    };
+  }
+  return undefined;
 });
 </script>

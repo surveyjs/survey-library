@@ -3,6 +3,7 @@
     v-if="element.isVisible"
     :class="element.getContainerCss()"
     :id="element.id"
+    @focusin="element.focusIn()"
     ref="root"
   >
     <survey-errors :element="element" v-if="element.showErrorsAbovePanel" />

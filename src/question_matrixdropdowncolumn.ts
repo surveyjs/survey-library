@@ -31,6 +31,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   getCellType(): string;
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
+  getCellAriaLabel(rowTitle:string, columnTitle:string):string;
 }
 
 function onUpdateSelectBaseCellQuestion(
@@ -484,9 +485,18 @@ export class MatrixDropdownColumn extends Base
     var qType = this.calcCellQuestionType(row);
     var cellQuestion = <Question>this.createNewQuestion(qType);
     this.callOnCellQuestionUpdate(cellQuestion, row);
-    cellQuestion.title = (<any>row).data.getCellAriaLabel(row.locText.renderedHtml, cellQuestion.title); // TODO REMOVE ANY
+    this.updateCellQuestionTitleDueToAccessebility(cellQuestion, row);
     return cellQuestion;
   }
+
+  private updateCellQuestionTitleDueToAccessebility(question: Question, row: MatrixDropdownRowModelBase):void {
+    const columnTitle = question.title;
+    const rowTitle = row.locText && row.locText.renderedHtml;
+
+    if (!columnTitle || !rowTitle) return;
+    question.title = this.colOwner.getCellAriaLabel(rowTitle, columnTitle);
+  }
+
   startLoadingFromJson(json?: any) {
     super.startLoadingFromJson(json);
     if (!!json && !json.cellType && !!json.choices) {

@@ -63,8 +63,9 @@ function checkPrefix(prefix: string): boolean {
     for(let i = 0; i < ds.length; i ++) {
       if(hn.indexOf(ds[i]) > -1) return true;
     }
+    return false;
   }
-  return false;
+  return true;
 }
 
 export { settings, ISurveyEnvironment } from "../../settings";

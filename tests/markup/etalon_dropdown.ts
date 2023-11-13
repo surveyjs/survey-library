@@ -171,7 +171,7 @@ registerMarkupTests(
       },
       snapshot: "dropdown-select",
     }, {
-      name: "Test Dropdown Select question markup",
+      name: "Test Dropdown Select question markup - touch",
       json: {
         questions: [
           {

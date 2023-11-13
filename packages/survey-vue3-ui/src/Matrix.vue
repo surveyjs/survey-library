@@ -68,7 +68,7 @@
                     :disabled="question.isInputReadOnly"
                     :id="question.inputId + '_' + row.name + '_' + columnIndex"
                     :aria-required="question.ariaRequired"
-                    :aria-label="column.locText.renderedHtml"
+                    :aria-label="question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
                     :aria-invalid="question.ariaInvalid"
                     :aria-describedby="question.ariaDescribedBy"
                   />

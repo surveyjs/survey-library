@@ -146,7 +146,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         className={this.question.cssClasses.cleanButton}
         style={style}
         onClick={this.clear}
-        tabIndex={this.question.inputReadOnly ? -1 : 0}
+        tabIndex={this.question.showClearButton ? 0 : -1}
       >
         <SvgIcon
           className={this.question.cssClasses.cleanButtonSvg}

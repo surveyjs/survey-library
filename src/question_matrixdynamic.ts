@@ -787,7 +787,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const lastDelRow = this.lastDeletedRow;
     this.lastDeletedRow = undefined;
     const rows = this.generatedVisibleRows;
-    if(!Array.isArray(val) || Math.abs(rows.length - val.length) > 1) return false;
+    if(!Array.isArray(val) || Math.abs(rows.length - val.length) > 1 || rows.length === val.length) return false;
     const index = this.getInsertedDeletedIndex(rows, val);
     if(rows.length > val.length) {
       this.lastDeletedRow = rows[index];

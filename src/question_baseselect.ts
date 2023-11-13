@@ -1797,7 +1797,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
    * @see separateSpecialChoices
    */
   public get colCount(): number {
-    return this.getPropertyValue("colCount", this.isFlowLayout ? 0 : 1);
+    return this.getPropertyValue("colCount", this.isFlowLayout ? 0 : undefined);
   }
   public set colCount(value: number) {
     if (value < 0 || value > 5 || this.isFlowLayout) return;

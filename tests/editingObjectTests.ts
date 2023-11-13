@@ -16,6 +16,7 @@ import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { QuestionMatrixModel } from "../src/question_matrix";
 import { Question } from "../src/question";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
+import { SurveyTriggerComplete } from "../src/trigger";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -1471,4 +1472,32 @@ QUnit.test("Allow to set empty string into localization string & string property
   assert.equal(q2.name, "q2", "set the name correctly");
   assert.strictEqual(q2.placeholder, "", "q2.placeholder value is empty");
   assert.strictEqual(q2.minWidth, "", "q2.minWidth value is empty");
+});
+QUnit.test("Edit triggers array", function (assert) {
+  const survey = new SurveyModel();
+
+  const editSurvey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "triggers",
+        columns: [{ cellType: "text", name: "type" }],
+        rowCount: 0,
+      },
+    ],
+  });
+  editSurvey.onMatrixCellCreated.add((sender, options) => {
+    const obj = options.row.editingObj;
+    if(obj) {
+      options.cell.value = obj.getType();
+    }
+  });
+  const matrix = <QuestionMatrixDynamicModel>(
+    editSurvey.getQuestionByName("triggers")
+  );
+  editSurvey.editingObj = survey;
+  assert.equal(matrix.visibleRows.length, 0, "There is no triggers");
+  survey.triggers.push(new SurveyTriggerComplete());
+  assert.equal(matrix.visibleRows.length, 1, "There is one trigger");
+  assert.equal(matrix.visibleRows[0].cells[0].value, "completetrigger", "correct trigger type");
 });

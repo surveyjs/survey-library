@@ -5013,7 +5013,7 @@ export class SurveyModel extends SurveyElementCore
     callback: (status: string | Array<any>, data: any) => any
   ) {
     if (this.onUploadFiles.isEmpty) {
-      callback("error", files);
+      callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
       this.onUploadFiles.fire(this, {
         question: question,

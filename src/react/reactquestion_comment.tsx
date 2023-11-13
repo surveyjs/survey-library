@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionCommentModel } from "survey-core";
+import { QuestionCommentModel, Helpers } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { CharacterCounterComponent } from "./components/character-counter";
 
@@ -55,12 +55,12 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
   private getStateComment() {
-    const questionComment = this.getComment();
+    const comment = this.getComment();
     let stateComment: string = this.state.comment;
-    if (stateComment !== undefined && stateComment.trim() !== questionComment) {
-      stateComment = questionComment;
+    if (stateComment !== undefined && stateComment.trim() !== comment) {
+      stateComment = comment;
     }
-    return stateComment !== undefined ? stateComment : questionComment || "";
+    return stateComment !== undefined ? stateComment : comment || "";
   }
   constructor(props: any) {
     super(props);
@@ -78,6 +78,9 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected getComment(): string {
     return this.props.question.comment;
   }
+  protected setComment(value: any): void {
+    this.props.question.comment = value;
+  }
   protected getId(): string {
     return this.props.question.commentId;
   }
@@ -89,6 +92,9 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
+      if (!Helpers.isTwoValueEquals(this.getComment(), event.target.value, false, true, false)) {
+        this.setComment(event.target.value);
+      }
     };
     let comment = this.getStateComment();
 
@@ -99,7 +105,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       <textarea
         id={this.getId()}
         className={className}
-        value={this.state.comment}
+        value={comment}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
         placeholder={this.getPlaceholder()}
@@ -122,6 +128,9 @@ export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
   }
   protected getComment(): string {
     return this.props.question.otherValue;
+  }
+  protected setComment(value: any): void {
+    this.props.question.otherValue = value;
   }
   protected getId(): string {
     return this.props.question.otherId;

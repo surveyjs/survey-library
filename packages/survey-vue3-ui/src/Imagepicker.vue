@@ -2,12 +2,12 @@
   <fieldset :class="question.getSelectBaseRootCss()" ref="root">
     <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
     <template v-if="!question.hasColumns">
-      <survey-imagepicker-item
+      <component
         v-for="item in question.visibleChoices"
         :key="item.value"
-        :question="question"
-        :item="item"
-      ></survey-imagepicker-item>
+        :is="getItemValueComponentName(item)"
+        v-bind="getItemValueComponentData(item)"
+      ></component>
     </template>
     <template v-if="question.hasColumns">
       <div
@@ -16,23 +16,42 @@
         :key="colIndex"
         role="presentation"
       >
-        <survey-imagepicker-item
+        <component
           v-for="item in column"
           :key="item.value"
-          :question="question"
-          :item="item"
-        ></survey-imagepicker-item>
+          :is="getItemValueComponentName(item)"
+          v-bind="getItemValueComponentData(item)"
+        ></component>
       </div>
     </template>
   </fieldset>
 </template>
 
 <script lang="ts" setup>
-import type { QuestionImagePickerModel } from "survey-core";
+import type { ItemValue, QuestionImagePickerModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionImagePickerModel }>();
 const root = ref(null);
 useQuestion(props, root);
+const defaultComponentName = "survey-imagepicker-item";
+const getItemValueComponentName = (item: ItemValue) => {
+  return (
+    props.question.getItemValueWrapperComponentName(item) ||
+    defaultComponentName
+  );
+};
+
+const getItemValueComponentData = (item: ItemValue) => {
+  const itemComponent = defaultComponentName;
+  return {
+    componentName: itemComponent,
+    componentData: {
+      question: props.question,
+      item,
+      data: props.question.getItemValueWrapperComponentData(item),
+    },
+  };
+};
 </script>

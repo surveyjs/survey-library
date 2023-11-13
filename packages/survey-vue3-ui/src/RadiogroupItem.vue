@@ -1,16 +1,13 @@
 <template>
-  <div role="presentation">
-    <label
-      @mousedown="question.onMouseDown()"
-      :class="getLabelClass(item)"
-    >
+  <div role="presentation" :class="question.getItemClass(item)">
+    <label @mousedown="question.onMouseDown()" :class="getLabelClass(item)">
       <input
         type="radio"
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
         :aria-describedby="question.ariaDescribedBy"
-        v-model="question.renderedValue"
+        v-model="renderedValue"
         :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"
       /><span
@@ -33,11 +30,13 @@
 <script lang="ts" setup>
 import type { ItemValue, QuestionRadiogroupModel } from "survey-core";
 import { useBase } from "./base";
+import { computed } from "vue";
+
+defineOptions({ inheritAttrs: false });
 
 const props = defineProps<{
   question: QuestionRadiogroupModel;
   item: ItemValue;
-  index: string | number;
   hideLabel?: boolean;
 }>();
 const getLabelClass = (item: any) => {
@@ -46,6 +45,14 @@ const getLabelClass = (item: any) => {
 const getControlLabelClass = (item: any) => {
   return props.question.getControlLabelClass(item);
 };
+
+const renderedValue = computed({
+  get: () => props.question.renderedValue,
+  set: (val) => {
+    const question = props.question;
+    question.renderedValue = val;
+  },
+});
 
 useBase(() => props.item);
 </script>

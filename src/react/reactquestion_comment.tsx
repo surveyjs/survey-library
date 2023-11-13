@@ -54,6 +54,18 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
+  private getStateComment() {
+    const questionComment = this.getComment();
+    let stateComment: string = this.state.comment;
+    if (stateComment !== undefined && stateComment.trim() !== questionComment) {
+      stateComment = questionComment;
+    }
+    return stateComment !== undefined ? stateComment : questionComment || "";
+  }
+  constructor(props: any) {
+    super(props);
+    this.state = { comment: this.getComment() || "" };
+  }
   protected canRender(): boolean {
     return !!this.props.question;
   }
@@ -75,12 +87,10 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected renderElement(): JSX.Element {
     let question = this.props.question;
     let className = this.props.otherCss || this.cssClasses.comment;
-    const questionComment = this.getComment();
-    let stateComment: string = !!this.state ? this.state.comment : undefined;
-    if (stateComment !== undefined && stateComment.trim() !== questionComment) {
-      stateComment = questionComment;
-    }
-    let comment = stateComment !== undefined ? stateComment : questionComment || "";
+    let handleOnChange = (event: any) => {
+      this.setState({ comment: event.target.value });
+    };
+    let comment = this.getStateComment();
 
     if (question.isReadOnlyRenderDiv()) {
       return <div>{comment}</div>;
@@ -89,11 +99,12 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
       <textarea
         id={this.getId()}
         className={className}
-        value={comment}
+        value={this.state.comment}
         disabled={this.isDisplayMode}
         maxLength={question.getOthersMaxLength()}
         placeholder={this.getPlaceholder()}
-        onBlur={(e) => { this.onCommentChange(e); }}
+        onChange={handleOnChange}
+        onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); }}
         onInput={(e) => this.onCommentInput(e)}
         aria-required={question.isRequired || question.a11y_input_ariaRequired}
         aria-label={question.ariaLabel || question.a11y_input_ariaLabel}

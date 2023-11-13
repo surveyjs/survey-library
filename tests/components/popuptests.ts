@@ -1534,7 +1534,7 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
   let subscribeLog = "";
   const wrapEvent = (event) => {
     event.preventDefault = () => {
-      eventLog +="->prevented";
+      eventLog += "->prevented";
     };
   };
   const wrapContainer = (element) => {
@@ -1565,40 +1565,40 @@ QUnit.test("Check that modal popup prevents scroll outside", (assert) => {
   viewModel.updateOnShowing();
   assert.equal(subscribeLog, "->subscribed");
 
-  let event = new WheelEvent("wheel", { deltaY: 20 });
+  let event = new WheelEvent("wheel", { deltaY: 20, cancelable: true });
   wrapEvent(event);
   container.dispatchEvent(event);
   assert.equal(eventLog, "->prevented", "prevented scroll when not scrolling inside");
 
   eventLog = "";
-  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true, cancelable: true });
   wrapEvent(event);
   container.children[0].children[0].dispatchEvent(event);
   assert.equal(eventLog, "", "scroll inside (not prevented)");
 
   eventLog = "";
-  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true });
+  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true, cancelable: true });
   wrapEvent(event);
   container.children[0].scrollTo(0, 20);
   container.children[0].children[0].dispatchEvent(event);
   assert.equal(eventLog, "", "scroll inside (not prevented)");
 
   eventLog = "";
-  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true, cancelable: true });
   wrapEvent(event);
   container.children[0].scrollTo(0, 150);
   container.children[0].children[0].dispatchEvent(event);
   assert.equal(eventLog, "", "scroll inside (not prevented)");
 
   eventLog = "";
-  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true });
+  event = new WheelEvent("wheel", { deltaY: -20, bubbles: true, cancelable: true });
   wrapEvent(event);
   container.children[0].scrollTo(0, 0);
   container.children[0].children[0].dispatchEvent(event);
   assert.equal(eventLog, "->prevented", "overscroll inside (prevented)");
 
   eventLog = "";
-  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true });
+  event = new WheelEvent("wheel", { deltaY: 20, bubbles: true, cancelable: true });
   wrapEvent(event);
   container.children[0].scrollTo(0, 200);
   container.children[0].children[0].dispatchEvent(event);

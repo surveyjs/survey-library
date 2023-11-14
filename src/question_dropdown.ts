@@ -216,7 +216,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    * @see choicesLazyLoadEnabled
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
+  @property() choicesLazyLoadPageSize: number;
 
   public getControlClass(): string {
     return new CssClassBuilder()

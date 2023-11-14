@@ -1840,6 +1840,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly);
   }
   protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean): void {
+    if(!Array.isArray(rows)) return;
     rows.forEach(row => {
       row.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
     });

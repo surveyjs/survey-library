@@ -572,7 +572,7 @@ export var settings = {
    *
    * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2] }`
    *
-   * Use this object to reorder special choices. Each property accepts an array of integer numbers. Negative numbers place a special choice item above regular choice items, positive numbers place it below them. For instance, the following code specify the following order of choices: None, Select All, regular choices, Other:
+   * Use this object to reorder special choices. Each property accepts an array of integer numbers. Negative numbers place a special choice item above regular choice items, positive numbers place it below them. For instance, the code below specifies the following order of choices: None, Select All, regular choices, Other.
    *
    * ```js
    * import { settings } from "survey-core";

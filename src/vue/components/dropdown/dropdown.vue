@@ -24,8 +24,8 @@
 
       <div :class="question.cssClasses.controlValue">
         <survey-string
-          v-if="question.showSelectedItemLocText"
-          :locString="question.selectedItemLocText"
+          v-if="showSelectedItemLocText"
+          :locString="selectedItemLocText"
         />
         <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
         <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
@@ -82,8 +82,8 @@
     ></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
       <survey-string
-        v-if="question.selectedItemLocText"
-        :locString="question.selectedItemLocText"
+        v-if="selectedItemLocText"
+        :locString="selectedItemLocText"
       />
       <div>{{ question.readOnlyText }}</div>
     </div>
@@ -126,6 +126,14 @@ export class DropdownComponent extends BaseVue {
 
   inputChange(event: any) {
     this.model.inputStringRendered = event.target.value;
+  }
+
+  public get showSelectedItemLocText() {
+    return this.question.showSelectedItemLocText;
+  }
+
+  public get selectedItemLocText() {
+    return this.question.selectedItemLocText;
   }
 
   public click(event: any) {

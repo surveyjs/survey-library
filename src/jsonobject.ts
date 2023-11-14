@@ -68,10 +68,10 @@ export function property(options: IPropertyDecoratorOptions = {}) {
     if (!options || !options.localizable) {
       Object.defineProperty(target, key, {
         get: function () {
-          const serializationProperty = Serializer.getProperty(target.getType(), key);
-          if(!!serializationProperty && options.defaultValue !== undefined) {
-            ConsoleWarnings.error("remove defaultValue from @property for class " + target.getType() + " property name is " + key);
-          }
+          // const serializationProperty = Serializer.getProperty(target.getType(), key);
+          // if(!!serializationProperty && options.defaultValue !== undefined) {
+          //   ConsoleWarnings.error("remove defaultValue from @property for class " + target.getType() + " property name is " + key);
+          // }
           let defaultVal = null;
           if (!!options) {
             if (typeof options.getDefaultValue === "function") {

@@ -77,6 +77,15 @@ export class MatrixDropdownCell {
   ) {
     this.questionValue = this.createQuestion(column, row, data);
     this.questionValue.updateCustomWidget();
+    this.updateCellQuestionTitleDueToAccessebility(row);
+  }
+  private updateCellQuestionTitleDueToAccessebility(row: MatrixDropdownRowModelBase): void {
+    this.questionValue.locTitle.onGetTextCallback = (str: string): string => {
+      if(!row || !row.getSurvey()) return this.questionValue.title;
+      const rowTitle = row.locText && row.locText.renderedHtml;
+      if(!rowTitle) return this.questionValue.title;
+      return this.column.colOwner.getCellAriaLabel(rowTitle, this.questionValue.title);
+    };
   }
   public locStrsChanged() {
     this.question.locStrsChanged();

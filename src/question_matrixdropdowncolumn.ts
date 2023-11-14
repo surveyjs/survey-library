@@ -485,19 +485,9 @@ export class MatrixDropdownColumn extends Base
     var qType = this.calcCellQuestionType(row);
     var cellQuestion = <Question>this.createNewQuestion(qType);
     this.callOnCellQuestionUpdate(cellQuestion, row);
-    this.updateCellQuestionTitleDueToAccessebility(cellQuestion, row);
     return cellQuestion;
   }
-
-  private updateCellQuestionTitleDueToAccessebility(question: Question, row: MatrixDropdownRowModelBase):void {
-    const columnTitle = question.title;
-    const rowTitle = row.locText && row.locText.renderedHtml;
-
-    if (!columnTitle || !rowTitle) return;
-    question.title = this.colOwner.getCellAriaLabel(rowTitle, columnTitle);
-  }
-
-  startLoadingFromJson(json?: any) {
+  startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
     if (!!json && !json.cellType && !!json.choices) {
       json.cellType = this.colOwner.getCellType();

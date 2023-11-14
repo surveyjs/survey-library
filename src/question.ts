@@ -1309,6 +1309,7 @@ export class Question extends SurveyElement<Question>
    * @see otherItem
    * @see otherErrorText
    * @see showCommentArea
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get showOtherItem(): boolean {
     return this.getPropertyValue("showOtherItem", false);

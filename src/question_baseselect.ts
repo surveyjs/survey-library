@@ -184,6 +184,7 @@ export class QuestionSelectBase extends Question {
    * When users select the "None" item in multi-select questions, all other items become unselected.
    * @see noneItem
    * @see noneText
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get showNoneItem(): boolean {
     return this.getPropertyValue("showNoneItem");
@@ -641,6 +642,7 @@ export class QuestionSelectBase extends Question {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
    * @see choices
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get choicesByUrl(): ChoicesRestful {
     return this.getPropertyValue("choicesByUrl");
@@ -669,6 +671,7 @@ export class QuestionSelectBase extends Question {
    * If you need to specify only the `value` property, you can set the `choices` property to an array of primitive values, for example, `[ "item1", "item2", "item3" ]`. These values are both saved in survey results and used as display text.
    * @see choicesByUrl
    * @see choicesFromQuestion
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get choices(): Array<any> {
     return this.getPropertyValue("choices");
@@ -781,6 +784,7 @@ export class QuestionSelectBase extends Question {
    * - `"asc"`- Sorts choice items in ascending order.
    * - `"desc"`- Sorts choice items in ascending order.
    * - `"random"` - Displays choice items in random order.
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get choicesOrder(): string {
     return this.getPropertyValue("choicesOrder");
@@ -809,6 +813,7 @@ export class QuestionSelectBase extends Question {
    * Displays the "Select All", "None", and "Other" choices on individual rows.
    * @see showNoneItem
    * @see showOtherItem
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   @property() separateSpecialChoices: boolean;
   /**
@@ -901,16 +906,7 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     this.headItemsCount = 0;
     this.footItemsCount = 0;
-    if (isAddAll) {
-      if (!this.newItemValue) {
-        this.newItemValue = this.createItemValue("newitem"); //TODO
-        this.newItemValue.isGhost = true;
-      }
-      if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
-        this.footItemsCount ++;
-        items.push(this.newItemValue);
-      }
-    }
+    this.addNewItemToVisibleChoices(items, isAddAll);
     const dict = new Array<{ index: number, item: ItemValue }>();
     this.addNonChoicesItems(dict, isAddAll);
     dict.sort((a: { index: number, item: ItemValue }, b: { index: number, item: ItemValue }): number => {
@@ -927,6 +923,17 @@ export class QuestionSelectBase extends Question {
         items.push(rec.item);
         this.footItemsCount ++;
       }
+    }
+  }
+  protected addNewItemToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
+    if (!isAddAll) return;
+    if (!this.newItemValue) {
+      this.newItemValue = this.createItemValue("newitem"); //TODO
+      this.newItemValue.isGhost = true;
+    }
+    if (!this.isUsingCarryForward && this.canShowOptionItem(this.newItemValue, isAddAll, false)) {
+      this.footItemsCount = 1;
+      items.push(this.newItemValue);
     }
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
@@ -1786,7 +1793,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
    * @see separateSpecialChoices
    */
   public get colCount(): number {
-    return this.getPropertyValue("colCount", this.isFlowLayout ? 0 : 1);
+    return this.getPropertyValue("colCount", this.isFlowLayout ? 0 : undefined);
   }
   public set colCount(value: number) {
     if (value < 0 || value > 5 || this.isFlowLayout) return;

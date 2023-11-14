@@ -129,6 +129,11 @@ export class Survey extends SurveyModel {
   public render(element: any = null): void {
     this.implementor.render(element);
   }
+  public fromJSON(json: any) {
+    if (!json) return;
+    super.fromJSON(json);
+    this.locStrsChanged();
+  }
   public getHtmlTemplate(): string {
     return koTemplate;
   }
@@ -137,7 +142,7 @@ export class Survey extends SurveyModel {
   }
   public dispose(): void {
     super.dispose();
-    if(this.implementor) {
+    if (this.implementor) {
       this.implementor.dispose();
       this.implementor = undefined;
     }
@@ -281,7 +286,7 @@ ko.bindingHandlers["elementStyle"] = {
     }
     var value = ko.utils.unwrapObservable(valueAccessor()) || {};
     Object.keys(value).forEach(key => {
-      if(key.indexOf("--") === 0) {
+      if (key.indexOf("--") === 0) {
         element.style.setProperty(key, value[key]);
       } else {
         element.style[key] = value[key];

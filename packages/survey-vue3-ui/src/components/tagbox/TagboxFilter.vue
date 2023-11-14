@@ -32,7 +32,7 @@
         :aria-labelledby="question.a11y_input_ariaLabelledBy"
         :aria-activedescendant="model.ariaActivedescendant"
         :id="question.getInputId()"
-        :readonly="!model.searchEnabled ? true : undefined"
+        :readonly="model.filterReadOnly ? true : undefined"
         :size="!model.inputStringRendered ? 1 : undefined"
         @change="inputChange"
         @keydown="inputKeyHandler"

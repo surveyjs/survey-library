@@ -17,7 +17,7 @@ export class DropdownListModel extends Base {
 
   private _markdownMode = false;
   private _popupModel: PopupModel;
-  focused: boolean;
+  @property({ defaultValue: false }) focused: boolean;
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
   }
@@ -339,8 +339,11 @@ export class DropdownListModel extends Base {
   get popupModel(): PopupModel {
     return this._popupModel;
   }
-  public get inputReadOnly(): boolean {
+  public get noTabIndex(): boolean {
     return this.question.isInputReadOnly || this.searchEnabled;
+  }
+  public get filterReadOnly(): boolean {
+    return this.question.isInputReadOnly || !this.searchEnabled || !this.focused;
   }
   public get filterStringEnabled(): boolean {
     return !this.question.isInputReadOnly && this.searchEnabled;

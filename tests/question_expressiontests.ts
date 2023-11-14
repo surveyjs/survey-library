@@ -296,3 +296,20 @@ QUnit.test("Custom function returns object&array, #7050", function (assert) {
   FunctionFactory.Instance.unregister("func1");
   FunctionFactory.Instance.unregister("func2");
 });
+QUnit.test("Default value and setValueExpression", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "expression", name: "q1", setValueExpression: "iif({q2} = 1, 'b', ''", defaultValue: "a" },
+      { type: "text", name: "q2" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.value, "a", "default value is 'a'");
+  assert.equal(q1.formatedValue, "a", "formatedValue, default value is 'a'");
+  survey.setValue("q2", 1);
+  assert.equal(q1.value, "b", "var1 = 1");
+  assert.equal(q1.formatedValue, "b", "formatedValue, var1 = 1");
+  survey.setValue("q2", 2);
+  assert.equal(q1.value, "", "var1 = 2");
+  assert.equal(q1.formatedValue, "", "formatedValue, var1 = 2");
+});

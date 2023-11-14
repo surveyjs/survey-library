@@ -314,7 +314,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   /**
    * Aligns matrix cell content in the vertical direction.
    */
-  @property({ defaultValue: "middle" }) verticalAlign: "top" | "middle";
+  @property() verticalAlign: "top" | "middle";
 
   /**
    * Specifies whether to apply shading to alternate matrix rows.
@@ -341,6 +341,10 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   }
   public set rowTitleWidth(val: string) {
     this.setPropertyValue("rowTitleWidth", val);
+  }
+
+  public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
+    return `row ${rowTitle}, column ${columnTitle}`;
   }
 }
 

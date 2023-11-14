@@ -54,7 +54,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * Specifies whether users can enter a value into the input field to filter the drop-down list.
    */
   @property({
-    defaultValue: true,
     onSet: (newValue: boolean, target: QuestionTagboxModel) => {
       if (!!target.dropdownListModel) {
         target.dropdownListModel.setSearchEnabled(newValue);
@@ -84,7 +83,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    * @see choicesLazyLoadEnabled
    * @see SurveyModel.onChoicesLazyLoad
    */
-  @property({ defaultValue: 25 }) choicesLazyLoadPageSize: number;
+  @property() choicesLazyLoadPageSize: number;
   /**
    * Specifies whether to close the drop-down menu after a user selects a value.
    */

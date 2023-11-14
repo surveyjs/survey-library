@@ -92,6 +92,7 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
+      // https://github.com/surveyjs/survey-library/issues/7252
       if (!Helpers.isTwoValueEquals(this.getComment(), event.target.value, false, true, false)) {
         this.setComment(event.target.value);
       }

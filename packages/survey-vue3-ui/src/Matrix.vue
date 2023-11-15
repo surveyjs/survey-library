@@ -15,7 +15,14 @@
                 width: question.columnMinWidth,
               }"
             >
-              <survey-string :locString="column.locText" />
+              <component
+                :is="question.getColumnHeaderWrapperComponentName(column)"
+                :componentData="
+                  question.getColumnHeaderWrapperComponentData(column)
+                "
+              >
+                <survey-string :locString="column.locText" />
+              </component>
             </th>
           </tr>
         </thead>
@@ -33,7 +40,12 @@
                 width: question.rowTitleWidth,
               }"
             >
-              <survey-string :locString="row.locText" />
+              <component
+                :is="question.getRowHeaderWrapperComponentName(row)"
+                :componentData="question.getRowHeaderWrapperComponentData(row)"
+              >
+                <survey-string :locString="row.locText" />
+              </component>
             </td>
             <template v-if="question.hasCellText">
               <td

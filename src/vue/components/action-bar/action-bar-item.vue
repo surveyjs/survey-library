@@ -18,7 +18,7 @@
     v-bind:aria-expanded="item.ariaExpanded"
     v-bind:role="item.ariaRole"
     v-bind:tabindex="item.disableTabStop ? -1 : 0"
-    v-key2click
+    v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
     <sv-svg-icon
       v-if="item.iconName"

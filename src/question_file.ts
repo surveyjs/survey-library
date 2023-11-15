@@ -76,7 +76,7 @@ export class QuestionFileModel extends Question {
   public chooseFileAction: Action;
   public startCameraAction: Action;
   public cleanAction: Action;
-  public actionsContainer: ActionContainer = new ActionContainer();
+  public actionsContainer: ActionContainer;
 
   get fileNavigatorVisible(): boolean {
     const isUploading = this.isUploading;
@@ -98,6 +98,9 @@ export class QuestionFileModel extends Question {
 
   constructor(name: string) {
     super(name);
+    this.createLocalizableString("takePhotoCaption", this, false, true);
+    this.actionsContainer = new ActionContainer();
+    this.actionsContainer.locOwner = this;
     this.fileIndexAction = new Action({
       id: "fileIndex",
       title: this.getFileIndexCaption(),
@@ -124,7 +127,7 @@ export class QuestionFileModel extends Question {
       id: "sv-file-take-picture",
       iconSize: "auto",
       innerCss: <string>(new ComputedUpdater<string>(() => new CssClassBuilder().append(this.cssClasses.contextButton).append(this.cssClasses.takePictureButton).toString()) as any),
-      title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
+      locTitle: this.locTakePhotoCaption,
       showTitle: false,
       action: () => {
         this.snapPicture();
@@ -160,7 +163,7 @@ export class QuestionFileModel extends Question {
       iconName: "icon-takepicture_24x24",
       id: "sv-file-start-camera",
       iconSize: "auto",
-      title: <string>(new ComputedUpdater<string>(() => this.takePhotoCaption) as any),
+      locTitle: this.locTakePhotoCaption,
       showTitle: <boolean>(new ComputedUpdater<boolean>(() => !this.isAnswered) as any),
       enabledIf: () => !this.isInputReadOnly,
       action: () => {
@@ -412,7 +415,9 @@ export class QuestionFileModel extends Question {
   @property({ localizable: { defaultStr: "confirmRemoveAllFiles" } }) confirmRemoveAllMessage: string;
   @property({ localizable: { defaultStr: "noFileChosen" } }) noFileChosenCaption: string;
   @property({ localizable: { defaultStr: "chooseFileCaption" } }) chooseButtonCaption: string;
-  @property({ localizable: { defaultStr: "takePhotoCaption" } }) takePhotoCaption: string;
+  public get takePhotoCaption(): string { return this.getLocalizableStringText("takePhotoCaption"); }
+  public set takePhotoCaption(val: string) { this.setLocalizableStringText("takePhotoCaption", val); }
+  public get locTakePhotoCaption(): LocalizableString { return this.getLocalizableString("takePhotoCaption"); }
   @property({ localizable: { defaultStr: "replaceFileCaption" } }) replaceButtonCaption: string;
   @property({ localizable: { defaultStr: "clearCaption" } }) clearButtonCaption: string;
   @property({ localizable: { defaultStr: "removeFileCaption" } }) removeFileCaption: string;

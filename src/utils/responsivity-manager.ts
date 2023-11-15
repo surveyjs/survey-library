@@ -92,15 +92,29 @@ export class ResponsivityManager {
     if (this.isContainerVisible && !this.model.isResponsivenessDisabled) {
       if (!this.isInitialized) {
         this.model.setActionsMode("large");
-        this.calcItemsSizes();
-        this.isInitialized = true;
+        const recalcItemSizes = () => {
+          this.calcItemsSizes();
+          this.isInitialized = true;
+        };
+        if(queueMicrotask) {
+          queueMicrotask(recalcItemSizes);
+        } else {
+          recalcItemSizes();
+        }
       }
-      let dotsItemSize = this.dotsItemSize;
-      if (!this.dotsItemSize) {
-        const dotsItemElement: HTMLDivElement = this.container?.querySelector(".sv-dots");
-        dotsItemSize = dotsItemElement && this.calcItemSize(dotsItemElement) || this.dotsSizeConst;
+      const processResponsiveness = () => {
+        let dotsItemSize = this.dotsItemSize;
+        if (!this.dotsItemSize) {
+          const dotsItemElement: HTMLDivElement = this.container?.querySelector(".sv-dots");
+          dotsItemSize = dotsItemElement && this.calcItemSize(dotsItemElement) || this.dotsSizeConst;
+        }
+        this.model.fit(this.getAvailableSpace(), dotsItemSize);
+      };
+      if(queueMicrotask) {
+        queueMicrotask(processResponsiveness);
+      } else {
+        processResponsiveness();
       }
-      this.model.fit(this.getAvailableSpace(), dotsItemSize);
     }
   }
 

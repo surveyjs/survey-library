@@ -18,7 +18,7 @@ import type {
   SurveyElement,
   SurveyModel,
 } from "survey-core";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, onUnmounted, ref } from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{
@@ -31,7 +31,18 @@ const elements = computed(
 );
 const root = ref<HTMLElement>();
 
-useBase(() => props.row);
+useBase(
+  () => props.row,
+  (newValue, oldValue) => {
+    if (oldValue) {
+      newValue.isNeedRender = oldValue.isNeedRender;
+    }
+  },
+  (value) => {
+    value.stopLazyRendering();
+    value.isNeedRender = !value.isLazyRendering();
+  }
+);
 
 onMounted(() => {
   if (props.row) {
@@ -41,12 +52,6 @@ onMounted(() => {
         props.row.startLazyRendering(rowContainerDiv as HTMLElement);
       }, 10);
     }
-  }
-});
-onUnmounted(() => {
-  const row = props.row;
-  if (row) {
-    row.isNeedRender = !props.row.isLazyRendering();
   }
 });
 </script>

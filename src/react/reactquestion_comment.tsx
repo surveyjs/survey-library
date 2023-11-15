@@ -1,6 +1,6 @@
 import * as React from "react";
 import { ReactSurveyElement, SurveyQuestionUncontrolledElement } from "./reactquestion_element";
-import { QuestionCommentModel } from "survey-core";
+import { QuestionCommentModel, Helpers } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { CharacterCounterComponent } from "./components/character-counter";
 
@@ -54,6 +54,18 @@ export class SurveyQuestionComment extends SurveyQuestionUncontrolledElement<Que
 }
 
 export class SurveyQuestionCommentItem extends ReactSurveyElement {
+  private getStateComment() {
+    const comment = this.getComment();
+    let stateComment: string = this.state.comment;
+    if (stateComment !== undefined && stateComment.trim() !== comment) {
+      stateComment = comment;
+    }
+    return stateComment !== undefined ? stateComment : comment || "";
+  }
+  constructor(props: any) {
+    super(props);
+    this.state = { comment: this.getComment() || "" };
+  }
   protected canRender(): boolean {
     return !!this.props.question;
   }
@@ -63,11 +75,11 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
   protected onCommentInput(event: any): void {
     this.props.question.onCommentInput(event);
   }
-  protected onCommentCompositionUpdate(event: any): void {
-    this.props.question.onCompositionUpdateComment(event);
-  }
   protected getComment(): string {
     return this.props.question.comment;
+  }
+  protected setComment(value: any): void {
+    this.props.question.comment = value;
   }
   protected getId(): string {
     return this.props.question.commentId;
@@ -80,14 +92,12 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
     let className = this.props.otherCss || this.cssClasses.comment;
     let handleOnChange = (event: any) => {
       this.setState({ comment: event.target.value });
-      this.onCommentChange(event);
+      // https://github.com/surveyjs/survey-library/issues/7252
+      if (!Helpers.isTwoValueEquals(this.getComment(), event.target.value, false, true, false)) {
+        this.setComment(event.target.value);
+      }
     };
-    const questionComment = this.getComment();
-    let stateComment: string = !!this.state ? this.state.comment : undefined;
-    if (stateComment !== undefined && stateComment.trim() !== questionComment) {
-      stateComment = questionComment;
-    }
-    let comment = stateComment !== undefined ? stateComment : questionComment || "";
+    let comment = this.getStateComment();
 
     if (question.isReadOnlyRenderDiv()) {
       return <div>{comment}</div>;
@@ -103,7 +113,6 @@ export class SurveyQuestionCommentItem extends ReactSurveyElement {
         onChange={handleOnChange}
         onBlur={(e) => { this.onCommentChange(e); handleOnChange(e); }}
         onInput={(e) => this.onCommentInput(e)}
-        onCompositionUpdate={(e) => this.onCommentCompositionUpdate(e)}
         aria-required={question.isRequired || question.a11y_input_ariaRequired}
         aria-label={question.ariaLabel || question.a11y_input_ariaLabel}
         style={{ resize: question.resizeStyle }}
@@ -118,11 +127,11 @@ export class SurveyQuestionOtherValueItem extends SurveyQuestionCommentItem {
   protected onCommentInput(event: any): void {
     this.props.question.onOtherValueInput(event);
   }
-  protected onCommentCompositionUpdate(event: any): void {
-    this.props.question.onCompositionUpdateOtherValue(event);
-  }
   protected getComment(): string {
     return this.props.question.otherValue;
+  }
+  protected setComment(value: any): void {
+    this.props.question.otherValue = value;
   }
   protected getId(): string {
     return this.props.question.otherId;

@@ -18082,3 +18082,35 @@ QUnit.test("clearInvisibleValues onHiddenContainer breaks defaultValueExpression
   assert.equal(q2.value, 24, "q1.value = B");
 });
 
+QUnit.test("If questionsOnPageMode is singlePage and survey there is one page than toJSON convert page to panel", function (assert) {
+  const surveyJson = {
+    "questionsOnPageMode": "singlePage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "first-name",
+          },
+          {
+            "type": "text",
+            "name": "last-name",
+          },
+          {
+            "type": "text",
+            "name": "birthdate",
+            "inputType": "date"
+          },
+        ]
+      }
+    ],
+  };
+  const survey = new SurveyModel(surveyJson);
+  const prepareJSON = survey.toJSON();
+
+  assert.equal(surveyJson.pages[0].elements.length, 3, "surveyJson elements count");
+  assert.equal(prepareJSON.pages[0].elements.length, 3, "prepareJSON elements count");
+
+  assert.deepEqual (surveyJson, prepareJSON);
+});

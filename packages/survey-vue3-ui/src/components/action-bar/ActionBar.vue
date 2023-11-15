@@ -18,15 +18,20 @@ import type { ActionContainer } from "survey-core";
 import { useBase } from "@/base";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
-const props = defineProps<{
-  model: ActionContainer;
-  container?: string;
-  handleClick?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    model: ActionContainer;
+    container?: string;
+    handleClick?: boolean;
+  }>(),
+  {
+    handleClick: true,
+  }
+);
 const root = ref<HTMLDivElement>(null as any as HTMLDivElement);
 
 const onClick = (event: MouseEvent) => {
-  if (props.handleClick ?? true) {
+  if (props.handleClick) {
     event.stopPropagation();
   }
 };

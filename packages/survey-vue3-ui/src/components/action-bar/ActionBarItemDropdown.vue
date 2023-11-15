@@ -15,7 +15,6 @@
     v-bind:disabled="item.disabled"
     v-bind:title="item.tooltip || item.title"
     v-bind:role="item.ariaRole"
-    v-bind:tabindex="item.disableTabStop ? -1 : 0"
     v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
     <sv-svg-icon

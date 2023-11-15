@@ -67,10 +67,10 @@
                     :value="column.value"
                     :disabled="question.isInputReadOnly"
                     :id="question.inputId + '_' + row.name + '_' + columnIndex"
-                    :aria-required="question.ariaRequired"
+                    :aria-required="question.a11y_input_ariaRequired"
                     :aria-label="question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
-                    :aria-invalid="question.ariaInvalid"
-                    :aria-describedby="question.ariaDescribedBy"
+                    :aria-invalid="question.a11y_input_ariaInvalid"
+                    :aria-describedby="question.a11y_input_ariaDescribedBy"
                   />
                   <span :class="question.cssClasses.materialDecorator">
                     <svg

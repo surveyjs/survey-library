@@ -95,12 +95,6 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get headers(): string {
     if(this.cell && this.cell.column) {
-      if(this.cell.column.cellHint === " ") {
-        return "";
-      }
-      if(!!this.cell.column.cellHint) {
-        return this.cell.column.locCellHint.renderedHtml;
-      }
       if (this.matrix.IsMultiplyColumn(this.cell.column)) {
         if(!!this.item) {
           return this.item.locText.renderedHtml;
@@ -108,6 +102,12 @@ export class QuestionMatrixDropdownRenderedCell {
           return "";
         }
       }
+      let cellHint = this.cell.column.cellHint;
+      if(!!cellHint) {
+        if(cellHint.trim() === "") return "";
+        return this.cell.column.locCellHint.renderedHtml;
+      }
+      return this.cell.column.title;
     }
     if(this.hasQuestion && this.question.isVisible) {
       return this.question.locTitle.renderedHtml;

@@ -91,8 +91,8 @@ export function useBase<T extends Base>(
   onBeforeUnmount(() => {
     const model = getModel();
     if (model) {
-      if (clean) clean(model);
       unMakeReactive(model, isModelSubsribed);
+      if (clean) clean(model);
       stopWatch();
     }
   });

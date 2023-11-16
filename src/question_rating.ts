@@ -177,7 +177,7 @@ export class QuestionRatingModel extends Question {
     return !this.readOnly && this.visibleRateValues.filter(v => v.value == this.value)[0]?.locText;
   }
 
-  @property({ defaultValue: true }) autoGenerate: boolean;
+  @property() autoGenerate: boolean;
 
   /**
    * A list of rate values.
@@ -264,7 +264,7 @@ export class QuestionRatingModel extends Question {
    *
    * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
    */
-  @property({ defaultValue: 5 }) rateCount: number;
+  @property() rateCount: number;
 
   private static colorsCalculated: boolean = false;
 
@@ -454,7 +454,7 @@ export class QuestionRatingModel extends Question {
   * @see rateMax
   * @see rateValues
   */
-  @property({ defaultValue: false }) displayRateDescriptionsAsExtremeItems: boolean;
+  @property() displayRateDescriptionsAsExtremeItems: boolean;
 
   /**
   * Specifies whether to display rate values as buttons or items in a drop-down list.
@@ -469,7 +469,7 @@ export class QuestionRatingModel extends Question {
   * @see rateType
   */
   @property({
-    defaultValue: "auto", onSet: (val: string, target: QuestionRatingModel) => {
+    onSet: (val: string, target: QuestionRatingModel) => {
       if (!target.isDesignMode) {
         if (val === "dropdown") {
           target.renderAs = "dropdown";
@@ -494,7 +494,7 @@ export class QuestionRatingModel extends Question {
    * @see rateColorMode
    * @see displayMode
    */
-  @property({ defaultValue: "labels" }) rateType: "labels" | "stars" | "smileys";
+  @property() rateType: "labels" | "stars" | "smileys";
 
   public get rateDisplayMode() {
     return this.rateType;
@@ -513,7 +513,7 @@ export class QuestionRatingModel extends Question {
    * [View Demo](https://surveyjs.io/form-library/examples/rating-scale/ (linkStyle))
    * @see rateColorMode
    */
-  @property({ defaultValue: "monochrome" }) scaleColorMode: "monochrome" | "colored";
+  @property() scaleColorMode: "monochrome" | "colored";
   /**
    * Specifies how to colorize the selected emoji. Applies only if [`rateType`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#rateType) is `"smileys"`.
    *
@@ -523,7 +523,7 @@ export class QuestionRatingModel extends Question {
    * - `"scale"` (default) - Inherits the color from the scale.
    * @see scaleColorMode
    */
-  @property({ defaultValue: "scale" }) rateColorMode: "default" | "scale";
+  @property() rateColorMode: "default" | "scale";
 
   public get isStar() {
     return this.rateType == "stars";

@@ -5,7 +5,7 @@
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
-      tabindex: model.inputReadOnly ? undefined : 0,
+      tabindex: model.noTabIndex ? undefined : 0,
       disabled: question.isInputReadOnly,
       role: question.ariaRole,
       'aria-required': question.ariaRequired, 
@@ -46,9 +46,9 @@
         'aria-label': question.a11y_input_ariaLabel,
         'aria-labelledby': question.a11y_input_ariaLabelledBy,
         placeholder: model.placeholderRendered, 
-        readonly: !model.searchEnabled, 
+        readonly: model.filterReadOnly || undefined, 
         role: model.filterStringEnabled ? question.ariaRole : undefined,
-        tabindex: model.inputReadOnly ? undefined : -1,
+        tabindex: model.noTabIndex ? undefined : -1,
         disabled: question.isInputReadOnly,
         id: question.getInputId(), 
         inputmode: model.inputMode
@@ -56,7 +56,7 @@
       event: { blur: blur, focus: focus }"></input>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
-    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton ">
+    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton, attr: {tabindex: question.showClearButton ? 0 : -1}">
       <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.clearCaption } } -->
       <!-- /ko -->
     </div>
@@ -75,7 +75,7 @@
   </div>
   <!-- /ko -->
   <!-- ko if: question.cssClasses.chevronButtonIconId -->
-  <div data-bind="css: question.cssClasses.chevronButton, event: {pointerdown: chevronPointerDown}">
+  <div data-bind="css: question.cssClasses.chevronButton, event: {pointerdown: chevronPointerDown}" aria-hidden="true">
     <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: 'auto' } } -->
     <!-- /ko -->
   </div>

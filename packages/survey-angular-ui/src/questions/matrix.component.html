@@ -42,10 +42,10 @@
                     [disabled]="model.isInputReadOnly"
                     [attr.id]="model.inputId + '_' + row.name + '_' + columnIndex"
                     (change)="onChange(row, column)"
-                    [attr.aria-required]="model.ariaRequired"
-                    [attr.aria-label]="column.locText.renderedHtml"
-                    [attr.aria-invalid]="model.ariaInvalid"
-                    [attr.aria-describedby]="model.ariaDescribedBy"
+                    [attr.aria-required]="model.a11y_input_ariaRequired"
+                    [attr.aria-label]="model.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
+                    [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+                    [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
                   />
                   <span [class]="model.cssClasses.materialDecorator">
                     <svg *ngIf="model.itemSvgIcon" [class]="model.cssClasses.itemDecorator">

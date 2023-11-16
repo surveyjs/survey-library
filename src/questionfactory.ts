@@ -3,6 +3,7 @@ import { Question } from "./question";
 import { IElement } from "./base-interfaces";
 import { surveyLocalization } from "./surveyStrings";
 import { Serializer } from "./jsonobject";
+import { ComponentCollection } from "./question_custom";
 
 export class QuestionFactory {
   public static Instance: QuestionFactory = new QuestionFactory();
@@ -79,6 +80,8 @@ export class ElementFactory {
   public createElement(elementType: string, name: string): IElement {
     var creator = this.creatorHash[elementType];
     if (!!creator) return creator(name);
+    const compJSON = ComponentCollection.Instance.getCustomQuestionByName(elementType);
+    if(!!compJSON) return ComponentCollection.Instance.createQuestion(name, compJSON);
     return null;
   }
 }

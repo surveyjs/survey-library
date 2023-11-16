@@ -5,7 +5,7 @@
     attr: { 
       id: question.inputId, 
       required: question.isRequired, 
-      tabindex: model.inputReadOnly ? undefined : 0,
+      tabindex: model.noTabIndex ? undefined : 0,
       disabled: question.isInputReadOnly,
       role: question.ariaRole,
       'aria-required': question.ariaRequired, 
@@ -48,14 +48,14 @@
             'aria-labelledby': question.a11y_input_ariaLabelledBy,
             placeholder: model.filterStringPlaceholder, 
             disabled: question.isInputReadOnly,
-            readonly: !model.searchEnabled 
+            readonly: model.filterReadOnly
           },
           event: { keydown: inputKeyHandler, blur: blur, focus: focus }"></input>
         </div>
       </div>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
-    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton ">
+    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton, attr: {tabindex: question.showClearButton ? 0 : -1} ">
       <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.clearCaption } } -->
       <!-- /ko -->
     </div>

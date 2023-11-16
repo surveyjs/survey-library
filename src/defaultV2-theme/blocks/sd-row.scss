@@ -49,7 +49,7 @@
   }
 }
 
-.sd-panel {
+.sd-panel:not(.sd-panel--as-page) {
   .sd-row--multiple {
     row-gap: var(--sd-base-vertical-padding);
 

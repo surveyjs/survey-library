@@ -17,6 +17,10 @@ SurveyJS Form Library is a free and open-source MIT-licensed JavaScript form bui
 - [Live Examples](https://surveyjs.io/form-library/examples/nps-question/angular)
 - [What's New](https://surveyjs.io/WhatsNew)
 
+## Build SurveyJS Form Library for Angular from Sources
+
+Refer to instructions in the root README file: [Build the SurveyJS Form Library from Sources](https://github.com/surveyjs/survey-library#build-the-surveyjs-form-library-from-sources).
+
 ## Licensing
 
 SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

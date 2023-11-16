@@ -4,7 +4,7 @@
       v-if="!question.isReadOnly"
       :id="question.inputId"
       v-bind:disabled="question.isInputReadOnly"
-      :tabindex="model.inputReadOnly ? undefined : 0"
+      :tabindex="model.noTabIndex ? undefined : 0"
       @keydown="keyhandler"
       @blur="blur"
       :class="question.getControlClass()"
@@ -24,8 +24,8 @@
 
       <div :class="question.cssClasses.controlValue">
         <survey-string
-          v-if="question.showSelectedItemLocText"
-          :locString="question.selectedItemLocText"
+          v-if="showSelectedItemLocText"
+          :locString="selectedItemLocText"
         />
         <div v-if="model.showHintString" :class="question.cssClasses.hintSuffix">
         <span style="visibility: hidden">{{ model.inputStringRendered }}</span>
@@ -47,8 +47,8 @@
       :inputmode="model.inputMode"
       :role="model.filterStringEnabled ? question.ariaRole : null"
       :id="question.getInputId()"
-      :tabindex="model.inputReadOnly ? undefined : -1"
-      :readonly="!model.searchEnabled ? true : null"
+      :tabindex="model.noTabIndex ? undefined : -1"
+      :readonly="model.filterReadOnly ? true : null"
       :aria-expanded="question.ariaExpanded"
       :aria-label="question.a11y_input_ariaLabel"
       :aria-labelledby="question.a11y_input_ariaLabelledBy"
@@ -65,6 +65,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
+          :tabindex="question.showClearButton ? 0 : -1"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
@@ -81,8 +82,8 @@
     ></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
       <survey-string
-        v-if="question.selectedItemLocText"
-        :locString="question.selectedItemLocText"
+        v-if="selectedItemLocText"
+        :locString="selectedItemLocText"
       />
       <div>{{ question.readOnlyText }}</div>
     </div>
@@ -90,6 +91,7 @@
       :class="question.cssClasses.chevronButton"
           v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
+      aria-hidden="true"
     >
       <sv-svg-icon
         :class="question.cssClasses.chevronButtonSvg"
@@ -124,6 +126,14 @@ export class DropdownComponent extends BaseVue {
 
   inputChange(event: any) {
     this.model.inputStringRendered = event.target.value;
+  }
+
+  public get showSelectedItemLocText() {
+    return this.question.showSelectedItemLocText;
+  }
+
+  public get selectedItemLocText() {
+    return this.question.selectedItemLocText;
   }
 
   public click(event: any) {

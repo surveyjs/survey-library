@@ -255,7 +255,7 @@ var json = {
         .parent("[data-name]")
         .find("tr").withText("Row 1");
       await t
-        .click(matrixDropdownRow.find("div[aria-label='Column 1']"))
+        .click(matrixDropdownRow.find("div[aria-label='row Row 1, column Column 1']"))
         .click(getListItemByText("1"));
 
       await t.click(

@@ -1,5 +1,5 @@
 <div [class]="model.cssClasses.selectWrapper" (click)="click($event)">
-    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.inputReadOnly ? null : 0" [class]="model.getControlClass()"
+    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.noTabIndex ? null : 0" [class]="model.getControlClass()"
         [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
@@ -14,7 +14,7 @@
             </ng-container>
             <ng-template [component]="{ name: 'sv-tagbox-filter', data: { model: dropdownModel, question: model } }"></ng-template>
         </div>
-        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton"
+        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" [class]="model.cssClasses.cleanButton" [attr.tabindex]="model.showClearButton ? 0 : -1"
             (click)="clear($event)" [visible]="model.showClearButton">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->

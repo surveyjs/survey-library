@@ -944,3 +944,42 @@ QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function
   assert.equal(q.errors.length, 1, "One error only");
   assert.equal(q.errors[0].getErrorType(), "keyduplicationerror", "Correct error is added");
 });
+QUnit.test("Cell question title and question.locTitle.renderedHtml", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: ["item1"]
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion.title, "col1", "Question title is column title");
+  assert.equal(cellQuestion.locTitle.renderedHtml, "row item1, column col1", "Question rendered title is prepared for accessibility");
+});
+QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "state": "collapsed",
+        "columns": [
+
+          {
+            "name": "col1",
+            "cellType": "dropdown",
+            "choices": ["a", "b"],
+            "showOtherItem": true,
+            "storeOthersAsComment": true
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  assert.equal(matrix.columns.length, 1, "There is one column, it is loaded correctly");
+});

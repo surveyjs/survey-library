@@ -9789,8 +9789,8 @@ QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function (
     "Three columns (questions) in matrix row"
   );
 
-  assert.equal(plainData.data[0].data[0].name, "Column 1");
-  assert.equal(plainData.data[0].data[0].title, "Column 1");
+  assert.equal(plainData.data[0].data[0].name, "Column 1", "column1 name");
+  assert.equal(plainData.data[0].data[0].title, "Column 1", "column1 title");
   assert.equal(plainData.data[0].data[0].value, 1);
   assert.equal(plainData.data[0].data[0].displayValue, "1");
   assert.equal(plainData.data[0].data[0].score, undefined);
@@ -9802,8 +9802,8 @@ QUnit.test("question.getPlainData - matrixdropdown, fixed bug#3097", function (
   assert.equal(plainData.data[0].data[0].data[0].value, 1);
   assert.equal(plainData.data[0].data[0].data[0].displayValue, "1");
 
-  assert.equal(plainData.data[0].data[1].name, "Column 2");
-  assert.equal(plainData.data[0].data[1].title, "Column 2");
+  assert.equal(plainData.data[0].data[1].name, "Column 2", "column2 name");
+  assert.equal(plainData.data[0].data[1].title, "Column 2", "column2 title");
   assert.equal(plainData.data[0].data[1].value, 2);
   assert.equal(plainData.data[0].data[1].displayValue, "2");
   assert.equal(plainData.data[0].data[1].score, undefined);

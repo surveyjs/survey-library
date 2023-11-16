@@ -711,6 +711,7 @@ frameworks.forEach((framework) => {
       .expect(questionValueInput.value).eql("Volkswagen")
 
       .pressKey("tab")
+      .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
       .pressKey("down")
@@ -849,6 +850,7 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk()
       .expect(questionValueText.textContent).eql("Volkswagen")
 
+      .pressKey("tab")
       .pressKey("tab")
       .pressKey("down")
       .pressKey("down")

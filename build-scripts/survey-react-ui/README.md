@@ -38,6 +38,10 @@ To get started with SurveyJS React Form Library, refer to the following tutorial
 - [Live Examples](https://surveyjs.io/form-library/examples/nps-question/reactjs)
 - [What's New](https://surveyjs.io/WhatsNew)
 
+## Build SurveyJS React Form Library from Sources
+
+Refer to instructions in the root README file: [Build the SurveyJS Form Library from Sources](https://github.com/surveyjs/survey-library#build-the-surveyjs-form-library-from-sources).
+
 ## Licensing
 
 SurveyJS Form Library is distributed under the [MIT license](https://github.com/surveyjs/survey-library/blob/master/LICENSE).

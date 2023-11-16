@@ -171,7 +171,7 @@ registerMarkupTests(
       },
       snapshot: "dropdown-select",
     }, {
-      name: "Test Dropdown Select question markup",
+      name: "Test Dropdown Select question markup - touch",
       json: {
         questions: [
           {
@@ -311,6 +311,33 @@ registerMarkupTests(
       timeout: 300,
       removeIds: true,
       snapshot: "dropdown-input-string",
+    },
+    {
+      name: "Test Dropdown question input focused",
+      json: {
+        questions: [
+          {
+            "type": "dropdown",
+            "name": "name",
+            "title": "Question title",
+            "searchEnabled": true,
+            "choices": [
+              "Ford",
+              "Vauxhall",
+              "Volkswagen",
+            ],
+            titleLocation: "hidden",
+          }
+        ]
+      },
+      initSurvey: (survey) => {
+        survey.focusFirstQuestionAutomatic = false;
+        survey.getQuestionByName("name")["popupModel"];
+        survey.getQuestionByName("name")["dropdownListModel"].focused = true;
+      },
+      timeout: 300,
+      removeIds: true,
+      snapshot: "dropdown-input-focused",
     },
     {
       name: "Test dropdown aria-expanded",

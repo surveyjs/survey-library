@@ -881,3 +881,13 @@ QUnit.test("order & locale change", function (assert) {
   assert.equal(list.actions[0].id, "B", "action[0].id, de");
   assert.equal(list.actions[1].id, "A", "action[1].id, de");
 });
+QUnit.test("DropdownListModel filterReadOnly", (assert) => {
+  const survey = new SurveyModel(jsonDropdown);
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  assert.ok(dropdownListModel.filterReadOnly);
+  dropdownListModel.onFocus(null);
+  assert.notOk(dropdownListModel.filterReadOnly);
+  dropdownListModel.onBlur({ stopPropagation: () => { } });
+  assert.ok(dropdownListModel.filterReadOnly);
+});

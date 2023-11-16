@@ -1,4 +1,4 @@
-﻿import {
+import {
   JsonObject,
   Serializer,
   JsonUnknownPropertyError,
@@ -2961,7 +2961,7 @@ QUnit.test("Add defaultFunc attribute support, Bug#5615", function (assert) {
   defaultValueForProp1 = 7;
   assert.equal(obj.prop1, 7, "The default value is 7 now");
 });
-QUnit.test("", function (assert) {
+QUnit.test("QuestionHtmlModel", function (assert) {
   let html = new QuestionHtmlModel("q1");
   assert.equal(html.renderAs, "default", "default is default");
   Serializer.addProperty("html", { name: "renderAs", default: "auto", choices: ["auto", "standard", "image"] });
@@ -3073,4 +3073,16 @@ QUnit.test("Add a page into survey pages array", function (assert) {
   assert.equal(survey.jsonErrors.length, 2, "There are JSONs error");
   assert.equal((<any>survey.jsonErrors[0]).propertyName, "pages", "Correct property name #1");
   assert.equal((<any>survey.jsonErrors[1]).propertyName, "questions", "Correct property name #2");
+});
+QUnit.test("selectbase colCount property default value", function (assert) {
+  const q = new QuestionCheckboxModel("q");
+  assert.equal(q.colCount, 1, "Default value is 1");
+  const prop = Serializer.findProperty("checkboxbase", "colCount");
+  const defaultVal = prop.defaultValue;
+  prop.defaultValue = 0;
+  assert.equal(q.colCount, 0, "Default value is 0");
+  prop.defaultValue = 2;
+  assert.equal(q.colCount, 2, "Default value is 2");
+  prop.defaultValue = defaultVal;
+  assert.equal(q.colCount, 1, "Default value is 1 again");
 });

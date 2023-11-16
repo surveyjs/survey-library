@@ -8028,9 +8028,9 @@ QUnit.test("getTitle", function (assert) {
   const question = survey.getAllQuestions()[0];
   var renderedTable = question.renderedTable;
   const row = renderedTable.rows[1];
-  assert.equal(row.cells[0].getTitle(), "true hint");
-  assert.equal(row.cells[1].getTitle(), "col2");
-  assert.equal(row.cells[2].getTitle(), "");
+  assert.equal(row.cells[0].getTitle(), "true hint", "cell0");
+  assert.equal(row.cells[1].getTitle(), "col2", "cell1");
+  assert.equal(row.cells[2].getTitle(), "", "cell2");
 });
 QUnit.test("matrixdropdowncolumn renderAs property", function (assert) {
   const survey = new SurveyModel({

@@ -18081,4 +18081,35 @@ QUnit.test("clearInvisibleValues onHiddenContainer breaks defaultValueExpression
   q1.value = "B";
   assert.equal(q2.value, 24, "q1.value = B");
 });
-
+QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [
+          {
+            type: "matrixdropdown",
+            name: "q1",
+            columns: [
+              {
+                name: "Column 1",
+                cellType: "radiogroup",
+                showInMultipleColumns: true,
+                choices: ["item1", "item2", "item3"]
+              }
+            ],
+            rows: ["Row 1", "Row 2"]
+          }
+        ],
+        state: "collapsed"
+      }
+    ]
+  });
+  const question = survey.getQuestionByName("q1");
+  const panel = survey.getPanelByName("panel1");
+  assert.equal(question.name, "q1", "Loaded correctly");
+  assert.equal(panel.isCollapsed, true, "panel is collapsed");
+  panel.expand();
+  assert.equal(panel.isCollapsed, false, "panel is not collapsed");
+});

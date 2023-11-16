@@ -32,7 +32,7 @@ const props = defineProps<{
 }>();
 
 useBase(() => {
-  const model = props.survey;
+  const model = props.model;
   model.survey = props.survey;
   return props.model;
 });

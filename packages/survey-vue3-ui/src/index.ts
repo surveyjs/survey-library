@@ -249,7 +249,6 @@ function registerComponents(app: App) {
   app.component("sv-loading-indicator", LoadingIndicator);
 
   app.component("sv-header", Header);
-  app.component("sv ");
   app.component("sv-header-cell", HeaderCell);
   app.component("sv-header-mobile", HeaderMobile);
 

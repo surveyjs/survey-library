@@ -82,7 +82,9 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     const imageContainerNode: any = itemValueNode.querySelector(".sd-imagepicker__image-container");
     let imageNode: any = itemValueNode.querySelector(item.imageLink ? "img" : ".sd-imagepicker__no-image").cloneNode(true);
 
-    this.imagepickerControlsNode.style.display = "none";
+    if (!!this.imagepickerControlsNode) {
+      this.imagepickerControlsNode.style.display = "none";
+    }
     imageContainerNode.style.width = imageNode.width + "px";
     imageContainerNode.style.height = imageNode.height + "px";
 
@@ -214,8 +216,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     if(!!this.parentElement) {
       this.updateVisibleChoices(this.parentElement);
     }
-    this.imagepickerControlsNode.style.display = "flex";
-    this.imagepickerControlsNode = null;
+    if (!!this.imagepickerControlsNode) {
+      this.imagepickerControlsNode.style.display = "flex";
+      this.imagepickerControlsNode = null;
+    }
     super.clear();
   }
 

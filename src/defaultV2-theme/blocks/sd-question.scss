@@ -44,7 +44,7 @@
 }
 
 .sd-element--with-frame>.sd-question__erbox--below-question {
-  margin-top: var(--sd-base-padding);
+  margin-top: auto;
   border-radius: 0 0 calcCornerRadius(1) calcCornerRadius(1);
 }
 
@@ -80,6 +80,9 @@
 
   &.sd-question--error-bottom {
     padding-bottom: 0;
+    &>.sd-question__content {
+        margin-bottom: var(--sd-base-vertical-padding)
+      }
   }
 
   &>.sd-question__erbox--outside-question {

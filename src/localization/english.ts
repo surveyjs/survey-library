@@ -35,7 +35,7 @@ export var englishStrings = {
   textMinMaxLength:
     "Please enter at least {0} and no more than {1} characters.",
   minRowCountError: "Please fill in at least {0} row(s).",
-  minSelectError: "Please select at least {0} variant(s).",
+  minSelectError: "Please select at least {0} option(s).",
   maxSelectError: "Please select no more than {0} variant(s).",
   numericMinMax: "The '{0}' should be at least {1} and at most {2}",
   numericMin: "The '{0}' should be at least {1}",

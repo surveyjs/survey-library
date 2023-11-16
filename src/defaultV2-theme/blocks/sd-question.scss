@@ -71,7 +71,7 @@
 
 .sd-element--with-frame {
   &.sd-question--title-top {
-    padding-top: var(--sd-base-padding)
+    padding-top: var(--sd-base-vertical-padding)
   }
 
   &.sd-question--error-top {
@@ -81,7 +81,7 @@
   &.sd-question--error-bottom {
     padding-bottom: 0;
     &>.sd-question__content {
-        margin-bottom: var(--sd-base-vertical-padding)
+        margin-bottom: var(--sd-base-padding)
       }
   }
 

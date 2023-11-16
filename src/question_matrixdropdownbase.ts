@@ -82,7 +82,7 @@ export class MatrixDropdownCell {
   private updateCellQuestionTitleDueToAccessebility(row: MatrixDropdownRowModelBase): void {
     this.questionValue.locTitle.onGetTextCallback = (str: string): string => {
       if(!row || !row.getSurvey()) return this.questionValue.title;
-      const rowTitle = row.locText && row.locText.renderedHtml;
+      const rowTitle = row.getAccessbilityText();
       if(!rowTitle) return this.questionValue.title;
       return this.column.colOwner.getCellAriaLabel(rowTitle, this.questionValue.title);
     };
@@ -285,6 +285,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   }
   public get locText(): LocalizableString {
     return null;
+  }
+  public getAccessbilityText(): string {
+    return this.locText && this.locText.renderedHtml;
   }
   public get hasPanel(): boolean {
     if (!this.data) return false;

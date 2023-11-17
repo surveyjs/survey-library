@@ -263,6 +263,7 @@ export class JsonObjectProperty implements IObject {
   public minValue: any;
   private dataListValue: Array<string>;
   public layout: string;
+  public onSerializeValue: (obj: any) => any;
   public onGetValue: (obj: any) => any;
   public onSettingValue: (obj: any, value: any) => any;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
@@ -348,6 +349,10 @@ export class JsonObjectProperty implements IObject {
       (value === false && (this.type == "boolean" || this.type == "switch")) ||
       value === "" || Helpers.isValueEmpty(value)
     );
+  }
+  public getSerializableValue(obj: any): any {
+    if(!!this.onSerializeValue) return this.onSerializeValue(obj);
+    return this.getValue(obj);
   }
   public getValue(obj: any): any {
     if (this.onGetValue) return this.onGetValue(obj);
@@ -839,6 +844,9 @@ export class JsonMetadataClass {
       }
       if (!!propInfo.baseValue) {
         prop.setBaseValue(propInfo.baseValue);
+      }
+      if (propInfo.onSerializeValue) {
+        prop.onSerializeValue = propInfo.onSerializeValue;
       }
       if (propInfo.onGetValue) {
         prop.onGetValue = propInfo.onGetValue;
@@ -1623,7 +1631,7 @@ export class JsonObject {
       (property.isLightSerializable === false && this.lightSerializing)
     )
       return;
-    var value = property.getValue(obj);
+    var value = property.getSerializableValue(obj);
     if (!storeDefaults && property.isDefaultValueByObj(obj, value)) return;
     if (this.isValueArray(value)) {
       var arrValue = [];

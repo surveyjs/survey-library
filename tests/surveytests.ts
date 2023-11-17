@@ -18081,6 +18081,76 @@ QUnit.test("clearInvisibleValues onHiddenContainer breaks defaultValueExpression
   q1.value = "B";
   assert.equal(q2.value, 24, "q1.value = B");
 });
+
+QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=singlePage is used #7359, #1", function (assert) {
+  const surveyJson = {
+    "questionsOnPageMode": "singlePage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "first-name",
+          },
+          {
+            "type": "text",
+            "name": "last-name",
+          },
+          {
+            "type": "text",
+            "name": "birthdate",
+            "inputType": "date"
+          },
+        ]
+      }
+    ],
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  const prepareJSON = survey.toJSON();
+
+  assert.equal(surveyJson.pages[0].elements.length, 3, "surveyJson elements count");
+  assert.equal(prepareJSON.pages[0].elements.length, 3, "prepareJSON elements count");
+
+  assert.deepEqual (surveyJson, prepareJSON);
+});
+QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=questionPerPage is used #7359, #2", function (assert) {
+  const surveyJson = {
+    "questionsOnPageMode": "questionPerPage",
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "first-name",
+          },
+          {
+            "type": "text",
+            "name": "last-name",
+          },
+          {
+            "type": "text",
+            "name": "birthdate",
+            "inputType": "date"
+          },
+        ]
+      }
+    ],
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  const prepareJSON = survey.toJSON();
+
+  assert.equal(surveyJson.pages.length, 1, "surveyJson pages count");
+  assert.equal(prepareJSON.pages.length, 1, "prepareJSON pages count");
+  assert.equal(surveyJson.pages[0].elements.length, 3, "surveyJson elements count");
+  assert.equal(prepareJSON.pages[0].elements.length, 3, "prepareJSON elements count");
+
+  assert.deepEqual (surveyJson, prepareJSON);
+});
+
 QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -18113,3 +18183,4 @@ QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, 
   panel.expand();
   assert.equal(panel.isCollapsed, false, "panel is not collapsed");
 });
+

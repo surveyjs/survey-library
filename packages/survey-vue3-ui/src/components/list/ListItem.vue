@@ -6,6 +6,7 @@
     v-show="model.isItemVisible(item)"
     :key="item.id"
     :id="elementId"
+    @pointerdown="model.onPointerDown($event, item)"
     v-bind:class="model.getItemClass(item)"
     v-on:click="click"
     v-key2click

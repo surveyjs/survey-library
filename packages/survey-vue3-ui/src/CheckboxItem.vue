@@ -1,13 +1,11 @@
 <template>
-  <div role="presentation">
-    <label
-      :class="question.getLabelClass(item)"
-    >
+  <div role="presentation" :class="question.getItemClass(item)">
+    <label :class="question.getLabelClass(item)">
       <input
         v-if="item == question.selectAllItem"
         type="checkbox"
-        role="option" 
-        :name="question.name+item.value"
+        role="option"
+        :name="question.name + item.value"
         :value="isAllSelected"
         v-model="isAllSelected"
         :id="question.getItemId(item)"
@@ -16,10 +14,10 @@
       /><input
         v-if="item != question.selectAllItem"
         type="checkbox"
-        role="option" 
-        :name="question.name+item.value"
+        role="option"
+        :name="question.name + item.value"
         :value="item.value"
-        v-model="question.renderedValue"
+        v-model="renderedValue"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"
@@ -45,10 +43,11 @@ import type { ItemValue, QuestionCheckboxModel } from "survey-core";
 import { useBase } from "./base";
 import { computed } from "vue";
 
+defineOptions({ inheritAttrs: false });
+
 const props = defineProps<{
   question: QuestionCheckboxModel;
   item: ItemValue;
-  index: string | number;
   hideLabel?: boolean;
 }>();
 const isAllSelected = computed({
@@ -58,6 +57,16 @@ const isAllSelected = computed({
   set(val: boolean | string) {
     const question = props.question;
     question.isAllSelected = !!val;
+  },
+});
+
+useBase(() => props.item);
+
+const renderedValue = computed({
+  get: () => props.question.renderedValue,
+  set: (val) => {
+    const question = props.question;
+    question.renderedValue = val;
   },
 });
 

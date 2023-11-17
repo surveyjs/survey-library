@@ -1,7 +1,7 @@
 <template>
   <div :class="question.cssClasses.tableWrapper" ref="root">
     <fieldset>
-      <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
+      <legend class="sv-hidden">{{ question.locTitle.renderedHtml }}</legend>
       <table :class="question.getTableCss()">
         <thead v-if="question.showHeader">
           <tr>
@@ -15,7 +15,14 @@
                 width: question.columnMinWidth,
               }"
             >
-              <survey-string :locString="column.locText" />
+              <component
+                :is="question.getColumnHeaderWrapperComponentName(column)"
+                :componentData="
+                  question.getColumnHeaderWrapperComponentData(column)
+                "
+              >
+                <survey-string :locString="column.locText" />
+              </component>
             </th>
           </tr>
         </thead>
@@ -33,7 +40,12 @@
                 width: question.rowTitleWidth,
               }"
             >
-              <survey-string :locString="row.locText" />
+              <component
+                :is="question.getRowHeaderWrapperComponentName(row)"
+                :componentData="question.getRowHeaderWrapperComponentData(row)"
+              >
+                <survey-string :locString="row.locText" />
+              </component>
             </td>
             <template v-if="question.hasCellText">
               <td
@@ -100,6 +112,9 @@
 import type { QuestionMatrixModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref, shallowRef } from "vue";
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{ question: QuestionMatrixModel }>();
 const root = ref(null);
 const visibleRows = shallowRef();

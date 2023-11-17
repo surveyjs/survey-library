@@ -1,68 +1,66 @@
 <template>
   <div
-    v-if="question.isVisible"
-    :class="question.getContainerCss()"
-    :id="question.id"
+    v-if="element.isVisible"
+    :class="element.getContainerCss()"
+    :id="element.id"
+    @focusin="element.focusIn()"
     ref="root"
   >
-    <survey-errors :element="question" v-if="question.showErrorsAbovePanel" />
+    <survey-errors :element="element" v-if="element.showErrorsAbovePanel" />
     <survey-element-header
-      v-if="question.hasTitle || question.hasDescription"
-      :element="question"
+      v-if="element.hasTitle || element.hasDescription"
+      :element="element"
       :css="css"
     ></survey-element-header>
-    <survey-errors :element="question" v-if="!question.showErrorsAbovePanel" />
+    <survey-errors :element="element" v-if="!element.showErrorsAbovePanel" />
     <div
-      :id="question.contentId"
-      :style="{ paddingLeft: question.innerPaddingLeft }"
-      v-if="!isCollapsed"
-      :class="question.cssClasses.panel.content"
+      :id="element.contentId"
+      :style="{ paddingLeft: element.innerPaddingLeft }"
+      v-if="!element.isCollapsed"
+      :class="element.cssClasses.panel.content"
     >
-      <template v-for="(row, index) in rows">
-        <survey-row
-          v-if="row.visible"
-          :key="question.id + '_' + index"
-          :row="row"
-          :survey="survey"
-          :css="css"
+      <template v-for="(row, index) in rows" :key="element.id + '_' + index">
+        <component
+          :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
+          v-bind="{
+            componentData: (element.getSurvey() as SurveyModel).getRowWrapperComponentData(row),
+          }"
         >
-        </survey-row>
+          <survey-row v-if="row.visible" :row="row" :survey="survey" :css="css">
+          </survey-row>
+        </component>
       </template>
-      <sv-action-bar :model="question.getFooterToolbar()"></sv-action-bar>
+      <sv-action-bar :model="element.getFooterToolbar()"></sv-action-bar>
     </div>
   </div>
 </template>
 
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <script lang="ts" setup>
-import type { PanelModel } from "survey-core";
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import type { PanelModel, SurveyModel } from "survey-core";
+import { ref, computed, onMounted } from "vue";
 import { useBase } from "./base";
-
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{
-  question: PanelModel;
+  element: PanelModel;
   isEditMode?: boolean;
   css?: any;
 }>();
-const isCollapsedValue = ref(false);
 const root = ref<HTMLElement>(null as any);
-const rows = computed(() => props.question.rows);
-const survey = computed(() => props.question.survey);
-const isCollapsed = computed(() => isCollapsedValue.value);
+const rows = computed(() => props.element.rows);
+const survey = computed(() => props.element.survey);
 
-useBase(() => props.question);
+useBase(() => props.element);
 
 onMounted(() => {
-  if (props.question.survey) {
-    props.question.survey.afterRenderPanel(props.question, root.value);
+  if (props.element.survey) {
+    props.element.survey.afterRenderPanel(props.element, root.value);
   }
-  isCollapsedValue.value = props.question.isCollapsed;
-  const question = props.question;
-  question.stateChangedCallback = () => {
-    isCollapsedValue.value = props.question.isCollapsed;
-  };
-});
-onUnmounted(() => {
-  const question = props.question;
-  question.stateChangedCallback = null as any;
 });
 </script>

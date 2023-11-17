@@ -9,16 +9,21 @@
           <template v-for="cell in table.headerRow.cells">
             <th
               v-if="cell.hasTitle"
-              :class="cell.className"
               :key="'header_' + cell.id"
+              :class="cell.className"
               :style="{ minWidth: cell.minWidth, width: cell.width }"
             >
-              <survey-string :locString="cell.locTitle" />
-              <survey-matrixheaderrequired
-                v-if="!!cell.column"
-                :column="cell.column"
-                :question="question"
-              ></survey-matrixheaderrequired>
+              <component
+                :is="question.getColumnHeaderWrapperComponentName(cell as any)"
+                :componentData="question.getColumnHeaderWrapperComponentData(cell as any)"
+              >
+                <survey-string :locString="cell.locTitle" />
+                <survey-matrixheaderrequired
+                  v-if="!!cell.column"
+                  :column="cell.column"
+                  :question="question"
+                ></survey-matrixheaderrequired>
+              </component>
             </th>
             <td
               v-if="!cell.hasTitle"
@@ -36,6 +41,7 @@
         >
           <tr
             :data-sv-drop-target-matrix-row="row.row && row.row.id"
+            @pointerdown="question.onPointerDown($event, row.row)"
             :class="row.className"
             v-if="row.visible"
           >

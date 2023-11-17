@@ -7,6 +7,7 @@
 <script lang="ts" setup>
 import { ref } from "vue";
 import { useQuestion } from "./base";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionRatingModel }>();
 const root = ref(null);
 useQuestion(props, root);

@@ -73,6 +73,7 @@
 import type { QuestionCommentModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{
   question: QuestionCommentModel;
   css?: object;

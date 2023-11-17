@@ -9,6 +9,9 @@
 import type { QuestionTagboxModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{
   question: QuestionTagboxModel;
 }>();

@@ -1,6 +1,6 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
-import { IElement, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
+import { IElement, IPanel, ISurveyElement, IValueItemCustomPropValues } from "./base-interfaces";
 import { ItemValue } from "./itemvalue";
 import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
@@ -843,9 +843,23 @@ export interface DragDropAllowEvent {
    */
   target: IElement;
   /**
+   * obsolete use toElement instead
    * A survey element from which `target` is being dragged. This parameter is `null` if `target` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
    */
   source: IElement;
+  /**
+   * obsolete use draggedElement instead
+   * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
+   */
+  toElement: IElement;
+  /**
+   * A survey element from which `target` is being dragged. This parameter is `null` if `target` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
+   */
+  draggedElement: IElement;
+  /**
+   * draggedElement's parent
+   */
+  fromElement: IPanel;
   /**
    * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
    */

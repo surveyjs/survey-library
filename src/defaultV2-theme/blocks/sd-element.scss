@@ -129,6 +129,8 @@
   padding-bottom: var(--sd-base-padding);
   background: $question-background;
   box-shadow: $shadow-small;
+  display: flex;
+    flex-direction: column;
 }
 
 //compact styles

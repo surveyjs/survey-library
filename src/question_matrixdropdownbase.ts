@@ -241,6 +241,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public get rowName(): any {
     return null;
   }
+  public get dataName(): string {
+    return this.rowName;
+  }
   public get text(): any {
     return this.rowName;
   }
@@ -1767,7 +1770,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       questionPlainData.data = this.visibleRows.map(
         (row: MatrixDropdownRowModelBase) => {
           var rowDataItem = <any>{
-            name: row.rowName,
+            name: row.dataName,
             title: row.text,
             value: row.value,
             displayValue: this.getRowDisplayValue(false, row, row.value),

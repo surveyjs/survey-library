@@ -2,6 +2,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { SurveyModel } from "../src/survey";
+export * from "../src/localization/german";
 
 export default QUnit.module("Survey_QuestionMatrixDropdownBase");
 
@@ -944,7 +945,7 @@ QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function
   assert.equal(q.errors.length, 1, "One error only");
   assert.equal(q.errors[0].getErrorType(), "keyduplicationerror", "Correct error is added");
 });
-QUnit.test("Cell question title and question.locTitle.renderedHtml", function (assert) {
+QUnit.test("Cell question title and question.locTitle.renderedHtml & localization for matrixdropdown", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -959,6 +960,28 @@ QUnit.test("Cell question title and question.locTitle.renderedHtml", function (a
   const cellQuestion = matrix.visibleRows[0].cells[0].question;
   assert.equal(cellQuestion.title, "col1", "Question title is column title");
   assert.equal(cellQuestion.locTitle.renderedHtml, "row item1, column col1", "Question rendered title is prepared for accessibility");
+  survey.locale = "de";
+  assert.equal(cellQuestion.title, "col1", "Question title is column title, #de");
+  assert.equal(cellQuestion.locTitle.renderedHtml, "zeile item1, spalte col1", "Question rendered title is prepared for accessibility, #de");
+});
+QUnit.test("Cell question title and question.locTitle.renderedHtml & localizationfor matrixdynamic", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rowCount: 1
+      },
+    ],
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  assert.equal(cellQuestion.title, "col1", "Question title is column title");
+  assert.equal(cellQuestion.locTitle.renderedHtml, "row 1, column col1", "Question rendered title is prepared for accessibility");
+  survey.locale = "de";
+  assert.equal(cellQuestion.title, "col1", "Question title is column title, #de");
+  assert.equal(cellQuestion.locTitle.renderedHtml, "zeile 1, spalte col1", "Question rendered title is prepared for accessibility, #de");
 });
 QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
   const survey = new SurveyModel({

@@ -102,7 +102,7 @@ const keyhandler = (event: any) => {
 const blur = (event: any) => {
   model.value?.onBlur(event);
 };
-const selectedChoices = computed(() => props.question.selectedChoices);
+const selectedChoices = computed(() => props.question.renderedSelectedItems);
 
 useBase(() => model.value);
 </script>

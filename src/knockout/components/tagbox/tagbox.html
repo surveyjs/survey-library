@@ -17,7 +17,7 @@
       'aria-activedescendant': model.ariaActivedescendant, 
     },">
     <div data-bind="css: question.cssClasses.controlValue">
-      <!-- ko foreach: question.selectedChoices -->
+      <!-- ko foreach: question.renderedSelectedItems -->
       <!-- ko component: { name: 'sv-tagbox-item', params: { item: $data, question: question } } -->
       <!-- /ko -->
       <!-- /ko -->

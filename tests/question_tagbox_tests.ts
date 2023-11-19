@@ -69,7 +69,7 @@ QUnit.test("clearValue", assert => {
   question.value = [2];
   dropdownListModel.inputStringRendered = "i";
   assert.equal(question.value.length, 1);
-  assert.equal(question.selectedChoices.length, 1);
+  assert.equal(question.renderedSelectedItems.length, 1);
   assert.equal(dropdownListModel.filterString, "i");
   assert.equal(dropdownListModel.inputStringRendered, "i");
   assert.equal(dropdownListModel.hintString, "item 1");
@@ -1218,7 +1218,7 @@ QUnit.test("TagBox displays a value which doesn't exist in a list of choices #62
   };
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.equal(question.value.length, 1);
-  assert.equal(question.selectedChoices.length, 0);
+  assert.equal(question.renderedSelectedItems.length, 0);
   assert.deepEqual(survey.data, {
     "question1": ["value1"],
   });
@@ -1238,8 +1238,8 @@ QUnit.test("TagBox displays a value as Other if it doesn't exist in a list of ch
   };
   const question = <QuestionTagboxModel>survey.getAllQuestions()[0];
   assert.equal(question.value.length, 1);
-  assert.equal(question.selectedChoices.length, 1);
-  assert.equal(question.selectedChoices[0].id, "other");
+  assert.equal(question.renderedSelectedItems.length, 1);
+  assert.equal(question.renderedSelectedItems[0].id, "other");
   assert.deepEqual(survey.data, {
     question1: ["value1"],
     "question1-Comment": "value1"

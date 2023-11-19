@@ -25,6 +25,9 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
       this.updateReadOnlyText();
     });
+    this.registerPropertyChangedHandlers(["value", "renderedValue", "visibleChoices", "selectedItemValues"], () => {
+      this.renderedSelectedItems = this.selectedChoices;
+    });
     this.updateReadOnlyText();
   }
   public locStrsChanged(): void {
@@ -32,6 +35,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.updateReadOnlyText();
     this.dropdownListModel?.locStrsChanged();
   }
+  @property() renderedSelectedItems: Array<ItemValue>;
   @property({ defaultValue: "" }) readOnlyText: string;
   private updateReadOnlyText(): void {
     this.readOnlyText = this.displayValue || this.placeholder;

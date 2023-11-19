@@ -1116,7 +1116,7 @@ QUnit.test(
     );
   }
 );
-QUnit.test("checkbox renderedSelectedItems property", function (assert) {
+QUnit.test("checkbox selectedChoices property", function (assert) {
   var json = {
     elements: [
       {
@@ -1130,7 +1130,7 @@ QUnit.test("checkbox renderedSelectedItems property", function (assert) {
   var survey = new SurveyModel(json);
   var question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   survey.setValue("q1", ["item1", "item2", "other"]);
-  assert.equal(question.renderedSelectedItems.length, 3);
+  assert.equal(question.selectedChoices.length, 3);
 });
 QUnit.test("Show errors if others value is selected, but not entered", function (
   assert

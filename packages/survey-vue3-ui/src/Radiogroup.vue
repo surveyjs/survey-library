@@ -1,5 +1,5 @@
 <template>
-  <SelectBase :question="question" :input-type="'radio'"></SelectBase>
+  <SelectBase :question="question"></SelectBase>
 </template>
 
 <script lang="ts" setup>

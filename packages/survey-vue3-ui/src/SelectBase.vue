@@ -98,36 +98,21 @@ defineOptions({
 });
 const props = defineProps<{
   question: QuestionRadiogroupModel | QuestionCheckboxModel;
-  inputType: "radio" | "checkbox";
   showLegend?: boolean;
 }>();
 const root = ref(null);
 useQuestion(props, root);
 
-const getDefaultItemComponentName = () =>
-  props.inputType == "radio"
-    ? "survey-radiogroup-item"
-    : "survey-checkbox-item";
-
 const getItemValueComponentName = (item: ItemValue) => {
   return (
     props.question.getItemValueWrapperComponentName(item) ||
-    getDefaultItemComponentName()
+    props.question.itemComponent
   );
 };
 
 const getItemValueComponentData = (item: ItemValue) => {
-  const itemComponentProperty =
-    props.question.getPropertyByName("itemComponent");
-  const isDefaultItemComponent = itemComponentProperty.isDefaultValue(
-    props.question.itemComponent
-  );
-  const itemComponent = isDefaultItemComponent
-    ? getDefaultItemComponentName()
-    : props.question.itemComponent;
-
   return {
-    componentName: itemComponent,
+    componentName: props.question.itemComponent,
     componentData: {
       question: props.question,
       item,

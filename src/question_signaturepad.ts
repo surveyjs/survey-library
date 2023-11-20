@@ -203,9 +203,9 @@ export class QuestionSignaturePadModel extends Question {
    *
    * Default value: `false`
    *
-   * When you enable this property, the signature area's width (the [`signatureWidth`](#signatureWidth) property) is increased or descreased to occupy all available width within the question. The area's height (the [`signatureHeight`](#signatureHeight) property) changes proportionally to the width, keeping the ratio of `signatureWidth` to `signatureHeight` constant. Specify the `signatureWidth` and `signatureHeight` properties if you want to control the ratio.
+   * This property auto-scales the signature area to fill all available width within the question box while maintaining the default 3:2 aspect ratio. If you set [custom width](#signatureWidth) and [height](#signatureHeight) values, the setting will keep the aspect ratio of these dimensions.
    *
-   * > The signature area is scaled only for display. The image saved in survey results will have dimensions specified by the `signatureHeight` and `signatureWidth` properties.
+   * > The signature area is scaled only for display. The image saved in survey results will have dimensions specified by the [`signatureHeight`](#signatureHeight) and [`signatureWidth`](#signatureWidth) properties.
    */
   @property() signatureAutoScaleEnabled: boolean;
   /**

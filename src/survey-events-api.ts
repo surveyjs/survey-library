@@ -841,41 +841,39 @@ export interface DragDropAllowEvent {
   /**
    * A survey element being dragged.
    */
-  target: IElement;
-  /**
-   * obsolete use toElement instead
-   * A survey element from which `target` is being dragged. This parameter is `null` if `target` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
-   */
-  source: IElement;
-  /**
-   * obsolete use draggedElement instead
-   * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
-   */
-  toElement: IElement;
-  /**
-   * A survey element from which `target` is being dragged. This parameter is `null` if `target` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
-   */
   draggedElement: IElement;
   /**
-   * draggedElement's parent
+   * A survey element from which `draggedElement` is being dragged. This parameter is `null` if `draggedElement` is being dragged from the [Toolbox](https://surveyjs.io/survey-creator/documentation/toolbox).
    */
   fromElement: IPanel;
+  /**
+   * A survey element to which `draggedElement` is being dragged.
+   */
+  toElement: IElement;
   /**
    * A survey element before which the target element will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if the target element will be placed below all other elements within the container.
    */
   insertBefore: IElement;
   /**
-   * A survey element after which `target` will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if `target` will be placed above all other elements within the container.
+   * A survey element after which `draggedElement` will be placed. This parameter is `null` if the parent container (page or panel) has no elements or if `draggedElement` will be placed above all other elements within the container.
    */
   insertAfter: IElement;
   /**
-   * A parent container (page or panel) within which `target` will be placed.
+   * A parent container (page or panel) within which `draggedElement` will be placed.
    */
   parent: ISurveyElement;
   /**
    * A Boolean property that you can set to `false` if you want to cancel the drag and drop operation.
    */
   allow: boolean;
+  /**
+   * Obsolete. Use `options.draggedElement` instead.
+   */
+  target: IElement;
+  /**
+   * Obsolete. Use `options.toElement` instead.
+   */
+  source: IElement;
 }
 export interface ScrollingElementToTopEvent {
   /**

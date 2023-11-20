@@ -1,9 +1,5 @@
 <template>
-  <SelectBase
-    :question="question"
-    :input-type="'checkbox'"
-    :show-legend="true"
-  ></SelectBase>
+  <SelectBase :question="question" :show-legend="true"></SelectBase>
 </template>
 <script lang="ts" setup>
 import type { QuestionCheckboxModel } from "survey-core";

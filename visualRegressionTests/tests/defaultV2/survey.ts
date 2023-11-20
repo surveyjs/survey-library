@@ -824,6 +824,8 @@ frameworks.forEach(framework => {
       await setData({ nps_score: 4 });
       await t.click("input[value=\"Complete\"]");
       await takeElementScreenshot("save-data-error.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.notify("An error occurred and we could not save the results.", "error", false); })();
+      await takeElementScreenshot("save-data-error-without-button.png", Selector(".sv-save-data_root.sv-save-data_error"), t, comparer);
       await ClientFunction(() => { (<any>window).Survey.settings.notifications.lifetime = 2000; })();
     });
   });

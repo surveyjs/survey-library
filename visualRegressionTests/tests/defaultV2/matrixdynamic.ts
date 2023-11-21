@@ -235,7 +235,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test("Check Matrixdynamic with showInMultipleColumns", async (t) => {
+  test("Check matrixdropdown with showInMultipleColumns", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
@@ -300,6 +300,53 @@ frameworks.forEach(framework => {
       const matrixdynamicRoot = Selector(".sd-question");
       await resetFocusToBody();
       await takeElementScreenshot("matrixdynamic-with-totals.png", matrixdynamicRoot, t, comparer);
+    });
+  });
+  test("Check Matrixdropdown with totals", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        elements: [
+          {
+            "type": "matrixdropdown",
+            "name": "question1",
+            "columns": [
+              {
+                "name": "col1",
+                "cellType": "text",
+                "inputType": "number",
+                "defaultValueExpression": "{rowIndex}",
+                "totalType": "sum"
+              },
+              {
+                "name": "col2",
+                "cellType": "text",
+                "inputType": "number",
+                "defaultValueExpression": "{rowIndex} + 5",
+                "totalType": "sum"
+              },
+              {
+                "name": "col3",
+                "cellType": "text",
+                "inputType": "number",
+                "defaultValueExpression": "{rowIndex} + 10",
+                "totalType": "sum"
+              }
+            ],
+            "rows": [
+              "Row 1",
+              "Row 2",
+              "Row 3"
+            ],
+            "totalText": "Total:"
+          }
+        ]
+      });
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdropdown-with-totals.png", matrixdynamicRoot, t, comparer);
     });
   });
 });

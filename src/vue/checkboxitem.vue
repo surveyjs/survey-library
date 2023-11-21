@@ -1,5 +1,5 @@
 <template>
-  <div role="presentation">
+  <div role="presentation" :class="question.getItemClass(item)">
     <label :class="question.getLabelClass(item)">
       <input v-if="item == question.selectAllItem" type="checkbox" role="option" :name="question.name+item.value"
         :value="isAllSelected" v-model="isAllSelected" :id="question.getItemId(item)"
@@ -29,7 +29,6 @@ import { BaseVue } from "./base";
 export class CheckboxItem extends BaseVue {
   @Prop() question: any;
   @Prop() item: ItemValue;
-  @Prop() index: any;
   @Prop() hideLabel: boolean;
   protected getModel(): Base {
     return this.item;

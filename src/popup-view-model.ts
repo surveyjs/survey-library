@@ -265,6 +265,8 @@ export class PopupBaseViewModel extends Base {
       }
       currentElement = currentElement.parentElement;
     }
-    event.preventDefault();
+    if (event.cancelable) {
+      event.preventDefault();
+    }
   }
 }

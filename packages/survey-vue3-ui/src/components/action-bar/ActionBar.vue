@@ -3,14 +3,10 @@
     v-if="model.hasActions"
     ref="root"
     :class="model.getRootCss()"
-    v-on:click="
-      (event) => {
-        event.stopPropagation();
-      }
-    "
+    @click="onClick"
   >
     <sv-action
-      v-for="item in model.renderedActions"
+      v-for="item in renderedActions"
       v-bind:key="item.id"
       :item="item"
     ></sv-action>
@@ -20,16 +16,31 @@
 <script lang="ts" setup>
 import type { ActionContainer } from "survey-core";
 import { useBase } from "@/base";
-import { onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 
-const props = defineProps<{
-  model: ActionContainer;
-  container?: string;
-  handleClick?: boolean;
-}>();
+const props = withDefaults(
+  defineProps<{
+    model: ActionContainer;
+    container?: string;
+    handleClick?: boolean;
+  }>(),
+  {
+    handleClick: true,
+  }
+);
 const root = ref<HTMLDivElement>(null as any as HTMLDivElement);
 
+const onClick = (event: MouseEvent) => {
+  if (props.handleClick) {
+    event.stopPropagation();
+  }
+};
+
 useBase(() => props.model);
+
+const renderedActions = computed(() => {
+  return props.model.renderedActions;
+});
 
 onMounted(() => {
   if (!props.model.hasActions) return;

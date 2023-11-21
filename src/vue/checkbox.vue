@@ -8,34 +8,31 @@
     :aria-describedby="question.a11y_input_ariaDescribedBy"
   >
     <legend class="sv-hidden">{{question.locTitle.renderedHtml}}</legend>
-    <survey-checkbox-item
-        v-for="(item, index) in question.headItems"
+    <component
+        v-for="item in question.headItems"
         v-if="question.hasHeadItems"
         :key="item.value"
-        :class="question.getItemClass(item)"
+        :is="question.itemComponent"
         :question="question"
         :item="item"
-        :index="'' + index"
-      ></survey-checkbox-item>
-    <survey-checkbox-item
+      ></component>
+    <component
       v-if="!question.hasColumns && !question.blockedRow"
-      v-for="(item, index) in question.bodyItems"
+      v-for="(item) in question.bodyItems"
       :key="item.value"
-      :class="question.getItemClass(item)"
+      :is="question.itemComponent"
       :question="question"
       :item="item"
-      :index="index"
-    ></survey-checkbox-item>
+    ></component>
     <div :class="question.cssClasses.rootRow" v-if="question.blockedRow">
-    <survey-checkbox-item
+    <component
       v-if="!question.hasColumns && question.blockedRow"
       v-for="(item, index) in question.dataChoices"
       :key="item.value"
-      :class="question.getItemClass(item)"
+      :is="question.itemComponent"
       :question="question"
       :item="item"
-      :index="index"
-    ></survey-checkbox-item>
+    ></component>
     </div>
     <div 
       v-if="question.hasColumns"
@@ -47,25 +44,23 @@
       :class="question.getColumnClass()"
       role="presentation"
     >
-      <survey-checkbox-item
-        v-for="(item, index) in column"
+      <component
+        v-for="item in column"
         :key="item.value"
-        :class="question.getItemClass(item)"
+        :is="question.itemComponent"
         :question="question"
         :item="item"
-        :index="'' + colIndex + index"
-      ></survey-checkbox-item>
+      ></component>
     </div>
     </div>
-        <survey-checkbox-item
+        <component
         v-for="(item, index) in question.footItems"
         v-if="question.hasFootItems"
         :key="item.value"
-        :class="question.getItemClass(item)"
+        :is="question.itemComponent"
         :question="question"
         :item="item"
-        :index="'' + index"
-      ></survey-checkbox-item>
+      ></component>
       <survey-other-choice
         v-if="
           question.renderedValue && question.isOtherSelected

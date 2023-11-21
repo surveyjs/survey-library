@@ -58,6 +58,7 @@
 import { useQuestion } from "./base";
 import { ref } from "vue";
 import type { IBooleanProps } from "./boolean";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<IBooleanProps>();
 const root = ref(null);
 useQuestion(props, root);

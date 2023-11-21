@@ -46,7 +46,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await registerButtongroup(framework);
-      if (framework === "vue" || framework === "angular" || framework === "vue3") {
+      if (framework === "vue" || framework === "angular") {
         return;
       }
       await initSurvey(framework, {

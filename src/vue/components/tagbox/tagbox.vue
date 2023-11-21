@@ -21,7 +21,7 @@
     >
       <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item
-          v-for="(item, index) in question.selectedChoices"
+          v-for="(item, index) in selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
@@ -75,6 +75,9 @@ export class TagboxComponent extends BaseVue {
 
   get model() {
     return this.question.dropdownListModel;
+  }
+  get selectedChoices() {
+    return this.question.selectedChoices;
   }
   getModel() {
     return this.model;

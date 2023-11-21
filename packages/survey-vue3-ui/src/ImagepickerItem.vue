@@ -114,7 +114,7 @@
 <script lang="ts" setup>
 import type { ImageItemValue, QuestionImagePickerModel } from "survey-core";
 import { useBase, useLocString } from "./base";
-
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{
   question: QuestionImagePickerModel;
   item: ImageItemValue;

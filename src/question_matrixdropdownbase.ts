@@ -77,6 +77,15 @@ export class MatrixDropdownCell {
   ) {
     this.questionValue = this.createQuestion(column, row, data);
     this.questionValue.updateCustomWidget();
+    this.updateCellQuestionTitleDueToAccessebility(row);
+  }
+  private updateCellQuestionTitleDueToAccessebility(row: MatrixDropdownRowModelBase): void {
+    this.questionValue.locTitle.onGetTextCallback = (str: string): string => {
+      if(!row || !row.getSurvey()) return this.questionValue.title;
+      const rowTitle = row.getAccessbilityText();
+      if(!rowTitle) return this.questionValue.title;
+      return this.column.colOwner.getCellAriaLabel(rowTitle, this.questionValue.title);
+    };
   }
   public locStrsChanged() {
     this.question.locStrsChanged();
@@ -232,6 +241,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public get rowName(): any {
     return null;
   }
+  public get dataName(): string {
+    return this.rowName;
+  }
   public get text(): any {
     return this.rowName;
   }
@@ -276,6 +288,9 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   }
   public get locText(): LocalizableString {
     return null;
+  }
+  public getAccessbilityText(): string {
+    return this.locText && this.locText.renderedHtml;
   }
   public get hasPanel(): boolean {
     if (!this.data) return false;
@@ -1755,7 +1770,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       questionPlainData.data = this.visibleRows.map(
         (row: MatrixDropdownRowModelBase) => {
           var rowDataItem = <any>{
-            name: row.rowName,
+            name: row.dataName,
             title: row.text,
             value: row.value,
             displayValue: this.getRowDisplayValue(false, row, row.value),
@@ -1831,6 +1846,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.collectNestedQuestonsInRows(this.visibleRows, questions, visibleOnly);
   }
   protected collectNestedQuestonsInRows(rows: Array<MatrixDropdownRowModelBase>, questions: Question[], visibleOnly: boolean): void {
+    if(!Array.isArray(rows)) return;
     rows.forEach(row => {
       row.questions.forEach(q => q.collectNestedQuestions(questions, visibleOnly));
     });

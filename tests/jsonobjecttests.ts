@@ -3074,3 +3074,15 @@ QUnit.test("Add a page into survey pages array", function (assert) {
   assert.equal((<any>survey.jsonErrors[0]).propertyName, "pages", "Correct property name #1");
   assert.equal((<any>survey.jsonErrors[1]).propertyName, "questions", "Correct property name #2");
 });
+QUnit.test("selectbase colCount property default value", function (assert) {
+  const q = new QuestionCheckboxModel("q");
+  assert.equal(q.colCount, 1, "Default value is 1");
+  const prop = Serializer.findProperty("checkboxbase", "colCount");
+  const defaultVal = prop.defaultValue;
+  prop.defaultValue = 0;
+  assert.equal(q.colCount, 0, "Default value is 0");
+  prop.defaultValue = 2;
+  assert.equal(q.colCount, 2, "Default value is 2");
+  prop.defaultValue = defaultVal;
+  assert.equal(q.colCount, 1, "Default value is 1 again");
+});

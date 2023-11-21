@@ -10,4 +10,8 @@ export class ConsoleWarnings {
     // eslint-disable-next-line no-console
     console.warn(text);
   }
+  public static error(text: string): void {
+    // eslint-disable-next-line no-console
+    console.error(text);
+  }
 }

@@ -11,7 +11,7 @@
 import { computed, ref } from "vue";
 import type { QuestionCustomModel, Question } from "survey-core";
 import { getComponentName as getComponent, useQuestion } from "./base";
-
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionCustomModel; css?: any }>();
 
 const root = ref(null);

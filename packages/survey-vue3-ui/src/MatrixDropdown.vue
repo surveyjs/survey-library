@@ -6,6 +6,7 @@
 import type { QuestionMatrixDropdownModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionMatrixDropdownModel }>();
 const root = ref(null);
 useQuestion(props, root);

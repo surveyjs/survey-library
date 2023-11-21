@@ -203,21 +203,23 @@ export class QuestionSignaturePadModel extends Question {
    *
    * Default value: `false`
    *
-   * > The signature area is scaled only for display. The resulting image will have dimensions specified by the [`signatureHeight`](#signatureHeight) and [`signatureWidth`](#signatureWidth) properties.
+   * This property auto-scales the signature area to fill all available width within the question box while maintaining the default 3:2 aspect ratio. If you set [custom width](#signatureWidth) and [height](#signatureHeight) values, the setting will keep the aspect ratio of these dimensions.
+   *
+   * > The signature area is scaled only for display. The image saved in survey results will have dimensions specified by the [`signatureHeight`](#signatureHeight) and [`signatureWidth`](#signatureWidth) properties.
    */
-  @property({ defaultValue: false }) signatureAutoScaleEnabled: boolean;
+  @property() signatureAutoScaleEnabled: boolean;
   /**
    * Speicifies the minimum width of pen strokes, measured in pixels.
    *
    * Default value: 0.5
    */
-  @property({ defaultValue: 0.5 }) penMinWidth: number;
+  @property() penMinWidth: number;
   /**
    * Speicifies the maximum width of pen strokes, measured in pixels.
    *
    * Default value: 2.5
    */
-  @property({ defaultValue: 2.5 }) penMaxWidth: number;
+  @property() penMaxWidth: number;
 
   private get containerHeight(): any {
     return this.signatureHeight || defaultHeight;

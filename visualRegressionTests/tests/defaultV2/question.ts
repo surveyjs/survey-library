@@ -449,6 +449,52 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check question errors bottom one-row", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(800, 800);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              },
+              {
+                "type": "text",
+                "name": "question2",
+                "startWithNewLine": false,
+                "isRequired": true
+              },
+              {
+                "type": "checkbox",
+                "name": "question3",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ]
+              },
+              {
+                "type": "text",
+                "name": "question4",
+                "startWithNewLine": false,
+                "isRequired": true
+              }
+            ]
+          }
+        ],
+        "questionErrorLocation": "bottom"
+      });
+      const pRoot = Selector(".sd-body");
+      await t.click(".sd-navigation__complete-btn");
+      await resetFocusToBody();
+      await takeElementScreenshot("question-with-error-below-one-line.png", pRoot, t, comparer);
+    });
+  });
+
   test("Check title location Left", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 

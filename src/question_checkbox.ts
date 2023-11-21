@@ -206,12 +206,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see enabledChoices
    */
   public get selectedChoices(): Array<ItemValue> {
+    const val = this.renderedValue as Array<any>;
+    const visChoices = this.visibleChoices;
+    const selectedItemValues = this.selectedItemValues;
+
     if (this.isEmpty()) return [];
 
-    const val = this.renderedValue as Array<any>;
-    const allChoices = !!this.defaultSelectedItemValues ? [].concat(this.defaultSelectedItemValues, this.visibleChoices) : this.visibleChoices;
+    const allChoices = !!this.defaultSelectedItemValues ? [].concat(this.defaultSelectedItemValues, visChoices) : visChoices;
     const itemValues = val.map((item) => { return ItemValue.getItemByValue(allChoices, item); }).filter(item => !!item);
-    if(!itemValues.length && !this.selectedItemValues) {
+    if(!itemValues.length && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
 

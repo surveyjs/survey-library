@@ -7,9 +7,10 @@ import { StylesManager } from "../src/stylesmanager";
 import { Serializer } from "../src/jsonobject";
 import { Camera } from "../src/utils/camera";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+export * from "../src/localization/german";
 export default QUnit.module("Survey_QuestionFile");
 
-QUnit.test("QuestionFile value initialization strings", function(assert) {
+QUnit.test("QuestionFile value initialization strings", function (assert) {
   var json = {
     questions: [
       {
@@ -62,7 +63,7 @@ QUnit.test("QuestionFile value initialization strings", function(assert) {
   );
 });
 
-QUnit.test("QuestionFile value initialization array", function(assert) {
+QUnit.test("QuestionFile value initialization array", function (assert) {
   var json = {
     questions: [
       {
@@ -114,12 +115,12 @@ QUnit.test("QuestionFile value initialization array", function(assert) {
     "locally stored file content"
   );
 });
-QUnit.test("QuestionFile serialization", function(assert) {
+QUnit.test("QuestionFile serialization", function (assert) {
   const fileQuestion = new QuestionFileModel("q1");
   assert.deepEqual(fileQuestion.toJSON(), { name: "q1" }, "We have only name in serialziation by default");
 });
 
-QUnit.test("QuestionFile change defaultValue for allowMultiple", function(assert) {
+QUnit.test("QuestionFile change defaultValue for allowMultiple", function (assert) {
   const fileQuestion1 = new QuestionFileModel("q1");
   assert.equal(fileQuestion1.allowMultiple, false, "default is false");
 
@@ -133,7 +134,7 @@ QUnit.test("QuestionFile change defaultValue for allowMultiple", function(assert
   prop2.defaultValue = false;
 });
 
-QUnit.test("QuestionFile value initialization array of objects", function(
+QUnit.test("QuestionFile value initialization array of objects", function (
   assert
 ) {
   var json = {
@@ -200,7 +201,7 @@ QUnit.test("QuestionFile value initialization array of objects", function(
 
 QUnit.test(
   "QuestionFile value initialization array of objects without onDownloadFile handler",
-  function(assert) {
+  function (assert) {
     var json = {
       questions: [
         {
@@ -251,7 +252,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionFile upload files", function(assert) {
+QUnit.test("QuestionFile upload files", function (assert) {
   var json = {
     questions: [
       {
@@ -319,7 +320,7 @@ QUnit.test("QuestionFile upload files", function(assert) {
   });
 });
 
-QUnit.test("QuestionFile remove file", function(assert) {
+QUnit.test("QuestionFile remove file", function (assert) {
   var json = {
     questions: [
       {
@@ -349,7 +350,7 @@ QUnit.test("QuestionFile remove file", function(assert) {
   assert.deepEqual(survey.data, {});
 });
 
-QUnit.test("QuestionFile remove files with the same name", function(assert) {
+QUnit.test("QuestionFile remove files with the same name", function (assert) {
   const json = {
     questions: [
       {
@@ -376,7 +377,7 @@ QUnit.test("QuestionFile remove files with the same name", function(assert) {
 
 QUnit.test(
   "QuestionFile upload files that exceed max size - https://surveyjs.answerdesk.io/ticket/details/T994",
-  function(assert) {
+  function (assert) {
     var json = {
       questions: [
         {
@@ -433,7 +434,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionFile canPreviewImage", function(assert) {
+QUnit.test("QuestionFile canPreviewImage", function (assert) {
   var q1: QuestionFileModel = new QuestionFileModel("image1");
 
   assert.notOk(q1.canPreviewImage(undefined), "no item");
@@ -454,7 +455,7 @@ QUnit.test("QuestionFile canPreviewImage", function(assert) {
 
 QUnit.test(
   "QuestionFile process errors during files uploading - https://surveyjs.answerdesk.io/ticket/details/T1075",
-  async function(assert) {
+  async function (assert) {
     var done = assert.async(2);
     var json = {
       questions: [
@@ -525,7 +526,7 @@ QUnit.test(
   }
 );
 
-QUnit.test("QuestionFile replace file for single file mode", function(assert) {
+QUnit.test("QuestionFile replace file for single file mode", function (assert) {
   var json = {
     questions: [
       {
@@ -558,7 +559,7 @@ QUnit.test("QuestionFile replace file for single file mode", function(assert) {
   assert.equal(q1.value.length, 1, "the only single file");
   assert.equal(q1.value[0].name, "f2", "second file name");
 });
-QUnit.test("QuestionFile in panel dynamic in preview mode", function(assert) {
+QUnit.test("QuestionFile in panel dynamic in preview mode", function (assert) {
   var json = {
     questions: [
       {
@@ -586,7 +587,7 @@ QUnit.test("QuestionFile in panel dynamic in preview mode", function(assert) {
   var fileQuestion = <QuestionFileModel>panel.panels[0].questions[0];
   assert.equal(fileQuestion.value, "someId", "Question file name");
 });
-QUnit.test("Writable captions", function(assert) {
+QUnit.test("Writable captions", function (assert) {
   var json = {
     questions: [
       {
@@ -605,53 +606,53 @@ QUnit.test("Writable captions", function(assert) {
    */
   assert.equal(q.confirmRemoveMessage, surveyLocalization.getString("confirmRemoveFile"), "The remove file confirmation message template default");
   q.confirmRemoveMessage += "_new";
-  assert.equal(q.confirmRemoveMessage, surveyLocalization.getString("confirmRemoveFile")+"_new", "The remove file confirmation message template new");
+  assert.equal(q.confirmRemoveMessage, surveyLocalization.getString("confirmRemoveFile") + "_new", "The remove file confirmation message template new");
   /**
     * The remove all files confirmation message.
     */
   assert.equal(q.confirmRemoveAllMessage, surveyLocalization.getString("confirmRemoveAllFiles"), "The remove all files confirmation message default");
   q.confirmRemoveAllMessage += "_new";
-  assert.equal(q.confirmRemoveAllMessage, surveyLocalization.getString("confirmRemoveAllFiles")+"_new", "The remove all files confirmation message new");
+  assert.equal(q.confirmRemoveAllMessage, surveyLocalization.getString("confirmRemoveAllFiles") + "_new", "The remove all files confirmation message new");
   /**
     * The no file chosen caption for modern theme.
     */
   assert.equal(q.noFileChosenCaption, surveyLocalization.getString("noFileChosen"), "The no file chosen caption for modern theme default");
   q.noFileChosenCaption += "_new";
-  assert.equal(q.noFileChosenCaption, surveyLocalization.getString("noFileChosen")+"_new", "The no file chosen caption for modern theme new");
+  assert.equal(q.noFileChosenCaption, surveyLocalization.getString("noFileChosen") + "_new", "The no file chosen caption for modern theme new");
   /**
     * The choose files button caption for modern theme.
     */
   assert.equal(q.chooseButtonCaption, surveyLocalization.getString("chooseFileCaption"), "The choose files button caption for modern theme default");
   q.chooseButtonCaption += "_new";
-  assert.equal(q.chooseButtonCaption, surveyLocalization.getString("chooseFileCaption")+"_new", "The choose files button caption for modern theme new");
+  assert.equal(q.chooseButtonCaption, surveyLocalization.getString("chooseFileCaption") + "_new", "The choose files button caption for modern theme new");
   /**
     * The clean files button caption.
     */
   assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption"), "The clean files button caption default");
   q.clearButtonCaption += "_new";
-  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption")+"_new", "The clean files button caption new");
+  assert.equal(q.clearButtonCaption, surveyLocalization.getString("clearCaption") + "_new", "The clean files button caption new");
   /**
     * The remove file button caption.
     */
   assert.equal(q.removeFileCaption, surveyLocalization.getString("removeFileCaption"), "The remove file button caption default");
   q.removeFileCaption += "_new";
-  assert.equal(q.removeFileCaption, surveyLocalization.getString("removeFileCaption")+"_new", "The remove file button caption new");
+  assert.equal(q.removeFileCaption, surveyLocalization.getString("removeFileCaption") + "_new", "The remove file button caption new");
   /**
     * The loading file input title.
     */
   assert.equal(q.loadingFileTitle, surveyLocalization.getString("loadingFile"), "The loading file input title default");
   q.loadingFileTitle += "_new";
-  assert.equal(q.loadingFileTitle, surveyLocalization.getString("loadingFile")+"_new", "The loading file input title new");
+  assert.equal(q.loadingFileTitle, surveyLocalization.getString("loadingFile") + "_new", "The loading file input title new");
   /**
    * The choose file input title.
    */
   assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile"), "The choose file input title default");
   q.chooseFileTitle += "_new";
-  assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile")+"_new", "The choose file input title new");
+  assert.equal(q.chooseFileTitle, surveyLocalization.getString("chooseFile") + "_new", "The choose file input title new");
 
 });
 
-QUnit.test("Check choose button text", function(assert) {
+QUnit.test("Check choose button text", function (assert) {
   const json = {
     questions: [
       {
@@ -695,7 +696,7 @@ QUnit.test("check file d&d", (assert) => {
   var q: QuestionFileModel = <QuestionFileModel>survey.getQuestionByName("file1");
   let onChangeCalledCount = 0;
   q["onChange"] = () => { onChangeCalledCount++; };
-  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
+  const event = { preventDefault: () => { }, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
   q.onDragEnter(event);
   assert.equal(q["dragCounter"], 1);
   assert.equal(q.isDragging, true);
@@ -742,7 +743,7 @@ QUnit.test("check file d&d readonly", (assert) => {
   let onChangeCalledCount = 0;
   assert.equal(q["canDragDrop"](), true, "canDragDrop");
   q["onChange"] = () => { onChangeCalledCount++; };
-  const event = { preventDefault: () => {}, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
+  const event = { preventDefault: () => { }, dataTransfer: { dropEffect: "none", files: [{ type: "ext", name: "test", content: "test_content" }] } };
   const checkDD = () => {
     q.onDragOver(event);
     assert.equal(event.dataTransfer.dropEffect, "none");
@@ -843,7 +844,7 @@ QUnit.test("Question File responsive", (assert) => {
   assert.equal(q1.fileNavigatorVisible, false);
 });
 
-QUnit.test("QuestionFile inside a panel set value", async function(assert) {
+QUnit.test("QuestionFile inside a panel set value", async function (assert) {
   let done = assert.async(1);
   var json = {
     "name": "page1",
@@ -929,7 +930,7 @@ QUnit.test("preview item index on last file removed", (assert) => {
 
 QUnit.test(
   "QuestionFile upload state sequence",
-  function(assert) {
+  function (assert) {
     var json = {
       questions: [
         {
@@ -1022,19 +1023,21 @@ QUnit.test("Check download file event", (assert) => {
 
   assert.equal(q.currentState, "empty", "Initial state is empty");
 
-  survey.data = { "file1": [{
-    content: "file1",
-    name: "file1.png",
-    type: "image/png"
-  }, {
-    content: "file2",
-    name: "file2.png",
-    type: "image/png"
-  }, {
-    content: "file3",
-    name: "file3.png",
-    type: "image/png"
-  }] };
+  survey.data = {
+    "file1": [{
+      content: "file1",
+      name: "file1.png",
+      type: "image/png"
+    }, {
+      content: "file2",
+      name: "file2.png",
+      type: "image/png"
+    }, {
+      content: "file3",
+      name: "file3.png",
+      type: "image/png"
+    }]
+  };
   assert.equal(log, "->file1.png->file2.png->file3.png", "Every file should be loaded only once");
   assert.equal(q.value.length, 3, "Question value contains 3 files");
   assert.equal(q.currentState, "loaded", "The loaded state after data assigned");
@@ -1064,19 +1067,21 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   question.onReadyChanged.add(() => {
     readyLogs.push(question.isReady);
   });
-  survey.data = { "file1": [{
-    content: "url1",
-    name: "file1.png",
-    type: "image/png"
-  }, {
-    content: "url2",
-    name: "file2.png",
-    type: "image/png"
-  }] };
+  survey.data = {
+    "file1": [{
+      content: "url1",
+      name: "file1.png",
+      type: "image/png"
+    }, {
+      content: "url2",
+      name: "file2.png",
+      type: "image/png"
+    }]
+  };
   assert.equal(question.isReady, false, "question is not ready");
   assert.equal(log, "->file1.png->file2.png");
   assert.equal(callbacks.length, 2, "Two callbacks");
-  for(let i = 0; i < callbacks.length; i ++) {
+  for (let i = 0; i < callbacks.length; i++) {
     callbacks[i]("success", contents[i]);
   }
   assert.equal(question.isReady, true, "question is ready");
@@ -1094,7 +1099,7 @@ QUnit.test("Check isReady flag with onDownloadFile callback", (assert) => {
   assert.equal(readyLogs[1], true, "readyLogs[1]");
 });
 
-QUnit.test("QuestionFile remove file by preview value", function(assert) {
+QUnit.test("QuestionFile remove file by preview value", function (assert) {
   var json = {
     questions: [
       {
@@ -1124,7 +1129,7 @@ QUnit.test("QuestionFile remove file by preview value", function(assert) {
   });
 });
 
-QUnit.test("QuestionFile download file content on preview", function(assert) {
+QUnit.test("QuestionFile download file content on preview", function (assert) {
   var json = {
     showPreviewBeforeComplete: "showAnsweredQuestions",
     elements: [
@@ -1381,7 +1386,7 @@ QUnit.test("Check file question processResponsiveness method", (assert) => {
   assert.equal(question.pageSize, 4);
 });
 
-QUnit.test("QuestionFile download file content on preview", function(assert) {
+QUnit.test("QuestionFile download file content on preview", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
@@ -1398,7 +1403,7 @@ QUnit.test("QuestionFile download file content on preview", function(assert) {
   assert.equal(q2.locRenderedPlaceholder.renderedHtml.substring(0, 4), "Drag", "q2, not readOnly=> drag");
 });
 
-QUnit.test("QuestionFile current mode property, camera is not available", function(assert) {
+QUnit.test("QuestionFile current mode property, camera is not available", function (assert) {
   StylesManager.applyTheme("defaultV2");
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Camera.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
@@ -1435,12 +1440,12 @@ function createDevices(info: Array<any>): Array<MediaDeviceInfo> {
   const res = new Array<MediaDeviceInfo>();
   let id = 1;
   info.forEach(i => {
-    res.push({ kind: "videoinput", deviceId: id.toString(), groupId: "group1", label: i.label, toJSON: (): any => {} });
+    res.push({ kind: "videoinput", deviceId: id.toString(), groupId: "group1", label: i.label, toJSON: (): any => { } });
     id++;
   });
   return res;
 }
-QUnit.test("QuestionFile current mode property, camera is available", function(assert) {
+QUnit.test("QuestionFile current mode property, camera is available", function (assert) {
   StylesManager.applyTheme("defaultV2");
   const callbacks = new Array<(devices: Array<MediaDeviceInfo>) => void>();
   Camera.mediaDevicesCallback = (cb: (devices: Array<MediaDeviceInfo>) => void): void => {
@@ -1475,7 +1480,7 @@ QUnit.test("QuestionFile current mode property, camera is available", function(a
   Camera.mediaDevicesCallback = undefined;
   StylesManager.applyTheme("default");
 });
-QUnit.test("QuestionFile check file actions visibility when camera is available from start point", function(assert) {
+QUnit.test("QuestionFile check file actions visibility when camera is available from start point", function (assert) {
   StylesManager.applyTheme("defaultV2");
   Camera.setCameraList(<any>[{ label: "test" }]);
   let survey = new SurveyModel({
@@ -1499,7 +1504,7 @@ QUnit.test("QuestionFile check file actions visibility when camera is available 
   Camera.clear();
   StylesManager.applyTheme("default");
 });
-QUnit.test("new Camera().getMediaConstraints", function(assert) {
+QUnit.test("new Camera().getMediaConstraints", function (assert) {
   Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
   let mConst: any = new Camera().getMediaConstraints();
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
@@ -1511,7 +1516,7 @@ QUnit.test("new Camera().getMediaConstraints", function(assert) {
   assert.equal(mConst.video.deviceId.exact, 2, "Device is correct");
   Camera.clear();
 });
-QUnit.test("new Camera().flip", function(assert) {
+QUnit.test("new Camera().flip", function (assert) {
   assert.equal(new Camera().canFlip(), false, "There is no devices");
   Camera.setCameraList(createDevices([{ label: "abd" }]));
   assert.equal(new Camera().canFlip(), false, "There is one device");
@@ -1530,7 +1535,7 @@ QUnit.test("new Camera().flip", function(assert) {
   assert.equal(mConst.video.deviceId.exact, 3, "Flip #2");
   Camera.clear();
 });
-QUnit.test("Check file question change camera action", function(assert) {
+QUnit.test("Check file question change camera action", function (assert) {
   let survey = new SurveyModel({
     elements: [{ type: "file", name: "q1" }]
   });
@@ -1563,7 +1568,7 @@ QUnit.test("Check file question change camera action", function(assert) {
   assert.equal(Camera["cameraFacingMode"], "user");
   Camera.clear();
 });
-QUnit.test("new Camera().getMediaConstraints width and height", function(assert) {
+QUnit.test("new Camera().getMediaConstraints width and height", function (assert) {
   Camera.setCameraList(createDevices([{ label: "dfdf" }, { label: "user" }]));
   let mConst: any = new Camera().getMediaConstraints();
   assert.strictEqual(mConst.video.width, undefined);
@@ -1579,13 +1584,13 @@ QUnit.test("new Camera().getMediaConstraints width and height", function(assert)
   assert.deepEqual(mConst.video.height, { ideal: 100 });
   Camera.clear();
 });
-QUnit.test("Camera: check getImageSize method", function(assert) {
+QUnit.test("Camera: check getImageSize method", function (assert) {
   let imageSize = new Camera().getImageSize({ videoWidth: 100, videoHeight: 200 } as any);
   assert.deepEqual(imageSize, { width: 100, height: 200 });
   imageSize = new Camera().getImageSize({ videoWidth: 130, videoHeight: 250 } as any);
   assert.deepEqual(imageSize, { width: 130, height: 250 });
 });
-QUnit.test("QuestionFile stop playing video on hiding question", function(assert) {
+QUnit.test("QuestionFile stop playing video on hiding question", function (assert) {
   let survey = new SurveyModel({
     elements: [{ type: "file", name: "q1" }]
   });
@@ -1600,7 +1605,8 @@ QUnit.test("QuestionFile stop playing video on hiding question", function(assert
   assert.equal(q1.isPlayingVideo, false, "question content is collapsed");
   survey = new SurveyModel({
     elements: [
-      { type: "panel", name: "panel1",
+      {
+        type: "panel", name: "panel1",
         elements: [{ type: "file", name: "q1" }]
       }
     ]
@@ -1615,7 +1621,7 @@ QUnit.test("QuestionFile stop playing video on hiding question", function(assert
   panel.collapse();
   assert.equal(q1.isPlayingVideo, false, "panel content is collapsed");
 });
-QUnit.test("QuestionFile stop playing video on going to another page or complete", function(assert) {
+QUnit.test("QuestionFile stop playing video on going to another page or complete", function (assert) {
   const survey = new SurveyModel({
     pages: [
       { elements: [{ type: "text", name: "q2" }] },
@@ -1644,7 +1650,7 @@ QUnit.test("QuestionFile stop playing video on going to another page or complete
   assert.equal(q1.isPlayingVideo, false, "complete survey");
 });
 
-QUnit.test("QuestionFile check actions container", function(assert) {
+QUnit.test("QuestionFile check actions container", function (assert) {
   const survey = new SurveyModel({
     pages: [
       { elements: [{ type: "file", name: "q1", sourceType: "file" }] }
@@ -1687,7 +1693,7 @@ QUnit.test("QuestionFile check actions container", function(assert) {
   assert.notOk(startCameraAction.showTitle);
 });
 
-QUnit.test("QuestionFile check renderedPlaceholder in different modes", function(assert) {
+QUnit.test("QuestionFile check renderedPlaceholder in different modes", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
@@ -1705,7 +1711,7 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes", function
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
 });
 
-QUnit.test("QuestionFile check renderedPlaceholder in different modes when camera is not available", function(assert) {
+QUnit.test("QuestionFile check renderedPlaceholder in different modes when camera is not available", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
@@ -1720,7 +1726,7 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes when camer
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "file_mod_placeholder");
 });
 
-QUnit.test("QuestionFile check renderedPlaceholder in different modes with design mode", function(assert) {
+QUnit.test("QuestionFile check renderedPlaceholder in different modes with design mode", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },
@@ -1738,7 +1744,7 @@ QUnit.test("QuestionFile check renderedPlaceholder in different modes with desig
   assert.equal(q1.locRenderedPlaceholder.renderedHtml, "both_mod_placeholder");
 });
 
-QUnit.test("QuestionFile actions visibility in design mode", function(assert) {
+QUnit.test("QuestionFile actions visibility in design mode", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.setJsonObject({
@@ -1759,7 +1765,7 @@ QUnit.test("QuestionFile actions visibility in design mode", function(assert) {
   assert.ok(startCameraAction.visible);
 });
 
-QUnit.test("QuestionFile actions are readOnly in design mode", function(assert) {
+QUnit.test("QuestionFile actions are readOnly in design mode", function (assert) {
   const survey = new SurveyModel();
   survey.setDesignMode(true);
   survey.setJsonObject({
@@ -1774,7 +1780,7 @@ QUnit.test("QuestionFile actions are readOnly in design mode", function(assert) 
   assert.notOk(cleanAction.enabled);
 });
 
-QUnit.test("QuestionFile actions in readOnly mode", function(assert) {
+QUnit.test("QuestionFile actions in readOnly mode", function (assert) {
   const survey = new SurveyModel();
   survey.setJsonObject({
     elements: [
@@ -1791,7 +1797,7 @@ QUnit.test("QuestionFile actions in readOnly mode", function(assert) {
   assert.ok(startCameraAction.disabled);
 });
 
-QUnit.test("QuestionFile check placeholders are serializable", function(assert) {
+QUnit.test("QuestionFile check placeholders are serializable", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -1881,3 +1887,17 @@ QUnit.test("QuestionFile process errors with partially loaded files",
     assert.equal(q1.value[0].content, "f1_url");
   }
 );
+
+QUnit.test("Acton takePhoto should be serialiazed", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", maxSize: 3 },
+    ]
+  });
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+  const action = question.takePictureAction;
+  assert.equal(action.title, "Take Photo", "en");
+  survey.locale = "de";
+  assert.equal(action.title, "Foto machen", "de");
+});
+

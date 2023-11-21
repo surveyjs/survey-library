@@ -125,14 +125,6 @@ export class QuestionTextBase extends Question {
     return val;
   }
   protected getValueSeparator(): string { return ", "; }
-  public disableNativeUndoRedo = false;
-  protected checkForUndo(event: KeyboardEvent) {
-    if (this.disableNativeUndoRedo && this.isInputTextUpdate && (event.ctrlKey || event.metaKey)) {
-      if ([89, 90].indexOf(event.keyCode) !== -1) {
-        event.preventDefault();
-      }
-    }
-  }
   protected getControlCssClassBuilder(): CssClassBuilder {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -148,6 +140,8 @@ export class QuestionTextBase extends Question {
     return true;
   }
   // EO a11y
+
+  public onKeyDownPreprocess: (event: any) => void;
 }
 Serializer.addClass(
   "textbase", [],

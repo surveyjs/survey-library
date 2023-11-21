@@ -1,35 +1,25 @@
 <template>
   <div :class="question.rootClass" ref="root">
-    <survey-ranking-item
-      v-if="!question.selectToRankEnabled"
-      v-for="(item, index) in question.rankingChoices"
-      :key="item.value + '-' + index + '-item'"
-      :class="question.getItemClass(item)"
-      :text="item.locText"
-      :index="index"
-      :indexText="getNumberByIndex(index)"
-      :cssClasses="question.cssClasses"
-      :question="question"
-      :item="item"
-    ></survey-ranking-item>
+    <template v-if="!question.selectToRankEnabled">
+      <component
+        v-for="(item, index) in question.rankingChoices"
+        :key="item.value + '-' + index + '-item'"
+        :is="getItemValueComponentName(item)"
+        v-bind="getItemValueComponentData(item, index)"
+      ></component>
+    </template>
 
     <div
       v-if="question.selectToRankEnabled"
       :class="question.getContainerClasses('from')"
       data-ranking="from-container"
     >
-      <survey-ranking-item
+      <component
         v-for="(item, index) in question.unRankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :class="question.getItemClass(item)"
-        :text="item.locText"
-        :index="index"
-        :indexText="getNumberByIndex(index)"
-        :cssClasses="question.cssClasses"
-        :question="question"
-        :item="item"
-        :unrankedItem="true"
-      ></survey-ranking-item>
+        :is="getItemValueComponentName(item)"
+        v-bind="getItemValueComponentData(item, index, true)"
+      ></component>
 
       <div
         v-if="question.unRankingChoices.length === 0"
@@ -49,17 +39,12 @@
       :class="question.getContainerClasses('to')"
       data-ranking="to-container"
     >
-      <survey-ranking-item
+      <component
         v-for="(item, index) in question.rankingChoices"
         :key="item.value + '-' + index + '-item'"
-        :class="question.getItemClass(item)"
-        :text="item.locText"
-        :index="index"
-        :indexText="getNumberByIndex(index)"
-        :cssClasses="question.cssClasses"
-        :question="question"
-        :item="item"
-      ></survey-ranking-item>
+        :is="getItemValueComponentName(item)"
+        v-bind="getItemValueComponentData(item, index)"
+      ></component>
 
       <div
         v-if="question.rankingChoices.length === 0"
@@ -72,13 +57,45 @@
 </template>
 
 <script lang="ts" setup>
-import type { QuestionRankingModel } from "survey-core";
+import type { ItemValue, QuestionRankingModel } from "survey-core";
 import { useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({
+  inheritAttrs: false,
+});
 const props = defineProps<{ question: QuestionRankingModel }>();
 const root = ref(null);
 useQuestion<QuestionRankingModel>(props, root);
-const getNumberByIndex = (index: any) => {
-  return props.question.getNumberByIndex(index);
+const getItemValueComponentName = (item: ItemValue) => {
+  return (
+    props.question.getItemValueWrapperComponentName(item) ||
+    "survey-ranking-item"
+  );
+};
+
+const getItemValueComponentData = (
+  item: ItemValue,
+  index?: number,
+  unrankedItem?: boolean
+) => {
+  const itemComponentProperty =
+    props.question.getPropertyByName("itemComponent");
+  const isDefaultItemComponent = itemComponentProperty.isDefaultValue(
+    props.question.itemComponent
+  );
+  const itemComponent = isDefaultItemComponent
+    ? "survey-ranking-item"
+    : props.question.itemComponent;
+
+  return {
+    componentName: itemComponent,
+    componentData: {
+      question: props.question,
+      item,
+      index: index,
+      unrankedItem: unrankedItem,
+      data: props.question.getItemValueWrapperComponentData(item),
+    },
+  };
 };
 </script>

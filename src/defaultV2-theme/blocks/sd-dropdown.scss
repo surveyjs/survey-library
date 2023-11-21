@@ -16,6 +16,7 @@
   opacity: 1;
   display: flex;
   justify-content: space-between;
+word-spacing: normal;
 }
 
 .sd-dropdown[disabled] {
@@ -96,6 +97,7 @@
   position: absolute;
   left: 0;
   top: 0;
+  bottom: 0;
   width: 100%;
   max-width: 100%;
   border: none;
@@ -112,7 +114,6 @@
   white-space: nowrap;
   display: inline-block;
   appearance: none;
-  height: 100%;
 }
 
 .sd-dropdown--empty:not(.sd-input--disabled) .sd-dropdown__filter-string-input::placeholder {

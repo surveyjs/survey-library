@@ -17,5 +17,8 @@ import { useQuestion } from "./base";
 import { ref } from "vue";
 const props = defineProps<{ question: QuestionTextModel }>();
 const root = ref(null);
+defineOptions({
+  inheritAttrs: false,
+});
 useQuestion<QuestionTextModel>(props, root);
 </script>

@@ -5,6 +5,8 @@ import { QuestionSelectBase } from "../question_baseselect";
 import { DragDropCore } from "./core";
 
 export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
+  private imagepickerControlsNode: HTMLElement;
+
   protected get draggedElementType(): string {
     return "item-value";
   }
@@ -76,11 +78,13 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
     `;
 
     const itemValueNode = draggedElementNode.closest("[data-sv-drop-target-item-value]");
-    const controlsNode: HTMLElement = itemValueNode.querySelector(".svc-image-item-value-controls");
+    this.imagepickerControlsNode = itemValueNode.querySelector(".svc-image-item-value-controls");
     const imageContainerNode: any = itemValueNode.querySelector(".sd-imagepicker__image-container");
     let imageNode: any = itemValueNode.querySelector(item.imageLink ? "img" : ".sd-imagepicker__no-image").cloneNode(true);
 
-    controlsNode.style.display = "none";
+    if (!!this.imagepickerControlsNode) {
+      this.imagepickerControlsNode.style.display = "none";
+    }
     imageContainerNode.style.width = imageNode.width + "px";
     imageContainerNode.style.height = imageNode.height + "px";
 
@@ -211,6 +215,10 @@ export class DragDropChoices extends DragDropCore<QuestionSelectBase> {
   public clear(): void {
     if(!!this.parentElement) {
       this.updateVisibleChoices(this.parentElement);
+    }
+    if (!!this.imagepickerControlsNode) {
+      this.imagepickerControlsNode.style.display = "flex";
+      this.imagepickerControlsNode = null;
     }
     super.clear();
   }

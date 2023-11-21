@@ -117,7 +117,7 @@ function translateStrings(locale, stringsToTranslate, callback) {
     params: {
       "api-version": "3.0",
       "from": "en",
-      "to": [locale]
+      "to": locale
     },
     data: dataToTranslate,
     responseType: "json"

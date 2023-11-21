@@ -567,6 +567,27 @@ export var settings = {
    * Default value: `"none"`
    */
   noneItemValue: "none",
+  /**
+   * An object whose properties specify the order of the special choice items (None, Other, Select All) in select-based questions.
+   *
+   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2] }`
+   *
+   * Use this object to reorder special choices. Each property accepts an array of integer numbers. Negative numbers place a special choice item above regular choice items, positive numbers place it below them. For instance, the code below specifies the following order of choices: None, Select All, regular choices, Other.
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * settings.specialChoicesOrder.noneItem = [-2];
+   * settings.specialChoicesOrder.selectAllItem = [-1];
+   * settings.specialChoicesOrder.otherItem = [1];
+   * ```
+   *
+   * If you want to duplicate a special choice item above and below other choices, add two numbers to the corresponding array:
+   *
+   * ```js
+   * settings.specialChoicesOrder.selectAllItem = [-1, 3] // Displays Select All above and below other choices
+   * ```
+   */
   specialChoicesOrder: {
     selectAllItem: [-1],
     noneItem: [1],

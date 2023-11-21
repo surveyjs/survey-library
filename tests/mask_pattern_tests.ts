@@ -23,25 +23,41 @@ QUnit.test("get masked invalid text", function(assert) {
   assert.equal(inputMask.getMaskedString("123456789101112"), "+1(234)-567-89-10");
 });
 
-QUnit.test("get unmasked value", function(assert) {
+QUnit.test("get unmasked value, matchWholeMask is true", function(assert) {
   const inputMask = new InputMaskBase(mask);
-  assert.equal(inputMask.getUnmaskedValue("+_(___)-___-__-__"), "");
-  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-__-__"), "");
-  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-89-10"), "12345678910");
+  assert.equal(inputMask.getUnmaskedValue("+_(___)-___-__-__", true), "");
+  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-__-__", true), "");
+  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-89-10", true), "12345678910");
 });
 
-QUnit.test("get unmasked invalid value", function(assert) {
+QUnit.test("get unmasked invalid value, matchWholeMask is true", function(assert) {
   const inputMask = new InputMaskBase(mask);
-  assert.equal(inputMask.getUnmaskedValue("+.(___)-___-__-__"), "");
-  assert.equal(inputMask.getUnmaskedValue("+a(bcd)-567-__-__"), "");
-  assert.equal(inputMask.getUnmaskedValue("++(234)-567-89-10"), "");
-  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-__-10"), "");
+  assert.equal(inputMask.getUnmaskedValue("+.(___)-___-__-__", true), "");
+  assert.equal(inputMask.getUnmaskedValue("+a(bcd)-567-__-__", true), "");
+  assert.equal(inputMask.getUnmaskedValue("++(234)-567-89-10", true), "");
+  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-__-10", true), "");
+});
+
+QUnit.test("get unmasked value, matchWholeMask is false", function(assert) {
+  const inputMask = new InputMaskBase(mask);
+  assert.equal(inputMask.getUnmaskedValue("+_(___)-___-__-__", false), "");
+  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-__-__", false), "1234567");
+  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-89-10", false), "12345678910");
+});
+
+QUnit.test("get unmasked invalid value, matchWholeMask is false", function(assert) {
+  const inputMask = new InputMaskBase(mask);
+  assert.equal(inputMask.getUnmaskedValue("+.(___)-___-__-__", false), "");
+  assert.equal(inputMask.getUnmaskedValue("+a(bcd)-567-__-__", false), "");
+  assert.equal(inputMask.getUnmaskedValue("++(234)-567-89-10", false), "");
+  assert.equal(inputMask.getUnmaskedValue("+1(234)-567-__-10", false), "1234567");
 });
 
 QUnit.test("update masked value", function(assert) {
   const resultMaskedText = "+1(234)-567-__-__";
   const inputMask = new InputMaskBase(mask);
   assert.equal(inputMask.updateMaskedString("+1(234)-567-__-__"), resultMaskedText);
+  assert.equal(inputMask.updateMaskedString("+1(234)-567_-__-__"), resultMaskedText);
   assert.equal(inputMask.updateMaskedString("+1(234)-567-ab-__"), resultMaskedText);
   assert.equal(inputMask.updateMaskedString("+1(234)-567-.,-__"), resultMaskedText);
   assert.equal(inputMask.updateMaskedString("+1(234)-567-!?-__"), resultMaskedText);

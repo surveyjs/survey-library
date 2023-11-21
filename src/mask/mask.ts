@@ -28,15 +28,17 @@ export class InputMaskBase {
     return result;
   }
 
-  getUnmaskedValue(str: string): string {
+  getUnmaskedValue(str: string, matchWholeMask: boolean): string {
     let result = "";
     for(let index = 0; index < this.mask.length; index++) {
       const currentDefinition = this.definitions[this.mask[index]];
       if(currentDefinition) {
         if(str[index].match(currentDefinition)) {
           result += str[index];
-        } else {
+        } else if(matchWholeMask) {
           result = "";
+          break;
+        } else {
           break;
         }
       }
@@ -45,19 +47,6 @@ export class InputMaskBase {
   }
 
   updateMaskedString(str: string): string {
-    let result = "";
-    for(let index = 0; index < this.mask.length; index++) {
-      const currentDefinition = this.definitions[this.mask[index]];
-      if(currentDefinition) {
-        if(str[index].match(currentDefinition)) {
-          result += str[index];
-        } else {
-          result += this.placeholderChar;
-        }
-      } else {
-        result += this.mask[index];
-      }
-    }
-    return result;
+    return this.getMaskedString(this.getUnmaskedValue(str, false));
   }
 }

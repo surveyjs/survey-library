@@ -73,6 +73,7 @@ import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
+import { SurveyTaskManagerModel } from "./surveyTaskManager";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -5027,11 +5028,15 @@ export class SurveyModel extends SurveyElementCore
     if (this.onUploadFiles.isEmpty) {
       callback("error", files);
     } else {
+      const task = this.taskManager.taskStarted("file");
       this.onUploadFiles.fire(this, {
         question: question,
         name: name,
         files: files || [],
-        callback: callback,
+        callback: (status, data) => {
+          this.taskManager.taskFinished(task);
+          callback(status, data);
+        },
       });
     }
     if (this.surveyPostId) {
@@ -6006,6 +6011,7 @@ export class SurveyModel extends SurveyElementCore
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.taskManager.hasActiveTasks),
       visibleIndex: 50,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -7400,6 +7406,8 @@ export class SurveyModel extends SurveyElementCore
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));
   }
+
+  private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();
 
   /**
    * Disposes of the survey model.

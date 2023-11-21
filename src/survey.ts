@@ -3298,8 +3298,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Depending on the `type` argument, a survey can display the following notification types:
    *
-   * TODO: ![]()
-   *
+   * ![Toast notification types in SurveyJS Form Library](https://surveyjs.io//Content/Images/docs/notification-types.png)
    * @param message A message to display.
    * @param type A notification type: `"info"` (default), `"success"`, or `"error"`.
    * @param showActions For internal use.

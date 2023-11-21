@@ -6,6 +6,7 @@ import { SurveyModel } from "../src/survey";
 import { Action } from "../src/actions/action";
 import { findParentByClassNames } from "../src/utils/utils";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+export * from "../src/localization/german";
 
 export default QUnit.module("Base");
 
@@ -776,4 +777,17 @@ QUnit.test("base.resetPropertyValue() for localization string", function (assert
   const prop = Serializer.findProperty("survey", "completeText");
   prop.setValue(survey, "", null);
   assert.equal(survey.completeText, "", "Empty string after prop.setValue func");
+});
+QUnit.test("base.resetPropertyValue() for localization string, #2, bug#7388", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.completeText, "Complete", "default value");
+  survey.completeText = "test en";
+  assert.equal(survey.completeText, "test en", "set value en");
+  survey.locale = "de";
+  survey.completeText = "test de";
+  assert.equal(survey.completeText, "test de", "set value de");
+  survey.resetPropertyValue("completeText");
+  assert.equal(survey.completeText, "Abschließen", "default value de");
+  survey.locale = "";
+  assert.equal(survey.completeText, "Complete", "default value en");
 });

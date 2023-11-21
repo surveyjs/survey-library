@@ -84,7 +84,10 @@ export class DragDropPageHelperV1 {
       allow: true,
       target: this.dragDropInfo.target,
       source: this.dragDropInfo.source,
+      toElement: this.dragDropInfo.target,
+      draggedElement: this.dragDropInfo.source,
       parent: parent,
+      fromElement: this.dragDropInfo.source ? this.dragDropInfo.source.parent : null,
       insertAfter: insertAfter,
       insertBefore: insertBefore,
     };

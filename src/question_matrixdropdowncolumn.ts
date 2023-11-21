@@ -31,6 +31,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   getCellType(): string;
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
+  getCellAriaLabel(rowTitle:string, columnTitle:string):string;
 }
 
 function onUpdateSelectBaseCellQuestion(
@@ -486,7 +487,7 @@ export class MatrixDropdownColumn extends Base
     this.callOnCellQuestionUpdate(cellQuestion, row);
     return cellQuestion;
   }
-  startLoadingFromJson(json?: any) {
+  startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
     if (!!json && !json.cellType && !!json.choices) {
       json.cellType = this.colOwner.getCellType();

@@ -69,14 +69,14 @@ function unMakeReactive(surveyElement: Base, isModelSubsribed: boolean) {
 // by convention, composable function names start with "use"
 export function useBase<T extends Base>(
   getModel: () => T,
-  onModelChanged?: (newValue: T) => void,
+  onModelChanged?: (newValue: T, oldValue?: T) => void,
   clean?: (model: T) => void
 ) {
   let isModelSubsribed = false;
   const stopWatch = watch(
     getModel,
     (value, oldValue) => {
-      if (onModelChanged) onModelChanged(value);
+      if (value && onModelChanged) onModelChanged(value, oldValue);
       if (oldValue) {
         unMakeReactive(oldValue, isModelSubsribed);
         if (clean) clean(oldValue);
@@ -91,8 +91,8 @@ export function useBase<T extends Base>(
   onBeforeUnmount(() => {
     const model = getModel();
     if (model) {
-      if (clean) clean(getModel());
       unMakeReactive(model, isModelSubsribed);
+      if (clean) clean(model);
       stopWatch();
     }
   });

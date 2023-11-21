@@ -41,6 +41,7 @@ function _slk(k: any, lh: any, rd: any) {
   if (!v) return;
   let index = v.indexOf(";");
   if (index < 0) return;
+  if(!checkPrefix(v.substring(0, index))) return;
   v = v.substring(index + 1);
   v.split(",").forEach(s => {
     let i = s.indexOf("=");
@@ -48,6 +49,23 @@ function _slk(k: any, lh: any, rd: any) {
       lh[s.substring(0, i)] = new Date(rd) <= new Date(s.substring(i + 1));
     }
   });
+}
+function checkPrefix(prefix: string): boolean {
+  if(!prefix) return true;
+  const s = "domains:";
+  const index = prefix.indexOf(s);
+  if(index < 0) return true;
+  const ds = prefix.substring(index + s.length).toLowerCase().split(",");
+  if(!Array.isArray(ds) || ds.length === 0) return true;
+  if(typeof window !== "undefined" && !!window.location && !!window.location.hostname) {
+    const hn = window.location.hostname.toLowerCase();
+    ds.push("localhost");
+    for(let i = 0; i < ds.length; i ++) {
+      if(hn.indexOf(ds[i]) > -1) return true;
+    }
+    return false;
+  }
+  return true;
 }
 
 export { settings, ISurveyEnvironment } from "../../settings";

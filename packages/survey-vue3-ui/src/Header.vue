@@ -1,18 +1,10 @@
 <template>
   <div v-if="survey.renderedHasHeader" :class="survey.css.header" ref="root">
     <div v-if="survey.isLogoBefore" :class="survey.logoClassNames">
-      <img
-        :class="survey.css.logoImage"
-        :src="logoUrl"
-        :width="survey.renderedLogoWidth"
-        :height="survey.renderedLogoHeight"
-        :alt="survey.locTitle.renderedHtml"
-        :style="{
-          objectFit: survey.logoFit as any,
-          width: survey.renderedStyleLogoWidth,
-          height: survey.renderedStyleLogoHeight,
-        }"
-      />
+      <component
+        :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
+        :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
+      ></component>
     </div>
 
     <div
@@ -27,18 +19,10 @@
     </div>
 
     <div v-if="survey.isLogoAfter" :class="survey.logoClassNames">
-      <img
-        :class="survey.css.logoImage"
-        :src="logoUrl"
-        :width="survey.renderedLogoWidth"
-        :height="survey.renderedLogoHeight"
-        :alt="survey.locTitle.renderedHtml"
-        :style="{
-          objectFit: survey.logoFit as any,
-          width: survey.renderedStyleLogoWidth,
-          height: survey.renderedStyleLogoHeight,
-        }"
-      />
+      <component
+        :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
+        :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
+      ></component>
     </div>
 
     <div :class="survey.css.headerClose"></div>
@@ -48,14 +32,11 @@
 <script lang="ts" setup>
 import type { SurveyModel } from "survey-core";
 import { onMounted, ref } from "vue";
-import { useLocString } from "./base";
 
 const props = defineProps<{
   survey: SurveyModel;
 }>();
 const root = ref<HTMLElement>();
-
-const logoUrl = useLocString(() => props.survey.locLogo);
 
 onMounted(() => {
   var el = root.value;

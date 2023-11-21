@@ -5,6 +5,16 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 
+interface INotifierCssClasses {
+  root: string;
+  rootWithButtons: string;
+  info: string;
+  error: string;
+  success: string;
+  button: string;
+  shown: string;
+}
+
 export class Notifier extends Base {
   @property({ defaultValue: false }) active: boolean;
   @property({ defaultValue: false }) isDisplayed: boolean;
@@ -16,7 +26,7 @@ export class Notifier extends Base {
   public actionBar: ActionContainer;
   public showActions: boolean = true;
 
-  constructor(private cssClasses: { root: string, info: string, error: string, success: string, button: string, shown: string }) {
+  constructor(private cssClasses: INotifierCssClasses) {
     super();
     this.actionBar = new ActionContainer();
     this.actionBar.updateCallback = (isResetInitialized: boolean) => {
@@ -28,6 +38,7 @@ export class Notifier extends Base {
   getCssClass(type: string): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
+      .append(this.cssClasses.rootWithButtons, this.actionBar.visibleActions.length > 0)
       .append(this.cssClasses.info, type !== "error" && type !== "success")
       .append(this.cssClasses.error, type === "error")
       .append(this.cssClasses.success, type === "success")

@@ -1,24 +1,12 @@
 <template>
   <div :class="row.getRowCss()" ref="root">
-    <div v-for="element in elements" :style="element.rootStyle">
-      <survey-element
-        v-if="!element.isPanel"
-        :key="element.id"
-        :element="element"
-        :survey="survey"
-        :css="css"
-        :row="row"
-        :style="element.getRootStyle()"
-      >
-      </survey-element>
-      <survey-panel
-        v-if="element.isPanel"
-        :key="element.id"
-        :question="element"
-        :css="css"
-      >
-      </survey-panel>
-    </div>
+    <survey-element
+      :row="row"
+      :css="css"
+      :element="element"
+      v-for="element in elements"
+      :key="element.id"
+    ></survey-element>
   </div>
 </template>
 
@@ -30,7 +18,7 @@ import type {
   SurveyElement,
   SurveyModel,
 } from "survey-core";
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, onUnmounted, ref } from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{
@@ -43,7 +31,18 @@ const elements = computed(
 );
 const root = ref<HTMLElement>();
 
-useBase(() => props.row);
+useBase(
+  () => props.row,
+  (newValue, oldValue) => {
+    if (oldValue) {
+      newValue.isNeedRender = oldValue.isNeedRender;
+    }
+  },
+  (value) => {
+    value.stopLazyRendering();
+    value.isNeedRender = !value.isLazyRendering();
+  }
+);
 
 onMounted(() => {
   if (props.row) {
@@ -53,12 +52,6 @@ onMounted(() => {
         props.row.startLazyRendering(rowContainerDiv as HTMLElement);
       }, 10);
     }
-  }
-});
-onUnmounted(() => {
-  const row = props.row;
-  if (row) {
-    row.isNeedRender = !props.row.isLazyRendering();
   }
 });
 </script>

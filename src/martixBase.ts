@@ -314,7 +314,7 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   /**
    * Aligns matrix cell content in the vertical direction.
    */
-  @property({ defaultValue: "middle" }) verticalAlign: "top" | "middle";
+  @property() verticalAlign: "top" | "middle";
 
   /**
    * Specifies whether to apply shading to alternate matrix rows.
@@ -343,9 +343,18 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     this.setPropertyValue("rowTitleWidth", val);
   }
 
+  //a11y
   public getCellAriaLabel(rowTitle:string, columnTitle:string):string {
-    return `row ${rowTitle}, column ${columnTitle}`;
+    const row = (this.getLocalizationString("matrix_row") || "row").toLocaleLowerCase();
+    const column = (this.getLocalizationString("matrix_column") || "column").toLocaleLowerCase();
+    return `${row} ${rowTitle}, ${column} ${columnTitle}`;
   }
+
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  // EO a11y
+
 }
 
 Serializer.addClass(

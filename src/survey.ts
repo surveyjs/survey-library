@@ -4052,17 +4052,17 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private changeCurrentPageFromPreview: boolean;
-  private origionalPages: any;
+  private originalPages: any;
   protected onQuestionsOnPageModeChanged(oldValue: string) {
     if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
-      if (this.origionalPages) {
-        this.restoreOriginalPages(this.origionalPages);
+      if (this.originalPages) {
+        this.restoreOriginalPages(this.originalPages);
       }
-      this.origionalPages = undefined;
+      this.originalPages = undefined;
     } else {
       if (!oldValue || oldValue == "standard") {
-        this.origionalPages = this.pages.slice(0, this.pages.length);
+        this.originalPages = this.pages.slice(0, this.pages.length);
       }
       this.setupPagesForPageModes(this.isSinglePage);
     }
@@ -5905,7 +5905,7 @@ export class SurveyModel extends SurveyElementCore
       page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }
   }
-  public fromJSON(json: any) {
+  public fromJSON(json: any): void {
     if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
@@ -5917,7 +5917,7 @@ export class SurveyModel extends SurveyElementCore
     this.onStateAndCurrentPageChanged();
     this.updateState();
   }
-  public setJsonObject(jsonObj: any) {
+  public setJsonObject(jsonObj: any): void {
     this.fromJSON(jsonObj);
   }
   private isEndLoadingFromJson: string = null;
@@ -7502,7 +7502,7 @@ Serializer.addClass("survey", [
     className: "htmlconditionitem", isArray: true
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
-  { name: "pages:surveypages", className: "page", isArray: true },
+  { name: "pages:surveypages", className: "page", isArray: true, onSerializeValue: (obj: any): any => { return obj.originalPages || obj.pages; } },
   {
     name: "elements",
     alternativeName: "questions",

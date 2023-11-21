@@ -476,6 +476,36 @@ frameworks.forEach((framework) => {
       .expect(selectedItems.count).eql(0);
   });
 
+  test("Check default value", async (t) => {
+    await initSurvey(framework, {
+      "elements": [
+        {
+          "type": "tagbox",
+          "isRequired": true,
+          "choicesByUrl": {
+            "url": "http://127.0.0.1:8080/testCafe/countriesMock.json",
+            path: "RestResponse;result",
+            valueName: "name"
+          },
+          "name": "countries",
+          "defaultValue": ["Cuba", "Romania"],
+        }
+      ],
+    });
+    await t
+      .expect(selectedItems.count).eql(2)
+      .expect(selectedItems.nth(0).textContent).contains("Cuba")
+      .expect(selectedItems.nth(1).textContent).contains("Romania")
+
+      .click(questionTagbox)
+      .click(getListItemByText("United States"))
+      .pressKey("esc")
+      .expect(selectedItems.count).eql(3)
+      .expect(selectedItems.nth(0).textContent).contains("Cuba")
+      .expect(selectedItems.nth(1).textContent).contains("Romania")
+      .expect(selectedItems.nth(2).textContent).contains("United States");
+  });
+
   const theme = "defaultV2";
 
   function choicesLazyLoad(_, opt) {

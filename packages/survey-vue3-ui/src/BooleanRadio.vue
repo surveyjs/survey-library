@@ -22,6 +22,7 @@ import { RendererFactory } from "survey-core";
 import { ref } from "vue";
 import { useQuestion } from "./base";
 import type { IBooleanProps } from "./boolean";
+defineOptions({ inheritAttrs: false });
 const root = ref(null);
 const props = defineProps<IBooleanProps>();
 useQuestion(props, root);

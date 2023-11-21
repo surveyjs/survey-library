@@ -75,6 +75,7 @@
 import type { QuestionImageModel } from "survey-core";
 import { useLocString, useQuestion } from "./base";
 import { ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionImageModel }>();
 const root = ref(null);
 useQuestion(props, root);

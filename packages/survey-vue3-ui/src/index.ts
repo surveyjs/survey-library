@@ -1,7 +1,7 @@
 import Page from "./Page.vue";
 import HeaderBasic from "./Header.vue";
 import Row from "./Row.vue";
-import Element from "./Element.vue";
+import Question from "./Question.vue";
 import Panel from "./Panel.vue";
 import ElementHeader from "./ElementHeader.vue";
 import String from "./String.vue";
@@ -106,6 +106,10 @@ import Header from "./components/header/Header.vue";
 import HeaderCell from "./components/header/HeaderCell.vue";
 import HeaderMobile from "./components/header/HeaderMobile.vue";
 
+import Element from "./Element.vue";
+
+import TemplateRenderer from "./TemplateRenderer.vue";
+
 import {
   SurveyModel,
   doKey2ClickBlur,
@@ -118,6 +122,9 @@ import FileCleanButton from "./FileCleanButton.vue";
 import FileVideo from "./FileVideo.vue";
 import FileChooseButton from "./components/file/FileChooseButton.vue";
 import FilePreview from "./components/file/FilePreview.vue";
+import ButtonGroup from "./buttongroup/ButtonGroup.vue";
+import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
+import Logo from "./Logo.vue";
 export { useBase, useLocString, useQuestion } from "./base";
 
 SurveyModel.platform = "vue3";
@@ -129,9 +136,10 @@ function registerComponents(app: App) {
   app.component("popup-survey", PopupSurvey);
 
   app.component("survey-header", HeaderBasic);
+  app.component("sv-logo-image", Logo);
   app.component("survey-page", Page);
   app.component("survey-row", Row);
-  app.component("survey-element", Element);
+  app.component("survey-question", Question);
   app.component("survey-panel", Panel);
   app.component("survey-element-header", ElementHeader);
   app.component("survey-string", String);
@@ -244,12 +252,23 @@ function registerComponents(app: App) {
   app.component("sv-header-cell", HeaderCell);
   app.component("sv-header-mobile", HeaderMobile);
 
+  app.component("sv-template-renderer", TemplateRenderer);
+
+  app.component("survey-element", Element);
+
+  app.component("survey-buttongroup", ButtonGroup);
+  app.component("sv-button-group-item", ButtonGroupItem);
+
   app.directive("key2click", {
     // When the bound element is inserted into the DOM...
     mounted: function (el: HTMLElement, binding: any) {
       const options: IAttachKey2clickOptions = { ...binding.value } || {
         processEsc: true,
       };
+      if (options.disableTabStop) {
+        el.tabIndex = -1;
+        return;
+      }
       if (!options.disableTabStop) el.tabIndex = 0;
       el.addEventListener("keyup", (evt: any) => {
         evt.preventDefault();

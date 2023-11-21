@@ -97,7 +97,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   }
   public onKeyDown(event: any): void {
-    this.checkForUndo(event);
+    this.onKeyDownPreprocess && this.onKeyDownPreprocess(event);
     if (!this.acceptCarriageReturn && (event.key === "Enter" || event.keyCode === 13)) {
       event.preventDefault();
       event.stopPropagation();

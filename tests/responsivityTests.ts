@@ -319,10 +319,10 @@ QUnit.test("ResponsivityManager process test", function (assert) {
       action.maxDimension = 100;
     });
   };
-
+  const oldQueueMicrotask = window.queueMicrotask;
+  window.queueMicrotask = undefined as any;
   assert.equal(manager["isInitialized"], false, "before start");
   manager["process"]();
-
   const newAction = new Action({ id: "first" });
   assert.equal(newAction.minDimension, undefined);
   assert.equal(newAction.maxDimension, undefined);
@@ -335,6 +335,7 @@ QUnit.test("ResponsivityManager process test", function (assert) {
   assert.equal(manager["isInitialized"], true, "after process");
   assert.equal(newAction.minDimension, 20);
   assert.equal(newAction.maxDimension, 100);
+  window.queueMicrotask = oldQueueMicrotask;
 });
 
 QUnit.test("ResponsivityManager minDimension calc test", function (assert) {
@@ -392,6 +393,8 @@ QUnit.test("ResponsivityManager - vertical",
 
 QUnit.test("ResponsivityManager - vertical process", function (assert) {
   const itemSmallWidth = 48;
+  const oldQueueMicrotask = window.queueMicrotask;
+  window.queueMicrotask = undefined as any;
   const container: SimpleContainer = new SimpleContainer({
     offsetHeight: 100,
     querySelector: (query: string) => {
@@ -419,9 +422,12 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
   };
   manager["process"]();
   assert.equal(model.hiddenItemsListModel.actions.length, 7);
+  window.queueMicrotask = oldQueueMicrotask;
 });
 
 QUnit.test("isResponsivenessDisabled", function (assert) {
+  const oldQueueMicrotask = window.queueMicrotask;
+  window.queueMicrotask = undefined as any;
   const itemSmallWidth = 48;
   const container: SimpleContainer = new SimpleContainer({});
   const model: AdaptiveActionContainer = new AdaptiveActionContainer();
@@ -467,6 +473,7 @@ QUnit.test("isResponsivenessDisabled", function (assert) {
   assert.equal(item1.mode, "large", "dimension 300");
   assert.equal(item2.mode, "large", "dimension 300");
   assert.equal(item3.mode, "large", "dimension 300");
+  window.queueMicrotask = oldQueueMicrotask;
 });
 
 QUnit.test("check disableHide property", function (assert) {

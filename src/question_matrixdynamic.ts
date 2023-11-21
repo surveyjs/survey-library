@@ -31,7 +31,15 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   public get rowName() {
     return this.id;
   }
-
+  public get dataName(): string {
+    return "row" + (this.index + 1);
+  }
+  public get text(): any {
+    return "row " + (this.index + 1);
+  }
+  public getAccessbilityText(): string {
+    return (this.index + 1).toString();
+  }
   public get shortcutText(): string {
     const matrix = <QuestionMatrixDynamicModel>this.data;
     const index = matrix.visibleRows.indexOf(this) + 1;

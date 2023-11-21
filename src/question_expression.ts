@@ -139,7 +139,7 @@ export class QuestionExpressionModel extends Question {
     this.updateFormatedValue();
   }
   protected getDisplayValueCore(keysAsText: boolean, value: any): any {
-    var val = this.isValueEmpty(value) ? this.defaultValue : value;
+    var val = value === undefined || value === null ? this.defaultValue : value;
     var res = "";
     if (!this.isValueEmpty(val)) {
       var str = this.getValueAsStr(val);

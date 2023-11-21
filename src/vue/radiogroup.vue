@@ -7,25 +7,23 @@
     :aria-invalid="question.a11y_input_ariaInvalid"
     :aria-describedby="question.a11y_input_ariaDescribedBy"
   >
-    <survey-radiogroup-item
+    <component
       v-if="!question.hasColumns && !question.blockedRow"
-      v-for="(item, index) in question.bodyItems"
+      v-for="(item) in question.bodyItems"
       :key="item.value"
-      :class="getItemClass(item)"
+      :is="question.itemComponent"
       :question="question"
       :item="item"
-      :index="index"
-    ></survey-radiogroup-item>
+    ></component>
     <div :class="question.cssClasses.rootRow" v-if="question.blockedRow">
-    <survey-radiogroup-item
+    <component
       v-if="!question.hasColumns && question.blockedRow"
-      v-for="(item, index) in question.dataChoices"
+      v-for="(item) in question.dataChoices"
       :key="item.value"
-      :class="question.getItemClass(item)"
+      :is="question.itemComponent"
       :question="question"
       :item="item"
-      :index="index"
-    ></survey-radiogroup-item>
+    ></component>
     </div>
     <div 
       v-if="question.hasColumns"
@@ -36,25 +34,23 @@
       :class="question.getColumnClass()"
       role="presentation"
     >
-      <survey-radiogroup-item
-        v-for="(item, index) in column"
+      <component
+        v-for="item in column"
         :key="item.value"
-        :class="getItemClass(item)"
+        :is="question.itemComponent"
         :question="question"
         :item="item"
-        :index="'' + colIndex + index"
-      ></survey-radiogroup-item>
+      ></component>
     </div>
     </div>
-        <survey-radiogroup-item
+        <component
         v-for="(item, index) in question.footItems"
         v-if="question.hasFootItems"
         :key="item.value"
-        :class="question.getItemClass(item)"
+        :is="question.itemComponent"
         :question="question"
         :item="item"
-        :index="'' + index"
-      ></survey-radiogroup-item>
+      ></component>
       <survey-other-choice
         v-if="
           question.renderedValue && question.isOtherSelected
@@ -84,9 +80,6 @@ import { QuestionRadiogroupModel } from "survey-core";
 export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
   get choicesCount() {
     return this.question.visibleChoices.length - 1;
-  }
-  getItemClass(item: any) {
-    return this.question.getItemClass(item);
   }
 }
 Vue.component("survey-radiogroup", Radiogroup);

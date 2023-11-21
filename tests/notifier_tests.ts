@@ -6,6 +6,7 @@ export default QUnit.module("Notifier model");
 
 const testCssClasses = {
   root: "alert",
+  rootWithButtons: "alert--with-buttons",
   info: "alert-info",
   error: "alert-error",
   success: "alert-success",
@@ -100,4 +101,15 @@ QUnit.test("message box visibility", function (assert) {
       }, 1);
     }, settings.notifications.lifetime + 2);
   }, 1);
+});
+
+QUnit.test("message box check getCssClass method", function (assert) {
+  const notifier = new Notifier(testCssClasses);
+  notifier.addAction(<IAction>{ id: "test", title: "Test" }, "error");
+  notifier.showActions = true;
+  notifier.updateActionsVisibility("error");
+  assert.equal(notifier.getCssClass("error"), "alert alert--with-buttons alert-error");
+  notifier.showActions = false;
+  notifier.updateActionsVisibility("error");
+  assert.equal(notifier.getCssClass("error"), "alert alert-error");
 });

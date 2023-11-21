@@ -2,7 +2,7 @@
   <table :class="question.getQuestionRootCss()" ref="root">
     <tbody>
       <template
-        v-for="(row, rowIndex) in question.getRows()"
+        v-for="(row, rowIndex) in rows"
         :key="question.inputId + 'rowkey' + rowIndex"
       >
         <tr :class="question.cssClasses.row" v-if="row.isVisible">
@@ -25,8 +25,10 @@
 <script lang="ts" setup>
 import type { QuestionMultipleTextModel } from "survey-core";
 import { useQuestion } from "./base";
-import { ref } from "vue";
+import { computed, ref } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionMultipleTextModel }>();
 const root = ref(null);
+const rows = computed(() => props.question.getRows());
 useQuestion(props, root);
 </script>

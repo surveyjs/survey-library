@@ -7,6 +7,7 @@ import { StylesManager } from "../src/stylesmanager";
 import { Serializer } from "../src/jsonobject";
 import { Camera } from "../src/utils/camera";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
+export * from "../src/localization/german";
 export default QUnit.module("Survey_QuestionFile");
 
 QUnit.test("QuestionFile value initialization strings", function(assert) {
@@ -1846,3 +1847,15 @@ QUnit.test("QuestionFile maxSize error doesnt update question css classes", func
   assert.ok(question.cssRoot.includes("root-error-top"));
 });
 
+QUnit.test("Acton takePhoto should be serialiazed", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "file", name: "q1", maxSize: 3 },
+    ]
+  });
+  const question = <QuestionFileModel>survey.getAllQuestions()[0];
+  const action = question.takePictureAction;
+  assert.equal(action.title, "Take Photo", "en");
+  survey.locale = "de";
+  assert.equal(action.title, "Foto machen", "de");
+});

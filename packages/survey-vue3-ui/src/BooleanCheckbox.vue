@@ -51,12 +51,12 @@
     </div>
   </div>
 </template>
-
 <script lang="ts" setup>
 import { RendererFactory } from "survey-core";
 import type { IBooleanProps } from "./boolean";
 import { ref } from "vue";
 import { useQuestion } from "./base";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<IBooleanProps & { css?: any }>();
 const root = ref(null);
 useQuestion(props, root);

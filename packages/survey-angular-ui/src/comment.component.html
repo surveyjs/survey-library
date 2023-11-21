@@ -4,7 +4,6 @@
   [disabled]="question.isInputReadOnly"
   (change)="question.onCommentChange($event)"
   (input)="question.onCommentInput($event)"
-  (compositionupdate)="question.onCompositionUpdateComment($event)"
   [class]="question.cssClasses.other">
 </textarea>
 <div *ngIf="question.isReadOnlyRenderDiv()">{{ question.comment }}</div>

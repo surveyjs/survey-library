@@ -1,5 +1,5 @@
 <template>
-  <div role="presentation">
+  <div role="presentation" :class="question.getItemClass(item)">
     <label @mousedown="question.onMouseDown()" :class="getLabelClass(item)">
       <input
         type="radio"
@@ -40,7 +40,6 @@ import { BaseVue } from "./base";
 export class RadiogroupItem extends BaseVue {
   @Prop() question: any;
   @Prop() item: ItemValue;
-  @Prop() index: any;
   @Prop() hideLabel: boolean;
   protected getModel(): Base {
     return this.item;

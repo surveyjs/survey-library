@@ -38,19 +38,15 @@
       <survey-radiogroup-item
         v-if="cell.isRadio"
         :key="cell.item.value"
-        :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
-        :index="getCellIndex()"
         :hideLabel="true"
       ></survey-radiogroup-item>
       <survey-checkbox-item
         v-if="cell.isCheckbox"
         :key="cell.item.value"
-        :class="cell.question.getItemClass(cell.item)"
         :question="cell.question"
         :item="cell.item"
-        :index="getCellIndex()"
         :hideLabel="true"
       ></survey-checkbox-item>
       <survey-other-choice

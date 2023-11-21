@@ -13,7 +13,6 @@
       v-bind:style="{ resize: question.resizeStyle }"
       @change="(e) => { question.onCommentChange(e) }"
       @input="(e) => { question.onCommentInput(e) }"
-      @composition-update="(e) => { question.onCompositionUpdateComment(e); }"
     />
 </template>
 

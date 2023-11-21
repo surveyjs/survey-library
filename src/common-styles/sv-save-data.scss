@@ -56,11 +56,14 @@
   opacity: 1;
 }
 
+.sv-save-data_root.sv-save-data_root--with-buttons {
+  padding: calcSize(2) calcSize(2) calcSize(2) calcSize(6);
+}
+
 .sv-save-data_root.sv-save-data_error {
   background-color: $red;
   color: $background;
   font-weight: 600;
-  padding: calcSize(2) calcSize(2) calcSize(2) calcSize(6);
   gap: calcSize(6);
 }
 

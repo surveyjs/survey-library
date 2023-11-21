@@ -5022,7 +5022,7 @@ export class SurveyModel extends SurveyElementCore
     question: QuestionFileModel,
     name: string,
     files: File[],
-    callback: (status: string | Array<any>, data: any) => any
+    callback: (data: any | Array<any>, errors?: any | Array<any>) => any
   ) {
     if (this.onUploadFiles.isEmpty) {
       callback("error", this.getLocString("noUploadFilesHandler"));
@@ -5125,7 +5125,7 @@ export class SurveyModel extends SurveyElementCore
   protected uploadFilesCore(
     name: string,
     files: File[],
-    uploadingCallback: (status: string, data: any) => any
+    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>,) => any
   ) {
     var responses: Array<any> = [];
     files.forEach((file) => {

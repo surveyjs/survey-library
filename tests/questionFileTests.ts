@@ -1871,10 +1871,10 @@ QUnit.test("QuestionFile process errors with partially loaded files",
 
     survey.onUploadFiles.add((survey, options) => {
       options.callback(
-        ["custom error text"],
         options.files.map((file) => {
           return { file: file, content: file.name + "_url" };
-        })
+        }),
+        ["custom error text"]
       );
     });
 

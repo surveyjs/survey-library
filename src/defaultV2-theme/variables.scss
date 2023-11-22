@@ -68,11 +68,11 @@ $font-surveydescription-color: var(--sjs-font-surveydescription-color, #{$foregr
 
 $font-headertitle-family: var(--sjs-font-headertitle-family, #{$font-family});
 $font-headertitle-weight: var(--sjs-font-headertitle-weight, 700);
-$font-headertitle-color: var(--sjs-font-headertitle-color, #{$foreground-dim});
+$font-headertitle-color: var(--sjs-font-headertitle-color, #{$primary-foreground});
 
 $font-headerdescription-family: var(--sjs-font-headerdescription-family, #{$font-family});
-$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 400);
-$font-headerdescription-color: var(--sjs-font-headerdescription-color, #{$foreground-dim-light});
+$font-headerdescription-weight: var(--sjs-font-headerdescription-weight, 600);
+$font-headerdescription-color: var(--sjs-font-headerdescription-color, #{$primary-foreground});
 
 $font-pagetitle-family: var(--sjs-font-pagetitle-family, #{$font-family});
 $font-pagetitle-weight: var(--sjs-font-pagetitle-weight, 700);

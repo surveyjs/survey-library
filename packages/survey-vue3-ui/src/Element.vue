@@ -1,5 +1,8 @@
 <template>
-  <div :style="getRootStyle(element)">
+  <div
+    :style="getRootStyle(element)"
+    :class="element.cssClasses.questionWrapper"
+  >
     <component
       :is="componentName"
       v-bind="componentData"

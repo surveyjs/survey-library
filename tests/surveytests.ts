@@ -18183,4 +18183,34 @@ QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, 
   panel.expand();
   assert.equal(panel.isCollapsed, false, "panel is not collapsed");
 });
-
+QUnit.test("Expression bug with complex path, #7396", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "Q1.1",
+        columns: [1, 2],
+        rows: [1, 2, 3]
+      },
+      {
+        type: "matrix",
+        name: "Q1.1.16",
+        columns: [1, 2, 3],
+        rows: ["16"]
+      },
+      {
+        type: "text",
+        name: "Q1.1.16.A",
+        visibleIf: "{Q1.1.16.16} anyof [1, 2, 3]"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("Q1.1");
+  const q2 = survey.getQuestionByName("Q1.1.16");
+  const q3 = survey.getQuestionByName("Q1.1.16.A");
+  assert.equal(q3.isVisible, false, "visible #1");
+  q1.value = { "1": 1, "2": 2 };
+  assert.equal(q3.isVisible, false, "visible #2");
+  q2.value = { "16": 2 };
+  assert.equal(q3.isVisible, true, "visible #3");
+});

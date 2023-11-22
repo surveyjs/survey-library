@@ -54,8 +54,8 @@
 </template>
 <script lang="ts" setup>
 import { useBase } from "@/base";
-import type { PopupBaseViewModel } from "survey-core";
-import { onUpdated } from "vue";
+import { Model, type PopupBaseViewModel } from "survey-core";
+import { onMounted, onUpdated } from "vue";
 
 const props = defineProps<{ model: PopupBaseViewModel }>();
 let prevIsVisible = false;
@@ -71,5 +71,10 @@ onUpdated(() => {
     props.model.updateOnShowing();
   }
   prevIsVisible = model.isVisible;
+});
+onMounted(() => {
+  if (props.model.isVisible) {
+    props.model.updateOnShowing();
+  }
 });
 </script>

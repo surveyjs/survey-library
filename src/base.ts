@@ -497,7 +497,7 @@ export class Base {
   public resetPropertyValue(name: string): void {
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
     if(locStr) {
-      locStr.clearLocale();
+      locStr.clear();
     }
     else {
       this.setPropertyValue(name, undefined);

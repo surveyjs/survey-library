@@ -1193,20 +1193,25 @@ export class SurveyModel extends SurveyElementCore
           advHeader.titlePositionY = "middle";
           advHeader.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
           advHeader.descriptionPositionY = "middle";
-          advHeader.survey = target;
-          target.layoutElements.unshift({
-            id: "advanced-header",
-            container: "header",
-            component: "sv-header",
-            data: advHeader,
-            processResponsiveness: width => advHeader.processResponsiveness(width)
-          });
+          target.insertAdvancedHeader(advHeader);
         }
       } else {
         target.removeLayoutElement("advanced-header");
       }
     }
   }) headerView: "advanced" | "basic";
+
+  protected insertAdvancedHeader(advHeader: Cover): void {
+    advHeader.survey = this;
+    this.layoutElements.push({
+      id: "advanced-header",
+      container: "header",
+      component: "sv-header",
+      index: -100,
+      data: advHeader,
+      processResponsiveness: width => advHeader.processResponsiveness(width)
+    });
+  }
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -7361,6 +7366,7 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
+    containerLayoutElements.sort((a, b) => (a.index || 0) - (b.index || 0));
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
@@ -7381,13 +7387,8 @@ export class SurveyModel extends SurveyElementCore
         this.removeLayoutElement("advanced-header");
         const advHeader = new Cover();
         advHeader.fromTheme(theme);
-        this.layoutElements.push({
-          id: "advanced-header",
-          container: "header",
-          component: "sv-header",
-          data: advHeader,
-          processResponsiveness: width => advHeader.processResponsiveness(width)
-        });
+        this.insertAdvancedHeader(advHeader);
+        this.headerView = "advanced";
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];

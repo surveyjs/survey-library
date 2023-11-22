@@ -293,8 +293,11 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.multiSelect ? "checkbox" : "radio";
   }
 
-  protected isFootChoice(_item: ItemValue, _question: QuestionSelectBase): boolean {
+  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
     return false;
+  }
+  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
+    this.addNewItemToVisibleChoices(items, isAddAll);
   }
   public getSelectBaseRootCss(): string {
     return new CssClassBuilder().append(super.getSelectBaseRootCss()).append(this.cssClasses.rootColumn, this.getCurrentColCount() == 1).toString();

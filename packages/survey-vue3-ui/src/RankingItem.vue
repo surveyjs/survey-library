@@ -20,9 +20,9 @@
     "
   >
     <div tabindex="-1" style="outline: none">
-      <div :class="cssClasses.itemGhostNode"></div>
-      <div :class="cssClasses.itemContent">
-        <div :class="cssClasses.itemIconContainer">
+      <div :class="question.cssClasses.itemGhostNode"></div>
+      <div :class="question.cssClasses.itemContent">
+        <div :class="question.cssClasses.itemIconContainer">
           <svg :class="question.getIconHoverCss()">
             <use :xlink:href="question.dragDropSvgIcon"></use>
           </svg>
@@ -31,14 +31,19 @@
           </svg>
         </div>
 
-          <div v-if = "!unrankedItem && indexText" :class="question.getItemIndexClasses(item)">{{ indexText }}</div>
-          <div v-else :class="question.getItemIndexClasses(item)">
-            <svg>
-                <use :xlink:href="question.dashSvgIcon"></use>
-            </svg>
+        <div
+          v-if="!unrankedItem && indexText"
+          :class="question.getItemIndexClasses(item)"
+        >
+          {{ indexText }}
         </div>
-        <div :class="cssClasses.controlLabel">
-          <survey-string :locString="text" />
+        <div v-else :class="question.getItemIndexClasses(item)">
+          <svg>
+            <use :xlink:href="question.dashSvgIcon"></use>
+          </svg>
+        </div>
+        <div :class="question.cssClasses.controlLabel">
+          <survey-string :locString="item.locText" />
         </div>
       </div>
     </div>
@@ -52,17 +57,14 @@ import type {
   QuestionRankingModel,
 } from "survey-core";
 import { useBase } from "./base";
-
+import { computed } from "vue";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{
   index: number;
-  indexText: string;
-  text: LocalizableString;
-  handleKeydown?: Function;
-  cssClasses: any;
   question: QuestionRankingModel;
   item: ItemValue;
   unrankedItem?: boolean;
 }>();
-
+const indexText = computed(() => props.question.getNumberByIndex(props.index));
 useBase(() => props.item);
 </script>

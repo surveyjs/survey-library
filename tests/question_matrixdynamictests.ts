@@ -8028,9 +8028,9 @@ QUnit.test("getTitle", function (assert) {
   const question = survey.getAllQuestions()[0];
   var renderedTable = question.renderedTable;
   const row = renderedTable.rows[1];
-  assert.equal(row.cells[0].getTitle(), "true hint");
-  assert.equal(row.cells[1].getTitle(), "col2");
-  assert.equal(row.cells[2].getTitle(), "");
+  assert.equal(row.cells[0].getTitle(), "true hint", "cell0");
+  assert.equal(row.cells[1].getTitle(), "col2", "cell1");
+  assert.equal(row.cells[2].getTitle(), "", "cell2");
 });
 QUnit.test("matrixdropdowncolumn renderAs property", function (assert) {
   const survey = new SurveyModel({
@@ -8953,4 +8953,24 @@ QUnit.test("matrixdynamic.removeRow & confirmActionAsync, #6736", function (asse
   assert.deepEqual(q.value, [{ col1: 1 }, { col1: 3 }], "Row is deleted correctly");
 
   settings.confirmActionAsync = prevAsync;
+});
+QUnit.test("matrix dynamic getPlainData", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "matrix",
+        columns: [{ cellType: "text", name: "col1" }, { cellType: "text", name: "col2" }]
+      }
+    ]
+  });
+  const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  q.value = [{ col1: 1, col2: 2 }, { col1: 3, col2: 4 }];
+  const data: any = survey.getPlainData();//["matrix"];
+  const row1Name = data[0].data[0].name;
+  const row1Title = data[0].data[0].title;
+  const row2Name = data[0].data[1].name;
+  const row2Title = data[0].data[1].title;
+  assert.equal(row1Name, "row1", "row1 name");
+  assert.equal(row1Title, "row 1", "row1 title");
+  assert.equal(row2Name, "row2", "row2 name");
+  assert.equal(row2Title, "row 2", "row2 title");
 });

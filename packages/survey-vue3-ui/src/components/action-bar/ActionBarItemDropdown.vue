@@ -12,10 +12,10 @@
         evt.stopPropagation();
       }
     "
-    v-bind:disabled="item.enabled !== undefined && item.enabled"
+    v-bind:disabled="item.disabled"
     v-bind:title="item.tooltip || item.title"
     v-bind:role="item.ariaRole"
-    v-bind:tabindex="item.disableTabStop ? -1 : 0"
+    v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
     <sv-svg-icon
       v-if="item.iconName"
@@ -31,7 +31,11 @@
   </button>
   <sv-popup :model="item.popupModel" :getTarget="getTarget"></sv-popup>
 </template>
-
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <script lang="ts" setup>
 import { useBase } from "@/base";
 import {

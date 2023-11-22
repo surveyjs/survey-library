@@ -12,12 +12,12 @@
         evt.stopPropagation();
       }
     "
-    v-bind:disabled="item.enabled !== undefined && !item.enabled"
+    v-bind:disabled="item.disabled"
     v-bind:title="item.tooltip || item.title"
     v-bind:aria-checked="item.ariaChecked"
     v-bind:aria-expanded="item.ariaExpanded"
     v-bind:role="item.ariaRole"
-    v-bind:tabindex="item.disableTabStop ? -1 : 0"
+    v-key2click="{ processEsc: false, disableTabStop: item.disableTabStop }"
   >
     <sv-svg-icon
       v-if="item.iconName"
@@ -32,7 +32,11 @@
     }}</span>
   </button>
 </template>
-
+<script lang="ts">
+export default {
+  inheritAttrs: false,
+};
+</script>
 <script lang="ts" setup>
 import { useBase } from "@/base";
 import type { Action } from "survey-core";

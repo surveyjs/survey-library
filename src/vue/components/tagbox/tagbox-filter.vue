@@ -30,7 +30,7 @@
                 :aria-controls="model.listElementId"
                 :aria-activedescendant="model.ariaActivedescendant"
                 :id="question.getInputId()"
-                :readonly="!model.searchEnabled ? true : null"
+                :readonly="model.filterReadOnly ? true : null"
                 :size="!model.inputStringRendered ? 1 : null"
                 @change="inputChange"
                 @keydown="inputKeyHandler"

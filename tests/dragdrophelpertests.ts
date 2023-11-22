@@ -238,7 +238,7 @@ QUnit.test("createImagePickerShortcut", function (assert) {
   let ddHelper = new DragDropChoices();
   let item = new ImageItemValue("a");
 
-  const createImagePickerShortcut = ddHelper["createImagePickerShortcut"];
+  const createImagePickerShortcut = ddHelper["createImagePickerShortcut"].bind(ddHelper);
   const element = document.createElement("div");
   const testElement = document.body.appendChild(element);
   testElement.innerHTML = "<div data-sv-drop-target-item-value=\"camel\"><div class=\"sd-imagepicker__image-container\"><div class=\"sd-imagepicker__no-image\"></div><div class=\"svc-image-item-value-controls\"></div>";

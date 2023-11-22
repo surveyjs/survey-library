@@ -3,7 +3,7 @@
     <div
       v-if="!question.isReadOnly"
       :id="question.inputId"
-      :tabindex="model.inputReadOnly ? undefined : 0"
+      :tabindex="model.noTabIndex ? undefined : 0"
       v-model="question.renderedValue"
       v-bind:disabled="question.isInputReadOnly"
       @keydown="keyhandler"
@@ -21,7 +21,7 @@
     >
       <div :class="question.cssClasses.controlValue">
         <sv-tagbox-item
-          v-for="(item, index) in question.selectedChoices"
+          v-for="(item, index) in selectedChoices"
           :item="item"
           :question="question"
           :key="'item' + index"
@@ -33,7 +33,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
-        :tabindex="question.inputReadOnly ? -1 : 0"
+          :tabindex="question.showClearButton ? 0 : -1"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
@@ -75,6 +75,9 @@ export class TagboxComponent extends BaseVue {
 
   get model() {
     return this.question.dropdownListModel;
+  }
+  get selectedChoices() {
+    return this.question.selectedChoices;
   }
   getModel() {
     return this.model;

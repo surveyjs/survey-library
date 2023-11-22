@@ -1178,6 +1178,8 @@ export class SurveyModel extends SurveyElementCore
    *
    * - `"advanced"`\
    * An advanced header view applies the same properties as the basic view, plus [header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader) from the [survey theme](https://surveyjs.io/form-library/documentation/api-reference/itheme#header). The advanced view features a more flexible header layout, a capability to specify a background image, and other settings that give a more professional look to the survey header.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
    */
   @property({
     onSet: (newValue, target: SurveyModel) => {
@@ -3288,12 +3290,22 @@ export class SurveyModel extends SurveyElementCore
     }
     this.setPropertyValue("completedStateText", text);
     if (this.state === "completed" && this.showCompletedPage && !!this.completedState) {
-      this.notify(this.completedStateText, this.completedState, true);
+      this.notify(this.completedStateText, this.completedState, value === "error");
     }
   }
+  /**
+   * Displays a toast notification with a specified message.
+   *
+   * Depending on the `type` argument, a survey can display the following notification types:
+   *
+   * ![Toast notification types in SurveyJS Form Library](https://surveyjs.io//Content/Images/docs/notification-types.png)
+   * @param message A message to display.
+   * @param type A notification type: `"info"` (default), `"success"`, or `"error"`.
+   * @param showActions For internal use.
+   */
   public notify(message: string, type: string, showActions: boolean = false): void {
     this.notifier.showActions = showActions;
-    this.notifier.notify(message, type, type === "error");
+    this.notifier.notify(message, type, showActions);
   }
   /**
    * Resets the survey [`state`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#state) and, optionally, [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data). If `state` is `"completed"`, it becomes `"running"`.
@@ -4016,7 +4028,7 @@ export class SurveyModel extends SurveyElementCore
       this.setupPagesForPageModes(true);
     } else {
       if (this.runningPages) {
-        this.restoreOrigionalPages(this.runningPages);
+        this.restoreOriginalPages(this.runningPages);
       }
       this.runningPages = undefined;
     }
@@ -4039,28 +4051,30 @@ export class SurveyModel extends SurveyElementCore
     }
   }
   private changeCurrentPageFromPreview: boolean;
-  private origionalPages: any;
+  private originalPages: any;
   protected onQuestionsOnPageModeChanged(oldValue: string) {
     if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
-      if (this.origionalPages) {
-        this.restoreOrigionalPages(this.origionalPages);
+      if (this.originalPages) {
+        this.restoreOriginalPages(this.originalPages);
       }
-      this.origionalPages = undefined;
+      this.originalPages = undefined;
     } else {
       if (!oldValue || oldValue == "standard") {
-        this.origionalPages = this.pages.slice(0, this.pages.length);
+        this.originalPages = this.pages.slice(0, this.pages.length);
       }
       this.setupPagesForPageModes(this.isSinglePage);
     }
     this.runConditions();
     this.updateVisibleIndexes();
   }
-  private restoreOrigionalPages(originalPages: Array<PageModel>) {
+  private restoreOriginalPages(originalPages: Array<PageModel>) {
     this.questionHashesClear();
     this.pages.splice(0, this.pages.length);
     for (var i = 0; i < originalPages.length; i++) {
-      this.pages.push(originalPages[i]);
+      const page = originalPages[i];
+      page.setWasShown(false);
+      this.pages.push(page);
     }
   }
   private getPageStartIndex(): number {
@@ -5890,7 +5904,7 @@ export class SurveyModel extends SurveyElementCore
       page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }
   }
-  public fromJSON(json: any) {
+  public fromJSON(json: any): void {
     if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
@@ -5902,7 +5916,7 @@ export class SurveyModel extends SurveyElementCore
     this.onStateAndCurrentPageChanged();
     this.updateState();
   }
-  public setJsonObject(jsonObj: any) {
+  public setJsonObject(jsonObj: any): void {
     this.fromJSON(jsonObj);
   }
   private isEndLoadingFromJson: string = null;
@@ -7487,7 +7501,7 @@ Serializer.addClass("survey", [
     className: "htmlconditionitem", isArray: true
   },
   { name: "loadingHtml:html", serializationProperty: "locLoadingHtml" },
-  { name: "pages:surveypages", className: "page", isArray: true },
+  { name: "pages:surveypages", className: "page", isArray: true, onSerializeValue: (obj: any): any => { return obj.originalPages || obj.pages; } },
   {
     name: "elements",
     alternativeName: "questions",

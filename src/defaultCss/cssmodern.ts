@@ -421,6 +421,7 @@ export var modernCss = {
   },
   saveData: {
     root: "sv-save-data_root",
+    rootWithButtons: "sv-save-data_root--with-buttons",
     info: "sv-save-data_info",
     error: "sv-save-data_error",
     success: "sv-save-data_success",

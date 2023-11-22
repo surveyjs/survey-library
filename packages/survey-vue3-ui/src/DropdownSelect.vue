@@ -51,6 +51,7 @@
 import { computed, ref } from "vue";
 import { useQuestion } from "./base";
 import type { QuestionDropdownModel } from "survey-core";
+defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionDropdownModel }>();
 const root = ref(null);
 useQuestion(props, root);

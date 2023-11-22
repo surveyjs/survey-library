@@ -192,10 +192,10 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                 disabled={this.isDisplayMode}
                 checked={isChecked}
                 onChange={this.handleOnChange}
-                aria-required={this.question.ariaRequired}
-                aria-label={column.locText.renderedHtml}
-                aria-invalid={this.question.ariaInvalid}
-                aria-describedby={this.question.ariaDescribedBy}
+                aria-required={this.question.a11y_input_ariaRequired}
+                aria-label={this.question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)}
+                aria-invalid={this.question.a11y_input_ariaInvalid}
+                aria-describedby={this.question.a11y_input_ariaDescribedBy}
               />
               <span className={this.question.cssClasses.materialDecorator}>
                 {this.question.itemSvgIcon ?

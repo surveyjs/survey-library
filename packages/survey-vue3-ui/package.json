@@ -1,11 +1,14 @@
 {
   "name": "survey-vue3-ui",
-  "version": "1.9.116",
+  "version": "1.9.118",
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
     "build-only": "vite build",
+    "watch": "vite build --watch",
+    "watch:dev": "vite build --watch --mode development",
     "build": "vite build && npm run build:types",
+    "build:dev": "vite build --mode development",
     "build:types": "vue-tsc --project tsconfig.types.json --emitDeclarationOnly",
     "type-check": "vue-tsc --project tsconfig.types.json --noEmit",
     "test": "vitest --no-threads tests/test.spec.ts",

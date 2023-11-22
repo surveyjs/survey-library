@@ -31,7 +31,15 @@ export class MatrixDynamicRowModel extends MatrixDropdownRowModelBase implements
   public get rowName() {
     return this.id;
   }
-
+  public get dataName(): string {
+    return "row" + (this.index + 1);
+  }
+  public get text(): any {
+    return "row " + (this.index + 1);
+  }
+  public getAccessbilityText(): string {
+    return (this.index + 1).toString();
+  }
   public get shortcutText(): string {
     const matrix = <QuestionMatrixDynamicModel>this.data;
     const index = matrix.visibleRows.indexOf(this) + 1;
@@ -787,7 +795,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     const lastDelRow = this.lastDeletedRow;
     this.lastDeletedRow = undefined;
     const rows = this.generatedVisibleRows;
-    if(!Array.isArray(val) || Math.abs(rows.length - val.length) > 1) return false;
+    if(!Array.isArray(val) || Math.abs(rows.length - val.length) > 1 || rows.length === val.length) return false;
     const index = this.getInsertedDeletedIndex(rows, val);
     if(rows.length > val.length) {
       this.lastDeletedRow = rows[index];

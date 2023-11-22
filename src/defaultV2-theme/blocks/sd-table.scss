@@ -236,6 +236,15 @@
   }
 }
 
+.sd-table__cell--footer {
+  text-align: right;
+}
+
+.sd-table__cell--footer-total {
+  font-weight: 600;
+  text-align: left;
+}
+
 .sd-table__cell--detail-panel {
   border-top: calcSize(1) solid transparent;
   padding: calcSize(3) calcSize(1) calcSize(4);

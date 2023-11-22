@@ -12,6 +12,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IQuestion } from "./base-interfaces";
 import { SurveyError } from "./survey-error";
 import { CustomError } from "./error";
+import { settings } from "./settings";
 
 /**
  * A class that describes the Checkboxes question type.
@@ -116,9 +117,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!val || !Array.isArray(val)) return false;
     if (this.isItemSelected(this.noneItem)) return false;
     var allItemCount = this.visibleChoices.length;
-    if (this.hasOther) allItemCount--;
-    if (this.hasNone) allItemCount--;
-    if (this.hasSelectAll) allItemCount--;
+    const order = settings.specialChoicesOrder;
+    if (this.hasOther) allItemCount -= order.otherItem.length;
+    if (this.hasNone) allItemCount -= order.noneItem.length;
+    if (this.hasSelectAll) allItemCount -= order.selectAllItem.length;
     var selectedCount = val.length;
     if (this.isOtherSelected) selectedCount--;
     return selectedCount === allItemCount;
@@ -204,12 +206,15 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see enabledChoices
    */
   public get selectedChoices(): Array<ItemValue> {
+    const val = this.renderedValue as Array<any>;
+    const visChoices = this.visibleChoices;
+    const selectedItemValues = this.selectedItemValues;
+
     if (this.isEmpty()) return [];
 
-    const val = this.renderedValue as Array<any>;
-    const allChoices = !!this.defaultSelectedItemValues ? [].concat(this.defaultSelectedItemValues, this.visibleChoices) : this.visibleChoices;
+    const allChoices = !!this.defaultSelectedItemValues ? [].concat(this.defaultSelectedItemValues, visChoices) : visChoices;
     const itemValues = val.map((item) => { return ItemValue.getItemByValue(allChoices, item); }).filter(item => !!item);
-    if(!itemValues.length && !this.selectedItemValues) {
+    if(!itemValues.length && !selectedItemValues) {
       this.updateSelectedItemValues();
     }
 
@@ -378,22 +383,18 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected supportSelectAll() {
     return this.isSupportProperty("showSelectAllItem");
   }
-  protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean) {
+  protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
+    super.addNonChoicesItems(dict, isAddAll);
     if (
       this.supportSelectAll() && this.canShowOptionItem(this.selectAllItem, isAddAll, this.hasSelectAll)
     ) {
-      items.unshift(this.selectAllItem);
+      this.addNonChoiceItem(dict, this.selectAllItem, settings.specialChoicesOrder.selectAllItem);
     }
-    super.addToVisibleChoices(items, isAddAll);
   }
-  protected isHeadChoice(
-    item: ItemValue,
-    question: QuestionSelectBase
-  ): boolean {
-    return (
-      item === (<QuestionCheckboxBase>question).selectAllItem
-    );
+  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
+    return item === (<QuestionCheckboxBase>question).selectAllItem || super.isBuiltInChoice(item, question);
   }
+
   public isItemInList(item: ItemValue): boolean {
     if (item == this.selectAllItem) return this.hasSelectAll;
     return super.isItemInList(item);

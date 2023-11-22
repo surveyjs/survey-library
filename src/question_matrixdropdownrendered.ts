@@ -95,12 +95,6 @@ export class QuestionMatrixDropdownRenderedCell {
   }
   public get headers(): string {
     if(this.cell && this.cell.column) {
-      if(this.cell.column.cellHint === " ") {
-        return "";
-      }
-      if(!!this.cell.column.cellHint) {
-        return this.cell.column.locCellHint.renderedHtml;
-      }
       if (this.matrix.IsMultiplyColumn(this.cell.column)) {
         if(!!this.item) {
           return this.item.locText.renderedHtml;
@@ -108,6 +102,12 @@ export class QuestionMatrixDropdownRenderedCell {
           return "";
         }
       }
+      let cellHint = this.cell.column.cellHint;
+      if(!!cellHint) {
+        if(cellHint.trim() === "") return "";
+        return this.cell.column.locCellHint.renderedHtml;
+      }
+      return this.cell.column.title;
     }
     if(this.hasQuestion && this.question.isVisible) {
       return this.question.locTitle.renderedHtml;
@@ -452,9 +452,10 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
       this.footerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.matrix.hasRowText) {
-      this.footerRow.cells.push(
-        this.createTextCell(this.matrix.getFooterText())
-      );
+      const cell = this.createTextCell(this.matrix.getFooterText());
+      cell.className = new CssClassBuilder().append(cell.className)
+        .append(this.cssClasses.footerTotalCell).toString();
+      this.footerRow.cells.push(cell);
     }
     var cells = this.matrix.visibleTotalRow.cells;
     for (var i = 0; i < cells.length; i++) {
@@ -467,6 +468,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         if (cell.column) {
           this.setHeaderCellWidth(cell.column, editCell);
         }
+        editCell.className = new CssClassBuilder().append(editCell.className)
+          .append(this.cssClasses.footerCell).toString();
         this.footerRow.cells.push(editCell);
       }
     }

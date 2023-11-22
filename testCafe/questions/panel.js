@@ -170,3 +170,37 @@ frameworks.forEach((framework) => {
     assert.equal(json.title, newTitle);
   });
 });
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, { elements: [{ type: "text", name: "q1" }] }, undefined, true);
+    }
+  );
+
+  test("Show content for collapsed panel in designer", async (t) => {
+    const updateSurvey = ClientFunction(() => {
+      window.survey.setDesignMode(true);
+      window.survey.fromJSON({
+        elements: [
+          {
+            "type": "panel",
+            "name": "panel1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ],
+            "state": "collapsed"
+          }
+        ]
+      });
+    });
+    await t
+      .expect(Selector("span").withText("question1").visible).notOk();
+    await updateSurvey();
+    await t
+      .expect(Selector("span").withText("question1").visible).ok();
+  });
+});

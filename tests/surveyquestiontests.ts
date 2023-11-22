@@ -7622,3 +7622,20 @@ QUnit.test("QuestionHtmlModel hide some properties", function (assert) {
     assert.equal(Serializer.findProperty("html", property).visible, false, property + " should be hidden");
   });
 });
+QUnit.test("Hide errors on making question disabled", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1", inputType: "number" },
+      { type: "text", name: "q2", isRequired: true, enableIf: "{q1} < 10" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  q1.value = 1;
+  q2.validate(true);
+  assert.equal(q2.isReadOnly, false, "q2 is enabled");
+  assert.equal(q2.errors.length, 1, "There is errors in the question");
+  q1.value = 100;
+  assert.equal(q2.isReadOnly, true, "q2 is read-only");
+  assert.equal(q2.errors.length, 0, "Clear errors on making questio read-only");
+});

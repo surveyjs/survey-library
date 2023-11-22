@@ -81,6 +81,11 @@
       <!-- /ko -->
     </div>
     <!-- /ko -->
+    <!-- ko ifnot: $data.matrix -->
+    <!-- ko if: $data.locTitle -->
+    <!-- ko template: { name: 'survey-string', data: $data.locTitle } --><!-- /ko -->
+    <!-- /ko -->
+    <!-- /ko -->
   </td>
 </script>
 <script type="text/html" id="survey-matrixtable">
@@ -172,9 +177,7 @@
     <tfoot>
       <tr>
         <!-- ko foreach: question.koTable().footerRow.cells -->
-
             <!-- ko template: { name: 'survey-matrixcell', afterRender: function(els) { $data.matrix && $data.matrix.koCellAfterRender(els, $data); } } --><!-- /ko -->
-
         <!-- /ko -->
       </tr>
     </tfoot>

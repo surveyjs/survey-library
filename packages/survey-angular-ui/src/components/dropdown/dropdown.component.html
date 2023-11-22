@@ -1,5 +1,5 @@
 <div [class]="model.cssClasses.selectWrapper" (click)="click($event)">
-    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.inputReadOnly ? null : 0" [class]="model.getControlClass()"
+    <div *ngIf="!model.isReadOnly" [attr.tabindex]="dropdownModel.noTabIndex ? null : 0" [class]="model.getControlClass()"
         [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
@@ -23,18 +23,19 @@
             [attr.role]="dropdownModel.filterStringEnabled ? model.ariaRole : null"
             [attr.id]="model.getInputId()"
             [attr.inputmode]="dropdownModel.inputMode"
-            [attr.tabindex]="dropdownModel.inputReadOnly ? null : -1"
+            [attr.tabindex]="dropdownModel.noTabIndex ? null : -1"
             [attr.disabled]="model.isInputReadOnly ? true : null"
             [attr.aria-controls]="dropdownModel.listElementId"
             [attr.aria-label]="model.a11y_input_ariaLabel"
             [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
             [attr.aria-expanded]="model.ariaExpanded"
             [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant"
-            [attr.placeholder]="dropdownModel.placeholderRendered" [attr.readonly]="!dropdownModel.searchEnabled ? true : null" 
+            [attr.placeholder]="dropdownModel.placeholderRendered" 
+            [attr.readonly]="dropdownModel.filterReadOnly ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
         <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
-            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton" [attr.tabindex]="model.inputReadOnly ? -1 : 0">
+            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton" [attr.tabindex]="model.showClearButton ? 0 : -1">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"

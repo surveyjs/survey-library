@@ -1941,3 +1941,34 @@ QUnit.test("Check panel styles with originalPage and showPreview", function(asse
   assert.ok(question2["getIsNested"]());
   assert.notOk(question2["getHasFrameV2"]());
 });
+QUnit.test("Render name for collapsed/expanded questions in design-time", function(assert) {
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON({
+    elements: [
+      {
+        type: "panel",
+        name: "panel",
+        state: "collapsed",
+        elements: [
+          {
+            "type": "text",
+            "name": "q2"
+          }
+        ]
+      }
+    ]
+  });
+  const panel = <PanelModel>survey.getPanelByName("panel");
+  assert.equal(panel.state, "collapsed", "the panel is collapsed");
+  assert.equal(panel.hasTitle, true, "We are in design mode and state is not default, #1");
+  assert.equal(panel.locTitle.renderedHtml, "panel", "Render name, #1");
+  panel.expand();
+  assert.equal(panel.state, "expanded", "the panel is expanded");
+  assert.equal(panel.hasTitle, true, "We are in design mode and state is not default, #2");
+  assert.equal(panel.locTitle.renderedHtml, "panel", "Render name, #2");
+  panel.state = "default";
+  assert.equal(panel.state, "default", "the panel is not collapsed or expanded");
+  assert.equal(panel.hasTitle, false, "We do not render the title");
+  assert.notOk(panel.locTitle.renderedHtml, "Render title is empty, #3");
+});

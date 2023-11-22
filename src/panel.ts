@@ -1671,6 +1671,7 @@ export class PanelModel extends PanelModelBase implements IElement {
     if(!this.isLoadingFromJson) {
       this.locTitle.strChanged();
     }
+    super.notifyStateChanged();
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();

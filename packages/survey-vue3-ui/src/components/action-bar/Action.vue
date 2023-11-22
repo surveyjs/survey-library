@@ -3,6 +3,7 @@
     <div class="sv-action__content">
       <sv-action-bar-separator
         v-if="item.needSeparator"
+        :item="item"
       ></sv-action-bar-separator>
       <component :is="componentName" :item="item"> </component>
     </div>

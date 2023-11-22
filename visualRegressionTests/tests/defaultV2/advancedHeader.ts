@@ -78,6 +78,12 @@ frameworks.forEach(framework => {
         });
       })();
       await takeElementScreenshot("survey-advanced-header-with-overlap.png", Selector(".sd-root-modern"), t, comparer);
+
+      await t.resizeWindow(500, 600);
+      await ClientFunction(() => {
+        (<any>window).survey.setIsMobile(true);
+      })();
+      await takeElementScreenshot("survey-advanced-header-mobile-with-overlap.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
 });

@@ -625,15 +625,25 @@ export class QuestionFileModel extends Question {
         });
       } else {
         if (this.survey) {
-          this.survey.uploadFiles(this, this.name, files, (status, data) => {
-            if (status === "error") {
-              this.errors.push(new UploadingFileError(data, this));
-              this.stateChanged("error");
-              this.stateChanged("loaded");
-            }
-            if (status === "success") {
+          this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
+            if (Array.isArray(arg1)) {
               this.value = (this.value || []).concat(
-                data.map((r: any) => {
+                arg1.map((r: any) => {
+                  return {
+                    name: r.file.name,
+                    type: r.file.type,
+                    content: r.content,
+                  };
+                })
+              );
+              if (Array.isArray(arg2)) {
+                arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
+                this.stateChanged("error");
+              }
+            }
+            if (arg1 === "success" && Array.isArray(arg2)) {
+              this.value = (this.value || []).concat(
+                arg2.map((r: any) => {
                   return {
                     name: r.file.name,
                     type: r.file.type,
@@ -642,6 +652,16 @@ export class QuestionFileModel extends Question {
                 })
               );
             }
+            if (arg1 === "error") {
+              if (typeof (arg2) === "string") {
+                this.errors.push(new UploadingFileError(arg2, this));
+              }
+              if (Array.isArray(arg2) && arg2.length > 0) {
+                arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
+              }
+              this.stateChanged("error");
+            }
+            this.stateChanged("loaded");
           });
         }
       }

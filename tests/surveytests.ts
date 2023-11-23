@@ -17255,7 +17255,8 @@ QUnit.test("getContainerContent - do not advanced header on completed page", fun
   assert.deepEqual(getContainerContent("header"), [{
     "component": "sv-header",
     "container": "header",
-    "id": "advanced-header"
+    "id": "advanced-header",
+    "index": -100
   }], "header for running survey");
   assert.deepEqual(getContainerContent("footer"), [], "");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
@@ -17463,7 +17464,6 @@ QUnit.test("Use variables as default values in expression", function (assert) {
         title: "myA = {myA}",
         defaultValueExpression: "{myA}",
       },
-
       {
         type: "text",
         name: "q3",
@@ -17576,6 +17576,60 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
+});
+
+QUnit.test("getContainerContent - header elements order", function (assert) {
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => {
+      delete item["processResponsiveness"];
+      delete item["data"];
+    });
+    return result;
+  }
+
+  const json = {
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "rating",
+            "name": "satisfaction",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  survey.addLayoutElement({
+    id: "custom",
+    container: "header",
+    component: "sv-custom",
+  });
+  survey.applyTheme({ header: {} } as any);
+
+  assert.deepEqual(getContainerContent("header"), [
+    {
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    },
+    {
+      "component": "sv-custom",
+      "container": "header",
+      "id": "custom"
+    }
+  ], "advanved header first, progress next");
 });
 
 QUnit.test("check title classes when readOnly changed", function (assert) {
@@ -18188,4 +18242,34 @@ QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, 
   panel.expand();
   assert.equal(panel.isCollapsed, false, "panel is not collapsed");
 });
-
+QUnit.test("Expression bug with complex path, #7396", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "Q1.1",
+        columns: [1, 2],
+        rows: [1, 2, 3]
+      },
+      {
+        type: "matrix",
+        name: "Q1.1.16",
+        columns: [1, 2, 3],
+        rows: ["16"]
+      },
+      {
+        type: "text",
+        name: "Q1.1.16.A",
+        visibleIf: "{Q1.1.16.16} anyof [1, 2, 3]"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("Q1.1");
+  const q2 = survey.getQuestionByName("Q1.1.16");
+  const q3 = survey.getQuestionByName("Q1.1.16.A");
+  assert.equal(q3.isVisible, false, "visible #1");
+  q1.value = { "1": 1, "2": 2 };
+  assert.equal(q3.isVisible, false, "visible #2");
+  q2.value = { "16": 2 };
+  assert.equal(q3.isVisible, true, "visible #3");
+});

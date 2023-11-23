@@ -7169,6 +7169,7 @@ export class SurveyModel extends SurveyElementCore
   public stopMovingQuestion(): void {
     this.isMovingQuestion = false;
   }
+  get isQuestionDragging(): boolean { return this.isMovingQuestion; }
   private needRenderIcons = true;
 
   private skippedPages: Array<{ from: any, to: any }> = [];

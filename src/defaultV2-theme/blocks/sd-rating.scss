@@ -362,6 +362,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating-dropdown-item {
   display: flex;
+  width: 100%;
   justify-content: space-between;
   align-items: center;
   gap: calcSize(4);

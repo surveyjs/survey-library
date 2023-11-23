@@ -25,7 +25,7 @@ export class RatingDropdownItem extends SurveyElementBase<IRatingItemProps, any>
       </div>
     );
   }
-  renderDescription(item) {
+  renderDescription(item: any) {
     if(!item.description) return null;
 
     return (

@@ -495,7 +495,7 @@ export interface LoadFilesEvent extends FileQuestionEventMixin {
 }
 export interface UploadFilesEvent extends LoadFilesEvent {
   /**
-   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass the uploaded file's data if file upload was successful or an error message if file upload failed.
+   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass an array of successfully uploaded files as the first argument. As the second argument, you can pass an array of error messages if file upload failed.
    */
   callback: (data: any | Array<any>, errors?: any | Array<any>) => any;
   /**

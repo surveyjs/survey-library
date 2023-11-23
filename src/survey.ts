@@ -5014,7 +5014,7 @@ export class SurveyModel extends SurveyElementCore
    * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
    * @param name The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
    * @param files An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
-   * @param callback A callback function that allows you to get the upload status (`"success"` or `"error"`) and file data.
+   * @param callback A callback function that allows you to access successfully uploaded files as the first argument. If any files fail to upload, the second argument contains an array of error messages.
    * @see onUploadFiles
    * @see downloadFile
    */

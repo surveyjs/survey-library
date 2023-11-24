@@ -2355,6 +2355,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.onCreateDetailPanelCallback(row, panel);
     }
     panel.questions.forEach(q => q.setParentQuestion(this));
+    panel.onSurveyLoad();
     return panel;
   }
   getSharedQuestionByName(

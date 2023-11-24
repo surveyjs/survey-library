@@ -1,14 +1,11 @@
 import { property, Serializer } from "./jsonobject";
-import { surveyLocalization } from "./surveyStrings";
 import { QuestionFactory } from "./questionfactory";
-import { Question } from "./question";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
-import { ISurveyImpl } from "./base-interfaces";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
-import { classesToSelector } from "./utils/utils";
+import { QuestionFileModelBase } from "./question_file";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -18,7 +15,7 @@ var defaultHeight = 200;
  *
  * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
  */
-export class QuestionSignaturePadModel extends Question {
+export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ defaultValue: false }) isDrawingValue: boolean;
 
   private getPenColorFromTheme(): string {
@@ -320,6 +317,14 @@ export class QuestionSignaturePadModel extends Question {
    * A placeholder for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
+
+  public onBlur(): void {
+    if (!this.storeDataAsText) {
+      this.canvas.toBlob((blob: Blob) => {
+        this.uploadFiles([new File([blob], this.name + correctFormatData(this.dataFormat), { type: this.dataFormat })]);
+      }, this.dataFormat);
+    }
+  }
 
   endLoadingFromJson(): void {
     super.endLoadingFromJson();

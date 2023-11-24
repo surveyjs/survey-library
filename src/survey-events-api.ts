@@ -6,11 +6,12 @@ import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { QuestionFileModel } from "./question_file";
+import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Trigger } from "./trigger";
@@ -25,7 +26,7 @@ export interface FileQuestionEventMixin {
   /**
    * A File Upload question instance for which the event is raised.
    */
-  question: QuestionFileModel;
+  question: QuestionFileModel | QuestionSignaturePadModel;
 }
 export interface PanelDynamicQuestionEventMixin {
   /**

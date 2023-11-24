@@ -67,12 +67,13 @@ import {
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
-import { QuestionFileModel } from "./question_file";
+import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
+import { QuestionSignaturePadModel } from "./question_signaturepad";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -5024,7 +5025,7 @@ export class SurveyModel extends SurveyElementCore
    * @see downloadFile
    */
   public uploadFiles(
-    question: QuestionFileModel,
+    question: QuestionFileModel | QuestionSignaturePadModel,
     name: string,
     files: File[],
     callback: (data: any | Array<any>, errors?: any | Array<any>) => any

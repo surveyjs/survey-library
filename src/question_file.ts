@@ -15,14 +15,9 @@ import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getRenderedSize } from "./utils/utils";
 
-/**
- * A class that describes the File Upload question type.
- *
- * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
- */
-export class QuestionFileModel extends Question {
+export class QuestionFileModelBase extends Question {
   @property() public isUploading: boolean = false;
-  @property() isDragging: boolean = false;
+  @property({ defaultValue: "empty" }) currentState: string;
   /**
    * An event that is raised after the upload state has changed.
    *
@@ -33,14 +28,110 @@ export class QuestionFileModel extends Question {
    * - `options.state`: `string`\
    * The current upload state: `"empty"`, `"loading"`, `"loaded"`, or `"error"`.
    */
-  public onUploadStateChanged: EventBase<QuestionFileModel> = this.addEvent<
-    QuestionFileModel
+  public onUploadStateChanged: EventBase<QuestionFileModelBase> = this.addEvent<
+    QuestionFileModelBase
   >();
-  public onStateChanged: EventBase<QuestionFileModel> = this.addEvent<
-    QuestionFileModel
+  public onStateChanged: EventBase<QuestionFileModelBase> = this.addEvent<
+    QuestionFileModelBase
   >();
+  protected stateChanged(state: string) {
+    if (this.currentState == state) {
+      return;
+    }
+    if (state === "loading") {
+      this.isUploading = true;
+    }
+    if (state === "loaded") {
+      this.isUploading = false;
+    }
+    if (state === "error") {
+      this.isUploading = false;
+    }
+    this.currentState = state;
+    this.onStateChanged.fire(this, { state: state });
+    this.onUploadStateChanged.fire(this, { state: state });
+  }
+  /**
+   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
+   *
+   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
+   */
+  public get storeDataAsText(): boolean {
+    return this.getPropertyValue("storeDataAsText");
+  }
+  public set storeDataAsText(val: boolean) {
+    this.setPropertyValue("storeDataAsText", val);
+  }
+  /**
+     * Enable this property if you want to wait until files are uploaded to complete the survey.
+     *
+     * Default value: `false`
+     */
+  public get waitForUpload(): boolean {
+    return this.getPropertyValue("waitForUpload");
+  }
+  public set waitForUpload(val: boolean) {
+    this.setPropertyValue("waitForUpload", val);
+  }
+
+  protected onCheckForErrors(
+    errors: Array<SurveyError>,
+    isOnValueChanged: boolean
+  ) {
+    super.onCheckForErrors(errors, isOnValueChanged);
+    if (this.isUploading && this.waitForUpload) {
+      errors.push(
+        new UploadingFileError(
+          this.getLocalizationString("uploadingFile"),
+          this
+        )
+      );
+    }
+  }
+  protected uploadFiles(files: File[]) {
+    if (this.survey) {
+      this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
+        if (Array.isArray(arg1)) {
+          this.value = (this.value || []).concat(
+            arg1.map((r: any) => {
+              return this.uploadResultItemToValue(r);
+            })
+          );
+          if (Array.isArray(arg2)) {
+            arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
+            this.stateChanged("error");
+          }
+        }
+        if (arg1 === "success" && Array.isArray(arg2)) {
+          this.value = (this.value || []).concat(
+            arg2.map((r: any) => {
+              return this.uploadResultItemToValue(r);
+            })
+          );
+        }
+        if (arg1 === "error") {
+          if (typeof (arg2) === "string") {
+            this.errors.push(new UploadingFileError(arg2, this));
+          }
+          if (Array.isArray(arg2) && arg2.length > 0) {
+            arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
+          }
+          this.stateChanged("error");
+        }
+        this.stateChanged("loaded");
+      });
+    }
+  }
+}
+
+/**
+ * A class that describes the File Upload question type.
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
+ */
+export class QuestionFileModel extends QuestionFileModelBase {
+  @property() isDragging: boolean = false;
   @propertyArray({}) public previewValue: any[];
-  @property({ defaultValue: "empty" }) currentState: string;
 
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: 1, onSet: (_, target) => {
@@ -356,28 +447,6 @@ export class QuestionFileModel extends Question {
     this.setPropertyValue("acceptedTypes", val);
   }
   /**
-   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
-   *
-   * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
-   */
-  public get storeDataAsText(): boolean {
-    return this.getPropertyValue("storeDataAsText");
-  }
-  public set storeDataAsText(val: boolean) {
-    this.setPropertyValue("storeDataAsText", val);
-  }
-  /**
-   * Enable this property if you want to wait until files are uploaded to complete the survey.
-   *
-   * Default value: `false`
-   */
-  public get waitForUpload(): boolean {
-    return this.getPropertyValue("waitForUpload");
-  }
-  public set waitForUpload(val: boolean) {
-    this.setPropertyValue("waitForUpload", val);
-  }
-  /**
    * Specifies whether to show a preview of image files.
    */
   public get allowImagesPreview(): boolean {
@@ -594,6 +663,14 @@ export class QuestionFileModel extends Question {
       }
     );
   }
+
+  protected uploadResultItemToValue(r: any) {
+    return {
+      name: r.file.name,
+      type: r.file.type,
+      content: r.content,
+    };
+  }
   /**
    * Loads multiple files into the question.
    * @param files An array of [File](https://developer.mozilla.org/en-US/docs/Web/API/File) objects.
@@ -624,46 +701,7 @@ export class QuestionFileModel extends Question {
           fileReader.readAsDataURL(file);
         });
       } else {
-        if (this.survey) {
-          this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
-            if (Array.isArray(arg1)) {
-              this.value = (this.value || []).concat(
-                arg1.map((r: any) => {
-                  return {
-                    name: r.file.name,
-                    type: r.file.type,
-                    content: r.content,
-                  };
-                })
-              );
-              if (Array.isArray(arg2)) {
-                arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
-                this.stateChanged("error");
-              }
-            }
-            if (arg1 === "success" && Array.isArray(arg2)) {
-              this.value = (this.value || []).concat(
-                arg2.map((r: any) => {
-                  return {
-                    name: r.file.name,
-                    type: r.file.type,
-                    content: r.content,
-                  };
-                })
-              );
-            }
-            if (arg1 === "error") {
-              if (typeof (arg2) === "string") {
-                this.errors.push(new UploadingFileError(arg2, this));
-              }
-              if (Array.isArray(arg2) && arg2.length > 0) {
-                arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
-              }
-              this.stateChanged("error");
-            }
-            this.stateChanged("loaded");
-          });
-        }
+        this.uploadFiles(files);
       }
     };
     if (this.allowMultiple) {
@@ -673,6 +711,7 @@ export class QuestionFileModel extends Question {
     }
   }
   private cameraValue: Camera;
+
   protected get camera(): Camera {
     if(!this.cameraValue) {
       this.cameraValue = new Camera();
@@ -730,37 +769,6 @@ export class QuestionFileModel extends Question {
   }
   protected getIsQuestionReady(): boolean {
     return super.getIsQuestionReady() && !this.isFileLoading;
-  }
-  protected onCheckForErrors(
-    errors: Array<SurveyError>,
-    isOnValueChanged: boolean
-  ) {
-    super.onCheckForErrors(errors, isOnValueChanged);
-    if (this.isUploading && this.waitForUpload) {
-      errors.push(
-        new UploadingFileError(
-          this.getLocalizationString("uploadingFile"),
-          this
-        )
-      );
-    }
-  }
-  protected stateChanged(state: string) {
-    if(this.currentState == state) {
-      return;
-    }
-    if (state === "loading") {
-      this.isUploading = true;
-    }
-    if (state === "loaded") {
-      this.isUploading = false;
-    }
-    if (state === "error") {
-      this.isUploading = false;
-    }
-    this.currentState = state;
-    this.onStateChanged.fire(this, { state: state });
-    this.onUploadStateChanged.fire(this, { state: state });
   }
   private allFilesOk(files: File[]): boolean {
     var errorLength = this.errors ? this.errors.length : 0;

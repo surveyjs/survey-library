@@ -1510,6 +1510,14 @@ export class PanelModelBase extends SurveyElement<Question>
   }
   //ITitleOwner
   public get no(): string { return ""; }
+
+  public get cssError(): string {
+    return this.getCssError(this.cssClasses);
+  }
+  protected getCssError(cssClasses: any): string {
+    return new CssClassBuilder().append(cssClasses.error.root).toString();
+  }
+
   public dispose(): void {
     super.dispose();
     if (this.rows) {
@@ -1815,18 +1823,13 @@ export class PanelModel extends PanelModelBase implements IElement {
   public get cssTitle(): string {
     return this.getCssTitle(this.cssClasses.panel);
   }
-  public get cssError(): string {
-    return this.getCssError(this.cssClasses);
-  }
   public get showErrorsAbovePanel(): boolean {
-    return this.isDefaultV2Theme;
+    return this.isDefaultV2Theme && !this.showPanelAsPage;
   }
   protected getCssError(cssClasses: any): string {
-    const isDefaultV2Theme = this.isDefaultV2Theme;
     const builder = new CssClassBuilder()
-      .append(this.cssClasses.error.root)
-      .append(this.cssClasses.error.outsideQuestion, isDefaultV2Theme)
-      .append(this.cssClasses.error.aboveQuestion, isDefaultV2Theme);
+      .append(super.getCssError(cssClasses))
+      .append(cssClasses.panel.errorsContainer);
     return builder.append("panel-error-root", builder.isEmpty()).toString();
   }
   protected onVisibleChanged() {
@@ -1846,16 +1849,19 @@ export class PanelModel extends PanelModelBase implements IElement {
     (this.survey as SurveyModel).whenPanelFocusIn(this);
   }
   protected getHasFrameV2(): boolean {
-    return super.getHasFrameV2() && (!(<any>this).originalPage || (<any>this.survey).isShowingPreview);
+    return super.getHasFrameV2() && !this.showPanelAsPage;
   }
   protected getIsNested(): boolean {
     return super.getIsNested() && this.parent !== undefined;
+  }
+  private get showPanelAsPage() {
+    return !!(<any>this).originalPage && !(<any>this.survey).isShowingPreview;
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
     return new CssClassBuilder()
       .append(super.getCssRoot(cssClasses))
       .append(cssClasses.container)
-      .append(cssClasses.asPage, !!(<any>this).originalPage && !(<any>this.survey).isShowingPreview)
+      .append(cssClasses.asPage, this.showPanelAsPage)
       .append(cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }

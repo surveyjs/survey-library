@@ -1081,9 +1081,9 @@ export class Question extends SurveyElement<Question>
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.error.outsideQuestion, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
-      .append(cssClasses.error.belowQuestion, this.showErrorsBelowQuestion)
-      .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainer, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)
       .append(cssClasses.error.locationTop, this.showErrorOnTop)
       .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();

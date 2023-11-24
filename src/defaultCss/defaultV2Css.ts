@@ -80,7 +80,8 @@ export var defaultV2Css = {
     nested: "sd-element--nested sd-element--nested-with-borders",
     invisible: "sd-element--invisible",
     navigationButton: "",
-    compact: "sd-element--with-frame sd-element--compact"
+    compact: "sd-element--with-frame sd-element--compact",
+    errorsContainer: "sd-panel__errbox sd-element__erbox sd-element__erbox--above-element"
   },
   paneldynamic: {
     mainRoot: "sd-element  sd-question sd-question--paneldynamic sd-element--complex sd-question--complex sd-row__question",
@@ -148,7 +149,8 @@ export var defaultV2Css = {
     root: "sd-page sd-body__page",
     emptyHeaderRoot: "sd-page__empty-header",
     title: "sd-title sd-page__title",
-    description: "sd-description sd-page__description"
+    description: "sd-description sd-page__description",
+    errorsContainer: "sd-page__errbox"
   },
   pageTitle: "sd-title sd-page__title",
   pageDescription: "sd-description sd-page__description",
@@ -203,6 +205,9 @@ export var defaultV2Css = {
     invisible: "sd-element--invisible",
     composite: "sd-element--complex",
     disabled: "sd-question--disabled",
+    errorsContainer: "sd-element__erbox sd-question__erbox",
+    errorsContainerTop: "sd-element__erbox--above-element sd-question__erbox--above-question",
+    errorsContainerBottom: "sd-question__erbox--below-question"
   },
   image: {
     mainRoot: "sd-question sd-question--image",
@@ -219,14 +224,11 @@ export var defaultV2Css = {
     withFrame: ""
   },
   error: {
-    root: "sd-question__erbox",
+    root: "sd-error",
     icon: "",
     item: "",
-    outsideQuestion: "sd-question__erbox--outside-question",
-    aboveQuestion: "sd-question__erbox--above-question",
-    belowQuestion: "sd-question__erbox--below-question",
-    locationTop: "sd-question__erbox--location--top",
-    locationBottom: "sd-question__erbox--location--bottom"
+    locationTop: "",
+    locationBottom: ""
   },
   checkbox: {
     root: "sd-selectbase",

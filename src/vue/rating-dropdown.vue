@@ -10,6 +10,8 @@ import { Component, Prop } from "vue-property-decorator";
 import { default as QuestionVue } from "./question";
 import { QuestionRatingModel, RendererFactory } from "survey-core";
 
+export * from "./components/rating/rating-dropdown-item.vue";
+
 @Component
 export class RatingDropdown extends QuestionVue<QuestionRatingModel> {
 }

@@ -36,6 +36,7 @@ import Rating from "./Rating.vue";
 import RatingItem from "./components/rating/RatingItem.vue";
 import RatingItemSmiley from "./components/rating/RatingItemSmiley.vue";
 import RatingItemStar from "./components/rating/RatingItemStar.vue";
+import RatingDropdownItem from "./components/rating/RatingDropdownItem.vue";
 import RatingDropdown from "./RatingDropdown.vue";
 import BooleanSwitch from "./BooleanSwitch.vue";
 import BooleanRadio from "./BooleanRadio.vue";
@@ -179,6 +180,7 @@ function registerComponents(app: App) {
   app.component("sv-rating-item-smiley", RatingItemSmiley);
   app.component("sv-rating-item-star", RatingItemStar);
   app.component("sv-rating-dropdown", RatingDropdown);
+  app.component("sv-rating-dropdown-item", RatingDropdownItem);
   app.component("survey-boolean", BooleanSwitch);
   app.component("sv-boolean-radio", BooleanRadio);
   app.component("sv-boolean-radio-item", BooleanRadioItem);

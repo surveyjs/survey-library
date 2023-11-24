@@ -19,3 +19,26 @@
 .sd-page .sd-page__description {
   @include page_description();
 }
+
+
+.sd-page__errbox {
+  padding: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit}) var(--sd-base-padding);
+}
+
+.sd-page__title,
+.sd-page__description {
+  &~.sd-page__errbox {
+    margin-top: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
+    margin-bottom: calcSize(-1);
+  }
+}
+
+.sd-root--compact {
+
+  .sd-page__title,
+  .sd-page__description {
+    &~.sd-page__errbox {
+      margin-bottom: 0;
+    }
+  }
+}

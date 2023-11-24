@@ -118,8 +118,9 @@ export class PageModel extends PanelModelBase implements IPage {
   }
   public get isStarted(): boolean { return this.isStartPage; }
   protected calcCssClasses(css: any): any {
-    const classes = { page: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    const classes = { page: {}, error: {}, pageTitle: "", pageDescription: "", row: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.page, css.page);
+    this.copyCssClasses(classes.error, css.error);
     if (!!css.pageTitle) {
       classes.pageTitle = css.pageTitle;
     }
@@ -156,6 +157,11 @@ export class PageModel extends PanelModelBase implements IPage {
       .append(this.cssClasses.page.emptyHeaderRoot, !(<any>this.survey).renderedHasHeader &&
         !((<any>this.survey).isShowProgressBarOnTop && !(<any>this.survey).isStaring))
       .toString();
+  }
+  protected getCssError(cssClasses: any): string {
+    return new CssClassBuilder()
+      .append(super.getCssError(cssClasses))
+      .append(cssClasses.page.errorsContainer).toString();
   }
   @property({ defaultValue: -1, onSet: (val: number, target: PageModel) => target.onNumChanged(val) }) num: number;
   /**

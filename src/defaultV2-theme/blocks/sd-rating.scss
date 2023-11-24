@@ -318,6 +318,9 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
+.sd-rating__item .sd-rating__item-text {
+  margin: 0 2px;
+}
 .sd-rating__item-text.sd-rating__item-text {
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
@@ -326,7 +329,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
 
-  margin: 0 2px;
   &.sd-rating__min-text,
   &.sd-rating__max-text {
     margin-top: calcSize(1.25);

@@ -359,3 +359,23 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   color: $primary-foreground;
   font-weight: inherit;
 }
+
+.sd-rating-dropdown-item {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: calcSize(4);
+}
+
+.sd-rating-dropdown-item_description {
+  color: $foreground-light;
+  font-family: $font-family;
+  font-style: normal;
+  font-weight: normal;
+  font-size: calcFontSize(0.75);
+  line-height: calcLineHeight(1);
+}
+.sv-list__item.sv-list__item--selected .sd-rating-dropdown-item_description {
+  color: $primary-foreground;
+}

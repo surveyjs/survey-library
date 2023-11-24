@@ -133,6 +133,11 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await resetFocusToBody();
       await takeElementScreenshot("question-rating-dropdown.png", questionRoot, t, comparer);
+
+      const questionDropdownSelect = Selector(".sd-input.sd-dropdown");
+      const popupContainer = Selector(".sv-popup__container").filterVisible();
+      await t.click(questionDropdownSelect);
+      await takeElementScreenshot("question-rating-dropdown-popup.png", popupContainer, t, comparer);
     });
   });
 

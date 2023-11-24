@@ -35,6 +35,12 @@ export class RenderedRatingItem extends Base {
   }
 }
 
+class RatingItemValue extends ItemValue {
+  constructor(value: any, public description: LocalizableString) {
+    super(value);
+  }
+}
+
 /**
  * A class that describes the Rating Scale question type.
  *
@@ -337,20 +343,7 @@ export class QuestionRatingModel extends Question {
       rateValues = this.rateValues;
     }
     else {
-      var res = [];
-      var value = this.rateMin;
-      var step = this.rateStep;
-      while (
-        value <= this.rateMax &&
-        res.length < settings.ratingMaximumRateValueCount
-      ) {
-        let item = new ItemValue(value);
-        item.locOwner = this;
-        item.ownerPropertyName = "rateValues";
-        res.push(item);
-        value = this.correctValue(value + step, step);
-      }
-      rateValues = res;
+      rateValues = this.createRateValues();
     }
 
     if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
@@ -366,6 +359,29 @@ export class QuestionRatingModel extends Question {
     });
   }
   @propertyArray() renderedRateItems: Array<RenderedRatingItem>;
+
+  private createRateValues() {
+    var res = [];
+    var value = this.rateMin;
+    var step = this.rateStep;
+    while (value <= this.rateMax &&
+      res.length < settings.ratingMaximumRateValueCount) {
+      let description: LocalizableString;
+      if (value === this.rateMin) {
+        description = this.minRateDescription && this.locMinRateDescription;
+      }
+      if (value === this.rateMax || res.length === settings.ratingMaximumRateValueCount) {
+        description = this.maxRateDescription && this.locMaxRateDescription;
+      }
+
+      let item = new RatingItemValue(value, description);
+      item.locOwner = this;
+      item.ownerPropertyName = "rateValues";
+      res.push(item);
+      value = this.correctValue(value + step, step);
+    }
+    return res;
+  }
 
   private correctValue(value: number, step: number): number {
     if (!value) return value;
@@ -532,7 +548,7 @@ export class QuestionRatingModel extends Question {
     return this.rateType == "smileys";
   }
   getDefaultItemComponent(): string {
-    if (this.renderAs == "dropdown") return "";
+    if (this.renderAs == "dropdown") return "sv-rating-dropdown-item";
     if (this.isStar) return "sv-rating-item-star";
     if (this.isSmiley) return "sv-rating-item-smiley";
     return "sv-rating-item";

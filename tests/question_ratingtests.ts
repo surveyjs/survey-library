@@ -1469,7 +1469,7 @@ QUnit.test("rating items custom component", (assert) => {
   assert.equal(q1.itemComponent, "sv-rating-item");
 
   q1.renderAs = "dropdown";
-  assert.equal(q1.itemComponent, "");
+  assert.equal(q1.itemComponent, "sv-rating-dropdown-item");
 
   var json2 = {
     questions: [

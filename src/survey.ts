@@ -1193,20 +1193,25 @@ export class SurveyModel extends SurveyElementCore
           advHeader.titlePositionY = "middle";
           advHeader.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
           advHeader.descriptionPositionY = "middle";
-          advHeader.survey = target;
-          target.layoutElements.unshift({
-            id: "advanced-header",
-            container: "header",
-            component: "sv-header",
-            data: advHeader,
-            processResponsiveness: width => advHeader.processResponsiveness(width)
-          });
+          target.insertAdvancedHeader(advHeader);
         }
       } else {
         target.removeLayoutElement("advanced-header");
       }
     }
   }) headerView: "advanced" | "basic";
+
+  protected insertAdvancedHeader(advHeader: Cover): void {
+    advHeader.survey = this;
+    this.layoutElements.push({
+      id: "advanced-header",
+      container: "header",
+      component: "sv-header",
+      index: -100,
+      data: advHeader,
+      processResponsiveness: width => advHeader.processResponsiveness(width)
+    });
+  }
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -5014,7 +5019,7 @@ export class SurveyModel extends SurveyElementCore
    * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
    * @param name The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
    * @param files An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
-   * @param callback A callback function that allows you to get the upload status (`"success"` or `"error"`) and file data.
+   * @param callback A callback function that allows you to access successfully uploaded files as the first argument. If any files fail to upload, the second argument contains an array of error messages.
    * @see onUploadFiles
    * @see downloadFile
    */
@@ -5022,10 +5027,10 @@ export class SurveyModel extends SurveyElementCore
     question: QuestionFileModel,
     name: string,
     files: File[],
-    callback: (status: string, data: any) => any
+    callback: (data: any | Array<any>, errors?: any | Array<any>) => any
   ) {
     if (this.onUploadFiles.isEmpty) {
-      callback("error", files);
+      callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
       this.onUploadFiles.fire(this, {
         question: question,
@@ -5125,7 +5130,7 @@ export class SurveyModel extends SurveyElementCore
   protected uploadFilesCore(
     name: string,
     files: File[],
-    uploadingCallback: (status: string, data: any) => any
+    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>,) => any
   ) {
     var responses: Array<any> = [];
     files.forEach((file) => {
@@ -7169,6 +7174,7 @@ export class SurveyModel extends SurveyElementCore
   public stopMovingQuestion(): void {
     this.isMovingQuestion = false;
   }
+  get isQuestionDragging(): boolean { return this.isMovingQuestion; }
   private needRenderIcons = true;
 
   private skippedPages: Array<{ from: any, to: any }> = [];
@@ -7361,6 +7367,7 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
+    containerLayoutElements.sort((a, b) => (a.index || 0) - (b.index || 0));
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
@@ -7381,13 +7388,8 @@ export class SurveyModel extends SurveyElementCore
         this.removeLayoutElement("advanced-header");
         const advHeader = new Cover();
         advHeader.fromTheme(theme);
-        this.layoutElements.push({
-          id: "advanced-header",
-          container: "header",
-          component: "sv-header",
-          data: advHeader,
-          processResponsiveness: width => advHeader.processResponsiveness(width)
-        });
+        this.insertAdvancedHeader(advHeader);
+        this.headerView = "advanced";
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];

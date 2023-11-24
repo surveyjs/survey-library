@@ -187,6 +187,9 @@ frameworks.forEach(framework => {
 
   test("show top progress bar", async t => {
     let progressSelector = ".sv_container .sv-components-column--expandable > .sv-components-column > div";
+    if(framework === "vue3") {
+      progressSelector = ".sv_container .sv-components-column--expandable > div";
+    }
     const progressElement = Selector(progressSelector);
     await t.expect(progressbar.exists).notOk();
 

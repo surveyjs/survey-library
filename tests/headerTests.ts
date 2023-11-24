@@ -56,11 +56,12 @@ QUnit.test("cover maxWidth",
   function (assert) {
     const cover = new Cover();
     cover.survey = new SurveyModel();
-    assert.equal(cover.maxWidth, undefined, "survey.maxWidth is default");
+    assert.equal(cover.inheritWidthFrom, "container", "default inheritWidthFrom");
+    assert.equal(cover.maxWidth, false, "inheritWidthFrom is container");
 
+    cover.inheritWidthFrom = "survey";
     cover.survey.width = "500";
     assert.equal(cover.survey.widthMode, "auto", "default widthMode");
-    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
     assert.equal(cover.maxWidth, "500px", "default maxWidth");
 
     cover.survey = new SurveyModel({ widthMode: "responsive", width: "500" });
@@ -68,9 +69,6 @@ QUnit.test("cover maxWidth",
 
     cover.survey = new SurveyModel({ widthMode: "static", width: "500" });
     assert.equal(cover.maxWidth, "500px", "survey.maxWidth is static");
-
-    cover.inheritWidthFrom = "container";
-    assert.equal(cover.maxWidth, false, "inheritWidthFrom is container");
   }
 );
 
@@ -79,8 +77,11 @@ QUnit.test("contentClasses",
     const cover = new Cover();
     cover.survey = new SurveyModel();
 
+    assert.equal(cover.inheritWidthFrom, "container", "default inheritWidthFrom");
+    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "inheritWidthFrom is container");
+
+    cover.inheritWidthFrom = "survey";
     assert.equal(cover.survey.widthMode, "auto", "default widthMode");
-    assert.equal(cover.inheritWidthFrom, "survey", "default inheritWidthFrom");
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "default contentClasses");
 
     cover.survey.widthMode = "responsive";
@@ -88,9 +89,6 @@ QUnit.test("contentClasses",
 
     cover.survey.widthMode = "static";
     assert.equal(cover.contentClasses, "sv-header__content sv-header__content--static", "survey.widthMode is static");
-
-    cover.inheritWidthFrom = "container";
-    assert.equal(cover.contentClasses, "sv-header__content sv-header__content--responsive", "inheritWidthFrom is container");
   }
 );
 

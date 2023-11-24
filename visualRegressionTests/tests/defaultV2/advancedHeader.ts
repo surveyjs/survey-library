@@ -41,6 +41,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.applyTheme({
           "header": {
             height: "500px",
+            inheritWidthFrom: "survey"
           }
         });
       })();
@@ -70,6 +71,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.applyTheme({
           "header": {
             height: "500px",
+            inheritWidthFrom: "survey",
             "overlapEnabled": true,
           },
           "cssVariables": {

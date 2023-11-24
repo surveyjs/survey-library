@@ -3545,7 +3545,11 @@ export class SurveyModel extends SurveyElementCore
    * @see isPrevPage
    * @see completeLastPage
    */
-  public ignoreValidation: boolean | "checkOnComplete" = false;
+  public get ignoreValidation(): boolean { return !this.validationEnabled; }
+  public set ignoreValidation(val: boolean) { this.validationEnabled = !val; }
+  public validationEnabled: boolean = true;
+  public validationAllowSwitchPages: boolean = false;
+  public validationAllowComplete: boolean = false;
   /**
    * Switches the survey to the next page.
    *
@@ -3560,17 +3564,18 @@ export class SurveyModel extends SurveyElementCore
     return this.doCurrentPageComplete(false);
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
-    if (!this.isEditMode || this.checkErrorsMode === "ignore") return false;
+    if (!this.isEditMode || this.ignoreValidation) return false;
+    const skipValidation = doComplete && this.validationAllowComplete || !doComplete && this.validationAllowSwitchPages;
     const func = (hasErrors: boolean) => {
-      if (!hasErrors || this.ignoreValidation) {
+      if (!hasErrors || skipValidation) {
         this.doCurrentPageCompleteCore(doComplete);
       }
     };
     if (this.isValidateOnComplete) {
       if (!this.isLastPage) return false;
-      return this.validate(true, true, func) !== true && this.ignoreValidation === false;
+      return this.validate(true, true, func) !== true && !skipValidation;
     }
-    return this.validateCurrentPage(func) !== true && !this.ignoreValidation;
+    return this.validateCurrentPage(func) !== true && !skipValidation;
   }
   private asyncValidationQuesitons: Array<Question>;
   private checkForAsyncQuestionValidation(
@@ -4845,7 +4850,7 @@ export class SurveyModel extends SurveyElementCore
     return this.checkErrorsMode === "onValueChanged";
   }
   private get isValidateOnComplete(): boolean {
-    return this.checkErrorsMode === "onComplete" || this.ignoreValidation === "checkOnComplete";
+    return this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages && !this.validationAllowComplete;
   }
   matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;

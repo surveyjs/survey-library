@@ -3545,7 +3545,7 @@ export class SurveyModel extends SurveyElementCore
    * @see isPrevPage
    * @see completeLastPage
    */
-  public ignoreValidation: boolean = false;
+  public ignoreValidation: boolean | "checkOnComplete" = false;
   /**
    * Switches the survey to the next page.
    *
@@ -3560,17 +3560,17 @@ export class SurveyModel extends SurveyElementCore
     return this.doCurrentPageComplete(false);
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
-    if (this.ignoreValidation || !this.isEditMode) return false;
-    var func = (hasErrors: boolean) => {
-      if (!hasErrors) {
+    if (!this.isEditMode || this.checkErrorsMode === "ignore") return false;
+    const func = (hasErrors: boolean) => {
+      if (!hasErrors || this.ignoreValidation) {
         this.doCurrentPageCompleteCore(doComplete);
       }
     };
     if (this.isValidateOnComplete) {
       if (!this.isLastPage) return false;
-      return this.validate(true, true, func) !== true;
+      return this.validate(true, true, func) !== true && this.ignoreValidation === false;
     }
-    return this.validateCurrentPage(func) !== true;
+    return this.validateCurrentPage(func) !== true && !this.ignoreValidation;
   }
   private asyncValidationQuesitons: Array<Question>;
   private checkForAsyncQuestionValidation(
@@ -4845,7 +4845,7 @@ export class SurveyModel extends SurveyElementCore
     return this.checkErrorsMode === "onValueChanged";
   }
   private get isValidateOnComplete(): boolean {
-    return this.checkErrorsMode === "onComplete";
+    return this.checkErrorsMode === "onComplete" || this.ignoreValidation === "checkOnComplete";
   }
   matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;
@@ -7621,7 +7621,7 @@ Serializer.addClass("survey", [
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged", "onValueChanging", "onComplete"],
+    choices: ["onNextPage", "onValueChanged", "onValueChanging", "onComplete", "ignore"],
   },
   {
     name: "textUpdateMode",

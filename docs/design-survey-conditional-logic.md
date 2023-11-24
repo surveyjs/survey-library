@@ -388,7 +388,7 @@ Returns the sum of numbers taken from a specified data field. This data field is
 *Example*: `"expression": "sumInArray({matrixdynamic}, 'total') > 1000"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171 (linkStyle))
-[View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression#content-js (linkStyle))
+[View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression (linkStyle))
 
 ---
 

@@ -1,6 +1,8 @@
 @import "../defaultV2-theme/mixins.scss";
+
 .sd-body {
   width: 100%;
+  box-sizing: border-box;
 
   .sd-body__page {
     min-width: min(100%, 300px);

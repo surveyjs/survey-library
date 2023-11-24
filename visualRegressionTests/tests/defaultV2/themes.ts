@@ -369,10 +369,7 @@ frameworks.forEach(framework => {
           },
           {
             "type": "rating",
-            "name": "question5",
-            "rateMax": 10,
-            "minRateDescription": "Not satisfied",
-            "maxRateDescription": "Completely satisfied"
+            "name": "question5"
           },
           {
             "type": "checkbox",

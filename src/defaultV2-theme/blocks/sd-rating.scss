@@ -152,7 +152,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-smiley--error {
   background-color: $red-light;
-  border: none;
+  border-color: transparent;
   fill: $foreground-light;
 
   &.sd-rating__item-smiley--scale-colored:not(.sd-rating__item-smiley--selected) {
@@ -326,6 +326,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
 
+  margin: 0 2px;
   &.sd-rating__min-text,
   &.sd-rating__max-text {
     margin-top: calcSize(1.25);
@@ -353,8 +354,11 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     min-width: calcSize(3);
   }
 }
-
+.sd-rating__item:focus-within .sd-rating__item-text.sd-rating__item-text {
+  margin: 0;
+}
 .sd-rating__item--selected .sd-rating__item-text.sd-rating__item-text {
   color: $primary-foreground;
   font-weight: inherit;
+  margin: 0;
 }

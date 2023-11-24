@@ -934,8 +934,8 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1600, 900);
       const json = {
         "cookieName": "survey-id",
-        "completedHtml": "<h3>Completed</h3><button>OK</button>",
-        "completedBeforeHtml": "<h3>Already completed</h3><button>OK</button>",
+        "completedHtml": "<h3>Completed</h3><button style='display: inline-block;'>OK</button>",
+        "completedBeforeHtml": "<h3>Already completed</h3><button style='display: inline-block;'>OK</button>",
         pages: [
           {
             "elements": [

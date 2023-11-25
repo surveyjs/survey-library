@@ -171,16 +171,16 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-smiley--allowhover:hover {
   background-color: $background-dark;
-  border: 2px solid $border;
+  border-color: $border;
 }
 
 .sd-rating__item-smiley:focus-within {
-  border: 2px solid $primary;
+  border-color: $primary;
 }
 
 .sd-rating__item-smiley--selected {
   background-color: $primary;
-  border: 2px solid $primary;
+  border-color: $primary;
   fill: $primary-foreground;
   font-weight: 600;
 }

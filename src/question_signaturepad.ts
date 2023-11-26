@@ -40,11 +40,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       .toString();
   }
 
+  protected getFormat() {
+    return this.dataFormat === "jpeg" ? "image/jpeg" :
+      (this.dataFormat === "svg" ? "image/svg+xml" : "");
+  }
   protected updateValue() {
     if (this.signaturePad) {
-      const format = this.dataFormat === "jpeg" ? "image/jpeg" :
-        (this.dataFormat === "svg" ? "image/svg+xml" : "");
-      var data = this.signaturePad.toDataURL(format);
+      var data = this.signaturePad.toDataURL(this.getFormat());
       this.valueIsUpdatingInternally = true;
       this.value = data;
       this.valueIsUpdatingInternally = false;
@@ -76,6 +78,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private canvas: any;
   private scale: number;
   private valueIsUpdatingInternally: boolean = false;
+  private valueWasChangedFromLastUpload: boolean = false;
 
   private resizeCanvas() {
     this.canvas.width = this.containerWidth;
@@ -96,14 +99,29 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       if (refresh) this.refreshCanvas();
     }
   }
+  private fromDataUrl(data: string) {
+    this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
+  }
+
+  private fromUrl(url: string) {
+    const img = document.createElement("img");
+    img.onload = ()=>{
+      const ctx = this.canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      var dataURL = this.canvas.toDataURL(this.getFormat());
+      this.fromDataURL(dataURL);
+    };
+  }
   private refreshCanvas() {
-    var data = this.value;
-    const canvas = this.canvas;
-    if (!data) {
-      canvas.getContext("2d").clearRect(0, 0, canvas.width * this.scale, canvas.height * this.scale);
+    if (!this.value) {
+      this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
       this.signaturePad.clear();
     } else {
-      this.signaturePad.fromDataURL(data, { width: canvas.width * this.scale, height: canvas.height * this.scale });
+      if(this.storeDataAsText) {
+        this.fromDataURL(this.value);
+      } else {
+        this.fromUrl(this.value);
+      }
     }
   }
 
@@ -140,7 +158,11 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
     (signaturePad as any).addEventListener("endStroke", () => {
       this.isDrawingValue = false;
-      this.updateValue();
+      if(this.storeDataAsText) {
+        this.updateValue();
+      } else {
+        this.valueWasChangedFromLastUpload = true;
+      }
     }, { once: false });
 
     this.updateValueHandler();
@@ -319,11 +341,15 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
   public onBlur(): void {
-    if (!this.storeDataAsText) {
+    if (!this.storeDataAsText && this.valueWasChangedFromLastUpload) {
+      this.valueWasChangedFromLastUpload = false;
       this.canvas.toBlob((blob: Blob) => {
         this.uploadFiles([new File([blob], this.name + correctFormatData(this.dataFormat), { type: this.dataFormat })]);
       }, this.dataFormat);
     }
+  }
+  protected uploadResultItemToValue(r: any) {
+    return r.content;
   }
 
   endLoadingFromJson(): void {

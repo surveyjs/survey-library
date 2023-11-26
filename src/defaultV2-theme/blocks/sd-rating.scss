@@ -52,7 +52,7 @@
   box-sizing: border-box;
   min-width: calcSize(6);
   text-align: center;
-  border: 2px solid transparent;
+  border: none;
   color: $foreground;
   fill: $foreground;
   font-size: calcFontSize(1);
@@ -72,7 +72,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 .sd-rating__item--error {
   background-color: $red-light;
   box-shadow: 0px 1px 2px transparent;
-  border-color: transparent;
+  border: none;
 }
 
 .sd-rating__item.sd-rating__item--disabled {
@@ -84,7 +84,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   color: $primary-foreground;
   fill: $foreground;
   background-color: $background-semitransparent;
-  border-color: transparent;
+  border: none;
 }
 
 .sd-question--disabled .sd-rating__item-text {
@@ -93,16 +93,15 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item--allowhover:hover {
   background-color: $background-dark;
-  border-color: $background-dark;
 }
 
 .sd-rating__item:focus-within {
-  border-color: $primary;
+  border: 2px solid $primary;
 }
 
 .sd-rating__item--selected {
   background-color: $primary;
-  border-color: $primary;
+  border: 2px solid $primary;
   color: $primary-foreground;
   font-weight: 600;
   box-shadow: 0px 1px 2px transparent;
@@ -319,6 +318,9 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
+.sd-rating__item .sd-rating__item-text {
+  margin: 0 2px;
+}
 .sd-rating__item-text.sd-rating__item-text {
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
@@ -354,10 +356,13 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     min-width: calcSize(3);
   }
 }
-
+.sd-rating__item:focus-within .sd-rating__item-text.sd-rating__item-text {
+  margin: 0;
+}
 .sd-rating__item--selected .sd-rating__item-text.sd-rating__item-text {
   color: $primary-foreground;
   font-weight: inherit;
+  margin: 0;
 }
 
 .sd-rating-dropdown-item {

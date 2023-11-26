@@ -519,6 +519,38 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check rating inner shadow", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        width: "900px",
+        questions: [
+          {
+            type: "rating",
+            name: "q1"
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        const themeJson = {
+          "cssVariables": {
+            "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
+          },
+          "isPanelless": false
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+
+      const questionRoot = Selector(".sd-rating");
+      await focusBody();
+      await takeElementScreenshot("rating-inner-shadow", questionRoot, t, comparer);
+    });
+  });
+
   test("Check rating smileys disabled question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

@@ -358,7 +358,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
         this.canvas.toBlob((blob: Blob) => {
           this.uploadFiles([new File([blob], this.name + "." + correctFormatData(this.dataFormat), { type: this.getFormat() })]);
           this.valueWasChangedFromLastUpload = false;
-        }, this.dataFormat);
+        }, this.getFormat());
       }, 100);
     }
   }

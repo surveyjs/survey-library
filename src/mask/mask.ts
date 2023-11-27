@@ -1,52 +1,55 @@
+import { checkValueByPattern, getMaskedValueByPattern, getUnmaskedValueByPattern } from "./mask_utils";
+
 export class InputMaskBase {
-  placeholderChar = "_";
-
-  definitions: { [key: string]: RegExp } = {
-    "9": /[0-9]/,
-    "a": /[a-zA-Z]/,
-    "*": /[a-zA-Z0-9]/
+  private _prevSelectionStart: number;
+  constructor(private input: HTMLInputElement, private mask: string) {
+    this.applyValue(mask);
+    this.addInputEventListener();
   }
 
-  constructor(private mask: string) { }
-
-  getMaskedString(str: string): string {
-    let result = "";
-    let strIndex = 0;
-    for(let maskIndex = 0; maskIndex < this.mask.length; maskIndex++) {
-      const currentDefinition = this.definitions[this.mask[maskIndex]];
-      if(currentDefinition) {
-        if(strIndex < str.length && str[strIndex].match(currentDefinition)) {
-          result += str[strIndex];
-        } else {
-          result += this.placeholderChar;
-        }
-        strIndex++;
-      } else {
-        result += this.mask[maskIndex];
-      }
+  applyValue(mask: string) {
+    if(!!this.input) {
+      const value = getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
+      this.input.value = value.text;
     }
-    return result;
   }
-
-  getUnmaskedValue(str: string, matchWholeMask: boolean): string {
-    let result = "";
-    for(let index = 0; index < this.mask.length; index++) {
-      const currentDefinition = this.definitions[this.mask[index]];
-      if(currentDefinition) {
-        if(str[index].match(currentDefinition)) {
-          result += str[index];
-        } else if(matchWholeMask) {
-          result = "";
-          break;
-        } else {
-          break;
-        }
-      }
+  updateMaskedString(mask: string): void {
+    if(!!this.input) {
+      const prevSelectionStart = this.input.selectionStart;
+      const value = getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
+      // this.input.value = value.text;
+      this.input.value = checkValueByPattern(this.input.value, mask, this._prevSelectionStart);
+      // this.input.setSelectionRange(value.cursorPosition, value.cursorPosition);
+      this.input.setSelectionRange(prevSelectionStart, prevSelectionStart);
     }
-    return result;
   }
 
-  updateMaskedString(str: string): string {
-    return this.getMaskedString(this.getUnmaskedValue(str, false));
+  keydownHandler = (event: any) => {
+    console.log("key - " + event.key + ", code - " + event.code + ", selectionStart - " + event.target.selectionStart);
+    this._prevSelectionStart = event.target.selectionStart;
+    // this.updateMaskedString(this.mask);
+  };
+
+  inputHandler = (event: any) => {
+    console.log("data - " + event.data + ", selectionStart - " + event.target.selectionStart);
+    this.updateMaskedString(this.mask);
+  };
+  public addInputEventListener(): void {
+    if (!!this.input) {
+      this.input.addEventListener("input", this.inputHandler);
+      this.input.addEventListener("keydown", this.keydownHandler);
+      // this.input.addEventListener("click", this.inputHandler);
+      // this.input.addEventListener("focus", this.inputHandler);
+      // this.input.addEventListener("blur", this.inputHandler);
+    }
+  }
+  public removeInputEventListener(): void {
+    if (!!this.input) {
+      this.input.removeEventListener("input", this.inputHandler);
+      this.input.removeEventListener("keydown", this.keydownHandler);
+    }
+  }
+  public dispose(): void {
+    this.removeInputEventListener();
   }
 }

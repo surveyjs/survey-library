@@ -1,5 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer } from "./jsonobject";
+import { Serializer, property } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
 import { EmailValidator } from "./validator";
@@ -10,6 +10,7 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { InputMaskBase } from "./mask/mask";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -464,6 +465,26 @@ export class QuestionTextModel extends QuestionTextBase {
   public onFocus = (event: any): void => {
     this.updateRemainingCharacterCounter(event.target.value);
   }
+
+  @property() mask: string;
+  private updateMaskInstance() {
+    if (!this.maskInstance) {
+      this.maskInstance = new InputMaskBase(this.input, this.mask);
+    } else {
+      this.maskInstance.updateInputElement(this.mask);
+    }
+  }
+  public afterRenderQuestionElement(el: HTMLElement) {
+    if (!!el) {
+      this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");
+      if (this.mask) this.updateMaskInstance();
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement) {
+    if (this.maskInstance) this.maskInstance.dispose();
+    this.maskInstance = null;
+  }
 }
 
 const minMaxTypes = [
@@ -615,6 +636,9 @@ Serializer.addClass(
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
       },
+    },
+    {
+      name: "mask"
     },
     {
       name: "step:number",

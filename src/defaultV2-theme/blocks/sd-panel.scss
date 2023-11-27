@@ -5,7 +5,7 @@
 .sd-panel.sd-panel--as-page {
   &>.sd-panel__header.sd-panel__header {
     padding-top: 0;
-    padding-bottom: calcSize(3);
+    padding-bottom: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit});
 
     &:after {
       content: none;
@@ -26,10 +26,27 @@
     .sd-panel__description {
       @include page_description();
     }
+
+    .sd-panel__required-text {
+      display: none;
+    }
+  }
+
+  &>.sd-panel__errbox {
+    margin: 0 0 calcSize(2) 0;
+    padding: calc(0.5 * var(--sd-base-vertical-padding) + #{$base-unit}) var(--sd-base-padding);
   }
 
   &>.sd-panel__content {
     padding-top: 0;
+  }
+}
+
+.sd-root--compact {
+  .sd-panel--as-page {
+    &>.sd-panel__errbox {
+      margin: 0 0 var(--sd-base-vertical-padding) 0;
+    }
   }
 }
 

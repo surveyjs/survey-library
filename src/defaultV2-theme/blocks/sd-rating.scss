@@ -24,6 +24,7 @@
   &.sd-rating--wrappable {
     fieldset {
       flex-wrap: wrap;
+      min-width: 0;
     }
   }
 }
@@ -318,9 +319,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
-.sd-rating__item .sd-rating__item-text {
-  margin: 0 2px;
-}
 .sd-rating__item-text.sd-rating__item-text {
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
@@ -328,12 +326,13 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
+  border: 2px solid transparent;
+    box-sizing: border-box;
 
   &.sd-rating__min-text,
   &.sd-rating__max-text {
     margin-top: calcSize(1.25);
     margin-bottom: calcSize(1.25);
-    border: 2px solid transparent;
     color: $font-questiondescription-color;
   }
 
@@ -356,13 +355,23 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     min-width: calcSize(3);
   }
 }
+.sd-rating--wrappable .sd-rating__item-text {
+  max-width: 100%;
+
+  .sv-string-viewer {
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: block
+  }
+}
 .sd-rating__item:focus-within .sd-rating__item-text.sd-rating__item-text {
-  margin: 0;
+  border: none;
 }
 .sd-rating__item--selected .sd-rating__item-text.sd-rating__item-text {
   color: $primary-foreground;
   font-weight: inherit;
-  margin: 0;
+  border: none;
 }
 
 .sd-rating-dropdown-item {

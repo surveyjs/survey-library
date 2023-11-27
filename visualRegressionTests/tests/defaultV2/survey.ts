@@ -244,6 +244,18 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
+  test("Check survey with progress top and TOC", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.showTOC = true;
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-top-and-toc.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+    });
+  });
 
   const testedPages = [{
     name: "page1",

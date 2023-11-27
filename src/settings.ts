@@ -5,6 +5,9 @@ export type ISurveyEnvironment = {
   root: Document | ShadowRoot,
   rootElement: HTMLElement | ShadowRoot,
   popupMountContainer: HTMLElement | string,
+  /**
+   * @deprecated
+   */
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
 }

@@ -3542,7 +3542,7 @@ export class SurveyModel extends SurveyElementCore
     document.cookie = this.cookieName + "=;";
   }
   /**
-   * This property is obolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
+   * This property is obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
    */
   public get ignoreValidation(): boolean { return !this.validationEnabled; }
   public set ignoreValidation(val: boolean) { this.validationEnabled = !val; }

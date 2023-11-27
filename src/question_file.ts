@@ -51,6 +51,9 @@ export class QuestionFileModelBase extends Question {
     this.onStateChanged.fire(this, { state: state });
     this.onUploadStateChanged.fire(this, { state: state });
   }
+  public get showLoadingIndicator(): boolean {
+    return this.isUploading && this.isDefaultV2Theme;
+  }
   /**
    * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
    *
@@ -74,6 +77,15 @@ export class QuestionFileModelBase extends Question {
     this.setPropertyValue("waitForUpload", val);
   }
 
+  public clearValue(): void {
+    this.clearOnDeletingContainer();
+    super.clearValue();
+  }
+  public clearOnDeletingContainer() {
+    if (!this.survey) return;
+    this.survey.clearFiles(this, this.name, this.value, null, () => { });
+  }
+
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
@@ -90,24 +102,17 @@ export class QuestionFileModelBase extends Question {
   }
   protected uploadFiles(files: File[]) {
     if (this.survey) {
+      this.stateChanged("loading");
       this.survey.uploadFiles(this, this.name, files, (arg1: any, arg2: any) => {
         if (Array.isArray(arg1)) {
-          this.value = (this.value || []).concat(
-            arg1.map((r: any) => {
-              return this.uploadResultItemToValue(r);
-            })
-          );
+          this.setValueFromResult(arg1);
           if (Array.isArray(arg2)) {
             arg2.forEach(error => this.errors.push(new UploadingFileError(error, this)));
             this.stateChanged("error");
           }
         }
         if (arg1 === "success" && Array.isArray(arg2)) {
-          this.value = (this.value || []).concat(
-            arg2.map((r: any) => {
-              return this.uploadResultItemToValue(r);
-            })
-          );
+          this.setValueFromResult(arg2);
         }
         if (arg1 === "error") {
           if (typeof (arg2) === "string") {
@@ -388,14 +393,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public getType(): string {
     return "file";
   }
-  public clearValue(): void {
-    this.clearOnDeletingContainer();
-    super.clearValue();
-  }
-  public clearOnDeletingContainer() {
-    if (!this.survey) return;
-    this.survey.clearFiles(this, this.name, this.value, null, () => { });
-  }
   /**
    * Disable this property only to implement a custom preview.
    *
@@ -608,9 +605,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
     const showLoadingIndicator = this.showLoadingIndicator;
     return !isPlayingVideo && !showLoadingIndicator;
   }
-  public get showLoadingIndicator(): boolean {
-    return this.isUploading && this.isDefaultV2Theme;
-  }
   public get allowShowPreview(): boolean {
     const isShowLoadingIndicator = this.showLoadingIndicator;
     const isPlayingVideo = this.isPlayingVideo;
@@ -664,12 +658,16 @@ export class QuestionFileModel extends QuestionFileModelBase {
     );
   }
 
-  protected uploadResultItemToValue(r: any) {
-    return {
-      name: r.file.name,
-      type: r.file.type,
-      content: r.content,
-    };
+  protected setValueFromResult(arg: any) {
+    this.value = (this.value || []).concat(
+      arg.map((r: any) => {
+        return {
+          name: r.file.name,
+          type: r.file.type,
+          content: r.content,
+        };
+      })
+    );
   }
   /**
    * Loads multiple files into the question.

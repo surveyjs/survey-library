@@ -34,6 +34,12 @@
         ></sv-svg-icon>
       </button>
     </div>
+    <div
+        :class="question.cssClasses.loadingIndicator"
+        v-if="question.showLoadingIndicator"
+      >
+      <sv-loading-indicator></sv-loading-indicator>
+    </div>
   </div>
 </template>
 

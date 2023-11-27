@@ -20,4 +20,9 @@
       [size]="'auto'" sv-ng-svg-icon></svg>
   </button>
 </div>
+<ng-container *ngIf="model.showLoadingIndicator">
+  <div [class]="model.cssClasses.loadingIndicator">
+    <sv-ng-loading-indicator></sv-ng-loading-indicator>
+  </div>
+</ng-container>
 </div>

@@ -17,6 +17,7 @@ var defaultHeight = 200;
  */
 export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ defaultValue: false }) isDrawingValue: boolean;
+  @property({ defaultValue: false }) isReadyForUpload: boolean;
 
   private getPenColorFromTheme(): string {
     const _survey = this.survey as SurveyModel;
@@ -78,7 +79,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   private canvas: any;
   private scale: number;
   private valueIsUpdatingInternally: boolean = false;
-  private valueWasChangedFromLastUpload: boolean = false;
+  @property({ defaultValue: false }) valueWasChangedFromLastUpload: boolean;
 
   private resizeCanvas() {
     this.canvas.width = this.containerWidth;
@@ -118,6 +119,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     if (!this.value) {
       this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
       this.signaturePad.clear();
+      this.valueWasChangedFromLastUpload = false;
     } else {
       if(this.storeDataAsText) {
         this.fromDataUrl(this.value);
@@ -274,7 +276,9 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.setPropertyValue("allowClear", val);
   }
   public get canShowClearButton(): boolean {
-    return !this.isInputReadOnly && this.allowClear;
+    const hasSignature = !this.nothingIsDrawn();
+    const isUploading = this.isUploading;
+    return !this.isInputReadOnly && this.allowClear && hasSignature && !isUploading;
   }
   /**
    * Specifies a color for the pen.
@@ -331,11 +335,16 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    */
   @property({}) showPlaceholder: boolean;
 
-  public needShowPlaceholder(): boolean {
-    const showPlaceholder = this.showPlaceholder;
+  public nothingIsDrawn(): boolean {
     const isDrawing = this.isDrawingValue;
     const isEmpty = this.isEmpty();
-    return showPlaceholder && !isDrawing && isEmpty;
+    const isUploading = this.isUploading;
+    const valueWasChangedFromLastUpload = this.valueWasChangedFromLastUpload;
+    return !isDrawing && isEmpty && !isUploading && !valueWasChangedFromLastUpload;
+  }
+
+  public needShowPlaceholder(): boolean {
+    return this.showPlaceholder && this.nothingIsDrawn();
   }
   /**
    * A placeholder for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
@@ -343,17 +352,29 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
   public onBlur(): void {
-    if (!this.storeDataAsText && this.valueWasChangedFromLastUpload) {
-      this.valueWasChangedFromLastUpload = false;
-      this.canvas.toBlob((blob: Blob) => {
-        this.uploadFiles([new File([blob], this.name + "." + correctFormatData(this.dataFormat), { type: this.getFormat() })]);
-      }, this.dataFormat);
+    if (!this.storeDataAsText) {
+      setTimeout(() => {
+        if (!this.valueWasChangedFromLastUpload) return;
+        this.canvas.toBlob((blob: Blob) => {
+          this.uploadFiles([new File([blob], this.name + "." + correctFormatData(this.dataFormat), { type: this.getFormat() })]);
+          this.valueWasChangedFromLastUpload = false;
+        }, this.dataFormat);
+      }, 100);
     }
   }
   protected uploadResultItemToValue(r: any) {
     return r.content;
   }
-
+  protected setValueFromResult(arg: any) {
+    this.valueIsUpdatingInternally = true;
+    this.value = arg?.length ? arg.map((r: any) => r.content)[0] : undefined;
+    this.valueIsUpdatingInternally = false;
+  }
+  public clearValue(): void {
+    this.valueWasChangedFromLastUpload = false;
+    super.clearValue();
+    this.refreshCanvas();
+  }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     //todo: need to remove this code

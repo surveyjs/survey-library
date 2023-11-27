@@ -3,6 +3,7 @@ import { SurveyQuestionElementBase } from "./reactquestion_element";
 import { QuestionSignaturePadModel } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
+import { LoadingIndicatorComponent } from "./components/loading-indicator";
 
 export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -14,6 +15,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
   }
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
+    const loadingIndicator = this.question.showLoadingIndicator ? this.renderLoadingIndicator() : null;
     var clearButton = this.renderCleanButton();
     return (
       <div className={cssClasses.root} ref={(root) => (this.setControl(root))} style={{ width: this.question.renderedCanvasWidth }}>
@@ -28,6 +30,7 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
           <canvas tabIndex={0} className={this.question.cssClasses.canvas}></canvas>
         </div>
         {clearButton}
+        {loadingIndicator}
       </div>
     );
   }
@@ -36,6 +39,9 @@ export class SurveyQuestionSignaturePad extends SurveyQuestionElementBase {
     if(!this.question.backgroundImage) return null;
 
     return <img className={this.question.cssClasses.backgroundImage} src={this.question.backgroundImage} style={{ width: this.question.renderedCanvasWidth }}></img>;
+  }
+  protected renderLoadingIndicator(): JSX.Element {
+    return <div className={this.question.cssClasses.loadingIndicator}><LoadingIndicatorComponent></LoadingIndicatorComponent></div>;
   }
 
   renderCleanButton(): JSX.Element | null {

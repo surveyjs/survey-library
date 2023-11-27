@@ -5092,7 +5092,7 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   public clearFiles(
-    question: QuestionFileModel,
+    question: QuestionFileModel | QuestionSignaturePadModel,
     name: string,
     value: any,
     fileName: string,

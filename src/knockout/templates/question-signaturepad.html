@@ -23,5 +23,11 @@
             </button>
         </div>
         <!-- /ko -->
+        <!-- ko if: question.showLoadingIndicator -->
+        <div data-bind="css: question.cssClasses.loadingIndicator">
+        <!-- ko component: { name: "sv-loading-indicator" } -->
+        <!-- /ko -->
+        </div>
+        <!-- /ko -->
     </div>
 </script>

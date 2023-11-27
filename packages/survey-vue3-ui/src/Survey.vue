@@ -33,7 +33,7 @@
                 :needRenderWrapper="true"
               ></component>
               <div class="sv-components-column sv-components-column--expandable">
-                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'center'"></component>
+                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'center'" :needRenderWrapper="true"></component>
                 <div
                   :class="vueSurvey.bodyCss"
                   :style="{ maxWidth: vueSurvey.renderedWidth }"

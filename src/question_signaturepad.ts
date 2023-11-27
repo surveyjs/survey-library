@@ -105,11 +105,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
 
   private fromUrl(url: string) {
     const img = document.createElement("img");
+    img.crossOrigin = "anonymous";
+    img.src = url;
     img.onload = ()=>{
       const ctx = this.canvas.getContext("2d");
       ctx.drawImage(img, 0, 0);
       var dataURL = this.canvas.toDataURL(this.getFormat());
-      this.fromDataURL(dataURL);
+      this.fromDataUrl(dataURL);
     };
   }
   private refreshCanvas() {
@@ -118,7 +120,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
       this.signaturePad.clear();
     } else {
       if(this.storeDataAsText) {
-        this.fromDataURL(this.value);
+        this.fromDataUrl(this.value);
       } else {
         this.fromUrl(this.value);
       }
@@ -344,7 +346,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     if (!this.storeDataAsText && this.valueWasChangedFromLastUpload) {
       this.valueWasChangedFromLastUpload = false;
       this.canvas.toBlob((blob: Blob) => {
-        this.uploadFiles([new File([blob], this.name + correctFormatData(this.dataFormat), { type: this.dataFormat })]);
+        this.uploadFiles([new File([blob], this.name + "." + correctFormatData(this.dataFormat), { type: this.getFormat() })]);
       }, this.dataFormat);
     }
   }
@@ -449,6 +451,9 @@ Serializer.addClass(
     },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
+    { name: "storeDataAsText:boolean", default: true },
+    { name: "waitForUpload:boolean", default: false },
+
   ],
   function () {
     return new QuestionSignaturePadModel("");

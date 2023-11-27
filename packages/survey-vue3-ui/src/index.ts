@@ -126,12 +126,15 @@ import FilePreview from "./components/file/FilePreview.vue";
 import ButtonGroup from "./buttongroup/ButtonGroup.vue";
 import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
 import Logo from "./Logo.vue";
+import SvgBundle from "./SvgBundle.vue";
+
 export { useBase, useLocString, useQuestion } from "./base";
 
 SurveyModel.platform = "vue3";
 
 function registerComponents(app: App) {
   app.component("SurveyComponent", SurveyVue);
+  app.component("sv-svg-bundle", SvgBundle);
   app.component("PopupSurveyComponent", PopupSurvey);
   app.component("survey", SurveyVue);
   app.component("popup-survey", PopupSurvey);

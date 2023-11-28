@@ -2290,7 +2290,7 @@ export class Question extends SurveyElement<Question>
         this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
       });
     } else {
-      this.updateValueFromSurveyCore(newValue, isEmpty);
+      this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
     }
     this.updateDependedQuestions();
     this.updateIsAnswered();

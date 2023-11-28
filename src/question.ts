@@ -1656,6 +1656,8 @@ export class Question extends SurveyElement<Question>
   /**
    * An expression used to calculate the [defaultValue](https://surveyjs.io/form-library/documentation/question#defaultValue).
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/specify-default-question-value-dynamically (linkStyle)
+   *
    * This expression applies until the question [value](https://surveyjs.io/form-library/documentation/question#value) is specified by an end user or programmatically.
    *
    * An expression can reference other questions as follows:

@@ -43,7 +43,7 @@ registerMarkupTests(
       },
       initSurvey: (survey) => {
         let q1 = survey.getQuestionByName("q1");
-        q1.stateChanged("loading");
+        q1["stateChanged"]("loading");
       },
       before: () => StylesManager.applyTheme("defaultV2"),
       after: () => StylesManager.applyTheme("default"),

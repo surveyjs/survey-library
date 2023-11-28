@@ -21,7 +21,7 @@
           width: question.renderedCanvasWidth,
         }"
       />
-      <canvas tabindex="0" :class="question.cssClasses.canvas"></canvas>
+      <canvas tabindex="0" :class="question.cssClasses.canvas" @blur="question.onBlur()"></canvas>
     </div>
     <div
       :class="question.cssClasses.controls"

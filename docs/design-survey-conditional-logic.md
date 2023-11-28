@@ -339,7 +339,7 @@ Returns the sum of passed numbers.
 
 *Example*: `"expression": "sum({total1}, {total2})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L73-L82 (linkStyle))
 
 ---
 

@@ -1442,5 +1442,26 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
+
+  test("Check survey logo right with empty title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg",
+        "logoPosition": "right",
+        "elements": [
+          {
+            "type": "text",
+            "name": "FirstName",
+            "title": "Enter your first name:"
+          },
+        ],
+        "widthMode": "responsive"
+      };
+
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-logo-right-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
 });
 

@@ -17,6 +17,10 @@
   gap: calcSize(4);
   box-shadow: 0px 2px 0px $primary;
 
+  .sd-logo.sv-logo--right {
+    margin-left: auto;
+  }
+
   .sd-logo__image {
     margin-top: calcSize(1);
   }

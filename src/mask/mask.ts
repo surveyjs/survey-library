@@ -1,4 +1,4 @@
-import { checkValueByPattern, getMaskedValueByPattern, getUnmaskedValueByPattern } from "./mask_utils";
+import { processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern } from "./mask_utils";
 
 export class InputMaskBase {
   private _prevSelectionStart: number;
@@ -9,29 +9,22 @@ export class InputMaskBase {
 
   applyValue(mask: string) {
     if(!!this.input) {
-      const value = getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
-      this.input.value = value.text;
+      this.input.value = getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
     }
   }
   updateMaskedString(mask: string): void {
     if(!!this.input) {
-      const prevSelectionStart = this.input.selectionStart;
-      const value = getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
-      // this.input.value = value.text;
-      this.input.value = checkValueByPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
-      // this.input.setSelectionRange(value.cursorPosition, value.cursorPosition);
-      this.input.setSelectionRange(prevSelectionStart, prevSelectionStart);
+      const result = processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
+      this.input.value = result.text;
+      this.input.setSelectionRange(result.cursorPosition, result.cursorPosition);
     }
   }
 
   keydownHandler = (event: any) => {
-    console.log("key - " + event.key + ", code - " + event.code + ", selectionStart - " + event.target.selectionStart);
     this._prevSelectionStart = event.target.selectionStart;
-    // this.updateMaskedString(this.mask);
   };
 
   inputHandler = (event: any) => {
-    console.log("data - " + event.data + ", selectionStart - " + event.target.selectionStart);
     this.updateMaskedString(this.mask);
   };
   public addInputEventListener(): void {

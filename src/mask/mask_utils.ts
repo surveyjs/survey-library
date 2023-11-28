@@ -12,23 +12,22 @@ export var settings = {
   }
 };
 
-export function getMaskedValueByPattern(str: string, pattern: string,): IMaskedValue {
-  let result: IMaskedValue = <IMaskedValue>{ text: "", cursorPosition: -1 };
+export function getMaskedValueByPattern(str: string, pattern: string, matchWholeMask = true): string {
+  let result = "";
   let strIndex = 0;
   for(let maskIndex = 0; maskIndex < pattern.length; maskIndex++) {
     const currentDefinition = settings.definitions[pattern[maskIndex]];
     if(currentDefinition) {
       if(strIndex < str.length && str[strIndex].match(currentDefinition)) {
-        result.text += str[strIndex];
+        result += str[strIndex];
+      } else if(matchWholeMask) {
+        result += settings.placeholderChar;
       } else {
-        result.text += settings.placeholderChar;
-        if(result.cursorPosition === -1) {
-          result.cursorPosition = maskIndex;
-        }
+        break;
       }
       strIndex++;
     } else {
-      result.text += pattern[maskIndex];
+      result += pattern[maskIndex];
     }
   }
   return result;
@@ -54,19 +53,22 @@ export function getUnmaskedValueByPattern(str: string, pattern: string, matchWho
   return result;
 }
 
-export function checkValueByPattern(str: string, pattern: string, prevСursorPosition: number, currentCursorPosition: number): string {
+export function processValueWithPattern(str: string, pattern: string, prevСursorPosition: number, currentCursorPosition: number): IMaskedValue {
   let result = "";
-  if(!str) return result;
+  if(!str) return <IMaskedValue>{ text: result, cursorPosition: currentCursorPosition };
   let leftPartResult = "";
   let rigthPartResult = "";
   let centerPart = "";
+  let newCursorPosition = currentCursorPosition;
 
   const leftPartRange = Math.min(prevСursorPosition, currentCursorPosition, pattern.length - 1);
   leftPartResult = getUnmaskedValueByPattern(str.substring(0, leftPartRange), pattern.substring(0, leftPartRange), false);
   rigthPartResult = getUnmaskedValueByPattern(str.substring(currentCursorPosition), pattern.substring(prevСursorPosition), false);
   if(currentCursorPosition > prevСursorPosition) {
     centerPart = getUnmaskedValueByPattern(str.substring(leftPartRange, currentCursorPosition), pattern.substring(leftPartRange), false);
+    newCursorPosition = getMaskedValueByPattern(leftPartResult + centerPart, pattern, false).length;
+
   }
-  result = getMaskedValueByPattern(leftPartResult + centerPart + rigthPartResult, pattern).text;
-  return result;
+  result = getMaskedValueByPattern(leftPartResult + centerPart + rigthPartResult, pattern);
+  return <IMaskedValue>{ text: result, cursorPosition: newCursorPosition };
 }

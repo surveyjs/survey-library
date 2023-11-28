@@ -355,10 +355,10 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     if (!this.storeDataAsText) {
       setTimeout(() => {
         if (!this.valueWasChangedFromLastUpload) return;
-        this.canvas.toBlob((blob: Blob) => {
+        fetch(this.signaturePad.toDataURL(this.getFormat())).then(res => res.blob()).then((blob: Blob) => {
           this.uploadFiles([new File([blob], this.name + "." + correctFormatData(this.dataFormat), { type: this.getFormat() })]);
           this.valueWasChangedFromLastUpload = false;
-        }, this.getFormat());
+        });
       }, 100);
     }
   }

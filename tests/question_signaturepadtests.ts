@@ -311,11 +311,19 @@ QUnit.test("check showPlaceholder & placeholder properties", (assert) => {
   };
   let survey = new SurveyModel(json);
   let question = <QuestionSignaturePadModel>survey.getAllQuestions()[0];
-  assert.ok(question.needShowPlaceholder());
+  assert.ok(question.needShowPlaceholder(), "#0");
   assert.equal(question.locPlaceholder.renderedHtml, "Sign here");
 
+  question.valueWasChangedFromLastUpload = true;
+  assert.equal(question.needShowPlaceholder(), false, "#1");
+  question.valueWasChangedFromLastUpload = false;
+  assert.equal(question.needShowPlaceholder(), true), "#2";
+
+  question.value = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E";
+  assert.equal(question.needShowPlaceholder(), false, "#3");
+
   question.showPlaceholder = false;
-  assert.notOk(question.needShowPlaceholder());
+  assert.notOk(question.needShowPlaceholder(), "#4");
   question.placeholder = "test sign";
   assert.equal(question.locPlaceholder.renderedHtml, "test sign");
 
@@ -417,7 +425,7 @@ QUnit.test("Question Signature upload files", function (assert) {
   const el = document.createElement("div");
   el.append(document.createElement("canvas"));
   q1.afterRenderQuestionElement(el);
-  q1["signaturePad"].fromDataURL("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E");
+  q1["signaturePad"].fromData([{ "penColor": "rgba(25, 179, 148, 1)", "dotSize": 0, "minWidth": 0.5, "maxWidth": 2.5, "velocityFilterWeight": 0.7, "compositeOperation": "source-over", "points": [{ "time": 1701152337021, "x": 9, "y": 11, "pressure": 0.5 }] }, { "penColor": "rgba(25, 179, 148, 1)", "dotSize": 0, "minWidth": 0.5, "maxWidth": 2.5, "velocityFilterWeight": 0.7, "compositeOperation": "source-over", "points": [{ "time": 1701152337856, "x": 15, "y": 18, "pressure": 0.5 }] }]);
   q1.valueWasChangedFromLastUpload = true;
   q1.onBlur();
 
@@ -426,7 +434,7 @@ QUnit.test("Question Signature upload files", function (assert) {
 
     assert.equal(fileType, "image/svg+xml");
     assert.equal(fileName, "signature.svg");
-    //assert.equal(fileContent, "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' height='100' width='100'%3E%3Ccircle cx='50' cy='50' r='40' /%3E%3C/svg%3E");
+    assert.equal(fileContent, "data:image/svg+xml;base64," + btoa('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 300 200" width="300" height="200"><circle r="1.5" cx="9" cy="11" fill="rgba(25, 179, 148, 1)"></circle><circle r="1.5" cx="15" cy="18" fill="rgba(25, 179, 148, 1)"></circle></svg>'));
     done();
   });
 });

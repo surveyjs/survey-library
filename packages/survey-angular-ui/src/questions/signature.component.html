@@ -6,7 +6,7 @@
   <img *ngIf="!!model.backgroundImage" [src]="model.backgroundImage" [style.width]="model.renderedCanvasWidth" [class]="model.cssClasses.backgroundImage">
   <canvas tabindex="0" [class]="model.cssClasses.canvas" (blur)="model.onBlur()"></canvas>
 </div>
-<div [class]="model.cssClasses.controls" [visible]="model.canShowClearButton">
+<div [class]="model.cssClasses.controls" *ngIf="model.canShowClearButton">
   <button
     type="button"
     [class]="model.cssClasses.clearButton"

@@ -482,18 +482,65 @@ QUnit.test("Do not run triggers in display mode", function (assert) {
   assert.equal(survey.state, "running", "survey is running");
   assert.equal(survey.getValue("question3"), undefined, "question3 value is not set");
 });
-QUnit.test("Do not show errors if survey.ignoreValidation = true", function (
+QUnit.test("Do not show errors if ignoreValidation = true", function (
   assert
 ) {
-  var survey = twoPageSimplestSurvey();
-
-  (<Question>survey.pages[0].questions[0]).isRequired = true;
-  (<Question>survey.pages[1].questions[0]).isRequired = true;
+  const survey = twoPageSimplestSurvey();
+  const q1 = survey.pages[0].questions[0];
+  q1.isRequired = true;
+  survey.pages[1].questions[0].isRequired = true;
+  assert.equal(survey.validationEnabled, true, "validationEnabled #1");
+  assert.equal(survey.ignoreValidation, false, "ignoreValidation #1");
   survey.ignoreValidation = true;
+  assert.equal(survey.validationEnabled, false, "validationEnabled #2");
+  assert.equal(survey.ignoreValidation, true, "ignoreValidation #2");
+  survey.validationEnabled = true;
+  assert.equal(survey.validationEnabled, true, "validationEnabled #3");
+  assert.equal(survey.ignoreValidation, false, "ignoreValidation #3");
+  survey.validationEnabled = false;
+  assert.equal(survey.validationEnabled, false, "validationEnabled #4");
+  assert.equal(survey.ignoreValidation, true, "ignoreValidation #4");
+
+  survey.nextPage();
+  assert.equal(q1.errors.length, 0, "There is a required error");
+  assert.equal(survey.currentPageNo, 1, "Can move into another page");
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed", "Can complete survey with erros");
+});
+QUnit.test("Show error, but allow to navigate if validationAllowSwitchPages = true and validationAllowComplete=true", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    pages: [
+      { elements: [{ type: "text", name: "q1", inputType: "number", max: 10 }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  survey.validationAllowSwitchPages = true;
+  survey.validationAllowComplete = true;
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 12;
+  assert.equal(q1.errors.length, 1, "There is an error");
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
   survey.completeLastPage();
   assert.equal(survey.state, "completed", "Can complete survey with erros");
+});
+QUnit.test("Show error, but allow to navigate if survey.validationAllowSwitchPages = true", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    pages: [
+      { elements: [{ type: "text", name: "q1", inputType: "number", max: 10 }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  survey.validationAllowSwitchPages = true;
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 12;
+  assert.equal(q1.errors.length, 1, "There is an error");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "Can move into another page");
+  survey.completeLastPage();
+  assert.equal(survey.currentPageNo, 0, "Move to the first page");
 });
 QUnit.test("Check pages state on onValueChanged event", function (assert) {
   var survey = new SurveyModel({

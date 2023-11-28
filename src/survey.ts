@@ -1530,7 +1530,8 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to hide validation errors thrown by the Required validation in the UI.
    *
    * [Built-In Client-Side Validators](https://surveyjs.io/form-library/documentation/data-validation#built-in-client-side-validators (linkStyle))
-   * @see ignoreValidation
+   * @see validationEnabled
+   * @see validationAllowSwitchPages
    */
   public hideRequiredErrors: boolean = false;
   beforeSettingQuestionErrors(
@@ -1647,6 +1648,10 @@ export class SurveyModel extends SurveyElementCore
    * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
    *
    * Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
+   * @see validationEnabled
+   * @see validationAllowSwitchPages
+   * @see validationAllowComplete
+   * @see validate
    */
   public get checkErrorsMode(): string {
     return this.getPropertyValue("checkErrorsMode");
@@ -3537,15 +3542,32 @@ export class SurveyModel extends SurveyElementCore
     document.cookie = this.cookieName + "=;";
   }
   /**
-   * Specifies whether to skip validation when you switch between pages or complete the survey programmatically or when users do that in the UI.
+   * This property is obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
+   */
+  public get ignoreValidation(): boolean { return !this.validationEnabled; }
+  public set ignoreValidation(val: boolean) { this.validationEnabled = !val; }
+  /**
+   * Specifies whether data validation is enabled.
+   *
+   * Default value: `true`
+   * @see checkErrorsMode
+   * @see hideRequiredErrors
+   */
+  public validationEnabled: boolean = true;
+  /**
+   * Specifies whether respondents can switch the current page even if it contains validation errors.
    *
    * Default value: `false`
-   * @see hideRequiredErrors
-   * @see nextPage
-   * @see isPrevPage
-   * @see completeLastPage
+   * @see checkErrorsMode
    */
-  public ignoreValidation: boolean = false;
+  public validationAllowSwitchPages: boolean = false;
+  /**
+   * Specifies whether respondents can end a survey with validation errors.
+   *
+   * Default value: `false`
+   * @see checkErrorsMode
+   */
+  public validationAllowComplete: boolean = false;
   /**
    * Switches the survey to the next page.
    *
@@ -3560,17 +3582,18 @@ export class SurveyModel extends SurveyElementCore
     return this.doCurrentPageComplete(false);
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
-    if (this.ignoreValidation || !this.isEditMode) return false;
-    var func = (hasErrors: boolean) => {
-      if (!hasErrors) {
+    if (!this.isEditMode || this.ignoreValidation) return false;
+    const skipValidation = doComplete && this.validationAllowComplete || !doComplete && this.validationAllowSwitchPages;
+    const func = (hasErrors: boolean) => {
+      if (!hasErrors || skipValidation) {
         this.doCurrentPageCompleteCore(doComplete);
       }
     };
     if (this.isValidateOnComplete) {
       if (!this.isLastPage) return false;
-      return this.validate(true, true, func) !== true;
+      return this.validate(true, true, func) !== true && !skipValidation;
     }
-    return this.validateCurrentPage(func) !== true;
+    return this.validateCurrentPage(func) !== true && !skipValidation;
   }
   private asyncValidationQuesitons: Array<Question>;
   private checkForAsyncQuestionValidation(
@@ -4845,7 +4868,7 @@ export class SurveyModel extends SurveyElementCore
     return this.checkErrorsMode === "onValueChanged";
   }
   private get isValidateOnComplete(): boolean {
-    return this.checkErrorsMode === "onComplete";
+    return this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages && !this.validationAllowComplete;
   }
   matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;

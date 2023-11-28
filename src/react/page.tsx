@@ -3,6 +3,7 @@ import { PageModel, PanelModelBase } from "survey-core";
 import { SurveyElementBase } from "./reactquestion_element";
 import { SurveyPanelBase } from "./panel-base";
 import { TitleElement } from "./components/title/title-element";
+import { SurveyElementErrors } from "./reactquestion";
 
 export class SurveyPage extends SurveyPanelBase {
   constructor(props: any) {
@@ -18,10 +19,18 @@ export class SurveyPage extends SurveyPanelBase {
     var title = this.renderTitle();
     var description = this.renderDescription();
     var rows = this.renderRows(this.panelBase.cssClasses);
+    const errors = (
+      <SurveyElementErrors
+        element={this.panelBase}
+        cssClasses={this.panelBase.cssClasses}
+        creator={this.creator}
+      />
+    );
     return (
       <div ref={this.rootRef} className={this.page.cssRoot}>
         {title}
         {description}
+        {errors}
         {rows}
       </div >
     );

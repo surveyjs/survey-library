@@ -1081,9 +1081,9 @@ export class Question extends SurveyElement<Question>
   protected getCssError(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.error.root)
-      .append(cssClasses.error.outsideQuestion, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
-      .append(cssClasses.error.belowQuestion, this.showErrorsBelowQuestion)
-      .append(cssClasses.error.aboveQuestion, this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainer, this.showErrorsBelowQuestion || this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainerTop, this.showErrorsAboveQuestion)
+      .append(cssClasses.errorsContainerBottom, this.showErrorsBelowQuestion)
       .append(cssClasses.error.locationTop, this.showErrorOnTop)
       .append(cssClasses.error.locationBottom, this.showErrorOnBottom)
       .toString();
@@ -1665,6 +1665,8 @@ export class Question extends SurveyElement<Question>
    * - `{row.other_question_name}` (to access questions inside the same dynamic matrix or multi-column dropdown)
    *
    * An expression can also include built-in and custom functions for advanced calculations. For example, if the `defaultValue` should be today's date, set the `defaultValueExpression` to `"today()"`, and the corresponding built-in function will be executed each time the survey is loaded. Refer to the following help topic for more information: [Built-In Functions](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#built-in-functions).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/specify-default-question-value-dynamically (linkStyle))
    * @see defaultValue
    * @see setValueExpression
    */
@@ -2290,7 +2292,7 @@ export class Question extends SurveyElement<Question>
         this.updateValueFromSurveyCore(newValue, this.isTwoValueEquals(newValue, val));
       });
     } else {
-      this.updateValueFromSurveyCore(newValue, isEmpty);
+      this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
     }
     this.updateDependedQuestions();
     this.updateIsAnswered();

@@ -178,6 +178,45 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check rating question - long items, button mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "rating",
+                "name": "question1",
+                "autoGenerate": false,
+                "displayMode": "buttons",
+                "rateValues": [
+                  1,
+                  {
+                    "value": 2,
+                    "text": "item 2"
+                  },
+                  {
+                    "value": 3,
+                    "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                  },
+                  4,
+                  5
+                ]
+              }
+            ]
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("question-rating-long-items-buttons.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Check big rating in panel", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1000, 1080);
@@ -516,6 +555,38 @@ frameworks.forEach(framework => {
       const questionRoot = Selector(".sd-question");
       await focusBody();
       await takeElementScreenshot("question-rating-smileys-scale-colored-theme", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check rating inner shadow", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => { document.body.focus(); });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        width: "900px",
+        questions: [
+          {
+            type: "rating",
+            name: "q1"
+          }
+        ]
+      });
+
+      await ClientFunction(() => {
+        const themeJson = {
+          "cssVariables": {
+            "--sjs-shadow-small": "inset 0px 2px 0px 0px rgba(0, 0, 0, 1)",
+          },
+          "isPanelless": false
+        };
+        window["survey"].applyTheme(themeJson);
+      })();
+
+      const questionRoot = Selector(".sd-rating");
+      await focusBody();
+      await takeElementScreenshot("rating-inner-shadow", questionRoot, t, comparer);
     });
   });
 

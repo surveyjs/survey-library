@@ -461,12 +461,12 @@ QUnit.test("dropdown keyboard tests", function (assert) {
   assert.equal(question.value, undefined, "value not changed on Escape");
   assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible on Escape");
 
-  event.keyCode = 13;
+  event.keyCode = 40;
   dropdownListModel.keyHandler(event);
-  assert.equal(dropdownListModel.inputString, "", "inputString still empty on first Enter");
-  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on first Enter");
-  assert.equal(question.value, undefined, "value not changed on first Enter");
-  assert.ok(dropdownListModel.popupModel.isVisible, "popup shown on first Enter");
+  assert.equal(dropdownListModel.inputString, "", "inputString still empty on keydown");
+  assert.equal(dropdownListModel.hintString, "item1", "hintString changed on keydown");
+  assert.equal(question.value, undefined, "value not changed on keydown");
+  assert.ok(dropdownListModel.popupModel.isVisible, "popup shown on keydown");
 
   event.keyCode = 13;
   dropdownListModel.keyHandler(event);
@@ -525,7 +525,7 @@ QUnit.test("dropdown incorrect popup open test", function (assert) {
   event.keyCode = 13;
   dropdownListModel.keyHandler(event);
   assert.equal(dropdownListModel.inputString, "item22", "inputString is item22 on Enter again");
-  assert.ok(dropdownListModel.popupModel.isVisible, "popup is visible");
+  assert.notOk(dropdownListModel.popupModel.isVisible, "popup is not visible 2");
 });
 
 QUnit.test("dropdown incorrect popup open test: lazy load", function (assert) {
@@ -835,7 +835,7 @@ QUnit.test("lazy loading clear value", function (assert) {
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
   const dropdownListModel = question.dropdownListModel;
   assert.equal(question.showSelectedItemLocText, true, "showSelectedItemLocText");
-  event.keyCode = 13;
+  event.keyCode = 40;
   dropdownListModel.keyHandler(event);
 
   assert.equal(dropdownListModel.inputStringRendered, "France", "inputString");

@@ -49,6 +49,30 @@ QUnit.test("get unmasked invalid value, matchWholeMask is false", function(asser
   assert.equal(getUnmaskedValueByPattern("+1(234)-567-__-10", mask, false), "1234567");
 });
 
+QUnit.only("edit value - type", function(assert) {
+  const pattern = "+1(999)-999-99-99";
+  assert.equal(checkValueByPattern("+1(3___)-___-__-__", pattern, 3, 4), "+1(3__)-___-__-__", "type #1");
+  assert.equal(checkValueByPattern("+1(345)-6___-__-__", pattern, 8, 9), "+1(345)-6__-__-__", "type #2");
+  assert.equal(checkValueByPattern("+1(345)-a___-__-__", pattern, 8, 9), "+1(345)-___-__-__", "type #3");
+  assert.equal(checkValueByPattern("+1(345)-9678-10-11", pattern, 8, 9), "+1(345)-967-81-01", "type #4");
+  assert.equal(checkValueByPattern("+1(345)-a678-10-11", pattern, 8, 9), "+1(345)-678-10-11", "type #5");
+  assert.equal(checkValueByPattern("+1(345)-678-10-111", pattern, 17, 18), "+1(345)-678-10-11", "type #6");
+});
+
+QUnit.only("edit value - delete", function(assert) {
+  const pattern = "+1(999)-999-99-99";
+  assert.equal(checkValueByPattern("+1(3_)-___-__-__", pattern, 4, 3), "+1(3__)-___-__-__", "delete #1");
+  assert.equal(checkValueByPattern("+1(345)-__-__-__", pattern, 8, 7), "+1(345)-___-__-__", "delete #2");
+  assert.equal(checkValueByPattern("+1(345)-8_-__-__", pattern, 9, 8), "+1(345)-8__-__-__", "delete #3");
+  assert.equal(checkValueByPattern("+1(345)-91-12-15", pattern, 9, 8), "+1(345)-911-21-5_", "delete #4");
+  assert.equal(checkValueByPattern("+1(345)-891-11-1", pattern, 17, 16), "+1(345)-891-11-1_", "delete #5");
+});
+
+QUnit.only("edit value - insert value", function(assert) {
+  const pattern = "+1(999)-999-99-99";
+  assert.equal(checkValueByPattern("+1(345)-8a_-__-__", pattern, 9, 8), "+1(345)-8__-__-__", "insert value #3");
+});
+
 QUnit.test("update masked value", function(assert) {
   const resultMaskedText = "+1(234)-567-__-__";
   const testInput = document.createElement("input");

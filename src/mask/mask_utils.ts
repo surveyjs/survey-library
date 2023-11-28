@@ -41,7 +41,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string, matchWho
   for(let index = 0; index < pattern.length; index++) {
     const currentDefinition = settings.definitions[pattern[index]];
     if(currentDefinition) {
-      if(str[index].match(currentDefinition)) {
+      if(!!str[index] && str[index].match(currentDefinition)) {
         result += str[index];
       } else if(matchWholeMask) {
         result = "";
@@ -51,5 +51,22 @@ export function getUnmaskedValueByPattern(str: string, pattern: string, matchWho
       }
     }
   }
+  return result;
+}
+
+export function checkValueByPattern(str: string, pattern: string, prevСursorPosition: number, currentCursorPosition: number): string {
+  let result = "";
+  if(!str) return result;
+  let leftPartResult = "";
+  let rigthPartResult = "";
+  let centerPart = "";
+
+  const leftPartRange = Math.min(prevСursorPosition, currentCursorPosition, pattern.length - 1);
+  leftPartResult = getUnmaskedValueByPattern(str.substring(0, leftPartRange), pattern.substring(0, leftPartRange), false);
+  rigthPartResult = getUnmaskedValueByPattern(str.substring(currentCursorPosition), pattern.substring(prevСursorPosition), false);
+  if(currentCursorPosition > prevСursorPosition) {
+    centerPart = getUnmaskedValueByPattern(str.substring(leftPartRange, currentCursorPosition), pattern.substring(leftPartRange), false);
+  }
+  result = getMaskedValueByPattern(leftPartResult + centerPart + rigthPartResult, pattern).text;
   return result;
 }

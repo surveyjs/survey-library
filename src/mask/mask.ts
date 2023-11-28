@@ -18,7 +18,7 @@ export class InputMaskBase {
       const prevSelectionStart = this.input.selectionStart;
       const value = getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
       // this.input.value = value.text;
-      this.input.value = checkValueByPattern(this.input.value, mask, this._prevSelectionStart);
+      this.input.value = checkValueByPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
       // this.input.setSelectionRange(value.cursorPosition, value.cursorPosition);
       this.input.setSelectionRange(prevSelectionStart, prevSelectionStart);
     }

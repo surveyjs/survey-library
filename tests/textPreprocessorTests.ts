@@ -154,7 +154,7 @@ QUnit.test("ProcessValue setValue function - create path", function (assert) {
   processor.setValue(data, "a[0].name", 1);
   assert.deepEqual(
     data,
-    { a: { b: 1 }, b: 1, c: { a: { b: 2 } } },
+    { a: { b: 1 }, "a[0]": { "name": 1 }, b: 1, c: { a: { b: 2 } } },
     "create new object"
   );
   data = { a: { Item1: { c1: 0 }, Item3: { c1: 1 } } };

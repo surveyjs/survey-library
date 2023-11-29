@@ -1,4 +1,5 @@
 import { Serializer } from "../src/jsonobject";
+import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
 import { SurveyModel } from "../src/survey";
@@ -1005,4 +1006,40 @@ QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function
   });
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   assert.equal(matrix.columns.length, 1, "There is one column, it is loaded correctly");
+});
+QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 1,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "dropdown",
+            "choices": ["a", "b"],
+            "choicesMin": 1,
+            "choicesMax": 10
+          }
+        ],
+        detailPanelMode: "underRow",
+        detailElements: [{
+          "name": "q1",
+          "type": "dropdown",
+          "choices": ["a", "b"],
+          "choicesMin": 1,
+          "choicesMax": 10
+        }],
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  const cellQuestion = <QuestionDropdownModel>row.cells[0].question;
+  row.showDetailPanel();
+  const panelQuestion = <QuestionDropdownModel>row.detailPanel.questions[0];
+  assert.equal(panelQuestion.choicesMin, 1, "choicesMin is here");
+  assert.equal(panelQuestion.choicesMax, 10, "choicesMax is here");
+  assert.equal(panelQuestion.visibleChoices.length, 12, "cell question visibleChoices");
 });

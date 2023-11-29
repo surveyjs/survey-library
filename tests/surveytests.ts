@@ -482,18 +482,65 @@ QUnit.test("Do not run triggers in display mode", function (assert) {
   assert.equal(survey.state, "running", "survey is running");
   assert.equal(survey.getValue("question3"), undefined, "question3 value is not set");
 });
-QUnit.test("Do not show errors if survey.ignoreValidation = true", function (
+QUnit.test("Do not show errors if ignoreValidation = true", function (
   assert
 ) {
-  var survey = twoPageSimplestSurvey();
-
-  (<Question>survey.pages[0].questions[0]).isRequired = true;
-  (<Question>survey.pages[1].questions[0]).isRequired = true;
+  const survey = twoPageSimplestSurvey();
+  const q1 = survey.pages[0].questions[0];
+  q1.isRequired = true;
+  survey.pages[1].questions[0].isRequired = true;
+  assert.equal(survey.validationEnabled, true, "validationEnabled #1");
+  assert.equal(survey.ignoreValidation, false, "ignoreValidation #1");
   survey.ignoreValidation = true;
+  assert.equal(survey.validationEnabled, false, "validationEnabled #2");
+  assert.equal(survey.ignoreValidation, true, "ignoreValidation #2");
+  survey.validationEnabled = true;
+  assert.equal(survey.validationEnabled, true, "validationEnabled #3");
+  assert.equal(survey.ignoreValidation, false, "ignoreValidation #3");
+  survey.validationEnabled = false;
+  assert.equal(survey.validationEnabled, false, "validationEnabled #4");
+  assert.equal(survey.ignoreValidation, true, "ignoreValidation #4");
+
+  survey.nextPage();
+  assert.equal(q1.errors.length, 0, "There is a required error");
+  assert.equal(survey.currentPageNo, 1, "Can move into another page");
+  survey.completeLastPage();
+  assert.equal(survey.state, "completed", "Can complete survey with erros");
+});
+QUnit.test("Show error, but allow to navigate if validationAllowSwitchPages = true and validationAllowComplete=true", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    pages: [
+      { elements: [{ type: "text", name: "q1", inputType: "number", max: 10 }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  survey.validationAllowSwitchPages = true;
+  survey.validationAllowComplete = true;
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 12;
+  assert.equal(q1.errors.length, 1, "There is an error");
   survey.nextPage();
   assert.equal(survey.currentPageNo, 1, "Can move into another page");
   survey.completeLastPage();
   assert.equal(survey.state, "completed", "Can complete survey with erros");
+});
+QUnit.test("Show error, but allow to navigate if survey.validationAllowSwitchPages = true", function (assert) {
+  const survey = new SurveyModel({
+    checkErrorsMode: "onValueChanged",
+    pages: [
+      { elements: [{ type: "text", name: "q1", inputType: "number", max: 10 }] },
+      { elements: [{ type: "text", name: "q2" }] }
+    ]
+  });
+  survey.validationAllowSwitchPages = true;
+  const q1 = survey.getQuestionByName("q1");
+  q1.value = 12;
+  assert.equal(q1.errors.length, 1, "There is an error");
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "Can move into another page");
+  survey.completeLastPage();
+  assert.equal(survey.currentPageNo, 0, "Move to the first page");
 });
 QUnit.test("Check pages state on onValueChanged event", function (assert) {
   var survey = new SurveyModel({
@@ -17250,7 +17297,8 @@ QUnit.test("getContainerContent - do not advanced header on completed page", fun
   assert.deepEqual(getContainerContent("header"), [{
     "component": "sv-header",
     "container": "header",
-    "id": "advanced-header"
+    "id": "advanced-header",
+    "index": -100
   }], "header for running survey");
   assert.deepEqual(getContainerContent("footer"), [], "");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
@@ -17458,7 +17506,6 @@ QUnit.test("Use variables as default values in expression", function (assert) {
         title: "myA = {myA}",
         defaultValueExpression: "{myA}",
       },
-
       {
         type: "text",
         name: "q3",
@@ -17571,6 +17618,60 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
+});
+
+QUnit.test("getContainerContent - header elements order", function (assert) {
+  function getContainerContent(container: LayoutElementContainer) {
+    let result = survey.getContainerContent(container);
+    result.forEach(item => {
+      delete item["processResponsiveness"];
+      delete item["data"];
+    });
+    return result;
+  }
+
+  const json = {
+    pages: [
+      {
+        "elements": [
+          {
+            "type": "rating",
+            "name": "satisfaction",
+          },
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  survey.addLayoutElement({
+    id: "custom",
+    container: "header",
+    component: "sv-custom",
+  });
+  survey.applyTheme({ header: {} } as any);
+
+  assert.deepEqual(getContainerContent("header"), [
+    {
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    },
+    {
+      "component": "sv-custom",
+      "container": "header",
+      "id": "custom"
+    }
+  ], "advanved header first, progress next");
 });
 
 QUnit.test("check title classes when readOnly changed", function (assert) {
@@ -18113,7 +18214,7 @@ QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=single
   assert.equal(surveyJson.pages[0].elements.length, 3, "surveyJson elements count");
   assert.equal(prepareJSON.pages[0].elements.length, 3, "prepareJSON elements count");
 
-  assert.deepEqual (surveyJson, prepareJSON);
+  assert.deepEqual(surveyJson, prepareJSON);
 });
 QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=questionPerPage is used #7359, #2", function (assert) {
   const surveyJson = {
@@ -18148,7 +18249,7 @@ QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=questi
   assert.equal(surveyJson.pages[0].elements.length, 3, "surveyJson elements count");
   assert.equal(prepareJSON.pages[0].elements.length, 3, "prepareJSON elements count");
 
-  assert.deepEqual (surveyJson, prepareJSON);
+  assert.deepEqual(surveyJson, prepareJSON);
 });
 
 QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", function (assert) {
@@ -18183,4 +18284,80 @@ QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, 
   panel.expand();
   assert.equal(panel.isCollapsed, false, "panel is not collapsed");
 });
-
+QUnit.test("Expression bug with complex path, #7396", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "Q1.1",
+        columns: [1, 2],
+        rows: [1, 2, 3]
+      },
+      {
+        type: "matrix",
+        name: "Q1.1.16",
+        columns: [1, 2, 3],
+        rows: ["16"]
+      },
+      {
+        type: "text",
+        name: "Q1.1.16.A",
+        visibleIf: "{Q1.1.16.16} anyof [1, 2, 3]"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("Q1.1");
+  const q2 = survey.getQuestionByName("Q1.1.16");
+  const q3 = survey.getQuestionByName("Q1.1.16.A");
+  assert.equal(q3.isVisible, false, "visible #1");
+  q1.value = { "1": 1, "2": 2 };
+  assert.equal(q3.isVisible, false, "visible #2");
+  q2.value = { "16": 2 };
+  assert.equal(q3.isVisible, true, "visible #3");
+});
+QUnit.test("Do not run defaultValueExpression on survey.data, #7423", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        defaultValueExpression: "value1"
+      },
+      {
+        type: "text",
+        name: "q2",
+        defaultValueExpression: "value2"
+      },
+      {
+        type: "checkbox",
+        name: "q3",
+        choices: ["item1", "item2", "item3"],
+        defaultValueExpression: "['item1', 'item3']"
+      },
+      {
+        type: "dropdown",
+        name: "q4",
+        choices: ["item1", "item2", "item3"],
+        defaultValueExpression: "item2"
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  const q3 = survey.getQuestionByName("q3");
+  const q4 = survey.getQuestionByName("q4");
+  assert.equal(q1.value, "value1", "q1.value #1");
+  assert.equal(q2.value, "value2", "q2.value #1");
+  assert.deepEqual(q3.value, ["item1", "item3"], "q3.value #1");
+  assert.equal(q4.value, "item2", "q4.value #1");
+  survey.data = { q1: "val1" };
+  assert.equal(q1.value, "val1", "q1.value #2");
+  assert.notOk(q2.value, "q2.value #2");
+  assert.deepEqual(q3.value, [], "q3.value #2");
+  assert.notOk(q4.value, "q4.value #2");
+  q2.value = "val2";
+  assert.equal(q1.value, "val1", "q1.value #3");
+  assert.equal(q2.value, "val2", "q2.value #3");
+  assert.deepEqual(q3.value, [], "q3.value #3");
+  assert.notOk(q4.value, "q4.value #3");
+});

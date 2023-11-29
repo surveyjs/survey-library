@@ -1376,4 +1376,71 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1920, 1080);
     });
   });
+
+  test("Check page with errors and title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        pages: [
+          {
+            name: "p1",
+            title: "Page",
+            requiredIf: "{q1} empty",
+            isRequired: true,
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                title: "Question"
+              },
+            ]
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.click("input[title='Complete']");
+      await takeElementScreenshot("survey-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => (window as any).survey.isCompact = true)();
+      await takeElementScreenshot("survey-compact-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.questionsOnPageMode = "singlePage"; })();
+      await t.click("input[title='Complete']");
+      await takeElementScreenshot("survey-compact-spm-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => (window as any).survey.isCompact = false)();
+      await takeElementScreenshot("survey-spm-page-with-error-with-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check page with errors and without title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        pages: [
+          {
+            name: "p1",
+            requiredIf: "{q1} empty",
+            isRequired: true,
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                title: "Question"
+              },
+            ]
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.click("input[title='Complete']");
+      await takeElementScreenshot("survey-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => (window as any).survey.isCompact = true)();
+      await takeElementScreenshot("survey-compact-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => { (window as any).survey.questionsOnPageMode = "singlePage"; })();
+      await t.click("input[title='Complete']");
+      await takeElementScreenshot("survey-compact-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+      await ClientFunction(() => (window as any).survey.isCompact = false)();
+      await takeElementScreenshot("survey-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
 });
+

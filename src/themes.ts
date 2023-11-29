@@ -84,9 +84,9 @@ export interface IHeader {
    *
    * Possible values:
    *
-   * - `"survey"` (default)\
+   * - `"survey"`\
    * The header width is the same as the survey width.
-   * - `"container"`\
+   * - `"container"` (default)\
    * The header width is the same as the survey container width.
    *
    * @see [SurveyModel.width](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#width)

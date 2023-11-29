@@ -150,7 +150,20 @@ export class ProcessValue {
     return res;
   }
   private getNonNestedObject(obj: any, text: string, createPath: boolean): any {
-    var curName = this.getFirstPropertyName(text, obj, createPath);
+    const checkedKeys = new Array<string>();
+    let len = 0;
+    let res = this.getNonNestedObjectCore(obj, text, createPath, checkedKeys);
+    while(!res && len < checkedKeys.length) {
+      len = checkedKeys.length;
+      res = this.getNonNestedObjectCore(obj, text, createPath, checkedKeys);
+    }
+    return res;
+  }
+  private getNonNestedObjectCore(obj: any, text: string, createPath: boolean, checkedKeys: Array<string>): any {
+    var curName = this.getFirstPropertyName(text, obj, createPath, checkedKeys);
+    if(!!curName) {
+      checkedKeys.push(curName);
+    }
     var path = !!curName ? [curName] : null;
     while (text != curName && !!obj) {
       var isArray = text[0] == "[";
@@ -170,7 +183,7 @@ export class ProcessValue {
       if (!!text && text[0] == ".") {
         text = text.substring(1);
       }
-      curName = this.getFirstPropertyName(text, obj, createPath);
+      curName = this.getFirstPropertyName(text, obj, createPath, checkedKeys);
       if (!!curName) {
         path.push(curName);
       }
@@ -190,11 +203,7 @@ export class ProcessValue {
     if (index < 0 || index >= curValue.length) return null;
     return { value: curValue[index], text: text, index: index };
   }
-  private getFirstPropertyName(
-    name: string,
-    obj: any,
-    createProp: boolean = false
-  ): string {
+  private getFirstPropertyName(name: string, obj: any, createProp: boolean = false, checkedKeys: Array<string> = undefined): string {
     if (!name) return name;
     if (!obj) obj = {};
     if (obj.hasOwnProperty(name)) return name;
@@ -202,6 +211,7 @@ export class ProcessValue {
     var A = nameInLow[0];
     var a = A.toUpperCase();
     for (var key in obj) {
+      if(Array.isArray(checkedKeys) && checkedKeys.indexOf(key) > -1) continue;
       var first = key[0];
       if (first === a || first === A) {
         var keyName = key.toLowerCase();

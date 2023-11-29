@@ -4,6 +4,7 @@
     <div v-if="showDescription" :class="page.cssClasses.page.description">
       <survey-string :locString="page.locDescription" />
     </div>
+    <survey-errors :element="page" />
     <template v-for="(row, index) in rows" :key="page.id + '_' + index">
       <component
         :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"

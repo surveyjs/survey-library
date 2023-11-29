@@ -230,7 +230,7 @@ Serializer.addClass(
   "cover",
   [
     { name: "height:number", minValue: 0, default: 256 },
-    { name: "inheritWidthFrom", default: "survey" },
+    { name: "inheritWidthFrom", default: "container" },
     { name: "textAreaWidth:number", minValue: 0, default: 512 },
     { name: "textGlowEnabled:boolean" },
     { name: "overlapEnabled:boolean" },

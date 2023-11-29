@@ -1,0 +1,9 @@
+<div class="sd-rating-dropdown-item">
+  <span class="sd-rating-dropdown-item_text" data-bind="text: item.title"></span>
+  <!-- ko if: !!item.description -->
+  <div class="sd-rating-dropdown-item_description">
+    <!-- ko template: { name: 'survey-string', data: item.description } -->
+    <!-- /ko -->
+  </div>
+  <!-- /ko -->
+</div>

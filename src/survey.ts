@@ -397,6 +397,8 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * If you want to specify heading levels for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-titletagnames/ (linkStyle))
    * @see onGetQuestionTitle
    * @see onGetQuestionNo
    */

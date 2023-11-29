@@ -14,11 +14,7 @@
     left: auto;
     bottom: auto;
 }
-.sd-question--signature:not(.sd-question--answered) {
-    .sd-signaturepad__controls {
-        display: none;
-    }
-}
+
 .sd-question--signature.sd-question--error {
     .sjs_sp_placeholder {
         background-color: $red-light;
@@ -31,3 +27,16 @@
     left: 0;
     object-fit: cover;
 }
+.sd-signaturepad__loading-indicator {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+
+    .sd-loading-indicator {
+            position: absolute;
+            right: calcSize(1);
+            top: calcSize(1);
+        }
+    }

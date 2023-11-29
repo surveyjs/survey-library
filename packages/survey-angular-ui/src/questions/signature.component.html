@@ -4,9 +4,9 @@
 <div [class]="model.cssClasses.placeholder" [visible]="model.needShowPlaceholder()" [model]="$any(model).locPlaceholder" sv-ng-string></div>
 <div>
   <img *ngIf="!!model.backgroundImage" [src]="model.backgroundImage" [style.width]="model.renderedCanvasWidth" [class]="model.cssClasses.backgroundImage">
-  <canvas tabindex="0" [class]="model.cssClasses.canvas"></canvas>
+  <canvas tabindex="0" [class]="model.cssClasses.canvas" (blur)="model.onBlur()"></canvas>
 </div>
-<div [class]="model.cssClasses.controls" [visible]="model.canShowClearButton">
+<div [class]="model.cssClasses.controls" *ngIf="model.canShowClearButton">
   <button
     type="button"
     [class]="model.cssClasses.clearButton"
@@ -20,4 +20,9 @@
       [size]="'auto'" sv-ng-svg-icon></svg>
   </button>
 </div>
+<ng-container *ngIf="model.showLoadingIndicator">
+  <div [class]="model.cssClasses.loadingIndicator">
+    <sv-ng-loading-indicator></sv-ng-loading-indicator>
+  </div>
+</ng-container>
 </div>

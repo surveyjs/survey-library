@@ -5,6 +5,7 @@ interface IMaskedValue {
 
 export var settings = {
   placeholderChar: "_",
+  escapedChar: "\\",
   definitions: <{ [key: string]: RegExp }>{
     "9": /[0-9]/,
     "a": /[a-zA-Z]/,
@@ -12,7 +13,32 @@ export var settings = {
   }
 };
 
-export function getMaskedValueByPattern(str: string, pattern: string, matchWholeMask = true): string {
+interface IMaskLiteral {
+  type: "const" | "regex";
+  value: any;
+}
+
+export function syntacticAnalysisMask(mask: string): Array<IMaskLiteral> {
+  const result: Array<IMaskLiteral> = [];
+  let prevChartIsEscaped = false;
+  const definitionsKeys = Object.keys(settings.definitions);
+
+  for(let index = 0; index < mask.length; index++) {
+    const currentChar = mask[index];
+    if(currentChar === settings.escapedChar) {
+      prevChartIsEscaped = true;
+    } else if(prevChartIsEscaped) {
+      prevChartIsEscaped = false;
+      result.push({ type: "const", value: currentChar });
+    } else {
+      result.push({ type: definitionsKeys.indexOf(currentChar) !== -1 ? "regex" : "const", value: currentChar });
+    }
+  }
+
+  return result;
+}
+
+export function getMaskedValueByPatternOld(str: string, pattern: string, matchWholeMask = true): string {
   let result = "";
   let strIndex = 0;
   for(let maskIndex = 0; maskIndex < pattern.length; maskIndex++) {
@@ -33,7 +59,54 @@ export function getMaskedValueByPattern(str: string, pattern: string, matchWhole
   return result;
 }
 
+export function getMaskedValueByPattern(str: string, pattern: string, matchWholeMask = true): string {
+  let result = "";
+  let strIndex = 0;
+
+  const parsedMask = syntacticAnalysisMask(pattern);
+  for(let maskIndex = 0; maskIndex < parsedMask.length; maskIndex++) {
+    if(parsedMask[maskIndex].type === "regex") {
+      const currentDefinition = settings.definitions[parsedMask[maskIndex].value];
+      if(strIndex < str.length && str[strIndex].match(currentDefinition)) {
+        result += str[strIndex];
+      } else if(matchWholeMask) {
+        result += settings.placeholderChar;
+      } else {
+        break;
+      }
+      strIndex++;
+    } else if(parsedMask[maskIndex].type === "const") {
+      result += parsedMask[maskIndex].value;
+      if(parsedMask[maskIndex].value === str[strIndex]) {
+        strIndex++;
+      }
+    }
+  }
+  return result;
+}
+
 export function getUnmaskedValueByPattern(str: string, pattern: string, matchWholeMask: boolean): string {
+  let result = "";
+  if(!str) return result;
+
+  const parsedMask = syntacticAnalysisMask(pattern);
+  for(let index = 0; index < parsedMask.length; index++) {
+    if(parsedMask[index].type === "regex") {
+      const currentDefinition = settings.definitions[parsedMask[index].value];
+      if(!!str[index] && str[index].match(currentDefinition)) {
+        result += str[index];
+      } else if(matchWholeMask) {
+        result = "";
+        break;
+      } else {
+        break;
+      }
+    }
+  }
+  return result;
+}
+
+export function getUnmaskedValueByPatternOld(str: string, pattern: string, matchWholeMask: boolean): string {
   let result = "";
   if(!str) return result;
 

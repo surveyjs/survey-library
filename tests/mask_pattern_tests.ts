@@ -1,10 +1,36 @@
-import { processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern } from "../src/mask/mask_utils";
+import { syntacticAnalysisMask, processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern, settings } from "../src/mask/mask_utils";
 
 export default QUnit.module("Pattern mask");
 
 const mask = "+9(999)-999-99-99";
 
-QUnit.test("get masked valid text", function(assert) {
+QUnit.test("parsingMask simple pattern", function(assert) {
+  let result = syntacticAnalysisMask(mask);
+  assert.equal(result.length, 17);
+  assert.equal(result[0].type, "const");
+  assert.equal(result[0].value, "+");
+  assert.equal(result[1].type, "regex");
+  assert.equal(result[1].value, "9");
+  assert.equal(result[2].type, "const");
+  assert.equal(result[2].value, "(");
+  assert.equal(result[3].type, "regex");
+  assert.equal(result[3].value, "9");
+});
+
+QUnit.test("parsingMask with fixed character", function(assert) {
+  let result = syntacticAnalysisMask("+\\9(999)-999-99-99");
+  assert.equal(result.length, 17);
+  assert.equal(result[0].type, "const");
+  assert.equal(result[0].value, "+");
+  assert.equal(result[1].type, "const");
+  assert.equal(result[1].value, "9");
+  assert.equal(result[2].type, "const");
+  assert.equal(result[2].value, "(");
+  assert.equal(result[3].type, "regex");
+  assert.equal(result[3].value, "9");
+});
+
+QUnit.test("get masked valid text matchWholeMask = true", function(assert) {
   settings.placeholderChar = "*";
   assert.equal(getMaskedValueByPattern("", mask, true), "+*(***)-***-**-**");
   assert.equal(getMaskedValueByPattern("1", mask, true), "+1(***)-***-**-**");
@@ -14,23 +40,24 @@ QUnit.test("get masked valid text", function(assert) {
   settings.placeholderChar = "_";
 });
 
-QUnit.test("get masked valid text", function(assert) {
+QUnit.test("get masked valid text matchWholeMask = false", function(assert) {
   settings.placeholderChar = "*";
   const customMask = "+1(999)-999-99-99";
   assert.equal(getMaskedValueByPattern("", customMask, false), "+1(");
-  assert.equal(getMaskedValueByPattern("1", customMask, false), "+1(1");
-  assert.equal(getMaskedValueByPattern("123", customMask, false), "+1(123)-");
-  assert.equal(getMaskedValueByPattern("123456", customMask, false), "+1(123)-456-");
-  assert.equal(getMaskedValueByPattern("12345678910", customMask, false), "+1(123)-456-78-91");
+  assert.equal(getMaskedValueByPattern("1", customMask, false), "+1(");
+  assert.equal(getMaskedValueByPattern("1234", customMask, false), "+1(234)-");
+  assert.equal(getMaskedValueByPattern("123456", customMask, false), "+1(234)-56");
+  assert.equal(getMaskedValueByPattern("123456789101", customMask, false), "+1(234)-567-89-10");
   settings.placeholderChar = "_";
 });
 
-QUnit.test("get masked valid text", function(assert) {
+QUnit.test("get masked valid text with fixed character", function(assert) {
   settings.placeholderChar = "*";
   const customMask = "+\\9(999)-999-99-99";
   assert.equal(getMaskedValueByPattern("", customMask, true), "+9(***)-***-**-**");
   assert.equal(getMaskedValueByPattern("9", customMask, true), "+9(***)-***-**-**");
-  assert.equal(getMaskedValueByPattern("1234", customMask, true), "+9(123)-***-**-**");
+  assert.equal(getMaskedValueByPattern("123", customMask, true), "+9(123)-***-**-**");
+  assert.equal(getMaskedValueByPattern("9123", customMask, true), "+9(123)-***-**-**");
   assert.equal(getMaskedValueByPattern("1234567891", customMask, true), "+9(123)-456-78-91");
   settings.placeholderChar = "_";
 });

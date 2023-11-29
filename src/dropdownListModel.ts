@@ -459,20 +459,23 @@ export class DropdownListModel extends Base {
     } if (event.keyCode === 9) {
       this.popupModel.isVisible = false;
     } else if (!this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32)) {
-      this.popupModel.toggleVisibility();
-      this.changeSelectionWithKeyboard(false);
+      if (event.keyCode === 32) {
+        this.popupModel.toggleVisibility();
+        this.changeSelectionWithKeyboard(false);
+      }
+      if (event.keyCode === 13) {
+        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
+      }
       event.preventDefault();
       event.stopPropagation();
     } else if (this.popupModel.isVisible && (event.keyCode === 13 || event.keyCode === 32 && (!this.question.searchEnabled || !this.inputString))) {
       if (event.keyCode === 13 && this.question.searchEnabled && !this.inputString && this.question instanceof QuestionDropdownModel && !this._markdownMode && this.question.value) {
         this._popupModel.isVisible = false;
         this.onClear(event);
-        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
       }
       else {
         this.listModel.selectFocusedItem();
         this.onFocus(event);
-        (this.question.survey as SurveyModel).questionEditFinishCallback(this.question, event);
       }
       event.preventDefault();
       event.stopPropagation();

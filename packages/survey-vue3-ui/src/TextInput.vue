@@ -1,6 +1,7 @@
 <template>
   <input
     v-if="!question.getMaxLength()"
+    :ref="(el)=>getRef(el as HTMLElement)"
     :disabled="question.isInputReadOnly"
     :class="question.getControlClass()"
     :type="question.inputType"
@@ -27,7 +28,7 @@
     :aria-invalid="question.a11y_input_ariaInvalid"
     :aria-describedby="question.a11y_input_ariaDescribedBy"
   />
-  <div v-else>
+  <div v-else :ref="(el)=>getRef(el as HTMLElement)">
     <input
       :disabled="question.isInputReadOnly"
       :class="question.getControlClass()"
@@ -65,9 +66,14 @@
 <script lang="ts" setup>
 import type { QuestionTextModel } from "survey-core";
 import { useBase } from "./base";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
-const props = defineProps<{ question: QuestionTextModel }>();
+const props = defineProps<{ question: QuestionTextModel; getRef?: Function; }>();
+const getRef = function (element: HTMLElement) {
+  if (props.getRef) props.getRef(element);
+}
+const root = ref(null);
+defineExpose({ root });
 
 useBase(() => props.question);
 

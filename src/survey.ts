@@ -7348,7 +7348,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        if (container === "header") {
+        if (container === "center") {
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }

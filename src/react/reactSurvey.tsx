@@ -179,14 +179,17 @@ export class Survey extends SurveyElementBase<any, any>
     return (
       <div className={this.survey.bodyContainerCss}>
         <ComponentsContainer survey={this.survey} container={"left"}></ComponentsContainer>
-        <div
-          id={pageId}
-          className={className}
-          style={style}
-        >
-          <ComponentsContainer survey={this.survey} container={"contentTop"}></ComponentsContainer>
-          {activePage}
-          <ComponentsContainer survey={this.survey} container={"contentBottom"}></ComponentsContainer>
+        <div className="sv-components-column sv-components-column--expandable">
+          <ComponentsContainer survey={this.survey} container={"center"}></ComponentsContainer>
+          <div
+            id={pageId}
+            className={className}
+            style={style}
+          >
+            <ComponentsContainer survey={this.survey} container={"contentTop"}></ComponentsContainer>
+            {activePage}
+            <ComponentsContainer survey={this.survey} container={"contentBottom"}></ComponentsContainer>
+          </div>
         </div>
         <ComponentsContainer survey={this.survey} container={"right"}></ComponentsContainer>
       </div>

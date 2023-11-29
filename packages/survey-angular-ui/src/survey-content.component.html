@@ -9,18 +9,21 @@
           <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'header', needRenderWrapper: false } }"></ng-template>
           <div *ngIf="model.isShowingPage" [class]="model.bodyContainerCss">
             <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'left' } }"></ng-template>
-            <div [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
-              <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentTop' } }"></ng-template>
-              <!-- ko if: activePage -->
-                <ng-container *ngIf="model.activePage">
-                    <sv-ng-page [model]="model.activePage" [survey]="model"></sv-ng-page>
-                </ng-container>
-                <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
-                <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
+            <div class="sv-components-column sv-components-column--expandable">
+              <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'center' } }"></ng-template>
+              <div [class]="model.bodyCss" [style.maxWidth]="model.renderedWidth" [id]="model.activePage ? model.activePage.id : ''">
+                <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentTop' } }"></ng-template>
+                <!-- ko if: activePage -->
+                  <ng-container *ngIf="model.activePage">
+                      <sv-ng-page [model]="model.activePage" [survey]="model"></sv-ng-page>
+                  </ng-container>
+                  <!-- ko if: activePage.rows.length == 0 && $data.emptyPageTemplate -->
+                  <!-- ko template: { name: emptyPageTemplate, data: $data.emptyPageTemplateData || $data } -->
+                  <!-- /ko -->
+                  <!-- /ko -->
                 <!-- /ko -->
-                <!-- /ko -->
-              <!-- /ko -->
-              <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentBottom' } }"></ng-template>
+                <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'contentBottom' } }"></ng-template>
+              </div>
             </div>
             <ng-template [component]="{ name: 'sv-components-container', data: { survey: model, container: 'right' } }"></ng-template>
           </div>

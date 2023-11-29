@@ -16986,10 +16986,11 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("right"), [], "default right");
 
   survey.showProgressBar = "top";
-  assert.deepEqual(getContainerContent("header"), [{
+  assert.deepEqual(getContainerContent("header"), [], "progress top header");
+  assert.deepEqual(getContainerContent("center"), [{
     "component": "sv-progress-pages",
     "id": "progress-pages"
-  }], "progress top  header");
+  }], "progress top center");
   assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
@@ -17008,10 +17009,11 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("right"), [], "progress bottom right");
 
   survey.showProgressBar = "both";
-  assert.deepEqual(getContainerContent("header"), [{
+  assert.deepEqual(getContainerContent("header"), [], "progress both header");
+  assert.deepEqual(getContainerContent("center"), [{
     "component": "sv-progress-pages",
     "id": "progress-pages"
-  }], "progress both  header");
+  }], "progress both center");
   assert.deepEqual(getContainerContent("footer"), [{
     "component": "sv-progress-pages",
     "id": "progress-pages"
@@ -17022,7 +17024,8 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("right"), [], "progress both right");
 
   survey.progressBarType = "questions";
-  assert.deepEqual(getContainerContent("header"), [{
+  assert.deepEqual(getContainerContent("header"), [], "progress questions both header");
+  assert.deepEqual(getContainerContent("center"), [{
     "component": "sv-progress-questions",
     "id": "progress-questions"
   }], "progress questions both header");
@@ -17036,10 +17039,11 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("right"), [], "progress questions both right");
 
   survey.showTOC = true;
-  assert.deepEqual(getContainerContent("header"), [{
+  assert.deepEqual(getContainerContent("header"), [], "progress toc both header");
+  assert.deepEqual(getContainerContent("center"), [{
     "component": "sv-progress-questions",
     "id": "progress-questions"
-  }], "progress toc both header");
+  }], "progress toc both center");
   assert.deepEqual(getContainerContent("footer"), [{
     "component": "sv-progress-questions",
     "id": "progress-questions"
@@ -17244,11 +17248,12 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
     return result;
   }
 
-  assert.deepEqual(getContainerContent("header"), [{
+  assert.deepEqual(getContainerContent("header"), [], "");
+  assert.deepEqual(getContainerContent("footer"), [], "");
+  assert.deepEqual(getContainerContent("center"), [{
     "component": "sv-progress-buttons",
     "id": "progress-buttons"
   }], "");
-  assert.deepEqual(getContainerContent("footer"), [], "");
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",

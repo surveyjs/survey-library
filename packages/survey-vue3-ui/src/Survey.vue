@@ -32,29 +32,32 @@
                 :container="'left'"
                 :needRenderWrapper="true"
               ></component>
-              <div
-                :class="vueSurvey.bodyCss"
-                :style="{ maxWidth: vueSurvey.renderedWidth }"
-                :id="pageId"
-              >
-                <component
-                  :is="'sv-components-container'"
-                  :survey="vueSurvey"
-                  :container="'contentTop'"
-                  :needRenderWrapper="true"
-                ></component>
-                <survey-page
-                  :key="pageKey"
-                  :survey="vueSurvey"
-                  :page="vueSurvey.activePage"
-                  :css="css"
-                />
-                <component
-                  :is="'sv-components-container'"
-                  :survey="vueSurvey"
-                  :container="'contentBottom'"
-                  :needRenderWrapper="true"
-                ></component>
+              <div class="sv-components-column sv-components-column--expandable">
+                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'center'" :needRenderWrapper="true"></component>
+                <div
+                  :class="vueSurvey.bodyCss"
+                  :style="{ maxWidth: vueSurvey.renderedWidth }"
+                  :id="pageId"
+                >
+                  <component
+                    :is="'sv-components-container'"
+                    :survey="vueSurvey"
+                    :container="'contentTop'"
+                    :needRenderWrapper="true"
+                  ></component>
+                  <survey-page
+                    :key="pageKey"
+                    :survey="vueSurvey"
+                    :page="vueSurvey.activePage"
+                    :css="css"
+                  />
+                  <component
+                    :is="'sv-components-container'"
+                    :survey="vueSurvey"
+                    :container="'contentBottom'"
+                    :needRenderWrapper="true"
+                  ></component>
+                </div>
               </div>
               <component
                 :is="'sv-components-container'"

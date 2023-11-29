@@ -244,6 +244,18 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
+  test("Check survey with progress top and TOC", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.showTOC = true;
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-top-and-toc.png", Selector(".sd-container-modern"), t, comparer); // title + progress
+    });
+  });
 
   const testedPages = [{
     name: "page1",
@@ -934,8 +946,8 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1600, 900);
       const json = {
         "cookieName": "survey-id",
-        "completedHtml": "<h3>Completed</h3><button>OK</button>",
-        "completedBeforeHtml": "<h3>Already completed</h3><button>OK</button>",
+        "completedHtml": "<h3>Completed</h3><button style='display: inline-block;'>OK</button>",
+        "completedBeforeHtml": "<h3>Already completed</h3><button style='display: inline-block;'>OK</button>",
         pages: [
           {
             "elements": [
@@ -1440,6 +1452,27 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-compact-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
       await ClientFunction(() => (window as any).survey.isCompact = false)();
       await takeElementScreenshot("survey-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
+  test("Check survey logo right with empty title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg",
+        "logoPosition": "right",
+        "elements": [
+          {
+            "type": "text",
+            "name": "FirstName",
+            "title": "Enter your first name:"
+          },
+        ],
+        "widthMode": "responsive"
+      };
+
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-logo-right-without-title.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
 });

@@ -85,26 +85,34 @@ frameworks.forEach(async framework => {
     await t
       .typeText(q1Input, "abc")
       .expect(q1Input.focused).ok()
+      .pressKey("Esc")
+      .expect(q1Input.focused).ok()
       .pressKey("Enter")
       .expect(q1Input.focused).notOk()
       .typeText(q2Input, "it")
+      .expect(q2Input.focused).ok()
+      .pressKey("Enter")
       .expect(q2Input.focused).ok()
       .pressKey("Enter")
       .expect(q2Input.focused).notOk();
 
     await ClientFunction(() => {
       window["Survey"].settings.enterKeyAction = "moveToNextEditor";
+      window["survey"].clear();
     })();
 
     await t
       .typeText(q1Input, "abc")
       .expect(q1Input.focused).ok()
+      .pressKey("Esc")
       .pressKey("Enter")
       .typeText(q2Input, "it")
       .expect(q2Input.focused).ok()
       .pressKey("Enter")
+      .pressKey("Enter")
       .expect(q3Input.focused).ok()
       .typeText(q3Input, "mnk")
+      .pressKey("Enter")
       .pressKey("Enter")
       .expect(q3Input.focused).notOk();
     await ClientFunction(() => {
@@ -160,25 +168,31 @@ frameworks.forEach(async framework => {
       .typeText(q1Input, "abc")
       .expect(q1Input.focused).ok()
       .pressKey("Enter")
+      .pressKey("Enter")
       .expect(q1Input.focused).notOk()
       .typeText(q2Input, "it")
       .expect(q2Input.focused).ok()
+      .pressKey("Enter")
       .pressKey("Enter")
       .expect(q2Input.focused).notOk();
 
     await ClientFunction(() => {
       window["survey"].enterKeyAction = "moveToNextEditor";
+      window["survey"].clear();
     })();
 
     await t
       .typeText(q1Input, "abc")
       .expect(q1Input.focused).ok()
       .pressKey("Enter")
+      .pressKey("Enter")
       .typeText(q2Input, "it")
       .expect(q2Input.focused).ok()
       .pressKey("Enter")
+      .pressKey("Enter")
       .expect(q3Input.focused).ok()
       .typeText(q3Input, "mnk")
+      .pressKey("Enter")
       .pressKey("Enter")
       .expect(q3Input.focused).notOk();
     await ClientFunction(() => {

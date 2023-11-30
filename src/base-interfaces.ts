@@ -297,7 +297,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
-  updateValueFromSurvey(newValue: any): any;
+  updateValueFromSurvey(newValue: any, clearData: boolean): void;
   updateCommentFromSurvey(newValue: any): any;
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues(): any;

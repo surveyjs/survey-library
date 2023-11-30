@@ -18,6 +18,8 @@ export class SurveyTaskManagerModel extends Base {
   constructor() {
     super();
   }
+
+  private onAllTasksCompleted: EventBase<SurveyTaskManagerModel> = this.addEvent<SurveyTaskManagerModel>();
   //@property() text: string;
   @property({ defaultValue: false }) hasActiveTasks: boolean;
 
@@ -28,11 +30,22 @@ export class SurveyTaskManagerModel extends Base {
     return task;
   }
 
+  public waitAndExecute(action: any) {
+    if(!this.hasActiveTasks) {
+      action();
+      return;
+    }
+    this.onAllTasksCompleted.add(()=> { action(); });
+  }
+
   public taskFinished(task: SurveyTaskModel) {
     const index = this.taskList.indexOf(task);
     if (index > -1) {
       this.taskList.splice(index, 1);
     }
-    this.hasActiveTasks = !!this.taskList.length;
+    if(this.hasActiveTasks && this.taskList.length == 0) {
+      this.hasActiveTasks = true;
+      this.onAllTasksCompleted.fire(this, {});
+    }
   }
 }

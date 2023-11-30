@@ -18367,7 +18367,7 @@ QUnit.test("Do not run defaultValueExpression on survey.data, #7423", function (
   assert.notOk(q4.value, "q4.value #3");
 });
 
-QUnit.test("theme assignment doesn't affects headerView", function (assert) {
+QUnit.test("theme assignment doesn't affect headerView", function (assert) {
   let survey = new SurveyModel({});
   assert.equal(survey.headerView, "basic", "default value");
   survey.theme = { header: {} } as any;

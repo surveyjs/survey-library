@@ -1,14 +1,11 @@
 import { property, Serializer } from "./jsonobject";
-import { surveyLocalization } from "./surveyStrings";
 import { QuestionFactory } from "./questionfactory";
-import { Question } from "./question";
 import SignaturePad from "signature_pad";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
-import { ISurveyImpl } from "./base-interfaces";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
-import { classesToSelector } from "./utils/utils";
+import { QuestionFileModelBase } from "./question_file";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -18,8 +15,9 @@ var defaultHeight = 200;
  *
  * [View Demo](https://surveyjs.io/form-library/examples/signature-pad-widget-javascript/ (linkStyle))
  */
-export class QuestionSignaturePadModel extends Question {
+export class QuestionSignaturePadModel extends QuestionFileModelBase {
   @property({ defaultValue: false }) isDrawingValue: boolean;
+  @property({ defaultValue: false }) isReadyForUpload: boolean;
 
   private getPenColorFromTheme(): string {
     const _survey = this.survey as SurveyModel;
@@ -43,11 +41,13 @@ export class QuestionSignaturePadModel extends Question {
       .toString();
   }
 
+  protected getFormat() {
+    return this.dataFormat === "jpeg" ? "image/jpeg" :
+      (this.dataFormat === "svg" ? "image/svg+xml" : "");
+  }
   protected updateValue() {
     if (this.signaturePad) {
-      const format = this.dataFormat === "jpeg" ? "image/jpeg" :
-        (this.dataFormat === "svg" ? "image/svg+xml" : "");
-      var data = this.signaturePad.toDataURL(format);
+      var data = this.signaturePad.toDataURL(this.getFormat());
       this.valueIsUpdatingInternally = true;
       this.value = data;
       this.valueIsUpdatingInternally = false;
@@ -79,6 +79,7 @@ export class QuestionSignaturePadModel extends Question {
   private canvas: any;
   private scale: number;
   private valueIsUpdatingInternally: boolean = false;
+  @property({ defaultValue: false }) valueWasChangedFromLastUpload: boolean;
 
   private resizeCanvas() {
     this.canvas.width = this.containerWidth;
@@ -99,14 +100,32 @@ export class QuestionSignaturePadModel extends Question {
       if (refresh) this.refreshCanvas();
     }
   }
+  private fromDataUrl(data: string) {
+    this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
+  }
+
+  private fromUrl(url: string) {
+    const img = document.createElement("img");
+    img.crossOrigin = "anonymous";
+    img.src = url;
+    img.onload = ()=>{
+      const ctx = this.canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0);
+      var dataURL = this.canvas.toDataURL(this.getFormat());
+      this.fromDataUrl(dataURL);
+    };
+  }
   private refreshCanvas() {
-    var data = this.value;
-    const canvas = this.canvas;
-    if (!data) {
-      canvas.getContext("2d").clearRect(0, 0, canvas.width * this.scale, canvas.height * this.scale);
+    if (!this.value) {
+      this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
       this.signaturePad.clear();
+      this.valueWasChangedFromLastUpload = false;
     } else {
-      this.signaturePad.fromDataURL(data, { width: canvas.width * this.scale, height: canvas.height * this.scale });
+      if(this.storeDataAsText) {
+        this.fromDataUrl(this.value);
+      } else {
+        this.fromUrl(this.value);
+      }
     }
   }
 
@@ -143,7 +162,11 @@ export class QuestionSignaturePadModel extends Question {
 
     (signaturePad as any).addEventListener("endStroke", () => {
       this.isDrawingValue = false;
-      this.updateValue();
+      if(this.storeDataAsText) {
+        this.updateValue();
+      } else {
+        this.valueWasChangedFromLastUpload = true;
+      }
     }, { once: false });
 
     this.updateValueHandler();
@@ -253,7 +276,9 @@ export class QuestionSignaturePadModel extends Question {
     this.setPropertyValue("allowClear", val);
   }
   public get canShowClearButton(): boolean {
-    return !this.isInputReadOnly && this.allowClear;
+    const hasSignature = !this.nothingIsDrawn();
+    const isUploading = this.isUploading;
+    return !this.isInputReadOnly && this.allowClear && hasSignature && !isUploading;
   }
   /**
    * Specifies a color for the pen.
@@ -310,17 +335,46 @@ export class QuestionSignaturePadModel extends Question {
    */
   @property({}) showPlaceholder: boolean;
 
-  public needShowPlaceholder(): boolean {
-    const showPlaceholder = this.showPlaceholder;
+  public nothingIsDrawn(): boolean {
     const isDrawing = this.isDrawingValue;
     const isEmpty = this.isEmpty();
-    return showPlaceholder && !isDrawing && isEmpty;
+    const isUploading = this.isUploading;
+    const valueWasChangedFromLastUpload = this.valueWasChangedFromLastUpload;
+    return !isDrawing && isEmpty && !isUploading && !valueWasChangedFromLastUpload;
+  }
+
+  public needShowPlaceholder(): boolean {
+    return this.showPlaceholder && this.nothingIsDrawn();
   }
   /**
    * A placeholder for the signature area. Applies when the [`showPlaceholder`](#showPlaceholder) property is `true`.
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
+  public onBlur(): void {
+    if (!this.storeDataAsText) {
+      setTimeout(() => {
+        if (!this.valueWasChangedFromLastUpload) return;
+        fetch(this.signaturePad.toDataURL(this.getFormat())).then(res => res.blob()).then((blob: Blob) => {
+          this.uploadFiles([new File([blob], this.name + "." + correctFormatData(this.dataFormat), { type: this.getFormat() })]);
+          this.valueWasChangedFromLastUpload = false;
+        });
+      }, 100);
+    }
+  }
+  protected uploadResultItemToValue(r: any) {
+    return r.content;
+  }
+  protected setValueFromResult(arg: any) {
+    this.valueIsUpdatingInternally = true;
+    this.value = arg?.length ? arg.map((r: any) => r.content)[0] : undefined;
+    this.valueIsUpdatingInternally = false;
+  }
+  public clearValue(): void {
+    this.valueWasChangedFromLastUpload = false;
+    super.clearValue();
+    this.refreshCanvas();
+  }
   endLoadingFromJson(): void {
     super.endLoadingFromJson();
     //todo: need to remove this code
@@ -418,6 +472,9 @@ Serializer.addClass(
     },
     { name: "defaultValue", visible: false },
     { name: "correctAnswer", visible: false },
+    { name: "storeDataAsText:boolean", default: true },
+    { name: "waitForUpload:boolean", default: false },
+
   ],
   function () {
     return new QuestionSignaturePadModel("");

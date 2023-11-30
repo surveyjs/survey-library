@@ -46,10 +46,7 @@
         <div>
           <survey-string :locString="element.locCommentText" />
         </div>
-        <survey-question-comment
-          :commentClass="css.comment"
-          :question="element"
-        />
+        <survey-question-comment :question="element" />
       </div>
       <survey-errors
         v-if="hasErrorsOnBottom"

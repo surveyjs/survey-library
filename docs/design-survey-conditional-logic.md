@@ -42,11 +42,33 @@ In single- and multiple-selection question types (Dropdown, Checkbox, Radiogroup
 
 Certain question types can contain multiple values. Use a dot symbol to access a specific value (item or cell):
 
-| Question Type                                                            | Syntax                              |
-| ------------------------------------------------------------------------ | ----------------------------------- |
-| [Multiple Text](/Documentation/Library?id=questionmultipletextmodel)     | `{questionname.itemname}`           |
-| [Matrix](/Documentation/Library?id=questionmatrixmodel)                  | `{questionname.rowname}`            |
-| [Matrix Dropdown](/Documentation/Library?id=questionmatrixdropdownmodel) | `{questionname.rowname.columnname}` |
+<div class="v2-class---doc-table-container">
+  <table class="v2-class---doc-table-container__table">
+    <thead>
+      <tr>
+        <th>Question Type</th>
+        <th>Syntax</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/Documentation/Library?id=questionmultipletextmodel" class="v2-class---paragraph-link">Multiple Textboxes</a></td>
+        <td><code>{questionname.itemname}</code></td>
+      </tr>
+      <tr>
+        <td><a href="/Documentation/Library?id=questionmatrixmodel" class="v2-class---paragraph-link">Single-Select Matrix</a></td>
+        <td><code>{questionname.rowname}</code></td>
+      </tr>
+      <tr>
+        <td rowspan="2" style="vertical-align:middle"><a href="/Documentation/Library?id=questionmatrixdropdownmodel" class="v2-class---paragraph-link">Multi-Select Matrix</a></td>
+        <td><code>{questionname.rowname.columnname}</code></td>
+      </tr>
+      <tr>
+        <td><code>{questionname-total.columnname}</code> (accesses a cell in the total row)</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 [View Demo](/Examples/Library?id=condition-complexquestions (linkStyle))
 
@@ -54,8 +76,8 @@ In dynamic questions, use a zero-based index to access a specific value (questio
 
 | Question Type                                                          | Syntax                                     |
 | ---------------------------------------------------------------------- | ------------------------------------------ |
-| [Panel Dynamic](/Documentation/Library?id=questionpaneldynamicmodel)   | `{dynamicpanelname[index].questionname}`   |
-| [Matrix Dynamic](/Documentation/Library?id=questionmatrixdynamicmodel) | `{dynamicmatrixname[rowindex].columnname}` |
+| [Dynamic Panel](/Documentation/Library?id=questionpaneldynamicmodel)   | `{dynamicpanelname[index].questionname}`   |
+| [Dynamic Matrix](/Documentation/Library?id=questionmatrixdynamicmodel) | `{dynamicmatrixname[rowindex].columnname}` |
 
 In addition, Matrix questions support a `row` prefix that allows you to access cells on the same row: `{row.columnname}`. Similarly, you can use a `panel` prefix to access questions in the same Panel: `{panel.questionName}`.
 
@@ -339,7 +361,7 @@ Returns the sum of passed numbers.
 
 *Example*: `"expression": "sum({total1}, {total2})"`
 
-[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L247-L250 (linkStyle))
+[View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L73-L82 (linkStyle))
 
 ---
 
@@ -388,7 +410,6 @@ Returns the sum of numbers taken from a specified data field. This data field is
 *Example*: `"expression": "sumInArray({matrixdynamic}, 'total') > 1000"`
 
 [View Source Code](https://github.com/surveyjs/survey-library/blob/68eb0054dc83d2f45a6daa1042bf7440c8faf007/src/functionsfactory.ts#L164-L171 (linkStyle))
-[View Demo](https://surveyjs.io/Examples/Library?id=questiontype-expression#content-js (linkStyle))
 
 ---
 

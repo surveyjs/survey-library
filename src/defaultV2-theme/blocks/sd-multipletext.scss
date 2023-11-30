@@ -82,6 +82,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
 .sd-question__content:focus-within .sd-multipletext-item__character-counter {
   padding-inline-end: calcSize(8);
 }
@@ -104,7 +105,7 @@
 }
 
 .sd-multipletext__cell--error {
-  .sd-question__erbox--outside-question {
+  .sd-question__erbox {
     margin: 0;
   }
 }

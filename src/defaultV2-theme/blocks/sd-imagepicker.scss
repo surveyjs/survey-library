@@ -35,6 +35,15 @@
   align-items: center;
 }
 
+.sd-imagepicker__label {
+  position: relative;
+
+  .sd-visuallyhidden {
+    height: 100%;
+    margin: 0;
+  }
+}
+
 .sd-imagepicker__image-container {
   position: relative;
 }

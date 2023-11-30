@@ -152,7 +152,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
     question: IQuestion,
     name: string,
     files: File[],
-    uploadingCallback: (status: string, data: any) => any
+    // uploadingCallback: (status: string | Array<any>, data: any) => any
+    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>) => any
   ): any;
   downloadFile(
     question: IQuestion,
@@ -296,7 +297,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
-  updateValueFromSurvey(newValue: any): any;
+  updateValueFromSurvey(newValue: any, clearData: boolean): void;
   updateCommentFromSurvey(newValue: any): any;
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues(): any;
@@ -365,7 +366,7 @@ export type ISurveyEnvironment = {
   stylesSheetsMountContainer: HTMLElement,
 }
 
-export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
+export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom" | "center";
 export type HorizontalAlignment = "left" | "center" | "right";
 export type VerticalAlignment = "top" | "middle" | "bottom";
 
@@ -375,6 +376,7 @@ export interface ISurveyLayoutElement {
   component?: string;
   template?: string;
   data?: any;
+  index?: number;
   processResponsiveness?: (width: number) => void;
 }
 export interface IPlainDataOptions {

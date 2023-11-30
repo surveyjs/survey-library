@@ -4,7 +4,18 @@ description: SurveyJS lets you validate user responses before users proceed to t
 ---
 # Data Validation
 
-SurveyJS Form Library allows you to validate user responses on the client or server side. Regardless of the type, validation activates before a user proceeds to the next page or completes the survey. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a user answers a question, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanged"`:
+Data validation ensures that respondents fill out all required form fields and the format of values is correct before they are submitted to the server. SurveyJS Form Library supports data validation on the client and server side and allows you to validate user responses immediately after an answer is entered or when respondents proceed to the next page or end the survey. Refer to the following sections for information on how to add and configure data validation in your survey:
+
+- [Enable Immediate Data Validation](#enable-immediate-data-validation)
+- [Built-In Client-Side Validators](#built-in-client-side-validators)
+- [Implement Custom Client-Side Validation](#implement-custom-client-side-validation)
+- [Server-Side Validation](#server-side-validation)
+- [Postpone Validation Until Survey Ends](#postpone-validation-until-survey-ends)
+- [Switch Between Pages with Validation Errors](#switch-between-pages-with-validation-errors)
+
+## Enable Immediate Data Validation
+
+By default, data validation activates when a respondent proceeds to the next page. If the current page contains errors, the survey indicates them and focuses the first question with an invalid answer. If you want to run validation immediately after a respondent answers a question, set the Survey's [`checkErrorsMode`](https://surveyjs.io/Documentation/Library?id=surveymodel#checkErrorsMode) property to `"onValueChanged"`.
 
 ```js
 const surveyJson = {
@@ -15,11 +26,7 @@ const surveyJson = {
 }
 ```
 
-Refer to the sections below for information on how to enable validation in your survey:
-
-- [Built-In Client-Side Validators](#built-in-client-side-validators)
-- [Implement Custom Client-Side Validation](#implement-custom-client-side-validation)
-- [Server-Side Validation](#server-side-validation)
+Alternatively, you can [postpone data validation](#postpone-validation-until-survey-ends) until a respondent completes the survey.
 
 ## Built-In Client-Side Validators
 
@@ -74,7 +81,7 @@ The following class-based validators are available:
 | `"answercount"`   | [`AnswerCountValidator`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator) | Throws an error if a user selects fewer choices than specified by [`minCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#minCount) or more choices than specified by [`maxCount`](https://surveyjs.io/Documentation/Library?id=AnswerCountValidator#maxCount). Applies only to question types that can have multiple values (for instance, [Checkbox](https://surveyjs.io/Documentation/Library?id=questioncheckboxmodel)).                                                                              |
 | `"regex"`         | [`RegexValidator`](https://surveyjs.io/Documentation/Library?id=RegexValidator)             | Throws an error if an entered value does not match a regular expression defined in the [`regex`](https://surveyjs.io/Documentation/Library?id=RegexValidator#regex) property.                                                                                                                                                                                                                                                                                                                                                    |
 
-[View Demo](https://surveyjs.io/Examples/Library?id=validators-standard (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/javascript-form-validation/ (linkStyle))
 
 ## Implement Custom Client-Side Validation
 
@@ -128,7 +135,7 @@ const surveyJson = {
 };
 ```
 
-[View Demo](https://surveyjs.io/Examples/Library?id=validators-custom (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/add-custom-survey-data-validation/ (linkStyle))
 
 ## Server-Side Validation
 
@@ -176,7 +183,7 @@ function validateCountry(survey, { data, errors, complete }) {
 survey.onServerValidateQuestions.add(validateCountry);
 ```
 
-[View Demo](https://surveyjs.io/Examples/Library?id=validators-server (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/javascript-server-side-form-validation/ (linkStyle))
 
 Alternatively, you can use [expressions](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#expressions) to implement custom validation. Create an [asynchronous function](https://surveyjs.io/Documentation/Library?id=design-survey-conditional-logic#asynchronous-functions), register it, and then call it within your expression. The following code uses this technique to implement the previously demonstrated validation scenario:
 
@@ -217,7 +224,32 @@ const surveyJson = {
 };
 ```
 
-[View Demo](https://surveyjs.io/form-library/examples/validators-async-expression/reactjs (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/javascript-async-form-validation/ (linkStyle))
+
+## Postpone Validation Until Survey Ends
+
+Your survey can trigger data validation when a respondent clicks the Complete button. If the survey contains validation errors, it will take the respondent to the page with the first error and focus the question with the invalid answer. To activate this behavior, set the `checkErrorsMode` property to `"onComplete"`:
+
+```js
+const surveyJson = {
+  "checkErrorsMode": "onComplete",
+  "elements": [
+    // ...
+  ]
+}
+```
+
+## Switch Between Pages with Validation Errors
+
+By default, a respondent cannot leave a page that contains validation errors. If you want to let a respondent switch between pages regardless of whether they have validation errors or not, enable the [`validationAllowSwitchPages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationAllowSwitchPages) property as follows:
+
+```js
+import { Model, NumericValidator } from "survey-core";
+
+const surveyJson = { ... }
+const survey = new Model(surveyJson);
+survey.validationAllowSwitchPages = true;
+```
 
 ## See Also
 

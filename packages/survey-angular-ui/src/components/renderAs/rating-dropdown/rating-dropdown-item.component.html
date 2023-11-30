@@ -1,0 +1,10 @@
+<ng-template #template>
+  <div class="sd-rating-dropdown-item">
+    <span class="sd-rating-dropdown-item_text">{{model.title}}</span>
+    <ng-container *ngIf="!!model.description">
+    <div class="sd-rating-dropdown-item_description">
+      <sv-ng-string [model]="model.description"></sv-ng-string>
+    </div>
+    </ng-container>
+  </div>
+</ng-template>

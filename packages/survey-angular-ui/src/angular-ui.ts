@@ -54,6 +54,7 @@ export * from "./components/rating/rating-item.component";
 export * from "./components/rating/rating-item-star.component";
 export * from "./components/rating/rating-item-smiley.component";
 export * from "./row.component";
+export * from "./components/renderAs/rating-dropdown/rating-dropdown-item.component";
 export * from "./components/renderAs/rating-dropdown/rating-dropdown.component";
 export * from "./components/renderAs/boolean-checkbox/boolean-checkbox.component";
 export * from "./components/renderAs/boolean-radio/boolean-radio.component";

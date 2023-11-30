@@ -20,6 +20,11 @@
   }
 }
 
+.sd-root-modern--mobile .sv-header__overlap {
+  margin-bottom: calcSize(-5);
+  padding-bottom: calcSize(2);
+}
+
 .sv-header__content {
   padding: calcSize(5);
   box-sizing: border-box;

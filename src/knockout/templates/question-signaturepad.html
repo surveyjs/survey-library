@@ -8,7 +8,7 @@
             <!-- ko if: question.backgroundImage -->
             <img data-bind="attr: { src: question.backgroundImage}, style: { width: question.renderedCanvasWidth }, css: question.cssClasses.backgroundImage">
             <!-- /ko -->
-            <canvas tabindex='0' data-bind="css: question.cssClasses.canvas" ></canvas>
+            <canvas tabindex='0' data-bind="css: question.cssClasses.canvas, event: { blur: question.onBlur }" ></canvas>
         </div>
         <!-- ko if: question.canShowClearButton -->
         <div data-bind="css: question.cssClasses.controls">
@@ -21,6 +21,12 @@
                         <sv-svg-icon params="iconName: question.cssClasses.clearButtonIconId, size: 'auto'"></sv-svg-icon>
                     <!-- /ko -->
             </button>
+        </div>
+        <!-- /ko -->
+        <!-- ko if: question.showLoadingIndicator -->
+        <div data-bind="css: question.cssClasses.loadingIndicator">
+        <!-- ko component: { name: "sv-loading-indicator" } -->
+        <!-- /ko -->
         </div>
         <!-- /ko -->
     </div>

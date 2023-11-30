@@ -155,13 +155,13 @@ The component's template should render different color picker elements based upo
 
 ```html
 <ng-container *ngIf="model.colorPickerType === 'Sketch'">
-  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)"></color-sketch>
+  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-sketch>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Slider'">
-  <color-slider (onChange)="handleChange($event)"></color-slider>
+  <color-slider (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-slider>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Compact'">
-  <color-compact (onChange)="handleChange($event)"></color-compact>
+  <color-compact (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-compact>
 </ng-container>
 ```
 
@@ -264,13 +264,13 @@ Serializer.addClass(
 ```html
 <!-- color-picker.component.html -->
 <ng-container *ngIf="model.colorPickerType === 'Sketch'">
-  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)"></color-sketch>
+  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-sketch>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Slider'">
-  <color-slider (onChange)="handleChange($event)"></color-slider>
+  <color-slider (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-slider>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Compact'">
-  <color-compact (onChange)="handleChange($event)"></color-compact>
+  <color-compact (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-compact>
 </ng-container>
 ```
 
@@ -388,13 +388,13 @@ locale.pe.disableAlpha = "Disable alpha channel";
 ```html
 <!-- color-picker.component.html -->
 <ng-container *ngIf="model.colorPickerType === 'Sketch'">
-  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)"></color-sketch>
+  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-sketch>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Slider'">
-  <color-slider (onChange)="handleChange($event)"></color-slider>
+  <color-slider (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-slider>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Compact'">
-  <color-compact (onChange)="handleChange($event)"></color-compact>
+  <color-compact (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-compact>
 </ng-container>
 ```
 
@@ -529,13 +529,13 @@ SvgRegistry.registerIconFromSvg(
 ```html
 <!-- color-picker.component.html -->
 <ng-container *ngIf="model.colorPickerType === 'Sketch'">
-  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)"></color-sketch>
+  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-sketch>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Slider'">
-  <color-slider (onChange)="handleChange($event)"></color-slider>
+  <color-slider (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-slider>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Compact'">
-  <color-compact (onChange)="handleChange($event)"></color-compact>
+  <color-compact (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-compact>
 </ng-container>
 ```
 
@@ -735,13 +735,13 @@ PropertyGridEditorCollection.register({
 ```html
 <!-- color-picker.component.html -->
 <ng-container *ngIf="model.colorPickerType === 'Sketch'">
-  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)"></color-sketch>
+  <color-sketch [disableAlpha]="model.disableAlpha" (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-sketch>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Slider'">
-  <color-slider (onChange)="handleChange($event)"></color-slider>
+  <color-slider (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-slider>
 </ng-container>
 <ng-container *ngIf="model.colorPickerType === 'Compact'">
-  <color-compact (onChange)="handleChange($event)"></color-compact>
+  <color-compact (onChange)="handleChange($event)" [color]="model.value || '#fff'"></color-compact>
 </ng-container>
 ```
 

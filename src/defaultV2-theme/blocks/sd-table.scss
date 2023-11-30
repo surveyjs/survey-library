@@ -156,7 +156,7 @@
   border: none;
   padding: 0 calcSize(1);
 
-  .sd-question__erbox--outside-question {
+  .sd-question__erbox {
     margin: 0;
   }
 }
@@ -234,6 +234,15 @@
   &.sd-table__cell--boolean {
     min-width: calcSize(18);
   }
+}
+
+.sd-table__cell--footer {
+  text-align: right;
+}
+
+.sd-table__cell--footer-total {
+  font-weight: 600;
+  text-align: left;
 }
 
 .sd-table__cell--detail-panel {

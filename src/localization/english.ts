@@ -16,7 +16,7 @@ export var englishStrings = {
   panelDynamicProgressText: "{0} of {1}",
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Answered {0}/{1} questions",
-  emptySurvey: "The survey doesn't contain visible pages or questions.",
+  emptySurvey: "The survey doesn't contain any visible elements.",
   completingSurvey: "Thank you for completing the survey",
   completingSurveyBefore:
     "Our records show that you have already completed this survey.",
@@ -46,6 +46,7 @@ export var englishStrings = {
   urlGetChoicesError:
     "The request returned empty data or the 'path' property is incorrect",
   exceedMaxSize: "The file size should not exceed {0}.",
+  noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event.",
   otherRequiredError: "Response required: enter another value.",
   uploadingFile:
     "Your file is uploading. Please wait several seconds and try again.",

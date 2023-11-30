@@ -310,7 +310,7 @@ frameworks.forEach((framework) => {
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
 
-      .pressKey("enter")
+      .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
@@ -397,7 +397,7 @@ frameworks.forEach((framework) => {
       .expect(listItems.count).eql(28)
       .expect(listItems.filterVisible().count).eql(0)
 
-      .pressKey("enter")
+      .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
@@ -568,7 +568,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 900)
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(tagbox1.find(".sv-list__empty-container").visible).ok()
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
       .expect(listItems.filterVisible().count).eql(0)
@@ -797,7 +797,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 900)
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(tagbox1.find(".sv-list__empty-container").visible).ok()
       .expect(tagbox1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
       .expect(listItems.filterVisible().count).eql(0)

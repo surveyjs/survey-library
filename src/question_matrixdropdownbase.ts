@@ -1767,6 +1767,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       questionPlainData.isNode = true;
+      const prevData = Array.isArray(questionPlainData.data) ? [].concat(questionPlainData.data) : [];
       questionPlainData.data = this.visibleRows.map(
         (row: MatrixDropdownRowModelBase) => {
           var rowDataItem = <any>{
@@ -1791,6 +1792,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
           return rowDataItem;
         }
       );
+      questionPlainData.data = questionPlainData.data.concat(prevData);
     }
     return questionPlainData;
   }
@@ -2355,6 +2357,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       this.onCreateDetailPanelCallback(row, panel);
     }
     panel.questions.forEach(q => q.setParentQuestion(this));
+    panel.onSurveyLoad();
     return panel;
   }
   getSharedQuestionByName(

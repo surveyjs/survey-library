@@ -24,6 +24,7 @@
   &.sd-rating--wrappable {
     fieldset {
       flex-wrap: wrap;
+      min-width: 0;
     }
   }
 }
@@ -52,7 +53,7 @@
   box-sizing: border-box;
   min-width: calcSize(6);
   text-align: center;
-  border: 2px solid transparent;
+  border: none;
   color: $foreground;
   fill: $foreground;
   font-size: calcFontSize(1);
@@ -72,7 +73,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
 .sd-rating__item--error {
   background-color: $red-light;
   box-shadow: 0px 1px 2px transparent;
-  border-color: transparent;
+  border: none;
 }
 
 .sd-rating__item.sd-rating__item--disabled {
@@ -84,7 +85,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   color: $primary-foreground;
   fill: $foreground;
   background-color: $background-semitransparent;
-  border-color: transparent;
+  border: none;
 }
 
 .sd-question--disabled .sd-rating__item-text {
@@ -93,16 +94,15 @@ legend+sv-ng-rating-item+.sd-rating__item {
 
 .sd-rating__item--allowhover:hover {
   background-color: $background-dark;
-  border-color: $background-dark;
 }
 
 .sd-rating__item:focus-within {
-  border-color: $primary;
+  border: 2px solid $primary;
 }
 
 .sd-rating__item--selected {
   background-color: $primary;
-  border-color: $primary;
+  border: 2px solid $primary;
   color: $primary-foreground;
   font-weight: 600;
   box-shadow: 0px 1px 2px transparent;
@@ -326,12 +326,13 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
+  border: 2px solid transparent;
+    box-sizing: border-box;
 
   &.sd-rating__min-text,
   &.sd-rating__max-text {
     margin-top: calcSize(1.25);
     margin-bottom: calcSize(1.25);
-    border: 2px solid transparent;
     color: $font-questiondescription-color;
   }
 
@@ -354,8 +355,41 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     min-width: calcSize(3);
   }
 }
+.sd-rating--wrappable .sd-rating__item-text {
+  max-width: 100%;
 
+  .sv-string-viewer {
+    max-width: 100%;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: block
+  }
+}
+.sd-rating__item:focus-within .sd-rating__item-text.sd-rating__item-text {
+  border: none;
+}
 .sd-rating__item--selected .sd-rating__item-text.sd-rating__item-text {
   color: $primary-foreground;
   font-weight: inherit;
+  border: none;
+}
+
+.sd-rating-dropdown-item {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  gap: calcSize(4);
+}
+
+.sd-rating-dropdown-item_description {
+  color: $foreground-light;
+  font-family: $font-family;
+  font-style: normal;
+  font-weight: normal;
+  font-size: calcFontSize(0.75);
+  line-height: calcLineHeight(1);
+}
+.sv-list__item.sv-list__item--selected .sd-rating-dropdown-item_description {
+  color: $primary-foreground;
 }

@@ -6,11 +6,12 @@ import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { QuestionFileModel } from "./question_file";
+import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Trigger } from "./trigger";
@@ -25,7 +26,7 @@ export interface FileQuestionEventMixin {
   /**
    * A File Upload question instance for which the event is raised.
    */
-  question: QuestionFileModel;
+  question: QuestionFileModel | QuestionSignaturePadModel;
 }
 export interface PanelDynamicQuestionEventMixin {
   /**
@@ -40,9 +41,9 @@ export interface MatrixDropdownQuestionEventMixin {
   question: QuestionMatrixDropdownModelBase;
 }
 export interface MatrixDynamicQuestionEventMixin {
- /**
-  * A Dynamic Matrix question instance for which the event is raised.
-  */
+  /**
+   * A Dynamic Matrix question instance for which the event is raised.
+   */
   question: QuestionMatrixDynamicModel;
 }
 export interface PanelEventMixin {
@@ -284,11 +285,11 @@ export interface ElementRemovedEvent {
    */
   name: string;
 }
-export interface QuestionAddedEvent extends QuestionEventMixin, ElementAddedEvent {}
-export interface QuestionRemovedEvent extends QuestionEventMixin, ElementRemovedEvent {}
-export interface PanelAddedEvent extends PanelEventMixin, ElementAddedEvent {}
-export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent {}
-export interface PageAddedEvent extends PageEventMixin {}
+export interface QuestionAddedEvent extends QuestionEventMixin, ElementAddedEvent { }
+export interface QuestionRemovedEvent extends QuestionEventMixin, ElementRemovedEvent { }
+export interface PanelAddedEvent extends PanelEventMixin, ElementAddedEvent { }
+export interface PanelRemovedEvent extends PanelEventMixin, ElementRemovedEvent { }
+export interface PageAddedEvent extends PageEventMixin { }
 export interface ValidateQuestionEvent extends QuestionEventMixin {
   /**
    * An error message that you should specify if validation fails.
@@ -495,9 +496,9 @@ export interface LoadFilesEvent extends FileQuestionEventMixin {
 }
 export interface UploadFilesEvent extends LoadFilesEvent {
   /**
-   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass the uploaded file's data if file upload was successful or an error message if file upload failed.
+   * A callback function that you should call when a file is uploaded successfully or when file upload fails. Pass an array of successfully uploaded files as the first argument. As the second argument, you can pass an array of error messages if file upload failed.
    */
-  callback: (status: string, data?: any) => any;
+  callback: (data: any | Array<any>, errors?: any | Array<any>) => any;
   /**
    * An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
    */
@@ -756,7 +757,7 @@ export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMix
 
 }
 
-export interface MatrixCellValueChangedEvent extends MatrixCellValueBaseEvent {}
+export interface MatrixCellValueChangedEvent extends MatrixCellValueBaseEvent { }
 export interface MatrixCellValueChangingEvent extends MatrixCellValueBaseEvent {
   /**
    * A previous cell value.

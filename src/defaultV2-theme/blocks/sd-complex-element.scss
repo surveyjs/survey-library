@@ -2,8 +2,8 @@
   padding-top: 0;
 }
 
-.sd-element--complex.sd-element--nested-with-borders>.sd-question__erbox--outside-question,
-.sd-element--complex.sd-element--with-frame>.sd-question__erbox--outside-question {
+.sd-element--complex.sd-element--nested-with-borders>.sd-element__erbox,
+.sd-element--complex.sd-element--with-frame>.sd-element__erbox {
   margin-top: 0;
   margin-bottom: 0;
 }
@@ -49,7 +49,7 @@
     padding-bottom: calc(0.5 * var(--sd-base-vertical-padding));
   }
 
-  &>.sd-question__erbox--outside-question {
+  &>.sd-element__erbox {
     margin-left: calc(-1 * var(--sd-base-padding));
     margin-right: calc(-1 * var(--sd-base-padding));
     width: calc(100% + 2 * var(--sd-base-padding));

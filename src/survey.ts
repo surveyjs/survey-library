@@ -67,12 +67,13 @@ import {
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
-import { QuestionFileModel } from "./question_file";
+import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { QuestionMultipleTextModel } from "./question_multipletext";
 import { ITheme, ImageFit, ImageAttachment } from "./themes";
 import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
+import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
 
 /**
@@ -398,6 +399,8 @@ export class SurveyModel extends SurveyElementCore
    * For information on event handler parameters, refer to descriptions within the interface.
    *
    * If you want to specify heading levels for all titles, use the [`titleTags`](https://surveyjs.io/form-library/documentation/api-reference/settings#titleTags) object in [global settings](https://surveyjs.io/form-library/documentation/api-reference/settings).
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-titletagnames/ (linkStyle))
    * @see onGetQuestionTitle
    * @see onGetQuestionNo
    */
@@ -1194,20 +1197,25 @@ export class SurveyModel extends SurveyElementCore
           advHeader.titlePositionY = "middle";
           advHeader.descriptionPositionX = target.logoPosition === "right" ? "left" : "right";
           advHeader.descriptionPositionY = "middle";
-          advHeader.survey = target;
-          target.layoutElements.unshift({
-            id: "advanced-header",
-            container: "header",
-            component: "sv-header",
-            data: advHeader,
-            processResponsiveness: width => advHeader.processResponsiveness(width)
-          });
+          target.insertAdvancedHeader(advHeader);
         }
       } else {
         target.removeLayoutElement("advanced-header");
       }
     }
   }) headerView: "advanced" | "basic";
+
+  protected insertAdvancedHeader(advHeader: Cover): void {
+    advHeader.survey = this;
+    this.layoutElements.push({
+      id: "advanced-header",
+      container: "header",
+      component: "sv-header",
+      index: -100,
+      data: advHeader,
+      processResponsiveness: width => advHeader.processResponsiveness(width)
+    });
+  }
 
   private getNavigationCss(main: string, btn: string) {
     return new CssClassBuilder().append(main)
@@ -1526,7 +1534,8 @@ export class SurveyModel extends SurveyElementCore
    * Specifies whether to hide validation errors thrown by the Required validation in the UI.
    *
    * [Built-In Client-Side Validators](https://surveyjs.io/form-library/documentation/data-validation#built-in-client-side-validators (linkStyle))
-   * @see ignoreValidation
+   * @see validationEnabled
+   * @see validationAllowSwitchPages
    */
   public hideRequiredErrors: boolean = false;
   beforeSettingQuestionErrors(
@@ -1643,6 +1652,10 @@ export class SurveyModel extends SurveyElementCore
    * - `"onComplete"` - Triggers validation when a user clicks the Complete button. If previous pages contain errors, the survey switches to the page with the first error.
    *
    * Refer to the following help topic for more information: [Data Validation](https://surveyjs.io/form-library/documentation/data-validation).
+   * @see validationEnabled
+   * @see validationAllowSwitchPages
+   * @see validationAllowComplete
+   * @see validate
    */
   public get checkErrorsMode(): string {
     return this.getPropertyValue("checkErrorsMode");
@@ -2729,7 +2742,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set data(data: any) {
     this.valuesHash = {};
-    this.setDataCore(data);
+    this.setDataCore(data, !data);
   }
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
@@ -2745,17 +2758,20 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
-  public setDataCore(data: any): void {
+  public setDataCore(data: any, clearData: boolean = false): void {
+    if(clearData) {
+      this.valuesHash = {};
+    }
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
       }
     }
-    this.updateAllQuestionsValue();
+    this.updateAllQuestionsValue(clearData);
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
-    this.updateAllQuestionsValue();
+    this.updateAllQuestionsValue(clearData);
   }
   public getStructuredData(includePages: boolean = true, level: number = -1): any {
     if (level === 0) return this.data;
@@ -3319,8 +3335,7 @@ export class SurveyModel extends SurveyElementCore
     this.isLoading = false;
     this.completedByTriggers = undefined;
     if (clearData) {
-      this.data = null;
-      this.variablesHash = {};
+      this.setDataCore(null, true);
     }
     this.timerModel.spent = 0;
     for (var i = 0; i < this.pages.length; i++) {
@@ -3533,15 +3548,32 @@ export class SurveyModel extends SurveyElementCore
     document.cookie = this.cookieName + "=;";
   }
   /**
-   * Specifies whether to skip validation when you switch between pages or complete the survey programmatically or when users do that in the UI.
+   * This property is obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
+   */
+  public get ignoreValidation(): boolean { return !this.validationEnabled; }
+  public set ignoreValidation(val: boolean) { this.validationEnabled = !val; }
+  /**
+   * Specifies whether data validation is enabled.
+   *
+   * Default value: `true`
+   * @see checkErrorsMode
+   * @see hideRequiredErrors
+   */
+  public validationEnabled: boolean = true;
+  /**
+   * Specifies whether respondents can switch the current page even if it contains validation errors.
    *
    * Default value: `false`
-   * @see hideRequiredErrors
-   * @see nextPage
-   * @see isPrevPage
-   * @see completeLastPage
+   * @see checkErrorsMode
    */
-  public ignoreValidation: boolean = false;
+  public validationAllowSwitchPages: boolean = false;
+  /**
+   * Specifies whether respondents can end a survey with validation errors.
+   *
+   * Default value: `false`
+   * @see checkErrorsMode
+   */
+  public validationAllowComplete: boolean = false;
   /**
    * Switches the survey to the next page.
    *
@@ -3556,17 +3588,18 @@ export class SurveyModel extends SurveyElementCore
     return this.doCurrentPageComplete(false);
   }
   private hasErrorsOnNavigate(doComplete: boolean): boolean {
-    if (this.ignoreValidation || !this.isEditMode) return false;
-    var func = (hasErrors: boolean) => {
-      if (!hasErrors) {
+    if (!this.isEditMode || this.ignoreValidation) return false;
+    const skipValidation = doComplete && this.validationAllowComplete || !doComplete && this.validationAllowSwitchPages;
+    const func = (hasErrors: boolean) => {
+      if (!hasErrors || skipValidation) {
         this.doCurrentPageCompleteCore(doComplete);
       }
     };
     if (this.isValidateOnComplete) {
       if (!this.isLastPage) return false;
-      return this.validate(true, true, func) !== true;
+      return this.validate(true, true, func) !== true && !skipValidation;
     }
-    return this.validateCurrentPage(func) !== true;
+    return this.validateCurrentPage(func) !== true && !skipValidation;
   }
   private asyncValidationQuesitons: Array<Question>;
   private checkForAsyncQuestionValidation(
@@ -4841,7 +4874,7 @@ export class SurveyModel extends SurveyElementCore
     return this.checkErrorsMode === "onValueChanged";
   }
   private get isValidateOnComplete(): boolean {
-    return this.checkErrorsMode === "onComplete";
+    return this.checkErrorsMode === "onComplete" || this.validationAllowSwitchPages && !this.validationAllowComplete;
   }
   matrixCellValidate(question: QuestionMatrixDropdownModelBase, options: MatrixCellValidateEvent): SurveyError {
     options.question = question;
@@ -5015,18 +5048,18 @@ export class SurveyModel extends SurveyElementCore
    * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
    * @param name The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
    * @param files An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
-   * @param callback A callback function that allows you to get the upload status (`"success"` or `"error"`) and file data.
+   * @param callback A callback function that allows you to access successfully uploaded files as the first argument. If any files fail to upload, the second argument contains an array of error messages.
    * @see onUploadFiles
    * @see downloadFile
    */
   public uploadFiles(
-    question: QuestionFileModel,
+    question: QuestionFileModel | QuestionSignaturePadModel,
     name: string,
     files: File[],
-    callback: (status: string, data: any) => any
+    callback: (data: any | Array<any>, errors?: any | Array<any>) => any
   ) {
     if (this.onUploadFiles.isEmpty) {
-      callback("error", files);
+      callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
       const task = this.taskManager.taskStarted("file");
       this.onUploadFiles.fire(this, {
@@ -5091,7 +5124,7 @@ export class SurveyModel extends SurveyElementCore
     });
   }
   public clearFiles(
-    question: QuestionFileModel,
+    question: QuestionFileModel | QuestionSignaturePadModel,
     name: string,
     value: any,
     fileName: string,
@@ -5130,7 +5163,7 @@ export class SurveyModel extends SurveyElementCore
   protected uploadFilesCore(
     name: string,
     files: File[],
-    uploadingCallback: (status: string, data: any) => any
+    uploadingCallback: (data: any | Array<any>, errors?: any | Array<any>,) => any
   ) {
     var responses: Array<any> = [];
     files.forEach((file) => {
@@ -5466,7 +5499,7 @@ export class SurveyModel extends SurveyElementCore
           (qValue === newValue && Array.isArray(qValue) && !!this.editingObj) ||
           !this.isTwoValueEquals(qValue, newValue)
         ) {
-          questions[i].updateValueFromSurvey(newValue);
+          questions[i].updateValueFromSurvey(newValue, false);
         }
       }
     }
@@ -5563,12 +5596,12 @@ export class SurveyModel extends SurveyElementCore
       this.locStrsChanged();
     }
   }
-  private updateAllQuestionsValue() {
+  private updateAllQuestionsValue(clearData: boolean) {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       var q = <Question>questions[i];
       var valName = q.getValueName();
-      q.updateValueFromSurvey(this.getValue(valName));
+      q.updateValueFromSurvey(this.getValue(valName), clearData);
       if (q.requireUpdateCommentValue) {
         q.updateCommentFromSurvey(this.getComment(valName));
       }
@@ -7175,6 +7208,7 @@ export class SurveyModel extends SurveyElementCore
   public stopMovingQuestion(): void {
     this.isMovingQuestion = false;
   }
+  get isQuestionDragging(): boolean { return this.isMovingQuestion; }
   private needRenderIcons = true;
 
   private skippedPages: Array<{ from: any, to: any }> = [];
@@ -7325,7 +7359,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        if (container === "header") {
+        if (container === "center") {
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }
@@ -7367,6 +7401,7 @@ export class SurveyModel extends SurveyElementCore
         }
       }
     }
+    containerLayoutElements.sort((a, b) => (a.index || 0) - (b.index || 0));
     return containerLayoutElements;
   }
   public processPopupVisiblityChanged(question: Question, popup: PopupModel<any>, visible: boolean): void {
@@ -7387,13 +7422,8 @@ export class SurveyModel extends SurveyElementCore
         this.removeLayoutElement("advanced-header");
         const advHeader = new Cover();
         advHeader.fromTheme(theme);
-        this.layoutElements.push({
-          id: "advanced-header",
-          container: "header",
-          component: "sv-header",
-          data: advHeader,
-          processResponsiveness: width => advHeader.processResponsiveness(width)
-        });
+        this.insertAdvancedHeader(advHeader);
+        this.headerView = "advanced";
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];

@@ -7,7 +7,7 @@
     :id="question.commentId"
     :readonly="question.isInputReadOnly"
     :disabled="question.isInputReadOnly"
-    :class="question.cssClasses.other || commentClass"
+    :class="question.cssClasses.other"
     :value="question.comment"
     :maxlength="question.getOthersMaxLength()"
     :placeholder="question.renderedCommentPlaceholder"
@@ -31,6 +31,5 @@
 import type { Question } from "survey-core";
 defineProps<{
   question: Question;
-  commentClass?: any;
 }>();
 </script>

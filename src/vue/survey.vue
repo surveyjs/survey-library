@@ -14,15 +14,18 @@
           >
             <div :class="vueSurvey.bodyContainerCss">
               <component :is="'sv-components-container'" :survey="vueSurvey" :container="'left'"></component>
-              <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
-                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentTop'"></component>
-                <survey-page
-                  :key="pageKey"
-                  :survey="vueSurvey"
-                  :page="vueSurvey.activePage"
-                  :css="css"
-                />
-                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentBottom'"></component>
+              <div class="sv-components-column sv-components-column--expandable">
+                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'center'"></component>
+                <div :class="vueSurvey.bodyCss"  :style="{maxWidth: survey.renderedWidth}" :id="pageId">
+                  <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentTop'"></component>
+                  <survey-page
+                    :key="pageKey"
+                    :survey="vueSurvey"
+                    :page="vueSurvey.activePage"
+                    :css="css"
+                  />
+                  <component :is="'sv-components-container'" :survey="vueSurvey" :container="'contentBottom'"></component>
+                </div>
               </div>
               <component :is="'sv-components-container'" :survey="vueSurvey" :container="'right'"></component>
             </div>

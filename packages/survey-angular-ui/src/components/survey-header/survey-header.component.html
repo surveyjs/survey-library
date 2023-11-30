@@ -1,6 +1,4 @@
-<div *ngIf="survey.isLogoBefore" [class]="survey.logoClassNames">
-  <ng-template [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
-</div>
+<ng-template *ngIf="survey.isLogoBefore" [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
 <div
   *ngIf="survey.renderedHasTitle"
   [class]="survey.css.headerText"
@@ -10,7 +8,5 @@
   <h5 *ngIf="survey.renderedHasDescription" [class]="survey.css.description" [model]="survey.locDescription" sv-ng-string></h5>
 </div>
 
-<div *ngIf="survey.isLogoAfter" [class]="survey.logoClassNames">
-  <ng-template [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
-</div>
+<ng-template *ngIf="survey.isLogoAfter" [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>
 <div [class]="survey.css.headerClose"></div>

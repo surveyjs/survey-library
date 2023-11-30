@@ -7415,7 +7415,6 @@ export class SurveyModel extends SurveyElementCore
         const advHeader = new Cover();
         advHeader.fromTheme(theme);
         this.insertAdvancedHeader(advHeader);
-        this.headerView = "advanced";
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];

@@ -18366,3 +18366,10 @@ QUnit.test("Do not run defaultValueExpression on survey.data, #7423", function (
   assert.deepEqual(q3.value, [], "q3.value #3");
   assert.notOk(q4.value, "q4.value #3");
 });
+
+QUnit.test("theme assignment doesn't affects headerView", function (assert) {
+  let survey = new SurveyModel({});
+  assert.equal(survey.headerView, "basic", "default value");
+  survey.theme = { header: {} } as any;
+  assert.equal(survey.headerView, "basic", "keep default value");
+});

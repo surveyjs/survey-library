@@ -16,7 +16,7 @@ export var englishStrings = {
   panelDynamicProgressText: "{0} of {1}",
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Answered {0}/{1} questions",
-  emptySurvey: "The survey doesn't contain visible pages or questions.",
+  emptySurvey: "The survey doesn't contain any visible elements.",
   completingSurvey: "Thank you for completing the survey",
   completingSurveyBefore:
     "Our records show that you have already completed this survey.",

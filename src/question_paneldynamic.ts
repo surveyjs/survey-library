@@ -1979,6 +1979,7 @@ export class QuestionPanelDynamicModel extends Question
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       questionPlainData.isNode = true;
+      const prevData = Array.isArray(questionPlainData.data) ? [].concat(questionPlainData.data) : [];
       questionPlainData.data = this.panels.map(
         (panel: PanelModel, index: number) => {
           var panelDataItem = <any>{
@@ -2001,6 +2002,7 @@ export class QuestionPanelDynamicModel extends Question
           return panelDataItem;
         }
       );
+      questionPlainData.data = questionPlainData.data.concat(prevData);
     }
     return questionPlainData;
   }

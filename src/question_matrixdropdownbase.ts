@@ -344,9 +344,10 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     var value = this.data.getRowValue(this.data.getRowIndex(this));
     if (!Helpers.isValueEmpty(value)) {
       for (var i = 0; i < questions.length; i++) {
-        var key = questions[i].getValueName();
-        if (!Helpers.isValueEmpty(value[key])) {
-          questions[i].value = value[key];
+        const key = questions[i].getValueName();
+        const val = !!this.editingObj ? Serializer.getObjPropertyValue(this.editingObj, key) : value[key];
+        if (!Helpers.isValueEmpty(val)) {
+          questions[i].value = val;
         }
       }
     }
@@ -2222,7 +2223,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         columnValue = newRowValue[columnName];
       }
       this.isRowChanging = true;
-      rowObj[columnName] = columnValue;
+      Serializer.setObjPropertyValue(rowObj, columnName, columnValue);
       this.isRowChanging = false;
       this.onCellValueChanged(row, columnName, rowObj);
     } else {

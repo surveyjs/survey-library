@@ -18,6 +18,7 @@
 }
 
 .sd-action.sd-matrixdynamic__remove-btn .sd-action__icon {
+  @include useEditorFontSize;
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
 }

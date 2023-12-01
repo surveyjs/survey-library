@@ -4,6 +4,7 @@
 
 .sd-item--disabled.sd-item--disabled .sd-item__decorator,
 .sd-item__decorator {
+  @include useEditorFontSize;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -37,6 +38,7 @@
 }
 
 .sd-item__control-label {
+  @include useEditorFontSize;
   font-family: $font-editorfont-family;
   font-style: normal;
   font-weight: $font-editorfont-weight;

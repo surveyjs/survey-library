@@ -1,12 +1,14 @@
 <ng-template #template>
-  <img
-  [class]="survey.css.logoImage"
-  [attr.src]="survey.locLogo.renderedHtml | safeUrl"
-  [style.width]="survey.renderedStyleLogoWidth"
-  [style.height]="survey.renderedStyleLogoHeight"
-  [attr.width]="survey.renderedLogoWidth"
-  [attr.height]="survey.renderedLogoHeight"
-  [attr.alt]="survey.locTitle.renderedHtml"
-  [style.objectFit]="survey.logoFit"
-  />
+  <div [class]="survey.logoClassNames">
+    <img
+    [class]="survey.css.logoImage"
+    [attr.src]="survey.locLogo.renderedHtml | safeUrl"
+    [style.width]="survey.renderedStyleLogoWidth"
+    [style.height]="survey.renderedStyleLogoHeight"
+    [attr.width]="survey.renderedLogoWidth"
+    [attr.height]="survey.renderedLogoHeight"
+    [attr.alt]="survey.locTitle.renderedHtml"
+    [style.objectFit]="survey.logoFit"
+    />
+  </div>
 </ng-template>

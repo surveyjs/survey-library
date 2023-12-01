@@ -74,6 +74,7 @@ import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
+import { SurveyTaskManagerModel } from "./surveyTaskManager";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -2741,7 +2742,7 @@ export class SurveyModel extends SurveyElementCore
   }
   public set data(data: any) {
     this.valuesHash = {};
-    this.setDataCore(data);
+    this.setDataCore(data, !data);
   }
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
@@ -2757,17 +2758,20 @@ export class SurveyModel extends SurveyElementCore
     this.mergeValues(data, newData);
     this.setDataCore(newData);
   }
-  public setDataCore(data: any): void {
+  public setDataCore(data: any, clearData: boolean = false): void {
+    if(clearData) {
+      this.valuesHash = {};
+    }
     if (data) {
       for (var key in data) {
         this.setDataValueCore(this.valuesHash, key, data[key]);
       }
     }
-    this.updateAllQuestionsValue();
+    this.updateAllQuestionsValue(clearData);
     this.notifyAllQuestionsOnValueChanged();
     this.notifyElementsOnAnyValueOrVariableChanged("");
     this.runConditions();
-    this.updateAllQuestionsValue();
+    this.updateAllQuestionsValue(clearData);
   }
   public getStructuredData(includePages: boolean = true, level: number = -1): any {
     if (level === 0) return this.data;
@@ -3331,8 +3335,7 @@ export class SurveyModel extends SurveyElementCore
     this.isLoading = false;
     this.completedByTriggers = undefined;
     if (clearData) {
-      this.data = null;
-      this.variablesHash = {};
+      this.setDataCore(null, true);
     }
     this.timerModel.spent = 0;
     for (var i = 0; i < this.pages.length; i++) {
@@ -5058,11 +5061,15 @@ export class SurveyModel extends SurveyElementCore
     if (this.onUploadFiles.isEmpty) {
       callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
+      const task = this.taskManager.taskStarted("file");
       this.onUploadFiles.fire(this, {
         question: question,
         name: name,
         files: files || [],
-        callback: callback,
+        callback: (status, data) => {
+          this.taskManager.taskFinished(task);
+          callback(status, data);
+        },
       });
     }
     if (this.surveyPostId) {
@@ -5492,7 +5499,7 @@ export class SurveyModel extends SurveyElementCore
           (qValue === newValue && Array.isArray(qValue) && !!this.editingObj) ||
           !this.isTwoValueEquals(qValue, newValue)
         ) {
-          questions[i].updateValueFromSurvey(newValue);
+          questions[i].updateValueFromSurvey(newValue, false);
         }
       }
     }
@@ -5589,12 +5596,12 @@ export class SurveyModel extends SurveyElementCore
       this.locStrsChanged();
     }
   }
-  private updateAllQuestionsValue() {
+  private updateAllQuestionsValue(clearData: boolean) {
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       var q = <Question>questions[i];
       var valName = q.getValueName();
-      q.updateValueFromSurvey(this.getValue(valName));
+      q.updateValueFromSurvey(this.getValue(valName), clearData);
       if (q.requireUpdateCommentValue) {
         q.updateCommentFromSurvey(this.getComment(valName));
       }
@@ -6037,6 +6044,7 @@ export class SurveyModel extends SurveyElementCore
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
+      enabled: <any>new ComputedUpdater<boolean>(() => !this.taskManager.hasActiveTasks),
       visibleIndex: 50,
       data: {
         mouseDown: () => this.navigationMouseDown(),
@@ -7428,6 +7436,8 @@ export class SurveyModel extends SurveyElementCore
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));
   }
+
+  private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();
 
   /**
    * Disposes of the survey model.

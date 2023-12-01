@@ -65,6 +65,7 @@ export * from "../responsivityTests";
 export * from "../svgRegistryTests";
 export * from "../utilstests";
 export * from "../mask_pattern_tests";
+export * from "../mask_number_tests";
 export * from "../stylesManagerTests";
 export * from "../headerTests";
 

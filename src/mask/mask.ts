@@ -1,20 +1,26 @@
-import { processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern } from "./mask_utils";
+import { IMaskedValue } from "./mask_utils";
 
 export class InputMaskBase {
-  private _prevSelectionStart: number;
-  constructor(private input: HTMLInputElement, private mask: string) {
+  protected _prevSelectionStart: number;
+  constructor(protected input: HTMLInputElement, protected mask: any) {
     this.applyValue(mask);
     this.addInputEventListener();
   }
 
-  applyValue(mask: string) {
+  protected getMaskedValue(mask: any, option?: any): string {
+    return this.input.value;
+  }
+  protected processMaskedValue(mask: any, option?: any): IMaskedValue {
+    return { text: this.input.value, cursorPosition: this.input.selectionStart };
+  }
+  applyValue(mask: any) {
     if(!!this.input) {
-      this.input.value = getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
+      this.input.value = this.getMaskedValue(mask);
     }
   }
-  updateMaskedString(mask: string): void {
+  protected updateMaskedString(mask: any): void {
     if(!!this.input) {
-      const result = processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
+      const result = this.processMaskedValue(mask);
       this.input.value = result.text;
       this.input.setSelectionRange(result.cursorPosition, result.cursorPosition);
     }

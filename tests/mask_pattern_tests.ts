@@ -1,4 +1,5 @@
-import { syntacticAnalysisMask, processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern, settings } from "../src/mask/mask_utils";
+import { syntacticAnalysisMask, settings } from "../src/mask/mask_utils";
+import { processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern } from "../src/mask/mask_pattern";
 
 export default QUnit.module("Pattern mask");
 

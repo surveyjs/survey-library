@@ -11,6 +11,8 @@ import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputMaskBase } from "./mask/mask";
+import { InputMaskNumber } from "./mask/number_mask";
+import { InputMaskPattern } from "./mask/mask_pattern";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -469,7 +471,11 @@ export class QuestionTextModel extends QuestionTextBase {
   @property() mask: string;
   private updateMaskInstance() {
     if (!this.maskInstance) {
-      this.maskInstance = new InputMaskBase(this.input, this.mask);
+      if(this.mask === "decimal") {
+        this.maskInstance = new InputMaskNumber(this.input);
+      } else if(this.mask) {
+        this.maskInstance = new InputMaskPattern(this.input, this.mask);
+      }
     } else {
       this.maskInstance.updateInputElement(this.mask);
     }

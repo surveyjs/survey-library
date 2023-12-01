@@ -23,10 +23,11 @@ export class SurveyTaskManagerModel extends Base {
   //@property() text: string;
   @property({ defaultValue: false }) hasActiveTasks: boolean;
 
-  public taskStarted(type: string): SurveyTaskModel {
+  public runTask(type: string, func: (done: any) => void): SurveyTaskModel {
     const task = new SurveyTaskModel(type);
     this.taskList.push(task);
     this.hasActiveTasks = true;
+    func(() => this.taskFinished(task));
     return task;
   }
 
@@ -38,13 +39,13 @@ export class SurveyTaskManagerModel extends Base {
     this.onAllTasksCompleted.add(()=> { action(); });
   }
 
-  public taskFinished(task: SurveyTaskModel) {
+  private taskFinished(task: SurveyTaskModel) {
     const index = this.taskList.indexOf(task);
     if (index > -1) {
       this.taskList.splice(index, 1);
     }
     if(this.hasActiveTasks && this.taskList.length == 0) {
-      this.hasActiveTasks = true;
+      this.hasActiveTasks = false;
       this.onAllTasksCompleted.fire(this, {});
     }
   }

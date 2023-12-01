@@ -5,7 +5,7 @@ import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
 import { ConsoleWarnings } from "./console-warnings";
 import { ITheme } from "./themes";
-import { QuestionFileModelBase } from "./question_file";
+import { dataUrl2File, QuestionFileModelBase } from "./question_file";
 
 var defaultWidth = 300;
 var defaultHeight = 200;
@@ -63,6 +63,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.initSignaturePad(el);
+      this.element = el;
     }
     super.afterRenderQuestionElement(el);
   }
@@ -77,6 +78,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     }
   }
   private canvas: any;
+  private element: any;
   private scale: number;
   private valueIsUpdatingInternally: boolean = false;
   @property({ defaultValue: false }) valueWasChangedFromLastUpload: boolean;
@@ -351,15 +353,13 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
-  public onBlur(): void {
+  public onBlur(event: any): void {
     if (!this.storeDataAsText) {
-      setTimeout(() => {
+      if (!this.element.contains(event.relatedTarget)) {
         if (!this.valueWasChangedFromLastUpload) return;
-        fetch(this.signaturePad.toDataURL(this.getFormat())).then(res => res.blob()).then((blob: Blob) => {
-          this.uploadFiles([new File([blob], this.name + "." + correctFormatData(this.dataFormat), { type: this.getFormat() })]);
-          this.valueWasChangedFromLastUpload = false;
-        });
-      }, 100);
+        this.uploadFiles([dataUrl2File(this.signaturePad.toDataURL(this.getFormat()), this.name + "." + correctFormatData(this.dataFormat), this.getFormat())]);
+        this.valueWasChangedFromLastUpload = false;
+      }
     }
   }
   protected uploadResultItemToValue(r: any) {

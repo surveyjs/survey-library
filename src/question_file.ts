@@ -15,6 +15,11 @@ import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getRenderedSize } from "./utils/utils";
 
+export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
+  const str = atob(dataUrl.split(",")[1]);
+  const buffer = new Uint8Array(str.split("").map(c => c.charCodeAt(0))).buffer;
+  return new File([buffer], fileName, { type: type });
+}
 export class QuestionFileModelBase extends Question {
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;

@@ -5061,15 +5061,16 @@ export class SurveyModel extends SurveyElementCore
     if (this.onUploadFiles.isEmpty) {
       callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
-      const task = this.taskManager.taskStarted("file");
-      this.onUploadFiles.fire(this, {
-        question: question,
-        name: name,
-        files: files || [],
-        callback: (status, data) => {
-          this.taskManager.taskFinished(task);
-          callback(status, data);
-        },
+      this.taskManager.runTask("file", (done) => {
+        this.onUploadFiles.fire(this, {
+          question: question,
+          name: name,
+          files: files || [],
+          callback: (status, data) => {
+            callback(status, data);
+            done();
+          },
+        });
       });
     }
     if (this.surveyPostId) {
@@ -6044,13 +6045,12 @@ export class SurveyModel extends SurveyElementCore
     const navComplete = new Action({
       id: "sv-nav-complete",
       visible: <any>new ComputedUpdater<boolean>(() => this.isCompleteButtonVisible),
-      enabled: <any>new ComputedUpdater<boolean>(() => !this.taskManager.hasActiveTasks),
       visibleIndex: 50,
       data: {
         mouseDown: () => this.navigationMouseDown(),
       },
       locTitle: this.locCompleteText,
-      action: () => this.completeLastPage(),
+      action: () => this.taskManager.waitAndExecute(() => this.completeLastPage()),
       component: defaultComponent
     });
     this.updateNavigationItemCssCallback = () => {

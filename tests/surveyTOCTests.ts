@@ -306,3 +306,22 @@ QUnit.test("TOC shouldn't affect page title", function (assert) {
   assert.equal(tocListModel.visibleItems[0].locTitle.textOrHtml, "Text with <em>emphasys text</em>", "Page 1 - nav title in TOC");
   assert.equal(page.locTitle.textOrHtml, "Page 1 title", "Page 1 title");
 });
+
+QUnit.test("TOC shouldn't show search", function (assert) {
+  let json: any = {
+    "pages": [
+      {
+        "name": "page1",
+        "elements": [
+          {
+            "type": "text",
+            "name": "question2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey: SurveyModel = new SurveyModel(json);
+  const tocListModel = createTOCListModel(survey);
+  assert.equal(tocListModel.searchEnabled, false, "Search in TOC should be disabled");
+});

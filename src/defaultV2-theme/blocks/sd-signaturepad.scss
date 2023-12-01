@@ -1,4 +1,5 @@
 .sjs_sp_placeholder {
+    @include useEditorFontSize;
     color: $font-questionplaceholder-color;
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
@@ -27,6 +28,7 @@
     left: 0;
     object-fit: cover;
 }
+
 .sd-signaturepad__loading-indicator {
     width: 100%;
     height: 100%;
@@ -35,8 +37,8 @@
     top: 0;
 
     .sd-loading-indicator {
-            position: absolute;
-            right: calcSize(1);
-            top: calcSize(1);
-        }
+        position: absolute;
+        right: calcSize(1);
+        top: calcSize(1);
     }
+}

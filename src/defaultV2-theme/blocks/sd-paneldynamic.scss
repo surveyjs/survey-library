@@ -178,6 +178,7 @@
 }
 
 .sd-tab-item {
+    @include useEditorFontSize;
     padding: calcSize(1) 0 calcSize(2);
     display: flex;
     -webkit-appearance: none;

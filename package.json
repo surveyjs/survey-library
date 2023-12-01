@@ -92,7 +92,8 @@
     "testcafe:vue3": "testcafe chrome testCafe/ --app \"npm run preview --prefix ./packages/survey-vue3-ui/example \" --selector-timeout 1500 --reporter minimal --env=vue3",
     "testcafe:angular": "testcafe chrome testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:postcss": "postcss build/survey-core/defaultV2.css --silent  -u postcss-calc -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css"
   },
   "version": "1.9.119",
   "name": "survey-library",
@@ -153,6 +154,10 @@
     "mini-css-extract-plugin": "^0.9.0",
     "minimist": "^1.2.5",
     "node-uuid": "^1.4.8",
+    "postcss": "8.4.31",
+    "postcss-calc": "9.0.1",
+    "postcss-cli": "10.1.0",
+    "postcss-fail-on-warn": "0.2.1",
     "puppeteer": "^1.19.0",
     "qunit": "2.14.0",
     "react": "17.0.1",

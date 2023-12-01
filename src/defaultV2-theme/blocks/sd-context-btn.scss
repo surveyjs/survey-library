@@ -10,6 +10,7 @@
   }
 
   svg {
+    @include useEditorFontSize;
     display: block;
     width: multiply(1.5, $font-editorfont-size);
     height: multiply(1.5, $font-editorfont-size);

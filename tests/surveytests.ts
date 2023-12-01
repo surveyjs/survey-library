@@ -18392,3 +18392,12 @@ QUnit.test("defaultValueExpression expression stops working after survey.clear()
   q1.value = 4;
   assert.equal(q2.value, 4, "defaultValueExpression is working after set value directly & clear");
 });
+QUnit.test("emptySurveyText, make it writable, #7456", function (assert) {
+  const survey = new SurveyModel();
+  const defaultText = "The survey doesn't contain any visible elements.";
+  assert.equal(survey.emptySurveyText, defaultText, "#1");
+  survey.emptySurveyText = "Empty";
+  assert.equal(survey.emptySurveyText, "Empty", "#2");
+  survey.resetPropertyValue("emptySurveyText");
+  assert.equal(survey.emptySurveyText, defaultText, "#3");
+});

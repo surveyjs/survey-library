@@ -15,7 +15,7 @@ export var hungarianSurveyStrings = {
   panelDynamicProgressText: "{0} / {1} rekord",
   panelDynamicTabTextFormat: "Panel {panelIndex}",
   questionsProgressText: "Válaszolt kérdések: {0} / {1}",
-  emptySurvey: "The survey doesn't contain visible pages or questions.",
+  emptySurvey: "The survey doesn't contain any visible elements.",
   completingSurvey: "Köszönjük, hogy kitöltötte felmérésünket!",
   completingSurveyBefore: "Már kitöltötte a felmérést.",
   loadingSurvey: "Felmérés betöltése...",

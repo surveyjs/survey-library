@@ -6433,3 +6433,26 @@ QUnit.test("question.setValueIf, basic functionality", function (assert) {
   q3.value = 5;
   assert.equal(q2.value, "klm", "value is set, #6");
 });
+QUnit.test("panel dynamic getPlainData & comment", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { name: "q1", type: "text" },
+          { name: "q2", type: "text" }
+        ],
+        showCommentArea: true
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("panel");
+  q.value = [{ q1: 1, q2: 2 }, { q1: 3, q2: 4 }];
+  q.comment = "Some comments";
+  const data: any = survey.getPlainData();
+  const qData = data[0].data;
+  assert.equal(qData.length, 3, "There are 3 records");
+  assert.equal(qData[2].title, "Comment", "comment title");
+  assert.equal(qData[2].isComment, true, "comment isComment");
+});

@@ -2280,7 +2280,7 @@ export class Question extends SurveyElement<Question>
     return makeNameValid(name);
   }
   //IQuestion
-  updateValueFromSurvey(newValue: any): void {
+  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     if (!!this.valueFromDataCallback) {
       newValue = this.valueFromDataCallback(newValue);
@@ -2293,6 +2293,9 @@ export class Question extends SurveyElement<Question>
       });
     } else {
       this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
+      if(clearData && isEmpty) {
+        this.isValueChangedDirectly = false;
+      }
     }
     this.updateDependedQuestions();
     this.updateIsAnswered();

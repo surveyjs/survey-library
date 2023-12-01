@@ -1235,7 +1235,7 @@ export class QuestionSelectBase extends Question {
       this.onVisibleChoicesChanged();
     }
   }
-  updateValueFromSurvey(newValue: any) {
+  updateValueFromSurvey(newValue: any, clearData: boolean): void {
     var newComment = "";
     if (
       this.hasOther &&
@@ -1250,7 +1250,7 @@ export class QuestionSelectBase extends Question {
         newComment = this.data.getComment(this.getValueName());
       }
     }
-    super.updateValueFromSurvey(newValue);
+    super.updateValueFromSurvey(newValue, clearData);
     if((this.isRunningChoices || this.choicesByUrl.isRunning) && !this.isEmpty()) {
       this.cachedValueForUrlRequests = this.value;
     }

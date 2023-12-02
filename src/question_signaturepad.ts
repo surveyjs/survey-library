@@ -353,7 +353,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
    */
   @property({ localizable: { defaultStr: "signaturePlaceHolder" } }) placeholder: string;
 
-  public onBlur(event: any): void {
+  public onBlur = (event: any): void => {
     if (!this.storeDataAsText) {
       if (!this.element.contains(event.relatedTarget)) {
         if (!this.valueWasChangedFromLastUpload) return;

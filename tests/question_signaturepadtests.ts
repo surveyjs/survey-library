@@ -398,28 +398,32 @@ QUnit.test("Question Signature upload files", function (assert) {
   var q1: QuestionSignaturePadModel = <any>survey.getQuestionByName("signature");
   var done = assert.async();
 
+  var eventFired;
+  var fileLoaded;
   var fileName;
   var fileType;
   var fileContent;
   survey.onUploadFiles.add((survey, options) => {
     let file = options.files[0];
     let fileReader = new FileReader();
+    eventFired = true;
     fileReader.onload = (e) => {
+      fileLoaded = true;
       fileName = file.name;
       fileType = file.type;
       fileContent = fileReader.result;
+      setTimeout(
+        () =>
+          options.callback(
+            "success",
+            options.files.map((file) => {
+              return { file: file, content: file.name + "_url" };
+            })
+          ),
+        2
+      );
     };
     fileReader.readAsDataURL(file);
-    setTimeout(
-      () =>
-        options.callback(
-          "success",
-          options.files.map((file) => {
-            return { file: file, content: file.name + "_url" };
-          })
-        ),
-      2
-    );
   });
 
   const el = document.createElement("div");
@@ -431,6 +435,8 @@ QUnit.test("Question Signature upload files", function (assert) {
 
   survey.onValueChanged.add((survey, options) => {
     assert.equal(q1.value, "signature.svg_url");
+    assert.ok(eventFired);
+    assert.ok(fileLoaded);
 
     assert.equal(fileType, "image/svg+xml");
     assert.equal(fileName, "signature.svg");

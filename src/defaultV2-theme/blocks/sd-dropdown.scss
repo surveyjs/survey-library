@@ -16,7 +16,7 @@
   opacity: 1;
   display: flex;
   justify-content: space-between;
-word-spacing: normal;
+  word-spacing: normal;
 }
 
 .sd-dropdown[disabled] {
@@ -43,6 +43,7 @@ word-spacing: normal;
 }
 
 .sd-dropdown__value {
+  @include useEditorFontSize;
   width: 100%;
   min-height: multiply(1.5, $font-editorfont-size);
   overflow: hidden;
@@ -79,6 +80,7 @@ word-spacing: normal;
 
 .sd-dropdown_chevron-button-svg,
 .sd-dropdown_clean-button-svg {
+  @include useEditorFontSize;
   width: multiply(1.5, $font-editorfont-size);
   height: multiply(1.5, $font-editorfont-size);
 }
@@ -94,6 +96,7 @@ word-spacing: normal;
 }
 
 .sd-dropdown__filter-string-input {
+  @include useEditorFontSize;
   position: absolute;
   left: 0;
   top: 0;
@@ -156,6 +159,7 @@ word-spacing: normal;
 
 .sv-dropdown-popup {
   .sd-list__item-body {
+    @include useEditorFontSize;
     line-height: multiply(1.5, $font-editorfont-size);
     font-size: $font-editorfont-size;
     font-weight: $font-editorfont-weight;

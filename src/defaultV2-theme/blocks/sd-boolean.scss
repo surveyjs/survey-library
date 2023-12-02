@@ -15,6 +15,7 @@
 
 .sd-boolean__thumb,
 .sd-boolean__label {
+  @include useEditorFontSize;
   display: block;
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;

@@ -46,6 +46,7 @@
   line-height: 0;
 
   span {
+    @include useEditorFontSize;
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
   }

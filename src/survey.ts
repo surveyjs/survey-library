@@ -829,6 +829,7 @@ export class SurveyModel extends SurveyElementCore
     this.createHtmlLocString("completedHtml", "completingSurvey", htmlCallBack);
     this.createHtmlLocString("completedBeforeHtml", "completingSurveyBefore", htmlCallBack, "completed-before");
     this.createHtmlLocString("loadingHtml", "loadingSurvey", htmlCallBack, "loading");
+    this.createLocalizableString("emptySurveyText", this, true, "emptySurvey");
     this.createLocalizableString("logo", this, false);
     this.createLocalizableString("startSurveyText", this, false, true);
     this.createLocalizableString("pagePrevText", this, false, true);
@@ -1921,13 +1922,15 @@ export class SurveyModel extends SurveyElementCore
     return options.displayValue;
   }
   /**
-   * Returns a message that is displayed when a survey does not contain visible pages or questions.
+   * A message that is displayed when a survey does not contain visible pages or questions.
    * @see [Localization & Globalization](https://surveyjs.io/form-library/documentation/survey-localization)
    */
   public get emptySurveyText(): string {
-    return this.getLocalizationString("emptySurvey");
+    return this.getLocalizableStringText("emptySurveyText");
   }
-
+  public set emptySurveyText(val: string) {
+    this.setLocalizableStringText("emptySurveyText", val);
+  }
   //#region Title/Header options
   /**
    * An image URL or a Base64-encoded image to use as a survey logo.
@@ -7423,7 +7426,6 @@ export class SurveyModel extends SurveyElementCore
         const advHeader = new Cover();
         advHeader.fromTheme(theme);
         this.insertAdvancedHeader(advHeader);
-        this.headerView = "advanced";
       }
       if (key === "isPanelless") {
         this.isCompact = theme[key];

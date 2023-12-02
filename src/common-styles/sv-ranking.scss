@@ -77,6 +77,7 @@
 }
 
 .sv-ranking-item__index.sv-ranking-item__index {
+  @include useEditorFontSize;
   display: flex;
   flex-shrink: 0;
   align-items: center;
@@ -94,13 +95,14 @@
   margin-left: calcSize(0);
 
   svg {
-      fill: $font-questiontitle-color;
-      width: $font-editorfont-size;
-      height: $font-editorfont-size;
+    fill: $font-questiontitle-color;
+    width: $font-editorfont-size;
+    height: $font-editorfont-size;
   }
 }
 
 .sv-ranking-item__text {
+  @include useEditorFontSize;
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;

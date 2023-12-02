@@ -115,6 +115,7 @@
 }
 
 .sd-question__placeholder {
+  @include useEditorFontSize;
   display: flex;
   flex-direction: column;
   align-items: center;

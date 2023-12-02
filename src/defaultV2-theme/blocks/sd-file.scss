@@ -64,6 +64,7 @@
 }
 
 .sd-file__drag-area-placeholder {
+  @include useEditorFontSize;
   text-align: center;
   word-break: break-word;
   white-space: normal;
@@ -129,6 +130,7 @@
 }
 
 .sd-file--chose-btn--as .sd-file--answered .sd-file__actions-container {
+  @include useEditorFontSize;
   inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
 }
 

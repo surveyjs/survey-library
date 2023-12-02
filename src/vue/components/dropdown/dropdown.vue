@@ -65,7 +65,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
-          :tabindex="question.showClearButton ? 0 : -1"
+        aria-hidden="true"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"

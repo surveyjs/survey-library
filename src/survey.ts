@@ -74,6 +74,7 @@ import { PopupModel } from "./popup";
 import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
+import { SurveyTaskManagerModel } from "./surveyTaskManager";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -440,7 +441,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
   /**
-   * An event that is raised when a File Upload question starts to upload a file. Applies only if [`storeDataAsText`](https://surveyjs.io/form-library/documentation/api-reference/file-model#storeDataAsText) is `false`. Use this event to upload files to your server.
+   * An event that is raised when a File Upload or Signature Pad question starts to upload a file. Applies only if [`storeDataAsText`](https://surveyjs.io/form-library/documentation/api-reference/file-model#storeDataAsText) is `false`. Use this event to upload files to your server.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -462,7 +463,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onDownloadFile: EventBase<SurveyModel, DownloadFileEvent> = this.addEvent<SurveyModel, DownloadFileEvent>();
   /**
-   * An event that is raised when users clear files in a [File Upload](https://surveyjs.io/form-library/documentation/api-reference/file-model) question. Use this event to delete files from your server.
+   * An event that is raised when users clear files in a [File Upload](https://surveyjs.io/form-library/documentation/api-reference/file-model) question or clear signature in a [Signature Pad](https://surveyjs.io/form-library/documentation/api-reference/signature-pad-model) question. Use this event to delete files from your server.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -5047,8 +5048,8 @@ export class SurveyModel extends SurveyElementCore
    *   }
    * );
    * ```
-   * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model).
-   * @param name The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name).
+   * @param question A [File Upload question instance](https://surveyjs.io/form-library/documentation/api-reference/file-model) or [Signature Pad question instance](https://surveyjs.io/form-library/documentation/api-reference/signature-pad-model).
+   * @param name The File Upload question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/file-model#name) or Signature Pad question's [`name`](https://surveyjs.io/form-library/documentation/api-reference/signature-pad-model#name).
    * @param files An array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects that represent files to upload.
    * @param callback A callback function that allows you to access successfully uploaded files as the first argument. If any files fail to upload, the second argument contains an array of error messages.
    * @see onUploadFiles
@@ -5063,11 +5064,16 @@ export class SurveyModel extends SurveyElementCore
     if (this.onUploadFiles.isEmpty) {
       callback("error", this.getLocString("noUploadFilesHandler"));
     } else {
-      this.onUploadFiles.fire(this, {
-        question: question,
-        name: name,
-        files: files || [],
-        callback: callback,
+      this.taskManager.runTask("file", (done) => {
+        this.onUploadFiles.fire(this, {
+          question: question,
+          name: name,
+          files: files || [],
+          callback: (status, data) => {
+            callback(status, data);
+            done();
+          },
+        });
       });
     }
     if (this.surveyPostId) {
@@ -6047,7 +6053,7 @@ export class SurveyModel extends SurveyElementCore
         mouseDown: () => this.navigationMouseDown(),
       },
       locTitle: this.locCompleteText,
-      action: () => this.completeLastPage(),
+      action: () => this.taskManager.waitAndExecute(() => this.completeLastPage()),
       component: defaultComponent
     });
     this.updateNavigationItemCssCallback = () => {
@@ -7432,6 +7438,8 @@ export class SurveyModel extends SurveyElementCore
   public themeChanged(theme: ITheme): void {
     this.getAllQuestions().forEach(q => q.themeChanged(theme));
   }
+
+  private taskManager: SurveyTaskManagerModel = new SurveyTaskManagerModel();
 
   /**
    * Disposes of the survey model.

@@ -8,7 +8,7 @@
             <!-- ko if: question.backgroundImage -->
             <img data-bind="attr: { src: question.backgroundImage}, style: { width: question.renderedCanvasWidth }, css: question.cssClasses.backgroundImage">
             <!-- /ko -->
-            <canvas tabindex='0' data-bind="css: question.cssClasses.canvas, event: { blur: question.onBlur }" ></canvas>
+            <canvas tabindex='0' data-bind="css: question.cssClasses.canvas, event: { blur: question.koOnBlur }" ></canvas>
         </div>
         <!-- ko if: question.canShowClearButton -->
         <div data-bind="css: question.cssClasses.controls">

@@ -398,28 +398,32 @@ QUnit.test("Question Signature upload files", function (assert) {
   var q1: QuestionSignaturePadModel = <any>survey.getQuestionByName("signature");
   var done = assert.async();
 
+  var eventFired;
+  var fileLoaded;
   var fileName;
   var fileType;
   var fileContent;
   survey.onUploadFiles.add((survey, options) => {
     let file = options.files[0];
     let fileReader = new FileReader();
+    eventFired = true;
     fileReader.onload = (e) => {
+      fileLoaded = true;
       fileName = file.name;
       fileType = file.type;
       fileContent = fileReader.result;
+      setTimeout(
+        () =>
+          options.callback(
+            "success",
+            options.files.map((file) => {
+              return { file: file, content: file.name + "_url" };
+            })
+          ),
+        2
+      );
     };
     fileReader.readAsDataURL(file);
-    setTimeout(
-      () =>
-        options.callback(
-          "success",
-          options.files.map((file) => {
-            return { file: file, content: file.name + "_url" };
-          })
-        ),
-      2
-    );
   });
 
   const el = document.createElement("div");
@@ -427,10 +431,12 @@ QUnit.test("Question Signature upload files", function (assert) {
   q1.afterRenderQuestionElement(el);
   q1["signaturePad"].fromData([{ "penColor": "rgba(25, 179, 148, 1)", "dotSize": 0, "minWidth": 0.5, "maxWidth": 2.5, "velocityFilterWeight": 0.7, "compositeOperation": "source-over", "points": [{ "time": 1701152337021, "x": 9, "y": 11, "pressure": 0.5 }] }, { "penColor": "rgba(25, 179, 148, 1)", "dotSize": 0, "minWidth": 0.5, "maxWidth": 2.5, "velocityFilterWeight": 0.7, "compositeOperation": "source-over", "points": [{ "time": 1701152337856, "x": 15, "y": 18, "pressure": 0.5 }] }]);
   q1.valueWasChangedFromLastUpload = true;
-  q1.onBlur();
+  q1.onBlur({ target: null } as any);
 
   survey.onValueChanged.add((survey, options) => {
     assert.equal(q1.value, "signature.svg_url");
+    assert.ok(eventFired);
+    assert.ok(fileLoaded);
 
     assert.equal(fileType, "image/svg+xml");
     assert.equal(fileName, "signature.svg");
@@ -438,3 +444,48 @@ QUnit.test("Question Signature upload files", function (assert) {
     done();
   });
 });
+
+QUnit.test("Question Signature upload files - and complete", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "signaturepad",
+        name: "signature",
+        storeDataAsText: false,
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  var q1: QuestionSignaturePadModel = <any>survey.getQuestionByName("signature");
+  var done = assert.async();
+  var filesLoaded = false;
+  survey.onUploadFiles.add((survey, options) => {
+    setTimeout(
+      () => {
+        filesLoaded = true;
+        options.callback(
+          "success",
+          options.files.map((file) => {
+            return { file: file, content: file.name + "_url" };
+          })
+        );
+      },
+      2
+    );
+  });
+
+  const el = document.createElement("div");
+  el.append(document.createElement("canvas"));
+  q1.afterRenderQuestionElement(el);
+  q1.valueWasChangedFromLastUpload = true;
+  survey.onComplete.add((survey, options) => {
+    assert.ok(filesLoaded);
+    done();
+  });
+
+  q1.onBlur({ target: null } as any);
+  survey.navigationBar.getActionById("sv-nav-complete").action();
+
+});
+

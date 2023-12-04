@@ -15,6 +15,11 @@ import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getRenderedSize } from "./utils/utils";
 
+export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
+  const str = atob(dataUrl.split(",")[1]);
+  const buffer = new Uint8Array(str.split("").map(c => c.charCodeAt(0))).buffer;
+  return new File([buffer], fileName, { type: type });
+}
 export class QuestionFileModelBase extends Question {
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;
@@ -55,7 +60,7 @@ export class QuestionFileModelBase extends Question {
     return this.isUploading && this.isDefaultV2Theme;
   }
   /**
-   * Specifies whether to store file content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
+   * Specifies whether to store file or signature content as text in `SurveyModel`'s [`data`](https://surveyjs.io/form-library/documentation/surveymodel#data) property.
    *
    * If you disable this property, implement `SurveyModel`'s [`onUploadFiles`](https://surveyjs.io/form-library/documentation/surveymodel#onUploadFiles) event handler to specify how to store file content.
    */

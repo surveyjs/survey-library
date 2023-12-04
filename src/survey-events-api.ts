@@ -24,7 +24,7 @@ export interface QuestionEventMixin {
 }
 export interface FileQuestionEventMixin {
   /**
-   * A File Upload question instance for which the event is raised.
+   * A File Upload or Signature Pad question instance for which the event is raised.
    */
   question: QuestionFileModel | QuestionSignaturePadModel;
 }

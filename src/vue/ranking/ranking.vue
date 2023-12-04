@@ -11,7 +11,8 @@
         :cssClasses="question.cssClasses" :question="question" :item="item" :unrankedItem=true></survey-ranking-item>
 
       <div v-if="question.unRankingChoices.length === 0" :class="question.cssClasses.containerPlaceholder">
-        {{ question.selectToRankEmptyRankedAreaText }} </div>
+        <survey-string :locString="question.locSelectToRankEmptyRankedAreaText"></survey-string>
+      </div>
     </div>
 
     <div v-if="question.selectToRankEnabled" :class="question.cssClasses.containersDivider"></div>
@@ -21,7 +22,9 @@
         :class="question.getItemClass(item)" :text="item.locText" :index="index" :indexText="getNumberByIndex(index)"
         :cssClasses="question.cssClasses" :question="question" :item="item"></survey-ranking-item>
 
-      <div v-if="question.rankingChoices.length === 0" :class="question.cssClasses.containerPlaceholder">{{ question.selectToRankEmptyUnrankedAreaText }}</div>
+      <div v-if="question.rankingChoices.length === 0" :class="question.cssClasses.containerPlaceholder">
+        <survey-string :locString="question.locSelectToRankEmptyUnrankedAreaText"></survey-string>
+      </div>
     </div>
   </div>
 </template>

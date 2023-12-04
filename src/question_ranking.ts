@@ -585,6 +585,24 @@ Serializer.addClass(
       isSerializable: true,
     },
     {
+      name: "selectToRankEmptyRankedAreaText:text",
+      serializationProperty: "locSelectToRankEmptyRankedAreaText",
+      category: "general",
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+    },
+    {
+      name: "selectToRankEmptyUnrankedAreaText:text",
+      serializationProperty: "locSelectToRankEmptyUnrankedAreaText",
+      category: "general",
+      dependsOn: "selectToRankEnabled",
+      visibleIf: (obj: any) => {
+        return !!obj.selectToRankEnabled;
+      },
+    },
+    {
       name: "maxSelectedChoices:number",
       visible: true,
       default: 0,

@@ -32,14 +32,14 @@ export class SurveyQuestionRanking extends SurveyQuestionElementBase {
         >
           <div className={this.question.getContainerClasses("from")} data-ranking="from-container">
             {this.getItems(this.question.unRankingChoices, unrankedItem)}
-            {this.question.unRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.question.selectToRankEmptyRankedAreaText} </div> : null}
+            {this.question.unRankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.renderLocString(this.question.locSelectToRankEmptyRankedAreaText)} </div> : null}
           </div>
 
           <div className={this.question.cssClasses.containersDivider}></div>
 
           <div className={this.question.getContainerClasses("to")} data-ranking="to-container">
             {this.getItems()}
-            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}>{this.question.selectToRankEmptyUnrankedAreaText}</div> : null}
+            {this.question.rankingChoices.length === 0 ? <div className={this.question.cssClasses.containerPlaceholder}> {this.renderLocString(this.question.locSelectToRankEmptyUnrankedAreaText)} </div> : null}
           </div>
         </div>
       );

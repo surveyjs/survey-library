@@ -25,7 +25,7 @@
         v-if="question.unRankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        {{ question.selectToRankEmptyRankedAreaText }}
+        <survey-string :locString="question.locSelectToRankEmptyRankedAreaText"></survey-string>
       </div>
     </div>
 
@@ -50,7 +50,7 @@
         v-if="question.rankingChoices.length === 0"
         :class="question.cssClasses.containerPlaceholder"
       >
-        {{ question.selectToRankEmptyUnrankedAreaText }}
+        <survey-string :locString="question.locSelectToRankEmptyUnrankedAreaText"></survey-string>
       </div>
     </div>
   </div>

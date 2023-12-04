@@ -449,4 +449,37 @@ QUnit.test("Ranking: renderedSelectToRankAreasLayout", function (assert) {
   assert.equal(questionModel.selectToRankAreasLayout, "horizontal", "default");
   assert.equal(questionModel.renderedSelectToRankAreasLayout, "vertical", "'vertical' always on mobile");
 });
+
+QUnit.test("Ranking: check SelectToRankEmptyRankedAreaText & SelectToRankEmptyUnrankedAreaText properties", (assert) => {
+  let json: any = {
+    questions: [
+      {
+        "type": "ranking",
+        "name": "question1",
+        "selectToRankEmptyRankedAreaText": "empty ranked",
+        "selectToRankEmptyUnrankedAreaText": "empty unranked",
+        "choices": [
+          "Item 1",
+          "Item 2",
+          "Item 3"
+        ]
+      }
+    ],
+  };
+  let survey = new SurveyModel(json);
+  let question = <QuestionRankingModel>survey.getAllQuestions()[0];
+
+  const rankedProp = Serializer.getProperty("ranking", "selectToRankEmptyRankedAreaText");
+  const unrankedProp = Serializer.getProperty("ranking", "selectToRankEmptyUnrankedAreaText");
+
+  assert.equal(rankedProp.isVisible("", question), false);
+  assert.equal(unrankedProp.isVisible("", question), false);
+
+  question.selectToRankEnabled = true;
+  assert.equal(rankedProp.isVisible("", question), true);
+  assert.equal(unrankedProp.isVisible("", question), true);
+
+  assert.equal(question.selectToRankEmptyRankedAreaText, "empty ranked");
+  assert.equal(question.selectToRankEmptyUnrankedAreaText, "empty unranked");
+});
 // EO selectToRankEnabled

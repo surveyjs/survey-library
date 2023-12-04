@@ -601,7 +601,7 @@ Serializer.addClass(
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;
       },
-    }, 
+    },
     {
       name: "maxSelectedChoices:number",
       visible: true,

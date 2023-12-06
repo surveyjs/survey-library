@@ -1500,3 +1500,63 @@ QUnit.test("Double noneItem & selectAllItem and headItems/footItems", function (
   settings.specialChoicesOrder.noneItem = [1];
   settings.specialChoicesOrder.otherItem = [2];
 });
+QUnit.test("Select all disable/enabled", function (assert) {
+  const json = { elements: [
+    { type: "checkbox", name: "q1",
+      choices: [{ value: "a", visibleIf: "{val1}=1" }, { value: "b", enableIf: "{val2}=1" }],
+      showSelectAllItem: true, showNoneItem: true }
+  ] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const selectAll = question.selectAllItem;
+  assert.equal(selectAll.isEnabled, false, "#1");
+  assert.equal(question.isItemSelected(selectAll), false, "#1.1");
+  survey.setVariable("val1", 1);
+  assert.equal(selectAll.isEnabled, true, "#2");
+  assert.equal(question.isItemSelected(selectAll), false, "#2.1");
+  survey.setVariable("val1", 2);
+  assert.equal(selectAll.isEnabled, false, "#3");
+  assert.equal(question.isItemSelected(selectAll), false, "#3.1");
+  survey.setVariable("val2", 1);
+  assert.equal(selectAll.isEnabled, true, "#4");
+  assert.equal(question.isItemSelected(selectAll), false, "#4.1");
+  survey.setVariable("val2", 2);
+  assert.equal(selectAll.isEnabled, false, "#5");
+  assert.equal(question.isItemSelected(selectAll), false, "#5.1");
+});
+QUnit.test("question.selectAll() disable/enabled and visible", function (assert) {
+  const json = { elements: [
+    { type: "checkbox", name: "q1",
+      choices: [{ value: "a", visibleIf: "{val1}=1" }, { value: "b", enableIf: "{val2}=1" }, "c"],
+      showSelectAllItem: true, showNoneItem: true }
+  ] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const selectAll = question.selectAllItem;
+  assert.equal(question.isItemSelected(selectAll), false, "#1.1");
+  question.selectAll();
+  assert.deepEqual(question.value, ["c"], "#1.2");
+  assert.equal(question.isItemSelected(selectAll), true, "#1.3");
+
+  survey.setVariable("val1", 1);
+  assert.equal(question.isItemSelected(selectAll), false, "#2.1");
+  question.selectAll();
+  assert.deepEqual(question.value, ["a", "c"], "#2.2");
+  assert.equal(question.isItemSelected(selectAll), true, "#2.3");
+
+  survey.setVariable("val2", 1);
+  assert.equal(question.isItemSelected(selectAll), false, "#3.1");
+  question.selectAll();
+  assert.deepEqual(question.value, ["a", "b", "c"], "#3.2");
+  assert.equal(question.isItemSelected(selectAll), true, "#3.3");
+});
+QUnit.test("Select all disable/enabled showOtherItem=true", function (assert) {
+  const json = { elements: [
+    { type: "checkbox", name: "q1", showSelectAllItem: true, showOtherItem: true }
+  ] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const selectAll = question.selectAllItem;
+  assert.equal(selectAll.isEnabled, false, "#1");
+  assert.equal(question.isItemSelected(selectAll), false, "#2");
+});

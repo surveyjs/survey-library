@@ -10,7 +10,7 @@
       <sv-ng-element-title [element]="model.survey"></sv-ng-element-title>
     </div>
     <div *ngIf="model.survey.renderedHasDescription" class="sv-header__description" [style]="{ maxWidth: model.textAreaWidth }">
-      <h5 *ngIf="model.survey.renderedHasDescription" [class]="model.survey.css.description" [model]="model.survey.locDescription" sv-ng-string></h5>
+      <div *ngIf="model.survey.renderedHasDescription" [class]="model.survey.css.description" [model]="model.survey.locDescription" sv-ng-string></div>
     </div>
   </div>
 </ng-template>

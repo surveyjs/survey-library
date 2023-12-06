@@ -11,10 +11,10 @@
     <!-- ko component: { name: 'survey-element-title', params: {element: $data } } -->
     <!-- /ko -->
     <!-- ko if: renderedHasDescription -->
-    <h5 data-bind="css: css.description">
+    <div data-bind="css: css.description">
       <!-- ko template: { name: 'survey-string', data: locDescription } -->
       <!-- /ko -->
-    </h5>
+    </div>
     <!-- /ko -->
   </div>
   <!-- /ko -->

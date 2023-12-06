@@ -25,12 +25,12 @@
         class="sv-header__description"
         :style="{ maxWidth: model.textAreaWidth }"
       >
-        <h5
+        <div
           v-if="model.survey.renderedHasDescription"
           :class="model.survey.css.description"
         >
           <survey-string :locString="model.survey.locDescription" />
-        </h5>
+        </div>
       </div>
     </div>
   </div>

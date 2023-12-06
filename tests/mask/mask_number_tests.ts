@@ -1,9 +1,9 @@
-import { syntacticAnalysisMask } from "../src/mask/mask_utils";
-import { getNumberMaskedValue, getNumberUnmaskedValue, parseNumber } from "../src/mask/number_mask";
+import { syntacticAnalysisMask } from "../../src/mask/mask_utils";
+import { getNumberMaskedValue, getNumberUnmaskedValue, parseNumber } from "../../src/mask/number_mask";
 
 export default QUnit.module("Numeric mask");
 
-QUnit.only("parseNumber", assert => {
+QUnit.test("parseNumber", assert => {
   assert.equal(parseNumber(123).integralPart, 123);
   assert.equal(parseNumber(123).fractionalPart, 0);
   assert.equal(parseNumber("123").integralPart, 123);

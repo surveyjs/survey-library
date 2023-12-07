@@ -22,6 +22,9 @@ registerMarkupTests(
           tooltip: "Custom Tooltip"
         });
       },
+      getElement: (el) => {
+        return <HTMLElement>el?.querySelector("form");
+      },
       snapshot: "survey-navigation"
     }, {
       name: "Test Survey theme css variables",

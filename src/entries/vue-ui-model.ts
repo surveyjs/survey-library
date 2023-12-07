@@ -105,6 +105,8 @@ export { HeaderCellViewModel } from "../vue/components/header/header-cell.vue";
 export { HeaderMobileViewModel } from "../vue/components/header/header-mobile.vue";
 export { HeaderViewModel } from "../vue/components/header/header.vue";
 
+export { SvgBundle } from "../vue/svgbundle.vue";
+
 import { SurveyModel } from "survey-core";
 
 SurveyModel.platform = "vue";

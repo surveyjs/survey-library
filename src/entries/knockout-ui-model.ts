@@ -82,6 +82,7 @@ export * from "../knockout/components/paneldynamic-actions/paneldynamic-actions"
 export * from "../knockout/components/brand-info/brand-info";
 export * from "../knockout/components/notifier/notifier";
 export * from "../knockout/components/loading-indicator/loading-indicator";
+export * from "../knockout/svg-bundle";
 
 import * as ko from "knockout";
 import { SurveyModel } from "survey-core";

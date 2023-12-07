@@ -746,6 +746,7 @@ jobs:
     - checkout: Service
       persistCredentials: true
       clean: true
+      fetchDepth: 1
 
     - task: NodeTool@0
       inputs:

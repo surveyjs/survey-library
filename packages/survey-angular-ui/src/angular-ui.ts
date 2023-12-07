@@ -113,6 +113,7 @@ export * from "./components/loading-indicator/loading-indicator.component";
 export * from "./components/header/header.component";
 export * from "./components/header/header-cell.component";
 export * from "./components/header/header-mobile.component";
+export * from "./svgbundle.component";
 
 export * from "./component-factory";
 export * from "./angular-ui.module";

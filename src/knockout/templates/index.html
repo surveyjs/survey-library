@@ -5,6 +5,10 @@
 
 <script type="text/html" id="survey-content-template">
   <div data-bind="css: rootCss, elementStyle: themeVariables">
+    <!-- ko if: needRenderIcons -->
+      <!-- ko component: { name: 'sv-svg-bundle'} -->
+      <!-- /ko -->
+    <!-- /ko -->
     <div data-bind="css: wrapperFormCss">
       <!-- ko if: !!renderBackgroundImage -->
       <div data-bind="css: css.rootBackgroundImage, elementStyle: backgroundImageStyle"></div>

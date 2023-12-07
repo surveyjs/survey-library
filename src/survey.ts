@@ -7212,7 +7212,7 @@ export class SurveyModel extends SurveyElementCore
     this.isMovingQuestion = false;
   }
   get isQuestionDragging(): boolean { return this.isMovingQuestion; }
-  private needRenderIcons = true;
+  public needRenderIcons = true;
 
   private skippedPages: Array<{ from: any, to: any }> = [];
 

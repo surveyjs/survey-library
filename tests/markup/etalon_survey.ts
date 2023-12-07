@@ -60,6 +60,9 @@ registerMarkupTests(
         ]
       },
       event: "onAfterRenderSurvey",
+      initSurvey(survey) {
+        survey.needRenderIcons = false;
+      },
       getSnapshot: el => {
         return el.children[0].children[0].outerHTML;
       },

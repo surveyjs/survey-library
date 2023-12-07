@@ -4,6 +4,7 @@
     :style="vueSurvey.themeVariables"
     ref="root"
   >
+    <sv-svg-bundle v-if="vueSurvey.needRenderIcons"></sv-svg-bundle>
     <div :class="vueSurvey.wrapperFormCss">
       <survey-popup-modal></survey-popup-modal>
       <div
@@ -107,7 +108,7 @@
 </template>
 
 <script lang="ts" setup>
-import { SvgRegistry, SurveyModel } from "survey-core";
+import type { SurveyModel } from "survey-core";
 import {
   toRaw,
   ref,
@@ -161,9 +162,6 @@ useBase(() => vueSurvey.value);
 
 onMounted(() => {
   if (!vueSurvey.value) return;
-  if (vueSurvey.value["needRenderIcons"]) {
-    SvgRegistry.renderIcons();
-  }
   var el = root.value;
   if (el) vueSurvey.value.afterRenderSurvey(el);
   vueSurvey.value.renderCallback = () => {

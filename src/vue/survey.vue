@@ -2,6 +2,7 @@
   <div :class="survey.getRootCss()"
     :style="vueSurvey.themeVariables"
     >
+    <sv-svg-bundle v-if="vueSurvey.needRenderIcons"></sv-svg-bundle>
     <div :class="vueSurvey.wrapperFormCss">
       <div v-if="vueSurvey.renderBackgroundImage" :class="css.rootBackgroundImage" :style="vueSurvey.backgroundImageStyle"></div>
       <form onsubmit="return false;">
@@ -80,9 +81,6 @@ export class Survey extends BaseVue {
 
   constructor() {
     super();
-    if(this.vueSurvey["needRenderIcons"]) {
-      SvgRegistry.renderIcons();
-    }
   }
   protected getModel(): Base {
     return this.vueSurvey;

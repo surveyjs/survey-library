@@ -145,6 +145,8 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       let htmlElement = options.htmlElement;
       if(!!test.getElement) {
         htmlElement = test.getElement(options.htmlElement);
+      } else {
+        htmlElement = options.htmlElement.children[0];
       }
       var all = htmlElement.getElementsByTagName("*");
       for (var i = 0, max = all.length; i < max; i++) {
@@ -154,12 +156,12 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
       sortAttributes(all);
       const newEl = document.createElement("div");
       newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
-      let str = newEl.children[0].innerHTML;
+      let str = newEl.innerHTML;
       if(newEl.getElementsByTagName("form").length) {
         str = newEl.getElementsByTagName("form")[0].innerHTML;
       }
       if(!!test.getSnapshot) {
-        str = test.getSnapshot(htmlElement);
+        str = test.getSnapshot(options.htmlElement);
       }
 
       var re = /(<!--[\s\S]*?-->)/g;

@@ -88,10 +88,7 @@ registerMarkupTests(
       event: "onAfterRenderHeader",
       snapshot: "survey-logo-attribute-sizes",
       getElement: (el) => {
-        const image = <HTMLElement>el?.querySelector(".sv_logo");
-        const div = document.createElement("div");
-        div.appendChild(image);
-        return div;
+        return <HTMLElement>el?.querySelector(".sv_logo");
       }
     },
     {
@@ -117,79 +114,76 @@ registerMarkupTests(
       event: "onAfterRenderHeader",
       snapshot: "survey-logo-style-sizes",
       getElement: (el) => {
-        const image = <HTMLElement>el?.querySelector(".sv_logo");
-        const div = document.createElement("div");
-        div.appendChild(image);
-        return div;
+        return <HTMLElement>el?.querySelector(".sv_logo");
       }
     },
-    // {
-    //   name: "Test survey description",
-    //   json: {
-    //     "title": "Test",
-    //     "description": "Description",
-    //     "pages": [
-    //       {
-    //         "name": "page1",
-    //         "elements": [
-    //           {
-    //             "type": "text",
-    //             "name": "question1"
-    //           }
-    //         ]
-    //       }
-    //     ]
-    //   },
-    //   event: "onAfterRenderHeader",
-    //   snapshot: "survey-header"
-    // },
-    // {
-    //   name: "Test survey description - header advanced mode",
-    //   json: {
-    //     "title": "Test",
-    //     "description": "Description",
-    //     "pages": [
-    //       {
-    //         "name": "page1",
-    //         "elements": [
-    //           {
-    //             "type": "text",
-    //             "name": "question1"
-    //           }
-    //         ]
-    //       }
-    //     ],
-    //     "headerView": "advanced"
-    //   },
-    //   event: "onAfterRenderSurvey",
-    //   getSnapshot: el => {
-    //     return el.querySelector(".sv-header__cell.sv-header__cell--middle.sv-header__cell--right")?.outerHTML || "";
-    //   },
-    //   snapshot: "survey-header-advanced"
-    // },
-    // {
-    //   name: "Test survey description - header advanced mode mobile",
-    //   json: {
-    //     "title": "Test",
-    //     "description": "Description",
-    //     "pages": [
-    //       {
-    //         "name": "page1",
-    //         "elements": [
-    //           {
-    //             "type": "text",
-    //             "name": "question1"
-    //           }
-    //         ]
-    //       }
-    //     ],
-    //     "headerView": "advanced"
-    //   },
-    //   event: "onAfterRenderSurvey",
-    //   initSurvey: survey => survey.setIsMobile(true),
-    //   getSnapshot: el => {
-    //     return el.querySelector(".sv-header--mobile")?.outerHTML || "";
-    //   },
-    //   snapshot: "survey-header-advanced-mobile"
-    // }
+    {
+      name: "Test survey description",
+      json: {
+        "title": "Test",
+        "description": "Description",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ]
+      },
+      event: "onAfterRenderHeader",
+      snapshot: "survey-header"
+    },
+    {
+      name: "Test survey description - header advanced mode",
+      json: {
+        "title": "Test",
+        "description": "Description",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ],
+        "headerView": "advanced"
+      },
+      event: "onAfterRenderSurvey",
+      getElement: el => {
+        return <HTMLElement>el?.querySelector(".sv-header__cell.sv-header__cell--middle.sv-header__cell--right") as HTMLElement;
+      },
+      snapshot: "survey-header-advanced"
+    },
+    {
+      name: "Test survey description - header advanced mode mobile",
+      json: {
+        "title": "Test",
+        "description": "Description",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ]
+          }
+        ],
+        "headerView": "advanced"
+      },
+      event: "onAfterRenderSurvey",
+      initSurvey: survey => survey.setIsMobile(true),
+      getElement: el => {
+        return <HTMLElement>el?.querySelector(".sv-header--mobile");
+      },
+      snapshot: "survey-header-advanced-mobile"
+    }
   ]);

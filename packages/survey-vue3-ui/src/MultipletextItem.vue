@@ -1,6 +1,6 @@
 <template>
   <label v-if="!cell.isErrorsCell" :class="question.getItemLabelCss(item)">
-    <span :class="question.getItemTitleCss()">
+    <span :class="question.getItemTitleCss()" :style="{ minWidth: question.titleWidth, width: question.titleWidth }">
       <span
         v-if="
           item.editor.isRequireTextBeforeTitle ||

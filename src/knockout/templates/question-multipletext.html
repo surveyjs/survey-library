@@ -6,7 +6,7 @@
         <td data-bind="css: cell.className">  
           <!-- ko ifnot: cell.isErrorsCell -->
           <label data-bind="css: question.getItemLabelCss(item)">
-              <span data-bind="css: question.koItemTitleCss">
+              <span data-bind="css: question.koItemTitleCss, style: {  minWidth: question.titleWidth, width: question.titleWidth }">
                 <!-- ko component: { name: 'survey-element-title-content', params: {element: cell.item.editor} } --><!-- /ko -->
               </span>
               <div data-bind="css: question.koItemCss, event: {focusin: cell.item.focusIn }">

@@ -1,6 +1,6 @@
 <ng-container *ngIf="!model.isErrorsCell">
   <label [class]="question.getItemLabelCss(item)">
-    <span [class]="question.getItemTitleCss()">
+    <span [class]="question.getItemTitleCss()" [style]="{ minWidth: question.titleWidth, width: question.titleWidth }">
       <span *ngIf=" item.editor.isRequireTextBeforeTitle || item.editor.isRequireTextOnStart"
         [class]="question.cssClasses.requiredText">{{ item.editor.requiredText }}</span>
       <sv-ng-string [model]="item.locTitle"></sv-ng-string>

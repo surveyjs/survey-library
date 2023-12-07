@@ -78,8 +78,13 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
   protected renderElement() {
     const item = this.item;
     const cssClasses = this.cssClasses;
+    const titleStyle: any = {};
+    if (!!this.question.titleWidth) {
+      titleStyle.minWidth = this.question.titleWidth;
+      titleStyle.width = this.question.titleWidth;
+    }
     return (<label className={this.question.getItemLabelCss(item)}>
-      <span className={cssClasses.itemTitle}>
+      <span className={cssClasses.itemTitle} style={titleStyle}>
         <TitleContent element={item.editor} cssClasses={item.editor.cssClasses}></TitleContent>
       </span>
       <SurveyMultipleTextItemEditor

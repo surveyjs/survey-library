@@ -2,6 +2,7 @@ import { DropdownListModel } from "../src/dropdownListModel";
 import { ListModel } from "../src/list";
 import { PopupModel } from "../src/popup";
 import { QuestionDropdownModel } from "../src/question_dropdown";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 import { SurveyModel } from "../src/survey";
 import { _setIsTouch } from "../src/utils/devices";
 
@@ -890,4 +891,29 @@ QUnit.test("DropdownListModel filterReadOnly", (assert) => {
   assert.notOk(dropdownListModel.filterReadOnly);
   dropdownListModel.onBlur({ stopPropagation: () => { } });
   assert.ok(dropdownListModel.filterReadOnly);
+});
+QUnit.test("DropdownListModel in panel filterString change callback", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "p",
+        templateElements: [
+          {
+            type: "dropdown",
+            name: "country",
+            choicesLazyLoadEnabled: true,
+            showOtherItem: true,
+          },
+        ],
+      },
+    ],
+    showQuestionNumbers: false,
+  });
+  const question = <QuestionPanelDynamicModel>survey.getAllQuestions()[0];
+  question.addPanel();
+
+  const dropdownListModel = (question.panels[0].elements[0] as QuestionDropdownModel).dropdownListModel;
+  dropdownListModel["listModel"].filterString = "abc";
+  assert.equal(dropdownListModel.filterString, "abc");
 });

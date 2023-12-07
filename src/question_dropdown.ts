@@ -295,7 +295,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
   protected onVisibleChoicesChanged(): void {
     super.onVisibleChoicesChanged();
 
-    if (this.popupModel) {
+    if (!this.isLoadingFromJson && this.popupModel) {
       this.dropdownListModel.updateItems();
     }
   }

@@ -142,11 +142,10 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
   platform.survey.textUpdateMode = "onTyping";
   platform.survey[test.event || "onAfterRenderQuestion"].add(function (survey: SurveyModel, options: any) {
     setTimeout(() => {
+
       let htmlElement = options.htmlElement;
       if(!!test.getElement) {
         htmlElement = test.getElement(options.htmlElement);
-      } else {
-        htmlElement = options.htmlElement.children[0];
       }
       var all = htmlElement.getElementsByTagName("*");
       for (var i = 0, max = all.length; i < max; i++) {
@@ -154,8 +153,11 @@ export function testQuestionMarkup(assert: any, test: MarkupTestDescriptor, plat
         clearClasses(all[i]);
       }
       sortAttributes(all);
-      const newEl = document.createElement("div");
+      let newEl = document.createElement("div");
       newEl.innerHTML = clearExtraElements(htmlElement.innerHTML);
+      if (!test.getElement) {
+        newEl = newEl.children[0] as any;
+      }
       let str = newEl.innerHTML;
       if(newEl.getElementsByTagName("form").length) {
         str = newEl.getElementsByTagName("form")[0].innerHTML;

@@ -180,7 +180,7 @@ ItemValue.prototype["onCreating"] = function () {
 ko.components.register("survey", {
   viewModel: {
     createViewModel: function (params: any, componentInfo: any) {
-      var survey: Survey = ko.unwrap(params.survey);
+      var survey: Survey = ko.unwrap(params.survey) || ko.unwrap(params.model);
       ensureSurvey(survey);
       setTimeout(() => {
         var surveyRoot = document.createElement("div");

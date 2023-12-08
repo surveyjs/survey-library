@@ -59,6 +59,7 @@ export const initSurvey = ClientFunction(
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
       const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      window["root"] = root;
       root.render(
         window["React"].createElement(window["Survey"].Survey, {
           model: model,

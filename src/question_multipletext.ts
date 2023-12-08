@@ -534,6 +534,15 @@ export class QuestionMultipleTextModel extends Question
   public set itemSize(val: number) {
     this.setPropertyValue("itemSize", val);
   }
+  /**
+   * A width for item. Accepts CSS values.
+   */
+  public get titleWidth(): string {
+    return this.getPropertyValue("titleWidth") || "";
+  }
+  public set titleWidth(val: string) {
+    this.setPropertyValue("titleWidth", val);
+  }
   @propertyArray() rows: Array<MutlipleTextRow>;
 
   protected onRowCreated(row: MutlipleTextRow) {
@@ -848,7 +857,8 @@ Serializer.addClass(
     { name: "!items:textitems", className: "multipletextitem", isArray: true },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
-    { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
+    { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
+    { name: "titleWidth", category: "layout" }
   ],
   function () {
     return new QuestionMultipleTextModel("");

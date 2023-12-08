@@ -140,10 +140,11 @@ export class AdaptiveActionContainer<T extends Action = Action> extends ActionCo
       this.updateItemMode(dimension, maxSize);
     }
   }
-  public initResponsivityManager(container: HTMLDivElement): void {
+  public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
     this.responsivityManager = new ResponsivityManager(
       container, this,
-      ":scope > .sv-action:not(.sv-dots) > .sv-action__content"
+      ":scope > .sv-action:not(.sv-dots) > .sv-action__content", null,
+      delayedUpdateFunction
     );
   }
   public resetResponsivityManager(): void {

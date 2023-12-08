@@ -17,9 +17,9 @@
       v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >
       <survey-element-title :element="survey" :css="survey.css" />
-      <h5 v-if="survey.renderedHasDescription" :class="survey.css.description">
+      <div v-if="survey.renderedHasDescription" :class="survey.css.description">
         <survey-string :locString="survey.locDescription" />
-      </h5>
+      </div>
     </div>
 
     <div v-if="survey.isLogoAfter" :class="survey.logoClassNames">

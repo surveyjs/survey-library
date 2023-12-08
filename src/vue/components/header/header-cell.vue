@@ -17,9 +17,9 @@
         <survey-element-title :element="model.survey" :css="model.survey.css" />
       </div>
       <div v-if="model.showDescription" class="sv-header__description" :style="{ 'maxWidth': model.textAreaWidth }">
-        <h5 v-if="model.survey.renderedHasDescription" :class="model.survey.css.description">
+        <div v-if="model.survey.renderedHasDescription" :class="model.survey.css.description">
           <survey-string :locString="model.survey.locDescription" />
-        </h5>
+        </div>
       </div>
     </div>
   </div>

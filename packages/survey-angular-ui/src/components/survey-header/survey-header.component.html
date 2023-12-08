@@ -5,7 +5,7 @@
   [style.maxWidth]="survey.titleMaxWidth"
 >
   <sv-ng-element-title [element]="survey"></sv-ng-element-title>
-  <h5 *ngIf="survey.renderedHasDescription" [class]="survey.css.description" [model]="survey.locDescription" sv-ng-string></h5>
+  <div *ngIf="survey.renderedHasDescription" [class]="survey.css.description" [model]="survey.locDescription" sv-ng-string></div>
 </div>
 
 <ng-template *ngIf="survey.isLogoAfter" [component]="{ name: survey.getElementWrapperComponentName(survey, 'logo-image'), data: { data: survey.getElementWrapperComponentData(survey, 'logo-image') } }"></ng-template>

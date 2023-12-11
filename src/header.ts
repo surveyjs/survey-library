@@ -78,7 +78,7 @@ export class Cover extends Base {
   private updateHeaderClasses(): void {
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
-      .append("sv-header__without-background", (this.backgroundColor === "trasparent") && !this.backgroundImage)
+      .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }

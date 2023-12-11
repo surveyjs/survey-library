@@ -75,9 +75,10 @@ jobs:
 
   steps:
     - checkout: self
-    - checkout: EmptyRepo
+    - checkout: Service
       persistCredentials: true
       clean: true
+      fetchDepth: 1
 
     - task: NodeTool@0
       inputs:
@@ -146,6 +147,35 @@ jobs:
 
     - script: |
         cd $(Build.SourcesDirectory)/survey-library
+        npm run doc_gen
+      displayName: "generate docs"
+
+    - task: CopyFiles@2
+      inputs:
+        SourceFolder: "$(Build.SourcesDirectory)/survey-library/docs"
+        TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
+        CleanTargetFolder: true
+      displayName: "copy generated docs to the local surveyjs/service repo"
+
+    # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
+    # https://github.com/microsoft/azure-pipelines-yaml/issues/248
+    # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
+    - powershell: |
+        cd $(Build.SourcesDirectory)/service
+        $env:GIT_REDIRECT_STDERR = '2>&1'
+        git config --global user.email "kurmanov.work@gmail.com"
+        git config --global user.name "dmitrykurmanov"
+        git pull origin master
+        git fetch origin master --tags --force
+        git checkout master
+        git add surveyjs.io/App_Data/DocsLibrary
+        git commit -m "updated survey-library docs [azurepipelines skip]"
+        git pull origin master
+        git push origin master
+      displayName: "git surveyjs/service push updated docs"
+
+    - script: |
+        cd $(Build.SourcesDirectory)/survey-library
         npm run build_angular
       displayName: "Build Angular"
 
@@ -168,6 +198,13 @@ jobs:
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-jquery"
+
+    #trigger next build via the artifact file 'version.txt'
+    - task: CopyFiles@2
+      inputs:
+        contents: "version.txt"
+        targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
+      displayName: "copy version file to Build.ArtifactStagingDirectory"
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -282,6 +319,13 @@ jobs:
       inputs:
         SourceFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
         TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages/survey-knockout-ui"
+
+    #trigger next build via the artifact file 'version.txt'
+    - task: CopyFiles@2
+      inputs:
+        contents: "version.txt"
+        targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
+      displayName: "copy version file to Build.ArtifactStagingDirectory"
 
     - task: PublishBuildArtifacts@1
       inputs:
@@ -729,233 +773,4 @@ jobs:
       inputs:
         PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
         ArtifactName: "SurveyJSLibraryBuildVue3"
-        publishLocation: "Container"
-
-
-- job: Finalize
-  dependsOn:
-    - CoreAngularJquery
-    - Knockout
-    - React
-    - Vue
-    - Angular
-    - Vue3
-
-  steps:
-    - checkout: self
-    - checkout: Service
-      persistCredentials: true
-      clean: true
-      fetchDepth: 1
-
-    - task: NodeTool@0
-      inputs:
-        versionSpec: "14.x"
-      displayName: "Install Node.js"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/"
-        Contents: "package.json"
-        TargetFolder: "$(Build.SourcesDirectory)/Temp/"
-        OverWrite: true
-      displayName: "Copy package.json for cache key"
-    - task: Cache@2
-      inputs:
-        key: 'npm-cache-library | $(Build.SourcesDirectory)/Temp/package.json'
-        path: $(Build.SourcesDirectory)/survey-library/node_modules
-        cacheHitVar: NPM_CACHE_RESTORED
-      displayName: Cache NPM
-
-    # setup next release version
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: "specific"
-        project: "af2804d2-859a-4705-9ef5-cdf46d1d5d4f"
-        pipeline: "47"
-        buildVersionToDownload: "latest"
-        downloadType: "single"
-        artifactName: "ReleaseVersionFile"
-        downloadPath: "$(System.ArtifactsDirectory)"
-
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildCoreAngularJquery'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-core"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-core"
-
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildKnockout'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildKnockout/packages/survey-knockout-ui"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui"
-
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildReact'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildReact/packages/survey-react"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildReact/packages/survey-react-ui"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-react-ui"
-
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildVue'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildVue/packages/survey-vue"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildVue/packages/survey-vue-ui"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue-ui"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-jquery"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-jquery"
-  
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildAngular'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
-    - task: DownloadBuildArtifacts@0
-      inputs:
-        buildType: 'current'
-        downloadType: 'single'
-        artifactName: 'SurveyJSLibraryBuildVue3'
-        downloadPath: '$(System.ArtifactsDirectory)'
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildCoreAngularJquery/packages/survey-angular"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular"
-  
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildAngular/packages/survey-angular-ui"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-angular-ui"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/SurveyJSLibraryBuildVue3/packages/survey-vue3-ui"
-        TargetFolder: "$(Build.SourcesDirectory)/survey-library/build/survey-vue3-ui"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(System.ArtifactsDirectory)/ReleaseVersionFile/"
-        Contents: "version.txt"
-        TargetFolder: "$(Build.SourcesDirectory)/"
-        OverWrite: true
-      displayName: "Copy Build Artifact - SurveyJSVersion File"
-
-    - powershell: |
-        $version = Get-Content $(Build.SourcesDirectory)/version.txt
-        Write-Host "##vso[task.setvariable variable=SurveyJSVersion;]$version"
-      displayName: "setup SurveyJSVersion variable from SurveyJSVersionFile"
-
-    - task: Npm@1
-      displayName: 'NPM install'
-      inputs:
-        command: install
-        verbose: false
-        workingDir: $(Build.SourcesDirectory)/survey-library
-      condition: ne(variables.NPM_CACHE_RESTORED, 'true')
-
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library
-        npm run doc_gen
-      displayName: "generate docs"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/docs"
-        TargetFolder: "$(Build.SourcesDirectory)/service/surveyjs.io/App_Data/DocsLibrary"
-        CleanTargetFolder: true
-      displayName: "copy generated docs to the local surveyjs/service repo"
-
-    # read about the problem with git output ($env:GIT_REDIRECT_STDERR = '2>&1') :
-    # https://github.com/microsoft/azure-pipelines-yaml/issues/248
-    # https://stackoverflow.com/questions/58485585/azure-pipeline-powershell-and-git-on-windows-server-2019-gives-error-in-output
-    - powershell: |
-        cd $(Build.SourcesDirectory)/service
-        $env:GIT_REDIRECT_STDERR = '2>&1'
-        git config --global user.email "kurmanov.work@gmail.com"
-        git config --global user.name "dmitrykurmanov"
-        git pull origin master
-        git fetch origin master --tags --force
-        git checkout master
-        git add surveyjs.io/App_Data/DocsLibrary
-        git commit -m "updated survey-library docs [azurepipelines skip]"
-        git pull origin master
-        git push origin master
-      displayName: "git surveyjs/service push updated docs"
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build"
-        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/packages"
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library/build/survey-react-ui
-        sed -i 's/"survey-core": .*"/"survey-core": "latest"/g' package.json
-      displayName: 'Change survey-core dependency version from release next ver to local dependency'
-
-    - script: |
-        cd $(Build.SourcesDirectory)/survey-library/build/survey-knockout-ui
-        sed -i 's/"survey-core": .*"/"survey-core": "latest"/g' package.json
-      displayName: 'Change survey-core dependency version from release next ver to local dependency'
-
-    - task: CopyFiles@2
-      inputs:
-        SourceFolder: "$(Build.SourcesDirectory)/survey-library/build"
-        TargetFolder: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/build"
-
-    #trigger next build via the artifact file 'version.txt'
-    - task: CopyFiles@2
-      inputs:
-        contents: "version.txt"
-        targetFolder: $(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild
-      displayName: "copy version file to Build.ArtifactStagingDirectory"
-
-    #publishLocation: 'Container' - store the artifact in Azure Pipelines
-    - task: PublishBuildArtifacts@1
-      inputs:
-        PathtoPublish: "$(Build.ArtifactStagingDirectory)/SurveyJSLibraryBuild/"
-        ArtifactName: "SurveyJSLibraryBuild"
         publishLocation: "Container"

@@ -1,6 +1,7 @@
+import { slice } from "lodash";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
-import { isContainerVisible } from "./utils";
+import { isContainerVisible, isElementVisible } from "./utils";
 
 interface IDimensions {
   scroll: number;
@@ -26,6 +27,7 @@ export class ResponsivityManager {
     private model: AdaptiveActionContainer,
     private itemsSelector: string,
     private dotsItemSize: number = null,
+    private delayedUpdateFunction?: (callback: () => void) => void
   ) {
     this.model.updateCallback = (isResetInitialized: boolean) => {
       if (isResetInitialized)
@@ -73,6 +75,16 @@ export class ResponsivityManager {
       : currentAction.maxDimension;
   }
 
+  private getRenderedVisibleActionsCount() {
+    let count = 0;
+    this.container.querySelectorAll(this.itemsSelector).forEach(item => {
+      if(this.calcItemSize(item as HTMLDivElement) > 0) {
+        count++;
+      }
+    });
+    return count;
+  }
+
   private calcItemsSizes() {
     const actions = this.model.actions;
     const _items = this.container.querySelectorAll(this.itemsSelector);
@@ -88,19 +100,11 @@ export class ResponsivityManager {
   private get isContainerVisible(): boolean {
     return isContainerVisible(this.container);
   }
+
   private process(): void {
     if (this.isContainerVisible && !this.model.isResponsivenessDisabled) {
       if (!this.isInitialized) {
         this.model.setActionsMode("large");
-        const recalcItemSizes = () => {
-          this.calcItemsSizes();
-          this.isInitialized = true;
-        };
-        if(queueMicrotask) {
-          queueMicrotask(recalcItemSizes);
-        } else {
-          recalcItemSizes();
-        }
       }
       const processResponsiveness = () => {
         let dotsItemSize = this.dotsItemSize;
@@ -110,8 +114,23 @@ export class ResponsivityManager {
         }
         this.model.fit(this.getAvailableSpace(), dotsItemSize);
       };
-      if(queueMicrotask) {
-        queueMicrotask(processResponsiveness);
+      if(!this.isInitialized) {
+        const callback = () => {
+          this.calcItemsSizes();
+          this.isInitialized = true;
+          processResponsiveness();
+        };
+        if(this.getRenderedVisibleActionsCount() < this.model.visibleActions.length) {
+          if(this.delayedUpdateFunction) {
+            this.delayedUpdateFunction(callback);
+          } else if(queueMicrotask) {
+            queueMicrotask(callback);
+          } else {
+            callback();
+          }
+        } else {
+          callback();
+        }
       } else {
         processResponsiveness();
       }
@@ -132,9 +151,10 @@ export class VerticalResponsivityManager extends ResponsivityManager {
     model: AdaptiveActionContainer,
     itemsSelector: string,
     dotsItemSize?: number,
-    minDimension = 40
+    minDimension = 40,
+    delayedUpdateFunction?: (callback: () => void) => void
   ) {
-    super(container, model, itemsSelector, dotsItemSize);
+    super(container, model, itemsSelector, dotsItemSize, delayedUpdateFunction);
     this.minDimensionConst = minDimension;
     this.recalcMinDimensionConst = false;
   }

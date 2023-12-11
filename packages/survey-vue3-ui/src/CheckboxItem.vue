@@ -2,22 +2,16 @@
   <div role="presentation" :class="question.getItemClass(item)">
     <label :class="question.getLabelClass(item)">
       <input
-        v-if="item == question.selectAllItem"
         type="checkbox"
         role="option"
         :name="question.name + item.value"
-        :value="isAllSelected"
-        v-model="isAllSelected"
-        :id="question.getItemId(item)"
-        :disabled="!question.getItemEnabled(item)"
-        :class="question.cssClasses.itemControl"
-      /><input
-        v-if="item != question.selectAllItem"
-        type="checkbox"
-        role="option"
-        :name="question.name + item.value"
+        :checked="question.isItemSelected(item)"
+        @input="
+          (e) => {
+            question.clickItemHandler(item, e.target.checked);
+          }
+        "
         :value="item.value"
-        v-model="renderedValue"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"

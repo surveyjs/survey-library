@@ -118,6 +118,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     };
   }
   private refreshCanvas() {
+    if(!this.canvas) return;
     if (!this.value) {
       this.canvas.getContext("2d").clearRect(0, 0, this.canvas.width * this.scale, this.canvas.height * this.scale);
       this.signaturePad.clear();

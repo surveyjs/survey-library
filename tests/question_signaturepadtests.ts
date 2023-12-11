@@ -489,3 +489,24 @@ QUnit.test("Question Signature upload files - and complete", function (assert) {
 
 });
 
+QUnit.test("Question Signature pad invisible - on complete", function (assert) {
+  var json = {
+    questions: [
+      {
+        type: "text",
+        name: "text"
+      },
+      {
+        type: "signaturepad",
+        name: "signature",
+        visibleIf: "{text} = 'cba'"
+      },
+    ],
+  };
+
+  var survey = new SurveyModel(json);
+  survey.getQuestionByName("text").value = "abc";
+  survey.doComplete();
+  assert.deepEqual(survey.data, { text: "abc" });
+});
+

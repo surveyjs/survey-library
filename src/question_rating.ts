@@ -496,6 +496,19 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
+/**
+  * Specifies how to display min/max rate values labels
+  *
+  * Possible values:
+  *
+  * - `"default"` -
+  * - `"top"` -
+  * - `"bottom"` -
+  * - `"diagonal"` -
+  *
+  */
+@property() rateDescriptionsPosition: "default" | "top" | "bottom" | "diagonal";
+
   /**
    * Specifies the visual representation of rate values.
    *
@@ -607,9 +620,15 @@ export class QuestionRatingModel extends Question {
   public get ratingRootCss(): string {
     const baseClass = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
       this.cssClasses.rootWrappable : this.cssClasses.root;
-
+    let rootClassModifier = "";
+    if(this.hasMaxLabel || this.hasMinLabel) {
+      if(this.rateDescriptionsPosition == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
+      if(this.rateDescriptionsPosition == "bottom") rootClassModifier = this.cssClasses.rootLabelsBottom;
+      if(this.rateDescriptionsPosition == "diagonal") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
+    }
     return new CssClassBuilder()
       .append(baseClass)
+      .append(rootClassModifier)
       .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
       .toString();
   }
@@ -969,6 +988,11 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.rateType == "labels";
       }
+    },
+    {
+      name: "rateDescriptionsPosition",
+      default: "default",
+      choices: ["default", "top", "bottom", "diagonal"],
     },
     {
       name: "displayMode",

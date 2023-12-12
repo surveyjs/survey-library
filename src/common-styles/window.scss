@@ -1,33 +1,13 @@
 .sv_window {
   position: fixed;
-  bottom: 3px;
-  right: 10px;
-  background-color: cadetblue;
-  padding: 1px;
-  font-family: $font-family;
-  font-size: calcFontSize(0.875);
-  font-style: normal;
-  font-weight: 400;
-  line-height: 1.42857143;
-  text-align: left;
-  text-align: start;
-  text-decoration: none;
-  text-shadow: none;
-  text-transform: none;
-  letter-spacing: normal;
-  word-break: normal;
-  word-spacing: normal;
-  word-wrap: normal;
-  white-space: normal;
-  background-color: #fff;
-  -webkit-background-clip: padding-box;
+  bottom: 16px;
+  right: 16px;
+  background-color: $background;
+  padding: 32px 32px 40px 32px;
+  border-radius: 8px;
+  box-shadow: $shadow-large;
+  border: 1px solid $border-inside;
   background-clip: padding-box;
-  border: 1px solid #ccc;
-  border: 1px solid rgba(0, 0, 0, 0.2);
-  border-radius: calcCornerRadius(1.5);
-  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
-  line-break: auto;
   z-index: 100;
 }
 

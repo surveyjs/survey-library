@@ -671,4 +671,50 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsive-question-inside-panels-in-creator.png", panelRoot, t, comparer);
     });
   });
+  test("Scroll into view if needed on expanding panel", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(400, 600);
+      await initSurvey(framework, {
+        showNavigationButtons: "none",
+        width: "500px",
+        elements: [
+          {
+            type: "comment",
+            name: "q1"
+          },
+          {
+            type: "comment",
+            name: "q2"
+          },
+          {
+            type: "comment",
+            name: "q3"
+          },
+          {
+            type: "comment",
+            name: "q4"
+          },
+          {
+            type: "panel",
+            name: "panel",
+            state: "collapsed",
+            elements: [
+              {
+                type: "comment",
+                name: "panel_q1"
+              },
+              {
+                type: "comment",
+                name: "panel_q2"
+              }
+            ]
+          },
+        ]
+      });
+      await t.scrollBy(0, 400);
+      const panelTitle = Selector(".sd-panel__title");
+      await t.click(panelTitle);
+      await takeElementScreenshot("panel-scroll-on-expand.png", null, t, comparer);
+    });
+  });
 });

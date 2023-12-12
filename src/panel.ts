@@ -1243,6 +1243,12 @@ export class PanelModelBase extends SurveyElement<Question>
     if(this.isCollapsed) {
       this.questions.forEach(q => q.onHidingContent());
     }
+    if(this.survey != null && !this.isLoadingFromJson && this.isExpanded) {
+      const q = this.getFirstQuestionToFocus(false);
+      if(!!q) {
+        setTimeout(() => { this.survey.scrollElementToTop(q, q, null, q.inputId, false); }, 15);
+      }
+    }
   }
 
   /**

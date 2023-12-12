@@ -375,8 +375,8 @@ export class Question extends SurveyElement<Question>
       this.errors = [];
     }
   }
-  protected notifyStateChanged(): void {
-    super.notifyStateChanged();
+  protected notifyStateChanged(prevState: string): void {
+    super.notifyStateChanged(prevState);
     if(this.isCollapsed) {
       this.onHidingContent();
     }

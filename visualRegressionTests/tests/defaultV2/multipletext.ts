@@ -98,7 +98,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("mutlipletext-error-bottom.png", questionRoot, t, comparer);
     });
   });
-  test("Check multipletext titleWidth", async (t) => {
+  test("Check multipletext itemTitleWidth", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await initSurvey(framework, {
@@ -107,7 +107,7 @@ frameworks.forEach(framework => {
           {
             type: "multipletext",
             name: "q1",
-            titleWidth: "400px",
+            itemTitleWidth: "400px",
             items: [
               {
                 name: "item1",

@@ -414,8 +414,14 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().locStrsChanged();
     }
   }
-  protected createWrapper() { }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+  public localeChanged(): void {
+    super.locStrsChanged();
+    if(!!this.getElement()) {
+      this.getElement().localeChanged();
+    }
+  }
+  protected createWrapper(): void { }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (!!this.customQuestion && !this.isLoadingFromJson) {
       this.customQuestion.onPropertyChanged(this, name, newValue);

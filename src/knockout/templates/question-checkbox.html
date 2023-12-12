@@ -49,7 +49,7 @@
 <script type="text/html" id="survey-checkbox-item">
   <div role="presentation" data-bind="css: question.getItemClass($data)">
       <label data-bind="css: question.getLabelClass($data)">
-          <input type="checkbox" role="option" data-bind="attr: {name: question.name + id, id: question.getItemId($data)}, checked: question.isItemSelected(item), event: { change: (i, e) => { question.clickItemHandler(item, e.target.checked); } }, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
+          <input type="checkbox" role="option" data-bind="attr: {name: question.name + id, id: question.getItemId($data)}, checkedValue: $data.value, checked: question.isItemSelected($data), event: { change: (i, e) => { question.clickItemHandler($data, e.target.checked); } }, enable: question.getItemEnabled($data), css: question.cssClasses.itemControl"/>
           <!-- ko if: question.cssClasses.materialDecorator -->
           <span data-bind="css: question.cssClasses.materialDecorator">
             <!-- ko if: question.itemSvgIcon -->

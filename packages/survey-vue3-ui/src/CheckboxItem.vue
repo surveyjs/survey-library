@@ -4,7 +4,7 @@
       <input
         type="checkbox"
         role="option"
-        :name="question.name + item.value"
+        :name="question.name + item.id"
         :checked="question.isItemSelected(item)"
         @input="
           (e) => {

@@ -214,7 +214,7 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             className={this.cssClasses.itemControl}
             type="checkbox"
             role="option"
-            name={this.question.name + this.item.value}
+            name={this.question.name + this.item.id}
             value={this.item.value}
             id={id}
             style={this.inputStyle}

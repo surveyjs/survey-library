@@ -2,7 +2,7 @@
   <div role="presentation" :class="question.getItemClass(item)">
     <label :class="question.getLabelClass(item)">
       <input
-        type="checkbox" role="option" :name="question.name+item.value"
+        type="checkbox" role="option" :name="question.name+item.id"
         :checked="question.isItemSelected(item)"
         @input="
           (e) => {

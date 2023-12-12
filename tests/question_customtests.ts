@@ -2545,3 +2545,23 @@ QUnit.test("Allow to add question via addNewQuestion for component, but not for 
   assert.notOk(q3, "matrixdropdownbase is not created");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("text placeholder is not updated on changing locale", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    questionJSON: {
+      type: "text",
+      placeholder: { en: "en-TextPH", de: "de-TextPH" },
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestion = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(contentQuestion.renderedPlaceholder, "en-TextPH", "en placeholder");
+  survey.locale = "de";
+  assert.equal(contentQuestion.renderedPlaceholder, "de-TextPH", "de placeholder");
+  ComponentCollection.Instance.clear();
+});

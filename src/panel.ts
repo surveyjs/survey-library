@@ -1238,15 +1238,19 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
   }
-  protected notifyStateChanged(): void {
-    super.notifyStateChanged();
+  protected notifyStateChanged(prevState: string): void {
+    super.notifyStateChanged(prevState);
     if(this.isCollapsed) {
       this.questions.forEach(q => q.onHidingContent());
     }
-    if(this.survey != null && !this.isLoadingFromJson && this.isExpanded) {
+    if(this.survey != null && !this.isLoadingFromJson && this.isExpanded && prevState === "collapsed") {
       const q = this.getFirstQuestionToFocus(false);
       if(!!q) {
-        setTimeout(() => { this.survey.scrollElementToTop(q, q, null, q.inputId, false); }, 15);
+        setTimeout(() => {
+          if(!this.isDisposed && !!this.survey) {
+            this.survey.scrollElementToTop(q, q, null, q.inputId, false);
+          }
+        }, 15);
       }
     }
   }
@@ -1681,11 +1685,11 @@ export class PanelModel extends PanelModelBase implements IElement {
       Helpers.getNumberByIndex(this.visibleIndex, this.getStartIndex())
     );
   }
-  protected notifyStateChanged(): void {
+  protected notifyStateChanged(prevState: string): void {
     if(!this.isLoadingFromJson) {
       this.locTitle.strChanged();
     }
-    super.notifyStateChanged();
+    super.notifyStateChanged(prevState);
   }
   protected createLocTitleProperty(): LocalizableString {
     const locTitleValue = super.createLocTitleProperty();

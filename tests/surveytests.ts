@@ -14343,17 +14343,17 @@ QUnit.test("onElementContentVisibilityChanged event", function (assert) {
   panel.expand();
   assert.equal(stateChangedCounter, 1);
   panel.expand();
+  assert.equal(stateChangedCounter, 1);
+  panel.collapse();
   assert.equal(stateChangedCounter, 2);
   panel.collapse();
+  assert.equal(stateChangedCounter, 2);
+  panel.toggleState();
   assert.equal(stateChangedCounter, 3);
-  panel.collapse();
+  panel.toggleState();
   assert.equal(stateChangedCounter, 4);
-  panel.toggleState();
-  assert.equal(stateChangedCounter, 5);
-  panel.toggleState();
-  assert.equal(stateChangedCounter, 6);
   panel.state = "expanded";
-  assert.equal(stateChangedCounter, 7);
+  assert.equal(stateChangedCounter, 5);
 });
 
 QUnit.test("base.survey property", function (assert) {

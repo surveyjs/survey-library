@@ -227,6 +227,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "state") {
       this.updateElementCss(false);
+      this.notifyStateChanged(oldValue);
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
   }
@@ -275,9 +276,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
-    this.notifyStateChanged();
   }
-  protected notifyStateChanged(): void {
+  protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
       this.survey.elementContentVisibilityChanged(this);
     }

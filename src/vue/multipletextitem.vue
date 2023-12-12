@@ -1,28 +1,16 @@
 <template>
-   <label v-if="!cell.isErrorsCell" :class="question.getItemLabelCss(item)">
-    <span :class="question.getItemTitleCss()" :style="{ minWidth: question.titleWidth, width: question.titleWidth }">
-      <span
-        v-if="
-          item.editor.isRequireTextBeforeTitle ||
-          item.editor.isRequireTextOnStart
-        "
-        :class="question.cssClasses.requiredText"
-        >{{ item.editor.requiredText }}</span
-      >
+  <label v-if="!cell.isErrorsCell" :class="question.getItemLabelCss(item)">
+    <span :class="question.getItemTitleCss()"
+      :style="{ minWidth: question.itemTitleWidth, width: question.itemTitleWidth }">
+      <span v-if="item.editor.isRequireTextBeforeTitle ||
+        item.editor.isRequireTextOnStart
+        " :class="question.cssClasses.requiredText">{{ item.editor.requiredText }}</span>
       <survey-string :locString="item.locTitle" />
       <span v-if="item.editor.isRequireTextAfterTitle">&nbsp;</span>
-      <span
-        v-if="item.editor.isRequireTextAfterTitle"
-        aria-hidden="true"
-        :class="question.cssClasses.requiredText"
-        >{{ item.editor.requiredText }}</span
-      >
+      <span v-if="item.editor.isRequireTextAfterTitle" aria-hidden="true" :class="question.cssClasses.requiredText">{{
+        item.editor.requiredText }}</span>
     </span>
-    <div
-      :key="item.editor.id"
-      :class="question.getItemCss()"
-      v-on:focusin="item.focusIn()"
-    >
+    <div :key="item.editor.id" :class="question.getItemCss()" v-on:focusin="item.focusIn()">
       <component :is="getComponentName(item.editor)" :question="item.editor" />
     </div>
   </label>

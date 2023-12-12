@@ -103,6 +103,7 @@
     "@types/ace": "0.0.32",
     "@types/angular": "^1.6.2",
     "@types/babel__traverse": "7.18.2",
+    "@types/dompurify": "^3.0.5",
     "@types/jest": "23.3.3",
     "@types/jquery": "^2.0.39",
     "@types/lodash": "4.14.186",
@@ -209,6 +210,7 @@
     }
   },
   "dependencies": {
+    "dompurify": "^3.0.6",
     "signature_pad": "^4.1.5",
     "vite": "^3.1.8"
   }

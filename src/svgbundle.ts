@@ -1,3 +1,5 @@
+import DOMPurify from 'dompurify'
+
 class SvgIconData {
   [key: string]: string
 }
@@ -32,17 +34,17 @@ export class SvgIconRegistry {
     const startStr = "<svg ";
     const endStr = "</svg>";
     iconSvg = iconSvg.trim();
-    const str = iconSvg.toLowerCase();
+    const str = DOMPurify.sanitize(iconSvg.toLowerCase());
 
-    if(str.substring(0, startStr.length) === startStr &&
-       str.substring(str.length - endStr.length, str.length) === endStr) {
+    if (str.substring(0, startStr.length) === startStr &&
+      str.substring(str.length - endStr.length, str.length) === endStr) {
       this.registerIconFromSymbol(iconId, "<symbol " +
-              "id=\"" + iconPrefix + iconId + "\" " +
-              iconSvg.substring(startStr.length, str.length - endStr.length) +
-              "</symbol>");
+        "id=\"" + iconPrefix + iconId + "\" " +
+        iconSvg.substring(startStr.length, str.length - endStr.length) +
+        "</symbol>");
       return true;
     }
-    else{
+    else {
       return false;
     }
 

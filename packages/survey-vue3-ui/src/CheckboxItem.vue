@@ -8,7 +8,7 @@
         :checked="question.isItemSelected(item)"
         @input="
           (e) => {
-            question.clickItemHandler(item, e.target.checked);
+            change(e);
           }
         "
         :value="item.value"
@@ -35,7 +35,6 @@
 <script lang="ts" setup>
 import type { ItemValue, QuestionCheckboxModel } from "survey-core";
 import { useBase } from "./base";
-import { computed } from "vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -44,25 +43,10 @@ const props = defineProps<{
   item: ItemValue;
   hideLabel?: boolean;
 }>();
-const isAllSelected = computed({
-  get(): boolean | string {
-    return props.question.isAllSelected || "";
-  },
-  set(val: boolean | string) {
-    const question = props.question;
-    question.isAllSelected = !!val;
-  },
-});
 
 useBase(() => props.item);
 
-const renderedValue = computed({
-  get: () => props.question.renderedValue,
-  set: (val) => {
-    const question = props.question;
-    question.renderedValue = val;
-  },
-});
-
-useBase(() => props.item);
+const change = (event: any) => {
+  props.question.clickItemHandler(props.item, event.target.checked);
+};
 </script>

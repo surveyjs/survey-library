@@ -649,6 +649,7 @@ export var defaultV2Css = {
     header: {
       root: "sv_window_title",
       title: "",
+      buttonsContainer: "sv_window_buttons_container",
       button: "sv_window_button",
       buttonExpanded: "",
       buttonCollapsed: ""

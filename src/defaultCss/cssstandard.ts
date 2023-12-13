@@ -369,10 +369,11 @@ export var defaultStandardCss = {
     header: {
       root: "sv_window_title",
       title: "",
-      button: "",
+      buttonsContainer: "sv_window_buttons_container",
+      button: "sv_window_button",
       buttonExpanded: "",
-      buttonCollapsed: "",
-    },
+      buttonCollapsed: ""
+    }
   },
   variables: {
     mobileWidth: "--sv-mobile-width",

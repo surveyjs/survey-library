@@ -174,6 +174,9 @@ export class PopupSurveyModel extends Base {
   public get cssHeaderTitle(): string {
     return this.getPropertyValue("cssHeaderTitle", "");
   }
+  public get cssHeaderButtonsContainer(): string {
+    return this.getPropertyValue("cssHeaderButtonsContainer", "");
+  }
   public get cssHeaderButton(): string {
     return this.getPropertyValue("cssHeaderButton", "");
   }
@@ -193,6 +196,7 @@ export class PopupSurveyModel extends Base {
     if (!cssHeader) return;
     this.setPropertyValue("cssHeaderRoot", cssHeader.root);
     this.setPropertyValue("cssHeaderTitle", cssHeader.title);
+    this.setPropertyValue("cssHeaderButtonsContainer", cssHeader.buttonsContainer);
     this.setPropertyValue("cssHeaderButton", cssHeader.button);
     this.updateCssButton();
   }

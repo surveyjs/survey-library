@@ -5698,7 +5698,7 @@ QUnit.test(
     q1.hasOther = true;
     assert.equal(q1.isItemInList(q1.visibleChoices[5]), true, "other in list");
 
-    assert.equal(q2.visibleChoices[0].value, "selectall", "index=0, selectall");
+    assert.equal(q2.visibleChoices[0].id, "selectall", "index=0, selectall");
     assert.equal(
       q2.isItemInList(q2.visibleChoices[0]),
       false,

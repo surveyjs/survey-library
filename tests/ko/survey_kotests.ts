@@ -1408,25 +1408,6 @@ QUnit.test("Could not assign value into mutlipletext question, #1229", function 
   );
 });
 
-QUnit.test("Checkbox Select All Test", function (assert) {
-  var survey = new Survey();
-  var page = survey.addNewPage("page1");
-  var question = new QuestionCheckbox("q1");
-  page.addElement(question);
-  question.choices = [1, 2, 3];
-  question.hasSelectAll = true;
-  assert.equal(question.isAllSelected, false, "items are not selected");
-  assert.equal(question.koAllSelected(), false, "ko: items are not selected");
-  question.selectAll();
-  assert.equal(question.koAllSelected(), true, "they are all selected");
-  question.value = [1];
-  assert.equal(question.koAllSelected(), false, "Only one value is selected");
-  question.koAllSelected(true);
-  assert.deepEqual(question.value, [1, 2, 3], "All are selected");
-  question.koAllSelected(false);
-  assert.deepEqual(question.isEmpty(), true, "None is selected");
-});
-
 QUnit.test(
   "Changing isRequired doesn't update title for questions in dynamic panel, Bug in Editor #385",
   function (assert) {

@@ -187,9 +187,6 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
   handleOnChange = (event: any) => {
     this.question.clickItemHandler(this.item, event.target.checked);
   }
-  selectAllChanged = (event: any) => {
-    this.question.toggleSelectAll();
-  }
   protected canRender(): boolean {
     return !!this.item && !!this.question;
   }
@@ -204,14 +201,9 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
     isChecked: boolean,
     otherItem: JSX.Element | null
   ): JSX.Element {
-    var id = this.question.getItemId(this.item);
-    var text = !this.hideCaption ? this.renderLocString(this.item.locText) : "";
-    let itemClass = this.question.getItemClass(this.item);
-    let labelClass = this.question.getLabelClass(this.item);
-    var onItemChanged =
-      this.item == this.question.selectAllItem
-        ? this.selectAllChanged
-        : this.handleOnChange;
+    const id = this.question.getItemId(this.item);
+    const itemClass = this.question.getItemClass(this.item);
+    const labelClass = this.question.getLabelClass(this.item);
     const itemLabel = !this.hideCaption ? <span className={this.cssClasses.controlLabel}>{this.renderLocString(this.item.locText, this.textStyle)}</span> : null;
 
     return (
@@ -221,13 +213,13 @@ export class SurveyQuestionCheckboxItem extends ReactSurveyElement {
             className={this.cssClasses.itemControl}
             type="checkbox"
             role="option"
-            name={this.question.name + this.item.value}
-            value={this.item.value != "selectall" ? this.item.value : undefined}
+            name={this.question.name + this.item.id}
+            value={this.item.value}
             id={id}
             style={this.inputStyle}
             disabled={!this.question.getItemEnabled(this.item)}
             checked={isChecked}
-            onChange={onItemChanged}
+            onChange={this.handleOnChange}
           />
           {
             this.cssClasses.materialDecorator ?

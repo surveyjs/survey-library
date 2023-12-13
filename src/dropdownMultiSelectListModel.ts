@@ -47,7 +47,7 @@ export class DropdownMultiSelectListModel extends DropdownListModel {
     if (!_onSelectionChanged) {
       _onSelectionChanged = (item: ItemValue, status: string) => {
         this.resetFilterString();
-        if (item.value === "selectall") {
+        if (item.id === "selectall") {
           this.selectAllItems();
         } else if (status === "added" && item.value === settings.noneItemValue) {
           this.selectNoneItem();

@@ -20,11 +20,13 @@ import { settings } from "./settings";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-checkbox/ (linkStyle))
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
-  private selectAllItemValue: ItemValue = new ItemValue("selectall");
+  private selectAllItemValue: ItemValue;
   private invisibleOldValues: any = {};
   protected defaultSelectedItemValues: Array<ItemValue>;
   constructor(name: string) {
     super(name);
+    this.selectAllItemValue = new ItemValue("");
+    this.selectAllItemValue.id = "selectall";
     var selectAllItemText = this.createLocalizableString(
       "selectAllText", this.selectAllItem, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
@@ -151,6 +153,28 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       val.push(items[i].value);
     }
     this.renderedValue = val;
+  }
+  public clickItemHandler(item: ItemValue, checked?: boolean): void {
+    if(item === this.selectAllItem) {
+      if(checked === true || checked === false) {
+        this.isAllSelected = checked;
+      } else {
+        this.toggleSelectAll();
+      }
+    } else {
+      const newValue: Array<any> = [].concat(this.renderedValue || []);
+      const index = newValue.indexOf(item.value);
+      if (checked) {
+        if (index < 0) {
+          newValue.push(item.value);
+        }
+      } else {
+        if (index > -1) {
+          newValue.splice(index, 1);
+        }
+      }
+      this.renderedValue = newValue;
+    }
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;

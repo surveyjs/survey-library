@@ -1,17 +1,20 @@
-﻿<div style="position: fixed; bottom: 3px; right: 10px;" data-bind="css: cssRoot, style:{width: renderedWidth, maxWidth: renderedWidth}">
+﻿<div data-bind="css: cssRoot, style:{width: renderedWidth, maxWidth: renderedWidth}">
     <div data-bind="css: cssHeaderRoot">
-        <span data-bind="click:doExpand" style="width: 100%; cursor: pointer;">
-            <span style="padding-right:10px" data-bind="css: cssHeaderTitle, text: locTitle.koRenderedHtml"></span>
+        
+        <span data-bind="click:doExpand">
+            <span data-bind="css: cssHeaderTitle, text: locTitle.koRenderedHtml"></span>
             <span aria-hidden="true" data-bind="css: cssButton"></span>
         </span>
+
+        <span data-bind="visible:isExpanded, click:doExpand, css: cssHeaderButton">
+            <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-collapsedetail', size: '16' } } --><!-- /ko -->
+        </span>
         <!-- ko if: allowClose -->
-        <span data-bind="click:doHide, css: cssHeaderButton" style="float: right; cursor: pointer; width: 24px; height: 24px; transform: rotate(45deg);">
+        
+        <span data-bind="click:doHide, css: cssHeaderButton">
         <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-expanddetail', size: '16' } } --><!-- /ko -->
         </span>
         <!-- /ko -->
-        <span data-bind="visible:isExpanded, click:doExpand, css: cssHeaderButton" style="float: right; cursor: pointer; width: 24px; height: 24px;">
-        <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-collapsedetail', size: '16' } } --><!-- /ko -->
-        </span>
     </div>
     <div data-bind="visible:isExpanded, css: cssBody, event: { scroll: $data.onScroll }">
         <survey params="survey: survey"></survey>

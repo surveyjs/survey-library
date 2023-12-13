@@ -496,18 +496,18 @@ export class QuestionRatingModel extends Question {
     }
   }) displayMode: "dropdown" | "buttons" | "auto";
 
-/**
-  * Specifies how to display min/max rate values labels
+  /**
+  * Specifies rate description alignment
   *
   * Possible values:
   *
-  * - `"default"` -
-  * - `"top"` -
-  * - `"bottom"` -
-  * - `"diagonal"` -
+  * - `"left-right"` (default)
+  * - `"top"`
+  * - `"bottom"`
+  * - `"top-bottom"`
   *
   */
-@property() rateDescriptionsPosition: "default" | "top" | "bottom" | "diagonal";
+  @property() rateDescriptionLocation: "left-right" | "top" | "bottom" | "top-bottom";
 
   /**
    * Specifies the visual representation of rate values.
@@ -622,9 +622,9 @@ export class QuestionRatingModel extends Question {
       this.cssClasses.rootWrappable : this.cssClasses.root;
     let rootClassModifier = "";
     if(this.hasMaxLabel || this.hasMinLabel) {
-      if(this.rateDescriptionsPosition == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
-      if(this.rateDescriptionsPosition == "bottom") rootClassModifier = this.cssClasses.rootLabelsBottom;
-      if(this.rateDescriptionsPosition == "diagonal") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
+      if (this.rateDescriptionLocation == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
+      if (this.rateDescriptionLocation == "bottom") rootClassModifier = this.cssClasses.rootLabelsBottom;
+      if (this.rateDescriptionLocation == "top-bottom") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
     }
     return new CssClassBuilder()
       .append(baseClass)
@@ -990,9 +990,9 @@ Serializer.addClass(
       }
     },
     {
-      name: "rateDescriptionsPosition",
-      default: "default",
-      choices: ["default", "top", "bottom", "diagonal"],
+      name: "rateDescriptionLocation",
+      default: "left-right",
+      choices: ["left-right", "top", "bottom", "top-bottom"],
     },
     {
       name: "displayMode",

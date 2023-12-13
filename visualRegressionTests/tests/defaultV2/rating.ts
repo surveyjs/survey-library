@@ -761,7 +761,7 @@ frameworks.forEach(framework => {
             "rateMax": 10,
             "minRateDescription": "Not at all likely",
             "maxRateDescription": "Extremely likely",
-            "rateDescriptionsPosition": "top"
+            "rateDescriptionLocation": "top"
           },
           {
             "type": "rating",
@@ -770,7 +770,7 @@ frameworks.forEach(framework => {
             "rateMax": 10,
             "minRateDescription": "Not at all likely",
             "maxRateDescription": "Extremely likely",
-            "rateDescriptionsPosition": "bottom"
+            "rateDescriptionLocation": "bottom"
           },
           {
             "type": "rating",
@@ -779,7 +779,7 @@ frameworks.forEach(framework => {
             "rateMax": 10,
             "minRateDescription": "Not at all likely",
             "maxRateDescription": "Extremely likely",
-            "rateDescriptionsPosition": "diagonal"
+            "rateDescriptionLocation": "top-bottom"
           }
         ]
       });

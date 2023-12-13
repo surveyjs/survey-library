@@ -1307,7 +1307,7 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   q1.cssClasses.root = "sv_q";
   q1.cssClasses.rootLabelsTop = "sv_q__top";
   assert.equal(q1.ratingRootCss, "sv_q");
-  q1.rateDescriptionsPosition = "top";
+  q1.rateDescriptionLocation = "top";
   assert.equal(q1.ratingRootCss, "sv_q");
   q1.maxRateDescription = "Bad";
   assert.equal(q1.ratingRootCss, "sv_q sv_q__top");

@@ -4719,7 +4719,8 @@ export class SurveyModel extends SurveyElementCore
   private isCurrentPageRendering: boolean = true;
   afterRenderPage(htmlElement: HTMLElement) {
     if (!this.isDesignMode && !this.focusingQuestionInfo) {
-      setTimeout(() => this.scrollToTopOnPageChange(!this.isFirstPageRendering), 1);
+      const doScroll = !this.isFirstPageRendering;
+      setTimeout(() => this.scrollToTopOnPageChange(doScroll), 1);
     }
     this.focusQuestionInfo();
     this.isFirstPageRendering = false;

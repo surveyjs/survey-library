@@ -501,13 +501,13 @@ export class QuestionRatingModel extends Question {
   *
   * Possible values:
   *
-  * - `"left-right"` (default)
+  * - `"leftRight"` (default)
   * - `"top"`
   * - `"bottom"`
-  * - `"top-bottom"`
+  * - `"topBottom"`
   *
   */
-  @property() rateDescriptionLocation: "left-right" | "top" | "bottom" | "top-bottom";
+  @property() rateDescriptionLocation: "leftRight" | "top" | "bottom" | "topBottom";
 
   /**
    * Specifies the visual representation of rate values.
@@ -624,7 +624,7 @@ export class QuestionRatingModel extends Question {
     if(this.hasMaxLabel || this.hasMinLabel) {
       if (this.rateDescriptionLocation == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
       if (this.rateDescriptionLocation == "bottom") rootClassModifier = this.cssClasses.rootLabelsBottom;
-      if (this.rateDescriptionLocation == "top-bottom") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
+      if (this.rateDescriptionLocation == "topBottom") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
     }
     return new CssClassBuilder()
       .append(baseClass)
@@ -991,8 +991,8 @@ Serializer.addClass(
     },
     {
       name: "rateDescriptionLocation",
-      default: "left-right",
-      choices: ["left-right", "top", "bottom", "top-bottom"],
+      default: "leftRight",
+      choices: ["leftRight", "top", "bottom", "topBottom"],
     },
     {
       name: "displayMode",

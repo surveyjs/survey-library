@@ -779,7 +779,7 @@ frameworks.forEach(framework => {
             "rateMax": 10,
             "minRateDescription": "Not at all likely",
             "maxRateDescription": "Extremely likely",
-            "rateDescriptionLocation": "top-bottom"
+            "rateDescriptionLocation": "topBottom"
           }
         ]
       });

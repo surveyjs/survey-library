@@ -41,14 +41,23 @@ function showDialog(
   dialogOptions: IDialogOptions,
   rootElement?: HTMLElement
 ): PopupBaseViewModel {
-  dialogOptions.onHide = () => {
-    popup.value = undefined;
-    popupViewModel.dispose();
-  };
   const popupViewModel: PopupBaseViewModel = createPopupModalViewModel(
     dialogOptions,
     rootElement
   );
+  const onVisibilityChangedCallback = (
+    _: PopupBaseViewModel,
+    options: { isVisible: boolean }
+  ) => {
+    if (!options.isVisible) {
+      () => {
+        popup.value = undefined;
+        popupViewModel.dispose();
+        popupViewModel.onVisibilityChanged.remove(onVisibilityChangedCallback);
+      };
+    }
+  };
+  popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);
   popupViewModel.model.isVisible = true;
   popup.value = popupViewModel;
   return popupViewModel;

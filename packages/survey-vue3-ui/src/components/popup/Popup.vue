@@ -11,15 +11,15 @@ const props = defineProps<{
   getTarget?: (el: HTMLElement) => HTMLElement;
   model: PopupModel;
 }>();
-const popupViewModel = shallowRef(
-  createPopupViewModel(props.model, undefined as any)
-);
+const popupViewModel = shallowRef();
 const root = ref<HTMLElement>(null as any);
 
 watch(
   () => props.model,
   (newValue) => {
-    popupViewModel.value.dispose();
+    if (popupViewModel.value) {
+      popupViewModel.value.dispose();
+    }
     popupViewModel.value = createPopupViewModel(newValue, undefined as any);
   },
   { immediate: true }

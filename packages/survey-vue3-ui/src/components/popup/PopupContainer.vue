@@ -23,6 +23,7 @@
         height: model.height,
         width: model.width,
         minWidth: model.minWidth,
+        opacity: model.opacity,
       }"
       v-on:click="clickInside"
     >
@@ -54,7 +55,7 @@
 </template>
 <script lang="ts" setup>
 import { useBase } from "@/base";
-import { Model, type PopupBaseViewModel } from "survey-core";
+import type { PopupBaseViewModel } from "survey-core";
 import { onMounted, onUpdated } from "vue";
 
 const props = defineProps<{ model: PopupBaseViewModel }>();

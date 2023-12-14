@@ -15,7 +15,7 @@ import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 export default QUnit.module("baseselect");
 
 function getValuesInColumns(question: QuestionSelectBase) {
-  return question.columns.map((column) => column.map((choice) => choice.value));
+  return question.columns.map((column) => column.map((choice) => choice.id));
 }
 
 QUnit.test("Check QuestionSelectBase columns property", function (assert) {
@@ -67,8 +67,8 @@ QUnit.test("Check QuestionSelectBase columns property and creator V2", function 
     [[], []],
     "one column"
   );
-  let headItems = question.headItems.map((item) => item.value);
-  let footItems = question.footItems.map((item) => item.value);
+  let headItems = question.headItems.map((item) => item.id);
+  let footItems = question.footItems.map((item) => item.id);
 
   assert.deepEqual(
     headItems,
@@ -100,9 +100,8 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  var columns = getValuesInColumns(question);
-  columns = getValuesInColumns(question);
   settings.showItemsInOrder = "column";
+  let columns = getValuesInColumns(question);
   assert.deepEqual(
     columns,
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
@@ -120,8 +119,8 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
     [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
     "check showItemsBy col - design"
   );
-  let headItems = question.headItems.map((item) => item.value);
-  let footItems = question.footItems.map((item) => item.value);
+  let headItems = question.headItems.map((item) => item.id);
+  let footItems = question.footItems.map((item) => item.id);
 
   assert.deepEqual(
     headItems,
@@ -158,8 +157,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
   assert.notOk(question.hasHeadItems);
   assert.notOk(question.hasFootItems);
 
-  var columns = getValuesInColumns(question);
-  columns = getValuesInColumns(question);
+  let columns = getValuesInColumns(question);
   settings.showItemsInOrder = "column";
   assert.deepEqual(
     columns,
@@ -177,8 +175,8 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
     [["Item1"], ["Item2"]],
     "check columns with separateSpecialChoices"
   );
-  let headItems = question.headItems.map((item) => item.value);
-  let footItems = question.footItems.map((item) => item.value);
+  let headItems = question.headItems.map((item) => item.id);
+  let footItems = question.footItems.map((item) => item.id);
 
   assert.deepEqual(
     headItems,
@@ -659,11 +657,11 @@ QUnit.test("checkbox and radio css", (assert) => {
   assert.equal(question1.getSelectBaseRootCss(), "css-root");
   assert.equal(question2.getSelectBaseRootCss(), "css-root");
 
-  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
-  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question1.dataChoices.map((item) => item.id), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.id), ["Item 1"]);
 
-  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1", "none"]);
-  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["selectall", "Item 1", "none"]);
+  assert.deepEqual(question1.bodyItems.map((item) => item.id), ["Item 1", "none"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.id), ["selectall", "Item 1", "none"]);
 
   assert.deepEqual(question1.rowLayout, false);
   assert.deepEqual(question2.rowLayout, false);
@@ -674,11 +672,11 @@ QUnit.test("checkbox and radio css", (assert) => {
   assert.equal(question1.getSelectBaseRootCss(), "css-root css-root-row");
   assert.equal(question2.getSelectBaseRootCss(), "css-root css-root-row");
 
-  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
-  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question1.dataChoices.map((item) => item.id), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.id), ["Item 1"]);
 
-  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1", "none"]);
-  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["selectall", "Item 1", "none"]);
+  assert.deepEqual(question1.bodyItems.map((item) => item.id), ["Item 1", "none"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.id), ["selectall", "Item 1", "none"]);
 
   assert.deepEqual(question1.rowLayout, true);
   assert.deepEqual(question2.rowLayout, true);
@@ -692,11 +690,11 @@ QUnit.test("checkbox and radio css", (assert) => {
   assert.equal(question1.getSelectBaseRootCss(), "css-root");
   assert.equal(question2.getSelectBaseRootCss(), "css-root");
 
-  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
-  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question1.dataChoices.map((item) => item.id), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.id), ["Item 1"]);
 
-  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1"]);
-  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question1.bodyItems.map((item) => item.id), ["Item 1"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.id), ["Item 1"]);
 
   assert.deepEqual(question1.rowLayout, false);
   assert.deepEqual(question2.rowLayout, false);
@@ -712,11 +710,11 @@ QUnit.test("checkbox and radio css", (assert) => {
   assert.equal(question1.getSelectBaseRootCss(), "css-root");
   assert.equal(question2.getSelectBaseRootCss(), "css-root");
 
-  assert.deepEqual(question1.dataChoices.map((item) => item.value), ["Item 1"]);
-  assert.deepEqual(question2.dataChoices.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question1.dataChoices.map((item) => item.id), ["Item 1"]);
+  assert.deepEqual(question2.dataChoices.map((item) => item.id), ["Item 1"]);
 
-  assert.deepEqual(question1.bodyItems.map((item) => item.value), ["Item 1"]);
-  assert.deepEqual(question2.bodyItems.map((item) => item.value), ["Item 1"]);
+  assert.deepEqual(question1.bodyItems.map((item) => item.id), ["Item 1"]);
+  assert.deepEqual(question2.bodyItems.map((item) => item.id), ["Item 1"]);
 
   assert.deepEqual(question1.rowLayout, false);
   assert.deepEqual(question2.rowLayout, false);
@@ -1433,7 +1431,7 @@ QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", fu
   const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   let choices = question.visibleChoices;
   assert.equal(choices.length, 6, "6 items, #1");
-  assert.equal(choices[0].value, "selectall", "all index #1");
+  assert.equal(choices[0].id, "selectall", "all index #1");
   assert.equal(choices[4].value, "none", "none index #1");
   assert.equal(choices[5].value, "other", "other index #1");
 
@@ -1442,7 +1440,7 @@ QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", fu
   question.showNoneItem = true;
   choices = question.visibleChoices;
   assert.equal(choices.length, 6, "6 items, #2");
-  assert.equal(choices[0].value, "selectall", "all index #2");
+  assert.equal(choices[0].id, "selectall", "all index #2");
   assert.equal(choices[4].value, "other", "other index #2");
   assert.equal(choices[5].value, "none", "none index #2");
 
@@ -1452,7 +1450,7 @@ QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", fu
   choices = question.visibleChoices;
   assert.equal(choices.length, 7, "7 items, #3");
   assert.equal(choices[0].value, "none", "none index (up) #3");
-  assert.equal(choices[1].value, "selectall", "all index #3");
+  assert.equal(choices[1].id, "selectall", "all index #3");
   assert.equal(choices[5].value, "other", "other index #3");
   assert.equal(choices[6].value, "none", "none index (bottom) #3");
 
@@ -1490,10 +1488,10 @@ QUnit.test("Double noneItem & selectAllItem and headItems/footItems", function (
   assert.equal(question.visibleChoices.length, 8, "There are 8 items");
   assert.equal(question.headItems.length, 2, "There are two items in head items");
   assert.equal(question.headItems[0].value, "none", "head none");
-  assert.equal(question.headItems[1].value, "selectall", "head selectall");
+  assert.equal(question.headItems[1].id, "selectall", "head selectall");
   assert.equal(question.footItems.length, 3, "There are three items in footer items");
   assert.equal(question.footItems[0].value, "other", "foot other");
-  assert.equal(question.footItems[1].value, "selectall", "foot selectall");
+  assert.equal(question.footItems[1].id, "selectall", "foot selectall");
   assert.equal(question.footItems[2].value, "none", "foot none");
 
   settings.specialChoicesOrder.selectAllItem = [-1];
@@ -1559,4 +1557,21 @@ QUnit.test("Select all disable/enabled showOtherItem=true", function (assert) {
   const selectAll = question.selectAllItem;
   assert.equal(selectAll.isEnabled, false, "#1");
   assert.equal(question.isItemSelected(selectAll), false, "#2");
+});
+QUnit.test("Select all and clickItemHandler", function (assert) {
+  const json = { elements: [
+    { type: "checkbox", name: "q1", choices: [1, 2, 3], showSelectAllItem: true }
+  ] };
+  const survey = new SurveyModel(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(question.selectAllItem.value, "", "select all equals empty value");
+  assert.equal(question.isAllSelected, false, "#1");
+  question.clickItemHandler(question.selectAllItem, true);
+  assert.equal(question.isAllSelected, true, "#2");
+  question.clickItemHandler(question.selectAllItem, false);
+  assert.equal(question.isAllSelected, false, "#3");
+  question.clickItemHandler(question.selectAllItem);
+  assert.equal(question.isAllSelected, true, "#4");
+  question.clickItemHandler(question.selectAllItem);
+  assert.equal(question.isAllSelected, false, "#5");
 });

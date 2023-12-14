@@ -258,7 +258,7 @@ settings.customIcons["icon-" + CUSTOM_TYPE] = "icon-text";
 The [Property Grid](/Documentation/Survey-Creator?id=property-grid) is built upon a regular survey and can be customized using the same techniques. It means that if you integrate a third-party component into a survey, you can integrate it into the Property Grid with little effort. For example, the following code shows how to register the Color Picker configured in this tutorial as an editor for the properties of the `"color"` type:
 
 ```js
-import { ..., PropertyGridEditorCollection } from "survey-creator-react";
+import { ..., PropertyGridEditorCollection } from "survey-creator-core";
 
 const CUSTOM_TYPE = "color-picker";
 

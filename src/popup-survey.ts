@@ -117,7 +117,12 @@ export class PopupSurveyModel extends Base {
     this.survey.title = value;
   }
   get locTitle(): LocalizableString {
+    if (this.survey.locTitle.isEmpty) return null;
     return this.survey.locTitle;
+  }
+  get locDescription(): LocalizableString {
+    if (this.survey.locTitle.isEmpty) return null;
+    return this.survey.locDescription;
   }
   /**
    * Expands the pop-up window.
@@ -174,11 +179,17 @@ export class PopupSurveyModel extends Base {
   public get cssHeaderTitle(): string {
     return this.getPropertyValue("cssHeaderTitle", "");
   }
+  public get cssHeaderDescription(): string {
+    return this.getPropertyValue("cssHeaderDescription", "");
+  }
   public get cssHeaderButtonsContainer(): string {
     return this.getPropertyValue("cssHeaderButtonsContainer", "");
   }
-  public get cssHeaderButton(): string {
-    return this.getPropertyValue("cssHeaderButton", "");
+  public get cssHeaderCollapseButton(): string {
+    return this.getPropertyValue("cssHeaderCollapseButton", "");
+  }
+  public get cssHeaderCloseButton(): string {
+    return this.getPropertyValue("cssHeaderCloseButton", "");
   }
   public get renderedWidth(): string {
     let width = this.getPropertyValue("width", "60%");
@@ -196,8 +207,10 @@ export class PopupSurveyModel extends Base {
     if (!cssHeader) return;
     this.setPropertyValue("cssHeaderRoot", cssHeader.root);
     this.setPropertyValue("cssHeaderTitle", cssHeader.title);
+    this.setPropertyValue("cssHeaderDescription", cssHeader.description);
     this.setPropertyValue("cssHeaderButtonsContainer", cssHeader.buttonsContainer);
-    this.setPropertyValue("cssHeaderButton", cssHeader.button);
+    this.setPropertyValue("cssHeaderCollapseButton", cssHeader.collapseButton);
+    this.setPropertyValue("cssHeaderCloseButton", cssHeader.closeButton);
     this.updateCssButton();
   }
   private updateCssButton() {

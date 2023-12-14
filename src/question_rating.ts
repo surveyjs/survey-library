@@ -416,9 +416,10 @@ export class QuestionRatingModel extends Question {
   }
   /**
    * Specifies a description for the minimum (first) rate value.
+   * @see rateDescriptionLocation
+   * @see displayRateDescriptionsAsExtremeItems
    * @see rateValues
    * @see rateMin
-   * @see displayRateDescriptionsAsExtremeItems
    */
   public get minRateDescription(): string {
     return this.getLocalizableStringText("minRateDescription");
@@ -432,9 +433,10 @@ export class QuestionRatingModel extends Question {
   }
   /**
    * Specifies a description for the maximum (last) rate value.
+   * @see rateDescriptionLocation
+   * @see displayRateDescriptionsAsExtremeItems
    * @see rateValues
    * @see rateMax
-   * @see displayRateDescriptionsAsExtremeItems
    */
   public get maxRateDescription(): string {
     return this.getLocalizableStringText("maxRateDescription");
@@ -457,15 +459,14 @@ export class QuestionRatingModel extends Question {
   }
 
   /**
-  * Specifies whether to display `minRateDescription` and `maxRateDescription` values as captions for buttons that correspond to the extreme (first and last) rate values.
+  * Specifies whether to display [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) values as captions for buttons that correspond to the extreme (first and last) rate values.
   *
   * Default value: `false`
   *
   * If this property is disabled, the `minRateDescription` and `maxRateDescription` values are displayed as plain non-clickable texts.
   *
   * If any of the `minRateDescription` and `maxRateDescription` properties is empty, the corresponding rate value's `value` or `text` is displayed as a button caption.
-  * @see minRateDescription
-  * @see maxRateDescription
+  * @see rateDescriptionLocation
   * @see rateMin
   * @see rateMax
   * @see rateValues
@@ -497,15 +498,15 @@ export class QuestionRatingModel extends Question {
   }) displayMode: "dropdown" | "buttons" | "auto";
 
   /**
-  * Specifies rate description alignment
+  * Specifies the alignment of [`minRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#minRateDescription) and [`maxRateDescription`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model#maxRateDescription) texts.
   *
   * Possible values:
   *
-  * - `"leftRight"` (default)
-  * - `"top"`
-  * - `"bottom"`
-  * - `"topBottom"`
-  *
+  * - `"leftRight"` (default) - Aligns `minRateDescription` to the left of rate values and `maxRateDescription` to their right.
+  * - `"top"` - Displays the descriptions above the minimum and maximum rate values.
+  * - `"bottom"` - Displays both descriptions below the minimum and maximum rate values.
+  * - `"topBottom"` - Displays `minRateDescription` above the minimum rate value and `maxRateDescription` below the maximum rate value.
+  * @see displayRateDescriptionsAsExtremeItems
   */
   @property() rateDescriptionLocation: "leftRight" | "top" | "bottom" | "topBottom";
 

@@ -5038,13 +5038,8 @@ export class SurveyModel extends SurveyElementCore
    *   question,
    *   question.name,
    *   question.value,
-   *   (status, data) => {
-   *     if (status === "success") {
-   *       // Handle success
-   *     }
-   *     if (status === "error") {
-   *       // Handle error
-   *     }
+   *   (data, errors) => {
+   *     // ...
    *   }
    * );
    * ```

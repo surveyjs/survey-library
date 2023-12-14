@@ -18401,3 +18401,112 @@ QUnit.test("emptySurveyText, make it writable, #7456", function (assert) {
   survey.resetPropertyValue("emptySurveyText");
   assert.equal(survey.emptySurveyText, defaultText, "#3");
 });
+
+QUnit.test("getContainerContent - progress + advanced header", function (assert) {
+  const json = {
+    title: "My Survey",
+    showNavigationButtons: "none",
+    pages: [
+      {
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+          {
+            required: true,
+            "type": "rating",
+            "name": "recommend friends",
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+          {
+            "type": "radiogroup",
+            "name": "price",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  survey.headerView = "advanced";
+  function getContainerContent(container: LayoutElementContainer) {
+    const content = survey.getContainerContent(container);
+    const result: Array<any> = [];
+    content.forEach(item => {
+      const resItem: any = {};
+      Object.keys(item).forEach(key => {
+        if (["data", "processResponsiveness"].indexOf(key) === -1) {
+          resItem[key] = item[key];
+        }
+      });
+      result.push(resItem);
+    });
+    return result;
+  }
+
+  assert.equal(survey.showNavigationButtons, "none");
+  assert.equal(survey.progressBarType, "pages");
+  assert.equal(survey.showProgressBar, "off");
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "default header");
+  assert.deepEqual(getContainerContent("center"), [], "default center");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+
+  survey.showProgressBar = "top";
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "progress top header alone");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-pages",
+    "id": "progress-pages"
+  }], "progress top center alone");
+  assert.deepEqual(getContainerContent("footer"), [], "progress top footer alone");
+  assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop alone");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom alone");
+  assert.deepEqual(getContainerContent("left"), [], "progress top left alone");
+  assert.deepEqual(getContainerContent("right"), [], "progress top right alone");
+
+  survey.applyTheme({
+    header: {},
+    cssVariables: {
+      "--sjs-header-backcolor": "transparent"
+    }
+  } as any);
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-progress-pages",
+    "id": "progress-pages",
+    "index": -150
+  }, {
+    "component": "sv-header",
+    "container": "header",
+    "id": "advanced-header",
+    "index": -100
+  }], "progress top header");
+  assert.deepEqual(getContainerContent("center"), [], "progress top center");
+  assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "progress top left");
+  assert.deepEqual(getContainerContent("right"), [], "progress top right");
+});

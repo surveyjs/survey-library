@@ -26,6 +26,7 @@
   box-shadow: 0 0 0 2px $primary;
   background: $question-background;
   outline: none;
+  @include focusAnimation;
 }
 
 .sd-item--allowhover .sd-selectbase__label:hover .sd-item__decorator {

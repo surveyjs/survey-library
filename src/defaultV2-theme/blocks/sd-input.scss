@@ -60,19 +60,7 @@ textarea {
 
 .sd-input:focus {
   box-shadow: 0 0 0 2px $primary;
-  animation-name: focusAnimation;
-  animation-duration: 500ms;
-  animation-fill-mode: forwards;
-
-  @keyframes focusAnimation {
-    0% {
-      box-shadow: none;
-    }
-
-    100% {
-      box-shadow: 0 0 0 2px $primary;
-    }
-  }
+  @include focusAnimation;
 }
 
 .sd-input--error {

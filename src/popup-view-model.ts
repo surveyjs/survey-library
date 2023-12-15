@@ -47,10 +47,12 @@ export class PopupBaseViewModel extends Base {
     return this.model.displayMode !== "overlay" && animationsEnabled;
   }
   protected onAfterShowing(): void {
-    const popupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
-    if(popupContainer && this.getShouldRunAnimation()) {
-      this.animation.onEnter(popupContainer, { onEnter: "sv-popup--animate-enter" });
-    }
+    requestAnimationFrame(() => {
+      const popupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
+      if(popupContainer && this.getShouldRunAnimation()) {
+        this.animation.onEnter(popupContainer, { onEnter: "sv-popup--animate-enter" });
+      }
+    });
   }
   protected onBeforeHiding(callback: () => void): void {
     const popupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);

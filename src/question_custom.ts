@@ -420,6 +420,12 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().localeChanged();
     }
   }
+  public addUsedLocales(locales: Array<string>): void {
+    super.addUsedLocales(locales);
+    if(!!this.getElement()) {
+      this.getElement().addUsedLocales(locales);
+    }
+  }
   protected createWrapper(): void { }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);

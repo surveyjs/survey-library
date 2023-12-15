@@ -25,9 +25,9 @@ export class Animation {
 
 export let animationsEnabled = true;
 
-export function enableAnimations(val: boolean): void {
+export function enableAnimations(): void {
   animationsEnabled = true;
 }
-export function disableAnimations(val: boolean): void {
+export function disableAnimations(): void {
   animationsEnabled = false;
 }

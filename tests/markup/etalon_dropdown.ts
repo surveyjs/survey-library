@@ -1,4 +1,4 @@
-import { _setIsTouch, Question } from "survey-core";
+import { _setIsTouch, Question, disableAnimations, enableAnimations } from "survey-core";
 import { registerMarkupTests } from "./helper";
 
 registerMarkupTests(
@@ -308,6 +308,12 @@ registerMarkupTests(
         survey.getQuestionByName("name")["popupModel"];
         survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
       },
+      before() {
+        disableAnimations();
+      },
+      after() {
+        enableAnimations();
+      },
       timeout: 300,
       removeIds: true,
       snapshot: "dropdown-input-string",
@@ -356,10 +362,15 @@ registerMarkupTests(
           }
         ]
       },
-      before: () => { Question["questionCounter"] = 100; },
+      before: () => {
+        disableAnimations();
+        Question["questionCounter"] = 100; },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["popupModel"].isVisible = true;
+      },
+      after() {
+        enableAnimations();
       },
       snapshot: "dropdown-aria-expanded"
     }

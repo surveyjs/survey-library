@@ -2762,7 +2762,7 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(newData);
   }
   public setDataCore(data: any, clearData: boolean = false): void {
-    if (clearData) {
+    if(clearData) {
       this.valuesHash = {};
     }
     if (data) {
@@ -4117,8 +4117,10 @@ export class SurveyModel extends SurveyElementCore
   private getPageStartIndex(): number {
     return this.firstPageIsStarted && this.pages.length > 0 ? 1 : 0;
   }
+  private isCreatingPagesForPreview: boolean;
   private setupPagesForPageModes(isSinglePage: boolean) {
     this.questionHashesClear();
+    this.isCreatingPagesForPreview = true;
     var startIndex = this.getPageStartIndex();
     super.startLoadingFromJson();
     var newPages = this.createPagesForQuestionOnPageMode(
@@ -4136,6 +4138,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.doElementsOnLoad();
     this.updateCurrentPage();
+    this.isCreatingPagesForPreview = false;
   }
   private createPagesForQuestionOnPageMode(
     isSinglePage: boolean,
@@ -6284,6 +6287,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
+    if(this.isCreatingPagesForPreview) return;
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
@@ -7358,19 +7362,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        const headerLayoutElement = this.layoutElements.filter(a => a.id === "advanced-header")[0];
-        const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
-        let isBelowHeader = !advHeader || advHeader.hasBackground;
-        if (container === "header" && !isBelowHeader) {
-          layoutElement.index = -150;
-          if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
-            containerLayoutElements.push(layoutElement);
-          }
-        }
-        if (container === "center" && isBelowHeader) {
-          if (!!layoutElement.index) {
-            delete layoutElement.index;
-          }
+        if (container === "center") {
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }

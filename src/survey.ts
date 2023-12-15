@@ -7362,7 +7362,19 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        if (container === "center") {
+        const headerLayoutElement = this.layoutElements.filter(a => a.id === "advanced-header")[0];
+        const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
+        let isBelowHeader = !advHeader || advHeader.hasBackground;
+        if (container === "header" && !isBelowHeader) {
+          layoutElement.index = -150;
+          if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
+            containerLayoutElements.push(layoutElement);
+          }
+        }
+        if (container === "center" && isBelowHeader) {
+          if (!!layoutElement.index) {
+            delete layoutElement.index;
+          }
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
           }

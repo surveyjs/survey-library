@@ -993,6 +993,7 @@ Serializer.addClass(
     {
       name: "rateDescriptionLocation",
       default: "leftRight",
+      category: "layout",
       choices: ["leftRight", "top", "bottom", "topBottom"],
     },
     {

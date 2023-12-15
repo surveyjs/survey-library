@@ -224,6 +224,10 @@ export class Cover extends Base {
       this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
     }
   }
+
+  get hasBackground(): boolean {
+    return !!this.backgroundImage || this.backgroundColor !== "transparent";
+  }
 }
 
 Serializer.addClass(

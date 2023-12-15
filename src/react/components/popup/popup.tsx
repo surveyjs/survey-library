@@ -218,10 +218,8 @@ export function showDialog(dialogOptions: IDialogOptions, rootElement?: HTMLElem
     options: { isVisible: boolean }
   ) => {
     if (!options.isVisible) {
-      () => {
-        ReactDOM.unmountComponentAtNode(popupViewModel.container);
-        popupViewModel.dispose();
-      };
+      ReactDOM.unmountComponentAtNode(popupViewModel.container);
+      popupViewModel.dispose();
     }
   };
   popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);

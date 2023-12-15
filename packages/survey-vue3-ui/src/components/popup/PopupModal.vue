@@ -50,11 +50,9 @@ function showDialog(
     options: { isVisible: boolean }
   ) => {
     if (!options.isVisible) {
-      () => {
-        popup.value = undefined;
-        popupViewModel.dispose();
-        popupViewModel.onVisibilityChanged.remove(onVisibilityChangedCallback);
-      };
+      popup.value = undefined;
+      popupViewModel.dispose();
+      popupViewModel.onVisibilityChanged.remove(onVisibilityChangedCallback);
     }
   };
   popupViewModel.onVisibilityChanged.add(onVisibilityChangedCallback);

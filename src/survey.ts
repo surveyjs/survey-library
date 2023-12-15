@@ -7402,7 +7402,6 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (isStrCiEqual(layoutElement.id, "advanced-header")) {
-        const header = layoutElement.data as Cover;
         if (this.state === "running" && layoutElement.container === container) {
           containerLayoutElements.push(layoutElement);
         }

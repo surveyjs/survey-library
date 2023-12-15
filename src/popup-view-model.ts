@@ -69,8 +69,8 @@ export class PopupBaseViewModel extends Base {
     if(this._isVisible !== val) {
       if(!val) {
         this.onBeforeHiding(() => {
-          this.updateIsVisible(val);
           this.updateOnHiding();
+          this.updateIsVisible(val);
         });
       } else {
         this.updateIsVisible(val);

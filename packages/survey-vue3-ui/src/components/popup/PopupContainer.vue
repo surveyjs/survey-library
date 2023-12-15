@@ -23,7 +23,6 @@
         height: model.height,
         width: model.width,
         minWidth: model.minWidth,
-        opacity: model.opacity,
       }"
       v-on:click="clickInside"
     >

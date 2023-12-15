@@ -24,3 +24,12 @@ export class Animation {
     element.addEventListener("animationend", onAnimationEnd);
   }
 }
+
+export let animationsEnabled = true;
+
+export function enableAnimations(val: boolean): void {
+  animationsEnabled = true;
+}
+export function disableAnimations(val: boolean): void {
+  animationsEnabled = false;
+}

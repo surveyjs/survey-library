@@ -7,6 +7,7 @@ import { IAction } from "./actions/action";
 import { settings, ISurveyEnvironment } from "./settings";
 import { getElement } from "./utils/utils";
 import { Animation } from "./utils/animation";
+import { animationsEnabled } from "./utils/animation";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
@@ -43,7 +44,7 @@ export class PopupBaseViewModel extends Base {
   }
 
   protected getShouldRunAnimation(): boolean {
-    return this.model.displayMode !== "overlay";
+    return this.model.displayMode !== "overlay" && animationsEnabled;
   }
   protected onAfterShowing(): void {
     const popupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);

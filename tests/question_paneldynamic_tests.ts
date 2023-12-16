@@ -5889,6 +5889,44 @@ QUnit.test("templateVisibleIf && currentPanelIndex", function (assert) {
   assert.equal(panel.visiblePanelCount, 1, "There is one panel");
   assert.equal(panel.currentIndex, 0, "currentIndex #8");
 });
+QUnit.test("survey.onDynamicPanelCurrentIndexChanged", function (assert) {
+  const survey = new SurveyModel();
+  let questionName = "";
+  let panelIndex = -2;
+  let panelIndexOf = -2;
+  survey.onDynamicPanelCurrentIndexChanged.add((_, options) => {
+    questionName = options.question.name;
+    panelIndex = options.visiblePanelIndex;
+    panelIndexOf = !!options.panel ? options.question.visiblePanels.indexOf(options.panel) : -1;
+  });
+  survey.fromJSON({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 3,
+        renderMode: "tab"
+      }],
+  });
+  assert.equal(questionName, "panel", "question is correct");
+  assert.equal(panelIndex, 0, "panelIndex #1");
+  assert.equal(panelIndexOf, 0, "panelIndexOf #1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.currentIndex = 1;
+  assert.equal(panelIndex, 1, "panelIndex #2");
+  assert.equal(panelIndexOf, 1, "panelIndexOf #2");
+  panel.addPanel();
+  assert.equal(panel.currentIndex, 3, "panel.panelIndex #3");
+  assert.equal(panelIndex, 3, "panelIndex #3");
+  assert.equal(panelIndexOf, 3, "panelIndexOf #3");
+  panel.removePanel(3);
+  assert.equal(panel.currentIndex, 2, "panel.panelIndex #4");
+  assert.equal(panelIndex, 2, "panelIndex #4");
+  assert.equal(panelIndexOf, 2, "panelIndexOf #4");
+});
 QUnit.test("templateVisibleIf & renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [

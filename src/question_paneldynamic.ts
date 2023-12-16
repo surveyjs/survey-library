@@ -555,7 +555,8 @@ export class QuestionPanelDynamicModel extends Question
   public set currentPanel(val: PanelModel) {
     if(this.isRenderModeList || this.useTemplatePanel) return;
     const curPanel = this.getPropertyValue("currentPanel");
-    if(!!val && this.visiblePanels.indexOf(val) < 0 || val === curPanel) return;
+    const index = !!val ? this.visiblePanels.indexOf(val) : -1;
+    if(!!val && index < 0 || val === curPanel) return;
     if(curPanel) {
       curPanel.onHidingContent();
     }
@@ -563,6 +564,13 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActions();
     this.updateTabToolbarItemsPressedState();
     this.fireCallback(this.currentIndexChangedCallback);
+    if(index > -1 && this.survey) {
+      const options = {
+        panel: val,
+        visiblePanelIndex: index
+      };
+      this.survey.dynamicPanelCurrentIndexChanged(this, options);
+    }
   }
   public onHidingContent(): void {
     super.onHidingContent();

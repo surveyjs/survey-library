@@ -1301,6 +1301,18 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   settings.matrix.rateSize = "small";
 });
 
+QUnit.test("check rating in-matrix mode styles", (assert) => {
+  const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.cssClasses.root = "sv_q";
+  q1.cssClasses.rootLabelsTop = "sv_q__top";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  q1.rateDescriptionLocation = "top";
+  assert.equal(q1.ratingRootCss, "sv_q");
+  q1.maxRateDescription = "Bad";
+  assert.equal(q1.ratingRootCss, "sv_q sv_q__top");
+});
+
 QUnit.test("check rating triggerResponsiveness method", (assert) => {
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;

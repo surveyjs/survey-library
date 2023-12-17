@@ -20,9 +20,9 @@
     "url": "https://github.com/surveyjs/surveyjs.git"
   },
   "typings": "survey-react-ui.d.ts",
-  "dependencies": {
+  "peerDependencies": {
     "survey-core": "*",
-    "react": "^16.5.0 || ^17.0.1 || ^18.1.0",
-    "react-dom": "^16.5.0 || ^17.0.1 || ^18.1.0"
+    "react": "^16.5.0 || ^17.0.1 || ^18.2.0",
+    "react-dom": "^16.5.0 || ^17.0.1 || ^18.2.0"
   }
 }

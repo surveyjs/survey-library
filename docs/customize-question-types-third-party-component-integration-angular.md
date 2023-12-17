@@ -561,7 +561,7 @@ The [Property Grid](/Documentation/Survey-Creator?id=property-grid) is built upo
 
 ```js
 // color-picker.component.ts
-import { ..., PropertyGridEditorCollection } from "survey-creator-react";
+import { ..., PropertyGridEditorCollection } from "survey-creator-core";
 
 const CUSTOM_TYPE = "color-picker";
 

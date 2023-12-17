@@ -171,19 +171,3 @@ $font-editorfont-size: var(--sjs-internal-font-editorfont-size);
     @return $result;
   }
 }
-
-@mixin focusAnimation {
-  animation-name: focusAnimationKeyframes;
-  animation-duration: 500ms;
-  animation-fill-mode: forwards;
-}
-
-@keyframes focusAnimationKeyframes {
-  0% {
-    box-shadow: none;
-  }
-
-  100% {
-    box-shadow: 0 0 0 2px $primary;
-  }
-}

@@ -81,7 +81,7 @@ QUnit.test("cssStyles", function (assert) {
   const window = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
   window.show();
   assert.equal(window.cssRoot, "windowRoot windowRoot--collapsed", "Root collapsed");
-  window.changeExpandCollapse()
+  window.changeExpandCollapse();
   assert.equal(window.cssRoot, "windowRoot", "Root expanded");
   assert.equal(window.cssHeaderRoot, "headerRoot", "HeaderRoot");
   assert.equal(window.cssBody, "windowBody", "windowBody");

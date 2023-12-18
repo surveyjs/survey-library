@@ -3,18 +3,21 @@
   bottom: 16px;
   right: 16px;
   background-color: $background;
-  padding: 32px 32px 40px 32px;
+  //padding: 32px 32px 40px 32px;
   border-radius: 8px;
   box-shadow: $shadow-large;
   border: 1px solid $border-inside;
   background-clip: padding-box;
   z-index: 100;
+  max-height: 50vh;
+  overflow: auto;
 }
 
 .sv_window_header {
   display: flex;
   background-color: $background;
-  padding: 0 8px;
+ // padding: 0 8px;
+  height: 8px;
   cursor: pointer;
   display: flex;
   flex-direction: column;
@@ -54,6 +57,7 @@
     right: 8px;
     display: flex;
     gap: 8px;
+    z-index: 1;
 }
 
 .sv_window_button {
@@ -73,6 +77,6 @@
     }
 }
 
-.sv_window_content {
-    padding: 24px 8px 0 8px;
-}
+// .sv_window_content {
+//     padding: 24px 8px 0 8px;
+// }

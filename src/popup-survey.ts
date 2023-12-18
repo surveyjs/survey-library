@@ -23,7 +23,7 @@ export class PopupSurveyModel extends Base {
     } else {
       this.surveyValue = this.createSurvey(jsonObj);
     }
-    this.surveyValue.showTitle = false;
+    //this.surveyValue.showTitle = false;
     if ("undefined" !== typeof document) {
       this.windowElement = <HTMLDivElement>document.createElement("div");
     }
@@ -176,12 +176,6 @@ export class PopupSurveyModel extends Base {
   public get cssHeaderRoot(): string {
     return this.getPropertyValue("cssHeaderRoot", "");
   }
-  public get cssHeaderTitle(): string {
-    return this.getPropertyValue("cssHeaderTitle", "");
-  }
-  public get cssHeaderDescription(): string {
-    return this.getPropertyValue("cssHeaderDescription", "");
-  }
   public get cssHeaderButtonsContainer(): string {
     return this.getPropertyValue("cssHeaderButtonsContainer", "");
   }
@@ -206,8 +200,6 @@ export class PopupSurveyModel extends Base {
     const cssHeader = cssWindow.header;
     if (!cssHeader) return;
     this.setPropertyValue("cssHeaderRoot", cssHeader.root);
-    this.setPropertyValue("cssHeaderTitle", cssHeader.title);
-    this.setPropertyValue("cssHeaderDescription", cssHeader.description);
     this.setPropertyValue("cssHeaderButtonsContainer", cssHeader.buttonsContainer);
     this.setPropertyValue("cssHeaderCollapseButton", cssHeader.collapseButton);
     this.setPropertyValue("cssHeaderCloseButton", cssHeader.closeButton);

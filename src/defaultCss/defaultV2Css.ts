@@ -651,8 +651,6 @@ export var defaultV2Css = {
     body: "sv_window_content",
     header: {
       root: "sv_window_header",
-      title: "sv_window_header_title",
-      description: "sv_window_header_description",
       buttonsContainer: "sv_window_buttons_container",
       button: "sv_window_button",
       buttonExpanded: "",

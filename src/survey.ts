@@ -7032,6 +7032,9 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
   }
   private getDisplayClockTime(val: number): string {
+    if(val < 0) {
+      val = 0;
+    }
     const min: number = Math.floor(val / 60);
     const sec: number = val % 60;
     let secStr = sec.toString();

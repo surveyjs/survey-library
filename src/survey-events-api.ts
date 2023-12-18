@@ -812,7 +812,7 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
 }
 export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
-   * A panel whose tab title is being rendered.
+   * A panel for which the event is raised.
    */
   panel: PanelModel;
   /**

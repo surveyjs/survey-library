@@ -745,6 +745,9 @@ export class SurveyModel extends SurveyElementCore
    */
   public onGetDynamicPanelTabTitle: EventBase<SurveyModel, DynamicPanelGetTabTitleEvent> = this.addEvent<SurveyModel, DynamicPanelGetTabTitleEvent>();
 
+  /**
+   * An event that is raised after the current panel is changed in a [Dynamic Panel](https://surveyjs.io/form-library/examples/questiontype-paneldynamic/) question.
+   */
   public onDynamicPanelCurrentIndexChanged: EventBase<SurveyModel, DynamicPanelCurrentIndexChangedEvent> = this.addEvent<SurveyModel, DynamicPanelCurrentIndexChangedEvent>();
 
   /**

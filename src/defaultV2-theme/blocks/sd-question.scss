@@ -23,6 +23,9 @@
   margin-bottom: var(--sd-base-padding);
   border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
 }
+.sd-element--with-frame.sd-question--left->.sd-element__erbox--above-element {
+  margin-bottom: calc(var(--sd-base-padding) - 0.25 * var(--sd-base-vertical-padding));
+}
 
 .sd-element--with-frame>.sd-question__erbox--below-question {
   margin-top: auto;
@@ -54,6 +57,10 @@
   &.sd-question--title-top {
     padding-top: var(--sd-base-vertical-padding)
   }
+        &.sd-question--left {
+          padding-top: var(--sd-base-vertical-padding);
+          padding-bottom: var(--sd-base-vertical-padding)
+        }
 
   &.sd-question--error-top {
     padding-top: 0;
@@ -89,14 +96,16 @@
   display: flex;
   flex-wrap: wrap;
   flex-direction: row;
-  gap: calcSize(4);
+  column-gap: calcSize(3);
+    row-gap: calc(0.25 * var(--sd-base-vertical-padding));
   align-items: center;
 }
 
 .sd-question__content--left {
   display: inline-block;
   flex: 1;
-  min-width: calc(50% - 4 * #{$base-unit});
+  min-width: calc(50% - 3 * #{$base-unit});
+    margin: calc(0.25 * var(--sd-base-vertical-padding)) 0;
 }
 
 .sd-question__required-text {

@@ -1217,11 +1217,10 @@ export class QuestionPanelDynamicModel extends Question
     return newPanel;
   }
   /**
-   * Add a new dynamic panel based on the template Panel.
-   * @see template
+   * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
+   * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `renderMode` value.
    * @see panelCount
    * @see panels
-   * @see renderMode
    */
   public addPanel(index?: number): PanelModel {
     const curIndex = this.currentIndex;

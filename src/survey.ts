@@ -5248,7 +5248,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a question with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    * @param name A question name
-   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A question with a specified name.
    * @see getAllQuestions
    * @see getQuestionByValueName
@@ -5276,7 +5276,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * > Since `valueName` does not have to be unique, multiple questions can have the same `valueName` value. In this case, the `getQuestionByValueName()` method returns the first such question. If you need to get all questions with the same `valueName`, call the `getQuestionsByValueName()` method.
    * @param valueName A question's `valueName` property value.
-   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the question. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A question with a specified `valueName`.
    * @see getAllQuestions
    * @see getQuestionByName
@@ -5291,7 +5291,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns all questions with a specified [`valueName`](https://surveyjs.io/form-library/documentation/api-reference/question#valueName). If a question's `valueName` is undefined, its [`name`](https://surveyjs.io/form-library/documentation/api-reference/question#name) property is used.
    * @param valueName A question's `valueName` property value.
-   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns An array of questions with a specified `valueName`.
    * @see getAllQuestions
    * @see getQuestionByName
@@ -5317,7 +5317,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns an array of questions with specified [names](https://surveyjs.io/form-library/documentation/api-reference/question#name).
    * @param names An array of question names.
-   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the questions. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns An array of questions with specified names
    * @see getAllQuestions
    */
@@ -5431,7 +5431,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Returns a [panel](https://surveyjs.io/form-library/documentation/api-reference/panel-model) with a specified [`name`](https://surveyjs.io/form-library/documentation/api-reference/panel-model#name).
    * @param name A panel name.
-   * @param caseInsensitive (Optional) A Boolean value that specifies case sensitivity when searching for the panel. Default value: `false` (uppercase and lowercase letters are treated as distinct).
+   * @param caseInsensitive *(Optional)* A Boolean value that specifies case sensitivity when searching for the panel. Default value: `false` (uppercase and lowercase letters are treated as distinct).
    * @returns A panel with a specified name.
    * @see getAllPanels
    */

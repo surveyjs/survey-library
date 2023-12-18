@@ -1549,8 +1549,7 @@ export class Question extends SurveyElement<Question>
     if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
     if (!this.survey) return true;
-    const valueName = this.valueName ?? this.name;
-    return !this.survey.hasVisibleQuestionByValueName(valueName);
+    return !this.survey.hasVisibleQuestionByValueName(this.getValueName());
   }
   /**
    * Returns `true` if a parent element (page or panel) is visible.

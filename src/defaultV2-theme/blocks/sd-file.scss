@@ -66,7 +66,6 @@
 .sd-file__drag-area-placeholder {
   @include useEditorFontSize;
   text-align: center;
-  word-break: break-word;
   white-space: normal;
   color: $font-questionplaceholder-color;
   font-size: $font-editorfont-size;

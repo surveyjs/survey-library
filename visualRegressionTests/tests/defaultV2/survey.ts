@@ -10,6 +10,11 @@ fixture`${title}`.page`${url}`;
 const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);
 });
+const insertDiv = ClientFunction(() => {
+  const el = document.createElement("div");
+  el.style.height = "1000px";
+  document.body.insertBefore(el, document.body.firstChild);
+});
 
 const theme = "defaultV2";
 
@@ -1473,6 +1478,58 @@ frameworks.forEach(framework => {
 
       await initSurvey(framework, json);
       await takeElementScreenshot("survey-logo-right-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Do not scroll to survey by default", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 300);
+      await insertDiv();
+      const json = {
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q1"
+              },
+            ]
+          },
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q2"
+              },
+            ]
+          }
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("survey-no-scrolling.png", undefined, t, comparer);
+      await t.click(Selector(".sd-btn.sd-navigation__next-btn"));
+      await t.wait(100);
+      await takeElementScreenshot("survey-scrolling-second-page.png", undefined, t, comparer);
+    });
+  });
+  test("Scroll to survey", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 300);
+      await insertDiv();
+      const json = {
+        "focusFirstQuestionAutomatic": true,
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("survey-scrolling.png", undefined, t, comparer);
     });
   });
 });

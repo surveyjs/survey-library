@@ -1,5 +1,9 @@
 # SurveyJS React Form Library
 
+
+https://github.com/surveyjs/survey-library/assets/22315929/ff5c0779-7e06-4241-a1db-2b28df78eba5
+
+
 [![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">

@@ -101,6 +101,9 @@ export class PopupSurveyModel extends Base {
   public set isExpanded(val: boolean) {
     this.setPropertyValue("isExpanded", val);
   }
+  public get isCollapsed(): boolean {
+    return !this.isExpanded;
+  }
   protected onExpandedChanged(): void {
     if (!!this.expandedChangedCallback) {
       this.expandedChangedCallback();
@@ -168,13 +171,18 @@ export class PopupSurveyModel extends Base {
     return this.getPropertyValue("cssButton", "");
   }
   public get cssRoot(): string {
-    return this.getPropertyValue("cssRoot", "");
+    let result = this.getPropertyValue("cssRoot", "");
+    if (this.isCollapsed) result += " " +  this.getPropertyValue("cssRootCollapsedMod", "");
+    return result;
   }
   public get cssBody(): string {
     return this.getPropertyValue("cssBody", "");
   }
   public get cssHeaderRoot(): string {
     return this.getPropertyValue("cssHeaderRoot", "");
+  }
+  public get cssHeaderTitleCollapsed(): string {
+    return this.getPropertyValue("cssHeaderTitleCollapsed", "");
   }
   public get cssHeaderButtonsContainer(): string {
     return this.getPropertyValue("cssHeaderButtonsContainer", "");
@@ -196,10 +204,12 @@ export class PopupSurveyModel extends Base {
     if (!this.css || !this.css.window) return;
     const cssWindow = this.css.window;
     this.setPropertyValue("cssRoot", cssWindow.root);
+    this.setPropertyValue("cssRootCollapsedMod", cssWindow.rootCollapsedMod);
     this.setPropertyValue("cssBody", cssWindow.body);
     const cssHeader = cssWindow.header;
     if (!cssHeader) return;
     this.setPropertyValue("cssHeaderRoot", cssHeader.root);
+    this.setPropertyValue("cssHeaderTitleCollapsed", cssHeader.titleCollapsed);
     this.setPropertyValue("cssHeaderButtonsContainer", cssHeader.buttonsContainer);
     this.setPropertyValue("cssHeaderCollapseButton", cssHeader.collapseButton);
     this.setPropertyValue("cssHeaderCloseButton", cssHeader.closeButton);

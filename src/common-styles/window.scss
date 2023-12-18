@@ -9,8 +9,15 @@
   border: 1px solid $border-inside;
   background-clip: padding-box;
   z-index: 100;
-  max-height: 50vh;
+  max-height: 100vh;
   overflow: auto;
+}
+
+.sv_window--collapsed {
+    .sv_window_header {
+        height: 32px;
+        padding: 8px 8px 8px 16px;
+    }
 }
 
 .sv_window_header {
@@ -18,23 +25,23 @@
   background-color: $background;
  // padding: 0 8px;
   height: 8px;
-  cursor: pointer;
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.sv_window_header_title {
-    color: $font-editorfont-color;
-    /* UI / Medium Bold */
+.sv_window_header_title_collapsed {
+    color: $foreground-dim;
+    /* UI/Default Bold */
     font-family: Open Sans;
-    font-size: 24px;
+    font-size: 16px;
     font-style: normal;
-    font-weight: 700;
-    line-height: 32px; /* 133.333% */
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    overflow: hidden;
+    font-weight: 600;
+    line-height: 24px; /* 150% */
+    flex: 1;
+    display: flex;
+    justify-content: start;
+    align-items: center;
 }
 
 .sv_window_header_description{
@@ -65,6 +72,7 @@
     padding: 8px;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
 
     svg use {
         fill: $foreground-dim-light;

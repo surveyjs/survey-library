@@ -648,9 +648,11 @@ export var defaultV2Css = {
   },
   window: {
     root: "sv_window",
+    rootCollapsedMod: "sv_window--collapsed",
     body: "sv_window_content",
     header: {
       root: "sv_window_header",
+      titleCollapsed: "sv_window_header_title_collapsed",
       buttonsContainer: "sv_window_buttons_container",
       button: "sv_window_button",
       buttonExpanded: "",

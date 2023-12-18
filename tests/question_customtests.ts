@@ -2388,6 +2388,38 @@ QUnit.test("Composite & valueToQuestion/valueFromQuestion, #6475", function (ass
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("needResponsiveWidth", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "comp1",
+    internal: true,
+    questionJSON: { type: "matrixdropdown" },
+  });
+  ComponentCollection.Instance.add({
+    name: "comp2",
+    questionJSON: { type: "text" },
+  });
+  ComponentCollection.Instance.add({
+    name: "comp3",
+    elementsJSON: [{ type: "text", name: "q1" }]
+  });
+  ComponentCollection.Instance.add({
+    name: "comp4",
+    elementsJSON: [{ type: "matrixdropdown", name: "q1" }]
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "comp1", name: "q1" },
+      { type: "comp2", name: "q2" },
+      { type: "comp3", name: "q3" },
+      { type: "comp4", name: "q4" }
+    ]
+  });
+  assert.equal(survey.getQuestionByName("q1").needResponsiveWidth(), true, "single - matrix");
+  assert.equal(survey.getQuestionByName("q2").needResponsiveWidth(), false, "single - text");
+  assert.equal(survey.getQuestionByName("q3").needResponsiveWidth(), false, "complex - text");
+  assert.equal(survey.getQuestionByName("q4").needResponsiveWidth(), true, "single - matrix");
+  ComponentCollection.Instance.clear(true);
+});
 QUnit.test("Single & getValue/setValue, #6475", function (assert) {
   ComponentCollection.Instance.add({
     name: "singleq",
@@ -2563,5 +2595,37 @@ QUnit.test("text placeholder is not updated on changing locale", function (asser
   assert.equal(contentQuestion.renderedPlaceholder, "en-TextPH", "en placeholder");
   survey.locale = "de";
   assert.equal(contentQuestion.renderedPlaceholder, "de-TextPH", "de placeholder");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("showPreview & default value, #7508", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    questionJSON: {
+      type: "text",
+      defaultValue: "abc"
+    },
+  });
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestion = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(q1.value, "abc", "q1.value #1");
+  assert.equal(contentQuestion.value, "abc", "contentQuestion.value #1");
+  contentQuestion.value = "edf";
+  assert.equal(q1.value, "edf", "q1.value #2");
+  assert.equal(contentQuestion.value, "edf", "contentQuestion.value #2");
+  survey.showPreview();
+  assert.equal(q1.value, "edf", "q1.value #3");
+  assert.equal(contentQuestion.value, "edf", "contentQuestion.value #3");
+  const q1Preview = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestionPreview = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(q1Preview.value, "edf", "q1Preview.value #3");
+  assert.equal(contentQuestionPreview.value, "edf", "contentQuestionPreview.value #3");
+  survey.cancelPreview();
+  assert.equal(q1.value, "edf", "q1.value #4");
+  assert.equal(contentQuestion.value, "edf", "contentQuestion.value #4");
   ComponentCollection.Instance.clear();
 });

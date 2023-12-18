@@ -2762,7 +2762,7 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(newData);
   }
   public setDataCore(data: any, clearData: boolean = false): void {
-    if (clearData) {
+    if(clearData) {
       this.valuesHash = {};
     }
     if (data) {
@@ -4117,8 +4117,10 @@ export class SurveyModel extends SurveyElementCore
   private getPageStartIndex(): number {
     return this.firstPageIsStarted && this.pages.length > 0 ? 1 : 0;
   }
+  private isCreatingPagesForPreview: boolean;
   private setupPagesForPageModes(isSinglePage: boolean) {
     this.questionHashesClear();
+    this.isCreatingPagesForPreview = true;
     var startIndex = this.getPageStartIndex();
     super.startLoadingFromJson();
     var newPages = this.createPagesForQuestionOnPageMode(
@@ -4136,6 +4138,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.doElementsOnLoad();
     this.updateCurrentPage();
+    this.isCreatingPagesForPreview = false;
   }
   private createPagesForQuestionOnPageMode(
     isSinglePage: boolean,
@@ -6284,6 +6287,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
+    if(this.isCreatingPagesForPreview) return;
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);

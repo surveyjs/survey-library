@@ -46,20 +46,19 @@ export class PopupBaseViewModel extends Base {
   protected getShouldRunAnimation(): boolean {
     return this.model.displayMode !== "overlay" && animationsEnabled;
   }
+
+  private getAnimationContainer(): HTMLElement {
+    return <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
+  }
+
   protected onAfterShowing(): void {
     if(this.getShouldRunAnimation()) {
-      requestAnimationFrame(() => {
-        const popupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
-        if(popupContainer) {
-          this.animation.onEnter(popupContainer, { onEnter: "sv-popup--animate-enter" });
-        }
-      });
+      this.animation.onEnter(() => this.getAnimationContainer(), { onEnter: "sv-popup--animate-enter" });
     }
   }
   protected onBeforeHiding(callback: () => void): void {
-    const popupContainer = <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
-    if(popupContainer && this.getShouldRunAnimation()) {
-      this.animation.onLeave(popupContainer, callback, { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" });
+    if(this.getShouldRunAnimation()) {
+      this.animation.onLeave(() => this.getAnimationContainer(), callback, { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" });
     } else {
       callback();
     }

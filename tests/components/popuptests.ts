@@ -1658,11 +1658,11 @@ class TestAnimation extends Animation {
   public logger: { log: string };
   public passedEnterClasses: { onEnter: string };
   public passedLeaveClasses: { onLeave: string, onHide: string };
-  public onEnter(element: HTMLElement, classes: { onEnter: string }): void {
+  public onEnter(getElement: () => HTMLElement, classes: { onEnter: string }): void {
     this.logger.log += "->onEnter";
     this.passedEnterClasses = classes;
   }
-  public onLeave(element: HTMLElement, callback: () => void, classes: { onLeave: string, onHide: string }): void {
+  public onLeave(element: () => HTMLElement, callback: () => void, classes: { onLeave: string, onHide: string }): void {
     this.logger.log += "->onLeave";
     this.passedLeaveClasses = classes;
     callback();
@@ -1709,8 +1709,7 @@ QUnit.test("PopupViewModel: check popupViewModel without container is working co
   model.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }) => {
     logger.log += `->model:isVisible:${options.isVisible}`;
   });
-  const viewModel: TestAnimationPopupViewModel = new TestAnimationPopupViewModel(model);
-  viewModel.logger = logger;
+  const viewModel: PopupDropdownViewModel = new PopupDropdownViewModel(model);
   viewModel.initializePopupContainer();
   viewModel.onVisibilityChanged.add((_: PopupBaseViewModel, options: { isVisible: boolean }) => {
     logger.log += `->viewModel:isVisible:${options.isVisible}`;

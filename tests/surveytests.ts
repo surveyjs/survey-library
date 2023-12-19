@@ -3537,6 +3537,20 @@ QUnit.test(
     assert.deepEqual(survey.data, {}, "The value should be cleaned");
   }
 );
+QUnit.test(
+  "clearInvisibleValues is onComplete (default value), visible and invisible questions with the same name and valueName",
+  function (assert) {
+    const survey = new SurveyModel();
+    const page = survey.addNewPage("page");
+    const q1 = <QuestionTextModel>page.addNewQuestion("text", "q1");
+    const q2 = <QuestionTextModel>page.addNewQuestion("text", "q2");
+    q2.valueName = "q1";
+    q2.value = 1;
+    q1.visible = false;
+    survey.doComplete();
+    assert.deepEqual(survey.data, { q1: 1 }, "The value should be kept");
+  }
+);
 QUnit.test("clearInvisibleValues - comments and other values, #309", function (
   assert
 ) {

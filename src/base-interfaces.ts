@@ -219,6 +219,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
+  dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
 

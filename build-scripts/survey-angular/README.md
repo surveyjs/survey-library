@@ -1,5 +1,9 @@
 # SurveyJS Form Library for Angular
 
+
+https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6
+
+
 SurveyJS Form Library is a free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.
 
 > **NOTE**: This package contains a legacy Knockout-dependent version of SurveyJS Form Library for Angular.

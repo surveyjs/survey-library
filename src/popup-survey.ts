@@ -175,6 +175,9 @@ export class PopupSurveyModel extends Base {
     if (this.isCollapsed) result += " " + this.getPropertyValue("cssRootCollapsedMod", "");
     return result;
   }
+  public get cssRootContent(): string {
+    return this.getPropertyValue("cssRootContent");
+  }
   public get cssBody(): string {
     return this.getPropertyValue("cssBody", "");
   }
@@ -205,6 +208,7 @@ export class PopupSurveyModel extends Base {
     const cssWindow = this.css.window;
     this.setPropertyValue("cssRoot", cssWindow.root);
     this.setPropertyValue("cssRootCollapsedMod", cssWindow.rootCollapsedMod);
+    this.setPropertyValue("cssRootContent", cssWindow.rootContent);
     this.setPropertyValue("cssBody", cssWindow.body);
     const cssHeader = cssWindow.header;
     if (!cssHeader) return;

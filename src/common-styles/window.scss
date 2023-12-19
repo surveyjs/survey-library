@@ -2,32 +2,34 @@
   position: fixed;
   bottom: 16px;
   right: 16px;
-  background-color: $background;
-  //padding: 32px 32px 40px 32px;
   border-radius: 8px;
   box-shadow: $shadow-large;
-  border: 1px solid $border-inside;
   background-clip: padding-box;
   z-index: 100;
   max-height: 100vh;
   overflow: auto;
+  box-sizing: border-box;
 }
+
+.sv_window_content {
+    box-shadow: $shadow-medium;
+    width: 100%;
+    height: 100%;
+    border: 1px solid $border-inside;
+    background-clip: padding-box;
+    border-radius: 8px;
+    box-sizing: border-box;
+    overflow: hidden;
+} 
 
 .sv_window--collapsed {
     .sv_window_header {
         height: 32px;
         padding: 8px 8px 8px 16px;
+        border-radius: 8px;
+        display: flex;
+        background-color: $background-dim;
     }
-}
-
-.sv_window_header {
-  display: flex;
-  background-color: $background;
- // padding: 0 8px;
-  height: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
 }
 
 .sv_window_header_title_collapsed {
@@ -72,19 +74,21 @@
     padding: 8px;
     justify-content: center;
     align-items: center;
+    border-radius: 4px;
     cursor: pointer;
+
+    &:hover, &:active {
+        background-color: $primary-light;
+        svg use {
+            fill: $primary;
+        }
+    }
+
+    &:active {
+        opacity: 0.5;
+    }
 
     svg use {
         fill: $foreground-dim-light;
     }
 }
-
-.sv_window_button_close {
-    svg {
-        transform: rotate(45deg);
-    }
-}
-
-// .sv_window_content {
-//     padding: 24px 8px 0 8px;
-// }

@@ -211,7 +211,7 @@ export class Base {
    * Returns `true` if a passed `value` is an empty string, array, or object or if it equals to `undefined` or `null`.
    *
    * @param value A value to be checked.
-   * @param trimString (Optional) When this parameter is `true`, the method ignores whitespace characters at the beginning and end of a string value. Pass `false` to disable this functionality.
+   * @param trimString *(Optional)* When this parameter is `true`, the method ignores whitespace characters at the beginning and end of a string value. Pass `false` to disable this functionality.
    */
   public isValueEmpty(value: any, trimString: boolean = true): boolean {
     if (trimString) {
@@ -467,7 +467,7 @@ export class Base {
    * If the property is not found or does not have a value, this method returns either `undefined`, `defaultValue` specified in the property configuration, or a value passed as the `defaultValue` parameter.
    *
    * @param name A property name.
-   * @param defaultValue (Optional) A value to return if the property is not found or does not have a value.
+   * @param defaultValue *(Optional)* A value to return if the property is not found or does not have a value.
    */
   public getPropertyValue(name: string, defaultValue: any = null): any {
     const res = this.getPropertyValueWithoutDefault(name);
@@ -755,7 +755,7 @@ export class Base {
    * Registers a function to call when a property value changes.
    * @param propertyNames An array of one or multiple property names.
    * @param handler A function to call when one of the listed properties change.
-   * @param key (Optional) A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers.
+   * @param key *(Optional)* A key that identifies the current registration. If a function for one of the properties is already registered with the same key, the function will be overwritten. You can also use the key to subsequently unregister handlers.
    * @see unregisterPropertyChangedHandlers
    */
   public registerPropertyChangedHandlers(propertyNames: Array<string>, handler: any, key: string = null): void {
@@ -766,7 +766,7 @@ export class Base {
   /**
    * Unregisters value change event handlers for the specified properties.
    * @param propertyNames An array of one or multiple property names.
-   * @param key (Optional) A key of the registration that you want to cancel.
+   * @param key *(Optional)* A key of the registration that you want to cancel.
    * @see registerPropertyChangedHandlers
    */
   public unregisterPropertyChangedHandlers(propertyNames: Array<string>, key: string = null): void {

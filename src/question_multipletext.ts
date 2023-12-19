@@ -430,7 +430,7 @@ export class QuestionMultipleTextModel extends Question
   /**
    * Adds a new input item.
    * @param name An item name.
-   * @param title (Optional) An item title.
+   * @param title *(Optional)* An item title.
    * @see items
    */
   public addItem(name: string, title: string = null): MultipleTextItemModel {

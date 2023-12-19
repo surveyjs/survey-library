@@ -23,7 +23,7 @@
   margin-bottom: var(--sd-base-padding);
   border-radius: calcCornerRadius(1) calcCornerRadius(1) 0 0;
 }
-.sd-element--with-frame.sd-question--left->.sd-element__erbox--above-element {
+.sd-element--with-frame.sd-question--left>.sd-element__erbox--above-element {
   margin-bottom: calc(var(--sd-base-padding) - 0.25 * var(--sd-base-vertical-padding));
 }
 

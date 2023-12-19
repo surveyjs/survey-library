@@ -865,7 +865,7 @@ export class Base {
       // this.propertyValueChanged(name, oldValue, value);
     }
   }
-  public addUsedLocales(locales: Array<string>) {
+  public addUsedLocales(locales: Array<string>): void {
     if (!!this.localizableStrings) {
       for (let key in this.localizableStrings) {
         let item = this.getLocalizableString(key);

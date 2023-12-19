@@ -1790,6 +1790,35 @@ QUnit.test("Composite: change locale, Bug#2730", function (assert) {
   survey.locale = "";
   ComponentCollection.Instance.clear();
 });
+QUnit.test("getUsedLocale, Bug#7510", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "comp1",
+    questionJSON: {
+      type: "text",
+      title: { en: "Title en", de: "Title de" }
+    }
+  });
+  ComponentCollection.Instance.add({
+    name: "comp2",
+    elementsJSON: [
+      {
+        type: "text",
+        name: "q1",
+        title: { en: "Title en", fr: "Title fr" }
+      },
+      {
+        type: "text",
+        name: "q2",
+        title: { en: "Title en", it: "Title it" }
+      },
+    ]
+  });
+  const survey = new SurveyModel({
+    elements: [{ type: "comp1", name: "q1" }, { type: "comp2", name: "q2" }],
+  });
+  assert.deepEqual(survey.getUsedLocales(), ["en", "de", "fr", "it"], "Pick-up locales from components");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("getDisplayValue from component JSON function", function (assert) {
   var json = {
     name: "fullname",

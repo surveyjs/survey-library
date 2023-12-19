@@ -1548,8 +1548,8 @@ export class Question extends SurveyElement<Question>
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;
     if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
-    if (!this.survey || !this.valueName) return true;
-    return !this.survey.hasVisibleQuestionByValueName(this.valueName);
+    if (!this.survey) return true;
+    return !this.survey.hasVisibleQuestionByValueName(this.getValueName());
   }
   /**
    * Returns `true` if a parent element (page or panel) is visible.

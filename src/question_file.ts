@@ -20,6 +20,9 @@ export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
   const buffer = new Uint8Array(str.split("").map(c => c.charCodeAt(0))).buffer;
   return new File([buffer], fileName, { type: type });
 }
+/**
+ * A base class for question types that support file upload: `QuestionFileModel` and `QuestionSignaturePadModel`.
+ */
 export class QuestionFileModelBase extends Question {
   @property() public isUploading: boolean = false;
   @property({ defaultValue: "empty" }) currentState: string;

@@ -18524,3 +18524,40 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   assert.deepEqual(getContainerContent("left"), [], "progress top left");
   assert.deepEqual(getContainerContent("right"), [], "progress top right");
 });
+
+QUnit.test("Check triggerReponsiveness is called when isCompact changed", function (assert) {
+  const json = {
+    title: "My Survey",
+    showNavigationButtons: "none",
+    pages: [
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  let log = "";
+  survey.getAllQuestions().forEach(q => {
+    q["triggerResponsivenessCallback"] = (hard: boolean) => {
+      log += `->${q.name}:${hard}`;
+    };
+  });
+  survey["isCompact"] = true;
+  assert.equal(log, "->q1:true->q2:true");
+  log = "";
+  survey["isCompact"] = false;
+  assert.equal(log, "->q1:true->q2:true");
+});

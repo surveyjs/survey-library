@@ -53,6 +53,12 @@ export class PopupSurveyNG {
     if (props.isExpanded !== undefined) {
       survey.isExpanded = props.isExpanded;
     }
+    if (props.allowClose !== undefined) {
+      survey.allowClose = props.allowClose;
+    }
+    if (props.closeOnCompleteTimeout !== undefined) {
+      survey.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
+    }
     survey.show();
   }
 }

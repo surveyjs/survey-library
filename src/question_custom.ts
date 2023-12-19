@@ -426,6 +426,10 @@ export abstract class QuestionCustomModelBase extends Question
       this.getElement().addUsedLocales(locales);
     }
   }
+  public needResponsiveWidth(): boolean {
+    const el: any = this.getElement();
+    return !!el ? el.needResponsiveWidth() : false;
+  }
   protected createWrapper(): void { }
   protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     super.onPropertyValueChanged(name, oldValue, newValue);

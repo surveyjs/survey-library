@@ -32,12 +32,3 @@ export class Animation {
     }
   }
 }
-
-export let animationsEnabled = true;
-
-export function enableAnimations(): void {
-  animationsEnabled = true;
-}
-export function disableAnimations(): void {
-  animationsEnabled = false;
-}

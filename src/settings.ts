@@ -746,5 +746,6 @@ export var settings = {
       "email",
       "impp",
     ]
-  }
+  },
+  animationEnabled: true
 };

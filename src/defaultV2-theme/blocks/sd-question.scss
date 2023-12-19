@@ -27,7 +27,7 @@
   margin-bottom: 0;
 }
 .sd-element--with-frame.sd-question--left>.sd-element__erbox--above-element {
-  margin-bottom: calc(0.25 * var(--sd-base-vertical-padding) + 0.5 * #{$base-unit});
+  margin-bottom: calc(1 * var(--sd-base-vertical-padding));
 }
 
 .sd-element--with-frame>.sd-question__erbox--below-question {

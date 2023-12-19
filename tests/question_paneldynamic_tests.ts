@@ -5952,7 +5952,7 @@ QUnit.test("survey.onDynamicPanelCurrentIndexChanged", function (assert) {
   panel.currentIndex = 1;
   assert.equal(panelIndex, 1, "panelIndex #2");
   assert.equal(panelIndexOf, 1, "panelIndexOf #2");
-  panel.addPanel();
+  panel.addPanel(-1);
   assert.equal(panel.currentIndex, 3, "panel.panelIndex #3");
   assert.equal(panelIndex, 3, "panelIndex #3");
   assert.equal(panelIndexOf, 3, "panelIndexOf #3");

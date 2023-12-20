@@ -118,6 +118,7 @@ export var settings = {
    * The URL of the SurveyJS Service API endpoint.
    */
   web: {
+    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => {},
     encodeUrlParams: true,
     cacheLoadedChoices: true,
     disableQuestionWhileLoadingChoices: false,

@@ -103,10 +103,17 @@ export class ChoicesRestful extends Base {
       }
     }
   }
-  public static onBeforeSendRequest: (
+  public static get onBeforeSendRequest(): (
     sender: ChoicesRestful,
     options: { request: XMLHttpRequest }
-  ) => void;
+  ) => void {
+    return settings.web.onBeforeRequestChoices;
+  }
+  public static set onBeforeSendRequest(
+    val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
+  ) {
+    settings.web.onBeforeRequestChoices = val;
+  }
   private static getCachedItemsResult(obj: ChoicesRestful): boolean {
     var hash = obj.objHash;
     var res = ChoicesRestful.itemsResult[hash];
@@ -249,8 +256,8 @@ export class ChoicesRestful extends Base {
       }
     };
     var options = { request: xhr };
-    if (!!ChoicesRestful.onBeforeSendRequest) {
-      ChoicesRestful.onBeforeSendRequest(this, options);
+    if (!!settings.web.onBeforeRequestChoices) {
+      settings.web.onBeforeRequestChoices(this, options);
     }
     this.beforeSendRequest();
     options.request.send();
@@ -613,12 +620,12 @@ export class ChoicesRestfull extends ChoicesRestful {
     sender: ChoicesRestful,
     options: { request: XMLHttpRequest }
   ) => void {
-    return ChoicesRestful.onBeforeSendRequest;
+    return settings.web.onBeforeRequestChoices;
   }
   public static set onBeforeSendRequest(
     val: (sender: ChoicesRestful, options: { request: XMLHttpRequest }) => void
   ) {
-    ChoicesRestful.onBeforeSendRequest = val;
+    settings.web.onBeforeRequestChoices = val;
   }
 }
 

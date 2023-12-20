@@ -1,6 +1,6 @@
 import * as ko from "knockout";
 import { QuestionCheckboxBaseImplementor } from "./koquestion_baseselect";
-import { Serializer } from "survey-core";
+import { ItemValue, Serializer } from "survey-core";
 import { QuestionFactory } from "survey-core";
 import { QuestionCheckboxModel } from "survey-core";
 import { Question } from "survey-core";
@@ -19,38 +19,17 @@ export class QuestionCheckboxImplementor extends QuestionCheckboxBaseImplementor
 }
 
 export class QuestionCheckbox extends QuestionCheckboxModel {
-  koAllSelected: any;
-  private isAllSelectedUpdating = false;
   private _implementor: QuestionCheckboxImplementor;
   private _selectAllItemImpl: ImplementorBase = undefined;
   private _otherItemImpl: ImplementorBase = undefined;
   constructor(name: string) {
     super(name);
-    this.koAllSelected = ko.observable(this.isAllSelected);
-    this.koAllSelected.subscribe((newValue: any) => {
-      if (this.isAllSelectedUpdating) return;
-      if (newValue) this.selectAll();
-      else this.clearValue();
-    });
     this._selectAllItemImpl = new ImplementorBase(this.selectAllItem);
     this._otherItemImpl = new ImplementorBase(this.otherItem);
   }
   protected onBaseCreating() {
     super.onBaseCreating();
     this._implementor = new QuestionCheckboxImplementor(this);
-  }
-  public onSurveyValueChanged(newValue: any) {
-    super.onSurveyValueChanged(newValue);
-    this.updateAllSelected();
-  }
-  protected onVisibleChoicesChanged() {
-    super.onVisibleChoicesChanged();
-    this.updateAllSelected();
-  }
-  protected updateAllSelected() {
-    this.isAllSelectedUpdating = true;
-    this.koAllSelected(this.isAllSelected);
-    this.isAllSelectedUpdating = false;
   }
   public dispose(): void {
     if(this._selectAllItemImpl) {
@@ -63,7 +42,6 @@ export class QuestionCheckbox extends QuestionCheckboxModel {
     }
     this._implementor.dispose();
     this._implementor = undefined;
-    this.koAllSelected = undefined;
     super.dispose();
   }
 }

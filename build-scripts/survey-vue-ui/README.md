@@ -1,5 +1,9 @@
 # SurveyJS Vue Form Library (Vue 2)
 
+
+https://github.com/surveyjs/survey-library/assets/22315929/f2bb0746-f5b8-4117-b48f-bbc2d04fa670
+
+
 [![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE)
 <a href="https://github.com/DevExpress/testcafe">

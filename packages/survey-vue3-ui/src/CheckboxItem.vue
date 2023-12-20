@@ -2,22 +2,16 @@
   <div role="presentation" :class="question.getItemClass(item)">
     <label :class="question.getLabelClass(item)">
       <input
-        v-if="item == question.selectAllItem"
         type="checkbox"
         role="option"
-        :name="question.name + item.value"
-        :value="isAllSelected"
-        v-model="isAllSelected"
-        :id="question.getItemId(item)"
-        :disabled="!question.getItemEnabled(item)"
-        :class="question.cssClasses.itemControl"
-      /><input
-        v-if="item != question.selectAllItem"
-        type="checkbox"
-        role="option"
-        :name="question.name + item.value"
+        :name="question.name + item.id"
+        :checked="question.isItemSelected(item)"
+        @input="
+          (e) => {
+            change(e);
+          }
+        "
         :value="item.value"
-        v-model="renderedValue"
         :id="question.getItemId(item)"
         :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"
@@ -41,7 +35,6 @@
 <script lang="ts" setup>
 import type { ItemValue, QuestionCheckboxModel } from "survey-core";
 import { useBase } from "./base";
-import { computed } from "vue";
 
 defineOptions({ inheritAttrs: false });
 
@@ -50,25 +43,10 @@ const props = defineProps<{
   item: ItemValue;
   hideLabel?: boolean;
 }>();
-const isAllSelected = computed({
-  get(): boolean | string {
-    return props.question.isAllSelected || "";
-  },
-  set(val: boolean | string) {
-    const question = props.question;
-    question.isAllSelected = !!val;
-  },
-});
 
 useBase(() => props.item);
 
-const renderedValue = computed({
-  get: () => props.question.renderedValue,
-  set: (val) => {
-    const question = props.question;
-    question.renderedValue = val;
-  },
-});
-
-useBase(() => props.item);
+const change = (event: any) => {
+  props.question.clickItemHandler(props.item, event.target.checked);
+};
 </script>

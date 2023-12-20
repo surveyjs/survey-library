@@ -1,4 +1,4 @@
-import { frameworks, url, url_test, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme } from "../helper";
+import { frameworks, url, url_test, setOptions, initSurvey, getSurveyResult, getQuestionValue, getQuestionJson, checkSurveyWithEmptyQuestion, applyTheme, getData } from "../helper";
 import { Selector, ClientFunction, fixture, test } from "testcafe";
 // eslint-disable-next-line no-undef
 const assert = require("assert");
@@ -338,6 +338,21 @@ frameworks.forEach((framework) => {
         "fieldset .sv_q_select_column:nth-of-type(1) div:nth-of-type(1) input"
       ).checked;
     });
+    const surveyData = {
+      car: [
+        "Unknown",
+        "Ford",
+        "Vauxhall",
+        "Volkswagen",
+        "Nissan",
+        "Audi",
+        "Mercedes-Benz",
+        "BMW",
+        "Peugeot",
+        "Toyota",
+        "Citroen",
+      ],
+    };
     const setData = ClientFunction(() => {
       window["survey"].data = {
         car: [
@@ -358,6 +373,10 @@ frameworks.forEach((framework) => {
     await enableHasSelectAll();
     await setData();
     assert.equal(await isSelectAllChecked(), true);
+    await t.click(Selector("span").withText("Select All"));
+    assert.deepEqual(await getData(), {});
+    await t.click(Selector("span").withText("Select All"));
+    assert.deepEqual(await getData(), surveyData);
   });
   test("showOtherItem&showCommentArea", async (t) => {
     const getOtherInput = Selector(

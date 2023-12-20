@@ -1,11 +1,15 @@
 <template>
   <div role="presentation" :class="question.getItemClass(item)">
     <label :class="question.getLabelClass(item)">
-      <input v-if="item == question.selectAllItem" type="checkbox" role="option" :name="question.name+item.value"
-        :value="isAllSelected" v-model="isAllSelected" :id="question.getItemId(item)"
-        :disabled="!question.getItemEnabled(item)" :class="question.cssClasses.itemControl" />
-      <input v-if="item != question.selectAllItem" 
-        type="checkbox" role="option" :name="question.name+item.value" :value="item.value" v-model="question.renderedValue"
+      <input
+        type="checkbox" role="option" :name="question.name+item.id"
+        :checked="question.isItemSelected(item)"
+        @input="
+          (e) => {
+            question.clickItemHandler(item, e.target.checked);
+          }
+        "
+        :value="item.value"
         :id="question.getItemId(item)" :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl" /><span
         v-if="question.cssClasses.materialDecorator" :class="question.cssClasses.materialDecorator">
@@ -32,12 +36,6 @@ export class CheckboxItem extends BaseVue {
   @Prop() hideLabel: boolean;
   protected getModel(): Base {
     return this.item;
-  }
-  get isAllSelected() {
-    return this.question.isAllSelected || "";
-  }
-  set isAllSelected(val: boolean) {
-    this.question.isAllSelected = val;
   }
 }
 Vue.component("survey-checkbox-item", CheckboxItem);

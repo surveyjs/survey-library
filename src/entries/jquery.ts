@@ -39,6 +39,9 @@ function doPopupSurvey(props: any): void {
     if (props.isExpanded !== undefined) {
       survey.isExpanded = props.isExpanded;
     }
+    if (props.allowClose !== undefined) {
+      survey.allowClose = props.allowClose;
+    }
     if (props.closeOnCompleteTimeout !== undefined) {
       survey.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
     }

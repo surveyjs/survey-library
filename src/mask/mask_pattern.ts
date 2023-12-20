@@ -1,11 +1,36 @@
 import { InputMaskBase } from "./mask";
-import { IMaskedValue, settings, syntacticAnalysisMask } from "./mask_utils";
+import { IMaskedValue, settings } from "./mask_utils";
+
+export interface IMaskLiteral {
+  type: "const" | "regex";
+  value: any;
+}
+
+export function getLiterals(mask: string): Array<IMaskLiteral> {
+  const result: Array<IMaskLiteral> = [];
+  let prevChartIsEscaped = false;
+  const definitionsKeys = Object.keys(settings.definitions);
+
+  for(let index = 0; index < mask.length; index++) {
+    const currentChar = mask[index];
+    if(currentChar === settings.escapedChar) {
+      prevChartIsEscaped = true;
+    } else if(prevChartIsEscaped) {
+      prevChartIsEscaped = false;
+      result.push({ type: "const", value: currentChar });
+    } else {
+      result.push({ type: definitionsKeys.indexOf(currentChar) !== -1 ? "regex" : "const", value: currentChar });
+    }
+  }
+
+  return result;
+}
 
 export function getMaskedValueByPattern(str: string, pattern: string, matchWholeMask = true): string {
   let result = "";
   let strIndex = 0;
 
-  const parsedMask = syntacticAnalysisMask(pattern);
+  const parsedMask = getLiterals(pattern);
   for(let maskIndex = 0; maskIndex < parsedMask.length; maskIndex++) {
     if(parsedMask[maskIndex].type === "regex") {
       const currentDefinition = settings.definitions[parsedMask[maskIndex].value];
@@ -31,7 +56,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string, matchWho
   let result = "";
   if(!str) return result;
 
-  const parsedMask = syntacticAnalysisMask(pattern);
+  const parsedMask = getLiterals(pattern);
   for(let index = 0; index < parsedMask.length; index++) {
     if(parsedMask[index].type === "regex") {
       const currentDefinition = settings.definitions[parsedMask[index].value];
@@ -76,7 +101,7 @@ export class InputMaskPattern extends InputMaskBase {
     return processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
   }
 
-  protected updateMaskedString(mask: string, option?: any): void {
+  public updateMaskedString(mask: string, option?: any): void {
     if(!!this.input) {
       const result = this.processMaskedValue(mask);
       this.input.value = result.text;

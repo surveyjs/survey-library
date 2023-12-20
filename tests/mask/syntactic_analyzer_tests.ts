@@ -25,7 +25,7 @@ QUnit.test("syntacticAnalysisRegex b+a", assert => {
   assert.equal(rootNode.children[1].data.value, "a");
   assert.equal(rootNode.children[1].children.length, 0);
 });
-QUnit.skip("syntacticAnalysisRegex ab*", assert => {
+QUnit.test("syntacticAnalysisRegex ab*", assert => {
   const analyzer = new SyntacticAnalyzer();
   const tree: Tree = analyzer.buildSyntacticTree("ab*");
   const rootNode = tree.getRoot();

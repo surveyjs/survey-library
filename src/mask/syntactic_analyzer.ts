@@ -1,9 +1,10 @@
-import { settings } from "./mask_utils";
+import { LexicalAnalyzer, ILexemToken } from "./lexical_analyzer";
 
 export type TokenType = "literal" | "concat" | "or" | "repeat" | "plus";
 interface IRegexToken {
   type: TokenType;
   value: any;
+  lexem?: ILexemToken;
 }
 export class Node {
   data: IRegexToken;
@@ -37,68 +38,46 @@ export class Tree {
 }
 
 export class SyntacticAnalyzer {
+  analyzer = new LexicalAnalyzer();
+
   public buildSyntacticTree(regex: string): Tree {
     return new Tree(this.syntacticAnalysis(regex));
   }
 
   syntacticAnalysis(str: string): Node {
-    let prevChartIsEscaped = false;
-    let prevChart;
+    let prevLexem;
     let currentTocken;
     let prevTocken;
     let leftTocken;
     let rootTocken;
-    let bracketCounter = 0;
-    let subString = "";
 
-    for(let index = 0; index < str.length; index++) {
-      const currentChar = str[index];
+    let lexems = this.analyzer.getLexems(str);
+
+    for(let index = 0; index < lexems.length; index++) {
+      const currentLexem = lexems[index];
       currentTocken = null;
 
-      if(bracketCounter !== 0) {
-        if(currentChar === ")") {
-          bracketCounter--;
-          if(bracketCounter === 0) {
-            currentTocken = this.syntacticAnalysis(subString);
-            subString = "";
-          } else {
-            subString += currentChar;
-          }
-        } else {
-          subString += currentChar;
-        }
-      } else {
-        if(prevChartIsEscaped) {
-          prevChartIsEscaped = false;
-          currentTocken = new Node({ type: "literal", value: currentChar });
-        } else {
-          switch (currentChar) {
-            case settings.escapedChar:
-              prevChartIsEscaped = true;
-              break;
-            case "|":
-              leftTocken = prevTocken;
-              prevTocken = null;
-              break;
-            case "(":
-              bracketCounter++;
-              break;
-            case "*":
-              currentTocken = this.createUnaryTocken("repeat", currentChar, prevTocken);
-              prevTocken = null;
-              break;
-            case "+":
-              currentTocken = this.createUnaryTocken("plus", currentChar, prevTocken);
-              prevTocken = null;
-              break;
-            default:
-              currentTocken = new Node({ type: "literal", value: currentChar });
-          }
-        }
+      switch (currentLexem.type) {
+        case "expression":
+          currentTocken = this.syntacticAnalysis(currentLexem.data);
+          break;
+        case "or":
+          leftTocken = prevTocken;
+          prevTocken = null;
+          break;
+        case "literal":
+          currentTocken = new Node({ type: "literal", value: currentLexem.data, lexem: currentLexem });
+          break;
+        default:
+          currentTocken = new Node({ type: "literal", value: currentLexem.data, lexem: currentLexem });
       }
+      if(!!currentLexem.quantifier) {
+        currentTocken = this.createUnaryTocken(currentLexem.quantifier === "*" ? "repeat" : "plus", currentLexem.data, currentTocken);
+      }
+
       if(!!currentTocken) {
-        if(!!leftTocken && prevChart === "|") {
-          currentTocken = this.createBinaryTocken("or", currentChar, leftTocken, currentTocken);
+        if(!!leftTocken && prevLexem.type === "or") {
+          currentTocken = this.createBinaryTocken("or", currentLexem.data, leftTocken, currentTocken);
           rootTocken = currentTocken;
           leftTocken = null;
         } else if(!!prevTocken) {
@@ -106,7 +85,7 @@ export class SyntacticAnalyzer {
           rootTocken = currentTocken;
         }
       }
-      prevChart = currentChar;
+      prevLexem = currentLexem;
       prevTocken = currentTocken;
     }
     return rootTocken || currentTocken;

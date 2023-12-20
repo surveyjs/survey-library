@@ -1,12 +1,12 @@
-import { syntacticAnalysisMask, settings } from "../../src/mask/mask_utils";
-import { processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern } from "../../src/mask/mask_pattern";
+import { settings } from "../../src/mask/mask_utils";
+import { processValueWithPattern, getMaskedValueByPattern, getUnmaskedValueByPattern, getLiterals, InputMaskPattern } from "../../src/mask/mask_pattern";
 
 export default QUnit.module("Pattern mask");
 
 const mask = "+9(999)-999-99-99";
 
 QUnit.test("parsingMask simple pattern", function(assert) {
-  let result = syntacticAnalysisMask(mask);
+  let result = getLiterals(mask);
   assert.equal(result.length, 17);
   assert.equal(result[0].type, "const");
   assert.equal(result[0].value, "+");
@@ -19,7 +19,7 @@ QUnit.test("parsingMask simple pattern", function(assert) {
 });
 
 QUnit.test("parsingMask with fixed character", function(assert) {
-  let result = syntacticAnalysisMask("+\\9(999)-999-99-99");
+  let result = getLiterals("+\\9(999)-999-99-99");
   assert.equal(result.length, 17);
   assert.equal(result[0].type, "const");
   assert.equal(result[0].value, "+");
@@ -152,11 +152,11 @@ QUnit.test("edit value - insert value", function(assert) {
   settings.placeholderChar = "_";
 });
 
-/*
 QUnit.test("update masked value", function(assert) {
+  settings.placeholderChar = "*";
   const resultMaskedText = "+1(234)-567-**-**";
   const testInput = document.createElement("input");
-  const inputMask = new InputMaskBase(testInput, mask);
+  const inputMask = new InputMaskPattern(testInput, mask);
   inputMask["_prevSelectionStart"] = 0;
   assert.equal(testInput.value, "+*(***)-***-**-**");
 
@@ -180,6 +180,6 @@ QUnit.test("update masked value", function(assert) {
   inputMask.updateMaskedString(mask);
   assert.equal(testInput.value, resultMaskedText);
 
+  settings.placeholderChar = "_";
   testInput.remove();
 });
-*/

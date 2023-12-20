@@ -966,8 +966,8 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
-      this.isDesignMode && !this.customWidget && !this.isContentElement;
+    return settings.showDefaultItemsInCreatorV2 && this.isDesignModeV2 &&
+      !this.customWidget && !this.isContentElement;
   }
   public getPlainData(
     options: IPlainDataOptions = {

@@ -137,7 +137,7 @@ export class Helpers {
     if (!Helpers.isValueObject(x) || !Helpers.isValueObject(y)) return false;
     if (x["equals"]) return x.equals(y);
     if (!!x.toJSON && !!y.toJSON && !!x.getType && !!y.getType) {
-      if (x.isDiposed || y.isDiposed) return false;
+      if (x.isDisposed || y.isDisposed) return false;
       if (x.getType() !== y.getType()) return false;
       if (!!x.name && x.name !== y.name) return false;
       return this.isTwoValueEquals(x.toJSON(), y.toJSON(), ignoreOrder, caseSensitive, trimStrings);

@@ -197,28 +197,31 @@ frameworks.forEach(framework => {
             type: "file",
             name: "q1",
             minWidth: "600px",
-            maxWidth: "600px",
-            "sourceType": "file-camera"
+            maxWidth: "600px"
           },
           {
             type: "file",
             name: "q2",
             minWidth: "300px",
-            maxWidth: "300px",
-            "sourceType": "file-camera"
+            maxWidth: "300px"
           },
           {
             type: "file",
             name: "q3",
             minWidth: "200px",
             maxWidth: "200px",
-            "sourceType": "file-camera"
+            startWithNewLine: false
           }
         ]
       });
       await resetFocusToBody();
       const questionRoot = Selector(".sd-question");
       const button = Selector("button").withText("Photo");
+      await ClientFunction(() => {
+        (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
+        (window as any).survey.getAllQuestions()[1].setPropertyValue("currentMode", "file-camera");
+        (window as any).survey.getAllQuestions()[2].setPropertyValue("currentMode", "file-camera");
+      })();
       await t.hover(button.nth(0));
       await takeElementScreenshot("file-question-placeholder-normal.png", questionRoot.nth(0), t, comparer);
       await t.hover(button.nth(1));

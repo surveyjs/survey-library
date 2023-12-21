@@ -308,12 +308,6 @@ registerMarkupTests(
         survey.getQuestionByName("name")["popupModel"];
         survey.getQuestionByName("name")["dropdownListModel"].inputStringRendered = "o";
       },
-      before() {
-        settings.animationEnabled = false;
-      },
-      after() {
-        settings.animationEnabled = true;
-      },
       timeout: 300,
       removeIds: true,
       snapshot: "dropdown-input-string",
@@ -363,14 +357,10 @@ registerMarkupTests(
         ]
       },
       before: () => {
-        settings.animationEnabled = false;
         Question["questionCounter"] = 100; },
       initSurvey: (survey) => {
         const dropdown = survey.getQuestionByName("name");
         dropdown["popupModel"].isVisible = true;
-      },
-      after() {
-        settings.animationEnabled = true;
       },
       snapshot: "dropdown-aria-expanded"
     }

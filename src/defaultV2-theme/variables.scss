@@ -108,6 +108,8 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 //call  @include useEditorFontSize before using this variable;
 $font-editorfont-size: var(--sjs-internal-font-editorfont-size);
 
+$sd-panel-normal-min-width: 496px;
+$sd-panel-medium-min-width: 176px;
 @mixin useEditorFontSize {
   --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});
 }

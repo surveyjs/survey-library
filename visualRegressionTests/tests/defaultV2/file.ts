@@ -187,6 +187,47 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("file-question-placeholder-mobile.png", questionRoot, t, comparer);
     });
   });
+
+  test("Check file question different width", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        width: "900px",
+        questions: [
+          {
+            type: "file",
+            name: "q1",
+            minWidth: "600px",
+            maxWidth: "600px",
+            "sourceType": "file-camera"
+          },
+          {
+            type: "file",
+            name: "q2",
+            minWidth: "300px",
+            maxWidth: "300px",
+            "sourceType": "file-camera"
+          },
+          {
+            type: "file",
+            name: "q3",
+            minWidth: "200px",
+            maxWidth: "200px",
+            "sourceType": "file-camera"
+          }
+        ]
+      });
+      await resetFocusToBody();
+      const questionRoot = Selector(".sd-question");
+      const button = Selector("button").withText("Photo");
+      await t.hover(button.nth(0));
+      await takeElementScreenshot("file-question-placeholder-normal.png", questionRoot.nth(0), t, comparer);
+      await t.hover(button.nth(1));
+      await takeElementScreenshot("file-question-placeholder-medium.png", questionRoot.nth(1), t, comparer);
+      await t.hover(button.nth(2));
+      await takeElementScreenshot("file-question-placeholder-small.png", questionRoot.nth(2), t, comparer);
+    });
+  });
+
 });
 
 frameworks.forEach(framework => {
@@ -223,3 +264,4 @@ frameworks.forEach(framework => {
     });
   });
 });
+

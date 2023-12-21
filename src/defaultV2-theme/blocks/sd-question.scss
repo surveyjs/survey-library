@@ -79,7 +79,9 @@
     width: calc(100% + 2 * var(--sd-base-padding));
   }
 }
-
+.sd-question__content {
+  container-type: inline-size;
+}
 .sd-scrollable .sd-question__content {
   overflow-x: auto;
   padding: calcSize(2) 0;

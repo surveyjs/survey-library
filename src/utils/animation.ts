@@ -1,14 +1,33 @@
 export class Animation {
+
+  protected isAnimationExists(element: HTMLElement): boolean {
+    let animationName = "";
+    if(getComputedStyle) {
+      animationName = getComputedStyle(element).animationName;
+    }
+    return animationName && animationName != "none";
+  }
+
+  protected onAnimationEnd(element: HTMLElement, callback: () => void): void {
+    const onAnimationEndCallback = () => {
+      callback();
+      element.removeEventListener("animationend", onAnimationEndCallback);
+    };
+    if(this.isAnimationExists(element)) {
+      element.addEventListener("animationend", onAnimationEndCallback);
+    } else {
+      onAnimationEndCallback();
+    }
+  }
+
   public onEnter(getElement: () => HTMLElement, classes: { onEnter: string }): void {
     requestAnimationFrame(() => {
       const element = getElement();
       if(element) {
         element.classList.add(classes.onEnter);
-        const onAnimationEnd = () => {
+        this.onAnimationEnd(element, () => {
           element.classList.remove(classes.onEnter);
-          element.removeEventListener("animationend", onAnimationEnd);
-        };
-        element.addEventListener("animationend", onAnimationEnd);
+        });
       }
     });
   }
@@ -17,16 +36,15 @@ export class Animation {
     const element = getElement();
     if(element) {
       element.classList.add(classes.onLeave);
-      const onAnimationEnd = () => {
+      const onAnimationEndCallback = () => {
         element.classList.remove(classes.onLeave);
         element.classList.add(classes.onHide);
         callback();
         setTimeout(() => {
           element.classList.remove(classes.onHide);
         }, 1);
-        element.removeEventListener("animationend", onAnimationEnd);
       };
-      element.addEventListener("animationend", onAnimationEnd);
+      this.onAnimationEnd(element, onAnimationEndCallback);
     } else {
       callback();
     }

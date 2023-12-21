@@ -395,6 +395,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   const json = {
+    "focusFirstQuestionAutomatic": true,
     "pages": [
       {
         "name": "page1",
@@ -421,6 +422,7 @@ frameworks.forEach(framework => {
   test("Paneldynamic confirm dialog", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
+      await t.pressKey(" a b c tab");
       await t.click(Selector(".sd-paneldynamic__remove-btn"));
       await takeElementScreenshot("paneldynamic-confirm-dialog", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
     });

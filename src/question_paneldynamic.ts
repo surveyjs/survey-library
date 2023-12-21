@@ -286,7 +286,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile"], () => {
+    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "showRangeInProgress", "renderMode"], () => {
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
@@ -920,6 +920,12 @@ export class QuestionPanelDynamicModel extends Question
   public set allowAddPanel(val: boolean) {
     this.setPropertyValue("allowAddPanel", val);
   }
+  public get newPanelPosition(): string {
+    return this.getPropertyValue("newPanelPosition");
+  }
+  public set newPanelPosition(val: string) {
+    this.setPropertyValue("newPanelPosition", val);
+  }
   /**
    * Specifies whether users are allowed to delete panels.
    *
@@ -1002,7 +1008,6 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set showRangeInProgress(val: boolean) {
     this.setPropertyValue("showRangeInProgress", val);
-    this.updateFooterActions();
     this.fireCallback(this.currentIndexChangedCallback);
   }
   /**
@@ -1021,7 +1026,6 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set renderMode(val: string) {
     this.setPropertyValue("renderMode", val);
-    this.updateFooterActions();
     this.fireCallback(this.renderModeChangedCallback);
   }
   public get tabAlign(): "center" | "left" | "right" {
@@ -1089,7 +1093,8 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.visiblePanelCount - 1) {
+    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList &&
+      (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
     }
     return (
@@ -2299,6 +2304,7 @@ Serializer.addClass(
     { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
+    { name: "newPanelPosition", choices: ["next", "last"], default: "last", category: "layout" },
     {
       name: "panelCount:number",
       isBindable: true,

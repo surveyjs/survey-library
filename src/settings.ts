@@ -109,13 +109,24 @@ export var settings = {
    * Specifies whether to encode URL parameters when you access a web service. Default value: `true`.
    *
    * - `cacheLoadedChoices`: `boolean`\
-   * Specifies whether to cache [choices](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#choicesByUrl) loaded from a web service. Default value: `true`.
+   * Specifies whether to cache [choices loaded from a web service](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl). Default value: `true`.
    *
    * - `disableQuestionWhileLoadingChoices`: `boolean`\
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
    *
    * - `surveyServiceUrl`: `string`\
    * The URL of the SurveyJS Service API endpoint.
+   *
+   * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { request: XMLHttpRequest })`\
+   * An event that is raised before a request for choices is send. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options.request` parameter to access and modify the `XMLHttpRequest` object. For instance, you can add authentication headers to it:
+   *
+   *     ```js
+   *     import { settings } from "survey-core";
+   *
+   *     settings.web.onBeforeSendRequest = (sender, options) => {
+   *       options.request.setRequestHeader('RequestVerificationToken', requestVerificationToken);
+   *     };
+   *     ```
    */
   web: {
     onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => {},

@@ -1526,6 +1526,7 @@ export class QuestionPanelDynamicModel extends Question
     if(this.isReadOnly || !this.allowAddPanel) {
       this.updateNoEntriesTextDefaultLoc();
     }
+    this.updateFooterActions();
     super.onSurveyLoad();
   }
   public onFirstRendering() {

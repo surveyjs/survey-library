@@ -2113,6 +2113,7 @@ export class SurveyModel extends SurveyElementCore
     if (newVal !== this._isCompact) {
       this._isCompact = newVal;
       this.updateElementCss();
+      this.triggerResponsiveness(true);
     }
   }
   private get isCompact() {

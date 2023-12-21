@@ -6177,6 +6177,35 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(as
 
   settings.confirmActionAsync = prevAsync;
 });
+QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOnDelete", function(assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        defaultPanelValue: { q1: 1, q2: 2 },
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }], "Initial value is correct");
+  assert.equal(panel.isRequireConfirmOnDelete(0), false, "#1");
+  panel.confirmDelete = true;
+  panel.panels[0].getQuestionByName("q1").value = 3;
+  assert.equal(panel.isRequireConfirmOnDelete(0), true, "#2");
+  assert.equal(panel.isRequireConfirmOnDelete(1), false, "#3");
+  assert.equal(panel.isRequireConfirmOnDelete(-1), false, "#4");
+  assert.equal(panel.isRequireConfirmOnDelete(2), false, "#5");
+
+  panel.panels[0].getQuestionByName("q1").clearValue();
+  panel.panels[0].getQuestionByName("q2").clearValue();
+  assert.equal(panel.isRequireConfirmOnDelete(0), false, "#6");
+});
 QUnit.test("panel property in custom function", function (assert) {
   const panelCustomFunc = function (params: any) {
     if(!this.panel) return "";

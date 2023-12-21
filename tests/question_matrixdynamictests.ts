@@ -4119,6 +4119,7 @@ QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon",
   table = matrix.renderedTable;
   assert.equal(table.rows[1].cells[2].item.value.actions[0].component, "sv-matrix-remove-button", "Render as button");
   settings.matrixRenderRemoveAsIcon = true;
+  survey.css.root = undefined;
 });
 
 QUnit.test("column is requriedText, Bug #2297", function (assert) {
@@ -8434,6 +8435,7 @@ QUnit.test("Check rightIndents set correctly for detailElements with defaultV2 t
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   matrix.visibleRows[0].showHideDetailPanelClick();
   assert.equal(matrix.renderedTable.rows[2].cells[1].panel.elements[0].rightIndent, 0);
+  survey.css.root = undefined;
 });
 
 QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
@@ -8469,6 +8471,7 @@ QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
   assert.equal(matrix.isDragHandleAreaValid(nodeMock), true);
 
   nodeMock.remove();
+  survey.css.root = undefined;
 });
 QUnit.test("column validation, bug#6449", function (assert) {
   const survey = new SurveyModel({

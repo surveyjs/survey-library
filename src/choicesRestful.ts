@@ -427,6 +427,11 @@ export class ChoicesRestful extends Base {
   public set imageLinkName(val: string) {
     this.setPropertyValue("imageLinkName", val);
   }
+  /**
+   * Specifies whether the service is allowed to return an empty response or an empty array in a response.
+   *
+   * Default value: `false`
+   */
   public get allowEmptyResponse(): boolean {
     return this.getPropertyValue("allowEmptyResponse");
   }

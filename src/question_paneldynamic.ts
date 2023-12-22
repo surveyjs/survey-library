@@ -911,6 +911,8 @@ export class QuestionPanelDynamicModel extends Question
    * Specifies whether users are allowed to add new panels.
    *
    * Default value: `true`
+   *
+   * By default, users add new panels to the end. If you want to let users insert a new panel after the current panel, set the [`newPanelPosition`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#newPanelPosition) property to `"next"`.
    * @see canAddPanel
    * @see allowRemovePanel
    */
@@ -920,6 +922,16 @@ export class QuestionPanelDynamicModel extends Question
   public set allowAddPanel(val: boolean) {
     this.setPropertyValue("allowAddPanel", val);
   }
+  /**
+   * Specifies the position of a newly added panel.
+   *
+   * Possible values:
+   *
+   * - `"last"` (default) - A new panel is added to the end.
+   * - `"next"` - A new panel is inserted after the current panel.
+   * @see allowAddPanel
+   * @see addPanel
+   */
   public get newPanelPosition(): string {
     return this.getPropertyValue("newPanelPosition");
   }
@@ -1234,6 +1246,8 @@ export class QuestionPanelDynamicModel extends Question
    * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `renderMode` value.
    * @see panelCount
    * @see panels
+   * @see allowAddPanel
+   * @see newPanelPosition
    */
   public addPanel(index?: number): PanelModel {
     const curIndex = this.currentIndex;

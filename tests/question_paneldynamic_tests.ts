@@ -6042,6 +6042,7 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(getAddBtn().visible, false, "add button is invisible #6");
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
+  survey.css.root = undefined;
 });
 QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({
@@ -6063,6 +6064,49 @@ QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function
   assert.equal(panel.isReadOnly, false, "Panel is editable, #4");
   assert.equal(panel.canAddPanel, true, "Panel is not readonly, #5");
   assert.equal(addBtn.isVisible, true, "Add button is visible, #6");
+});
+QUnit.test("newPanelPosition & add panel button visibility", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        renderMode: "tab",
+        newPanelPosition: "next",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      }],
+  });
+  survey.css.root = "sd-root-modern";
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
+  panel.currentIndex = 0;
+  assert.equal(panel.newPanelPosition, "next", "newPanelPosition #1");
+  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #1");
+  assert.equal(addBtn.isVisible, true, "addBtn, #1");
+  panel.newPanelPosition = "last";
+  assert.equal(panel.visiblePanelCount, 3, "3 panels are visible");
+  assert.equal(panel.currentIndex, 0, "the first panel is showing");
+  assert.equal(panel.newPanelPosition, "last", "newPanelPosition #2");
+  assert.equal(panel.canAddPanel, false, "canAddPanel, #2");
+  assert.equal(addBtn.isVisible, false, "addBtn, #2");
+  panel.currentIndex = 2;
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #3");
+  assert.equal(addBtn.isVisible, true, "addBtn, #3");
+  panel.currentIndex = 1;
+  assert.equal(panel.canAddPanel, false, "canAddPanel, #4");
+  assert.equal(addBtn.isVisible, false, "addBtn, #4");
+  panel.newPanelPosition = "next";
+  assert.equal(panel.newPanelPosition, "next", "newPanelPosition #3");
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #5");
+  assert.equal(addBtn.isVisible, true, "addBtn, #5");
+  panel.addPanelUI();
+  assert.equal(panel.currentIndex, 2, "currentIndex is next");
+  assert.equal(panel.panelCount, 4, "4 panels");
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #6");
+  assert.equal(addBtn.isVisible, true, "addBtn, #5");
+  survey.css.root = undefined;
 });
 QUnit.test("defaultValue in questions and set data", function (assert) {
   const survey = new SurveyModel({

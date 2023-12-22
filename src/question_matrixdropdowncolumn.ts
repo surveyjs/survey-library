@@ -53,58 +53,42 @@ function onUpdateSelectBaseCellQuestion(
     cellQuestion.choicesByUrl.run(data.getTextProcessor());
   }
 }
+function onUpdateSelectDropdownCellQuestion(cellQuestion: QuestionSelectBase, column: MatrixDropdownColumn,
+  question: QuestionMatrixDropdownModelBase, data: any) {
+  onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
+  if (!!cellQuestion.locPlaceholder && cellQuestion.locPlaceholder.isEmpty && !question.locPlaceholder.isEmpty) {
+    cellQuestion.optionsCaption = question.optionsCaption;
+  }
+}
 export var matrixDropdownColumnTypes: any = {
   dropdown: {
-    onCellQuestionUpdate: (
-      cellQuestion: any,
-      column: any,
-      question: any,
-      data: any
-    ) => {
-      onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
-      if (
-        !!cellQuestion.locPlaceholder &&
-        cellQuestion.locPlaceholder.isEmpty &&
-        !question.locPlaceholder.isEmpty
-      ) {
-        cellQuestion.optionsCaption = question.optionsCaption;
-      }
-    },
+    onCellQuestionUpdate: (cellQuestion: any, column: any, question: any, data: any) => {
+      onUpdateSelectDropdownCellQuestion(cellQuestion, column, question, data);
+    }
   },
   checkbox: {
-    onCellQuestionUpdate: (
-      cellQuestion: any,
-      column: any,
-      question: any,
-      data: any
-    ) => {
+    onCellQuestionUpdate: (cellQuestion: any, column: any, question: any, data: any) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
       cellQuestion.colCount =
         column.colCount > -1 ? column.colCount : question.columnColCount;
     },
   },
   radiogroup: {
-    onCellQuestionUpdate: (
-      cellQuestion: any,
-      column: any,
-      question: any,
-      data: any
-    ) => {
+    onCellQuestionUpdate: (cellQuestion: any, column: any, question: any, data: any) => {
       onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
       cellQuestion.colCount =
         column.colCount > -1 ? column.colCount : question.columnColCount;
     },
   },
-  tagbox: {},
+  tagbox: {
+    onCellQuestionUpdate: (cellQuestion: any, column: any, question: any, data: any) => {
+      onUpdateSelectBaseCellQuestion(cellQuestion, column, question, data);
+    }
+  },
   text: {},
   comment: {},
   boolean: {
-    onCellQuestionUpdate: (
-      cellQuestion: any,
-      column: any,
-      question: any,
-      data: any
-    ) => {
+    onCellQuestionUpdate: (cellQuestion: any, column: any, question: any, data: any) => {
       cellQuestion.renderAs = column.renderAs;
     },
   },

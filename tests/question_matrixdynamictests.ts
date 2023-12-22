@@ -8025,12 +8025,19 @@ QUnit.test("getTitle", function (assert) {
       }
     ]
   });
-  const question = survey.getAllQuestions()[0];
+  const question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
   var renderedTable = question.renderedTable;
-  const row = renderedTable.rows[1];
-  assert.equal(row.cells[0].getTitle(), "true hint", "cell0");
-  assert.equal(row.cells[1].getTitle(), "col2", "cell1");
-  assert.equal(row.cells[2].getTitle(), "", "cell2");
+  const rendredRow = renderedTable.rows[1];
+  assert.equal(rendredRow.cells[0].getTitle(), "true hint", "cell0, #1");
+  assert.equal(rendredRow.cells[1].getTitle(), "col2", "cell1, #1");
+  assert.equal(rendredRow.cells[2].getTitle(), "", "cell2, #1");
+  const row = question.visibleRows[0];
+  row.cells[0].question.title = "Custom title 1";
+  row.cells[1].question.title = "Custom title 2";
+  row.cells[2].question.title = "Custom title 3";
+  assert.equal(rendredRow.cells[0].getTitle(), "true hint", "cell0, #2");
+  assert.equal(rendredRow.cells[1].getTitle(), "Custom title 2", "cell1, #2");
+  assert.equal(rendredRow.cells[2].getTitle(), "", "cell2, #2");
 });
 QUnit.test("matrixdropdowncolumn renderAs property", function (assert) {
   const survey = new SurveyModel({

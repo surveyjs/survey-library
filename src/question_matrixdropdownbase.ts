@@ -1117,7 +1117,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.resetRenderedTable();
     this.fireCallback(this.columnsChangedCallback);
   }
-  protected resetRenderedTable() {
+  //For internal use
+  public resetRenderedTable(): void {
     if (this.lockResetRenderedTable || this.isUpdateLocked) return;
     this.renderedTableValue = null;
     this.fireCallback(this.onRenderedTableResetCallback);

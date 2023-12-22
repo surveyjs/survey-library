@@ -3752,20 +3752,15 @@ export class SurveyModel extends SurveyElementCore
     var visPages = this.visiblePages;
     var firstErrorPage = null;
     var res = true;
+    const rec = { fireCallback: fireCallback, focuseOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
     for (var i = 0; i < visPages.length; i++) {
-      if (!visPages[i].validate(fireCallback, false)) {
+      if (!visPages[i].validate(fireCallback, focusOnFirstError, rec)) {
         if (!firstErrorPage) firstErrorPage = visPages[i];
         res = false;
       }
     }
-    if (focusOnFirstError && !!firstErrorPage) {
-      const questions = firstErrorPage.getQuestions(true);
-      for (let i = 0; i < questions.length; i++) {
-        if (questions[i].errors.length > 0) {
-          questions[i].focus(true);
-          break;
-        }
-      }
+    if (focusOnFirstError && !!firstErrorPage && !!rec.firstErrorQuestion) {
+      rec.firstErrorQuestion.focus(true);
     }
     if (!res || !onAsyncValidation) return res;
     return this.checkForAsyncQuestionValidation(

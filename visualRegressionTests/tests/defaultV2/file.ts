@@ -191,19 +191,20 @@ frameworks.forEach(framework => {
   test("Check file question different width", async t => {
     await wrapVisualTest(t, async (t, comparer) => {
       await initSurvey(framework, {
-        width: "900px",
+        widthMode: "responsive",
         questions: [
           {
             type: "file",
             name: "q1",
-            minWidth: "600px",
-            maxWidth: "600px"
+            minWidth: "616px",
+            maxWidth: "616px"
           },
           {
             type: "file",
             name: "q2",
             minWidth: "300px",
-            maxWidth: "300px"
+            maxWidth: "300px",
+            startWithNewLine: false
           },
           {
             type: "file",
@@ -214,6 +215,7 @@ frameworks.forEach(framework => {
           }
         ]
       });
+      await t.resizeWindow(1920, 1080);
       await resetFocusToBody();
       const questionRoot = Selector(".sd-question");
       const button = Selector("button").withText("Photo");
@@ -223,10 +225,13 @@ frameworks.forEach(framework => {
         (window as any).survey.getAllQuestions()[2].setPropertyValue("currentMode", "file-camera");
       })();
       await t.hover(button.nth(0));
+      await t.wait(100);
       await takeElementScreenshot("file-question-placeholder-normal.png", questionRoot.nth(0), t, comparer);
       await t.hover(button.nth(1));
+      await t.wait(100);
       await takeElementScreenshot("file-question-placeholder-medium.png", questionRoot.nth(1), t, comparer);
       await t.hover(button.nth(2));
+      await t.wait(100);
       await takeElementScreenshot("file-question-placeholder-small.png", questionRoot.nth(2), t, comparer);
     });
   });

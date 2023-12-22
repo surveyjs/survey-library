@@ -6,7 +6,6 @@
   min-height: calcSize(36);
   box-sizing: border-box;
   padding: 0 calcSize(6);
-  container-type: inline-size;
   
   .sv-action-bar {
     padding: calcSize(1) 0;
@@ -50,15 +49,10 @@
   box-sizing: border-box;
   justify-content: center;
   align-items: center;
-  padding: 0 calcSize(8);
   border: 1px dashed $border;
+  container-type: inline-size;
 }
 
-@container (max-width: #{$sd-panel-normal-min-width - 96px}) {
-  .sd-file__drag-area .sd-file__decorator {
-    padding: 0 calcSize(1);
-  }
-}
 .sd-file__decorator--drag {
   z-index: 1;
   border: 1px solid $primary;
@@ -70,19 +64,42 @@
   display: none;
 }
 
-@container (max-width: #{$sd-panel-medium-min-width - 96px}) {
+.sd-file__drag-area-placeholder {
+  @include useEditorFontSize;
+  text-align: center;
+  word-break: break-word;
+  white-space: normal;
+  color: $font-questionplaceholder-color;
+  font-size: $font-editorfont-size;
+  line-height: multiply(1.5, $font-editorfont-size);
+  padding: 0 calcSize(8);
+}
+
+@container (max-width: #{$sd-panel-normal-min-width}) {
+  .sd-file__drag-area-placeholder {
+    padding: 0 calcSize(1);
+  }
+}
+
+@container (max-width: #{$sd-panel-medium-min-width}) {
   .sd-file__drag-area-placeholder {
     display: none;
   }
-}
-.sd-file__drag-area-placeholder {
-  @include useEditorFontSize;
-    text-align: center;
-    word-break: break-word;
-    white-space: normal;
-    color: $font-questionplaceholder-color;
-    font-size: $font-editorfont-size;
-    line-height: multiply(1.5, $font-editorfont-size);
+  .sd-file__decorator .sd-action {
+    padding: calcSize(1);
+
+    .sv-svg-icon {
+      margin-left: 0;
+    }
+  }
+
+  .sd-file__decorator .sd-file__actions-container {
+    flex-direction: column;
+
+    span {
+      display: none;
+    }
+  }
 }
 
 .sd-root-modern--mobile {
@@ -105,23 +122,6 @@
   }
 }
 
-@container (max-width: #{$sd-panel-medium-min-width - 96px}) {
-  .sd-file .sd-action {
-    padding: calcSize(1);
-
-    .sv-svg-icon {
-      margin-left: 0;
-    }
-  }
-
-  .sd-file .sd-file__actions-container {
-    flex-direction: column;
-
-    span {
-      display: none;
-    }
-  }
-}
 .sd-file__choose-btn--icon {
   &>span {
     display: none;
@@ -142,7 +142,7 @@
 .sd-file__actions-container {
   margin-top: calcSize(0.5);
   flex-wrap: wrap;
-    justify-content: center;
+  justify-content: center;
 
   .sv-action--hidden {
     display: none;

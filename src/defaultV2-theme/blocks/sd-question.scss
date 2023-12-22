@@ -79,6 +79,7 @@
     width: calc(100% + 2 * var(--sd-base-padding));
   }
 }
+
 .sd-scrollable .sd-question__content {
   overflow-x: auto;
   padding: calcSize(2) 0;

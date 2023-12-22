@@ -53,6 +53,11 @@
   container-type: inline-size;
 }
 
+.sd-file--answered {
+  .sd-file__decorator {
+    container-type: unset;
+  }
+}
 .sd-file__decorator--drag {
   z-index: 1;
   border: 1px solid $primary;

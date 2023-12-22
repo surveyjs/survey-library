@@ -1289,11 +1289,19 @@ export class QuestionPanelDynamicModel extends Question
    */
   public removePanelUI(value: any): void {
     if (!this.canRemovePanel) return;
-    if(this.confirmDelete) {
+    if(this.isRequireConfirmOnDelete(value)) {
       confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); });
     } else {
       this.removePanel(value);
     }
+  }
+  public isRequireConfirmOnDelete(val: any): boolean {
+    if(!this.confirmDelete) return false;
+    const index = this.getVisualPanelIndex(val);
+    if(index < 0 || index >= this.visiblePanelCount) return false;
+    const panelValue = this.visiblePanels[index].getValue();
+    return !this.isValueEmpty(panelValue) &&
+      (this.isValueEmpty(this.defaultPanelValue) || !this.isTwoValueEquals(panelValue, this.defaultPanelValue));
   }
   /**
    * Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `renderMode` is `"list"` or the current panel contains validation errors.

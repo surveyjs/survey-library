@@ -923,12 +923,12 @@ export class QuestionPanelDynamicModel extends Question
     this.setPropertyValue("allowAddPanel", val);
   }
   /**
-   * Specifies the position of a newly added panel.
+   * Specifies the position of newly added panels.
    *
    * Possible values:
    *
-   * - `"last"` (default) - A new panel is added to the end.
-   * - `"next"` - A new panel is inserted after the current panel.
+   * - `"last"` (default) - New panels are added to the end.
+   * - `"next"` - New panels are inserted after the current panel.
    * @see allowAddPanel
    * @see addPanel
    */

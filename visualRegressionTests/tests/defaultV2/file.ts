@@ -187,6 +187,55 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("file-question-placeholder-mobile.png", questionRoot, t, comparer);
     });
   });
+
+  test("Check file question different width", async t => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await initSurvey(framework, {
+        widthMode: "responsive",
+        questions: [
+          {
+            type: "file",
+            name: "q1",
+            minWidth: "616px",
+            maxWidth: "616px"
+          },
+          {
+            type: "file",
+            name: "q2",
+            minWidth: "300px",
+            maxWidth: "300px",
+            startWithNewLine: false
+          },
+          {
+            type: "file",
+            name: "q3",
+            minWidth: "200px",
+            maxWidth: "200px",
+            startWithNewLine: false
+          }
+        ]
+      });
+      await t.resizeWindow(1920, 1080);
+      await resetFocusToBody();
+      const questionRoot = Selector(".sd-question");
+      const button = Selector("button").withText("Photo");
+      await ClientFunction(() => {
+        (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "file-camera");
+        (window as any).survey.getAllQuestions()[1].setPropertyValue("currentMode", "file-camera");
+        (window as any).survey.getAllQuestions()[2].setPropertyValue("currentMode", "file-camera");
+      })();
+      await t.hover(button.nth(0));
+      await t.wait(100);
+      await takeElementScreenshot("file-question-placeholder-normal.png", questionRoot.nth(0), t, comparer);
+      await t.hover(button.nth(1));
+      await t.wait(100);
+      await takeElementScreenshot("file-question-placeholder-medium.png", questionRoot.nth(1), t, comparer);
+      await t.hover(button.nth(2));
+      await t.wait(100);
+      await takeElementScreenshot("file-question-placeholder-small.png", questionRoot.nth(2), t, comparer);
+    });
+  });
+
 });
 
 frameworks.forEach(framework => {
@@ -223,3 +272,4 @@ frameworks.forEach(framework => {
     });
   });
 });
+

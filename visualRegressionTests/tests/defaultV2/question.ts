@@ -515,6 +515,29 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check title location Left - small question - !!!Need to be improved!!!", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: false,
+        "showQuestionNumbers": "off",
+        questions: [
+          {
+            type: "text",
+            name: "q1",
+            title: "State",
+            titleLocation: "left",
+            maxWidth: "120px",
+            minWidth: "120px"
+          }
+        ]
+      },);
+      const qRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-title-location-left-small.png", qRoot, t, comparer);
+    });
+  });
+
   test("Composite", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 

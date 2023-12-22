@@ -2113,6 +2113,7 @@ export class SurveyModel extends SurveyElementCore
     if (newVal !== this._isCompact) {
       this._isCompact = newVal;
       this.updateElementCss();
+      this.triggerResponsiveness(true);
     }
   }
   private get isCompact() {
@@ -2755,7 +2756,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
    *
-   * Refer to the following help topic for more information: [Merge Question Values](https://surveyjs.io/form-library/documentation/design-survey/merge-question-values).
+   * Refer to the following help topic for more information: [Populate Form Fields | Multiple Question Values](https://surveyjs.io/form-library/documentation/design-survey/pre-populate-form-fields#multiple-question-values).
    *
    * @param data A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }`
    * @see setValue

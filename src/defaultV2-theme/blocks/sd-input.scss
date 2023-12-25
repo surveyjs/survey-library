@@ -16,12 +16,12 @@
   border: none;
   border-radius: $editor-corner-radius;
   text-align: start;
-  box-shadow: inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15), 0 0 0 0px $primary;
+  box-shadow: $shadow-inner, 0 0 0 0px $primary;
   transition: box-shadow 250ms;
 }
 
 .sd-input:focus {
-  box-shadow: inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15), 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sd-input.sd-input:focus {

@@ -1800,7 +1800,7 @@ export class SurveyModel extends SurveyElementCore
    * [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
    */
   public get locale(): string {
-    return this.getPropertyValue("locale", surveyLocalization.currentLocale);
+    return this.getPropertyValueWithoutDefault("locale") || surveyLocalization.currentLocale;
   }
   public set locale(value: string) {
     if (value === surveyLocalization.defaultLocale && !surveyLocalization.currentLocale) {

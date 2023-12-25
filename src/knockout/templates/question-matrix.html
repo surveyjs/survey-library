@@ -48,7 +48,7 @@
               <label data-bind="css: question.getItemClass(row, $data), event: { mousedown: question.koMouseDown }" >
                 <input
                   type="radio"
-                  data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.a11y_input_ariaRequired, 'aria-label': question.getCellAriaLabel($parent.locText.renderedHtml, $data.locText.renderedHtml), 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"
+                  data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.a11y_input_ariaRequired, 'aria-label': question.getCellAriaLabel($parent.locText.text, $data.locText.text), 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"
                 />
                 <span data-bind="css: question.cssClasses.materialDecorator">
                     <!-- ko if: question.itemSvgIcon -->
@@ -57,9 +57,11 @@
                       </svg>  
                     <!-- /ko -->
                 </span>
-                <span data-bind="visible: question.isMobile, css: question.cssClasses.cellResponsiveTitle">
+                <!-- ko if: question.isMobile -->
+                <span data-bind="css: question.cssClasses.cellResponsiveTitle">
                   <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
                 </span>
+                <!-- /ko -->
               </label>
             </td>
             <!-- /ko -->

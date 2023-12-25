@@ -58,8 +58,8 @@
       :class="question.getControlClass()"
     >
       <survey-string
-        v-if="question.selectedItemLocText"
-        :locString="question.selectedItemLocText"
+        v-if="question.locReadOnlyText"
+        :locString="question.locReadOnlyText"
       />
     </div>
     <div

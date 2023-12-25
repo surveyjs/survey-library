@@ -1,7 +1,7 @@
 # SurveyJS Form Library for Vue
 
 
-https://github.com/surveyjs/survey-library/assets/22315929/31645ea3-7b27-4b9b-b287-48a4611fbdf3
+<video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
 
 
 SurveyJS Form Library is a free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.

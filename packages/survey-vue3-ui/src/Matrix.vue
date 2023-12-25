@@ -98,7 +98,7 @@
                     </svg>
                   </span>
                   <span
-                    v-show="question.isMobile"
+                    v-if="question.isMobile"
                     :class="question.cssClasses.cellResponsiveTitle"
                   >
                     <survey-string :locString="column.locText"></survey-string>

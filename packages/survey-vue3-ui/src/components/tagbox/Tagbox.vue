@@ -57,7 +57,10 @@
       :id="question.inputId"
       :class="question.getControlClass()"
     >
-      <div>{{ question.readOnlyText }}</div>
+      <survey-string
+        v-if="question.selectedItemLocText"
+        :locString="question.selectedItemLocText"
+      />
     </div>
     <div
       :class="question.cssClasses.chevronButton"

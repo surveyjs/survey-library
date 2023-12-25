@@ -22,6 +22,7 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     super(name);
     this.createLocalizableString("placeholder", this, false, true);
     this.createLocalizableString("clearCaption", this, false, true);
+    this.createLocalizableString("readOnlyText", this, true);
     this.registerPropertyChangedHandlers(["value", "renderAs", "showOtherItem", "otherText", "placeholder", "choices", "visibleChoices"], () => {
       this.updateReadOnlyText();
     });
@@ -32,7 +33,6 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
     this.updateReadOnlyText();
     this.dropdownListModel?.locStrsChanged();
   }
-  @property({ defaultValue: "" }) readOnlyText: string;
   private updateReadOnlyText(): void {
     this.readOnlyText = this.displayValue || this.placeholder;
   }
@@ -110,6 +110,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   get locClearCaption(): LocalizableString {
     return this.getLocalizableString("clearCaption");
+  }
+
+  public get readOnlyText(): string {
+    return this.getLocalizableStringText("readOnlyText");
+  }
+  public set readOnlyText(val: string) {
+    this.setLocalizableStringText("readOnlyText", val);
+  }
+  get locReadOnlyText(): LocalizableString {
+    return this.getLocalizableString("readOnlyText");
   }
 
   public getType(): string {

@@ -5904,13 +5904,16 @@ QUnit.test(
     );
     cellQuestion.value = [1, cellQuestion.otherItem.value];
     cellQuestion.comment = "My Comment";
+    assert.deepEqual(cellQuestion.value, [1, "other"], "question.value #1");
     assert.deepEqual(
       question.value,
       [{ col1: [1, "other"], "col1-Comment": "My Comment" }],
       "Has comment"
     );
+    assert.deepEqual(survey.data, { q1: [{ col1: [1, "other"], "col1-Comment": "My Comment" }] }, "survey.data is correct, set");
     question.value = [{ col1: [1] }];
     assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.deepEqual(survey.data, { q1: [{ col1: [1] }] }, "survey.data is correct, clear");
     assert.equal(
       cellQuestion.comment,
       "",
@@ -5978,8 +5981,10 @@ QUnit.test(
       [{ col1: [1, "My Comment"] }],
       "Has comment in value"
     );
+    assert.deepEqual(survey.data, { q1: [{ col1: [1, "My Comment"] }] }, "survey.data is correct, set");
     question.value = [{ col1: [1] }];
     assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.deepEqual(survey.data, { q1: [{ col1: [1] }] }, "survey.data is correct, clear");
     assert.equal(
       cellQuestion.comment,
       "",

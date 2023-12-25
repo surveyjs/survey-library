@@ -6601,3 +6601,31 @@ QUnit.test("panel dynamic getPlainData & comment", function (assert) {
   assert.equal(qData[2].title, "Comment", "comment title");
   assert.equal(qData[2].isComment, true, "comment isComment");
 });
+QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "dropdown", choices: [1, 2, 3], showOtherItem: true }
+        ]
+      }
+    ]
+  });
+  const dynamicPanel = survey.getQuestionByName("panel");
+  const panel = dynamicPanel.panels[0];
+  const question = panel.getQuestionByName("q1");
+  question.value = "other";
+  question.comment = "comment1";
+  assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment1" }], "panel.value #1");
+  question.value = 1;
+  assert.equal(question.value, 1, "question value is changed");
+  assert.notOk(question.comment, "comment is empty");
+  assert.deepEqual(dynamicPanel.value, [{ q1: 1 }], "panel.value #2");
+  question.value = "other";
+  assert.deepEqual(dynamicPanel.value, [{ q1: "other" }], "panel.value #3");
+  question.comment = "comment2";
+  assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment2" }], "panel.value #4");
+});

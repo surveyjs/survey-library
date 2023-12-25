@@ -2268,6 +2268,9 @@ export class Question extends SurveyElement<Question>
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
     this.questionComment = newValue;
+    this.setCommentIntoData(newValue);
+  }
+  protected setCommentIntoData(newValue: string): void {
     if (this.data != null) {
       this.data.setComment(
         this.getValueName(),

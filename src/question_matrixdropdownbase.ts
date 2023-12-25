@@ -457,7 +457,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     }
     if (this.data.isValidateOnValueChanging && this.hasQuestonError(changedQuestion)) return;
     const isDeleting = newColumnValue == null && !changedQuestion ||
-      isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
+      isComment && !newColumnValue && !!changedQuestion;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
     if(changedName) {
       this.runTriggers(MatrixDropdownTotalRowModel.RowVariableName + "." + changedName, newValue);

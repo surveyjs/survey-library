@@ -77,7 +77,7 @@ export function splitString(str: string, reverse = false, n = 3): Array<string> 
   return arr;
 }
 
-export function getNumberMaskedValue(str: string | number, mask: string, option?: INumberMaskOption): string {
+export function getNumberMaskedValue(str: string | number, option?: INumberMaskOption): string {
   const decimalSeparator = option?.decimal || settings.numberOptions.decimal;
   const thousandsSeparator = option?.thousands || settings.numberOptions.thousands;
   const precision = option?.precision || settings.numberOptions.precision;
@@ -93,7 +93,7 @@ export function getNumberMaskedValue(str: string | number, mask: string, option?
   }
 }
 
-export function getNumberUnmaskedValue(str: string, mask: string, option?: INumberMaskOption): number {
+export function getNumberUnmaskedValue(str: string, option?: INumberMaskOption): number {
   const decimalSeparator = option?.decimal || settings.numberOptions.decimal;
   const thousandsSeparator = option?.thousands || settings.numberOptions.thousands;
   const precision = option?.precision || settings.numberOptions.precision;
@@ -115,12 +115,12 @@ export class InputMaskNumber extends InputMaskBase {
   }
 
   protected getMaskedValue(mask: string): string {
-    return getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, mask, this.options), mask, this.options);
+    return getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, this.options), this.options);
   }
 
   protected processMaskedValue(mask: string): IMaskedValue {
     // return processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
-    const text = getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, mask, this.options), mask, this.options);
+    const text = getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, this.options), this.options);
     return { text: text, cursorPosition: this.input.selectionStart };
   }
 }

@@ -1,7 +1,7 @@
 # SurveyJS Form Library for React
 
 
-https://github.com/surveyjs/survey-library/assets/22315929/525f2ba6-21e8-4e82-a836-887fb2be4af3
+<video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
 
 
 SurveyJS Form Library is a free and open-source MIT-licensed JavaScript form builder library that allows you to design dynamic, data-driven, multi-language survey forms and run them in your web applications.

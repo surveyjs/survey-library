@@ -4119,6 +4119,7 @@ QUnit.test("remove action as icon or button, settings.matrixRenderRemoveAsIcon",
   table = matrix.renderedTable;
   assert.equal(table.rows[1].cells[2].item.value.actions[0].component, "sv-matrix-remove-button", "Render as button");
   settings.matrixRenderRemoveAsIcon = true;
+  survey.css.root = undefined;
 });
 
 QUnit.test("column is requriedText, Bug #2297", function (assert) {
@@ -5903,13 +5904,16 @@ QUnit.test(
     );
     cellQuestion.value = [1, cellQuestion.otherItem.value];
     cellQuestion.comment = "My Comment";
+    assert.deepEqual(cellQuestion.value, [1, "other"], "question.value #1");
     assert.deepEqual(
       question.value,
       [{ col1: [1, "other"], "col1-Comment": "My Comment" }],
       "Has comment"
     );
+    assert.deepEqual(survey.data, { q1: [{ col1: [1, "other"], "col1-Comment": "My Comment" }] }, "survey.data is correct, set");
     question.value = [{ col1: [1] }];
     assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.deepEqual(survey.data, { q1: [{ col1: [1] }] }, "survey.data is correct, clear");
     assert.equal(
       cellQuestion.comment,
       "",
@@ -5977,8 +5981,10 @@ QUnit.test(
       [{ col1: [1, "My Comment"] }],
       "Has comment in value"
     );
+    assert.deepEqual(survey.data, { q1: [{ col1: [1, "My Comment"] }] }, "survey.data is correct, set");
     question.value = [{ col1: [1] }];
     assert.deepEqual(cellQuestion.value, [1], "value sets correctly into cell");
+    assert.deepEqual(survey.data, { q1: [{ col1: [1] }] }, "survey.data is correct, clear");
     assert.equal(
       cellQuestion.comment,
       "",
@@ -8025,12 +8031,19 @@ QUnit.test("getTitle", function (assert) {
       }
     ]
   });
-  const question = survey.getAllQuestions()[0];
+  const question = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
   var renderedTable = question.renderedTable;
-  const row = renderedTable.rows[1];
-  assert.equal(row.cells[0].getTitle(), "true hint", "cell0");
-  assert.equal(row.cells[1].getTitle(), "col2", "cell1");
-  assert.equal(row.cells[2].getTitle(), "", "cell2");
+  const rendredRow = renderedTable.rows[1];
+  assert.equal(rendredRow.cells[0].getTitle(), "true hint", "cell0, #1");
+  assert.equal(rendredRow.cells[1].getTitle(), "col2", "cell1, #1");
+  assert.equal(rendredRow.cells[2].getTitle(), "", "cell2, #1");
+  const row = question.visibleRows[0];
+  row.cells[0].question.title = "Custom title 1";
+  row.cells[1].question.title = "Custom title 2";
+  row.cells[2].question.title = "Custom title 3";
+  assert.equal(rendredRow.cells[0].getTitle(), "true hint", "cell0, #2");
+  assert.equal(rendredRow.cells[1].getTitle(), "Custom title 2", "cell1, #2");
+  assert.equal(rendredRow.cells[2].getTitle(), "", "cell2, #2");
 });
 QUnit.test("matrixdropdowncolumn renderAs property", function (assert) {
   const survey = new SurveyModel({
@@ -8434,6 +8447,7 @@ QUnit.test("Check rightIndents set correctly for detailElements with defaultV2 t
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
   matrix.visibleRows[0].showHideDetailPanelClick();
   assert.equal(matrix.renderedTable.rows[2].cells[1].panel.elements[0].rightIndent, 0);
+  survey.css.root = undefined;
 });
 
 QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
@@ -8469,6 +8483,7 @@ QUnit.test("matrixDragHandleArea = 'icon'", function (assert) {
   assert.equal(matrix.isDragHandleAreaValid(nodeMock), true);
 
   nodeMock.remove();
+  survey.css.root = undefined;
 });
 QUnit.test("column validation, bug#6449", function (assert) {
   const survey = new SurveyModel({

@@ -35,9 +35,9 @@
 .sd-selectbase__column {
   display: block;
   box-sizing: border-box;
-  word-break: break-word;
   flex: 1 1 0px;
 }
+
 .sd-selectbase__column:not(:last-child) {
   padding-right: calcSize(2);
 }

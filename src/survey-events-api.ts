@@ -810,15 +810,17 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    */
   panel: PanelModel;
 }
-export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventMixin {
+export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
-   * A panel whose tab title is being rendered.
+   * A panel for which the event is raised.
    */
   panel: PanelModel;
   /**
    * The panel's index in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array of the Dynamic Panel.
    */
   visiblePanelIndex: number;
+}
+export interface DynamicPanelGetTabTitleEvent extends DynamicPanelCurrentIndexChangedEvent {
   /**
    * A tab title. You can change this parameter's value.
    */

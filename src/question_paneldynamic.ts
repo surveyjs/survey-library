@@ -286,7 +286,7 @@ export class QuestionPanelDynamicModel extends Question
     this.registerPropertyChangedHandlers(["panelsState"], () => {
       this.setPanelsState();
     });
-    this.registerPropertyChangedHandlers(["isMobile"], () => {
+    this.registerPropertyChangedHandlers(["isMobile", "newPanelPosition", "showRangeInProgress", "renderMode"], () => {
       this.updateFooterActions();
     });
     this.registerPropertyChangedHandlers(["allowAddPanel"], () => { this.updateNoEntriesTextDefaultLoc(); });
@@ -555,7 +555,8 @@ export class QuestionPanelDynamicModel extends Question
   public set currentPanel(val: PanelModel) {
     if(this.isRenderModeList || this.useTemplatePanel) return;
     const curPanel = this.getPropertyValue("currentPanel");
-    if(!!val && this.visiblePanels.indexOf(val) < 0 || val === curPanel) return;
+    const index = !!val ? this.visiblePanels.indexOf(val) : -1;
+    if(!!val && index < 0 || val === curPanel) return;
     if(curPanel) {
       curPanel.onHidingContent();
     }
@@ -563,6 +564,13 @@ export class QuestionPanelDynamicModel extends Question
     this.updateFooterActions();
     this.updateTabToolbarItemsPressedState();
     this.fireCallback(this.currentIndexChangedCallback);
+    if(index > -1 && this.survey) {
+      const options = {
+        panel: val,
+        visiblePanelIndex: index
+      };
+      this.survey.dynamicPanelCurrentIndexChanged(this, options);
+    }
   }
   public onHidingContent(): void {
     super.onHidingContent();
@@ -903,6 +911,8 @@ export class QuestionPanelDynamicModel extends Question
    * Specifies whether users are allowed to add new panels.
    *
    * Default value: `true`
+   *
+   * By default, users add new panels to the end. If you want to let users insert a new panel after the current panel, set the [`newPanelPosition`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#newPanelPosition) property to `"next"`.
    * @see canAddPanel
    * @see allowRemovePanel
    */
@@ -911,6 +921,22 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set allowAddPanel(val: boolean) {
     this.setPropertyValue("allowAddPanel", val);
+  }
+  /**
+   * Specifies the position of newly added panels.
+   *
+   * Possible values:
+   *
+   * - `"last"` (default) - New panels are added to the end.
+   * - `"next"` - New panels are inserted after the current panel.
+   * @see allowAddPanel
+   * @see addPanel
+   */
+  public get newPanelPosition(): string {
+    return this.getPropertyValue("newPanelPosition");
+  }
+  public set newPanelPosition(val: string) {
+    this.setPropertyValue("newPanelPosition", val);
   }
   /**
    * Specifies whether users are allowed to delete panels.
@@ -994,7 +1020,6 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set showRangeInProgress(val: boolean) {
     this.setPropertyValue("showRangeInProgress", val);
-    this.updateFooterActions();
     this.fireCallback(this.currentIndexChangedCallback);
   }
   /**
@@ -1013,7 +1038,6 @@ export class QuestionPanelDynamicModel extends Question
   }
   public set renderMode(val: string) {
     this.setPropertyValue("renderMode", val);
-    this.updateFooterActions();
     this.fireCallback(this.renderModeChangedCallback);
   }
   public get tabAlign(): "center" | "left" | "right" {
@@ -1081,7 +1105,8 @@ export class QuestionPanelDynamicModel extends Question
    */
   public get canAddPanel(): boolean {
     if (this.isDesignMode) return false;
-    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList && this.currentIndex < this.visiblePanelCount - 1) {
+    if (this.isDefaultV2Theme && !this.legacyNavigation && !this.isRenderModeList &&
+      (this.currentIndex < this.visiblePanelCount - 1 && this.newPanelPosition !== "next")) {
       return false;
     }
     return (
@@ -1217,54 +1242,59 @@ export class QuestionPanelDynamicModel extends Question
     return newPanel;
   }
   /**
-   * Add a new dynamic panel based on the template Panel.
-   * @see template
+   * Adds a new panel based on the [template](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#template).
+   * @param index *(Optional)* An index at which to insert the new panel. `undefined` adds the panel to the end or inserts it after the current panel if [`renderMode`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#renderMode) is `"tab"`. A negative index (for instance, -1) adds the panel to the end in all cases, regardless of the `renderMode` value.
    * @see panelCount
    * @see panels
-   * @see renderMode
+   * @see allowAddPanel
+   * @see newPanelPosition
    */
-  public addPanel(): PanelModel {
-    this.panelCount++;
+  public addPanel(index?: number): PanelModel {
+    const curIndex = this.currentIndex;
+    if(index === undefined) {
+      index = curIndex < 0 ? this.panelCount : curIndex + 1;
+    }
+    if(index < 0 || index > this.panelCount) {
+      index = this.panelCount;
+    }
+    this.updateValueOnAddingPanel(curIndex < 0 ? this.panelCount - 1 : curIndex, index);
     if (!this.isRenderModeList) {
-      this.currentIndex = this.panelCount - 1;
+      this.currentIndex = index;
     }
-    var newValue = this.value;
-    var hasModified = false;
-    if (!this.isValueEmpty(this.defaultPanelValue)) {
-      if (
-        !!newValue &&
-        Array.isArray(newValue) &&
-        newValue.length == this.panelCount
-      ) {
-        hasModified = true;
-        this.copyValue(newValue[newValue.length - 1], this.defaultPanelValue);
-      }
-    }
-    if (
-      this.defaultValueFromLastPanel &&
-      !!newValue &&
-      Array.isArray(newValue) &&
-      newValue.length > 1 &&
-      newValue.length == this.panelCount
-    ) {
+    if (this.survey) this.survey.dynamicPanelAdded(this);
+    return this.panels[index];
+  }
+  private updateValueOnAddingPanel(prevIndex: number, index: number): void {
+    this.panelCount++;
+    let newValue = this.value;
+    if(!Array.isArray(newValue) || newValue.length !== this.panelCount) return;
+    let hasModified = false;
+    const lastIndex = this.panelCount - 1;
+    if(index < lastIndex) {
       hasModified = true;
-      this.copyValue(
-        newValue[newValue.length - 1],
-        newValue[newValue.length - 2]
-      );
+      const rec = newValue[lastIndex];
+      newValue.splice(lastIndex, 1);
+      newValue.splice(index, 0, rec);
+    }
+    if (!this.isValueEmpty(this.defaultPanelValue)) {
+      hasModified = true;
+      this.copyValue(newValue[index], this.defaultPanelValue);
+    }
+    if (this.defaultValueFromLastPanel && newValue.length > 1) {
+      const fromIndex = prevIndex > -1 && prevIndex <= lastIndex ? prevIndex : lastIndex;
+      hasModified = true;
+      this.copyValue(newValue[index], newValue[fromIndex]);
     }
     if (hasModified) {
       this.value = newValue;
     }
-    if (this.survey) this.survey.dynamicPanelAdded(this);
-    return this.panels[this.panelCount - 1];
   }
   private canLeaveCurrentPanel(): boolean {
     return !(this.renderMode !== "list" && this.currentPanel && this.currentPanel.hasErrors(true, true));
   }
-  private copyValue(src: any, dest: any) {
-    for (var key in dest) {
-      src[key] = dest[key];
+  private copyValue(dest: any, src: any) {
+    for (var key in src) {
+      dest[key] = src[key];
     }
   }
   /**
@@ -1278,11 +1308,19 @@ export class QuestionPanelDynamicModel extends Question
    */
   public removePanelUI(value: any): void {
     if (!this.canRemovePanel) return;
-    if(this.confirmDelete) {
+    if(this.isRequireConfirmOnDelete(value)) {
       confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); });
     } else {
       this.removePanel(value);
     }
+  }
+  public isRequireConfirmOnDelete(val: any): boolean {
+    if(!this.confirmDelete) return false;
+    const index = this.getVisualPanelIndex(val);
+    if(index < 0 || index >= this.visiblePanelCount) return false;
+    const panelValue = this.visiblePanels[index].getValue();
+    return !this.isValueEmpty(panelValue) &&
+      (this.isValueEmpty(this.defaultPanelValue) || !this.isTwoValueEquals(panelValue, this.defaultPanelValue));
   }
   /**
    * Switches Dynamic Panel to the next panel. Returns `true` in case of success, or `false` if `renderMode` is `"list"` or the current panel contains validation errors.
@@ -1510,6 +1548,7 @@ export class QuestionPanelDynamicModel extends Question
     if(this.isReadOnly || !this.allowAddPanel) {
       this.updateNoEntriesTextDefaultLoc();
     }
+    this.updateFooterActions();
     super.onSurveyLoad();
   }
   public onFirstRendering() {
@@ -2288,6 +2327,7 @@ Serializer.addClass(
     { name: "noEntriesText:text", serializationProperty: "locNoEntriesText" },
     { name: "allowAddPanel:boolean", default: true },
     { name: "allowRemovePanel:boolean", default: true },
+    { name: "newPanelPosition", choices: ["next", "last"], default: "last", category: "layout" },
     {
       name: "panelCount:number",
       isBindable: true,

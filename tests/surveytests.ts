@@ -13928,6 +13928,39 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel required", function (assert) {
+  var focusedQuestionId = "";
+  const oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+  const survey = new SurveyModel({
+    checkErrorsMode: "onComplete",
+    pages: [
+      {
+        elements: [
+          {
+            type: "panel", name: "panel1", isRequired: true,
+            elements: [{ type: "text", name: "q1" }]
+          }
+        ],
+      },
+      {
+        elements: [{ type: "text", name: "q2" }],
+      },
+      {
+        elements: [{ type: "text", name: "q3" }],
+      },
+    ],
+  });
+  survey.nextPage();
+  survey.nextPage();
+  survey.completeLastPage();
+  assert.equal(survey.currentPageNo, 0, "comeback to the first page");
+  assert.equal(survey.getQuestionByName("q1").inputId, focusedQuestionId, "panel is required");
+  SurveyElement.FocusElement = oldFunc;
+});
 QUnit.test(
   "onServerValidateQuestions doesn't get called for the last page when showPreviewBeforeComplete is set, Bug#2546",
   function (assert) {
@@ -18523,4 +18556,41 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "progress top left");
   assert.deepEqual(getContainerContent("right"), [], "progress top right");
+});
+
+QUnit.test("Check triggerReponsiveness is called when isCompact changed", function (assert) {
+  const json = {
+    title: "My Survey",
+    showNavigationButtons: "none",
+    pages: [
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  let log = "";
+  survey.getAllQuestions().forEach(q => {
+    q["triggerResponsivenessCallback"] = (hard: boolean) => {
+      log += `->${q.name}:${hard}`;
+    };
+  });
+  survey["isCompact"] = true;
+  assert.equal(log, "->q1:true->q2:true");
+  log = "";
+  survey["isCompact"] = false;
+  assert.equal(log, "->q1:true->q2:true");
 });

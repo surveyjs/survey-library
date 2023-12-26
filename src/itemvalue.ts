@@ -347,33 +347,35 @@ export class ItemValue extends BaseAction implements ILocalizableOwner, IShortcu
     this.locText.strChanged();
   }
   public get visibleIf(): string {
-    return this.getPropertyValue("visibleIf", "");
+    return this.getPropertyValueWithoutDefault("visibleIf") || "";
   }
   public set visibleIf(val: string) {
     this.setPropertyValue("visibleIf", val);
   }
   public get enableIf(): string {
-    return this.getPropertyValue("enableIf", "");
+    return this.getPropertyValueWithoutDefault("enableIf") || "";
   }
   public set enableIf(val: string) {
     this.setPropertyValue("enableIf", val);
   }
-  public get isVisible() {
-    return this.getPropertyValue("isVisible", true);
+  public get isVisible(): boolean {
+    const res = this.getPropertyValueWithoutDefault("isVisible");
+    return res !== undefined ? res : true;
   }
-  public setIsVisible(val: boolean) {
+  public setIsVisible(val: boolean): void {
     this.setPropertyValue("isVisible", val);
   }
-  public get isEnabled() {
-    return this.getPropertyValue("isEnabled", true);
+  public get isEnabled(): boolean {
+    const res = this.getPropertyValueWithoutDefault("isEnabled");
+    return res !== undefined ? res : true;
   }
-  public setIsEnabled(val: boolean) {
+  public setIsEnabled(val: boolean): void {
     this.setPropertyValue("isEnabled", val);
   }
-  public addUsedLocales(locales: Array<string>) {
+  public addUsedLocales(locales: Array<string>): void {
     this.AddLocStringToUsedLocales(this.locTextValue, locales);
   }
-  public locStrsChanged() {
+  public locStrsChanged(): void {
     super.locStrsChanged();
     this.locText.strChanged();
   }

@@ -441,4 +441,43 @@ frameworks.forEach(async framework => {
       await takeElementScreenshot("tagbox-contrast-input.png", Selector(".sd-question"), t, comparer);
     });
   });
+
+  test("Check readOnly tagbox with markdown", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(900, 400);
+
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        showQuestionNumbers: "off",
+        mode: "display",
+        questions: [
+          {
+            type: "tagbox",
+            name: "q1",
+            defaultValue: ["Cuba", "Romania"],
+            choicesByUrl: {
+              url: "http://127.0.0.1:8080/testCafe/countriesMock.json",
+              path: "RestResponse;result",
+              valueName: "name",
+            },
+          }
+        ]
+      }, {
+        "onGetQuestionDisplayValue": (sender, options) => {
+          var strs = options.displayValue.split(",");
+          options.displayValue = strs.join("<br>");
+        },
+        "onTextMarkdown": (survey, options) => {
+          var converter = new window["showdown"].Converter();
+          var str = converter.makeHtml(options.text);
+          str = str.substring(3);
+          str = str.substring(0, str.length - 4);
+          options.html = str;
+        }
+      });
+
+      const question = Selector(".sd-input.sd-tagbox");
+      await takeElementScreenshot("tagbox-readonly-with-markdown.png", question, t, comparer);
+    });
+  });
 });

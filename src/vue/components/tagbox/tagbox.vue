@@ -46,7 +46,10 @@
     </div>
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
-      <div>{{ question.readOnlyText }}</div>
+      <survey-string
+        v-if="question.locReadOnlyText"
+        :locString="question.locReadOnlyText"
+      />
     </div>
     <div
       :class="question.cssClasses.chevronButton"

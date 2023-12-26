@@ -66,7 +66,10 @@
   <!-- /ko -->
   <!-- ko if: question.isReadOnly -->
   <div disabled data-bind="css: question.getControlClass(), attr: { id: question.inputId }, ">
-    <div data-bind="text: question.readOnlyText"></div>
+    <!-- ko if: question.locReadOnlyText -->
+    <!-- ko template: { name: 'survey-string', data: question.locReadOnlyText } -->
+    <!-- /ko -->
+    <!-- /ko -->
   </div>
   <!-- /ko -->
   <!-- ko if: question.cssClasses.chevronButtonIconId -->

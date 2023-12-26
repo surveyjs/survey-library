@@ -57,9 +57,11 @@
                       </svg>  
                     <!-- /ko -->
                 </span>
-                <span data-bind="visible: question.isMobile, css: question.cssClasses.cellResponsiveTitle">
+                <!-- ko if: question.isMobile -->
+                <span data-bind="css: question.cssClasses.cellResponsiveTitle">
                   <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
                 </span>
+                <!-- /ko -->
               </label>
             </td>
             <!-- /ko -->

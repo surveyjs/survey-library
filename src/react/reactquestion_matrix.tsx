@@ -176,6 +176,9 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           </td>
         );
       } else {
+        const mobileSpan = this.question.isMobile ?
+          (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(column.locText)}</span>)
+          : undefined;
         td = (
           <td
             key={key}
@@ -207,9 +210,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
                   null
                 }
               </span>
-              <span style={!this.question.isMobile ? { display: "none" } : undefined } className={this.question.cssClasses.cellResponsiveTitle}>
-                {this.renderLocString(column.locText)}
-              </span>
+              {mobileSpan}
             </label>
           </td>
         );

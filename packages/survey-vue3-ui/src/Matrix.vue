@@ -80,7 +80,12 @@
                     :disabled="question.isInputReadOnly"
                     :id="question.inputId + '_' + row.name + '_' + columnIndex"
                     :aria-required="question.a11y_input_ariaRequired"
-                    :aria-label="question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
+                    :aria-label="
+                      question.getCellAriaLabel(
+                        row.locText.renderedHtml,
+                        column.locText.renderedHtml
+                      )
+                    "
                     :aria-invalid="question.a11y_input_ariaInvalid"
                     :aria-describedby="question.a11y_input_ariaDescribedBy"
                   />
@@ -93,7 +98,7 @@
                     </svg>
                   </span>
                   <span
-                    v-show="question.isMobile"
+                    v-if="question.isMobile"
                     :class="question.cssClasses.cellResponsiveTitle"
                   >
                     <survey-string :locString="column.locText"></survey-string>

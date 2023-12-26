@@ -1,8 +1,11 @@
+@import "../defaultV2-theme/variables.scss";
+@import "../defaultV2-theme/mixins.scss";
+
 .sv_window {
   position: fixed;
-  bottom: 16px;
-  right: 16px;
-  border-radius: 8px;
+  bottom: calcSize(2);
+  right: calcSize(2);
+  border-radius: calcSize(1);
   border: 1px solid $border-inside;
   box-shadow: $shadow-large, $shadow-medium;
   background-clip: padding-box;
@@ -14,9 +17,9 @@
 
 .sv_window--collapsed {
     .sv_window_header {
-        height: 32px;
-        padding: 8px 8px 8px 16px;
-        border-radius: 8px;
+        height: calcSize(4);
+        padding: calcSize(1) calcSize(1) calcSize(1) calcSize(2);
+        border-radius: calcSize(1);
         display: flex;
         background-color: $background-dim;
     }
@@ -24,12 +27,7 @@
 
 .sv_window_header_title_collapsed {
     color: $foreground-dim;
-    /* UI/Default Bold */
-    font-family: Open Sans;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 600;
-    line-height: 24px; /* 150% */
+    @include defaultBold;
     flex: 1;
     display: flex;
     justify-content: start;
@@ -39,12 +37,7 @@
 .sv_window_header_description{
     color: $font-questiondescription-color;
     font-feature-settings: 'salt' on;
-    /* UI/Default */
-    font-family: Open Sans;
-    font-size: 16px;
-    font-style: normal;
-    font-weight: 400;
-    line-height: 24px; /* 150% */
+    @include defaultFont;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
@@ -52,19 +45,19 @@
 
 .sv_window_buttons_container {
     position: absolute;
-    top: 8px;
-    right: 8px;
+    top: calcSize(1);
+    right: calcSize(1);
     display: flex;
-    gap: 8px;
+    gap: calcSize(1);
     z-index: 1;
 }
 
 .sv_window_button {
     display: flex;
-    padding: 8px;
+    padding: calcSize(1);
     justify-content: center;
     align-items: center;
-    border-radius: 4px;
+    border-radius: calcSize(0.5);
     cursor: pointer;
 
     &:hover, &:active {

@@ -94,7 +94,8 @@ export {
   ITitleOwner,
   ISurveyLayoutElement,
   IPlainDataOptions as IPlainData,
-  IShortcutText
+  IShortcutText,
+  ILoadFromJSONOptions
 } from "../../base-interfaces";
 export { SurveyError } from "../../survey-error";
 export { SurveyElementCore, SurveyElement, DragTypeOverMeEnum } from "../../survey-element";

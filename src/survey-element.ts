@@ -564,7 +564,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
-    return this.survey ? this.survey.isLoadingFromJson : false;
+    return this.surveyValue ? this.surveyValue.isLoadingFromJson : false;
   }
   /**
    * A survey element identifier.

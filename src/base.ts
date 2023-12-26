@@ -399,7 +399,7 @@ export class Base {
    *
    * @param json A JSON object with properties that you want to apply to the current SurveyJS object.
    * @param options An object with configuration options.
-   * @param {boolean} options.validate Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors.
+   * @param {boolean} options.validatePropertyValues Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors.
    * @see toJSON
    */
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {

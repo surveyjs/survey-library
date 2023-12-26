@@ -7,10 +7,10 @@ export class InputMaskBase {
     this.addInputEventListener();
   }
 
-  protected getMaskedValue(mask: any, option?: any): string {
+  protected getMaskedValue(mask: any): string {
     return this.input.value;
   }
-  protected processMaskedValue(mask: any, option?: any): IMaskedValue {
+  protected processMaskedValue(mask: any): IMaskedValue {
     return { text: this.input.value, cursorPosition: this.input.selectionStart };
   }
   applyValue(mask: any) {

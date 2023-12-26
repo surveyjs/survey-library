@@ -64,4 +64,5 @@ QUnit.test("get numeric unmasked valid text", function(assert) {
   assert.equal(getNumberUnmaskedValue("123,456", customMask), 123456);
   assert.equal(getNumberUnmaskedValue("123,456.78", customMask), 123456.78);
   assert.equal(getNumberUnmaskedValue("123,456.789", customMask), 123456.78);
+  assert.equal(getNumberUnmaskedValue("123,456,789,1011.12", customMask), 1234567891011.12);
 });

@@ -98,7 +98,7 @@ export function getNumberUnmaskedValue(str: string, mask: string, option?: INumb
   const thousandsSeparator = option?.thousands || settings.numberOptions.thousands;
   const precision = option?.precision || settings.numberOptions.precision;
 
-  const number = parseNumber(str.replace(thousandsSeparator, ""), decimalSeparator);
+  const number = parseNumber(str.split(thousandsSeparator).join(""), decimalSeparator);
   const integralPart = number.integralPart ? number.integralPart : 0;
   let fractionalPart = number.fractionalPart ? number.fractionalPart : undefined;
   if(fractionalPart) {
@@ -110,16 +110,17 @@ export function getNumberUnmaskedValue(str: string, mask: string, option?: INumb
 
 export class InputMaskNumber extends InputMaskBase {
 
-  constructor(input: HTMLInputElement, mask?: INumberMaskOption) {
-    super(input, mask);
+  constructor(input: HTMLInputElement, private options?: INumberMaskOption) {
+    super(input, "9+");
   }
 
-  protected getMaskedValue(mask: string, option: INumberMaskOption): string {
-    return getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, mask, option), mask, option);
+  protected getMaskedValue(mask: string): string {
+    return getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, mask, this.options), mask, this.options);
   }
 
   protected processMaskedValue(mask: string): IMaskedValue {
     // return processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
-    return { text: this.input.value, cursorPosition: this.input.selectionStart };
+    const text = getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, mask, this.options), mask, this.options);
+    return { text: text, cursorPosition: this.input.selectionStart };
   }
 }

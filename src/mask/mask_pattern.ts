@@ -94,14 +94,14 @@ export function processValueWithPattern(str: string, pattern: string, prevСurso
 }
 
 export class InputMaskPattern extends InputMaskBase {
-  protected getMaskedValue(mask: string, option?: any): string {
+  protected getMaskedValue(mask: string): string {
     return getMaskedValueByPattern(getUnmaskedValueByPattern(this.input.value, mask, false), mask);
   }
   protected processMaskedValue(mask: string): IMaskedValue {
     return processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
   }
 
-  public updateMaskedString(mask: string, option?: any): void {
+  public updateMaskedString(mask: string): void {
     if(!!this.input) {
       const result = this.processMaskedValue(mask);
       this.input.value = result.text;

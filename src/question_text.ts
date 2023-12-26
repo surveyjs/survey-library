@@ -469,10 +469,11 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   @property() mask: string;
+  @property() maskOptions: any;
   private updateMaskInstance() {
     if (!this.maskInstance) {
       if(this.mask === "decimal") {
-        this.maskInstance = new InputMaskNumber(this.input);
+        this.maskInstance = new InputMaskNumber(this.input, this.maskOptions);
       } else if(this.mask) {
         this.maskInstance = new InputMaskPattern(this.input, this.mask);
       }
@@ -645,6 +646,9 @@ Serializer.addClass(
     },
     {
       name: "mask"
+    },
+    {
+      name: "maskOptions"
     },
     {
       name: "step:number",

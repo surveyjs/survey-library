@@ -46,6 +46,7 @@
   line-height: 0;
 
   span {
+    @include useEditorFontSize;
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
   }
@@ -56,7 +57,6 @@
   max-width: 30%;
   padding-right: calcSize(2);
   border-right: 1px solid $border;
-  word-break: break-word;
   white-space: normal;
   color: $font-editorfont-placeholdercolor;
 }

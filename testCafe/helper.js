@@ -58,12 +58,13 @@ export const initSurvey = ClientFunction(
       model.render("surveyElement");
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
-      window["ReactDOM"].render(
+      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      window["root"] = root;
+      root.render(
         window["React"].createElement(window["Survey"].Survey, {
           model: model,
           onComplete: surveyComplete,
         }),
-        document.getElementById("surveyElement")
       );
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =

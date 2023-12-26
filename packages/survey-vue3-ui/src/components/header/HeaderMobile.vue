@@ -12,13 +12,13 @@
       />
     </div>
     </div>
-    <div v-if="model.survey.hasTitle" class="sv-header__title" :style="{ 'maxWidth': model.textAreaWidth }">
+    <div v-if="model.survey.hasTitle" class="sv-header__title" :style="{ 'maxWidth': model.renderedtextAreaWidth }">
       <survey-element-title :element="model.survey" :css="model.survey.css" />
     </div>
-    <div v-if="model.survey.renderedHasDescription" class="sv-header__description" :style="{ 'maxWidth': model.textAreaWidth }">
-      <h5 v-if="model.survey.renderedHasDescription" :class="model.survey.css.description">
+    <div v-if="model.survey.renderedHasDescription" class="sv-header__description" :style="{ 'maxWidth': model.renderedtextAreaWidth }">
+      <div v-if="model.survey.renderedHasDescription" :class="model.survey.css.description">
         <survey-string :locString="model.survey.locDescription" />
-      </h5>
+      </div>
     </div>
   </div>
 </template>

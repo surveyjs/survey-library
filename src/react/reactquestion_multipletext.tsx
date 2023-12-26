@@ -16,9 +16,9 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   protected renderElement(): JSX.Element {
     var cssClasses = this.question.cssClasses;
     var tableRows = this.question.getRows();
-    var rows:Array<JSX.Element> = [];
+    var rows: Array<JSX.Element> = [];
     for (var i = 0; i < tableRows.length; i++) {
-      if(tableRows[i].isVisible) {
+      if (tableRows[i].isVisible) {
         rows.push(this.renderRow(i, tableRows[i].cells, cssClasses));
       }
     }
@@ -32,7 +32,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
   protected renderCell(cell: MultipleTextCell, cssClasses: any, index: number): JSX.Element {
     let cellContent: JSX.Element;
     const focusIn = () => { cell.item.focusIn(); };
-    if(cell.isErrorsCell) {
+    if (cell.isErrorsCell) {
       cellContent = <SurveyQuestionErrorCell question={cell.item.editor} creator={this.creator}></SurveyQuestionErrorCell>;
     } else {
       cellContent = <SurveyMultipleTextItem question={this.question} item={cell.item} creator={this.creator} cssClasses={cssClasses}></SurveyMultipleTextItem>;
@@ -46,7 +46,7 @@ export class SurveyQuestionMultipleText extends SurveyQuestionElementBase {
     cssClasses: any
   ): JSX.Element {
     const key: string = "item" + rowIndex;
-    const tds:Array<JSX.Element> = [];
+    const tds: Array<JSX.Element> = [];
     for (let i = 0; i < cells.length; i++) {
       const cell = cells[i];
       tds.push(
@@ -78,8 +78,13 @@ export class SurveyMultipleTextItem extends ReactSurveyElement {
   protected renderElement() {
     const item = this.item;
     const cssClasses = this.cssClasses;
+    const titleStyle: any = {};
+    if (!!this.question.itemTitleWidth) {
+      titleStyle.minWidth = this.question.itemTitleWidth;
+      titleStyle.width = this.question.itemTitleWidth;
+    }
     return (<label className={this.question.getItemLabelCss(item)}>
-      <span className={cssClasses.itemTitle}>
+      <span className={cssClasses.itemTitle} style={titleStyle}>
         <TitleContent element={item.editor} cssClasses={item.editor.cssClasses}></TitleContent>
       </span>
       <SurveyMultipleTextItemEditor

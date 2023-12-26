@@ -10,6 +10,11 @@ fixture`${title}`.page`${url}`;
 const applyTheme = ClientFunction(theme => {
   (<any>window).Survey.StylesManager.applyTheme(theme);
 });
+const insertDiv = ClientFunction(() => {
+  const el = document.createElement("div");
+  el.style.height = "1000px";
+  document.body.insertBefore(el, document.body.firstChild);
+});
 
 const theme = "defaultV2";
 
@@ -242,6 +247,18 @@ frameworks.forEach(framework => {
         });
       })();
       await takeElementScreenshot("survey-custom-navigation.png", Selector(".sd-container-modern"), t, comparer);
+    });
+  });
+  test("Check survey with progress top and TOC", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.showTOC = true;
+        (<any>window).survey.progressBarType = "pages";
+        (<any>window).survey.currentPageNo = 1;
+      })();
+      await takeElementScreenshot("survey-progress-bar-top-and-toc.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });
 
@@ -934,8 +951,8 @@ frameworks.forEach(framework => {
       await t.resizeWindow(1600, 900);
       const json = {
         "cookieName": "survey-id",
-        "completedHtml": "<h3>Completed</h3><button>OK</button>",
-        "completedBeforeHtml": "<h3>Already completed</h3><button>OK</button>",
+        "completedHtml": "<h3>Completed</h3><button style='display: inline-block;'>OK</button>",
+        "completedBeforeHtml": "<h3>Already completed</h3><button style='display: inline-block;'>OK</button>",
         pages: [
           {
             "elements": [
@@ -1440,6 +1457,79 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-compact-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
       await ClientFunction(() => (window as any).survey.isCompact = false)();
       await takeElementScreenshot("survey-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
+  test("Check survey logo right with empty title", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const json = {
+        "logo": "https://surveyjs.io/Content/Images/examples/image-picker/camel.jpg",
+        "logoPosition": "right",
+        "elements": [
+          {
+            "type": "text",
+            "name": "FirstName",
+            "title": "Enter your first name:"
+          },
+        ],
+        "widthMode": "responsive"
+      };
+
+      await initSurvey(framework, json);
+      await takeElementScreenshot("survey-logo-right-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Do not scroll to survey by default", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 300);
+      await insertDiv();
+      const json = {
+        "pages": [
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q1"
+              },
+            ]
+          },
+          {
+            "elements": [
+              {
+                "type": "text",
+                "name": "q2"
+              },
+            ]
+          }
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("survey-no-scrolling.png", undefined, t, comparer);
+      await t.click(Selector(".sd-btn.sd-navigation__next-btn"));
+      await t.wait(100);
+      await takeElementScreenshot("survey-scrolling-second-page.png", undefined, t, comparer);
+    });
+  });
+  test("Scroll to survey", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(500, 300);
+      await insertDiv();
+      const json = {
+        "focusFirstQuestionAutomatic": true,
+        "elements": [
+          {
+            "type": "text",
+            "name": "q1"
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("survey-scrolling.png", undefined, t, comparer);
     });
   });
 });

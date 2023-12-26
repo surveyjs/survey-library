@@ -33,7 +33,7 @@
         v-if="question.allowClear && question.cssClasses.cleanButtonIconId"
         v-show="question.showClearButton"
         @click="clear"
-          :tabindex="question.showClearButton ? 0 : -1"
+        aria-hidden="true"
       >
         <sv-svg-icon
           :class="question.cssClasses.cleanButtonSvg"
@@ -46,12 +46,16 @@
     </div>
     <sv-popup v-if="!question.isReadOnly" :model="model.popupModel"></sv-popup>
     <div disabled v-else :id="question.inputId" :class="question.getControlClass()">
-      <div>{{ question.readOnlyText }}</div>
+      <survey-string
+        v-if="question.locReadOnlyText"
+        :locString="question.locReadOnlyText"
+      />
     </div>
     <div
       :class="question.cssClasses.chevronButton"
           v-on:pointerdown="chevronPointerDown"
       v-if="question.cssClasses.chevronButtonIconId"
+      aria-hidden="true"
     >
       <sv-svg-icon
         :class="question.cssClasses.chevronButtonSvg"

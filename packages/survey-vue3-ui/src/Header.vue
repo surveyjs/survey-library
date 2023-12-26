@@ -1,11 +1,9 @@
 <template>
   <div v-if="survey.renderedHasHeader" :class="survey.css.header" ref="root">
-    <div v-if="survey.isLogoBefore" :class="survey.logoClassNames">
-      <component
-        :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
-        :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
-      ></component>
-    </div>
+    <component v-if="survey.isLogoBefore"
+      :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
+      :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
+    ></component>
 
     <div
       v-if="survey.renderedHasTitle"
@@ -13,17 +11,15 @@
       v-bind:style="{ maxWidth: survey.titleMaxWidth }"
     >
       <survey-element-title :element="survey" :css="survey.css" />
-      <h5 v-if="survey.renderedHasDescription" :class="survey.css.description">
-        <survey-string :locString="survey.locDescription" />
-      </h5>
+          <div v-if="survey.renderedHasDescription" :class="survey.css.description">
+          <survey-string :locString="survey.locDescription" />
+          </div>
     </div>
 
-    <div v-if="survey.isLogoAfter" :class="survey.logoClassNames">
-      <component
-        :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
-        :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
-      ></component>
-    </div>
+    <component v-if="survey.isLogoAfter"
+      :is="survey.getElementWrapperComponentName(survey, 'logo-image')"
+      :data="survey.getElementWrapperComponentData(survey, 'logo-image')"
+    ></component>
 
     <div :class="survey.css.headerClose"></div>
   </div>

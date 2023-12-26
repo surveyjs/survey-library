@@ -147,7 +147,7 @@ export class ActionContainer<T extends BaseAction = Action> extends Base impleme
       this.sortItems();
     }
   }
-  public initResponsivityManager(container: HTMLDivElement): void {
+  public initResponsivityManager(container: HTMLDivElement, delayedUpdateFunction?: (callback: () => void) => void): void {
     return;
   }
   public resetResponsivityManager(): void { }

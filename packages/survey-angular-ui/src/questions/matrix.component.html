@@ -52,7 +52,7 @@
                       <use [attr.xlink:href]="model.itemSvgIcon"></use>
                     </svg> 
                   </span>
-                  <span [visible]="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
+                  <span *ngIf="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
                 </label>
               </td>
             </ng-container>

@@ -59,8 +59,9 @@ sv-popup {
   box-sizing: border-box;
 }
 
-.sv-popup--modal > .sv-popup__container {
+.sv-popup--modal>.sv-popup__container {
   position: static;
+  display: flex;
 }
 
 .sv-popup--modal > .sv-popup__container > .sv-popup__shadow > .sv-popup__body-content {

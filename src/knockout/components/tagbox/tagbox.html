@@ -55,7 +55,7 @@
       </div>
     </div>
     <!-- ko if: (question.allowClear && question.cssClasses.cleanButtonIconId) -->
-    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton, attr: {tabindex: question.showClearButton ? 0 : -1} ">
+    <div data-bind="css: question.cssClasses.cleanButton, click: clear, visible: question.showClearButton" aria-hidden="true">
       <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.cleanButtonSvg, iconName: question.cssClasses.cleanButtonIconId, size: 'auto', title: question.clearCaption } } -->
       <!-- /ko -->
     </div>
@@ -66,11 +66,14 @@
   <!-- /ko -->
   <!-- ko if: question.isReadOnly -->
   <div disabled data-bind="css: question.getControlClass(), attr: { id: question.inputId }, ">
-    <div data-bind="text: question.readOnlyText"></div>
+    <!-- ko if: question.locReadOnlyText -->
+    <!-- ko template: { name: 'survey-string', data: question.locReadOnlyText } -->
+    <!-- /ko -->
+    <!-- /ko -->
   </div>
   <!-- /ko -->
   <!-- ko if: question.cssClasses.chevronButtonIconId -->
-  <div data-bind="css: question.cssClasses.chevronButton, event: {pointerdown: chevronPointerDown}">
+  <div data-bind="css: question.cssClasses.chevronButton, event: {pointerdown: chevronPointerDown}" aria-hidden="true">
     <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.chevronButtonSvg, iconName: question.cssClasses.chevronButtonIconId, size: 'auto' } } -->
     <!-- /ko -->
   </div>

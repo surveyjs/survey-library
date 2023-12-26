@@ -375,8 +375,8 @@ export class Question extends SurveyElement<Question>
       this.errors = [];
     }
   }
-  protected notifyStateChanged(): void {
-    super.notifyStateChanged();
+  protected notifyStateChanged(prevState: string): void {
+    super.notifyStateChanged(prevState);
     if(this.isCollapsed) {
       this.onHidingContent();
     }
@@ -1548,8 +1548,8 @@ export class Question extends SurveyElement<Question>
     if (reason === "onHiddenContainer" && !this.isParentVisible) return true;
     if (this.isVisibleInSurvey) return false;
     if (!!this.page && this.page.isStartPage) return false;
-    if (!this.survey || !this.valueName) return true;
-    return !this.survey.hasVisibleQuestionByValueName(this.valueName);
+    if (!this.survey) return true;
+    return !this.survey.hasVisibleQuestionByValueName(this.getValueName());
   }
   /**
    * Returns `true` if a parent element (page or panel) is visible.
@@ -2268,6 +2268,9 @@ export class Question extends SurveyElement<Question>
   protected setNewComment(newValue: string): void {
     if (this.questionComment === newValue) return;
     this.questionComment = newValue;
+    this.setCommentIntoData(newValue);
+  }
+  protected setCommentIntoData(newValue: string): void {
     if (this.data != null) {
       this.data.setComment(
         this.getValueName(),
@@ -2280,7 +2283,7 @@ export class Question extends SurveyElement<Question>
     return makeNameValid(name);
   }
   //IQuestion
-  updateValueFromSurvey(newValue: any): void {
+  updateValueFromSurvey(newValue: any, clearData: boolean = false): void {
     newValue = this.getUnbindValue(newValue);
     if (!!this.valueFromDataCallback) {
       newValue = this.valueFromDataCallback(newValue);
@@ -2293,6 +2296,9 @@ export class Question extends SurveyElement<Question>
       });
     } else {
       this.updateValueFromSurveyCore(newValue, <any>this.data !== <any>this.getSurvey());
+      if(clearData && isEmpty) {
+        this.isValueChangedDirectly = false;
+      }
     }
     this.updateDependedQuestions();
     this.updateIsAnswered();

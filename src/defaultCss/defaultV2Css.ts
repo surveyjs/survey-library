@@ -22,7 +22,7 @@ export var defaultV2Css = {
   container: "sd-container-modern",
   header: "sd-title sd-container-modern__title",
   bodyContainer: "sv-components-row",
-  body: "sv-components-column sv-components-column--expandable sd-body",
+  body: "sd-body",
   bodyWithTimer: "sd-body--with-timer",
   clockTimerRoot: "sd-timer",
   clockTimerRootTop: "sd-timer--top",
@@ -522,6 +522,9 @@ export var defaultV2Css = {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",
     root: "sd-scrollable-container sd-rating",
     rootWrappable: "sd-scrollable-container sd-rating sd-rating--wrappable",
+    rootLabelsTop: "sd-rating--labels-top",
+    rootLabelsBottom: "sd-rating--labels-bottom",
+    rootLabelsDiagonal: "sd-rating--labels-diagonal",
     item: "sd-rating__item",
     itemOnError: "sd-rating__item--error",
     itemHover: "sd-rating__item--allowhover",
@@ -631,7 +634,8 @@ export var defaultV2Css = {
     canvas: "sjs_sp_canvas sd-signaturepad__canvas",
     backgroundImage: "sjs_sp__background-image sd-signaturepad__background-image",
     clearButton: "sjs_sp_clear sd-context-btn sd-context-btn--negative sd-signaturepad__clear",
-    clearButtonIconId: "icon-clear"
+    clearButtonIconId: "icon-clear",
+    loadingIndicator: "sd-signaturepad__loading-indicator"
   },
   saveData: {
     root: "sv-save-data_root",

@@ -1501,3 +1501,39 @@ QUnit.test("Edit triggers array", function (assert) {
   assert.equal(matrix.visibleRows.length, 1, "There is one trigger");
   assert.equal(matrix.visibleRows[0].cells[0].value, "completetrigger", "correct trigger type");
 });
+QUnit.test("multipletextitem title in detail panel", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "multipletext", name: "q1", items: [{ name: "item1" }] }
+    ]
+  });
+  const question = survey.getQuestionByName("q1");
+  const editSurvey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "items",
+        columns: [{ cellType: "text", name: "name" }, { cellType: "text", name: "title" }],
+        rowCount: 0,
+        detailPanelMode: "underRowSingle",
+        detailElements: [{ type: "text", name: "title" }]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDynamicModel>(editSurvey.getQuestionByName("items"));
+  editSurvey.editingObj = question;
+  assert.equal(matrix.visibleRows.length, 1, "One item");
+  const row = matrix.visibleRows[0];
+  const titleCell = row.cells[1].question;
+  row.showDetailPanel();
+  const titleQuestion = row.detailPanel.getQuestionByName("title");
+  assert.notOk(titleCell.value, "cell #1");
+  assert.notOk(titleQuestion.value, "question #1");
+  titleQuestion.value = "Item 1";
+  assert.equal(titleCell.value, "Item 1", "cell #2");
+  assert.equal(titleQuestion.value, "Item 1", "question #2");
+  assert.equal(question.items[0].title, "Item 1", "item title #1");
+  titleQuestion.value = "";
+  assert.notOk(titleCell.value, "cell #3");
+  assert.notOk(titleQuestion.value, "question #3");
+});

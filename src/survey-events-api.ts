@@ -6,11 +6,12 @@ import { PageModel } from "./page";
 import { PanelModel, PanelModelBase } from "./panel";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
-import { QuestionFileModel } from "./question_file";
+import { QuestionFileModel, QuestionFileModelBase } from "./question_file";
 import { MatrixDropdownCell, MatrixDropdownRowModelBase, QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
 import { QuestionPanelDynamicModel } from "./question_paneldynamic";
+import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyModel } from "./survey";
 import { SurveyError } from "./survey-error";
 import { Trigger } from "./trigger";
@@ -23,9 +24,9 @@ export interface QuestionEventMixin {
 }
 export interface FileQuestionEventMixin {
   /**
-   * A File Upload question instance for which the event is raised.
+   * A File Upload or Signature Pad question instance for which the event is raised.
    */
-  question: QuestionFileModel;
+  question: QuestionFileModel | QuestionSignaturePadModel;
 }
 export interface PanelDynamicQuestionEventMixin {
   /**
@@ -809,15 +810,17 @@ export interface DynamicPanelItemValueChangedEvent extends PanelDynamicQuestionE
    */
   panel: PanelModel;
 }
-export interface DynamicPanelGetTabTitleEvent extends PanelDynamicQuestionEventMixin {
+export interface DynamicPanelCurrentIndexChangedEvent extends PanelDynamicQuestionEventMixin {
   /**
-   * A panel whose tab title is being rendered.
+   * A panel for which the event is raised.
    */
   panel: PanelModel;
   /**
    * The panel's index in the [`visiblePanels`](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model#visiblePanels) array of the Dynamic Panel.
    */
   visiblePanelIndex: number;
+}
+export interface DynamicPanelGetTabTitleEvent extends DynamicPanelCurrentIndexChangedEvent {
   /**
    * A tab title. You can change this parameter's value.
    */

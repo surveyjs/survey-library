@@ -696,21 +696,20 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .pressKey("enter")
+      .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("enter")
       .expect(questionValueInput.value).eql("Nissan")
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(popupContainer.visible).ok()
       .pressKey("up")
       .pressKey("enter")
       .expect(popupContainer.visible).notOk()
       .expect(questionValueInput.value).eql("Volkswagen")
 
-      .pressKey("tab")
       .pressKey("tab")
       .pressKey("2")
       .pressKey("down")
@@ -836,7 +835,7 @@ frameworks.forEach((framework) => {
     await initSurvey(framework, jsonWithDropDown);
 
     await t
-      .pressKey("enter")
+      .pressKey("down")
       .pressKey("down")
       .pressKey("down")
       .pressKey("down")
@@ -850,7 +849,6 @@ frameworks.forEach((framework) => {
       .expect(popupContainer.visible).notOk()
       .expect(questionValueText.textContent).eql("Volkswagen")
 
-      .pressKey("tab")
       .pressKey("tab")
       .pressKey("down")
       .pressKey("down")
@@ -1283,7 +1281,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 600)
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(focusedItem.exists).ok()
       .expect(focusedItem.textContent).eql("item1")
       .expect(popupContainer.nth(0).visible).ok()
@@ -1434,7 +1432,7 @@ frameworks.forEach((framework) => {
     await t
       .resizeWindow(1280, 900)
 
-      .pressKey("enter")
+      .pressKey("down")
       .expect(dropdown1.find(".sv-list__empty-container").visible).ok()
       .expect(dropdown1.find(".sv-popup__scrolling-content").offsetHeight).eql(48)
       .expect(listItems.filterVisible().count).eql(0)
@@ -1698,7 +1696,7 @@ frameworks.forEach((framework) => {
 
     await t
       .expect(popupContainer.visible).notOk()
-      .pressKey("enter")
+      .pressKey("down")
       .expect(popupContainer.visible).ok()
       .expect(input.value).eql("item1")
       .expect(str.visible).notOk()

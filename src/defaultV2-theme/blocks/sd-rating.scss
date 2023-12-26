@@ -27,6 +27,69 @@
       min-width: 0;
     }
   }
+
+  &.sd-rating--labels-top {
+    fieldset {
+      padding-top: calcSize(4.5);
+      position: relative;
+      .sd-rating__min-text {
+        position: absolute;
+        margin: 0;
+        left:0;
+        top: 0;
+        border: 0;
+      }
+      .sd-rating__max-text {
+        position: absolute;
+        margin: 0;
+        right:0;
+        top: 0;
+        border: 0;
+      }
+    }
+  }
+  
+  &.sd-rating--labels-bottom {
+    fieldset {
+      padding-bottom: calcSize(4.5);
+      position: relative;
+      .sd-rating__min-text {
+        position: absolute;
+        margin: 0;
+        left:0;
+        bottom: 0;
+        border: 0;
+      }
+      .sd-rating__max-text {
+        position: absolute;
+        margin: 0;
+        right:0;
+        bottom: 0;
+        border: 0;
+      }
+    }
+  }
+  &.sd-rating--labels-diagonal {
+    fieldset {
+      padding-top: calcSize(4.5);
+      padding-bottom: calcSize(4.5);
+      position: relative;
+      .sd-rating__min-text {
+        position: absolute;
+        margin: 0;
+        left:0;
+        top: 0;
+        border: 0;
+      }
+      .sd-rating__max-text {
+        position: absolute;
+        margin: 0;
+        right:0;
+        bottom: 0;
+        border: 0;
+      }
+    }
+  }
 }
 
 .sd-rating--small {
@@ -320,6 +383,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-text.sd-rating__item-text {
+  @include useEditorFontSize;
   font-family: $font-editorfont-family;
   font-weight: $font-editorfont-weight;
   color: $font-questiontitle-color;
@@ -327,7 +391,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   line-height: multiply(1.5, $font-editorfont-size);
   display: inline-block;
   border: 2px solid transparent;
-    box-sizing: border-box;
+  box-sizing: border-box;
 
   &.sd-rating__min-text,
   &.sd-rating__max-text {
@@ -355,6 +419,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     min-width: calcSize(3);
   }
 }
+
 .sd-rating--wrappable .sd-rating__item-text {
   max-width: 100%;
 
@@ -365,9 +430,11 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     display: block
   }
 }
+
 .sd-rating__item:focus-within .sd-rating__item-text.sd-rating__item-text {
   border: none;
 }
+
 .sd-rating__item--selected .sd-rating__item-text.sd-rating__item-text {
   color: $primary-foreground;
   font-weight: inherit;
@@ -390,6 +457,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   font-size: calcFontSize(0.75);
   line-height: calcLineHeight(1);
 }
+
 .sv-list__item.sv-list__item--selected .sd-rating-dropdown-item_description {
   color: $primary-foreground;
 }

@@ -417,7 +417,8 @@ export class QuestionMultipleTextModel extends Question
    * }
    * ```
    *
-   * To enable Markdown support for the `title` property, implement Markdown-to-HTML conversion in the [onTextMarkdown](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with Showdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   * To enable Markdown support for the `title` property, implement Markdown-to-HTML conversion in the [`onTextMarkdown`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onTextMarkdown) event handler. For an example, refer to the following demo: [Convert Markdown to HTML with Showdown](https://surveyjs.io/form-library/examples/edit-survey-questions-markdown/).
+   * @see itemTitleWidth
    * @see addItem
    */
   public get items(): Array<MultipleTextItemModel> {
@@ -428,8 +429,8 @@ export class QuestionMultipleTextModel extends Question
   }
   /**
    * Adds a new input item.
-   * @param name An item name
-   * @param title (Optional) An item title
+   * @param name An item name.
+   * @param title *(Optional)* An item title.
    * @see items
    */
   public addItem(name: string, title: string = null): MultipleTextItemModel {
@@ -533,6 +534,19 @@ export class QuestionMultipleTextModel extends Question
   }
   public set itemSize(val: number) {
     this.setPropertyValue("itemSize", val);
+  }
+  /**
+   * Specifies a uniform width for all text box titles. Accepts CSS values.
+   *
+   * Default value: `""` (the width of each title depends on the title length)
+   * @see items
+   * @see itemErrorLocation
+   */
+  public get itemTitleWidth(): string {
+    return this.getPropertyValue("itemTitleWidth") || "";
+  }
+  public set itemTitleWidth(val: string) {
+    this.setPropertyValue("itemTitleWidth", val);
   }
   @propertyArray() rows: Array<MutlipleTextRow>;
 
@@ -848,7 +862,8 @@ Serializer.addClass(
     { name: "!items:textitems", className: "multipletextitem", isArray: true },
     { name: "itemSize:number", minValue: 0 },
     { name: "colCount:number", default: 1, choices: [1, 2, 3, 4, 5] },
-    { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false }
+    { name: "itemErrorLocation", default: "default", choices: ["default", "top", "bottom"], visible: false },
+    { name: "itemTitleWidth", category: "layout" }
   ],
   function () {
     return new QuestionMultipleTextModel("");

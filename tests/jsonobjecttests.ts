@@ -3086,3 +3086,18 @@ QUnit.test("selectbase colCount property default value", function (assert) {
   prop.defaultValue = defaultVal;
   assert.equal(q.colCount, 1, "Default value is 1 again");
 });
+QUnit.test("Validated property values", function (assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    clearInvisibleValues: "abc",
+    elements: [
+      { type: "text", name: "q1", textUpdateMode: "edf" }
+    ]
+  }, { validatePropertyValues: true });
+  assert.equal(survey.getAllQuestions().length, 1, "We have one question loaded");
+  assert.equal(survey.jsonErrors.length, 2, "There are two errors");
+  assert.equal(survey.jsonErrors[0].message, "The property value: 'abc' is incorrect for property 'clearInvisibleValues'.", "errors[0].message");
+  assert.equal(survey.jsonErrors[0].element.getType(), "survey", "errors[0].element");
+  assert.equal(survey.jsonErrors[1].message, "The property value: 'edf' is incorrect for property 'textUpdateMode'.", "errors[1].message");
+  assert.equal(survey.jsonErrors[1].element.getType(), "text", "errors[1].element");
+});

@@ -34,8 +34,8 @@
             [attr.readonly]="dropdownModel.filterReadOnly ? true : null" 
             (change)="inputChange($event)" (blur)="blur($event)" (focus)="focus($event)"/>
         </div>
-        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)"
-            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton" [attr.tabindex]="model.showClearButton ? 0 : -1">
+        <div *ngIf="(model.allowClear && model.cssClasses.cleanButtonIconId)" aria-hidden="true"
+            [class]="model.cssClasses.cleanButton" (click)="clear($event)" [visible]="model.showClearButton">
             <!-- ko component: { name: 'sv-svg-icon', params: { css: model.cssClasses.cleanButtonSvg, iconName: model.cssClasses.cleanButtonIconId, size: 'auto' } } -->
             <!-- /ko -->
             <svg [iconName]="model.cssClasses.cleanButtonIconId" [partCss]="model.cssClasses.cleanButtonSvg" [title]="model.clearCaption"

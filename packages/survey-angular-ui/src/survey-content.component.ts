@@ -26,12 +26,6 @@ export class SurveyContentComponent extends BaseAngular<SurveyModel> implements 
     }
     this.isSurveyUpdated = true;
   }
-  override ngOnInit(): void {
-    super.ngOnInit();
-    if (!!this.model && this.model["needRenderIcons"]) {
-      SvgRegistry.renderIcons();
-    }
-  }
   override ngOnDestroy(): void {
     super.ngOnDestroy();
     if (!!this.model) {

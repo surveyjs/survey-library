@@ -37,6 +37,9 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
   protected getValueCore(): any {
     return this.questionBase.renderedValue;
   }
+  protected renderReadOnlyElement(): JSX.Element | null {
+    return <div>{this.question.readOnlyText}</div>;
+  }
   protected renderSelect(cssClasses: any): JSX.Element {
     let selectElement: JSX.Element | null = null;
     if (this.question.isReadOnly) {
@@ -45,7 +48,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       // @ts-ignore
       selectElement = <div id={this.question.inputId} className={this.question.getControlClass()} disabled>
         {text}
-        <div>{this.question.readOnlyText}</div>
+        {this.renderReadOnlyElement()}
       </div>;
     } else {
       if (!(this.question as any)["dropdownListModel"]) {
@@ -146,7 +149,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
         className={this.question.cssClasses.cleanButton}
         style={style}
         onClick={this.clear}
-        tabIndex={this.question.showClearButton ? 0 : -1}
+        aria-hidden="true"
       >
         <SvgIcon
           className={this.question.cssClasses.cleanButtonSvg}

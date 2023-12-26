@@ -219,6 +219,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   dynamicPanelRemoving(question: IQuestion, panelIndex: number, panel: IPanel): boolean;
   dynamicPanelItemValueChanged(question: IQuestion, options: any): any;
   dynamicPanelGetTabTitle(question: IQuestion, options: any): any;
+  dynamicPanelCurrentIndexChanged(question: IQuestion, options: any): void;
 
   dragAndDropAllow(options: DragDropAllowEvent): boolean;
 
@@ -297,7 +298,7 @@ export interface IQuestion extends IElement, ISurveyErrorOwner {
   hasTitle: boolean;
   isEmpty(): boolean;
   onSurveyValueChanged(newValue: any): any;
-  updateValueFromSurvey(newValue: any): any;
+  updateValueFromSurvey(newValue: any, clearData: boolean): void;
   updateCommentFromSurvey(newValue: any): any;
   supportGoNextPageAutomatic(): boolean;
   clearUnusedValues(): any;
@@ -366,7 +367,7 @@ export type ISurveyEnvironment = {
   stylesSheetsMountContainer: HTMLElement,
 }
 
-export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom";
+export type LayoutElementContainer = "header" | "footer" | "left" | "right" | "contentTop" | "contentBottom" | "center";
 export type HorizontalAlignment = "left" | "center" | "right";
 export type VerticalAlignment = "top" | "middle" | "bottom";
 
@@ -386,4 +387,7 @@ export interface IPlainDataOptions {
   calculations?: Array<{
     propertyName: string,
   }>;
+}
+export interface ILoadFromJSONOptions {
+  validatePropertyValues?: boolean;
 }

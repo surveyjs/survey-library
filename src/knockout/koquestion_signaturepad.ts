@@ -9,6 +9,9 @@ export class QuestionSignaturePad extends QuestionSignaturePadModel {
   constructor(name: string) {
     super(name);
   }
+  public koOnBlur(data: any, event: any) {
+    return this.onBlur(event);
+  }
   protected onBaseCreating() {
     super.onBaseCreating();
     this._implementor = new QuestionImplementor(this);

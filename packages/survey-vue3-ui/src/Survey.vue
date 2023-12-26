@@ -4,6 +4,7 @@
     :style="vueSurvey.themeVariables"
     ref="root"
   >
+    <sv-svg-bundle v-if="vueSurvey.needRenderIcons"></sv-svg-bundle>
     <div :class="vueSurvey.wrapperFormCss">
       <survey-popup-modal></survey-popup-modal>
       <div
@@ -32,29 +33,32 @@
                 :container="'left'"
                 :needRenderWrapper="true"
               ></component>
-              <div
-                :class="vueSurvey.bodyCss"
-                :style="{ maxWidth: vueSurvey.renderedWidth }"
-                :id="pageId"
-              >
-                <component
-                  :is="'sv-components-container'"
-                  :survey="vueSurvey"
-                  :container="'contentTop'"
-                  :needRenderWrapper="true"
-                ></component>
-                <survey-page
-                  :key="pageKey"
-                  :survey="vueSurvey"
-                  :page="vueSurvey.activePage"
-                  :css="css"
-                />
-                <component
-                  :is="'sv-components-container'"
-                  :survey="vueSurvey"
-                  :container="'contentBottom'"
-                  :needRenderWrapper="true"
-                ></component>
+              <div class="sv-components-column sv-components-column--expandable">
+                <component :is="'sv-components-container'" :survey="vueSurvey" :container="'center'" :needRenderWrapper="true"></component>
+                <div
+                  :class="vueSurvey.bodyCss"
+                  :style="{ maxWidth: vueSurvey.renderedWidth }"
+                  :id="pageId"
+                >
+                  <component
+                    :is="'sv-components-container'"
+                    :survey="vueSurvey"
+                    :container="'contentTop'"
+                    :needRenderWrapper="true"
+                  ></component>
+                  <survey-page
+                    :key="pageKey"
+                    :survey="vueSurvey"
+                    :page="vueSurvey.activePage"
+                    :css="css"
+                  />
+                  <component
+                    :is="'sv-components-container'"
+                    :survey="vueSurvey"
+                    :container="'contentBottom'"
+                    :needRenderWrapper="true"
+                  ></component>
+                </div>
               </div>
               <component
                 :is="'sv-components-container'"
@@ -104,7 +108,7 @@
 </template>
 
 <script lang="ts" setup>
-import { SvgRegistry, SurveyModel } from "survey-core";
+import type { SurveyModel } from "survey-core";
 import {
   toRaw,
   ref,
@@ -158,9 +162,6 @@ useBase(() => vueSurvey.value);
 
 onMounted(() => {
   if (!vueSurvey.value) return;
-  if (vueSurvey.value["needRenderIcons"]) {
-    SvgRegistry.renderIcons();
-  }
   var el = root.value;
   if (el) vueSurvey.value.afterRenderSurvey(el);
   vueSurvey.value.renderCallback = () => {

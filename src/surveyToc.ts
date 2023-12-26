@@ -59,6 +59,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
   );
   listModel.allowSelection = false;
   listModel.locOwner = survey;
+  listModel.searchEnabled = false;
   survey.onCurrentPageChanged.add((s, o) => {
     listModel.selectedItem = items.filter(i => i.id === survey.currentPage.name)[0];
   });

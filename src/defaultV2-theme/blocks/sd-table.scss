@@ -140,6 +140,7 @@
 }
 
 .sd-table__cell {
+  @include useEditorFontSize;
   font-weight: normal;
   font-size: $font-editorfont-size;
   line-height: multiply(1.5, $font-editorfont-size);
@@ -197,6 +198,7 @@
 
 .sd-table__cell--header {
   span {
+    @include useEditorFontSize;
     font-size: $font-editorfont-size;
     line-height: multiply(1.5, $font-editorfont-size);
     font-weight: $font-questiontitle-weight;
@@ -275,6 +277,7 @@
   padding: calcSize(1);
 
   svg {
+    @include useEditorFontSize;
     display: block;
     width: multiply(1, $font-editorfont-size);
     height: multiply(1, $font-editorfont-size);

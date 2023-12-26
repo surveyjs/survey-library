@@ -1,5 +1,4 @@
 import { JsonObjectProperty, Serializer, property } from "./jsonobject";
-import { RendererFactory } from "./rendererFactory";
 import { Base } from "./base";
 import { Action, IAction } from "./actions/action";
 import { AdaptiveActionContainer } from "./actions/adaptive-container";
@@ -167,13 +166,17 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const el = root.getElementById(elementId);
     if (!el || !el.scrollIntoView) return false;
     const elemTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    if (elemTop < 0) el.scrollIntoView();
-    return elemTop < 0;
+    let needScroll = elemTop < 0;
+    if(!needScroll && !!window) {
+      const height = window.innerHeight;
+      needScroll = height > 0 && height < elemTop;
+    }
+    if (needScroll) {
+      el.scrollIntoView();
+    }
+    return needScroll;
   }
-  public static GetFirstNonTextElement(
-    elements: any,
-    removeSpaces: boolean = false
-  ) {
+  public static GetFirstNonTextElement(elements: any, removeSpaces: boolean = false): any {
     if (!elements || !elements.length || elements.length == 0) return null;
     if (removeSpaces) {
       let tEl = elements[0];
@@ -224,6 +227,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     super.onPropertyValueChanged(name, oldValue, newValue);
     if (name === "state") {
       this.updateElementCss(false);
+      this.notifyStateChanged(oldValue);
       if (this.stateChangedCallback) this.stateChangedCallback();
     }
   }
@@ -272,9 +276,8 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
-    this.notifyStateChanged();
   }
-  protected notifyStateChanged(): void {
+  protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
       this.survey.elementContentVisibilityChanged(this);
     }
@@ -517,7 +520,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};
   }
-  @property() cssClassesValue: any;
+  public get cssClassesValue(): any {
+    return this.getPropertyValueWithoutDefault("cssClassesValue");
+  }
+  public set cssClassesValue(val: any) {
+    this.setPropertyValue("cssClassesValue", val);
+  }
   private ensureCssClassesValue() {
     if (!this.cssClassesValue) {
       this.cssClassesValue = this.calcCssClasses(this.css);

@@ -78,7 +78,7 @@ export class Cover extends Base {
   private updateHeaderClasses(): void {
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
-      .append("sv-header__without-background", (this.backgroundColor === "trasparent") && !this.backgroundImage)
+      .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
@@ -223,6 +223,10 @@ export class Cover extends Base {
       const descriptionHeight = descriptionEl ? descriptionEl.getBoundingClientRect().height : 0;
       this.actualHeight = this.calculateActualHeight(logoHeight, titleHeight, descriptionHeight);
     }
+  }
+
+  get hasBackground(): boolean {
+    return !!this.backgroundImage || this.backgroundColor !== "transparent";
   }
 }
 

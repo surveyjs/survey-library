@@ -294,18 +294,19 @@ export class QuestionMatrixModel
     this.columns.push(col);
     return col;
   }
-  public getItemClass(row: any, column: any) {
+  public getItemClass(row: any, column: any): string {
     const isChecked = row.value == column.value;
     const isDisabled = this.isReadOnly;
     const allowHover = !isChecked && !isDisabled;
-
+    const hasCellText = this.hasCellText;
+    const css = this.cssClasses;
     return new CssClassBuilder()
-      .append(this.cssClasses.cell, this.hasCellText)
-      .append(this.hasCellText ? this.cssClasses.cellText : this.cssClasses.label)
-      .append(this.cssClasses.itemOnError, !this.hasCellText && this.hasCssError())
-      .append(this.hasCellText ? this.cssClasses.cellTextSelected : this.cssClasses.itemChecked, isChecked)
-      .append(this.hasCellText ? this.cssClasses.cellTextDisabled : this.cssClasses.itemDisabled, isDisabled)
-      .append(this.cssClasses.itemHover, allowHover && !this.hasCellText)
+      .append(css.cell, hasCellText)
+      .append(hasCellText ? css.cellText : css.label)
+      .append(css.itemOnError, !hasCellText && this.hasCssError())
+      .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
+      .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, isDisabled)
+      .append(css.itemHover, allowHover && !hasCellText)
       .toString();
   }
   public get itemSvgIcon(): string {

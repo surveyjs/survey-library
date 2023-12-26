@@ -98,4 +98,36 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("mutlipletext-error-bottom.png", questionRoot, t, comparer);
     });
   });
+  test("Check multipletext itemTitleWidth", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        width: "900px",
+        questions: [
+          {
+            type: "multipletext",
+            name: "q1",
+            itemTitleWidth: "400px",
+            items: [
+              {
+                name: "item1",
+                title: "A very long first item title"
+              },
+              {
+                name: "item2",
+                title: "A medium long title"
+              },
+              {
+                name: "item3",
+                title: "Short title"
+              },
+            ]
+          },
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await takeElementScreenshot("mutlipletext-titlewidth.png", questionRoot, t, comparer);
+    });
+  });
 });

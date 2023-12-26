@@ -106,5 +106,7 @@ export { SurveyLocStringViewer } from "../react/string-viewer";
 export { SurveyLocStringEditor } from "../react/string-editor";
 export { LoadingIndicatorComponent } from "../react/components/loading-indicator";
 
+export { SvgBundleComponent } from "../react/svgbundle";
+
 //Uncomment to include the "date" question type.
 //export {default as SurveyQuestionDate} from "../plugins/react/reactquestiondate";

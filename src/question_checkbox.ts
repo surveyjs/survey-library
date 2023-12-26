@@ -20,11 +20,13 @@ import { settings } from "./settings";
  * [View Demo](https://surveyjs.io/form-library/examples/questiontype-checkbox/ (linkStyle))
  */
 export class QuestionCheckboxModel extends QuestionCheckboxBase {
-  private selectAllItemValue: ItemValue = new ItemValue("selectall");
+  private selectAllItemValue: ItemValue;
   private invisibleOldValues: any = {};
   protected defaultSelectedItemValues: Array<ItemValue>;
   constructor(name: string) {
     super(name);
+    this.selectAllItemValue = new ItemValue("");
+    this.selectAllItemValue.id = "selectall";
     var selectAllItemText = this.createLocalizableString(
       "selectAllText", this.selectAllItem, true, "selectAllItemText");
     this.selectAllItem.locOwner = this;
@@ -113,17 +115,20 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see showSelectAllItem
    */
   public get isAllSelected(): boolean {
-    var val = this.value;
-    if (!val || !Array.isArray(val)) return false;
     if (this.isItemSelected(this.noneItem)) return false;
-    var allItemCount = this.visibleChoices.length;
-    const order = settings.specialChoicesOrder;
-    if (this.hasOther) allItemCount -= order.otherItem.length;
-    if (this.hasNone) allItemCount -= order.noneItem.length;
-    if (this.hasSelectAll) allItemCount -= order.selectAllItem.length;
-    var selectedCount = val.length;
-    if (this.isOtherSelected) selectedCount--;
-    return selectedCount === allItemCount;
+    const items = this.getVisibleEnableItems();
+    if(items.length === 0) return false;
+    const val = this.value;
+    if (!val || !Array.isArray(val) || val.length === 0) return false;
+    if(val.length < items.length) return false;
+    const rVal = [];
+    for(let i = 0; i < val.length; i ++) {
+      rVal.push(this.getRealValue(val[i]));
+    }
+    for(let i = 0; i < items.length; i ++) {
+      if(rVal.indexOf(items[i].value) < 0) return false;
+    }
+    return true;
   }
   public set isAllSelected(val: boolean) {
     if (val) {
@@ -132,7 +137,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       this.clearValue();
     }
   }
-  public toggleSelectAll() {
+  public toggleSelectAll(): void {
     this.isAllSelected = !this.isAllSelected;
   }
   /**
@@ -142,18 +147,34 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see clearValue
    */
   public selectAll(): void {
-    var val: Array<any> = [];
-    for (var i = 0; i < this.visibleChoices.length; i++) {
-      var item = this.visibleChoices[i];
-      if (
-        item === this.noneItem ||
-        item === this.otherItem ||
-        item === this.selectAllItem
-      )
-        continue;
-      val.push(item.value);
+    const val: Array<any> = [];
+    const items = this.getVisibleEnableItems();
+    for (let i = 0; i < items.length; i++) {
+      val.push(items[i].value);
     }
     this.renderedValue = val;
+  }
+  public clickItemHandler(item: ItemValue, checked?: boolean): void {
+    if(item === this.selectAllItem) {
+      if(checked === true || checked === false) {
+        this.isAllSelected = checked;
+      } else {
+        this.toggleSelectAll();
+      }
+    } else {
+      const newValue: Array<any> = [].concat(this.renderedValue || []);
+      const index = newValue.indexOf(item.value);
+      if (checked) {
+        if (index < 0) {
+          newValue.push(item.value);
+        }
+      } else {
+        if (index > -1) {
+          newValue.splice(index, 1);
+        }
+      }
+      this.renderedValue = newValue;
+    }
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
@@ -245,7 +266,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
-  ):void {
+  ): void {
     super.onCheckForErrors(errors, isOnValueChanged);
     if (isOnValueChanged) return;
 
@@ -257,27 +278,48 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       errors.push(minError);
     }
   }
-
+  protected onVisibleChoicesChanged(): void {
+    super.onVisibleChoicesChanged();
+    this.updateSelectAllItemProps();
+  }
   protected onEnableItemCallBack(item: ItemValue): boolean {
     if (!this.shouldCheckMaxSelectedChoices()) return true;
     return this.isItemSelected(item);
   }
-  protected onAfterRunItemsEnableCondition() {
+  protected onAfterRunItemsEnableCondition(): void {
+    this.updateSelectAllItemProps();
     if (this.maxSelectedChoices < 1) {
-      this.selectAllItem.setIsEnabled(true);
       this.otherItem.setIsEnabled(true);
       return;
-    }
-    if (this.hasSelectAll) {
-      this.selectAllItem.setIsEnabled(
-        this.maxSelectedChoices >= this.activeChoices.length
-      );
     }
     if (this.hasOther) {
       this.otherItem.setIsEnabled(
         !this.shouldCheckMaxSelectedChoices() || this.isOtherSelected
       );
     }
+  }
+  private updateSelectAllItemProps(): void {
+    if (!this.hasSelectAll) return;
+    this.selectAllItem.setIsEnabled(this.getSelectAllEnabled());
+  }
+  private getSelectAllEnabled(): boolean {
+    if (!this.hasSelectAll) return true;
+    const items = this.activeChoices;
+    let visCount = this.getVisibleEnableItems().length;
+    const max = this.maxSelectedChoices;
+    if(max > 0 && max < visCount) return false;
+    return visCount > 0;
+  }
+  private getVisibleEnableItems(): Array<ItemValue> {
+    const res = new Array<ItemValue>();
+    const items = this.activeChoices;
+    for(let i = 0; i < items.length; i ++) {
+      const item = items[i];
+      if(item.isEnabled && item.isVisible) {
+        res.push(item);
+      }
+    }
+    return res;
   }
   private shouldCheckMaxSelectedChoices(): boolean {
     if (this.maxSelectedChoices < 1) return false;
@@ -301,8 +343,8 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       .append(this.cssClasses.itemSelectAll, options.isSelectAllItem)
       .toString();
   }
-  updateValueFromSurvey(newValue: any): void {
-    super.updateValueFromSurvey(newValue);
+  updateValueFromSurvey(newValue: any, clearData: boolean): void {
+    super.updateValueFromSurvey(newValue, clearData);
     this.invisibleOldValues = {};
   }
   protected setDefaultValue() {

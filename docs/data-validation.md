@@ -241,15 +241,14 @@ const surveyJson = {
 
 ## Switch Between Pages with Validation Errors
 
-By default, a respondent cannot leave a page that contains validation errors. If you want to let a respondent switch between pages regardless of whether they have validation errors or not, enable the [`validationAllowSwitchPages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationAllowSwitchPages) property.
+By default, a respondent cannot leave a page that contains validation errors. If you want to let a respondent switch between pages regardless of whether they have validation errors or not, enable the [`validationAllowSwitchPages`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationAllowSwitchPages) property as follows:
 
 ```js
-const surveyJson = {
-  "validationAllowSwitchPages": true,
-  "elements": [
-    // ...
-  ]
-}
+import { Model, NumericValidator } from "survey-core";
+
+const surveyJson = { ... }
+const survey = new Model(surveyJson);
+survey.validationAllowSwitchPages = true;
 ```
 
 ## See Also

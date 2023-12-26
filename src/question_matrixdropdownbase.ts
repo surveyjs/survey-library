@@ -344,9 +344,10 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     var value = this.data.getRowValue(this.data.getRowIndex(this));
     if (!Helpers.isValueEmpty(value)) {
       for (var i = 0; i < questions.length; i++) {
-        var key = questions[i].getValueName();
-        if (!Helpers.isValueEmpty(value[key])) {
-          questions[i].value = value[key];
+        const key = questions[i].getValueName();
+        const val = !!this.editingObj ? Serializer.getObjPropertyValue(this.editingObj, key) : value[key];
+        if (!Helpers.isValueEmpty(val)) {
+          questions[i].value = val;
         }
       }
     }
@@ -456,7 +457,7 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
     }
     if (this.data.isValidateOnValueChanging && this.hasQuestonError(changedQuestion)) return;
     const isDeleting = newColumnValue == null && !changedQuestion ||
-      isComment && !newColumnValue && !!changedQuestion && changedQuestion.autoOtherMode;
+      isComment && !newColumnValue && !!changedQuestion;
     this.data.onRowChanged(this, changedName, newValue, isDeleting);
     if(changedName) {
       this.runTriggers(MatrixDropdownTotalRowModel.RowVariableName + "." + changedName, newValue);
@@ -1116,7 +1117,8 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     this.resetRenderedTable();
     this.fireCallback(this.columnsChangedCallback);
   }
-  protected resetRenderedTable() {
+  //For internal use
+  public resetRenderedTable(): void {
     if (this.lockResetRenderedTable || this.isUpdateLocked) return;
     this.renderedTableValue = null;
     this.fireCallback(this.onRenderedTableResetCallback);
@@ -1767,6 +1769,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     var questionPlainData = super.getPlainData(options);
     if (!!questionPlainData) {
       questionPlainData.isNode = true;
+      const prevData = Array.isArray(questionPlainData.data) ? [].concat(questionPlainData.data) : [];
       questionPlainData.data = this.visibleRows.map(
         (row: MatrixDropdownRowModelBase) => {
           var rowDataItem = <any>{
@@ -1791,6 +1794,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
           return rowDataItem;
         }
       );
+      questionPlainData.data = questionPlainData.data.concat(prevData);
     }
     return questionPlainData;
   }
@@ -2220,7 +2224,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
         columnValue = newRowValue[columnName];
       }
       this.isRowChanging = true;
-      rowObj[columnName] = columnValue;
+      Serializer.setObjPropertyValue(rowObj, columnName, columnValue);
       this.isRowChanging = false;
       this.onCellValueChanged(row, columnName, rowObj);
     } else {

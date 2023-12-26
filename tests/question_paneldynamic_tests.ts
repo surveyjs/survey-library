@@ -3126,6 +3126,39 @@ QUnit.test("do not add new panel for list", function(assert) {
   assert.equal(panelDynamic.panelCount, 2, "Do not check for list mode");
 });
 
+QUnit.test("addPanel(index, skipvalidation)", function(assert) {
+  const json = {
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "pd",
+        renderMode: "progressTop",
+        panelCount: 1,
+        templateElements: [
+          { type: "text", name: "q1", isRequired: true }
+        ],
+      },
+    ],
+  };
+
+  let survey = new SurveyModel(json);
+  let question = <QuestionPanelDynamicModel>survey.getQuestionByName("pd");
+  assert.equal(question.currentIndex, 0, "first panel is current");
+  assert.equal(question.panelCount, 1, "There is one panel");
+
+  question.addPanel(undefined);
+  assert.equal(question.currentIndex, 1, "currentIndex #2");
+  assert.equal(question.panelCount, 2, "panelCount #2");
+  assert.equal(question.canAddPanel, true, "canAddPanel #2");
+
+  question.defaultValueFromLastPanel = true;
+  question.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
+  assert.equal(question.currentIndex, 1, "don't change currentIndex");
+  question.addPanel(2);
+  assert.equal(question.currentIndex, 2, "currentIndex #3");
+  assert.equal(question.panelCount, 4, "panelCount #3");
+});
+
 QUnit.test("goToPrevPanel method", function(assert) {
   var json = {
     elements: [
@@ -5450,6 +5483,7 @@ QUnit.test("renderMode: tab, issue#5829", function (assert) {
   assert.equal(panelTabToolbar.actions[1].locTitle.textOrHtml, "Panel 2", "Panel 2");
   assert.equal(panelTabToolbar.actions[1].pressed, false, "Panel 2 pressed false");
 
+  panel.currentIndex = 1;
   panel.addPanel();
   assert.equal(panel.currentIndex, 2, "currentIndex is 2");
   assert.equal(panelTabToolbar.actions.length, 3, "3 panels");
@@ -5521,7 +5555,7 @@ QUnit.test("renderMode: tab check disableHide property", function (assert) {
   assert.equal(panelTabToolbar.actions[0].disableHide, true);
   assert.equal(panelTabToolbar.actions[1].disableHide, false);
 
-  panel.addPanel();
+  panel.addPanel(2);
   assert.equal(panel.currentIndex, 2, "currentIndex is 2");
   assert.equal(panelTabToolbar.actions[0].disableHide, false);
   assert.equal(panelTabToolbar.actions[1].disableHide, false);
@@ -5889,6 +5923,44 @@ QUnit.test("templateVisibleIf && currentPanelIndex", function (assert) {
   assert.equal(panel.visiblePanelCount, 1, "There is one panel");
   assert.equal(panel.currentIndex, 0, "currentIndex #8");
 });
+QUnit.test("survey.onDynamicPanelCurrentIndexChanged", function (assert) {
+  const survey = new SurveyModel();
+  let questionName = "";
+  let panelIndex = -2;
+  let panelIndexOf = -2;
+  survey.onDynamicPanelCurrentIndexChanged.add((_, options) => {
+    questionName = options.question.name;
+    panelIndex = options.visiblePanelIndex;
+    panelIndexOf = !!options.panel ? options.question.visiblePanels.indexOf(options.panel) : -1;
+  });
+  survey.fromJSON({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ],
+        panelCount: 3,
+        renderMode: "tab"
+      }],
+  });
+  assert.equal(questionName, "panel", "question is correct");
+  assert.equal(panelIndex, 0, "panelIndex #1");
+  assert.equal(panelIndexOf, 0, "panelIndexOf #1");
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.currentIndex = 1;
+  assert.equal(panelIndex, 1, "panelIndex #2");
+  assert.equal(panelIndexOf, 1, "panelIndexOf #2");
+  panel.addPanel(-1);
+  assert.equal(panel.currentIndex, 3, "panel.panelIndex #3");
+  assert.equal(panelIndex, 3, "panelIndex #3");
+  assert.equal(panelIndexOf, 3, "panelIndexOf #3");
+  panel.removePanel(3);
+  assert.equal(panel.currentIndex, 2, "panel.panelIndex #4");
+  assert.equal(panelIndex, 2, "panelIndex #4");
+  assert.equal(panelIndexOf, 2, "panelIndexOf #4");
+});
 QUnit.test("templateVisibleIf & renderMode: tab, additionalTitleToolbar&templateTabTitle in JSON", function (assert) {
   const survey = new SurveyModel({
     elements: [
@@ -5970,6 +6042,7 @@ QUnit.test("templateVisibleIf & additionalTitleToolbar", function (assert) {
   assert.equal(getAddBtn().visible, false, "add button is invisible #6");
   assert.equal(panel.canAddPanel, false, "canAddPanel #6");
   assert.equal(getNextBtn().visible, true, "nextButton #6");
+  survey.css.root = undefined;
 });
 QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function (assert) {
   const survey = new SurveyModel({
@@ -5991,6 +6064,49 @@ QUnit.test("question.enableIf & add panel button visibility, Bug#6292", function
   assert.equal(panel.isReadOnly, false, "Panel is editable, #4");
   assert.equal(panel.canAddPanel, true, "Panel is not readonly, #5");
   assert.equal(addBtn.isVisible, true, "Add button is visible, #6");
+});
+QUnit.test("newPanelPosition & add panel button visibility", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "paneldynamic",
+        name: "panel",
+        renderMode: "tab",
+        newPanelPosition: "next",
+        templateElements: [
+          { type: "text", name: "q1" }
+        ]
+      }],
+  });
+  survey.css.root = "sd-root-modern";
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  panel.value = [{ q1: 1 }, { q1: 2 }, { q1: 3 }];
+  panel.currentIndex = 0;
+  assert.equal(panel.newPanelPosition, "next", "newPanelPosition #1");
+  const addBtn = panel.footerToolbar.getActionById("sv-pd-add-btn");
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #1");
+  assert.equal(addBtn.isVisible, true, "addBtn, #1");
+  panel.newPanelPosition = "last";
+  assert.equal(panel.visiblePanelCount, 3, "3 panels are visible");
+  assert.equal(panel.currentIndex, 0, "the first panel is showing");
+  assert.equal(panel.newPanelPosition, "last", "newPanelPosition #2");
+  assert.equal(panel.canAddPanel, false, "canAddPanel, #2");
+  assert.equal(addBtn.isVisible, false, "addBtn, #2");
+  panel.currentIndex = 2;
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #3");
+  assert.equal(addBtn.isVisible, true, "addBtn, #3");
+  panel.currentIndex = 1;
+  assert.equal(panel.canAddPanel, false, "canAddPanel, #4");
+  assert.equal(addBtn.isVisible, false, "addBtn, #4");
+  panel.newPanelPosition = "next";
+  assert.equal(panel.newPanelPosition, "next", "newPanelPosition #3");
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #5");
+  assert.equal(addBtn.isVisible, true, "addBtn, #5");
+  panel.addPanelUI();
+  assert.equal(panel.currentIndex, 2, "currentIndex is next");
+  assert.equal(panel.panelCount, 4, "4 panels");
+  assert.equal(panel.canAddPanel, true, "canAddPanel, #6");
+  assert.equal(addBtn.isVisible, true, "addBtn, #5");
+  survey.css.root = undefined;
 });
 QUnit.test("defaultValue in questions and set data", function (assert) {
   const survey = new SurveyModel({
@@ -6104,6 +6220,35 @@ QUnit.test("paneldynamic.removePanelUI & confirmActionAsync, #6736", function(as
   assert.deepEqual(panel.value, [{ q1: 1 }, { q1: 3 }], "Row is deleted correctly");
 
   settings.confirmActionAsync = prevAsync;
+});
+QUnit.test("paneldynamic confirmDelete and panelDefaultValue, isRequireConfirmOnDelete", function(assert) {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "paneldynamic",
+        name: "panel1",
+        panelCount: 2,
+        defaultPanelValue: { q1: 1, q2: 2 },
+        templateElements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" }
+        ]
+      }
+    ]
+  });
+  const panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel1");
+  assert.deepEqual(panel.value, [{ q1: 1, q2: 2 }, { q1: 1, q2: 2 }], "Initial value is correct");
+  assert.equal(panel.isRequireConfirmOnDelete(0), false, "#1");
+  panel.confirmDelete = true;
+  panel.panels[0].getQuestionByName("q1").value = 3;
+  assert.equal(panel.isRequireConfirmOnDelete(0), true, "#2");
+  assert.equal(panel.isRequireConfirmOnDelete(1), false, "#3");
+  assert.equal(panel.isRequireConfirmOnDelete(-1), false, "#4");
+  assert.equal(panel.isRequireConfirmOnDelete(2), false, "#5");
+
+  panel.panels[0].getQuestionByName("q1").clearValue();
+  panel.panels[0].getQuestionByName("q2").clearValue();
+  assert.equal(panel.isRequireConfirmOnDelete(0), false, "#6");
 });
 QUnit.test("panel property in custom function", function (assert) {
   const panelCustomFunc = function (params: any) {
@@ -6432,4 +6577,55 @@ QUnit.test("question.setValueIf, basic functionality", function (assert) {
   assert.equal(q2.value, "klm", "value is set, #5");
   q3.value = 5;
   assert.equal(q2.value, "klm", "value is set, #6");
+});
+QUnit.test("panel dynamic getPlainData & comment", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        templateElements: [
+          { name: "q1", type: "text" },
+          { name: "q2", type: "text" }
+        ],
+        showCommentArea: true
+      }
+    ]
+  });
+  const q = survey.getQuestionByName("panel");
+  q.value = [{ q1: 1, q2: 2 }, { q1: 3, q2: 4 }];
+  q.comment = "Some comments";
+  const data: any = survey.getPlainData();
+  const qData = data[0].data;
+  assert.equal(qData.length, 3, "There are 3 records");
+  assert.equal(qData[2].title, "Comment", "comment title");
+  assert.equal(qData[2].isComment, true, "comment isComment");
+});
+QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 1,
+        templateElements: [
+          { name: "q1", type: "dropdown", choices: [1, 2, 3], showOtherItem: true }
+        ]
+      }
+    ]
+  });
+  const dynamicPanel = survey.getQuestionByName("panel");
+  const panel = dynamicPanel.panels[0];
+  const question = panel.getQuestionByName("q1");
+  question.value = "other";
+  question.comment = "comment1";
+  assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment1" }], "panel.value #1");
+  question.value = 1;
+  assert.equal(question.value, 1, "question value is changed");
+  assert.notOk(question.comment, "comment is empty");
+  assert.deepEqual(dynamicPanel.value, [{ q1: 1 }], "panel.value #2");
+  question.value = "other";
+  assert.deepEqual(dynamicPanel.value, [{ q1: "other" }], "panel.value #3");
+  question.comment = "comment2";
+  assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment2" }], "panel.value #4");
 });

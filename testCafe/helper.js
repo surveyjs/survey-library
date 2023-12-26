@@ -98,7 +98,6 @@ export const initSurveyPopup = ClientFunction(
     const model = popupSurvey.survey;
     model.setDesignMode(isDesignMode);
 
-
     if (framework === "knockout") {
       popupSurvey.isExpanded = true;
       popupSurvey.allowClose = true;

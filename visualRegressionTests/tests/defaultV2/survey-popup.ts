@@ -15,20 +15,20 @@ const json = {
   "title": "Send Feedback to the SurveyJS team",
   "description": "Need help? Visit our support page.",
   "pages": [
-   {
-    "name": "page1",
-    "elements": [
-     {
-      "type": "comment",
-      "name": "feedback",
-      "title": "Describe your feedback",
-      "isRequired": true
-     }
-    ]
-   }
+    {
+      "name": "page1",
+      "elements": [
+        {
+          "type": "comment",
+          "name": "feedback",
+          "title": "Describe your feedback",
+          "isRequired": true
+        }
+      ]
+    }
   ],
   "showQuestionNumbers": "off"
- };
+};
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
@@ -37,7 +37,7 @@ frameworks.forEach(framework => {
       await applyTheme(theme);
     });
 
-  test.only("Check Survey-Popup", async (t) => {
+  test("Check Survey-Popup", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurveyPopup(framework, json);

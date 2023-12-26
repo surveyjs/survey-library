@@ -66,7 +66,7 @@ function createBoxShadowReset(result) {
   result.forEach((valueItem) => {
     valueItem.x = 0;
     valueItem.y = 0;
-    valueItem.blur = 0;
+    valueItem.radius = 0;
     valueItem.spread = 0;
   });
 

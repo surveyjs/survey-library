@@ -28,7 +28,7 @@ const Theme = {
     "--sjs-shadow-medium": "inset 0px 0px 0px 1px rgba(255, 255, 255, 0.05),0px 2px 6px 0px rgba(0, 0, 0, 0.2)",
     "--sjs-shadow-large": "0px 8px 16px 0px rgba(0, 0, 0, 0.2)",
     "--sjs-shadow-inner": "0px 0px 0px 1px rgba(255, 255, 255, 0.03),inset 0px 1px 4px 0px rgba(0, 0, 0, 0.2)",
-    "--sjs-shadow-inner-reset": "0px 0px 0px 0px rgba(255, 255, 255, 0.03),inset 0px 0px 4px 0px rgba(0, 0, 0, 0.2)",
+    "--sjs-shadow-inner-reset": "0px 0px 0px 0px rgba(255, 255, 255, 0.03),inset 0px 0px 0px 0px rgba(0, 0, 0, 0.2)",
     "--sjs-border-light": "rgba(54, 56, 69, 1)",
     "--sjs-border-default": "rgba(67, 69, 85, 1)",
     "--sjs-border-inside": "rgba(255, 255, 255, 0.08)",

@@ -17,7 +17,8 @@ import {
   ISurveyLayoutElement,
   IPlainDataOptions,
   LayoutElementContainer,
-  IValueItemCustomPropValues
+  IValueItemCustomPropValues,
+  ILoadFromJSONOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -5950,12 +5951,12 @@ export class SurveyModel extends SurveyElementCore
       page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }
   }
-  public fromJSON(json: any): void {
+  public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
     if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
     var jsonConverter = new JsonObject();
-    jsonConverter.toObject(json, this);
+    jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
     }
@@ -7574,7 +7575,7 @@ Serializer.addClass("survey", [
     onSetValue: function (obj: any, value: any, jsonConverter: any) {
       obj.pages.splice(0, obj.pages.length);
       var page = obj.addNewPage("");
-      jsonConverter.toObject({ questions: value }, page);
+      jsonConverter.toObject({ questions: value }, page, jsonConverter?.options);
     },
   },
   {

@@ -1,7 +1,7 @@
 import { surveyLocalization } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
-import { ConsoleWarnings } from "./console-warnings";
+import { ILoadFromJSONOptions } from "./base-interfaces";
 
 export interface IPropertyDecoratorOptions<T = any> {
   defaultValue?: T;
@@ -393,6 +393,11 @@ export class JsonObjectProperty implements IObject {
         obj[this.name] = value;
       }
     }
+  }
+  public validateValue(value: any): boolean {
+    const choices = this.choices;
+    if(!Array.isArray(choices) || choices.length === 0) return true;
+    return choices.indexOf(value) > -1;
   }
   public getObjType(objType: string) {
     if (!this.classNamePart) return objType;
@@ -1505,6 +1510,12 @@ export class JsonRequiredArrayPropertyError extends JsonError {
   }
 }
 
+export class JsonIncorrectPropertyValueError extends JsonError {
+  constructor(public property: JsonObjectProperty, public value: any) {
+    super("incorrectvalue", "The property value: '" + value + "' is incorrect for property '" + property.name + "'.");
+  }
+}
+
 export class JsonObject {
   private static typePropertyName = "type";
   private static positionPropertyName = "pos";
@@ -1514,17 +1525,18 @@ export class JsonObject {
   }
   public errors = new Array<JsonError>();
   public lightSerializing: boolean = false;
+  public options: ILoadFromJSONOptions;
   public toJsonObject(obj: any, storeDefaults = false): any {
     return this.toJsonObjectCore(obj, null, storeDefaults);
   }
-  public toObject(jsonObj: any, obj: any) {
-    this.toObjectCore(jsonObj, obj);
+  public toObject(jsonObj: any, obj: any, options?: ILoadFromJSONOptions): void {
+    this.toObjectCore(jsonObj, obj, options);
     var error = this.getRequiredError(obj, jsonObj);
     if (!!error) {
       this.addNewError(error, jsonObj, obj);
     }
   }
-  public toObjectCore(jsonObj: any, obj: any) {
+  public toObjectCore(jsonObj: any, obj: any, options?: ILoadFromJSONOptions): void {
     if (!jsonObj) return;
     var properties = null;
     var objType = undefined;
@@ -1540,6 +1552,7 @@ export class JsonObject {
       obj.startLoadingFromJson(jsonObj);
     }
     properties = this.addDynamicProperties(obj, jsonObj, properties);
+    this.options = options;
     for (var key in jsonObj) {
       if (key === JsonObject.typePropertyName) continue;
       if (key === JsonObject.positionPropertyName) {
@@ -1553,8 +1566,9 @@ export class JsonObject {
         }
         continue;
       }
-      this.valueToObj(jsonObj[key], obj, property, jsonObj);
+      this.valueToObj(jsonObj[key], obj, property, jsonObj, options);
     }
+    this.options = undefined;
     if (obj.endLoadingFromJson) {
       obj.endLoadingFromJson();
     }
@@ -1651,7 +1665,7 @@ export class JsonObject {
       }
     }
   }
-  public valueToObj(value: any, obj: any, property: JsonObjectProperty, jsonObj?: any): void {
+  public valueToObj(value: any, obj: any, property: JsonObjectProperty, jsonObj?: any, options?: ILoadFromJSONOptions): void {
     if (value === null || value === undefined) return;
     this.removePos(property, value);
     if (property != null && property.hasToUseSetValue) {
@@ -1664,17 +1678,22 @@ export class JsonObject {
       this.addNewError(new JsonRequiredArrayPropertyError(propName, obj.getType()), !!jsonObj ? jsonObj: value, obj);
     }
     if (this.isValueArray(value)) {
-      this.valueToArray(value, obj, property.name, property);
+      this.valueToArray(value, obj, property.name, property, options);
       return;
     }
     var newObj = this.createNewObj(value, property);
     if (newObj.newObj) {
-      this.toObjectCore(value, newObj.newObj);
+      this.toObjectCore(value, newObj.newObj, options);
       value = newObj.newObj;
     }
     if (!newObj.error) {
       if (property != null) {
         property.setValue(obj, value, this);
+        if(!!options && options.validatePropertyValues) {
+          if(!property.validateValue(value)) {
+            this.addNewError(new JsonIncorrectPropertyValueError(property, value), jsonObj, obj);
+          }
+        }
       } else {
         obj[property.name] = value;
       }
@@ -1785,19 +1804,21 @@ export class JsonObject {
     value: Array<any>,
     obj: any,
     key: any,
-    property: JsonObjectProperty
+    property: JsonObjectProperty,
+    options?: ILoadFromJSONOptions
   ) {
     if (obj[key] && !this.isValueArray(obj[key]))
       return;
     if (obj[key] && value.length > 0) obj[key].splice(0, obj[key].length);
     var valueRes = obj[key] ? obj[key] : [];
-    this.addValuesIntoArray(value, valueRes, property);
+    this.addValuesIntoArray(value, valueRes, property, options);
     if (!obj[key]) obj[key] = valueRes;
   }
   private addValuesIntoArray(
     value: Array<any>,
     result: Array<any>,
-    property: JsonObjectProperty
+    property: JsonObjectProperty,
+    options?: ILoadFromJSONOptions
   ) {
     for (var i = 0; i < value.length; i++) {
       var newValue = this.createNewObj(value[i], property);
@@ -1809,7 +1830,7 @@ export class JsonObject {
           newValue.newObj.valueName = value[i].valueName.toString();
         }
         result.push(newValue.newObj);
-        this.toObjectCore(value[i], newValue.newObj);
+        this.toObjectCore(value[i], newValue.newObj, options);
       } else {
         if (!newValue.error) {
           result.push(value[i]);

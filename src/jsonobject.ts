@@ -1689,7 +1689,7 @@ export class JsonObject {
     if (!newObj.error) {
       if (property != null) {
         property.setValue(obj, value, this);
-        if(!!options && options.validateValues) {
+        if(!!options && options.validate) {
           if(!property.validateValue(value)) {
             this.addNewError(new JsonIncorrectPropertyValueError(property, value), jsonObj, obj);
           }

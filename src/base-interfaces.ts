@@ -389,5 +389,5 @@ export interface IPlainDataOptions {
   }>;
 }
 export interface ILoadFromJSONOptions {
-  validateValues?: boolean;
+  validate?: boolean;
 }

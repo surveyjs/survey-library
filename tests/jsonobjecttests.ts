@@ -3093,7 +3093,7 @@ QUnit.test("Validated property values", function (assert) {
     elements: [
       { type: "text", name: "q1", textUpdateMode: "edf" }
     ]
-  }, { validateValues: true });
+  }, { validate: true });
   assert.equal(survey.getAllQuestions().length, 1, "We have one question loaded");
   assert.equal(survey.jsonErrors.length, 2, "There are two errors");
   assert.equal(survey.jsonErrors[0].message, "The property value: 'abc' is incorrect for property 'clearInvisibleValues'.", "errors[0].message");

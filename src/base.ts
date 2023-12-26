@@ -398,6 +398,8 @@ export class Base {
    * The JSON object should contain only serializable properties of this SurveyJS object. Event handlers and properties that do not belong to the SurveyJS object are ignored.
    *
    * @param json A JSON object with properties that you want to apply to the current SurveyJS object.
+   * @param options An object with configuration options.
+   * @param {boolean} options.validate Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors.
    * @see toJSON
    */
   public fromJSON(json: any, options?: ILoadFromJSONOptions): void {

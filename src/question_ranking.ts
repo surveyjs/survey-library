@@ -141,8 +141,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 
+    if (this.unrankIfChoicesChanged) {
+      this.value = [];
+    }
+
     // ranking question with only one choice doesn't make sense
-    if (this.visibleChoices.length === 1) {
+    if (this.visibleChoices.length === 1 && !this.selectToRankEnabled) {
       this.value = [];
       this.value.push(this.visibleChoices[0].value);
       this.updateRankingChoices();
@@ -491,6 +495,18 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   }
 
   /**
+   * Unraked all items (remove value) if choices dynamically changed (e.g. with carry forward)
+   *
+   * Default value: `false`
+  */
+  public get unrankIfChoicesChanged(): boolean {
+    return this.getPropertyValue("unrankIfChoicesChanged", false);
+  }
+  public set unrankIfChoicesChanged(val: boolean) {
+    this.setPropertyValue("unrankIfChoicesChanged", val);
+  }
+
+  /**
    * Specifies the layout of the ranked and unranked areas. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
    *
    * Possible values:
@@ -601,6 +617,12 @@ Serializer.addClass(
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;
       },
+    },
+    {
+      name: "unrankIfChoicesChanged:switch",
+      default: false,
+      visible: false,
+      isSerializable: true,
     },
     {
       name: "maxSelectedChoices:number",

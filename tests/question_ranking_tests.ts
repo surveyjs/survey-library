@@ -178,6 +178,29 @@ QUnit.test("Ranking: Carry Forward and hasOther", function(assert) {
   assert.equal(q2.visibleChoices[2].value, "other", "other value");
   assert.equal(q2.visibleChoices[2].text, "someText", "other text");
 });
+QUnit.test("Ranking: Carry Forward and unrankIfChoicesChanged", function(assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5], hasOther: true },
+      {
+        type: "ranking",
+        name: "q2",
+        choicesFromQuestion: "q1",
+        choicesFromQuestionMode: "selected",
+      },
+    ],
+  });
+  var checkboxQuestion = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  var rankingQuestion = <QuestionRankingModel>survey.getQuestionByName("q2");
+
+  checkboxQuestion.value = [1];
+  checkboxQuestion.value = [1, 2];
+  assert.equal(rankingQuestion.value.length, 2, "rank items by default");
+
+  rankingQuestion.unrankIfChoicesChanged = true;
+  checkboxQuestion.value = [1, 2, 3];
+  assert.equal(rankingQuestion.value.length, 0, "unrank items after choices changed");
+});
 QUnit.test("Ranking: CorrectAnswer, Bug#3720", function(assert) {
   var survey = new SurveyModel({
     elements: [

@@ -1,4 +1,5 @@
 @import "../variables.scss";
+
 .sd-file {
   position: relative;
   font-size: calcFontSize(1);
@@ -6,7 +7,7 @@
   min-height: calcSize(36);
   box-sizing: border-box;
   padding: 0 calcSize(6);
-  
+
   .sv-action-bar {
     padding: calcSize(1) 0;
     justify-content: center;
@@ -58,6 +59,7 @@
     container-type: unset;
   }
 }
+
 .sd-file__decorator--drag {
   z-index: 1;
   border: 1px solid $primary;
@@ -89,6 +91,7 @@
   .sd-file__drag-area-placeholder {
     display: none;
   }
+
   .sd-file__decorator .sd-action {
     padding: calcSize(1);
 
@@ -170,18 +173,107 @@
   inset-inline-end: calc(multiply(1.5, $font-editorfont-size) + calcSize(5));
 }
 
+
 .sd-file__list {
   display: flex;
-  gap: calcSize(4);
+  position: relative;
+  overflow: hidden;
   box-sizing: content-box;
   flex-direction: row;
-  align-items: stretch;
-  justify-content: center;
   padding: calcSize(10.5) 0;
   min-height: calcSize(15);
   max-height: calcSize(15);
   width: 100%;
 }
+
+.sd-file__page {
+  display: flex;
+  left: 0;
+  align-items: stretch;
+  justify-content: center;
+  gap: calcSize(4);
+  height: calc(100% - 21 * #{$base-unit});
+  width: 100%;
+  position: absolute;
+}
+
+.sd-file__page--hidden {
+  display: none;
+}
+
+@keyframes file-page-to-right {
+  from {
+    opacity: 1;
+    left: 0
+  }
+
+  to {
+    opacity: 0;
+    left: 100%;
+  }
+}
+
+
+@keyframes file-page-from-right {
+  from {
+    opacity: 0;
+    left: 100%
+  }
+
+  to {
+    opacity: 1;
+    left: 0;
+  }
+}
+
+@keyframes file-page-from-left {
+  from {
+    opacity: 0;
+    left: -100%
+  }
+
+  to {
+    opacity: 1;
+    left: 0;
+  }
+}
+
+@keyframes file-page-to-left {
+  from {
+    opacity: 1;
+    left: 0
+  }
+
+  to {
+    opacity: 0;
+    left: -100%;
+  }
+}
+
+.sd-file__page--leave-right,
+.sd-file__page--enter-right,
+.sd-file__page--leave-left,
+.sd-file__page--enter-left {
+  animation-duration: 0.5s;
+  animation-fill-mode: forwards;
+}
+
+.sd-file__page--leave-right {
+  animation-name: file-page-to-right;
+}
+
+.sd-file__page--enter-right {
+  animation-name: file-page-from-right;
+}
+
+.sd-file__page--leave-left {
+  animation-name: file-page-to-left;
+}
+
+.sd-file__page--enter-left {
+  animation-name: file-page-from-left;
+}
+
 
 .sd-file__preview {
   position: relative;
@@ -190,6 +282,8 @@
   flex-direction: column;
   min-height: 100%;
   width: calcSize(12);
+  transition-property: margin;
+  transition-duration: 1s;
   margin: 0;
 
   .sd-file__default-image {
@@ -206,6 +300,14 @@
     top: 50%;
     transform: translate(-50%, -50%);
   }
+}
+
+.hidden-left {
+  margin-right: 100%;
+}
+
+.hidden-right {
+  margin-left: 100%
 }
 
 .sd-file__sign {

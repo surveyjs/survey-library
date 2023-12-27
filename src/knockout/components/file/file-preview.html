@@ -1,26 +1,6 @@
 <!-- ko if: question.koHasValue && question.showPreviewContainer -->
-<div data-bind="css: question.cssClasses.fileList, foreach: question.koData, visible: question.koHasValue">
-  <span data-bind="visible: question.isPreviewVisible($index()), css: question.cssClasses.preview">
-    <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSign} } --><!-- /ko -->
-    <div data-bind="css: question.getImageWrapperCss($data)">
-      <!-- ko if: question.canPreviewImage($data) -->
-      <img data-bind="attr: { src: $data.content }, style : { height: question.imageHeight, width: question.imageWidth }" alt="File preview">
-      <!-- /ko -->
-      <!-- ko if: question.defaultImage($data) -->
-      <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.defaultImage, iconName: question.cssClasses.defaultImageIconId, size: 'auto' } } --><!-- /ko -->
-      <!-- /ko -->
-      <!-- ko if: $data.name -->
-      <!-- ko ifnot: question.isReadOnly -->
-      <div data-bind="click: question.doremovefile, css: question.getRemoveButtonCss()">
-          <span data-bind="css: question.cssClasses.removeFile, text: question.removeFileCaption"></span>
-          <!-- ko if: question.cssClasses.removeFileSvgIconId -->
-            <!-- ko component: { name: 'sv-svg-icon', params: { css: question.cssClasses.removeFileSvg, title: question.removeFileCaption, iconName: question.cssClasses.removeFileSvgIconId, size: 'auto' } } --><!-- /ko -->
-          <!-- /ko -->
-      </div>
-      <!-- /ko -->
-      <!-- /ko -->
-    </div>
-    <!-- ko template: { name: 'survey-question-file-sign', data: {question: question, item: $data, fileSignCss: question.cssClasses.fileSignBottom} } --><!-- /ko -->
-  </span>
+<div data-bind="css: question.cssClasses.fileList, foreach: question.pages, visible: question.koHasValue">
+  <!-- ko component: { name: 'sv-file-page', params: { model: $data } } -->
+  <!-- /ko -->
 </div>
 <!-- /ko -->

@@ -624,6 +624,7 @@ export var defaultV2Css = {
     changeCameraButton: "sd-file__change-camera-button",
     takePictureButton: "sd-file__take-picture-button",
     loadingIndicator: "sd-file__loading-indicator",
+    page: "sd-file__page"
   },
   signaturepad: {
     mainRoot: "sd-element sd-question sd-question--signature sd-row__question",

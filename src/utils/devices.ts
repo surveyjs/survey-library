@@ -30,7 +30,6 @@ let _IPad = false;
 
 export const IsMobile = _isMobile || _IPad;
 
-
 export function getIsTouch() {
   let _isTouch = false;
 

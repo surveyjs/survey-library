@@ -30,14 +30,17 @@ let _IPad = false;
 
 export const IsMobile = _isMobile || _IPad;
 
-// isTouch
-let _isTouch = false;
+export function getIsTouch() {
+  let _isTouch = false;
 
-if (typeof window !== "undefined") {
-  _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
+  if (typeof window !== "undefined") {
+    _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
+  }
+
+  return _isTouch;
 }
 
-export let IsTouch = IsMobile && _isTouch;
+export let IsTouch = getIsTouch();
 
 //for tests
 export function _setIsTouch(val: boolean): void {

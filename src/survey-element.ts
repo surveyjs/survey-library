@@ -520,7 +520,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};
   }
-  @property() cssClassesValue: any;
+  public get cssClassesValue(): any {
+    return this.getPropertyValueWithoutDefault("cssClassesValue");
+  }
+  public set cssClassesValue(val: any) {
+    this.setPropertyValue("cssClassesValue", val);
+  }
   private ensureCssClassesValue() {
     if (!this.cssClassesValue) {
       this.cssClassesValue = this.calcCssClasses(this.css);
@@ -559,7 +564,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
-    return this.survey ? this.survey.isLoadingFromJson : false;
+    return this.surveyValue ? this.surveyValue.isLoadingFromJson : false;
   }
   /**
    * A survey element identifier.

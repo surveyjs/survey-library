@@ -65,7 +65,7 @@
                     </svg> 
                   </span>
                 </span>
-                <span v-show="question.isMobile" :class="question.cssClasses.cellResponsiveTitle">
+                <span v-if="question.isMobile" :class="question.cssClasses.cellResponsiveTitle">
                   <survey-string :locString="column.locText"></survey-string>
                 </span>
               </label>

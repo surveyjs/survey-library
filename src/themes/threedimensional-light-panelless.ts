@@ -28,6 +28,7 @@ const Theme = {
     "--sjs-shadow-medium": "0px 0px 0px 2px rgba(228, 228, 228, 1),0px 8px 0px 2px rgba(228, 228, 228, 1)",
     "--sjs-shadow-large": "0px 0px 0px 0px rgba(0, 0, 0, 0.1)",
     "--sjs-shadow-inner": "0px 0px 0px 2px rgba(228, 228, 228, 1),0px -2px 0px 2px rgba(228, 228, 228, 1)",
+    "--sjs-shadow-inner-reset": "0px 0px 0px 0px rgba(228, 228, 228, 1),0px 0px 0px 0px rgba(228, 228, 228, 1)",
     "--sjs-border-light": "rgba(0, 0, 0, 0.08)",
     "--sjs-border-default": "rgba(0, 0, 0, 0.08)",
     "--sjs-border-inside": "rgba(0, 0, 0, 0.16)",

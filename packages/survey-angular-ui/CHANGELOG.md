@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.123](https://github.com/surveyjs/surveyjs/compare/v1.9.122...v1.9.123) (2023-12-27)
+
+## [1.9.122](https://github.com/surveyjs/surveyjs/compare/v1.9.121...v1.9.122) (2023-12-20)
+
+
+### Bug Fixes
+
+* Prevent clear other questions when name equals other value name ([aafad36](https://github.com/surveyjs/surveyjs/commit/aafad36dc7258a2180a77f5d2edb973a76f4be6a))
+* Use valueName getter instead ([a077429](https://github.com/surveyjs/surveyjs/commit/a07742941627eea82848c16ebb6773848aaf37d5))
+
 ## [1.9.121](https://github.com/surveyjs/surveyjs/compare/v1.9.120...v1.9.121) (2023-12-12)
 
 ## [1.9.120](https://github.com/surveyjs/surveyjs/compare/v1.9.119...v1.9.120) (2023-12-05)

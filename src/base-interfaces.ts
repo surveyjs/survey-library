@@ -388,3 +388,6 @@ export interface IPlainDataOptions {
     propertyName: string,
   }>;
 }
+export interface ILoadFromJSONOptions {
+  validatePropertyValues?: boolean;
+}

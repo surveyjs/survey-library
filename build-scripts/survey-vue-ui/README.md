@@ -1,7 +1,7 @@
 # SurveyJS Vue Form Library (Vue 2)
 
 
-https://github.com/surveyjs/survey-library/assets/22315929/f2bb0746-f5b8-4117-b48f-bbc2d04fa670
+<video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
 
 
 [![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)

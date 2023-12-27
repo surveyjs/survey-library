@@ -9,7 +9,7 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { IElement, IFindElement, IProgressInfo, ISurvey } from "./base-interfaces";
+import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { surveyLocalization } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
@@ -19,7 +19,6 @@ interface IExpressionRunnerInfo {
   canRun?: (obj: Base) => boolean;
   runner?: ExpressionRunner;
 }
-
 export class Bindings {
   private properties: Array<JsonObjectProperty> = null;
   private values: any = null;
@@ -402,10 +401,12 @@ export class Base {
    * The JSON object should contain only serializable properties of this SurveyJS object. Event handlers and properties that do not belong to the SurveyJS object are ignored.
    *
    * @param json A JSON object with properties that you want to apply to the current SurveyJS object.
+   * @param options An object with configuration options.
+   * @param {boolean} options.validatePropertyValues Pass `true` if you want to validate property values. Use the [`jsonErrors`](#jsonErrors) array to access validation errors.
    * @see toJSON
    */
-  public fromJSON(json: any): void {
-    new JsonObject().toObject(json, this);
+  public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
+    new JsonObject().toObject(json, this, options);
     this.onSurveyLoad();
   }
   public onSurveyLoad() { }

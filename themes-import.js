@@ -33,7 +33,7 @@ function createBoxShadow(value) {
   return value.map((val => `${val["type"] === "innerShadow" ? "inset " : ""}${val.x}px ${val.y}px ${val.radius}px ${val.spread}px ${val.color}`
   )).join(",");
 }
-function getShadowSettings(shadowGroup) {
+function getShadowSettings(shadowGroup, isReset = false) {
   let result = [];
   const parseShadowSettings = (settings => {
     const _result = {};
@@ -56,7 +56,21 @@ function getShadowSettings(shadowGroup) {
   } else {
     result = [parseShadowSettings(shadowGroup)];
   }
+  if (isReset) {
+    result = createBoxShadowReset(result);
+  }
   return createBoxShadow(result);
+}
+
+function createBoxShadowReset(result) {
+  result.forEach((valueItem) => {
+    valueItem.x = 0;
+    valueItem.y = 0;
+    valueItem.radius = 0;
+    valueItem.spread = 0;
+  });
+
+  return result;
 }
 
 if(!!MikeThemes["article"] && Object.keys(MikeThemes["article"]).length > 0) {
@@ -122,6 +136,7 @@ Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf
     themes[displayThemeName]["--sjs-shadow-medium"] = shadowGroup["medium"] ? getShadowSettings(shadowGroup["medium"]) : undefined;
     themes[displayThemeName]["--sjs-shadow-large"] = shadowGroup["large"] ? getShadowSettings(shadowGroup["large"]) : undefined;
     themes[displayThemeName]["--sjs-shadow-inner"] = shadowGroup["inner"] ? getShadowSettings(shadowGroup["inner"]) : undefined;
+    themes[displayThemeName]["--sjs-shadow-inner-reset"] = shadowGroup["inner"] ? getShadowSettings(shadowGroup["inner"], true) : undefined;
   }
   if(!!bordersGroup) {
     themes[displayThemeName]["--sjs-border-light"] = bordersGroup["light-border"] ? bordersGroup["light-border"]["value"] : undefined;

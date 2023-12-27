@@ -506,11 +506,8 @@ export class QuestionSelectBase extends Question {
       this.value = val;
     }
   }
-  protected setQuestionValue(
-    newValue: any,
-    updateIsAnswered: boolean = true,
-    updateComment: boolean = true
-  ) {
+  private makeCommentEmpty: boolean;
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true, updateComment: boolean = true): void {
     if (
       this.isLoadingFromJson ||
       this.isTwoValueEquals(this.value, newValue)
@@ -530,7 +527,16 @@ export class QuestionSelectBase extends Question {
       if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
         this.prevOtherValue = this.otherValue;
       }
-      this.otherValue = "";
+      this.makeCommentEmpty = true;
+      this.otherValueCore = "";
+      this.setPropertyValue("comment", "");
+    }
+  }
+  protected setValueCore(newValue: any): void {
+    super.setValueCore(newValue);
+    if(this.makeCommentEmpty) {
+      this.setCommentIntoData("");
+      this.makeCommentEmpty = false;
     }
   }
   protected setNewValue(newValue: any) {
@@ -645,9 +651,9 @@ export class QuestionSelectBase extends Question {
    */
   public clearIncorrectValuesCallback: () => void;
   /**
-   * Configures access to a RESTful service that returns choice items. Refer to the [ChoicesRestful](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information.
+   * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/dropdown-menu-load-data-from-restful-service/ (linkStyle))
    * @see choices
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */

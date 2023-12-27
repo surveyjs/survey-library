@@ -65,3 +65,4 @@ This approach gives you the following advantages:
 - [Create Composite Question Types](/form-library/documentation/customize-question-types/create-composite-question-types)
 - [Integrate Third-Party React Components](/form-library/documentation/customize-question-types/third-party-component-integration-react)
 - [Integrate Third-Party Angular Components](/form-library/documentation/customize-question-types/third-party-component-integration-angular)
+- [Integrate Third-Party Vue 3 Components](/form-library/documentation/customize-question-types/third-party-component-integration-vue)

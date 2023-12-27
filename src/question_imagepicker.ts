@@ -272,10 +272,8 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
    *
    * Possible values:
    *
-   * - `"image"` - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
+   * - `"image"` (default) - Images in one of the following formats: JPEG, GIF, PNG, APNG, SVG, BMP, ICO.
    * - `"video"` - Videos in one of the following formats: MP4, MOV, WMV, FLV, AVI, MKV.
-   * - `"youtube"` - Links to YouTube videos.
-   * - `"auto"` (default) - Selects one of the above based on the `imageLink` property value of each choice item.
    */
   public get contentMode(): string {
     return this.getPropertyValue("contentMode");

@@ -17,7 +17,8 @@ import {
   ISurveyLayoutElement,
   IPlainDataOptions,
   LayoutElementContainer,
-  IValueItemCustomPropValues
+  IValueItemCustomPropValues,
+  ILoadFromJSONOptions
 } from "./base-interfaces";
 import { SurveyElementCore, SurveyElement } from "./survey-element";
 import { surveyCss } from "./defaultCss/defaultV2Css";
@@ -1800,7 +1801,7 @@ export class SurveyModel extends SurveyElementCore
    * [Survey Localization demo](https://surveyjs.io/form-library/examples/survey-localization/ (linkStyle))
    */
   public get locale(): string {
-    return this.getPropertyValue("locale", surveyLocalization.currentLocale);
+    return this.getPropertyValueWithoutDefault("locale") || surveyLocalization.currentLocale;
   }
   public set locale(value: string) {
     if (value === surveyLocalization.defaultLocale && !surveyLocalization.currentLocale) {
@@ -2113,6 +2114,7 @@ export class SurveyModel extends SurveyElementCore
     if (newVal !== this._isCompact) {
       this._isCompact = newVal;
       this.updateElementCss();
+      this.triggerResponsiveness(true);
     }
   }
   private get isCompact() {
@@ -2755,7 +2757,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Merges a specified data object with the object from the [`data`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#data) property.
    *
-   * Refer to the following help topic for more information: [Merge Question Values](https://surveyjs.io/form-library/documentation/design-survey/merge-question-values).
+   * Refer to the following help topic for more information: [Populate Form Fields | Multiple Question Values](https://surveyjs.io/form-library/documentation/design-survey/pre-populate-form-fields#multiple-question-values).
    *
    * @param data A data object to merge. It should have the following structure: `{ questionName: questionValue, ... }`
    * @see setValue
@@ -3751,20 +3753,15 @@ export class SurveyModel extends SurveyElementCore
     var visPages = this.visiblePages;
     var firstErrorPage = null;
     var res = true;
+    const rec = { fireCallback: fireCallback, focuseOnFirstError: focusOnFirstError, firstErrorQuestion: <any>null, result: false };
     for (var i = 0; i < visPages.length; i++) {
-      if (!visPages[i].validate(fireCallback, false)) {
+      if (!visPages[i].validate(fireCallback, focusOnFirstError, rec)) {
         if (!firstErrorPage) firstErrorPage = visPages[i];
         res = false;
       }
     }
-    if (focusOnFirstError && !!firstErrorPage) {
-      const questions = firstErrorPage.getQuestions(true);
-      for (let i = 0; i < questions.length; i++) {
-        if (questions[i].errors.length > 0) {
-          questions[i].focus(true);
-          break;
-        }
-      }
+    if (focusOnFirstError && !!firstErrorPage && !!rec.firstErrorQuestion) {
+      rec.firstErrorQuestion.focus(true);
     }
     if (!res || !onAsyncValidation) return res;
     return this.checkForAsyncQuestionValidation(
@@ -5954,12 +5951,12 @@ export class SurveyModel extends SurveyElementCore
       page.num = isPageVisible ? page.visibleIndex + 1 : -1;
     }
   }
-  public fromJSON(json: any): void {
+  public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
     if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
     var jsonConverter = new JsonObject();
-    jsonConverter.toObject(json, this);
+    jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
     }
@@ -7362,7 +7359,7 @@ export class SurveyModel extends SurveyElementCore
   public getContainerContent(container: LayoutElementContainer) {
     const containerLayoutElements = [];
     for (let layoutElement of this.layoutElements) {
-      if (isStrCiEqual(layoutElement.id, "timerpanel")) {
+      if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
         if (container === "header") {
           if (this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
@@ -7578,7 +7575,7 @@ Serializer.addClass("survey", [
     onSetValue: function (obj: any, value: any, jsonConverter: any) {
       obj.pages.splice(0, obj.pages.length);
       var page = obj.addNewPage("");
-      jsonConverter.toObject({ questions: value }, page);
+      jsonConverter.toObject({ questions: value }, page, jsonConverter?.options);
     },
   },
   {

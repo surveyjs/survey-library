@@ -285,3 +285,4 @@ Survey.ComponentCollection.Instance.add({
 - [Create Specialized Question Types](/form-library/documentation/customize-question-types/create-specialized-question-types)
 - [Integrate Third-Party React Components](/form-library/documentation/customize-question-types/third-party-component-integration-react)
 - [Integrate Third-Party Angular Components](/form-library/documentation/customize-question-types/third-party-component-integration-angular)
+- [Integrate Third-Party Vue 3 Components](/form-library/documentation/customize-question-types/third-party-component-integration-vue)

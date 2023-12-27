@@ -2,6 +2,7 @@ import { Serializer } from "../src/jsonobject";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionMatrixDropdownModelBase } from "../src/question_matrixdropdownbase";
 import { MatrixDropdownColumn } from "../src/question_matrixdropdowncolumn";
+import { QuestionTagboxModel } from "../src/question_tagbox";
 import { SurveyModel } from "../src/survey";
 export * from "../src/localization/german";
 
@@ -1042,4 +1043,34 @@ QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function
   assert.equal(panelQuestion.choicesMin, 1, "choicesMin is here");
   assert.equal(panelQuestion.choicesMax, 10, "choicesMax is here");
   assert.equal(panelQuestion.visibleChoices.length, 12, "cell question visibleChoices");
+});
+QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdropdown",
+        "name": "matrix1",
+        "columns": [{ "name": "col1" }],
+        "choices": [1, 2, 3],
+        "cellType": "tagbox",
+        "rows": ["Row 1"]
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "matrix2",
+        "columns": [{ "name": "col1", "cellType": "tagbox" }],
+        "choices": [1, 2, 3, 4],
+      }
+    ]
+  });
+  const matrix1 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix1");
+  const matrix2 = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix2");
+  const row1 = matrix1.visibleRows[0];
+  const row2 = matrix2.visibleRows[0];
+  const cellQuestion1 = <QuestionTagboxModel>row1.cells[0].question;
+  const cellQuestion2 = <QuestionTagboxModel>row2.cells[0].question;
+  assert.equal(cellQuestion1.getType(), "tagbox", "type #1");
+  assert.equal(cellQuestion2.getType(), "tagbox", "type #2");
+  assert.equal(cellQuestion1.choices.length, 3, "choices #1");
+  assert.equal(cellQuestion2.choices.length, 4, "choices #2");
 });

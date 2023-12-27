@@ -68,6 +68,23 @@ export default QUnit.module("Survey");
 
 settings.autoAdvanceDelay = 0;
 
+function getContainerContentFunction(survey: SurveyModel) {
+  return (container: LayoutElementContainer) => {
+    const content = survey.getContainerContent(container);
+    const result: Array<any> = [];
+    content.forEach(item => {
+      const resItem: any = {};
+      Object.keys(item).forEach(key => {
+        if (["data", "processResponsiveness"].indexOf(key) === -1) {
+          resItem[key] = item[key];
+        }
+      });
+      result.push(resItem);
+    });
+    return result;
+  };
+}
+
 QUnit.test("set data property", function (assert) {
   var survey = new SurveyModel();
   assert.deepEqual(survey.data, {}, "there is no data");
@@ -13928,6 +13945,39 @@ QUnit.test(
     SurveyElement.FocusElement = oldFunc;
   }
 );
+QUnit.test("Focus errored question when checkErrorsMode: `onComplete` & panel required", function (assert) {
+  var focusedQuestionId = "";
+  const oldFunc = SurveyElement.FocusElement;
+  SurveyElement.FocusElement = function (elId: string): boolean {
+    focusedQuestionId = elId;
+    return true;
+  };
+  const survey = new SurveyModel({
+    checkErrorsMode: "onComplete",
+    pages: [
+      {
+        elements: [
+          {
+            type: "panel", name: "panel1", isRequired: true,
+            elements: [{ type: "text", name: "q1" }]
+          }
+        ],
+      },
+      {
+        elements: [{ type: "text", name: "q2" }],
+      },
+      {
+        elements: [{ type: "text", name: "q3" }],
+      },
+    ],
+  });
+  survey.nextPage();
+  survey.nextPage();
+  survey.completeLastPage();
+  assert.equal(survey.currentPageNo, 0, "comeback to the first page");
+  assert.equal(survey.getQuestionByName("q1").inputId, focusedQuestionId, "panel is required");
+  SurveyElement.FocusElement = oldFunc;
+});
 QUnit.test(
   "onServerValidateQuestions doesn't get called for the last page when showPreviewBeforeComplete is set, Bug#2546",
   function (assert) {
@@ -18452,20 +18502,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
 
   let survey = new SurveyModel(json);
   survey.headerView = "advanced";
-  function getContainerContent(container: LayoutElementContainer) {
-    const content = survey.getContainerContent(container);
-    const result: Array<any> = [];
-    content.forEach(item => {
-      const resItem: any = {};
-      Object.keys(item).forEach(key => {
-        if (["data", "processResponsiveness"].indexOf(key) === -1) {
-          resItem[key] = item[key];
-        }
-      });
-      result.push(resItem);
-    });
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "none");
   assert.equal(survey.progressBarType, "pages");
@@ -18523,4 +18560,98 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "progress top left");
   assert.deepEqual(getContainerContent("right"), [], "progress top right");
+});
+
+QUnit.test("getContainerContent - do not show timer panel in display mode", function (assert) {
+  const json = {
+    "pages": [
+      {
+        "name": "Seite1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "true",
+              },
+              {
+                "value": "false",
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "maxTimeToFinish": 10,
+    "showTimerPanel": "top",
+    "showTimerPanelMode": "survey"
+  };
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-timerpanel",
+    "id": "timerpanel",
+    "template": "survey-timerpanel"
+  }], "default header");
+  assert.deepEqual(getContainerContent("center"), [], "default center");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+
+  survey.mode = "display";
+  assert.deepEqual(getContainerContent("header"), [], "default header");
+  assert.deepEqual(getContainerContent("center"), [], "default center");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+});
+
+QUnit.test("Check triggerReponsiveness is called when isCompact changed", function (assert) {
+  const json = {
+    title: "My Survey",
+    showNavigationButtons: "none",
+    pages: [
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  let log = "";
+  survey.getAllQuestions().forEach(q => {
+    q["triggerResponsivenessCallback"] = (hard: boolean) => {
+      log += `->${q.name}:${hard}`;
+    };
+  });
+  survey["isCompact"] = true;
+  assert.equal(log, "->q1:true->q2:true");
+  log = "";
+  survey["isCompact"] = false;
+  assert.equal(log, "->q1:true->q2:true");
 });

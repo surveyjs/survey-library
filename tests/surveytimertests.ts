@@ -434,3 +434,36 @@ QUnit.test("Check timer when limits are not specified", function(assert) {
   assert.strictEqual(timerModel.clockMinorText, undefined);
   survey.stopTimer();
 });
+
+QUnit.test("Progress shouldn't be more than 1", function (assert) {
+  const createSurvey = (maxTimeToFinish: number, maxTimeToFinishPage: number): SurveyModel => {
+    var survey = new SurveyModel();
+    survey.maxTimeToFinish = maxTimeToFinish;
+    survey.maxTimeToFinishPage = maxTimeToFinishPage;
+    survey.addNewPage("p1");
+    survey.pages[0].addNewQuestion("text");
+    return survey;
+  };
+  var survey = createSurvey(3, 3);
+  const timerModel = survey.timerModel;
+  survey.startTimer();
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 0, "initial spent");
+  assert.equal(timerModel.progress, 0, "initial progress");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 1, "spent 1");
+  assert.equal(timerModel.progress, 0.66, "progress 1");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 2, "spent 2");
+  assert.equal(timerModel.progress, 1, "progress 2");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 3, "spent 3");
+  assert.equal(timerModel.progress, undefined, "progress 3");
+  doTimer(1);
+  assert.equal(survey.timerInfo.limit, 3);
+  assert.equal(survey.timerInfo.spent, 3, "spent 4");
+  assert.equal(timerModel.progress, undefined, "progress 4");
+});

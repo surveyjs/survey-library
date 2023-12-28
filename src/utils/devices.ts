@@ -32,11 +32,10 @@ export const IsMobile = _isMobile || _IPad;
 
 export var mouseInfo = {
   get isTouch(): boolean {
-    if(this.hasMouse) return false;
-    return this.hasTouchEvent;
+    return !this.hasMouse && this.hasTouchEvent;
   },
   get hasTouchEvent(): boolean {
-    return typeof window !== "undefined" && "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
+    return typeof window !== "undefined" && ("ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0);
   },
   hasMouse: true
 };

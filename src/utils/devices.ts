@@ -40,7 +40,10 @@ export function getIsTouch() {
   return _isTouch;
 }
 
-export let IsTouch = IsMobile && getIsTouch();
+const pointerMatches = (!!matchMedia && matchMedia("(pointer:fine)")) || undefined;
+const hasMouse = !!pointerMatches && !!pointerMatches.matches;
+
+export let IsTouch = !hasMouse && getIsTouch();
 
 //for tests
 export function _setIsTouch(val: boolean): void {

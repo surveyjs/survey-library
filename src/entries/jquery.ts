@@ -22,7 +22,7 @@ jQuery["fn"].extend({
       var model: Survey = props.model;
       model.updateSurvey(props);
       model.render(this);
-    });
+    } as any);
   },
   PopupSurvey: doPopupSurvey,
   SurveyWindow: doPopupSurvey

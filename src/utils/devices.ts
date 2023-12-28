@@ -40,7 +40,7 @@ export function getIsTouch() {
   return _isTouch;
 }
 
-export let IsTouch = getIsTouch();
+export let IsTouch = IsMobile && getIsTouch();
 
 //for tests
 export function _setIsTouch(val: boolean): void {

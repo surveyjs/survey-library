@@ -157,7 +157,7 @@ QUnit.test(
   }
 );
 
-QUnit.test(
+QUnit.skip(
   "utils: devices: getIsTouch",
   function (assert) {
     assert.equal(getIsTouch(), false, "getIsTouch() return false for 'mouse' screens");

@@ -535,11 +535,11 @@ sv-popup {
 }
 
 .sv-popup--animate-enter {
-  animation-name: fadeIn;
+  animation-name: popupFadeIn;
   animation-duration: 0.25s;
 }
 
-@keyframes fadeIn {
+@keyframes popupFadeIn {
   from {
     opacity: 0;
   }
@@ -551,11 +551,11 @@ sv-popup {
 
 
 .sv-popup--animate-leave {
-  animation-name: fadeOut;
+  animation-name: popupFadeOut;
   animation-duration: 0.25s;
 }
 
-@keyframes fadeOut {
+@keyframes popupFadeOut {
   from {
     opacity: 1;
   }
@@ -567,4 +567,34 @@ sv-popup {
 
 .sv-popup--hidden {
   opacity: 0;
+}
+
+@keyframes modalMoveDown {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(64px);
+  }
+}
+
+@keyframes modalMoveUp {
+  from {
+    transform: translateY(64px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
+
+.sv-popup--modal.sv-popup--animate-leave .sv-popup__container {
+  animation-name: modalMoveDown;
+  animation-duration: 0.25s;
+}
+
+.sv-popup--modal.sv-popup--animate-enter .sv-popup__container {
+  animation-name: modalMoveUp;
+  animation-duration: 0.25s;
 }

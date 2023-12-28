@@ -15,6 +15,11 @@
   box-sizing: border-box;
 }
 
+.sv_window_content {
+    border-radius: calcSize(1);
+    overflow: hidden;
+}
+
 .sv_window--collapsed {
     .sv_window_header {
         height: calcSize(4);

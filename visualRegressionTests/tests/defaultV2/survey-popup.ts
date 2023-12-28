@@ -41,7 +41,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurveyPopup(framework, json);
-      await takeElementScreenshot("survey-popup.png", Selector(".sw_window"), t, comparer);
+      await takeElementScreenshot("survey-popup.png", Selector(".sv_window"), t, comparer);
     });
   });
 });

@@ -52,12 +52,12 @@ export class PopupBaseViewModel extends Base {
 
   protected onAfterShowing(): void {
     if(this.getShouldRunAnimation()) {
-      this.animation.onEnter(() => this.getAnimationContainer(), { onEnter: "sv-popup--animate-enter" });
+      this.animation.onEnter(() => this.getAnimationContainer(), { classes: { onEnter: "sv-popup--animate-enter" } });
     }
   }
   protected onBeforeHiding(callback: () => void): void {
     if(this.getShouldRunAnimation()) {
-      this.animation.onLeave(() => this.getAnimationContainer(), callback, { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" });
+      this.animation.onLeave(() => this.getAnimationContainer(), callback, { classes: { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" } });
     } else {
       callback();
     }

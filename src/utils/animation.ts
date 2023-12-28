@@ -1,3 +1,10 @@
+export interface AnimationOptions<T> {
+  classes: T;
+  onBeforeRunAnimation?: (element: HTMLElement) => void;
+}
+export type OnEnterOptions = AnimationOptions<{ onEnter: string }>;
+export type OnLeaveOptions = AnimationOptions<{ onLeave: string, onHide: string }>;
+
 export class Animation {
 
   protected isAnimationExists(element: HTMLElement): boolean {
@@ -20,28 +27,30 @@ export class Animation {
     }
   }
 
-  public onEnter(getElement: () => HTMLElement, classes: { onEnter: string }): void {
+  public onEnter(getElement: () => HTMLElement, options: OnEnterOptions): void {
     requestAnimationFrame(() => {
       const element = getElement();
       if(element) {
-        element.classList.add(classes.onEnter);
+        options.onBeforeRunAnimation && options.onBeforeRunAnimation(element);
+        element.classList.add(options.classes.onEnter);
         this.onAnimationEnd(element, () => {
-          element.classList.remove(classes.onEnter);
+          element.classList.remove(options.classes.onEnter);
         });
       }
     });
   }
 
-  public onLeave(getElement: () => HTMLElement, callback: () => void, classes: { onLeave: string, onHide: string }): void {
+  public onLeave(getElement: () => HTMLElement, callback: () => void, options: OnLeaveOptions): void {
     const element = getElement();
     if(element) {
-      element.classList.add(classes.onLeave);
+      options.onBeforeRunAnimation && options.onBeforeRunAnimation(element);
+      element.classList.add(options.classes.onLeave);
       const onAnimationEndCallback = () => {
-        element.classList.remove(classes.onLeave);
-        element.classList.add(classes.onHide);
+        element.classList.remove(options.classes.onLeave);
+        element.classList.add(options.classes.onHide);
         callback();
         setTimeout(() => {
-          element.classList.remove(classes.onHide);
+          element.classList.remove(options.classes.onHide);
         }, 1);
       };
       this.onAnimationEnd(element, onAnimationEndCallback);

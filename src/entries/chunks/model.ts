@@ -265,6 +265,7 @@ export {
   ButtonGroupItemValue
 } from "../../question_buttongroup";
 export { IsMobile, IsTouch, _setIsTouch } from "../../utils/devices";
+export { OnEnterOptions, OnLeaveOptions, Animation } from "../../utils/animation";
 export {
   confirmAction,
   confirmActionAsync,

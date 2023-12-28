@@ -8,7 +8,7 @@ import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
 import { settings, ISurveyEnvironment } from "../../src/settings";
-import { Animation } from "../../src/utils/animation";
+import { Animation, OnEnterOptions, OnLeaveOptions } from "../../src/utils/animation";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -1666,13 +1666,13 @@ class TestAnimation extends Animation {
   public logger: { log: string };
   public passedEnterClasses: { onEnter: string };
   public passedLeaveClasses: { onLeave: string, onHide: string };
-  public onEnter(getElement: () => HTMLElement, classes: { onEnter: string }): void {
+  public onEnter(getElement: () => HTMLElement, options: OnEnterOptions): void {
     this.logger.log += "->onEnter";
-    this.passedEnterClasses = classes;
+    this.passedEnterClasses = options.classes;
   }
-  public onLeave(element: () => HTMLElement, callback: () => void, classes: { onLeave: string, onHide: string }): void {
+  public onLeave(element: () => HTMLElement, callback: () => void, options: OnLeaveOptions): void {
     this.logger.log += "->onLeave";
-    this.passedLeaveClasses = classes;
+    this.passedLeaveClasses = options.classes;
     callback();
   }
 }

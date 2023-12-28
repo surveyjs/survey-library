@@ -197,7 +197,9 @@
     overflow-x: hidden;
     white-space: nowrap;
 
-    &:hover {
+    &:hover,
+    &:focus-visible {
+        outline: none;
         box-shadow: inset 0px -2px 0px $primary;
     }
 }

@@ -7359,7 +7359,7 @@ export class SurveyModel extends SurveyElementCore
   public getContainerContent(container: LayoutElementContainer) {
     const containerLayoutElements = [];
     for (let layoutElement of this.layoutElements) {
-      if (isStrCiEqual(layoutElement.id, "timerpanel")) {
+      if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
         if (container === "header") {
           if (this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);

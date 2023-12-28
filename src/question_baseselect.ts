@@ -34,7 +34,7 @@ export class QuestionSelectBase extends Question {
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
   private get waitingChoicesByURL(): boolean {
-    return !this.isChoicesLoaded && !this.choicesByUrl.isEmpty;
+    return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
@@ -53,7 +53,8 @@ export class QuestionSelectBase extends Question {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion", "choiceTextsFromQuestion", "showNoneItem"],
+      ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
+        "choiceTextsFromQuestion", "showNoneItem", "isUsingRestful"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -123,6 +124,12 @@ export class QuestionSelectBase extends Question {
   private setCarryForwardQuestionType(selBaseQuestion: boolean, arrayQuestion: boolean): void {
     const mode = selBaseQuestion ? "select" : (arrayQuestion ? "array" : undefined);
     this.setPropertyValue("carryForwardQuestionType", mode);
+  }
+  public get isUsingRestful(): boolean {
+    return this.getPropertyValueWithoutDefault("isUsingRestful") || false;
+  }
+  public updateIsUsingRestful(): void {
+    this.setPropertyValueDirectly("isUsingRestful", this.hasChoicesUrl);
   }
   public supportGoNextPageError(): boolean {
     return !this.isOtherSelected || !!this.otherValue;
@@ -584,7 +591,7 @@ export class QuestionSelectBase extends Question {
     const value = this.value;
     const valueArray: Array<any> = Array.isArray(value) ? value : [value];
     const hasItemWithoutValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
-    if (hasItemWithoutValues && (this.choicesLazyLoadEnabled || !this.choicesByUrl.isEmpty)) {
+    if (hasItemWithoutValues && (this.choicesLazyLoadEnabled || this.hasChoicesUrl)) {
       this.waitingGetChoiceDisplayValueResponse = true;
       this.updateIsReady();
       this.survey.getChoiceDisplayValue({
@@ -912,7 +919,9 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     this.headItemsCount = 0;
     this.footItemsCount = 0;
-    this.addNewItemToVisibleChoices(items, isAddAll);
+    if(!this.hasChoicesUrl) {
+      this.addNewItemToVisibleChoices(items, isAddAll);
+    }
     const dict = new Array<{ index: number, item: ItemValue }>();
     this.addNonChoicesItems(dict, isAddAll);
     dict.sort((a: { index: number, item: ItemValue }, b: { index: number, item: ItemValue }): number => {
@@ -972,8 +981,8 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
-      this.isDesignMode && !this.customWidget && !this.isContentElement;
+    return settings.showDefaultItemsInCreatorV2 && this.isDesignModeV2 &&
+      !this.customWidget && !this.isContentElement;
   }
   public getPlainData(
     options: IPlainDataOptions = {
@@ -1070,6 +1079,7 @@ export class QuestionSelectBase extends Question {
       (<any>question).addDependedQuestion(this);
       return this.getChoicesFromArrayQuestion(question);
     }
+    if(this.isDesignModeV2 && this.hasChoicesUrl) return [];
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
@@ -1223,10 +1233,10 @@ export class QuestionSelectBase extends Question {
       this.storeOthersAsComment === true ||
       (this.storeOthersAsComment == "default" &&
         (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
-      (!this.choicesByUrl.isEmpty && !this.choicesFromUrl)
+      (this.hasChoicesUrl && !this.choicesFromUrl)
     );
   }
-  onSurveyLoad() {
+  onSurveyLoad(): void {
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
     super.onSurveyLoad();
@@ -1288,7 +1298,8 @@ export class QuestionSelectBase extends Question {
   }
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices)
+    this.updateIsUsingRestful();
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isDesignModeV2)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
@@ -1469,6 +1480,9 @@ export class QuestionSelectBase extends Question {
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
     return Helpers.randomizeArray<ItemValue>(array);
   }
+  private get hasChoicesUrl(): boolean {
+    return this.choicesByUrl && !!this.choicesByUrl.url;
+  }
   public clearIncorrectValues() {
     if (!this.hasValueToClearIncorrectValues()) return;
     if(this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return;
@@ -1477,9 +1491,7 @@ export class QuestionSelectBase extends Question {
       this.survey.questionsByValueName(this.getValueName()).length > 1
     )
       return;
-    if (
-      !!this.choicesByUrl &&
-      !this.choicesByUrl.isEmpty &&
+    if (this.hasChoicesUrl &&
       (!this.choicesFromUrl || this.choicesFromUrl.length == 0)
     )
       return;

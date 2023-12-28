@@ -345,6 +345,9 @@ export class Base {
     const survey = this.getSurvey();
     return !!survey && survey.isDesignMode;
   }
+  public get isDesignModeV2(): boolean {
+    return settings.supportCreatorV2 && this.isDesignMode;
+  }
   /**
    * Returns `true` if the object is included in a survey.
    *
@@ -498,6 +501,7 @@ export class Base {
   public resetPropertyValue(name: string): void {
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
     if(locStr) {
+      this.setLocalizableStringText(name, undefined);
       locStr.clear();
     }
     else {

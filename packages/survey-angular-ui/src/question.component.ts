@@ -26,11 +26,10 @@ export class QuestionComponent extends EmbeddedViewContentComponent {
   }
   public getComponentName(): string { return getComponentName(this.model); }
   public getQuestionContentWrapperComponentName(): string {
-    return (<any>this.model.survey).getQuestionContentWrapperComponentName(this.model) || this.getComponentName();
+    return (<any>this.model.survey).getQuestionContentWrapperComponentName(this.model);
   }
   public getQuestionContentWrapperComponentData(): any {
     return {
-      componentName: this.getComponentName(),
       componentData: {
         model: this.model,
         data: (<any>this.model.survey).getElementWrapperComponentData(this.model)

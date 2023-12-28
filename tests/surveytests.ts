@@ -68,6 +68,23 @@ export default QUnit.module("Survey");
 
 settings.autoAdvanceDelay = 0;
 
+function getContainerContentFunction(survey: SurveyModel) {
+  return (container: LayoutElementContainer) => {
+    const content = survey.getContainerContent(container);
+    const result: Array<any> = [];
+    content.forEach(item => {
+      const resItem: any = {};
+      Object.keys(item).forEach(key => {
+        if (["data", "processResponsiveness"].indexOf(key) === -1) {
+          resItem[key] = item[key];
+        }
+      });
+      result.push(resItem);
+    });
+    return result;
+  };
+}
+
 QUnit.test("set data property", function (assert) {
   var survey = new SurveyModel();
   assert.deepEqual(survey.data, {}, "there is no data");
@@ -18485,20 +18502,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
 
   let survey = new SurveyModel(json);
   survey.headerView = "advanced";
-  function getContainerContent(container: LayoutElementContainer) {
-    const content = survey.getContainerContent(container);
-    const result: Array<any> = [];
-    content.forEach(item => {
-      const resItem: any = {};
-      Object.keys(item).forEach(key => {
-        if (["data", "processResponsiveness"].indexOf(key) === -1) {
-          resItem[key] = item[key];
-        }
-      });
-      result.push(resItem);
-    });
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "none");
   assert.equal(survey.progressBarType, "pages");
@@ -18556,6 +18560,63 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "progress top left");
   assert.deepEqual(getContainerContent("right"), [], "progress top right");
+});
+
+QUnit.test("getContainerContent - do not show timer panel in display mode", function (assert) {
+  const json = {
+    "pages": [
+      {
+        "name": "Seite1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "true",
+              },
+              {
+                "value": "false",
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "maxTimeToFinish": 10,
+    "showTimerPanel": "top",
+    "showTimerPanelMode": "survey"
+  };
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-timerpanel",
+    "id": "timerpanel",
+    "template": "survey-timerpanel"
+  }], "default header");
+  assert.deepEqual(getContainerContent("center"), [], "default center");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+
+  survey.mode = "display";
+  assert.deepEqual(getContainerContent("header"), [], "default header");
+  assert.deepEqual(getContainerContent("center"), [], "default center");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "navigationbuttons"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
 });
 
 QUnit.test("Check triggerReponsiveness is called when isCompact changed", function (assert) {

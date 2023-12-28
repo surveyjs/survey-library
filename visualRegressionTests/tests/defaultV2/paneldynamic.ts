@@ -53,9 +53,9 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-    await initSurvey(framework, json);
-  });
+      await applyTheme(theme);
+      await initSurvey(framework, json);
+    });
   test("Paneldynamic progressTop mode", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
@@ -95,16 +95,16 @@ frameworks.forEach(framework => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-    await initSurvey(framework, json, {
-      onGetPanelFooterActions: (_, opt) => {
-        opt.actions.push({
-          title: "Duplicate",
-          action: () => { }
-        });
-      }
+      await applyTheme(theme);
+      await initSurvey(framework, json, {
+        onGetPanelFooterActions: (_, opt) => {
+          opt.actions.push({
+            title: "Duplicate",
+            action: () => { }
+          });
+        }
+      });
     });
-  });
   test("Check paneldynamic with custom actions", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
@@ -153,9 +153,9 @@ frameworks.forEach(framework => {
   };
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-    await initSurvey(framework, json);
-  });
+      await applyTheme(theme);
+      await initSurvey(framework, json);
+    });
   test("Two Paneldynamics in one row", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1920);
@@ -260,9 +260,9 @@ frameworks.forEach(framework => {
   };
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-    await initSurvey(framework, json);
-  });
+      await applyTheme(theme);
+      await initSurvey(framework, json);
+    });
   test("Navigation panel by tabs", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
@@ -379,9 +379,9 @@ frameworks.forEach(framework => {
   };
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-    await initSurvey(framework, json);
-  });
+      await applyTheme(theme);
+      await initSurvey(framework, json);
+    });
   test("Paneldynamic without buttons", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
@@ -416,15 +416,46 @@ frameworks.forEach(framework => {
   };
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-    await initSurvey(framework, json);
-  });
+      await applyTheme(theme);
+      await initSurvey(framework, json);
+    });
   test("Paneldynamic confirm dialog", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
       await t.pressKey(" a b c tab");
       await t.click(Selector(".sd-paneldynamic__remove-btn"));
       await takeElementScreenshot("paneldynamic-confirm-dialog", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
+    });
+  });
+  test("tab focused state for panel dynamic", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "panelCount": 4,
+                "minPanelCount": 4,
+                "renderMode": "tab"
+              }
+            ]
+          }
+        ]
+      });
+      await t
+        .click(Selector("button[title='Panel 1']"))
+        .pressKey("tab");
+      await takeElementScreenshot("paneldynamic-focused-tab", Selector(".sd-question--paneldynamic"), t, comparer);
     });
   });
 });

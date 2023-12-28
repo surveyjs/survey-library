@@ -736,6 +736,11 @@ frameworks.forEach(framework => {
 
       await t.hover(Selector(".sd-table__cell--detail-button"));
       await takeElementScreenshot("question-matrix-detail-hover.png", questionRoot, t, comparer);
+
+      await t
+        .click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-matrix-detail-focus.png", questionRoot, t, comparer);
     });
   });
 

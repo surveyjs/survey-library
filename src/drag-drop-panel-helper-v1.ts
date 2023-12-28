@@ -122,7 +122,7 @@ export class DragDropPanelHelperV1 {
       index == 0 &&
       !dragDropInfo.isBottom) {
 
-      if (this.panel.isDesignMode && settings.supportCreatorV2) {
+      if (this.panel.isDesignModeV2) {
 
       }
       else
@@ -168,7 +168,7 @@ export class DragDropPanelHelperV1 {
     prevRow: QuestionRowModel
   ): boolean {
     var targetRow = destRow.panel.createRowAndSetLazy(destRow.panel.rows.length);
-    if (this.panel.isDesignMode && settings.supportCreatorV2) {
+    if (this.panel.isDesignModeV2) {
       targetRow.setIsLazyRendering(false);
     }
     targetRow.addElement(dragDropInfo.target);

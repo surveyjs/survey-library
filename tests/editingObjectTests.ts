@@ -10,6 +10,7 @@ import {
 } from "../src/question_custom";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionRatingModel } from "../src/question_rating";
+import { QuestionBooleanModel } from "../src/question_boolean";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
@@ -1536,4 +1537,28 @@ QUnit.test("multipletextitem title in detail panel", function (assert) {
   titleQuestion.value = "";
   assert.notOk(titleCell.value, "cell #3");
   assert.notOk(titleQuestion.value, "question #3");
+});
+QUnit.test("reset property value", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "boolean", name: "q1" }
+    ]
+  });
+  const question = <QuestionBooleanModel>survey.getQuestionByName("q1");
+  const editSurvey = new SurveyModel({
+    elements: [
+      {
+        type: "comment",
+        name: "labelTrue"
+      }
+    ]
+  });
+  const comment = <QuestionMatrixDynamicModel>(editSurvey.getQuestionByName("labelTrue"));
+  editSurvey.editingObj = question;
+  assert.equal(comment.value, "Yes", "value #1");
+  question.labelTrue = "abc";
+  assert.equal(comment.value, "abc", "value #2");
+  question.resetPropertyValue("labelTrue");
+  assert.equal(question.labelTrue, "Yes", "labelTrue value");
+  assert.equal(comment.value, "Yes", "value #3");
 });

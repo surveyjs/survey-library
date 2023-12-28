@@ -30,20 +30,21 @@ let _IPad = false;
 
 export const IsMobile = _isMobile || _IPad;
 
-export function getIsTouch() {
-  let _isTouch = false;
-
-  if (typeof window !== "undefined") {
-    _isTouch = "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
-  }
-
-  return _isTouch;
-}
+export var mouseInfo = {
+  get isTouch(): boolean {
+    if(this.hasMouse) return false;
+    return this.hasTouchEvent;
+  },
+  get hasTouchEvent(): boolean {
+    return typeof window !== "undefined" && "ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0;
+  },
+  hasMouse: true
+};
 
 const pointerMatches = (!!matchMedia && matchMedia("(pointer:fine)")) || undefined;
-const hasMouse = !!pointerMatches && !!pointerMatches.matches;
+mouseInfo.hasMouse = !!pointerMatches && !!pointerMatches.matches;
 
-export let IsTouch = !hasMouse && getIsTouch();
+export let IsTouch = mouseInfo.isTouch;
 
 //for tests
 export function _setIsTouch(val: boolean): void {

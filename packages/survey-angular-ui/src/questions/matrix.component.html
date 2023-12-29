@@ -32,28 +32,7 @@
               *ngFor="let column of model.visibleColumns; index as columnIndex; trackBy: trackColumnByFn"
               [attr.data-responsive-title]="column.locText.renderedHtml"
               [class]="model.cssClasses.cell">
-                <label (mousedown)="model.onMouseDown()" [class]="model.getItemClass(row, column)">
-                  <input
-                    type="radio"
-                    [class]="model.cssClasses.itemValue"
-                    [name]="row.fullName"
-                    [value]="column.value"
-                    [checked]="row.value === column.value"
-                    [disabled]="model.isInputReadOnly"
-                    [attr.id]="model.inputId + '_' + row.name + '_' + columnIndex"
-                    (change)="onChange(row, column)"
-                    [attr.aria-required]="model.a11y_input_ariaRequired"
-                    [attr.aria-label]="model.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
-                    [attr.aria-invalid]="model.a11y_input_ariaInvalid"
-                    [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
-                  />
-                  <span [class]="model.cssClasses.materialDecorator">
-                    <svg *ngIf="model.itemSvgIcon" [class]="model.cssClasses.itemDecorator">
-                      <use [attr.xlink:href]="model.itemSvgIcon"></use>
-                    </svg> 
-                  </span>
-                  <span *ngIf="model.isMobile" [class]="model.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
-                </label>
+                <ng-template [component]="{ name: model.cellComponent, data: { question: model, row: row, column: column, columnIndex: columnIndex } }"></ng-template>
               </td>
             </ng-container>
           </tr>

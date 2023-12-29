@@ -1,0 +1,23 @@
+<label (mousedown)="question.onMouseDown()" [class]="question.getItemClass(row, column)">
+  <input
+    type="radio"
+    [class]="question.cssClasses.itemValue"
+    [name]="row.fullName"
+    [value]="column.value"
+    [checked]="row.value === column.value"
+    [disabled]="question.isInputReadOnly"
+    [attr.id]="question.inputId + '_' + row.name + '_' + columnIndex"
+    (change)="onChange(row, column)"
+    [attr.aria-required]="question.a11y_input_ariaRequired"
+    [attr.aria-label]="question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
+    [attr.aria-invalid]="question.a11y_input_ariaInvalid"
+    [attr.aria-describedby]="question.a11y_input_ariaDescribedBy"
+  />
+  <span [class]="question.cssClasses.materialDecorator">
+    <svg *ngIf="question.itemSvgIcon" [class]="question.cssClasses.itemDecorator">
+      <use [attr.xlink:href]="question.itemSvgIcon"></use>
+    </svg> 
+  </span>
+  <span *ngIf="question.isMobile" [class]="question.cssClasses.cellResponsiveTitle" [model]="column.locText" sv-ng-string></span>
+</label>
+<ng-content></ng-content>

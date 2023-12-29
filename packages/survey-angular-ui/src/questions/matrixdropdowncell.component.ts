@@ -10,11 +10,11 @@ import {
 import { getComponentName } from "../question";
 
 @Component({
-  selector: "sv-ng-matrix-cell",
-  templateUrl: "./matrixcell.component.html",
+  selector: "sv-ng-matrixdropdown-cell",
+  templateUrl: "./matrixdropdowncell.component.html",
   styles: [":host { display: none; }"]
 })
-export class MatrixCellComponent extends BaseAngular<Question> {
+export class MatrixDropdownCellComponent extends BaseAngular<Question> {
   @Input() question!: QuestionMatrixDropdownModelBase;
   @Input() cell!: QuestionMatrixDropdownRenderedCell;
 

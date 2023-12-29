@@ -239,6 +239,15 @@ export class QuestionMatrixModel
   public getType(): string {
     return "matrix";
   }
+  /**
+   * The name of a component used to render cells.
+   */
+  public get cellComponent(): string {
+    return this.getPropertyValue("cellComponent");
+  }
+  public set itemComponent(value: string) {
+    this.setPropertyValue("cellComponent", value);
+  }
   public get hasSingleInput(): boolean {
     return false;
   }
@@ -646,6 +655,7 @@ Serializer.addClass(
     },
     "isAllRowRequired:boolean",
     "hideIfRowsEmpty:boolean",
+    { name: "cellComponent", visible: false, default: "survey-matrix-cell" }
   ],
   function() {
     return new QuestionMatrixModel("");

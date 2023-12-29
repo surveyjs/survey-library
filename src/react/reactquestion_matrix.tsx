@@ -143,7 +143,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   generateTds(): Array<JSX.Element> {
     const tds:Array<JSX.Element> = [];
     const row = this.row;
-
+    const cellComponent = this.question.cellComponent;
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
       let td: JSX.Element | null = null;
       const column = this.question.visibleColumns[i];
@@ -166,7 +166,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           </td>
         );
       } else {
-        const renderedCell = ReactElementFactory.Instance.createElement("survey-matrix-cell", {
+        const renderedCell = ReactElementFactory.Instance.createElement(cellComponent, {
           question: this.question,
           row: this.row,
           column: column,
@@ -252,7 +252,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
   }
 }
 
-ReactQuestionFactory.Instance.registerQuestion("survey-matrix-cell", props => {
+ReactElementFactory.Instance.registerElement("survey-matrix-cell", props => {
   return React.createElement(SurveyQuestionMatrixCell, props);
 });
 

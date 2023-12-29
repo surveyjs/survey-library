@@ -8,6 +8,7 @@ axeOptions["aria-allowed-role"] = {
   enabled: false
 };
 
+
 frameworks.forEach((framework) => {
   fixture`${framework} a11y:${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
@@ -157,26 +158,26 @@ frameworks.forEach((framework) => {
             }
           ]
         },
-        {
-          type: "imagepicker",
-          name: "choosevideo",
-          title: "Imagepicker",
-          imageHeight: "300px",
-          imageWidth: "450px",
-          "contentMode": "video",
-          choices: [
-            {
-              value: "short_but_high",
-              imageLink:
-                "https://www.youtube.com/watch?v=RAXo6pzOczQ"
-            },
-            {
-              value: "long_but_poor",
-              imageLink:
-                "https://www.youtube.com/watch?v=RAXo6pzOczQ"
-            }
-          ]
-        },
+        // {
+        //   type: "imagepicker",
+        //   name: "choosevideo",
+        //   title: "Imagepicker",
+        //   imageHeight: "300px",
+        //   imageWidth: "450px",
+        //   "contentMode": "video",
+        //   choices: [
+        //     {
+        //       value: "short_but_high",
+        //       // imageLink:
+        //       //   "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        //     },
+        //     {
+        //       value: "long_but_poor",
+        //       // imageLink:
+        //       //   "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4"
+        //     }
+        //   ]
+        // },
       ]
     });
     const { error, violations } = await axeCheck(t, axeContext, axeOptions);

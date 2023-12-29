@@ -44,35 +44,16 @@ import type {
   ItemValue,
   QuestionMatrixModel,
 } from "survey-core";
-import { useQuestion } from "./base";
-import { ref, shallowRef } from "vue";
+import { useBase } from "./base";
+
 defineOptions({
   inheritAttrs: false,
 });
 const props = defineProps<{
   question: QuestionMatrixModel;
   row: MatrixRowModel;
-  colum: ItemValue;
+  column: ItemValue;
   columnIndex: number;
 }>();
-const root = ref(null);
-const visibleRows = shallowRef();
-useQuestion<QuestionMatrixModel>(
-  props,
-  root,
-  (value) => {
-    visibleRows.value = value.visibleRows;
-    value.visibleRowsChangedCallback = () => {
-      visibleRows.value = value.visibleRows;
-    };
-  },
-  (value) => {
-    value.visibleRowsChangedCallback = () => {};
-  }
-);
-
-const cellClick = (row: any, column: any) => {
-  if (props.question.isInputReadOnly) return;
-  row.value = column.value;
-};
+useBase(() => props.row, props.column);
 </script>

@@ -9015,3 +9015,41 @@ QUnit.test("matrix dynamic getPlainData & comment", function (assert) {
   assert.equal(qData[2].title, "Comment", "comment title");
   assert.equal(qData[2].isComment, true, "comment isComment");
 });
+QUnit.test("matrix dynamic expression & checkbox ValuePropertyName", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          "Item 1",
+          "Item 2"
+        ],
+        "valuePropertyName": "testItem"
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "q2",
+        "valueName": "q1",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "expression",
+            "expression": "{row.testItem} + ' - matrix'"
+          }
+        ],
+        "rowCount": 0
+      }
+    ]
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  assert.notOk(matrix.value, "matrix is empty");
+  checkbox.renderedValue = ["Item 1"];
+  assert.equal(matrix.visibleRows.length, 1, "matrix rows #1");
+  assert.deepEqual(matrix.value, [{ testItem: "Item 1", col1: "Item 1 - matrix" }], "matrix value #1");
+  checkbox.renderedValue = ["Item 1", "Item 2"];
+  assert.equal(matrix.visibleRows.length, 2, "matrix rows #2");
+  assert.deepEqual(matrix.value, [{ testItem: "Item 1", col1: "Item 1 - matrix" }, { testItem: "Item 2", col1: "Item 2 - matrix" }], "matrix value #2");
+});
+

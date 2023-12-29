@@ -18,6 +18,7 @@ import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IMatrixColumnOwner, MatrixDropdownColumn } from "./question_matrixdropdowncolumn";
 import { QuestionMatrixDropdownRenderedCell, QuestionMatrixDropdownRenderedRow, QuestionMatrixDropdownRenderedTable } from "./question_matrixdropdownrendered";
+import { mergeValues } from "./utils/utils";
 
 export interface IMatrixDropdownData {
   value: any;
@@ -371,23 +372,28 @@ implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   getFilteredProperties(): any {
     return { survey: this.getSurvey(), row: this };
   }
-  public runCondition(values: HashTable<any>, properties: HashTable<any>) {
+  public runCondition(values: HashTable<any>, properties: HashTable<any>): void {
     if (!!this.data) {
       values[MatrixDropdownRowModelBase.OwnerVariableName] = this.data.value;
     }
-    values[MatrixDropdownRowModelBase.IndexVariableName] = this.rowIndex;
+    const rowIndex = this.rowIndex;
+    values[MatrixDropdownRowModelBase.IndexVariableName] = rowIndex;
     values[MatrixDropdownRowModelBase.RowValueVariableName] = this.rowName;
     const newProps = Helpers.createCopy(properties);
     newProps[MatrixDropdownRowModelBase.RowVariableName] = this;
+    const rowValues = rowIndex > 0 ? this.data.getRowValue(this.rowIndex - 1) : this.value;
     for (var i = 0; i < this.cells.length; i++) {
-      values[MatrixDropdownRowModelBase.RowVariableName] = this.value;
+      if(i > 0) {
+        mergeValues(this.value, rowValues);
+      }
+      values[MatrixDropdownRowModelBase.RowVariableName] = rowValues;
       this.cells[i].runCondition(values, newProps);
     }
     if (!!this.detailPanel) {
       this.detailPanel.runCondition(values, newProps);
     }
   }
-  public clearValue() {
+  public clearValue(): void {
     var questions = this.questions;
     for (var i = 0; i < questions.length; i++) {
       questions[i].clearValue();

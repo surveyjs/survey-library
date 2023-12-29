@@ -49,7 +49,7 @@ import Matrix from "./Matrix.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
-import MatrixCell from "./MatrixCell.vue";
+import MatrixDropdownCell from "./MatrixDropdownCell.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 import RemoveButton from "./components/matrix-actions/remove-button/RemoveButton.vue";
 import DragDropIcon from "./components/matrix-actions/drag-drop-icon/DragDropIcon.vue";
@@ -195,7 +195,7 @@ function registerComponents(app: App) {
   app.component("survey-matrixdropdown", MatrixDropdown);
   app.component("survey-matrixtable", MatrixTable);
   app.component("survey-matrixheaderrequired", MatrixHeaderRequired);
-  app.component("survey-matrixcell", MatrixCell);
+  app.component("survey-matrixdropdown-cell", MatrixDropdownCell);
   app.component("survey-matrixdynamic", MatrixDynamic);
   app.component("sv-matrix-remove-button", RemoveButton);
   app.component("sv-matrix-drag-drop-icon", DragDropIcon);

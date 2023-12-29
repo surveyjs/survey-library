@@ -45,7 +45,7 @@
             :class="row.className"
             v-if="row.visible"
           >
-            <survey-matrixcell
+            <survey-matrixdropdown-cell
               :cell="cell"
               :question="question"
               v-for="(cell, cellIndex) in row.cells"
@@ -56,7 +56,7 @@
       </tbody>
       <tfoot v-if="table.showFooter">
         <tr>
-          <survey-matrixcell
+          <survey-matrixdropdown-cell
             :cell="cell"
             :question="question"
             v-for="(cell, cellIndex) in table.footerRow.cells"

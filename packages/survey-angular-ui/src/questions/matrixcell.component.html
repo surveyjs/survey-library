@@ -7,7 +7,7 @@
     [checked]="row.value === column.value"
     [disabled]="question.isInputReadOnly"
     [attr.id]="question.inputId + '_' + row.name + '_' + columnIndex"
-    (change)="onChange(row, column)"
+    (change)="onChange()"
     [attr.aria-required]="question.a11y_input_ariaRequired"
     [attr.aria-label]="question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
     [attr.aria-invalid]="question.a11y_input_ariaInvalid"

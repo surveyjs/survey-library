@@ -12,4 +12,8 @@ export class MatrixCellComponent {
   @Input() columnIndex!: number;
   constructor() {
   }
+  public onChange(): void {
+    if (this.question.isInputReadOnly) return;
+    this.row.value = this.column.value;
+  }
 }

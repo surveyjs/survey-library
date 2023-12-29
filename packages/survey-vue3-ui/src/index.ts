@@ -46,6 +46,7 @@ import MultipleText from "./Multipletext.vue";
 import MultipletextItem from "./MultipletextItem.vue";
 
 import Matrix from "./Matrix.vue";
+import MatrixCell from "./MatrixCell.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
@@ -192,6 +193,7 @@ function registerComponents(app: App) {
   app.component("survey-multipletext-item", MultipletextItem);
 
   app.component("survey-matrix", Matrix);
+  app.component("survey-matrix-cell", MatrixCell);
   app.component("survey-matrixdropdown", MatrixDropdown);
   app.component("survey-matrixtable", MatrixTable);
   app.component("survey-matrixheaderrequired", MatrixHeaderRequired);

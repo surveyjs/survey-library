@@ -70,7 +70,7 @@ import {
 import { getComponentName } from "./question";
 
 @Component
-export class MatrixCell extends Vue {
+export class MatrixDropdownCell extends Vue {
   @Prop() question: Question;
   @Prop() cell: QuestionMatrixDropdownRenderedCell;
 
@@ -114,6 +114,6 @@ export class MatrixCell extends Vue {
   }
 }
 
-Vue.component("survey-matrixcell", MatrixCell);
-export default MatrixCell;
+Vue.component("survey-matrixdropdown-cell", MatrixDropdownCell);
+export default MatrixDropdownCell;
 </script>

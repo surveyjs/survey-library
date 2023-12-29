@@ -40,7 +40,7 @@ export { FileCleanButton } from "../vue/file-clean-button.vue";
 export { FileVideo } from "../vue/file-video.vue";
 export { FileChooseButton } from "../vue/components/file/file-choose-button.vue";
 
-export { MatrixCell } from "../vue/matrixcell.vue";
+export { MatrixDropdownCell } from "../vue/matrixdropdowncell.vue";
 export { MatrixHeaderRequired } from "../vue/matrixheaderrequired.vue";
 export { MatrixTable } from "../vue/matrixtable.vue";
 export { MatrixDropdown } from "../vue/matrixdropdown.vue";

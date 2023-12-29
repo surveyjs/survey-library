@@ -9044,6 +9044,7 @@ QUnit.test("matrix dynamic expression & checkbox ValuePropertyName", function (a
   });
   const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  assert.equal(matrix.visibleRows.length, 0, "matrix rows #0");
   assert.notOk(matrix.value, "matrix is empty");
   checkbox.renderedValue = ["Item 1"];
   assert.equal(matrix.visibleRows.length, 1, "matrix rows #1");

@@ -8,7 +8,7 @@ import { MatrixRowModel, ItemValue, QuestionMatrixModel } from "survey-core";
 export class MatrixCellComponent {
   @Input() question!: QuestionMatrixModel;
   @Input() column!: ItemValue;
-  @Input() row: MatrixRowModel;
+  @Input() row!: MatrixRowModel;
   @Input() columnIndex!: number;
   constructor() {
   }

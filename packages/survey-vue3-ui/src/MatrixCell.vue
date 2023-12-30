@@ -55,5 +55,4 @@ const props = defineProps<{
   column: ItemValue;
   columnIndex: number;
 }>();
-useBase(() => props.row, props.column);
 </script>

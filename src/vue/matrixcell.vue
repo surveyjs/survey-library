@@ -14,10 +14,9 @@
       :aria-describedby="question.a11y_input_ariaDescribedBy"
     />
     <span :class="question.cssClasses.materialDecorator">
-        <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
-          <use :xlink:href="question.itemSvgIcon"></use>
-        </svg> 
-      </span>
+      <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
+        <use :xlink:href="question.itemSvgIcon"></use>
+      </svg> 
     </span>
     <span v-if="question.isMobile" :class="question.cssClasses.cellResponsiveTitle">
       <survey-string :locString="column.locText"></survey-string>

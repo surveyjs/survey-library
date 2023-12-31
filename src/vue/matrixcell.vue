@@ -1,5 +1,5 @@
 <template>
-  <label @mousedown="question.onMouseDown()" :class="question.getItemClass(row, column)">
+<label @mousedown="question.onMouseDown()" :class="question.getItemClass(row, column)">
     <input
       type="radio"
       :class="question.cssClasses.itemValue"
@@ -31,11 +31,10 @@ import { MatrixRowModel, ItemValue, QuestionMatrixModel } from "survey-core";
 
 @Component
 export class MatrixCell extends Vue {
-   @Prop() question: QuestionMatrixModel;
-   @Prop() row: MatrixRowModel;
-   @Prop() column: ItemValue;
-   @Prop() columnIndex: number;
-
+  @Prop() question: QuestionMatrixModel;
+  @Prop() row: MatrixRowModel;
+  @Prop() column: ItemValue;
+  @Prop() columnIndex: number;
 }
 Vue.component("survey-matrix-cell", MatrixCell);
 export default MatrixCell;

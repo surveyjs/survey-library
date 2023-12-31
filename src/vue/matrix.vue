@@ -45,7 +45,7 @@
               :class="question.cssClasses.cell"
               v-on:click="cellClick(row, column)"
             >
-              <component :is="question.cellComponent" :question="question" :row="row" :column="column" :columnIndex="columnIndex"></component>
+<component :is="question.cellComponent" :question="question" :row="row" :column="column" :columnIndex="columnIndex"></component>
             </td>
           </tr>
         </tbody>

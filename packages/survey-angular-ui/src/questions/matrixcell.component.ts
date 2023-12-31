@@ -2,7 +2,7 @@ import { Component, Input } from "@angular/core";
 import { MatrixRowModel, ItemValue, QuestionMatrixModel } from "survey-core";
 
 @Component({
-  selector: "sv-ng-matrix-cell, '[sv-ng-matrix-cell]'",
+  selector: "sv-ng-survey-matrix-cell, '[sv-ng-survey-matrix-cell]'",
   templateUrl: "./matrixcell.component.html"
 })
 export class MatrixCellComponent {

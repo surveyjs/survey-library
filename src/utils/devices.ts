@@ -40,7 +40,7 @@ export var mouseInfo = {
   hasMouse: true
 };
 
-const pointerMatches = (!!matchMedia && matchMedia("(pointer:fine)")) || undefined;
+const pointerMatches = (typeof matchMedia !== "undefined" && !!matchMedia && matchMedia("(pointer:fine)")) || undefined;
 mouseInfo.hasMouse = !!pointerMatches && !!pointerMatches.matches;
 
 export let IsTouch = mouseInfo.isTouch;

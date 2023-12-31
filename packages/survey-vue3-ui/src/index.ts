@@ -128,7 +128,7 @@ import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
 import Logo from "./Logo.vue";
 import SvgBundle from "./SvgBundle.vue";
 
-export { useBase, useLocString, useQuestion } from "./base";
+export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 
 SurveyModel.platform = "vue3";
 

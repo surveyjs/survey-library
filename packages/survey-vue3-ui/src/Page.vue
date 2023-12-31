@@ -5,7 +5,7 @@
       <survey-string :locString="page.locDescription" />
     </div>
     <survey-errors :element="page" />
-    <template v-for="(row, index) in rows" :key="page.id + '_' + index">
+    <template v-for="(row, index) in page.rows" :key="page.id + '_' + index">
       <component
         :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
         v-bind="{
@@ -37,9 +37,6 @@ useBase(() => props.page);
 
 const showDescription = computed(() => {
   return props.page._showDescription;
-});
-const rows = computed((): Array<any> => {
-  return props.page.rows;
 });
 
 onMounted(() => {

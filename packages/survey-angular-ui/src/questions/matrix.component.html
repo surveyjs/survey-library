@@ -24,7 +24,7 @@
             <ng-container *ngIf="model.hasCellText">
               <td *ngFor="let column of model.visibleColumns"
                 [class]="model.getItemClass(row, column)"
-                (click)="onCellChange(row, column)" [model]="model.getCellDisplayLocText(row.name, column)" sv-ng-string>
+                (click)="onCellChanged(row, column)" [model]="model.getCellDisplayLocText(row.name, column)" sv-ng-string>
               </td>
             </ng-container>
             <ng-container *ngIf="!model.hasCellText">
@@ -32,7 +32,7 @@
               *ngFor="let column of model.visibleColumns; index as columnIndex; trackBy: trackColumnByFn"
               [attr.data-responsive-title]="column.locText.renderedHtml"
               [class]="model.cssClasses.cell">
-                <ng-template [component]="{ name: model.cellComponent, data: { question: model, row: row, column: column, columnIndex: columnIndex, cellChanged: 'onCellChange' } }"></ng-template>
+                <ng-template [component]="{ name: model.cellComponent, data: { cellChangedOwner: this, question: model, row: row, column: column, columnIndex: columnIndex } }"></ng-template>
               </td>
             </ng-container>
           </tr>

@@ -172,7 +172,8 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           column: column,
           columnIndex: i,
           cssClasses: this.cssClasses,
-          isDisplayMode: this.isDisplayMode
+          isDisplayMode: this.isDisplayMode,
+          cellChanged: () => { this.cellClick(this.row, column); }
         });
         td = (<td key={key} data-responsive-title={column.locText.renderedHtml} className={this.question.cssClasses.cell}>{renderedCell}</td>);
       }
@@ -194,8 +195,9 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
     this.handleOnChange = this.handleOnChange.bind(this);
   }
   handleOnChange(event: any): void {
-    this.row.value = event.target.value;
-    this.setState({ value: this.row.value });
+    if(!!this.props.cellChanged) {
+      this.props.cellChanged();
+    }
   }
   handleOnMouseDown(event: any): void {
     this.question.onMouseDown();
@@ -223,20 +225,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(this.column.locText)}</span>)
       : undefined;
     return (<label onMouseDown={this.handleOnMouseDown} className={itemClass}>
-      <input
-        id={inputId}
-        type="radio"
-        className={this.cssClasses.itemValue}
-        name={this.row.fullName}
-        value={this.column.value}
-        disabled={this.isDisplayMode}
-        checked={isChecked}
-        onChange={this.handleOnChange}
-        aria-required={this.question.a11y_input_ariaRequired}
-        aria-label={this.question.getCellAriaLabel(this.row.locText.renderedHtml, this.column.locText.renderedHtml)}
-        aria-invalid={this.question.a11y_input_ariaInvalid}
-        aria-describedby={this.question.a11y_input_ariaDescribedBy}
-      />
+      {this.renderInput(inputId, isChecked)}
       <span className={this.question.cssClasses.materialDecorator}>
         {this.question.itemSvgIcon ?
           <svg
@@ -249,6 +238,22 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       </span>
       {mobileSpan}
     </label>);
+  }
+  protected renderInput(inputId: string, isChecked: boolean): JSX.Element {
+    return (<input
+      id={inputId}
+      type="radio"
+      className={this.cssClasses.itemValue}
+      name={this.row.fullName}
+      value={this.column.value}
+      disabled={this.isDisplayMode}
+      checked={isChecked}
+      onChange={this.handleOnChange}
+      aria-required={this.question.a11y_input_ariaRequired}
+      aria-label={this.question.getCellAriaLabel(this.row.locText.renderedHtml, this.column.locText.renderedHtml)}
+      aria-invalid={this.question.a11y_input_ariaInvalid}
+      aria-describedby={this.question.a11y_input_ariaDescribedBy}
+    />);
   }
 }
 

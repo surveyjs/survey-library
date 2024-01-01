@@ -11,11 +11,11 @@ export class MatrixCellComponent {
   @Input() column!: ItemValue;
   @Input() row!: MatrixRowModel;
   @Input() columnIndex!: number;
+  @Input("cellChange") cellChanged!: (row: MatrixRowModel, column: ItemValue) => void;
   constructor() {
   }
   public onChange(): void {
-    if (this.question.isInputReadOnly) return;
-    this.row.value = this.column.value;
+    this.cellChanged(this.row, this.column);
   }
 }
 AngularComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCellComponent);

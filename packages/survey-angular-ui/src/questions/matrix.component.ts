@@ -15,7 +15,7 @@ export class MatrixQuestionComponent extends QuestionAngular<QuestionMatrixModel
     };
     super.ngOnInit();
   }
-  public onChange(row: any, column: any): void {
+  public onCellChange(row: any, column: any): void {
     if (this.model.isInputReadOnly) return;
     row.value = column.value;
     this.detectChanges();

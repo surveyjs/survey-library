@@ -1,8 +1,9 @@
 import { Component, Input } from "@angular/core";
 import { MatrixRowModel, ItemValue, QuestionMatrixModel } from "survey-core";
+import { AngularComponentFactory } from "../component-factory";
 
 @Component({
-  selector: "survey-matrix-cell, '[survey-matrix-cell]'",
+  selector: "sv-ng-matrix-cell, '[sv-ng-matrix-cell]'",
   templateUrl: "./matrixcell.component.html"
 })
 export class MatrixCellComponent {
@@ -17,3 +18,4 @@ export class MatrixCellComponent {
     this.row.value = this.column.value;
   }
 }
+AngularComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCellComponent);

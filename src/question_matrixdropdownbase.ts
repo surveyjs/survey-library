@@ -1464,7 +1464,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
       column.setVisibleChoicesInCell(newVisibleChoices);
       if(!Helpers.isArraysEqual(curVisibleChoices, newVisibleChoices, true, false, false)) return true;
     }
-    return curVis != column.isVisible;
+    return curVis !== column.isColumnVisible;
   }
   private updateNewVisibleChoices(q: Question, dest: Array<any>): void {
     const choices = q.visibleChoices;

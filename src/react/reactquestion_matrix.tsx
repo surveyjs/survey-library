@@ -3,9 +3,10 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { QuestionMatrixModel, MatrixRowModel, SurveyModel, Helpers } from "survey-core";
+import { QuestionMatrixModel, MatrixRowModel, SurveyModel, ItemValue } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
+import { ReactElementFactory } from "./element-factory";
 
 export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
   constructor(props: any) {
@@ -94,21 +95,12 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
-    this.handleOnChange = this.handleOnChange.bind(this);
-    this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
   }
   private get question(): QuestionMatrixModel {
     return this.props.question;
   }
   private get row(): MatrixRowModel {
     return this.props.row;
-  }
-  handleOnChange(event: any) {
-    this.row.value = event.target.value;
-    this.setState({ value: this.row.value });
-  }
-  handleOnMouseDown(event: any) {
-    this.question.onMouseDown();
   }
   protected wrapCell(cell: any, element: JSX.Element, reason: string): JSX.Element {
     if(!reason) {
@@ -148,20 +140,18 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
     );
   }
 
-  generateTds() {
-    var tds:Array<JSX.Element> = [];
-    var row = this.row;
-
+  generateTds(): Array<JSX.Element> {
+    const tds:Array<JSX.Element> = [];
+    const row = this.row;
+    const cellComponent = this.question.cellComponent;
     for (var i = 0; i < this.question.visibleColumns.length; i++) {
-      var td: JSX.Element | null = null;
-      var column = this.question.visibleColumns[i];
-      var key = "value" + i;
+      let td: JSX.Element | null = null;
+      const column = this.question.visibleColumns[i];
+      const key = "value" + i;
 
-      var isChecked = row.value == column.value;
       let itemClass = this.question.getItemClass(row, column);
-      var inputId = this.question.inputId + "_" + row.name + "_" + i;
       if (this.question.hasCellText) {
-        var getHandler = !this.question.isInputReadOnly
+        const getHandler = !this.question.isInputReadOnly
           ? (column: any) => () => this.cellClick(row, column)
           : null;
         td = (
@@ -176,55 +166,100 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           </td>
         );
       } else {
-        const mobileSpan = this.question.isMobile ?
-          (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(column.locText)}</span>)
-          : undefined;
-        td = (
-          <td
-            key={key}
-            data-responsive-title={column.locText.renderedHtml}
-            className={this.question.cssClasses.cell}
-          >
-            <label onMouseDown={this.handleOnMouseDown} className={itemClass}>
-              <input
-                id={inputId}
-                type="radio"
-                className={this.cssClasses.itemValue}
-                name={row.fullName}
-                value={column.value}
-                disabled={this.isDisplayMode}
-                checked={isChecked}
-                onChange={this.handleOnChange}
-                aria-required={this.question.a11y_input_ariaRequired}
-                aria-label={this.question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)}
-                aria-invalid={this.question.a11y_input_ariaInvalid}
-                aria-describedby={this.question.a11y_input_ariaDescribedBy}
-              />
-              <span className={this.question.cssClasses.materialDecorator}>
-                {this.question.itemSvgIcon ?
-                  <svg
-                    className={this.cssClasses.itemDecorator}
-                  >
-                    <use xlinkHref={this.question.itemSvgIcon}></use>
-                  </svg> :
-                  null
-                }
-              </span>
-              {mobileSpan}
-            </label>
-          </td>
-        );
+        const renderedCell = ReactElementFactory.Instance.createElement(cellComponent, {
+          question: this.question,
+          row: this.row,
+          column: column,
+          columnIndex: i,
+          cssClasses: this.cssClasses,
+          isDisplayMode: this.isDisplayMode,
+          cellChanged: () => { this.cellClick(this.row, column); }
+        });
+        td = (<td key={key} data-responsive-title={column.locText.renderedHtml} className={this.question.cssClasses.cell}>{renderedCell}</td>);
       }
       tds.push(td);
     }
 
     return tds;
   }
-  cellClick(row: any, column: any) {
+  cellClick(row: any, column: any): void {
     row.value = column.value;
     this.setState({ value: this.row.value });
   }
 }
+
+export class SurveyQuestionMatrixCell extends ReactSurveyElement {
+  constructor(props: any) {
+    super(props);
+    this.handleOnMouseDown = this.handleOnMouseDown.bind(this);
+    this.handleOnChange = this.handleOnChange.bind(this);
+  }
+  handleOnChange(event: any): void {
+    if(!!this.props.cellChanged) {
+      this.props.cellChanged();
+    }
+  }
+  handleOnMouseDown(event: any): void {
+    this.question.onMouseDown();
+  }
+  private get question(): QuestionMatrixModel {
+    return this.props.question;
+  }
+  private get row(): MatrixRowModel {
+    return this.props.row;
+  }
+  private get column(): ItemValue {
+    return this.props.column;
+  }
+  private get columnIndex(): number {
+    return this.props.columnIndex;
+  }
+  protected canRender(): boolean {
+    return !!this.question && !!this.row;
+  }
+  protected renderElement(): JSX.Element {
+    const isChecked = this.row.value == this.column.value;
+    const inputId = this.question.inputId + "_" + this.row.name + "_" + this.columnIndex;
+    const itemClass = this.question.getItemClass(this.row, this.column);
+    const mobileSpan = this.question.isMobile ?
+      (<span className={this.question.cssClasses.cellResponsiveTitle}>{this.renderLocString(this.column.locText)}</span>)
+      : undefined;
+    return (<label onMouseDown={this.handleOnMouseDown} className={itemClass}>
+      {this.renderInput(inputId, isChecked)}
+      <span className={this.question.cssClasses.materialDecorator}>
+        {this.question.itemSvgIcon ?
+          <svg
+            className={this.cssClasses.itemDecorator}
+          >
+            <use xlinkHref={this.question.itemSvgIcon}></use>
+          </svg> :
+          null
+        }
+      </span>
+      {mobileSpan}
+    </label>);
+  }
+  protected renderInput(inputId: string, isChecked: boolean): JSX.Element {
+    return (<input
+      id={inputId}
+      type="radio"
+      className={this.cssClasses.itemValue}
+      name={this.row.fullName}
+      value={this.column.value}
+      disabled={this.isDisplayMode}
+      checked={isChecked}
+      onChange={this.handleOnChange}
+      aria-required={this.question.a11y_input_ariaRequired}
+      aria-label={this.question.getCellAriaLabel(this.row.locText.renderedHtml, this.column.locText.renderedHtml)}
+      aria-invalid={this.question.a11y_input_ariaInvalid}
+      aria-describedby={this.question.a11y_input_ariaDescribedBy}
+    />);
+  }
+}
+
+ReactElementFactory.Instance.registerElement("survey-matrix-cell", props => {
+  return React.createElement(SurveyQuestionMatrixCell, props);
+});
 
 ReactQuestionFactory.Instance.registerQuestion("matrix", props => {
   return React.createElement(SurveyQuestionMatrix, props);

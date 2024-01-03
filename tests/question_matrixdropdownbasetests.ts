@@ -228,8 +228,9 @@ QUnit.test("column cell css classes for vertical layout", function (assert) {
 
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("question1");
   assert.equal(matrix.renderedTable.headerRow.cells.length, 3);
-  assert.equal(matrix.renderedTable.headerRow.cells[1].className, "sv_matrix_cell_header", "column 1");
-  assert.equal(matrix.renderedTable.headerRow.cells[2].className, "sv_matrix_cell_header", "column 2");
+  const cssHeader = survey.css.matrixdropdown.headerCell;
+  assert.equal(matrix.renderedTable.headerRow.cells[1].className, cssHeader, "column 1");
+  assert.equal(matrix.renderedTable.headerRow.cells[2].className, cssHeader, "column 2");
 });
 
 QUnit.test("column cell css classes by matrix cellType test", function (assert) {

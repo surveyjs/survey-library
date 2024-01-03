@@ -988,6 +988,7 @@ QUnit.test("Move flow panel up", function (assert) {
 });
 
 QUnit.test("Check onQuestionAdded event is not fired", function (assert) {
+  settings.supportCreatorV2 = false;
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
   var question = page.addNewQuestion("question1");

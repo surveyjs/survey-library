@@ -22,19 +22,17 @@ export class PopupSurvey extends Survey {
   protected renderElement(): JSX.Element {
     var header = this.renderWindowHeader();
     var body = this.popup.isExpanded ? this.renderBody() : null;
-    let style: React.CSSProperties = {
-      position: "fixed",
-      bottom: 3,
-      right: 10
-    };
+    let style: React.CSSProperties = {};
     if (!!this.popup.renderedWidth) {
       style.width = this.popup.renderedWidth;
       style.maxWidth = this.popup.renderedWidth;
     }
     return (
       <div className={this.popup.cssRoot} style={style}>
-        {header}
-        {body}
+        <div className={this.popup.cssRootContent}>
+          {header}
+          {body}
+        </div>
       </div>
     );
   }
@@ -44,6 +42,10 @@ export class PopupSurvey extends Survey {
     var glyphClassName = this.popup.cssButton;
     glyphClassName = "glyphicon pull-right " + glyphClassName;
     var title = SurveyElementBase.renderLocString(this.survey.locTitle);
+    var headerCss = this.popup.cssHeaderRoot;
+    if (this.popup.isCollapsed) {
+      headerCss += " " + this.popup.cssRootCollapsedMod;
+    }
     return (
       <div className={this.popup.cssHeaderRoot}>
         <span onClick={this.handleOnExpanded} style={styleA}>

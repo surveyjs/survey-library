@@ -635,8 +635,20 @@ Serializer.addClass(
   [
     { name: "showSelectAllItem:boolean", alternativeName: "hasSelectAll" },
     { name: "separateSpecialChoices", visible: true },
-    { name: "maxSelectedChoices:number", default: 0 },
-    { name: "minSelectedChoices:number", default: 0 },
+    { name: "maxSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if(val <= 0) return 0;
+        const min = obj.minSelectedChoices;
+        return min > 0 && val < min ? min : val;
+      }
+    },
+    { name: "minSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if(val <= 0) return 0;
+        const max = obj.maxSelectedChoices;
+        return max > 0 && val > max ? max : val;
+      }
+    },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",

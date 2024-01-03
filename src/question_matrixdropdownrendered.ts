@@ -254,8 +254,8 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   public get footerRow(): QuestionMatrixDropdownRenderedRow {
     return this.footerRowValue;
   }
-  public get allowRowsDragAndDrop(): boolean {
-    return this.matrix.allowRowsDragAndDrop && this.matrix.isColumnLayoutHorizontal;
+  public get isRowsDragAndDrop(): boolean {
+    return this.matrix.isRowsDragAndDrop && this.matrix.isColumnLayoutHorizontal;
   }
 
   private get showCellErrorsTop() {
@@ -407,7 +407,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     this.setPropertyValue("showHeader", isShown);
     if (!isShown) return;
     this.headerRowValue = this.createRenderedRow(this.cssClasses);
-    if (this.allowRowsDragAndDrop) {
+    if (this.isRowsDragAndDrop) {
       this.headerRow.cells.push(this.createHeaderCell(null, "action"));
     }
     if (this.hasActionCellInRows("start")) {
@@ -447,7 +447,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   protected buildFooter() {
     if (!this.showFooter) return;
     this.footerRowValue = this.createRenderedRow(this.cssClasses);
-    if (this.allowRowsDragAndDrop) {
+    if (this.isRowsDragAndDrop) {
       this.footerRow.cells.push(this.createHeaderCell(null));
     }
     if (this.hasActionCellInRows("start")) {
@@ -709,7 +709,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     useAsHeader: boolean
   ): QuestionMatrixDropdownRenderedRow {
     var res = this.createRenderedRow(this.cssClasses);
-    if (this.allowRowsDragAndDrop) {
+    if (this.isRowsDragAndDrop) {
       var rowIndex = this.matrix.visibleRows.indexOf(row);
       res.cells.push(this.getRowDragCell(rowIndex));
     }

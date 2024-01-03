@@ -1609,3 +1609,26 @@ QUnit.test("isUsingRestful & loading", function(assert) {
   q1.choicesByUrl.url = "edf";
   assert.equal(q1.isUsingRestful, true, "q1 #3");
 });
+QUnit.test("checkbox max(min)SelectedChoices validation", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1"
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.minSelectedChoices = 10;
+  assert.equal(q.minSelectedChoices, 10, "q.minSelectedChoices, #1");
+  q.maxSelectedChoices = 5;
+  assert.equal(q.maxSelectedChoices, 10, "q.maxSelectedChoices, #2");
+  q.minSelectedChoices = 20;
+  assert.equal(q.minSelectedChoices, 10, "q.minSelectedChoices, #3");
+  q.maxSelectedChoices = 0;
+  q.minSelectedChoices = 20;
+  assert.equal(q.minSelectedChoices, 20, "q.minSelectedChoices, #4");
+  q.minSelectedChoices = 0;
+  q.maxSelectedChoices = 5;
+  assert.equal(q.maxSelectedChoices, 5, "q.maxSelectedChoices, #5");
+});

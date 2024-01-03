@@ -1,8 +1,7 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { Question } from "../src/question";
 import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent } from "../src/utils/utils";
-import { getIsTouch } from "../src/utils/devices";
+import { mouseInfo } from "../src/utils/devices";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
@@ -157,11 +156,24 @@ QUnit.test(
   }
 );
 
-QUnit.skip(
-  "utils: devices: getIsTouch",
+QUnit.test(
+  "utils: devices: isTouch",
   function (assert) {
-    assert.equal(getIsTouch(), false, "getIsTouch() return false for 'mouse' screens");
-    window["ontouchstart"] = ()=>{};
-    assert.equal(getIsTouch(), true, "getIsTouch() return true for 'touch' screens");
+    mouseInfo.hasMouse = true;
+    assert.equal(mouseInfo.isTouch, false, "isTouch, #1");
+    mouseInfo.hasMouse = false;
+    const hasTouchEvent = mouseInfo.hasTouchEvent;
+    assert.equal(mouseInfo.isTouch, hasTouchEvent, "isTouch, #2. hasTouch in window: " + hasTouchEvent);
+    if(!hasTouchEvent) {
+      window["ontouchstart"] = ()=>{};
+    }
+    mouseInfo.hasMouse = true;
+    assert.equal(mouseInfo.isTouch, false, "isTouch, #3");
+    mouseInfo.hasMouse = false;
+    assert.equal(mouseInfo.isTouch, true, "isTouch, #4");
+    mouseInfo.hasMouse = true;
+    if(!hasTouchEvent) {
+      window["ontouchstart"] = undefined;
+    }
   }
 );

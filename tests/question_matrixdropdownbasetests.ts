@@ -1074,3 +1074,31 @@ QUnit.test("checkIfValueInRowDuplicated has only one duplicated error", function
   assert.equal(cellQuestion1.choices.length, 3, "choices #1");
   assert.equal(cellQuestion2.choices.length, 4, "choices #2");
 });
+QUnit.test("Do not resetTable for always invisible column", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "rowCount": 1,
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "text"
+          },
+          {
+            "name": "col2",
+            "cellType": "text",
+            "visibleIf": "false"
+          }
+        ]
+      }
+    ]
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const cellQuestion = matrix.visibleRows[0].cells[0].question;
+  const table = matrix.renderedTable;
+  table["$ref"] = "ref1";
+  cellQuestion.value = "test";
+  assert.equal(matrix.renderedTable["$ref"], "ref1", "Do not recreate the rendered table");
+});

@@ -45,30 +45,7 @@
               :class="question.cssClasses.cell"
               v-on:click="cellClick(row, column)"
             >
-              <label @mousedown="question.onMouseDown()" :class="question.getItemClass(row, column)">
-                <input
-                  type="radio"
-                  :class="question.cssClasses.itemValue"
-                  :name="row.fullName"
-                  v-model="row.value"
-                  :value="column.value"
-                  :disabled="question.isInputReadOnly"
-                  :id="question.inputId + '_' + row.name + '_' + columnIndex"
-                  :aria-required="question.a11y_input_ariaRequired"
-                  :aria-label="question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
-                  :aria-invalid="question.a11y_input_ariaInvalid"
-                  :aria-describedby="question.a11y_input_ariaDescribedBy"
-                />
-                <span :class="question.cssClasses.materialDecorator">
-                    <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
-                      <use :xlink:href="question.itemSvgIcon"></use>
-                    </svg> 
-                  </span>
-                </span>
-                <span v-if="question.isMobile" :class="question.cssClasses.cellResponsiveTitle">
-                  <survey-string :locString="column.locText"></survey-string>
-                </span>
-              </label>
+<component :is="question.cellComponent" :question="question" :row="row" :column="column" :columnIndex="columnIndex"></component>
             </td>
           </tr>
         </tbody>

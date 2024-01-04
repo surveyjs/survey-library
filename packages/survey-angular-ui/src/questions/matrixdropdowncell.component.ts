@@ -4,7 +4,6 @@ import {
   Question,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedCell,
-  QuestionMatrixDropdownColumn,
   MatrixDropdownRowModelBase,
   SurveyModel
 } from "survey-core";

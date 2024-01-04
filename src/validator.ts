@@ -365,7 +365,7 @@ export class RegexValidator extends SurveyValidator {
     properties: any = null
   ): ValidatorResult {
     if (!this.regex || this.isValueEmpty(value)) return null;
-    var re = new RegExp(this.regex);
+    var re = this.createRegExp();
     if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) {
         var res = this.hasError(re, value[i], name);
@@ -386,6 +386,15 @@ export class RegexValidator extends SurveyValidator {
   }
   public set regex(val: string) {
     this.setPropertyValue("regex", val);
+  }
+  private createRegExp(): RegExp {
+    let pattern = this.regex;
+    let flags = "";
+    if(pattern.endsWith("/i")) {
+      pattern = pattern.substring(0, pattern.length - 2);
+      flags = "i";
+    }
+    return new RegExp(pattern, flags);
   }
 }
 /**

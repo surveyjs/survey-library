@@ -4,6 +4,7 @@ import {
   Question,
   QuestionMatrixDropdownModelBase,
   QuestionMatrixDropdownRenderedCell,
+  QuestionMatrixDropdownColumn,
   MatrixDropdownRowModelBase,
   SurveyModel
 } from "survey-core";
@@ -71,6 +72,9 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
     if (!!this.cell.width || !!this.cell.minWidth)
       return { width: this.cell.width, minWidth: this.cell.minWidth };
     return null;
+  }
+  public get isRequiredCell(): boolean {
+    return !!this.cell.column && this.cell.column.isRenderedRequired;
   }
   ngAfterViewInit() {
     if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;

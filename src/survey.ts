@@ -6550,7 +6550,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateVisibleIndexes();
     this.setCalculatedWidthModeUpdater();
-    if (!this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2) {
+    if (this.canFireAddElement()) {
       this.onQuestionAdded.fire(this, {
         question: question,
         name: question.name,
@@ -6561,6 +6561,9 @@ export class SurveyModel extends SurveyElementCore
         rootPanel: rootPanel,
       });
     }
+  }
+  private canFireAddElement(): boolean {
+    return !this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2;
   }
   questionRemoved(question: Question) {
     this.questionHashesRemoved(
@@ -6681,15 +6684,17 @@ export class SurveyModel extends SurveyElementCore
     }
     this.questionHashesPanelAdded(<PanelModelBase>(<any>panel));
     this.updateVisibleIndexes();
-    this.onPanelAdded.fire(this, {
-      panel: panel,
-      name: panel.name,
-      index: index,
-      parent: parentPanel,
-      page: rootPanel,
-      parentPanel: parentPanel,
-      rootPanel: rootPanel,
-    });
+    if (this.canFireAddElement()) {
+      this.onPanelAdded.fire(this, {
+        panel: panel,
+        name: panel.name,
+        index: index,
+        parent: parentPanel,
+        page: rootPanel,
+        parentPanel: parentPanel,
+        rootPanel: rootPanel,
+      });
+    }
   }
   panelRemoved(panel: PanelModel) {
     this.updateVisibleIndexes();

@@ -135,7 +135,7 @@ const json2 = {
       "Row 1",
       "Row 2"
     ]
-  }] 
+  }]
 };
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(

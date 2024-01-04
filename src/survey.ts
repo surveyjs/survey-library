@@ -898,6 +898,9 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
       this.updateBackgroundImageStyle();
     });
+    this.registerPropertyChangedHandlers(
+      ["showPrevButton", "showCompleteButton"],
+      () => { this.updateButtonsVisibility(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1396,6 +1399,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
    * @see goNextPageAutomatic
    * @see showPrevButton
+   * @see showCompleteButton
    */
   public get showNavigationButtons(): string | any {
     return this.getPropertyValue("showNavigationButtons");
@@ -1412,12 +1416,24 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
    * @see showNavigationButtons
+   * @see showCompleteButton
    */
   public get showPrevButton(): boolean {
     return this.getPropertyValue("showPrevButton");
   }
   public set showPrevButton(val: boolean) {
     this.setPropertyValue("showPrevButton", val);
+  }
+  /**
+   * Specifies whether to display the Complete button. Set this property to `false` if respondents should not complete the survey.
+   * @see showNavigationButtons
+   * @see showPrevButton
+   */
+  public get showCompleteButton(): boolean {
+    return this.getPropertyValue("showCompleteButton", true);
+  }
+  public set showCompleteButton(val: boolean) {
+    this.setPropertyValue("showCompleteButton", val);
   }
   /**
    * Gets or sets the visibility of the table of contents.
@@ -4251,7 +4267,7 @@ export class SurveyModel extends SurveyElementCore
     const state = this.state;
     return this.isEditMode && (this.state === "running" &&
       (this.isLastPage && !this.isShowPreviewBeforeComplete || this.canBeCompletedByTrigger)
-      || state === "preview");
+      || state === "preview") && this.showCompleteButton;
   }
   private calcIsPreviewButtonVisible(): boolean {
     return (

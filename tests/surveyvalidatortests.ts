@@ -429,7 +429,8 @@ QUnit.test("Regex number validator, Bug#1775", function(assert) {
   assert.equal(validator.validate(null), null, "Parse correctly null");
 });
 QUnit.test("Regex case insensitive, Bug#7620", function(assert) {
-  var validator = new RegexValidator(".+@something.com/i");
+  const validator = new RegexValidator(".+@something.com");
+  validator.insensitive = true;
   validator.text = "Error";
   assert.equal(validator.validate("abc").error.text, "Error", "#1");
   assert.equal(validator.validate("abc@something1.com").error.text, "Error", "#2");

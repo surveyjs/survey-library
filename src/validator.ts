@@ -387,14 +387,14 @@ export class RegexValidator extends SurveyValidator {
   public set regex(val: string) {
     this.setPropertyValue("regex", val);
   }
+  public get insensitive(): boolean {
+    return this.getPropertyValue("insensitive");
+  }
+  public set insensitive(val: boolean) {
+    this.setPropertyValue("insensitive", val);
+  }
   private createRegExp(): RegExp {
-    let pattern = this.regex;
-    let flags = "";
-    if(pattern.endsWith("/i")) {
-      pattern = pattern.substring(0, pattern.length - 2);
-      flags = "i";
-    }
-    return new RegExp(pattern, flags);
+    return new RegExp(this.regex, this.insensitive ? "i" : "");
   }
 }
 /**
@@ -525,7 +525,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "regexvalidator",
-  ["regex"],
+  ["regex", { name: "insensitive:boolean", visible: false }],
   function() {
     return new RegexValidator();
   },

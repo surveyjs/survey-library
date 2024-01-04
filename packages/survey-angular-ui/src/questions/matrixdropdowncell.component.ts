@@ -23,6 +23,9 @@ export class MatrixDropdownCellComponent extends BaseAngular<Question> {
     if(this.cell.hasQuestion) {
       return this.cell.question;
     }
+    if(!!this.cell.column) {
+      return this.cell.column;
+    }
     return null as any;
   }
   public get row(): MatrixDropdownRowModelBase {

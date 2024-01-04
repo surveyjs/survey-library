@@ -107,3 +107,49 @@ frameworks.forEach(framework => {
     });
   });
 });
+
+const json2 = {
+  "focusFirstQuestionAutomatic": true,
+  "elements": [{
+    "type": "radiogroup",
+    "name": "question2",
+    "defaultValue": "Item1",
+    "choices": [
+      "Item1",
+      "Item2",
+      "Item3"
+    ]
+  },
+  {
+    "type": "matrixdropdown",
+    "name": "question1",
+    "columns": [
+      {
+        "name": "Column 1",
+        "cellType": "text",
+        "requiredIf": "{question2} = 'Item1'"
+      }
+    ],
+    "columnLayout": "vertical",
+    "rows": [
+      "Row 1",
+      "Row 2"
+    ]
+  }] 
+};
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json2);
+    }
+  );
+
+  test("Column requiredIf and vertical layout", async t => {
+    const requiredSpan = Selector("span").withExactText("*");
+    await t.expect(requiredSpan.exists).ok();
+    await t.pressKey("down");
+    await t.expect(requiredSpan.exists).notOk();
+    await t.pressKey("up");
+    await t.expect(requiredSpan.exists).ok();
+  });
+});

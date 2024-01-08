@@ -34,7 +34,7 @@
       <ng-template
         [component]="{ name: question.getCellWrapperComponentName($any(cell)), data: { componentData: question.getCellWrapperComponentData($any(cell))} }">
         <sv-ng-string [model]="cell.locTitle"></sv-ng-string>
-        <span *ngIf="!!cell.requiredText" [class]="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
+        <span *ngIf="isRequiredCell" [class]="question.cssClasses.cellRequiredText">{{ cell.requiredText }}</span>
       </ng-template>
     </ng-container>
   </td>

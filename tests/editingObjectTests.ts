@@ -18,6 +18,7 @@ import { QuestionMatrixModel } from "../src/question_matrix";
 import { Question } from "../src/question";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { SurveyTriggerComplete } from "../src/trigger";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -1561,4 +1562,28 @@ QUnit.test("reset property value", function (assert) {
   question.resetPropertyValue("labelTrue");
   assert.equal(question.labelTrue, "Yes", "labelTrue value");
   assert.equal(comment.value, "Yes", "value #3");
+});
+QUnit.test("paneldynamic. templateVisibleIf", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "paneldynamic", name: "q2", templateVisibleIf: "{q1} = 'a'" }
+    ]
+  });
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q2");
+  const editSurvey = new SurveyModel({
+    elements: [
+      {
+        type: "comment",
+        name: "templateVisibleIf"
+      }
+    ]
+  });
+  const comment = <QuestionMatrixDynamicModel>(editSurvey.getQuestionByName("templateVisibleIf"));
+  editSurvey.editingObj = question;
+  assert.equal(comment.value, "{q1} = 'a'", "value #1");
+  question.templateVisibleIf = "{q1} = 'b'";
+  assert.equal(comment.value, "{q1} = 'b'", "value #2");
+  comment.value = "{q1} = 'c'";
+  assert.equal(question.templateVisibleIf, "{q1} = 'c'", "property value #1");
 });

@@ -454,9 +454,10 @@ export class QuestionPanelDynamicModel extends Question
    * @see visiblePanels
    */
   public get templateVisibleIf(): string {
-    return this.template.visibleIf;
+    return this.getPropertyValue("templateVisibleIf");
   }
   public set templateVisibleIf(val: string) {
+    this.setPropertyValue("templateVisibleIf", val);
     this.template.visibleIf = val;
   }
   protected get items(): Array<ISurveyData> {

@@ -733,6 +733,43 @@ QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: show
   survey.mode = "edit";
   assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible, edit mode #5");
 });
+QUnit.test("isShowPrevButton/isCompleteButtonVisible & showPrevButton/showCompleteButton", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    showPrevButton: false,
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  survey.showCompleteButton = false;
+
+  assert.equal(survey.currentPageNo, 0, "Init current page");
+  assert.equal(survey.isShowPrevButton, false, "prev #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "complete #1");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").isVisible, false, "sv-nav-prev, #1");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, false, "sv-nav-complete, #1");
+
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "second page");
+  assert.equal(survey.isShowPrevButton, false, "prev #2");
+  assert.equal(survey.isCompleteButtonVisible, false, "complete #2");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").isVisible, false, "sv-nav-prev, #2");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, false, "sv-nav-complete, #2");
+
+  survey.showPrevButton = true;
+  survey.showCompleteButton = true;
+  assert.equal(survey.currentPageNo, 1, "second page, #2");
+  assert.equal(survey.isShowPrevButton, true, "prev #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "complete #3");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").isVisible, true, "sv-nav-prev, #3");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, true, "sv-nav-complete, #3");
+});
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert
 ) {

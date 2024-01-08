@@ -125,9 +125,8 @@ export class DragDropPageHelperV1 {
           elementsToResetSWNL.push(target);
         }
       }
-
+      (this.page.survey as SurveyModel).startMovingQuestion();
       if (!!src && !!src.parent) {
-        (this.page.survey as SurveyModel).startMovingQuestion();
         isSamePanel = row.panel == src.parent;
         if (isSamePanel) {
           row.panel.dragDropMoveElement(src, target, targetIndex);

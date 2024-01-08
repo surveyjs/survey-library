@@ -29,7 +29,6 @@ export class QuestionMatrixDropdownRenderedCell {
   public choiceIndex: number;
   public isOtherChoice: boolean;
   public matrix: QuestionMatrixDropdownModelBase;
-  public requiredText: string;
   public isEmpty: boolean;
   public colSpans: number = 1;
   public panel: PanelModel;
@@ -41,6 +40,9 @@ export class QuestionMatrixDropdownRenderedCell {
   private classNameValue: string = "";
   public constructor() {
     this.idValue = QuestionMatrixDropdownRenderedCell.counter++;
+  }
+  public get requiredText(): string {
+    return this.column && this.column.isRenderedRequired ? this.column.requiredText : undefined;
   }
   public get hasQuestion(): boolean {
     return !!this.question && !this.isErrorsCell;
@@ -867,9 +869,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
         .append(hCell.className)
         .append(this.cssClasses.rowTextCell)
         .append(this.cssClasses.columnTitleCell).toString();
-      if (!choice) {
-        this.setRequriedToHeaderCell(column, hCell);
-      }
       res.cells.push(hCell);
     }
     var rows = this.matrix.visibleRows;
@@ -1014,7 +1013,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
     cell: QuestionMatrixDropdownRenderedCell
   ) {
     this.setHeaderCellWidth(column, cell);
-    this.setRequriedToHeaderCell(column, cell);
   }
   private setHeaderCellWidth(
     column: MatrixDropdownColumn,
@@ -1022,25 +1020,6 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   ) {
     cell.minWidth = column != null ? this.matrix.getColumnWidth(column) : this.matrix.getRowTitleWidth();
     cell.width = column != null ? column.width : this.matrix.getRowTitleWidth();
-  }
-  private setRequriedToHeaderCell(
-    column: MatrixDropdownColumn,
-    cell: QuestionMatrixDropdownRenderedCell
-  ) {
-    if (!!column && column.isRequired && this.matrix.survey) {
-      cell.requiredText = this.matrix.survey.requiredText;
-    }
-  }
-  private createRemoveRowCell(
-    row: MatrixDropdownRowModelBase
-  ): QuestionMatrixDropdownRenderedCell {
-    var res = new QuestionMatrixDropdownRenderedCell();
-    res.row = row;
-    res.isRemoveRow = this.canRemoveRow(row);
-    if (!!this.cssClasses.cell) {
-      res.className = this.cssClasses.cell;
-    }
-    return res;
   }
   private createTextCell(
     locTitle: LocalizableString

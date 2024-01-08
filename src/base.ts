@@ -810,10 +810,10 @@ export class Base {
   public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
     this.unregisterPropertyChangedHandlers(names, key);
   }
-  public createCustomLocalizableObj(name: string) {
-    var locStr = this.getLocalizableString(name);
-    if (locStr) return;
-    this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
+  public createCustomLocalizableObj(name: string): LocalizableString {
+    const locStr = this.getLocalizableString(name);
+    if(locStr) return locStr;
+    return this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
   }
   public getLocale(): string {
     const locOwner = this.getSurvey();

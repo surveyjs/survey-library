@@ -54,6 +54,7 @@ export class LocalizableString implements ILocalizableString {
   public searchText: string;
   public searchIndex: number;
   public disableLocalization: boolean;
+  public defaultValue: string;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false,
@@ -131,7 +132,7 @@ export class LocalizableString implements ILocalizableString {
         res = this.onGetLocalizationTextCallback(res);
       }
     }
-    if (!res) res = "";
+    if (!res) res = this.defaultValue || "";
     return res;
   }
   private getRootDialect(loc: string): string {

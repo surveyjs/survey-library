@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { QuestionMatrixModel, MatrixRowModel, SurveyModel, ItemValue } from "survey-core";
+import { QuestionMatrixModel, MatrixRowModel, SurveyModel, ItemValue, Base } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
@@ -95,6 +95,9 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
 export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
+  }
+  protected getStateElement(): Base {
+    return !!this.row ? this.row.item : undefined;
   }
   private get question(): QuestionMatrixModel {
     return this.props.question;
@@ -246,7 +249,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       className={this.cssClasses.itemValue}
       name={this.row.fullName}
       value={this.column.value}
-      disabled={this.isDisplayMode}
+      disabled={this.isDisplayMode || this.row.isReadOnly}
       checked={isChecked}
       onChange={this.handleOnChange}
       aria-required={this.question.a11y_input_ariaRequired}

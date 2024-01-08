@@ -1,4 +1,4 @@
-import { Helpers } from "./helpers";
+import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionMatrixBaseModel } from "./martixBase";
 import { JsonObject, Serializer } from "./jsonobject";
@@ -22,17 +22,15 @@ export interface IMatrixData {
 
 export class MatrixRowModel extends Base {
   private data: IMatrixData;
-  private item: ItemValue;
   public cellClick: any;
 
   constructor(
-    item: ItemValue,
+    public item: ItemValue,
     public fullName: string,
     data: IMatrixData,
     value: any
   ) {
     super();
-    this.item = item;
     this.data = data;
     this.value = value;
     this.cellClick = (column: any) => {
@@ -51,7 +49,8 @@ export class MatrixRowModel extends Base {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
-  public get value() {
+  public get isReadOnly(): boolean { return !this.item.enabled; }
+  public get value(): any {
     return this.getPropertyValue("value");
   }
   public set value(newValue: any) {
@@ -345,7 +344,10 @@ export class QuestionMatrixModel
     }
     return res;
   }
-
+  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): boolean {
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
+    return super.runItemsCondition(values, properties);
+  }
   protected getVisibleRows(): Array<MatrixRowModel> {
     var result = new Array<MatrixRowModel>();
     var val = this.value;

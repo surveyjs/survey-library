@@ -3131,6 +3131,23 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
+  public tryNavigateToPage(page: PageModel): boolean {
+    if (this.isDesignMode) return false;
+    const index = this.visiblePages.indexOf(page);
+    if(index < 0) return false;
+    if(index === this.currentPageNo) return false;
+    if (index < this.currentPageNo) {
+      this.currentPageNo = index;
+      return true;
+    }
+    for (let i = this.currentPageNo; i < index; i++) {
+      const page = this.visiblePages[i];
+      if(!page.validate(true, true)) return false;
+    }
+    this.currentPage = page;
+    return true;
+  }
+
   private updateCurrentPage(): void {
     if (this.isCurrentPageAvailable) return;
     this.currentPage = this.firstVisiblePage;

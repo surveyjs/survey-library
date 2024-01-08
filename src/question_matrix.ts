@@ -18,6 +18,8 @@ import { IPlainDataOptions } from "./base-interfaces";
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
   getCorrectedRowValue(value: any): any;
+  cssClasses: any;
+  isReadOnly: boolean;
 }
 
 export class MatrixRowModel extends Base {
@@ -49,7 +51,11 @@ export class MatrixRowModel extends Base {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
-  public get isReadOnly(): boolean { return !this.item.enabled; }
+  public get isReadOnly(): boolean { return !this.item.enabled || this.data.isReadOnly; }
+  public get css(): string {
+    const val = this.data.cssClasses;
+    return new CssClassBuilder().append(val.rowTextCell).append(val.rowTextCellDisabled, this.isReadOnly).toString();
+  }
   public get value(): any {
     return this.getPropertyValue("value");
   }

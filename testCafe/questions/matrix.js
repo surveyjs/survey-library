@@ -221,11 +221,12 @@ frameworks.forEach(framework => {
   );
 
   test("Matrix row enableIf", async t => {
-    const inputButton = Selector("input").hasAttribute("disabled");
+    const inputButton = Selector("input[value=\"Col1\"]");
     await t.expect(inputButton.exists).ok();
+    await t.expect(inputButton.hasAttribute("disabled")).ok();
     await t.pressKey("down");
-    await t.expect(inputButton.exists).notOk();
+    await t.expect(inputButton.hasAttribute("disabled")).notOk();
     await t.pressKey("up");
-    await t.expect(inputButton.exists).ok();
+    await t.expect(inputButton.hasAttribute("disabled")).ok();
   });
 });

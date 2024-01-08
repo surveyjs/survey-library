@@ -21,5 +21,8 @@ export class MatrixCellComponent {
   public onChange(): void {
     this.cellChangedOwner.onCellChanged(this.row, this.column);
   }
+  public get isReadOnly(): boolean {
+    return this.question.isInputReadOnly || this.row.isReadOnly;
+  }
 }
 AngularComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCellComponent);

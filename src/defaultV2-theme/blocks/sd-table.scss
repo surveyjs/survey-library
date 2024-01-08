@@ -309,6 +309,10 @@
   padding: calcSize(1.5) calcSize(1);
 }
 
+.sd-table__cell--row-disabled .sd-table__cell--row-text {
+  opacity: 0.25;
+}
+
 .sd-matrixdynamic__content .sd-table__question-wrapper {
   position: relative;
 }

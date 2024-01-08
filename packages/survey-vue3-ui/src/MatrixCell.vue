@@ -9,7 +9,7 @@
       :name="row.fullName"
       v-model="row.value"
       :value="column.value"
-      :disabled="question.isInputReadOnly"
+      :disabled="question.isInputReadOnly || row.isReadOnly"
       :id="question.inputId + '_' + row.name + '_' + columnIndex"
       :aria-required="question.a11y_input_ariaRequired"
       :aria-label="

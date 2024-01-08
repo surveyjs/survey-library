@@ -175,6 +175,9 @@ export class PopupSurveyModel extends Base {
     if (this.isCollapsed) result += " " + this.getPropertyValue("cssRootCollapsedMod", "");
     return result;
   }
+  public get cssRootCollapsedMod(): string {
+    return this.getPropertyValue("cssRootCollapsedMod");
+  }
   public get cssRootContent(): string {
     return this.getPropertyValue("cssRootContent");
   }

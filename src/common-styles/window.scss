@@ -67,8 +67,10 @@
 
     &:hover, &:active {
         background-color: $primary-light;
-        svg use {
-            fill: $primary;
+        svg {
+            use, path {
+                fill: $primary;
+            }
         }
     }
 
@@ -76,7 +78,9 @@
         opacity: 0.5;
     }
 
-    svg use {
-        fill: $foreground-dim-light;
+    svg {
+        use, path {
+            fill: $foreground-dim-light;
+        }
     }
 }

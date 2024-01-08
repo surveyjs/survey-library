@@ -3143,6 +3143,7 @@ export class SurveyModel extends SurveyElementCore
     for (let i = this.currentPageNo; i < index; i++) {
       const page = this.visiblePages[i];
       if(!page.validate(true, true)) return false;
+      page.passed = true;
     }
     this.currentPage = page;
     return true;

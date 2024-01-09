@@ -169,6 +169,7 @@ export var defaultV2Css = {
     headerTop: "sd-question__header--location-top sd-element__header--location-top",
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
+    contentSupportContainerQueries: "sd-question__content--support-container-queries",
     contentLeft: "sd-question__content--left",
     titleNumInline: "sd-element__title--num-inline",
     titleLeftRoot: "sd-question--left",

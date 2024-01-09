@@ -4,7 +4,7 @@ import { SurveyProgressButtonsModel } from "../src/surveyProgressButtons";
 export default QUnit.module("SurveyProgressButtons");
 
 QUnit.test("SurveyProgressButtonsModel list elements", function(assert) {
-  let json: any = {
+  const json: any = {
     "pages": [
       {
         "name": "page1",
@@ -35,8 +35,8 @@ QUnit.test("SurveyProgressButtonsModel list elements", function(assert) {
       }
     ]
   };
-  let survey: SurveyModel = new SurveyModel(json);
-  let progress: SurveyProgressButtonsModel = new SurveyProgressButtonsModel(survey);
+  const survey: SurveyModel = new SurveyModel(json);
+  const progress: SurveyProgressButtonsModel = new SurveyProgressButtonsModel(survey);
   assert.equal(progress.getListElementCss(0),
     survey.css.progressButtonsListElementCurrent,
     "1) Page 1 style is current");
@@ -46,6 +46,7 @@ QUnit.test("SurveyProgressButtonsModel list elements", function(assert) {
     "", "1) Page 3 style is empty");
 
   progress.clickListElement(2);
+  assert.equal(survey.currentPageNo, 2, "currentPageNo #1");
   assert.equal(progress.getListElementCss(0),
     survey.css.progressButtonsListElementPassed,
     "2) Page 1 style is passed");
@@ -57,6 +58,7 @@ QUnit.test("SurveyProgressButtonsModel list elements", function(assert) {
     "2) Page 3 style is current");
 
   progress.clickListElement(0);
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #2");
   assert.equal(progress.getListElementCss(0),
     survey.css.progressButtonsListElementPassed + " " +
       survey.css.progressButtonsListElementCurrent,

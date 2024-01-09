@@ -284,9 +284,10 @@
     fill: $font-questiondescription-color;
   }
 
-  &:hover {
+    &:hover,
+    &:focus {
     background: $primary-light;
-
+    outline: none;
     svg {
       fill: $primary;
     }

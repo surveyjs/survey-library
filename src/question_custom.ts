@@ -660,7 +660,8 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     return this.contentQuestion;
   }
   protected getDefaultTitle(): string {
-    if(this.hasJSONTitle && this.contentQuestion) return this.contentQuestion.title;
+    if(this.hasJSONTitle && this.contentQuestion)
+      return this.getProcessedText(this.contentQuestion.title);
     return super.getDefaultTitle();
   }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {

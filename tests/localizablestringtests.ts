@@ -835,3 +835,24 @@ QUnit.test("Fire onStringChanged when localizationName is set", function (assert
   locString.localizationName = "completeText";
   assert.equal(callCount, 1, "onStringChanged is called");
 });
+QUnit.test("Support defaultValue for localizable strings", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStr1 = new LocalizableString(owner, true);
+  locStr1.defaultValue = "str1";
+  const locStr2 = new LocalizableString(owner, true, "locStr2");
+  locStr2.defaultValue = "str2";
+  const locStr3 = new LocalizableString(owner, true);
+  locStr3.localizationName = "completeText";
+  locStr3.defaultValue = "str3";
+  assert.equal(locStr1.text, "str1", "str1 #1");
+  assert.equal(locStr2.text, "str2", "str2 #1");
+  assert.equal(locStr3.text, "Complete", "str3 #1");
+
+  locStr1.text = "new str1";
+  assert.equal(locStr1.text, "new str1", "str1 #2");
+
+  owner.locale = "de";
+  assert.equal(locStr1.text, "new str1", "str1 #3");
+  assert.equal(locStr2.text, "str2", "str2 #3");
+  assert.equal(locStr3.text, "Abschließen", "str3 #3");
+});

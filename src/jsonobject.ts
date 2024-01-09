@@ -579,7 +579,8 @@ export class CustomPropertiesCollection {
       prop.serializationProperty &&
       obj.createCustomLocalizableObj
     ) {
-      obj.createCustomLocalizableObj(prop.name);
+      const locStr = obj.createCustomLocalizableObj(prop.name);
+      locStr.defaultValue = prop.defaultValue;
       var locDesc = {
         get: function () {
           return obj.getLocalizableString(prop.name);
@@ -588,7 +589,7 @@ export class CustomPropertiesCollection {
       Object.defineProperty(obj, prop.serializationProperty, locDesc);
       var desc = {
         get: function () {
-          return obj.getLocalizableStringText(prop.name, prop.defaultValue);
+          return obj.getLocalizableStringText(prop.name);
         },
         set: function (v: any) {
           obj.setLocalizableStringText(prop.name, v);

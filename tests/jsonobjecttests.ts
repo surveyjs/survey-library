@@ -22,6 +22,7 @@ import { SurveyModel } from "../src/survey";
 import { CalculatedValue } from "../src/calculatedValue";
 import { QuestionHtmlModel } from "../src/question_html";
 import { ImageItemValue } from "../src/question_imagepicker";
+import { PageModel } from "../src/page";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -3110,4 +3111,31 @@ QUnit.test("getRequiredProperties", function (assert) {
   Serializer.findProperty("question", "title").isRequired = false;
   requiedValues = Serializer.getRequiredProperties("text");
   assert.deepEqual(requiedValues, ["name"], "required #3");
+});
+QUnit.test("Create localizable property with default value", function (assert) {
+  Serializer.addProperty("question", { name: "customProp:text", isLocalizable: true, default: "Question text" });
+  Serializer.addProperty("page", { name: "customProp:text", isLocalizable: true, default: "Page text" });
+  const question = new Question("q1");
+  const page = new PageModel("page1");
+  assert.equal(question["customProp"], "Question text", "Question prop #1");
+  assert.equal(page["customProp"], "Page text", "Page prop #1");
+  assert.equal(question.getPropertyValue("customProp"), "Question text", "Question getPropertyValue #1");
+  assert.equal(page.getPropertyValue("customProp"), "Page text", "Page getPropertyValue #1");
+
+  question["customProp"] = "Set question val";
+  page["customProp"] = "Set page val";
+  assert.equal(question["customProp"], "Set question val", "Question prop #2");
+  assert.equal(page["customProp"], "Set page val", "Page prop #2");
+  assert.equal(question.getPropertyValue("customProp"), "Set question val", "Question getPropertyValue #2");
+  assert.equal(page.getPropertyValue("customProp"), "Set page val", "Page getPropertyValue #2");
+
+  question.resetPropertyValue("customProp");
+  page.resetPropertyValue("customProp");
+  assert.equal(question["customProp"], "Question text", "Question prop #3");
+  assert.equal(page["customProp"], "Page text", "Page prop #3");
+  assert.equal(question.getPropertyValue("customProp"), "Question text", "Question getPropertyValue #3");
+  assert.equal(page.getPropertyValue("customProp"), "Page text", "Page getPropertyValue #3");
+
+  Serializer.removeProperty("question", "customProp");
+  Serializer.removeProperty("page", "customProp");
 });

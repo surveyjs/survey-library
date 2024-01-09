@@ -1212,9 +1212,7 @@ export class JsonMetadata {
     const props = metaClass.getRequiredProperties();
     var res = [];
     for (var i = 0; i < props.length; i++) {
-      if (props[i].isRequired) {
-        res.push(props[i].name);
-      }
+      res.push(props[i].name);
     }
     return res;
   }

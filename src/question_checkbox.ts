@@ -6,7 +6,6 @@ import {
 } from "./question_baseselect";
 import { Helpers } from "./helpers";
 import { ItemValue } from "./itemvalue";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IQuestion } from "./base-interfaces";

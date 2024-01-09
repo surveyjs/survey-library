@@ -2,7 +2,6 @@ import { property, propertyArray } from "./jsonobject";
 import { Question } from "./question";
 import { Base, ComputedUpdater } from "./base";
 import { ItemValue } from "./itemvalue";
-import { surveyLocalization } from "./surveyStrings";
 import { LocalizableString } from "./localizablestring";
 import { PanelModel } from "./panel";
 import { Action, IAction } from "./actions/action";

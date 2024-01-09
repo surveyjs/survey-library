@@ -1,4 +1,4 @@
-import { surveyLocalization } from "survey-core";
+import { registerLocale } from "survey-core";
 
 export var arabicSurveyStrings = {
   pagePrevText: "السابق",
@@ -97,8 +97,7 @@ export var arabicSurveyStrings = {
   selectToRankEmptyUnrankedAreaText: "قم بسحب وإسقاط الخيارات هنا لترتيبها"
 };
 
-surveyLocalization.locales["ar"] = arabicSurveyStrings;
-surveyLocalization.localeNames["ar"] = "العربية";
+registerLocale("ar", "العربية", arabicSurveyStrings);
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

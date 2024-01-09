@@ -1,10 +1,18 @@
 import { englishStrings } from "./localization/english";
 
+export function registerLocale(code: string, name: string, localeStrings: Record<string, string>) {
+  surveyLocalization.locales[code] = localeStrings;
+  surveyLocalization.localeNames[code] = name;
+}
+
+export function getString(strName: string, locale: string = null) {
+  return surveyLocalization.getString(strName, locale);
+}
 export var surveyLocalization = {
   currentLocaleValue: "",
   defaultLocaleValue: "en",
-  locales: <{ [index: string]: any }>{},
-  localeNames: <{ [index: string]: any }>{},
+  locales: <Record<string, Record<string, string>>>{},
+  localeNames: <Record<string, string>>{},
   supportedLocales: <Array<any>>[],
   get currentLocale() {
     return this.currentLocaleValue === this.defaultLocaleValue ? "" : this.currentLocaleValue;

@@ -303,7 +303,12 @@ export class JsonObjectProperty implements IObject {
     return this.isRequiredValue;
   }
   public set isRequired(val: boolean) {
-    this.isRequiredValue = val;
+    if(val !== this.isRequired) {
+      this.isRequiredValue = val;
+      if(!!this.classInfo) {
+        this.classInfo.resetAllProperties();
+      }
+    }
   }
   public get isUnique(): boolean {
     return this.isUniqueValue;
@@ -324,7 +329,7 @@ export class JsonObjectProperty implements IObject {
     let result: any = !!this.defaultValueFunc ? this.defaultValueFunc(obj) : this.defaultValueValue;
     if (
       !!JsonObjectProperty.getItemValuesDefaultValue &&
-      JsonObject.metaData.isDescendantOf(this.className, "itemvalue")
+      Serializer.isDescendantOf(this.className, "itemvalue")
     ) {
       result = JsonObjectProperty.getItemValuesDefaultValue(this.defaultValueValue || [], this.className);
     }
@@ -594,7 +599,7 @@ export class CustomPropertiesCollection {
       var defaultValue = prop.defaultValue;
       var isArrayProp = prop.isArray || prop.type === "multiplevalues";
       if (typeof obj.createNewArray === "function") {
-        if (JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")) {
+        if (Serializer.isDescendantOf(prop.className, "itemvalue")) {
           obj.createNewArray(prop.name, function (item: any) {
             item.locOwner = obj;
             item.ownerPropertyName = prop.name;
@@ -649,6 +654,7 @@ export class JsonMetadataClass {
   properties: Array<JsonObjectProperty>;
   private isCustomValue: boolean;
   private allProperties: Array<JsonObjectProperty>;
+  private requiredProperties: Array<JsonObjectProperty>;
   private hashProperties: HashTable<JsonObjectProperty>;
   constructor(
     public name: string,
@@ -685,8 +691,18 @@ export class JsonMetadataClass {
     this.fillAllProperties();
     return this.allProperties;
   }
+  public getRequiredProperties(): Array<JsonObjectProperty> {
+    if(!!this.requiredProperties) return this.requiredProperties;
+    this.requiredProperties = [];
+    const props = this.getAllProperties();
+    for(let i = 0; i < props.length; i ++) {
+      if(props[i].isRequired) this.requiredProperties.push(props[i]);
+    }
+    return this.requiredProperties;
+  }
   public resetAllProperties(): void {
     this.allProperties = undefined;
+    this.requiredProperties = undefined;
     this.hashProperties = undefined;
     var childClasses = Serializer.getChildrenClasses(this.name);
     for (var i = 0; i < childClasses.length; i++) {
@@ -945,6 +961,7 @@ export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private alternativeNames: HashTable<string> = {};
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
+  private dynamicPropsCache: HashTable<Array<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
   public getObjPropertyValue(obj: any, name: string): any {
     if (this.isObjWrapper(obj)) {
@@ -1050,18 +1067,18 @@ export class JsonMetadata {
     }
     return Object.keys(res).map((key) => res[key]);
   }
-  public getDynamicPropertiesByObj(
-    obj: any,
-    dynamicType: string = null
-  ): Array<JsonObjectProperty> {
+  public getDynamicPropertiesByObj(obj: any, dynamicType: string = null): Array<JsonObjectProperty> {
     if (!obj || !obj.getType || (!obj.getDynamicType && !dynamicType))
       return [];
-    var dType = !!dynamicType ? dynamicType : obj.getDynamicType();
+    const objType = obj.getType();
+    const dType = !!dynamicType ? dynamicType : obj.getDynamicType();
     if (!dType) return [];
+    const cacheType = dType + "-" + objType;
+    if(this.dynamicPropsCache[cacheType]) return this.dynamicPropsCache[cacheType];
     var dynamicProps = this.getProperties(dType);
     if (!dynamicProps || dynamicProps.length == 0) return [];
     var hash: any = {};
-    var props = this.getProperties(obj.getType());
+    var props = this.getProperties(objType);
     for (var i = 0; i < props.length; i++) {
       hash[props[i].name] = props[i];
     }
@@ -1072,6 +1089,7 @@ export class JsonMetadata {
         res.push(dProp);
       }
     }
+    this.dynamicPropsCache[cacheType] = res;
     return res;
   }
   public hasOriginalProperty(obj: Base, propName: string): boolean {
@@ -1189,11 +1207,13 @@ export class JsonMetadata {
     return result;
   }
   public getRequiredProperties(name: string): Array<string> {
-    var properties = this.getProperties(name);
+    const metaClass = this.findClass(name);
+    if(!metaClass) return [];
+    const props = metaClass.getRequiredProperties();
     var res = [];
-    for (var i = 0; i < properties.length; i++) {
-      if (properties[i].isRequired) {
-        res.push(properties[i].name);
+    for (var i = 0; i < props.length; i++) {
+      if (props[i].isRequired) {
+        res.push(props[i].name);
       }
     }
     return res;
@@ -1215,6 +1235,7 @@ export class JsonMetadata {
     if (!metaDataClass) return null;
     var property = metaDataClass.createProperty(propertyInfo, true);
     if (property) {
+      this.clearDynamicPropsCache(metaDataClass);
       metaDataClass.resetAllProperties();
     }
     return property;
@@ -1224,6 +1245,7 @@ export class JsonMetadata {
     if (!metaDataClass) return false;
     var property = metaDataClass.find(propertyName);
     if (property) {
+      this.clearDynamicPropsCache(metaDataClass);
       this.removePropertyFromClass(metaDataClass, property);
       metaDataClass.resetAllProperties();
       CustomPropertiesCollection.removeProperty(
@@ -1231,6 +1253,9 @@ export class JsonMetadata {
         propertyName
       );
     }
+  }
+  private clearDynamicPropsCache(metaDataClass: JsonMetadataClass): void {
+    this.dynamicPropsCache = {};
   }
   private removePropertyFromClass(
     metaDataClass: JsonMetadataClass,
@@ -1443,7 +1468,7 @@ export class JsonUnknownPropertyError extends JsonError {
       className +
       "' is unknown."
     );
-    var properties = JsonObject.metaData.getProperties(className);
+    var properties = Serializer.getProperties(className);
     if (properties) {
       this.description = "The list of available properties are: ";
       for (var i = 0; i < properties.length; i++) {
@@ -1462,7 +1487,7 @@ export class JsonMissingTypeErrorBase extends JsonError {
   ) {
     super(type, message);
     this.description = "The following types are available: ";
-    var types = JsonObject.metaData.getChildrenClasses(baseClassName, true);
+    var types = Serializer.getChildrenClasses(baseClassName, true);
     for (var i = 0; i < types.length; i++) {
       if (i > 0) this.description += ", ";
       this.description += "'" + types[i].name + "'";
@@ -1543,9 +1568,9 @@ export class JsonObject {
     var needAddErrors = true;
     if (obj.getType) {
       objType = obj.getType();
-      properties = JsonObject.metaData.getProperties(objType);
+      properties = Serializer.getProperties(objType);
       needAddErrors =
-        !!objType && !JsonObject.metaData.isDescendantOf(objType, "itemvalue");
+        !!objType && !Serializer.isDescendantOf(objType, "itemvalue");
     }
     if (!properties) return;
     if (obj.startLoadingFromJson) {
@@ -1588,7 +1613,7 @@ export class JsonObject {
     }
     this.propertiesToJson(
       obj,
-      JsonObject.metaData.getProperties(obj.getType()),
+      Serializer.getProperties(obj.getType()),
       result,
       storeDefaults
     );
@@ -1722,7 +1747,7 @@ export class JsonObject {
     var result: any = { newObj: null, error: null };
     const className = this.getClassNameForNewObj(value, property);
     result.newObj = className
-      ? JsonObject.metaData.createClass(className, value)
+      ? Serializer.createClass(className, value)
       : null;
     result.error = this.checkNewObjectOnErrors(
       result.newObj,
@@ -1776,16 +1801,15 @@ export class JsonObject {
   }
   private getRequiredError(obj: any, jsonValue: any): JsonError {
     if (!obj.getType || typeof obj.getData === "function") return null;
-    var className = obj.getType();
-    var requiredProperties = JsonObject.metaData.getRequiredProperties(
-      className
-    );
-    if (!Array.isArray(requiredProperties)) return null;
-    for (var i = 0; i < requiredProperties.length; i++) {
-      const prop = Serializer.findProperty(className, requiredProperties[i]);
-      if (!prop || !Helpers.isValueEmpty(prop.defaultValue)) continue;
+    const metaClass = Serializer.findClass(obj.getType());
+    if(!metaClass) return null;
+    const props = metaClass.getRequiredProperties();
+    if (!Array.isArray(props)) return null;
+    for (var i = 0; i < props.length; i++) {
+      const prop = props[i];
+      if (!Helpers.isValueEmpty(prop.defaultValue)) continue;
       if (!jsonValue[prop.name]) {
-        return new JsonRequiredPropertyError(prop.name, className);
+        return new JsonRequiredPropertyError(prop.name, obj.getType());
       }
     }
     return null;

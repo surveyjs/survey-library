@@ -3101,3 +3101,13 @@ QUnit.test("Validated property values", function (assert) {
   assert.equal(survey.jsonErrors[1].message, "The property value: 'edf' is incorrect for property 'textUpdateMode'.", "errors[1].message");
   assert.equal(survey.jsonErrors[1].element.getType(), "text", "errors[1].element");
 });
+QUnit.test("getRequiredProperties", function (assert) {
+  let requiedValues = Serializer.getRequiredProperties("text");
+  assert.deepEqual(requiedValues, ["name"], "required #1");
+  Serializer.findProperty("question", "title").isRequired = true;
+  requiedValues = Serializer.getRequiredProperties("text");
+  assert.deepEqual(requiedValues, ["name", "title"], "required #2");
+  Serializer.findProperty("question", "title").isRequired = false;
+  requiedValues = Serializer.getRequiredProperties("text");
+  assert.deepEqual(requiedValues, ["name"], "required #3");
+});

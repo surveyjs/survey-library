@@ -11,14 +11,14 @@ export interface INgMatrixCellChanged {
   selector: "sv-ng-matrix-cell, '[sv-ng-matrix-cell]'",
   templateUrl: "./matrixcell.component.html"
 })
-export class MatrixCellComponent extends BaseAngular<MatrixRowModel> {
+export class MatrixCellComponent extends BaseAngular<ItemValue> {
   @Input() question!: QuestionMatrixModel;
   @Input() column!: ItemValue;
   @Input() row!: MatrixRowModel;
   @Input() columnIndex!: number;
   @Input() cellChangedOwner!: INgMatrixCellChanged;
-  protected getModel(): MatrixRowModel {
-    return this.row;
+  protected getModel(): ItemValue {
+    return this.row.item;
   }
   public onChange(): void {
     this.cellChangedOwner.onCellChanged(this.row, this.column);

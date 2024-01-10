@@ -19,7 +19,7 @@ export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
   getCorrectedRowValue(value: any): any;
   cssClasses: any;
-  isReadOnly: boolean;
+  isInputReadOnly: boolean;
 }
 
 export class MatrixRowModel extends Base {
@@ -51,7 +51,7 @@ export class MatrixRowModel extends Base {
   public get locText(): LocalizableString {
     return this.item.locText;
   }
-  public get isReadOnly(): boolean { return !this.item.enabled || this.data.isReadOnly; }
+  public get isReadOnly(): boolean { return !this.item.enabled || this.data.isInputReadOnly; }
   public get css(): string {
     const val = this.data.cssClasses;
     return new CssClassBuilder().append(val.rowTextCell).append(val.rowTextCellDisabled, this.isReadOnly).toString();

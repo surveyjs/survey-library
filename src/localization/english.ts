@@ -27,6 +27,7 @@ export var englishStrings = {
   requiredError: "Response required.",
   requiredErrorInPanel: "Response required: answer at least one question.",
   requiredInAllRowsError: "Response required: answer questions in all rows.",
+  eachRowUniqueError: "Each row must have a unique value.",
   numericError: "The value should be numeric.",
   minError: "The value should not be less than {0}",
   maxError: "The value should not be greater than {0}",

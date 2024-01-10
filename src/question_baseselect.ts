@@ -843,7 +843,7 @@ export class QuestionSelectBase extends Question {
     this.otherPlaceholder = newValue;
   }
   /**
-   * Get or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
+   * Gets or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
    * @see showOtherItem
    */
   public get otherErrorText(): string {
@@ -1805,7 +1805,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     super(name);
   }
   /**
-   * Get or sets the number of columns used to arrange choice items.
+   * Gets or sets the number of columns used to arrange choice items.
    *
    * Set this property to 0 if you want to display all items in one line. The default value depends on the available width.
    * @see separateSpecialChoices

@@ -607,6 +607,13 @@ export var settings = {
   showMaxLengthIndicator: true,
 
   /**
+   * Set to `false` to disable animations
+   *
+   * Default value: `true`
+  */
+  animationEnabled: true,
+
+  /**
    * An object that specifies heading levels (`<h1>`, `<h2>`, etc.) to use when rendering survey, page, panel, and question titles.
    *
    * Default value: `{ survey: "h3", page: "h4", panel: "h4", question: "h5" }`

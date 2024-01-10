@@ -2680,10 +2680,10 @@ QUnit.test("showPreview & default value, #7640", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
-QUnit.test("single component: questionTitle", function (assert) {
+QUnit.test("single component: defaultQuestionTitle", function (assert) {
   ComponentCollection.Instance.add({
     name: "customtext",
-    questionTitle: {
+    defaultQuestionTitle: {
       en: "abc={abc} en",
       de: "abc={abc} de",
     },
@@ -2697,10 +2697,7 @@ QUnit.test("single component: questionTitle", function (assert) {
       { type: "customtext", name: "q1" }
     ]
   });
-  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
-  assert.equal(q1.customQuestion.questionTitle["en"], "abc={abc} en", "question title is loaded");
-  const locStr = q1.getLocalizableString("questionTitle");
-  assert.ok(locStr, "locQuestion title is here");
+  const q1 = survey.getQuestionByName("q1");
   survey.setVariable("abc", 123);
   assert.equal(q1.locTitle.renderedHtml, "abc=123 en", "q1.title en");
   survey.locale = "de";
@@ -2708,10 +2705,10 @@ QUnit.test("single component: questionTitle", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
-QUnit.test("composite component: questionTitle", function (assert) {
+QUnit.test("composite component: defaultQuestionTitle", function (assert) {
   ComponentCollection.Instance.add({
     name: "customtext",
-    questionTitle: {
+    defaultQuestionTitle: {
       en: "abc={abc} en",
       de: "abc={abc} de",
     },

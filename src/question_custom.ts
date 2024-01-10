@@ -51,13 +51,36 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onInit?(): void;
   /**
-   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu.
+   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu in Survey Creator.
    *
    * Default value: `true`
    *
    * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
+  /**
+   * A default title for questions created with this question type. Survey authors can change the default title in the JSON object or in Survey Creator's Property Grid.
+   *
+   * You can specify the question title with a string value or with an object that defines different titles for different locales:
+   *
+   * ```js
+   * import { ComponentCollection } from "survey-core";
+   *
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: "Default title"
+   * });
+   * // ===== OR =====
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: {
+   *     en: "Default title",
+   *     de: "Standardtitel",
+   *     fr: "Titre par défaut"
+   *   }
+   * });
+   * ```
+   */
   defaultQuestionTitle?: any;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).

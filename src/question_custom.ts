@@ -16,6 +16,7 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * An interface used to create custom question types.
@@ -57,6 +58,7 @@ export interface ICustomQuestionTypeConfiguration {
    * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
+  questionTitle?: any;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    *
@@ -292,6 +294,9 @@ export class ComponentQuestionJSON {
     if (!this.json.getDisplayValue) return question.getDisplayValue(keyAsText, value);
     return (this.json as any).getDisplayValue(question);
   }
+  public get questionTitle(): any {
+    return this.json.questionTitle;
+  }
   public setValueToQuestion(val: any): any {
     const converter = this.json.valueToQuestion || this.json.setValue;
     return !!converter ? converter(val): val;
@@ -395,10 +400,13 @@ export class ComponentCollection {
 
 export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
+  private locQuestionTitle: LocalizableString;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
     SurveyElement.CreateDisabledDesignElements = true;
+    this.locQuestionTitle = this.createLocalizableString("questionTitle", this);
+    this.locQuestionTitle.setJson(this.customQuestion.questionTitle);
     this.createWrapper();
     SurveyElement.CreateDisabledDesignElements = false;
     if (!!this.customQuestion) {
@@ -419,6 +427,12 @@ export abstract class QuestionCustomModelBase extends Question
     if(!!this.getElement()) {
       this.getElement().localeChanged();
     }
+  }
+  protected getDefaultTitle(): string {
+    if(!this.locQuestionTitle.isEmpty) {
+      return this.getProcessedText(this.locQuestionTitle.textOrHtml);
+    }
+    return super.getDefaultTitle();
   }
   public addUsedLocales(locales: Array<string>): void {
     super.addUsedLocales(locales);

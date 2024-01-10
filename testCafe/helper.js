@@ -109,7 +109,7 @@ export const initSurveyPopup = ClientFunction(
       window["root"] = root;
       root.render(
         window["React"].createElement(window["Survey"].PopupSurvey, {
-          model: popupSurvey,
+          model: model,
           isExpanded: true,
           allowClose: true,
           closeOnCompleteTimeout: -1
@@ -117,11 +117,11 @@ export const initSurveyPopup = ClientFunction(
       );
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
-        "<survey :survey='popupSurvey':isExpanded='true' :allowClose='true' :closeOnCompleteTimeout='-1' />";
+        "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :closeOnCompleteTimeout='-1' />";
       !!window["vueApp"] && window["vueApp"].$destroy();
       window["vueApp"] = new window["Vue"]({
         el: "#surveyElement",
-        data: { popupSurvey: popupSurvey },
+        data: { survey: model },
       });
     } else if (framework === "angular" || framework == "vue3") {
       window.setSurvey(model);

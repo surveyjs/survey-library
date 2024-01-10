@@ -25,6 +25,7 @@ export var danishSurveyStrings = {
   requiredError: "Besvar venligst spørgsmålet.",
   requiredErrorInPanel: "Besvar venligst mindst ét spørgsmål.",
   requiredInAllRowsError: "Besvar venligst spørgsmål i alle rækker.",
+  eachRowUniqueError: "Hver række skal have en entydig værdi.",
   numericError: "Angiv et tal.",
   minError: "Værdien bør ikke være mindre end {0}",
   maxError: "Værdien bør ikke være større end {0}",
@@ -42,6 +43,7 @@ export var danishSurveyStrings = {
   urlRequestError: "Forespørgslen returnerede fejlen '{0}'. {1}",
   urlGetChoicesError: "Forespørgslen returnerede ingen data eller 'path' parameteren er forkert",
   exceedMaxSize: "Filstørrelsen må ikke overstige {0}.",
+  noUploadFilesHandler: "Filer kan ikke uploades. Tilføj en handler for hændelsen 'onUploadFiles'.",
   otherRequiredError: "Angiv en værdi for dit valgfrie svar.",
   uploadingFile: "Din fil bliver uploadet. Vent nogle sekunder og prøv eventuelt igen.",
   loadingFile: "Indlæser...",
@@ -56,6 +58,8 @@ export var danishSurveyStrings = {
   emptyRowsText: "Der er ingen rækker.",
   addPanel: "Tilføj ny",
   removePanel: "Fjern",
+  showDetails: "Vis detaljer",
+  hideDetails: "Skjul detaljer",
   choices_Item: "valg",
   matrix_column: "Kolonne",
   matrix_row: "Række",
@@ -94,7 +98,9 @@ export var danishSurveyStrings = {
   more: "Mere",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Alle valg er rangeret",
-  selectToRankEmptyUnrankedAreaText: "Træk og slip valg her for at rangere dem"
+  selectToRankEmptyUnrankedAreaText: "Træk og slip valg her for at rangere dem",
+  ok: "OK",
+  cancel: "Aflyse"
 };
 
 surveyLocalization.locales["da"] = danishSurveyStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["da"] = "dansk";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Træk og slip valg her for at rangere dem"// takePhotoCaption: "Take Photo" => "Tag billede"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik på knappen nedenfor for at tage et billede med kameraet."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Træk og slip, eller vælg en fil, der skal uploades, eller tag et billede med kameraet."
-// replaceFileCaption: "Replace file" => "Erstat fil"
+// replaceFileCaption: "Replace file" => "Erstat fil"// eachRowUniqueError: "Each row must have a unique value." => "Hver række skal have en entydig værdi."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Filer kan ikke uploades. Tilføj en handler for hændelsen 'onUploadFiles'."
+// showDetails: "Show Details" => "Vis detaljer"
+// hideDetails: "Hide Details" => "Skjul detaljer"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Aflyse"

@@ -25,6 +25,7 @@ export var greekSurveyStrings = {
   requiredError: "Παρακαλώ απαντήστε στην ερώτηση.",
   requiredErrorInPanel: "Απαντήστε σε τουλάχιστον μία ερώτηση.",
   requiredInAllRowsError: "Παρακαλώ απαντήστε τις ερωτήσεις σε όλες τις γραμμές.",
+  eachRowUniqueError: "Κάθε γραμμή πρέπει να έχει μια μοναδική τιμή.",
   numericError: "Η τιμή πρέπει να είναι αριθμητική.",
   minError: "Η τιμή δεν πρέπει να είναι μικρότερη από {0}",
   maxError: "Η τιμή δεν πρέπει να είναι μεγαλύτερη από {0}",
@@ -42,6 +43,7 @@ export var greekSurveyStrings = {
   urlRequestError: "Η αίτηση επέστρεψε σφάλμα '{0}'. {1}",
   urlGetChoicesError: "Η αίτηση επέστρεψε κενά δεδομένα ή η ιδιότητα 'μονοπάτι/path' είναι εσφαλμένη",
   exceedMaxSize: "Το μέγεθος του αρχείου δεν μπορεί να υπερβαίνει τα {0}.",
+  noUploadFilesHandler: "Δεν είναι δυνατή η αποστολή αρχείων. Προσθέστε ένα πρόγραμμα χειρισμού για το συμβάν 'onUploadFiles'.",
   otherRequiredError: "Παρακαλώ συμπληρώστε την τιμή για το πεδίο 'άλλο'.",
   uploadingFile: "Το αρχείο σας ανεβαίνει. Παρακαλώ περιμένετε μερικά δευτερόλεπτα και δοκιμάστε ξανά.",
   loadingFile: "Φόρτωση...",
@@ -56,6 +58,8 @@ export var greekSurveyStrings = {
   emptyRowsText: "Δεν υπάρχουν εγγραφές.",
   addPanel: "Προσθέστε νέο",
   removePanel: "Αφαίρεση",
+  showDetails: "Εμφάνιση λεπτομερειών",
+  hideDetails: "Απόκρυψη λεπτομερειών",
   choices_Item: "είδος",
   matrix_column: "Στήλη",
   matrix_row: "Γραμμή",
@@ -94,7 +98,9 @@ export var greekSurveyStrings = {
   more: "Περισσότερα",
   tagboxDoneButtonCaption: "ΟΚ",
   selectToRankEmptyRankedAreaText: "Όλες οι επιλογές κατατάσσονται",
-  selectToRankEmptyUnrankedAreaText: "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε"
+  selectToRankEmptyUnrankedAreaText: "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε",
+  ok: "OK",
+  cancel: "Ακυρώνω"
 };
 
 surveyLocalization.locales["gr"] = greekSurveyStrings;
@@ -108,4 +114,9 @@ surveyLocalization.localeNames["gr"] = "ελληνικά";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Σύρετε και αποθέστε επιλογές εδώ για να τις κατατάξετε"// takePhotoCaption: "Take Photo" => "Λήψη φωτογραφίας"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Κάντε κλικ στο παρακάτω κουμπί για να τραβήξετε μια φωτογραφία χρησιμοποιώντας την κάμερα."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Σύρετε και αποθέστε ή επιλέξτε ένα αρχείο για αποστολή ή λήψη φωτογραφίας χρησιμοποιώντας την κάμερα."
-// replaceFileCaption: "Replace file" => "Αντικατάσταση αρχείου"
+// replaceFileCaption: "Replace file" => "Αντικατάσταση αρχείου"// eachRowUniqueError: "Each row must have a unique value." => "Κάθε γραμμή πρέπει να έχει μια μοναδική τιμή."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Δεν είναι δυνατή η αποστολή αρχείων. Προσθέστε ένα πρόγραμμα χειρισμού για το συμβάν 'onUploadFiles'."
+// showDetails: "Show Details" => "Εμφάνιση λεπτομερειών"
+// hideDetails: "Hide Details" => "Απόκρυψη λεπτομερειών"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Ακυρώνω"

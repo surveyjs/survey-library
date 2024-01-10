@@ -25,6 +25,7 @@ export var serbianStrings = {
   requiredError: "Molimo odgovorite na ovo pitanje.",
   requiredErrorInPanel: "Molimo odgovorite na bar jedno pitanje.",
   requiredInAllRowsError: "Molimo odgovorite na pitanja u svim redovima.",
+  eachRowUniqueError: "Svaki red mora imati jedinstvenu vrednost.",
   numericError: "Vrednost bi trebalo da bude numerička.",
   minError: "Vrednost ne bi trebalo da bude manja od {0}",
   maxError: "Vrednost ne bi trebalo da bude veća od {0}",
@@ -42,6 +43,7 @@ export var serbianStrings = {
   urlRequestError: "Zahtev je naišao na grešku '{0}'. {1}",
   urlGetChoicesError: "Zahtev nije pronašao podatke, ili je putanja netačna",
   exceedMaxSize: "Veličina fajla ne bi trebalo da prelazi {0}.",
+  noUploadFilesHandler: "Nije moguće otpremiti datoteke. Dodajte rukovaoca za događaj \"onUploadFiles\".",
   otherRequiredError: "Molimo unesite drugu vrednost.",
   uploadingFile: "Fajl se šalje. Molimo sačekajte neko vreme i pokušajte ponovo.",
   loadingFile: "Učitavanje...",
@@ -56,6 +58,8 @@ export var serbianStrings = {
   emptyRowsText: "Nema redova.",
   addPanel: "Dodaj novo",
   removePanel: "Ukloni",
+  showDetails: "Prikaži detalje",
+  hideDetails: "Sakrij detalje",
   choices_Item: "stavka",
   matrix_column: "Kolona",
   matrix_row: "Red",
@@ -94,7 +98,9 @@ export var serbianStrings = {
   more: "Viљe",
   tagboxDoneButtonCaption: "U redu",
   selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
-  selectToRankEmptyUnrankedAreaText: "Prevucite i otpustite izbor ovde da biste ih rangirali"
+  selectToRankEmptyUnrankedAreaText: "Prevucite i otpustite izbor ovde da biste ih rangirali",
+  ok: "U redu",
+  cancel: "Otkaži"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
@@ -118,4 +124,9 @@ surveyLocalization.localeNames["rs"] = "Srpski";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Prevucite i otpustite izbor ovde da biste ih rangirali"// takePhotoCaption: "Take Photo" => "Fotografisanje"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknite na dugme ispod da biste snimili fotografiju pomoću fotoaparata."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Prevucite i otpustite ili izaberite datoteku za otpremanje ili snimanje fotografije pomoću fotoaparata."
-// replaceFileCaption: "Replace file" => "Zameni datoteku"
+// replaceFileCaption: "Replace file" => "Zameni datoteku"// eachRowUniqueError: "Each row must have a unique value." => "Svaki red mora imati jedinstvenu vrednost."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Nije moguće otpremiti datoteke. Dodajte rukovaoca za događaj \"onUploadFiles\"."
+// showDetails: "Show Details" => "Prikaži detalje"
+// hideDetails: "Hide Details" => "Sakrij detalje"
+// ok: "OK" => "U redu"
+// cancel: "Cancel" => "Otkaži"

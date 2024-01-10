@@ -25,6 +25,7 @@ export var estonianSurveyStrings = {
   requiredError: "Palun vasta küsimusele.",
   requiredErrorInPanel: "Palun vasta vähemalt ühele küsimusele.",
   requiredInAllRowsError: "Palun anna vastus igal real.",
+  eachRowUniqueError: "Igal real peab olema kordumatu väärtus.",
   numericError: "See peaks olema numbriline väärtus.",
   minError: "Väärtus ei tohiks olla väiksem kui {0}",
   maxError: "Väärtus ei tohiks olla suurem kui {0}",
@@ -42,6 +43,7 @@ export var estonianSurveyStrings = {
   urlRequestError: "Taotlus tagastas vea „{0}”. {1}",
   urlGetChoicesError: "Taotlus tagastas tühjad andmed või atribuut 'path' on vale",
   exceedMaxSize: "Faili suurus ei tohi ületada {0}.",
+  noUploadFilesHandler: "Faile ei saa üles laadida. Palun lisage sündmuse \"onUploadFiles\" jaoks käitleja.",
   otherRequiredError: "Sisesta palun muu vastus.",
   uploadingFile: "Sinu fail laeb üles. Palun oota mõned sekundid ning proovi seejärel uuesti.",
   loadingFile: "Laen...",
@@ -56,6 +58,8 @@ export var estonianSurveyStrings = {
   emptyRowsText: "Ridu pole.",
   addPanel: "Lisa uus",
   removePanel: "Eemalda",
+  showDetails: "Näita detaile",
+  hideDetails: "Peida üksikasjad",
   choices_Item: "üksus",
   matrix_column: "Veerg",
   matrix_row: "Rida",
@@ -94,7 +98,9 @@ export var estonianSurveyStrings = {
   more: "Rohkem",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Kõik valikud on järjestatud",
-  selectToRankEmptyUnrankedAreaText: "Lohistage valikuid siia, et neid järjestada"
+  selectToRankEmptyUnrankedAreaText: "Lohistage valikuid siia, et neid järjestada",
+  ok: "OK",
+  cancel: "Tühistama"
 };
 
 surveyLocalization.locales["et"] = estonianSurveyStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["et"] = "eesti keel";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Lohistage valikuid siia, et neid järjestada"// takePhotoCaption: "Take Photo" => "Pildistamine"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kaamera abil pildistamiseks klõpsake allolevat nuppu."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Pukseerige või valige üleslaaditav fail või pildistage seda kaamera abil."
-// replaceFileCaption: "Replace file" => "Asenda fail"
+// replaceFileCaption: "Replace file" => "Asenda fail"// eachRowUniqueError: "Each row must have a unique value." => "Igal real peab olema kordumatu väärtus."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Faile ei saa üles laadida. Palun lisage sündmuse \"onUploadFiles\" jaoks käitleja."
+// showDetails: "Show Details" => "Näita detaile"
+// hideDetails: "Hide Details" => "Peida üksikasjad"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Tühistama"

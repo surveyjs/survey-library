@@ -25,6 +25,7 @@ export var georgianSurveyStrings = {
   requiredError: "გთხოვთ უპასუხეთ კითხვას.",
   requiredErrorInPanel: "საჭიროა პასუხი: უპასუხეთ მინიმუმ ერთ კითხვას.",
   requiredInAllRowsError: "საჭიროა პასუხი: უპასუხეთ კითხვებს ყველა რიგში.",
+  eachRowUniqueError: "თითოეულ რიგს უნდა ჰქონდეს უნიკალური მნიშვნელობა.",
   numericError: "პასუხი უნდა იყოს რიცხვი.",
   minError: "ღირებულება არ უნდა იყოს ნაკლები {0}",
   maxError: "ღირებულება არ უნდა იყოს {0}",
@@ -42,6 +43,7 @@ export var georgianSurveyStrings = {
   urlRequestError: "მოთხოვნა დაუბრუნდა შეცდომას '{0}'. {1}",
   urlGetChoicesError: "მოთხოვნამ დაუბრუნა ცარიელი მონაცემები ან \"ბილიკის\" ქონება არასწორია",
   exceedMaxSize: "ფაილის ზომა არ უნდა აღემატებოდეს {0}.",
+  noUploadFilesHandler: "ფაილების ატვირთვა შეუძლებელია. გთხოვთ, დაამატოთ დამმუშავებელი 'onUploadFiles' ღონისძიებისთვის.",
   otherRequiredError: "საჭიროა პასუხი: შეიყვანეთ სხვა მნიშვნელობა.",
   uploadingFile: "თქვენი ფაილი ატვირთვაა. გთხოვთ დაელოდოთ რამდენიმე წამს და კიდევ სცადოთ.",
   loadingFile: "იტვირთება...",
@@ -56,6 +58,8 @@ export var georgianSurveyStrings = {
   emptyRowsText: "რიგები არ არის.",
   addPanel: "ახალი დამატება",
   removePanel: "წაშლა",
+  showDetails: "დეტალების ჩვენება",
+  hideDetails: "დეტალების დამალვა",
   choices_Item: "ნივთი",
   matrix_column: "სვეტი",
   matrix_row: "რიგი",
@@ -94,7 +98,9 @@ export var georgianSurveyStrings = {
   more: "სრულად",
   tagboxDoneButtonCaption: "კარგი",
   selectToRankEmptyRankedAreaText: "ყველა არჩევანი რანჟირებულია",
-  selectToRankEmptyUnrankedAreaText: "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი"
+  selectToRankEmptyUnrankedAreaText: "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი",
+  ok: "კარგი",
+  cancel: "გაუქმება"
 };
 
 surveyLocalization.locales["ka"] = georgianSurveyStrings;
@@ -176,4 +182,9 @@ surveyLocalization.localeNames["ka"] = "ქართული";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "გადაიტანეთ და ჩამოაგდეთ არჩევანი აქ, რომ დაასახელოთ ისინი"// takePhotoCaption: "Take Photo" => "გადაიღეთ ფოტო"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "დააჭირეთ ქვემოთ მოცემულ ღილაკს, რომ გადაიღოთ ფოტო კამერის გამოყენებით."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "გადაიტანეთ და ჩამოაგდეთ ან შეარჩიეთ ფაილი კამერის გამოყენებით ფოტოს ასატვირთად ან გადასაღებად."
-// replaceFileCaption: "Replace file" => "ფაილის შეცვლა"
+// replaceFileCaption: "Replace file" => "ფაილის შეცვლა"// eachRowUniqueError: "Each row must have a unique value." => "თითოეულ რიგს უნდა ჰქონდეს უნიკალური მნიშვნელობა."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ფაილების ატვირთვა შეუძლებელია. გთხოვთ, დაამატოთ დამმუშავებელი 'onUploadFiles' ღონისძიებისთვის."
+// showDetails: "Show Details" => "დეტალების ჩვენება"
+// hideDetails: "Hide Details" => "დეტალების დამალვა"
+// ok: "OK" => "კარგი"
+// cancel: "Cancel" => "გაუქმება"

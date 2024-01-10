@@ -1259,6 +1259,14 @@ export class SurveyModel extends SurveyElementCore
   public get isLazyRendering(): boolean {
     return this.lazyRendering || settings.lazyRender.enabled;
   }
+  @property() lazyRenderingFirstBatchSizeValue: number;
+  public get lazyRenderingFirstBatchSize(): number {
+    return this.lazyRenderingFirstBatchSizeValue || settings.lazyRender.firstBatchSize;
+  }
+  public set lazyRenderingFirstBatchSize(val: number) {
+    this.lazyRenderingFirstBatchSizeValue = val;
+  }
+
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;

@@ -25,6 +25,7 @@ export var thaiStrings = {
   requiredError: "กรุณาตอบคำถาม",
   requiredErrorInPanel: "กรุณาตอบขั้นต่ำหนึ่งคำถาม",
   requiredInAllRowsError: "กรุณาตอบคำถามในทุกๆแถว",
+  eachRowUniqueError: "แต่ละแถวต้องมีค่าที่ไม่ซ้ํากัน",
   numericError: "ข้อมูลที่ใส่ต้องเป็นตัวเลข",
   minError: "ค่าไม่ควรน้อยกว่า {0}",
   maxError: "ค่าไม่ควรเกิน{0}",
@@ -42,6 +43,7 @@ export var thaiStrings = {
   urlRequestError: "รีเควสรีเทิร์น error '{0}'. {1}",
   urlGetChoicesError: "รีเควสรีเทิร์นข้อมูลว่างเปล่า หรือ 'path' property ไม่ถูกต้อง",
   exceedMaxSize: "ขนาดไฟล์ต้องไม่เกิน {0}.",
+  noUploadFilesHandler: "ไม่สามารถอัปโหลดไฟล์ได้ โปรดเพิ่มตัวจัดการสําหรับเหตุการณ์ 'onUploadFiles'",
   otherRequiredError: "กรุณาใส่ค่าอื่น",
   uploadingFile: "ไฟล์ของคุณกำลังอัพโหลดอยู่. กรุณารอสักครู่แล้วทำการลองอีกครั้ง",
   loadingFile: "กำลังโหลด...",
@@ -56,6 +58,8 @@ export var thaiStrings = {
   emptyRowsText: "ไม่มีแถว",
   addPanel: "เพิ่ม",
   removePanel: "ลบ",
+  showDetails: "แสดงรายละเอียด",
+  hideDetails: "ซ่อนรายละเอียด",
   choices_Item: "ชิ้น",
   matrix_column: "คอลัมน์",
   matrix_row: "แถว",
@@ -94,7 +98,9 @@ export var thaiStrings = {
   more: "อีก",
   tagboxDoneButtonCaption: "ตกลง, ได้",
   selectToRankEmptyRankedAreaText: "ตัวเลือกทั้งหมดจะถูกจัดอันดับ",
-  selectToRankEmptyUnrankedAreaText: "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ"
+  selectToRankEmptyUnrankedAreaText: "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ",
+  ok: "ตกลง, ได้",
+  cancel: "ยกเลิก"
 };
 
 surveyLocalization.locales["th"] = thaiStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["th"] = "ไทย";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ลากและวางตัวเลือกที่นี่เพื่อจัดอันดับ"// takePhotoCaption: "Take Photo" => "ถ่ายรูป"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "คลิกปุ่มด้านล่างเพื่อถ่ายภาพโดยใช้กล้อง"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "ลากและวางหรือเลือกไฟล์ที่จะอัปโหลดหรือถ่ายภาพโดยใช้กล้อง"
-// replaceFileCaption: "Replace file" => "แทนที่ไฟล์"
+// replaceFileCaption: "Replace file" => "แทนที่ไฟล์"// eachRowUniqueError: "Each row must have a unique value." => "แต่ละแถวต้องมีค่าที่ไม่ซ้ํากัน"
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ไม่สามารถอัปโหลดไฟล์ได้ โปรดเพิ่มตัวจัดการสําหรับเหตุการณ์ 'onUploadFiles'"
+// showDetails: "Show Details" => "แสดงรายละเอียด"
+// hideDetails: "Hide Details" => "ซ่อนรายละเอียด"
+// ok: "OK" => "ตกลง, ได้"
+// cancel: "Cancel" => "ยกเลิก"

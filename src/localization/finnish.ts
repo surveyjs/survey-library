@@ -25,6 +25,7 @@ export var finnishSurveyStrings = {
   requiredError: "Vastaa kysymykseen, kiitos.",
   requiredErrorInPanel: "Vastaa ainakin yhteen kysymykseen.",
   requiredInAllRowsError: "Vastaa kysymyksiin kaikilla riveillä.",
+  eachRowUniqueError: "Jokaisella rivillä on oltava yksilöllinen arvo.",
   numericError: "Arvon tulee olla numeerinen.",
   minError: "Arvo ei saa olla pienempi kuin {0}",
   maxError: "Arvo ei saa olla suurempi kuin {0}",
@@ -42,6 +43,7 @@ export var finnishSurveyStrings = {
   urlRequestError: "Pyyntö palautti virheen {0}. {1}",
   urlGetChoicesError: "Pyyntö palautti tyhjän tiedoston tai 'path'-asetus on väärä",
   exceedMaxSize: "Tiedoston koko ei saa olla suurempi kuin {0}.",
+  noUploadFilesHandler: "Tiedostoja ei voi ladata. Lisää käsittelijä onUploadFiles-tapahtumalle.",
   otherRequiredError: "Tarkenna vastaustasi tekstikenttään.",
   uploadingFile: "Tiedostoa lähetetään. Odota muutama sekunti ja yritä uudelleen.",
   loadingFile: "Ladataan...",
@@ -56,6 +58,8 @@ export var finnishSurveyStrings = {
   emptyRowsText: "Ei rivejä",
   addPanel: "Lisää uusi",
   removePanel: "Poista",
+  showDetails: "Näytä tiedot",
+  hideDetails: "Piilota tiedot",
   choices_Item: "kohde",
   matrix_column: "Sarake",
   matrix_row: "Rivi",
@@ -94,7 +98,9 @@ export var finnishSurveyStrings = {
   more: "Enemmän",
   tagboxDoneButtonCaption: "OKEI",
   selectToRankEmptyRankedAreaText: "Kaikki valinnat asetetaan paremmuusjärjestykseen",
-  selectToRankEmptyUnrankedAreaText: "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"
+  selectToRankEmptyUnrankedAreaText: "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne",
+  ok: "OKEI",
+  cancel: "Perua"
 };
 
 surveyLocalization.locales["fi"] = finnishSurveyStrings;
@@ -111,4 +117,9 @@ surveyLocalization.localeNames["fi"] = "suomi";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Vedä ja pudota vaihtoehdot tähän luokitellaksesi ne"// takePhotoCaption: "Take Photo" => "Ota valokuva"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Napsauta alla olevaa painiketta ottaaksesi valokuvan kameralla."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Vedä ja pudota tai valitse ladattava tiedosto tai ota valokuva kameralla."
-// replaceFileCaption: "Replace file" => "Korvaa tiedosto"
+// replaceFileCaption: "Replace file" => "Korvaa tiedosto"// eachRowUniqueError: "Each row must have a unique value." => "Jokaisella rivillä on oltava yksilöllinen arvo."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Tiedostoja ei voi ladata. Lisää käsittelijä onUploadFiles-tapahtumalle."
+// showDetails: "Show Details" => "Näytä tiedot"
+// hideDetails: "Hide Details" => "Piilota tiedot"
+// ok: "OK" => "OKEI"
+// cancel: "Cancel" => "Perua"

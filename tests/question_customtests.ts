@@ -2680,3 +2680,53 @@ QUnit.test("showPreview & default value, #7640", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("single component: defaultQuestionTitle", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    defaultQuestionTitle: {
+      en: "abc={abc} en",
+      de: "abc={abc} de",
+    },
+    questionJSON: {
+      type: "text"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setVariable("abc", 123);
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 en", "q1.title en");
+  survey.locale = "de";
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 de", "q1.title de");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("composite component: defaultQuestionTitle", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    defaultQuestionTitle: {
+      en: "abc={abc} en",
+      de: "abc={abc} de",
+    },
+    elementsJSON: {
+      type: "text"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setVariable("abc", 123);
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 en", "q1.title en");
+  survey.locale = "de";
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 de", "q1.title de");
+
+  ComponentCollection.Instance.clear();
+});

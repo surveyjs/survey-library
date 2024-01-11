@@ -1259,6 +1259,14 @@ export class SurveyModel extends SurveyElementCore
   public get isLazyRendering(): boolean {
     return this.lazyRendering || settings.lazyRender.enabled;
   }
+  @property() lazyRenderingFirstBatchSizeValue: number;
+  public get lazyRenderingFirstBatchSize(): number {
+    return this.lazyRenderingFirstBatchSizeValue || settings.lazyRender.firstBatchSize;
+  }
+  public set lazyRenderingFirstBatchSize(val: number) {
+    this.lazyRenderingFirstBatchSizeValue = val;
+  }
+
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
@@ -3131,6 +3139,24 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
+  public tryNavigateToPage(page: PageModel): boolean {
+    if (this.isDesignMode) return false;
+    const index = this.visiblePages.indexOf(page);
+    if(index < 0) return false;
+    if(index === this.currentPageNo) return false;
+    if (index < this.currentPageNo) {
+      this.currentPageNo = index;
+      return true;
+    }
+    for (let i = this.currentPageNo; i < index; i++) {
+      const page = this.visiblePages[i];
+      if(!page.validate(true, true)) return false;
+      page.passed = true;
+    }
+    this.currentPage = page;
+    return true;
+  }
+
   private updateCurrentPage(): void {
     if (this.isCurrentPageAvailable) return;
     this.currentPage = this.firstVisiblePage;

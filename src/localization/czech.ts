@@ -25,6 +25,7 @@ export var czechSurveyStrings = {
   requiredError: "Odpovězte prosím na otázku.",
   requiredErrorInPanel: "Odpovězte prosím alespoň jednu otázku.",
   requiredInAllRowsError: "Odpovězte prosím na všechny otázky.",
+  eachRowUniqueError: "Každý řádek musí mít jedinečnou hodnotu.",
   numericError: "V tomto poli lze zadat pouze čísla.",
   minError: "Hodnota by neměla být menší než {0}",
   maxError: "Hodnota by neměla být větší než {0}",
@@ -42,6 +43,7 @@ export var czechSurveyStrings = {
   urlRequestError: "Požadavek vrátil chybu '{0}'. {1}",
   urlGetChoicesError: "Požadavek nevrátil data nebo je neplatná vlastnost 'path'",
   exceedMaxSize: "Velikost souboru by neměla být větší než {0}.",
+  noUploadFilesHandler: "Soubory nelze nahrát. Přidejte obslužnou rutinu pro událost 'onUploadFiles'.",
   otherRequiredError: "Zadejte prosím jinou hodnotu.",
   uploadingFile: "Váš soubor se nahrává. Zkuste to prosím za několik sekund.",
   loadingFile: "Načítání...",
@@ -56,6 +58,8 @@ export var czechSurveyStrings = {
   emptyRowsText: "Neexistují žádné řádky.",
   addPanel: "Přidat nový",
   removePanel: "Odstranit",
+  showDetails: "Zobrazit podrobnosti",
+  hideDetails: "Skrýt podrobnosti",
   choices_Item: "položka",
   matrix_column: "Sloupec",
   matrix_row: "Řádek",
@@ -94,7 +98,9 @@ export var czechSurveyStrings = {
   more: "Více",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Všechny možnosti jsou seřazeny",
-  selectToRankEmptyUnrankedAreaText: "Přetáhněte volby zde a seřaďte je"
+  selectToRankEmptyUnrankedAreaText: "Přetáhněte volby zde a seřaďte je",
+  ok: "OK",
+  cancel: "Zrušit"
 };
 
 surveyLocalization.locales["cs"] = czechSurveyStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["cs"] = "čeština";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Přetáhněte volby zde a seřaďte je"// takePhotoCaption: "Take Photo" => "Pořídit fotografii"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačítko níže pořídíte fotografii pomocí fotoaparátu."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Přetáhněte nebo vyberte soubor, který chcete nahrát nebo pořiďte fotografii pomocí fotoaparátu."
-// replaceFileCaption: "Replace file" => "Nahradit soubor"
+// replaceFileCaption: "Replace file" => "Nahradit soubor"// eachRowUniqueError: "Each row must have a unique value." => "Každý řádek musí mít jedinečnou hodnotu."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Soubory nelze nahrát. Přidejte obslužnou rutinu pro událost 'onUploadFiles'."
+// showDetails: "Show Details" => "Zobrazit podrobnosti"
+// hideDetails: "Hide Details" => "Skrýt podrobnosti"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Zrušit"

@@ -4,6 +4,123 @@ import { SurveyModel } from "../src/survey";
 
 export default QUnit.module("Survey_QuestionMatrix");
 
+QUnit.test("Matrix Question isAllRowRequired property", function (assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.hasErrors(), false, "There is no errors by default");
+  matrix.isAllRowRequired = true;
+  assert.equal(matrix.hasErrors(), true, "There is no errors by default");
+});
+QUnit.test(
+  "Matrix Question isAllRowRequired property, value is zero, Bug#2332",
+  function (assert) {
+    var matrix = new QuestionMatrixModel("q1");
+    matrix.fromJSON({
+      type: "matrix",
+      name: "question",
+      isRequired: true,
+      columns: [
+        {
+          value: 0,
+          text: "No",
+        },
+        {
+          value: 1,
+          text: "Maybe",
+        },
+        {
+          value: 2,
+          text: "Yes",
+        },
+      ],
+      rows: ["item1", "item2"],
+      isAllRowRequired: true,
+    });
+    var rows = matrix.visibleRows;
+    assert.equal(matrix.hasErrors(), true, "is Required error");
+    rows[0].value = 0;
+    assert.equal(matrix.hasErrors(), true, "isAllRowRequired error");
+    rows[1].value = 0;
+    assert.deepEqual(
+      matrix.value,
+      { item1: 0, item2: 0 },
+      "value set correctly"
+    );
+    assert.equal(rows[0].value, 0, "First row value set correctly");
+    assert.equal(rows[1].value, 0, "Second row value set correctly");
+    assert.equal(matrix.hasErrors(), false, "There is no errors");
+  }
+);
+QUnit.test("Matrix Question eachRowUnique property", function (assert) {
+  var matrix = new QuestionMatrixModel("q1");
+  matrix.rows = ["row1", "row2"];
+  matrix.columns = ["col1", "col2"];
+  assert.equal(matrix.validate(), true, "validate #1");
+  matrix.eachRowUnique = true;
+  assert.equal(matrix.validate(), true, "validate #2");
+  matrix.value = { row1: "col1" };
+  assert.equal(matrix.validate(), true, "validate #3");
+  matrix.value = { row2: "col1" };
+  assert.equal(matrix.validate(), true, "validate #4");
+  matrix.value = { row1: "col1", row2: "col1" };
+  assert.equal(matrix.validate(), false, "validate #5");
+  matrix.value = { row1: "col1", row2: "col2" };
+  assert.equal(matrix.validate(), true, "validate #6");
+  matrix.value = { row1: "col2", row2: "col2" };
+  assert.equal(matrix.validate(), false, "validate #7");
+});
+QUnit.test("matirix row, rowClasses property, isAllRowRequired", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2"],
+        isAllRowRequired: true,
+      },
+    ],
+  });
+  survey.css = { matrix: { row: "row", rowError: "row_error" } };
+  var question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.ok(question.cssClasses.row, "Row class is not empty");
+  assert.equal(question.visibleRows[0].rowClasses, "row", "Set row class");
+  question.validate();
+  assert.equal(question.visibleRows[0].rowClasses, "row row_error", "Error for the first row");
+  question.visibleRows[0].value = "col1";
+  assert.equal(question.visibleRows[0].rowClasses, "row", "first row value is set");
+  assert.equal(question.visibleRows[1].rowClasses, "row row_error", "Error for the second row");
+});
+QUnit.test("matirix row, rowClasses property, eachRowUnique", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2"],
+        eachRowUnique: true,
+      },
+    ],
+  });
+  survey.css = { matrix: { row: "row", rowError: "row_error" } };
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  assert.ok(question.cssClasses.row, "Row class is not empty");
+  assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0)");
+  assert.equal(question.visibleRows[0].rowClasses, "row", "Set row class");
+  question.value = { row1: "col1", row2: "col1" };
+  question.validate();
+  assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0) #1");
+  assert.equal(question.visibleRows[0].rowClasses, "row", "first row #1");
+  assert.equal(question.hasErrorInRow(question.visibleRows[1]), true, "hasErrorInRow(1) #1");
+  assert.equal(question.visibleRows[1].rowClasses, "row row_error", "second row #1");
+  question.visibleRows[1].value = "col2";
+  assert.equal(question.hasErrorInRow(question.visibleRows[0]), false, "hasErrorInRow(0) #1");
+  assert.equal(question.visibleRows[0].rowClasses, "row", "first row #2");
+  assert.equal(question.hasErrorInRow(question.visibleRows[1]), false, "hasErrorInRow(1) #2");
+  assert.equal(question.visibleRows[1].rowClasses, "row", "second row #2");
+});
 QUnit.test("check row randomization in design mode", (assert) => {
 
   var json = {

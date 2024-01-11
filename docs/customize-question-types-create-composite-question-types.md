@@ -23,7 +23,9 @@ Survey.ComponentCollection.Instance.add({
   // A unique name; must use lowercase
   name: "fullname", 
   // A display name used in the Toolbox
-  title: "Full Name", 
+  title: "Full Name",
+  // A default title for questions created with this question type
+  defaultQuestionTitle: "Enter your full name:",
   // An array of JSON schemas that configure the nested questions
   elementsJSON: [
     { type: "text", name: "firstName", title: "First Name", isRequired: true },
@@ -64,6 +66,7 @@ For example, the Full Name composite question from the previous topic may includ
 Survey.ComponentCollection.Instance.add({
   name: "fullname", 
   title: "Full Name", 
+  defaultQuestionTitle: "Enter your full name:",
   elementsJSON: [
     { type: "text", name: "firstName", title: "First Name", isRequired: true },
     // Optional question, hidden by default

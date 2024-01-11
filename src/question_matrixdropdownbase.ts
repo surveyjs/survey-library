@@ -1180,14 +1180,15 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
    *
    * Possible values:
    *
-   * - `"dropdown"`
-   * - `"checkbox"`
-   * - `"radiogroup"`
-   * - `"text"`
-   * - `"comment"`
-   * - `"boolean"`
-   * - `"expression"`
-   * - `"rating"`
+   * - [`"dropdown"`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model)
+   * - [`"checkbox"`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model)
+   * - [`"radiogroup"`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model)
+   * - [`"tagbox"`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model)
+   * - [`"text"`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model)
+   * - [`"comment"`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model)
+   * - [`"boolean"`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model)
+   * - [`"expression"`](https://surveyjs.io/form-library/documentation/api-reference/expression-model)
+   * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
    *
    * Default value: `"dropdown"` (inherited from [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/settings#matrixDefaultCellType))
    */

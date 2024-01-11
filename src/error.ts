@@ -128,6 +128,17 @@ export class RequiredInAllRowsError extends SurveyError {
     return this.getLocalizationString("requiredInAllRowsError");
   }
 }
+export class EachRowUniqueError extends SurveyError {
+  constructor(public text: string, errorOwner: ISurveyErrorOwner = null) {
+    super(text, errorOwner);
+  }
+  public getErrorType(): string {
+    return "eachrowuniqueeerror";
+  }
+  protected getDefaultText(): string {
+    return this.getLocalizationString("eachRowUniqueError");
+  }
+}
 export class MinRowCountError extends SurveyError {
   constructor(
     public minRowCount: number,

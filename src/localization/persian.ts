@@ -25,6 +25,7 @@ export var persianSurveyStrings = {
   requiredError: "لطفا به سوال پاسخ دهید",
   requiredErrorInPanel: "لطفا حداقل به یک سوال پاسخ دهید.",
   requiredInAllRowsError: "لطفا سوالات تمام سطرها را پاسخ دهید.",
+  eachRowUniqueError: "هر سطر باید یک مقدار منحصر به فرد داشته باشد.",
   numericError: "مقدار باید عددی باشد",
   minError: "ارزش نباید کمتر از {0}",
   maxError: "ارزش نباید بیشتر از {0}",
@@ -42,6 +43,7 @@ export var persianSurveyStrings = {
   urlRequestError: "درخواست با خطا روبرو شد: '{0}'. {1}",
   urlGetChoicesError: "درخواست مسیری خالی بازگشت داده یا مسیر درست تنظیم نشده",
   exceedMaxSize: "بیشترین حجم مجاز فایل: {0}",
+  noUploadFilesHandler: "پروندهها را نمیتوان بارگذاری کرد. لطفا یک گرداننده برای رویداد \"onUploadFiles\" اضافه کنید.",
   otherRequiredError: "مقدار 'دیگر' را وارد کنید",
   uploadingFile: "فایل در حال آیلود است. لطفا صبر کنید.",
   loadingFile: "بارگیری...",
@@ -56,6 +58,8 @@ export var persianSurveyStrings = {
   emptyRowsText: "هیچ ردیفی وجود ندارد.",
   addPanel: "جدید",
   removePanel: "حذف",
+  showDetails: "نمایش جزئیات",
+  hideDetails: "مخفی کردن جزئیات",
   choices_Item: "آیتم",
   matrix_column: "ستون",
   matrix_row: "سطر",
@@ -94,7 +98,9 @@ export var persianSurveyStrings = {
   more: "بیشتر",
   tagboxDoneButtonCaption: "باشه",
   selectToRankEmptyRankedAreaText: "همه انتخاب ها رتبه بندی می شوند",
-  selectToRankEmptyUnrankedAreaText: "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها"
+  selectToRankEmptyUnrankedAreaText: "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها",
+  ok: "باشه",
+  cancel: "لغو"
 };
 
 surveyLocalization.locales["fa"] = persianSurveyStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["fa"] = "فارْسِى";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انتخاب های کشیدن و رها کردن در اینجا برای رتبه بندی انها"// takePhotoCaption: "Take Photo" => "گرفتن عکس"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "روی دکمه زیر کلیک کنید تا با استفاده از دوربین عکس بگیرید."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "کشیدن و رها کردن یا انتخاب یک فایل برای اپلود یا گرفتن عکس با استفاده از دوربین."
-// replaceFileCaption: "Replace file" => "جایگزینی پرونده"
+// replaceFileCaption: "Replace file" => "جایگزینی پرونده"// eachRowUniqueError: "Each row must have a unique value." => "هر سطر باید یک مقدار منحصر به فرد داشته باشد."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "پروندهها را نمیتوان بارگذاری کرد. لطفا یک گرداننده برای رویداد \"onUploadFiles\" اضافه کنید."
+// showDetails: "Show Details" => "نمایش جزئیات"
+// hideDetails: "Hide Details" => "مخفی کردن جزئیات"
+// ok: "OK" => "باشه"
+// cancel: "Cancel" => "لغو"

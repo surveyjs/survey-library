@@ -16,6 +16,7 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * An interface used to create custom question types.
@@ -50,13 +51,37 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onInit?(): void;
   /**
-   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu.
+   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu in Survey Creator.
    *
    * Default value: `true`
    *
    * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
+  /**
+   * A default title for questions created with this question type. Survey authors can change the default title in the JSON object or in Survey Creator's Property Grid.
+   *
+   * You can specify the question title with a string value or with an object that defines different titles for different locales:
+   *
+   * ```js
+   * import { ComponentCollection } from "survey-core";
+   *
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: "Default title"
+   * });
+   * // ===== OR =====
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: {
+   *     en: "Default title",
+   *     de: "Standardtitel",
+   *     fr: "Titre par défaut"
+   *   }
+   * });
+   * ```
+   */
+  defaultQuestionTitle?: any;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    *
@@ -292,6 +317,9 @@ export class ComponentQuestionJSON {
     if (!this.json.getDisplayValue) return question.getDisplayValue(keyAsText, value);
     return (this.json as any).getDisplayValue(question);
   }
+  public get defaultQuestionTitle(): any {
+    return this.json.defaultQuestionTitle;
+  }
   public setValueToQuestion(val: any): any {
     const converter = this.json.valueToQuestion || this.json.setValue;
     return !!converter ? converter(val): val;
@@ -395,10 +423,13 @@ export class ComponentCollection {
 
 export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
+  private locQuestionTitle: LocalizableString;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
     SurveyElement.CreateDisabledDesignElements = true;
+    this.locQuestionTitle = this.createLocalizableString("questionTitle", this);
+    this.locQuestionTitle.setJson(this.customQuestion.defaultQuestionTitle);
     this.createWrapper();
     SurveyElement.CreateDisabledDesignElements = false;
     if (!!this.customQuestion) {
@@ -419,6 +450,12 @@ export abstract class QuestionCustomModelBase extends Question
     if(!!this.getElement()) {
       this.getElement().localeChanged();
     }
+  }
+  protected getDefaultTitle(): string {
+    if(!this.locQuestionTitle.isEmpty) {
+      return this.getProcessedText(this.locQuestionTitle.textOrHtml);
+    }
+    return super.getDefaultTitle();
   }
   public addUsedLocales(locales: Array<string>): void {
     super.addUsedLocales(locales);
@@ -660,7 +697,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     return this.contentQuestion;
   }
   protected getDefaultTitle(): string {
-    if(this.hasJSONTitle && this.contentQuestion) return this.contentQuestion.title;
+    if(this.hasJSONTitle && this.contentQuestion) {
+      return this.getProcessedText(this.contentQuestion.title);
+    }
     return super.getDefaultTitle();
   }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {

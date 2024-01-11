@@ -59,6 +59,11 @@ export class MatrixRowModel extends Base {
     val = this.data.getCorrectedRowValue(val);
     this.setPropertyValue("value", val);
   }
+  public get isReadOnly(): boolean { return !this.item.enabled || this.data.isInputReadOnly; }
+  public get css(): string {
+    const val = this.data.cssClasses;
+    return new CssClassBuilder().append(val.rowTextCell).append(val.rowTextCellDisabled, this.isReadOnly).toString();
+  }
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
     return new CssClassBuilder().append(cssClasses.row)

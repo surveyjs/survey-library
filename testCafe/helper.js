@@ -124,7 +124,8 @@ export const initSurveyPopup = ClientFunction(
         data: { survey: model },
       });
     } else if (framework === "angular" || framework == "vue3") {
-      window.setSurvey(model);
+      const isPopup = true;
+      window.setSurvey(model, isPopup);
     }
     window["popupSurvey"] = popupSurvey;
     window["survey"] = model;

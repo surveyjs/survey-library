@@ -11,9 +11,10 @@ const isPopup = shallowRef();
 }
 </script>
 <template>
-<div id="surveyElement">
-    <SurveyComponent v-if="survey && !isPopup" :survey="survey"></SurveyComponent>
-    <PopupSurveyComponent v-if="survey && isPopup" :survey="survey"></PopupSurveyComponent>
-</div>
-<div id="surveyResultElement"></div>
+    <div id="surveyElement">
+        <SurveyComponent v-if="survey && !isPopup" :survey="survey"></SurveyComponent>
+        <PopupSurveyComponent v-if="survey && isPopup" :survey="survey" :isExpanded='true' :allowClose='true'
+            :closeOnCompleteTimeout='-1'></PopupSurveyComponent>
+    </div>
+    <div id="surveyResultElement"></div>
 </template>

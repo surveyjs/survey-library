@@ -35,7 +35,7 @@
             <!-- ko foreach: question.koVisibleColumns -->
             <!-- ko if: question.hasCellText -->
             <td
-              data-bind="css: question.getItemClass(row, $data), click: function() { if (!question.isInputReadOnly) { row.cellClick($data); } }"
+              data-bind="css: question.getItemClass(row, $data), click: function() { row.cellClick($data); }"
             >
               <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
               <!-- /ko -->

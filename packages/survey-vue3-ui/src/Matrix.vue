@@ -108,7 +108,6 @@ useQuestion<QuestionMatrixModel>(
 );
 
 const cellClick = (row: any, column: any) => {
-  if (props.question.isInputReadOnly) return;
   row.value = column.value;
 };
 </script>

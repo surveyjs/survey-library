@@ -63,7 +63,6 @@ import { QuestionMatrixModel } from "survey-core";
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
    cellClick(row: any, column: any) {
-    if (this.question.isInputReadOnly) return;
     row.value = column.value;
   }
 }

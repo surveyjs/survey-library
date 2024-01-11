@@ -206,7 +206,7 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
   survey.css.matrix.rowDisabled = "disable_val";
   survey.fromJSON({
     elements: [
-      { type: "matrix", name: "q1", columns: ["col1"], rows: [{ value: "row1", enableIf: "{q2} = 1" }, "row2"] },
+      { type: "matrix", name: "q1", columns: ["col1", "col2"], rows: [{ value: "row1", enableIf: "{q2} = 1" }, "row2"] },
       { type: "text", name: "q2" }
     ]
   });
@@ -217,9 +217,18 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
 
   assert.equal(row.isReadOnly, true, "First visible row test isReadOnly, #1");
   assert.equal(row.rowClasses.indexOf("disable_val") === -1, false, "css #1");
+  assert.equal(q1.value, undefined, "q1.value #1");
+  row.cellClick(q1.columns[0]);
+  assert.equal(q1.value, undefined, "q1.value #2");
+  row.value = "col1";
+  assert.equal(q1.value, undefined, "q1.value #2");
   q2.value = 1;
   assert.equal(row.isReadOnly, false, "First visible row test isReadOnly, #2");
   assert.equal(row.rowClasses.indexOf("disable_val") === -1, true, "css #2");
+  row.cellClick(q1.columns[0]);
+  assert.deepEqual(q1.value, { row1: "col1" }, "q1.value #3");
+  row.value = "col2";
+  assert.deepEqual(q1.value, { row1: "col2" }, "q1.value #4");
   q2.value = 2;
   assert.equal(row.isReadOnly, true, "First visible row test isReadOnly, #3");
   assert.equal(row.rowClasses.indexOf("disable_val") === -1, false, "css #3");

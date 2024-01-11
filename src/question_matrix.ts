@@ -254,6 +254,8 @@ export class QuestionMatrixModel
   /**
    * Specifies whether each row requires an answer. If a respondent skips a row, the question displays a validation error.
    * @see isRequired
+   * @see eachRowUnique
+   * @see validators
    */
   public get isAllRowRequired(): boolean {
     return this.getPropertyValue("isAllRowRequired");
@@ -261,6 +263,11 @@ export class QuestionMatrixModel
   public set isAllRowRequired(val: boolean) {
     this.setPropertyValue("isAllRowRequired", val);
   }
+  /**
+   * Specifies whether answers in all rows should be unique. If any answers duplicate, the question displays a validation error.
+   * @see isAllRowRequired
+   * @see validators
+   */
   public get eachRowUnique(): boolean {
     return this.getPropertyValue("eachRowUnique");
   }

@@ -25,6 +25,7 @@ export var bulgarianStrings = {
   requiredError: "Моля, отговорете на следния въпрос.",
   requiredErrorInPanel: "Моля, отговорете поне на един от въпросите.",
   requiredInAllRowsError: "Моля, отговорете на въпросите на всички редове.",
+  eachRowUniqueError: "Всеки ред трябва да има уникална стойност.",
   numericError: "Стойността следва да бъде число.",
   minError: "Стойността не трябва да бъде по-малка от {0}",
   maxError: "Стойността не трябва да бъде по-голяма от {0}",
@@ -42,6 +43,7 @@ export var bulgarianStrings = {
   urlRequestError: "Заявката води до грешка '{0}'. {1}",
   urlGetChoicesError: "Заявката не връща данни или частта 'path' (път до търсения ресурс на сървъра) е неправилно зададена",
   exceedMaxSize: "Размерът на файла следва да не превишава {0}.",
+  noUploadFilesHandler: "Файловете не могат да бъдат качени. Моля, добавете манипулатор за събитието \"onUploadFiles\".",
   otherRequiredError: "Моля, въведете другата стойност.",
   uploadingFile: "Вашит файл се зарежда на сървъра. Моля, изчакайте няколко секунди и тогава опитвайте отново.",
   loadingFile: "Зареждане...",
@@ -56,6 +58,8 @@ export var bulgarianStrings = {
   emptyRowsText: "Няма редове.",
   addPanel: "Добавяне на панел",
   removePanel: "Премахване на панел",
+  showDetails: "Показване на подробни данни",
+  hideDetails: "Скрий подробните данни",
   choices_Item: "елемент",
   matrix_column: "Колона",
   matrix_row: "Ред",
@@ -94,7 +98,9 @@ export var bulgarianStrings = {
   more: "Още",
   tagboxDoneButtonCaption: "Добре",
   selectToRankEmptyRankedAreaText: "Всички възможности за избор са класирани",
-  selectToRankEmptyUnrankedAreaText: "Плъзнете и пуснете опции тук, за да ги класирате"
+  selectToRankEmptyUnrankedAreaText: "Плъзнете и пуснете опции тук, за да ги класирате",
+  ok: "Добре",
+  cancel: "Отмени"
 };
 
 surveyLocalization.locales["bg"] = bulgarianStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["bg"] = "български";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Плъзнете и пуснете опции тук, за да ги класирате"// takePhotoCaption: "Take Photo" => "Направете снимка"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Кликнете върху бутона по-долу, за да направите снимка с помощта на камерата."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Плъзнете и пуснете или изберете файл за качване или правене на снимка с помощта на камерата."
-// replaceFileCaption: "Replace file" => "Заместване на файл"
+// replaceFileCaption: "Replace file" => "Заместване на файл"// eachRowUniqueError: "Each row must have a unique value." => "Всеки ред трябва да има уникална стойност."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файловете не могат да бъдат качени. Моля, добавете манипулатор за събитието \"onUploadFiles\"."
+// showDetails: "Show Details" => "Показване на подробни данни"
+// hideDetails: "Hide Details" => "Скрий подробните данни"
+// ok: "OK" => "Добре"
+// cancel: "Cancel" => "Отмени"

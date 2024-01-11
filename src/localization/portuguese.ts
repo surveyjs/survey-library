@@ -25,6 +25,7 @@ export var portugueseSurveyStrings = {
   requiredError: "Por favor, responda à pergunta.",
   requiredErrorInPanel: "Por favor, responda pelo menos a uma pergunta.",
   requiredInAllRowsError: "Por favor, responda às perguntas em todas as linhas.",
+  eachRowUniqueError: "Cada linha deve ter um valor exclusivo.",
   numericError: "O valor deve ser numérico.",
   minError: "O valor não deverá ser menor que {0}",
   maxError: "O valor não deverá ser maior que {0}",
@@ -42,6 +43,7 @@ export var portugueseSurveyStrings = {
   urlRequestError: "O pedido retornou o erro '{0}'. {1}",
   urlGetChoicesError: "O pedido não retornou dados ou o 'caminho' do pedido não está correto",
   exceedMaxSize: "O tamanho do arquivo não deve exceder {0}.",
+  noUploadFilesHandler: "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'.",
   otherRequiredError: "Por favor, insira o outro valor.",
   uploadingFile: "O seu ficheiro está a carregar. Por favor, aguarde alguns segundos e tente novamente.",
   loadingFile: "A carregar...",
@@ -56,6 +58,8 @@ export var portugueseSurveyStrings = {
   emptyRowsText: "Não existem linhas.",
   addPanel: "Adicionar novo",
   removePanel: "Remover",
+  showDetails: "Mostrar detalhes",
+  hideDetails: "Ocultar detalhes",
   choices_Item: "item",
   matrix_column: "Coluna",
   matrix_row: "Linha",
@@ -94,7 +98,9 @@ export var portugueseSurveyStrings = {
   more: "Mais",
   tagboxDoneButtonCaption: "Terminado",
   selectToRankEmptyRankedAreaText: "Todas as opções são classificadas",
-  selectToRankEmptyUnrankedAreaText: "Arraste e solte as opções aqui para classificá-las"
+  selectToRankEmptyUnrankedAreaText: "Arraste e solte as opções aqui para classificá-las",
+  ok: "OKEY",
+  cancel: "Cancelar"
 };
 
 surveyLocalization.locales["pt"] = portugueseSurveyStrings;
@@ -108,4 +114,9 @@ surveyLocalization.localeNames["pt"] = "português";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arraste e solte as opções aqui para classificá-las"// takePhotoCaption: "Take Photo" => "Tirar foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Clique no botão abaixo para tirar uma foto usando a câmera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera."
-// replaceFileCaption: "Replace file" => "Substituir arquivo"
+// replaceFileCaption: "Replace file" => "Substituir arquivo"// eachRowUniqueError: "Each row must have a unique value." => "Cada linha deve ter um valor exclusivo."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'."
+// showDetails: "Show Details" => "Mostrar detalhes"
+// hideDetails: "Hide Details" => "Ocultar detalhes"
+// ok: "OK" => "OKEY"
+// cancel: "Cancel" => "Cancelar"

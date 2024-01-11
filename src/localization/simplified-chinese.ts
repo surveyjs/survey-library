@@ -25,6 +25,7 @@ export var simplifiedChineseSurveyStrings = {
   requiredError: "请填写此问题",
   requiredErrorInPanel: "至少回答一题.",
   requiredInAllRowsError: "请填写所有行中问题",
+  eachRowUniqueError: "每行必须具有唯一值。",
   numericError: "答案必须是个数字",
   minError: "该值不能小于 {0}",
   maxError: "该值不能大于 {0}",
@@ -42,6 +43,7 @@ export var simplifiedChineseSurveyStrings = {
   urlRequestError: "载入选项时发生错误 '{0}': {1}",
   urlGetChoicesError: "未能载入有效的选项或请求参数路径有误",
   exceedMaxSize: "文件大小不能超过 {0}",
+  noUploadFilesHandler: "无法上传文件。请为“onUploadFiles”事件添加处理程序。",
   otherRequiredError: "请完成其他问题",
   uploadingFile: "文件上传中... 请耐心等待几秒后重试",
   loadingFile: "加载...",
@@ -56,6 +58,8 @@ export var simplifiedChineseSurveyStrings = {
   emptyRowsText: "无内容",
   addPanel: "新添",
   removePanel: "删除",
+  showDetails: "显示详细信息",
+  hideDetails: "隐藏详细信息",
   choices_Item: "选项",
   matrix_column: "列",
   matrix_row: "行",
@@ -94,7 +98,9 @@ export var simplifiedChineseSurveyStrings = {
   more: "更多",
   tagboxDoneButtonCaption: "还行",
   selectToRankEmptyRankedAreaText: "所有选择均已排名",
-  selectToRankEmptyUnrankedAreaText: "将选项拖放到此处进行排名"
+  selectToRankEmptyUnrankedAreaText: "将选项拖放到此处进行排名",
+  ok: "还行",
+  cancel: "取消"
 };
 
 surveyLocalization.locales["zh-cn"] = simplifiedChineseSurveyStrings;
@@ -117,4 +123,9 @@ surveyLocalization.localeNames["zh-cn"] = "简体中文";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "将选项拖放到此处进行排名"// takePhotoCaption: "Take Photo" => "拍照"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "单击下面的按钮使用相机拍照。"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "拖放或选择要上传的文件或使用相机拍摄照片。"
-// replaceFileCaption: "Replace file" => "替换文件"
+// replaceFileCaption: "Replace file" => "替换文件"// eachRowUniqueError: "Each row must have a unique value." => "每行必须具有唯一值。"
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "无法上传文件。请为“onUploadFiles”事件添加处理程序。"
+// showDetails: "Show Details" => "显示详细信息"
+// hideDetails: "Hide Details" => "隐藏详细信息"
+// ok: "OK" => "还行"
+// cancel: "Cancel" => "取消"

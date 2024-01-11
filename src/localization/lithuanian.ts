@@ -25,6 +25,7 @@ export var lithuaniaSurveyStrings = {
   requiredError: "Būtina atsakyti į šį klausimą.",
   requiredErrorInPanel: "Būtina atsakyti bent į vieną klausimą.",
   requiredInAllRowsError: "Prašome atsakyti į klausimus visose eilutėse.",
+  eachRowUniqueError: "Kiekviena eilutė turi turėti unikalią reikšmę.",
   numericError: "Turi būti skaičiai.",
   minError: "Vertė neturėtų būti mažesnė nei {0}",
   maxError: "Vertė neturėtų būti didesnė nei {0}",
@@ -42,6 +43,7 @@ export var lithuaniaSurveyStrings = {
   urlRequestError: "Užklausa grąžino klaidą'{0}'. {1}",
   urlGetChoicesError: "Užklausa grąžino tuščius duomenis arba 'path' savybė yra neteisinga",
   exceedMaxSize: "Failo dydis neturi viršyti {0}.",
+  noUploadFilesHandler: "Failų įkelti negalima. Pridėkite įvykio \"onUploadFiles\" tvarkytoją.",
   otherRequiredError: "Įveskite kitą reikšmę.",
   uploadingFile: "Jūsų failas yra keliamas. Palaukite keletą sekundžių ir bandykite dar kartą.",
   loadingFile: "Prašome palaukti...",
@@ -56,6 +58,8 @@ export var lithuaniaSurveyStrings = {
   emptyRowsText: "Eilių nėra.",
   addPanel: "Pridėti naują",
   removePanel: "Ištrinti",
+  showDetails: "Rodyti išsamią informaciją",
+  hideDetails: "Slėpti išsamią informaciją",
   choices_Item: "elementas",
   matrix_column: "Stulpelis",
   matrix_row: "Eilutė",
@@ -94,7 +98,9 @@ export var lithuaniaSurveyStrings = {
   more: "Daugiau",
   tagboxDoneButtonCaption: "GERAI",
   selectToRankEmptyRankedAreaText: "Visi pasirinkimai yra reitinguojami",
-  selectToRankEmptyUnrankedAreaText: "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte"
+  selectToRankEmptyUnrankedAreaText: "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte",
+  ok: "GERAI",
+  cancel: "Atšaukti"
 };
 
 surveyLocalization.locales["lt"] = lithuaniaSurveyStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["lt"] = "lietuvių";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Nuvilkite pasirinkimus čia, kad juos reitinguotumėte"// takePhotoCaption: "Take Photo" => "Fotografuoti"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Spustelėkite žemiau esantį mygtuką, kad nufotografuotumėte fotoaparatu."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Nuvilkite arba pasirinkite failą, kurį norite įkelti arba nufotografuoti naudodami fotoaparatą."
-// replaceFileCaption: "Replace file" => "Pakeiskite failą"
+// replaceFileCaption: "Replace file" => "Pakeiskite failą"// eachRowUniqueError: "Each row must have a unique value." => "Kiekviena eilutė turi turėti unikalią reikšmę."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Failų įkelti negalima. Pridėkite įvykio \"onUploadFiles\" tvarkytoją."
+// showDetails: "Show Details" => "Rodyti išsamią informaciją"
+// hideDetails: "Hide Details" => "Slėpti išsamią informaciją"
+// ok: "OK" => "GERAI"
+// cancel: "Cancel" => "Atšaukti"

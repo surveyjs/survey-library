@@ -34,6 +34,8 @@ Survey.ComponentCollection.Instance.add({
   name: "country", 
   // A display name used in the Toolbox
   title: "Country", 
+  // A default title for questions created with this question type
+  defaultQuestionTitle: "Country",
   // A JSON schema for the base question type (Dropdown in this case)
   questionJSON: {
     "type": "dropdown",

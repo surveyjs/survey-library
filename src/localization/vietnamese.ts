@@ -25,6 +25,7 @@ export var vietnameseSurveyStrings = {
   requiredError: "Vui lòng trả lời câu hỏi.",
   requiredErrorInPanel: "Vui lòng trả lời ít nhất một câu hỏi.",
   requiredInAllRowsError: "Vui lòng trả lời các câu hỏi trên tất cả các dòng.",
+  eachRowUniqueError: "Mỗi hàng phải có một giá trị duy nhất.",
   numericError: "Giá trị nên là kiểu số.",
   minError: "Giá trị không được nhỏ hơn {0}",
   maxError: "Giá trị không được lớn hơn {0}",
@@ -42,6 +43,7 @@ export var vietnameseSurveyStrings = {
   urlRequestError: "Yêu cầu trả về lỗi '{0}'. {1}",
   urlGetChoicesError: "Yêu cầu trả về dữ liệu trống hoặc thuộc tính 'path' không đúng",
   exceedMaxSize: "Kích thước tập tin không nên vượt quá {0}.",
+  noUploadFilesHandler: "Không thể tải tệp lên. Vui lòng thêm trình xử lý cho sự kiện 'onUploadFiles'.",
   otherRequiredError: "Vui lòng điền giá trị khác.",
   uploadingFile: "Tập tin đang được tải lên. Vui lòng chờ một lúc và thử lại.",
   loadingFile: "Đang tải...",
@@ -56,6 +58,8 @@ export var vietnameseSurveyStrings = {
   emptyRowsText: "Không có hàng.",
   addPanel: "Thêm mới",
   removePanel: "Xóa",
+  showDetails: "Hiển thị chi tiết",
+  hideDetails: "Ẩn chi tiết",
   choices_Item: "mục",
   matrix_column: "Cột",
   matrix_row: "Dòng",
@@ -94,7 +98,9 @@ export var vietnameseSurveyStrings = {
   more: "Nhiều hơn",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Tất cả các lựa chọn được xếp hạng",
-  selectToRankEmptyUnrankedAreaText: "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"
+  selectToRankEmptyUnrankedAreaText: "Kéo và thả các lựa chọn vào đây để xếp hạng chúng",
+  ok: "OK",
+  cancel: "Hủy"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
@@ -124,4 +130,9 @@ surveyLocalization.localeNames["vi"] = "Việt Nam";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Kéo và thả các lựa chọn vào đây để xếp hạng chúng"// takePhotoCaption: "Take Photo" => "Chụp ảnh"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Nhấp vào nút bên dưới để chụp ảnh bằng máy ảnh."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Kéo và thả hoặc chọn tệp để tải lên hoặc chụp ảnh bằng máy ảnh."
-// replaceFileCaption: "Replace file" => "Thay thế tập tin"
+// replaceFileCaption: "Replace file" => "Thay thế tập tin"// eachRowUniqueError: "Each row must have a unique value." => "Mỗi hàng phải có một giá trị duy nhất."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Không thể tải tệp lên. Vui lòng thêm trình xử lý cho sự kiện 'onUploadFiles'."
+// showDetails: "Show Details" => "Hiển thị chi tiết"
+// hideDetails: "Hide Details" => "Ẩn chi tiết"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Hủy"

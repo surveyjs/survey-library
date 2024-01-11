@@ -25,6 +25,7 @@ export var japaneseSurveyStrings = {
   requiredError: "質問にお答え下さい",
   requiredErrorInPanel: "最低でも1つの質問に答えてください。",
   requiredInAllRowsError: "質問には全列で回答してください。",
+  eachRowUniqueError: "各行には一意の値が必要です。",
   numericError: "数字でご記入下さい",
   minError: "値は {0} 値より小さくすることはできません",
   maxError: "値は {0} を超えてはなりません。",
@@ -42,6 +43,7 @@ export var japaneseSurveyStrings = {
   urlRequestError: "リクエストはエラー '{0}' を返しました。{1}",
   urlGetChoicesError: "リクエストが空のデータを返したか、'path' プロパティが正しくありません。",
   exceedMaxSize: "ファイルのサイズは{0}を超えてはいけません",
+  noUploadFilesHandler: "ファイルはアップロードできません。「onUploadFiles」イベントのハンドラーを追加してください。",
   otherRequiredError: "その他の値を入力してください。",
   uploadingFile: "ファイルをアップロード中です。しばらくしてから再度お試し下さい",
   loadingFile: "読み込み中",
@@ -56,6 +58,8 @@ export var japaneseSurveyStrings = {
   emptyRowsText: "行はありません。",
   addPanel: "新規追加",
   removePanel: "除去",
+  showDetails: "詳細を表示",
+  hideDetails: "詳細を隠す",
   choices_Item: "品目",
   matrix_column: "コラム",
   matrix_row: "行",
@@ -94,7 +98,9 @@ export var japaneseSurveyStrings = {
   more: "もっとその",
   tagboxDoneButtonCaption: "わかりました",
   selectToRankEmptyRankedAreaText: "すべての選択肢がランク付けされます",
-  selectToRankEmptyUnrankedAreaText: "ここに選択肢をドラッグアンドドロップしてランク付けします"
+  selectToRankEmptyUnrankedAreaText: "ここに選択肢をドラッグアンドドロップしてランク付けします",
+  ok: "わかりました",
+  cancel: "キャンセル"
 };
 
 surveyLocalization.locales["ja"] = japaneseSurveyStrings;
@@ -123,4 +129,9 @@ surveyLocalization.localeNames["ja"] = "日本語";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "ここに選択肢をドラッグアンドドロップしてランク付けします"// takePhotoCaption: "Take Photo" => "写真を撮る"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "下のボタンをクリックして、カメラを使用して写真を撮ります。"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "アップロードするファイルをドラッグアンドドロップまたは選択するか、カメラを使用して写真を撮ります。"
-// replaceFileCaption: "Replace file" => "ファイルの置換"
+// replaceFileCaption: "Replace file" => "ファイルの置換"// eachRowUniqueError: "Each row must have a unique value." => "各行には一意の値が必要です。"
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "ファイルはアップロードできません。「onUploadFiles」イベントのハンドラーを追加してください。"
+// showDetails: "Show Details" => "詳細を表示"
+// hideDetails: "Hide Details" => "詳細を隠す"
+// ok: "OK" => "わかりました"
+// cancel: "Cancel" => "キャンセル"

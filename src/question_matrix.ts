@@ -60,14 +60,14 @@ export class MatrixRowModel extends Base {
     this.setPropertyValue("value", val);
   }
   public get isReadOnly(): boolean { return !this.item.enabled || this.data.isInputReadOnly; }
-  public get css(): string {
-    const val = this.data.cssClasses;
-    return new CssClassBuilder().append(val.rowTextCell).append(val.rowTextCellDisabled, this.isReadOnly).toString();
+  public get rowTextClasses(): string {
+    return new CssClassBuilder().append(this.data.cssClasses.rowTextCell).toString();
   }
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
     return new CssClassBuilder().append(cssClasses.row)
       .append(cssClasses.rowError, this.data.hasErrorInRow(this))
+      .append(cssClasses.rowDisabled, this.isReadOnly)
       .toString();
   }
 }

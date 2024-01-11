@@ -202,8 +202,8 @@ QUnit.test("rows, ItemValue.enableIf", (assert) => {
 });
 QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
   const survey = new SurveyModel();
-  const prevCssValue = survey.css.matrix.rowTextCellDisabled;
-  survey.css.matrix.rowTextCellDisabled = "disable_val";
+  const prevCssValue = survey.css.matrix.rowDisabled;
+  survey.css.matrix.rowDisabled = "disable_val";
   survey.fromJSON({
     elements: [
       { type: "matrix", name: "q1", columns: ["col1"], rows: [{ value: "row1", enableIf: "{q2} = 1" }, "row2"] },
@@ -216,22 +216,22 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
   const row = q1.visibleRows[0];
 
   assert.equal(row.isReadOnly, true, "First visible row test isReadOnly, #1");
-  assert.equal(row.css.indexOf("disable_val") === -1, false, "css #1");
+  assert.equal(row.rowClasses.indexOf("disable_val") === -1, false, "css #1");
   q2.value = 1;
   assert.equal(row.isReadOnly, false, "First visible row test isReadOnly, #2");
-  assert.equal(row.css.indexOf("disable_val") === -1, true, "css #2");
+  assert.equal(row.rowClasses.indexOf("disable_val") === -1, true, "css #2");
   q2.value = 2;
   assert.equal(row.isReadOnly, true, "First visible row test isReadOnly, #3");
-  assert.equal(row.css.indexOf("disable_val") === -1, false, "css #3");
+  assert.equal(row.rowClasses.indexOf("disable_val") === -1, false, "css #3");
 
   const secondRow = q1.visibleRows[1];
   assert.equal(secondRow.isReadOnly, false, "Second visible row test isReadOnly, #1");
-  assert.equal(secondRow.css.indexOf("disable_val") === -1, true, "Second row css #1");
+  assert.equal(secondRow.rowClasses.indexOf("disable_val") === -1, true, "Second row css #1");
   survey.mode = "display";
   assert.equal(secondRow.isReadOnly, true, "Second visible row test isReadOnly, #2");
-  assert.equal(secondRow.css.indexOf("disable_val") === -1, false, "Second row css #2");
+  assert.equal(secondRow.rowClasses.indexOf("disable_val") === -1, false, "Second row css #2");
 
   if(prevCssValue) {
-    survey.css.matrix.rowTextCellDisabled = prevCssValue;
+    survey.css.matrix.rowDisabled = prevCssValue;
   }
 });

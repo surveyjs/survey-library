@@ -33,7 +33,7 @@
             :class="row.rowClasses || undefined"
           >
             <td
-              :class="row.css"
+              :class="row.rowTextClasses"
               v-show="question.hasRows"
               :style="{
                 minWidth: question.rowTitleWidth,

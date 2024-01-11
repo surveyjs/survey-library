@@ -128,7 +128,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         style.minWidth = this.question.rowTitleWidth;
         style.width = this.question.rowTitleWidth;
       }
-      rowsTD = <td style={style} className={this.row.css}>
+      rowsTD = <td style={style} className={this.row.rowTextClasses}>
         {this.wrapCell({ row: this.row }, rowText, "row-header")}
       </td>;
     }

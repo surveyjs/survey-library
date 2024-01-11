@@ -22,7 +22,7 @@
             :key="'row_' + row.name + '_' + rowIndex"
             :class="row.rowClasses || undefined"
           >
-            <td :class="row.css" v-show="question.hasRows"
+            <td :class="row.rowTextClasses" v-show="question.hasRows"
               :style="{minWidth: question.rowTitleWidth, width: question.rowTitleWidth}"> 
               <survey-string :locString="row.locText" />
             </td>

@@ -137,7 +137,6 @@
     vertical-align: baseline;
     text-align: center;
     background-color: $background;
-    box-shadow: $shadow-small;
     border: none;
     border-radius: calcCornerRadius(1);
     cursor: pointer;
@@ -151,12 +150,15 @@
     font-size: $font-questiontitle-size;
     line-height: multiply(1.5, $font-questiontitle-size);
 
+    box-shadow: $shadow-small, 0 0 0 0px $primary;
+    transition: box-shadow 250ms;
+
     &:hover {
       background-color: $background-dark;
     }
 
     &:focus {
-      box-shadow: 0 0 0 2px $primary;
+      box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
     }
 
     span {

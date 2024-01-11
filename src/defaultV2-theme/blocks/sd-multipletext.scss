@@ -16,7 +16,7 @@
 }
 
 .sd-multipletext__item-container.sd-input:focus-within {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sd-multipletext__item-container {

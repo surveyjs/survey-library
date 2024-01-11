@@ -6,10 +6,11 @@
   padding: calcSize(0.5);
   background-color: $editor-background;
   border-radius: calcSize(12.5);
-  box-shadow: $shadow-inner;
+  box-shadow: $shadow-inner, 0 0 0 0px $primary;
+  transition: box-shadow 250ms;
 
   &.sd-boolean--allowhover:focus-within {
-    box-shadow: 0 0 0 2px $primary;
+    box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
   }
 }
 

@@ -20,7 +20,7 @@
 }
 
 .sd-input.sd-tagbox:focus-within {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sv-tagbox__item {

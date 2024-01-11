@@ -6,7 +6,6 @@
   -moz-appearance: none;
   padding: calcSize(2) calcSize(6);
   background: $question-background;
-  box-shadow: $shadow-small;
   border-radius: calcCornerRadius(1);
   cursor: pointer;
 
@@ -19,6 +18,9 @@
   color: $primary;
   border: none;
   outline: none;
+
+  box-shadow: $shadow-small, 0 0 0 0px $primary;
+  transition: box-shadow 250ms;
 }
 
 .sd-btn--small {
@@ -31,7 +33,7 @@
 }
 
 .sd-btn:focus-visible {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: $shadow-small-reset, 0 0 0 2px $primary;
 }
 
 .sd-btn:disabled {

@@ -107,10 +107,19 @@
       padding-right: calcSize(2);
     }
 
+    .sd-table__row:first-of-type>.sd-table__cell {
+      border-top: calcSize(1) solid transparent;
+    }
+    .sd-table__row:last-of-type>.sd-table__cell {
+      border-bottom: calcSize(1) solid transparent;
+    }
+
     .sd-table__row:nth-of-type(odd) {
 
-      &>td,
+      &>td.sd-table__cell,
       td:first-of-type {
+        border-top-color: $background-dim-light;
+        border-bottom-color: $background-dim-light;
         background-color: $background-dim-light;
 
         &.sd-matrix__text--checked {

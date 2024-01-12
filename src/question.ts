@@ -1011,6 +1011,9 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.headerBottom, this.hasTitleOnBottom)
       .toString();
   }
+  protected supportContainerQueries() {
+    return false;
+  }
   public get cssContent(): string {
     this.ensureElementCss();
     return this.getPropertyValue("cssContent", "");
@@ -1021,6 +1024,7 @@ export class Question extends SurveyElement<Question>
   protected getCssContent(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.content)
+      .append(cssClasses.contentSupportContainerQueries, this.supportContainerQueries())
       .append(cssClasses.contentLeft, this.hasTitleOnLeft)
       .toString();
   }

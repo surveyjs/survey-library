@@ -1,6 +1,6 @@
 import { applyTheme, frameworks, url, url_test, initSurvey, getSurveyResult, getQuestionJson,
   getDynamicPanelRemoveButton, getListItemByText, completeButton, setData } from "../helper";
-import { Selector } from "testcafe";
+import { Selector, ClientFunction } from "testcafe";
 const title = "paneldynamic";
 
 const json = {
@@ -435,5 +435,34 @@ frameworks.forEach((framework) => {
         }
       ]
     });
+  });
+  test("Reactive panelAddText/panelRemoveText - #7658", async (t) => {
+    const changeButtonsText = ClientFunction(
+      () => {
+        const q = window["survey"].getQuestionByName("panel1");
+        q.panelAddText = "#Add#";
+        q.panelRemoveText = "#Remove#";
+      }
+    );
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 2,
+          renderMode: "tab",
+          newPanelPosition: "next",
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await changeButtonsText();
+    await t.expect(Selector("button").withText("#Add#").exists).ok();
+    await t.expect(Selector("button").withText("#Remove#").exists).ok();
   });
 });

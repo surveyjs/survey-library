@@ -42,6 +42,8 @@ frameworks.forEach(framework => {
       await t.resizeWindow(800, 600);
       await initSurveyPopup(framework, json);
       await takeElementScreenshot("survey-popup.png", Selector(".sv_window"), t, comparer);
+      await t.click(".sv_window_button_collapse");
+      await takeElementScreenshot("survey-popup--collapsed.png", Selector(".sv_window"), t, comparer);
     });
   });
 });

@@ -33,7 +33,7 @@
         </div>
       </div>
       <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody" @scroll="doScroll">
-        <component :is="getSurveyComponentName()" :survey="surveyWindow"> </component>
+        <component :is="getSurveyComponentName()" :survey="survey"> </component>
       </div>
     </div>
   </div>
@@ -47,6 +47,7 @@ import { useBase } from "./base";
 const props = defineProps<{
   survey: SurveyModel;
   isExpanded: boolean;
+  allowClose: boolean;
   closeOnCompleteTimeout: number;
 }>();
 const surveyWindow =
@@ -95,6 +96,9 @@ const stopWatch = watch(
     }
     if (props.closeOnCompleteTimeout !== undefined) {
       model.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
+    }
+    if (props.allowClose !== undefined) {
+      model.allowClose = props.allowClose;
     }
     model.isShowing = true;
     surveyWindow.value = model;

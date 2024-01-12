@@ -293,10 +293,11 @@
     fill: $font-questiondescription-color;
   }
 
-    &:hover,
-    &:focus {
+  &:hover,
+  &:focus {
     background: $primary-light;
     outline: none;
+
     svg {
       fill: $primary;
     }
@@ -429,6 +430,10 @@
 
 .sd-matrixdropdown.sd-table {
   //table-layout: fixed;
+}
+
+.sd-table__row-disabled>.sd-table__cell {
+  opacity: 0.25;
 }
 
 @mixin table_responsive {

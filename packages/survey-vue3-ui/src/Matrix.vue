@@ -33,7 +33,7 @@
             :class="row.rowClasses || undefined"
           >
             <td
-              :class="question.cssClasses.rowTextCell"
+              :class="row.rowTextClasses"
               v-show="question.hasRows"
               :style="{
                 minWidth: question.rowTitleWidth,
@@ -108,7 +108,6 @@ useQuestion<QuestionMatrixModel>(
 );
 
 const cellClick = (row: any, column: any) => {
-  if (props.question.isInputReadOnly) return;
   row.value = column.value;
 };
 </script>

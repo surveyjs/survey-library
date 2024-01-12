@@ -95,8 +95,9 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
   }
-  protected getStateElement(): Base {
-    return !!this.row ? this.row.item : undefined;
+  protected getStateElement(): Base | null {
+    if(!!this.row) return this.row.item;
+    return super.getStateElement();
   }
   private get question(): QuestionMatrixModel {
     return this.props.question;

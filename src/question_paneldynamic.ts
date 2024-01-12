@@ -822,7 +822,7 @@ export class QuestionPanelDynamicModel extends Question
    * Returns the number of visible panels in Dynamic Panel.
    * @see templateVisibleIf
    */
-  public get visiblePanelCount(): number { return this.visiblePanelsCore.length; }
+  public get visiblePanelCount(): number { return this.visiblePanels.length; }
   /**
    * Specifies whether users can expand and collapse panels. Applies if `renderMode` is `"list"` and the `templateTitle` property is specified.
    *

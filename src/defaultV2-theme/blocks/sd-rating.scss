@@ -120,6 +120,7 @@
   color: $foreground;
   fill: $foreground;
   font-size: calcFontSize(1);
+  transition: border 250ms;
 }
 
 .sd-rating__item--fixed-size {
@@ -186,6 +187,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   border: 2px solid $border;
   color: $foreground;
   fill: $border;
+  transition: border 250ms;
 
   svg {
     display: block;
@@ -212,6 +214,10 @@ legend+sv-ng-rating-item+.sd-rating__item {
 legend+.sd-rating__item-smiley,
 legend+sv-ng-rating-item+.sd-rating__item-smiley {
   margin-inline-start: 2px;
+}
+
+.sd-rating__item-smiley--scale-colored {
+  transition: opacity 250ms;
 }
 
 .sd-rating__item-smiley--error {
@@ -292,6 +298,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     width: calcSize(6);
     height: calcSize(6);
     display: block;
+    transition: stroke 250ms;
   }
 
   .sv-star-2 {

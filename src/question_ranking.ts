@@ -40,7 +40,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (this.isDesignMode || item.disabled) return undefined;
     return 0;
   }
-
+  protected supportContainerQueries() {
+    return this.selectToRankEnabled;
+  }
   public get rootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)

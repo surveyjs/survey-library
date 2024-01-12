@@ -18,22 +18,22 @@ import { IPlainDataOptions } from "./base-interfaces";
 export interface IMatrixData {
   onMatrixRowChanged(row: MatrixRowModel): void;
   getCorrectedRowValue(value: any): any;
+  cssClasses: any;
+  isInputReadOnly: boolean;
   hasErrorInRow(row: MatrixRowModel): boolean;
 }
 
 export class MatrixRowModel extends Base {
   private data: IMatrixData;
-  private item: ItemValue;
   public cellClick: any;
 
   constructor(
-    item: ItemValue,
+    public item: ItemValue,
     public fullName: string,
     data: IMatrixData,
     value: any
   ) {
     super();
-    this.item = item;
     this.data = data;
     this.value = value;
     this.cellClick = (column: any) => {
@@ -56,13 +56,22 @@ export class MatrixRowModel extends Base {
     return this.getPropertyValue("value");
   }
   public set value(val: any) {
-    val = this.data.getCorrectedRowValue(val);
+    if(!this.isReadOnly) {
+      this.setValueDirectly(this.data.getCorrectedRowValue(val));
+    }
+  }
+  public setValueDirectly(val: any): void {
     this.setPropertyValue("value", val);
+  }
+  public get isReadOnly(): boolean { return !this.item.enabled || this.data.isInputReadOnly; }
+  public get rowTextClasses(): string {
+    return new CssClassBuilder().append(this.data.cssClasses.rowTextCell).toString();
   }
   public get rowClasses(): string {
     const cssClasses = (<any>this.data).cssClasses;
     return new CssClassBuilder().append(cssClasses.row)
       .append(cssClasses.rowError, this.data.hasErrorInRow(this))
+      .append(cssClasses.rowDisabled, this.isReadOnly)
       .toString();
   }
 }
@@ -358,7 +367,10 @@ export class QuestionMatrixModel
     }
     return res;
   }
-
+  protected runItemsCondition(values: HashTable<any>, properties: HashTable<any>): boolean {
+    ItemValue.runEnabledConditionsForItems(this.rows, undefined, values, properties);
+    return super.runItemsCondition(values, properties);
+  }
   protected getVisibleRows(): Array<MatrixRowModel> {
     var result = new Array<MatrixRowModel>();
     var val = this.value;
@@ -515,13 +527,13 @@ export class QuestionMatrixModel
     var val = this.value;
     if (!val) val = {};
     if (this.rows.length == 0) {
-      this.generatedVisibleRows[0].value = val;
+      this.generatedVisibleRows[0].setValueDirectly(val);
     } else {
       for (var i = 0; i < this.generatedVisibleRows.length; i++) {
         var row = this.generatedVisibleRows[i];
         var rowVal = val[row.name];
         if (this.isValueEmpty(rowVal)) rowVal = null;
-        this.generatedVisibleRows[i].value = rowVal;
+        this.generatedVisibleRows[i].setValueDirectly(rowVal);
       }
     }
     this.updateIsAnswered();

@@ -192,3 +192,41 @@ frameworks.forEach((framework) => {
     assert.equal(json.rows[0].text, newTitle);
   });
 });
+const json2 = {
+  "focusFirstQuestionAutomatic": true,
+  "elements": [{
+    "type": "radiogroup",
+    "name": "question2",
+    "defaultValue": "Item1",
+    "choices": [
+      "Item1",
+      "Item2",
+      "Item3"
+    ]
+  },
+  {
+    "type": "matrix",
+    "name": "question1",
+    "columns": ["Col1"],
+    "rows": [
+      { value: "Row1", enableIf: "{question2} = 'Item2'" }
+    ]
+  }]
+};
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json2);
+    }
+  );
+
+  test("Matrix row enableIf", async t => {
+    const inputButton = Selector("input[value=\"Col1\"]");
+    await t.expect(inputButton.exists).ok();
+    await t.expect(inputButton.hasAttribute("disabled")).ok();
+    await t.pressKey("down");
+    await t.expect(inputButton.hasAttribute("disabled")).notOk();
+    await t.pressKey("up");
+    await t.expect(inputButton.hasAttribute("disabled")).ok();
+  });
+});

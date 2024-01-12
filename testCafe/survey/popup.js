@@ -121,7 +121,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
-  test.only("Check popup scrolling hides all popups inside survey", async t => {
+  test("Check popup scrolling hides all popups inside survey", async t => {
     await t.resizeWindow(1000, 500);
     await initPopupSurvey(framework, {
       title: "Survey title",

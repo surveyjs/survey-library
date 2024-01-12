@@ -1,5 +1,5 @@
 import { Selector, ClientFunction, t } from "testcafe";
-import { getListItemByText } from "../../../testCafe/helper";
+import { getListItemByText, setOptions } from "../../../testCafe/helper";
 import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Tagbox Screenshot";
@@ -187,7 +187,7 @@ frameworks.forEach(async framework => {
         questions: [
           {
             type: "tagbox",
-            name: "question12",
+            name: "q1",
             hasOther: "true",
             allowClear: false,
             defaultValue: [
@@ -220,6 +220,9 @@ frameworks.forEach(async framework => {
 
       const questionTagbox = Selector(".sd-input.sd-tagbox");
       await takeElementScreenshot("tagbox-question-multiline-selected-items.png", questionTagbox, t, comparer);
+
+      await setOptions("q1", { "readOnly": true });
+      await takeElementScreenshot("tagbox-question-multiline-selected-items-readonly.png", questionTagbox, t, comparer);
     });
   });
 

@@ -3,7 +3,7 @@ import {
   ReactSurveyElement,
   SurveyQuestionElementBase,
 } from "./reactquestion_element";
-import { QuestionMatrixModel, MatrixRowModel, SurveyModel, ItemValue } from "survey-core";
+import { QuestionMatrixModel, MatrixRowModel, SurveyModel, ItemValue, Base } from "survey-core";
 import { ReactQuestionFactory } from "./reactquestion_factory";
 import { ReactSurveyElementsWrapper } from "./reactsurveymodel";
 import { ReactElementFactory } from "./element-factory";
@@ -61,7 +61,6 @@ export class SurveyQuestionMatrix extends SurveyQuestionElementBase {
           key={key}
           question={this.question}
           cssClasses={cssClasses}
-          isDisplayMode={this.isDisplayMode}
           row={row}
           isFirst={i == 0}
         />
@@ -96,6 +95,10 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
   constructor(props: any) {
     super(props);
   }
+  protected getStateElement(): Base | null {
+    if(!!this.row) return this.row.item;
+    return super.getStateElement();
+  }
   private get question(): QuestionMatrixModel {
     return this.props.question;
   }
@@ -126,7 +129,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
         style.minWidth = this.question.rowTitleWidth;
         style.width = this.question.rowTitleWidth;
       }
-      rowsTD = <td style={style} className={this.question.cssClasses.rowTextCell}>
+      rowsTD = <td style={style} className={this.row.rowTextClasses}>
         {this.wrapCell({ row: this.row }, rowText, "row-header")}
       </td>;
     }
@@ -151,9 +154,7 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
 
       let itemClass = this.question.getItemClass(row, column);
       if (this.question.hasCellText) {
-        const getHandler = !this.question.isInputReadOnly
-          ? (column: any) => () => this.cellClick(row, column)
-          : null;
+        const getHandler = (column: any) => () => this.cellClick(row, column);
         td = (
           <td
             key={key}
@@ -172,7 +173,6 @@ export class SurveyQuestionMatrixRow extends ReactSurveyElement {
           column: column,
           columnIndex: i,
           cssClasses: this.cssClasses,
-          isDisplayMode: this.isDisplayMode,
           cellChanged: () => { this.cellClick(this.row, column); }
         });
         td = (<td key={key} data-responsive-title={column.locText.renderedHtml} className={this.question.cssClasses.cell}>{renderedCell}</td>);
@@ -246,7 +246,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       className={this.cssClasses.itemValue}
       name={this.row.fullName}
       value={this.column.value}
-      disabled={this.isDisplayMode}
+      disabled={this.row.isReadOnly}
       checked={isChecked}
       onChange={this.handleOnChange}
       aria-required={this.question.a11y_input_ariaRequired}

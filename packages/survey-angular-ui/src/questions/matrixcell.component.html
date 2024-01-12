@@ -5,7 +5,7 @@
     [name]="row.fullName"
     [value]="column.value"
     [checked]="row.value === column.value"
-    [disabled]="question.isInputReadOnly"
+    [disabled]="row.isReadOnly"
     [attr.id]="question.inputId + '_' + row.name + '_' + columnIndex"
     (change)="onChange()"
     [attr.aria-required]="question.a11y_input_ariaRequired"

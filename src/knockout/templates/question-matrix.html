@@ -25,7 +25,7 @@
           <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
           <tr data-bind="css: row.rowClasses">
             <td
-              data-bind="visible: question.hasRows, css: question.cssClasses.rowTextCell, style: {  minWidth: question.rowTitleWidth, width: question.rowTitleWidth }"
+              data-bind="visible: question.hasRows, css: row.rowTextClasses, style: {  minWidth: question.rowTitleWidth, width: question.rowTitleWidth }"
             >
               <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: row.locText } -->
@@ -35,7 +35,7 @@
             <!-- ko foreach: question.koVisibleColumns -->
             <!-- ko if: question.hasCellText -->
             <td
-              data-bind="css: question.getItemClass(row, $data), click: function() { if (!question.isInputReadOnly) { row.cellClick($data); } }"
+              data-bind="css: question.getItemClass(row, $data), click: function() { row.cellClick($data); }"
             >
               <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
               <!-- /ko -->
@@ -64,7 +64,7 @@
   <label data-bind="css: question.getItemClass(row, column), event: { mousedown: question.koMouseDown }" >
     <input
       type="radio"
-      data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.a11y_input_ariaRequired, 'aria-label': question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml), 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: column.value, checked: row.value, enable: !question.isInputReadOnly"
+      data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.a11y_input_ariaRequired, 'aria-label': question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml), 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: column.value, checked: row.value, enable: !row.isReadOnly"
     />
     <span data-bind="css: question.cssClasses.materialDecorator">
         <!-- ko if: question.itemSvgIcon -->

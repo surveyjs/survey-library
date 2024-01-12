@@ -33,18 +33,23 @@ const props = defineProps<{
 
 const root = ref<HTMLElement>(null as any);
 
-useBase(() => props.page);
+const onAfterRender = () => {
+  if (props.survey && root.value) {
+    props.survey.afterRenderPage(root.value);
+  }
+};
+
+useBase(
+  () => props.page,
+  () => {
+    onAfterRender();
+  }
+);
 
 const showDescription = computed(() => {
   return props.page._showDescription;
 });
-
 onMounted(() => {
-  if (props.survey) {
-    props.survey.afterRenderPage(root.value);
-  }
-});
-onUpdated(() => {
-  props.survey.afterRenderPage(root.value);
+  onAfterRender();
 });
 </script>

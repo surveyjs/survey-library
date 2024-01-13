@@ -324,7 +324,7 @@ frameworks.forEach((framework) => {
   );
 
   test("templateVisibleIf", async (t) => {
-    const addNewSelector = Selector("span").withText("Add new");
+    const addNewSelector = Selector("button").withText("Add new");
     await t
       .expect(addNewSelector.count).eql(1)
       .expect(Selector("span").withText("#1-2").visible).notOk()

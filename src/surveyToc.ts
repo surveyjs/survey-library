@@ -41,7 +41,7 @@ export function createTOCListModel(survey: SurveyModel, onAction?: () => void) {
       }
     },
     true,
-    items.filter(i => i.id === survey.currentPage.name)[0] || items.filter(i => i.id === pagesSource[0].name)[0]
+    items.filter(i => !!survey.currentPage && i.id === survey.currentPage.name)[0] || items.filter(i => i.id === pagesSource[0].name)[0]
   );
   listModel.allowSelection = false;
   listModel.locOwner = survey;

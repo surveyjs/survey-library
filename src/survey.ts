@@ -4019,7 +4019,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showPreviewBeforeComplete
    * @see state
    */
-  public cancelPreview(currentPage: any = null) {
+  public cancelPreview(currentPage: any = null): void {
     if (!this.isShowingPreview) return;
     this.gotoPageFromPreview = currentPage;
     this.isShowingPreview = false;

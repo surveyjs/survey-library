@@ -4,7 +4,7 @@ import { axeCheck, createReport } from "axe-testcafe";
 const title = "selectbase";
 
 // Skip one minor case for listbox role in checkbox fieldset
-axeOptions["aria-allowed-role"] = {
+axeOptions["rules"]["aria-allowed-role"] = {
   enabled: false
 };
 

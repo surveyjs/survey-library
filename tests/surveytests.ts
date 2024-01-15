@@ -16619,7 +16619,7 @@ QUnit.test("progress is not changed on the start page", function (assert) {
   question.value = ["1"];
   assert.equal(progressChangeCount, 0, "Progress hasn't been called");
 });
-QUnit.test("Make sure that panel is not collapsed on focusing the question", function (assert) {
+QUnit.test("Make sure that panel is not collapsed on focusing the question, #2", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -18687,4 +18687,51 @@ QUnit.test("Check triggerReponsiveness is called when isCompact changed", functi
   log = "";
   survey["isCompact"] = false;
   assert.equal(log, "->q1:true->q2:true");
+});
+QUnit.test("element.wasREndered", function (assert) {
+  const json = {
+    pages: [
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.pages[0].wasRendered, true, "page1 wasRendered");
+  assert.equal(survey.getQuestionByName("q1").wasRendered, true, "q1 wasRendered");
+  const q3 = survey.pages[0].addNewQuestion("text", "q3");
+  assert.equal(q3.wasRendered, true, "q3 wasRendered");
+  const panel1 = survey.pages[0].addNewPanel("panel1");
+  assert.equal(panel1.wasRendered, true, "panel1 wasRendered");
+  const q4 = panel1.addNewQuestion("text", "q4");
+  assert.equal(q4.wasRendered, true, "q4 wasRendered");
+
+  assert.equal(survey.pages[1].wasRendered, false, "page2 wasRendered, #1");
+  assert.equal(survey.getQuestionByName("q2").wasRendered, false, "q2 wasRendered, #1");
+  const q5 = survey.pages[1].addNewQuestion("text", "q5");
+  assert.equal(q5.wasRendered, false, "q5 wasRendered, #1");
+  const panel2 = survey.pages[1].addNewPanel("panel1");
+  assert.equal(panel2.wasRendered, false, "panel2 wasRendered, #1");
+  const q6 = panel2.addNewQuestion("text", "q6");
+  assert.equal(q6.wasRendered, false, "q6 wasRendered, #1");
+
+  survey.nextPage();
+  assert.equal(survey.pages[1].wasRendered, true, "page2 wasRendered, #2");
+  assert.equal(survey.getQuestionByName("q2").wasRendered, true, "q2 wasRendered, #2");
+  assert.equal(q5.wasRendered, true, "q5 wasRendered, #2");
+  assert.equal(panel2.wasRendered, true, "panel2 wasRendered, #2");
+  assert.equal(q6.wasRendered, true, "q6 wasRendered, #2");
 });

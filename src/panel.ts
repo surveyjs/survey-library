@@ -1015,20 +1015,20 @@ export class PanelModelBase extends SurveyElement<Question>
   public createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
-  public onSurveyLoad() {
+  public onSurveyLoad(): void {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
     this.onElementVisibilityChanged(this);
   }
-  public onFirstRendering() {
+  public onFirstRendering(): void {
     super.onFirstRendering();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onFirstRendering();
     }
     this.onRowsChanged();
   }
-  public updateRows() {
+  public updateRows(): void {
     if (this.isLoadingFromJson) return;
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isPanel) {
@@ -1358,6 +1358,9 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements.push(element);
     } else {
       this.elements.splice(index, 0, element);
+    }
+    if(this.wasRendered) {
+      element.onFirstRendering();
     }
     return true;
   }

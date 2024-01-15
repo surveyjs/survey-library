@@ -483,4 +483,76 @@ frameworks.forEach(async framework => {
       await takeElementScreenshot("tagbox-readonly-with-markdown.png", question, t, comparer);
     });
   });
+
+  test("Resize input & popup", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 900);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "tagbox",
+            name: "tagbox",
+            hideSelectedItems: true,
+            defaultValue: ["item1", "item2", "item3", "item4", "item5"],
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10"
+            ]
+          }, {
+            type: "checkbox",
+            name: "question1",
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6"
+            ]
+          }, {
+            type: "tagbox",
+            name: "tagbox2",
+            hideSelectedItems: true,
+            defaultValue: ["item1", "item2", "item3", "item4", "item5"],
+            choices: [
+              "item1",
+              "item2",
+              "item3",
+              "item4",
+              "item5",
+              "item6",
+              "item7",
+              "item8",
+              "item9",
+              "item10"
+            ]
+          }
+        ]
+      });
+      await t.click(Selector(".sd-dropdown__filter-string-input"));
+      await takeElementScreenshot("tagbox-question-popup-direction-bottom.png", Selector(".sd-body"), t, comparer);
+
+      await t
+        .click(getListItemByText("item7"))
+        .click(getListItemByText("item8"));
+      await takeElementScreenshot("tagbox-question-popup-direction-bottom-and-resize-input.png.png", Selector(".sd-body"), t, comparer);
+
+      await t.click(Selector(".sd-dropdown__filter-string-input").nth(1));
+      await takeElementScreenshot("tagbox-question-popup-direction-top.png", Selector(".sd-body"), t, comparer);
+
+      await t
+        .click(getListItemByText("item7"))
+        .click(getListItemByText("item8"));
+      await takeElementScreenshot("tagbox-question-popup-direction-top-and-resize-input.png", Selector(".sd-body"), t, comparer);
+    });
+  });
 });

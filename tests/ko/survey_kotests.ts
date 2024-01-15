@@ -25,6 +25,7 @@ import * as ko from "knockout";
 import { ItemValue } from "../../src/itemvalue";
 import { StylesManager } from "../../src/stylesmanager";
 import { settings } from "../../src/settings";
+import { SurveyProgressButtonsModel } from "../../src/surveyProgressButtons";
 
 export default QUnit.module("koTests");
 
@@ -1899,7 +1900,7 @@ QUnit.test("ProgressButtonsViewModel component scroll button", function (
   StylesManager.applyTheme("default");
   let survey: Survey = new Survey(json);
   let progress: ProgressButtonsViewModel = new ProgressButtonsViewModel(
-    survey,
+    new SurveyProgressButtonsModel(survey as any),
     {
       querySelector: function () {
         return undefined;

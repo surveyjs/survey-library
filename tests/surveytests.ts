@@ -17343,11 +17343,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   };
 
   let survey = new SurveyModel(json);
-  function getContainerContent(container: LayoutElementContainer) {
-    let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("footer"), [], "");

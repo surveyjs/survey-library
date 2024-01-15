@@ -17002,7 +17002,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
     "id": "navigationbuttons"
   }], "nav left contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "nav left left");
   assert.deepEqual(getContainerContent("right"), [], "nav left right");
@@ -17020,7 +17020,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   }], "nav right contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav right left");
   assert.deepEqual(getContainerContent("right"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "nav right right");
 
@@ -17152,7 +17152,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc both contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc both left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc both right");
@@ -17164,7 +17164,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc left contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc left contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc left left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc left right");
@@ -17176,7 +17176,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc right contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "progress toc right left");
   assert.deepEqual(getContainerContent("right"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc right right");
 
@@ -17228,7 +17228,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
     "id": "navigationbuttons"
   }], "");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17304,7 +17304,7 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
     "id": "navigationbuttons"
   }], "");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");

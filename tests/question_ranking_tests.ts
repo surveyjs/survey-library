@@ -200,7 +200,13 @@ QUnit.test("Ranking: Carry Forward and unrankIfChoicesChanged", function(assert)
   rankingQuestion.unrankIfChoicesChanged = true;
   checkboxQuestion.value = [1, 2, 3];
   assert.equal(rankingQuestion.value.length, 0, "unrank items after choices changed");
+
+  rankingQuestion["isValueSetByUser"] = true;
+  rankingQuestion.value = [1, 2, 3];
+  checkboxQuestion.value = [1, 2];
+  assert.equal(rankingQuestion.value.length, 2, "after user's arrengement unrank should stop working");
 });
+
 QUnit.test("Ranking: CorrectAnswer, Bug#3720", function(assert) {
   var survey = new SurveyModel({
     elements: [

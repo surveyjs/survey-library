@@ -143,7 +143,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 
-    if (this.unrankIfChoicesChanged) {
+    if (this.unrankIfChoicesChanged && !this.isValueSetByUser) {
       this.value = [];
     }
 
@@ -446,12 +446,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
+  private isValueSetByUser = false;
   public setValue = (): void => {
     const value: string[] = [];
     this.rankingChoices.forEach((choice: ItemValue) => {
       value.push(choice.value);
     });
     this.value = value;
+    this.isValueSetByUser = true;
   };
   public getIconHoverCss(): string {
     return new CssClassBuilder()

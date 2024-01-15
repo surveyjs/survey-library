@@ -6,6 +6,8 @@ import { Base } from "../src/base";
 import { property } from "../src/jsonobject";
 import { settings } from "../src/settings";
 import { SurveyError } from "../src/survey-error";
+import { QuestionTextModel } from "../src/question_text";
+import { QuestionCommentModel } from "../src/question_comment";
 
 export default QUnit.module("Helpers");
 
@@ -509,4 +511,20 @@ QUnit.test("isValueObject", function(assert) {
   assert.equal(Helpers.isValueObject([1], true), false, "[1], exclude array");
   assert.equal(Helpers.isValueObject({ a: "abc" }), true, "{ a: 'abc' }");
   assert.equal(Helpers.isValueObject({ a: "abc" }, true), true, "{ a: 'abc' }, exclude array");
+});
+QUnit.test("base.equals", function(assert) {
+  const q1 = new QuestionTextModel("q1");
+  q1.title = "title1";
+  const q2 = new QuestionTextModel("q1");
+  q2.title = "title2";
+  const q3 = new QuestionTextModel("q1");
+  q3.title = "title1";
+  const q4 = new QuestionTextModel("q2");
+  q4.title = "title1";
+  const q5 = new QuestionCommentModel("q1");
+  q5.title = "title1";
+  assert.equal(Helpers.isTwoValueEquals(q1, q2), false, "#1");
+  assert.equal(Helpers.isTwoValueEquals(q1, q3), true, "#2");
+  assert.equal(Helpers.isTwoValueEquals(q1, q4), false, "#3");
+  assert.equal(Helpers.isTwoValueEquals(q1, q5), false, "#4");
 });

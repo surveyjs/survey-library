@@ -76,6 +76,7 @@ import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
+import { SurveyProgressButtonsModel } from "./surveyProgressButtons";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -964,6 +965,8 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
+    this.progressBarValue = new SurveyProgressButtonsModel(this);
+
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -973,7 +976,8 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push({
       id: "progress-buttons",
       component: "sv-progress-buttons",
-      data: this
+      data: this.progressBar,
+      processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
     });
     this.layoutElements.push({
       id: "progress-questions",
@@ -997,11 +1001,11 @@ export class SurveyModel extends SurveyElementCore
     });
     this.addLayoutElement({
       id: "toc-navigation",
-      component: "sv-progress-toc",
+      component: "sv-navigation-toc",
       data: this
     });
     this.layoutElements.push({
-      id: "navigationbuttons",
+      id: "buttons-navigation",
       component: "sv-action-bar",
       data: this.navigationBar
     });
@@ -2589,6 +2593,10 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showQuestionNumbers", value);
     this.updateVisibleIndexes();
   }
+  private progressBarValue: any;
+  public get progressBar(): any {
+    return this.progressBarValue;
+  }
   /**
    * Controls the visibility of the progress bar and specifies its position.
    *
@@ -2793,7 +2801,7 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(newData);
   }
   public setDataCore(data: any, clearData: boolean = false): void {
-    if(clearData) {
+    if (clearData) {
       this.valuesHash = {};
     }
     if (data) {
@@ -3142,15 +3150,15 @@ export class SurveyModel extends SurveyElementCore
   public tryNavigateToPage(page: PageModel): boolean {
     if (this.isDesignMode) return false;
     const index = this.visiblePages.indexOf(page);
-    if(index < 0) return false;
-    if(index === this.currentPageNo) return false;
+    if (index < 0) return false;
+    if (index === this.currentPageNo) return false;
     if (index < this.currentPageNo) {
       this.currentPageNo = index;
       return true;
     }
     for (let i = this.currentPageNo; i < index; i++) {
       const page = this.visiblePages[i];
-      if(!page.validate(true, true)) return false;
+      if (!page.validate(true, true)) return false;
       page.passed = true;
     }
     this.currentPage = page;
@@ -6335,7 +6343,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
-    if(this.isCreatingPagesForPreview) return;
+    if (this.isCreatingPagesForPreview) return;
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
@@ -7085,7 +7093,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
   }
   private getDisplayClockTime(val: number): string {
-    if(val < 0) {
+    if (val < 0) {
       val = 0;
     }
     const min: number = Math.floor(val / 60);
@@ -7373,7 +7381,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * This method accepts an object with the following layout element properties:
    *
-   * - `id`: `string` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"navigationbuttons"`\
+   * - `id`: `string` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"buttons-navigation"`\
    * A layout element identifier. You can use possible values to access and relocate or customize predefined layout elements.
    *
    * - `container`: `"header"` | `"footer"` | `"left"` | `"right"` | `"contentTop"` | `"contentBottom"`\
@@ -7440,7 +7448,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if (isStrCiEqual(layoutElement.id, "navigationbuttons")) {
+      } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
         if (container === "contentTop") {
           if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);

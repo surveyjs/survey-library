@@ -1,9 +1,9 @@
-<div data-bind="css: survey.css.progressButtonsContainerCenter">
+<div data-bind="css: progressButtonsRoot">
     <div data-bind="css: survey.css.progressButtonsContainer">
         <div data-bind="css: getScrollButtonCss(true), click: clickScrollButton.bind($data, $element.nextElementSibling, true)" role="button"></div>
         <div data-bind="css: survey.css.progressButtonsListContainer">
             <ul data-bind="foreach: survey.visiblePages, css: survey.css.progressButtonsList">
-                <li data-bind="css: $parent.getListElementCss($index), click: $parent.isListElementClickable($index) ? $parent.clickListElement.bind($parent, $index) : null">
+                <li data-bind="css: $parent.getListElementCss($index), click: $parent.isListElementClickable($index) ? $parent.clickListElement.bind($parent, $index) : null, attr: { 'data-page-number' : $parent.getPageNumber($data) }">
                     <div data-bind="css: css.progressButtonsPageTitle, text: renderedNavigationTitle, attr: { title: renderedNavigationTitle }"></div>
                     <div data-bind="css: css.progressButtonsPageDescription, text: locNavigationDescription.koRenderedHtml(), attr: { title: locNavigationDescription.koRenderedHtml() }"></div>
                 </li>

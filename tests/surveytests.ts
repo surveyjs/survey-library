@@ -16960,7 +16960,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -16970,7 +16970,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav top footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav top contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "nav top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav top left");
@@ -16981,11 +16981,11 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav both footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav both contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav both left");
   assert.deepEqual(getContainerContent("right"), [], "nav both right");
@@ -16995,14 +16995,14 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav left footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav left contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav left contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "nav left left");
   assert.deepEqual(getContainerContent("right"), [], "nav left right");
@@ -17012,15 +17012,15 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav right footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav right contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav right contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav right left");
   assert.deepEqual(getContainerContent("right"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "nav right right");
 
@@ -17152,7 +17152,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc both contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc both left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc both right");
@@ -17164,7 +17164,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc left contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc left contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc left left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc left right");
@@ -17176,7 +17176,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc right contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "progress toc right left");
   assert.deepEqual(getContainerContent("right"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc right right");
 
@@ -17225,10 +17225,10 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17241,7 +17241,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "do not show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17291,7 +17291,7 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "empty on the start page");
 
@@ -17301,10 +17301,10 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17358,7 +17358,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17370,7 +17370,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17410,7 +17410,7 @@ QUnit.test("getContainerContent - do not advanced header on completed page", fun
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17422,7 +17422,7 @@ QUnit.test("getContainerContent - do not advanced header on completed page", fun
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17709,7 +17709,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -17720,7 +17720,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -18638,7 +18638,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -18650,7 +18650,7 @@ QUnit.test("getContainerContent - do not show timer panel in display mode", func
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");

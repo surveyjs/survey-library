@@ -22,4 +22,4 @@ export class ProgressTocComponent extends EmbeddedViewContentComponent implement
     this.createProgressTOCModel();
   }
 }
-AngularComponentFactory.Instance.registerComponent("sv-progress-toc", ProgressTocComponent);
+AngularComponentFactory.Instance.registerComponent("sv-navigation-toc", ProgressTocComponent);

@@ -24,6 +24,6 @@ export class ProgressToc extends Vue {
   }
 }
 
-Vue.component("sv-progress-toc", ProgressToc);
+Vue.component("sv-navigation-toc", ProgressToc);
 export default ProgressToc;
 </script>

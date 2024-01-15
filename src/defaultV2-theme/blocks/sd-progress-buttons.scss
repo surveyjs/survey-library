@@ -10,59 +10,193 @@
   visibility: hidden;
 }
 
-.sd-progress-buttons__list {
-  display: flex;
-  list-style-type: none;
-  margin: 0;
-  padding: 0;
+.sd-progress-buttons__page-description {
+  display: none;
 }
 
-.sd-progress-buttons__list li {
-  text-align: center;
-  flex-grow: 1;
-  text-decoration: none;
-  border-top: 2px solid $border-light;
-  padding-top: calcSize(2);
-  padding-bottom: calcSize(4);
-  cursor: pointer;
+.sd-progress-buttons__list {
+  display: flex;
+  flex-direction: row;
+  padding: calcSize(4) calcSize(5) calcSize(2) calcSize(5);
+  margin: 0 auto;
 
-  &:hover {
-    .sd-progress-buttons__page-title {
-      text-decoration-line: underline;
+  li {
+    display: flex;
+    flex-grow: 1;
+    flex-shrink: 1;
+    flex-basis: 0;
+    position: relative;
+    flex-wrap: nowrap;
+    text-align: center;
+    flex-direction: column;
+
+    &:not(:first-child):before {
+      display: block;
+      content: "";
+      width: 100%;
+      height: calcSize(0.25);
+      background-color: #bcbcbc;
+      position: absolute;
+      bottom: calcSize(0.875);
+      right: 50%;
+    }
+
+    &:after {
+      display: flex;
+      content: attr(data-page-number);
+      width: calcSize(0);
+      height: calcSize(0);
+      margin: calcSize(0.5);
+      border: calcSize(0.5) solid transparent;
+      background-color: #bcbcbc;
+      border-radius: 50%;
+      cursor: pointer;
+      align-self: center;
+      z-index: 1;
+      font-size: calcFontSize(0.75);
+      font-weight: 600;
+      line-height: calcLineHeight(1);
+      justify-content: center;
+      color: $background-dim;
+    }
+  }
+
+  .sd-progress-buttons__list-element--passed {
+    &:not(:first-child):before {
+      background-color: $primary;
+    }
+
+    &:after {
+      background-color: $primary;
+    }
+  }
+
+  .sd-progress-buttons__list-element--current {
+    &:not(:first-child):before {
+      background-color: $primary;
+    }
+
+    &:after {
+      border-color: $primary;
+      background-color: $primary-foreground;
+      color: $primary;
+      padding: calcSize(0.5);
+      margin: 0;
     }
   }
 }
 
-.sd-progress-buttons__list .sd-progress-buttons__list-element--current,
-.sd-progress-buttons__list .sd-progress-buttons__list-element--passed {
-  border-top: 2px solid $primary;
-}
-
-.sd-progress-buttons__list-element--nonclickable {
-  .sd-progress-buttons__page-title {
-    color: $foreground-light;
-  }
-}
-
-.sd-progress-buttons__list-element--current {
-
-  .sd-progress-buttons__page-title,
-  .sd-progress-buttons__page-description {
-    color: $primary;
-  }
-}
-
 .sd-progress-buttons__page-title {
-  width: 100%;
-  font-size: calcFontSize(1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: calcFontSize(0.75);
   font-weight: 600;
-  line-height: calcLineHeight(1.5);
+  line-height: calcLineHeight(1);
+  flex-grow: 1;
+  text-align: center;
+  padding: 0 calcSize(2);
+  margin-bottom: calcSize(2);
 }
 
-.sd-progress-buttons__page-description {
-  width: 100%;
-  font-size: calcFontSize(0.75);
-  line-height: calcLineHeight(1);
-  font-weight: 600;
-  color: $foreground-light;
+.sd-progress-buttons--bottom {
+  .sd-progress-buttons__list {
+    padding: calcSize(2) calcSize(5) calcSize(4) calcSize(5);
+
+    li {
+      flex-direction: column-reverse;
+
+      &:not(:first-child):before {
+        top: calcSize(0.875);
+      }
+    }
+  }
+
+  .sd-progress-buttons__page-title {
+    margin-top: calcSize(2);
+    margin-bottom: 0;
+  }
 }
+
+.sd-progress-buttons--numbered {
+  .sd-progress-buttons__list {
+    li {
+      &:not(:first-child):before {
+        bottom: calcSize(1.875);
+      }
+
+      &:after {
+        width: calcSize(2);
+        height: calcSize(2);
+      }
+    }
+  }
+}
+
+.sd-progress-buttons--bottom.sd-progress-buttons--numbered {
+  .sd-progress-buttons__list {
+    li {
+      &:not(:first-child):before {
+        top: calcSize(1.875);
+      }
+    }
+  }
+}
+
+
+// .sd-progress-buttons__list {
+//   display: flex;
+//   list-style-type: none;
+//   margin: 0;
+//   padding: 0;
+// }
+
+// .sd-progress-buttons__list li {
+//   text-align: center;
+//   flex-grow: 1;
+//   text-decoration: none;
+//   border-top: 2px solid $border-light;
+//   padding-top: calcSize(2);
+//   padding-bottom: calcSize(4);
+//   cursor: pointer;
+
+//   &:hover {
+//     .sd-progress-buttons__page-title {
+//       text-decoration-line: underline;
+//     }
+//   }
+// }
+
+// .sd-progress-buttons__list .sd-progress-buttons__list-element--current,
+// .sd-progress-buttons__list .sd-progress-buttons__list-element--passed {
+//   border-top: 2px solid $primary;
+// }
+
+// .sd-progress-buttons__list-element--nonclickable {
+//   .sd-progress-buttons__page-title {
+//     color: $foreground-light;
+//   }
+// }
+
+// .sd-progress-buttons__list-element--current {
+
+//   .sd-progress-buttons__page-title,
+//   .sd-progress-buttons__page-description {
+//     color: $primary;
+//   }
+// }
+
+// .sd-progress-buttons__page-title {
+//   width: 100%;
+//   font-size: calcFontSize(1);
+//   font-weight: 600;
+//   line-height: calcLineHeight(1.5);
+// }
+
+// .sd-progress-buttons__page-description {
+//   width: 100%;
+//   font-size: calcFontSize(0.75);
+//   line-height: calcLineHeight(1);
+//   font-weight: 600;
+//   color: $foreground-light;
+// }

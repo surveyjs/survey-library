@@ -1,23 +1,14 @@
 import * as ko from "knockout";
-import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
+import { PageModel, SurveyProgressButtonsModel } from "survey-core";
 const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel {
-  private progressButtonsModel: SurveyProgressButtonsModel;
   private scrollButtonCssKo: any = undefined;
   private hasScroller: any = ko.observable(false);
   private updateScroller: any = undefined;
-  constructor(private survey: SurveyModel, element: any) {
-    this.progressButtonsModel = new SurveyProgressButtonsModel(survey);
+  constructor(private progressButtonsModel: SurveyProgressButtonsModel, element: any, private container: string = "center") {
     this.updateScroller = setInterval(() => {
-      const listContainerElement: HTMLElement = element.querySelector(
-        "." + survey.css.progressButtonsListContainer
-      );
-      if (!!listContainerElement) {
-        this.hasScroller(
-          listContainerElement.scrollWidth > listContainerElement.offsetWidth
-        );
-      }
+      this.hasScroller(progressButtonsModel.isListContainerHasScroller(element));
     }, 100);
   }
   public isListElementClickable(index: any): boolean {
@@ -41,6 +32,12 @@ export class ProgressButtonsViewModel {
   ): void {
     listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
   }
+  public get progressButtonsRoot(): string {
+    return this.progressButtonsModel.getRootCss(this.container);
+  }
+  public getPageNumber(page: PageModel): string {
+    return this.progressButtonsModel.getPageNumber(page);
+  }
   public dispose(): void {
     if (typeof this.updateScroller !== "undefined") {
       clearInterval(this.updateScroller);
@@ -58,7 +55,8 @@ ko.components.register("sv-progress-buttons", {
     createViewModel: (params: any, componentInfo: any) => {
       return new ProgressButtonsViewModel(
         params.model,
-        componentInfo.element.nextElementSibling
+        componentInfo.element.nextElementSibling,
+        params.container
       );
     },
   },

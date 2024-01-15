@@ -76,6 +76,7 @@ import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
+import { TOCModel } from "./surveyToc";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -997,8 +998,8 @@ export class SurveyModel extends SurveyElementCore
     });
     this.addLayoutElement({
       id: "toc-navigation",
-      component: "sv-progress-toc",
-      data: this
+      component: "sv-navigation-toc",
+      data: new TOCModel(this)
     });
     this.layoutElements.push({
       id: "navigationbuttons",
@@ -1198,7 +1199,7 @@ export class SurveyModel extends SurveyElementCore
   @property({
     onSet: (newValue, target: SurveyModel) => {
       if (newValue === "advanced") {
-        const layoutElement = target.layoutElements.filter(a => a.id === "advanced-header")[0];
+        const layoutElement = target.findLayoutElement("advanced-header");
         if (!layoutElement) {
           var advHeader = new Cover();
           advHeader.logoPositionX = target.logoPosition === "right" ? "right" : "left";
@@ -2793,7 +2794,7 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(newData);
   }
   public setDataCore(data: any, clearData: boolean = false): void {
-    if(clearData) {
+    if (clearData) {
       this.valuesHash = {};
     }
     if (data) {
@@ -3142,15 +3143,15 @@ export class SurveyModel extends SurveyElementCore
   public tryNavigateToPage(page: PageModel): boolean {
     if (this.isDesignMode) return false;
     const index = this.visiblePages.indexOf(page);
-    if(index < 0) return false;
-    if(index === this.currentPageNo) return false;
+    if (index < 0) return false;
+    if (index === this.currentPageNo) return false;
     if (index < this.currentPageNo) {
       this.currentPageNo = index;
       return true;
     }
     for (let i = this.currentPageNo; i < index; i++) {
       const page = this.visiblePages[i];
-      if(!page.validate(true, true)) return false;
+      if (!page.validate(true, true)) return false;
       page.passed = true;
     }
     this.currentPage = page;
@@ -6335,7 +6336,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
-    if(this.isCreatingPagesForPreview) return;
+    if (this.isCreatingPagesForPreview) return;
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
@@ -7085,7 +7086,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
   }
   private getDisplayClockTime(val: number): string {
-    if(val < 0) {
+    if (val < 0) {
       val = 0;
     }
     const min: number = Math.floor(val / 60);
@@ -7394,8 +7395,12 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push(layoutElement);
     return existingLayoutElement;
   }
-  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+  public findLayoutElement(layoutElementId: string): ISurveyLayoutElement {
     const layoutElement = this.layoutElements.filter(a => a.id === layoutElementId)[0];
+    return layoutElement;
+  }
+  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+    const layoutElement = this.findLayoutElement(layoutElementId);
     if (!!layoutElement) {
       const layoutElementIndex = this.layoutElements.indexOf(layoutElement);
       this.layoutElements.splice(layoutElementIndex, 1);
@@ -7418,7 +7423,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        const headerLayoutElement = this.layoutElements.filter(a => a.id === "advanced-header")[0];
+        const headerLayoutElement = this.findLayoutElement("advanced-header");
         const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
         let isBelowHeader = !advHeader || advHeader.hasBackground;
         if (container === "header" && !isBelowHeader) {
@@ -7518,6 +7523,14 @@ export class SurveyModel extends SurveyElementCore
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
+    if (this.layoutElements) {
+      for (var i = 0; i < this.layoutElements.length; i++) {
+        if (!!this.layoutElements[i].data && this.layoutElements[i].data !== this && this.layoutElements[i].data.dispose) {
+          this.layoutElements[i].data.dispose();
+        }
+      }
+      this.layoutElements.splice(0, this.layoutElements.length);
+    }
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;

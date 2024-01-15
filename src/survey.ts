@@ -898,6 +898,9 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
       this.updateBackgroundImageStyle();
     });
+    this.registerPropertyChangedHandlers(
+      ["showPrevButton", "showCompleteButton"],
+      () => { this.updateButtonsVisibility(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -1256,6 +1259,14 @@ export class SurveyModel extends SurveyElementCore
   public get isLazyRendering(): boolean {
     return this.lazyRendering || settings.lazyRender.enabled;
   }
+  @property() lazyRenderingFirstBatchSizeValue: number;
+  public get lazyRenderingFirstBatchSize(): number {
+    return this.lazyRenderingFirstBatchSizeValue || settings.lazyRender.firstBatchSize;
+  }
+  public set lazyRenderingFirstBatchSize(val: number) {
+    this.lazyRenderingFirstBatchSizeValue = val;
+  }
+
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
@@ -1396,6 +1407,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
    * @see goNextPageAutomatic
    * @see showPrevButton
+   * @see showCompleteButton
    */
   public get showNavigationButtons(): string | any {
     return this.getPropertyValue("showNavigationButtons");
@@ -1412,12 +1424,24 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
    * @see showNavigationButtons
+   * @see showCompleteButton
    */
   public get showPrevButton(): boolean {
     return this.getPropertyValue("showPrevButton");
   }
   public set showPrevButton(val: boolean) {
     this.setPropertyValue("showPrevButton", val);
+  }
+  /**
+   * Specifies whether to display the Complete button. Set this property to `false` if respondents should not complete the survey.
+   * @see showNavigationButtons
+   * @see showPrevButton
+   */
+  public get showCompleteButton(): boolean {
+    return this.getPropertyValue("showCompleteButton", true);
+  }
+  public set showCompleteButton(val: boolean) {
+    this.setPropertyValue("showCompleteButton", val);
   }
   /**
    * Gets or sets the visibility of the table of contents.
@@ -3115,6 +3139,24 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
+  public tryNavigateToPage(page: PageModel): boolean {
+    if (this.isDesignMode) return false;
+    const index = this.visiblePages.indexOf(page);
+    if(index < 0) return false;
+    if(index === this.currentPageNo) return false;
+    if (index < this.currentPageNo) {
+      this.currentPageNo = index;
+      return true;
+    }
+    for (let i = this.currentPageNo; i < index; i++) {
+      const page = this.visiblePages[i];
+      if(!page.validate(true, true)) return false;
+      page.passed = true;
+    }
+    this.currentPage = page;
+    return true;
+  }
+
   private updateCurrentPage(): void {
     if (this.isCurrentPageAvailable) return;
     this.currentPage = this.firstVisiblePage;
@@ -3969,7 +4011,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showPreviewBeforeComplete
    * @see state
    */
-  public cancelPreview(currentPage: any = null) {
+  public cancelPreview(currentPage: any = null): void {
     if (!this.isShowingPreview) return;
     this.gotoPageFromPreview = currentPage;
     this.isShowingPreview = false;
@@ -4251,7 +4293,7 @@ export class SurveyModel extends SurveyElementCore
     const state = this.state;
     return this.isEditMode && (this.state === "running" &&
       (this.isLastPage && !this.isShowPreviewBeforeComplete || this.canBeCompletedByTrigger)
-      || state === "preview");
+      || state === "preview") && this.showCompleteButton;
   }
   private calcIsPreviewButtonVisible(): boolean {
     return (
@@ -6550,7 +6592,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateVisibleIndexes();
     this.setCalculatedWidthModeUpdater();
-    if (!this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2) {
+    if (this.canFireAddElement()) {
       this.onQuestionAdded.fire(this, {
         question: question,
         name: question.name,
@@ -6561,6 +6603,9 @@ export class SurveyModel extends SurveyElementCore
         rootPanel: rootPanel,
       });
     }
+  }
+  private canFireAddElement(): boolean {
+    return !this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2;
   }
   questionRemoved(question: Question) {
     this.questionHashesRemoved(
@@ -6681,15 +6726,17 @@ export class SurveyModel extends SurveyElementCore
     }
     this.questionHashesPanelAdded(<PanelModelBase>(<any>panel));
     this.updateVisibleIndexes();
-    this.onPanelAdded.fire(this, {
-      panel: panel,
-      name: panel.name,
-      index: index,
-      parent: parentPanel,
-      page: rootPanel,
-      parentPanel: parentPanel,
-      rootPanel: rootPanel,
-    });
+    if (this.canFireAddElement()) {
+      this.onPanelAdded.fire(this, {
+        panel: panel,
+        name: panel.name,
+        index: index,
+        parent: parentPanel,
+        page: rootPanel,
+        parentPanel: parentPanel,
+        rootPanel: rootPanel,
+      });
+    }
   }
   panelRemoved(panel: PanelModel) {
     this.updateVisibleIndexes();
@@ -7359,7 +7406,7 @@ export class SurveyModel extends SurveyElementCore
   public getContainerContent(container: LayoutElementContainer) {
     const containerLayoutElements = [];
     for (let layoutElement of this.layoutElements) {
-      if (isStrCiEqual(layoutElement.id, "timerpanel")) {
+      if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
         if (container === "header") {
           if (this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);

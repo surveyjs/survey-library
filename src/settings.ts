@@ -11,7 +11,7 @@ export type ISurveyEnvironment = {
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
 }
-const document = globalThis.document;
+const document = typeof globalThis !== "undefined" ? globalThis.document : (this as any).document;
 const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ? {
   root: document,
 
@@ -198,12 +198,12 @@ export var settings = {
    * import { ItemValue, settings } from "survey-core";
    *
    * // `itemValueSerializeAsObject` example
-   * settings.localization.itemValueSerializeAsObject = true;
+   * settings.serialization.itemValueSerializeAsObject = true;
    * const item = new ItemValue(5);
    * const itemString = item.toJSON(); // Produces { value: 5 } instead of 5
    *
    * // `itemValueSerializeDisplayText` example
-   * settings.localization.itemValueSerializeDisplayText = true;
+   * settings.serialization.itemValueSerializeDisplayText = true;
    * const item = new ItemValue("item1");
    * const itemString = item.toJSON(); // Produces { value: "item1", text: "item1" } instead of "item1"
    * ```

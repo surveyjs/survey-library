@@ -115,6 +115,46 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check ranking question selectToRankEnabled narrow", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "ranking",
+                "name": "question1",
+                "maxWidth": "400px",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ],
+                "selectToRankEnabled": true
+              },
+              {
+                "type": "ranking",
+                "name": "question2",
+                "maxWidth": "250px",
+                "minWidth": "200px",
+                "choices": [
+                  "Item 1",
+                  "Item 2",
+                  "Item 3"
+                ],
+                "selectToRankEnabled": true
+              }
+            ]
+          }
+        ]
+      });
+      await takeElementScreenshot("question-ranking-select-to-rank-narrow-medium.png", Selector(".sd-question").nth(0), t, comparer);
+      await takeElementScreenshot("question-ranking-select-to-rank-narrow-small.png", Selector(".sd-question").nth(1), t, comparer);
+    });
+  });
+
   test("Shortcut position due container layout", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

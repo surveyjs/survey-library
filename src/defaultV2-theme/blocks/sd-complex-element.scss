@@ -94,7 +94,7 @@
     padding-bottom: 0;
   }
 
-  &>.sd-question__content:first-child {
+  &>.sd-question__content:first-of-type {
     padding-top: var(--sd-base-padding);
   }
 

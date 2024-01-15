@@ -96,6 +96,7 @@ export * from "./element.component";
 export * from "./template-renderer.component";
 export * from "./questions/customwidget.component";
 export * from "./questions/matrixcell.component";
+export * from "./questions/matrixdropdowncell.component";
 export * from "./questions/matrixtable.component";
 export * from "./questions/matrixdropdown.component";
 export * from "./questions/matrixdynamic.component";

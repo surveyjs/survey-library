@@ -143,6 +143,9 @@ export class ChoicesRestful extends Base {
   };
   constructor() {
     super();
+    this.registerPropertyChangedHandlers(["url"], () => {
+      if(this.owner) (<Base><any>this.owner).setPropertyValue("isUsingRestful", !!this.url);
+    });
   }
   public getSurvey(live: boolean = false): ISurvey {
     return !!this.owner ? this.owner.survey : null;
@@ -344,7 +347,7 @@ export class ChoicesRestful extends Base {
    * @see titleName
    */
   public get url(): string {
-    return this.getPropertyValue("url", "");
+    return this.getPropertyValue("url") || "";
   }
   public set url(val: string) {
     this.setPropertyValue("url", val);
@@ -377,8 +380,7 @@ export class ChoicesRestful extends Base {
    */
 
   public get path(): string {
-    const res = this.getPropertyValue("path");
-    return !!res ? res : "";
+    return this.getPropertyValue("path") || "";
   }
   public set path(val: string) {
     this.setPropertyValue("path", val);

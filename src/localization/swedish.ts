@@ -25,6 +25,7 @@ export var swedishSurveyStrings = {
   requiredError: "Frågan är obligatorisk.",
   requiredErrorInPanel: "Vänligen svara på minst en fråga.",
   requiredInAllRowsError: "Var vänlig besvara frågorna på alla rader.",
+  eachRowUniqueError: "Varje rad måste ha ett unikt värde.",
   numericError: "Värdet ska vara numeriskt.",
   minError: "Värdet får inte vara mindre än {0}",
   maxError: "Värdet får inte vara större än {0}",
@@ -42,6 +43,7 @@ export var swedishSurveyStrings = {
   urlRequestError: "Förfrågan returnerade felet '{0}'. {1}",
   urlGetChoicesError: "Antingen returnerade förfrågan ingen data eller så är egenskapen 'path' inte korrekt",
   exceedMaxSize: "Filstorleken får ej överstiga {0}.",
+  noUploadFilesHandler: "Filer kan inte laddas upp. Lägg till en hanterare för händelsen 'onUploadFiles'.",
   otherRequiredError: "Var vänlig ange det andra värdet.",
   uploadingFile: "Din fil laddas upp. Var vänlig vänta några sekunder och försök sedan igen.",
   loadingFile: "Laddar...",
@@ -56,6 +58,8 @@ export var swedishSurveyStrings = {
   emptyRowsText: "Det finns inga rader.",
   addPanel: "Lägg till ny",
   removePanel: "Ta bort",
+  showDetails: "Detaljer",
+  hideDetails: "Göm detaljer",
   choices_Item: "Artikel",
   matrix_column: "Kolumn",
   matrix_row: "Rad",
@@ -94,7 +98,9 @@ export var swedishSurveyStrings = {
   more: "Mer",
   tagboxDoneButtonCaption: "OKEJ",
   selectToRankEmptyRankedAreaText: "Alla val rangordnas",
-  selectToRankEmptyUnrankedAreaText: "Dra och släpp val här för att rangordna dem"
+  selectToRankEmptyUnrankedAreaText: "Dra och släpp val här för att rangordna dem",
+  ok: "OKEJ",
+  cancel: "Annullera"
 };
 
 surveyLocalization.locales["sv"] = swedishSurveyStrings;
@@ -111,4 +117,9 @@ surveyLocalization.localeNames["sv"] = "svenska";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dra och släpp val här för att rangordna dem"// takePhotoCaption: "Take Photo" => "Ta foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klicka på knappen nedan för att ta ett foto med kameran."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dra och släpp eller välj en fil att ladda upp eller ta ett foto med kameran."
-// replaceFileCaption: "Replace file" => "Ersätt fil"
+// replaceFileCaption: "Replace file" => "Ersätt fil"// eachRowUniqueError: "Each row must have a unique value." => "Varje rad måste ha ett unikt värde."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Filer kan inte laddas upp. Lägg till en hanterare för händelsen 'onUploadFiles'."
+// showDetails: "Show Details" => "Detaljer"
+// hideDetails: "Hide Details" => "Göm detaljer"
+// ok: "OK" => "OKEJ"
+// cancel: "Cancel" => "Annullera"

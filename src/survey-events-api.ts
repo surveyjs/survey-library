@@ -677,7 +677,7 @@ export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMix
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**
@@ -724,7 +724,7 @@ export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRen
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn | MatrixDropdownCell;
 }
@@ -735,7 +735,7 @@ export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMix
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**

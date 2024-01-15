@@ -25,6 +25,7 @@ export var frenchSurveyStrings = {
   requiredError: "La réponse à cette question est obligatoire.",
   requiredErrorInPanel: "Merci de répondre au moins à une question.",
   requiredInAllRowsError: "Toutes les lignes sont obligatoires",
+  eachRowUniqueError: "Chaque ligne doit avoir une valeur unique.",
   numericError: "La réponse doit être un nombre.",
   minError: "La valeur ne doit pas être inférieure à {0}",
   maxError: "La valeur ne doit pas être supérieure à {0}",
@@ -42,6 +43,7 @@ export var frenchSurveyStrings = {
   urlRequestError: "La requête a renvoyé une erreur '{0}'. {1}",
   urlGetChoicesError: "La requête a renvoyé des données vides ou la propriété 'path' est incorrecte",
   exceedMaxSize: "La taille du fichier ne doit pas excéder {0}.",
+  noUploadFilesHandler: "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l’événement 'onUploadFiles'.",
   otherRequiredError: "Merci de préciser le champ 'Autre'.",
   uploadingFile: "Votre fichier est en cours de chargement. Merci d'attendre quelques secondes et de réessayer.",
   loadingFile: "Chargement...",
@@ -56,6 +58,8 @@ export var frenchSurveyStrings = {
   emptyRowsText: "Il n'y a pas de lignes.",
   addPanel: "Ajouter",
   removePanel: "Supprimer",
+  showDetails: "Afficher les détails",
+  hideDetails: "Masquer les détails",
   choices_Item: "item",
   matrix_column: "Colonne",
   matrix_row: "Ligne",
@@ -94,7 +98,9 @@ export var frenchSurveyStrings = {
   more: "Plus",
   tagboxDoneButtonCaption: "D’ACCORD",
   selectToRankEmptyRankedAreaText: "Tous les choix sont classés",
-  selectToRankEmptyUnrankedAreaText: "Faites glisser et déposez les choix ici pour les classer"
+  selectToRankEmptyUnrankedAreaText: "Faites glisser et déposez les choix ici pour les classer",
+  ok: "D’ACCORD",
+  cancel: "Annuler"
 };
 
 surveyLocalization.locales["fr"] = frenchSurveyStrings;
@@ -111,4 +117,9 @@ surveyLocalization.localeNames["fr"] = "français";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Faites glisser et déposez les choix ici pour les classer"// takePhotoCaption: "Take Photo" => "Prendre une photo"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Cliquez sur le bouton ci-dessous pour prendre une photo à l’aide de l’appareil photo."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Faites glisser et déposez ou sélectionnez un fichier à télécharger ou à prendre une photo à l’aide de l’appareil photo."
-// replaceFileCaption: "Replace file" => "Remplacer le fichier"
+// replaceFileCaption: "Replace file" => "Remplacer le fichier"// eachRowUniqueError: "Each row must have a unique value." => "Chaque ligne doit avoir une valeur unique."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Les fichiers ne peuvent pas être téléchargés. Veuillez ajouter un gestionnaire pour l’événement 'onUploadFiles'."
+// showDetails: "Show Details" => "Afficher les détails"
+// hideDetails: "Hide Details" => "Masquer les détails"
+// ok: "OK" => "D’ACCORD"
+// cancel: "Cancel" => "Annuler"

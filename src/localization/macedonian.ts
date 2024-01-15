@@ -25,6 +25,7 @@ export var macedonianSurveyStrings = {
   requiredError: "Ве молам, одговорете на прашањето.",
   requiredErrorInPanel: "Ве молам, одговорете барем на едно прашање.",
   requiredInAllRowsError: "Ве молиме, одговорете на прашања во сите редови.",
+  eachRowUniqueError: "Секој ред мора да има уникатна вредност.",
   numericError: "Вредноста треба да биде нумеричка.",
   minError: "Вредноста не треба да биде помала од {0}",
   maxError: "Вредноста не треба да биде поголема од {0}",
@@ -42,6 +43,7 @@ export var macedonianSurveyStrings = {
   urlRequestError: "Барањето врати грешка '{0}'. {1} ",
   urlGetChoicesError: "Барањето врати празни податоци или својството 'path' е неточно",
   exceedMaxSize: "Големината на датотеката не треба да надминува {0}.",
+  noUploadFilesHandler: "Фајловите не можат да се качуваат. Ве молиме додадете раководител за настанот 'onUploadFiles'.",
   otherRequiredError: "Внесете ја другата вредност.",
   uploadingFile: "Вашата датотека се поставува. Ве молиме почекајте неколку секунди и обидете се повторно.",
   loadingFile: "Се вчитува ...",
@@ -56,6 +58,8 @@ export var macedonianSurveyStrings = {
   emptyRowsText: "Нема редови.",
   addPanel: "Додади ново",
   removePanel: "Отстрани",
+  showDetails: "Прикажување на деталите",
+  hideDetails: "Сокриј ги деталите.",
   choices_Item: "ставка",
   matrix_column: "Колона",
   matrix_row: "Ред",
@@ -94,7 +98,9 @@ export var macedonianSurveyStrings = {
   more: "Повеќе",
   tagboxDoneButtonCaption: "ДОБРО",
   selectToRankEmptyRankedAreaText: "Сите избори се рангирани",
-  selectToRankEmptyUnrankedAreaText: "Влечете и фрлете го изборот овде за да ги рангирате"
+  selectToRankEmptyUnrankedAreaText: "Влечете и фрлете го изборот овде за да ги рангирате",
+  ok: "ДОБРО",
+  cancel: "Откажи"
 };
 
 surveyLocalization.locales["mk"] = macedonianSurveyStrings;
@@ -117,4 +123,9 @@ surveyLocalization.localeNames["mk"] = "Македонски";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Влечете и фрлете го изборот овде за да ги рангирате"// takePhotoCaption: "Take Photo" => "Фотографирајте"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Кликнете на копчето подолу за да фотографирате користејќи ја камерата."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Влечете и фрлајте или изберете датотека за качување или фотографирање користејќи ја камерата."
-// replaceFileCaption: "Replace file" => "Заменете го фајлот."
+// replaceFileCaption: "Replace file" => "Заменете го фајлот."// eachRowUniqueError: "Each row must have a unique value." => "Секој ред мора да има уникатна вредност."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Фајловите не можат да се качуваат. Ве молиме додадете раководител за настанот 'onUploadFiles'."
+// showDetails: "Show Details" => "Прикажување на деталите"
+// hideDetails: "Hide Details" => "Сокриј ги деталите."
+// ok: "OK" => "ДОБРО"
+// cancel: "Cancel" => "Откажи"

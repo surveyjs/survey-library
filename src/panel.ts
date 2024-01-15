@@ -444,7 +444,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see visible
    * @see isVisible
    */
@@ -714,7 +714,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isRequired
    */
   public get requiredIf(): string {
@@ -1015,20 +1015,20 @@ export class PanelModelBase extends SurveyElement<Question>
   public createRow(): QuestionRowModel {
     return new QuestionRowModel(this);
   }
-  public onSurveyLoad() {
+  public onSurveyLoad(): void {
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onSurveyLoad();
     }
     this.onElementVisibilityChanged(this);
   }
-  public onFirstRendering() {
+  public onFirstRendering(): void {
     super.onFirstRendering();
     for (var i = 0; i < this.elements.length; i++) {
       this.elements[i].onFirstRendering();
     }
     this.onRowsChanged();
   }
-  public updateRows() {
+  public updateRows(): void {
     if (this.isLoadingFromJson) return;
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isPanel) {
@@ -1142,7 +1142,7 @@ export class PanelModelBase extends SurveyElement<Question>
   private isLazyRenderInRow(rowIndex: number): boolean {
     if (!this.survey || !this.survey.isLazyRendering) return false;
     return (
-      rowIndex >= settings.lazyRender.firstBatchSize ||
+      rowIndex >= this.survey.lazyRenderingFirstBatchSize ||
       !this.canRenderFirstRows()
     );
   }
@@ -1335,7 +1335,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
    * @see isReadOnly
    */
@@ -1358,6 +1358,9 @@ export class PanelModelBase extends SurveyElement<Question>
       this.elements.push(element);
     } else {
       this.elements.splice(index, 0, element);
+    }
+    if(this.wasRendered) {
+      element.onFirstRendering();
     }
     return true;
   }

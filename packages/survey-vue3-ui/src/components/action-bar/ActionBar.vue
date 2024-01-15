@@ -15,7 +15,7 @@
 
 <script lang="ts" setup>
 import type { ActionContainer } from "survey-core";
-import { useBase } from "@/base";
+import { useBase, useComputedArray } from "@/base";
 import { computed, onMounted, onUnmounted, ref } from "vue";
 
 const props = withDefaults(
@@ -38,7 +38,7 @@ const onClick = (event: MouseEvent) => {
 
 useBase(() => props.model);
 
-const renderedActions = computed(() => {
+const renderedActions = useComputedArray(() => {
   return props.model.renderedActions;
 });
 

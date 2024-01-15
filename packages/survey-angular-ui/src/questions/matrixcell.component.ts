@@ -1,95 +1,27 @@
-import { Component, ElementRef, Input, ViewChild } from "@angular/core";
+import { Component, Input } from "@angular/core";
+import { MatrixRowModel, ItemValue, QuestionMatrixModel } from "survey-core";
+import { AngularComponentFactory } from "../component-factory";
 import { BaseAngular } from "../base-angular";
-import {
-  Question,
-  QuestionMatrixDropdownModelBase,
-  QuestionMatrixDropdownRenderedCell,
-  MatrixDropdownRowModelBase,
-  SurveyModel
-} from "survey-core";
-import { getComponentName } from "../question";
+
+export interface INgMatrixCellChanged {
+  onCellChanged(row: MatrixRowModel, column: ItemValue): void;
+}
 
 @Component({
-  selector: "sv-ng-matrix-cell",
-  templateUrl: "./matrixcell.component.html",
-  styles: [":host { display: none; }"]
+  selector: "sv-ng-matrix-cell, '[sv-ng-matrix-cell]'",
+  templateUrl: "./matrixcell.component.html"
 })
-export class MatrixCellComponent extends BaseAngular<Question> {
-  @Input() question!: QuestionMatrixDropdownModelBase;
-  @Input() cell!: QuestionMatrixDropdownRenderedCell;
-
-  @ViewChild("cellContainer") cellContainer!: ElementRef<HTMLElement>;
-  getModel() {
-    if(this.cell.hasQuestion) {
-      return this.cell.question;
-    }
-    return null as any;
+export class MatrixCellComponent extends BaseAngular<ItemValue> {
+  @Input() question!: QuestionMatrixModel;
+  @Input() column!: ItemValue;
+  @Input() row!: MatrixRowModel;
+  @Input() columnIndex!: number;
+  @Input() cellChangedOwner!: INgMatrixCellChanged;
+  protected getModel(): ItemValue {
+    return this.row.item;
   }
-  public get row(): MatrixDropdownRowModelBase {
-    return this.cell.row;
-  }
-  public override ngDoCheck(): void {
-    super.ngDoCheck();
-    if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.registerFunctionOnPropertyValueChanged("errors", () => {
-        this.update();
-      }, "__ngSubscription")
-    }
-  }
-  public get panelComponentName(): string {
-    const panel = this.cell.panel;
-    const survey = <SurveyModel>panel.survey;
-    if(!!survey) {
-      const name = survey.getElementWrapperComponentName(panel);
-      if(!!name) {
-        return name;
-      }
-    }
-    return "panel";
-  }
-  public get panelComponentData(): any {
-    const panel = this.cell.panel;
-    const survey = <SurveyModel>panel.survey;
-    let data: any;
-    if(!!survey) {
-      data = survey.getElementWrapperComponentData(panel);
-    }
-    return {
-      componentName: "panel",
-      componentData: {
-        model: panel,
-        data: data
-      }
-    };
-  }
-
-  getComponentName(element: Question) { return getComponentName(element); }
-  getHeaders(): string {
-    return this.cell.headers;
-  }
-  getCellStyle() {
-    if (!!this.cell.width || !!this.cell.minWidth)
-      return { width: this.cell.width, minWidth: this.cell.minWidth };
-    return null;
-  }
-  ngAfterViewInit() {
-    if (!this.cell.hasQuestion || !this.question || !this.question.survey) return;
-    const el = this.cellContainer.nativeElement;
-    const cellQ = this.cell.question;
-    var options = {
-      cell: this.cell.cell,
-      cellQuestion: cellQ,
-      htmlElement: el,
-      row: this.cell.row,
-      column: this.cell.cell.column,
-    };
-    this.question.survey.matrixAfterCellRender(this.question, options);
-    cellQ.afterRenderCore(el);
-  }
-  override ngOnDestroy(): void {
-    super.ngOnDestroy();
-    if(this.cell.isErrorsCell && this.cell?.question) {
-      this.cell.question.unRegisterFunctionOnPropertyValueChanged("errors", "__ngSubscription")    
-    }
+  public onChange(): void {
+    this.cellChangedOwner.onCellChanged(this.row, this.column);
   }
 }
+AngularComponentFactory.Instance.registerComponent("survey-matrix-cell", MatrixCellComponent);

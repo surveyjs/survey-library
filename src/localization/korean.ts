@@ -25,6 +25,7 @@ export var koreanStrings = {
   requiredError: "질문에 답하시오.",
   requiredErrorInPanel: "하나 이상의 질문에 답하십시오.",
   requiredInAllRowsError: "모든 행에 있는 질문에 답하십시오.",
+  eachRowUniqueError: "각 행에는 고유한 값이 있어야 합니다.",
   numericError: "값은 숫자여야 합니다.",
   minError: "값은 {0}보다 작으면 안됩니다.",
   maxError: "값은 {0}보다 클 수 없습니다.",
@@ -42,6 +43,7 @@ export var koreanStrings = {
   urlRequestError: "'{0}'으로 잘못된 요청입니다. {1}",
   urlGetChoicesError: "비어있는 데이터를 요청했거나 잘못된 속성의 경로입니다.",
   exceedMaxSize: "파일 크기가 {0}을 초과 할 수 없습니다.",
+  noUploadFilesHandler: "파일을 업로드할 수 없습니다. 'onUploadFiles'이벤트에 대한 핸들러를 추가하십시오.",
   otherRequiredError: "다른 질문을 작성하십시오.",
   uploadingFile: "파일 업로드 중입니다. 잠시 후 다시 시도하십시오.",
   loadingFile: "로드 중...",
@@ -56,6 +58,8 @@ export var koreanStrings = {
   emptyRowsText: "행이 없습니다.",
   addPanel: "추가",
   removePanel: "제거",
+  showDetails: "세부 정보 표시",
+  hideDetails: "세부 정보 숨기기",
   choices_Item: "항목",
   matrix_column: "열",
   matrix_row: "행",
@@ -94,7 +98,9 @@ export var koreanStrings = {
   more: "더보기",
   tagboxDoneButtonCaption: "그래",
   selectToRankEmptyRankedAreaText: "모든 선택 항목이 순위가 매겨집니다.",
-  selectToRankEmptyUnrankedAreaText: "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."
+  selectToRankEmptyUnrankedAreaText: "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다.",
+  ok: "그래",
+  cancel: "취소"
 };
 
 surveyLocalization.locales["ko"] = koreanStrings;
@@ -110,4 +116,9 @@ surveyLocalization.localeNames["ko"] = "한국어";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "여기에 선택 항목을 끌어다 놓아 순위를 매깁니다."// takePhotoCaption: "Take Photo" => "사진 찍기"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "아래 버튼을 클릭하여 카메라로 사진을 찍습니다."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "업로드할 파일을 드래그 앤 드롭하거나 선택하거나 카메라를 사용하여 사진을 찍습니다."
-// replaceFileCaption: "Replace file" => "파일 바꾸기"
+// replaceFileCaption: "Replace file" => "파일 바꾸기"// eachRowUniqueError: "Each row must have a unique value." => "각 행에는 고유한 값이 있어야 합니다."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "파일을 업로드할 수 없습니다. 'onUploadFiles'이벤트에 대한 핸들러를 추가하십시오."
+// showDetails: "Show Details" => "세부 정보 표시"
+// hideDetails: "Hide Details" => "세부 정보 숨기기"
+// ok: "OK" => "그래"
+// cancel: "Cancel" => "취소"

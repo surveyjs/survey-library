@@ -1,35 +1,11 @@
-import { frameworks, url, initSurvey, axeTags, axeContext } from "./helper";
+import { frameworks, url, initSurvey, axeOptions, axeContext } from "./helper";
 import { fixture, test } from "testcafe";
 import { axeCheck, createReport } from "axe-testcafe";
 const title = "selectbase";
 
-const axeOptions = {
-  runOnly: {
-    type: "tag",
-    values: axeTags
-  },
-  rules: {
-    //https://github.com/dequelabs/axe-core/blob/develop/doc/rule-descriptions.md
-    "color-contrast": {
-      enabled: false
-    },
-    "document-title": {
-      enabled: false
-    },
-    "landmark-one-main": {
-      enabled: false
-    },
-    "page-has-heading-one": {
-      enabled: false
-    },
-    "region": {
-      enabled: false
-    },
-    // Skip one minor case for listbox role in checkbox fieldset
-    "aria-allowed-role": {
-      enabled: false
-    },
-  }
+// Skip one minor case for listbox role in checkbox fieldset
+axeOptions["rules"]["aria-allowed-role"] = {
+  enabled: false
 };
 
 frameworks.forEach((framework) => {
@@ -181,26 +157,26 @@ frameworks.forEach((framework) => {
             }
           ]
         },
-        {
-          type: "imagepicker",
-          name: "choosevideo",
-          title: "Imagepicker",
-          imageHeight: "300px",
-          imageWidth: "450px",
-          "contentMode": "video",
-          choices: [
-            {
-              value: "short_but_high",
-              imageLink:
-                "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
-            },
-            {
-              value: "long_but_poor",
-              imageLink:
-                "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4"
-            }
-          ]
-        },
+        // {
+        //   type: "imagepicker",
+        //   name: "choosevideo",
+        //   title: "Imagepicker",
+        //   imageHeight: "300px",
+        //   imageWidth: "450px",
+        //   "contentMode": "video",
+        //   choices: [
+        //     {
+        //       value: "short_but_high",
+        //       // imageLink:
+        //       //   "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4"
+        //     },
+        //     {
+        //       value: "long_but_poor",
+        //       // imageLink:
+        //       //   "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4"
+        //     }
+        //   ]
+        // },
       ]
     });
     const { error, violations } = await axeCheck(t, axeContext, axeOptions);

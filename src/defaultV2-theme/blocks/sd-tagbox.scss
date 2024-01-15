@@ -5,6 +5,10 @@
   padding-inline-start: calcSize(0.5); //padding-left
 }
 
+.sd-tagbox.sd-input--disabled {
+  white-space: normal;
+}
+
 .sd-tagbox.sd-tagbox--empty {
   // padding: calcSize(0.5) calcSize(6) calcSize(0.5) calcSize(2);
   // padding-block: calcSize(0.5);
@@ -114,7 +118,6 @@
 }
 
 .sd-tagbox.sd-tagbox--empty {
-
   .sd-tagbox__hint,
   .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {

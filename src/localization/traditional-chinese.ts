@@ -25,6 +25,7 @@ export var traditionalChineseSurveyStrings = {
   requiredError: "請填寫此問題",
   requiredErrorInPanel: "需要回答：至少回答一個問題。",
   requiredInAllRowsError: "請填寫所有行中問題",
+  eachRowUniqueError: "每行必須具有唯一值。",
   numericError: "答案必須是個數字",
   minError: "該值不應小於 {0}",
   maxError: "該值不應大於 {0}",
@@ -42,6 +43,7 @@ export var traditionalChineseSurveyStrings = {
   urlRequestError: "載入選項時發生錯誤 '{0}': {1}",
   urlGetChoicesError: "未能載入有效的選項或請求參數路徑有誤",
   exceedMaxSize: "文件大小不能超過 {0}",
+  noUploadFilesHandler: "無法上傳檔。請為「onUploadFiles」事件添加處理程式。",
   otherRequiredError: "請完成其他問題",
   uploadingFile: "文件上傳中... 請耐心等待幾秒後重試",
   loadingFile: "裝載。。。",
@@ -56,6 +58,8 @@ export var traditionalChineseSurveyStrings = {
   emptyRowsText: "沒有行。",
   addPanel: "新增",
   removePanel: "刪除",
+  showDetails: "顯示詳細資訊",
+  hideDetails: "隱藏詳細資訊",
   choices_Item: "選項",
   matrix_column: "列",
   matrix_row: "行",
@@ -94,7 +98,9 @@ export var traditionalChineseSurveyStrings = {
   more: "更多",
   tagboxDoneButtonCaption: "還行",
   selectToRankEmptyRankedAreaText: "所有選擇均已排名",
-  selectToRankEmptyUnrankedAreaText: "將選項拖放到此處進行排名"
+  selectToRankEmptyUnrankedAreaText: "將選項拖放到此處進行排名",
+  ok: "還行",
+  cancel: "取消"
 };
 
 surveyLocalization.locales["zh-tw"] = traditionalChineseSurveyStrings;
@@ -158,4 +164,9 @@ surveyLocalization.localeNames["zh-tw"] = "繁體中文";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "將選項拖放到此處進行排名"// takePhotoCaption: "Take Photo" => "拍照"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "按下下面的按鈕使用相機拍照。"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "拖放或選擇要上傳的檔或使用相機拍攝照片。"
-// replaceFileCaption: "Replace file" => "替換檔"
+// replaceFileCaption: "Replace file" => "替換檔"// eachRowUniqueError: "Each row must have a unique value." => "每行必須具有唯一值。"
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "無法上傳檔。請為「onUploadFiles」事件添加處理程式。"
+// showDetails: "Show Details" => "顯示詳細資訊"
+// hideDetails: "Hide Details" => "隱藏詳細資訊"
+// ok: "OK" => "還行"
+// cancel: "Cancel" => "取消"

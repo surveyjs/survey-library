@@ -324,3 +324,46 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult.matrix.length).eql(1);
   });
 });
+const json4 = {
+  "textUpdateMode": "onTyping",
+  "focusFirstQuestionAutomatic": true,
+  "elements": [
+    {
+      "type": "matrixdynamic",
+      "name": "matrix",
+      "rowCount": 1,
+      "columns": [
+        {
+          "name": "col1",
+          "cellType": "text"
+        },
+        {
+          "name": "col2",
+          "cellType": "text"
+        },
+        {
+          "name": "col3",
+          "cellType": "text",
+          "visibleIf": "false"
+        }
+      ]
+    }
+  ]
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json4);
+    }
+  );
+  test("column.visibleIf returns always false and rebuilding table", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await t.pressKey("a b c")
+      .pressKey("tab")
+      .pressKey("e d f")
+      .click(completeButton);
+    const surveyResult = await getSurveyResult();
+    await t.expect(surveyResult.matrix).eql([{ col1: "abc", col2: "edf" }]);
+  });
+});

@@ -417,7 +417,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see visible
    * @see isVisible
    */
@@ -1011,6 +1011,9 @@ export class Question extends SurveyElement<Question>
       .append(cssClasses.headerBottom, this.hasTitleOnBottom)
       .toString();
   }
+  protected supportContainerQueries() {
+    return false;
+  }
   public get cssContent(): string {
     this.ensureElementCss();
     return this.getPropertyValue("cssContent", "");
@@ -1021,6 +1024,7 @@ export class Question extends SurveyElement<Question>
   protected getCssContent(cssClasses: any): string {
     return new CssClassBuilder()
       .append(cssClasses.content)
+      .append(cssClasses.contentSupportContainerQueries, this.supportContainerQueries())
       .append(cssClasses.contentLeft, this.hasTitleOnLeft)
       .toString();
   }
@@ -1257,7 +1261,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see isRequired
    */
   public get requiredIf(): string {
@@ -1341,8 +1345,7 @@ export class Question extends SurveyElement<Question>
     if (this.forceIsInputReadOnly !== undefined) {
       return this.forceIsInputReadOnly;
     }
-    var isDesignModeV2 = settings.supportCreatorV2 && this.isDesignMode;
-    return this.isReadOnly || isDesignModeV2;
+    return this.isReadOnly || this.isDesignModeV2;
   }
   public get renderedInputReadOnly() {
     return this.isInputReadOnly ? "" : undefined;
@@ -1364,7 +1367,7 @@ export class Question extends SurveyElement<Question>
    *
    * A survey parses and runs all expressions on startup. If any values used in the expression change, the survey re-evaluates it.
    *
-   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility)
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
    * @see readOnly
    * @see isReadOnly
    */

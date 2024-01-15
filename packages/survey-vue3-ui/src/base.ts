@@ -11,6 +11,7 @@ import {
   onMounted,
   type Ref,
   onBeforeUnmount,
+  watchEffect,
 } from "vue";
 Base.createPropertiesHash = () => {
   const res = shallowReactive({});
@@ -147,4 +148,19 @@ export function getComponentName(question: Question): string {
   )
     return "survey-" + question.getTemplate();
   return question.getComponentName();
+}
+
+export function useComputedArray<T>(func: () => Array<T>) {
+  const ref = shallowRef();
+
+  const stopWatch = watchEffect(() => {
+    ref.value = func();
+    triggerRef(ref);
+  });
+
+  onBeforeUnmount(() => {
+    stopWatch();
+  });
+
+  return ref;
 }

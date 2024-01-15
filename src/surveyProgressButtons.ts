@@ -29,14 +29,6 @@ export class SurveyProgressButtonsModel {
       .toString();
   }
   public clickListElement(index: number): void {
-    if (this.survey.isDesignMode) return;
-    if (index < this.survey.currentPageNo) {
-      this.survey.currentPageNo = index;
-    }
-    else if (index > this.survey.currentPageNo) {
-      for (let i: number = this.survey.currentPageNo; i < index; i++) {
-        if (!this.survey.nextPage()) break;
-      }
-    }
+    this.survey.tryNavigateToPage(this.survey.visiblePages[index]);
   }
 }

@@ -531,6 +531,22 @@ QUnit.test("Test dropdown", function(assert) {
   assert.equal(question.choices.length, 0, "Choices do not used");
   assert.equal(question.visibleChoices.length, 5, "There are 5 countries now");
 });
+QUnit.test("Test dropdown in CreatorV2", function(assert) {
+  settings.supportCreatorV2 = true;
+  settings.showDefaultItemsInCreatorV2 = false;
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  const page = survey.addNewPage("p1");
+  const question = new QuestionDropdownModelTester("q1");
+  question.choicesByUrl.url = "allcountries";
+  question.choicesByUrl.path = "RestResponse;result";
+  assert.equal(question.choices.length, 0, "Choices do not used, #1");
+  page.addQuestion(question);
+  assert.equal(question.choices.length, 0, "Choices do not used, #2");
+  assert.equal(question.visibleChoices.length, 0, "Do not load countries, #2");
+  settings.showDefaultItemsInCreatorV2 = true;
+  settings.supportCreatorV2 = false;
+});
 
 QUnit.test(
   "Do not show error or change the question value if quesiton is readOnly, Bug #1819",

@@ -284,6 +284,7 @@
   background: transparent;
   border-radius: calcSize(2);
   padding: calcSize(1);
+  transition: background 250ms;
 
   svg {
     @include useEditorFontSize;

@@ -49,7 +49,8 @@
 }
 
 .sd-imagepicker__check-decorator {
-  display: none;
+  display: block;
+  opacity: 0;
   position: absolute;
   top: calcSize(1);
   right: calcSize(1);
@@ -58,6 +59,7 @@
   border-radius: 100%;
   background-color: $background;
   z-index: 1;
+  transition: opacity 250ms;
 }
 
 .sd-imagepicker__check-icon {
@@ -69,7 +71,7 @@
 }
 
 .sd-imagepicker__item--checked .sd-imagepicker__check-decorator {
-  display: block;
+  opacity: 1;
 }
 
 .sd-imagepicker__item--error .sd-imagepicker__image-container::before {

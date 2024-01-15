@@ -4094,7 +4094,6 @@ QUnit.test(
     assert.ok(rootPanel, "root panel is here");
     var nestedPanel = rootPanel.panels[0].getQuestionByName("nested1");
     assert.ok(nestedPanel, "nested panel is here");
-    nestedPanel.addPanel(); //TODO there is should be one panel
     assert.equal(
       nestedPanel.panels.length,
       1,
@@ -4302,8 +4301,8 @@ QUnit.test(
     assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #1");
     survey.cancelPreview();
     panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #1");
-    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #1");
+    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #2");
+    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #2");
   }
 );
 
@@ -4544,7 +4543,7 @@ QUnit.test("Support panel dynamic for isContainerReady", function (assert) {
   assert.equal(exp.value, true, "exp");
 });
 
-QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+QUnit.test("cssClasses for a question in nested panel dynamic, #1", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4573,7 +4572,7 @@ QUnit.test("cssClasses for a question in nested panel dynamic", function (assert
   const question = nestedPanel.panels[0].getQuestionByName("q1");
   assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
 });
-QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+QUnit.test("cssClasses for a question in nested panel dynamic, #2", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {

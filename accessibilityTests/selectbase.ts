@@ -8,7 +8,6 @@ axeOptions["aria-allowed-role"] = {
   enabled: false
 };
 
-
 frameworks.forEach((framework) => {
   fixture`${framework} a11y:${title}`.page`${url}${framework}`.beforeEach(
     async (t) => {
@@ -126,7 +125,7 @@ frameworks.forEach((framework) => {
     const { error, violations } = await axeCheck(t, axeContext, axeOptions);
     await t.expect(violations.length === 0).ok(createReport(violations));
   });
-  test.only("axe check imagepicker", async (t) => {
+  test("axe check imagepicker", async (t) => {
     await initSurvey(framework, {
       "elements": [
         {

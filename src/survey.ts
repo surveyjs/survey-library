@@ -77,6 +77,7 @@ import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
 import { SurveyProgressButtonsModel } from "./surveyProgressButtons";
+import { TOCModel } from "./surveyToc";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -1002,7 +1003,7 @@ export class SurveyModel extends SurveyElementCore
     this.addLayoutElement({
       id: "toc-navigation",
       component: "sv-navigation-toc",
-      data: this
+      data: new TOCModel(this)
     });
     this.layoutElements.push({
       id: "buttons-navigation",
@@ -1202,7 +1203,7 @@ export class SurveyModel extends SurveyElementCore
   @property({
     onSet: (newValue, target: SurveyModel) => {
       if (newValue === "advanced") {
-        const layoutElement = target.layoutElements.filter(a => a.id === "advanced-header")[0];
+        const layoutElement = target.findLayoutElement("advanced-header");
         if (!layoutElement) {
           var advHeader = new Cover();
           advHeader.logoPositionX = target.logoPosition === "right" ? "right" : "left";
@@ -1876,6 +1877,7 @@ export class SurveyModel extends SurveyElementCore
     return this.locale;
   }
   public locStrsChanged(): void {
+    if (this.isClearingUnsedValues) return;
     super.locStrsChanged();
     if (!this.currentPage) return;
     if (this.isDesignMode) {
@@ -6226,12 +6228,15 @@ export class SurveyModel extends SurveyElementCore
     var pos = Math.max(pos1, pos2);
     return name.substring(0, pos);
   }
+  private isClearingUnsedValues: boolean;
   private clearUnusedValues() {
+    this.isClearingUnsedValues = true;
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].clearUnusedValues();
     }
     this.clearInvisibleQuestionValues();
+    this.isClearingUnsedValues = false;
   }
   hasVisibleQuestionByValueName(valueName: string): boolean {
     var questions = this.getQuestionsByValueName(valueName);
@@ -7402,8 +7407,12 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push(layoutElement);
     return existingLayoutElement;
   }
-  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+  public findLayoutElement(layoutElementId: string): ISurveyLayoutElement {
     const layoutElement = this.layoutElements.filter(a => a.id === layoutElementId)[0];
+    return layoutElement;
+  }
+  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+    const layoutElement = this.findLayoutElement(layoutElementId);
     if (!!layoutElement) {
       const layoutElementIndex = this.layoutElements.indexOf(layoutElement);
       this.layoutElements.splice(layoutElementIndex, 1);
@@ -7426,7 +7435,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        const headerLayoutElement = this.layoutElements.filter(a => a.id === "advanced-header")[0];
+        const headerLayoutElement = this.findLayoutElement("advanced-header");
         const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
         let isBelowHeader = !advHeader || advHeader.hasBackground;
         if (container === "header" && !isBelowHeader) {
@@ -7526,6 +7535,14 @@ export class SurveyModel extends SurveyElementCore
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
+    if (this.layoutElements) {
+      for (var i = 0; i < this.layoutElements.length; i++) {
+        if (!!this.layoutElements[i].data && this.layoutElements[i].data !== this && this.layoutElements[i].data.dispose) {
+          this.layoutElements[i].data.dispose();
+        }
+      }
+      this.layoutElements.splice(0, this.layoutElements.length);
+    }
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;

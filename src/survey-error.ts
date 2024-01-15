@@ -9,7 +9,7 @@ export class SurveyError {
     public text: string = null,
     protected errorOwner: ISurveyErrorOwner = null
   ) {}
-  public equalsTo(error: SurveyError): boolean {
+  public equals(error: SurveyError): boolean {
     if(!error || !error.getErrorType) return false;
     if(this.getErrorType() !== error.getErrorType()) return false;
     return this.text === error.text && this.visible === error.visible;

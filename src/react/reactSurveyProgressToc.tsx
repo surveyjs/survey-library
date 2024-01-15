@@ -8,7 +8,7 @@ import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyProgressToc extends SurveyNavigationBase {
   render(): JSX.Element {
-    const tocModel = new TOCModel(this.props.model);
+    const tocModel = this.props.model;
     let content: JSX.Element;
     if (tocModel.isMobile) {
       content = <div onClick={tocModel.togglePopup}>

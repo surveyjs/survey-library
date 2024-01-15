@@ -218,6 +218,16 @@ export class Base {
     }
     return Helpers.isValueEmpty(value);
   }
+  public equals(obj: Base): boolean {
+    if(!obj) return false;
+    if (this.isDisposed || obj.isDisposed) return false;
+    if(this.getType() != obj.getType()) return false;
+    return this.equalsCore(obj);
+  }
+  protected equalsCore(obj: Base): boolean {
+    if((<any>this).name !== (<any>obj).name) return false;
+    return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
+  }
   protected trimValue(value: any): any {
     if (!!value && (typeof value === "string" || value instanceof String))
       return value.trim();

@@ -1872,6 +1872,7 @@ export class SurveyModel extends SurveyElementCore
     return this.locale;
   }
   public locStrsChanged(): void {
+    if(this.isClearingUnsedValues) return;
     super.locStrsChanged();
     if (!this.currentPage) return;
     if (this.isDesignMode) {
@@ -6218,12 +6219,15 @@ export class SurveyModel extends SurveyElementCore
     var pos = Math.max(pos1, pos2);
     return name.substring(0, pos);
   }
+  private isClearingUnsedValues: boolean;
   private clearUnusedValues() {
+    this.isClearingUnsedValues = true;
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].clearUnusedValues();
     }
     this.clearInvisibleQuestionValues();
+    this.isClearingUnsedValues = false;
   }
   hasVisibleQuestionByValueName(valueName: string): boolean {
     var questions = this.getQuestionsByValueName(valueName);

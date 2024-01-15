@@ -1,4 +1,4 @@
 <button type="button" data-bind="click: function() { question.koRemovePanelClick(panel); }, css: question.getPanelRemoveButtonCss()">
-  <span data-bind="css: question.cssClasses.buttonRemoveText, text: question.panelRemoveText"></span>
+  <span data-bind="css: question.cssClasses.buttonRemoveText"><!-- ko template: { name: 'survey-string', data: question.locPanelRemoveText } --><!-- /ko --></span>
   <span data-bind="css: question.cssClasses.iconRemove"></span>
 </button>

@@ -9,6 +9,7 @@ export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelD
     this.question.removePanelUI(this.data.panel);
   }
   protected renderElement(): JSX.Element {
+    const btnText = this.renderLocString(this.question.locPanelRemoveText);
     return (
       <button
         className={this.question.getPanelRemoveButtonCss()}
@@ -16,7 +17,7 @@ export class SurveyQuestionPanelDynamicRemoveButton extends SurveyQuestionPanelD
         type="button">
         <span
           className={this.question.cssClasses.buttonRemoveText}
-        >{this.question.panelRemoveText}</span>
+        >{btnText}</span>
         <span
           className={this.question.cssClasses.iconRemove}
         ></span>

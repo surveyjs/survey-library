@@ -121,7 +121,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`;
-  test("Check popup scrolling hides all popups inside survey", async t => {
+  test("Check dropdown-popups hiding during parent survey popup scrolling", async t => {
     await t.resizeWindow(1000, 500);
     await initPopupSurvey(framework, {
       title: "Survey title",
@@ -152,7 +152,7 @@ frameworks.forEach(framework => {
     await t.click(expandCollapseButton)
       .click(Selector(".sv_q_dropdown__filter-string-input"))
       .expect(Selector(".sv-popup__container").filterVisible().exists).ok()
-      .scroll(Selector(".sv_window_content").filterVisible(), "bottom")
+      .scroll(Selector(".sv_window").filterVisible(), "bottom")
       .expect(Selector(".sv-popup__container").filterVisible().exists).notOk();
   });
 });

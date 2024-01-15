@@ -28,7 +28,7 @@ export class PopupSurvey extends Survey {
       style.maxWidth = this.popup.renderedWidth;
     }
     return (
-      <div className={this.popup.cssRoot} style={style}>
+      <div className={this.popup.cssRoot} style={style} onScroll={() => this.popup.onScroll()}>
         <div className={this.popup.cssRootContent}>
           {header}
           {body}
@@ -97,7 +97,7 @@ export class PopupSurvey extends Survey {
     );
   }
   protected renderBody(): JSX.Element {
-    return <div className={this.popup.cssBody} onScroll={() => this.popup.onScroll()}>{this.doRender()}</div>;
+    return <div className={this.popup.cssBody}>{this.doRender()}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};

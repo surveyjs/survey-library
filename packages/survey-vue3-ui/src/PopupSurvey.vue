@@ -1,6 +1,6 @@
 <template>
   <div v-if="surveyWindow.isShowing" :style="{ maxWidth: surveyWindow.renderedWidth, width: surveyWindow.renderedWidth }"
-    :class="surveyWindow.cssRoot">
+    :class="surveyWindow.cssRoot" @scroll="doScroll">
     <div :class="surveyWindow.cssRootContent">
       <div :class="cssHeaderRoot()">
         <div v-if="surveyWindow.isCollapsed && !!surveyWindow.locTitle" :class="surveyWindow.cssHeaderTitleCollapsed">
@@ -32,7 +32,7 @@
           </div>
         </div>
       </div>
-      <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody" @scroll="doScroll">
+      <div v-if="isExpandedSurvey" :class="surveyWindow.cssBody">
         <component :is="getSurveyComponentName()" :survey="survey"> </component>
       </div>
     </div>

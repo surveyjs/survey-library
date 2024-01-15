@@ -431,7 +431,7 @@ export var modernCss = {
   window: {
     root: "sv_window",
     rootCollapsedMod: "sv_window--collapsed",
-    rootContent: "sv_window_content",
+    rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
       root: "sv_window_header",

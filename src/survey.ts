@@ -7744,7 +7744,7 @@ Serializer.addClass("survey", [
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged", "onValueChanging", "onComplete"],
+    choices: ["onNextPage", "onValueChanged", "onComplete"],
   },
   {
     name: "textUpdateMode",

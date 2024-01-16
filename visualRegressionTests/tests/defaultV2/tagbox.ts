@@ -544,7 +544,7 @@ frameworks.forEach(async framework => {
       await t
         .click(getListItemByText("item7"))
         .click(getListItemByText("item8"));
-      await takeElementScreenshot("tagbox-question-popup-direction-bottom-and-resize-input.png.png", Selector(".sd-body"), t, comparer);
+      await takeElementScreenshot("tagbox-question-popup-direction-bottom-and-resize-input.png", Selector(".sd-body"), t, comparer);
 
       await t.click(Selector(".sd-dropdown__filter-string-input").nth(1));
       await takeElementScreenshot("tagbox-question-popup-direction-top.png", Selector(".sd-body"), t, comparer);

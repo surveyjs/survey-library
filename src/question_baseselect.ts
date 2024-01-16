@@ -1318,7 +1318,7 @@ export class QuestionSelectBase extends Question {
       this.readOnly = true;
     }
   }
-  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>): void {
     if (this.enableOnLoadingChoices) {
       this.readOnly = false;
     }
@@ -1341,7 +1341,6 @@ export class QuestionSelectBase extends Question {
     if (this.isValueEmpty(this.cachedValueForUrlRequests)) {
       this.cachedValueForUrlRequests = this.value;
     }
-    this.isFirstLoadChoicesFromUrl = false;
     var cachedValues = this.createCachedValueForUrlRequests(
       this.cachedValueForUrlRequests,
       checkCachedValuesOnExisting
@@ -1355,6 +1354,17 @@ export class QuestionSelectBase extends Question {
         newChoices[i].locOwner = this;
       }
     }
+    this.setChoicesFromUrl(newChoices, errors, cachedValues);
+  }
+  private canAvoidSettChoicesFromUrl(newChoices: Array<ItemValue>): boolean {
+    if(this.isFirstLoadChoicesFromUrl) return false;
+    const chocesAreEmpty = !newChoices || Array.isArray(newChoices) && newChoices.length === 0;
+    if(chocesAreEmpty && !this.isEmpty()) return false;
+    return Helpers.isTwoValueEquals(this.choicesFromUrl, newChoices);
+  }
+  private setChoicesFromUrl(newChoices: Array<ItemValue>, errors: Array<any>, cachedValues: any): void {
+    if(this.canAvoidSettChoicesFromUrl(newChoices)) return;
+    this.isFirstLoadChoicesFromUrl = false;
     this.choicesFromUrl = newChoices;
     this.filterItems();
     this.onVisibleChoicesChanged();

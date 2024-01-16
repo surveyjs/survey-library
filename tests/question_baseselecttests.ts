@@ -1632,3 +1632,29 @@ QUnit.test("checkbox max(min)SelectedChoices validation", (assert) => {
   q.maxSelectedChoices = 5;
   assert.equal(q.maxSelectedChoices, 5, "q.maxSelectedChoices, #5");
 });
+QUnit.test("checkbox, selectAll & survey.data, bug#7657", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "isRequired": true,
+        "choices": [
+          "One",
+          "Two",
+          "Three"
+        ],
+        "showNoneItem": true,
+        "showSelectAllItem": true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.selectAll();
+  q.clickItemHandler(q.choices[2]);
+  assert.deepEqual(q.value, ["One", "Two"], "q.value, #1");
+  assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #1");
+  survey.doComplete();
+  assert.deepEqual(q.value, ["One", "Two"], "q.value, #2");
+  assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #2");
+});

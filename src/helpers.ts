@@ -135,16 +135,10 @@ export class Helpers {
     }
     if (!Helpers.isValueObject(x) && !Helpers.isValueObject(y)) return x == y;
     if (!Helpers.isValueObject(x) || !Helpers.isValueObject(y)) return false;
-    if (x["equals"]) return x.equals(y);
-    if (!!x.toJSON && !!y.toJSON && !!x.getType && !!y.getType) {
-      if (x.isDisposed || y.isDisposed) return false;
-      if (x.getType() !== y.getType()) return false;
-      if (!!x.name && x.name !== y.name) return false;
-      return this.isTwoValueEquals(x.toJSON(), y.toJSON(), ignoreOrder, caseSensitive, trimStrings);
-    }
-    if (Array.isArray(x) && Array.isArray(y))
+    if (x["equals"] && y["equals"]) return x.equals(y);
+    if (Array.isArray(x) && Array.isArray(y)) {
       return Helpers.isArraysEqual(x, y, ignoreOrder, caseSensitive, trimStrings);
-    if(!!x.equalsTo && y.equalsTo) return x.equalsTo(y);
+    }
 
     for (var p in x) {
       if (!x.hasOwnProperty(p)) continue;

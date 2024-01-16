@@ -158,7 +158,7 @@ function scrollElementByChildId(id: string) {
   if (!el) return;
   const scrollableEl = findScrollableParent(el);
   if (!!scrollableEl) {
-    scrollableEl.dispatchEvent(new CustomEvent("scroll"));
+    setTimeout(() => scrollableEl.dispatchEvent(new CustomEvent("scroll")), 10);
   }
 }
 
@@ -320,7 +320,7 @@ function increaseHeightByContent(element: HTMLElement, getComputedStyle?: (elt: 
 
   const style = getComputedStyle(element);
   element.style.height = "auto";
-  if(!!element.scrollHeight) {
+  if (!!element.scrollHeight) {
     element.style.height = (element.scrollHeight + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth)) + "px";
   }
 }

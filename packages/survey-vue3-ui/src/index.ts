@@ -215,7 +215,7 @@ function registerComponents(app: App) {
   app.component("sv-components-container", Container);
 
   app.component("sv-progress-buttons", ProgressButtons);
-  app.component("sv-progress-toc", ProgressToc);
+  app.component("sv-navigation-toc", ProgressToc);
   app.component("sv-progress-pages", Progress);
   app.component("sv-progress-questions", Progress);
   app.component("sv-progress-correctquestions", Progress);

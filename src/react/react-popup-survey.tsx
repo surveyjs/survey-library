@@ -1,7 +1,6 @@
 import * as React from "react";
+import { Base, PopupSurveyModel } from "survey-core";
 import { Survey } from "./reactSurvey";
-import { Base } from "../base";
-import { PopupSurveyModel } from "../popup-survey";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class PopupSurvey extends Survey {

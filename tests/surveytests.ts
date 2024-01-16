@@ -1673,6 +1673,8 @@ QUnit.test("Should not show errors with others bug #2014", function (assert) {
   assert.equal(survey.currentPageNo, 0, "The page is still first");
   assert.equal(question.errors.length, 0, "Do not show any error");
   question.comment = "Some text";
+  assert.equal(survey.currentPageNo, 0, "The page is still first, #2");
+  question.value = 2;
   assert.equal(survey.currentPageNo, 1, "The second page is shown");
 });
 QUnit.test(
@@ -3906,6 +3908,8 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
   );
   assert.notEqual(survey.state, "completed", "survey is still running");
   dropDownQ.comment = "other value";
+  assert.notEqual(survey.state, "completed", "survey is still running #2");
+  dropDownQ.value = 1;
   assert.equal(survey.state, "completed", "complete the survey");
 });
 QUnit.test("test goNextPageAutomatic property for boolean/switch", function (

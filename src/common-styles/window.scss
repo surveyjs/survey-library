@@ -28,6 +28,10 @@
         display: flex;
         background-color: $background-dim;
     }
+
+    .sv_window_content {
+        display: none;
+    }
 }
 
 .sv_window_header_title_collapsed {

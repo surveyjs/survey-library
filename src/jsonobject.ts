@@ -1051,42 +1051,58 @@ export class JsonMetadata {
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
     if (!obj || !obj.getType) return [];
-    var res: any = {};
-    var props = this.getProperties(obj.getType());
-    for (var i = 0; i < props.length; i++) {
-      res[props[i].name] = props[i];
-    }
-    var dynamicProps = !!obj.getDynamicType
-      ? this.getProperties(obj.getDynamicType())
-      : null;
-    if (dynamicProps && dynamicProps.length > 0) {
-      for (var i = 0; i < dynamicProps.length; i++) {
-        let dProp = dynamicProps[i];
-        if (!!res[dProp.name]) continue;
-        res[dProp.name] = dProp;
+    const props = this.getProperties(obj.getType());
+    const dynamicProps = this.getDynamicPropertiesByObj(obj);
+    return [].concat(props).concat(dynamicProps);
+  }
+  public addDynamicPropertiesIntoObj(dest: any, src: any, props: Array<JsonObjectProperty>): void {
+    props.forEach(prop => {
+      this.addDynamicPropertyIntoObj(dest, src, prop.name, false);
+      if (prop.serializationProperty) {
+        this.addDynamicPropertyIntoObj(dest, src, prop.serializationProperty, true);
       }
+      if (prop.alternativeName) {
+        this.addDynamicPropertyIntoObj(dest, src, prop.alternativeName, false);
+      }
+    });
+  }
+  private addDynamicPropertyIntoObj(dest: any, src: any, propName: string, isReadOnly: boolean): void {
+    var desc = {
+      configurable: true,
+      get: function () {
+        return src[propName];
+      },
+    };
+    if (!isReadOnly) {
+      (<any>desc)["set"] = function (v: any) {
+        src[propName] = v;
+      };
     }
-    return Object.keys(res).map((key) => res[key]);
+    Object.defineProperty(dest, propName, desc);
   }
   public getDynamicPropertiesByObj(obj: any, dynamicType: string = null): Array<JsonObjectProperty> {
-    if (!obj || !obj.getType || (!obj.getDynamicType && !dynamicType))
-      return [];
-    const objType = obj.getType();
+    if (!obj || !obj.getType) return [];
+    if(!!obj.getDynamicProperties) return obj.getDynamicProperties();
+    if(!obj.getDynamicType && !dynamicType) return [];
     const dType = !!dynamicType ? dynamicType : obj.getDynamicType();
-    if (!dType) return [];
-    const cacheType = dType + "-" + objType;
+    return this.getDynamicPropertiesByTypes(obj.getType(), dType);
+  }
+  public getDynamicPropertiesByTypes(objType: string, dynamicType: string, invalidNames?: Array<string>): Array<JsonObjectProperty> {
+    if (!dynamicType) return [];
+    const cacheType = dynamicType + "-" + objType;
     if(this.dynamicPropsCache[cacheType]) return this.dynamicPropsCache[cacheType];
-    var dynamicProps = this.getProperties(dType);
+    var dynamicProps = this.getProperties(dynamicType);
     if (!dynamicProps || dynamicProps.length == 0) return [];
-    var hash: any = {};
-    var props = this.getProperties(objType);
+    const hash: any = {};
+    const props = this.getProperties(objType);
     for (var i = 0; i < props.length; i++) {
       hash[props[i].name] = props[i];
     }
-    var res = [];
-    for (var i = 0; i < dynamicProps.length; i++) {
-      let dProp = dynamicProps[i];
-      if (!hash[dProp.name]) {
+    const res = [];
+    if(!invalidNames) invalidNames = [];
+    for (let i = 0; i < dynamicProps.length; i++) {
+      const dProp = dynamicProps[i];
+      if (!hash[dProp.name] && invalidNames.indexOf(dProp.name) < 0) {
         res.push(dProp);
       }
     }
@@ -1630,23 +1646,18 @@ export class JsonObject {
   private addDynamicProperties(
     obj: any,
     jsonObj: any,
-    properties: Array<JsonObjectProperty>
+    props: Array<JsonObjectProperty>
   ): Array<JsonObjectProperty> {
-    if (!obj.getDynamicPropertyName) return properties;
-    var dynamicPropName = obj.getDynamicPropertyName();
-    if (!dynamicPropName) return properties;
-    if (jsonObj[dynamicPropName]) {
-      obj[dynamicPropName] = jsonObj[dynamicPropName];
+    if (!obj.getDynamicPropertyName && !obj.getDynamicProperties) return props;
+    if(obj.getDynamicPropertyName) {
+      const dynamicPropName = obj.getDynamicPropertyName();
+      if (!dynamicPropName) return props;
+      if (dynamicPropName && jsonObj[dynamicPropName]) {
+        obj[dynamicPropName] = jsonObj[dynamicPropName];
+      }
     }
-    var dynamicProperties = this.getDynamicProperties(obj);
-    var res = [];
-    for (var i = 0; i < properties.length; i++) {
-      res.push(properties[i]);
-    }
-    for (var i = 0; i < dynamicProperties.length; i++) {
-      res.push(dynamicProperties[i]);
-    }
-    return res;
+    const dynamicProps = this.getDynamicProperties(obj);
+    return dynamicProps.length === 0 ? props : [].concat(props).concat(dynamicProps);
   }
   private propertiesToJson(
     obj: any,

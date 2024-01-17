@@ -2730,3 +2730,85 @@ QUnit.test("composite component: defaultQuestionTitle", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("single component: inheritBaseProps: array<string>", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: ["allowClear", "showOtherItem"],
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionDropdownModel>q1.contentQuestion;
+  assert.equal(q1.allowClear, false, "q1.allowClear #1");
+  assert.equal(content.allowClear, false, "content.allowClear #1");
+  q1.allowClear = true;
+  assert.equal(q1.allowClear, true, "q1.allowClear #2");
+  assert.equal(content.allowClear, true, "content.allowClear #2");
+  content.allowClear = false;
+  assert.equal(q1.allowClear, false, "q1.allowClear #3");
+  assert.equal(content.allowClear, false, "content.allowClear #3");
+
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #1");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #1");
+  q1.showOtherItem = false;
+  assert.equal(q1.showOtherItem, false, "q1.showOtherItem #2");
+  assert.equal(content.showOtherItem, false, "content.showOtherItem #2");
+  content.showOtherItem = true;
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #3");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #3");
+  const json = q1.toJSON();
+  assert.equal(json.allowClear, false, "json.allowClear");
+  assert.equal(json.showOtherItem, true, "json.showOtherItem");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: inheritBaseProps: true", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: true,
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionDropdownModel>q1.contentQuestion;
+  assert.equal(content.choices.length, 3, "content.choices");
+  assert.notOk(q1.choices, "q1.choices");
+  assert.equal(q1.allowClear, false, "q1.allowClear #1");
+  assert.equal(content.allowClear, false, "content.allowClear #1");
+  q1.allowClear = true;
+  assert.equal(q1.allowClear, true, "q1.allowClear #2");
+  assert.equal(content.allowClear, true, "content.allowClear #2");
+  content.allowClear = false;
+  assert.equal(q1.allowClear, false, "q1.allowClear #3");
+  assert.equal(content.allowClear, false, "content.allowClear #3");
+
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #1");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #1");
+  q1.showOtherItem = false;
+  assert.equal(q1.showOtherItem, false, "q1.showOtherItem #2");
+  assert.equal(content.showOtherItem, false, "content.showOtherItem #2");
+  content.showOtherItem = true;
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #3");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #3");
+  const json = q1.toJSON();
+  assert.equal(json.allowClear, false, "json.allowClear");
+  assert.equal(json.showOtherItem, true, "json.showOtherItem");
+
+  ComponentCollection.Instance.clear();
+});

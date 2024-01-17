@@ -3152,9 +3152,9 @@ export class SurveyModel extends SurveyElementCore
   public tryNavigateToPage(page: PageModel): boolean {
     if (this.isDesignMode) return false;
     const index = this.visiblePages.indexOf(page);
-    if (index < 0) return false;
+    if (index < 0 || index >= this.visiblePageCount) return false;
     if (index === this.currentPageNo) return false;
-    if (index < this.currentPageNo) {
+    if (index < this.currentPageNo || this.isValidateOnComplete) {
       this.currentPageNo = index;
       return true;
     }
@@ -7752,7 +7752,7 @@ Serializer.addClass("survey", [
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged", "onValueChanging", "onComplete"],
+    choices: ["onNextPage", "onValueChanged", "onComplete"],
   },
   {
     name: "textUpdateMode",

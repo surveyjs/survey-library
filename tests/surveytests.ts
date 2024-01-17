@@ -18012,6 +18012,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
   assert.equal(survey.backgroundOpacity, 1, "before applyTheme");
   assert.equal(survey["isCompact"], false, "before applyTheme");
+  assert.equal(survey.headerView, "basic", "before applyTheme");
 
   survey.applyTheme({
     "cssVariables": {
@@ -18034,6 +18035,27 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "fixed");
   assert.equal(survey.backgroundOpacity, 0.6);
   assert.equal(survey["isCompact"], true);
+  assert.equal(survey.headerView, "basic", "before applyTheme");
+});
+QUnit.test("survey.applyTheme respects headerView", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "multipletext", name: "q2", items: [{ name: "q2_item1" }, { name: "q2_item2" }] }
+    ]
+  });
+
+  assert.equal(survey.headerView, "basic", "before applyTheme");
+  survey.applyTheme({
+    "headerView": "advanced"
+  });
+  assert.equal(survey.headerView, "advanced");
+  survey.applyTheme({
+    "headerView": "basic"
+  });
+  assert.equal(survey.headerView, "basic");
+  survey.applyTheme({});
+  assert.equal(survey.headerView, "basic");
 });
 QUnit.test("page/panel delete do it recursively", function (assert) {
   const survey = new SurveyModel({

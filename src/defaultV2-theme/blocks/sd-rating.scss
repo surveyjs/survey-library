@@ -116,7 +116,7 @@
   box-sizing: border-box;
   min-width: calcSize(6);
   text-align: center;
-  border: none;
+  border: 2px solid transparent;;
   color: $foreground;
   fill: $foreground;
   font-size: calcFontSize(1);
@@ -298,11 +298,16 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     width: calcSize(6);
     height: calcSize(6);
     display: block;
-    transition: stroke 250ms;
+    position: absolute;
+    transition: stroke 250ms, opacity 250ms;
+  }
+
+  .sv-star {
+    opacity: 1;
   }
 
   .sv-star-2 {
-    display: none;
+    opacity: 0;
   }
 }
 
@@ -381,11 +386,11 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 
   .sv-star {
-    display: none;
+    opacity: 0;
   }
 
   .sv-star-2 {
-    display: block;
+    opacity: 1;
   }
 }
 

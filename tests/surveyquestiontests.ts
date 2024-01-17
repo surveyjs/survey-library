@@ -849,11 +849,14 @@ QUnit.test("Radiogroup Question: support goNextPageAutomatic + hasOther", functi
     goNextPageAutomatic: true,
   };
   const survey = new SurveyModel(json);
-  const question = survey.getQuestionByName("q1");
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
   question.value = "other";
   assert.equal(survey.currentPageNo, 0, "Stay on the first page");
   question.comment = "123";
-  assert.equal(survey.currentPageNo, 1, "Go to the second page");
+  assert.equal(survey.currentPageNo, 0, "Still stay on the page");
+  question.onMouseDown();
+  question.value = 2;
+  assert.equal(survey.currentPageNo, 1, "Go to the next page");
 });
 
 QUnit.test(

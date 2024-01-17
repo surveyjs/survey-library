@@ -389,4 +389,19 @@ QUnit.test("survey.tryNavigateToPage", function (assert) {
   assert.equal(survey.tryNavigateToPage(survey.pages[3]), true, "navigate #6");
   assert.equal(survey.currentPageNo, 3, "currentPageNo #6");
   assert.deepEqual(pages, ["page2", "page1", "page3", "page1", "page4"], "Check onCurrentPageChanged");
+
+  survey.clear();
+  assert.equal(survey.currentPageNo, 0, "currentPageNo #7");
+  assert.equal(survey.tryNavigateToPage(survey.pages[3]), false, "navigate #7");
+  survey.checkErrorsMode = "onComplete";
+  assert.equal(survey.tryNavigateToPage(survey.pages[3]), true, "navigate #8");
+  assert.equal(survey.currentPageNo, 3, "currentPageNo #9");
+});
+QUnit.test("TOC should be created for survey with no current page", function (assert) {
+  let json: any = { "logoPosition": "right", "pages": [{ "name": "page1", "elements": [{ "type": "panel", "name": "panel1", "width": "1180px" }] }] };
+  const survey: SurveyModel = new SurveyModel(json);
+  assert.equal(survey.pages.length, 1);
+  assert.equal(survey.currentPageNo, -1);
+  const tocListModel = createTOCListModel(survey);
+  assert.ok(!!tocListModel, "TOC model should be created");
 });

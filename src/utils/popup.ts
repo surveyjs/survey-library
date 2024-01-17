@@ -59,9 +59,13 @@ export class PopupUtils {
   public static getCorrectedVerticalDimensions(
     top: number,
     height: number,
-    windowHeight: number
+    windowHeight: number,
+    verticalPosition: VerticalPosition
   ) {
-    let result = { height: height, top: top };
+    let result;
+    if(verticalPosition === "top") {
+      result = { height: height, top: top };
+    }
     if (top < 0) {
       result = { height: height + top, top: 0 };
     } else if (height + top > windowHeight) {

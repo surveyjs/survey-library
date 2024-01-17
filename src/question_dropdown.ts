@@ -99,7 +99,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }
   supportGoNextPageAutomatic(): boolean {
-    return true;
+    return !this.isOtherSelected;
   }
   private minMaxChoices = <Array<ItemValue>>[];
   protected getChoices(): Array<ItemValue> {

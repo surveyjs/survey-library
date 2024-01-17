@@ -2787,6 +2787,7 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
   });
   const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
   const content = <QuestionDropdownModel>q1.contentQuestion;
+  assert.equal(q1.getDynamicType(), "dropdown", "q1.getDynamicType()");
   assert.equal(content.choices.length, 3, "content.choices");
   assert.notOk(q1.choices, "q1.choices");
   assert.equal(q1.allowClear, false, "q1.allowClear #1");

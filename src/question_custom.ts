@@ -714,6 +714,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getDynamicProperties(): Array<JsonObjectProperty> {
     return this.customQuestion.getDynamicProperties() || [];
   }
+  public getDynamicType(): string {
+    return this.questionWrapper ? this.questionWrapper.getType() : "question";
+  }
   protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
     this.createDynamicProperties(this.questionWrapper);

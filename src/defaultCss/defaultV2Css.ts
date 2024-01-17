@@ -651,13 +651,18 @@ export var defaultV2Css = {
   },
   window: {
     root: "sv_window",
+    rootCollapsedMod: "sv_window--collapsed",
+    rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
-      root: "sv_window_title",
-      title: "",
+      root: "sv_window_header",
+      titleCollapsed: "sv_window_header_title_collapsed",
+      buttonsContainer: "sv_window_buttons_container",
       button: "sv_window_button",
       buttonExpanded: "",
-      buttonCollapsed: ""
+      buttonCollapsed: "",
+      collapseButton: "sv_window_button sv_window_button_collapse",
+      closeButton: "sv_window_button sv_window_button_close"
     }
   },
   ranking: {

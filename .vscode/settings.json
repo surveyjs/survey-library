@@ -5,8 +5,7 @@
     },
     "[typescript]": {
         "editor.codeActionsOnSave": {
-            "source.fixAll": true,
-            //"source.organizeImports": true, // be vare of https://github.com/microsoft/vscode-typescript-tslint-plugin/issues/51
+            "source.fixAll": "explicit"
         }
     },
     "[html]": {

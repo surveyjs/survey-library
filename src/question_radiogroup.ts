@@ -47,7 +47,7 @@ export class QuestionRadiogroupModel extends QuestionCheckboxBase {
     return this.getLocalizationString("clearCaption");
   }
   supportGoNextPageAutomatic(): boolean {
-    return this.isMouseDown === true;
+    return this.isMouseDown === true && !this.isOtherSelected;
   }
   protected setNewComment(newValue: string): void {
     this.isMouseDown = true;

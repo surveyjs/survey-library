@@ -195,9 +195,8 @@ QUnit.test("Ranking: Carry Forward and unrankIfChoicesChanged", function(assert)
 
   checkboxQuestion.value = [1];
   checkboxQuestion.value = [1, 2];
-  assert.equal(rankingQuestion.value.length, 2, "rank items by default");
+  assert.equal(rankingQuestion.value.length, 0, "rank items by default");
 
-  rankingQuestion.unrankIfChoicesChanged = true;
   checkboxQuestion.value = [1, 2, 3];
   assert.equal(rankingQuestion.value.length, 0, "unrank items after choices changed");
 
@@ -345,7 +344,7 @@ QUnit.test("Ranking: items visibleIf and value, Bug#5959", function(assert) {
   var q2 = <QuestionRankingModel>survey.getQuestionByName("q2");
   q2.value = ["c", "d", "a", "b"];
   q1.value = [1];
-  assert.deepEqual(q2.value, ["a", "b"], "value is correct");
+  assert.deepEqual(q2.value, [], "value is correct");
   assert.equal(q2.rankingChoices.length, 2, "2 items are shown");
 });
 QUnit.test("Ranking: strict compare, Bug#6644", function(assert) {

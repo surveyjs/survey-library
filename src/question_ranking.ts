@@ -143,7 +143,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 
-    if (this.unrankIfChoicesChanged && !this.isValueSetByUser) {
+    if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled) {
       this.value = [];
     }
 
@@ -446,7 +446,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
-  private isValueSetByUser = false;
+  public isValueSetByUser = false;
   public setValue = (): void => {
     const value: string[] = [];
     this.rankingChoices.forEach((choice: ItemValue) => {
@@ -498,16 +498,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("selectToRankEnabled", val);
   }
 
-  /**
-   * Unraked all items (remove value) if choices dynamically changed (e.g. with carry forward)
-   *
-   * Default value: `false`
-  */
-  public get unrankIfChoicesChanged(): boolean {
-    return this.getPropertyValue("unrankIfChoicesChanged", false);
+  public get carryForwardStartUnranked(): boolean {
+    return this.getPropertyValue("carryForwardStartUnranked", true);
   }
-  public set unrankIfChoicesChanged(val: boolean) {
-    this.setPropertyValue("unrankIfChoicesChanged", val);
+  public set carryForwardStartUnranked(val: boolean) {
+    this.setPropertyValue("carryForwardStartUnranked", val);
   }
 
   /**
@@ -623,8 +618,8 @@ Serializer.addClass(
       },
     },
     {
-      name: "unrankIfChoicesChanged:switch",
-      default: false,
+      name: "carryForwardStartUnranked",
+      default: true,
       visible: false,
       isSerializable: true,
     },

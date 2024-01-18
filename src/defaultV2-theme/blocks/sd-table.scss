@@ -292,6 +292,7 @@
     width: multiply(1, $font-editorfont-size);
     height: multiply(1, $font-editorfont-size);
     fill: $font-questiondescription-color;
+    transition: fill 250ms;
   }
 
   &:hover,

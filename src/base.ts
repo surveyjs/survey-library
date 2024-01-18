@@ -218,6 +218,16 @@ export class Base {
     }
     return Helpers.isValueEmpty(value);
   }
+  public equals(obj: Base): boolean {
+    if(!obj) return false;
+    if (this.isDisposed || obj.isDisposed) return false;
+    if(this.getType() != obj.getType()) return false;
+    return this.equalsCore(obj);
+  }
+  protected equalsCore(obj: Base): boolean {
+    if((<any>this).name !== (<any>obj).name) return false;
+    return Helpers.isTwoValueEquals(this.toJSON(), obj.toJSON(), false, true, false);
+  }
   protected trimValue(value: any): any {
     if (!!value && (typeof value === "string" || value instanceof String))
       return value.trim();
@@ -344,6 +354,9 @@ export class Base {
   public get isDesignMode(): boolean {
     const survey = this.getSurvey();
     return !!survey && survey.isDesignMode;
+  }
+  public get isDesignModeV2(): boolean {
+    return settings.supportCreatorV2 && this.isDesignMode;
   }
   /**
    * Returns `true` if the object is included in a survey.
@@ -498,6 +511,7 @@ export class Base {
   public resetPropertyValue(name: string): void {
     const locStr = this.localizableStrings ? this.localizableStrings[name] : undefined;
     if(locStr) {
+      this.setLocalizableStringText(name, undefined);
       locStr.clear();
     }
     else {
@@ -806,10 +820,10 @@ export class Base {
   public unRegisterFunctionOnPropertiesValueChanged(names: Array<string>, key: string = null): void {
     this.unregisterPropertyChangedHandlers(names, key);
   }
-  public createCustomLocalizableObj(name: string) {
-    var locStr = this.getLocalizableString(name);
-    if (locStr) return;
-    this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
+  public createCustomLocalizableObj(name: string): LocalizableString {
+    const locStr = this.getLocalizableString(name);
+    if(locStr) return locStr;
+    return this.createLocalizableString(name, <ILocalizableOwner>(<any>this), false, true);
   }
   public getLocale(): string {
     const locOwner = this.getSurvey();

@@ -365,7 +365,7 @@ export class RegexValidator extends SurveyValidator {
     properties: any = null
   ): ValidatorResult {
     if (!this.regex || this.isValueEmpty(value)) return null;
-    var re = new RegExp(this.regex);
+    var re = this.createRegExp();
     if (Array.isArray(value)) {
       for (var i = 0; i < value.length; i++) {
         var res = this.hasError(re, value[i], name);
@@ -386,6 +386,15 @@ export class RegexValidator extends SurveyValidator {
   }
   public set regex(val: string) {
     this.setPropertyValue("regex", val);
+  }
+  public get insensitive(): boolean {
+    return this.getPropertyValue("insensitive");
+  }
+  public set insensitive(val: boolean) {
+    this.setPropertyValue("insensitive", val);
+  }
+  private createRegExp(): RegExp {
+    return new RegExp(this.regex, this.insensitive ? "i" : "");
   }
 }
 /**
@@ -516,7 +525,7 @@ Serializer.addClass(
 );
 Serializer.addClass(
   "regexvalidator",
-  ["regex"],
+  ["regex", { name: "insensitive:boolean", visible: false }],
   function() {
     return new RegexValidator();
   },

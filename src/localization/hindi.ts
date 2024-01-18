@@ -25,6 +25,7 @@ export var hindiStrings = {
   requiredError: "कृपया प्रश्न का उत्तर दें",
   requiredErrorInPanel: "कृपया कम से कम एक प्रश्न का उत्तर दें",
   requiredInAllRowsError: "कृपया सभी पंक्तियों में सवालों के जवाब दें",
+  eachRowUniqueError: "प्रत्येक पंक्ति का एक अद्वितीय मान होना चाहिए.",
   numericError: "मूल्य संख्यात्मक होना चाहिए",
   minError: "मान {0} से कम नहीं होना चाहिए",
   maxError: "मान {0} से अधिक नहीं होना चाहिए",
@@ -42,6 +43,7 @@ export var hindiStrings = {
   urlRequestError: "अनुरोध लौटाया त्रुटि '{0}' . {1}",
   urlGetChoicesError: "अनुरोध ने खाली डेटा वापस कर दिया है ",
   exceedMaxSize: "फ़ाइल का आकार {0} से अधिक नहीं होना चाहिए  या फिर 'पाथ' प्रॉपर्टी गलत है",
+  noUploadFilesHandler: "फ़ाइलें अपलोड नहीं की जा सकती. कृपया 'onloadFiles' ईवेंट के लिए एक हैंडलर जोड़ें.",
   otherRequiredError: "कृपया दूसरा मूल्य दर्ज करें",
   uploadingFile: "आपकी फाइल अपलोड हो रही है। कृपया कई सेकंड इंतजार करें और फिर से प्रयास करें।",
   loadingFile: "लोडिंग",
@@ -56,6 +58,8 @@ export var hindiStrings = {
   emptyRowsText: "कोई पंक्तियाँ नहीं हैं.",
   addPanel: "नया जोड़ें",
   removePanel: "हटाए",
+  showDetails: "विवरण दिखाएँ",
+  hideDetails: "विवरण छुपाएँ",
   choices_Item: "मद",
   matrix_column: "कॉलम",
   matrix_row: "पंक्ति",
@@ -94,7 +98,9 @@ export var hindiStrings = {
   more: "अधिक",
   tagboxDoneButtonCaption: "ठीक है",
   selectToRankEmptyRankedAreaText: "सभी विकल्पों को रैंक किया गया है",
-  selectToRankEmptyUnrankedAreaText: "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें"
+  selectToRankEmptyUnrankedAreaText: "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें",
+  ok: "ठीक है",
+  cancel: "रद्द करना"
 };
 
 surveyLocalization.locales["hi"] = hindiStrings;
@@ -124,4 +130,9 @@ surveyLocalization.localeNames["hi"] = "hindi";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "विकल्पों को रैंक करने के लिए उन्हें यहां खींचें और छोड़ दें"// takePhotoCaption: "Take Photo" => "फोटो ले लो"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "कैमरे का उपयोग करके फोटो लेने के लिए नीचे दिए गए बटन पर क्लिक करें।"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "कैमरे का उपयोग करके फ़ोटो अपलोड करने या फ़ोटो लेने के लिए किसी फ़ाइल को खींचें और छोड़ें या चुनें."
-// replaceFileCaption: "Replace file" => "फ़ाइल बदलें"
+// replaceFileCaption: "Replace file" => "फ़ाइल बदलें"// eachRowUniqueError: "Each row must have a unique value." => "प्रत्येक पंक्ति का एक अद्वितीय मान होना चाहिए."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "फ़ाइलें अपलोड नहीं की जा सकती. कृपया 'onloadFiles' ईवेंट के लिए एक हैंडलर जोड़ें."
+// showDetails: "Show Details" => "विवरण दिखाएँ"
+// hideDetails: "Hide Details" => "विवरण छुपाएँ"
+// ok: "OK" => "ठीक है"
+// cancel: "Cancel" => "रद्द करना"

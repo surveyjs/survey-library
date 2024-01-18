@@ -1575,3 +1575,86 @@ QUnit.test("Select all and clickItemHandler", function (assert) {
   question.clickItemHandler(question.selectAllItem);
   assert.equal(question.isAllSelected, false, "#5");
 });
+QUnit.test("Test dropdown in CreatorV2 & restful", function(assert) {
+  settings.supportCreatorV2 = true;
+  const json = { elements: [
+    { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
+  ] };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(question.isUsingRestful, false, "isUsingRestful #1");
+  assert.equal(question.visibleChoices.length, 3 + 5 + 1, "3 built-in + 5 choices + 1 add item, #1");
+  question.choicesByUrl.url = "test_url";
+  assert.equal(question.isUsingRestful, true, "isUsingRestful #2");
+  assert.equal(question.visibleChoices.length, 3, "3 built-in + do not show default choices, #2");
+  question.choicesByUrl.url = "";
+  assert.equal(question.isUsingRestful, false, "isUsingRestful #3");
+  assert.equal(question.visibleChoices.length, 3 + 5 + 1, "3 built-in + 5 choices + 1 add item, #3");
+  settings.supportCreatorV2 = false;
+});
+QUnit.test("isUsingRestful & loading", function(assert) {
+  const json = { elements: [
+    { type: "checkbox", name: "q1", choicesByUrl: { url: "abc" } },
+    { type: "checkbox", name: "q2" }
+  ] };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const q2 = <QuestionCheckboxModel>survey.getQuestionByName("q2");
+  assert.equal(q1.isUsingRestful, true, "q1 #1");
+  assert.equal(q2.isUsingRestful, false, "q2 #1");
+  q1.choicesByUrl.url = "";
+  assert.equal(q1.isUsingRestful, false, "q1 #2");
+  q1.choicesByUrl.url = "edf";
+  assert.equal(q1.isUsingRestful, true, "q1 #3");
+});
+QUnit.test("checkbox max(min)SelectedChoices validation", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1"
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.minSelectedChoices = 10;
+  assert.equal(q.minSelectedChoices, 10, "q.minSelectedChoices, #1");
+  q.maxSelectedChoices = 5;
+  assert.equal(q.maxSelectedChoices, 10, "q.maxSelectedChoices, #2");
+  q.minSelectedChoices = 20;
+  assert.equal(q.minSelectedChoices, 10, "q.minSelectedChoices, #3");
+  q.maxSelectedChoices = 0;
+  q.minSelectedChoices = 20;
+  assert.equal(q.minSelectedChoices, 20, "q.minSelectedChoices, #4");
+  q.minSelectedChoices = 0;
+  q.maxSelectedChoices = 5;
+  assert.equal(q.maxSelectedChoices, 5, "q.maxSelectedChoices, #5");
+});
+QUnit.test("checkbox, selectAll & survey.data, bug#7657", (assert) => {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "isRequired": true,
+        "choices": [
+          "One",
+          "Two",
+          "Three"
+        ],
+        "showNoneItem": true,
+        "showSelectAllItem": true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.selectAll();
+  q.clickItemHandler(q.choices[2]);
+  assert.deepEqual(q.value, ["One", "Two"], "q.value, #1");
+  assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #1");
+  survey.doComplete();
+  assert.deepEqual(q.value, ["One", "Two"], "q.value, #2");
+  assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #2");
+});

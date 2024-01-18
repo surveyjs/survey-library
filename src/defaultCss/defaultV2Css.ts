@@ -169,6 +169,7 @@ export var defaultV2Css = {
     headerTop: "sd-question__header--location-top sd-element__header--location-top",
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
+    contentSupportContainerQueries: "sd-question__content--support-container-queries",
     contentLeft: "sd-question__content--left",
     titleNumInline: "sd-element__title--num-inline",
     titleLeftRoot: "sd-question--left",
@@ -410,6 +411,7 @@ export var defaultV2Css = {
     rowError: "sd-matrix__row--error",
     cell: "sd-table__cell sd-matrix__cell",
     row: "sd-table__row",
+    rowDisabled: "sd-table__row-disabled",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-matrix__cell sd-table__cell--row-text",
     label: "sd-item sd-radio sd-matrix__label",
@@ -648,13 +650,18 @@ export var defaultV2Css = {
   },
   window: {
     root: "sv_window",
+    rootCollapsedMod: "sv_window--collapsed",
+    rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
-      root: "sv_window_title",
-      title: "",
+      root: "sv_window_header",
+      titleCollapsed: "sv_window_header_title_collapsed",
+      buttonsContainer: "sv_window_buttons_container",
       button: "sv_window_button",
       buttonExpanded: "",
-      buttonCollapsed: ""
+      buttonCollapsed: "",
+      collapseButton: "sv_window_button sv_window_button_collapse",
+      closeButton: "sv_window_button sv_window_button_close"
     }
   },
   ranking: {

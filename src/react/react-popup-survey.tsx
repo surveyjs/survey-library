@@ -1,7 +1,6 @@
 import * as React from "react";
-import { Survey } from "./reactSurvey";
-import { SurveyElementBase } from "./reactquestion_element";
 import { Base, PopupSurveyModel } from "survey-core";
+import { Survey } from "./reactSurvey";
 import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class PopupSurvey extends Survey {
@@ -21,62 +20,71 @@ export class PopupSurvey extends Survey {
   }
   protected renderElement(): JSX.Element {
     var header = this.renderWindowHeader();
-    var body = this.popup.isExpanded ? this.renderBody() : null;
-    let style: React.CSSProperties = {
-      position: "fixed",
-      bottom: 3,
-      right: 10
-    };
+    var body = this.renderBody();
+    let style: React.CSSProperties = {};
     if (!!this.popup.renderedWidth) {
       style.width = this.popup.renderedWidth;
       style.maxWidth = this.popup.renderedWidth;
     }
     return (
-      <div className={this.popup.cssRoot} style={style}>
-        {header}
-        {body}
+      <div className={this.popup.cssRoot} style={style} onScroll={() => this.popup.onScroll()}>
+        <div className={this.popup.cssRootContent}>
+          {header}
+          {body}
+        </div>
       </div>
     );
   }
   protected renderWindowHeader(): JSX.Element {
-    var styleA = { width: "100%", cursor: "pointer" };
-    var styleTitle = { paddingRight: "10px" };
-    var glyphClassName = this.popup.cssButton;
-    glyphClassName = "glyphicon pull-right " + glyphClassName;
-    var title = SurveyElementBase.renderLocString(this.survey.locTitle);
+    var popup = this.popup;
+    var headerCss = popup.cssHeaderRoot;
+    var titleCollapsed: JSX.Element | null = null;
+    var expandCollapseIcon;
+    var closeButton: JSX.Element | null = null;
+
+    if (popup.isCollapsed) {
+      headerCss += " " + popup.cssRootCollapsedMod;
+      titleCollapsed = this.renderTitleCollapsed(popup);
+      expandCollapseIcon = this.renderExpandIcon();
+    } else {
+      expandCollapseIcon = this.renderCollapseIcon();
+    }
+
+    if (popup.allowClose) {
+      closeButton = this.renderCloseButton(this.popup);
+    }
+
     return (
-      <div className={this.popup.cssHeaderRoot}>
-        <span onClick={this.handleOnExpanded} style={styleA}>
-          <span className={this.popup.cssHeaderTitle} style={styleTitle}>
-            {title}
-          </span>
-          <span className={glyphClassName} aria-hidden="true" />
-        </span>
-        {this.popup.allowClose ? (
-          <span
-            className={this.popup.cssHeaderButton}
-            onClick={() => { this.popup.hide(); }}
-            style={{ transform: "rotate(45deg)", float: "right", cursor: "pointer", width: "24px", height: "24px" }}
-          >
-            <SvgIcon iconName={"icon-expanddetail"} size={16}>
-            </SvgIcon>
-          </span>
-        ) : null}
-        {this.popup.isExpanded ? (
-          <span
-            className={this.popup.cssHeaderButton}
-            onClick={this.handleOnExpanded}
-            style={{ float: "right", cursor: "pointer", width: "24px", height: "24px" }}
-          >
-            <SvgIcon iconName={"icon-collapsedetail"} size={16}>
-            </SvgIcon>
-          </span>
-        ) : null}
+      <div className={popup.cssHeaderRoot}>
+        {titleCollapsed}
+        <div className={popup.cssHeaderButtonsContainer}>
+          <div className={popup.cssHeaderCollapseButton} onClick={this.handleOnExpanded}>
+            {expandCollapseIcon}
+          </div>
+          {closeButton}
+        </div>
+      </div>
+    );
+  }
+  protected renderTitleCollapsed(popup: PopupSurveyModel): JSX.Element | null {
+    if (!popup.locTitle) return null;
+    return <div className={popup.cssHeaderTitleCollapsed}>{popup.locTitle.renderedHtml}</div>;
+  }
+  protected renderExpandIcon(): JSX.Element {
+    return <SvgIcon iconName={"icon-restore_16x16"} size={16}></SvgIcon>;
+  }
+  protected renderCollapseIcon(): JSX.Element {
+    return <SvgIcon iconName={"icon-minimize_16x16"} size={16}></SvgIcon>;
+  }
+  protected renderCloseButton(popup: PopupSurveyModel): JSX.Element {
+    return (
+      <div className={popup.cssHeaderCloseButton} onClick={() => { popup.hide(); }}>
+        <SvgIcon iconName={"icon-close_16x16"} size={16}></SvgIcon>
       </div>
     );
   }
   protected renderBody(): JSX.Element {
-    return <div className={this.popup.cssBody} onScroll={() => this.popup.onScroll()}>{this.doRender()}</div>;
+    return <div className={this.popup.cssBody}>{this.doRender()}</div>;
   }
   protected createSurvey(newProps: any) {
     if (!newProps) newProps = {};

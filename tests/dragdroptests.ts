@@ -988,37 +988,76 @@ QUnit.test("Move flow panel up", function (assert) {
 });
 
 QUnit.test("Check onQuestionAdded event is not fired", function (assert) {
+  settings.supportCreatorV2 = false;
   var survey = new SurveyModel();
   var page = survey.addNewPage("p1");
+  var question = page.addNewQuestion("question1");
   var q1 = page.addNewQuestion("text", "q1");
   var q2 = page.addNewQuestion("text", "q2");
   var q3 = page.addNewQuestion("text", "q3");
-  var target = new QuestionTextModel("q1");
+  var target = new QuestionTextModel("question1");
   var eventIsFired = false;
   survey.onQuestionAdded
     .add(function (sender, options) {
       eventIsFired = true;
     });
-  page.dragDropStart(q1, target);
-  page.dragDropMoveTo(q3, true);
-  page.dragDropFinish();
-
-  assert.notOk(eventIsFired, "onQuestionAdded event is not fired while dragging");
-  survey.setDesignMode(true);
-  target = new QuestionTextModel("q3");
-  page.dragDropStart(q3, target);
+  page.dragDropStart(question, target);
   page.dragDropMoveTo(q1, true);
   page.dragDropFinish();
+  assert.notOk(eventIsFired, "onQuestionAdded event is not fired while dragging");
 
-  assert.notOk(eventIsFired, "onQuestionAdded event is fired while dragging, Creator V1");
+  survey.setDesignMode(true);
+  page.dragDropStart(question, target);
+  page.dragDropMoveTo(q2, true);
+  page.dragDropFinish();
+
+  assert.ok(eventIsFired, "onQuestionAdded event is fired while dragging, Creator V1");
 
   eventIsFired = false;
   settings.supportCreatorV2 = true;
-  target = new QuestionTextModel("q3");
-  page.dragDropStart(q1, target);
+  page.dragDropStart(question, target);
   page.dragDropMoveTo(q3, true);
   page.dragDropFinish();
   settings.supportCreatorV2 = false;
 
   assert.notOk(eventIsFired, "onQuestionAdded event is not fired while dragging, Creator V2");
+
+  page.addNewQuestion("text", "q5");
+  assert.ok(eventIsFired, "onQuestionAdded event is fired on adding new question");
+});
+QUnit.test("Check onPanelAdded event is not fired", function (assert) {
+  settings.supportCreatorV2 = false;
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("p1");
+  var panel1 = page.addNewPanel("panel1");
+  var q1 = page.addNewQuestion("text", "q1");
+  var q2 = page.addNewQuestion("text", "q2");
+  var q3 = page.addNewQuestion("text", "q3");
+  var target = new PanelModel("panel1");
+  var eventIsFired = false;
+  survey.onPanelAdded
+    .add(function (sender, options) {
+      eventIsFired = true;
+    });
+  page.dragDropStart(panel1, target);
+  page.dragDropMoveTo(q1, true);
+  page.dragDropFinish();
+  assert.notOk(eventIsFired, "onPanelAdded event is not fired while dragging");
+
+  survey.setDesignMode(true);
+  page.dragDropStart(panel1, target);
+  page.dragDropMoveTo(q2, true);
+  page.dragDropFinish();
+  assert.ok(eventIsFired, "onPanelAdded event is fired while dragging, Creator V1");
+
+  eventIsFired = false;
+  settings.supportCreatorV2 = true;
+  page.dragDropStart(panel1, target);
+  page.dragDropMoveTo(q3, true);
+  page.dragDropFinish();
+  assert.notOk(eventIsFired, "onPanelAdded event is not fired while dragging, Creator V2");
+  settings.supportCreatorV2 = false;
+
+  page.addNewPanel("panel2");
+  assert.ok(eventIsFired, "onPanelAdded event is fired on adding new panel");
 });

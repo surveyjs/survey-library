@@ -23,6 +23,14 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   protected override getShouldReattachChangeDetector(): boolean {
     return false;
   }
+  public getHeaderCss(): string {
+    let headerCss = this.popup.cssHeaderRoot;
+    if (this.popup.isCollapsed) {
+      headerCss += " " + this.popup.cssRootCollapsedMod;
+    }
+    return headerCss;
+  }
+
   ngOnChanges(changes: SimpleChanges): void {
     if (changes["model"]?.currentValue !== changes["model"]?.previousValue) {
       this.popup = new PopupSurveyModel(null, this.model);

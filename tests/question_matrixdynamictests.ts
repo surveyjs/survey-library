@@ -7795,18 +7795,28 @@ QUnit.test("allowRowsDragAndDrop with readOnly", function (assert) {
       },
     ],
   });
-  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  assert.equal(
-    matrix.allowRowsDragAndDrop,
-    false,
-    "Disable drag in readonly mode"
-  );
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.isRowsDragAndDrop, false, "#1");
   matrix.readOnly = false;
-  assert.equal(
-    matrix.allowRowsDragAndDrop,
-    true,
-    "Enable drag if readonly false"
-  );
+  assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "#2");
+});
+
+QUnit.test("allowRowsDragAndDrop &mode=display", function (assert) {
+  const survey = new SurveyModel({
+    mode: "display",
+    elements: [
+      {
+        type: "matrixdynamic",
+        name: "matrix",
+        allowRowsDragAndDrop: true,
+        columns: ["col1"]
+      },
+    ],
+  });
+  var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(matrix.renderedTable.isRowsDragAndDrop, false, "#1");
+  survey.mode = "edit";
+  assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "#2");
 });
 
 QUnit.test("QuestionMatrixDropdownRenderedRow isAdditionalClasses", (assert) => {
@@ -8286,9 +8296,9 @@ QUnit.test("Vertical column layout & allowRowsDragAndDrop, rendered table", func
     ]
   });
   var matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
-  assert.equal(matrix.renderedTable.allowRowsDragAndDrop, false, "vertical column layout");
+  assert.equal(matrix.renderedTable.isRowsDragAndDrop, false, "vertical column layout");
   matrix.columnLayout = "horizontal";
-  assert.equal(matrix.renderedTable.allowRowsDragAndDrop, true, "horizontal column layout");
+  assert.equal(matrix.renderedTable.isRowsDragAndDrop, true, "horizontal column layout");
   matrix.onPointerDown(<any>undefined, <any>undefined);
 });
 
@@ -9015,3 +9025,42 @@ QUnit.test("matrix dynamic getPlainData & comment", function (assert) {
   assert.equal(qData[2].title, "Comment", "comment title");
   assert.equal(qData[2].isComment, true, "comment isComment");
 });
+QUnit.test("matrix dynamic expression & checkbox ValuePropertyName", function (assert) {
+  const survey = new SurveyModel({
+    "elements": [
+      {
+        "type": "checkbox",
+        "name": "q1",
+        "choices": [
+          "Item 1",
+          "Item 2"
+        ],
+        "valuePropertyName": "testItem"
+      },
+      {
+        "type": "matrixdynamic",
+        "name": "q2",
+        "valueName": "q1",
+        "columns": [
+          {
+            "name": "col1",
+            "cellType": "expression",
+            "expression": "{row.testItem} + ' - matrix'"
+          }
+        ],
+        "rowCount": 0
+      }
+    ]
+  });
+  const checkbox = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  const matrix = <QuestionMatrixDynamicModel>survey.getQuestionByName("q2");
+  assert.equal(matrix.visibleRows.length, 0, "matrix rows #0");
+  assert.notOk(matrix.value, "matrix is empty");
+  checkbox.renderedValue = ["Item 1"];
+  assert.equal(matrix.visibleRows.length, 1, "matrix rows #1");
+  assert.deepEqual(matrix.value, [{ testItem: "Item 1", col1: "Item 1 - matrix" }], "matrix value #1");
+  checkbox.renderedValue = ["Item 1", "Item 2"];
+  assert.equal(matrix.visibleRows.length, 2, "matrix rows #2");
+  assert.deepEqual(matrix.value, [{ testItem: "Item 1", col1: "Item 1 - matrix" }, { testItem: "Item 2", col1: "Item 2 - matrix" }], "matrix value #2");
+});
+

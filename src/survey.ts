@@ -76,6 +76,7 @@ import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
+import { TOCModel } from "./surveyToc";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -898,6 +899,9 @@ export class SurveyModel extends SurveyElementCore
     this.registerPropertyChangedHandlers(["renderBackgroundImage", "backgroundOpacity", "backgroundImageFit", "fitToContainer", "backgroundImageAttachment"], () => {
       this.updateBackgroundImageStyle();
     });
+    this.registerPropertyChangedHandlers(
+      ["showPrevButton", "showCompleteButton"],
+      () => { this.updateButtonsVisibility(); });
 
     this.onGetQuestionNo.onCallbacksChanged = () => {
       this.resetVisibleIndexes();
@@ -994,8 +998,8 @@ export class SurveyModel extends SurveyElementCore
     });
     this.addLayoutElement({
       id: "toc-navigation",
-      component: "sv-progress-toc",
-      data: this
+      component: "sv-navigation-toc",
+      data: new TOCModel(this)
     });
     this.layoutElements.push({
       id: "navigationbuttons",
@@ -1195,7 +1199,7 @@ export class SurveyModel extends SurveyElementCore
   @property({
     onSet: (newValue, target: SurveyModel) => {
       if (newValue === "advanced") {
-        const layoutElement = target.layoutElements.filter(a => a.id === "advanced-header")[0];
+        const layoutElement = target.findLayoutElement("advanced-header");
         if (!layoutElement) {
           var advHeader = new Cover();
           advHeader.logoPositionX = target.logoPosition === "right" ? "right" : "left";
@@ -1256,6 +1260,14 @@ export class SurveyModel extends SurveyElementCore
   public get isLazyRendering(): boolean {
     return this.lazyRendering || settings.lazyRender.enabled;
   }
+  @property() lazyRenderingFirstBatchSizeValue: number;
+  public get lazyRenderingFirstBatchSize(): number {
+    return this.lazyRenderingFirstBatchSizeValue || settings.lazyRender.firstBatchSize;
+  }
+  public set lazyRenderingFirstBatchSize(val: number) {
+    this.lazyRenderingFirstBatchSizeValue = val;
+  }
+
   private updateLazyRenderingRowsOnRemovingElements() {
     if (!this.isLazyRendering) return;
     var page = this.currentPage;
@@ -1396,6 +1408,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"none"` - Hides the navigation buttons. This setting may be useful if you [implement custom external navigation](https://surveyjs.io/form-library/examples/external-form-navigation-system/).
    * @see goNextPageAutomatic
    * @see showPrevButton
+   * @see showCompleteButton
    */
   public get showNavigationButtons(): string | any {
     return this.getPropertyValue("showNavigationButtons");
@@ -1412,12 +1425,24 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies whether to display the Previous button. Set this property to `false` if respondents should not move backward along the survey.
    * @see showNavigationButtons
+   * @see showCompleteButton
    */
   public get showPrevButton(): boolean {
     return this.getPropertyValue("showPrevButton");
   }
   public set showPrevButton(val: boolean) {
     this.setPropertyValue("showPrevButton", val);
+  }
+  /**
+   * Specifies whether to display the Complete button. Set this property to `false` if respondents should not complete the survey.
+   * @see showNavigationButtons
+   * @see showPrevButton
+   */
+  public get showCompleteButton(): boolean {
+    return this.getPropertyValue("showCompleteButton", true);
+  }
+  public set showCompleteButton(val: boolean) {
+    this.setPropertyValue("showCompleteButton", val);
   }
   /**
    * Gets or sets the visibility of the table of contents.
@@ -1848,6 +1873,7 @@ export class SurveyModel extends SurveyElementCore
     return this.locale;
   }
   public locStrsChanged(): void {
+    if(this.isClearingUnsedValues) return;
     super.locStrsChanged();
     if (!this.currentPage) return;
     if (this.isDesignMode) {
@@ -2769,7 +2795,7 @@ export class SurveyModel extends SurveyElementCore
     this.setDataCore(newData);
   }
   public setDataCore(data: any, clearData: boolean = false): void {
-    if(clearData) {
+    if (clearData) {
       this.valuesHash = {};
     }
     if (data) {
@@ -3115,6 +3141,24 @@ export class SurveyModel extends SurveyElementCore
       this.currentPageChanged(newPage, oldValue);
     }
   }
+  public tryNavigateToPage(page: PageModel): boolean {
+    if (this.isDesignMode) return false;
+    const index = this.visiblePages.indexOf(page);
+    if (index < 0 || index >= this.visiblePageCount) return false;
+    if (index === this.currentPageNo) return false;
+    if (index < this.currentPageNo || this.isValidateOnComplete) {
+      this.currentPageNo = index;
+      return true;
+    }
+    for (let i = this.currentPageNo; i < index; i++) {
+      const page = this.visiblePages[i];
+      if (!page.validate(true, true)) return false;
+      page.passed = true;
+    }
+    this.currentPage = page;
+    return true;
+  }
+
   private updateCurrentPage(): void {
     if (this.isCurrentPageAvailable) return;
     this.currentPage = this.firstVisiblePage;
@@ -3969,7 +4013,7 @@ export class SurveyModel extends SurveyElementCore
    * @see showPreviewBeforeComplete
    * @see state
    */
-  public cancelPreview(currentPage: any = null) {
+  public cancelPreview(currentPage: any = null): void {
     if (!this.isShowingPreview) return;
     this.gotoPageFromPreview = currentPage;
     this.isShowingPreview = false;
@@ -4251,7 +4295,7 @@ export class SurveyModel extends SurveyElementCore
     const state = this.state;
     return this.isEditMode && (this.state === "running" &&
       (this.isLastPage && !this.isShowPreviewBeforeComplete || this.canBeCompletedByTrigger)
-      || state === "preview");
+      || state === "preview") && this.showCompleteButton;
   }
   private calcIsPreviewButtonVisible(): boolean {
     return (
@@ -6176,12 +6220,15 @@ export class SurveyModel extends SurveyElementCore
     var pos = Math.max(pos1, pos2);
     return name.substring(0, pos);
   }
+  private isClearingUnsedValues: boolean;
   private clearUnusedValues() {
+    this.isClearingUnsedValues = true;
     var questions = this.getAllQuestions();
     for (var i: number = 0; i < questions.length; i++) {
       questions[i].clearUnusedValues();
     }
     this.clearInvisibleQuestionValues();
+    this.isClearingUnsedValues = false;
   }
   hasVisibleQuestionByValueName(valueName: string): boolean {
     var questions = this.getQuestionsByValueName(valueName);
@@ -6293,7 +6340,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
-    if(this.isCreatingPagesForPreview) return;
+    if (this.isCreatingPagesForPreview) return;
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
@@ -6550,7 +6597,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.updateVisibleIndexes();
     this.setCalculatedWidthModeUpdater();
-    if (!this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2) {
+    if (this.canFireAddElement()) {
       this.onQuestionAdded.fire(this, {
         question: question,
         name: question.name,
@@ -6561,6 +6608,9 @@ export class SurveyModel extends SurveyElementCore
         rootPanel: rootPanel,
       });
     }
+  }
+  private canFireAddElement(): boolean {
+    return !this.isMovingQuestion || this.isDesignMode && !settings.supportCreatorV2;
   }
   questionRemoved(question: Question) {
     this.questionHashesRemoved(
@@ -6681,15 +6731,17 @@ export class SurveyModel extends SurveyElementCore
     }
     this.questionHashesPanelAdded(<PanelModelBase>(<any>panel));
     this.updateVisibleIndexes();
-    this.onPanelAdded.fire(this, {
-      panel: panel,
-      name: panel.name,
-      index: index,
-      parent: parentPanel,
-      page: rootPanel,
-      parentPanel: parentPanel,
-      rootPanel: rootPanel,
-    });
+    if (this.canFireAddElement()) {
+      this.onPanelAdded.fire(this, {
+        panel: panel,
+        name: panel.name,
+        index: index,
+        parent: parentPanel,
+        page: rootPanel,
+        parentPanel: parentPanel,
+        rootPanel: rootPanel,
+      });
+    }
   }
   panelRemoved(panel: PanelModel) {
     this.updateVisibleIndexes();
@@ -7038,7 +7090,7 @@ export class SurveyModel extends SurveyElementCore
     return this.getLocalizationFormatString(strName, surveySpent, surveyLimit);
   }
   private getDisplayClockTime(val: number): string {
-    if(val < 0) {
+    if (val < 0) {
       val = 0;
     }
     const min: number = Math.floor(val / 60);
@@ -7347,8 +7399,12 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push(layoutElement);
     return existingLayoutElement;
   }
-  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+  public findLayoutElement(layoutElementId: string): ISurveyLayoutElement {
     const layoutElement = this.layoutElements.filter(a => a.id === layoutElementId)[0];
+    return layoutElement;
+  }
+  public removeLayoutElement(layoutElementId: string): ISurveyLayoutElement {
+    const layoutElement = this.findLayoutElement(layoutElementId);
     if (!!layoutElement) {
       const layoutElementIndex = this.layoutElements.indexOf(layoutElement);
       this.layoutElements.splice(layoutElementIndex, 1);
@@ -7359,7 +7415,7 @@ export class SurveyModel extends SurveyElementCore
   public getContainerContent(container: LayoutElementContainer) {
     const containerLayoutElements = [];
     for (let layoutElement of this.layoutElements) {
-      if (isStrCiEqual(layoutElement.id, "timerpanel")) {
+      if (this.mode !== "display" && isStrCiEqual(layoutElement.id, "timerpanel")) {
         if (container === "header") {
           if (this.isTimerPanelShowingOnTop && !this.isShowStartingPage) {
             containerLayoutElements.push(layoutElement);
@@ -7371,7 +7427,7 @@ export class SurveyModel extends SurveyElementCore
           }
         }
       } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
-        const headerLayoutElement = this.layoutElements.filter(a => a.id === "advanced-header")[0];
+        const headerLayoutElement = this.findLayoutElement("advanced-header");
         const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
         let isBelowHeader = !advHeader || advHeader.hasBackground;
         if (container === "header" && !isBelowHeader) {
@@ -7471,6 +7527,14 @@ export class SurveyModel extends SurveyElementCore
     this.removeScrollEventListener();
     this.destroyResizeObserver();
     this.rootElement = undefined;
+    if (this.layoutElements) {
+      for (var i = 0; i < this.layoutElements.length; i++) {
+        if (!!this.layoutElements[i].data && this.layoutElements[i].data !== this && this.layoutElements[i].data.dispose) {
+          this.layoutElements[i].data.dispose();
+        }
+      }
+      this.layoutElements.splice(0, this.layoutElements.length);
+    }
     super.dispose();
     this.editingObj = null;
     if (!this.pages) return;
@@ -7680,7 +7744,7 @@ Serializer.addClass("survey", [
   {
     name: "checkErrorsMode",
     default: "onNextPage",
-    choices: ["onNextPage", "onValueChanged", "onValueChanging", "onComplete"],
+    choices: ["onNextPage", "onValueChanged", "onComplete"],
   },
   {
     name: "textUpdateMode",

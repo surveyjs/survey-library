@@ -24,11 +24,11 @@
 
 <script lang="ts" setup>
 import type { QuestionMultipleTextModel } from "survey-core";
-import { useQuestion } from "./base";
-import { computed, ref } from "vue";
+import { useComputedArray, useQuestion } from "./base";
+import { ref } from "vue";
 defineOptions({ inheritAttrs: false });
 const props = defineProps<{ question: QuestionMultipleTextModel }>();
 const root = ref(null);
-const rows = computed(() => props.question.getRows());
+const rows = useComputedArray(() => props.question.getRows());
 useQuestion(props, root);
 </script>

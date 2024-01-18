@@ -3,13 +3,15 @@
   background-repeat: no-repeat;
   background-position: center;
 }
+
 :root {
   --sjs-default-font-family: "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
+
 $font-family: var(--font-family, var(--sjs-default-font-family));
 
 @import "./common-styles/sv-progress-buttons.scss";
-@import "./common-styles/sv-progress-toc.scss";
+@import "./common-styles/sv-navigation-toc.scss";
 @import "./common-styles/window.scss";
 @import "./common-styles/sv-brand-info.scss";
 @import "./common-styles/sv-drag-drop.scss";
@@ -949,6 +951,7 @@ body {
 .sv_q_dropdown_control input[readonly] {
   pointer-events: none;
 }
+
 @import "./main.rtl.scss";
 @import "./main.m600.scss";
 

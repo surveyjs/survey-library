@@ -25,6 +25,7 @@ export var hungarianSurveyStrings = {
   requiredError: "Kérjük, válaszolja meg ezt a kérdést!",
   requiredErrorInPanel: "Kérjük, válaszoljon legalább egy kérdésre.",
   requiredInAllRowsError: "Kérjük adjon választ minden sorban!",
+  eachRowUniqueError: "Minden sornak egyedi értékkel kell rendelkeznie.",
   numericError: "Az érték szám kell, hogy legyen!",
   minError: "Az érték nem lehet kisebb, mint {0}",
   maxError: "Az érték nem lehet nagyobb, mint {0}",
@@ -42,6 +43,7 @@ export var hungarianSurveyStrings = {
   urlRequestError: "A lekérdezés hibával tért vissza: '{0}'. {1}",
   urlGetChoicesError: "A lekérdezés üres adattal tért vissza, vagy a 'path' paraméter helytelen.",
   exceedMaxSize: "A méret nem lehet nagyobb, mint {0}.",
+  noUploadFilesHandler: "A fájlok nem tölthetők fel. Adjon hozzá egy kezelőt az \"onUploadFiles\" eseményhez.",
   otherRequiredError: "Adja meg az egyéb értéket!",
   uploadingFile: "Feltöltés folyamatban. Várjon pár másodpercet, majd próbálja újra.",
   loadingFile: "Betöltés...",
@@ -56,6 +58,8 @@ export var hungarianSurveyStrings = {
   emptyRowsText: "Nincsenek sorok.",
   addPanel: "Új hozzáadása",
   removePanel: "Eltávolítás",
+  showDetails: "Mutasd a részleteket",
+  hideDetails: "Részletek elrejtése",
   choices_Item: "elem",
   matrix_column: "Oszlop",
   matrix_row: "Sor",
@@ -94,7 +98,9 @@ export var hungarianSurveyStrings = {
   more: "Több",
   tagboxDoneButtonCaption: "OKÉ",
   selectToRankEmptyRankedAreaText: "Minden választási lehetőség rangsorolva van",
-  selectToRankEmptyUnrankedAreaText: "Húzza ide a választási lehetőségeket a rangsoroláshoz"
+  selectToRankEmptyUnrankedAreaText: "Húzza ide a választási lehetőségeket a rangsoroláshoz",
+  ok: "OKÉ",
+  cancel: "Érvénytelenít"
 };
 
 surveyLocalization.locales["hu"] = hungarianSurveyStrings;
@@ -122,4 +128,9 @@ surveyLocalization.localeNames["hu"] = "magyar";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Húzza ide a választási lehetőségeket a rangsoroláshoz"// takePhotoCaption: "Take Photo" => "Fotó készítése"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kattintson az alábbi gombra, hogy fényképet készítsen a fényképezőgéppel."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Húzzon át vagy válasszon ki egy fájlt, amelyet fel szeretne tölteni vagy fényképet szeretne készíteni a kamerával."
-// replaceFileCaption: "Replace file" => "Fájl cseréje"
+// replaceFileCaption: "Replace file" => "Fájl cseréje"// eachRowUniqueError: "Each row must have a unique value." => "Minden sornak egyedi értékkel kell rendelkeznie."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "A fájlok nem tölthetők fel. Adjon hozzá egy kezelőt az \"onUploadFiles\" eseményhez."
+// showDetails: "Show Details" => "Mutasd a részleteket"
+// hideDetails: "Hide Details" => "Részletek elrejtése"
+// ok: "OK" => "OKÉ"
+// cancel: "Cancel" => "Érvénytelenít"

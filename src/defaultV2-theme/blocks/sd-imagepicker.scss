@@ -96,6 +96,7 @@
   display: block;
   box-sizing: border-box;
   max-width: 100%;
+  transition: opacity 250ms;
 }
 
 .sd-imagepicker__text {

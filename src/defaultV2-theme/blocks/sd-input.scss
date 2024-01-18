@@ -81,6 +81,10 @@ textarea {
   padding-inline-end: calcSize(8);
 }
 
+.sd-text__character-counter.sd-text__character-counter--big:focus-within {
+  padding-inline-end: calcSize(11);
+}
+
 .sd-remaining-character-counter {
   display: none;
   flex-direction: row;

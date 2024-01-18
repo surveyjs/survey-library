@@ -120,7 +120,7 @@
   fill: $foreground;
   font-size: calcFontSize(1);
   box-shadow: $shadow-small, inset 0 0 0 0px $background;
-  transition: border 250ms, box-shadow 250ms;
+  transition: border 250ms, box-shadow 250ms, background-color 250ms;
 }
 
 .sd-rating__item--fixed-size {
@@ -188,7 +188,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   color: $foreground;
   fill: $border;
   box-shadow: $shadow-small-reset, inset 0 0 0 0px $background;
-  transition: border 250ms, box-shadow 250ms;
+  transition: border 250ms, box-shadow 250ms, background-color 250ms;
 
   svg {
     display: block;
@@ -295,12 +295,12 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
   svg {
     stroke: $border;
-    fill: none;
+    fill: transparent;
     width: calcSize(6);
     height: calcSize(6);
     display: block;
     position: absolute;
-    transition: stroke 250ms, opacity 250ms;
+    transition: stroke 250ms, opacity 250ms, fill 250ms;
   }
 
   .sv-star {

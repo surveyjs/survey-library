@@ -20,7 +20,7 @@
   outline: none;
 
   box-shadow: $shadow-small, 0 0 0 0px $primary;
-  transition: box-shadow 250ms;
+  transition: box-shadow 250ms, background 250ms;
 }
 
 .sd-btn--small {

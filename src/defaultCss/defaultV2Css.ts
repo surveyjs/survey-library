@@ -324,6 +324,7 @@ export var defaultV2Css = {
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
     constrolWithCharacterCounter: "sd-text__character-counter",
+    characterCounterBig: "sd-text__character-counter--big",
     content: "sd-text__content sd-question__content",
     remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"

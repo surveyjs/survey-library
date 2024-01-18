@@ -838,36 +838,8 @@ export class MatrixDropdownColumn extends Base
     }
   }
   private addProperties(curCellType: string) {
-    var question = this.templateQuestion;
-    var properties = this.getProperties(curCellType);
-    for (var i = 0; i < properties.length; i++) {
-      var prop = properties[i];
-      this.addProperty(question, prop.name, false);
-      if (prop.serializationProperty) {
-        this.addProperty(question, prop.serializationProperty, true);
-      }
-      if (prop.alternativeName) {
-        this.addProperty(question, prop.alternativeName, false);
-      }
-    }
-  }
-  private addProperty(
-    question: Question,
-    propName: string,
-    isReadOnly: boolean
-  ) {
-    var desc = {
-      configurable: true,
-      get: function () {
-        return (<any>question)[propName];
-      },
-    };
-    if (!isReadOnly) {
-      (<any>desc)["set"] = function (v: any) {
-        (<any>question)[propName] = v;
-      };
-    }
-    Object.defineProperty(this, propName, desc);
+    const props = this.getProperties(curCellType);
+    Serializer.addDynamicPropertiesIntoObj(this, this.templateQuestion, props);
   }
 }
 

@@ -61,10 +61,17 @@ Make sure that you have Node.js v14 or later and a compatible npm version instal
     npm install
     ```
 
+1. **Build the [platform-independent part](https://github.com/surveyjs/survey-library/blob/master/build-scripts/survey-core/README.md#survey-model-platform-independent-part) and plugins**
+
+    ```
+    npm run build_core
+    npm run build-plugins
+    ```
+
 1. **Build the library**
 
     ```
-    npm run build_prod
+    npm run build
     ```
 
     You can find the built scripts and style sheets in folders under the `build` directory.
@@ -72,7 +79,7 @@ Make sure that you have Node.js v14 or later and a compatible npm version instal
 1. **Run test examples**
 
     ```
-    npm start
+    npm run serve
     ```
 
     This command runs a local HTTP server at http://localhost:7777/.

@@ -1,15 +1,15 @@
 import * as React from "react";
-import { SurveyProgressButtonsModel, PageModel } from "survey-core";
+import { ProgressButtons, PageModel } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 
 export class SurveyProgressButtons extends SurveyNavigationBase {
-  private progressButtonsModel: SurveyProgressButtonsModel;
+  private progressButtonsModel: ProgressButtons;
   private updateScroller: any = undefined;
   private listContainerRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
-    this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
+    this.progressButtonsModel = new ProgressButtons(this.survey);
     this.listContainerRef = React.createRef();
   }
   render(): JSX.Element {
@@ -91,13 +91,13 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     listContainerElement: Element | null,
     isLeftScroll: boolean
   ): void {
-    if(!!listContainerElement) {
+    if (!!listContainerElement) {
       listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
     }
   }
   componentDidMount() {
     this.updateScroller = setInterval(() => {
-      if(!!this.listContainerRef.current) {
+      if (!!this.listContainerRef.current) {
         this.setState({ hasScroller: this.listContainerRef.current.scrollWidth > this.listContainerRef.current.offsetWidth, });
       }
     }, 100);

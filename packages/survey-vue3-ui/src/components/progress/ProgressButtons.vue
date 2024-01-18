@@ -44,13 +44,13 @@
 </template>
 
 <script lang="ts" setup>
-import { type SurveyModel, SurveyProgressButtonsModel } from "survey-core";
+import { type SurveyModel, ProgressButtons } from "survey-core";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
 }>();
-const progressButtonsModel = new SurveyProgressButtonsModel(props.survey);
+const progressButtonsModel = new ProgressButtons(props.survey);
 const hasScroller = ref(false);
 const progressButtonsListContainer = ref<HTMLElement>();
 const css = computed(() => props.survey.css);

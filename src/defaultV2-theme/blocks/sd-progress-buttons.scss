@@ -14,11 +14,27 @@
   display: none;
 }
 
-.sd-progress-buttons__list {
-  display: flex;
-  flex-direction: row;
+.sd-progress-buttons {
   padding: calcSize(4) calcSize(5) calcSize(2) calcSize(5);
+  display: flex;
+  flex-direction: column;
+}
+
+.sd-progress-buttons__list-container {
+  display: flex;
+  overflow: hidden;
+}
+
+.sd-progress-buttons__connector {
+  display: none;
+}
+
+.sd-progress-buttons__list {
+  display: inline-flex;
+  flex-direction: row;
+  flex-grow: 1;
   margin: 0 auto;
+  padding: 0;
 
   li {
     display: flex;
@@ -30,7 +46,7 @@
     text-align: center;
     flex-direction: column;
 
-    &:not(:first-child):before {
+    &:not(:first-child)>.sd-progress-buttons__connector {
       display: block;
       content: "";
       width: 100%;
@@ -62,7 +78,7 @@
   }
 
   .sd-progress-buttons__list-element--passed {
-    &:not(:first-child):before {
+    &:not(:first-child)>.sd-progress-buttons__connector {
       background-color: $primary;
     }
 
@@ -72,7 +88,7 @@
   }
 
   .sd-progress-buttons__list-element--current {
-    &:not(:first-child):before {
+    &:not(:first-child)>.sd-progress-buttons__connector {
       background-color: $primary;
     }
 
@@ -99,14 +115,30 @@
   margin-bottom: calcSize(2);
 }
 
-.sd-progress-buttons--bottom {
-  .sd-progress-buttons__list {
-    padding: calcSize(2) calcSize(5) calcSize(4) calcSize(5);
+.sd-progress-buttons__header {
+  .sd-progress-buttons__page-title {
+    margin-bottom: calcSize(1);
+  }
+}
 
+.sd-progress-buttons__footer {
+  .sd-progress-buttons__page-title {
+    margin-top: calcSize(1);
+    margin-bottom: 0;
+    justify-content: flex-end;
+    padding: 0;
+  }
+}
+
+.sd-progress-buttons--bottom {
+  padding: calcSize(2) calcSize(5) calcSize(4) calcSize(5);
+  flex-direction: column-reverse;
+
+  .sd-progress-buttons__list {
     li {
       flex-direction: column-reverse;
 
-      &:not(:first-child):before {
+      &:not(:first-child)>.sd-progress-buttons__connector {
         top: calcSize(0.875);
       }
     }
@@ -116,12 +148,26 @@
     margin-top: calcSize(2);
     margin-bottom: 0;
   }
+
+  .sd-progress-buttons__header {
+    .sd-progress-buttons__page-title {
+      margin-top: calcSize(1);
+      margin-bottom: 0;
+    }
+  }
+
+  .sd-progress-buttons__footer {
+    .sd-progress-buttons__page-title {
+      margin-top: 0;
+      margin-bottom: calcSize(1);
+    }
+  }
 }
 
 .sd-progress-buttons--numbered {
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child):before {
+      &:not(:first-child)>.sd-progress-buttons__connector {
         bottom: calcSize(1.875);
       }
 
@@ -133,16 +179,32 @@
   }
 }
 
+.sd-progress-buttons--no-titles {
+  .sd-progress-buttons__list {
+    justify-content: space-between;
+    width: 100%;
+
+    li {
+      flex-grow: 0;
+    }
+  }
+}
+
 .sd-progress-buttons--bottom.sd-progress-buttons--numbered {
   .sd-progress-buttons__list {
     li {
-      &:not(:first-child):before {
+      &:not(:first-child)>.sd-progress-buttons__connector {
         top: calcSize(1.875);
       }
     }
   }
 }
 
+.sd-root-modern--mobile {
+  .sd-progress-buttons {
+    padding: calcSize(2) calcSize(3);
+  }
+}
 
 // .sd-progress-buttons__list {
 //   display: flex;

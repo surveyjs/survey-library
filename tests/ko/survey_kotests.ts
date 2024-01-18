@@ -25,7 +25,7 @@ import * as ko from "knockout";
 import { ItemValue } from "../../src/itemvalue";
 import { StylesManager } from "../../src/stylesmanager";
 import { settings } from "../../src/settings";
-import { SurveyProgressButtonsModel } from "../../src/surveyProgressButtons";
+import { ProgressButtons } from "../../src/progress-buttons";
 
 export default QUnit.module("koTests");
 
@@ -1900,23 +1900,26 @@ QUnit.test("ProgressButtonsViewModel component scroll button", function (
   StylesManager.applyTheme("default");
   let survey: Survey = new Survey(json);
   let progress: ProgressButtonsViewModel = new ProgressButtonsViewModel(
-    new SurveyProgressButtonsModel(survey as any),
+    new ProgressButtons(survey as any),
     {
       querySelector: function () {
         return undefined;
       },
-    }
+      querySelectorAll: function () {
+        return [] as any;
+      },
+    } as any
   );
   progress.dispose();
   assert.equal(
-    progress.getScrollButtonCss(true)(),
+    progress.getScrollButtonCss(true),
     survey.css.progressButtonsImageButtonLeft +
     " " +
     survey.css.progressButtonsImageButtonHidden,
     "1) Scroll button left style is hidden"
   );
   assert.equal(
-    progress.getScrollButtonCss(false)(),
+    progress.getScrollButtonCss(false),
     survey.css.progressButtonsImageButtonRight +
     " " +
     survey.css.progressButtonsImageButtonHidden,
@@ -1925,12 +1928,12 @@ QUnit.test("ProgressButtonsViewModel component scroll button", function (
 
   progress["hasScroller"](true);
   assert.equal(
-    progress.getScrollButtonCss(true)(),
+    progress.getScrollButtonCss(true),
     survey.css.progressButtonsImageButtonLeft,
     "2) Scroll button left style is visible"
   );
   assert.equal(
-    progress.getScrollButtonCss(false)(),
+    progress.getScrollButtonCss(false),
     survey.css.progressButtonsImageButtonRight,
     "2) Scroll button right style is visible"
   );

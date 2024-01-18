@@ -89,7 +89,7 @@ import PopupPointer from "./components/popup/PopupPointer.vue";
 import Container from "./components/Container.vue";
 
 import Progress from "./components/progress/Progress.vue";
-import ProgressButtons from "./components/progress/ProgressButtons.vue";
+import ProgressButtonsComponent from "./components/progress/ProgressButtonsComponent.vue";
 import ProgressToc from "./components/progress/ProgressToc.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
@@ -214,7 +214,7 @@ function registerComponents(app: App) {
 
   app.component("sv-components-container", Container);
 
-  app.component("sv-progress-buttons", ProgressButtons);
+  app.component("sv-progress-buttons", ProgressButtonsComponent);
   app.component("sv-navigation-toc", ProgressToc);
   app.component("sv-progress-pages", Progress);
   app.component("sv-progress-questions", Progress);

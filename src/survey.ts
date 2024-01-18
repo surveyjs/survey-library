@@ -76,7 +76,7 @@ import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
-import { SurveyProgressButtonsModel } from "./surveyProgressButtons";
+import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 
 /**
@@ -966,7 +966,7 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
-    this.progressBarValue = new SurveyProgressButtonsModel(this);
+    this.progressBarValue = new ProgressButtons(this);
 
     this.layoutElements.push({
       id: "timerpanel",
@@ -2605,9 +2605,13 @@ export class SurveyModel extends SurveyElementCore
    * Possible values:
    *
    * - `"off"` (default) - Hides the progress bar.
-   * - `"top"` - Displays the progress bar above survey content.
+   * - `"top"` - Displays the progress bar above survey content (obsolete).
+   * - `"aboveHeader"` - Displays the progress bar .
+   * - `"belowHeader"` - Displays the progress bar .
    * - `"bottom"` - Displays the progress bar below survey content.
-   * - `"both"` - Displays the progress bar above and below survey content.
+   * - `"topBottom"` - Displays the progress bar .
+   * - `"both"` - Displays the progress bar above and below survey content (obsolete).
+   * - `"auto"` - Displays the progress bar .
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
    * @see progressBarType
@@ -2628,7 +2632,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"questions"` - The number of answered questions.
    * - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
    * - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
-   * - `"buttons"` - Adds jump links to the progress bar.
+   * - `"buttons"` - Adds jump links to the progress bar (obsolete).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
    * @see progressValue
@@ -2639,8 +2643,14 @@ export class SurveyModel extends SurveyElementCore
   public set progressBarType(newValue: string) {
     if (newValue === "correctquestion") newValue = "correctQuestion";
     if (newValue === "requiredquestion") newValue = "requiredQuestion";
+    // if (newValue === "buttons") {
+    //   newValue = "pages";
+    //   this.progressBarShowPageTitles = true;
+    // }
     this.setPropertyValue("progressBarType", newValue);
   }
+  @property() progressBarShowPageTitles: boolean;
+  @property() progressBarShowPageNumbers: boolean;
   public get isShowProgressBarOnTop(): boolean {
     if (!this.canShowProresBar()) return false;
     return this.showProgressBar === "top" || this.showProgressBar === "both";
@@ -7709,7 +7719,7 @@ Serializer.addClass("survey", [
   {
     name: "showProgressBar",
     default: "off",
-    choices: ["off", "top", "bottom", "both"],
+    choices: ["off", "auto", "aboveHeader", "belowHeader", "bottom", "topBottom"],
   },
   {
     name: "progressBarType",
@@ -7719,9 +7729,10 @@ Serializer.addClass("survey", [
       "questions",
       "requiredQuestions",
       "correctQuestions",
-      "buttons",
     ],
   },
+  { name: "progressBarShowPageTitles:switch" },
+  { name: "progressBarShowPageNumbers:switch", default: false },
   {
     name: "showTOC:switch",
     default: false

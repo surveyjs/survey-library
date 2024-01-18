@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from "@angular/core";
 import { AngularComponentFactory } from "../../../component-factory";
-import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
+import { SurveyModel, ProgressButtons } from "survey-core";
 
 @Component({
   selector: "sv-ng-progress-buttons",
@@ -9,13 +9,13 @@ import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnChanges, OnInit {
   @Input() model!: SurveyModel;
   @ViewChild("progressButtonsListContainer") progressButtonsListContainer!: ElementRef<HTMLDivElement>;
-  private progressButtonsModel!: SurveyProgressButtonsModel;
+  private progressButtonsModel!: ProgressButtons;
   private hasScroller: boolean = false;
   private updateScroller: any = undefined;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
   }
   private createProgressButtonsModel() {
-    this.progressButtonsModel = new SurveyProgressButtonsModel(this.model);
+    this.progressButtonsModel = new ProgressButtons(this.model);
   }
   ngOnInit(): void {
     this.createProgressButtonsModel();
@@ -38,14 +38,14 @@ export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnCha
   public clickScrollButton(
     isLeftScroll: boolean
   ): void {
-    if(this.progressButtonsListContainer) {
+    if (this.progressButtonsListContainer) {
       this.progressButtonsListContainer.nativeElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
     }
   }
   public ngAfterViewInit(): void {
-    this.progressButtonsModel = new SurveyProgressButtonsModel(this.model);
+    this.progressButtonsModel = new ProgressButtons(this.model);
     this.updateScroller = setInterval(() => {
-      if(!!this.progressButtonsListContainer?.nativeElement) {
+      if (!!this.progressButtonsListContainer?.nativeElement) {
         const listContainerElement = this.progressButtonsListContainer.nativeElement;
         this.hasScroller = listContainerElement.scrollWidth > listContainerElement.offsetWidth;
         this.changeDetectorRef.detectChanges();

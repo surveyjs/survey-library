@@ -46,17 +46,17 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
+import { SurveyModel, ProgressButtons } from "survey-core";
 
 @Component
-export class ProgressButtons extends Vue {
+export class ProgressButtonsComponent extends Vue {
   @Prop() survey: SurveyModel;
   public hasScroller: boolean = false;
-  private progressButtonsModel: SurveyProgressButtonsModel;
+  private progressButtonsModel: ProgressButtons;
   private updateScroller: any = undefined;
   constructor() {
     super();
-    this.progressButtonsModel = new SurveyProgressButtonsModel(this.survey);
+    this.progressButtonsModel = new ProgressButtons(this.survey);
   }
   public get css() {
     return this.survey.css;
@@ -92,6 +92,6 @@ export class ProgressButtons extends Vue {
   }
 }
 
-Vue.component("sv-progress-buttons", ProgressButtons);
-export default ProgressButtons;
+Vue.component("sv-progress-buttons", ProgressButtonsComponent);
+export default ProgressButtonsComponent;
 </script>

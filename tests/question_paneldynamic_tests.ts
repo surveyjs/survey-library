@@ -6628,3 +6628,52 @@ QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
   question.comment = "comment2";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment2" }], "panel.value #4");
 });
+QUnit.test("panel dynamic & getQuestionFromArray with non-build panels, #7693", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            panelCount: 1,
+            templateElements: [
+              { name: "q2", type: "text" }
+            ]
+          }
+        ]
+      }
+    ] });
+  const dynamicPanel = survey.getQuestionByName("panel");
+  assert.notOk(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet");
+  survey.currentPageNo = 1;
+  assert.equal(dynamicPanel.getQuestionFromArray("q2", 0).name, "q2", "Panels are created");
+});
+QUnit.test("panel dynamic & addPanel/removePanel with non-build panels, #7693", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            panelCount: 1,
+            templateElements: [
+              { name: "q2", type: "text" }
+            ]
+          }
+        ]
+      }
+    ] });
+  const dynamicPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(dynamicPanel.panelCount, 1, "panelCount #1");
+  assert.notOk(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet");
+  dynamicPanel.addPanel();
+  dynamicPanel.addPanel(1);
+  assert.equal(dynamicPanel.panelCount, 3, "panelCount #2");
+  dynamicPanel.removePanel(1);
+  assert.equal(dynamicPanel.panelCount, 2, "panelCount #3");
+  assert.equal(dynamicPanel.getQuestionFromArray("q2", 0).name, "q2", "Panels are created");
+});

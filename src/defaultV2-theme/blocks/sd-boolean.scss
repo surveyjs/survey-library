@@ -87,11 +87,13 @@
 
 .sd-boolean__thumb-ghost {
   z-index: 1;
+  border-radius: calcSize(12.5);
+  background-color: transparent;
+  transition: background-color $transition-duration;
 }
 
 .sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover {
   background-color: $background-dim-dark;
-  border-radius: calcSize(12.5);
 }
 
 .sd-boolean--error {

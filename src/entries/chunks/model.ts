@@ -215,7 +215,7 @@ export { SurveyTimer } from "../../surveytimer";
 export { SurveyTimerModel } from "../../surveyTimerModel";
 export * from "../../surveyToc";
 export { SurveyProgressModel } from "../../surveyProgress";
-export { ProgressButtons } from "../../progress-buttons";
+export { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "../../progress-buttons";
 export * from "../../themes";
 export { SurveyModel } from "../../survey";
 export * from "../../survey-events-api";

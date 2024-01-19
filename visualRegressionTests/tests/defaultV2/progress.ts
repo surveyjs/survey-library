@@ -36,7 +36,7 @@ const json = {
     ]
   }, {
     "name": "page2",
-    "navigationTitle": "Shipping",
+    "navigationTitle": "Shipping information",
     "title": "Shipping",
     "navigationDescription": "Enter shipping information.",
     "elements": [
@@ -49,7 +49,7 @@ const json = {
     ]
   }, {
     "name": "page3",
-    "navigationTitle": "Payment",
+    "navigationTitle": "Payment method",
     "navigationDescription": "Select a payment method.",
     "elements": [
       {
@@ -138,6 +138,34 @@ frameworks.forEach(framework => {
       await initSurvey(framework, json);
       await t.click(Selector("li").nth(1));
       await takeElementScreenshot("survey-progress-bar-top-buttons.png", Selector(".sd-container-modern"), t, comparer);
+      await t.resizeWindow(500, 1080);
+      await takeElementScreenshot("survey-progress-bar-top-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
+    });
+  });
+  test("Check survey with progress top buttons with numbers", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.progressBarShowPageNumbers = true;
+      })();
+      await t.click(Selector("li").nth(1));
+      await takeElementScreenshot("survey-progress-bar-top-numbered-buttons.png", Selector(".sd-container-modern"), t, comparer);
+      await t.resizeWindow(500, 1080);
+      await takeElementScreenshot("survey-progress-bar-top-numbered-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
+    });
+  });
+  test("Check survey with progress top and bottom buttons", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, json);
+      await ClientFunction(() => {
+        (<any>window).survey.showProgressBar = "topBottom";
+      })();
+      await t.click(Selector("li").nth(1));
+      await takeElementScreenshot("survey-progress-bar-top-bottom-buttons.png", Selector(".sd-container-modern"), t, comparer);
+      await t.resizeWindow(500, 1080);
+      await takeElementScreenshot("survey-progress-bar-top-bottom-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
   test("Check survey with progress top and TOC", async (t) => {

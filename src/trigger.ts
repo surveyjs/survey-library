@@ -74,6 +74,10 @@ export class Trigger extends Base {
     }
     return res;
   }
+  public isGhost: boolean;
+  protected get isInternal(): boolean {
+    return this.isGhost === true;
+  }
   public get operator(): string {
     return this.getPropertyValue("operator", "equal");
   }

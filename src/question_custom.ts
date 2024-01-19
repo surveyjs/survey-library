@@ -1,5 +1,5 @@
 import { Question, IConditionObject } from "./question";
-import { Serializer, CustomPropertiesCollection } from "./jsonobject";
+import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -82,6 +82,7 @@ export interface ICustomQuestionTypeConfiguration {
    * ```
    */
   defaultQuestionTitle?: any;
+  inheritBaseProps?: false | true | Array<string>;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    *
@@ -239,6 +240,7 @@ export interface ICustomQuestionTypeConfiguration {
 }
 
 export class ComponentQuestionJSON {
+  private dynamicProperties: Array<JsonObjectProperty>;
   public constructor(public name: string, public json: ICustomQuestionTypeConfiguration) {
     var self = this;
     Serializer.addClass(
@@ -330,6 +332,34 @@ export class ComponentQuestionJSON {
   }
   public get isComposite(): boolean {
     return !!this.json.elementsJSON || !!this.json.createElements;
+  }
+  public getDynamicProperties(): Array<JsonObjectProperty> {
+    if(!Array.isArray(this.dynamicProperties)) {
+
+    }
+    this.dynamicProperties = this.calcDynamicProperties();
+    return this.dynamicProperties;
+  }
+  private calcDynamicProperties(): Array<JsonObjectProperty> {
+    const baseProps = this.json.inheritBaseProps;
+    if(!baseProps || !this.json.questionJSON) return [];
+    const type = this.json.questionJSON.type;
+    if(!type) return [];
+    if(Array.isArray(baseProps)) {
+      const props: Array<JsonObjectProperty> = [];
+      baseProps.forEach(name => {
+        const prop = Serializer.findProperty(type, name);
+        if(prop) {
+          props.push(prop);
+        }
+      });
+      return props;
+    }
+    const invalidNames = [];
+    for(let key in this.json.questionJSON) {
+      invalidNames.push(key);
+    }
+    return Serializer.getDynamicPropertiesByTypes(this.name, type, invalidNames);
   }
 }
 
@@ -681,8 +711,15 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getTemplate(): string {
     return "custom";
   }
-  protected createWrapper() {
+  public getDynamicProperties(): Array<JsonObjectProperty> {
+    return this.customQuestion.getDynamicProperties() || [];
+  }
+  public getDynamicType(): string {
+    return this.questionWrapper ? this.questionWrapper.getType() : "question";
+  }
+  protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
+    this.createDynamicProperties(this.questionWrapper);
   }
   protected getElement(): SurveyElement {
     return this.contentQuestion;
@@ -841,6 +878,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       (<any>this.contentQuestion).setValueChangedDirectly(val);
     }
     this.isSettingValueChanged = false;
+  }
+  private createDynamicProperties(el: SurveyElement): void {
+    if(!el) return;
+    const props = this.getDynamicProperties();
+    if(Array.isArray(props)) {
+      Serializer.addDynamicPropertiesIntoObj(this, el, props);
+    }
   }
   protected initElement(el: SurveyElement): void {
     super.initElement(el);

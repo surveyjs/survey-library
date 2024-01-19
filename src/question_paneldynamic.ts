@@ -808,9 +808,8 @@ export class QuestionPanelDynamicModel extends Question
         }
       }
     }
-    let removedPanels:Array<PanelModel> = [];
     if (val < this.panelCount) {
-      removedPanels = this.panelsCore.splice(val, this.panelCount - val);
+      this.panelsCore.splice(val, this.panelCount - val);
     }
     this.setValueAfterPanelsCreating();
     this.setValueBasedOnPanelCount();
@@ -1409,7 +1408,7 @@ export class QuestionPanelDynamicModel extends Question
     }
   }
   public getQuestionFromArray(name: string, index: number): IQuestion {
-    if (index >= this.panelCount) return null;
+    if (index < 0 || index >= this.panelsCore.length) return null;
     return this.panelsCore[index].getQuestionByName(name);
   }
   private clearIncorrectValuesInPanel(index: number) {

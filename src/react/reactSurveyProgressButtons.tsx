@@ -1,23 +1,41 @@
 import * as React from "react";
-import { ProgressButtons, PageModel } from "survey-core";
+import { ProgressButtons, PageModel, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
 import { SurveyNavigationBase } from "./reactSurveyNavigationBase";
 import { ReactElementFactory } from "./element-factory";
 
-export class SurveyProgressButtons extends SurveyNavigationBase {
-  private progressButtonsModel: ProgressButtons;
-  private updateScroller: any = undefined;
+export class SurveyProgressButtons extends SurveyNavigationBase implements IProgressButtonsViewModel {
+  private respManager: ProgressButtonsResponsivityManager;
   private listContainerRef: React.RefObject<HTMLDivElement>;
   constructor(props: any) {
     super(props);
-    this.progressButtonsModel = new ProgressButtons(this.survey);
     this.listContainerRef = React.createRef();
+  }
+  protected get model(): ProgressButtons {
+    return this.props.model;
+  }
+  get container(): string {
+    return this.props.container;
+  }
+  onResize(canShowItemTitles: boolean): void {
+    this.setState({ canShowItemTitles });
+    this.setState({ canShowHeader: !canShowItemTitles });
+  }
+  onUpdateScroller(hasScroller: boolean): void {
+    this.setState({ hasScroller });
+  }
+  onUpdateSettings(): void {
+    this.setState({ canShowItemTitles: this.model.showItemTitles });
+    this.setState({ canShowFooter: !this.model.showItemTitles });
   }
   render(): JSX.Element {
     return (
-      <div className={this.css.progressButtonsContainerCenter}>
+      <div className={this.model.getRootCss(this.props.container)} role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-label="progress">
+        {this.state.canShowHeader ? <div className={this.css.progressButtonsHeader}>
+          <div className={this.css.progressButtonsPageTitle} title={this.model.headerText}>{this.model.headerText}</div>
+        </div> : null}
         <div className={this.css.progressButtonsContainer}>
           <div
-            className={this.getScrollButtonCss(true)}
+            className={this.model.getScrollButtonCss(this.state.hasScroller, true)}
             role="button"
             onClick={() =>
               this.clickScrollButton(this.listContainerRef.current, true)
@@ -32,13 +50,16 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
             </ul>
           </div>
           <div
-            className={this.getScrollButtonCss(false)}
+            className={this.model.getScrollButtonCss(this.state.hasScroller, false)}
             role="button"
             onClick={() =>
               this.clickScrollButton(this.listContainerRef.current, false)
             }
           ></div>
         </div>
+        {this.state.canShowFooter ? <div className={this.css.progressButtonsFooter}>
+          <div className={this.css.progressButtonsPageTitle} title={this.model.footerText}>{this.model.footerText}</div>
+        </div> : null}
       </div>
     );
   }
@@ -53,39 +74,31 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     return (
       <li
         key={"listelement" + index}
-        className={this.getListElementCss(index)}
+        className={this.model.getListElementCss(index)}
         onClick={
-          this.isListElementClickable(index)
-            ? () => this.clickListElement(index)
+          this.model.isListElementClickable(index)
+            ? () => this.model.clickListElement(page)
             : undefined
         }
+        data-page-number={this.model.getItemNumber(page)}
       >
-        <div
-          className={this.css.progressButtonsPageTitle}
-          title={page.renderedNavigationTitle}
-        >
-          {page.renderedNavigationTitle}
-        </div>
-        <div
-          className={this.css.progressButtonsPageDescription}
-          title={page.navigationDescription}
-        >
-          {page.navigationDescription}
-        </div>
+        <div className={this.css.progressButtonsConnector}></div>
+        {this.state.canShowItemTitles ? <>
+          <div
+            className={this.css.progressButtonsPageTitle}
+            title={page.renderedNavigationTitle}
+          >
+            {page.renderedNavigationTitle}
+          </div>
+          <div
+            className={this.css.progressButtonsPageDescription}
+            title={page.navigationDescription}
+          >
+            {page.navigationDescription}
+          </div>
+        </> : null}
       </li>
     );
-  }
-  protected isListElementClickable(index: number): boolean {
-    return this.progressButtonsModel.isListElementClickable(index);
-  }
-  protected getListElementCss(index: number): string {
-    return this.progressButtonsModel.getListElementCss(index);
-  }
-  protected clickListElement(index: number): void {
-    this.progressButtonsModel.clickListElement(index);
-  }
-  protected getScrollButtonCss(isLeftScroll: boolean): string {
-    return this.progressButtonsModel.getScrollButtonCss(this.state.hasScroller, isLeftScroll);
   }
   protected clickScrollButton(
     listContainerElement: Element | null,
@@ -96,17 +109,14 @@ export class SurveyProgressButtons extends SurveyNavigationBase {
     }
   }
   componentDidMount() {
-    this.updateScroller = setInterval(() => {
-      if (!!this.listContainerRef.current) {
-        this.setState({ hasScroller: this.listContainerRef.current.scrollWidth > this.listContainerRef.current.offsetWidth, });
-      }
-    }, 100);
+    super.componentDidMount();
+    setTimeout(() => {
+      this.respManager = new ProgressButtonsResponsivityManager(this.model, this.listContainerRef.current as any, this);
+    }, 10);
   }
   componentWillUnmount() {
-    if (typeof this.updateScroller !== "undefined") {
-      clearInterval(this.updateScroller);
-      this.updateScroller = undefined;
-    }
+    this.respManager.dispose();
+    super.componentWillUnmount();
   }
 }
 

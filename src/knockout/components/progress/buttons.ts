@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { PageModel, ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
+import { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
 const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel implements IProgressButtonsViewModel {

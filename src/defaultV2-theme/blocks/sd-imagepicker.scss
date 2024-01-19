@@ -59,7 +59,7 @@
   border-radius: 100%;
   background-color: $background;
   z-index: 1;
-  transition: opacity 250ms;
+  transition: opacity $transition-duration;
 }
 
 .sd-imagepicker__check-icon {
@@ -96,7 +96,7 @@
   display: block;
   box-sizing: border-box;
   max-width: 100%;
-  transition: opacity 250ms;
+  transition: opacity $transition-duration;
 }
 
 .sd-imagepicker__text {

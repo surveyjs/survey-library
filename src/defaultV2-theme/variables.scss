@@ -112,6 +112,13 @@ $font-editorfont-size: var(--sjs-internal-font-editorfont-size);
 
 $sd-panel-normal-min-width: 496px;
 $sd-panel-medium-min-width: 176px;
+
+:root {
+  --sjs-transition-duration: 250ms;
+}
+$transition-duration: var(--sjs-transition-duration, 250ms);
+
+
 @mixin useEditorFontSize {
   --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});
 }

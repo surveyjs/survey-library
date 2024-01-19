@@ -14,7 +14,7 @@
   font-size: $font-questiontitle-size;
   line-height: multiply(1.5, $font-questiontitle-size);
   outline: none;
-  transition: background-color 250ms;
+  transition: background-color $transition-duration;
 }
 
 .sd-action--negative {
@@ -40,7 +40,7 @@
 
   use {
     fill: $font-questiondescription-color;
-    transition: fill 250ms;
+    transition: fill $transition-duration;
   }
 }
 

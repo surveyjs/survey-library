@@ -16,7 +16,7 @@
   flex-shrink: 0;
   margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - calcSize(3)) / 2);
   box-shadow: $shadow-inner, 0 0 0 0px $primary;
-  transition: box-shadow 250ms/*, background 250ms*/;
+  transition: box-shadow $transition-duration/*, background $transition-duration*/;
 }
 
 .sd-radio__decorator:after {

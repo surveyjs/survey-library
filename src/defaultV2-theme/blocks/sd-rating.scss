@@ -120,7 +120,7 @@
   fill: $foreground;
   font-size: calcFontSize(1);
   box-shadow: $shadow-small, inset 0 0 0 0px $background;
-  transition: border 250ms, box-shadow 250ms;
+  transition: border $transition-duration, box-shadow $transition-duration;
 }
 
 .sd-rating__item--fixed-size {
@@ -188,7 +188,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   color: $foreground;
   fill: $border;
   box-shadow: $shadow-small-reset, inset 0 0 0 0px $background;
-  transition: border 250ms, box-shadow 250ms;
+  transition: border $transition-duration, box-shadow $transition-duration;
 
   svg {
     display: block;
@@ -218,7 +218,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley--scale-colored {
-  transition: border 250ms, box-shadow 250ms, opacity 250ms;
+  transition: border $transition-duration, box-shadow $transition-duration, opacity $transition-duration;
 }
 
 .sd-rating__item-smiley--error {
@@ -300,7 +300,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     height: calcSize(6);
     display: block;
     position: absolute;
-    transition: stroke 250ms, opacity 250ms;
+    transition: stroke $transition-duration, opacity $transition-duration;
   }
 
   .sv-star {

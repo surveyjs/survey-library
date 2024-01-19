@@ -23,6 +23,7 @@ import { CalculatedValue } from "../src/calculatedValue";
 import { QuestionHtmlModel } from "../src/question_html";
 import { ImageItemValue } from "../src/question_imagepicker";
 import { PageModel } from "../src/page";
+import { QuestionTextModel } from "../src/question_text";
 
 class Car extends Base implements ILocalizableOwner {
   public locale: string;
@@ -3138,4 +3139,12 @@ QUnit.test("Create localizable property with default value", function (assert) {
 
   Serializer.removeProperty("question", "customProp");
   Serializer.removeProperty("page", "customProp");
+});
+QUnit.test("Check existing pos", function (assert) {
+  Serializer.addProperty("question", { name: "testProperty", default: { someProperty: "default" } });
+  const question = new QuestionTextModel("q1");
+  question.fromJSON({ pos: { start: 1, end: 5 }, type: "text", name: "question1", testProperty: { someProperty: "bbb", pos: { start: 10, end: 15 } } });
+  const json = question.toJSON();
+  assert.deepEqual(json, { name: "question1", testProperty: { someProperty: "bbb" } }, "no pos in json");
+  Serializer.removeProperty("question", "testProperty");
 });

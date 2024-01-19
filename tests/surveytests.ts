@@ -19061,7 +19061,7 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   assert.equal(survey.showProgressBar, "off", "default show progress bar");
   assert.equal(survey.progressBarType, "pages", "default progress bar type");
   assert.equal(survey.progressBarShowPageNumbers, false, "don't show page numbers in progress by default");
-  // assert.equal(survey.progressBarShowPageTitles, undefined, "don't show page titles in progress by default");
+  assert.equal(survey.progressBarShowPageTitles, false, "don't show page titles in progress by default");
 
   assert.deepEqual(getContainerContent("header"), [], "empty header");
   assert.deepEqual(getContainerContent("footer"), [], "empty footer");
@@ -19084,6 +19084,9 @@ QUnit.test("getContainerContent - progress settings", function (assert) {
   }], "auto pages center");
 
   survey.progressBarType = "buttons";
+
+  assert.equal(survey.progressBarShowPageTitles, true, "show page titles in progress for buttons");
+
   assert.deepEqual(getContainerContent("header"), [], "auto buttons header");
   assert.deepEqual(getContainerContent("footer"), [], "auto buttons footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "auto buttons contentTop");

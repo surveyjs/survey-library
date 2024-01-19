@@ -2658,7 +2658,11 @@ export class SurveyModel extends SurveyElementCore
     }
     return "progress-" + actualProgressBarType;
   }
-  @property() progressBarShowPageTitles: boolean;
+  @property({
+    getDefaultValue: (self: SurveyModel) => {
+      return self.progressBarType === "buttons";
+    },
+  }) progressBarShowPageTitles: boolean;
   @property() progressBarShowPageNumbers: boolean;
   public get isShowProgressBarOnTop(): boolean {
     if (!this.canShowProresBar()) return false;

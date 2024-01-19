@@ -93,7 +93,7 @@
   box-sizing: border-box;
   font-weight: 600;
   margin-left: calcSize(0);
-  transition: outline 250ms, background 250ms;
+  transition: outline $transition-duration, background $transition-duration;
   outline: calcSize(0.25) solid transparent;
 
   svg {

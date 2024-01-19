@@ -284,7 +284,7 @@
   background: transparent;
   border-radius: calcSize(2);
   padding: calcSize(1);
-  transition: background 250ms;
+  transition: background $transition-duration;
 
   svg {
     @include useEditorFontSize;
@@ -292,7 +292,7 @@
     width: multiply(1, $font-editorfont-size);
     height: multiply(1, $font-editorfont-size);
     fill: $font-questiondescription-color;
-    transition: fill 250ms;
+    transition: fill $transition-duration;
   }
 
   &:hover,

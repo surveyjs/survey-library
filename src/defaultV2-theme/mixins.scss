@@ -151,7 +151,7 @@
     line-height: multiply(1.5, $font-questiontitle-size);
 
     box-shadow: $shadow-small, 0 0 0 0px $primary;
-    transition: box-shadow 250ms;
+    transition: box-shadow $transition-duration;
 
     &:hover {
       background-color: $background-dark;

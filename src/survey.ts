@@ -2649,15 +2649,24 @@ export class SurveyModel extends SurveyElementCore
     // }
     this.setPropertyValue("progressBarType", newValue);
   }
+  private get progressBarComponentName(): string {
+    let actualProgressBarType = this.progressBarType;
+    if (!settings.legacyProgressBarView) {
+      if (isStrCiEqual(actualProgressBarType, "pages")) {
+        actualProgressBarType = "buttons";
+      }
+    }
+    return "progress-" + actualProgressBarType;
+  }
   @property() progressBarShowPageTitles: boolean;
   @property() progressBarShowPageNumbers: boolean;
   public get isShowProgressBarOnTop(): boolean {
     if (!this.canShowProresBar()) return false;
-    return this.showProgressBar === "top" || this.showProgressBar === "both";
+    return ["auto", "aboveheader", "belowheader", "topbottom", "top", "both"].indexOf(this.showProgressBar) !== -1;
   }
   public get isShowProgressBarOnBottom(): boolean {
     if (!this.canShowProresBar()) return false;
-    return this.showProgressBar === "bottom" || this.showProgressBar === "both";
+    return this.showProgressBar === "bottom" || this.showProgressBar === "both" || this.showProgressBar === "topbottom";
   }
   public getProgressTypeComponent(): string {
     return "sv-progress-" + this.progressBarType.toLowerCase();
@@ -7444,10 +7453,13 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, this.progressBarComponentName)) {
         const headerLayoutElement = this.findLayoutElement("advanced-header");
         const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
         let isBelowHeader = !advHeader || advHeader.hasBackground;
+        if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
+          isBelowHeader = false;
+        }
         if (container === "header" && !isBelowHeader) {
           layoutElement.index = -150;
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {

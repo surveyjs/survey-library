@@ -8,7 +8,7 @@ export class ProgressButtons extends Base {
   constructor(public survey: SurveyModel) {
     super();
   }
-  public isListElementClickable(index: number): boolean {
+  public isListElementClickable(index: number | any): boolean {
     if (!this.survey.onServerValidateQuestions ||
       (<EventBase<SurveyModel>>this.survey.onServerValidateQuestions).isEmpty ||
       this.survey.checkErrorsMode === "onComplete") {
@@ -27,7 +27,7 @@ export class ProgressButtons extends Base {
     }
     return result;
   }
-  public getListElementCss(index: number): string {
+  public getListElementCss(index: number | any): string {
     if (index >= this.survey.visiblePages.length) return;
     return new CssClassBuilder()
       .append(this.survey.css.progressButtonsListElementPassed, this.survey.visiblePages[index].passed)

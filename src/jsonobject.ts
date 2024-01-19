@@ -1696,7 +1696,7 @@ export class JsonObject {
       obj["getPropertyValue"](property.name, null) !== null;
     if ((storeDefaults && hasValue) || !property.isDefaultValueByObj(obj, value)) {
       if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
-        result[property.name] = value;
+        result[property.name] = this.removePosOnValueToJson(property, value);
       }
     }
   }
@@ -1734,7 +1734,14 @@ export class JsonObject {
       }
     }
   }
-  private removePos(property: JsonObjectProperty, value: any) {
+  private removePosOnValueToJson(property: JsonObjectProperty, value: any): any {
+    if(!property.isCustom || !value) return value;
+    if (!!value[JsonObject.positionPropertyName]) {
+      delete value[JsonObject.positionPropertyName];
+    }
+    return value;
+  }
+  private removePos(property: JsonObjectProperty, value: any): void {
     if (!property || !property.type || property.type.indexOf("value") < 0)
       return;
     this.removePosFromObj(value);

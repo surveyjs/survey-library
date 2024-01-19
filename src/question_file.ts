@@ -160,10 +160,10 @@ export class QuestionFilePage extends Base {
     const pageClass = this.question.cssClasses.page;
     return new CssClassBuilder()
       .append(pageClass)
-      .append(`${pageClass}--enter-left`, this.index === this.question.indexToShow && this.question.navigationDirection == "left")
+      .append(`${pageClass}--enter-left`, this.index === this.question.indexToShow && (this.question.navigationDirection == "left" || this.question.navigationDirection == "left-delete"))
       .append(`${pageClass}--enter-right`, this.index === this.question.indexToShow && this.question.navigationDirection == "right")
-      .append(`${pageClass}--leave-left`, isLeavingLeft && this.question.navigationDirection == "right")
-      .append(`${pageClass}--leave-right`, isLeavingRight && this.question.navigationDirection == "left")
+      .append(`${pageClass}--leave-left`, isLeavingLeft)
+      .append(`${pageClass}--leave-right`, isLeavingRight)
       .append(`${pageClass}--hidden`, this.index !== this.question.indexToShow && !(isLeavingLeft || isLeavingRight)).toString();
   }
 
@@ -173,7 +173,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @propertyArray({}) public previewValue: any[];
   @propertyArray({}) public pages: QuestionFilePage[];
 
-  navigationDirection: string;
+  navigationDirection: "left" | "right" | "left-delete";
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({ defaultValue: 1, onSet: (_, target) => {
     target.updateFileNavigator();
@@ -415,10 +415,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private prevPreviewLength = 0;
   private previewValueChanged() {
+    this.navigationDirection = undefined;
     if(this.previewValue.length !== this.prevPreviewLength) {
       if(this.previewValue.length > 0) {
         if(this.prevPreviewLength > this.previewValue.length) {
-          this.indexToShow = this.indexToShow >= this.pagesCount && this.indexToShow > 0 ? this.pagesCount - 1 : this.indexToShow;
+          if(this.indexToShow >= this.pagesCount && this.indexToShow > 0) {
+            this.indexToShow = this.pagesCount - 1;
+            this.navigationDirection = "left-delete";
+          }
         } else {
           this.indexToShow = Math.floor(this.prevPreviewLength / this.pageSize);
         }
@@ -427,7 +431,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       }
     }
     this.updatePages();
-    this.navigationDirection = undefined;
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
     if(this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
@@ -796,6 +799,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
           },
         );
       });
+      this.previewValueChanged();
     } else {
       if (!!this._previewLoader) {
         this._previewLoader.dispose();
@@ -814,7 +818,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       });
       this._previewLoader.load(newValues);
     }
-    this.previewValueChanged();
   }
   private isFileLoadingValue: boolean;
   protected get isFileLoading(): boolean { return this.isFileLoadingValue; }

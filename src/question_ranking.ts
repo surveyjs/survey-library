@@ -621,7 +621,7 @@ Serializer.addClass(
       name: "carryForwardStartUnranked",
       default: true,
       visible: false,
-      isSerializable: true,
+      isSerializable: false,
     },
     {
       name: "maxSelectedChoices:number",

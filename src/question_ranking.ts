@@ -498,12 +498,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.setPropertyValue("selectToRankEnabled", val);
   }
 
-  public get carryForwardStartUnranked(): boolean {
-    return this.getPropertyValue("carryForwardStartUnranked", true);
-  }
-  public set carryForwardStartUnranked(val: boolean) {
-    this.setPropertyValue("carryForwardStartUnranked", val);
-  }
+  @property({ defaultValue: true }) carryForwardStartUnranked: boolean;
 
   /**
    * Specifies the layout of the ranked and unranked areas. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
@@ -616,12 +611,6 @@ Serializer.addClass(
       visibleIf: (obj: any) => {
         return !!obj.selectToRankEnabled;
       },
-    },
-    {
-      name: "carryForwardStartUnranked",
-      default: true,
-      visible: false,
-      isSerializable: false,
     },
     {
       name: "maxSelectedChoices:number",

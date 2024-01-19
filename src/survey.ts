@@ -2651,7 +2651,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private get progressBarComponentName(): string {
     let actualProgressBarType = this.progressBarType;
-    if (!settings.legacyProgressBarView) {
+    if (!settings.legacyProgressBarView && surveyCss.currentType === "defaultV2") {
       if (isStrCiEqual(actualProgressBarType, "pages")) {
         actualProgressBarType = "buttons";
       }

@@ -17198,6 +17198,7 @@ QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (a
 });
 
 QUnit.test("getContainerContent - progress", function (assert) {
+  surveyCss.currentType = "defaultV2";
   const json = {
     showNavigationButtons: "none",
     pages: [
@@ -18785,6 +18786,7 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
 });
 
 QUnit.test("getContainerContent - progress + advanced header", function (assert) {
+  surveyCss.currentType = "defaultV2";
   const json = {
     title: "My Survey",
     showNavigationButtons: "none",
@@ -19022,6 +19024,7 @@ QUnit.test("element.wasREndered", function (assert) {
 });
 
 QUnit.test("getContainerContent - progress settings", function (assert) {
+  surveyCss.currentType = "defaultV2";
   const json = {
     showNavigationButtons: "none",
     pages: [

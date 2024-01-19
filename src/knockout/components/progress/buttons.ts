@@ -26,6 +26,7 @@ export class ProgressButtonsViewModel {
       this.model.adjustConnectors(this.element);
       return;
     }
+    this.model.clearConnectorsWidth(this.element);
     if (model.survey.isMobile) {
       this.prevWidth = options.width;
       this.canShowItemTitles(false);

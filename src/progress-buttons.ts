@@ -69,6 +69,12 @@ export class ProgressButtons extends Base {
     }
     return true;
   }
+  public clearConnectorsWidth(element: HTMLElement): void {
+    const listContainerElements = element.querySelectorAll(".sd-progress-buttons__connector");
+    for (let i = 0; i < listContainerElements.length; i++) {
+      (listContainerElements[i] as HTMLDivElement).style.width = undefined;
+    }
+  }
   public adjustConnectors(element: HTMLElement): void {
     const listContainerElement = element.querySelector("ul");
     if (!listContainerElement) return;

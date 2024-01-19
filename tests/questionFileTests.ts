@@ -832,12 +832,17 @@ QUnit.test("Question File responsive", (assert) => {
   q1["prevFileAction"].action();
   assert.equal(q1["fileIndexAction"].title, "2 of 2");
 
-  assert.equal(q1.isPreviewVisible(0), false);
-  assert.equal(q1.isPreviewVisible(1), true);
+  assert.equal(q1.pages.length, 2);
+  assert.equal(q1.pages[0].items.length, 1);
+  assert.equal(q1.pages[1].items.length, 1);
+
+  assert.equal(q1.pages[0].css, "sd-file__page sd-file__page--leave-to-right");
+  assert.equal(q1.pages[1].css, "sd-file__page sd-file__page--enter-from-left");
 
   q1["nextFileAction"].action();
-  assert.equal(q1.isPreviewVisible(0), true);
-  assert.equal(q1.isPreviewVisible(1), false);
+
+  assert.equal(q1.pages[0].css, "sd-file__page sd-file__page--enter-from-right");
+  assert.equal(q1.pages[1].css, "sd-file__page sd-file__page--leave-to-left");
 
   assert.equal(q1.fileNavigatorVisible, true);
   q1.clear();
@@ -1281,38 +1286,32 @@ QUnit.test("Check file question navigator with different items count visible", (
   assert.equal(question.fileNavigatorVisible, true);
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 2");
-  assert.notOk(question.isPreviewVisible(0));
-  assert.notOk(question.isPreviewVisible(1));
-  assert.notOk(question.isPreviewVisible(2));
-  assert.ok(question.isPreviewVisible(3));
+  assert.equal(question.pages.length, 2);
+  assert.equal(question.pages[0].items.length, 3);
+  assert.equal(question.pages[1].items.length, 1);
+  assert.ok(question.pages[0].css.includes("sd-file__page--hidden"));
+  assert.notOk(question.pages[1].css.includes("sd-file__page--hidden"));
   question["prevFileAction"].action();
   assert.equal(question.indexToShow, 0);
   assert.equal(question["fileIndexAction"].title, "1 of 2");
-  assert.ok(question.isPreviewVisible(0));
-  assert.ok(question.isPreviewVisible(1));
-  assert.ok(question.isPreviewVisible(2));
-  assert.notOk(question.isPreviewVisible(3));
+  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--enter-from-left");
+  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--leave-to-right");
   question["nextFileAction"].action();
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 2");
-  assert.notOk(question.isPreviewVisible(0));
-  assert.notOk(question.isPreviewVisible(1));
-  assert.notOk(question.isPreviewVisible(2));
-  assert.ok(question.isPreviewVisible(3));
+  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--leave-to-left");
+  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--enter-from-right");
   question["nextFileAction"].action();
   assert.equal(question.indexToShow, 0);
   assert.equal(question["fileIndexAction"].title, "1 of 2");
-  assert.ok(question.isPreviewVisible(0));
-  assert.ok(question.isPreviewVisible(1));
-  assert.ok(question.isPreviewVisible(2));
-  assert.notOk(question.isPreviewVisible(3));
+  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--enter-from-right");
+  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--leave-to-left");
   question["prevFileAction"].action();
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 2");
-  assert.notOk(question.isPreviewVisible(0));
-  assert.notOk(question.isPreviewVisible(1));
-  assert.notOk(question.isPreviewVisible(2));
-  assert.ok(question.isPreviewVisible(3));
+
+  assert.equal(question.pages[0].css, "sd-file__page sd-file__page--leave-to-right");
+  assert.equal(question.pages[1].css, "sd-file__page sd-file__page--enter-from-left");
 
   //check index position on load files
   question.loadFiles([{ name: "f5", type: "t5" } as any, { name: "f6", type: "t6" } as any]);
@@ -1338,17 +1337,23 @@ QUnit.test("Check file question navigator with different items count visible", (
   question.pageSize = 2;
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 2");
-  assert.notOk(question.isPreviewVisible(0));
-  assert.notOk(question.isPreviewVisible(1));
-  assert.ok(question.isPreviewVisible(2));
-  assert.ok(question.isPreviewVisible(3));
+  assert.equal(question.pages.length, 2);
+  assert.equal(question.pages[0].items.length, 2);
+  assert.equal(question.pages[1].items.length, 2);
+  assert.ok(question.pages[0].css.includes("sd-file__page--hidden"));
+  assert.notOk(question.pages[1].css.includes("sd-file__page--hidden"));
   question.pageSize = 1;
   assert.equal(question.indexToShow, 1);
   assert.equal(question["fileIndexAction"].title, "2 of 4");
-  assert.notOk(question.isPreviewVisible(0));
-  assert.ok(question.isPreviewVisible(1));
-  assert.notOk(question.isPreviewVisible(2));
-  assert.notOk(question.isPreviewVisible(3));
+  assert.equal(question.pages.length, 4);
+  assert.equal(question.pages[0].items.length, 1);
+  assert.equal(question.pages[1].items.length, 1);
+  assert.equal(question.pages[2].items.length, 1);
+  assert.equal(question.pages[3].items.length, 1);
+  assert.ok(question.pages[0].css.includes("sd-file__page--hidden"));
+  assert.notOk(question.pages[1].css.includes("sd-file__page--hidden"));
+  assert.ok(question.pages[2].css.includes("sd-file__page--hidden"));
+  assert.ok(question.pages[3].css.includes("sd-file__page--hidden"));
 });
 QUnit.test("Check file question processResponsiveness method", (assert) => {
   const json = {

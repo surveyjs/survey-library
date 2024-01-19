@@ -160,10 +160,10 @@ export class QuestionFilePage extends Base {
     const pageClass = this.question.cssClasses.page;
     return new CssClassBuilder()
       .append(pageClass)
-      .append(`${pageClass}--enter-left`, this.index === this.question.indexToShow && (this.question.navigationDirection == "left" || this.question.navigationDirection == "left-delete"))
-      .append(`${pageClass}--enter-right`, this.index === this.question.indexToShow && this.question.navigationDirection == "right")
-      .append(`${pageClass}--leave-left`, isLeavingLeft)
-      .append(`${pageClass}--leave-right`, isLeavingRight)
+      .append(`${pageClass}--enter-from-left`, this.index === this.question.indexToShow && (this.question.navigationDirection == "left" || this.question.navigationDirection == "left-delete"))
+      .append(`${pageClass}--enter-from-right`, this.index === this.question.indexToShow && this.question.navigationDirection == "right")
+      .append(`${pageClass}--leave-to-left`, isLeavingLeft)
+      .append(`${pageClass}--leave-to-right`, isLeavingRight)
       .append(`${pageClass}--hidden`, this.index !== this.question.indexToShow && !(isLeavingLeft || isLeavingRight)).toString();
   }
 

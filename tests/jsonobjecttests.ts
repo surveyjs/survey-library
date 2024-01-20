@@ -1846,8 +1846,10 @@ QUnit.test(
     assert.equal(
       json["readOnly"],
       false,
-      "default value for readOnly proeprty has been serialzied successfully"
+      "default value for readOnly property has been serialzied successfully"
     );
+    const jsonKeys = Object.keys(json);
+    assert.equal(jsonKeys.indexOf("validators"), -1, "no validators");
 
     q2.readOnly = true;
     new JsonObject().toObject(json, q2);
@@ -3146,5 +3148,46 @@ QUnit.test("Check existing pos", function (assert) {
   question.fromJSON({ pos: { start: 1, end: 5 }, type: "text", name: "question1", testProperty: { someProperty: "bbb", pos: { start: 10, end: 15 } } });
   const json = question.toJSON();
   assert.deepEqual(json, { name: "question1", testProperty: { someProperty: "bbb" } }, "no pos in json");
+  Serializer.removeProperty("question", "testProperty");
+});
+QUnit.test("Versions in property", function (assert) {
+  const prop = Serializer.addProperty("question", { name: "testProperty", version: "1.9.127" });
+  assert.equal(prop.version, "1.9.127", "version is set correclty");
+  assert.equal(prop.isAvailableInVersion("1.9.5"), false, "#1");
+  assert.equal(prop.isAvailableInVersion("1.9.200"), true, "#2");
+  assert.equal(prop.isAvailableInVersion("2"), true, "#3");
+  assert.equal(prop.isAvailableInVersion("1"), false, "#4");
+  assert.equal(prop.isAvailableInVersion("1.9.127"), true, "#5");
+  assert.equal(prop.isAvailableInVersion("1.9.126"), false, "#6");
+  assert.equal(prop.isAvailableInVersion("1.9.128"), true, "#7");
+  assert.equal(prop.isAvailableInVersion(""), true, "#8");
+  Serializer.removeProperty("question", "testProperty");
+});
+QUnit.test("Versions in new property serialization", function (assert) {
+  Serializer.addProperty("question", { name: "testProperty", version: "1.9.127" });
+  const question = new QuestionTextModel("q1");
+  question.testProperty = "abc";
+  assert.deepEqual(question.toJSON(), { name: "q1", testProperty: "abc" }, "#1");
+  assert.deepEqual(question.toJSON({ version: "1.9.127" }), { name: "q1", testProperty: "abc" }, "#2");
+  assert.deepEqual(question.toJSON({ version: "1.9.126" }), { name: "q1" }, "#3");
+  Serializer.removeProperty("question", "testProperty");
+});
+QUnit.test("Versions & alternative name", function (assert) {
+  const prop = Serializer.addProperty("question", { name: "testProperty", version: "1.9.127", alternativeName: "testProp" });
+
+  assert.equal(prop.isAvailableInVersion("1.9.5"), true, "isAvailableInVersion: #1");
+  assert.equal(prop.isAvailableInVersion("1.9.200"), true, "isAvailableInVersion: #2");
+  assert.equal(prop.isAvailableInVersion(""), true, "isAvailableInVersion: #3");
+  assert.equal(prop.getSerializedName("1.9.5"), "testProp", "getSerializedName: #1");
+  assert.equal(prop.getSerializedName("1.9.200"), "testProperty", "getSerializedName: #2");
+  assert.equal(prop.getSerializedName(""), "testProperty", "getSerializedName: #3");
+
+  const question = new QuestionTextModel("q1");
+  question.testProperty = "abc";
+  assert.deepEqual(question.toJSON(), { name: "q1", testProperty: "abc" }, "#1");
+  assert.deepEqual(question.toJSON({ version: "1.9.127" }), { name: "q1", testProperty: "abc" }, "#2");
+  assert.deepEqual(question.toJSON({ version: "1.9.128" }), { name: "q1", testProperty: "abc" }, "#3");
+  assert.deepEqual(question.toJSON({ version: "1.9.126" }), { name: "q1", testProp: "abc" }, "#4");
+  assert.deepEqual(question.toJSON({ version: "1" }), { name: "q1", testProp: "abc" }, "#5");
   Serializer.removeProperty("question", "testProperty");
 });

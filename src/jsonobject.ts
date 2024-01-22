@@ -1,7 +1,7 @@
 import { surveyLocalization } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
-import { ILoadFromJSONOptions } from "./base-interfaces";
+import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 
 export interface IPropertyDecoratorOptions<T = any> {
   defaultValue?: T;
@@ -202,6 +202,7 @@ export class JsonObjectProperty implements IObject {
     "className",
     "alternativeName",
     "layout",
+    "version",
     "classNamePart",
     "baseClassName",
     "defaultValue",
@@ -263,6 +264,7 @@ export class JsonObjectProperty implements IObject {
   public minValue: any;
   private dataListValue: Array<string>;
   public layout: string;
+  public version: string;
   public onSerializeValue: (obj: any) => any;
   public onGetValue: (obj: any) => any;
   public onSettingValue: (obj: any, value: any) => any;
@@ -454,6 +456,18 @@ export class JsonObjectProperty implements IObject {
   }
   public set visible(val: boolean) {
     this.visibleValue = val;
+  }
+  public isAvailableInVersion(ver: string): boolean {
+    if(!!this.alternativeName) return true;
+    return this.isAvailableInVersionCore(ver);
+  }
+  public getSerializedName(ver: string): string {
+    if(!this.alternativeName) return this.name;
+    return this.isAvailableInVersionCore(ver) ? this.name : this.alternativeName;
+  }
+  private isAvailableInVersionCore(ver: string): boolean {
+    if(!ver || !this.version) return true;
+    return Helpers.compareVerions(this.version, ver) <= 0;
   }
   public get isLocalizable(): boolean {
     return this.isLocalizableValue != null ? this.isLocalizableValue : false;
@@ -913,6 +927,9 @@ export class JsonMetadataClass {
       }
       if (propInfo.layout) {
         prop.layout = propInfo.layout;
+      }
+      if (propInfo.version) {
+        prop.version = propInfo.version;
       }
       if (propInfo.dependsOn) {
         this.addDependsOnProperties(prop, propInfo.dependsOn);
@@ -1566,8 +1583,8 @@ export class JsonObject {
   public errors = new Array<JsonError>();
   public lightSerializing: boolean = false;
   public options: ILoadFromJSONOptions;
-  public toJsonObject(obj: any, storeDefaults = false): any {
-    return this.toJsonObjectCore(obj, null, storeDefaults);
+  public toJsonObject(obj: any, options?: ISaveToJSONOptions | boolean): any {
+    return this.toJsonObjectCore(obj, null, options);
   }
   public toObject(jsonObj: any, obj: any, options?: ILoadFromJSONOptions): void {
     this.toObjectCore(jsonObj, obj, options);
@@ -1616,7 +1633,7 @@ export class JsonObject {
   public toJsonObjectCore(
     obj: any,
     property: JsonObjectProperty,
-    storeDefaults = false
+    options?: ISaveToJSONOptions | boolean
   ): any {
     if (!obj || !obj.getType) return obj;
     if (typeof obj.getData === "function") return obj.getData();
@@ -1626,17 +1643,24 @@ export class JsonObject {
         obj.getType()
       );
     }
+    const storeDefaults = options === true;
+    if(!options || options === true) {
+      options = { };
+    }
+    if(storeDefaults) {
+      options.storeDefaults = storeDefaults;
+    }
     this.propertiesToJson(
       obj,
       Serializer.getProperties(obj.getType()),
       result,
-      storeDefaults
+      options
     );
     this.propertiesToJson(
       obj,
       this.getDynamicProperties(obj),
       result,
-      storeDefaults
+      options
     );
     return result;
   }
@@ -1663,40 +1687,35 @@ export class JsonObject {
     obj: any,
     properties: Array<JsonObjectProperty>,
     json: any,
-    storeDefaults = false
+    options: ISaveToJSONOptions
   ) {
     for (var i: number = 0; i < properties.length; i++) {
-      this.valueToJson(obj, json, properties[i], storeDefaults);
+      this.valueToJson(obj, json, properties[i], options);
     }
   }
-  public valueToJson(
-    obj: any,
-    result: any,
-    property: JsonObjectProperty,
-    storeDefaults = false
-  ): void {
-    if (
-      property.isSerializable === false ||
-      (property.isLightSerializable === false && this.lightSerializing)
-    )
-      return;
-    var value = property.getSerializableValue(obj);
-    if (!storeDefaults && property.isDefaultValueByObj(obj, value)) return;
+  public valueToJson(obj: any, result: any, prop: JsonObjectProperty, options?: ISaveToJSONOptions): void {
+    if(!options) options = {};
+    if (prop.isSerializable === false || (prop.isLightSerializable === false && this.lightSerializing)) return;
+    if(options.version && !prop.isAvailableInVersion(options.version)) return;
+    var value = prop.getSerializableValue(obj);
+    if (!options.storeDefaults && prop.isDefaultValueByObj(obj, value)) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {
-        arrValue.push(this.toJsonObjectCore(value[i], property, storeDefaults));
+        arrValue.push(this.toJsonObjectCore(value[i], prop, options));
       }
       value = arrValue.length > 0 ? arrValue : null;
     } else {
-      value = this.toJsonObjectCore(value, property, storeDefaults);
+      value = this.toJsonObjectCore(value, prop, options);
     }
+    if(value === undefined || value === null) return;
+    const name = prop.getSerializedName(options.version);
     var hasValue =
       typeof obj["getPropertyValue"] === "function" &&
-      obj["getPropertyValue"](property.name, null) !== null;
-    if ((storeDefaults && hasValue) || !property.isDefaultValueByObj(obj, value)) {
-      if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
-        result[property.name] = this.removePosOnValueToJson(property, value);
+      obj["getPropertyValue"](name, null) !== null;
+    if ((options.storeDefaults && hasValue) || !prop.isDefaultValueByObj(obj, value)) {
+      if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, prop, value, result)) {
+        result[name] = this.removePosOnValueToJson(prop, value);
       }
     }
   }

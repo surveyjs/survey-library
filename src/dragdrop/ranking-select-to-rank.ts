@@ -141,12 +141,14 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
 
+    questionModel.isValueSetByUser = true;
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
   }
 
   public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void {
     const rankingChoices = questionModel.rankingChoices;
+    questionModel.isValueSetByUser = true;
     rankingChoices.splice(fromIndex, 1);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
   }
@@ -155,6 +157,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const rankingChoices = questionModel.rankingChoices;
     const item = rankingChoices[fromIndex];
 
+    questionModel.isValueSetByUser = true;
     rankingChoices.splice(fromIndex, 1);
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);

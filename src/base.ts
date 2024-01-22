@@ -9,7 +9,7 @@ import {
 } from "./jsonobject";
 import { settings } from "./settings";
 import { ItemValue } from "./itemvalue";
-import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions } from "./base-interfaces";
+import { IElement, IFindElement, IProgressInfo, ISurvey, ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 import { ExpressionRunner } from "./conditions";
 import { surveyLocalization } from "./surveyStrings";
 import { ConsoleWarnings } from "./console-warnings";
@@ -402,8 +402,8 @@ export class Base {
    * Returns a JSON object that corresponds to the current SurveyJS object.
    * @see fromJSON
    */
-  public toJSON(): any {
-    return new JsonObject().toJsonObject(this);
+  public toJSON(options?: ISaveToJSONOptions): any {
+    return new JsonObject().toJsonObject(this, options);
   }
   /**
    * Assigns a new configuration to the current SurveyJS object. This configuration is taken from a passed JSON object.

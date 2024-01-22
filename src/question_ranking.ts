@@ -143,8 +143,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 
+    if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled) {
+      this.value = [];
+    }
+
     // ranking question with only one choice doesn't make sense
-    if (this.visibleChoices.length === 1) {
+    if (this.visibleChoices.length === 1 && !this.selectToRankEnabled) {
       this.value = [];
       this.value.push(this.visibleChoices[0].value);
       this.updateRankingChoices();
@@ -442,12 +446,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
+  public isValueSetByUser = false;
   public setValue = (): void => {
     const value: string[] = [];
     this.rankingChoices.forEach((choice: ItemValue) => {
       value.push(choice.value);
     });
     this.value = value;
+    this.isValueSetByUser = true;
   };
   public getIconHoverCss(): string {
     return new CssClassBuilder()
@@ -491,6 +497,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public set selectToRankEnabled(val: boolean) {
     this.setPropertyValue("selectToRankEnabled", val);
   }
+
+  @property({ defaultValue: true }) carryForwardStartUnranked: boolean;
 
   /**
    * Specifies the layout of the ranked and unranked areas. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.

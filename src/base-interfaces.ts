@@ -392,3 +392,7 @@ export interface IPlainDataOptions {
 export interface ILoadFromJSONOptions {
   validatePropertyValues?: boolean;
 }
+export interface ISaveToJSONOptions {
+  storeDefaults?: boolean;
+  version?: string;
+}

@@ -5082,7 +5082,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Uploads a file to server.
+   * Uploads files to a server.
    *
    * The following code shows how to call this method:
    *

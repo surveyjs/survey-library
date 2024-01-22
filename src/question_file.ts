@@ -1007,7 +1007,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doClean = () => {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); });
+      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); }, undefined, this.getLocale());
       return;
     }
     this.clearFilesCore();
@@ -1023,7 +1023,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doRemoveFile(data: any) {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); });
+      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale());
       return;
     }
     this.removeFileCore(data);

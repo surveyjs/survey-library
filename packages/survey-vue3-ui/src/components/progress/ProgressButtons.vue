@@ -87,7 +87,7 @@ onMounted(() => {
       canShowItemTitles.value = props.model.showItemTitles;
       canShowFooter.value = !props.model.showItemTitles;
     },
-    container: props.container
+    container: computed(() => props.container)
   } as any);
 });
 onBeforeUnmount(() => {

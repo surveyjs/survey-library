@@ -53,7 +53,7 @@
 
 <script lang="ts" setup>
 import { type SurveyModel, ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
-import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, shallowRef } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
@@ -76,12 +76,12 @@ const clickScrollButton = (isLeftScroll: boolean) => {
 onMounted(() => {
   const element: any = progressButtonsListContainer.value;
   respManager = new ProgressButtonsResponsivityManager(props.model, element, {
-    onResize: (canShowItemTitles: boolean) => {
-      canShowItemTitles.value = canShowItemTitles;
-      canShowHeader.value = !canShowItemTitles.value;
+    onResize: (canShowItemTitlesValue: boolean) => {
+      canShowItemTitles.value = canShowItemTitlesValue;
+      canShowHeader.value = !canShowItemTitlesValue;
     },
-    onUpdateScroller: (hasScroller: boolean) => {
-      hasScroller.value = hasScroller;
+    onUpdateScroller: (hasScrollerValue: boolean) => {
+      hasScroller.value = hasScrollerValue;
     },
     onUpdateSettings: () => {
       canShowItemTitles.value = props.model.showItemTitles;

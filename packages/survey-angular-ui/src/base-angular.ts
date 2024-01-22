@@ -93,7 +93,8 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       this.afterUpdate(true);
     } else {
       queueMicrotask(() => {
-        if (!this.isDestroyed) {
+        const model = this.getModel();
+        if (!this.isDestroyed && model && !model.isDisposed) {
           this.setIsRendering(true);
           this.detectChanges();
         }

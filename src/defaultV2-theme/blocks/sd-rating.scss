@@ -218,7 +218,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 }
 
 .sd-rating__item-smiley--scale-colored {
-  transition: border $transition-duration, box-shadow $transition-duration, opacity $transition-duration;
+  transition: border $transition-duration, box-shadow $transition-duration, opacity $transition-duration, background-color $transition-duration;
 }
 
 .sd-rating__item-smiley--error {
@@ -406,6 +406,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   display: inline-block;
   border: 2px solid transparent;
   box-sizing: border-box;
+  transition: color $transition-duration;
 
   &.sd-rating__min-text,
   &.sd-rating__max-text {

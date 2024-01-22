@@ -10,9 +10,8 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { InputMaskBase } from "./mask/mask";
-import { InputMaskNumber } from "./mask/number_mask";
-import { InputMaskPattern } from "./mask/mask_pattern";
+import { MaskManagerType, IMaskOption } from "./mask/mask_manager";
+import { InputElementAdapter } from "./mask/input_element_adapter";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -23,6 +22,8 @@ export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
+  private maskInputAdapter: InputElementAdapter;
+
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
@@ -222,6 +223,16 @@ export class QuestionTextModel extends QuestionTextBase {
   public get isMinMaxType(): boolean {
     return isMinMaxType(this);
   }
+
+  @property({
+    onSet: (value: IMaskOption, target: QuestionTextModel) => { target.createMaskInstance(value); }
+  }) maskOptions: IMaskOption;
+
+  private createMaskInstance(maskOptions: IMaskOption) {
+    if(!maskOptions) return;
+    this.maskInstance = MaskManagerType.Instance.createInputMask(maskOptions);
+  }
+
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
@@ -468,29 +479,20 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateRemainingCharacterCounter(event.target.value);
   }
 
-  @property() mask: string;
-  @property() maskOptions: any;
-  private updateMaskInstance() {
-    if (!this.maskInstance) {
-      if(this.mask === "decimal") {
-        this.maskInstance = new InputMaskNumber(this.input, this.maskOptions);
-      } else if(this.mask) {
-        this.maskInstance = new InputMaskPattern(this.input, this.mask);
-      }
-    } else {
-      this.maskInstance.updateInputElement(this.mask);
-    }
-  }
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");
-      if (this.mask) this.updateMaskInstance();
+      if (this.maskInstance) {
+        this.maskInputAdapter = new InputElementAdapter(this.maskInstance, this.input, this.value);
+      }
     }
     super.afterRenderQuestionElement(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement) {
-    if (this.maskInstance) this.maskInstance.dispose();
-    this.maskInstance = null;
+    if (this.maskInputAdapter) {
+      this.maskInputAdapter.dispose();
+      this.maskInputAdapter = undefined;
+    }
   }
 }
 
@@ -643,9 +645,6 @@ Serializer.addClass(
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
       },
-    },
-    {
-      name: "mask"
     },
     {
       name: "maskOptions"

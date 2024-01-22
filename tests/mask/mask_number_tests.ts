@@ -1,4 +1,4 @@
-import { getNumberMaskedValue, getNumberUnmaskedValue, parseNumber, getNumberMaskLiterals, splitString } from "../../src/mask/number_mask";
+import { getNumberMaskedValue, getNumberUnmaskedValue, parseNumber, getNumberMaskLiterals, splitString } from "../../src/mask/mask_number";
 
 export default QUnit.module("Numeric mask");
 

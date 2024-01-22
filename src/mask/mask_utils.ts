@@ -1,8 +1,3 @@
-export interface IMaskedValue {
-  text: string;
-  cursorPosition: number;
-}
-
 export var settings = {
   placeholderChar: "_",
   escapedChar: "\\",

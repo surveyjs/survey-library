@@ -1,9 +1,9 @@
-import { InputMaskBase } from "./mask";
+import { InputMaskBase } from "./mask_base";
 import { IMaskLiteral } from "./mask_pattern";
-import { IMaskedValue, settings } from "./mask_utils";
+import { MaskManagerType, IMaskOption, IMaskedValue } from "./mask_manager";
+import { settings } from "./mask_utils";
 
-interface INumberMaskOption {
-  mask?: string;
+interface INumberMaskOption extends IMaskOption {
   align?: "left" | "right";
   allowNegative?: boolean;
   decimal?: string;
@@ -109,18 +109,25 @@ export function getNumberUnmaskedValue(str: string, option?: INumberMaskOption):
 }
 
 export class InputMaskNumber extends InputMaskBase {
-
-  constructor(input: HTMLInputElement, private options?: INumberMaskOption) {
-    super(input, "9+");
+  constructor(options?: INumberMaskOption) {
+    super(options || <IMaskOption>{ mask: "9+" });
   }
 
-  protected getMaskedValue(mask: string): string {
-    return getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, this.options), this.options);
+  get numberOptions(): INumberMaskOption {
+    return this.maskOptions as INumberMaskOption;
   }
 
-  protected processMaskedValue(mask: string): IMaskedValue {
-    // return processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
-    const text = getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, this.options), this.options);
-    return { text: text, cursorPosition: this.input.selectionStart };
+  public getMaskedValue(src: string, matchWholeMask: boolean = false): string {
+    return getNumberMaskedValue(src, this.numberOptions);
   }
+  public getUnmaskedValue(src: string, matchWholeMask: boolean = false): string {
+    return getNumberUnmaskedValue(src, this.numberOptions).toString();
+  }
+  // public processMaskedValue(): IMaskedValue {
+  //   // return processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
+  //   const text = getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, this.numberOptions), this.numberOptions);
+  //   return { text: text, cursorPosition: this.input.selectionStart, cancelPreventDefault: false };
+  // }
 }
+
+MaskManagerType.Instance.registerMaskManagerType("number", (maskOptions: IMaskOption) => { return new InputMaskNumber(maskOptions); });

@@ -279,7 +279,10 @@ export {
   sanitizeEditableContent,
   IAttachKey2clickOptions
 } from "../../utils/utils";
-export { InputMaskBase } from "../../mask/mask";
+export { MaskManagerType } from "../../mask/mask_manager";
+export { InputMaskBase } from "../../mask/mask_base";
+export { InputMaskPattern } from "../../mask/mask_pattern";
+export { InputMaskNumber } from "../../mask/mask_number";
 export * from "../../utils/cssClassBuilder";
 
 export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/defaultV2Css";

@@ -1,8 +1,11 @@
 <template>
-  <div :class="css.progressButtonsContainerCenter">
+  <div :class="model.getRootCss(container)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
+    <div v-if="canShowHeader" :class="survey.css.progressButtonsHeader">
+      <div :class="survey.css.progressButtonsPageTitle" :title="model.headerText">{{ model.headerText }}</div>
+    </div>
     <div :class="css.progressButtonsContainer">
       <div
-        :class="getScrollButtonCss(hasScroller, true)"
+        :class="model.getScrollButtonCss(hasScroller, true)"
         v-on:click="clickScrollButton(true)"
         role="button"
       ></div>
@@ -14,18 +17,20 @@
           <li
             v-for="(page, index) in survey.visiblePages"
             :key="'listelement' + index"
-            :class="getListElementCss(index)"
+            :class="model.getListElementCss(index)"
             v-on:click="
-              isListElementClickable(index) ? clickListElement(index) : null
+              model.isListElementClickable(index) ? model.clickListElement(page) : null
             "
+            :data-page-number="model.getItemNumber(page)"
           >
-            <div
+            <div :class="css.progressButtonsConnector"></div>
+            <div v-if="canShowItemTitles"
               :class="css.progressButtonsPageTitle"
               :title="page.renderedNavigationTitle"
             >
               {{ page.renderedNavigationTitle }}
             </div>
-            <div
+            <div v-if="canShowItemTitles"
               :class="css.progressButtonsPageDescription"
               :title="page.locNavigationDescription.renderedHtml"
             >
@@ -35,55 +40,57 @@
         </ul>
       </div>
       <div
-        :class="getScrollButtonCss(hasScroller, false)"
+        :class="model.getScrollButtonCss(hasScroller, false)"
         v-on:click="clickScrollButton(false)"
         role="button"
       ></div>
+    </div>
+    <div v-if="canShowFooter" :class="survey.css.progressButtonsFooter">
+      <div :class="survey.css.progressButtonsPageTitle" :title="model.footerText">{{ model.footerText }}</div>
     </div>
   </div>
 </template>
 
 <script lang="ts" setup>
-import { type SurveyModel, ProgressButtons } from "survey-core";
+import { type SurveyModel, ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 
 const props = defineProps<{
   survey: SurveyModel;
+  model: ProgressButtons;
+  container: string;
 }>();
-const progressButtonsModel = new ProgressButtons(props.survey);
 const hasScroller = ref(false);
+const canShowHeader = ref(false);
+const canShowFooter = ref(false);
+const canShowItemTitles = ref(true);
 const progressButtonsListContainer = ref<HTMLElement>();
 const css = computed(() => props.survey.css);
-let updateScroller: any;
+let respManager: ProgressButtonsResponsivityManager = null;
 
-const isListElementClickable = (index: any) => {
-  return progressButtonsModel.isListElementClickable(index);
-};
-const getListElementCss = (index: any) => {
-  return progressButtonsModel.getListElementCss(index);
-};
-const clickListElement = (index: any) => {
-  progressButtonsModel.clickListElement(index);
-};
-const getScrollButtonCss = (hasScroller: boolean, isLeftScroll: boolean) => {
-  return progressButtonsModel.getScrollButtonCss(hasScroller, isLeftScroll);
-};
 const clickScrollButton = (isLeftScroll: boolean) => {
-  let listContainerElement: any = progressButtonsListContainer.value;
-  listContainerElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
+  let element: any = progressButtonsListContainer.value;
+  element.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
 };
 
 onMounted(() => {
-  const listContainerElement: any = progressButtonsListContainer.value;
-  updateScroller = setInterval(() => {
-    hasScroller.value =
-      listContainerElement.scrollWidth > listContainerElement.offsetWidth;
-  }, 100);
+  const element: any = progressButtonsListContainer.value;
+  respManager = new ProgressButtonsResponsivityManager(props.model, element, {
+    onResize: (canShowItemTitles: boolean) => {
+      canShowItemTitles.value = canShowItemTitles;
+      canShowHeader.value = !canShowItemTitles.value;
+    },
+    onUpdateScroller: (hasScroller: boolean) => {
+      hasScroller.value = hasScroller;
+    },
+    onUpdateSettings: () => {
+      canShowItemTitles.value = props.model.showItemTitles;
+      canShowFooter.value = !props.model.showItemTitles;
+    },
+    container: props.container
+  } as any);
 });
 onBeforeUnmount(() => {
-  if (typeof updateScroller !== "undefined") {
-    clearInterval(updateScroller);
-    updateScroller = undefined as any as number;
-  }
+  respManager.dispose();
 });
 </script>

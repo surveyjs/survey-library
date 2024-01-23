@@ -1,8 +1,9 @@
 import React from "react";
 import { SurveyElementBase } from "../../reactquestion_element";
 import { QuestionFileModel } from "survey-core";
-import { SvgIcon } from "../svg-icon/svg-icon";
 import { ReactElementFactory } from "../../element-factory";
+import { SurveyFileItem } from "./file-item";
+import { SurveyFilePage } from "./file-page";
 
 export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFileModel }, {}> {
 
@@ -30,42 +31,9 @@ export class SurveyFilePreview extends SurveyElementBase<{ question: QuestionFil
   }
 
   protected renderElement(): JSX.Element | null {
-    var previews = this.question.previewValue.map((val, index) => {
-      if (!val) return null;
-      return (
-        <span
-          key={this.question.inputId + "_" + index}
-          className={this.question.cssClasses.preview}
-          style={{ display: this.question.isPreviewVisible(index) ? undefined : "none" }}
-        >
-          {this.renderFileSign(this.question.cssClasses.fileSign, val)}
-          <div className={this.question.getImageWrapperCss(val)}>
-            {this.question.canPreviewImage(val) ? (
-              <img
-                src={val.content}
-                style={{ height: this.question.imageHeight, width: this.question.imageWidth }}
-                alt="File preview"
-              />
-            ) : (this.question.cssClasses.defaultImage?(
-              <SvgIcon iconName={this.question.cssClasses.defaultImageIconId} size={"auto"} className={this.question.cssClasses.defaultImage}></SvgIcon>
-            ):null)}
-            {val.name && !this.question.isReadOnly ? (
-              <div className={this.question.getRemoveButtonCss()} onClick={() => this.question.doRemoveFile(val)}>
-                <span
-                  className={this.question.cssClasses.removeFile}
-                >
-                  {this.question.removeFileCaption}
-                </span>
-                {(this.question.cssClasses.removeFileSvgIconId) ?
-                  (<SvgIcon title={this.question.removeFileCaption} iconName={this.question.cssClasses.removeFileSvgIconId} size={"auto"} className={this.question.cssClasses.removeFileSvg}></SvgIcon>): null }
-              </div>
-            ) : null}
-          </div>
-          {this.renderFileSign(this.question.cssClasses.fileSignBottom, val)}
-        </span>
-      );
-    });
-    return <div className={this.question.cssClasses.fileList || undefined}>{previews}</div>;
+    const content = this.question.supportFileNavigator ? this.question.pages.map((page: any, index: number) => { return (<SurveyFilePage page={page} question={this.question} key={index}></SurveyFilePage>); })
+      : this.question.previewValue.map((item: any, index: number) => { return (<SurveyFileItem item={item} question={this.question} key={index}></SurveyFileItem>); });
+    return <div className={this.question.cssClasses.fileList || undefined}>{content}</div>;
   }
   protected canRender(): boolean {
     return this.question.showPreviewContainer;

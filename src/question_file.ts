@@ -1002,8 +1002,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
         if(fileListElement) {
-          const firstVisiblePage = Array.from(fileListElement.children).filter((_, index) => this.isPageVisible(index))[0];
-          const firstVisibleItem = firstVisiblePage.children[0];
+          const firstVisiblePage = Array.from(fileListElement.querySelectorAll(classesToSelector(this.cssClasses.page))).filter((_, index) => this.isPageVisible(index))[0];
+          const firstVisibleItem = firstVisiblePage.querySelector(classesToSelector(this.cssClasses.preview));
 
           this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisiblePage).gap));
           if(firstVisibleItem) {

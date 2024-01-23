@@ -41,6 +41,7 @@ export class PopupSurvey extends Survey {
     var titleCollapsed: JSX.Element | null = null;
     var expandCollapseIcon;
     var closeButton: JSX.Element | null = null;
+    var allowFullScreenButon: JSX.Element | null = null;
 
     if (popup.isCollapsed) {
       headerCss += " " + popup.cssRootCollapsedMod;
@@ -54,10 +55,15 @@ export class PopupSurvey extends Survey {
       closeButton = this.renderCloseButton(this.popup);
     }
 
+    if (popup.allowFullScreen) {
+      allowFullScreenButon = this.renderAllowFullScreenButon(this.popup);
+    }
+
     return (
       <div className={popup.cssHeaderRoot}>
         {titleCollapsed}
         <div className={popup.cssHeaderButtonsContainer}>
+          {allowFullScreenButon}
           <div className={popup.cssHeaderCollapseButton} onClick={this.handleOnExpanded}>
             {expandCollapseIcon}
           </div>
@@ -83,6 +89,13 @@ export class PopupSurvey extends Survey {
       </div>
     );
   }
+  protected renderAllowFullScreenButon(popup: PopupSurveyModel): JSX.Element {
+    return (
+      <div className={popup.cssHeaderFullScreenButton} onClick={() => { popup.toggleFullScreen(); }}>
+        <SvgIcon iconName={"icon-full-screen_16x16"} size={16}></SvgIcon>
+      </div>
+    );
+  }
   protected renderBody(): JSX.Element {
     return <div className={this.popup.cssBody}>{this.doRender()}</div>;
   }
@@ -94,6 +107,7 @@ export class PopupSurvey extends Survey {
       this.popup.closeOnCompleteTimeout = newProps.closeOnCompleteTimeout;
     }
     this.popup.allowClose = newProps.allowClose;
+    this.popup.allowFullScreen = newProps.allowFullScreen;
     this.popup.isShowing = true;
     if (!this.popup.isExpanded && (newProps.expanded || newProps.isExpanded))
       this.popup.expand();

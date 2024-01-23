@@ -8,6 +8,11 @@
     
             <div data-bind="css: cssHeaderButtonsContainer">
                 <div data-bind="click:doExpand, css: cssHeaderCollapseButton">
+                    <!-- ko if: allowFullScreen -->      
+                    <div data-bind="click:doToggleFullScreen, css: cssHeaderFullScreenButton">
+                    <!-- ko component: { name: 'icon-full-screen_16x16', params: { iconName: 'icon-close_16x16', size: '16' } } --><!-- /ko -->
+                    </div>
+                    <!-- /ko -->
                     <!-- ko if: isExpanded-->  
                     <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-minimize_16x16', size: '16' } } --><!-- /ko -->
                     <!-- /ko -->

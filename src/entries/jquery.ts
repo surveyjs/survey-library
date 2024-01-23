@@ -42,6 +42,9 @@ function doPopupSurvey(props: any): void {
     if (props.allowClose !== undefined) {
       survey.allowClose = props.allowClose;
     }
+    if (props.allowFullScreen !== undefined) {
+      survey.allowFullScreen = props.allowFullScreen;
+    }
     if (props.closeOnCompleteTimeout !== undefined) {
       survey.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
     }

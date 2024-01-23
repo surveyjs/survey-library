@@ -71,6 +71,7 @@ export * from "../knockout/components/header";
 export * from "../knockout/components/file/choose-file";
 export * from "../knockout/components/file/file-preview";
 export * from "../knockout/components/file/file-page";
+export * from "../knockout/components/file/file-item";
 
 export * from "../knockout/components/list/list";
 export * from "../knockout/components/svg-icon/svg-icon";

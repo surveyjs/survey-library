@@ -210,6 +210,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public cleanAction: Action;
   public actionsContainer: ActionContainer;
 
+  get supportFileNavigator(): boolean {
+    return this.isDefaultV2Theme;
+  }
+
   get fileNavigatorVisible(): boolean {
     const isUploading = this.isUploading;
     const isPlayingVideo = this.isPlayingVideo;

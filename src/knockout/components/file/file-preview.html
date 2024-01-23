@@ -1,6 +1,16 @@
 <!-- ko if: question.koHasValue && question.showPreviewContainer -->
-<div data-bind="css: question.cssClasses.fileList, foreach: question.pages, visible: question.koHasValue">
+<div data-bind="css: question.cssClasses.fileList, visible: question.koHasValue">
+  <!-- ko if: question.supportFileNavigator -->
+  <!-- ko foreach: question.pages -->
   <!-- ko component: { name: 'sv-file-page', params: { model: $data } } -->
+  <!-- /ko -->
+  <!-- /ko -->
+  <!-- /ko -->
+  <!-- ko if: !question.supportFileNavigator -->
+    <!-- ko foreach: question.koData -->
+      <!-- ko component: { name: 'sv-file-item', params: { item: $data, question: question } } -->
+      <!-- /ko -->
+    <!-- /ko -->
   <!-- /ko -->
 </div>
 <!-- /ko -->

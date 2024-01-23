@@ -285,6 +285,15 @@ export class QuestionBooleanModel extends Question {
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     return super.createActionContainer(this.renderAs !== "checkbox");
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "switch";
+  }
+  // EO a11y
 }
 
 Serializer.addClass(

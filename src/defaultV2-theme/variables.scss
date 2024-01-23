@@ -114,9 +114,9 @@ $sd-panel-normal-min-width: 496px;
 $sd-panel-medium-min-width: 176px;
 
 :root {
-  --sjs-transition-duration: 250ms;
+  --sjs-transition-duration: 150ms;
 }
-$transition-duration: var(--sjs-transition-duration, 250ms);
+$transition-duration: var(--sjs-transition-duration, 150ms);
 
 
 @mixin useEditorFontSize {

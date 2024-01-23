@@ -127,6 +127,8 @@ import ButtonGroup from "./buttongroup/ButtonGroup.vue";
 import ButtonGroupItem from "./buttongroup/ButtonGroupItem.vue";
 import Logo from "./Logo.vue";
 import SvgBundle from "./SvgBundle.vue";
+import FilePage from "./components/file/FilePage.vue";
+import FileItem from "./components/file/FileItem.vue";
 
 export { useBase, useLocString, useQuestion } from "./base";
 
@@ -164,6 +166,8 @@ function registerComponents(app: App) {
   app.component("sv-file-choose-btn", FileChooseButton);
   app.component("sv-file-clean-btn", FileCleanButton);
   app.component("sv-file-preview", FilePreview);
+  app.component("sv-file-page", FilePage);
+  app.component("sv-file-item", FileItem);
   app.component("sv-file-video", FileVideo);
   app.component("survey-imagepicker", ImagePicker);
   app.component("survey-imagepicker-item", ImagePickerItem);

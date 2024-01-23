@@ -93,8 +93,7 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
       this.afterUpdate(true);
     } else {
       queueMicrotask(() => {
-        const model = this.getModel();
-        if (!this.isDestroyed && model && !model.isDisposed) {
+        if (!this.isDestroyed) {
           this.setIsRendering(true);
           this.detectChanges();
         }
@@ -117,15 +116,9 @@ export abstract class BaseAngular<T extends Base = Base> extends EmbeddedViewCon
   }
 
   protected beforeUpdate(): void {
-    if (this.getShouldReattachChangeDetector()) {
-      this.getChangeDetectorRef().detach();
-    }
     this.setIsRendering(true);
   }
   protected afterUpdate(isSync: boolean = false): void {
-    if (this.getShouldReattachChangeDetector()) {
-      this.getChangeDetectorRef().reattach();
-    }
     this.setIsRendering(false);
   }
   ngAfterViewChecked(): void {

@@ -218,7 +218,6 @@ frameworks.forEach(framework => {
         container.style.left = 0;
         container.style.right = 0;
         (<any>window).survey.showBrandInfo = true;
-        (<any>window).survey.fitToContainer = true;
         (<any>window).survey.showProgressBar = "bottom";
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;

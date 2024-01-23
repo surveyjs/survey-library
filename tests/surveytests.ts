@@ -15998,12 +15998,23 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
     ]
   });
   survey.css = defaultV2Css;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern");
 
   survey.setIsMobile(true);
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
 
   survey.mode = "display";
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
 
   survey.mode = "edit";

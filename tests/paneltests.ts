@@ -1886,6 +1886,7 @@ QUnit.test("Check panel styles with originalPage", function(assert) {
 
   assert.ok(question2["getIsNested"]());
   assert.notOk(question2["getHasFrameV2"]());
+  survey.css = {};
 });
 
 QUnit.test("Check panel styles with originalPage and showPreview", function(assert) {
@@ -1940,6 +1941,7 @@ QUnit.test("Check panel styles with originalPage and showPreview", function(asse
 
   assert.ok(question2["getIsNested"]());
   assert.notOk(question2["getHasFrameV2"]());
+  survey.css = {};
 });
 QUnit.test("Render name for collapsed/expanded questions in design-time", function(assert) {
   const survey = new SurveyModel();

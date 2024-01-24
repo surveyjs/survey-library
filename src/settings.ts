@@ -11,7 +11,7 @@ export type ISurveyEnvironment = {
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
 }
-const document = globalThis.document;
+const document = typeof globalThis !== "undefined" ? globalThis.document : (this as any).document;
 const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ? {
   root: document,
 
@@ -63,15 +63,10 @@ export var settings = {
     showEmptyDescriptions: true,
     showEmptyTitles: true
   },
+
   //#region designMode section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.designMode.showEmptyDescriptions`](https://surveyjs.io/form-library/documentation/api-reference/settings#designMode) property instead.
-   */
   get allowShowEmptyDescriptionInDesignMode(): boolean { return this.designMode.showEmptyDescriptions; },
   set allowShowEmptyDescriptionInDesignMode(val: boolean) { this.designMode.showEmptyDescriptions = val; },
-  /**
-   * This property is obsolete. Use the [`settings.designMode.showEmptyTitles`](https://surveyjs.io/form-library/documentation/api-reference/settings#designMode) property instead.
-   */
   get allowShowEmptyTitleInDesignMode(): boolean { return this.designMode.showEmptyTitles; },
   set allowShowEmptyTitleInDesignMode(val: boolean) { this.designMode.showEmptyTitles = val; },
   //#endregion
@@ -95,23 +90,16 @@ export var settings = {
     storeDuplicatedTranslations: false,
     defaultLocaleName: "default"
   },
+
   //#region localization section, obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.localization.useLocalTimeZone`](https://surveyjs.io/form-library/documentation/api-reference/settings#localization) property instead.
-   */
   get useLocalTimeZone(): boolean { return this.localization.useLocalTimeZone; },
   set useLocalTimeZone(val: boolean) { this.localization.useLocalTimeZone = val; },
-  /**
-   * This property is obsolete. Use the [`settings.localization.storeDuplicatedTranslations`](https://surveyjs.io/form-library/documentation/api-reference/settings#localization) property instead.
-   */
   get storeDuplicatedTranslations(): boolean { return this.localization.storeDuplicatedTranslations; },
   set storeDuplicatedTranslations(val: boolean) { this.localization.storeDuplicatedTranslations = val; },
-  /**
-   * This property is obsolete. Use the [`settings.localization.defaultLocaleName`](https://surveyjs.io/form-library/documentation/api-reference/settings#localization) property instead.
-   */
   get defaultLocaleName(): string { return this.localization.defaultLocaleName; },
   set defaultLocaleName(val: string) { this.localization.defaultLocaleName = val; },
   //#endregion
+
   /**
    * An object with properties that configure surveys when they work with a web service.
    *
@@ -121,41 +109,42 @@ export var settings = {
    * Specifies whether to encode URL parameters when you access a web service. Default value: `true`.
    *
    * - `cacheLoadedChoices`: `boolean`\
-   * Specifies whether to cache [choices](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model#choicesByUrl) loaded from a web service. Default value: `true`.
+   * Specifies whether to cache [choices loaded from a web service](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl). Default value: `true`.
    *
    * - `disableQuestionWhileLoadingChoices`: `boolean`\
    * Disables a question while its choices are being loaded from a web service. Default value: `false`.
    *
    * - `surveyServiceUrl`: `string`\
    * The URL of the SurveyJS Service API endpoint.
+   *
+   * - `onBeforeRequestChoices`: `(sender: ChoicesRestful, options: { request: XMLHttpRequest })`\
+   * An event that is raised before a request for choices is send. Applies to questions with a specified [`choiceByUrl`](https://surveyjs.io/form-library/documentation/api-reference/questionselectbase#choicesByUrl) property. Use the `options.request` parameter to access and modify the `XMLHttpRequest` object. For instance, you can add authentication headers to it:
+   *
+   *     ```js
+   *     import { settings } from "survey-core";
+   *
+   *     settings.web.onBeforeSendRequest = (sender, options) => {
+   *       options.request.setRequestHeader('RequestVerificationToken', requestVerificationToken);
+   *     };
+   *     ```
    */
   web: {
+    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => {},
     encodeUrlParams: true,
     cacheLoadedChoices: true,
     disableQuestionWhileLoadingChoices: false,
     surveyServiceUrl: "https://api.surveyjs.io/public/v1/Survey"
   },
+
   //#region web section, obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.web.encodeUrlParams`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) property instead.
-   */
   get webserviceEncodeParameters(): boolean { return this.web.encodeUrlParams; },
   set webserviceEncodeParameters(val: boolean) { this.web.encodeUrlParams = val; },
-  /**
-   * This property is obsolete. Use the [`settings.web.cacheLoadedChoices`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) property instead.
-   */
   get useCachingForChoicesRestful(): boolean { return this.web.cacheLoadedChoices; },
   set useCachingForChoicesRestful(val: boolean) { this.web.cacheLoadedChoices = val; },
   get useCachingForChoicesRestfull(): boolean { return this.web.cacheLoadedChoices; },
   set useCachingForChoicesRestfull(val: boolean) { this.web.cacheLoadedChoices = val; },
-  /**
-   * This property is obsolete. Use the [`settings.web.disableQuestionWhileLoadingChoices`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) property instead.
-   */
   get disableOnGettingChoicesFromWeb(): boolean { return this.web.disableQuestionWhileLoadingChoices; },
   set disableOnGettingChoicesFromWeb(val: boolean) { this.web.disableQuestionWhileLoadingChoices = val; },
-  /**
-   * This property is obsolete. Use the [`settings.web.surveyServiceUrl`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) property instead.
-   */
   get surveyServiceUrl(): string { return this.web.surveyServiceUrl; },
   set surveyServiceUrl(val: string) { this.web.surveyServiceUrl = val; },
   //#endregion
@@ -181,20 +170,12 @@ export var settings = {
     executeCompleteOnValueChanged: false,
     executeSkipOnValueChanged: true
   },
+
   //#region triggers section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.triggers.executeCompleteOnValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/settings#triggers) property instead.
-   */
   get executeCompleteTriggerOnValueChanged(): boolean { return this.triggers.executeCompleteOnValueChanged; },
   set executeCompleteTriggerOnValueChanged(val: boolean) { this.triggers.executeCompleteOnValueChanged = val; },
-  /**
-   * This property is obsolete. Use the [`settings.triggers.changeNavigationButtonsOnComplete`](https://surveyjs.io/form-library/documentation/api-reference/settings#triggers) property instead.
-   */
   get changeNavigationButtonsOnCompleteTrigger(): boolean { return this.triggers.changeNavigationButtonsOnComplete; },
   set changeNavigationButtonsOnCompleteTrigger(val: boolean) { this.triggers.changeNavigationButtonsOnComplete = val; },
-  /**
-   * This property is obsolete. Use the [`settings.triggers.executeSkipOnValueChanged`](https://surveyjs.io/form-library/documentation/api-reference/settings#triggers) property instead.
-   */
   get executeSkipTriggerOnValueChanged(): boolean { return this.triggers.executeSkipOnValueChanged; },
   set executeSkipTriggerOnValueChanged(val: boolean) { this.triggers.executeSkipOnValueChanged = val; },
   //#endregion
@@ -217,12 +198,12 @@ export var settings = {
    * import { ItemValue, settings } from "survey-core";
    *
    * // `itemValueSerializeAsObject` example
-   * settings.localization.itemValueSerializeAsObject = true;
+   * settings.serialization.itemValueSerializeAsObject = true;
    * const item = new ItemValue(5);
    * const itemString = item.toJSON(); // Produces { value: 5 } instead of 5
    *
    * // `itemValueSerializeDisplayText` example
-   * settings.localization.itemValueSerializeDisplayText = true;
+   * settings.serialization.itemValueSerializeDisplayText = true;
    * const item = new ItemValue("item1");
    * const itemString = item.toJSON(); // Produces { value: "item1", text: "item1" } instead of "item1"
    * ```
@@ -232,23 +213,16 @@ export var settings = {
     itemValueSerializeDisplayText: false,
     localizableStringSerializeAsObject: false
   },
+
   //#region serialization section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.serialization.itemValueSerializeAsObject`](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization) property instead.
-   */
   get itemValueAlwaysSerializeAsObject(): boolean { return this.serialization.itemValueSerializeAsObject; },
   set itemValueAlwaysSerializeAsObject(val: boolean) { this.serialization.itemValueSerializeAsObject = val; },
-  /**
-   * This property is obsolete. Use the [`settings.serialization.itemValueSerializeDisplayText`](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization) property instead.
-   */
   get itemValueAlwaysSerializeText(): boolean { return this.serialization.itemValueSerializeDisplayText; },
   set itemValueAlwaysSerializeText(val: boolean) { this.serialization.itemValueSerializeDisplayText = val; },
-  /**
-   * This property is obsolete. Use the [`settings.serialization.localizableStringSerializeAsObject`](https://surveyjs.io/form-library/documentation/api-reference/settings#serialization) property instead.
-   */
   get serializeLocalizableStringAsObject(): boolean { return this.serialization.localizableStringSerializeAsObject; },
   set serializeLocalizableStringAsObject(val: boolean) { this.serialization.localizableStringSerializeAsObject = val; },
   //#endregion
+
   /**
    * An object that configures lazy rendering.
    *
@@ -263,15 +237,14 @@ export var settings = {
     enabled: false,
     firstBatchSize: 3
   },
+
   //#region lazyRender section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.lazyRender.enabled`](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender) property instead.
-   */
   get lazyRowsRendering(): boolean { return this.lazyRender.enabled; },
   set lazyRowsRendering(val: boolean) { this.lazyRender.enabled = val; },
   get lazyRowsRenderingStartRow(): number { return this.lazyRender.firstBatchSize; },
   set lazyRowsRenderingStartRow(val: number) { this.lazyRender.firstBatchSize = val; },
   //#endregion
+
   /**
    * An object with properties that apply to [Single-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-question-model), [Multiple-Choice](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list), and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions.
    *
@@ -315,38 +288,22 @@ export var settings = {
     columnWidthsByType: columnWidthsByType,
     rateSize: "small" as "small" | "normal",
   },
+
   //#region matrix section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.matrix.defaultRowName`](https://surveyjs.io/form-library/documentation/api-reference/settings#matrix) property instead.
-   */
   get matrixDefaultRowName(): string { return this.matrix.defaultRowName; },
   set matrixDefaultRowName(val: string) { this.matrix.defaultRowName = val; },
-  /**
-   * This property is obsolete. Use the [`settings.matrix.defaultCellType`](https://surveyjs.io/form-library/documentation/api-reference/settings#matrix) property instead.
-   */
   get matrixDefaultCellType(): string { return this.matrix.defaultCellType; },
   set matrixDefaultCellType(val: string) { this.matrix.defaultCellType = val; },
-  /**
-   * This property is obsolete. Use the [`settings.matrix.totalsSuffix`](https://surveyjs.io/form-library/documentation/api-reference/settings#matrix) property instead.
-   */
   get matrixTotalValuePostFix(): string { return this.matrix.totalsSuffix; },
   set matrixTotalValuePostFix(val: string) { this.matrix.totalsSuffix = val; },
-  /**
-   * This property is obsolete. Use the [`settings.matrix.maxRowCount`](https://surveyjs.io/form-library/documentation/api-reference/settings#matrix) property instead.
-   */
   get matrixMaximumRowCount(): number { return this.matrix.maxRowCount; },
   set matrixMaximumRowCount(val: number) { this.matrix.maxRowCount = val; },
-  /**
-   * This property is obsolete. Use the [`settings.matrix.maxRowCountInCondition`](https://surveyjs.io/form-library/documentation/api-reference/settings#matrix) property instead.
-   */
   get matrixMaxRowCountInCondition(): number { return this.matrix.maxRowCountInCondition; },
   set matrixMaxRowCountInCondition(val: number) { this.matrix.maxRowCountInCondition = val; },
-  /**
-   * This property is obsolete. Use the [`settings.matrix.renderRemoveAsIcon`](https://surveyjs.io/form-library/documentation/api-reference/settings#matrix) property instead.
-   */
   get matrixRenderRemoveAsIcon(): boolean { return this.matrix.renderRemoveAsIcon; },
   set matrixRenderRemoveAsIcon(val: boolean) { this.matrix.renderRemoveAsIcon = val; },
   //#endregion
+
   /**
    * An object with properties that apply to [Dynamic Panel](https://surveyjs.io/form-library/documentation/api-reference/dynamic-panel-model) questions.
    *
@@ -364,18 +321,14 @@ export var settings = {
     maxPanelCount: 100,
     maxPanelCountInCondition: 1
   },
+
   //#region panel section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.panel.maxPanelCountInCondition`](https://surveyjs.io/form-library/documentation/api-reference/settings#panel) property instead.
-   */
   get panelDynamicMaxPanelCountInCondition(): number { return this.panel.maxPanelCountInCondition; },
   set panelDynamicMaxPanelCountInCondition(val: number) { this.panel.maxPanelCountInCondition = val; },
-  /**
-   * This property is obsolete. Use the [`settings.panel.maxPanelCount`](https://surveyjs.io/form-library/documentation/api-reference/settings#panel) property instead.
-   */
   get panelMaximumPanelCount(): number { return this.panel.maxPanelCount; },
   set panelMaximumPanelCount(val: number) { this.panel.maxPanelCount = val; },
   //#endregion
+
   /**
    * An object with properties that configure questions in read-only mode.
    *
@@ -392,18 +345,14 @@ export var settings = {
     commentRenderMode: "textarea",
     textRenderMode: "input"
   },
+
   //#region readOnly section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.readOnly.commentRenderMode`](https://surveyjs.io/form-library/documentation/api-reference/settings#readOnly) property instead.
-   */
   get readOnlyCommentRenderMode(): string { return this.readOnly.commentRenderMode; },
   set readOnlyCommentRenderMode(val: string) { this.readOnly.commentRenderMode = val; },
-  /**
-   * This property is obsolete. Use the [`settings.readOnly.textRenderMode`](https://surveyjs.io/form-library/documentation/api-reference/settings#readOnly) property instead.
-   */
   get readOnlyTextRenderMode(): string { return this.readOnly.textRenderMode; },
   set readOnlyTextRenderMode(val: string) { this.readOnly.textRenderMode = val; },
   //#endregion
+
   /**
    * An object with properties that configure question numbering.
    *
@@ -419,18 +368,14 @@ export var settings = {
     includeQuestionsWithHiddenNumber: false,
     includeQuestionsWithHiddenTitle: false
   },
+
   //#region numbering section, Obsolete properties
-  /**
-   * This property is obsolete. Use the [`settings.numbering.includeQuestionsWithHiddenTitle`](https://surveyjs.io/form-library/documentation/api-reference/settings#numbering) property instead.
-   */
   get setQuestionVisibleIndexForHiddenTitle(): boolean { return this.numbering.includeQuestionsWithHiddenTitle; },
   set setQuestionVisibleIndexForHiddenTitle(val: boolean) { this.numbering.includeQuestionsWithHiddenTitle = val; },
-  /**
-   * This property is obsolete. Use the [`settings.numbering.includeQuestionsWithHiddenNumber`](https://surveyjs.io/form-library/documentation/api-reference/settings#numbering) property instead.
-   */
   get setQuestionVisibleIndexForHiddenNumber(): boolean { return this.numbering.includeQuestionsWithHiddenNumber; },
   set setQuestionVisibleIndexForHiddenNumber(val: boolean) { this.numbering.includeQuestionsWithHiddenNumber = val; },
   //#endregion
+
   /**
    * Specifies an action to perform when users press the Enter key within a survey.
    *
@@ -513,8 +458,8 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string): boolean {
-    return showConfirmDialog(message, callback, applyTitle);
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string): boolean {
+    return showConfirmDialog(message, callback, applyTitle, locale);
   },
   /**
    * A minimum width value for all survey elements.

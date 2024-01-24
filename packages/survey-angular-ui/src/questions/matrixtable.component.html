@@ -24,8 +24,8 @@
     </tbody>
     <tfoot *ngIf="table.showFooter">
       <tr>
-        <sv-ng-matrix-cell [cell]="cell" [question]="question" *ngFor="let cell of table.footerRow.cells; trackBy: trackCellBy">
-        </sv-ng-matrix-cell>
+        <sv-ng-matrixdropdown-cell [cell]="cell" [question]="question" *ngFor="let cell of table.footerRow.cells; trackBy: trackCellBy">
+        </sv-ng-matrixdropdown-cell>
       </tr>
     </tfoot>
   </table>

@@ -106,10 +106,10 @@ export class QuestionBooleanModel extends Question {
    * @see valueTrue
    * @see valueFalse
    */
-  public get labelTrue(): any {
+  public get labelTrue(): string {
     return this.getLocalizableStringText("labelTrue");
   }
-  public set labelTrue(val: any) {
+  public set labelTrue(val: string) {
     this.setLocalizableStringText("labelTrue", val);
   }
   get locLabelTrue(): LocalizableString {
@@ -126,10 +126,10 @@ export class QuestionBooleanModel extends Question {
    * @see valueTrue
    * @see valueFalse
    */
-  public get labelFalse(): any {
+  public get labelFalse(): string {
     return this.getLocalizableStringText("labelFalse");
   }
-  public set labelFalse(val: any) {
+  public set labelFalse(val: string) {
     this.setLocalizableStringText("labelFalse", val);
   }
   get locLabelFalse(): LocalizableString {
@@ -285,6 +285,15 @@ export class QuestionBooleanModel extends Question {
   protected createActionContainer(allowAdaptiveActions?: boolean): ActionContainer {
     return super.createActionContainer(this.renderAs !== "checkbox");
   }
+
+  //a11y
+  public get isNewA11yStructure(): boolean {
+    return true;
+  }
+  public get a11y_input_ariaRole(): string {
+    return "switch";
+  }
+  // EO a11y
 }
 
 Serializer.addClass(

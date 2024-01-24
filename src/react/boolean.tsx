@@ -73,10 +73,12 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             disabled={this.isDisplayMode}
             checked={this.question.booleanValue || false}
             onChange={this.handleOnChange}
-            aria-required={this.question.ariaRequired}
-            aria-label={this.question.ariaLabel}
-            aria-invalid={this.question.ariaInvalid}
-            aria-describedby={this.question.ariaDescribedBy}
+            role={this.question.a11y_input_ariaRole}
+            aria-required={this.question.a11y_input_ariaRequired}
+            aria-label={this.question.a11y_input_ariaLabel}
+            aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+            aria-invalid={this.question.a11y_input_ariaInvalid}
+            aria-describedby={this.question.a11y_input_ariaDescribedBy}
           />
           <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, false)}>
             <span className={this.question.getLabelCss(false)}>

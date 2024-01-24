@@ -25,6 +25,13 @@
   color: $font-questiontitle-color;
 }
 
+.sd-element__header {
+  .sv-string-editor {
+    max-width: 100%;
+    white-space: normal;
+  }
+}
+
 .sd-element__title {
   font-size: 0;
   line-height: 0;
@@ -45,11 +52,6 @@
   .sv-title-actions__title {
     font-size: 0;
     line-height: 0;
-  }
-
-  .sv-string-editor {
-    max-width: 100%;
-    white-space: normal;
   }
 
   .sv-title-actions__title {
@@ -130,7 +132,7 @@
   background: $question-background;
   box-shadow: $shadow-small;
   display: flex;
-    flex-direction: column;
+  flex-direction: column;
 }
 
 //compact styles

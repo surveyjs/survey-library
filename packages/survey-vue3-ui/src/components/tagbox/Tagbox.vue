@@ -57,7 +57,10 @@
       :id="question.inputId"
       :class="question.getControlClass()"
     >
-      <div>{{ question.readOnlyText }}</div>
+      <survey-string
+        v-if="question.locReadOnlyText"
+        :locString="question.locReadOnlyText"
+      />
     </div>
     <div
       :class="question.cssClasses.chevronButton"
@@ -76,7 +79,7 @@
 </template>
 
 <script lang="ts" setup>
-import { useBase } from "@/base";
+import { useBase, useComputedArray } from "@/base";
 import { DropdownMultiSelectListModel, QuestionTagboxModel } from "survey-core";
 import { computed } from "vue";
 
@@ -103,7 +106,7 @@ const keyhandler = (event: any) => {
 const blur = (event: any) => {
   model.value?.onBlur(event);
 };
-const selectedChoices = computed(() => props.question.selectedChoices);
+const selectedChoices = useComputedArray(() => props.question.selectedChoices);
 
 useBase(() => model.value);
 </script>

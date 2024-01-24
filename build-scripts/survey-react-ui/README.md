@@ -1,7 +1,7 @@
 # SurveyJS React Form Library
 
 
-https://github.com/surveyjs/survey-library/assets/22315929/ff5c0779-7e06-4241-a1db-2b28df78eba5
+<video src="https://github.com/surveyjs/survey-library/assets/22315929/b24a68bf-d703-4096-835b-752f5f610aa6"></video>
 
 
 [![Build Status](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_apis/build/status/SurveyJS%20Library?branchName=master)](https://dev.azure.com/SurveyJS/SurveyJS%20Integration%20Tests/_build/latest?definitionId=7&branchName=master)

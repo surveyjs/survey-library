@@ -54,6 +54,7 @@ export class LocalizableString implements ILocalizableString {
   public searchText: string;
   public searchIndex: number;
   public disableLocalization: boolean;
+  public defaultValue: string;
   constructor(
     public owner: ILocalizableOwner,
     public useMarkdown: boolean = false,
@@ -131,7 +132,7 @@ export class LocalizableString implements ILocalizableString {
         res = this.onGetLocalizationTextCallback(res);
       }
     }
-    if (!res) res = "";
+    if (!res) res = this.defaultValue || "";
     return res;
   }
   private getRootDialect(loc: string): string {
@@ -322,20 +323,29 @@ export class LocalizableString implements ILocalizableString {
     }
     return this.searchIndex != undefined;
   }
-  public onChanged() { }
+  public onChanged(): void { }
   public onStringChanged: EventBase<LocalizableString> = new EventBase<LocalizableString>();
-  protected onCreating() { }
+  protected onCreating(): void { }
   private hasHtmlValue(): boolean {
     if (!this.owner || !this.useMarkdown) return false;
-    var loc = this.locale;
+    let loc = this.locale;
     if (!loc) loc = this.defaultLoc;
     if ((<any>this).htmlValues[loc] !== undefined) return !!(<any>this).htmlValues[loc];
-    var renderedText = this.calculatedText;
-    if (!renderedText) return false;
-    if (!!this.getLocalizationName() && renderedText === this.getLocalizationStr()) return false;
+    let renderedText = this.calculatedText;
+    if (!renderedText) {
+      this.setHtmlValue(loc, "");
+      return false;
+    }
+    if (!!this.getLocalizationName() && renderedText === this.getLocalizationStr()) {
+      this.setHtmlValue(loc, "");
+      return false;
+    }
     const res = this.owner.getMarkdownHtml(renderedText, this.name);
-    (<any>this).htmlValues[loc] = res;
+    this.setHtmlValue(loc, res);
     return !!res;
+  }
+  private setHtmlValue(loc: string, val: string): void {
+    (<any>this).htmlValues[loc] = val;
   }
   public getHtmlValue(): string {
     var loc = this.locale;

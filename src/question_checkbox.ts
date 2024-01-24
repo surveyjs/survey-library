@@ -512,9 +512,11 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     var res = [];
     var visItems = this.visibleChoices;
     for (var i = 0; i < visItems.length; i++) {
+      const item = visItems[i];
+      if(item === this.selectAllItem) continue;
       var val = visItems[i].value;
       if (Helpers.isTwoValueEquals(val, this.invisibleOldValues[val])) {
-        if (!this.isItemSelected(visItems[i])) {
+        if (!this.isItemSelected(item)) {
           res.push(val);
         }
         delete this.invisibleOldValues[val];
@@ -635,8 +637,20 @@ Serializer.addClass(
   [
     { name: "showSelectAllItem:boolean", alternativeName: "hasSelectAll" },
     { name: "separateSpecialChoices", visible: true },
-    { name: "maxSelectedChoices:number", default: 0 },
-    { name: "minSelectedChoices:number", default: 0 },
+    { name: "maxSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if(val <= 0) return 0;
+        const min = obj.minSelectedChoices;
+        return min > 0 && val < min ? min : val;
+      }
+    },
+    { name: "minSelectedChoices:number", default: 0,
+      onSettingValue: (obj: any, val: any): any => {
+        if(val <= 0) return 0;
+        const max = obj.maxSelectedChoices;
+        return max > 0 && val > max ? max : val;
+      }
+    },
     {
       name: "selectAllText",
       serializationProperty: "locSelectAllText",

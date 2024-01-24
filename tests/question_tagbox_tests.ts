@@ -1294,6 +1294,7 @@ QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert)
   assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en, #3");
 });
 QUnit.test("question.showClearButton", assert => {
+  settings.supportCreatorV2 = false;
   const json = {
     questions: [
       {
@@ -1480,4 +1481,32 @@ QUnit.test("Can clear tagbox value", assert => {
   row.showDetailPanel();
   const question = row.getQuestionByName("detailTypes");
   assert.ok(question, "There is no exception");
+});
+
+QUnit.test("Check readOnly tagbox with markdown", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "tagbox",
+        name: "q1",
+        choices: [
+          "item1",
+          "item2",
+          "item3",
+          "item4"
+        ]
+      }
+    ]
+  });
+  survey.onGetQuestionDisplayValue.add((sender, options) => {
+    const strs = options.displayValue.split(",");
+    options.displayValue = strs.join(" | ");
+  });
+  const q1 = survey.getQuestionByName("q1") as QuestionTagboxModel;
+
+  survey.mode = "display";
+  survey.data = { q1: ["item1", "item2", "item3"] };
+
+  assert.equal(q1.displayValue, "item1 |  item2 |  item3");
+  assert.equal(q1.locReadOnlyText.renderedHtml, "item1 |  item2 |  item3");
 });

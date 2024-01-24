@@ -46,6 +46,7 @@ export { SurveyQuestionDropdownSelect } from "../react/dropdown-select";
 export {
   SurveyQuestionMatrix,
   SurveyQuestionMatrixRow,
+  SurveyQuestionMatrixCell
 } from "../react/reactquestion_matrix";
 export { SurveyQuestionHtml } from "../react/reactquestion_html";
 export { SurveyQuestionFile } from "../react/reactquestion_file";

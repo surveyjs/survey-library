@@ -25,7 +25,7 @@
           <!-- ko foreach: { data: question.koVisibleRows, as: 'row' } -->
           <tr data-bind="css: row.rowClasses">
             <td
-              data-bind="visible: question.hasRows, css: question.cssClasses.rowTextCell, style: {  minWidth: question.rowTitleWidth, width: question.rowTitleWidth }"
+              data-bind="visible: question.hasRows, css: row.rowTextClasses, style: {  minWidth: question.rowTitleWidth, width: question.rowTitleWidth }"
             >
               <!-- ko component: { name: question.getRowHeaderWrapperComponentName($data), params: { componentData:  question.getRowHeaderWrapperComponentData($data), templateData: { data: $data } } } -->
                 <!-- ko template: { name: 'survey-string', data: row.locText } -->
@@ -35,7 +35,7 @@
             <!-- ko foreach: question.koVisibleColumns -->
             <!-- ko if: question.hasCellText -->
             <td
-              data-bind="css: question.getItemClass(row, $data), click: function() { if (!question.isInputReadOnly) { row.cellClick($data); } }"
+              data-bind="css: question.getItemClass(row, $data), click: function() { row.cellClick($data); }"
             >
               <!-- ko template: { name: 'survey-string', data: question.getCellDisplayLocText(row.name, $data) } -->
               <!-- /ko -->
@@ -45,22 +45,8 @@
             <td
               data-bind="attr: { 'data-responsive-title': $data.locText.renderedHtml }, css: question.cssClasses.cell"
             >
-              <label data-bind="css: question.getItemClass(row, $data), event: { mousedown: question.koMouseDown }" >
-                <input
-                  type="radio"
-                  data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.a11y_input_ariaRequired, 'aria-label': question.getCellAriaLabel($parent.locText.renderedHtml, $data.locText.renderedHtml), 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: $data.value, checked: row.value, enable: !question.isInputReadOnly"
-                />
-                <span data-bind="css: question.cssClasses.materialDecorator">
-                    <!-- ko if: question.itemSvgIcon -->
-                      <svg data-bind="css:question.cssClasses.itemDecorator">
-                        <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
-                      </svg>  
-                    <!-- /ko -->
-                </span>
-                <span data-bind="visible: question.isMobile, css: question.cssClasses.cellResponsiveTitle">
-                  <!-- ko template: { name: 'survey-string', data: $data.locText } --><!-- /ko -->
-                </span>
-              </label>
+            <!-- ko component: { name: "sv-template-renderer", params: { templateData: { name: question.cellComponent, data: { question: question, row: $parent, column: $data } } } } -->
+            <!-- /ko -->
             </td>
             <!-- /ko -->
             <!-- /ko -->
@@ -73,4 +59,24 @@
 </script>
 <script type="text/html" id="survey-text">
   <span data-bind="text:$data.renderedHtml"></span>
+</script>
+<script type="text/html" id="survey-matrix-cell">
+  <label data-bind="css: question.getItemClass(row, column), event: { mousedown: question.koMouseDown }" >
+    <input
+      type="radio"
+      data-bind="css: question.cssClasses.itemValue, attr: { name: row.fullName, 'aria-required': question.a11y_input_ariaRequired, 'aria-label': question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml), 'aria-invalid': question.a11y_input_ariaInvalid, 'aria-describedby': question.a11y_input_ariaDescribedBy, id: question.inputId + '_' + row.name + '_' + $index() }, checkedValue: column.value, checked: row.value, enable: !row.isReadOnly"
+    />
+    <span data-bind="css: question.cssClasses.materialDecorator">
+        <!-- ko if: question.itemSvgIcon -->
+          <svg data-bind="css:question.cssClasses.itemDecorator">
+            <use data-bind="attr:{'xlink:href':question.itemSvgIcon}" xlink:href=''></use>
+          </svg>  
+        <!-- /ko -->
+    </span>
+    <!-- ko if: question.isMobile -->
+    <span data-bind="css: question.cssClasses.cellResponsiveTitle">
+      <!-- ko template: { name: 'survey-string', data: column.locText } --><!-- /ko -->
+    </span>
+    <!-- /ko -->
+  </label>
 </script>

@@ -2658,3 +2658,158 @@ QUnit.test("showPreview & default value, #7508", function (assert) {
   assert.equal(contentQuestion.value, "edf", "contentQuestion.value #4");
   ComponentCollection.Instance.clear();
 });
+QUnit.test("showPreview & default value, #7640", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    questionJSON: {
+      type: "text",
+      title: "abc={abc}"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const contentQuestion = <QuestionTextModel>q1.contentQuestion;
+  survey.setVariable("abc", 123);
+  assert.equal(contentQuestion.locTitle.renderedHtml, "abc=123", "contentQuestion.title");
+  assert.equal(q1.locTitle.renderedHtml, "abc=123", "q1.title");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: defaultQuestionTitle", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    defaultQuestionTitle: {
+      en: "abc={abc} en",
+      de: "abc={abc} de",
+    },
+    questionJSON: {
+      type: "text"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setVariable("abc", 123);
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 en", "q1.title en");
+  survey.locale = "de";
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 de", "q1.title de");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("composite component: defaultQuestionTitle", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    defaultQuestionTitle: {
+      en: "abc={abc} en",
+      de: "abc={abc} de",
+    },
+    elementsJSON: {
+      type: "text"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  survey.setVariable("abc", 123);
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 en", "q1.title en");
+  survey.locale = "de";
+  assert.equal(q1.locTitle.renderedHtml, "abc=123 de", "q1.title de");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: inheritBaseProps: array<string>", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: ["allowClear", "showOtherItem"],
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionDropdownModel>q1.contentQuestion;
+  assert.equal(q1.allowClear, false, "q1.allowClear #1");
+  assert.equal(content.allowClear, false, "content.allowClear #1");
+  q1.allowClear = true;
+  assert.equal(q1.allowClear, true, "q1.allowClear #2");
+  assert.equal(content.allowClear, true, "content.allowClear #2");
+  content.allowClear = false;
+  assert.equal(q1.allowClear, false, "q1.allowClear #3");
+  assert.equal(content.allowClear, false, "content.allowClear #3");
+
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #1");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #1");
+  q1.showOtherItem = false;
+  assert.equal(q1.showOtherItem, false, "q1.showOtherItem #2");
+  assert.equal(content.showOtherItem, false, "content.showOtherItem #2");
+  content.showOtherItem = true;
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #3");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #3");
+  const json = q1.toJSON();
+  assert.equal(json.allowClear, false, "json.allowClear");
+  assert.equal(json.showOtherItem, true, "json.showOtherItem");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("single component: inheritBaseProps: true", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customdropdown",
+    inheritBaseProps: true,
+    questionJSON: {
+      type: "dropdown",
+      choices: [1, 2, 3]
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionDropdownModel>q1.contentQuestion;
+  assert.equal(q1.getDynamicType(), "dropdown", "q1.getDynamicType()");
+  assert.equal(content.choices.length, 3, "content.choices");
+  assert.notOk(q1.choices, "q1.choices");
+  assert.equal(q1.allowClear, false, "q1.allowClear #1");
+  assert.equal(content.allowClear, false, "content.allowClear #1");
+  q1.allowClear = true;
+  assert.equal(q1.allowClear, true, "q1.allowClear #2");
+  assert.equal(content.allowClear, true, "content.allowClear #2");
+  content.allowClear = false;
+  assert.equal(q1.allowClear, false, "q1.allowClear #3");
+  assert.equal(content.allowClear, false, "content.allowClear #3");
+
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #1");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #1");
+  q1.showOtherItem = false;
+  assert.equal(q1.showOtherItem, false, "q1.showOtherItem #2");
+  assert.equal(content.showOtherItem, false, "content.showOtherItem #2");
+  content.showOtherItem = true;
+  assert.equal(q1.showOtherItem, true, "q1.showOtherItem #3");
+  assert.equal(content.showOtherItem, true, "content.showOtherItem #3");
+  const json = q1.toJSON();
+  assert.equal(json.allowClear, false, "json.allowClear");
+  assert.equal(json.showOtherItem, true, "json.showOtherItem");
+
+  ComponentCollection.Instance.clear();
+});

@@ -515,6 +515,29 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check title location Left - small question - !!!Need to be improved!!!", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: false,
+        "showQuestionNumbers": "off",
+        questions: [
+          {
+            type: "text",
+            name: "q1",
+            title: "State",
+            titleLocation: "left",
+            maxWidth: "120px",
+            minWidth: "120px"
+          }
+        ]
+      },);
+      const qRoot = Selector(".sd-question");
+      await takeElementScreenshot("question-title-location-left-small.png", qRoot, t, comparer);
+    });
+  });
+
   test("Composite", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
 
@@ -664,7 +687,7 @@ frameworks.forEach(framework => {
 
   test("Remaining character counter - mobile view", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(350, 500);
+      await t.resizeWindow(350, 900);
       await initSurvey(framework, {
         focusFirstQuestionAutomatic: true,
         questions: [
@@ -673,6 +696,11 @@ frameworks.forEach(framework => {
             type: "text",
             maxLength: 25,
             defaultValue: "Tewwwwwwwwwwwwwwwwwwwwst"
+          }, {
+            name: "text",
+            type: "text",
+            maxLength: 100,
+            defaultValue: "Tewwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwst"
           }, {
             "type": "multipletext",
             "name": "question1",
@@ -695,6 +723,10 @@ frameworks.forEach(framework => {
 
       await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-with-focus.png", Selector(".sd-text__content"), t, comparer);
       await takeElementScreenshot("question-multipletext-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-multipletext__content"), t, comparer);
+      await takeElementScreenshot("question-text-remaining-character-counter-maxLength-100-without-focus.png", Selector(".sd-text__content").nth(1), t, comparer);
+
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-text-remaining-character-counter-maxLength-100-with-focus.png", Selector(".sd-text__content").nth(1), t, comparer);
 
       await t.pressKey("tab");
       await takeElementScreenshot("question-text-remaining-character-counter-mobile-view-without-focus.png", Selector(".sd-text__content"), t, comparer);

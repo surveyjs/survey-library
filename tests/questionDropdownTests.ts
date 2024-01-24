@@ -302,6 +302,7 @@ QUnit.test("deserialize showOptionsCaption & optionsCaption to placeholder & all
 });
 
 QUnit.test("question.showClearButton", assert => {
+  settings.supportCreatorV2 = false;
   const json = {
     questions: [
       {

@@ -41,6 +41,7 @@ $shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
 $shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
 $shadow-large: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
 $shadow-inner: var(--sjs-shadow-inner, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-inner-reset: var(--sjs-shadow-inner-reset, inset 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
 
 $red: var(--sjs-special-red, var(--red, #e60a3e));
 $red-light: var(--sjs-special-red-light, var(--red-light, rgba(230, 10, 62, 0.1)));
@@ -108,6 +109,8 @@ $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 //call  @include useEditorFontSize before using this variable;
 $font-editorfont-size: var(--sjs-internal-font-editorfont-size);
 
+$sd-panel-normal-min-width: 496px;
+$sd-panel-medium-min-width: 176px;
 @mixin useEditorFontSize {
   --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});
 }

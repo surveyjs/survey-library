@@ -1,5 +1,5 @@
 import { ILocalizableOwner, LocalizableString } from "../localizablestring";
-import { Base } from "../base";
+import { Base, ComputedUpdater } from "../base";
 import { surveyLocalization } from "../surveyStrings";
 import { property } from "../jsonobject";
 import { IListModel, ListModel } from "../list";
@@ -28,7 +28,7 @@ export interface IAction {
    * @see enabled
    * @see active
    */
-  visible?: boolean;
+  visible?: boolean | ComputedUpdater<boolean>;
   /**
    * The action item's title.
    *
@@ -49,7 +49,7 @@ export interface IAction {
    * @see active
    * @see visible
    */
-  enabled?: boolean;
+  enabled?: boolean | ComputedUpdater<boolean>;
   enabledIf?: () => boolean;
   /**
    * Specifies the visibility of the action item's title.
@@ -448,7 +448,7 @@ export class Action extends BaseAction implements IAction, ILocalizableOwner {
     this._enabled = val;
   }
   public getEnabled(): boolean {
-    if(this.enabledIf) return this.enabledIf();
+    if (this.enabledIf) return this.enabledIf();
     return this._enabled;
   }
   public setComponent(val: string): void {

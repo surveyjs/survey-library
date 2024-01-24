@@ -4,7 +4,7 @@
 <div [class]="model.cssClasses.placeholder" [visible]="model.needShowPlaceholder()" [model]="$any(model).locPlaceholder" sv-ng-string></div>
 <div>
   <img *ngIf="!!model.backgroundImage" [src]="model.backgroundImage" [style.width]="model.renderedCanvasWidth" [class]="model.cssClasses.backgroundImage">
-  <canvas tabindex="0" [class]="model.cssClasses.canvas" (blur)="model.onBlur($event)"></canvas>
+  <canvas tabindex="-1" [class]="model.cssClasses.canvas" (blur)="model.onBlur($event)"></canvas>
 </div>
 <div [class]="model.cssClasses.controls" *ngIf="model.canShowClearButton">
   <button

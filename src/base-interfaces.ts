@@ -107,6 +107,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
 
   state: string;
   isLazyRendering: boolean;
+  lazyRenderingFirstBatchSize: number;
   cancelPreviewByPage(panel: IPanel): any;
   locEditText: LocalizableString;
   cssNavigationEdit: string;
@@ -387,4 +388,11 @@ export interface IPlainDataOptions {
   calculations?: Array<{
     propertyName: string,
   }>;
+}
+export interface ILoadFromJSONOptions {
+  validatePropertyValues?: boolean;
+}
+export interface ISaveToJSONOptions {
+  storeDefaults?: boolean;
+  version?: string;
 }

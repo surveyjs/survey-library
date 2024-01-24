@@ -395,6 +395,7 @@ frameworks.forEach(framework => {
 
 frameworks.forEach(framework => {
   const json = {
+    "focusFirstQuestionAutomatic": true,
     "pages": [
       {
         "name": "page1",
@@ -421,8 +422,40 @@ frameworks.forEach(framework => {
   test("Paneldynamic confirm dialog", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 900);
+      await t.pressKey(" a b c tab");
       await t.click(Selector(".sd-paneldynamic__remove-btn"));
       await takeElementScreenshot("paneldynamic-confirm-dialog", Selector(".sv-popup--confirm-delete .sv-popup__body-content"), t, comparer);
+    });
+  });
+  test("tab focused state for panel dynamic", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 900);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ],
+                "panelCount": 4,
+                "minPanelCount": 4,
+                "renderMode": "tab"
+              }
+            ]
+          }
+        ]
+      });
+      await t
+        .click(Selector("button[title='Panel 1']"))
+        .pressKey("tab");
+      await takeElementScreenshot("paneldynamic-focused-tab", Selector(".sd-question--paneldynamic"), t, comparer);
     });
   });
 });

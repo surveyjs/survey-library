@@ -2,13 +2,17 @@
   border-radius: calcCornerRadius(0.5);
 }
 .sd-checkbox__svg {
-  display: none;
+  display: block;
   width: calcSize(2.5);
   height: calcSize(2.5);
+
+  use {
+    fill: transparent;
+    //transition: fill 250ms;
+  }
 }
 
 .sd-checkbox--checked .sd-checkbox__svg {
-  display: block;
   use {
     fill: $primary-foreground;
   }

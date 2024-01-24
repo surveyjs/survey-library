@@ -34,6 +34,8 @@ Survey.ComponentCollection.Instance.add({
   name: "country", 
   // A display name used in the Toolbox
   title: "Country", 
+  // A default title for questions created with this question type
+  defaultQuestionTitle: "Country",
   // A JSON schema for the base question type (Dropdown in this case)
   questionJSON: {
     "type": "dropdown",
@@ -65,3 +67,4 @@ This approach gives you the following advantages:
 - [Create Composite Question Types](/form-library/documentation/customize-question-types/create-composite-question-types)
 - [Integrate Third-Party React Components](/form-library/documentation/customize-question-types/third-party-component-integration-react)
 - [Integrate Third-Party Angular Components](/form-library/documentation/customize-question-types/third-party-component-integration-angular)
+- [Integrate Third-Party Vue 3 Components](/form-library/documentation/customize-question-types/third-party-component-integration-vue)

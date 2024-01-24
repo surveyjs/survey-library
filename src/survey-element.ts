@@ -520,7 +520,12 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   private get css(): any {
     return !!this.survey ? this.survey.getCss() : {};
   }
-  @property() cssClassesValue: any;
+  public get cssClassesValue(): any {
+    return this.getPropertyValueWithoutDefault("cssClassesValue");
+  }
+  public set cssClassesValue(val: any) {
+    this.setPropertyValue("cssClassesValue", val);
+  }
   private ensureCssClassesValue() {
     if (!this.cssClassesValue) {
       this.cssClassesValue = this.calcCssClasses(this.css);
@@ -559,7 +564,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   protected getIsLoadingFromJson(): boolean {
     if (super.getIsLoadingFromJson()) return true;
-    return this.survey ? this.survey.isLoadingFromJson : false;
+    return this.surveyValue ? this.surveyValue.isLoadingFromJson : false;
   }
   /**
    * A survey element identifier.
@@ -627,13 +632,16 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   public set selectedElementInDesign(val: SurveyElement) {
     this.selectedElementInDesignValue = val;
   }
-  public updateCustomWidgets() { }
+  public updateCustomWidgets(): void { }
 
-  public onSurveyLoad() { }
-  public onFirstRendering() {
+  public onSurveyLoad(): void { }
+  private wasRenderedValue: boolean;
+  public get wasRendered(): boolean { return !!this.wasRenderedValue; }
+  public onFirstRendering(): void {
+    this.wasRenderedValue = true;
     this.ensureCssClassesValue();
   }
-  endLoadingFromJson() {
+  endLoadingFromJson(): void {
     super.endLoadingFromJson();
     if (!this.survey) {
       this.onSurveyLoad();
@@ -647,21 +655,21 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
    * Returns `true` if the survey element is a page.
    * @see Base.getType
    */
-  public get isPage() {
+  public get isPage(): boolean {
     return false;
   }
   /**
    * Returns `true` if the survey element is a panel.
    * @see Base.getType
    */
-  public get isPanel() {
+  public get isPanel(): boolean {
     return false;
   }
   /**
    * Returns `true` if the survey element is a question.
    * @see Base.getType
    */
-  public get isQuestion() {
+  public get isQuestion(): boolean {
     return false;
   }
   public delete(doDispose: boolean): void { }

@@ -19,7 +19,10 @@
       v-if="!element.isCollapsed"
       :class="element.cssClasses.panel.content"
     >
-      <template v-for="(row, index) in rows" :key="element.id + '_' + index">
+      <template
+        v-for="(row, index) in element.rows"
+        :key="element.id + '_' + index"
+      >
         <component
           :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
           v-bind="{
@@ -53,7 +56,6 @@ const props = defineProps<{
   css?: any;
 }>();
 const root = ref<HTMLElement>(null as any);
-const rows = computed(() => props.element.rows);
 const survey = computed(() => props.element.survey);
 
 useBase(() => props.element);

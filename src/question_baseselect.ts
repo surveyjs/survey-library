@@ -34,7 +34,7 @@ export class QuestionSelectBase extends Question {
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
   private get waitingChoicesByURL(): boolean {
-    return !this.isChoicesLoaded && !this.choicesByUrl.isEmpty;
+    return !this.isChoicesLoaded && this.hasChoicesUrl;
   }
   @property({ onSet: (newVal: any, target: QuestionSelectBase) => {
     target.onSelectedItemValuesChangedHandler(newVal);
@@ -53,7 +53,8 @@ export class QuestionSelectBase extends Question {
       }
     });
     this.registerPropertyChangedHandlers(
-      ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion", "choiceTextsFromQuestion", "showNoneItem"],
+      ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
+        "choiceTextsFromQuestion", "showNoneItem", "isUsingRestful"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -123,6 +124,12 @@ export class QuestionSelectBase extends Question {
   private setCarryForwardQuestionType(selBaseQuestion: boolean, arrayQuestion: boolean): void {
     const mode = selBaseQuestion ? "select" : (arrayQuestion ? "array" : undefined);
     this.setPropertyValue("carryForwardQuestionType", mode);
+  }
+  public get isUsingRestful(): boolean {
+    return this.getPropertyValueWithoutDefault("isUsingRestful") || false;
+  }
+  public updateIsUsingRestful(): void {
+    this.setPropertyValueDirectly("isUsingRestful", this.hasChoicesUrl);
   }
   public supportGoNextPageError(): boolean {
     return !this.isOtherSelected || !!this.otherValue;
@@ -499,11 +506,8 @@ export class QuestionSelectBase extends Question {
       this.value = val;
     }
   }
-  protected setQuestionValue(
-    newValue: any,
-    updateIsAnswered: boolean = true,
-    updateComment: boolean = true
-  ) {
+  private makeCommentEmpty: boolean;
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true, updateComment: boolean = true): void {
     if (
       this.isLoadingFromJson ||
       this.isTwoValueEquals(this.value, newValue)
@@ -523,7 +527,16 @@ export class QuestionSelectBase extends Question {
       if (this.getStoreOthersAsComment() && !this.autoOtherMode) {
         this.prevOtherValue = this.otherValue;
       }
-      this.otherValue = "";
+      this.makeCommentEmpty = true;
+      this.otherValueCore = "";
+      this.setPropertyValue("comment", "");
+    }
+  }
+  protected setValueCore(newValue: any): void {
+    super.setValueCore(newValue);
+    if(this.makeCommentEmpty) {
+      this.setCommentIntoData("");
+      this.makeCommentEmpty = false;
     }
   }
   protected setNewValue(newValue: any) {
@@ -578,7 +591,7 @@ export class QuestionSelectBase extends Question {
     const value = this.value;
     const valueArray: Array<any> = Array.isArray(value) ? value : [value];
     const hasItemWithoutValues = valueArray.some(val => !ItemValue.getItemByValue(this.choices, val));
-    if (hasItemWithoutValues && (this.choicesLazyLoadEnabled || !this.choicesByUrl.isEmpty)) {
+    if (hasItemWithoutValues && (this.choicesLazyLoadEnabled || this.hasChoicesUrl)) {
       this.waitingGetChoiceDisplayValueResponse = true;
       this.updateIsReady();
       this.survey.getChoiceDisplayValue({
@@ -638,9 +651,9 @@ export class QuestionSelectBase extends Question {
    */
   public clearIncorrectValuesCallback: () => void;
   /**
-   * Configures access to a RESTful service that returns choice items. Refer to the [ChoicesRestful](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information.
+   * Configures access to a RESTful service that returns choice items. Refer to the [`ChoicesRestful`](https://surveyjs.io/form-library/documentation/choicesrestful) class description for more information. You can also specify additional application-wide settings using the [`settings.web`](https://surveyjs.io/form-library/documentation/api-reference/settings#web) object.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-dropdownrestfull/ (linkStyle))
+   * [View Demo](https://surveyjs.io/form-library/examples/dropdown-menu-load-data-from-restful-service/ (linkStyle))
    * @see choices
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
@@ -830,7 +843,7 @@ export class QuestionSelectBase extends Question {
     this.otherPlaceholder = newValue;
   }
   /**
-   * Get or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
+   * Gets or sets an error message displayed when users select the "Other" choice item but leave the comment area empty.
    * @see showOtherItem
    */
   public get otherErrorText(): string {
@@ -906,7 +919,9 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     this.headItemsCount = 0;
     this.footItemsCount = 0;
-    this.addNewItemToVisibleChoices(items, isAddAll);
+    if(!this.hasChoicesUrl) {
+      this.addNewItemToVisibleChoices(items, isAddAll);
+    }
     const dict = new Array<{ index: number, item: ItemValue }>();
     this.addNonChoicesItems(dict, isAddAll);
     dict.sort((a: { index: number, item: ItemValue }, b: { index: number, item: ItemValue }): number => {
@@ -966,8 +981,8 @@ export class QuestionSelectBase extends Question {
     return true;
   }
   protected get isAddDefaultItems(): boolean {
-    return settings.supportCreatorV2 && settings.showDefaultItemsInCreatorV2 &&
-      this.isDesignMode && !this.customWidget && !this.isContentElement;
+    return settings.showDefaultItemsInCreatorV2 && this.isDesignModeV2 &&
+      !this.customWidget && !this.isContentElement;
   }
   public getPlainData(
     options: IPlainDataOptions = {
@@ -1064,6 +1079,7 @@ export class QuestionSelectBase extends Question {
       (<any>question).addDependedQuestion(this);
       return this.getChoicesFromArrayQuestion(question);
     }
+    if(this.isDesignModeV2 && this.hasChoicesUrl) return [];
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
@@ -1217,10 +1233,10 @@ export class QuestionSelectBase extends Question {
       this.storeOthersAsComment === true ||
       (this.storeOthersAsComment == "default" &&
         (this.survey != null ? this.survey.storeOthersAsComment : true)) ||
-      (!this.choicesByUrl.isEmpty && !this.choicesFromUrl)
+      (this.hasChoicesUrl && !this.choicesFromUrl)
     );
   }
-  onSurveyLoad() {
+  onSurveyLoad(): void {
     this.runChoicesByUrl();
     this.onVisibleChoicesChanged();
     super.onSurveyLoad();
@@ -1282,7 +1298,8 @@ export class QuestionSelectBase extends Question {
   }
   private isRunningChoices: boolean = false;
   private runChoicesByUrl() {
-    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices)
+    this.updateIsUsingRestful();
+    if (!this.choicesByUrl || this.isLoadingFromJson || this.isRunningChoices || this.isDesignModeV2)
       return;
     var processor = this.surveyImpl
       ? this.surveyImpl.getTextProcessor()
@@ -1301,7 +1318,7 @@ export class QuestionSelectBase extends Question {
       this.readOnly = true;
     }
   }
-  protected onLoadChoicesFromUrl(array: Array<ItemValue>) {
+  protected onLoadChoicesFromUrl(array: Array<ItemValue>): void {
     if (this.enableOnLoadingChoices) {
       this.readOnly = false;
     }
@@ -1324,7 +1341,6 @@ export class QuestionSelectBase extends Question {
     if (this.isValueEmpty(this.cachedValueForUrlRequests)) {
       this.cachedValueForUrlRequests = this.value;
     }
-    this.isFirstLoadChoicesFromUrl = false;
     var cachedValues = this.createCachedValueForUrlRequests(
       this.cachedValueForUrlRequests,
       checkCachedValuesOnExisting
@@ -1338,6 +1354,17 @@ export class QuestionSelectBase extends Question {
         newChoices[i].locOwner = this;
       }
     }
+    this.setChoicesFromUrl(newChoices, errors, cachedValues);
+  }
+  private canAvoidSettChoicesFromUrl(newChoices: Array<ItemValue>): boolean {
+    if(this.isFirstLoadChoicesFromUrl) return false;
+    const chocesAreEmpty = !newChoices || Array.isArray(newChoices) && newChoices.length === 0;
+    if(chocesAreEmpty && !this.isEmpty()) return false;
+    return Helpers.isTwoValueEquals(this.choicesFromUrl, newChoices);
+  }
+  private setChoicesFromUrl(newChoices: Array<ItemValue>, errors: Array<any>, cachedValues: any): void {
+    if(this.canAvoidSettChoicesFromUrl(newChoices)) return;
+    this.isFirstLoadChoicesFromUrl = false;
     this.choicesFromUrl = newChoices;
     this.filterItems();
     this.onVisibleChoicesChanged();
@@ -1463,6 +1490,9 @@ export class QuestionSelectBase extends Question {
   private randomizeArray(array: Array<ItemValue>): Array<ItemValue> {
     return Helpers.randomizeArray<ItemValue>(array);
   }
+  private get hasChoicesUrl(): boolean {
+    return this.choicesByUrl && !!this.choicesByUrl.url;
+  }
   public clearIncorrectValues() {
     if (!this.hasValueToClearIncorrectValues()) return;
     if(this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return;
@@ -1471,9 +1501,7 @@ export class QuestionSelectBase extends Question {
       this.survey.questionsByValueName(this.getValueName()).length > 1
     )
       return;
-    if (
-      !!this.choicesByUrl &&
-      !this.choicesByUrl.isEmpty &&
+    if (this.hasChoicesUrl &&
       (!this.choicesFromUrl || this.choicesFromUrl.length == 0)
     )
       return;
@@ -1787,7 +1815,7 @@ export class QuestionCheckboxBase extends QuestionSelectBase {
     super(name);
   }
   /**
-   * Get or sets the number of columns used to arrange choice items.
+   * Gets or sets the number of columns used to arrange choice items.
    *
    * Set this property to 0 if you want to display all items in one line. The default value depends on the available width.
    * @see separateSpecialChoices

@@ -83,6 +83,57 @@ export const initSurvey = ClientFunction(
   }
 );
 
+export const initSurveyPopup = ClientFunction(
+  (framework, json, events, isDesignMode, props) => {
+    // eslint-disable-next-line no-console
+    console.error = (msg) => {
+      throw new Error(msg);
+    };
+    // eslint-disable-next-line no-console
+    console.warn = (msg) => {
+      throw new Error(msg);
+    };
+    // eslint-disable-next-line no-console
+    console.log("surveyjs console.error and console.warn override");
+
+    const popupSurvey = new window["Survey"].PopupSurveyModel(json);
+    const model = popupSurvey.survey;
+    model.setDesignMode(isDesignMode);
+
+    if (framework === "knockout") {
+      popupSurvey.isExpanded = true;
+      popupSurvey.allowClose = true;
+      popupSurvey.closeOnCompleteTimeout = -1;
+      popupSurvey.show();
+    } else if (framework === "react") {
+      document.getElementById("surveyElement").innerHTML = "";
+      const root = window["ReactDOM"].createRoot(document.getElementById("surveyElement"));
+      window["root"] = root;
+      root.render(
+        window["React"].createElement(window["Survey"].PopupSurvey, {
+          model: model,
+          isExpanded: true,
+          allowClose: true,
+          closeOnCompleteTimeout: -1
+        }),
+      );
+    } else if (framework === "vue") {
+      document.getElementById("surveyElement").innerHTML =
+        "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :closeOnCompleteTimeout='-1' />";
+      !!window["vueApp"] && window["vueApp"].$destroy();
+      window["vueApp"] = new window["Vue"]({
+        el: "#surveyElement",
+        data: { survey: model },
+      });
+    } else if (framework === "angular" || framework == "vue3") {
+      const isPopup = true;
+      window.setSurvey(model, isPopup);
+    }
+    window["popupSurvey"] = popupSurvey;
+    window["survey"] = model;
+  }
+);
+
 export const registerCustomToolboxComponent = ClientFunction(
   (framework, json, events, isDesignMode, props) => {
     if (framework === "knockout") {

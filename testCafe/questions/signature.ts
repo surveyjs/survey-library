@@ -95,4 +95,32 @@ frameworks.forEach(framework => {
       return window["uploadFilesCallCount"];
     })()).eql(1);
   });
+  test("Signature: no focus with tab", async (t) => {
+    await t.resizeWindow(1920, 1080);
+    await initSurvey(framework, {
+      "elements": [
+        {
+          "type": "text",
+          "name": "q1",
+          "placeholder": "q1"
+        },
+        {
+          "type": "signaturepad",
+          "name": "signature"
+        },
+        {
+          "type": "text",
+          "name": "q2",
+          "placeholder": "q2"
+        }
+      ],
+      "showQuestionNumbers": false
+    });
+
+    await t.click(Selector("input[placeholder=q1]"));
+    await t.expect(Selector("input[placeholder=q1]").focused).ok();
+    await t.pressKey("tab");
+    await t.expect(Selector("input[placeholder=q2]").focused).ok();
+  });
+
 });

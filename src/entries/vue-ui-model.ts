@@ -36,6 +36,8 @@ export { DropdownSelect } from "../vue/dropdown-select.vue";
 export { Tagbox } from "../vue/tagbox.vue";
 export { File } from "../vue/file.vue";
 export { FilePreview } from "../vue/components/file/file-preview.vue";
+export { FilePage } from "../vue/components/file/file-page.vue";
+export { FileItem } from "../vue/components/file/file-item.vue";
 export { FileCleanButton } from "../vue/file-clean-button.vue";
 export { FileVideo } from "../vue/file-video.vue";
 export { FileChooseButton } from "../vue/components/file/file-choose-button.vue";

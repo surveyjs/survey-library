@@ -58,7 +58,7 @@ export interface ITheme {
    */
   backgroundOpacity?: number;
   /**
-   * An object with [advanced survey header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader). Applies when `SurveyModel`'s [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#headerView) property is set to `"advanced"`.
+   * An object with [advanced survey header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader). Applies when the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property is set to `"advanced"`.
    */
   header?: IHeader;
   /**
@@ -84,7 +84,7 @@ export interface ITheme {
 /**
  * A survey header configuration interface.
  *
- * An `IHeader` object configures advanced survey header appearance settings. To apply them, you need to assign the object to the [`header`](https://surveyjs.io/form-library/documentation/api-reference/itheme#header) property of your theme configuration and set `SurveyModel`'s [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#headerView) property to `"advanced"`.
+ * An `IHeader` object configures advanced survey header appearance settings. To apply them, you need to assign the object to the [`header`](https://surveyjs.io/form-library/documentation/api-reference/itheme#header) property of your theme configuration and set the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property to `"advanced"`.
  */
 export interface IHeader {
   /**

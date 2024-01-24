@@ -528,3 +528,16 @@ QUnit.test("base.equals", function(assert) {
   assert.equal(Helpers.isTwoValueEquals(q1, q4), false, "#3");
   assert.equal(Helpers.isTwoValueEquals(q1, q5), false, "#4");
 });
+QUnit.test("compareVersions", function(assert) {
+  assert.equal(Helpers.compareVerions("", ""), 0, "#1");
+  assert.equal(Helpers.compareVerions("1", ""), 1, "#2");
+  assert.equal(Helpers.compareVerions("", "1"), -1, "#3");
+  assert.equal(Helpers.compareVerions("1.2.3", "1.2.3"), 0, "#4");
+  assert.equal(Helpers.compareVerions("1.201.31", "1.201.31"), 0, "#5");
+  assert.equal(Helpers.compareVerions("1.201.31", "1.90.31"), 1, "#6");
+  assert.equal(Helpers.compareVerions("1.90.31", "1.201.31"), -1, "#7");
+  assert.equal(Helpers.compareVerions("1", "1.2.3"), -1, "#8");
+  assert.equal(Helpers.compareVerions("1.2.3", "1"), 1, "#9");
+  assert.equal(Helpers.compareVerions("1.2", "1.2.3"), -1, "#10");
+  assert.equal(Helpers.compareVerions("1.2.3", "1.2"), 1, "#11");
+});

@@ -37,6 +37,6 @@
     "questionmultipletextmodel": "multiple-text-entry-question-model",
     "questionmatrixdynamicmodel": "dynamic-matrix-table-question-model",
     "questionmatrixdropdownmodel": "matrix-table-with-dropdown-list",
-    "MatrixDropdownColumn": "multi-select-matrix-column-values"
+    "matrixdropdowncolumn": "multi-select-matrix-column-values"
   }
 }

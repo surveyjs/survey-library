@@ -367,3 +367,40 @@ frameworks.forEach((framework) => {
     await t.expect(surveyResult.matrix).eql([{ col1: "abc", col2: "edf" }]);
   });
 });
+
+const json5 = {
+  "locale": "de",
+  "elements": [
+    {
+      "type": "matrixdynamic",
+      "name": "matrix",
+      "defaultValue": [{ col1: 1 }, { col1: 2 }, { col1: 3 }],
+      "confirmDelete": true,
+      "columns": [
+        {
+          "name": "col1",
+          "cellType": "text"
+        }
+      ]
+    }
+  ]
+};
+
+frameworks.forEach((framework) => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async (t) => {
+      await initSurvey(framework, json5);
+    }
+  );
+  test("remove row vs confirmDelete and differerent locale", async (t) => {
+    await t
+      .expect(Selector(".sv_matrix_row").count).eql(3)
+      .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Entfernen"))
+      .click(Selector("span").withExactText("Abbrechen"))
+      .expect(Selector(".sv_matrix_row").count).eql(3)
+      .click(Selector(".sv_matrix_dynamic_button .sv-string-viewer").nth(1).withText("Entfernen"))
+      .click(Selector("span").withExactText("OKAY"))
+      .expect(Selector(".sv_matrix_row").count).eql(2);
+  });
+});
+

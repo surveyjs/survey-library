@@ -398,6 +398,25 @@ export class Helpers {
     }
     return val;
   }
+  public static compareVerions(ver1: string, ver2: string): number {
+    if(!ver1 && !ver2) return 0;
+    const ver1Ar = ver1.split(".");
+    const ver2Ar = ver2.split(".");
+    const len1 = ver1Ar.length;
+    const len2 = ver2Ar.length;
+    for(let i = 0; i < len1 && i < len2; i ++) {
+      const str1 = ver1Ar[i];
+      const str2 = ver2Ar[i];
+      if(str1.length === str2.length) {
+        if(str1 !== str2) {
+          return str1 < str2 ? -1 : 1;
+        }
+      } else {
+        return str1.length < str2.length ? -1 : 1;
+      }
+    }
+    return len1 === len2 ? 0 : (len1 < len2 ? -1 : 1);
+  }
 }
 if (!(<any>String.prototype)["format"]) {
   (<any>String.prototype)["format"] = function() {

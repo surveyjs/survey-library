@@ -3,6 +3,7 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
+import { StylesManager } from "../src/stylesmanager";
 
 QUnit.test("check dropdown disabled class", function(assert) {
   var json = {
@@ -348,6 +349,23 @@ QUnit.test("CharacterCounter + settings.showMaxLengthIndicator", function(assert
   settings.showMaxLengthIndicator = true;
   ch.updateRemainingCharacterCounter("abcd", 7);
   assert.equal(ch.remainingCharacterCounter, "4/7", "#4");
+});
+QUnit.test("getControlClass with characterCounter", function(assert) {
+  StylesManager.applyTheme("defaultV2");
+  const inputClasses = "sd-input sd-text";
+  const constrolWithCharacterCounter = "sd-text__character-counter";
+  const characterCounterBig = "sd-text__character-counter--big";
+
+  const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  const q = survey.getQuestionByName("q1");
+  assert.equal(q.getControlClass(), inputClasses, "#1");
+
+  q.maxLength = 99;
+  assert.equal(q.getControlClass(), inputClasses + " " + constrolWithCharacterCounter, "#2");
+
+  q.maxLength = 100;
+  assert.equal(q.getControlClass(), inputClasses + " " + constrolWithCharacterCounter + " " + characterCounterBig, "#3");
+  StylesManager.applyTheme("default");
 });
 
 QUnit.test("Set empty text", function(assert) {

@@ -442,6 +442,9 @@ Serializer.addClass(
         return getCurrecyCodes();
       },
       default: "USD",
+      visibleIf: (obj: QuestionExpressionModel): boolean => {
+        return obj.displayStyle === "currency";
+      }
     },
     { name: "maximumFractionDigits:number", default: -1 },
     { name: "minimumFractionDigits:number", default: -1 },

@@ -413,6 +413,11 @@ export class QuestionMatrixModel
   public get visibleRows(): Array<MatrixRowModel> {
     return this.getVisibleRows();
   }
+  /**
+   * An array of matrix cells. Use this array to get or set cell values.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/questiontype-matrix-rubric/ (linkStyle))
+   */
   public get cells(): MatrixCells {
     return this.cellsValue;
   }

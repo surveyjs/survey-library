@@ -1188,17 +1188,7 @@ export class SurveyModel extends SurveyElementCore
   @property() containerCss: string;
   @property({ onSet: (newValue, target: SurveyModel) => { target.updateCss(); } }) fitToContainer: boolean;
   /**
-   * Specifies whether the survey header uses only basic appearance settings or applies advanced settings from the survey theme.
-   *
-   * Possible values:
-   *
-   * - `"basic"` (default)\
-   * A basic header view applies only the [`title`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#title), [`description`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#description), and logo-related properties ([`logo`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logo), [`logoPosition`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#logoPosition), etc.).
-   *
-   * - `"advanced"`\
-   * An advanced header view applies the same properties as the basic view, plus [header settings](https://surveyjs.io/form-library/documentation/api-reference/iheader) from the [survey theme](https://surveyjs.io/form-library/documentation/api-reference/itheme#header). The advanced view features a more flexible header layout, a capability to specify a background image, and other settings that give a more professional look to the survey header.
-   *
-   * [View Demo](https://surveyjs.io/form-library/examples/brand-your-survey-header/ (linkStyle))
+   * This property is obsolete. Use the [`headerView`](https://surveyjs.io/form-library/documentation/api-reference/itheme#headerView) property within a theme instead.
    */
   @property({
     onSet: (newValue, target: SurveyModel) => {
@@ -5113,7 +5103,7 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
-   * Uploads a file to server.
+   * Uploads files to a server.
    *
    * The following code shows how to call this method:
    *

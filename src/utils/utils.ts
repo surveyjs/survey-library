@@ -25,14 +25,14 @@ function confirmAction(message: string): boolean {
   return confirm(message);
 }
 
-function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void): void {
+function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void, locale?: string): void {
   const callbackFunc = (res: boolean): void => {
     if (res) funcOnYes();
     else if (!!funcOnNo) funcOnNo();
   };
 
   if (!!settings && !!settings.confirmActionAsync) {
-    if (settings.confirmActionAsync(message, callbackFunc)) return;
+    if (settings.confirmActionAsync(message, callbackFunc, undefined, locale)) return;
   }
 
   callbackFunc(confirmAction(message));
@@ -412,7 +412,7 @@ export class Logger {
   }
 }
 
-export function showConfirmDialog(message: string, callback: (res: boolean) => void, applyTitle?: string): boolean {
+export function showConfirmDialog(message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string): boolean {
   const locStr = new LocalizableString(undefined);
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
@@ -433,9 +433,9 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   const toolbar = popupViewModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
-  cancelBtn.title = surveyLocalization.getString("cancel");
+  cancelBtn.title = surveyLocalization.getString("cancel", locale);
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
-  applyBtn.title = applyTitle || surveyLocalization.getString("ok");
+  applyBtn.title = applyTitle || surveyLocalization.getString("ok", locale);
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
   popupViewModel.width = "452px";
   return true;

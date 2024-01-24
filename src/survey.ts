@@ -5737,7 +5737,10 @@ export class SurveyModel extends SurveyElementCore
   private conditionRunnerCounter: number = 0;
   private conditionUpdateVisibleIndexes: boolean = false;
   private conditionNotifyElementsOnAnyValueOrVariableChanged: boolean = false;
-  public runAllExpressions(): void {
+  /**
+   * Recalculates all [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) in the survey.
+   */
+  public runExpressions(): void {
     this.runConditions();
   }
   private runConditions() {

@@ -18765,7 +18765,7 @@ QUnit.test("element.wasREndered", function (assert) {
   assert.equal(panel2.wasRendered, true, "panel2 wasRendered, #2");
   assert.equal(q6.wasRendered, true, "q6 wasRendered, #2");
 });
-QUnit.test("survey.runAllExpressions(), #7694", function (assert) {
+QUnit.test("survey.runExpressions(), #7694", function (assert) {
   function func1(params: any[]): any {
     return 1;
   }
@@ -18789,7 +18789,7 @@ QUnit.test("survey.runAllExpressions(), #7694", function (assert) {
   assert.equal(q2.isVisible, false, "q2.isVisible #1");
 
   FunctionFactory.Instance.register("func1", func1);
-  survey.runAllExpressions();
+  survey.runExpressions();
   assert.equal(q1.value, 1, "q1.value #2");
   assert.equal(q2.isVisible, true, "q2.isVisible #2");
 

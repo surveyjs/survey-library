@@ -82,6 +82,15 @@ export interface ICustomQuestionTypeConfiguration {
    * ```
    */
   defaultQuestionTitle?: any;
+  /**
+   * An array of property names to inherit from a base question or a Boolean value that specifies whether or not to inherit all properties.
+   *
+   * Default value: `false`
+   *
+   * When you create a [custom specialized question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types), you base it on another question type configured within the [`questionJSON`](#questionJSON) object. If the custom question type should inherit all properties from the base type, set the `inheritBaseProps` property to `true`. If you want to inherit only certain properties, set the `inheritBaseProps` property to an array of their names.
+   *
+   * [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types (linkStyle))
+   */
   inheritBaseProps?: false | true | Array<string>;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).

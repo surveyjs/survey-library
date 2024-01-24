@@ -305,7 +305,6 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
   .sv-star {
     opacity: 1;
-    transition: none;
   }
 
   .sv-star-2 {
@@ -325,7 +324,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
 .sd-rating__item-star--selected {
   svg {
-    stroke: none;
+    stroke: transparent;
     fill: $primary;
   }
 }
@@ -356,13 +355,13 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 .sd-rating__item-star:focus-within {
   svg {
     stroke: $primary;
-    fill: none;
+    fill: transparent;
   }
 }
 
 .sd-rating__item-star--unhighlighted {
   svg {
-    stroke: none;
+    stroke: transparent;
     fill: $border;
   }
 }

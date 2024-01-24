@@ -51,7 +51,7 @@
       content: "";
       width: 100%;
       height: calcSize(0.25);
-      background-color: #bcbcbc;
+      background-color: $navigation;
       position: absolute;
       bottom: calcSize(0.875);
       right: 50%;
@@ -64,7 +64,7 @@
       height: calcSize(0);
       margin: calcSize(0.5);
       border: calcSize(0.5) solid transparent;
-      background-color: #bcbcbc;
+      background-color: $navigation;
       border-radius: 50%;
       cursor: pointer;
       align-self: center;
@@ -127,6 +127,7 @@
     margin-bottom: 0;
     justify-content: flex-end;
     padding: 0;
+    color: $foreground-dim-light;
   }
 }
 
@@ -179,6 +180,7 @@
   }
 }
 
+.sd-root-modern--mobile,
 .sd-progress-buttons--no-titles {
   .sd-progress-buttons__list {
     justify-content: space-between;

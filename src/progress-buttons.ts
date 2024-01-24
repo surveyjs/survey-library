@@ -142,13 +142,14 @@ export class ProgressButtonsResponsivityManager {
       this.model.adjustConnectors(this.element);
       return;
     }
-    this.model.clearConnectorsWidth(this.element);
     if (model.survey.isMobile) {
       this.prevWidth = options.width;
       this.canShowItemTitles = false;
+      this.model.adjustConnectors(this.element);
       this.viewModel.onResize(this.canShowItemTitles);
       return;
     }
+    this.model.clearConnectorsWidth(this.element);
     if (this.timer !== undefined) {
       clearTimeout(this.timer);
     }

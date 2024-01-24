@@ -18765,3 +18765,33 @@ QUnit.test("element.wasREndered", function (assert) {
   assert.equal(panel2.wasRendered, true, "panel2 wasRendered, #2");
   assert.equal(q6.wasRendered, true, "q6 wasRendered, #2");
 });
+QUnit.test("survey.runExpressions(), #7694", function (assert) {
+  function func1(params: any[]): any {
+    return 1;
+  }
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "q1",
+        "type": "expression",
+        "expression": "func1()",
+      },
+      {
+        "name": "q2",
+        "type": "text",
+        "visibleIf": "func1() = 1",
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.value, undefined, "q1.value #1");
+  assert.equal(q2.isVisible, false, "q2.isVisible #1");
+
+  FunctionFactory.Instance.register("func1", func1);
+  survey.runExpressions();
+  assert.equal(q1.value, 1, "q1.value #2");
+  assert.equal(q2.isVisible, true, "q2.isVisible #2");
+
+  FunctionFactory.Instance.unregister("func1");
+});

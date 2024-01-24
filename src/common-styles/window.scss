@@ -15,6 +15,16 @@
   box-sizing: border-box;
 }
 
+.sv_window--full-screen {
+    top: calcSize(2);
+    left: calcSize(2);
+    right: calcSize(2);
+    bottom: calcSize(2);
+    max-height: 100%;
+    width: initial !important;
+    max-width: initial!important;
+}
+
 .sv_window_content {
     border-radius: calcSize(1);
     overflow: hidden;

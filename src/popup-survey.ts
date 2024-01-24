@@ -98,7 +98,8 @@ export class PopupSurveyModel extends Base {
     this.isShowing = false;
   }
   public toggleFullScreen(): void {
-    this.isFullScreen = !this.isFullScreen; 
+    this.isFullScreen = !this.isFullScreen;
+    this.setCssRoot();
   }
   /**
    * Indicates whether the pop-up window is expanded or collapsed.
@@ -234,13 +235,7 @@ export class PopupSurveyModel extends Base {
   private updateCss() {
     if (!this.css || !this.css.window) return;
     const cssWindow = this.css.window;
-    
-    if (this.isFullScreen) {
-      this.setPropertyValue("cssRoot", cssWindow.root + " " + cssWindow.rootFullScreenMode);
-    } else {
-      this.setPropertyValue("cssRoot", cssWindow.root);
-    }
-
+    this.setCssRoot();
     this.setPropertyValue("cssRootCollapsedMod", cssWindow.rootCollapsedMod);
     this.setPropertyValue("cssRootContent", cssWindow.rootContent);
     this.setPropertyValue("cssBody", cssWindow.body);
@@ -251,8 +246,16 @@ export class PopupSurveyModel extends Base {
     this.setPropertyValue("cssHeaderButtonsContainer", cssHeader.buttonsContainer);
     this.setPropertyValue("cssHeaderCollapseButton", cssHeader.collapseButton);
     this.setPropertyValue("cssHeaderCloseButton", cssHeader.closeButton);
-    this.setPropertyValue("cssHeaderFullScreenButton", cssHeader.closeButton);
+    this.setPropertyValue("cssHeaderFullScreenButton", cssHeader.fullScreenButton);
     this.updateCssButton();
+  }
+  private setCssRoot() {
+    const cssWindow = this.css.window;
+    if (this.isFullScreen) {
+      this.setPropertyValue("cssRoot", cssWindow.root + " " + cssWindow.rootFullScreenMode);
+    } else {
+      this.setPropertyValue("cssRoot", cssWindow.root);
+    }
   }
   private updateCssButton() {
     const cssHeader = !!this.css.window ? this.css.window.header : null;

@@ -72,7 +72,7 @@ export class PopupSurvey extends BaseVue {
       this.surveyWindow.allowClose = this.allowClose;
     }
     if (this.allowfullscreen !== undefined) {
-      this.surveyWindow.allowfullscreen = this.allowfullscreen;
+      this.surveyWindow.allowFullScreen = this.allowfullscreen;
     }
     if (this.allowFullScreen !== undefined) {
       this.surveyWindow.allowFullScreen = this.allowFullScreen;

@@ -46,4 +46,13 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-popup--collapsed.png", Selector(".sv_window"), t, comparer);
     });
   });
+
+  test("Check Survey-Popup Full Screen Mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurveyPopup(framework, json);
+      await t.click(".sv_window_button_full_screen");
+      await takeElementScreenshot("survey-popup--full-screen.png", Selector(".sv_window"), t, comparer);
+    });
+  });
 });

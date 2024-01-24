@@ -378,7 +378,7 @@ export var defaultStandardCss = {
       buttonCollapsed: "",
       collapseButton: "sv_window_button sv_window_button_collapse",
       closeButton: "sv_window_button sv_window_button_close",
-      fullScreenButton: "sv_window_button sv_window_button_close"
+      fullScreenButton: "sv_window_button sv_window_button_full_screen"
     }
   },
   variables: {

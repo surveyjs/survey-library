@@ -1,5 +1,6 @@
 import { Question, IConditionObject } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
+import { Base } from "./base";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -725,6 +726,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   }
   public getDynamicType(): string {
     return this.questionWrapper ? this.questionWrapper.getType() : "question";
+  }
+  public getOriginalObj(): Base {
+    return this.questionWrapper;
   }
   protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();

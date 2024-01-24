@@ -536,6 +536,10 @@ sv-popup {
 
 .sv-popup--animate-enter {
   animation-name: popupFadeIn;
+  animation-duration: 0.15s;
+}
+
+.sv-popup--modal.sv-popup--animate-enter {
   animation-duration: 0.25s;
 }
 
@@ -552,8 +556,14 @@ sv-popup {
 
 .sv-popup--animate-leave {
   animation-name: popupFadeOut;
+  animation-duration: 0.15s;
+}
+
+.sv-popup--modal.sv-popup--animate-leave {
   animation-duration: 0.25s;
 }
+
+
 
 @keyframes popupFadeOut {
   from {

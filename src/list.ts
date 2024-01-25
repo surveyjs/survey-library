@@ -32,6 +32,7 @@ export interface IListModel {
   allowSelection?: boolean;
   selectedItem?: IAction;
   onFilterStringChangedCallback?: (text: string) => void;
+  onTextSearchCallback?: (text: string, textToSearch: string) => boolean;
 }
 export class ListModel<T extends BaseAction = Action> extends ActionContainer<T> {
   private listContainerHtmlElement: HTMLElement;
@@ -65,7 +66,9 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
 
   private hasText(item: T, filterStringInLow: string): boolean {
     if (!filterStringInLow) return true;
-    let textInLow = (item.title || "").toLocaleLowerCase();
+    const text = item.title || "";
+    if (this.onTextSearchCallback) return this.onTextSearchCallback(text, filterStringInLow);
+    let textInLow = text.toLocaleLowerCase();
     textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
     return textInLow.indexOf(filterStringInLow.toLocaleLowerCase()) > -1;
   }
@@ -109,9 +112,12 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
     this.setItems(items);
     this.selectedItem = selectedItem;
   }
-
+  private onTextSearchCallback: (text: string, textToSearch: string) => boolean;
   public setOnFilterStringChangedCallback(callback: (text: string) => void) {
     this.onFilterStringChangedCallback = callback;
+  }
+  public setOnTextSearchCallback(callback: (text: string, textToSearch: string) => boolean) {
+    this.onTextSearchCallback = callback;
   }
   public setItems(items: Array<IAction>, sortByVisibleIndex = true): void {
     super.setItems(items, sortByVisibleIndex);

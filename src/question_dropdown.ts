@@ -203,6 +203,8 @@ export class QuestionDropdownModel extends QuestionSelectBase {
     }
   }) searchEnabled: boolean;
 
+  @property() searchMode: "contains" | "startsWith";
+
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
   /**
@@ -343,6 +345,7 @@ Serializer.addClass(
     { name: "autocomplete", alternativeName: "autoComplete", choices: settings.questions.dataList, },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
+    { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "inputFieldComponent", visible: false },

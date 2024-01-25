@@ -917,3 +917,65 @@ QUnit.test("DropdownListModel in panel filterString change callback", (assert) =
   dropdownListModel["listModel"].filterString = "abc";
   assert.equal(dropdownListModel.filterString, "abc");
 });
+QUnit.test("DropdownListModel filter options", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      searchEnabled: true,
+      choices: [
+        "abc",
+        "abd",
+        "cab",
+        "efg"
+      ]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.filterString = "ab";
+  const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 3);
+
+  question.searchMode = "startsWith";
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 2);
+});
+
+QUnit.test("DropdownListModel filter event", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      searchEnabled: true,
+      choices: [
+        "abcd",
+        "abdd",
+        "cabd",
+        "efab"
+      ]
+    }]
+  });
+
+  survey.onItemTextSearch.add((sender, options) => {
+    options.result = options.text.indexOf(options.filter) + options.filter.length == options.text.length;
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.filterString = "ab";
+  const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 1);
+
+  question.searchMode = "startsWith";
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 1);
+});

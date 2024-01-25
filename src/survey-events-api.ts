@@ -610,6 +610,20 @@ export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
    */
   skip: number;
 }
+
+export interface ItemTextSearchEvent extends QuestionEventMixin {
+  /**
+   * A text...
+   */
+  text: string;
+  /**
+   * A search string used to filter.
+   */
+  filter: string;
+
+  result: boolean;
+}
+
 export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.

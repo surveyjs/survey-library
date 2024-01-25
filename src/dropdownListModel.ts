@@ -6,6 +6,7 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
+import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
@@ -159,6 +160,16 @@ export class DropdownListModel extends Base {
       };
     }
     const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
+    res.setOnTextSearchCallback((text: string, textToSearch: string) => {
+      const options = { question: this.question, text: text, filter: textToSearch, result: undefined as boolean };
+      (this.question.survey as SurveyModel).onItemTextSearch.fire(this.question.survey as SurveyModel, options);
+      if (options.result !== undefined) return options.result;
+
+      let textInLow = text.toLocaleLowerCase();
+      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
+      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
+      return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
+    });
     res.renderElements = false;
     res.forceShowFilter = true;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {

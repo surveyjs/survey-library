@@ -450,7 +450,10 @@ export class JsonObjectProperty implements IObject {
     if (!this.visible || !isLayout) return false;
     if (!!this.visibleIf && !!obj) {
       if (obj.getOriginalObj) {
-        obj = obj.getOriginalObj() || obj;
+        const orjObj = obj.getOriginalObj();
+        if(orjObj && Serializer.findProperty(orjObj.getType(), this.name)) {
+          obj = orjObj;
+        }
       }
       return this.visibleIf(obj);
     }

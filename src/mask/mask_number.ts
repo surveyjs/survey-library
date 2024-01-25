@@ -1,66 +1,41 @@
 import { InputMaskBase } from "./mask_base";
-import { IMaskLiteral } from "./mask_pattern";
-import { MaskManagerType, IMaskOption, IMaskedValue } from "./mask_manager";
+import { MaskManagerType, IMaskOption, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
 import { settings } from "./mask_utils";
 
 interface INumberMaskOption extends IMaskOption {
-  align?: "left" | "right";
+  // align?: "left" | "right";
   allowNegative?: boolean;
   decimal?: string;
   precision?: number;
   thousands?: string;
+  min?: number;
+  max?: number;
 }
-interface INumericalСomposition {
-  integralPart: number;
-  fractionalPart?: number;
-}
-
-interface INumberMaskLiteral extends IMaskLiteral {
-  repeat?: boolean;
-}
-
-export function getNumberMaskLiterals(mask: string): Array<INumberMaskLiteral> {
-  const result: Array<INumberMaskLiteral> = [];
-  let prevChartIsEscaped = false;
-  let prevChart;
-  const definitionsKeys = Object.keys(settings.definitions);
-
-  for(let index = 0; index < mask.length; index++) {
-    const currentChar = mask[index];
-    if(currentChar === settings.escapedChar) {
-      prevChartIsEscaped = true;
-    } else if(prevChartIsEscaped) {
-      prevChartIsEscaped = false;
-      result.push({ type: "const", value: currentChar });
-    } else if(currentChar === "+") {
-      result[result.length - 1].repeat = true;
-    } else {
-      result.push({ type: definitionsKeys.indexOf(currentChar) !== -1 ? "regex" : "const", value: currentChar });
-    }
-    prevChart = currentChar;
-  }
-
-  return result;
+interface INumericalComposition {
+  integralPart: string;
+  fractionalPart: string;
+  isNegative?: boolean;
+  decimalSeparatorCount?: number;
 }
 
-export function parseNumber(str: any, decimalSeparator = "."): INumericalСomposition {
-  const result: INumericalСomposition = { integralPart: 0, fractionalPart: 0 };
-  const input = str.toString();
+// export function parseNumber(str: any, decimalSeparator = "."): INumericalComposition {
+//   const result: INumericalComposition = { integralPart: 0, fractionalPart: 0 };
+//   const input = str.toString();
 
-  const parts = input.trim().split(decimalSeparator);
-  if(parts.length >= 2) {
-    result.integralPart = parseInt(parts[0].trim() || 0);
-    result.fractionalPart = parseInt(parts[1].trim() || 0);
-  } else if(parts.length == 1) {
-    result.integralPart = parseInt(parts[0].trim() || 0);
-  } else {
-    result.integralPart = parseInt(input.trim() || 0);
-  }
+//   const parts = input.trim().split(decimalSeparator);
+//   if(parts.length >= 2) {
+//     result.integralPart = parseInt(parts[0].trim() || 0);
+//     result.fractionalPart = parseInt(parts[1].trim() || 0);
+//   } else if(parts.length == 1) {
+//     result.integralPart = parseInt(parts[0].trim() || 0);
+//   } else {
+//     result.integralPart = parseInt(input.trim() || 0);
+//   }
 
-  return result;
-}
+//   return result;
+// }
 
-export function splitString(str: string, reverse = false, n = 3): Array<string> {
+export function splitString(str: string, reverse = true, n = 3): Array<string> {
   let arr = [];
 
   if(reverse) {
@@ -77,57 +52,151 @@ export function splitString(str: string, reverse = false, n = 3): Array<string> 
   return arr;
 }
 
-export function getNumberMaskedValue(str: string | number, option?: INumberMaskOption): string {
-  const decimalSeparator = option?.decimal || settings.numberOptions.decimal;
-  const thousandsSeparator = option?.thousands || settings.numberOptions.thousands;
-  const precision = option?.precision || settings.numberOptions.precision;
-  const parsedNumber = parseNumber(str);
+// export function getNumberMaskedValueOld(str: string | number, option?: INumberMaskOption): string {
+//   const decimalSeparator = option?.decimal || settings.numberOptions.decimal;
+//   const thousandsSeparator = option?.thousands || settings.numberOptions.thousands;
+//   const precision = option?.precision || settings.numberOptions.precision;
+//   const parsedNumber = parseNumber(str, decimalSeparator);
 
-  const integralPart = parsedNumber.integralPart ? splitString(parsedNumber.integralPart.toString(), true).join(thousandsSeparator) : "0";
-  let fractionalPart = parsedNumber.fractionalPart ? splitString(parsedNumber.fractionalPart.toString()).join(thousandsSeparator) : "";
-  if(fractionalPart === "") {
-    return integralPart;
-  } else {
-    fractionalPart = fractionalPart.substring(0, precision);
-    return [integralPart, fractionalPart].join(decimalSeparator);
-  }
-}
-
-export function getNumberUnmaskedValue(str: string, option?: INumberMaskOption): number {
-  const decimalSeparator = option?.decimal || settings.numberOptions.decimal;
-  const thousandsSeparator = option?.thousands || settings.numberOptions.thousands;
-  const precision = option?.precision || settings.numberOptions.precision;
-
-  const number = parseNumber(str.split(thousandsSeparator).join(""), decimalSeparator);
-  const integralPart = number.integralPart ? number.integralPart : 0;
-  let fractionalPart = number.fractionalPart ? number.fractionalPart : undefined;
-  if(fractionalPart) {
-    fractionalPart = parseInt(fractionalPart.toString().substring(0, precision));
-  }
-
-  return parseFloat([integralPart, fractionalPart].join(decimalSeparator));
-}
+//   const integralPart = parsedNumber.integralPart ? splitString(parsedNumber.integralPart.toString()).join(thousandsSeparator) : "0";
+//   let fractionalPart = parsedNumber.fractionalPart ? parsedNumber.fractionalPart.toString() : "";
+//   if(fractionalPart === "") {
+//     return integralPart;
+//   } else {
+//     fractionalPart = fractionalPart.substring(0, precision);
+//     return [integralPart, fractionalPart].join(decimalSeparator);
+//   }
+// }
 
 export class InputMaskNumber extends InputMaskBase {
   constructor(options?: INumberMaskOption) {
-    super(options || <IMaskOption>{ mask: "9+" });
+    super(options || <IMaskOption>{ mask: "" });
   }
 
   get numberOptions(): INumberMaskOption {
     return this.maskOptions as INumberMaskOption;
   }
+  get decimalSeparator(): string {
+    return this.numberOptions?.decimal || settings.numberOptions.decimal;
+  }
+  get thousandsSeparator(): string {
+    return this.numberOptions?.thousands || settings.numberOptions.thousands;
+  }
+  get precision(): number {
+    return this.numberOptions?.precision || settings.numberOptions.precision;
+  }
+  get allowNegative(): boolean {
+    return this.numberOptions?.allowNegative || settings.numberOptions.allowNegative;
+  }
+
+  public displayNumber(parsedNumber: INumericalComposition): string {
+    const displayIntegralPart = parsedNumber.integralPart ? splitString(parsedNumber.integralPart).join(this.thousandsSeparator) : "0";
+    let displayFractionalPart = parsedNumber.fractionalPart;
+    if(displayFractionalPart === "") {
+      return displayIntegralPart + (parsedNumber.decimalSeparatorCount ? this.decimalSeparator : "");
+    } else {
+      displayFractionalPart = displayFractionalPart.substring(0, this.precision);
+      return [displayIntegralPart, displayFractionalPart].join(this.decimalSeparator);
+    }
+  }
+
+  public convertNumber(parsedNumber: INumericalComposition): number {
+    let value;
+    const minusSign = parsedNumber.isNegative ? "-" : "";
+    if(!!parsedNumber.fractionalPart) {
+      value = parseFloat(minusSign + (parsedNumber.integralPart || "0") + this.decimalSeparator + parsedNumber.fractionalPart.substring(0, this.precision));
+    } else {
+      value = parseInt(minusSign + parsedNumber.integralPart || "0");
+    }
+    return value;
+  }
+
+  public validateNumber(number: INumericalComposition, min = Number.MIN_VALUE, max= Number.MAX_VALUE): boolean {
+    let value = this.convertNumber(number);
+    // if(!!number.fractionalPart) {
+    //   value = parseFloat((number.integralPart || "0") + decimalSeparator + number.fractionalPart);
+    // } else {
+    //   value = parseInt(number.integralPart || "0");
+    // }
+    return value >= min && value <= max;
+  }
+
+  public parseNumber(str: any): INumericalComposition {
+    const result: INumericalComposition = { integralPart: "", fractionalPart: "", decimalSeparatorCount: 0, isNegative: false };
+    const input = str.toString();
+
+    for(let inputIndex = 0; inputIndex < input.length; inputIndex++) {
+      const currentDefinition = settings.definitions["9"];
+      const currentChar = input[inputIndex];
+      switch(currentChar) {
+        case "-": {
+          if(this.allowNegative) {
+            result.isNegative = true;
+          }
+          break;
+        }
+        case this.decimalSeparator: {
+          result.decimalSeparatorCount++;
+          break;
+        }
+        case this.thousandsSeparator: {
+          break;
+        }
+        default: {
+          if(currentChar.match(currentDefinition)) {
+            if(result.decimalSeparatorCount === 0) {
+              result.integralPart += currentChar;
+            } else {
+              result.fractionalPart += currentChar;
+            }
+          }
+        }
+      }
+    }
+
+    return result;
+  }
+
+  public getNumberMaskedValue(src: string | number): string {
+    const input = src.toString();
+    const parsedNumber = this.parseNumber(input);
+
+    if(!!this.numberOptions && (this.numberOptions.min !== undefined || this.numberOptions.max !== undefined)
+    && !this.validateNumber(parsedNumber, this.numberOptions.min, this.numberOptions.max)) {
+      return input;
+    }
+
+    const displayText = this.displayNumber(parsedNumber);
+    return displayText;
+  }
+
+  private getNumberUnmaskedValue(str: string): number {
+    const parsedNumber = this.parseNumber(str);
+    return this.convertNumber(parsedNumber);
+  }
 
   public getMaskedValue(src: string, matchWholeMask: boolean = false): string {
-    return getNumberMaskedValue(src, this.numberOptions);
+    return this.getNumberMaskedValue(src);
   }
   public getUnmaskedValue(src: string, matchWholeMask: boolean = false): string {
-    return getNumberUnmaskedValue(src, this.numberOptions).toString();
+    return this.getNumberUnmaskedValue(src).toString();
   }
-  // public processMaskedValue(): IMaskedValue {
-  //   // return processValueWithPattern(this.input.value, mask, this._prevSelectionStart, this.input.selectionStart);
-  //   const text = getNumberMaskedValue(getNumberUnmaskedValue(this.input.value, this.numberOptions), this.numberOptions);
-  //   return { text: text, cursorPosition: this.input.selectionStart, cancelPreventDefault: false };
-  // }
+  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
+    const src = leftPart + args.prevValue.slice(args.selectionEnd);
+    const maskedValue = this.getMaskedValue(src, true);
+    const result = { text: maskedValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
+
+    // const result = { text: maskedValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
+
+    if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
+      result.cursorPosition = args.selectionStart;
+    } else {
+      result.cursorPosition = this.getMaskedValue(leftPart).length;
+    }
+
+    return result;
+  }
 }
 
 MaskManagerType.Instance.registerMaskManagerType("number", (maskOptions: IMaskOption) => { return new InputMaskNumber(maskOptions); });

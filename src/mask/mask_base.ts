@@ -14,18 +14,7 @@ export class InputMaskBase implements IInputMaskType {
   // }
 
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
-    const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
-
-    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
-    if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
-      result.cursorPosition = args.selectionStart;
-    } else {
-      result.cursorPosition = this.getMaskedValue(leftPart).length;
-    }
-
-    const src = leftPart + args.prevValue.slice(args.selectionEnd);
-    result.text = this.getMaskedValue(src, true);
-    return result;
+    return { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
   }
 
   public getUnmaskedValue(src: string, matchWholeMask: boolean = false): string { return src; }

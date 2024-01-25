@@ -1,5 +1,5 @@
 import { InputMaskBase } from "./mask_base";
-import { MaskManagerType, IMaskOption, IMaskedValue } from "./mask_manager";
+import { MaskManagerType, IMaskOption, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
 import { settings } from "./mask_utils";
 
 export interface IMaskLiteral {
@@ -123,7 +123,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
   return result;
 }
 
-export function processValueWithPattern(str: string, pattern: string | Array<IMaskLiteral>, prevСursorPosition: number, currentCursorPosition: number): IMaskedValue {
+export function processValueWithPattern(str: string, pattern: string | Array<IMaskLiteral>, prevCursorPosition: number, currentCursorPosition: number): IMaskedValue {
   let result = "";
   if(!str) return <IMaskedValue>{ text: result, cursorPosition: currentCursorPosition };
   let leftPartResult = "";
@@ -132,10 +132,10 @@ export function processValueWithPattern(str: string, pattern: string | Array<IMa
   let newCursorPosition = currentCursorPosition;
 
   let literals: Array<IMaskLiteral> = (typeof pattern === "string") ? getLiterals(pattern) : pattern;
-  const leftPartRange = Math.min(prevСursorPosition, currentCursorPosition, literals.length - 1);
+  const leftPartRange = Math.min(prevCursorPosition, currentCursorPosition, literals.length - 1);
   leftPartResult = getUnmaskedValueByPattern(str.substring(0, leftPartRange), literals, false);
-  rigthPartResult = getUnmaskedValueByPattern(str.substring(currentCursorPosition), literals.slice(prevСursorPosition), false);
-  if(currentCursorPosition > prevСursorPosition) {
+  rigthPartResult = getUnmaskedValueByPattern(str.substring(currentCursorPosition), literals.slice(prevCursorPosition), false);
+  if(currentCursorPosition > prevCursorPosition) {
     centerPart = getUnmaskedValueByPattern(str.substring(leftPartRange, currentCursorPosition), literals.slice(leftPartRange), false);
     newCursorPosition = getMaskedValueByPatternOld(leftPartResult + centerPart, literals, false).length;
   }
@@ -151,10 +151,21 @@ export class InputMaskPattern extends InputMaskBase {
     }
     return this._maskLiterals;
   }
-  // public processInput(maskedValue: ITextMaskInputArgs): IMaskedValue {
-  //   // return processValueWithPattern(this.input.value, this.literals, this.prevSelectionStart, this.input.selectionStart);
-  //   return processValueWithPattern(maskedValue.text, this.literals, this.prevSelectionStart, maskedValue.cursorPosition);
-  // }
+  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
+    const src = leftPart + args.prevValue.slice(args.selectionEnd);
+    const maskedValue = this.getMaskedValue(src, true);
+
+    const result = { text: maskedValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
+
+    if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
+      result.cursorPosition = args.selectionStart;
+    } else {
+      result.cursorPosition = this.getMaskedValue(leftPart).length;
+    }
+
+    return result;
+  }
   public getMaskedValue(src: string, matchWholeMask: boolean = false): string {
     return getMaskedValueByPattern(src, this.literals, matchWholeMask);
   }

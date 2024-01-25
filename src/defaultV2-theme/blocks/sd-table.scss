@@ -161,6 +161,9 @@
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
     min-width: calcSize(15);
   }
+  .sd-item {
+    text-align: initial;
+  }
 }
 
 .sd-table__cell--error {

@@ -110,6 +110,7 @@
     .sd-table__row:first-of-type>.sd-table__cell {
       border-top: calcSize(1) solid transparent;
     }
+
     .sd-table__row:last-of-type>.sd-table__cell {
       border-bottom: calcSize(1) solid transparent;
     }
@@ -538,7 +539,7 @@
   }
 
   .sd-matrix__label {
-    justify-content: start;
+    justify-content: flex-start;
   }
 
   .sd-table__cell {

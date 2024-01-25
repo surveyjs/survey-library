@@ -43,6 +43,21 @@ survey.onComplete.add(function (sender, options) {
 
 The `onComplete` event handler only sends survey results in JSON format to your server. The way you store them fully depends on your backend.
 
+If you are running a NodeJS server, you can check survey results before saving them. On the server, create a `SurveyModel` and call its [`clearIncorrectValues(true)`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#clearIncorrectValues) method. This method verifies a survey result JSON object against the survey JSON schema and deletes property values that cannot be assigned to a question (such as choice options unlisted in a `choices` array) and property values that do not correspond to any question or [calculated value](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#calculated-values).
+
+```js
+// Server-side code for a NodeJS backend
+import { Model } from "survey-core";
+
+const surveyJson = { ... };
+const survey = new Model(surveyJson);
+
+survey.data = initialSurveyResultJson;
+survey.clearIncorrectValues(true);
+
+const correctSurveyResultJson = survey.data;
+```
+
 ## Store Survey Results in the SurveyJS Service
 
 SurveyJS Service is a full-cycle survey solution. The service allows you to create a survey and store its JSON schema in our database. You can also load surveys from the database, display them to your clients, and send the results back to the service for storage and analysis.

@@ -355,4 +355,73 @@ frameworks.forEach(framework => {
     await t
       .expect(Selector(".sv-string-viewer").withText("None").count).eql(1);
   });
+  test("otherItem type in comment, textUpdateMode=onBlur", async t => {
+    const setOnValueChanged = ClientFunction(() => {
+      window["survey"].onValueChanged.add((sender, options) => {
+        if(options.name === "q2") return;
+        const val = sender.getValue("q2");
+        sender.setValue("q2", val + 1);
+      });
+    });
+    const currentJson = {
+      elements: [
+        {
+          type: "radiogroup",
+          showOtherItem: true,
+          name: "q1",
+          choices: [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        },
+        { type: "text", name: "q2", defaultValue: 0, inputType: "number" }
+      ]
+    };
+    await initSurvey(framework, currentJson);
+    await setOnValueChanged();
+
+    await t.click("input[value=other]")
+      .click(Selector("textarea"))
+      .pressKey("A B C D E F tab")
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    assert.deepEqual(surveyResult, { q1: "other", "q1-Comment": "ABCDEF", q2: 2 });
+  });
+  test("otherItem type in comment, textUpdateMode=onTyping", async t => {
+    const setOnValueChanged = ClientFunction(() => {
+      window["survey"].onValueChanged.add((sender, options) => {
+        if(options.name === "q2") return;
+        const val = sender.getValue("q2");
+        sender.setValue("q2", val + 1);
+      });
+    });
+    const currentJson = {
+      textUpdateMode: "onTyping",
+      elements: [
+        {
+          type: "radiogroup",
+          showOtherItem: true,
+          name: "q1",
+          choices: [
+            "item1",
+            "item2",
+            "item3"
+          ]
+        },
+        { type: "text", name: "q2", defaultValue: 0, inputType: "number" }
+      ]
+    };
+    await initSurvey(framework, currentJson);
+    await setOnValueChanged();
+
+    await t.click("input[value=other]")
+      .click(Selector("textarea"))
+      .pressKey("A B C D E F tab")
+      .click("input[value=Complete]");
+
+    const surveyResult = await getSurveyResult();
+    assert.deepEqual(surveyResult, { q1: "other", "q1-Comment": "ABCDEF", q2: 7 });
+  });
 });

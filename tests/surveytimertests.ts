@@ -467,3 +467,15 @@ QUnit.test("Progress shouldn't be more than 1", function (assert) {
   assert.equal(survey.timerInfo.spent, 3, "spent 4");
   assert.equal(timerModel.progress, undefined, "progress 4");
 });
+
+QUnit.test("Do not start timer if the survey in the display mode", function (assert) {
+  var survey = new SurveyModel();
+  survey.addNewPage("p1");
+  survey.pages[0].addNewQuestion("text");
+  survey.maxTimeToFinish = 10;
+  survey.maxTimeToFinishPage = 7;
+  survey.mode = "display";
+  survey.startTimer();
+  doTimer(5);
+  assert.equal(survey.timeSpent, 0, "Timmer is not started");
+});

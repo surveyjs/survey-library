@@ -617,9 +617,9 @@ export interface ChoicesSearchEvent extends QuestionEventMixin {
    */
   filter: string;
 
-  items: Array<ItemValue>;
+  choices: Array<ItemValue>;
 
-  result: Array<ItemValue>;
+  filteredChoices: Array<ItemValue>;
 }
 
 export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {

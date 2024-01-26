@@ -202,9 +202,9 @@ export class DropdownListModel extends Base {
   protected onSetFilterString(): void {
     this.filteredItems = undefined;
     if (!this.filterString && !this.popupModel.isVisible) return;
-    const options = { question: this.question, items: this.getAvailableItems(), filter: this.filterString, result: undefined as Array<ItemValue> };
+    const options = { question: this.question, choices: this.getAvailableItems(), filter: this.filterString, filteredChoices: undefined as Array<ItemValue> };
     (this.question.survey as SurveyModel).onChoicesSearch.fire(this.question.survey as SurveyModel, options);
-    this.filteredItems = options.result;
+    this.filteredItems = options.filteredChoices;
 
     if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;

@@ -77,6 +77,26 @@ QUnit.test("get numeric masked value by formated text", function(assert) {
   assert.equal(maskInstance.getNumberMaskedValue("123,456,78,101.12"), "12,345,678,101.12");
 });
 
+QUnit.test("get numeric masked negative value by formated text", function(assert) {
+  const maskInstance = new InputMaskNumber();
+  assert.equal(maskInstance.getNumberMaskedValue("-123"), "-123");
+  assert.equal(maskInstance.getNumberMaskedValue("12-34"), "-1,234");
+  assert.equal(maskInstance.getNumberMaskedValue("-123-,456.78"), "-123,456.78");
+  assert.equal(maskInstance.getNumberMaskedValue("-123,45-678"), "-12,345,678");
+  assert.equal(maskInstance.getNumberMaskedValue("123,4-56.789"), "-123,456.78");
+  assert.equal(maskInstance.getNumberMaskedValue("123,45--6,78,101.12"), "-12,345,678,101.12");
+});
+
+QUnit.test("get numeric masked not allow negative value by formated text", function(assert) {
+  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric", allowNegative: false });
+  assert.equal(maskInstance.getNumberMaskedValue("-123"), "123");
+  assert.equal(maskInstance.getNumberMaskedValue("12-34"), "1,234");
+  assert.equal(maskInstance.getNumberMaskedValue("-123-,456.78"), "123,456.78");
+  assert.equal(maskInstance.getNumberMaskedValue("-123,45-678"), "12,345,678");
+  assert.equal(maskInstance.getNumberMaskedValue("123,4-56.789"), "123,456.78");
+  assert.equal(maskInstance.getNumberMaskedValue("123,45--6,78,101.12"), "12,345,678,101.12");
+});
+
 QUnit.test("get numeric unmasked valid text", function(assert) {
   const maskInstance = new InputMaskNumber();
   assert.equal(maskInstance.getUnmaskedValue("123"), 123);

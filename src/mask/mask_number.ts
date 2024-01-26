@@ -86,17 +86,18 @@ export class InputMaskNumber extends InputMaskBase {
     return this.numberOptions?.precision || settings.numberOptions.precision;
   }
   get allowNegative(): boolean {
-    return this.numberOptions?.allowNegative || settings.numberOptions.allowNegative;
+    return this.numberOptions?.allowNegative !== undefined ? this.numberOptions?.allowNegative : settings.numberOptions.allowNegative;
   }
 
   public displayNumber(parsedNumber: INumericalComposition): string {
     const displayIntegralPart = parsedNumber.integralPart ? splitString(parsedNumber.integralPart).join(this.thousandsSeparator) : "0";
     let displayFractionalPart = parsedNumber.fractionalPart;
+    const minusSign = parsedNumber.isNegative ? "-" : "";
     if(displayFractionalPart === "") {
-      return displayIntegralPart + (parsedNumber.decimalSeparatorCount ? this.decimalSeparator : "");
+      return minusSign + displayIntegralPart + (parsedNumber.decimalSeparatorCount ? this.decimalSeparator : "");
     } else {
       displayFractionalPart = displayFractionalPart.substring(0, this.precision);
-      return [displayIntegralPart, displayFractionalPart].join(this.decimalSeparator);
+      return [minusSign + displayIntegralPart, displayFractionalPart].join(this.decimalSeparator);
     }
   }
 
@@ -186,8 +187,6 @@ export class InputMaskNumber extends InputMaskBase {
     const src = leftPart + args.prevValue.slice(args.selectionEnd);
     const maskedValue = this.getMaskedValue(src, true);
     const result = { text: maskedValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
-
-    // const result = { text: maskedValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
 
     if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
       result.cursorPosition = args.selectionStart;

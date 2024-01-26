@@ -1658,3 +1658,19 @@ QUnit.test("checkbox, selectAll & survey.data, bug#7657", (assert) => {
   assert.deepEqual(q.value, ["One", "Two"], "q.value, #2");
   assert.deepEqual(survey.data, { q1: ["One", "Two"] }, "survey.data, #2");
 });
+QUnit.test("Do not show show choices in designer", function(assert) {
+  settings.supportCreatorV2 = true;
+  const json = { elements: [
+    { type: "checkbox", name: "q1", choices: [1, 2, 3, 4, 5] }
+  ] };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const question = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 5 + 1 + 3, "Show choices in designer, #1");
+  question.isMessagePanelVisible = true;
+  assert.equal(question.visibleChoices.length, 3, "Hide choices in designer, #2");
+  question.isMessagePanelVisible = false;
+  assert.equal(question.visibleChoices.length, 5 + 1 + 3, "Show choices in designer, #1");
+  settings.supportCreatorV2 = false;
+});

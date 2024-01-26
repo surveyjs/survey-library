@@ -961,8 +961,8 @@ QUnit.test("DropdownListModel filter event", (assert) => {
     }]
   });
 
-  survey.onItemTextSearch.add((sender, options) => {
-    options.result = options.text.indexOf(options.filter) + options.filter.length == options.text.length;
+  survey.onChoicesSearch.add((sender, options) => {
+    options.result = options.items.filter(item => item.text.indexOf(options.filter) + options.filter.length == item.text.length);
   });
 
   const question = <QuestionDropdownModel>survey.getAllQuestions()[0];

@@ -611,17 +611,15 @@ export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
   skip: number;
 }
 
-export interface ItemTextSearchEvent extends QuestionEventMixin {
-  /**
-   * A text...
-   */
-  text: string;
+export interface ChoicesSearchEvent extends QuestionEventMixin {
   /**
    * A search string used to filter.
    */
   filter: string;
 
-  result: boolean;
+  items: Array<ItemValue>;
+
+  result: Array<ItemValue>;
 }
 
 export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {

@@ -613,12 +613,16 @@ export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
 
 export interface ChoicesSearchEvent extends QuestionEventMixin {
   /**
-   * A search string used to filter.
+   * A search string used to filter choice options.
    */
   filter: string;
-
+  /**
+   * An array of all choice options.
+   */
   choices: Array<ItemValue>;
-
+  /**
+   * A filtered array of choice options. Apply `options.filter` to the `options.choices` array and assign the result to this parameter.
+   */
   filteredChoices: Array<ItemValue>;
 }
 

@@ -518,6 +518,6 @@ frameworks.forEach(framework => {
       .click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();
-    assert.deepEqual(surveyResult, { q1: "item2", "q1-Comment": "ABC" });
+    assert.deepEqual(surveyResult, { q1: "item2", "q1-Comment": "ABCDEF" });
   });
 });

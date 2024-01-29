@@ -513,6 +513,8 @@ frameworks.forEach(framework => {
     await setCommentValue();
 
     await t.click("input[value=item2]")
+      .click(Selector("textarea"))
+      .pressKey("end D E F")
       .click("input[value=Complete]");
 
     const surveyResult = await getSurveyResult();

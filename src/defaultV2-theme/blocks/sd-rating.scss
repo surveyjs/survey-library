@@ -169,7 +169,7 @@ legend+sv-ng-rating-item+.sd-rating__item {
   border: 2px solid $primary;
   color: $primary-foreground;
   font-weight: 600;
-  //box-shadow: 0px 1px 2px transparent;
+  box-shadow: 0px 1px 2px transparent;
 }
 
 .sd-rating__item--selected:focus-within {

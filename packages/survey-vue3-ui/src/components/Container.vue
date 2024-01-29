@@ -15,6 +15,7 @@
         <component
           :is="component.component"
           :survey="survey"
+          :container="container"
           :model="component.data"
         ></component>
       </template>

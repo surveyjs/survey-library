@@ -76,6 +76,7 @@ import { Cover } from "./header";
 import { surveyTimerFunctions } from "./surveytimer";
 import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
+import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
 
 /**
@@ -972,6 +973,8 @@ export class SurveyModel extends SurveyElementCore
       }
     });
 
+    this.progressBarValue = new ProgressButtons(this);
+
     this.layoutElements.push({
       id: "timerpanel",
       template: "survey-timerpanel",
@@ -981,7 +984,8 @@ export class SurveyModel extends SurveyElementCore
     this.layoutElements.push({
       id: "progress-buttons",
       component: "sv-progress-buttons",
-      data: this
+      data: this.progressBar,
+      processResponsiveness: width => this.progressBar.processResponsiveness && this.progressBar.processResponsiveness(width)
     });
     this.layoutElements.push({
       id: "progress-questions",
@@ -1009,7 +1013,7 @@ export class SurveyModel extends SurveyElementCore
       data: new TOCModel(this)
     });
     this.layoutElements.push({
-      id: "navigationbuttons",
+      id: "buttons-navigation",
       component: "sv-action-bar",
       data: this.navigationBar
     });
@@ -1870,7 +1874,7 @@ export class SurveyModel extends SurveyElementCore
     return this.locale;
   }
   public locStrsChanged(): void {
-    if(this.isClearingUnsedValues) return;
+    if (this.isClearingUnsedValues) return;
     super.locStrsChanged();
     if (!this.currentPage) return;
     if (this.isDesignMode) {
@@ -2588,15 +2592,23 @@ export class SurveyModel extends SurveyElementCore
     this.setPropertyValue("showQuestionNumbers", value);
     this.updateVisibleIndexes();
   }
+  private progressBarValue: any;
+  public get progressBar(): any {
+    return this.progressBarValue;
+  }
   /**
    * Controls the visibility of the progress bar and specifies its position.
    *
    * Possible values:
    *
    * - `"off"` (default) - Hides the progress bar.
-   * - `"top"` - Displays the progress bar above survey content.
+   * - `"aboveHeader"` - Displays the progress bar above the survey header.
+   * - `"belowHeader"` - Displays the progress bar below the survey header.
    * - `"bottom"` - Displays the progress bar below survey content.
-   * - `"both"` - Displays the progress bar above and below survey content.
+   * - `"topBottom"` - Displays the progress bar above and below survey content.
+   * - `"auto"` - Automatically selects between `"aboveHeader"` and `"belowHeader"`.
+   * - `"top"` - *(Obsolete)* Use the `"aboveHeader"` or `"belowHeader"` property value instead.
+   * - `"both"` - *(Obsolete)* Use the `"topBottom"` property value instead.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
    * @see progressBarType
@@ -2617,7 +2629,9 @@ export class SurveyModel extends SurveyElementCore
    * - `"questions"` - The number of answered questions.
    * - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
    * - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
-   * - `"buttons"` - Adds jump links to the progress bar.
+   * - `"buttons"` - *(Obsolete)* Use the `"pages"` property value with the [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) property set to `true` instead.
+   *
+   * > When `progressBarType` is set to `"pages"`, you can also enable the [`progressBarShowPageNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageNumbers) and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) properties if you want to display page numbers and titles in the progress bar.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
    * @see progressValue
@@ -2628,15 +2642,46 @@ export class SurveyModel extends SurveyElementCore
   public set progressBarType(newValue: string) {
     if (newValue === "correctquestion") newValue = "correctQuestion";
     if (newValue === "requiredquestion") newValue = "requiredQuestion";
+    // if (newValue === "buttons") {
+    //   newValue = "pages";
+    //   this.progressBarShowPageTitles = true;
+    // }
     this.setPropertyValue("progressBarType", newValue);
   }
+  private get progressBarComponentName(): string {
+    let actualProgressBarType = this.progressBarType;
+    if (!settings.legacyProgressBarView && surveyCss.currentType === "defaultV2") {
+      if (isStrCiEqual(actualProgressBarType, "pages")) {
+        actualProgressBarType = "buttons";
+      }
+    }
+    return "progress-" + actualProgressBarType;
+  }
+  /**
+   * Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   *
+   * Default value: `false`
+   * @see progressBarShowPageNumbers
+   */
+  @property({
+    getDefaultValue: (self: SurveyModel) => {
+      return self.progressBarType === "buttons";
+    },
+  }) progressBarShowPageTitles: boolean;
+  /**
+   * Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   *
+   * Default value: `false`
+   * @see progressBarShowPageTitles
+   */
+  @property() progressBarShowPageNumbers: boolean;
   public get isShowProgressBarOnTop(): boolean {
     if (!this.canShowProresBar()) return false;
-    return this.showProgressBar === "top" || this.showProgressBar === "both";
+    return ["auto", "aboveheader", "belowheader", "topbottom", "top", "both"].indexOf(this.showProgressBar) !== -1;
   }
   public get isShowProgressBarOnBottom(): boolean {
     if (!this.canShowProresBar()) return false;
-    return this.showProgressBar === "bottom" || this.showProgressBar === "both";
+    return this.showProgressBar === "bottom" || this.showProgressBar === "both" || this.showProgressBar === "topbottom";
   }
   public getProgressTypeComponent(): string {
     return "sv-progress-" + this.progressBarType.toLowerCase();
@@ -7383,7 +7428,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * This method accepts an object with the following layout element properties:
    *
-   * - `id`: `string` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"navigationbuttons"`\
+   * - `id`: `string` | `"timerpanel"` | `"progress-buttons"` | `"progress-questions"` | `"progress-pages"` | `"progress-correctquestions"` | `"progress-requiredquestions"` | `"toc-navigation"` | `"buttons-navigation"`\
    * A layout element identifier. You can use possible values to access and relocate or customize predefined layout elements.
    *
    * - `container`: `"header"` | `"footer"` | `"left"` | `"right"` | `"contentTop"` | `"contentBottom"`\
@@ -7431,10 +7476,13 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, "progress-" + this.progressBarType)) {
+      } else if (this.state === "running" && isStrCiEqual(layoutElement.id, this.progressBarComponentName)) {
         const headerLayoutElement = this.findLayoutElement("advanced-header");
         const advHeader = headerLayoutElement && headerLayoutElement.data as Cover;
         let isBelowHeader = !advHeader || advHeader.hasBackground;
+        if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
+          isBelowHeader = false;
+        }
         if (container === "header" && !isBelowHeader) {
           layoutElement.index = -150;
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
@@ -7454,7 +7502,7 @@ export class SurveyModel extends SurveyElementCore
             containerLayoutElements.push(layoutElement);
           }
         }
-      } else if (isStrCiEqual(layoutElement.id, "navigationbuttons")) {
+      } else if (isStrCiEqual(layoutElement.id, "buttons-navigation")) {
         if (container === "contentTop") {
           if (["top", "both"].indexOf(this.isNavigationButtonsShowing) !== -1) {
             containerLayoutElements.push(layoutElement);
@@ -7706,7 +7754,7 @@ Serializer.addClass("survey", [
   {
     name: "showProgressBar",
     default: "off",
-    choices: ["off", "top", "bottom", "both"],
+    choices: ["off", "auto", "aboveHeader", "belowHeader", "bottom", "topBottom"],
   },
   {
     name: "progressBarType",
@@ -7716,9 +7764,10 @@ Serializer.addClass("survey", [
       "questions",
       "requiredQuestions",
       "correctQuestions",
-      "buttons",
     ],
   },
+  { name: "progressBarShowPageTitles:switch" },
+  { name: "progressBarShowPageNumbers:switch", default: false },
   {
     name: "showTOC:switch",
     default: false

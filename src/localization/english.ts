@@ -10,6 +10,8 @@ export var englishStrings = {
   startSurveyText: "Start",
   otherItemText: "Other (describe)",
   noneItemText: "None",
+  refuseItemText: "Refuse to answer",
+  donotKnowItemText: "Do not know",
   selectAllItemText: "Select All",
   progressText: "Page {0} of {1}",
   indexText: "{0} of {1}",

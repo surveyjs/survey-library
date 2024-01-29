@@ -137,7 +137,7 @@ const jsonTagboxWithSelectAll = {
     type: "tagbox",
     name: "question1",
     hasOther: "true",
-    hasNone: "true",
+    showNoneItem: "true",
     hasSelectAll: "true",
     choices: [
       "item1",

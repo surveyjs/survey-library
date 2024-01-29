@@ -515,6 +515,8 @@ export var settings = {
    * Default value: `"none"`
    */
   noneItemValue: "none",
+  refuseItemValue: "refuse",
+  donotKnowItemValue: "donotknow",
   /**
    * An object whose properties specify the order of the special choice items (None, Other, Select All) in select-based questions.
    *

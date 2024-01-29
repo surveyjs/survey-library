@@ -374,7 +374,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!newValue) newValue = [];
     if (!value) value = [];
     if (this.isTwoValueEquals(value, newValue)) return;
-    if (this.hasNone) {
+    if (this.showNoneItem) {
       var prevNoneIndex = this.noneIndexInArray(value);
       var newNoneIndex = this.noneIndexInArray(newValue);
       if (prevNoneIndex > -1) {

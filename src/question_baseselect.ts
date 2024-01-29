@@ -29,7 +29,9 @@ export class QuestionSelectBase extends Question {
   private cachedValueForUrlRequests: any;
   private isChoicesLoaded: boolean;
   private enableOnLoadingChoices: boolean;
-  private noneItemValue: ItemValue = new ItemValue(settings.noneItemValue);
+  private noneItemValue: ItemValue;
+  private refuseItemValue: ItemValue;
+  private donotKnowItemValue: ItemValue;
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
@@ -42,10 +44,9 @@ export class QuestionSelectBase extends Question {
 
   constructor(name: string) {
     super(name);
-    var noneItemText = this.createLocalizableString("noneText", this.noneItemValue, true, "noneItemText");
-    this.noneItemValue.locOwner = this;
-    this.noneItemValue.setLocText(noneItemText);
-
+    this.noneItemValue = this.createDefaultItem(settings.noneItemValue, "noneText", "noneItemText");
+    this.refuseItemValue = this.createDefaultItem(settings.refuseItemValue, "refuseText", "refuseItemText");
+    this.donotKnowItemValue = this.createDefaultItem(settings.donotKnowItemValue, "donotKnowText", "donotKnowItemText");
     this.createItemValues("choices");
     this.registerPropertyChangedHandlers(["choices"], () => {
       if (!this.filterItems()) {
@@ -183,7 +184,7 @@ export class QuestionSelectBase extends Question {
     return this.hasOther && this.getHasOther(this.renderedValue);
   }
   public get isNoneSelected(): boolean {
-    return this.hasNone && this.getIsItemValue(this.renderedValue, this.noneItem);
+    return this.showNoneItem && this.getIsItemValue(this.renderedValue, this.noneItem);
   }
   /**
    * Specifies whether to display the "None" choice item.
@@ -224,6 +225,49 @@ export class QuestionSelectBase extends Question {
   }
   get locNoneText(): LocalizableString {
     return this.getLocalizableString("noneText");
+  }
+  public get showRefuseItem(): boolean {
+    return this.getPropertyValue("showRefuseItem");
+  }
+  public set showRefuseItem(val: boolean) {
+    this.setPropertyValue("showRefuseItem", val);
+  }
+  public get refuseItem(): ItemValue {
+    return this.refuseItemValue;
+  }
+  public get refuseText(): string {
+    return this.getLocalizableStringText("refuseText");
+  }
+  public set refuseText(val: string) {
+    this.setLocalizableStringText("refuseText", val);
+  }
+  get locRefuseText(): LocalizableString {
+    return this.getLocalizableString("refuseText");
+  }
+  public get showDonotKnowItem(): boolean {
+    return this.getPropertyValue("showDonotKnowItem");
+  }
+  public set showDonotKnowItem(val: boolean) {
+    this.setPropertyValue("showDonotKnowItem", val);
+  }
+  public get donotKnowItem(): ItemValue {
+    return this.donotKnowItemValue;
+  }
+  public get donotKnowText(): string {
+    return this.getLocalizableStringText("donotKnowText");
+  }
+  public set donotKnowText(val: string) {
+    this.setLocalizableStringText("donotKnowText", val);
+  }
+  get locDonotKnowText(): LocalizableString {
+    return this.getLocalizableString("donotKnowText");
+  }
+  private createDefaultItem(defaultValue: any, name: string, locName: string): ItemValue {
+    const item = new ItemValue(defaultValue);
+    const locStr = this.createLocalizableString(name, item, true, locName);
+    item.locOwner = this;
+    item.setLocText(locStr);
+    return item;
   }
   /**
    * A Boolean expression that is evaluated against each choice item. If the expression evaluates to `false`, the choice item becomes hidden.
@@ -636,7 +680,7 @@ export class QuestionSelectBase extends Question {
   ): boolean {
     if (!checkEmptyValue && this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
-    if (this.hasNone && val == this.noneItem.value) return false;
+    if (this.showNoneItem && val == this.noneItem.value) return false;
     var choices = isFilteredChoices
       ? this.getFilteredChoices()
       : this.activeChoices;
@@ -904,7 +948,7 @@ export class QuestionSelectBase extends Question {
   protected canUseFilteredChoices(): boolean {
     return (
       !this.isAddDefaultItems &&
-      !this.hasNone &&
+      !this.showNoneItem &&
       !this.hasOther &&
       this.choicesOrder == "none"
     );
@@ -953,7 +997,7 @@ export class QuestionSelectBase extends Question {
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     if (
-      this.supportNone() && this.canShowOptionItem(this.noneItem, isAddAll, this.hasNone)
+      this.supportNone() && this.canShowOptionItem(this.noneItem, isAddAll, this.showNoneItem)
     ) {
       this.addNonChoiceItem(dict, this.noneItem, settings.specialChoicesOrder.noneItem);
     }
@@ -976,7 +1020,7 @@ export class QuestionSelectBase extends Question {
   }
   public isItemInList(item: ItemValue): boolean {
     if (item === this.otherItem) return this.hasOther;
-    if (item === this.noneItem) return this.hasNone;
+    if (item === this.noneItem) return this.showNoneItem;
     if (item === this.newItemValue) return false;
     return true;
   }
@@ -1920,6 +1964,8 @@ Serializer.addClass(
     { name: "separateSpecialChoices:boolean", visible: false },
     { name: "showOtherItem:boolean", alternativeName: "hasOther" },
     { name: "showNoneItem:boolean", alternativeName: "hasNone" },
+    { name: "showRefuseItem:boolean", visible: false },
+    { name: "showDonotKnowItem:boolean", visible: false },
     {
       name: "otherPlaceholder",
       alternativeName: "otherPlaceHolder",
@@ -1934,7 +1980,23 @@ Serializer.addClass(
       serializationProperty: "locNoneText",
       dependsOn: "showNoneItem",
       visibleIf: function (obj: any) {
-        return obj.hasNone;
+        return obj.showNoneItem;
+      },
+    },
+    {
+      name: "refuseText",
+      serializationProperty: "locRefuseText",
+      dependsOn: "showRefuseItem",
+      visibleIf: function (obj: any) {
+        return obj.showRefuseItem;
+      },
+    },
+    {
+      name: "donotKnowText",
+      serializationProperty: "locDonotKnowText",
+      dependsOn: "showDonotKnowItem",
+      visibleIf: function (obj: any) {
+        return obj.showDonotKnowItem;
       },
     },
     {

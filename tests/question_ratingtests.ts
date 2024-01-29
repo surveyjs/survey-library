@@ -1313,6 +1313,16 @@ QUnit.test("check rating in-matrix mode styles", (assert) => {
   assert.equal(q1.ratingRootCss, "sv_q sv_q__top");
 });
 
+QUnit.test("check rating display-mode styles", (assert) => {
+  const survey = new SurveyModel({ questions: [{ type: "rating", name: "q1" }] });
+  const q1 = survey.getQuestionByName("q1") as QuestionRatingModel;
+  q1.cssClasses.root = "sv_q-root";
+  q1.cssClasses.rootWrappable = "sv_q-root__wrap";
+  assert.equal(q1.ratingRootCss, "sv_q-root");
+  q1.displayMode = "buttons";
+  assert.equal(q1.ratingRootCss, "sv_q-root sv_q-root__wrap");
+});
+
 QUnit.test("check rating triggerResponsiveness method", (assert) => {
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;

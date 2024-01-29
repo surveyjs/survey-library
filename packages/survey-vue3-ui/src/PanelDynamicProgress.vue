@@ -1,6 +1,6 @@
 <template>
-  <div :class="getСssClass()">
-    <div style="clear: both" :class="getСssClass()">
+  <div :class="getCssClass()">
+    <div style="clear: both" :class="getCssClass()">
       <div :class="question.cssClasses.progressContainer">
         <sv-paneldynamic-prev-btn :data="{ question: question }" />
         <div
@@ -27,7 +27,7 @@ const props = defineProps<{
   question: QuestionPanelDynamicModel;
 }>();
 
-const getСssClass = () => {
+const getCssClass = () => {
   return props.question.isProgressTopShowing
     ? props.question.cssClasses.progressTop
     : props.question.cssClasses.progressBottom;

@@ -110,6 +110,7 @@
     .sd-table__row:first-of-type>.sd-table__cell {
       border-top: calcSize(1) solid transparent;
     }
+
     .sd-table__row:last-of-type>.sd-table__cell {
       border-bottom: calcSize(1) solid transparent;
     }
@@ -159,6 +160,9 @@
 
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
     min-width: calcSize(15);
+  }
+  .sd-item {
+    text-align: initial;
   }
 }
 
@@ -540,7 +544,7 @@
   }
 
   .sd-matrix__label {
-    justify-content: start;
+    justify-content: flex-start;
   }
 
   .sd-table__cell {

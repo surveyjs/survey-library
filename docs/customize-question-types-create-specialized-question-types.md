@@ -26,7 +26,7 @@ If you [add this question to the Toolbox](/Documentation/Survey-Creator?id=toolb
 - If the question needs modifications (for example, if the server URL has changed), end users have to modify every created instance of this question individually.
 - In the JSON schema, your custom question looks like a regular Dropdown question.
 
-To avoid these drawbacks, use a different approach: add your custom question type to the survey's `ComponentCollection`:
+To avoid these drawbacks, use a different approach: add your [custom question type](https://surveyjs.io/form-library/documentation/api-reference/icustomquestiontypeconfiguration) to the survey's `ComponentCollection`:
 
 ```js
 Survey.ComponentCollection.Instance.add({
@@ -43,7 +43,9 @@ Survey.ComponentCollection.Instance.add({
     "choicesByUrl": {
       "url": "https://surveyjs.io/api/CountriesExample",
     }
-  }
+  },
+  // Inherit all or individual properties from the base question type
+  inheritBaseProps: true // or [ "allowClear" ]
 });
 ```
 

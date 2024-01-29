@@ -7118,7 +7118,9 @@ export class SurveyModel extends SurveyElementCore
    * @see onTimer
    */
   public startTimer() {
-    this.timerModel.start();
+    if(this.isEditMode) {
+      this.timerModel.start();
+    }
   }
   startTimerFromUI() {
     if (this.showTimerPanel != "none" && this.state === "running") {

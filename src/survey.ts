@@ -7170,7 +7170,7 @@ export class SurveyModel extends SurveyElementCore
    * @see onTimer
    */
   public startTimer() {
-    if(this.isEditMode) {
+    if (this.isEditMode) {
       this.timerModel.start();
     }
   }
@@ -7766,8 +7766,8 @@ Serializer.addClass("survey", [
       "correctQuestions",
     ],
   },
-  { name: "progressBarShowPageTitles:switch" },
-  { name: "progressBarShowPageNumbers:switch", default: false },
+  { name: "progressBarShowPageTitles:switch", category: "navigation" },
+  { name: "progressBarShowPageNumbers:switch", default: false, category: "navigation" },
   {
     name: "showTOC:switch",
     default: false

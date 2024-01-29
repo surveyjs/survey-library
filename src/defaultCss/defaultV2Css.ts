@@ -483,6 +483,7 @@ export var defaultV2Css = {
     noHeader: "sd-table--no-header",
     hasFooter: "sd-table--has-footer",
     tableWrapper: "sd-table-wrapper",
+    rootAlternateRows: "sd-table--alternate-rows",
     content: "sd-matrixdynamic__content sd-question__content",
     cell: "sd-table__cell",
     row: "sd-table__row",

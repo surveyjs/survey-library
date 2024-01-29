@@ -2595,13 +2595,13 @@ export class SurveyModel extends SurveyElementCore
    * Possible values:
    *
    * - `"off"` (default) - Hides the progress bar.
-   * - `"top"` - Displays the progress bar above survey content (obsolete).
-   * - `"aboveHeader"` - Displays the progress bar .
-   * - `"belowHeader"` - Displays the progress bar .
+   * - `"aboveHeader"` - Displays the progress bar above the survey header.
+   * - `"belowHeader"` - Displays the progress bar below the survey header.
    * - `"bottom"` - Displays the progress bar below survey content.
-   * - `"topBottom"` - Displays the progress bar .
-   * - `"both"` - Displays the progress bar above and below survey content (obsolete).
-   * - `"auto"` - Displays the progress bar .
+   * - `"topBottom"` - Displays the progress bar above and below survey content.
+   * - `"auto"` - Automatically selects between `"aboveHeader"` and `"belowHeader"`.
+   * - `"top"` - *(Obsolete)* Use the `"aboveHeader"` or `"belowHeader"` property value instead.
+   * - `"both"` - *(Obsolete)* Use the `"topBottom"` property value instead.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-default/ (linkStyle))
    * @see progressBarType
@@ -2622,7 +2622,9 @@ export class SurveyModel extends SurveyElementCore
    * - `"questions"` - The number of answered questions.
    * - `"requiredQuestions"` - The number of answered [required questions](https://surveyjs.io/form-library/documentation/api-reference/question#isRequired).
    * - `"correctQuestions"` - The number of correct questions in a [quiz](https://surveyjs.io/form-library/documentation/design-survey/create-a-quiz).
-   * - `"buttons"` - Adds jump links to the progress bar (obsolete).
+   * - `"buttons"` - *(Obsolete)* Use the `"pages"` property value with the [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) property set to `true` instead.
+   *
+   * > When `progressBarType` is set to `"pages"`, you can also enable the [`progressBarShowPageNumbers`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageNumbers) and [`progressBarShowPageTitles`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarShowPageTitles) properties if you want to display page numbers and titles in the progress bar.
    *
    * [View Demo](https://surveyjs.io/form-library/examples/navigation-buttons/ (linkStyle))
    * @see progressValue
@@ -2648,11 +2650,23 @@ export class SurveyModel extends SurveyElementCore
     }
     return "progress-" + actualProgressBarType;
   }
+  /**
+   * Specifies whether the progress bar displays page titles. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   *
+   * Default value: `false`
+   * @see progressBarShowPageNumbers
+   */
   @property({
     getDefaultValue: (self: SurveyModel) => {
       return self.progressBarType === "buttons";
     },
   }) progressBarShowPageTitles: boolean;
+  /**
+   * Specifies whether the progress bar displays page numbers. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   *
+   * Default value: `false`
+   * @see progressBarShowPageTitles
+   */
   @property() progressBarShowPageNumbers: boolean;
   public get isShowProgressBarOnTop(): boolean {
     if (!this.canShowProresBar()) return false;

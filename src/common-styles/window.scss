@@ -15,6 +15,10 @@
     box-sizing: border-box;
 }
 
+.sv_window_root-content {
+    height: 100%;
+}
+
 .sv_window--full-screen {
     top: calcSize(2);
     left: calcSize(2);
@@ -28,6 +32,7 @@
 .sv_window_content {
     border-radius: calcSize(1);
     overflow: hidden;
+    height: 100%;
 }
 
 .sv_window--collapsed {

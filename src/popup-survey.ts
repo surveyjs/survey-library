@@ -71,11 +71,15 @@ export class PopupSurveyModel extends Base {
     this.setPropertyValue("isShowing", val);
   }
 
-  private get isFullScreen(): boolean {
+  public get isFullScreen(): boolean {
     return this.getPropertyValue("isFullScreen", false);
   }
-  private set isFullScreen(val: boolean) {
+  public set isFullScreen(val: boolean) {
+    if (!this.isExpanded && !!val) {
+      this.isExpanded = true;
+    }
     this.setPropertyValue("isFullScreen", val);
+    this.setCssRoot();
   }
   /**
    * Shows the pop-up survey. The survey may appear [expanded or collapsed](#isExpanded).
@@ -99,7 +103,6 @@ export class PopupSurveyModel extends Base {
   }
   public toggleFullScreen(): void {
     this.isFullScreen = !this.isFullScreen;
-    this.setCssRoot();
   }
   /**
    * Indicates whether the pop-up window is expanded or collapsed.
@@ -110,6 +113,9 @@ export class PopupSurveyModel extends Base {
     return this.getPropertyValue("isExpanded", false);
   }
   public set isExpanded(val: boolean) {
+    if (!!this.isFullScreen && !val) {
+      this.isFullScreen = false;
+    }
     this.setPropertyValue("isExpanded", val);
   }
   public get isCollapsed(): boolean {

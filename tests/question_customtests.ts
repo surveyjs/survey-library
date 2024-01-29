@@ -2796,6 +2796,9 @@ QUnit.test("single component: inheritBaseProps: array<string> #2", function (ass
   assert.equal(q1.placeholder, "cde", "q1.placeholder #3");
   assert.equal(content.placeholder, "cde", "content.placeholder #3");
 
+  const prop = Serializer.getOriginalProperty(q1, "placeholder");
+  assert.equal(prop.name, "placeholder", "prop.className is correct");
+  assert.equal(prop.isVisible("form", q1), true, "it is visible");
   ComponentCollection.Instance.clear();
 });
 QUnit.test("single component: inheritBaseProps: true", function (assert) {

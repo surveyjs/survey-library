@@ -5782,6 +5782,12 @@ export class SurveyModel extends SurveyElementCore
   private conditionRunnerCounter: number = 0;
   private conditionUpdateVisibleIndexes: boolean = false;
   private conditionNotifyElementsOnAnyValueOrVariableChanged: boolean = false;
+  /**
+   * Recalculates all [expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions) in the survey.
+   */
+  public runExpressions(): void {
+    this.runConditions();
+  }
   private runConditions() {
     if (
       this.isCompleted ||
@@ -7157,7 +7163,9 @@ export class SurveyModel extends SurveyElementCore
    * @see onTimer
    */
   public startTimer() {
-    this.timerModel.start();
+    if(this.isEditMode) {
+      this.timerModel.start();
+    }
   }
   startTimerFromUI() {
     if (this.showTimerPanel != "none" && this.state === "running") {

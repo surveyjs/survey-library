@@ -7560,3 +7560,15 @@ QUnit.test("Hide errors on making question disabled", function (assert) {
   assert.equal(q2.isReadOnly, true, "q2 is read-only");
   assert.equal(q2.errors.length, 0, "Clear errors on making questio read-only");
 });
+QUnit.test("matrix.visibleRows and read-only", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "matrix", name: "matrix", columns: ["col1", "col2"], rows: ["row1", "row2"], readOnly: true }
+    ]
+  });
+  const matrix = <QuestionMatrixModel>survey.getQuestionByName("matrix");
+  matrix.value = { row1: "col1", row2: "col2" };
+  assert.equal(matrix.visibleRows.length, 2, "visibleRows.length");
+  assert.equal(matrix.visibleRows[0].value, "col1", "row1.value");
+  assert.equal(matrix.visibleRows[1].value, "col2", "row2.value");
+});

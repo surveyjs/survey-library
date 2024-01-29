@@ -9,6 +9,8 @@ export var lithuaniaSurveyStrings = {
   startSurveyText: "Pradėti",
   otherItemText: "Kita (įvesti)",
   noneItemText: "Nėra",
+  refuseItemText: "Atsisakyti atsakyti",
+  dontKnowItemText: "Nežinau",
   selectAllItemText: "Pasirinkti visus",
   progressText: "Puslapis {0} iš {1}",
   indexText: "{1} {0}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["lt"] = "lietuvių";
 // hideDetails: "Hide Details" => "Slėpti išsamią informaciją"
 // ok: "OK" => "GERAI"
 // cancel: "Cancel" => "Atšaukti"
+// refuseItemText: "Refuse to answer" => "Atsisakyti atsakyti"
+// dontKnowItemText: "Don't know" => "Nežinau"

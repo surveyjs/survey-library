@@ -9,6 +9,8 @@ export var russianSurveyStrings = {
   startSurveyText: "Начать",
   otherItemText: "Другое (пожалуйста, опишите)",
   noneItemText: "Нет",
+  refuseItemText: "Откажитесь отвечать",
+  dontKnowItemText: "Не знаю",
   selectAllItemText: "Выбрать всё",
   progressText: "Страница {0} из {1}",
   indexText: "{0} из {1}",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["ru"] = "русский";
 // hideDetails: "Hide Details" => "Скрыть подробности"
 // ok: "OK" => "ХОРОШО"
 // cancel: "Cancel" => "Отмена"
+// refuseItemText: "Refuse to answer" => "Откажитесь отвечать"
+// dontKnowItemText: "Don't know" => "Не знаю"

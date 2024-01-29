@@ -9,6 +9,8 @@ export var persianSurveyStrings = {
   startSurveyText: "شروع",
   otherItemText: "دیگر(توضیح)",
   noneItemText: "هیچ",
+  refuseItemText: "امتناع از پاسخ دادن",
+  dontKnowItemText: "نمی دانم",
   selectAllItemText: "انتخاب همه",
   progressText: "صفحه {0} از {1}",
   indexText: "{0} {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["fa"] = "فارْسِى";
 // hideDetails: "Hide Details" => "مخفی کردن جزئیات"
 // ok: "OK" => "باشه"
 // cancel: "Cancel" => "لغو"
+// refuseItemText: "Refuse to answer" => "امتناع از پاسخ دادن"
+// dontKnowItemText: "Don't know" => "نمی دانم"

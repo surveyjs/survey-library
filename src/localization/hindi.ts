@@ -9,6 +9,8 @@ export var hindiStrings = {
   startSurveyText: "शुरू",
   otherItemText: "दूसरा (वर्णन करें)",
   noneItemText: "कोई नहीं",
+  refuseItemText: "जवाब देने से इनकार",
+  dontKnowItemText: "नहीं मालूम",
   selectAllItemText: "सभी का चयन करें",
   progressText: "पृष्ठ 1 में से 0",
   indexText: "{1} का {0}",
@@ -135,4 +137,5 @@ surveyLocalization.localeNames["hi"] = "hindi";
 // showDetails: "Show Details" => "विवरण दिखाएँ"
 // hideDetails: "Hide Details" => "विवरण छुपाएँ"
 // ok: "OK" => "ठीक है"
-// cancel: "Cancel" => "रद्द करना"
+// cancel: "Cancel" => "रद्द करना"// refuseItemText: "Refuse to answer" => "जवाब देने से इनकार"
+// dontKnowItemText: "Don't know" => "नहीं मालूम"

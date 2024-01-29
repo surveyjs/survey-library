@@ -9,6 +9,8 @@ export var croatianStrings = {
   startSurveyText: "Početak",
   otherItemText: "Ostali (opis)",
   noneItemText: "Nitko",
+  refuseItemText: "Odbijte odgovoriti",
+  dontKnowItemText: "Ne znam",
   selectAllItemText: "Select All",
   progressText: "Stranica {0} od {1}",
   indexText: "{0} {1}",
@@ -133,3 +135,5 @@ surveyLocalization.localeNames["hr"] = "hrvatski";
 // hideDetails: "Hide Details" => "Sakrij detalje"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Otkazati"
+// refuseItemText: "Refuse to answer" => "Odbijte odgovoriti"
+// dontKnowItemText: "Don't know" => "Ne znam"

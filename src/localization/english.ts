@@ -11,7 +11,7 @@ export var englishStrings = {
   otherItemText: "Other (describe)",
   noneItemText: "None",
   refuseItemText: "Refuse to answer",
-  donotKnowItemText: "Do not know",
+  dontKnowItemText: "Don't know",
   selectAllItemText: "Select All",
   progressText: "Page {0} of {1}",
   indexText: "{0} of {1}",

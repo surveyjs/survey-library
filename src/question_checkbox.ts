@@ -115,7 +115,10 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
    * @see showSelectAllItem
    */
   public get isAllSelected(): boolean {
-    if (this.isItemSelected(this.noneItem)) return false;
+    const noneItems = this.getNoneItems();
+    for(let i = 0; i < noneItems.length; i ++) {
+      if(this.isItemSelected(noneItems[i])) return false;
+    }
     const items = this.getVisibleEnableItems();
     if(items.length === 0) return false;
     const val = this.value;
@@ -162,19 +165,33 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
         this.toggleSelectAll();
       }
     } else {
-      const newValue: Array<any> = [].concat(this.renderedValue || []);
-      const index = newValue.indexOf(item.value);
-      if (checked) {
-        if (index < 0) {
-          newValue.push(item.value);
-        }
+      if(this.isNoneItem(item)) {
+        this.renderedValue = [item.value];
       } else {
-        if (index > -1) {
-          newValue.splice(index, 1);
+        const newValue: Array<any> = [].concat(this.renderedValue || []);
+        const index = newValue.indexOf(item.value);
+        if (checked) {
+          if (index < 0) {
+            newValue.push(item.value);
+          }
+        } else {
+          if (index > -1) {
+            newValue.splice(index, 1);
+          }
         }
+        this.renderedValue = newValue;
       }
-      this.renderedValue = newValue;
     }
+  }
+  private removeNoneItems(val: Array<any>): Array<any> {
+    const items = this.getNoneItems();
+    items.forEach(item => {
+      const index = val.indexOf(item.value);
+      if(index > -1) {
+        val.splice(index, 1);
+      }
+    });
+    return val;
   }
   protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
@@ -374,20 +391,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!newValue) newValue = [];
     if (!value) value = [];
     if (this.isTwoValueEquals(value, newValue)) return;
-    if (this.showNoneItem) {
-      var prevNoneIndex = this.noneIndexInArray(value);
-      var newNoneIndex = this.noneIndexInArray(newValue);
-      if (prevNoneIndex > -1) {
-        if (newNoneIndex > -1 && newValue.length > 1) {
-          newValue.splice(newNoneIndex, 1);
-        }
-      } else {
-        if (newNoneIndex > -1) {
-          newValue.splice(0, newValue.length);
-          newValue.push(this.noneItem.value);
-        }
-      }
-    }
+    this.removeNoneItemsValues(value, newValue);
     super.setNewValue(newValue);
   }
   protected getIsMultipleValue(): boolean {
@@ -411,30 +415,56 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     }
     return -1;
   }
-  private noneIndexInArray(val: any) {
-    if (!val || !Array.isArray(val)) return -1;
-    var noneValue = this.noneItem.value;
-    for (var i = 0; i < val.length; i++) {
-      if (val[i] == noneValue) return i;
+  protected removeNoneItemsValues(value: Array<any>, newValue: Array<any>): void {
+    const noneValues: Array<any> = [];
+    if(this.showNoneItem) noneValues.push(this.noneItem.value);
+    if(this.showRefuseItem) noneValues.push(this.refuseItem.value);
+    if(this.showDontKnowItem) noneValues.push(this.dontKnowItem.value);
+    if (noneValues.length > 0) {
+      const prevNone = this.noneIndexInArray(value, noneValues);
+      const newNone = this.noneIndexInArray(newValue, noneValues);
+      if(prevNone.index > -1) {
+        if(prevNone.val === newNone.val) {
+          if(newValue.length > 0) {
+            newValue.splice(newNone.index, 1);
+          }
+        } else {
+          const prevNewNone = this.noneIndexInArray(newValue, [prevNone.val]);
+          if(prevNewNone.index > -1 && prevNewNone.index < newValue.length - 1) {
+            newValue.splice(prevNewNone.index, 1);
+          }
+        }
+      } else {
+        if (newNone.index > -1 && newValue.length > 1) {
+          const itemVal = this.convertValueToObject([newNone.val])[0];
+          newValue.splice(0, newValue.length, itemVal);
+        }
+      }
     }
-    return -1;
+  }
+
+  private noneIndexInArray(val: any, noneValues: Array<any>): { index: number, val: any } {
+    if (!Array.isArray(val)) return { index: -1, val: undefined };
+    for (var i = val.length - 1; i >= 0; i--) {
+      const index = noneValues.indexOf(this.getRealValue(val[i]));
+      if (index > -1) return { index: i, val: noneValues[index] };
+    }
+    return { index: -1, val: undefined };
   }
   protected canUseFilteredChoices(): boolean {
     return !this.hasSelectAll && super.canUseFilteredChoices();
   }
-  protected supportSelectAll() {
+  protected supportSelectAll(): boolean {
     return this.isSupportProperty("showSelectAllItem");
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
     super.addNonChoicesItems(dict, isAddAll);
-    if (
-      this.supportSelectAll() && this.canShowOptionItem(this.selectAllItem, isAddAll, this.hasSelectAll)
-    ) {
-      this.addNonChoiceItem(dict, this.selectAllItem, settings.specialChoicesOrder.selectAllItem);
+    if (this.supportSelectAll()) {
+      this.addNonChoiceItem(dict, this.selectAllItem, isAddAll, this.hasSelectAll, settings.specialChoicesOrder.selectAllItem);
     }
   }
-  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
-    return item === (<QuestionCheckboxBase>question).selectAllItem || super.isBuiltInChoice(item, question);
+  protected isBuiltInChoice(item: ItemValue): boolean {
+    return item === this.selectAllItem || super.isBuiltInChoice(item);
   }
 
   public isItemInList(item: ItemValue): boolean {

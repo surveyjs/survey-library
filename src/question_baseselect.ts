@@ -31,7 +31,7 @@ export class QuestionSelectBase extends Question {
   private enableOnLoadingChoices: boolean;
   private noneItemValue: ItemValue;
   private refuseItemValue: ItemValue;
-  private donotKnowItemValue: ItemValue;
+  private dontKnowItemValue: ItemValue;
   private newItemValue: ItemValue;
   private canShowOptionItemCallback: (item: ItemValue) => boolean;
   private waitingGetChoiceDisplayValueResponse: boolean;
@@ -46,7 +46,7 @@ export class QuestionSelectBase extends Question {
     super(name);
     this.noneItemValue = this.createDefaultItem(settings.noneItemValue, "noneText", "noneItemText");
     this.refuseItemValue = this.createDefaultItem(settings.refuseItemValue, "refuseText", "refuseItemText");
-    this.donotKnowItemValue = this.createDefaultItem(settings.donotKnowItemValue, "donotKnowText", "donotKnowItemText");
+    this.dontKnowItemValue = this.createDefaultItem(settings.dontKnowItemValue, "dontKnowText", "dontKnowItemText");
     this.createItemValues("choices");
     this.registerPropertyChangedHandlers(["choices"], () => {
       if (!this.filterItems()) {
@@ -55,7 +55,7 @@ export class QuestionSelectBase extends Question {
     });
     this.registerPropertyChangedHandlers(
       ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
-        "choiceTextsFromQuestion", "showNoneItem", "isUsingRestful"],
+        "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -244,23 +244,23 @@ export class QuestionSelectBase extends Question {
   get locRefuseText(): LocalizableString {
     return this.getLocalizableString("refuseText");
   }
-  public get showDonotKnowItem(): boolean {
-    return this.getPropertyValue("showDonotKnowItem");
+  public get showDontKnowItem(): boolean {
+    return this.getPropertyValue("showDontKnowItem");
   }
-  public set showDonotKnowItem(val: boolean) {
-    this.setPropertyValue("showDonotKnowItem", val);
+  public set showDontKnowItem(val: boolean) {
+    this.setPropertyValue("showDontKnowItem", val);
   }
-  public get donotKnowItem(): ItemValue {
-    return this.donotKnowItemValue;
+  public get dontKnowItem(): ItemValue {
+    return this.dontKnowItemValue;
   }
-  public get donotKnowText(): string {
-    return this.getLocalizableStringText("donotKnowText");
+  public get dontKnowText(): string {
+    return this.getLocalizableStringText("dontKnowText");
   }
-  public set donotKnowText(val: string) {
-    this.setLocalizableStringText("donotKnowText", val);
+  public set dontKnowText(val: string) {
+    this.setLocalizableStringText("dontKnowText", val);
   }
-  get locDonotKnowText(): LocalizableString {
-    return this.getLocalizableString("donotKnowText");
+  get locDontKnowText(): LocalizableString {
+    return this.getLocalizableString("dontKnowText");
   }
   private createDefaultItem(defaultValue: any, name: string, locName: string): ItemValue {
     const item = new ItemValue(defaultValue);
@@ -681,6 +681,8 @@ export class QuestionSelectBase extends Question {
     if (!checkEmptyValue && this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     if (this.showNoneItem && val == this.noneItem.value) return false;
+    if (this.showRefuseItem && val == this.refuseItem.value) return false;
+    if (this.showDontKnowItem && val == this.dontKnowItem.value) return false;
     var choices = isFilteredChoices
       ? this.getFilteredChoices()
       : this.activeChoices;
@@ -949,6 +951,8 @@ export class QuestionSelectBase extends Question {
     return (
       !this.isAddDefaultItems &&
       !this.showNoneItem &&
+      !this.showRefuseItem &&
+      !this.showDontKnowItem &&
       !this.hasOther &&
       this.choicesOrder == "none"
     );
@@ -996,19 +1000,23 @@ export class QuestionSelectBase extends Question {
     }
   }
   protected addNonChoicesItems(dict: Array<{ index: number, item: ItemValue }>, isAddAll: boolean): void {
-    if (
-      this.supportNone() && this.canShowOptionItem(this.noneItem, isAddAll, this.showNoneItem)
-    ) {
-      this.addNonChoiceItem(dict, this.noneItem, settings.specialChoicesOrder.noneItem);
+    if (this.supportNone()) {
+      this.addNonChoiceItem(dict, this.noneItem, isAddAll, this.showNoneItem, settings.specialChoicesOrder.noneItem);
     }
-    if (
-      this.supportOther() && this.canShowOptionItem(this.otherItem, isAddAll, this.hasOther)
-    ) {
-      this.addNonChoiceItem(dict, this.otherItem, settings.specialChoicesOrder.otherItem);
+    if (this.supportRefuse()) {
+      this.addNonChoiceItem(dict, this.refuseItem, isAddAll, this.showRefuseItem, settings.specialChoicesOrder.refuseItem);
+    }
+    if (this.supportDontKnow()) {
+      this.addNonChoiceItem(dict, this.dontKnowItem, isAddAll, this.showDontKnowItem, settings.specialChoicesOrder.dontKnowItem);
+    }
+    if(this.supportOther()) {
+      this.addNonChoiceItem(dict, this.otherItem, isAddAll, this.hasOther, settings.specialChoicesOrder.otherItem);
     }
   }
-  protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, order: Array<number>): void {
-    order.forEach(val => dict.push({ index: val, item: item }));
+  protected addNonChoiceItem(dict: Array<{ index: number, item: ItemValue }>, item: ItemValue, isAddAll: boolean, showItem: boolean, order: Array<number>): void {
+    if(this.canShowOptionItem(item, isAddAll, showItem)) {
+      order.forEach(val => dict.push({ index: val, item: item }));
+    }
   }
   protected canShowOptionItem(item: ItemValue, isAddAll: boolean, hasItem: boolean): boolean {
     let res: boolean = (isAddAll && (!!this.canShowOptionItemCallback ? this.canShowOptionItemCallback(item) : true)) || hasItem;
@@ -1021,6 +1029,8 @@ export class QuestionSelectBase extends Question {
   public isItemInList(item: ItemValue): boolean {
     if (item === this.otherItem) return this.hasOther;
     if (item === this.noneItem) return this.showNoneItem;
+    if (item === this.refuseItem) return this.showRefuseItem;
+    if (item === this.dontKnowItem) return this.showDontKnowItem;
     if (item === this.newItemValue) return false;
     return true;
   }
@@ -1192,7 +1202,7 @@ export class QuestionSelectBase extends Question {
           : undefined;
     const choices = question.visibleChoices;
     for (var i = 0; i < choices.length; i++) {
-      if (this.isBuiltInChoice(choices[i], question)) continue;
+      if (question.isBuiltInChoice(choices[i])) continue;
       if (isSelected === undefined) {
         res.push(this.copyChoiceItem(choices[i]));
         continue;
@@ -1219,16 +1229,20 @@ export class QuestionSelectBase extends Question {
       choices = this.visibleChoices;
     }
     for (var i = 0; i < choices.length; i++) {
-      if (!this.isBuiltInChoice(choices[i], this)) return true;
+      if (!this.isBuiltInChoice(choices[i])) return true;
     }
     return false;
   }
-  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
-    return (
-      item === question.noneItem ||
-      item === question.otherItem ||
-      item === question.newItemValue
-    );
+  protected isBuiltInChoice(item: ItemValue): boolean {
+    return this.isNoneItem(item) ||
+      item === this.otherItem ||
+      item === this.newItemValue;
+  }
+  public isNoneItem(item: ItemValue): boolean {
+    return this.getNoneItems().indexOf(item) > -1;
+  }
+  protected getNoneItems(): Array<ItemValue> {
+    return [this.noneItem, this.refuseItem, this.dontKnowItem];
   }
   protected getChoices(): Array<ItemValue> {
     return this.choices;
@@ -1238,6 +1252,12 @@ export class QuestionSelectBase extends Question {
   }
   public supportNone(): boolean {
     return this.isSupportProperty("showNoneItem");
+  }
+  public supportRefuse(): boolean {
+    return this.isSupportProperty("showRefuseItem");
+  }
+  public supportDontKnow(): boolean {
+    return this.isSupportProperty("showDontKnowItem");
   }
   protected isSupportProperty(propName: string): boolean {
     return (
@@ -1679,7 +1699,7 @@ export class QuestionSelectBase extends Question {
     return res;
   }
   get dataChoices(): ItemValue[] {
-    return this.visibleChoices.filter((item) => !this.isBuiltInChoice(item, this));
+    return this.visibleChoices.filter((item) => !this.isBuiltInChoice(item));
   }
   get bodyItems(): ItemValue[] {
     return (this.hasHeadItems || this.hasFootItems) ? this.dataChoices : this.visibleChoices;
@@ -1965,7 +1985,7 @@ Serializer.addClass(
     { name: "showOtherItem:boolean", alternativeName: "hasOther" },
     { name: "showNoneItem:boolean", alternativeName: "hasNone" },
     { name: "showRefuseItem:boolean", visible: false },
-    { name: "showDonotKnowItem:boolean", visible: false },
+    { name: "showDontKnowItem:boolean", visible: false },
     {
       name: "otherPlaceholder",
       alternativeName: "otherPlaceHolder",
@@ -1992,11 +2012,11 @@ Serializer.addClass(
       },
     },
     {
-      name: "donotKnowText",
-      serializationProperty: "locDonotKnowText",
-      dependsOn: "showDonotKnowItem",
+      name: "dontKnowText",
+      serializationProperty: "locDontKnowText",
+      dependsOn: "showDontKnowItem",
       visibleIf: function (obj: any) {
-        return obj.showDonotKnowItem;
+        return obj.showDontKnowItem;
       },
     },
     {

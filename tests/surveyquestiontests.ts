@@ -3020,7 +3020,7 @@ QUnit.test("space in others does not work correctly , bug #1214", function (
   );
 });
 
-QUnit.test("Checkbox showNoneItem", function (assert) {
+QUnit.test("Checkbox showNoneItem - modify value", function (assert) {
   var json = {
     elements: [
       {
@@ -3042,6 +3042,42 @@ QUnit.test("Checkbox showNoneItem", function (assert) {
   assert.deepEqual(q.value, ["none"], "we keep only none");
   q.value = [1, "none"];
   assert.deepEqual(q.value, [1], "none should gone");
+});
+QUnit.test("Checkbox showRefuseItem/showDontKnowItem - modify value", function (assert) {
+  var json = {
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        showRefuseItem: true,
+        showDontKnowItem: true,
+        choices: [1, 2, 3, 4, 5],
+      },
+    ],
+  };
+  var survey = new SurveyModel(json);
+  var q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  assert.equal(q.visibleChoices.length, 7, "7 items + refuse + don't know");
+
+  q.showRefuseItem = false;
+  assert.equal(q.visibleChoices.length, 6, "refuse is removed");
+  q.showRefuseItem = true;
+  assert.equal(q.visibleChoices.length, 7, "refuse is added");
+
+  q.showDontKnowItem = false;
+  assert.equal(q.visibleChoices.length, 6, "don't know is removed");
+  q.showDontKnowItem = true;
+  assert.equal(q.visibleChoices.length, 7, "don't know is added");
+
+  q.value = [1, 2, "refuse"];
+  assert.deepEqual(q.value, ["refuse"], "we keep refuse only");
+  q.value = [1, "refuse"];
+  assert.deepEqual(q.value, [1], "refuse should gone");
+
+  q.value = [1, 2, "dontknow"];
+  assert.deepEqual(q.value, ["dontknow"], "we keep dontknow only");
+  q.value = [1, "dontknow"];
+  assert.deepEqual(q.value, [1], "dontknow should gone");
 });
 QUnit.test("Dropdown showNoneItem", function (assert) {
   var json = {

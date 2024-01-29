@@ -107,12 +107,10 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
   public get isCompositeQuestion(): boolean {
     return true;
   }
-  public supportOther(): boolean {
-    return false;
-  }
-  public supportNone(): boolean {
-    return false;
-  }
+  public supportOther(): boolean { return false; }
+  public supportNone(): boolean { return false; }
+  public supportRefuse(): boolean { return false; }
+  public supportDontKnow(): boolean { return false; }
   public isAnswerCorrect(): boolean {
     if (!this.multiSelect) return super.isAnswerCorrect();
     return Helpers.isArrayContainsEqual(this.value, this.correctAnswer);
@@ -291,7 +289,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     return this.multiSelect ? "checkbox" : "radio";
   }
 
-  protected isBuiltInChoice(item: ItemValue, question: QuestionSelectBase): boolean {
+  protected isBuiltInChoice(item: ItemValue): boolean {
     return false;
   }
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
@@ -442,6 +440,8 @@ Serializer.addClass(
     { name: "showOtherItem", visible: false },
     { name: "otherText", visible: false },
     { name: "showNoneItem", visible: false },
+    { name: "showRefuseItem", visible: false },
+    { name: "showDontKnowItem", visible: false },
     { name: "noneText", visible: false },
     { name: "optionsCaption", visible: false },
     { name: "otherErrorText", visible: false },

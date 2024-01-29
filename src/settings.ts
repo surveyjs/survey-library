@@ -516,7 +516,7 @@ export var settings = {
    */
   noneItemValue: "none",
   refuseItemValue: "refuse",
-  donotKnowItemValue: "donotknow",
+  dontKnowItemValue: "dontknow",
   /**
    * An object whose properties specify the order of the special choice items (None, Other, Select All) in select-based questions.
    *
@@ -541,7 +541,9 @@ export var settings = {
   specialChoicesOrder: {
     selectAllItem: [-1],
     noneItem: [1],
-    otherItem: [2]
+    refuseItem: [2],
+    dontKnowItem: [3],
+    otherItem: [4]
   },
   /**
    * A list of supported validators by question type.

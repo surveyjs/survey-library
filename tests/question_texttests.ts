@@ -403,3 +403,15 @@ QUnit.test("Text Question KeyHandler exists", function (assert) {
   const q = new QuestionTextModel("q1");
   assert.ok(q["onTextKeyDownHandler"], "we need this handler for using in Survey Creator");
 });
+QUnit.test("Test maxLength & getMaxLength", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maxLength = 10;
+  assert.equal(q.isTextInput, true, "isTextInput - text");
+  assert.equal(q.getMaxLength(), 10, "getMaxLength() - text");
+  q.inputType = "color";
+  assert.equal(q.isTextInput, false, "isTextInput - color");
+  assert.equal(q.getMaxLength(), null, "getMaxLength() - color");
+  q.inputType = "password";
+  assert.equal(q.isTextInput, true, "isTextInput - password");
+  assert.equal(q.getMaxLength(), 10, "getMaxLength() - password");
+});

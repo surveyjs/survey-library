@@ -448,7 +448,15 @@ export class JsonObjectProperty implements IObject {
   public isVisible(layout: string, obj: any = null): boolean {
     let isLayout = !this.layout || this.layout == layout;
     if (!this.visible || !isLayout) return false;
-    if (!!this.visibleIf && !!obj) return this.visibleIf(obj);
+    if (!!this.visibleIf && !!obj) {
+      if (obj.getOriginalObj) {
+        const orjObj = obj.getOriginalObj();
+        if(orjObj && Serializer.findProperty(orjObj.getType(), this.name)) {
+          obj = orjObj;
+        }
+      }
+      return this.visibleIf(obj);
+    }
     return true;
   }
   public get visible(): boolean {

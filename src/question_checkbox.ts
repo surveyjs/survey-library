@@ -183,16 +183,6 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
       }
     }
   }
-  private removeNoneItems(val: Array<any>): Array<any> {
-    const items = this.getNoneItems();
-    items.forEach(item => {
-      const index = val.indexOf(item.value);
-      if(index > -1) {
-        val.splice(index, 1);
-      }
-    });
-    return val;
-  }
   protected isItemSelectedCore(item: ItemValue): boolean {
     if (item === this.selectAllItem) return this.isAllSelected;
     var val = this.renderedValue;

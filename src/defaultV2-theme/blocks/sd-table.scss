@@ -117,7 +117,7 @@
 
     .sd-table__row:nth-of-type(odd) {
 
-      &>td.sd-table__cell,
+      &>td.sd-table__cell:not(.sd-table__cell--actions),
       td:first-of-type {
         border-top-color: $background-dim-light;
         border-bottom-color: $background-dim-light;

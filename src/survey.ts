@@ -6048,13 +6048,19 @@ export class SurveyModel extends SurveyElementCore
     if (!json) return;
     this.questionHashesClear();
     this.jsonErrors = null;
-    var jsonConverter = new JsonObject();
+    const jsonConverter = new JsonObject();
     jsonConverter.toObject(json, this, options);
     if (jsonConverter.errors.length > 0) {
       this.jsonErrors = jsonConverter.errors;
     }
     this.onStateAndCurrentPageChanged();
     this.updateState();
+  }
+  startLoadingFromJson(json?: any): void {
+    super.startLoadingFromJson(json);
+    if(json && json.locale) {
+      this.locale = json.locale;
+    }
   }
   public setJsonObject(jsonObj: any): void {
     this.fromJSON(jsonObj);

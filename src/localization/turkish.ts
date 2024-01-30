@@ -9,6 +9,8 @@ export var turkishSurveyStrings = {
   startSurveyText: "Başlat",
   otherItemText: "Diğer (açıklayınız)",
   noneItemText: "Hiçbiri",
+  refuseItemText: "Cevap vermeyi reddet",
+  dontKnowItemText: "Bilmiyorum",
   selectAllItemText: "Tümünü Seç",
   progressText: "Sayfa {0}/{1}",
   indexText: "{0}/{1}",
@@ -116,4 +118,5 @@ surveyLocalization.localeNames["tr"] = "türkçe";
 // showDetails: "Show Details" => "Detayları göster"
 // hideDetails: "Hide Details" => "Detayları Gizle"
 // ok: "OK" => "TAMAM"
-// cancel: "Cancel" => "İptal"
+// cancel: "Cancel" => "İptal"// refuseItemText: "Refuse to answer" => "Cevap vermeyi reddet"
+// dontKnowItemText: "Don't know" => "Bilmiyorum"

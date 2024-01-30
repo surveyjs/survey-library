@@ -9,6 +9,8 @@ export var czechSurveyStrings = {
   startSurveyText: "Začít",
   otherItemText: "Jiná odpověď (napište)",
   noneItemText: "Žádný",
+  refuseItemText: "Odmítnout odpovědět",
+  dontKnowItemText: "Nevím",
   selectAllItemText: "Vybrat vše",
   progressText: "Strana {0} z {1}",
   indexText: "{0} z {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["cs"] = "čeština";
 // hideDetails: "Hide Details" => "Skrýt podrobnosti"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Zrušit"
+// refuseItemText: "Refuse to answer" => "Odmítnout odpovědět"
+// dontKnowItemText: "Don't know" => "Nevím"

@@ -71,7 +71,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public getMaxLength(): any {
-    if(this.inputType !== "text") return null;
+    if(!this.isTextInput) return null;
     return super.getMaxLength();
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {

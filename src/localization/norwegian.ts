@@ -9,6 +9,8 @@ export var norwegianSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Annet (beskriv)",
   noneItemText: "Ingen",
+  refuseItemText: "Nekter å svare",
+  dontKnowItemText: "Vet ikke",
   selectAllItemText: "Velg alle",
   progressText: "Side {0} av {1}",
   indexText: "{0} av {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["no"] = "norsk";
 // hideDetails: "Hide Details" => "Skjul detaljer"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Annullere"
+// refuseItemText: "Refuse to answer" => "Nekter å svare"
+// dontKnowItemText: "Don't know" => "Vet ikke"

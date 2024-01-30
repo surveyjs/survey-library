@@ -9,6 +9,8 @@ export var macedonianSurveyStrings = {
   startSurveyText: "Започнете",
   otherItemText: "Друго (опиши)",
   noneItemText: "Ништо",
+  refuseItemText: "Одбиј да одговориш.",
+  dontKnowItemText: "Не знам",
   selectAllItemText: "Селектирај се",
   progressText: "Страница {0} од {1}",
   indexText: "{0} на {1}",
@@ -129,3 +131,5 @@ surveyLocalization.localeNames["mk"] = "Македонски";
 // hideDetails: "Hide Details" => "Сокриј ги деталите."
 // ok: "OK" => "ДОБРО"
 // cancel: "Cancel" => "Откажи"
+// refuseItemText: "Refuse to answer" => "Одбиј да одговориш."
+// dontKnowItemText: "Don't know" => "Не знам"

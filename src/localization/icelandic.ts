@@ -9,6 +9,8 @@ export var icelandicSurveyStrings = {
   startSurveyText: "Byrjaðu",
   otherItemText: "Hinn (skýring)",
   noneItemText: "Enginn",
+  refuseItemText: "Neita að svara",
+  dontKnowItemText: "Veit ekki",
   selectAllItemText: "Velja allt",
   progressText: "Síða {0} of {1}",
   indexText: "{0} af {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["is"] = "íslenska";
 // hideDetails: "Hide Details" => "Fela upplýsingar"
 // ok: "OK" => "ÓKEI"
 // cancel: "Cancel" => "Afturkalla"
+// refuseItemText: "Refuse to answer" => "Neita að svara"
+// dontKnowItemText: "Don't know" => "Veit ekki"

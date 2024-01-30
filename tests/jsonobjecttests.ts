@@ -3191,3 +3191,24 @@ QUnit.test("Versions & alternative name", function (assert) {
   assert.deepEqual(question.toJSON({ version: "1" }), { name: "q1", testProp: "abc" }, "#5");
   Serializer.removeProperty("question", "testProperty");
 });
+QUnit.test("Test showInMultipleColumns prop visibility", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "Column1",
+            "cellType": "checkbox",
+            "showInMultipleColumns": true
+          }
+        ]
+      }
+    ]
+  });
+  const column = survey.getQuestionByName("matrix").columns[0];
+  const prop = Serializer.findProperty("matrixdropdowncolumn", "showInMultipleColumns");
+  assert.ok(prop, "property is here");
+  assert.equal(prop.isVisible("", column), true, "column is visible");
+});

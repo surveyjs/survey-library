@@ -619,8 +619,8 @@ export class QuestionRatingModel extends Question {
   }
 
   public get ratingRootCss(): string {
-    const baseClass = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
-      this.cssClasses.rootWrappable : this.cssClasses.root;
+    const baseClassModifier = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+      this.cssClasses.rootWrappable : "";
     let rootClassModifier = "";
     if(this.hasMaxLabel || this.hasMinLabel) {
       if (this.rateDescriptionLocation == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
@@ -628,7 +628,8 @@ export class QuestionRatingModel extends Question {
       if (this.rateDescriptionLocation == "topBottom") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
     }
     return new CssClassBuilder()
-      .append(baseClass)
+      .append(this.cssClasses.root)
+      .append(baseClassModifier)
       .append(rootClassModifier)
       .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
       .toString();

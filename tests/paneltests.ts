@@ -1178,7 +1178,7 @@ QUnit.test(
           "name": "cars",
           "title": "Dropdown",
 
-          "hasNone": true,
+          "showNoneItem": true,
           "colCount": 4,
           "choices": [
             "Ford",
@@ -1198,7 +1198,7 @@ QUnit.test(
           "title": "Checkbox",
 
           "hasSelectAll": true,
-          "hasNone": true,
+          "showNoneItem": true,
           "colCount": 4,
           "choices": [
             "Ford",

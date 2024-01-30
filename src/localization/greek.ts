@@ -9,6 +9,8 @@ export var greekSurveyStrings = {
   startSurveyText: "Αρχή",
   otherItemText: "Άλλο (παρακαλώ διευκρινίστε)",
   noneItemText: "Κανένας",
+  refuseItemText: "Αρνηθείτε να απαντήσετε",
+  dontKnowItemText: "Δεν ξέρω",
   selectAllItemText: "Επιλογή όλων",
   progressText: "Σελίδα {0} από {1}",
   indexText: "{0} από {1}",
@@ -120,3 +122,5 @@ surveyLocalization.localeNames["gr"] = "ελληνικά";
 // hideDetails: "Hide Details" => "Απόκρυψη λεπτομερειών"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Ακυρώνω"
+// refuseItemText: "Refuse to answer" => "Αρνηθείτε να απαντήσετε"
+// dontKnowItemText: "Don't know" => "Δεν ξέρω"

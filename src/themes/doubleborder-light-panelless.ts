@@ -25,6 +25,7 @@ const Theme = {
     "--sjs-secondary-forecolor": "rgba(255, 255, 255, 1)",
     "--sjs-secondary-forecolor-light": "rgba(255, 255, 255, 0.25)",
     "--sjs-shadow-small": "0px 0px 0px 2px rgba(0, 0, 0, 0.07)",
+    "--sjs-shadow-small-reset": "0px 0px 0px 0px rgba(0, 0, 0, 0.07)",
     "--sjs-shadow-medium": "0px 0px 0px 2px rgba(0, 0, 0, 0.08),0px 2px 6px 0px rgba(0, 0, 0, 0.04)",
     "--sjs-shadow-large": "0px 8px 16px 0px rgba(0, 0, 0, 0.08)",
     "--sjs-shadow-inner": "0px 0px 0px 2px rgba(0, 0, 0, 0.1)",

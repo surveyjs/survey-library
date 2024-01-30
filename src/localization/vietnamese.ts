@@ -9,6 +9,8 @@ export var vietnameseSurveyStrings = {
   startSurveyText: "Bắt đầu",
   otherItemText: "Khác (mô tả)",
   noneItemText: "Trống",
+  refuseItemText: "Từ chối trả lời",
+  dontKnowItemText: "Không biết",
   selectAllItemText: "Chọn tất cả",
   progressText: "Trang {0} / {1}",
   indexText: "{0} của {1}",
@@ -135,4 +137,5 @@ surveyLocalization.localeNames["vi"] = "Việt Nam";
 // showDetails: "Show Details" => "Hiển thị chi tiết"
 // hideDetails: "Hide Details" => "Ẩn chi tiết"
 // ok: "OK" => "OK"
-// cancel: "Cancel" => "Hủy"
+// cancel: "Cancel" => "Hủy"// refuseItemText: "Refuse to answer" => "Từ chối trả lời"
+// dontKnowItemText: "Don't know" => "Không biết"

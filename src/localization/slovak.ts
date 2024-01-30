@@ -9,6 +9,8 @@ export var slovakSurveyStrings = {
   startSurveyText: "Spustiť",
   otherItemText: "Iné (opíšte)",
   noneItemText: "Žiadne",
+  refuseItemText: "Odmietnuť odpovedať",
+  dontKnowItemText: "Neviem",
   selectAllItemText: "Vybrať všetky",
   progressText: "Strana {0} z {1}",
   indexText: "{0} {1}",
@@ -125,3 +127,5 @@ surveyLocalization.localeNames["sk"] = "slovenčina";
 // hideDetails: "Hide Details" => "Skryť podrobnosti"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Zrušiť"
+// refuseItemText: "Refuse to answer" => "Odmietnuť odpovedať"
+// dontKnowItemText: "Don't know" => "Neviem"

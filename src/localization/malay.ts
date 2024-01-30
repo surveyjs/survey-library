@@ -9,6 +9,8 @@ export var malaySurveyStrings = {
   startSurveyText: "Mula",
   otherItemText: "Lain (terangkan)",
   noneItemText: "Tiada",
+  refuseItemText: "Enggan menjawab",
+  dontKnowItemText: "Tak tahu",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} daripada {1}",
   indexText: "{0} {1}",
@@ -125,3 +127,5 @@ surveyLocalization.localeNames["ms"] = "melayu";
 // hideDetails: "Hide Details" => "Sembunyikan Butiran"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Batal"
+// refuseItemText: "Refuse to answer" => "Enggan menjawab"
+// dontKnowItemText: "Don't know" => "Tak tahu"

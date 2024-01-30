@@ -204,6 +204,8 @@
     color: $font-questiondescription-color;
     overflow-x: hidden;
     white-space: nowrap;
+    box-shadow: inset 0px 0px 0px $primary;
+    transition: box-shadow $transition-duration;
 
     &:hover,
     &:focus-visible {

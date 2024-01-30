@@ -9,6 +9,8 @@ export var kazakhStrings = {
   startSurveyText: "Бастау",
   otherItemText: "Басқа (өтінеміз, жазыңыз)",
   noneItemText: "Жоқ",
+  refuseItemText: "Жауап беруден бас тарту",
+  dontKnowItemText: "Білмеймін",
   selectAllItemText: "Барлығын таңдау",
   progressText: "{0} ден {1} бет ",
   indexText: "{1} {0}",
@@ -134,3 +136,5 @@ surveyLocalization.localeNames["kk"] = "Kazakh";
 // hideDetails: "Hide Details" => "Егжей- тегжейін жасы"
 // ok: "OK" => "ЖАҚСЫ"
 // cancel: "Cancel" => "Болдырмау"
+// refuseItemText: "Refuse to answer" => "Жауап беруден бас тарту"
+// dontKnowItemText: "Don't know" => "Білмеймін"

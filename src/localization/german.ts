@@ -9,6 +9,8 @@ export var germanSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Sonstiges (Bitte angeben)",
   noneItemText: "Nichts trifft zu",
+  refuseItemText: "Verweigern Sie die Antwort",
+  dontKnowItemText: "Weiß ich nicht",
   selectAllItemText: "Alles auswählen",
   progressText: "Seite {0} von {1}",
   indexText: "{0} von {1}",
@@ -121,3 +123,5 @@ surveyLocalization.localeNames["de"] = "deutsch";
 // hideDetails: "Hide Details" => "Details ausblenden"
 // ok: "OK" => "OKAY"
 // cancel: "Cancel" => "Abbrechen"
+// refuseItemText: "Refuse to answer" => "Verweigern Sie die Antwort"
+// dontKnowItemText: "Don't know" => "Weiß ich nicht"

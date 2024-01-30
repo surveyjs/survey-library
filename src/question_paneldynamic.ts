@@ -1702,10 +1702,12 @@ export class QuestionPanelDynamicModel extends Question
   }
   private clearValueInPanelsIfInvisible(reason: string): void {
     for (var i = 0; i < this.panelsCore.length; i++) {
-      var questions = this.panelsCore[i].questions;
+      const panel = this.panelsCore[i];
+      var questions = panel.questions;
       this.isSetPanelItemData = {};
       for (var j = 0; j < questions.length; j++) {
         const q = questions[j];
+        if(q.visible && !panel.isVisible) continue;
         q.clearValueIfInvisible(reason);
         this.isSetPanelItemData[q.getValueName()] = this.maxCheckCount + 1;
       }

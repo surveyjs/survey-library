@@ -1601,23 +1601,19 @@ export class QuestionSelectBase extends Question {
   private get hasChoicesUrl(): boolean {
     return this.choicesByUrl && !!this.choicesByUrl.url;
   }
-  public clearIncorrectValues() {
-    if (!this.hasValueToClearIncorrectValues()) return;
-    if(this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return;
-    if (
-      !!this.survey &&
-      this.survey.questionsByValueName(this.getValueName()).length > 1
-    )
-      return;
-    if (this.hasChoicesUrl &&
-      (!this.choicesFromUrl || this.choicesFromUrl.length == 0)
-    )
-      return;
+  public clearIncorrectValues(): void {
+    if (!this.hasValueToClearIncorrectValues() || !this.canClearIncorrectValues()) return;
     if (this.clearIncorrectValuesCallback) {
       this.clearIncorrectValuesCallback();
     } else {
       this.clearIncorrectValuesCore();
     }
+  }
+  private canClearIncorrectValues(): boolean {
+    if(this.carryForwardQuestion && !this.carryForwardQuestion.isReady) return false;
+    if (!!this.survey && this.survey.questionsByValueName(this.getValueName()).length > 1) return false;
+    if (this.hasChoicesUrl && (!this.choicesFromUrl || this.choicesFromUrl.length == 0)) return false;
+    return true;
   }
   protected hasValueToClearIncorrectValues(): boolean {
     if(!!this.survey && this.survey.keepIncorrectValues) return false;

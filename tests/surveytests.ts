@@ -19174,3 +19174,30 @@ QUnit.test("survey.runExpressions(), #7694", function (assert) {
 
   FunctionFactory.Instance.unregister("func1");
 });
+QUnit.test("survey.locale, default locale is not en and design-time, #7765", function (assert) {
+  const defautlLocale = surveyLocalization.defaultLocale;
+  surveyLocalization.defaultLocale = "fr";
+  const json = {
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: {
+          de: "German title",
+          en: "English question title",
+        },
+        description: {
+          de: "German description",
+          en: "English element description",
+        }
+      }
+    ],
+    locale: "de",
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.hasDescription, true, "Description loaded correctly");
+  surveyLocalization.defaultLocale = defautlLocale;
+});

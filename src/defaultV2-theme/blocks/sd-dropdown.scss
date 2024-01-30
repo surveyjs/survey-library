@@ -181,6 +181,10 @@
       padding-inline-start: calcSize(1.75);
     }
   }
+
+  .sv-list__item span {
+    margin-inline-start: calcSize(-0.25);
+  }
 }
 
 [dir="rtl"],

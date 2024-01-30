@@ -150,6 +150,12 @@ export class InputMaskPattern extends InputMaskBase {
     }
     return this._maskLiterals;
   }
+  public _getMaskedValue(src: string, matchWholeMask: boolean = false): string {
+    return getMaskedValueByPattern(src, this.literals, matchWholeMask);
+  }
+  public _getUnmaskedValue(src: string, matchWholeMask: boolean = false): string {
+    return getUnmaskedValueByPattern(src, this.literals, matchWholeMask);
+  }
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
     const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
     if(!args.insertedCharacters && args.selectionStart === args.selectionEnd) {
@@ -159,27 +165,27 @@ export class InputMaskPattern extends InputMaskBase {
     const isInsertOperation = !!args.insertedCharacters && args.insertedCharacters.length > args.selectionEnd - args.selectionStart;
     const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
     if(isInsertOperation) {
-      const leftPartMasked = this.getMaskedValue(leftPart);
+      const leftPartMasked = this._getMaskedValue(leftPart);
       const rightPart = args.prevValue.slice(leftPartMasked.length - 1);
-      result.text = this.getMaskedValue(leftPartMasked + rightPart, true);
+      result.text = this._getMaskedValue(leftPartMasked + rightPart, true);
     } else {
       const rightPart = args.prevValue.slice(args.selectionEnd);
-      result.text = this.getMaskedValue(leftPart + rightPart, true);
+      result.text = this._getMaskedValue(leftPart + rightPart, true);
     }
 
     if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
       result.cursorPosition = args.selectionStart;
     } else {
-      result.cursorPosition = this.getMaskedValue(leftPart).length;
+      result.cursorPosition = this._getMaskedValue(leftPart).length;
     }
 
     return result;
   }
-  public getMaskedValue(src: string, matchWholeMask: boolean = false): string {
-    return getMaskedValueByPattern(src, this.literals, matchWholeMask);
+  public getMaskedValue(src: string): string {
+    return this._getMaskedValue(src, true);
   }
-  public getUnmaskedValue(src: string, matchWholeMask: boolean = false): string {
-    return getUnmaskedValueByPattern(src, this.literals, matchWholeMask);
+  public getUnmaskedValue(src: string): string {
+    return this._getUnmaskedValue(src, true);
   }
 }
 

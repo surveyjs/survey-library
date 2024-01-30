@@ -63,6 +63,8 @@ QUnit.test("get numeric masked invalid text", function(assert) {
 
 QUnit.test("get numeric masked value by formated text", function(assert) {
   const maskInstance = new InputMaskNumber();
+  assert.equal(maskInstance.getNumberMaskedValue("0"), "0");
+  assert.equal(maskInstance.getNumberMaskedValue("01"), "1");
   assert.equal(maskInstance.getNumberMaskedValue("123"), "123");
   assert.equal(maskInstance.getNumberMaskedValue("1234"), "1,234");
   assert.equal(maskInstance.getNumberMaskedValue("123,"), "123");
@@ -80,6 +82,7 @@ QUnit.test("get numeric masked value by formated text", function(assert) {
 QUnit.test("get numeric masked negative value by formated text", function(assert) {
   const maskInstance = new InputMaskNumber();
   assert.equal(maskInstance.getNumberMaskedValue("-123"), "-123");
+  assert.equal(maskInstance.getNumberMaskedValue("-0123"), "-123");
   assert.equal(maskInstance.getNumberMaskedValue("12-34"), "-1,234");
   assert.equal(maskInstance.getNumberMaskedValue("-123-,456.78"), "-123,456.78");
   assert.equal(maskInstance.getNumberMaskedValue("-123,45-678"), "-12,345,678");

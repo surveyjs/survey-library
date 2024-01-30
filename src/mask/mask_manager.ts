@@ -21,8 +21,8 @@ export interface ITextMaskInputArgs {
 }
 
 export interface IInputMaskType {
-  getMaskedValue(src: string, matchWholeMask?: boolean): string;
-  getUnmaskedValue(src: string, matchWholeMask?: boolean): string;
+  getMaskedValue(src: string): string;
+  getUnmaskedValue(src: string): string;
   processInput(args: ITextMaskInputArgs): IMaskedValue;
 }
 

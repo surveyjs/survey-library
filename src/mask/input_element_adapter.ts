@@ -3,7 +3,7 @@ import { ITextMaskInputArgs } from "./mask_manager";
 
 export class InputElementAdapter {
   constructor(private mask: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {
-    this.inputElement.value = mask.getMaskedValue(value, true);
+    this.inputElement.value = mask.getMaskedValue(value);
     this.addInputEventListener();
   }
 

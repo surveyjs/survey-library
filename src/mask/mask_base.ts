@@ -15,6 +15,6 @@ export class InputMaskBase implements IInputMaskType {
     return { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
   }
 
-  public getUnmaskedValue(src: string, matchWholeMask: boolean = false): string { return src; }
-  public getMaskedValue(src: string, matchWholeMask: boolean = false): string { return src; }
+  public getUnmaskedValue(src: string): string { return src; }
+  public getMaskedValue(src: string): string { return src; }
 }

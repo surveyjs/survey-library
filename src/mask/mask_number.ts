@@ -155,6 +155,10 @@ export class InputMaskNumber extends InputMaskBase {
       }
     }
 
+    if(result.integralPart.length > 1 && result.integralPart[0] === "0") {
+      result.integralPart = result.integralPart.slice(1);
+    }
+
     return result;
   }
 
@@ -176,16 +180,16 @@ export class InputMaskNumber extends InputMaskBase {
     return this.convertNumber(parsedNumber);
   }
 
-  public getMaskedValue(src: string, matchWholeMask: boolean = false): string {
+  public getMaskedValue(src: string): string {
     return this.getNumberMaskedValue(src);
   }
-  public getUnmaskedValue(src: string, matchWholeMask: boolean = false): string {
+  public getUnmaskedValue(src: string): string {
     return this.getNumberUnmaskedValue(src).toString();
   }
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
     const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
     const src = leftPart + args.prevValue.slice(args.selectionEnd);
-    const maskedValue = this.getMaskedValue(src, true);
+    const maskedValue = this.getMaskedValue(src);
     const result = { text: maskedValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
 
     if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {

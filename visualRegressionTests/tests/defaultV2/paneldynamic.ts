@@ -458,4 +458,36 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("paneldynamic-focused-tab", Selector(".sd-question--paneldynamic"), t, comparer);
     });
   });
+  test("Comment bottom padding in dynamic panel", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      const json = {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "paneldynamic",
+                "name": "question1",
+                "showCommentArea": true,
+                "panelCount": 1,
+                "templateElements": [
+                  {
+                    "type": "text",
+                    "name": "question2"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off"
+      };
+
+      await initSurvey(framework, json);
+      await t.wait(100);
+      await takeElementScreenshot("panel-dynamic-comment.png", ".sd-question--paneldynamic", t, comparer);
+    });
+  });
+
 });

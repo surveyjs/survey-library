@@ -186,7 +186,7 @@ QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and 
   );
   assert.deepEqual(
     footItems,
-    ["newitem", "none", "refuse", "dontknow", "other"],
+    ["newitem", "none", "refused", "dontknow", "other"],
     "check foot items"
   );
   settings.showItemsInOrder = "row";
@@ -417,7 +417,7 @@ QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem"
   assert.equal(question.visibleChoices[0].value, "Item2");
   assert.equal(question.visibleChoices[1].value, "Item3");
   assert.equal(question.visibleChoices[2].value, "none");
-  assert.equal(question.visibleChoices[3].value, "refuse");
+  assert.equal(question.visibleChoices[3].value, "refused");
   assert.equal(question.visibleChoices[4].value, "dontknow");
   assert.equal(question.visibleChoices[5].value, "other");
 
@@ -618,28 +618,28 @@ QUnit.test("checkbox vs valuePropertyName, check selectAll and none & refuse & d
   assert.deepEqual(q.value, [{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }], "#2");
   assert.equal(q.isAllSelected, true, "#3, all is selected");
   q.clickItemHandler(q.refuseItem, true);
-  assert.deepEqual(q.value, [{ fruit: "refuse" }], "#4");
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#4");
   assert.equal(q.isAllSelected, false, "#5, all is not selected");
   q.clickItemHandler(q.selectAllItem, true);
   assert.deepEqual(q.renderedValue, ["apple", "banana", "orange"], "#6");
   q.clickItemHandler(q.dontKnowItem, true);
   assert.deepEqual(q.value, [{ fruit: "dontknow" }], "#7");
   q.clickItemHandler(q.refuseItem, true);
-  assert.deepEqual(q.value, [{ fruit: "refuse" }], "#8");
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#8");
   q.clickItemHandler(q.noneItem, true);
   assert.deepEqual(q.value, [{ fruit: "none" }], "#9");
   q.clickItemHandler(q.choices[0], true);
   assert.deepEqual(q.value, [{ fruit: "apple" }], "#10");
-  q.renderedValue = ["refuse"];
-  assert.deepEqual(q.value, [{ fruit: "refuse" }], "#11");
+  q.renderedValue = ["refused"];
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#11");
   q.clickItemHandler(q.choices[0], true);
   assert.deepEqual(q.value, [{ fruit: "apple" }], "#12");
 
   q.renderedValue = ["apple", "none"];
   assert.deepEqual(q.value, [{ fruit: "none" }], "#13");
-  q.renderedValue = ["none", "refuse"];
-  assert.deepEqual(q.value, [{ fruit: "refuse" }], "#14");
-  q.renderedValue = ["refuse", "dontknow"];
+  q.renderedValue = ["none", "refused"];
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#14");
+  q.renderedValue = ["refused", "dontknow"];
   assert.deepEqual(q.value, [{ fruit: "dontknow" }], "#15");
   q.renderedValue = ["dontknow", "none"];
   assert.deepEqual(q.value, [{ fruit: "none" }], "#16");

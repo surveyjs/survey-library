@@ -192,6 +192,7 @@ export class QuestionSelectBase extends Question {
    * When users select the "None" item in multi-select questions, all other items become unselected.
    * @see noneItem
    * @see noneText
+   * @see [settings.noneItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#noneItemValue)
    * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
    */
   public get showNoneItem(): boolean {
@@ -226,15 +227,32 @@ export class QuestionSelectBase extends Question {
   get locNoneText(): LocalizableString {
     return this.getLocalizableString("noneText");
   }
+  /**
+   * Specifies whether to display the "Refuse to answer" choice item.
+   *
+   * When users select the "Refuse to answer" item in multi-select questions, all other items become unselected.
+   * @see refuseItem
+   * @see refuseItemText
+   * @see [settings.refuseItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#refuseItemValue)
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
+   */
   public get showRefuseItem(): boolean {
     return this.getPropertyValue("showRefuseItem");
   }
   public set showRefuseItem(val: boolean) {
     this.setPropertyValue("showRefuseItem", val);
   }
+  /**
+   * Returns the "Refuse to answer" choice item. Use this property to change the item's `value` or `text`.
+   * @see showRefuseItem
+   */
   public get refuseItem(): ItemValue {
     return this.refuseItemValue;
   }
+  /**
+   * Gets or sets a caption for the "Refuse to answer" choice item.
+   * @see showRefuseItem
+   */
   public get refuseText(): string {
     return this.getLocalizableStringText("refuseText");
   }
@@ -244,15 +262,32 @@ export class QuestionSelectBase extends Question {
   get locRefuseText(): LocalizableString {
     return this.getLocalizableString("refuseText");
   }
+  /**
+   * Specifies whether to display the "Don't know" choice item.
+   *
+   * When users select the "Don't know" item in multi-select questions, all other items become unselected.
+   * @see dontKnowItem
+   * @see dontKnowItemText
+   * @see [settings.dontKnowItemValue](https://surveyjs.io/form-library/documentation/api-reference/settings#dontKnowItemValue)
+   * @see [settings.specialChoicesOrder](https://surveyjs.io/form-library/documentation/api-reference/settings#specialChoicesOrder)
+   */
   public get showDontKnowItem(): boolean {
     return this.getPropertyValue("showDontKnowItem");
   }
   public set showDontKnowItem(val: boolean) {
     this.setPropertyValue("showDontKnowItem", val);
   }
+  /**
+   * Returns the "Don't know" choice item. Use this property to change the item's `value` or `text`.
+   * @see showDontKnowItem
+   */
   public get dontKnowItem(): ItemValue {
     return this.dontKnowItemValue;
   }
+  /**
+   * Gets or sets a caption for the "Don't know" choice item.
+   * @see showDontKnowItem
+   */
   public get dontKnowText(): string {
     return this.getLocalizableStringText("dontKnowText");
   }

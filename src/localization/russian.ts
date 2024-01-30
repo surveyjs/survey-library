@@ -9,7 +9,7 @@ export var russianSurveyStrings = {
   startSurveyText: "Начать",
   otherItemText: "Другое (пожалуйста, опишите)",
   noneItemText: "Нет",
-  refuseItemText: "Откажитесь отвечать",
+  refuseItemText: "Отказываюсь отвечать",
   dontKnowItemText: "Не знаю",
   selectAllItemText: "Выбрать всё",
   progressText: "Страница {0} из {1}",
@@ -98,10 +98,10 @@ export var russianSurveyStrings = {
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
   noEntriesReadonlyText: "Записей нет.",
   more: "Больше",
-  tagboxDoneButtonCaption: "ХОРОШО",
+  tagboxDoneButtonCaption: "Хорошо",
   selectToRankEmptyRankedAreaText: "Все варианты ранжируются",
   selectToRankEmptyUnrankedAreaText: "Перетащите сюда варианты, чтобы ранжировать их",
-  ok: "ХОРОШО",
+  ok: "Хорошо",
   cancel: "Отмена"
 };
 
@@ -114,7 +114,6 @@ surveyLocalization.localeNames["ru"] = "русский";
 // emptyMessage: "No data to display" => "Нет данных для отображения"
 // noEntriesReadonlyText: "There are no entries." => "Записей нет."
 // more: "More" => "Больше"
-// tagboxDoneButtonCaption: "OK" => "ХОРОШО"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Все варианты ранжируются"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетащите сюда варианты, чтобы ранжировать их"// takePhotoCaption: "Take Photo" => "Сделать фото"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры."
@@ -123,7 +122,4 @@ surveyLocalization.localeNames["ru"] = "русский";
 // noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файлы не могут быть загружены. Пожалуйста, добавьте обработчик для события 'onUploadFiles'."
 // showDetails: "Show Details" => "Показать подробности"
 // hideDetails: "Hide Details" => "Скрыть подробности"
-// ok: "OK" => "ХОРОШО"
 // cancel: "Cancel" => "Отмена"
-// refuseItemText: "Refuse to answer" => "Откажитесь отвечать"
-// dontKnowItemText: "Don't know" => "Не знаю"

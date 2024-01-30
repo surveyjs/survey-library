@@ -3069,9 +3069,9 @@ QUnit.test("Checkbox showRefuseItem/showDontKnowItem - modify value", function (
   q.showDontKnowItem = true;
   assert.equal(q.visibleChoices.length, 7, "don't know is added");
 
-  q.value = [1, 2, "refuse"];
-  assert.deepEqual(q.value, ["refuse"], "we keep refuse only");
-  q.value = [1, "refuse"];
+  q.value = [1, 2, "refused"];
+  assert.deepEqual(q.value, ["refused"], "we keep refuse only");
+  q.value = [1, "refused"];
   assert.deepEqual(q.value, [1], "refuse should gone");
 
   q.value = [1, 2, "dontknow"];

@@ -63,7 +63,7 @@ const doHide = () => {
   surveyWindow.value.hide();
 };
 const doToggleFullScreen = () => {
-  surveyWindow.toggleFullScreen();
+  surveyWindow.value.toggleFullScreen();
 };
 const getSurveyComponentName = () => {
   return "SurveyComponent";

@@ -92,10 +92,10 @@ export class PopupSurvey extends Survey {
   protected renderAllowFullScreenButon(popup: PopupSurveyModel): JSX.Element {
     let Icon;
 
-    if  (popup.isFullScreen) {
-      Icon = <SvgIcon iconName={"icon-back-to-panel_16x16"} size={16}></SvgIcon>
+    if (popup.isFullScreen) {
+      Icon = <SvgIcon iconName={"icon-back-to-panel_16x16"} size={16}></SvgIcon>;
     } else {
-      Icon = <SvgIcon iconName={"icon-full-screen_16x16"} size={16}></SvgIcon>
+      Icon = <SvgIcon iconName={"icon-full-screen_16x16"} size={16}></SvgIcon>;
     }
 
     return (

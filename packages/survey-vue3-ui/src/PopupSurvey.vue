@@ -9,7 +9,8 @@
 
         <div :class="surveyWindow.cssHeaderButtonsContainer">
           <div v-if="surveyWindow.allowFullScreen" :class="surveyWindow.cssHeaderFullScreenButton" @click="doToggleFullScreen">
-            <sv-svg-icon :iconName="'icon-full-screen_16x16'" :size="16"> </sv-svg-icon>
+            <sv-svg-icon v-if="surveyWindow.isFullScreen" :iconName="'icon-back-to-panel_16x16'" :size="16"> </sv-svg-icon>
+            <sv-svg-icon v-if="!surveyWindow.isFullScreen" :iconName="'icon-full-screen_16x16'" :size="16"> </sv-svg-icon>
           </div>
 
           <div :class="surveyWindow.cssHeaderCollapseButton" @click="doExpand">

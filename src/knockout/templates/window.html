@@ -9,7 +9,13 @@
             <div data-bind="css: cssHeaderButtonsContainer">
                 <!-- ko if: allowFullScreen -->      
                 <div data-bind="click:doToggleFullScreen, css: cssHeaderFullScreenButton">
-                <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-full-screen_16x16', size: '16' } } --><!-- /ko -->
+                    <!-- ko if: isFullScreen-->  
+                    <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-back-to-panel_16x16', size: '16' } } --><!-- /ko -->
+                    <!-- /ko -->
+                    
+                    <!-- ko if: !isFullScreen-->  
+                    <!-- ko component: { name: 'sv-svg-icon', params: { iconName: 'icon-full-screen_16x16', size: '16' } } --><!-- /ko -->
+                    <!-- /ko -->
                 </div>
                 <!-- /ko -->
                 <div data-bind="click:doExpand, css: cssHeaderCollapseButton">

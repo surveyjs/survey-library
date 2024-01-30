@@ -134,6 +134,14 @@
     }
 }
 
+.sd-question--paneldynamic:not(.sd-question--empty) {
+    &>.sd-question__content {
+        &>.sd-question__comment-area {
+            padding-bottom: var(--sd-base-padding);
+        }
+    }
+}
+
 .sd-paneldynamic__buttons-container .sd-action-bar {
     width: 100%;
     margin: 0 calcSize(-3);

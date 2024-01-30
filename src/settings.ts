@@ -129,7 +129,7 @@ export var settings = {
    *     ```
    */
   web: {
-    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => {},
+    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => { },
     encodeUrlParams: true,
     cacheLoadedChoices: true,
     disableQuestionWhileLoadingChoices: false,
@@ -695,5 +695,6 @@ export var settings = {
       "email",
       "impp",
     ]
-  }
+  },
+  legacyProgressBarView: false
 };

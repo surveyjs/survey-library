@@ -55,7 +55,7 @@ export class QuestionSelectBase extends Question {
     });
     this.registerPropertyChangedHandlers(
       ["choicesFromQuestion", "choicesFromQuestionMode", "choiceValuesFromQuestion",
-        "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful"],
+        "choiceTextsFromQuestion", "showNoneItem", "showRefuseItem", "showDontKnowItem", "isUsingRestful", "isMessagePanelVisible"],
       () => {
         this.onVisibleChoicesChanged();
       }
@@ -967,7 +967,7 @@ export class QuestionSelectBase extends Question {
   protected addToVisibleChoices(items: Array<ItemValue>, isAddAll: boolean): void {
     this.headItemsCount = 0;
     this.footItemsCount = 0;
-    if(!this.hasChoicesUrl) {
+    if(!this.isEmptyActiveChoicesInDesign) {
       this.addNewItemToVisibleChoices(items, isAddAll);
     }
     const dict = new Array<{ index: number, item: ItemValue }>();
@@ -1133,8 +1133,17 @@ export class QuestionSelectBase extends Question {
       (<any>question).addDependedQuestion(this);
       return this.getChoicesFromArrayQuestion(question);
     }
-    if(this.isDesignModeV2 && this.hasChoicesUrl) return [];
+    if(this.isEmptyActiveChoicesInDesign) return [];
     return this.choicesFromUrl ? this.choicesFromUrl : this.getChoices();
+  }
+  public get isMessagePanelVisible(): boolean {
+    return this.getPropertyValue("isMessagePanelVisible", false);
+  }
+  public set isMessagePanelVisible(val: boolean) {
+    this.setPropertyValue("isMessagePanelVisible", val);
+  }
+  private get isEmptyActiveChoicesInDesign(): boolean {
+    return this.isDesignModeV2 && (this.hasChoicesUrl || this.isMessagePanelVisible);
   }
   getCarryForwardQuestion(data?: ISurveyData): Question {
     const question = this.findCarryForwardQuestion(data);

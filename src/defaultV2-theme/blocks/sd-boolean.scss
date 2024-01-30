@@ -6,10 +6,11 @@
   padding: calcSize(0.5);
   background-color: $editor-background;
   border-radius: calcSize(12.5);
-  box-shadow: $shadow-inner;
+  box-shadow: $shadow-inner, 0 0 0 0px $primary;
+  transition: box-shadow $transition-duration;
 
   &.sd-boolean--allowhover:focus-within {
-    box-shadow: 0 0 0 2px $primary;
+    box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
   }
 }
 
@@ -86,11 +87,13 @@
 
 .sd-boolean__thumb-ghost {
   z-index: 1;
+  border-radius: calcSize(12.5);
+  background-color: transparent;
+  transition: background-color $transition-duration;
 }
 
 .sd-boolean.sd-boolean--allowhover .sd-boolean__thumb-ghost:hover {
   background-color: $background-dim-dark;
-  border-radius: calcSize(12.5);
 }
 
 .sd-boolean--error {

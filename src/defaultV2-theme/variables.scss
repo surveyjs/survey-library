@@ -39,6 +39,7 @@ $border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16
 $navigation: var(--sjs-navigation-default, #bcbcbc);
 
 $shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
+$shadow-small-reset: var(--sjs-shadow-small-reset, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));
 $shadow-medium: var(--sjs-shadow-medium, 0px 2px 6px 0px rgba(0, 0, 0, 0.1));
 $shadow-large: var(--sjs-shadow-large, 0px 8px 16px 0px rgba(0, 0, 0, 0.1));
 $shadow-inner: var(--sjs-shadow-inner, inset 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
@@ -112,6 +113,12 @@ $font-editorfont-size: var(--sjs-internal-font-editorfont-size);
 
 $sd-panel-normal-min-width: 496px;
 $sd-panel-medium-min-width: 176px;
+
+:root {
+  --sjs-transition-duration: 150ms;
+}
+$transition-duration: var(--sjs-transition-duration, 150ms);
+
 
 @mixin useEditorFontSize {
   --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});

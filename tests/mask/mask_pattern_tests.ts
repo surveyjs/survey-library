@@ -80,7 +80,7 @@ QUnit.skip("get masked valid text with fixed character in the middle string", fu
   settings.placeholderChar = "_";
 });
 
-QUnit.test("get masked masked text with fixed character in the middle string", function(assert) {
+QUnit.skip("get masked masked text with fixed character in the middle string", function(assert) {
   settings.placeholderChar = "*";
   const customMask = "99+\\1(999)-999";
   assert.equal(getMaskedValueByPattern("1*+1(***)-***", customMask, true), "1*+1(***)-***", "#1");

@@ -1,8 +1,6 @@
 import { IInputMaskType, IMaskOption, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
 
 export class InputMaskBase implements IInputMaskType {
-  protected prevSelectionStart: number;
-  protected prevInputValue: string;
 
   constructor(protected maskOptions: IMaskOption) { }
 

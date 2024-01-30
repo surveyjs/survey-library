@@ -64,11 +64,10 @@ function getFirstMatch(str: string, strIndex: number, literal: IMaskLiteral): nu
   return strIndex;
 }
 
-export function getMaskedValueByPattern(str: string, pattern: string | Array<IMaskLiteral>, matchWholeMask = true): string {
+export function getMaskedValueByPattern(str: string, pattern: string | Array<IMaskLiteral>, matchWholeMask:boolean): string {
   let result = "";
   let strIndex = 0;
-
-  let literals: Array<IMaskLiteral> = (typeof pattern === "string") ? getLiterals(pattern) : pattern;
+  const literals: Array<IMaskLiteral> = (typeof pattern === "string") ? getLiterals(pattern) : pattern;
 
   maskEnumerator:
   for(let maskIndex = 0; maskIndex < literals.length; maskIndex++) {
@@ -104,12 +103,12 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
   let result = "";
   if(!str) return result;
 
-  let parsedMask: Array<IMaskLiteral> = (typeof pattern === "string") ? getLiterals(pattern) : pattern;
-  for(let index = 0; index < parsedMask.length; index++) {
-    if(parsedMask[index].type === "fixed") {
-      result += parsedMask[index].value;
-    } if(parsedMask[index].type === "regex") {
-      const currentDefinition = settings.definitions[parsedMask[index].value];
+  let literals: Array<IMaskLiteral> = (typeof pattern === "string") ? getLiterals(pattern) : pattern;
+  for(let index = 0; index < literals.length; index++) {
+    if(literals[index].type === "fixed") {
+      result += literals[index].value;
+    } if(literals[index].type === "regex") {
+      const currentDefinition = settings.definitions[literals[index].value];
       if(!!str[index] && str[index].match(currentDefinition)) {
         result += str[index];
       } else if(matchWholeMask) {
@@ -152,11 +151,21 @@ export class InputMaskPattern extends InputMaskBase {
     return this._maskLiterals;
   }
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
-    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
-    const src = leftPart + args.prevValue.slice(args.selectionEnd);
-    const maskedValue = this.getMaskedValue(src, true);
+    const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
+    if(!args.insertedCharacters && args.selectionStart === args.selectionEnd) {
+      return result;
+    }
 
-    const result = { text: maskedValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
+    const isInsertOperation = !!args.insertedCharacters && args.insertedCharacters.length > args.selectionEnd - args.selectionStart;
+    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
+    if(isInsertOperation) {
+      const leftPartMasked = this.getMaskedValue(leftPart);
+      const rightPart = args.prevValue.slice(leftPartMasked.length - 1);
+      result.text = this.getMaskedValue(leftPartMasked + rightPart, true);
+    } else {
+      const rightPart = args.prevValue.slice(args.selectionEnd);
+      result.text = this.getMaskedValue(leftPart + rightPart, true);
+    }
 
     if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
       result.cursorPosition = args.selectionStart;

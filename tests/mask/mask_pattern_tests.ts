@@ -46,6 +46,9 @@ QUnit.test("get masked valid text matchWholeMask = false", function(assert) {
   const customMask = "+1(999)-999-99-99";
   assert.equal(getMaskedValueByPattern("", customMask, false), "+1(");
   assert.equal(getMaskedValueByPattern("1", customMask, false), "+1(");
+  assert.equal(getMaskedValueByPattern("8", customMask, false), "+1(8");
+  assert.equal(getMaskedValueByPattern("+1", customMask, false), "+1(");
+  assert.equal(getMaskedValueByPattern("+18", customMask, false), "+1(8");
   assert.equal(getMaskedValueByPattern("1234", customMask, false), "+1(234)-");
   assert.equal(getMaskedValueByPattern("123456", customMask, false), "+1(234)-56");
   assert.equal(getMaskedValueByPattern("123456789101", customMask, false), "+1(234)-567-89-10");
@@ -60,6 +63,29 @@ QUnit.test("get masked valid text with fixed character", function(assert) {
   assert.equal(getMaskedValueByPattern("123", customMask, true), "+9(123)-***-**-**");
   assert.equal(getMaskedValueByPattern("9123", customMask, true), "+9(123)-***-**-**");
   assert.equal(getMaskedValueByPattern("1234567891", customMask, true), "+9(123)-456-78-91");
+  assert.equal(getMaskedValueByPattern("9912", customMask, true), "+9(912)-***-**-**");
+  settings.placeholderChar = "_";
+});
+
+QUnit.skip("get masked valid text with fixed character in the middle string", function(assert) {
+  settings.placeholderChar = "*";
+  const customMask = "99+\\1(999)-999";
+  assert.equal(getMaskedValueByPattern("", customMask, false), "");
+  assert.equal(getMaskedValueByPattern("1", customMask, false), "1");
+  assert.equal(getMaskedValueByPattern("12", customMask, false), "12+1(");
+  assert.equal(getMaskedValueByPattern("123", customMask, false), "12+1(3");
+  assert.equal(getMaskedValueByPattern("11123", customMask, false), "11+1(23");
+  assert.equal(getMaskedValueByPattern("1234567891", customMask, false), "12+1(345)-678");
+  assert.equal(getMaskedValueByPattern("111123", customMask, false), "11+1(123)-");
+  settings.placeholderChar = "_";
+});
+
+QUnit.test("get masked masked text with fixed character in the middle string", function(assert) {
+  settings.placeholderChar = "*";
+  const customMask = "99+\\1(999)-999";
+  assert.equal(getMaskedValueByPattern("1*+1(***)-***", customMask, true), "1*+1(***)-***", "#1");
+  assert.equal(getMaskedValueByPattern("11+1(***)-***", customMask, true), "11+1(***)-***", "#2");
+
   settings.placeholderChar = "_";
 });
 
@@ -187,6 +213,65 @@ QUnit.test("pattern processInput: insert characters", function(assert) {
   settings.placeholderChar = "_";
 });
 
+QUnit.test("pattern processInput: insert characters into beginning string", function(assert) {
+  settings.placeholderChar = "*";
+  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "+\\1(999)-999-99-99" });
+  let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 0, selectionEnd: 0, prevValue: "+1(***)-***-**-**" });
+  assert.equal(result.text, "+1(***)-***-**-**", "type #1");
+  assert.equal(result.cursorPosition, 3, "type #1");
+
+  result = maskInstance.processInput({ insertedCharacters: "+", selectionStart: 0, selectionEnd: 0, prevValue: "+1(***)-***-**-**" });
+  assert.equal(result.text, "+1(***)-***-**-**", "type #2");
+  assert.equal(result.cursorPosition, 3, "type #2");
+
+  result = maskInstance.processInput({ insertedCharacters: "a", selectionStart: 0, selectionEnd: 0, prevValue: "+1(***)-***-**-**" });
+  assert.equal(result.text, "+1(***)-***-**-**", "type #3");
+  assert.equal(result.cursorPosition, 3, "type #3");
+
+  result = maskInstance.processInput({ insertedCharacters: "8", selectionStart: 0, selectionEnd: 0, prevValue: "+1(***)-***-**-**" });
+  assert.equal(result.text, "+1(8**)-***-**-**", "type #4");
+  assert.equal(result.cursorPosition, 4, "type #4");
+
+  result = maskInstance.processInput({ insertedCharacters: "+18", selectionStart: 0, selectionEnd: 0, prevValue: "+1(***)-***-**-**" });
+  assert.equal(result.text, "+1(8**)-***-**-**", "type #5");
+  assert.equal(result.cursorPosition, 4, "type #5");
+  settings.placeholderChar = "_";
+});
+
+QUnit.skip("pattern processInput: insert characters into middle string", function(assert) {
+  settings.placeholderChar = "*";
+  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "99+\\1(999)-999" });
+  let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 2, selectionEnd: 2, prevValue: "56+1(***)-***" });
+  assert.equal(result.text, "56+1(***)-***", "type #1");
+  assert.equal(result.cursorPosition, 5, "type #1");
+
+  result = maskInstance.processInput({ insertedCharacters: "+", selectionStart: 2, selectionEnd: 2, prevValue: "56+1(***)-***" });
+  assert.equal(result.text, "56+1(***)-***", "type #2");
+  assert.equal(result.cursorPosition, 5, "type #2");
+
+  result = maskInstance.processInput({ insertedCharacters: "a", selectionStart: 2, selectionEnd: 2, prevValue: "56+1(***)-***" });
+  assert.equal(result.text, "56+1(***)-***", "type #3");
+  assert.equal(result.cursorPosition, 5, "type #3");
+
+  result = maskInstance.processInput({ insertedCharacters: "8", selectionStart: 2, selectionEnd: 2, prevValue: "56+1(***)-***" });
+  assert.equal(result.text, "56+1(8**)-***", "type #4");
+  assert.equal(result.cursorPosition, 6, "type #4");
+
+  result = maskInstance.processInput({ insertedCharacters: "+18", selectionStart: 2, selectionEnd: 2, prevValue: "56+1(***)-***" });
+  assert.equal(result.text, "56+1(8**)-***", "type #5");
+  assert.equal(result.cursorPosition, 6, "type #5");
+
+  result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 0, selectionEnd: 0, prevValue: "**+1(***)-***" });
+  assert.equal(result.text, "1*+1(***)-***", "type #6");
+  assert.equal(result.cursorPosition, 1, "type #6");
+
+  result = maskInstance.processInput({ insertedCharacters: "9", selectionStart: 0, selectionEnd: 0, prevValue: "**+1(***)-***" });
+  assert.equal(result.text, "9*+1(***)-***", "type #7");
+  assert.equal(result.cursorPosition, 1, "type #7");
+
+  settings.placeholderChar = "_";
+});
+
 // QUnit.test("edit value - delete", function(assert) {
 //   settings.placeholderChar = "*";
 //   const pattern = "+1(999)-999-99-99";
@@ -267,6 +352,10 @@ QUnit.test("pattern processInput: delete characters by backspace", function(asse
   assert.equal(result.text, "+1(***)-***-**-**", "delete first character");
   assert.equal(result.cursorPosition, 0, "delete first character");
 
+  result = maskInstance.processInput({ prevValue: "+1(***)-***-**-**", selectionStart: 0, selectionEnd: 1, insertedCharacters: null, inputDirection: "rightToLeft" });
+  assert.equal(result.text, "+1(***)-***-**-**", "delete +");
+  assert.equal(result.cursorPosition, 0, "delete +");
+
   result = maskInstance.processInput({ prevValue: "+1(123)-456-78-97", selectionStart: 8, selectionEnd: 9, insertedCharacters: null, inputDirection: "rightToLeft" });
   assert.equal(result.text, "+1(123)-567-89-7*", "key backspace 4");
   assert.equal(result.cursorPosition, 8, "key backspace 4");
@@ -285,40 +374,17 @@ QUnit.test("pattern processInput: cut characters", function(assert) {
   assert.equal(result.text, "+1(123)-400-78-97", "cut + paste 2");
   assert.equal(result.cursorPosition, 12, "cut + paste #2");
 
-  settings.placeholderChar = "_";
-});
+  result = maskInstance.processInput({ prevValue: "+1(123)-456-78-97", selectionStart: 9, selectionEnd: 11, insertedCharacters: "000" });
+  assert.equal(result.text, "+1(123)-400-07-89", "cut + paste 3");
+  assert.equal(result.cursorPosition, 13, "cut + paste #3");
 
-/*
-QUnit.test("update masked value", function(assert) {
-  settings.placeholderChar = "*";
-  const resultMaskedText = "+1(234)-567-**-**";
-  const testInput = document.createElement("input");
-  const inputMask = new InputMaskPattern({ type: "pattern", mask: mask });
-  inputMask.setInputElement(testInput, "");
-  inputMask["prevSelectionStart"] = 0;
-  assert.equal(testInput.value, "+*(***)-***-**-**");
+  result = maskInstance.processInput({ prevValue: "+1(123)-456-78-97", selectionStart: 8, selectionEnd: 11, insertedCharacters: "00" });
+  assert.equal(result.text, "+1(123)-007-89-7*", "cut + paste 4.0");
+  assert.equal(result.cursorPosition, 10, "cut + paste #4.0");
 
-  testInput.value = "+1(234)-567-**-**";
-  inputMask.inputHandler(undefined);
-  assert.equal(testInput.value, resultMaskedText);
-
-  testInput.value = "+1(234)-567_-**-**";
-  inputMask.inputHandler(undefined);
-  assert.equal(testInput.value, resultMaskedText);
-
-  testInput.value = "+1(234)-567-ab-**";
-  inputMask.inputHandler(undefined);
-  assert.equal(testInput.value, resultMaskedText);
-
-  testInput.value = "+1(234)-567-.,-**";
-  inputMask.inputHandler(undefined);
-  assert.equal(testInput.value, resultMaskedText);
-
-  testInput.value = "+1(234)-567-!?-**";
-  inputMask.inputHandler(undefined);
-  assert.equal(testInput.value, resultMaskedText);
+  result = maskInstance.processInput({ prevValue: "+1(123)-456-78-97", selectionStart: 9, selectionEnd: 13, insertedCharacters: "00" });
+  assert.equal(result.text, "+1(123)-400-89-7*", "cut + paste 4");
+  assert.equal(result.cursorPosition, 12, "cut + paste #4");
 
   settings.placeholderChar = "_";
-  testInput.remove();
 });
-*/

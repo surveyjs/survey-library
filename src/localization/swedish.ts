@@ -9,6 +9,8 @@ export var swedishSurveyStrings = {
   startSurveyText: "Börja",
   otherItemText: "Annat (beskriv)",
   noneItemText: "Ingen",
+  refuseItemText: "Vägra svara",
+  dontKnowItemText: "Vet inte",
   selectAllItemText: "Välj alla",
   progressText: "Sida {0} av {1}",
   indexText: "{0} av {1}",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["sv"] = "svenska";
 // hideDetails: "Hide Details" => "Göm detaljer"
 // ok: "OK" => "OKEJ"
 // cancel: "Cancel" => "Annullera"
+// refuseItemText: "Refuse to answer" => "Vägra svara"
+// dontKnowItemText: "Don't know" => "Vet inte"

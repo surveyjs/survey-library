@@ -9,6 +9,8 @@ export var simplifiedChineseSurveyStrings = {
   startSurveyText: "开始问卷",
   otherItemText: "填写其他答案",
   noneItemText: "无",
+  refuseItemText: "拒绝回答",
+  dontKnowItemText: "不知道",
   selectAllItemText: "选择全部",
   progressText: "第 {0} 页, 共 {1} 页",
   indexText: "{1}{0}",
@@ -129,3 +131,5 @@ surveyLocalization.localeNames["zh-cn"] = "简体中文";
 // hideDetails: "Hide Details" => "隐藏详细信息"
 // ok: "OK" => "还行"
 // cancel: "Cancel" => "取消"
+// refuseItemText: "Refuse to answer" => "拒绝回答"
+// dontKnowItemText: "Don't know" => "不知道"

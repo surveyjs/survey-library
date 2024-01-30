@@ -9,6 +9,8 @@ export var urduSurveyStrings = {
   startSurveyText: "شروع کریں",
   otherItemText: "دیگر (بیان کریں)",
   noneItemText: "کوئی نہیں",
+  refuseItemText: "جواب دینے سے انکار",
+  dontKnowItemText: "معلوم نہيں",
   selectAllItemText: "تمام منتخب کریں",
   progressText: "صفحہ {0} از {1}",
   indexText: "{1} کے {0}",
@@ -127,4 +129,5 @@ surveyLocalization.localeNames["ur"] = "Urdu";
 // showDetails: "Show Details" => "تفصیلات دکھائیں"
 // hideDetails: "Hide Details" => "تفصیلات چھپائیں"
 // ok: "OK" => "ٹھيک ہے"
-// cancel: "Cancel" => "منسوخ"
+// cancel: "Cancel" => "منسوخ"// refuseItemText: "Refuse to answer" => "جواب دینے سے انکار"
+// dontKnowItemText: "Don't know" => "معلوم نہيں"

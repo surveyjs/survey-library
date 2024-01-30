@@ -9,6 +9,8 @@ export var latvianSurveyStrings = {
   startSurveyText: "Sākt",
   otherItemText: "Cits (lūdzu, aprakstiet!)",
   noneItemText: "Nav",
+  refuseItemText: "Atteikties atbildēt",
+  dontKnowItemText: "Es nezinu",
   selectAllItemText: "Izvēlēties visus",
   progressText: "{0}. lapa no {1}",
   indexText: "{0} no {1}",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["lv"] = "latviešu";
 // hideDetails: "Hide Details" => "Slēpt detaļas"
 // ok: "OK" => "LABI"
 // cancel: "Cancel" => "Atcelt"
+// refuseItemText: "Refuse to answer" => "Atteikties atbildēt"
+// dontKnowItemText: "Don't know" => "Es nezinu"

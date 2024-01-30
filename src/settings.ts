@@ -510,15 +510,27 @@ export var settings = {
    */
   showItemsInOrder: "default",
   /**
-   * A value to save in survey results when respondents select the None choice item.
+   * A value to save in survey results when respondents select the "None" choice item.
    *
    * Default value: `"none"`
    */
   noneItemValue: "none",
   /**
-   * An object whose properties specify the order of the special choice items (None, Other, Select All) in select-based questions.
+   * A value to save in survey results when respondents select the "Refuse to answer" choice item.
    *
-   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2] }`
+   * Default value: `"refused"`
+   */
+  refuseItemValue: "refused",
+  /**
+   * A value to save in survey results when respondents select the "Don't know" choice item.
+   *
+   * Default value: `"dontknow"`
+   */
+  dontKnowItemValue: "dontknow",
+  /**
+   * An object whose properties specify the order of the special choice items ("None", "Other", "Select All", "Refuse to answer", "Don't know") in select-based questions.
+   *
+   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2], dontKnowItem: [3], otherItem: [4] }`
    *
    * Use this object to reorder special choices. Each property accepts an array of integer numbers. Negative numbers place a special choice item above regular choice items, positive numbers place it below them. For instance, the code below specifies the following order of choices: None, Select All, regular choices, Other.
    *
@@ -539,7 +551,9 @@ export var settings = {
   specialChoicesOrder: {
     selectAllItem: [-1],
     noneItem: [1],
-    otherItem: [2]
+    refuseItem: [2],
+    dontKnowItem: [3],
+    otherItem: [4]
   },
   /**
    * A list of supported validators by question type.

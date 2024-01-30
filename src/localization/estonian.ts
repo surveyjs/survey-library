@@ -9,6 +9,8 @@ export var estonianSurveyStrings = {
   startSurveyText: "Alusta",
   otherItemText: "Muu (täpsusta)",
   noneItemText: "Mitte midagi",
+  refuseItemText: "Keeldu vastamast",
+  dontKnowItemText: "Ei tea",
   selectAllItemText: "Vali kõik",
   progressText: "Lehekülg {0}/{1}",
   indexText: "{0} {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["et"] = "eesti keel";
 // hideDetails: "Hide Details" => "Peida üksikasjad"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Tühistama"
+// refuseItemText: "Refuse to answer" => "Keeldu vastamast"
+// dontKnowItemText: "Don't know" => "Ei tea"

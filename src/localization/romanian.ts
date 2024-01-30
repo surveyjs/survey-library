@@ -9,6 +9,8 @@ export var romanianSurveyStrings: any = {
   startSurveyText: "start",
   otherItemText: "Altul(precizaţi)",
   noneItemText: "Nici unul",
+  refuseItemText: "Refuză să răspundă",
+  dontKnowItemText: "Nu ştiu",
   selectAllItemText: "Selectează tot",
   progressText: "Pagina {0} din {1}",
   indexText: "{0} de {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["ro"] = "română";
 // hideDetails: "Hide Details" => "Ascunde detalii"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Anula"
+// refuseItemText: "Refuse to answer" => "Refuză să răspundă"
+// dontKnowItemText: "Don't know" => "Nu ştiu"

@@ -136,6 +136,65 @@ QUnit.test("Check QuestionSelectBase head and foot items property", function (as
   settings.supportCreatorV2 = false;
 });
 
+QUnit.test("Check QuestionSelectBase head and foot items property vs refuse and dontknow properties", function (assert) {
+  const refuseProp = Serializer.findProperty("selectbase", "showRefuseItem");
+  const dontKnowProp = Serializer.findProperty("selectbase", "showDontKnowItem");
+  refuseProp.visible = true;
+  dontKnowProp.visible = true;
+  const json = {
+    questions: [
+      {
+        type: "checkbox",
+        name: "Question 1",
+        choices: ["Item1", "Item2", "Item3", "Item4", "Item5"],
+        colCount: 3,
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+
+  var question = <QuestionSelectBase>survey.getAllQuestions()[0];
+  assert.notOk(question.hasHeadItems);
+  assert.notOk(question.hasFootItems);
+
+  settings.showItemsInOrder = "column";
+  let columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
+    "check showItemsBy col - runtime"
+  );
+
+  survey.setDesignMode(true);
+  settings.supportCreatorV2 = true;
+  (<any>question).updateVisibleChoices();
+  assert.ok(question.hasHeadItems);
+  assert.ok(question.hasFootItems);
+  columns = getValuesInColumns(question);
+  assert.deepEqual(
+    columns,
+    [["Item1", "Item2"], ["Item3", "Item4"], ["Item5"]],
+    "check showItemsBy col - design"
+  );
+  let headItems = question.headItems.map((item) => item.id);
+  let footItems = question.footItems.map((item) => item.id);
+
+  assert.deepEqual(
+    headItems,
+    ["selectall"],
+    "check head items"
+  );
+  assert.deepEqual(
+    footItems,
+    ["newitem", "none", "refused", "dontknow", "other"],
+    "check foot items"
+  );
+  settings.showItemsInOrder = "row";
+  settings.supportCreatorV2 = false;
+  refuseProp.visible = false;
+  dontKnowProp.visible = false;
+});
+
 QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", function (assert) {
   var json = {
     questions: [
@@ -145,7 +204,7 @@ QUnit.test("Check QuestionSelectBase and separateSpecialChoices option", functio
         choices: ["Item1", "Item2"],
         hasOther: true,
         hasSelectAll: true,
-        hasNone: true,
+        showNoneItem: true,
         colCount: 2
       },
     ],
@@ -318,7 +377,7 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
         type: "radiogroup",
         name: "q1",
         choices: [{ value: "Item1", visibleIf: "1 = 2" }, "Item2", "Item3"],
-        hasNone: true,
+        showNoneItem: true,
         hasOther: true
       }]
   });
@@ -329,6 +388,38 @@ QUnit.test("check onShowingChoiceItem event", (assert) => {
   assert.equal(question.visibleChoices[1].value, "Item3");
   assert.equal(question.visibleChoices[2].value, "none");
   assert.equal(question.visibleChoices[3].value, "other");
+
+  survey.onShowingChoiceItem.add((sender, options) => {
+    if (options.question.name !== "q1") return;
+    options.visible = ["Item1", "Item2"].indexOf(options.item.value) > -1;
+  });
+
+  assert.equal(question.visibleChoices.length, 2);
+  assert.equal(question.visibleChoices[0].value, "Item1");
+  assert.equal(question.visibleChoices[1].value, "Item2");
+});
+QUnit.test("check onShowingChoiceItem event & showRefuseItem & showDontKnowItem", (assert) => {
+  const survey = new SurveyModel({
+    questions: [
+      {
+        type: "radiogroup",
+        name: "q1",
+        choices: [{ value: "Item1", visibleIf: "1 = 2" }, "Item2", "Item3"],
+        showNoneItem: true,
+        showRefuseItem: true,
+        showDontKnowItem: true,
+        hasOther: true
+      }]
+  });
+
+  const question = <QuestionRadiogroupModel>survey.getQuestionByName("q1");
+  assert.equal(question.visibleChoices.length, 6);
+  assert.equal(question.visibleChoices[0].value, "Item2");
+  assert.equal(question.visibleChoices[1].value, "Item3");
+  assert.equal(question.visibleChoices[2].value, "none");
+  assert.equal(question.visibleChoices[3].value, "refused");
+  assert.equal(question.visibleChoices[4].value, "dontknow");
+  assert.equal(question.visibleChoices[5].value, "other");
 
   survey.onShowingChoiceItem.add((sender, options) => {
     if (options.question.name !== "q1") return;
@@ -492,7 +583,7 @@ QUnit.test("checkbox vs valuePropertyName, check selectAll and none", (assert) =
         name: "q1",
         choices: ["apple", "banana", "orange"],
         valuePropertyName: "fruit",
-        hasNone: true,
+        showNoneItem: true,
         hasSelectAll: true
       }
     ]
@@ -502,9 +593,58 @@ QUnit.test("checkbox vs valuePropertyName, check selectAll and none", (assert) =
   assert.deepEqual(q.renderedValue, ["apple", "banana", "orange"], "#1");
   assert.deepEqual(q.value, [{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }], "#2");
   assert.equal(q.isAllSelected, true, "#3, all is selected");
-  q.renderedValue = ["none"];
+  q.clickItemHandler(q.noneItem, true);
   assert.deepEqual(q.value, [{ fruit: "none" }], "#4");
   assert.equal(q.isAllSelected, false, "#5, all is not selected");
+});
+QUnit.test("checkbox vs valuePropertyName, check selectAll and none & refuse & dontknow", (assert) => {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "checkbox",
+        name: "q1",
+        choices: ["apple", "banana", "orange"],
+        valuePropertyName: "fruit",
+        showNoneItem: true,
+        showRefuseItem: true,
+        showDontKnowItem: true,
+        hasSelectAll: true
+      }
+    ]
+  });
+  const q = <QuestionCheckboxModel>survey.getQuestionByName("q1");
+  q.toggleSelectAll();
+  assert.deepEqual(q.renderedValue, ["apple", "banana", "orange"], "#1");
+  assert.deepEqual(q.value, [{ fruit: "apple" }, { fruit: "banana" }, { fruit: "orange" }], "#2");
+  assert.equal(q.isAllSelected, true, "#3, all is selected");
+  q.clickItemHandler(q.refuseItem, true);
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#4");
+  assert.equal(q.isAllSelected, false, "#5, all is not selected");
+  q.clickItemHandler(q.selectAllItem, true);
+  assert.deepEqual(q.renderedValue, ["apple", "banana", "orange"], "#6");
+  q.clickItemHandler(q.dontKnowItem, true);
+  assert.deepEqual(q.value, [{ fruit: "dontknow" }], "#7");
+  q.clickItemHandler(q.refuseItem, true);
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#8");
+  q.clickItemHandler(q.noneItem, true);
+  assert.deepEqual(q.value, [{ fruit: "none" }], "#9");
+  q.clickItemHandler(q.choices[0], true);
+  assert.deepEqual(q.value, [{ fruit: "apple" }], "#10");
+  q.renderedValue = ["refused"];
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#11");
+  q.clickItemHandler(q.choices[0], true);
+  assert.deepEqual(q.value, [{ fruit: "apple" }], "#12");
+
+  q.renderedValue = ["apple", "none"];
+  assert.deepEqual(q.value, [{ fruit: "none" }], "#13");
+  q.renderedValue = ["none", "refused"];
+  assert.deepEqual(q.value, [{ fruit: "refused" }], "#14");
+  q.renderedValue = ["refused", "dontknow"];
+  assert.deepEqual(q.value, [{ fruit: "dontknow" }], "#15");
+  q.renderedValue = ["dontknow", "none"];
+  assert.deepEqual(q.value, [{ fruit: "none" }], "#16");
+  q.renderedValue = ["none", "apple"];
+  assert.deepEqual(q.value, [{ fruit: "apple" }], "#17");
 });
 QUnit.test("checkbox vs valuePropertyName, check hasOther", (assert) => {
   const survey = new SurveyModel({
@@ -630,7 +770,7 @@ QUnit.test("checkbox and radio css", (assert) => {
         type: "radiogroup",
         name: "q1",
         choices: ["Item 1"],
-        hasNone: true
+        showNoneItem: true
       },
       {
         type: "checkbox",
@@ -638,7 +778,7 @@ QUnit.test("checkbox and radio css", (assert) => {
         choices: ["Item 1"],
         showClearButton: true,
         hasSelectAll: true,
-        hasNone: true
+        showNoneItem: true
       }]
   });
   let question1 = <QuestionRadiogroupModel>survey.getAllQuestions()[0];
@@ -787,7 +927,7 @@ QUnit.test("check locOwner for items", (assert) => {
 
 QUnit.test("check renamed has... properties", (assert) => {
   const question = new QuestionCheckboxModel("q1");
-  assert.notOk(question.hasNone);
+  assert.notOk(question.showNoneItem);
   assert.notOk(question.hasSelectAll);
   assert.notOk(question.hasOther);
   assert.notOk(question.hasComment);
@@ -799,10 +939,10 @@ QUnit.test("check renamed has... properties", (assert) => {
 
   question.showNoneItem = true;
   assert.ok(question.showNoneItem);
-  assert.ok(question.hasNone);
-  question.hasNone = false;
+  assert.ok(question.showNoneItem);
+  question.showNoneItem = false;
   assert.notOk(question.showNoneItem);
-  assert.notOk(question.hasNone);
+  assert.notOk(question.showNoneItem);
 
   question.showSelectAllItem = true;
   assert.ok(question.showSelectAllItem);
@@ -1435,7 +1575,7 @@ QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", fu
   assert.equal(choices[4].value, "none", "none index #1");
   assert.equal(choices[5].value, "other", "other index #1");
 
-  settings.specialChoicesOrder.noneItem = [3];
+  settings.specialChoicesOrder.noneItem = [5];
   question.showNoneItem = false;
   question.showNoneItem = true;
   choices = question.visibleChoices;
@@ -1444,7 +1584,7 @@ QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", fu
   assert.equal(choices[4].value, "other", "other index #2");
   assert.equal(choices[5].value, "none", "none index #2");
 
-  settings.specialChoicesOrder.noneItem = [-3, 3];
+  settings.specialChoicesOrder.noneItem = [-5, 5];
   question.showNoneItem = false;
   question.showNoneItem = true;
   choices = question.visibleChoices;
@@ -1456,7 +1596,7 @@ QUnit.test("SelectBase visibleChoices for selectAll, none and showOtherItem", fu
 
   settings.specialChoicesOrder.selectAllItem = [-1];
   settings.specialChoicesOrder.noneItem = [1];
-  settings.specialChoicesOrder.otherItem = [2];
+  settings.specialChoicesOrder.otherItem = [4];
 });
 QUnit.test("Double noneItem and SelectAllItem", function (assert) {
   settings.specialChoicesOrder.noneItem = [-3, 3];

@@ -9,6 +9,8 @@ export var finnishSurveyStrings = {
   startSurveyText: "Aloita",
   otherItemText: "Muu (tarkenna)",
   noneItemText: "Ei mitään",
+  refuseItemText: "Kieltäydy vastaamasta",
+  dontKnowItemText: "Ei tiedä",
   selectAllItemText: "Valitse kaikki",
   progressText: "Sivu {0} / {1}",
   indexText: "{0} / {1}",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["fi"] = "suomi";
 // hideDetails: "Hide Details" => "Piilota tiedot"
 // ok: "OK" => "OKEI"
 // cancel: "Cancel" => "Perua"
+// refuseItemText: "Refuse to answer" => "Kieltäydy vastaamasta"
+// dontKnowItemText: "Don't know" => "Ei tiedä"

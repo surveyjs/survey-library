@@ -9,6 +9,8 @@ export var basqueSurveyStrings = {
   startSurveyText: "Hasi",
   otherItemText: "Beste bat (zehaztu)",
   noneItemText: "Bat ere ez",
+  refuseItemText: "Erantzuteari uko egin",
+  dontKnowItemText: "Ez dakit",
   selectAllItemText: "Guztia hautatu",
   progressText: "{1}-(e)tik {0} orrialde",
   indexText: "{1} {0}",
@@ -128,3 +130,5 @@ surveyLocalization.localeNames["eu"] = "Euskara";
 // hideDetails: "Hide Details" => "Xehetasunak ezkutatu"
 // ok: "OK" => "Ados"
 // cancel: "Cancel" => "Ezeztatu"
+// refuseItemText: "Refuse to answer" => "Erantzuteari uko egin"
+// dontKnowItemText: "Don't know" => "Ez dakit"

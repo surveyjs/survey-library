@@ -5,6 +5,7 @@
     :for="question.inputId"
     v-bind:aria-label="question.chooseButtonText"
     v-key2click
+    v-on:click="function() { question.chooseFile(); }"
   >
     <sv-svg-icon
       v-if="question.cssClasses.chooseFileIconId"

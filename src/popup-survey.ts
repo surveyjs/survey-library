@@ -23,7 +23,7 @@ export class PopupSurveyModel extends Base {
     } else {
       this.surveyValue = this.createSurvey(jsonObj);
     }
-    //this.surveyValue.showTitle = false;
+    this.surveyValue.fitToContainer = true;
     if ("undefined" !== typeof document) {
       this.windowElement = <HTMLDivElement>document.createElement("div");
     }

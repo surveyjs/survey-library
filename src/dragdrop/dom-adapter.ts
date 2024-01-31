@@ -127,6 +127,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     const rootElementX= this.rootElement.getBoundingClientRect().x;
     const rootElementY = this.rootElement.getBoundingClientRect().y;
 
+    // if (!!survey.fitToContainer) {
+    //   rootElementX = 0;
+    //   rootElementY = 0;
+    // }
+
     this.doScroll(event.clientY, event.clientX);
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;

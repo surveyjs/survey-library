@@ -17,6 +17,11 @@ export class InputElementAdapter {
     }
   };
 
+  blurInputHandler = (event: any) => {
+    const result = this.mask.getMaskedValue(event.target.value);
+    this.inputElement.value = result;
+  };
+
   public createArgs(event: any): ITextMaskInputArgs {
     const args: ITextMaskInputArgs = {
       insertedCharacters: event.data,
@@ -41,11 +46,13 @@ export class InputElementAdapter {
   public addInputEventListener(): void {
     if (!!this.inputElement) {
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
+      this.inputElement.addEventListener("blur", this.blurInputHandler);
     }
   }
   public removeInputEventListener(): void {
     if (!!this.inputElement) {
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
+      this.inputElement.removeEventListener("blur", this.blurInputHandler);
     }
   }
   public dispose(): void {

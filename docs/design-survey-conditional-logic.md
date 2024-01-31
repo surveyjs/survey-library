@@ -645,7 +645,7 @@ const surveyJson = {
 }
 ```
 
-[View Demo](https://surveyjs.io/Examples/Library?id=condition-choicesVisibleIf (linkStyle))
+[View Demo](https://surveyjs.io/form-library/examples/condition-itemvaluevisibleif (linkStyle))
 
 This technique has one drawback: if a question contains many items, you have to copy the same expression into every item that should have dynamic visibility. If that is your case, use the technique described in the next topic.
 

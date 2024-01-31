@@ -370,7 +370,7 @@ QUnit.test("readOnlyText default", assert => {
         "name": "q1",
         "placeholder": "click",
         "hasOther": true,
-        "hasNone": true,
+        "showNoneItem": true,
         "choices": [{ value: 1, text: "item 1" }, { value: 2, text: "item 2" }, { value: 3, text: "item 3" }]
       }]
   };

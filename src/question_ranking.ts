@@ -368,15 +368,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
-  protected supportSelectAll(): boolean {
-    return false;
-  }
-  public supportOther(): boolean {
-    return false;
-  }
-  public supportNone(): boolean {
-    return false;
-  }
+  protected supportSelectAll(): boolean { return false; }
+  public supportOther(): boolean { return false; }
+  public supportNone(): boolean { return false; }
+  public supportRefuse(): boolean { return false; }
+  public supportDontKnow(): boolean { return false; }
 
   private handleArrowKeys = (index: number, choice: ItemValue, isDown: boolean) => {
     const delta = isDown ? 1 : -1;
@@ -566,6 +562,8 @@ Serializer.addClass(
     { name: "otherErrorText", visible: false, isSerializable: false },
     { name: "storeOthersAsComment", visible: false, isSerializable: false },
     { name: "showNoneItem", visible: false, isSerializable: false },
+    { name: "showRefuseItem", visible: false, isSerializable: false },
+    { name: "showDontKnowItem", visible: false, isSerializable: false },
     { name: "noneText", visible: false, isSerializable: false },
     { name: "showSelectAllItem", visible: false, isSerializable: false },
     { name: "selectAllText", visible: false, isSerializable: false },

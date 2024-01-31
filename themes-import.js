@@ -133,6 +133,7 @@ Object.keys(MikeThemes).filter(key => ["light", "dark", "ui", "article"].indexOf
   }
   if(!!shadowGroup) {
     themes[displayThemeName]["--sjs-shadow-small"] = shadowGroup["small"] ? getShadowSettings(shadowGroup["small"]) : undefined;
+    themes[displayThemeName]["--sjs-shadow-small-reset"] = shadowGroup["small"] ? getShadowSettings(shadowGroup["small"], true) : undefined;
     themes[displayThemeName]["--sjs-shadow-medium"] = shadowGroup["medium"] ? getShadowSettings(shadowGroup["medium"]) : undefined;
     themes[displayThemeName]["--sjs-shadow-large"] = shadowGroup["large"] ? getShadowSettings(shadowGroup["large"]) : undefined;
     themes[displayThemeName]["--sjs-shadow-inner"] = shadowGroup["inner"] ? getShadowSettings(shadowGroup["inner"]) : undefined;

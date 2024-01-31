@@ -17,7 +17,7 @@
   border-radius: $editor-corner-radius;
   text-align: start;
   box-shadow: $shadow-inner, 0 0 0 0px $primary;
-  //transition: box-shadow 250ms;
+  transition: box-shadow $transition-duration;
 }
 
 .sd-input:focus {

@@ -1,25 +1,30 @@
-<div [class]="model.css.progressButtonsContainerCenter">
-  <div [class]="model.css.progressButtonsContainer">
+<div [class]="model.getRootCss(container)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
+  <div *ngIf="canShowHeader" [class]="survey.css.progressButtonsHeader">
+    <div [class]="survey.css.progressButtonsPageTitle" [title]="model.headerText">{{ model.headerText }}</div>
+  </div>
+  <div [class]="survey.css.progressButtonsContainer">
     <div
-      [class]="getScrollButtonCss(true)"
+      [class]="model.getScrollButtonCss(hasScroller, true)"
       (click)="clickScrollButton(true)"
       role="button"
     ></div>
     <div
-      [class]="model.css.progressButtonsListContainer" #progressButtonsListContainer>
-      <ul [class]="model.css.progressButtonsList">
+      [class]="survey.css.progressButtonsListContainer" #progressButtonsListContainer>
+      <ul [class]="survey.css.progressButtonsList">
         <li
-          *ngFor="let page of model.visiblePages; index as index"
-          [class]="getListElementCss(index)"
-          (click)="isListElementClickable(index) ? clickListElement(index) : null">
-          <div
-            [class]="model.css.progressButtonsPageTitle"
+          *ngFor="let page of survey.visiblePages; index as index"
+          [class]="model.getListElementCss(index)"
+          (click)="model.isListElementClickable(index) ? model.clickListElement(page) : null"
+          [attr.data-page-number]="model.getItemNumber(page)">
+          <div [class]="survey.css.progressButtonsConnector"></div>
+          <div *ngIf="canShowItemTitles"
+            [class]="survey.css.progressButtonsPageTitle"
             [title]="page.renderedNavigationTitle"
           >
             {{ page.renderedNavigationTitle }}
           </div>
-          <div
-            [class]="model.css.progressButtonsPageDescription"
+          <div *ngIf="canShowItemTitles"
+            [class]="survey.css.progressButtonsPageDescription"
             [title]="page.locNavigationDescription.renderedHtml"
           >
             {{ page.locNavigationDescription.renderedHtml }}
@@ -28,9 +33,12 @@
       </ul>
     </div>
     <div
-      [class]="getScrollButtonCss(false)"
+      [class]="model.getScrollButtonCss(hasScroller, false)"
       (click)="clickScrollButton(false)"
       role="button"
     ></div>
+  </div>
+  <div *ngIf="canShowFooter" [class]="survey.css.progressButtonsFooter">
+    <div [class]="survey.css.progressButtonsPageTitle" [title]="model.footerText">{{ model.footerText }}</div>
   </div>
 </div>

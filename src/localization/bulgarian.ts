@@ -9,6 +9,8 @@ export var bulgarianStrings = {
   startSurveyText: "Начало",
   otherItemText: "Друго (опишете)",
   noneItemText: "Нито един",
+  refuseItemText: "Отказва да отговори",
+  dontKnowItemText: "Не знам",
   selectAllItemText: "Всички",
   progressText: "стр. {0}, общо стр. {1}",
   indexText: "{0} на {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["bg"] = "български";
 // hideDetails: "Hide Details" => "Скрий подробните данни"
 // ok: "OK" => "Добре"
 // cancel: "Cancel" => "Отмени"
+// refuseItemText: "Refuse to answer" => "Отказва да отговори"
+// dontKnowItemText: "Don't know" => "Не знам"

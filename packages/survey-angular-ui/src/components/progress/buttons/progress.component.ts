@@ -1,62 +1,56 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from "@angular/core";
+import { SurveyModel, ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
 import { AngularComponentFactory } from "../../../component-factory";
-import { SurveyModel, SurveyProgressButtonsModel } from "survey-core";
 
 @Component({
   selector: "sv-ng-progress-buttons",
   templateUrl: "./progress.component.html"
 })
-export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnChanges, OnInit {
-  @Input() model!: SurveyModel;
+export class ProgressButtonsComponent implements OnDestroy, AfterViewInit, OnChanges, OnInit, IProgressButtonsViewModel {
+  @Input() model!: ProgressButtons;
+  @Input() survey!: SurveyModel;
+  @Input() container!: string;
   @ViewChild("progressButtonsListContainer") progressButtonsListContainer!: ElementRef<HTMLDivElement>;
-  private progressButtonsModel!: SurveyProgressButtonsModel;
-  private hasScroller: boolean = false;
-  private updateScroller: any = undefined;
+  public hasScroller: boolean = false;
+  public canShowHeader: boolean = false;
+  public canShowFooter: boolean = false;
+  public canShowItemTitles: boolean = true;
+  private respManager?: ProgressButtonsResponsivityManager;
   constructor(private changeDetectorRef: ChangeDetectorRef) {
   }
-  private createProgressButtonsModel() {
-    this.progressButtonsModel = new SurveyProgressButtonsModel(this.model);
+  onResize(canShowItemTitles: boolean): void {
+    this.canShowItemTitles = canShowItemTitles;
+    this.canShowHeader = !this.canShowItemTitles;
+    this.changeDetectorRef.detectChanges();
+  }
+  onUpdateScroller(hasScroller: boolean): void {
+    this.hasScroller = hasScroller;
+    this.changeDetectorRef.detectChanges();
+  }
+  onUpdateSettings(): void {
+    this.canShowItemTitles = this.model.showItemTitles;
+    this.canShowFooter = !this.model.showItemTitles;
+    this.changeDetectorRef.detectChanges();
   }
   ngOnInit(): void {
-    this.createProgressButtonsModel();
   }
   ngOnChanges(changes: SimpleChanges): void {
-    this.createProgressButtonsModel();
-  }
-  public isListElementClickable(index: number): boolean {
-    return this.progressButtonsModel.isListElementClickable(index);
-  }
-  public getListElementCss(index: number): string {
-    return this.progressButtonsModel.getListElementCss(index);
-  }
-  public clickListElement(index: number): void {
-    this.progressButtonsModel.clickListElement(index);
-  }
-  public getScrollButtonCss(isLeftScroll: boolean): string {
-    return this.progressButtonsModel.getScrollButtonCss(this.hasScroller, isLeftScroll);
   }
   public clickScrollButton(
     isLeftScroll: boolean
   ): void {
-    if(this.progressButtonsListContainer) {
+    if (this.progressButtonsListContainer) {
       this.progressButtonsListContainer.nativeElement.scrollLeft += (isLeftScroll ? -1 : 1) * 70;
     }
   }
   public ngAfterViewInit(): void {
-    this.progressButtonsModel = new SurveyProgressButtonsModel(this.model);
-    this.updateScroller = setInterval(() => {
-      if(!!this.progressButtonsListContainer?.nativeElement) {
-        const listContainerElement = this.progressButtonsListContainer.nativeElement;
-        this.hasScroller = listContainerElement.scrollWidth > listContainerElement.offsetWidth;
-        this.changeDetectorRef.detectChanges();
-      }
-    }, 100);
+    if (!!this.progressButtonsListContainer?.nativeElement) {
+      const element = this.progressButtonsListContainer.nativeElement;
+      this.respManager = new ProgressButtonsResponsivityManager(this.model, element, this);
+    }
   }
   public ngOnDestroy(): void {
-    if (typeof this.updateScroller !== "undefined") {
-      clearInterval(this.updateScroller);
-      this.updateScroller = undefined;
-    }
+    this.respManager?.dispose();
   }
 }
 AngularComponentFactory.Instance.registerComponent("sv-progress-buttons", ProgressButtonsComponent);

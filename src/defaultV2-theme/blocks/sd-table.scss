@@ -117,7 +117,7 @@
 
     .sd-table__row:nth-of-type(odd) {
 
-      &>td.sd-table__cell,
+      &>td.sd-table__cell:not(.sd-table__cell--actions),
       td:first-of-type {
         border-top-color: $background-dim-light;
         border-bottom-color: $background-dim-light;
@@ -288,6 +288,7 @@
   background: transparent;
   border-radius: calcSize(2);
   padding: calcSize(1);
+  transition: background $transition-duration;
 
   svg {
     @include useEditorFontSize;
@@ -295,6 +296,7 @@
     width: multiply(1, $font-editorfont-size);
     height: multiply(1, $font-editorfont-size);
     fill: $font-questiondescription-color;
+    transition: fill $transition-duration;
   }
 
   &:hover,

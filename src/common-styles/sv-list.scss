@@ -55,6 +55,7 @@
   text-align: left;
   text-overflow: ellipsis;
   white-space: nowrap;
+  transition: background-color $transition-duration, color $transition-duration;
 }
 
 .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {

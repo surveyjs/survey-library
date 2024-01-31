@@ -63,9 +63,9 @@ export { SurveyQuestionMatrixDropdownCell, SurveyQuestionMatrixDropdownBase } fr
 export { SurveyQuestionMatrixDropdown } from "../react/reactquestion_matrixdropdown";
 export { SurveyQuestionMatrixDynamic, SurveyQuestionMatrixDynamicAddButton } from "../react/reactquestion_matrixdynamic";
 export { SurveyQuestionPanelDynamic } from "../react/reactquestion_paneldynamic";
-export { SurveyProgress } from "../react/reactSurveyProgress";
-export { SurveyProgressButtons } from "../react/reactSurveyProgressButtons";
-export { SurveyProgressToc } from "../react/reactSurveyProgressToc";
+export { SurveyProgress } from "../react/progress";
+export { SurveyProgressButtons } from "../react/progressButtons";
+export { SurveyProgressToc } from "../react/progressToc";
 export { SurveyQuestionRating } from "../react/reactquestion_rating";
 export { SurveyQuestionRatingDropdown } from "../react/rating-dropdown";
 export { SurveyQuestionExpression } from "../react/reactquestion_expression";

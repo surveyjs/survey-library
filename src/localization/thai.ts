@@ -9,6 +9,8 @@ export var thaiStrings = {
   startSurveyText: "เริ่ม",
   otherItemText: "อื่นๆ (โปรดระบุ)",
   noneItemText: "ไม่มี",
+  refuseItemText: "ปฏิเสธที่จะตอบ",
+  dontKnowItemText: "ไม่ทราบ",
   selectAllItemText: "เลือกทั้งหมด",
   progressText: "หน้าที่ {0} จาก {1}",
   indexText: "{0} of {1}",
@@ -134,4 +136,5 @@ surveyLocalization.localeNames["th"] = "ไทย";
 // showDetails: "Show Details" => "แสดงรายละเอียด"
 // hideDetails: "Hide Details" => "ซ่อนรายละเอียด"
 // ok: "OK" => "ตกลง, ได้"
-// cancel: "Cancel" => "ยกเลิก"
+// cancel: "Cancel" => "ยกเลิก"// refuseItemText: "Refuse to answer" => "ปฏิเสธที่จะตอบ"
+// dontKnowItemText: "Don't know" => "ไม่ทราบ"

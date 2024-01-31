@@ -9,6 +9,8 @@ export var traditionalChineseSurveyStrings = {
   startSurveyText: "開始",
   otherItemText: "填寫其他答案",
   noneItemText: "沒有",
+  refuseItemText: "拒絕回答",
+  dontKnowItemText: "不知道",
   selectAllItemText: "全選",
   progressText: "第 {0} 頁, 共 {1} 頁",
   indexText: "{1}{0}",
@@ -169,4 +171,5 @@ surveyLocalization.localeNames["zh-tw"] = "繁體中文";
 // showDetails: "Show Details" => "顯示詳細資訊"
 // hideDetails: "Hide Details" => "隱藏詳細資訊"
 // ok: "OK" => "還行"
-// cancel: "Cancel" => "取消"
+// cancel: "Cancel" => "取消"// refuseItemText: "Refuse to answer" => "拒絕回答"
+// dontKnowItemText: "Don't know" => "不知道"

@@ -1107,6 +1107,13 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
   }
+  getFilteredValues(): any {
+    const values = !!this.data ? this.data.getFilteredValues() : {};
+    if (!!this.contentPanel) {
+      values[QuestionCompositeModel.ItemVariableName] = this.contentPanel.getValue();
+    }
+    return values;
+  }
   private updateValueCoreWithPanelValue(): boolean {
     const panelValue = this.getContentPanelValue();
     if(this.isTwoValueEquals(this.getValueCore(), panelValue)) return false;

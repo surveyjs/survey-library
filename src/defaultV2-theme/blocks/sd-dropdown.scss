@@ -169,8 +169,7 @@
     padding-inline-start: calcSize(1.75);
     border: calcSize(0.25) solid transparent;
     border-radius: calcCornerRadius(1);
-
-    // transition: border-color 1550ms;
+    transition: border-color $transition-duration;
   }
 
   .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {

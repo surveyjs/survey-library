@@ -19209,6 +19209,6 @@ QUnit.test("onOpenFileChooser fires", function (assert) {
     o.callback([]);
   });
   assert.equal(log, "");
-  survey.chooseFiles(document.createElement("input"), ([]) => { });
+  survey.chooseFiles(document.createElement("input"), () => { });
   assert.equal(log, "->onOpenFileChooser");
 });

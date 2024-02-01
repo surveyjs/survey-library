@@ -1763,9 +1763,7 @@ export class JsonObject {
   }
   private removePosOnValueToJson(property: JsonObjectProperty, value: any): any {
     if(!property.isCustom || !value) return value;
-    if (!!value[JsonObject.positionPropertyName]) {
-      delete value[JsonObject.positionPropertyName];
-    }
+    this.removePosFromObj(value);
     return value;
   }
   private removePos(property: JsonObjectProperty, value: any): void {
@@ -1780,8 +1778,12 @@ export class JsonObject {
         this.removePosFromObj(obj[i]);
       }
     }
+    if(typeof obj !== "object") return;
     if (!!obj[JsonObject.positionPropertyName]) {
       delete obj[JsonObject.positionPropertyName];
+    }
+    for(let key in obj) {
+      this.removePosFromObj(obj[key]);
     }
   }
   private isValueArray(value: any): boolean {

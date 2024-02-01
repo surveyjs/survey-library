@@ -390,8 +390,7 @@ export class Base {
     if (!!this.loadingOwner && this.loadingOwner.isLoadingFromJson) return true;
     return this.isLoadingFromJsonValue;
   }
-
-  startLoadingFromJson(json?: any) {
+  startLoadingFromJson(json?: any): void {
     this.isLoadingFromJsonValue = true;
     this.jsonObj = json;
   }

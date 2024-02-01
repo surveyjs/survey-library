@@ -9,6 +9,8 @@ export var teluguStrings = {
   startSurveyText: "ప్రారంభించు",
   otherItemText: "ఇతరమైన(వివరించండి)",
   noneItemText: "ఎవరు కాదు",
+  refuseItemText: "సమాధానం ఇవ్వడానికి నిరాకరించండి",
+  dontKnowItemText: "తెలియదు",
   selectAllItemText: "అన్ని ఎంచుకో",
   progressText: "పేజీ{0}/{1}",
   indexText: "{1} {0}[మార్చు]",
@@ -135,4 +137,5 @@ surveyLocalization.localeNames["tel"] = "Telugu";
 // showDetails: "Show Details" => "వివరాలు చూపించు"
 // hideDetails: "Hide Details" => "వివరాలను దాచండి"
 // ok: "OK" => "సరే"
-// cancel: "Cancel" => "రద్దు"
+// cancel: "Cancel" => "రద్దు"// refuseItemText: "Refuse to answer" => "సమాధానం ఇవ్వడానికి నిరాకరించండి"
+// dontKnowItemText: "Don't know" => "తెలియదు"

@@ -9,6 +9,8 @@ export var hungarianSurveyStrings = {
   startSurveyText: "Rajt",
   otherItemText: "Egyéb (adja meg)",
   noneItemText: "Egyik sem",
+  refuseItemText: "A válaszadás megtagadása",
+  dontKnowItemText: "Nem tudom",
   selectAllItemText: "Mindet kiválaszt",
   progressText: "{0}./{1} oldal",
   indexText: "{0} {1} közül",
@@ -134,3 +136,5 @@ surveyLocalization.localeNames["hu"] = "magyar";
 // hideDetails: "Hide Details" => "Részletek elrejtése"
 // ok: "OK" => "OKÉ"
 // cancel: "Cancel" => "Érvénytelenít"
+// refuseItemText: "Refuse to answer" => "A válaszadás megtagadása"
+// dontKnowItemText: "Don't know" => "Nem tudom"

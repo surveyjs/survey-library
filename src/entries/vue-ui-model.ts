@@ -54,7 +54,7 @@ export { PanelDynamic } from "../vue/paneldynamic.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { PanelDynamicProgressV2 } from "../vue/paneldynamicprogressV2.vue";
 export { Progress } from "../vue/progress.vue";
-export { ProgressButtons } from "../vue/progressButtons.vue";
+export { ProgressButtonsComponent } from "../vue/progressButtons.vue";
 export { ProgressToc } from "../vue/progressToc.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
 export { Panel } from "../vue/panel.vue";

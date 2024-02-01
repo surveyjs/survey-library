@@ -849,6 +849,58 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Custom object deserialization, remove pos", function (assert) {
+  Serializer.addClass("optionstype",
+    [
+      { name: "itemValue" },
+      { name: "colorId" },
+      { name: "label:text", isLocalizable: true },
+    ], undefined);
+  Serializer.addProperty("car", { name: "options:optionstype" });
+  Serializer.addProperty("car", { name: "optionsarray:optionstype[]" });
+  const json: any = {
+    options: {
+      pos: { start: 1, end: 5 },
+      itemValue: "abcdef",
+      label: {
+        pos: { start: 10, end: 15 },
+        default: "default text",
+        en: "en text",
+        de: "de text",
+      },
+      colorId: "black"
+    },
+    optionsarray: [{
+      pos: { start: 20, end: 25 },
+      itemValue: "abcdef",
+      label: {
+        pos: { start: 30, end: 35 },
+        default: "default text",
+        en: "en text",
+        de: "de text",
+      },
+      colorId: "black"
+    }]
+  };
+  const car: any = new Car();
+  car.fromJSON(json);
+
+  assert.equal(car.options.itemValue, "abcdef", "check itemValue");
+  assert.equal(car.options.pos.start, 1, "pos1");
+  assert.equal(car.options.label.pos.start, 10, "pos2");
+  assert.equal(car.optionsarray[0].pos.start, 20, "pos3");
+  assert.equal(car.optionsarray[0].label.pos.start, 30, "pos4");
+
+  const car_json = car.toJSON();
+  assert.notOk(car_json.options["pos"], "no pos1");
+  assert.notOk(car_json.options.label["pos"], "no pos2");
+  assert.notOk(car_json.optionsarray[0]["pos"], "no pos3");
+  assert.notOk(car_json.optionsarray[0].label["pos"], "no pos4");
+
+  Serializer.removeProperty("car", "options");
+  Serializer.removeProperty("car", "optionsarray");
+  Serializer.removeClass("optionstype");
+});
 QUnit.test(
   "ItemValue and settings.itemValueAlwaysSerializeAsObject = true",
   function (assert) {
@@ -3190,4 +3242,25 @@ QUnit.test("Versions & alternative name", function (assert) {
   assert.deepEqual(question.toJSON({ version: "1.9.126" }), { name: "q1", testProp: "abc" }, "#4");
   assert.deepEqual(question.toJSON({ version: "1" }), { name: "q1", testProp: "abc" }, "#5");
   Serializer.removeProperty("question", "testProperty");
+});
+QUnit.test("Test showInMultipleColumns prop visibility", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "type": "matrixdynamic",
+        "name": "matrix",
+        "columns": [
+          {
+            "name": "Column1",
+            "cellType": "checkbox",
+            "showInMultipleColumns": true
+          }
+        ]
+      }
+    ]
+  });
+  const column = survey.getQuestionByName("matrix").columns[0];
+  const prop = Serializer.findProperty("matrixdropdowncolumn", "showInMultipleColumns");
+  assert.ok(prop, "property is here");
+  assert.equal(prop.isVisible("", column), true, "column is visible");
 });

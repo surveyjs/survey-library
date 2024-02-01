@@ -448,7 +448,15 @@ export class JsonObjectProperty implements IObject {
   public isVisible(layout: string, obj: any = null): boolean {
     let isLayout = !this.layout || this.layout == layout;
     if (!this.visible || !isLayout) return false;
-    if (!!this.visibleIf && !!obj) return this.visibleIf(obj);
+    if (!!this.visibleIf && !!obj) {
+      if (obj.getOriginalObj) {
+        const orjObj = obj.getOriginalObj();
+        if(orjObj && Serializer.findProperty(orjObj.getType(), this.name)) {
+          obj = orjObj;
+        }
+      }
+      return this.visibleIf(obj);
+    }
     return true;
   }
   public get visible(): boolean {
@@ -1755,9 +1763,7 @@ export class JsonObject {
   }
   private removePosOnValueToJson(property: JsonObjectProperty, value: any): any {
     if(!property.isCustom || !value) return value;
-    if (!!value[JsonObject.positionPropertyName]) {
-      delete value[JsonObject.positionPropertyName];
-    }
+    this.removePosFromObj(value);
     return value;
   }
   private removePos(property: JsonObjectProperty, value: any): void {
@@ -1772,8 +1778,12 @@ export class JsonObject {
         this.removePosFromObj(obj[i]);
       }
     }
+    if(typeof obj !== "object") return;
     if (!!obj[JsonObject.positionPropertyName]) {
       delete obj[JsonObject.positionPropertyName];
+    }
+    for(let key in obj) {
+      this.removePosFromObj(obj[key]);
     }
   }
   private isValueArray(value: any): boolean {

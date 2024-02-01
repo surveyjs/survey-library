@@ -2068,4 +2068,67 @@ frameworks.forEach((framework) => {
       .expect(Selector(".sd-boolean__thumb-text").withText("Yes").visible).ok()
       .expect(popupContainer.visible).notOk();
   });
+
+  test.page(`${url_test}${theme}/${framework}`)("focusOnFirstError bricks dropdown popup if any errors are on the same page", async (t) => {
+    await t.resizeWindow(800, 600);
+    const json = {
+      pages: [
+        {
+          name: "Seite1",
+          elements: [
+            {
+              type: "dropdown",
+              name: "Anrede",
+              title: "Anrede",
+              choices: [
+                {
+                  value: "Item 1",
+                  text: "Frau",
+                },
+                {
+                  value: "Item 2",
+                  text: "Herr",
+                },
+                {
+                  value: "Item 3",
+                  text: "keine Angabe",
+                },
+                {
+                  value: "Item 4",
+                  text: "Divers",
+                },
+                {
+                  value: "Item 5",
+                  text: "Firma",
+                },
+              ],
+            },
+            {
+              type: "text",
+              name: "Nachname",
+              title: "Nachname",
+              isRequired: true,
+            },
+          ],
+        },
+      ],
+      focusOnFirstError: true,
+    };
+    await initSurvey(framework, json, {
+      "onValueChanged": (surveyModel) => { surveyModel.hasErrors(false, true); }
+    });
+
+    const questionDropdownV2Select = Selector(".sd-dropdown");
+    const popupContainer = Selector(".sv-popup__container").filterVisible();
+    const textQuestion = Selector(".sd-input.sd-text");
+    await t
+      .expect(textQuestion.focused).notOk()
+
+      .click(questionDropdownV2Select)
+      .expect(popupContainer.visible).ok()
+
+      .click(getListItemByText("Herr"))
+      .expect(textQuestion.focused).ok()
+      .expect(popupContainer.visible).notOk();
+  });
 });

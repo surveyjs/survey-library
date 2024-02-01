@@ -4773,7 +4773,7 @@ QUnit.test("showInMultipleColumns property, and visibleIf in choices", function 
             name: "col2",
             cellType: "checkbox",
             showInMultipleColumns: true,
-            hasNone: true,
+            showNoneItem: true,
             choices: [
               { value: "A", visibleIf: "{val1} = 1" },
               { value: "B", visibleIf: "{val1} = 2" },

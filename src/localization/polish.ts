@@ -9,6 +9,8 @@ export var polishSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Inna odpowiedź (wpisz)",
   noneItemText: "Brak",
+  refuseItemText: "Odmów odpowiedzi",
+  dontKnowItemText: "Nie wiem",
   selectAllItemText: "Wybierz wszystkie",
   progressText: "Strona {0} z {1}",
   indexText: "{0} od {1}",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["pl"] = "polski";
 // hideDetails: "Hide Details" => "Ukryj szczegóły"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Anuluj"
+// refuseItemText: "Refuse to answer" => "Odmów odpowiedzi"
+// dontKnowItemText: "Don't know" => "Nie wiem"

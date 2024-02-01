@@ -9,6 +9,8 @@ export var georgianSurveyStrings = {
   startSurveyText: "დაქოქვა",
   otherItemText: "სხვა (გთხოვთ მიუთითეთ)",
   noneItemText: "არცერთი",
+  refuseItemText: "უარი პასუხზე",
+  dontKnowItemText: "არ ვიცი",
   selectAllItemText: "ყველას მონიშნა",
   progressText: "გვერდი {0} / {1}",
   indexText: "{1} {0}",
@@ -188,3 +190,5 @@ surveyLocalization.localeNames["ka"] = "ქართული";
 // hideDetails: "Hide Details" => "დეტალების დამალვა"
 // ok: "OK" => "კარგი"
 // cancel: "Cancel" => "გაუქმება"
+// refuseItemText: "Refuse to answer" => "უარი პასუხზე"
+// dontKnowItemText: "Don't know" => "არ ვიცი"

@@ -35,7 +35,7 @@ export class MatrixRowModel extends Base {
   ) {
     super();
     this.data = data;
-    this.value = value;
+    this.setValueDirectly(value);
     this.cellClick = (column: any) => {
       this.value = column.value;
     };

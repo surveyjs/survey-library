@@ -9,6 +9,8 @@ export var koreanStrings = {
   startSurveyText: "시작",
   otherItemText: "기타 (설명)",
   noneItemText: "없음",
+  refuseItemText: "대답 거부",
+  dontKnowItemText: "모르다",
   selectAllItemText: "모두 선택",
   progressText: "페이지 {1} / {0}",
   indexText: "{0} / {1}",
@@ -122,3 +124,5 @@ surveyLocalization.localeNames["ko"] = "한국어";
 // hideDetails: "Hide Details" => "세부 정보 숨기기"
 // ok: "OK" => "그래"
 // cancel: "Cancel" => "취소"
+// refuseItemText: "Refuse to answer" => "대답 거부"
+// dontKnowItemText: "Don't know" => "모르다"

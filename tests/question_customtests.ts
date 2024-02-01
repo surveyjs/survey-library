@@ -2770,6 +2770,37 @@ QUnit.test("single component: inheritBaseProps: array<string>", function (assert
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("single component: inheritBaseProps: array<string> #2", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    inheritBaseProps: ["placeholder"],
+    questionJSON: {
+      type: "text",
+      placeholder: "abc"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(q1.placeholder, "abc", "q1.placeholder #1");
+  assert.equal(content.placeholder, "abc", "content.placeholder #1");
+  q1.placeholder = "bcd";
+  assert.equal(q1.placeholder, "bcd", "q1.placeholder #2");
+  assert.equal(content.placeholder, "bcd", "content.placeholder #2");
+  content.placeholder = "cde";
+  assert.equal(q1.placeholder, "cde", "q1.placeholder #3");
+  assert.equal(content.placeholder, "cde", "content.placeholder #3");
+
+  const prop = Serializer.getOriginalProperty(q1, "placeholder");
+  assert.equal(prop.name, "placeholder", "prop.className is correct");
+  assert.equal(prop.isVisible("form", q1), true, "it is visible");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("single component: inheritBaseProps: true", function (assert) {
   ComponentCollection.Instance.add({
     name: "customdropdown",

@@ -9,6 +9,8 @@ export var swahiliStrings = {
   startSurveyText: "Anza",
   otherItemText: "Nyingine (eleza)",
   noneItemText: "Hakuna",
+  refuseItemText: "Kukataa kujibu",
+  dontKnowItemText: "Sijui",
   selectAllItemText: "Chagua Zote",
   progressText: "Ukurasa {0} wa {1}",
   indexText: "{0} ya {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["sw"] = "swahili";
 // hideDetails: "Hide Details" => "Ficha Maelezo"
 // ok: "OK" => "Sawa kabisa"
 // cancel: "Cancel" => "Katisha"
+// refuseItemText: "Refuse to answer" => "Kukataa kujibu"
+// dontKnowItemText: "Don't know" => "Sijui"

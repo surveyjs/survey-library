@@ -72,7 +72,7 @@ body {
     position: relative;
   }
 
-  * {
+  @-moz-document url-prefix() {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
   }
@@ -100,13 +100,20 @@ body {
   }
 }
 
+.sd-root-modern--animation-disabled * {
+  -webkit-transition: none !important;
+  -moz-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}
+
 .sd-root-modern.sd-root-modern--full-container {
   width: 100%;
   height: 100%;
   overflow: auto;
   position: static;
 
-  * {
+  @-moz-document url-prefix() {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
   }
@@ -155,11 +162,15 @@ body {
   }
 }
 
-.sv-popup {
-  .sv-popup__scrolling-content {
+@-moz-document url-prefix() {
+  .sv-popup .sv-popup__scrolling-content {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
+  }
+}
 
+.sv-popup {
+  .sv-popup__scrolling-content {
     *,
     & {
       &::-webkit-scrollbar {

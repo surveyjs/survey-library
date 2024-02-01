@@ -9,6 +9,8 @@ export var catalanSurveyStrings = {
   startSurveyText: "Començar",
   otherItemText: "Un altre (descrigui)",
   noneItemText: "Cap",
+  refuseItemText: "Negar-se a respondre",
+  dontKnowItemText: "No sé",
   selectAllItemText: "Selecciona-ho tot",
   progressText: "Pàgina {0} de {1}",
   indexText: "{0} de {1}",
@@ -175,3 +177,5 @@ surveyLocalization.localeNames["ca"] = "català";
 // hideDetails: "Hide Details" => "Amaga els detalls"
 // ok: "OK" => "D'ACORD"
 // cancel: "Cancel" => "Cancel·lar"
+// refuseItemText: "Refuse to answer" => "Negar-se a respondre"
+// dontKnowItemText: "Don't know" => "No sé"

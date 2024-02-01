@@ -6058,7 +6058,7 @@ export class SurveyModel extends SurveyElementCore
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
-    if(json && json.locale) {
+    if (json && json.locale) {
       this.locale = json.locale;
     }
   }
@@ -7489,6 +7489,9 @@ export class SurveyModel extends SurveyElementCore
         let isBelowHeader = !advHeader || advHeader.hasBackground;
         if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
           isBelowHeader = false;
+        }
+        if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
+          isBelowHeader = true;
         }
         if (container === "header" && !isBelowHeader) {
           layoutElement.index = -150;

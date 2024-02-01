@@ -165,10 +165,16 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
   public getQuestionWrapperClassName(className: string): string {
     let result = super.getQuestionWrapperClassName(className);
-    if (this.question.expression) {
-      result += " " + result + "--expression";
+    if (this.question.expression && this.question.expression != "''") {
+      result += " " + className + "--expression";
     }
-    return result + " " + result + "--" + this.column.totalAlignment;
+    let alignment = this.column.totalAlignment;
+    if (alignment === "auto") {
+      if (this.column.cellType === "dropdown") {
+        alignment = "left";
+      }
+    }
+    return result + " " + className + "--" + alignment;
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;

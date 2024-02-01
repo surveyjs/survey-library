@@ -157,14 +157,15 @@ export class QuestionFilePage extends Base {
   get css(): string {
     const isLeavingRight = this.prevPageIndex == this.question.indexToShow && this.question.navigationDirection == "left";
     const isLeavingLeft = this.nextPageIndex == this.question.indexToShow && this.question.navigationDirection == "right";
+    const isAnimationEnabled = settings.animationEnabled;
     const pageClass = this.question.cssClasses.page;
     return new CssClassBuilder()
       .append(pageClass)
-      .append(`${pageClass}--enter-from-left`, this.index === this.question.indexToShow && (this.question.navigationDirection == "left" || this.question.navigationDirection == "left-delete"))
-      .append(`${pageClass}--enter-from-right`, this.index === this.question.indexToShow && this.question.navigationDirection == "right")
-      .append(`${pageClass}--leave-to-left`, isLeavingLeft)
-      .append(`${pageClass}--leave-to-right`, isLeavingRight)
-      .append(`${pageClass}--hidden`, this.index !== this.question.indexToShow && !(isLeavingLeft || isLeavingRight)).toString();
+      .append(`${pageClass}--enter-from-left`, isAnimationEnabled && this.index === this.question.indexToShow && (this.question.navigationDirection == "left" || this.question.navigationDirection == "left-delete"))
+      .append(`${pageClass}--enter-from-right`, isAnimationEnabled && this.index === this.question.indexToShow && this.question.navigationDirection == "right")
+      .append(`${pageClass}--leave-to-left`, isAnimationEnabled && isLeavingLeft)
+      .append(`${pageClass}--leave-to-right`, isAnimationEnabled && isLeavingRight)
+      .append(`${pageClass}--hidden`, (this.index !== this.question.indexToShow) && (!isAnimationEnabled || !(isLeavingLeft || isLeavingRight))).toString();
   }
 
 }

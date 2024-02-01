@@ -9162,11 +9162,10 @@ QUnit.test("Totals alingment", function (assert) {
   };
 
   var survey = new SurveyModel(json);
-  survey.css.matrixdropdown.cellQuestionWrapper = "sd-table__question-wrapper";
-  survey.css.matrixdynamic.cellQuestionWrapper = "sd-table__question-wrapper";
   var question = <QuestionMatrixDynamicModel>(
     survey.getQuestionByName("question1")
   );
+  question.cssClassesValue.cellQuestionWrapper = "sd-table__question-wrapper";
   var renderedTable = question.renderedTable;
   assert.equal(
     renderedTable.footerRow.cells[1].cellQuestionWrapperClassName,

@@ -19201,3 +19201,14 @@ QUnit.test("survey.locale, default locale is not en and design-time, #7765", fun
   assert.equal(q1.hasDescription, true, "Description loaded correctly");
   surveyLocalization.defaultLocale = defautlLocale;
 });
+QUnit.test("onOpenFileChooser fires", function (assert) {
+  const survey = new SurveyModel();
+  let log = "";
+  survey.onOpenFileChooser.add((s, o) => {
+    log += "->onOpenFileChooser";
+    o.callback([]);
+  });
+  assert.equal(log, "");
+  survey.chooseFiles(document.createElement("input"), ([]) => { });
+  assert.equal(log, "->onOpenFileChooser");
+});

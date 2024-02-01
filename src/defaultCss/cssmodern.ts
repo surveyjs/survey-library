@@ -319,7 +319,7 @@ export var modernCss = {
     cellText: "sv-matrix__text",
     cellTextSelected: "sv-matrix__text--checked",
     cellTextDisabled: "sv-matrix__text--disabled",
-    cellResponsiveTitle: "sv-hidden",
+    cellResponsiveTitle: "sv-matrix__cell-responsive-title",
     itemSvgIconId: "#icon-modernradio",
   },
   matrixdropdown: {

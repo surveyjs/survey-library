@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel } from "survey-core";
+import { ProgressButtons, ProgressButtonsResponsivityManager, IProgressButtonsViewModel, SurveyModel } from "survey-core";
 const template: any = require("html-loader?interpolate!val-loader!./buttons.html");
 
 export class ProgressButtonsViewModel implements IProgressButtonsViewModel {
@@ -8,7 +8,7 @@ export class ProgressButtonsViewModel implements IProgressButtonsViewModel {
   public canShowHeader = ko.observable(false);
   public canShowFooter = ko.observable(false);
   public canShowItemTitles = ko.observable(true);
-  constructor(private model: ProgressButtons, private element: HTMLElement, public container: string = "center") {
+  constructor(private model: ProgressButtons, private element: HTMLElement, public container: string = "center", public survey: SurveyModel) {
     this.respManager = new ProgressButtonsResponsivityManager(model, element, this);
   }
   onResize(canShowItemTitles: boolean): void {
@@ -42,7 +42,8 @@ ko.components.register("sv-progress-buttons", {
       return new ProgressButtonsViewModel(
         params.model,
         componentInfo.element.nextElementSibling,
-        params.container
+        params.container,
+        params.survey
       );
     },
   },

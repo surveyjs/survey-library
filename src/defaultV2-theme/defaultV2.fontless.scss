@@ -72,7 +72,7 @@ body {
     position: relative;
   }
 
-  * {
+  @-moz-document url-prefix() {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
   }
@@ -113,7 +113,7 @@ body {
   overflow: auto;
   position: static;
 
-  * {
+  @-moz-document url-prefix() {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
   }
@@ -162,11 +162,15 @@ body {
   }
 }
 
-.sv-popup {
-  .sv-popup__scrolling-content {
+@-moz-document url-prefix() {
+  .sv-popup .sv-popup__scrolling-content {
     scrollbar-width: thin;
     scrollbar-color: $border transparent;
+  }
+}
 
+.sv-popup {
+  .sv-popup__scrolling-content {
     *,
     & {
       &::-webkit-scrollbar {

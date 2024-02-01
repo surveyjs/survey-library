@@ -8,30 +8,37 @@
             .sv_qstn {
               display: block;
               width: 100% !important;
+
               .title-left {
                 float: none;
               }
+
               .sv_q_radiogroup_inline,
               .sv_q_checkbox_inline,
               .sv_q_imagepicker_inline {
                 display: block;
               }
+
               table.sv_q_matrix,
               table.sv_q_matrix_dropdown,
               table.sv_q_matrix_dynamic {
                 display: block;
+
                 thead {
                   display: none;
                 }
+
                 td.sv-table__cell--choice {
                   text-align: initial;
                 }
+
                 tbody,
                 tr,
                 td {
                   display: block;
                 }
               }
+
               table.sv_q_matrix_dropdown,
               table.sv_q_matrix_dynamic {
                 td {
@@ -40,15 +47,14 @@
                   }
                 }
               }
+
               table.sv_q_matrix {
                 td {
                   label.sv_q_m_label {
                     display: inline;
                   }
-                  &:after {
-                    content: attr(data-responsive-title);
-                  }
                 }
+
                 .sv_q_m_cell {
                   text-align: initial;
                 }

@@ -157,7 +157,7 @@ export class DropdownListModel extends Base {
       _onSelectionChanged = (item: IAction) => {
         this.question.value = item.id;
         if (this.question.searchEnabled) this.applyInputString(item as ItemValue);
-        this._popupModel.toggleVisibility();
+        this.popupModel.isVisible = false;
       };
     }
     const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);

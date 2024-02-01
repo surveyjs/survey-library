@@ -706,6 +706,21 @@
   }
 }
 
+.sd-table__cell--footer {
+
+  .sd-table__question-wrapper--left {
+    text-align: start;
+  }
+
+  .sd-table__question-wrapper--center {
+    text-align: center;
+  }
+
+  .sd-table__question-wrapper--right {
+    text-align: end;
+  }
+}
+
 .sd-table.sd-matrixdynamic {
   table-layout: auto;
 }

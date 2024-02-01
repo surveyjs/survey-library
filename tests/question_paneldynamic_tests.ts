@@ -4094,7 +4094,6 @@ QUnit.test(
     assert.ok(rootPanel, "root panel is here");
     var nestedPanel = rootPanel.panels[0].getQuestionByName("nested1");
     assert.ok(nestedPanel, "nested panel is here");
-    nestedPanel.addPanel(); //TODO there is should be one panel
     assert.equal(
       nestedPanel.panels.length,
       1,
@@ -4302,8 +4301,8 @@ QUnit.test(
     assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #1");
     survey.cancelPreview();
     panel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
-    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #1");
-    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #1");
+    assert.equal(panel.panels[0].questions[0].choices.length, 2, "Choices is added, #2");
+    assert.equal(panel.panels[0].questions[0].displayValue, "Item2", "display value is correct, #2");
   }
 );
 
@@ -4544,7 +4543,7 @@ QUnit.test("Support panel dynamic for isContainerReady", function (assert) {
   assert.equal(exp.value, true, "exp");
 });
 
-QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+QUnit.test("cssClasses for a question in nested panel dynamic, #1", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -4573,7 +4572,7 @@ QUnit.test("cssClasses for a question in nested panel dynamic", function (assert
   const question = nestedPanel.panels[0].getQuestionByName("q1");
   assert.ok(question.cssClassesValue.mainRoot, "Main root style is set");
 });
-QUnit.test("cssClasses for a question in nested panel dynamic", function (assert) {
+QUnit.test("cssClasses for a question in nested panel dynamic, #2", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -6628,4 +6627,191 @@ QUnit.test("panel dynamic & dropdown with showOtherItem", function (assert) {
   assert.deepEqual(dynamicPanel.value, [{ q1: "other" }], "panel.value #3");
   question.comment = "comment2";
   assert.deepEqual(dynamicPanel.value, [{ q1: "other", "q1-Comment": "comment2" }], "panel.value #4");
+});
+QUnit.test("panel dynamic & getQuestionFromArray with non-build panels, #7693", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            panelCount: 1,
+            templateElements: [
+              { name: "q2", type: "text" }
+            ]
+          }
+        ]
+      }
+    ] });
+  const dynamicPanel = survey.getQuestionByName("panel");
+  assert.notOk(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet");
+  survey.currentPageNo = 1;
+  assert.equal(dynamicPanel.getQuestionFromArray("q2", 0).name, "q2", "Panels are created");
+});
+QUnit.test("panel dynamic & addPanel/removePanel with non-build panels, #7693", function (assert) {
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "text", name: "q1" }] },
+      {
+        elements: [
+          {
+            type: "paneldynamic",
+            name: "panel",
+            panelCount: 1,
+            templateElements: [
+              { name: "q2", type: "text" }
+            ]
+          }
+        ]
+      }
+    ] });
+  const dynamicPanel = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(dynamicPanel.panelCount, 1, "panelCount #1");
+  assert.notOk(dynamicPanel.getQuestionFromArray("q2", 0), "Panels are not created yet");
+  dynamicPanel.addPanel();
+  dynamicPanel.addPanel(1);
+  assert.equal(dynamicPanel.panelCount, 3, "panelCount #2");
+  dynamicPanel.removePanel(1);
+  assert.equal(dynamicPanel.panelCount, 2, "panelCount #3");
+  assert.equal(dynamicPanel.getQuestionFromArray("q2", 0).name, "q2", "Panels are created");
+});
+QUnit.test("panel dynamic & panel visibleIf & checkbox vs carry forward, #7693", function (assert) {
+  const survey = new SurveyModel({
+    "pages": [
+      {
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "aboutMe",
+            "valueName": "household",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "firstName"
+              },
+              {
+                "type": "text",
+                "name": "lastName"
+              },
+              {
+                "type": "expression",
+                "name": "fullName",
+                "visible": false,
+                "expression": "{panel.firstName} + ' ' + {panel.lastName}"
+              }
+            ],
+            "panelCount": 2,
+            "minPanelCount": 1,
+            "templateVisibleIf": "{panelIndex} = 0"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "addChildren",
+            "valueName": "household",
+            "isRequired": true,
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "childFirstName",
+                "valueName": "firstName"
+              },
+              {
+                "type": "text",
+                "name": "childLastName",
+                "valueName": "lastName"
+              },
+              {
+                "type": "expression",
+                "name": "childFullName",
+                "visible": false,
+                "valueName": "fullName",
+                "expression": "{panel.firstName} + ' ' + {panel.lastName}"
+              }
+            ],
+            "panelCount": 1,
+            "minPanelCount": 1,
+            "templateVisibleIf": "{panelIndex} > 0"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "checkbox",
+            "name": "addIncomeFor",
+            "choicesFromQuestion": "addChildren",
+            "choiceValuesFromQuestion": "fullName"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "paneldynamic",
+            "name": "householdIncome",
+            "valueName": "household",
+            "templateElements": [
+              {
+                "type": "text",
+                "name": "question1"
+              }
+            ],
+            "templateTitle": "{panel.fullName}",
+            "panelsState": "collapsed",
+            "templateVisibleIf": "{addIncomeFor} contains {panel.fullName}"
+          }
+        ]
+      }
+    ]
+  });
+  survey.data = {
+    "household": [
+      {
+        "firstName": "first1",
+        "fullName": "first1 last1",
+        "lastName": "last1",
+        "question1": "text1"
+      },
+      {
+        "firstName": "first2",
+        "fullName": "first2 last2",
+        "lastName": "last2"
+      },
+      {
+        "firstName": "first3",
+        "fullName": "first3 last3",
+        "lastName": "last3",
+        "question1": "test3"
+      }
+    ],
+    "addIncomeFor": [
+      "first1 last1",
+      "first3 last3"
+    ]
+  };
+  survey.doComplete();
+  assert.deepEqual(survey.data, {
+    "household": [
+      {
+        "firstName": "first1",
+        "lastName": "last1",
+        "question1": "text1"
+      },
+      {
+        "firstName": "first2",
+        "lastName": "last2"
+      },
+      {
+        "firstName": "first3",
+        "lastName": "last3",
+        "question1": "test3"
+      }
+    ]
+  });
 });

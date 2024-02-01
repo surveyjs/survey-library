@@ -5,6 +5,10 @@
   padding-inline-start: calcSize(0.5); //padding-left
 }
 
+.sd-tagbox.sd-input--disabled {
+  white-space: normal;
+}
+
 .sd-tagbox.sd-tagbox--empty {
   // padding: calcSize(0.5) calcSize(6) calcSize(0.5) calcSize(2);
   // padding-block: calcSize(0.5);
@@ -20,7 +24,7 @@
 }
 
 .sd-input.sd-tagbox:focus-within {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sv-tagbox__item {
@@ -43,18 +47,20 @@
 .sv-tagbox__item:focus,
 .sv-tagbox__item:focus-within {
   .sd-tagbox-item_clean-button {
-    display: flex;
     align-self: center;
+    opacity: 1;
   }
 }
 
 .sd-tagbox-item_clean-button {
-  display: none;
+  display: flex;
   position: absolute;
   inset-inline-end: calcSize(1.5);
   padding: 0;
   padding-inline-start: calcSize(4);
   background: linear-gradient(270deg, $primary 53.12%, rgba(25, 179, 148, 0) 100%);
+  opacity: 0;
+  transition: opacity $transition-duration;
 }
 
 .sd-tagbox-item_clean-button-svg {
@@ -114,7 +120,6 @@
 }
 
 .sd-tagbox.sd-tagbox--empty {
-
   .sd-tagbox__hint,
   .sd-tagbox__hint-suffix-wrapper,
   .sd-tagbox__filter-string-input {

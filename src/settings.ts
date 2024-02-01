@@ -11,7 +11,7 @@ export type ISurveyEnvironment = {
   svgMountContainer: HTMLElement | string,
   stylesSheetsMountContainer: HTMLElement,
 }
-const document = globalThis.document;
+const document = typeof globalThis !== "undefined" ? globalThis.document : (this as any).document;
 const defaultEnvironment: ISurveyEnvironment = <ISurveyEnvironment>(!!document ? {
   root: document,
 
@@ -129,7 +129,7 @@ export var settings = {
    *     ```
    */
   web: {
-    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => {},
+    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => { },
     encodeUrlParams: true,
     cacheLoadedChoices: true,
     disableQuestionWhileLoadingChoices: false,
@@ -198,12 +198,12 @@ export var settings = {
    * import { ItemValue, settings } from "survey-core";
    *
    * // `itemValueSerializeAsObject` example
-   * settings.localization.itemValueSerializeAsObject = true;
+   * settings.serialization.itemValueSerializeAsObject = true;
    * const item = new ItemValue(5);
    * const itemString = item.toJSON(); // Produces { value: 5 } instead of 5
    *
    * // `itemValueSerializeDisplayText` example
-   * settings.localization.itemValueSerializeDisplayText = true;
+   * settings.serialization.itemValueSerializeDisplayText = true;
    * const item = new ItemValue("item1");
    * const itemString = item.toJSON(); // Produces { value: "item1", text: "item1" } instead of "item1"
    * ```
@@ -458,8 +458,8 @@ export var settings = {
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string): boolean {
-    return showConfirmDialog(message, callback, applyTitle);
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string): boolean {
+    return showConfirmDialog(message, callback, applyTitle, locale);
   },
   /**
    * A minimum width value for all survey elements.
@@ -510,15 +510,27 @@ export var settings = {
    */
   showItemsInOrder: "default",
   /**
-   * A value to save in survey results when respondents select the None choice item.
+   * A value to save in survey results when respondents select the "None" choice item.
    *
    * Default value: `"none"`
    */
   noneItemValue: "none",
   /**
-   * An object whose properties specify the order of the special choice items (None, Other, Select All) in select-based questions.
+   * A value to save in survey results when respondents select the "Refuse to answer" choice item.
    *
-   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2] }`
+   * Default value: `"refused"`
+   */
+  refuseItemValue: "refused",
+  /**
+   * A value to save in survey results when respondents select the "Don't know" choice item.
+   *
+   * Default value: `"dontknow"`
+   */
+  dontKnowItemValue: "dontknow",
+  /**
+   * An object whose properties specify the order of the special choice items ("None", "Other", "Select All", "Refuse to answer", "Don't know") in select-based questions.
+   *
+   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2], dontKnowItem: [3], otherItem: [4] }`
    *
    * Use this object to reorder special choices. Each property accepts an array of integer numbers. Negative numbers place a special choice item above regular choice items, positive numbers place it below them. For instance, the code below specifies the following order of choices: None, Select All, regular choices, Other.
    *
@@ -539,7 +551,9 @@ export var settings = {
   specialChoicesOrder: {
     selectAllItem: [-1],
     noneItem: [1],
-    otherItem: [2]
+    refuseItem: [2],
+    dontKnowItem: [3],
+    otherItem: [4]
   },
   /**
    * A list of supported validators by question type.
@@ -605,6 +619,13 @@ export var settings = {
    * Default value: `true`
    */
   showMaxLengthIndicator: true,
+
+  /**
+   * Set to `false` to disable animations
+   *
+   * Default value: `true`
+  */
+  animationEnabled: true,
 
   /**
    * An object that specifies heading levels (`<h1>`, `<h2>`, etc.) to use when rendering survey, page, panel, and question titles.
@@ -691,5 +712,6 @@ export var settings = {
       "email",
       "impp",
     ]
-  }
+  },
+  legacyProgressBarView: false
 };

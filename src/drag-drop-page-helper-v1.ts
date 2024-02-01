@@ -106,7 +106,7 @@ export class DragDropPageHelperV1 {
     if (!isCancel && !!row) {
       var isSamePanel = false;
 
-      if (this.page.isDesignMode && settings.supportCreatorV2) {
+      if (this.page.isDesignModeV2) {
         var srcRow = src && src.parent && (src.parent as PanelModelBase).dragDropFindRow(src);
         if (row.panel.elements[targetIndex] && row.panel.elements[targetIndex].startWithNewLine && row.elements.length > 1 && row.panel.elements[targetIndex] === dest) {
           elementsToSetSWNL.push(target);
@@ -125,9 +125,8 @@ export class DragDropPageHelperV1 {
           elementsToResetSWNL.push(target);
         }
       }
-
+      (this.page.survey as SurveyModel).startMovingQuestion();
       if (!!src && !!src.parent) {
-        (this.page.survey as SurveyModel).startMovingQuestion();
         isSamePanel = row.panel == src.parent;
         if (isSamePanel) {
           row.panel.dragDropMoveElement(src, target, targetIndex);
@@ -171,7 +170,7 @@ export class DragDropPageHelperV1 {
     if (!source) return true;
     var destination = <IElement>this.dragDropInfo.destination;
     if (!this.dragDropCanDropCore(source, destination)) return false;
-    if (this.page.isDesignMode && settings.supportCreatorV2) {
+    if (this.page.isDesignModeV2) {
       const rowSource = this.page.dragDropFindRow(source);
       const rowDestination = this.page.dragDropFindRow(destination);
 

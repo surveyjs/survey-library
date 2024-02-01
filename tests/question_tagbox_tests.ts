@@ -137,7 +137,7 @@ const jsonTagboxWithSelectAll = {
     type: "tagbox",
     name: "question1",
     hasOther: "true",
-    hasNone: "true",
+    showNoneItem: "true",
     hasSelectAll: "true",
     choices: [
       "item1",
@@ -1294,6 +1294,7 @@ QUnit.test("TagBox readOnlyText property should be reactive, Bug#6830", (assert)
   assert.equal(q.dropdownListModel.filterStringPlaceholder, "en-sel", "dropdownlist en, #3");
 });
 QUnit.test("question.showClearButton", assert => {
+  settings.supportCreatorV2 = false;
   const json = {
     questions: [
       {

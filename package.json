@@ -63,7 +63,7 @@
     "dev": "concurrently \"http-server -p 7766 --silent\" \"npm run watch:core:dev\" \"npm run watch:core:prod\" \"npm run watch:ko:ui:dev\" \"npm run watch:react:ui:dev\" \"npm run watch:ko:ui:prod\" \"npm run watch:react:ui:prod\"",
     "madge": "madge --circular --extensions ts ./src/",
     "pre-push-check": "npm run lint && npm run testsingle",
-    "lint": "eslint ./src --quiet && eslint ./testCafe --quiet && eslint ./tests --quiet && eslint ./visualRegressionTests --quiet",
+    "lint": "eslint ./src --quiet && eslint ./testCafe --quiet && eslint ./tests --quiet && eslint ./visualRegressionTests --quiet && eslint ./accessibilityTests --quiet",
     "testsingle": "karma start ./build-scripts/karma.conf.js --single-run",
     "test:knockout": "karma start ./build-scripts/survey-knockout/karma.conf.knockout.js",
     "test:react": "karma start ./build-scripts/survey-react/karma.conf.react.js",
@@ -93,9 +93,9 @@
     "testcafe:angular": "testcafe chrome testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "testcafe:ci:angular": "testcafe -c 4 -q attemptLimit=5,successThreshold=1 chrome:headless testCafe/ --app \"http-server ./packages/survey-angular-ui/example/dist --proxy http://localhost:8080? -p 8080\" --selector-timeout 1500 --reporter minimal --env=angular",
     "prepare": "husky install",
-    "test:postcss": "postcss build/survey-core/defaultV2.css --silent  -u postcss-calc -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css"
+    "test:postcss": "postcss build/survey-core/defaultV2.css --silent  -u postcss-calc -u autoprefixer -u postcss-fail-on-warn -o defaultV2.postcss.css && rimraf defaultV2.postcss.css"
   },
-  "version": "1.9.122",
+  "version": "1.9.128",
   "name": "survey-library",
   "private": true,
   "devDependencies": {
@@ -116,6 +116,7 @@
     "@typescript-eslint/parser": "^4.29.0",
     "ace-builds": "1.2.2",
     "ajv": "6.12.3",
+    "autoprefixer": "^10.4.17",
     "axe-core": "^4.8.2",
     "axe-testcafe": "^3.0.0",
     "babel-loader": "8.2.5",

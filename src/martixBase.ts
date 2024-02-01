@@ -51,9 +51,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
   /**
    * An array of matrix columns.
    *
-   * This array can contain primitive values or objects with the `text` (display value) and `value` (value to be saved in survey results) properties.
+   * For a Single-Select Matrix, the `columns` array can contain configuration objects with the `text` (display value) and `value` (value to be saved in survey results) properties. Alternatively, the array can contain primitive values that will be used as both the display values and values to be saved in survey results.
    *
-   * [View Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   * [View "Single-Select Matrix" Demo](https://surveyjs.io/form-library/examples/single-selection-matrix-table-question/ (linkStyle))
+   *
+   * For a Multi-Select Matrix or Dynamic Matrix, the `columns` array should contain configuration objects with properties described in the [`MatrixDropdownColumn`](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) API Reference section.
+   *
+   * [View "Multi-Select Matrix" Demo](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/ (linkStyle))
    */
   get columns(): Array<any> {
     return this.getPropertyValue("columns");

@@ -1,7 +1,7 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { Question } from "../src/question";
 import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent } from "../src/utils/utils";
+import { mouseInfo } from "../src/utils/devices";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
@@ -153,5 +153,27 @@ QUnit.test(
     var options = {};
     doKey2ClickUp(event as any, options);
     assert.equal(classAdded, "sv-focused--by-key");
+  }
+);
+
+QUnit.test(
+  "utils: devices: isTouch",
+  function (assert) {
+    mouseInfo.hasMouse = true;
+    assert.equal(mouseInfo.isTouch, false, "isTouch, #1");
+    mouseInfo.hasMouse = false;
+    const hasTouchEvent = mouseInfo.hasTouchEvent;
+    assert.equal(mouseInfo.isTouch, hasTouchEvent, "isTouch, #2. hasTouch in window: " + hasTouchEvent);
+    if(!hasTouchEvent) {
+      window["ontouchstart"] = ()=>{};
+    }
+    mouseInfo.hasMouse = true;
+    assert.equal(mouseInfo.isTouch, false, "isTouch, #3");
+    mouseInfo.hasMouse = false;
+    assert.equal(mouseInfo.isTouch, true, "isTouch, #4");
+    mouseInfo.hasMouse = true;
+    if(!hasTouchEvent) {
+      window["ontouchstart"] = undefined;
+    }
   }
 );

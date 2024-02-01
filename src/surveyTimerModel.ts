@@ -30,10 +30,10 @@ export class SurveyTimerModel extends Base {
   @property() clockMinorText: string;
   @property({ defaultValue: 0 }) spent: number;
   public get survey(): ISurveyTimerText { return <any>this.surveyValue; }
-  public onCreating(): void {}
+  public onCreating(): void { }
   private timerFunc: any = null;
   public start(): void {
-    if(!this.survey) return;
+    if (!this.survey) return;
     if (this.isRunning || this.isDesignMode) return;
     this.survey.onCurrentPageChanged.add(() => {
       this.update();
@@ -65,23 +65,26 @@ export class SurveyTimerModel extends Base {
     }
     this.spent = this.spent + 1;
     this.update();
-    if(this.onTimer) {
+    if (this.onTimer) {
       this.onTimer(page);
     }
   }
   private updateProgress() {
     let { spent, limit } = this.survey.timerInfo;
-    if(!limit) {
+    if (!limit) {
       this.progress = undefined;
     } else {
-      if(spent == 0) {
+      if (spent == 0) {
         this.progress = 0;
         setTimeout(() => {
-          this.progress = Math.floor((spent + 1)/limit * 100) / 100;
+          this.progress = Math.floor((spent + 1) / limit * 100) / 100;
         }, 0);
       }
-      else if(spent !== limit) {
-        this.progress = Math.floor((spent + 1)/limit * 100) / 100;
+      else if (spent <= limit) {
+        this.progress = Math.floor((spent + 1) / limit * 100) / 100;
+      }
+      if (this.progress > 1) {
+        this.progress = undefined;
       }
     }
   }

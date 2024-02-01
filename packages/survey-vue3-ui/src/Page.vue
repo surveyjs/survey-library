@@ -5,7 +5,7 @@
       <survey-string :locString="page.locDescription" />
     </div>
     <survey-errors :element="page" />
-    <template v-for="(row, index) in rows" :key="page.id + '_' + index">
+    <template v-for="(row, index) in page.rows" :key="page.id + '_' + index">
       <component
         :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
         v-bind="{
@@ -33,21 +33,23 @@ const props = defineProps<{
 
 const root = ref<HTMLElement>(null as any);
 
-useBase(() => props.page);
+const onAfterRender = () => {
+  if (props.survey && root.value) {
+    props.survey.afterRenderPage(root.value);
+  }
+};
+
+useBase(
+  () => props.page,
+  () => {
+    onAfterRender();
+  }
+);
 
 const showDescription = computed(() => {
   return props.page._showDescription;
 });
-const rows = computed((): Array<any> => {
-  return props.page.rows;
-});
-
 onMounted(() => {
-  if (props.survey) {
-    props.survey.afterRenderPage(root.value);
-  }
-});
-onUpdated(() => {
-  props.survey.afterRenderPage(root.value);
+  onAfterRender();
 });
 </script>

@@ -6,6 +6,7 @@ import { ListModel } from "./list";
 import { PopupModel } from "./popup";
 import { Question } from "./question";
 import { QuestionDropdownModel } from "./question_dropdown";
+import { settings } from "./settings";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IsTouch } from "./utils/devices";
@@ -17,6 +18,7 @@ export class DropdownListModel extends Base {
 
   private _markdownMode = false;
   private _popupModel: PopupModel;
+  private filteredItems: Array<ItemValue> = undefined;
   @property({ defaultValue: false }) focused: boolean;
   private get focusFirstInputSelector(): string {
     return this.getFocusFirstInputSelector();
@@ -159,6 +161,13 @@ export class DropdownListModel extends Base {
       };
     }
     const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
+    res.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
+      if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
+      let textInLow = item.text.toLocaleLowerCase();
+      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
+      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
+      return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
+    });
     res.renderElements = false;
     res.forceShowFilter = true;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {
@@ -191,7 +200,12 @@ export class DropdownListModel extends Base {
     this.resetFilterString();
   }
   protected onSetFilterString(): void {
+    this.filteredItems = undefined;
     if (!this.filterString && !this.popupModel.isVisible) return;
+    const options = { question: this.question, choices: this.getAvailableItems(), filter: this.filterString, filteredChoices: undefined as Array<ItemValue> };
+    (this.question.survey as SurveyModel).onChoicesSearch.fire(this.question.survey as SurveyModel, options);
+    this.filteredItems = options.filteredChoices;
+
     if (!!this.filterString && !this.popupModel.isVisible) {
       this.popupModel.isVisible = true;
     }

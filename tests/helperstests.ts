@@ -6,6 +6,8 @@ import { Base } from "../src/base";
 import { property } from "../src/jsonobject";
 import { settings } from "../src/settings";
 import { SurveyError } from "../src/survey-error";
+import { QuestionTextModel } from "../src/question_text";
+import { QuestionCommentModel } from "../src/question_comment";
 
 export default QUnit.module("Helpers");
 
@@ -509,4 +511,33 @@ QUnit.test("isValueObject", function(assert) {
   assert.equal(Helpers.isValueObject([1], true), false, "[1], exclude array");
   assert.equal(Helpers.isValueObject({ a: "abc" }), true, "{ a: 'abc' }");
   assert.equal(Helpers.isValueObject({ a: "abc" }, true), true, "{ a: 'abc' }, exclude array");
+});
+QUnit.test("base.equals", function(assert) {
+  const q1 = new QuestionTextModel("q1");
+  q1.title = "title1";
+  const q2 = new QuestionTextModel("q1");
+  q2.title = "title2";
+  const q3 = new QuestionTextModel("q1");
+  q3.title = "title1";
+  const q4 = new QuestionTextModel("q2");
+  q4.title = "title1";
+  const q5 = new QuestionCommentModel("q1");
+  q5.title = "title1";
+  assert.equal(Helpers.isTwoValueEquals(q1, q2), false, "#1");
+  assert.equal(Helpers.isTwoValueEquals(q1, q3), true, "#2");
+  assert.equal(Helpers.isTwoValueEquals(q1, q4), false, "#3");
+  assert.equal(Helpers.isTwoValueEquals(q1, q5), false, "#4");
+});
+QUnit.test("compareVersions", function(assert) {
+  assert.equal(Helpers.compareVerions("", ""), 0, "#1");
+  assert.equal(Helpers.compareVerions("1", ""), 1, "#2");
+  assert.equal(Helpers.compareVerions("", "1"), -1, "#3");
+  assert.equal(Helpers.compareVerions("1.2.3", "1.2.3"), 0, "#4");
+  assert.equal(Helpers.compareVerions("1.201.31", "1.201.31"), 0, "#5");
+  assert.equal(Helpers.compareVerions("1.201.31", "1.90.31"), 1, "#6");
+  assert.equal(Helpers.compareVerions("1.90.31", "1.201.31"), -1, "#7");
+  assert.equal(Helpers.compareVerions("1", "1.2.3"), -1, "#8");
+  assert.equal(Helpers.compareVerions("1.2.3", "1"), 1, "#9");
+  assert.equal(Helpers.compareVerions("1.2", "1.2.3"), -1, "#10");
+  assert.equal(Helpers.compareVerions("1.2.3", "1.2"), 1, "#11");
 });

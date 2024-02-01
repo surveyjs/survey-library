@@ -8,12 +8,12 @@ import { SvgIcon } from "./components/svg-icon/svg-icon";
 
 export class SurveyProgressToc extends SurveyNavigationBase {
   render(): JSX.Element {
-    const tocModel = new TOCModel(this.props.model);
+    const tocModel = this.props.model;
     let content: JSX.Element;
-    if(tocModel.isMobile) {
+    if (tocModel.isMobile) {
       content = <div onClick={tocModel.togglePopup}>
-        <SvgIcon iconName={tocModel.icon} size={24}/>
-        <Popup model={tocModel.popupModel}/>
+        <SvgIcon iconName={tocModel.icon} size={24} />
+        <Popup model={tocModel.popupModel} />
       </div>;
     } else {
       content = <List model={tocModel.listModel} />;
@@ -26,6 +26,6 @@ export class SurveyProgressToc extends SurveyNavigationBase {
   }
 }
 
-ReactElementFactory.Instance.registerElement("sv-progress-toc", (props) => {
+ReactElementFactory.Instance.registerElement("sv-navigation-toc", (props) => {
   return React.createElement(SurveyProgressToc, props);
 });

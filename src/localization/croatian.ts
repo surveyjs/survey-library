@@ -9,6 +9,8 @@ export var croatianStrings = {
   startSurveyText: "Početak",
   otherItemText: "Ostali (opis)",
   noneItemText: "Nitko",
+  refuseItemText: "Odbijte odgovoriti",
+  dontKnowItemText: "Ne znam",
   selectAllItemText: "Select All",
   progressText: "Stranica {0} od {1}",
   indexText: "{0} {1}",
@@ -25,6 +27,7 @@ export var croatianStrings = {
   requiredError: "Molim vas odgovorite na pitanje.",
   requiredErrorInPanel: "Molim vas odgovorite na barem jedno pitanje.",
   requiredInAllRowsError: "Odgovorite na pitanja u svim redovima.",
+  eachRowUniqueError: "Svaki redak mora imati jedinstvenu vrijednost.",
   numericError: "Vrijednost bi trebala biti brojčana.",
   minError: "Vrijednost ne smije biti manja od {0}",
   maxError: "Vrijednost ne smije biti veća od {0}",
@@ -42,6 +45,7 @@ export var croatianStrings = {
   urlRequestError: "Zahtjev vratio pogrešku '{0}'. {1}",
   urlGetChoicesError: "Zahtjev je vratio prazne podatke ili je 'path' svojstvo netočna.",
   exceedMaxSize: "Veličina datoteke ne smije prelaziti {0}.",
+  noUploadFilesHandler: "Datoteke se ne mogu prenijeti. Dodajte rukovatelja za događaj 'onUploadFiles'.",
   otherRequiredError: "Unesite drugu vrijednost.",
   uploadingFile: "Vaša datoteka se prenosi. Pričekajte nekoliko sekundi i pokušajte ponovno.",
   loadingFile: "Učitavanje...",
@@ -56,6 +60,8 @@ export var croatianStrings = {
   emptyRowsText: "Nema redova.",
   addPanel: "Dodavanje novih",
   removePanel: "Ukloniti",
+  showDetails: "Pokaži detalje",
+  hideDetails: "Sakrij detalje",
   choices_Item: "stavku",
   matrix_column: "Stupca",
   matrix_row: "Redak",
@@ -94,7 +100,9 @@ export var croatianStrings = {
   more: "Više",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Svi izbori su rangirani",
-  selectToRankEmptyUnrankedAreaText: "Ovdje povucite i ispustite odabire da biste ih rangirali"
+  selectToRankEmptyUnrankedAreaText: "Ovdje povucite i ispustite odabire da biste ih rangirali",
+  ok: "OK",
+  cancel: "Otkazati"
 };
 
 surveyLocalization.locales["hr"] = croatianStrings;
@@ -121,4 +129,11 @@ surveyLocalization.localeNames["hr"] = "hrvatski";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Ovdje povucite i ispustite odabire da biste ih rangirali"// takePhotoCaption: "Take Photo" => "Snimi fotografiju"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknite donji gumb da biste snimili fotografiju pomoću kamere."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Povucite i ispustite ili odaberite datoteku za prijenos ili snimanje fotografije pomoću kamere."
-// replaceFileCaption: "Replace file" => "Zamijeni datoteku"
+// replaceFileCaption: "Replace file" => "Zamijeni datoteku"// eachRowUniqueError: "Each row must have a unique value." => "Svaki redak mora imati jedinstvenu vrijednost."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Datoteke se ne mogu prenijeti. Dodajte rukovatelja za događaj 'onUploadFiles'."
+// showDetails: "Show Details" => "Pokaži detalje"
+// hideDetails: "Hide Details" => "Sakrij detalje"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Otkazati"
+// refuseItemText: "Refuse to answer" => "Odbijte odgovoriti"
+// dontKnowItemText: "Don't know" => "Ne znam"

@@ -13,6 +13,7 @@ export var surveyCss: any = {
 export var defaultV2Css = {
   root: "sd-root-modern",
   rootMobile: "sd-root-modern--mobile",
+  rootAnimationDisabled: "sd-root-modern--animation-disabled",
   rootReadOnly: "sd-root--readonly",
   rootCompact: "sd-root--compact",
   rootFitToContainer: "sd-root-modern--full-container",
@@ -130,8 +131,13 @@ export var defaultV2Css = {
   progressBottom: "sd-body__progress--bottom",
   progressBar: "sd-progress__bar",
   progressText: "sd-progress__text",
+  progressButtonsRoot: "sd-progress-buttons",
+  progressButtonsNumbered: "sd-progress-buttons--numbered",
   progressButtonsContainerCenter: "sd-progress-buttons__container-center",
   progressButtonsContainer: "sd-progress-buttons__container",
+  progressButtonsConnector: "sd-progress-buttons__connector",
+  progressButtonsHeader: "sd-progress-buttons__header",
+  progressButtonsFooter: "sd-progress-buttons__footer",
   progressButtonsImageButtonLeft: "sd-progress-buttons__image-button-left",
   progressButtonsImageButtonRight: "sd-progress-buttons__image-button-right",
   progressButtonsImageButtonHidden: "sd-progress-buttons__image-button--hidden",
@@ -169,6 +175,7 @@ export var defaultV2Css = {
     headerTop: "sd-question__header--location-top sd-element__header--location-top",
     headerBottom: "sd-question__header--location--bottom",
     content: "sd-question__content",
+    contentSupportContainerQueries: "sd-question__content--support-container-queries",
     contentLeft: "sd-question__content--left",
     titleNumInline: "sd-element__title--num-inline",
     titleLeftRoot: "sd-question--left",
@@ -322,6 +329,7 @@ export var defaultV2Css = {
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
     constrolWithCharacterCounter: "sd-text__character-counter",
+    characterCounterBig: "sd-text__character-counter--big",
     content: "sd-text__content sd-question__content",
     remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"
@@ -410,6 +418,7 @@ export var defaultV2Css = {
     rowError: "sd-matrix__row--error",
     cell: "sd-table__cell sd-matrix__cell",
     row: "sd-table__row",
+    rowDisabled: "sd-table__row-disabled",
     headerCell: "sd-table__cell sd-table__cell--header",
     rowTextCell: "sd-table__cell sd-matrix__cell sd-table__cell--row-text",
     label: "sd-item sd-radio sd-matrix__label",
@@ -475,6 +484,7 @@ export var defaultV2Css = {
     noHeader: "sd-table--no-header",
     hasFooter: "sd-table--has-footer",
     tableWrapper: "sd-table-wrapper",
+    rootAlternateRows: "sd-table--alternate-rows",
     content: "sd-matrixdynamic__content sd-question__content",
     cell: "sd-table__cell",
     row: "sd-table__row",
@@ -521,7 +531,7 @@ export var defaultV2Css = {
   rating: {
     rootDropdown: "sd-scrollable-container sd-scrollable-container--compact sd-selectbase",
     root: "sd-scrollable-container sd-rating",
-    rootWrappable: "sd-scrollable-container sd-rating sd-rating--wrappable",
+    rootWrappable: "sd-rating--wrappable",
     rootLabelsTop: "sd-rating--labels-top",
     rootLabelsBottom: "sd-rating--labels-bottom",
     rootLabelsDiagonal: "sd-rating--labels-diagonal",
@@ -649,13 +659,18 @@ export var defaultV2Css = {
   },
   window: {
     root: "sv_window",
+    rootCollapsedMod: "sv_window--collapsed",
+    rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
-      root: "sv_window_title",
-      title: "",
+      root: "sv_window_header",
+      titleCollapsed: "sv_window_header_title_collapsed",
+      buttonsContainer: "sv_window_buttons_container",
       button: "sv_window_button",
       buttonExpanded: "",
-      buttonCollapsed: ""
+      buttonCollapsed: "",
+      collapseButton: "sv_window_button sv_window_button_collapse",
+      closeButton: "sv_window_button sv_window_button_close"
     }
   },
   ranking: {

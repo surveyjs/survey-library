@@ -294,11 +294,7 @@
   img:hover+.sd-file__remove-file-button,
   svg:hover+.sd-file__remove-file-button,
   .sd-file__remove-file-button:hover {
-    display: block;
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
+    opacity: 1;
   }
 }
 
@@ -328,7 +324,13 @@
 }
 
 .sd-file__remove-file-button {
-  display: none;
+  display: block;
+  opacity: 0;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  transition: opacity $transition-duration;
 }
 
 .sd-file__decorator--error {

@@ -84,7 +84,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
         this.updateShowTableAndAddRow();
       }
     );
-    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop"], () => { this.clearRowsAndResetRenderedTable(); });
+    this.registerPropertyChangedHandlers(["allowRowsDragAndDrop", "isReadOnly"], () => { this.clearRowsAndResetRenderedTable(); });
     this.dragOrClickHelper = new DragOrClickHelper(this.startDragMatrixRow);
   }
 
@@ -106,7 +106,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return true;
   }
   public onPointerDown(pointerDownEvent: PointerEvent, row: MatrixDropdownRowModelBase):void {
-    if (!row || !this.allowRowsDragAndDrop) return;
+    if (!row || !this.isRowsDragAndDrop) return;
     if (this.isBanStartDrag(pointerDownEvent)) return;
     if (row.isDetailPanelShowing) return;
     this.draggedRow = row;
@@ -275,11 +275,13 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * Default value: `false`
    */
   public get allowRowsDragAndDrop(): boolean {
-    if (this.readOnly) return false;
     return this.getPropertyValue("allowRowsDragAndDrop");
   }
   public set allowRowsDragAndDrop(val: boolean) {
     this.setPropertyValue("allowRowsDragAndDrop", val);
+  }
+  public get isRowsDragAndDrop(): boolean {
+    return this.allowRowsDragAndDrop && !this.isReadOnly;
   }
 
   public get iconDragElement(): string {
@@ -575,7 +577,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
       confirmDelete = this.isRequireConfirmOnRowDelete(index);
     }
     if (confirmDelete) {
-      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); });
+      confirmActionAsync(this.confirmDeleteText, () => { this.removeRowAsync(index, row); }, undefined, this.getLocale());
       return;
     }
     this.removeRowAsync(index, row);

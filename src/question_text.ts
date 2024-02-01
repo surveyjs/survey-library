@@ -67,7 +67,7 @@ export class QuestionTextModel extends QuestionTextBase {
     }
   }
   public getMaxLength(): any {
-    if(this.inputType !== "text") return null;
+    if(!this.isTextInput) return null;
     return super.getMaxLength();
   }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
@@ -400,8 +400,10 @@ export class QuestionTextModel extends QuestionTextBase {
     return !this.isReadOnly && this.inputType !== "range";
   }
   protected getControlCssClassBuilder(): CssClassBuilder {
+    const maxLength = this.getMaxLength();
     return super.getControlCssClassBuilder()
-      .append(this.cssClasses.constrolWithCharacterCounter, !!this.getMaxLength());
+      .append(this.cssClasses.constrolWithCharacterCounter, !!maxLength)
+      .append(this.cssClasses.characterCounterBig, maxLength > 99);
   }
   public isReadOnlyRenderDiv(): boolean {
     return this.isReadOnly && settings.readOnly.textRenderMode === "div";

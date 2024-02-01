@@ -656,7 +656,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-dropdown-detail-no-header-expanded.png", questionRoot, t, comparer);
 
       await t.click(Selector(".sd-table__cell--detail-button").filterVisible().nth(1));
-      await t.hover(questionRoot, { offsetX: 1, offsetY: 1 });
+      await t.click(questionRoot, { offsetX: 1, offsetY: 1 });
 
       await takeElementScreenshot("question-matrix-dropdown-detail-no-header.png", questionRoot, t, comparer);
     });
@@ -736,6 +736,11 @@ frameworks.forEach(framework => {
 
       await t.hover(Selector(".sd-table__cell--detail-button"));
       await takeElementScreenshot("question-matrix-detail-hover.png", questionRoot, t, comparer);
+
+      await t
+        .click(Selector("body"), { offsetX: 5, offsetY: 5 });
+      await t.pressKey("tab");
+      await takeElementScreenshot("question-matrix-detail-focus.png", questionRoot, t, comparer);
     });
   });
 
@@ -1095,6 +1100,45 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-matrix-with-boolean-column.png", questionRoot, t, comparer);
     });
   });
+  test("Matrix with checkboxes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        "elements": [
+          {
+            "type": "matrixdropdown",
+            "name": "question",
+            "columns": [
+              {
+                "name": "strengths",
+                "title": "Row caption",
+                "cellType": "checkbox",
+                "colCount": 1,
+                "choices": [
+                  "Long item title",
+                  "Item",
+                  "Medium item"
+                ]
+              }
+            ],
+            "columnLayout": "vertical",
+            "rows": [
+              {
+                "value": "col",
+                "text": "Col"
+              }
+            ]
+          }
+        ],
+        "widthMode": "static",
+        "width": "700"
+      });
+      const questionRoot = Selector(".sd-table");
+      await takeElementScreenshot("question-matrix-with-checkboxes.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Matrix rubric alternate rows", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);

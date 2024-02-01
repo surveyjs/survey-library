@@ -9,6 +9,8 @@ export var slovakSurveyStrings = {
   startSurveyText: "Spustiť",
   otherItemText: "Iné (opíšte)",
   noneItemText: "Žiadne",
+  refuseItemText: "Odmietnuť odpovedať",
+  dontKnowItemText: "Neviem",
   selectAllItemText: "Vybrať všetky",
   progressText: "Strana {0} z {1}",
   indexText: "{0} {1}",
@@ -25,6 +27,7 @@ export var slovakSurveyStrings = {
   requiredError: "Požaduje sa odozva.",
   requiredErrorInPanel: "Požaduje sa odozva: zodpovedajte aspoň jednu otázku.",
   requiredInAllRowsError: "Požaduje sa odozva: zodpovedajte otázky vo všetkých riadkoch.",
+  eachRowUniqueError: "Každý riadok musí mať jedinečnú hodnotu.",
   numericError: "Hodnota má byť číselná.",
   minError: "Hodnota nemá byť nižšia než {0}",
   maxError: "Hodnota nemá byť vyššia než {0}",
@@ -42,6 +45,7 @@ export var slovakSurveyStrings = {
   urlRequestError: "Požiadavky vrátila hodnotu „{0}“. {1}",
   urlGetChoicesError: "Požiadavka vrátila prázdne údaje alebo je vlastnosť „cesta“ nesprávna",
   exceedMaxSize: "Veľkosť súboru nemá prekročiť {0}.",
+  noUploadFilesHandler: "Súbory nie je možné nahrať. Pridajte obslužný program pre udalosť \"onUploadFiles\".",
   otherRequiredError: "Požaduje sa odozva: zadajte inú hodnotu.",
   uploadingFile: "Súbor sa odovzdáva. Počkajte niekoľko sekúnd a skúste to znova.",
   loadingFile: "Načítanie...",
@@ -56,6 +60,8 @@ export var slovakSurveyStrings = {
   emptyRowsText: "K dispozícii nie sú žiadne riadky.",
   addPanel: "Pridať nové",
   removePanel: "Odstrániť",
+  showDetails: "Zobraziť podrobnosti",
+  hideDetails: "Skryť podrobnosti",
   choices_Item: "položka",
   matrix_column: "Stĺpec",
   matrix_row: "Riadok",
@@ -94,7 +100,9 @@ export var slovakSurveyStrings = {
   more: "Viacej",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Všetky možnosti sú zoradené",
-  selectToRankEmptyUnrankedAreaText: "Presuňte sem voľby, aby ste ich zoradili"
+  selectToRankEmptyUnrankedAreaText: "Presuňte sem voľby, aby ste ich zoradili",
+  ok: "OK",
+  cancel: "Zrušiť"
 };
 
 surveyLocalization.locales["sk"] = slovakSurveyStrings;
@@ -113,4 +121,11 @@ surveyLocalization.localeNames["sk"] = "slovenčina";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Presuňte sem voľby, aby ste ich zoradili"// takePhotoCaption: "Take Photo" => "Odfotiť"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Kliknutím na tlačidlo nižšie nasnímate fotografiu pomocou fotoaparátu."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Presuňte myšou alebo vyberte súbor, ktorý chcete nahrať alebo nasnímať fotografiu pomocou fotoaparátu."
-// replaceFileCaption: "Replace file" => "Nahradenie súboru"
+// replaceFileCaption: "Replace file" => "Nahradenie súboru"// eachRowUniqueError: "Each row must have a unique value." => "Každý riadok musí mať jedinečnú hodnotu."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Súbory nie je možné nahrať. Pridajte obslužný program pre udalosť \"onUploadFiles\"."
+// showDetails: "Show Details" => "Zobraziť podrobnosti"
+// hideDetails: "Hide Details" => "Skryť podrobnosti"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Zrušiť"
+// refuseItemText: "Refuse to answer" => "Odmietnuť odpovedať"
+// dontKnowItemText: "Don't know" => "Neviem"

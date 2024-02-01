@@ -9,6 +9,8 @@ export var russianSurveyStrings = {
   startSurveyText: "Начать",
   otherItemText: "Другое (пожалуйста, опишите)",
   noneItemText: "Нет",
+  refuseItemText: "Отказываюсь отвечать",
+  dontKnowItemText: "Не знаю",
   selectAllItemText: "Выбрать всё",
   progressText: "Страница {0} из {1}",
   indexText: "{0} из {1}",
@@ -25,6 +27,7 @@ export var russianSurveyStrings = {
   requiredError: "Пожалуйста, ответьте на вопрос.",
   requiredErrorInPanel: "Пожалуйста, ответьте по крайней мере на один вопрос.",
   requiredInAllRowsError: "Пожалуйста, ответьте на вопросы в каждой строке.",
+  eachRowUniqueError: "Каждая строка должна иметь уникальное значение.",
   numericError: "Ответ должен быть числом.",
   minError: "Значение не должно быть меньше {0}.",
   maxError: "Значение не должно превышать {0}.",
@@ -42,6 +45,7 @@ export var russianSurveyStrings = {
   urlRequestError: "Запрос вернул ошибку '{0}'. {1}",
   urlGetChoicesError: "Ответ на запрос пришел пустой или свойство 'path' указано неверно",
   exceedMaxSize: "Размер файла не должен превышать {0}.",
+  noUploadFilesHandler: "Файлы не могут быть загружены. Пожалуйста, добавьте обработчик для события 'onUploadFiles'.",
   otherRequiredError: "Пожалуйста, введите данные в поле 'Другое'",
   uploadingFile: "Ваш файл загружается. Подождите несколько секунд и попробуйте снова.",
   loadingFile: "Загрузка...",
@@ -56,6 +60,8 @@ export var russianSurveyStrings = {
   emptyRowsText: "Рядов нет.",
   addPanel: "Добавить новую",
   removePanel: "Удалить",
+  showDetails: "Показать подробности",
+  hideDetails: "Скрыть подробности",
   choices_Item: "Вариант",
   matrix_column: "Колонка",
   matrix_row: "Строка",
@@ -92,9 +98,11 @@ export var russianSurveyStrings = {
   noEntriesText: "Пока нет записей.\nНажмите кнопку ниже, чтобы добавить новую запись.",
   noEntriesReadonlyText: "Записей нет.",
   more: "Больше",
-  tagboxDoneButtonCaption: "ХОРОШО",
+  tagboxDoneButtonCaption: "Хорошо",
   selectToRankEmptyRankedAreaText: "Все варианты ранжируются",
-  selectToRankEmptyUnrankedAreaText: "Перетащите сюда варианты, чтобы ранжировать их"
+  selectToRankEmptyUnrankedAreaText: "Перетащите сюда варианты, чтобы ранжировать их",
+  ok: "Хорошо",
+  cancel: "Отмена"
 };
 
 surveyLocalization.locales["ru"] = russianSurveyStrings;
@@ -106,9 +114,12 @@ surveyLocalization.localeNames["ru"] = "русский";
 // emptyMessage: "No data to display" => "Нет данных для отображения"
 // noEntriesReadonlyText: "There are no entries." => "Записей нет."
 // more: "More" => "Больше"
-// tagboxDoneButtonCaption: "OK" => "ХОРОШО"
 // selectToRankEmptyRankedAreaText: "All choices are ranked" => "Все варианты ранжируются"
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетащите сюда варианты, чтобы ранжировать их"// takePhotoCaption: "Take Photo" => "Сделать фото"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Нажмите кнопку ниже, чтобы сделать снимок с помощью камеры."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетащите или выберите файл для загрузки или съемки с помощью камеры."
-// replaceFileCaption: "Replace file" => "Заменить файл"
+// replaceFileCaption: "Replace file" => "Заменить файл"// eachRowUniqueError: "Each row must have a unique value." => "Каждая строка должна иметь уникальное значение."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файлы не могут быть загружены. Пожалуйста, добавьте обработчик для события 'onUploadFiles'."
+// showDetails: "Show Details" => "Показать подробности"
+// hideDetails: "Hide Details" => "Скрыть подробности"
+// cancel: "Cancel" => "Отмена"

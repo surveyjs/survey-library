@@ -40,7 +40,9 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     if (this.isDesignMode || item.disabled) return undefined;
     return 0;
   }
-
+  protected supportContainerQueries() {
+    return this.selectToRankEnabled;
+  }
   public get rootClass(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
@@ -141,8 +143,12 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   protected onVisibleChoicesChanged = (): void => {
     super.onVisibleChoicesChanged();
 
+    if (this.carryForwardStartUnranked && !this.isValueSetByUser && !this.selectToRankEnabled) {
+      this.value = [];
+    }
+
     // ranking question with only one choice doesn't make sense
-    if (this.visibleChoices.length === 1) {
+    if (this.visibleChoices.length === 1 && !this.selectToRankEnabled) {
       this.value = [];
       this.value.push(this.visibleChoices[0].value);
       this.updateRankingChoices();
@@ -362,15 +368,11 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
-  protected supportSelectAll(): boolean {
-    return false;
-  }
-  public supportOther(): boolean {
-    return false;
-  }
-  public supportNone(): boolean {
-    return false;
-  }
+  protected supportSelectAll(): boolean { return false; }
+  public supportOther(): boolean { return false; }
+  public supportNone(): boolean { return false; }
+  public supportRefuse(): boolean { return false; }
+  public supportDontKnow(): boolean { return false; }
 
   private handleArrowKeys = (index: number, choice: ItemValue, isDown: boolean) => {
     const delta = isDown ? 1 : -1;
@@ -440,12 +442,14 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     }
   };
 
+  public isValueSetByUser = false;
   public setValue = (): void => {
     const value: string[] = [];
     this.rankingChoices.forEach((choice: ItemValue) => {
       value.push(choice.value);
     });
     this.value = value;
+    this.isValueSetByUser = true;
   };
   public getIconHoverCss(): string {
     return new CssClassBuilder()
@@ -489,6 +493,8 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
   public set selectToRankEnabled(val: boolean) {
     this.setPropertyValue("selectToRankEnabled", val);
   }
+
+  @property({ defaultValue: true }) carryForwardStartUnranked: boolean;
 
   /**
    * Specifies the layout of the ranked and unranked areas. Applies when [`selectToRankEnabled`](https://surveyjs.io/form-library/documentation/api-reference/ranking-question-model#selectToRankEnabled) is `true`.
@@ -556,6 +562,8 @@ Serializer.addClass(
     { name: "otherErrorText", visible: false, isSerializable: false },
     { name: "storeOthersAsComment", visible: false, isSerializable: false },
     { name: "showNoneItem", visible: false, isSerializable: false },
+    { name: "showRefuseItem", visible: false, isSerializable: false },
+    { name: "showDontKnowItem", visible: false, isSerializable: false },
     { name: "noneText", visible: false, isSerializable: false },
     { name: "showSelectAllItem", visible: false, isSerializable: false },
     { name: "selectAllText", visible: false, isSerializable: false },

@@ -9,6 +9,8 @@ export var dutchSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Anders, nl.",
   noneItemText: "Geen",
+  refuseItemText: "Weiger te antwoorden",
+  dontKnowItemText: "Weet niet",
   selectAllItemText: "Selecteer Alles",
   progressText: "Pagina {0} van {1}",
   indexText: "{0} van {1}",
@@ -25,6 +27,7 @@ export var dutchSurveyStrings = {
   requiredError: "Dit is een vereiste vraag",
   requiredErrorInPanel: "Gelieve ten minste een vraag te beantwoorden.",
   requiredInAllRowsError: "Deze vraag vereist één antwoord per rij",
+  eachRowUniqueError: "Elke rij moet een unieke waarde hebben.",
   numericError: "Het antwoord moet een getal zijn",
   minError: "De waarde mag niet lager zijn dan {0}",
   maxError: "De waarde mag niet groter zijn dan {0}",
@@ -42,6 +45,7 @@ export var dutchSurveyStrings = {
   urlRequestError: "De vraag keerde een fout terug '{0}'. {1}",
   urlGetChoicesError: "De vraag gaf een leeg antwoord terug of de 'pad' eigenschap is niet correct",
   exceedMaxSize: "De grootte van het bestand mag niet groter zijn dan {0}",
+  noUploadFilesHandler: "Bestanden kunnen niet worden geüpload. Voeg een handler toe voor de gebeurtenis 'onUploadFiles'.",
   otherRequiredError: "Vul het veld 'Anders, nl.' in",
   uploadingFile: "Uw bestand wordt geüpload. Gelieve enkele seconden te wachten en opnieuw te proberen.",
   loadingFile: "Laden...",
@@ -56,6 +60,8 @@ export var dutchSurveyStrings = {
   emptyRowsText: "Er zijn geen rijen.",
   addPanel: "Nieuwe toevoegen",
   removePanel: "Verwijder",
+  showDetails: "Toon details",
+  hideDetails: "Verberg details",
   choices_Item: "onderwerp",
   matrix_column: "Kolom",
   matrix_row: "Rij",
@@ -94,7 +100,9 @@ export var dutchSurveyStrings = {
   more: "Meer",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Alle keuzes zijn gerangschikt",
-  selectToRankEmptyUnrankedAreaText: "Drag en drop keuzes hier om ze te rangschikken"
+  selectToRankEmptyUnrankedAreaText: "Drag en drop keuzes hier om ze te rangschikken",
+  ok: "OK",
+  cancel: "Annuleren"
 };
 
 surveyLocalization.locales["nl"] = dutchSurveyStrings;
@@ -121,4 +129,11 @@ surveyLocalization.localeNames["nl"] = "nederlands";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Drag en drop keuzes hier om ze te rangschikken"// takePhotoCaption: "Take Photo" => "Foto maken"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik op de onderstaande knop om een foto te maken met de camera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Sleep en zet neer of selecteer een bestand om te uploaden of maak een foto met de camera."
-// replaceFileCaption: "Replace file" => "Bestand vervangen"
+// replaceFileCaption: "Replace file" => "Bestand vervangen"// eachRowUniqueError: "Each row must have a unique value." => "Elke rij moet een unieke waarde hebben."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Bestanden kunnen niet worden geüpload. Voeg een handler toe voor de gebeurtenis 'onUploadFiles'."
+// showDetails: "Show Details" => "Toon details"
+// hideDetails: "Hide Details" => "Verberg details"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Annuleren"
+// refuseItemText: "Refuse to answer" => "Weiger te antwoorden"
+// dontKnowItemText: "Don't know" => "Weet niet"

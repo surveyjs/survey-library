@@ -1,7 +1,7 @@
 import { surveyLocalization } from "./surveyStrings";
 import { Base, ComputedUpdater } from "./base";
 import { Helpers, HashTable } from "./helpers";
-import { ILoadFromJSONOptions } from "./base-interfaces";
+import { ILoadFromJSONOptions, ISaveToJSONOptions } from "./base-interfaces";
 
 export interface IPropertyDecoratorOptions<T = any> {
   defaultValue?: T;
@@ -202,6 +202,7 @@ export class JsonObjectProperty implements IObject {
     "className",
     "alternativeName",
     "layout",
+    "version",
     "classNamePart",
     "baseClassName",
     "defaultValue",
@@ -263,6 +264,7 @@ export class JsonObjectProperty implements IObject {
   public minValue: any;
   private dataListValue: Array<string>;
   public layout: string;
+  public version: string;
   public onSerializeValue: (obj: any) => any;
   public onGetValue: (obj: any) => any;
   public onSettingValue: (obj: any, value: any) => any;
@@ -303,7 +305,12 @@ export class JsonObjectProperty implements IObject {
     return this.isRequiredValue;
   }
   public set isRequired(val: boolean) {
-    this.isRequiredValue = val;
+    if(val !== this.isRequired) {
+      this.isRequiredValue = val;
+      if(!!this.classInfo) {
+        this.classInfo.resetAllProperties();
+      }
+    }
   }
   public get isUnique(): boolean {
     return this.isUniqueValue;
@@ -324,7 +331,7 @@ export class JsonObjectProperty implements IObject {
     let result: any = !!this.defaultValueFunc ? this.defaultValueFunc(obj) : this.defaultValueValue;
     if (
       !!JsonObjectProperty.getItemValuesDefaultValue &&
-      JsonObject.metaData.isDescendantOf(this.className, "itemvalue")
+      Serializer.isDescendantOf(this.className, "itemvalue")
     ) {
       result = JsonObjectProperty.getItemValuesDefaultValue(this.defaultValueValue || [], this.className);
     }
@@ -441,7 +448,15 @@ export class JsonObjectProperty implements IObject {
   public isVisible(layout: string, obj: any = null): boolean {
     let isLayout = !this.layout || this.layout == layout;
     if (!this.visible || !isLayout) return false;
-    if (!!this.visibleIf && !!obj) return this.visibleIf(obj);
+    if (!!this.visibleIf && !!obj) {
+      if (obj.getOriginalObj) {
+        const orjObj = obj.getOriginalObj();
+        if(orjObj && Serializer.findProperty(orjObj.getType(), this.name)) {
+          obj = orjObj;
+        }
+      }
+      return this.visibleIf(obj);
+    }
     return true;
   }
   public get visible(): boolean {
@@ -449,6 +464,18 @@ export class JsonObjectProperty implements IObject {
   }
   public set visible(val: boolean) {
     this.visibleValue = val;
+  }
+  public isAvailableInVersion(ver: string): boolean {
+    if(!!this.alternativeName) return true;
+    return this.isAvailableInVersionCore(ver);
+  }
+  public getSerializedName(ver: string): string {
+    if(!this.alternativeName) return this.name;
+    return this.isAvailableInVersionCore(ver) ? this.name : this.alternativeName;
+  }
+  private isAvailableInVersionCore(ver: string): boolean {
+    if(!ver || !this.version) return true;
+    return Helpers.compareVerions(this.version, ver) <= 0;
   }
   public get isLocalizable(): boolean {
     return this.isLocalizableValue != null ? this.isLocalizableValue : false;
@@ -574,7 +601,8 @@ export class CustomPropertiesCollection {
       prop.serializationProperty &&
       obj.createCustomLocalizableObj
     ) {
-      obj.createCustomLocalizableObj(prop.name);
+      const locStr = obj.createCustomLocalizableObj(prop.name);
+      locStr.defaultValue = prop.defaultValue;
       var locDesc = {
         get: function () {
           return obj.getLocalizableString(prop.name);
@@ -583,7 +611,7 @@ export class CustomPropertiesCollection {
       Object.defineProperty(obj, prop.serializationProperty, locDesc);
       var desc = {
         get: function () {
-          return obj.getLocalizableStringText(prop.name, prop.defaultValue);
+          return obj.getLocalizableStringText(prop.name);
         },
         set: function (v: any) {
           obj.setLocalizableStringText(prop.name, v);
@@ -594,7 +622,7 @@ export class CustomPropertiesCollection {
       var defaultValue = prop.defaultValue;
       var isArrayProp = prop.isArray || prop.type === "multiplevalues";
       if (typeof obj.createNewArray === "function") {
-        if (JsonObject.metaData.isDescendantOf(prop.className, "itemvalue")) {
+        if (Serializer.isDescendantOf(prop.className, "itemvalue")) {
           obj.createNewArray(prop.name, function (item: any) {
             item.locOwner = obj;
             item.ownerPropertyName = prop.name;
@@ -649,6 +677,7 @@ export class JsonMetadataClass {
   properties: Array<JsonObjectProperty>;
   private isCustomValue: boolean;
   private allProperties: Array<JsonObjectProperty>;
+  private requiredProperties: Array<JsonObjectProperty>;
   private hashProperties: HashTable<JsonObjectProperty>;
   constructor(
     public name: string,
@@ -685,8 +714,18 @@ export class JsonMetadataClass {
     this.fillAllProperties();
     return this.allProperties;
   }
+  public getRequiredProperties(): Array<JsonObjectProperty> {
+    if(!!this.requiredProperties) return this.requiredProperties;
+    this.requiredProperties = [];
+    const props = this.getAllProperties();
+    for(let i = 0; i < props.length; i ++) {
+      if(props[i].isRequired) this.requiredProperties.push(props[i]);
+    }
+    return this.requiredProperties;
+  }
   public resetAllProperties(): void {
     this.allProperties = undefined;
+    this.requiredProperties = undefined;
     this.hashProperties = undefined;
     var childClasses = Serializer.getChildrenClasses(this.name);
     for (var i = 0; i < childClasses.length; i++) {
@@ -897,6 +936,9 @@ export class JsonMetadataClass {
       if (propInfo.layout) {
         prop.layout = propInfo.layout;
       }
+      if (propInfo.version) {
+        prop.version = propInfo.version;
+      }
       if (propInfo.dependsOn) {
         this.addDependsOnProperties(prop, propInfo.dependsOn);
       }
@@ -945,6 +987,7 @@ export class JsonMetadata {
   private classes: HashTable<JsonMetadataClass> = {};
   private alternativeNames: HashTable<string> = {};
   private childrenClasses: HashTable<Array<JsonMetadataClass>> = {};
+  private dynamicPropsCache: HashTable<Array<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
   public getObjPropertyValue(obj: any, name: string): any {
     if (this.isObjWrapper(obj)) {
@@ -1033,45 +1076,62 @@ export class JsonMetadata {
   }
   public getPropertiesByObj(obj: any): Array<JsonObjectProperty> {
     if (!obj || !obj.getType) return [];
-    var res: any = {};
-    var props = this.getProperties(obj.getType());
-    for (var i = 0; i < props.length; i++) {
-      res[props[i].name] = props[i];
-    }
-    var dynamicProps = !!obj.getDynamicType
-      ? this.getProperties(obj.getDynamicType())
-      : null;
-    if (dynamicProps && dynamicProps.length > 0) {
-      for (var i = 0; i < dynamicProps.length; i++) {
-        let dProp = dynamicProps[i];
-        if (!!res[dProp.name]) continue;
-        res[dProp.name] = dProp;
-      }
-    }
-    return Object.keys(res).map((key) => res[key]);
+    const props = this.getProperties(obj.getType());
+    const dynamicProps = this.getDynamicPropertiesByObj(obj);
+    return [].concat(props).concat(dynamicProps);
   }
-  public getDynamicPropertiesByObj(
-    obj: any,
-    dynamicType: string = null
-  ): Array<JsonObjectProperty> {
-    if (!obj || !obj.getType || (!obj.getDynamicType && !dynamicType))
-      return [];
-    var dType = !!dynamicType ? dynamicType : obj.getDynamicType();
-    if (!dType) return [];
-    var dynamicProps = this.getProperties(dType);
+  public addDynamicPropertiesIntoObj(dest: any, src: any, props: Array<JsonObjectProperty>): void {
+    props.forEach(prop => {
+      this.addDynamicPropertyIntoObj(dest, src, prop.name, false);
+      if (prop.serializationProperty) {
+        this.addDynamicPropertyIntoObj(dest, src, prop.serializationProperty, true);
+      }
+      if (prop.alternativeName) {
+        this.addDynamicPropertyIntoObj(dest, src, prop.alternativeName, false);
+      }
+    });
+  }
+  private addDynamicPropertyIntoObj(dest: any, src: any, propName: string, isReadOnly: boolean): void {
+    var desc = {
+      configurable: true,
+      get: function () {
+        return src[propName];
+      },
+    };
+    if (!isReadOnly) {
+      (<any>desc)["set"] = function (v: any) {
+        src[propName] = v;
+      };
+    }
+    Object.defineProperty(dest, propName, desc);
+  }
+  public getDynamicPropertiesByObj(obj: any, dynamicType: string = null): Array<JsonObjectProperty> {
+    if (!obj || !obj.getType) return [];
+    if(!!obj.getDynamicProperties) return obj.getDynamicProperties();
+    if(!obj.getDynamicType && !dynamicType) return [];
+    const dType = !!dynamicType ? dynamicType : obj.getDynamicType();
+    return this.getDynamicPropertiesByTypes(obj.getType(), dType);
+  }
+  public getDynamicPropertiesByTypes(objType: string, dynamicType: string, invalidNames?: Array<string>): Array<JsonObjectProperty> {
+    if (!dynamicType) return [];
+    const cacheType = dynamicType + "-" + objType;
+    if(this.dynamicPropsCache[cacheType]) return this.dynamicPropsCache[cacheType];
+    var dynamicProps = this.getProperties(dynamicType);
     if (!dynamicProps || dynamicProps.length == 0) return [];
-    var hash: any = {};
-    var props = this.getProperties(obj.getType());
+    const hash: any = {};
+    const props = this.getProperties(objType);
     for (var i = 0; i < props.length; i++) {
       hash[props[i].name] = props[i];
     }
-    var res = [];
-    for (var i = 0; i < dynamicProps.length; i++) {
-      let dProp = dynamicProps[i];
-      if (!hash[dProp.name]) {
+    const res = [];
+    if(!invalidNames) invalidNames = [];
+    for (let i = 0; i < dynamicProps.length; i++) {
+      const dProp = dynamicProps[i];
+      if (!hash[dProp.name] && invalidNames.indexOf(dProp.name) < 0) {
         res.push(dProp);
       }
     }
+    this.dynamicPropsCache[cacheType] = res;
     return res;
   }
   public hasOriginalProperty(obj: Base, propName: string): boolean {
@@ -1189,12 +1249,12 @@ export class JsonMetadata {
     return result;
   }
   public getRequiredProperties(name: string): Array<string> {
-    var properties = this.getProperties(name);
+    const metaClass = this.findClass(name);
+    if(!metaClass) return [];
+    const props = metaClass.getRequiredProperties();
     var res = [];
-    for (var i = 0; i < properties.length; i++) {
-      if (properties[i].isRequired) {
-        res.push(properties[i].name);
-      }
+    for (var i = 0; i < props.length; i++) {
+      res.push(props[i].name);
     }
     return res;
   }
@@ -1215,6 +1275,7 @@ export class JsonMetadata {
     if (!metaDataClass) return null;
     var property = metaDataClass.createProperty(propertyInfo, true);
     if (property) {
+      this.clearDynamicPropsCache(metaDataClass);
       metaDataClass.resetAllProperties();
     }
     return property;
@@ -1224,6 +1285,7 @@ export class JsonMetadata {
     if (!metaDataClass) return false;
     var property = metaDataClass.find(propertyName);
     if (property) {
+      this.clearDynamicPropsCache(metaDataClass);
       this.removePropertyFromClass(metaDataClass, property);
       metaDataClass.resetAllProperties();
       CustomPropertiesCollection.removeProperty(
@@ -1231,6 +1293,9 @@ export class JsonMetadata {
         propertyName
       );
     }
+  }
+  private clearDynamicPropsCache(metaDataClass: JsonMetadataClass): void {
+    this.dynamicPropsCache = {};
   }
   private removePropertyFromClass(
     metaDataClass: JsonMetadataClass,
@@ -1443,7 +1508,7 @@ export class JsonUnknownPropertyError extends JsonError {
       className +
       "' is unknown."
     );
-    var properties = JsonObject.metaData.getProperties(className);
+    var properties = Serializer.getProperties(className);
     if (properties) {
       this.description = "The list of available properties are: ";
       for (var i = 0; i < properties.length; i++) {
@@ -1462,7 +1527,7 @@ export class JsonMissingTypeErrorBase extends JsonError {
   ) {
     super(type, message);
     this.description = "The following types are available: ";
-    var types = JsonObject.metaData.getChildrenClasses(baseClassName, true);
+    var types = Serializer.getChildrenClasses(baseClassName, true);
     for (var i = 0; i < types.length; i++) {
       if (i > 0) this.description += ", ";
       this.description += "'" + types[i].name + "'";
@@ -1526,8 +1591,8 @@ export class JsonObject {
   public errors = new Array<JsonError>();
   public lightSerializing: boolean = false;
   public options: ILoadFromJSONOptions;
-  public toJsonObject(obj: any, storeDefaults = false): any {
-    return this.toJsonObjectCore(obj, null, storeDefaults);
+  public toJsonObject(obj: any, options?: ISaveToJSONOptions | boolean): any {
+    return this.toJsonObjectCore(obj, null, options);
   }
   public toObject(jsonObj: any, obj: any, options?: ILoadFromJSONOptions): void {
     this.toObjectCore(jsonObj, obj, options);
@@ -1543,9 +1608,9 @@ export class JsonObject {
     var needAddErrors = true;
     if (obj.getType) {
       objType = obj.getType();
-      properties = JsonObject.metaData.getProperties(objType);
+      properties = Serializer.getProperties(objType);
       needAddErrors =
-        !!objType && !JsonObject.metaData.isDescendantOf(objType, "itemvalue");
+        !!objType && !Serializer.isDescendantOf(objType, "itemvalue");
     }
     if (!properties) return;
     if (obj.startLoadingFromJson) {
@@ -1576,7 +1641,7 @@ export class JsonObject {
   public toJsonObjectCore(
     obj: any,
     property: JsonObjectProperty,
-    storeDefaults = false
+    options?: ISaveToJSONOptions | boolean
   ): any {
     if (!obj || !obj.getType) return obj;
     if (typeof obj.getData === "function") return obj.getData();
@@ -1586,17 +1651,24 @@ export class JsonObject {
         obj.getType()
       );
     }
+    const storeDefaults = options === true;
+    if(!options || options === true) {
+      options = { };
+    }
+    if(storeDefaults) {
+      options.storeDefaults = storeDefaults;
+    }
     this.propertiesToJson(
       obj,
-      JsonObject.metaData.getProperties(obj.getType()),
+      Serializer.getProperties(obj.getType()),
       result,
-      storeDefaults
+      options
     );
     this.propertiesToJson(
       obj,
       this.getDynamicProperties(obj),
       result,
-      storeDefaults
+      options
     );
     return result;
   }
@@ -1606,62 +1678,52 @@ export class JsonObject {
   private addDynamicProperties(
     obj: any,
     jsonObj: any,
-    properties: Array<JsonObjectProperty>
+    props: Array<JsonObjectProperty>
   ): Array<JsonObjectProperty> {
-    if (!obj.getDynamicPropertyName) return properties;
-    var dynamicPropName = obj.getDynamicPropertyName();
-    if (!dynamicPropName) return properties;
-    if (jsonObj[dynamicPropName]) {
-      obj[dynamicPropName] = jsonObj[dynamicPropName];
+    if (!obj.getDynamicPropertyName && !obj.getDynamicProperties) return props;
+    if(obj.getDynamicPropertyName) {
+      const dynamicPropName = obj.getDynamicPropertyName();
+      if (!dynamicPropName) return props;
+      if (dynamicPropName && jsonObj[dynamicPropName]) {
+        obj[dynamicPropName] = jsonObj[dynamicPropName];
+      }
     }
-    var dynamicProperties = this.getDynamicProperties(obj);
-    var res = [];
-    for (var i = 0; i < properties.length; i++) {
-      res.push(properties[i]);
-    }
-    for (var i = 0; i < dynamicProperties.length; i++) {
-      res.push(dynamicProperties[i]);
-    }
-    return res;
+    const dynamicProps = this.getDynamicProperties(obj);
+    return dynamicProps.length === 0 ? props : [].concat(props).concat(dynamicProps);
   }
   private propertiesToJson(
     obj: any,
     properties: Array<JsonObjectProperty>,
     json: any,
-    storeDefaults = false
+    options: ISaveToJSONOptions
   ) {
     for (var i: number = 0; i < properties.length; i++) {
-      this.valueToJson(obj, json, properties[i], storeDefaults);
+      this.valueToJson(obj, json, properties[i], options);
     }
   }
-  public valueToJson(
-    obj: any,
-    result: any,
-    property: JsonObjectProperty,
-    storeDefaults = false
-  ): void {
-    if (
-      property.isSerializable === false ||
-      (property.isLightSerializable === false && this.lightSerializing)
-    )
-      return;
-    var value = property.getSerializableValue(obj);
-    if (!storeDefaults && property.isDefaultValueByObj(obj, value)) return;
+  public valueToJson(obj: any, result: any, prop: JsonObjectProperty, options?: ISaveToJSONOptions): void {
+    if(!options) options = {};
+    if (prop.isSerializable === false || (prop.isLightSerializable === false && this.lightSerializing)) return;
+    if(options.version && !prop.isAvailableInVersion(options.version)) return;
+    var value = prop.getSerializableValue(obj);
+    if (!options.storeDefaults && prop.isDefaultValueByObj(obj, value)) return;
     if (this.isValueArray(value)) {
       var arrValue = [];
       for (var i = 0; i < value.length; i++) {
-        arrValue.push(this.toJsonObjectCore(value[i], property, storeDefaults));
+        arrValue.push(this.toJsonObjectCore(value[i], prop, options));
       }
       value = arrValue.length > 0 ? arrValue : null;
     } else {
-      value = this.toJsonObjectCore(value, property, storeDefaults);
+      value = this.toJsonObjectCore(value, prop, options);
     }
+    if(value === undefined || value === null) return;
+    const name = prop.getSerializedName(options.version);
     var hasValue =
       typeof obj["getPropertyValue"] === "function" &&
-      obj["getPropertyValue"](property.name, null) !== null;
-    if ((storeDefaults && hasValue) || !property.isDefaultValueByObj(obj, value)) {
-      if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, property, value, result)) {
-        result[property.name] = value;
+      obj["getPropertyValue"](name, null) !== null;
+    if ((options.storeDefaults && hasValue) || !prop.isDefaultValueByObj(obj, value)) {
+      if (!Serializer.onSerializingProperty || !Serializer.onSerializingProperty(obj, prop, value, result)) {
+        result[name] = this.removePosOnValueToJson(prop, value);
       }
     }
   }
@@ -1699,7 +1761,14 @@ export class JsonObject {
       }
     }
   }
-  private removePos(property: JsonObjectProperty, value: any) {
+  private removePosOnValueToJson(property: JsonObjectProperty, value: any): any {
+    if(!property.isCustom || !value) return value;
+    if (!!value[JsonObject.positionPropertyName]) {
+      delete value[JsonObject.positionPropertyName];
+    }
+    return value;
+  }
+  private removePos(property: JsonObjectProperty, value: any): void {
     if (!property || !property.type || property.type.indexOf("value") < 0)
       return;
     this.removePosFromObj(value);
@@ -1722,7 +1791,7 @@ export class JsonObject {
     var result: any = { newObj: null, error: null };
     const className = this.getClassNameForNewObj(value, property);
     result.newObj = className
-      ? JsonObject.metaData.createClass(className, value)
+      ? Serializer.createClass(className, value)
       : null;
     result.error = this.checkNewObjectOnErrors(
       result.newObj,
@@ -1776,16 +1845,15 @@ export class JsonObject {
   }
   private getRequiredError(obj: any, jsonValue: any): JsonError {
     if (!obj.getType || typeof obj.getData === "function") return null;
-    var className = obj.getType();
-    var requiredProperties = JsonObject.metaData.getRequiredProperties(
-      className
-    );
-    if (!Array.isArray(requiredProperties)) return null;
-    for (var i = 0; i < requiredProperties.length; i++) {
-      const prop = Serializer.findProperty(className, requiredProperties[i]);
-      if (!prop || !Helpers.isValueEmpty(prop.defaultValue)) continue;
+    const metaClass = Serializer.findClass(obj.getType());
+    if(!metaClass) return null;
+    const props = metaClass.getRequiredProperties();
+    if (!Array.isArray(props)) return null;
+    for (var i = 0; i < props.length; i++) {
+      const prop = props[i];
+      if (!Helpers.isValueEmpty(prop.defaultValue)) continue;
       if (!jsonValue[prop.name]) {
-        return new JsonRequiredPropertyError(prop.name, className);
+        return new JsonRequiredPropertyError(prop.name, obj.getType());
       }
     }
     return null;

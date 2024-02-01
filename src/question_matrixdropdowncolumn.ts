@@ -96,6 +96,11 @@ export var matrixDropdownColumnTypes: any = {
   rating: {},
 };
 
+/**
+ * An auxiliary class that describes a column in a [Multi-Select Matrix](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) or [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model).
+ *
+ * You can get an object of this class from the [`columns`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#columns) array or by calling the [`getColumnByName()`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#getColumnByName) method on a matrix instance.
+ */
 export class MatrixDropdownColumn extends Base
   implements ILocalizableOwner, IWrapperObject {
   public static getColumnTypes(): Array<string> {
@@ -176,6 +181,26 @@ export class MatrixDropdownColumn extends Base
   public getType() {
     return "matrixdropdowncolumn";
   }
+  /**
+   * Specifies the type of column cells.
+   *
+   * Possible values:
+   *
+   * - [`"dropdown"`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-menu-model)
+   * - [`"checkbox"`](https://surveyjs.io/form-library/documentation/api-reference/checkbox-question-model)
+   * - [`"radiogroup"`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model)
+   * - [`"tagbox"`](https://surveyjs.io/form-library/documentation/api-reference/dropdown-tag-box-model)
+   * - [`"text"`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model)
+   * - [`"comment"`](https://surveyjs.io/form-library/documentation/api-reference/comment-field-model)
+   * - [`"boolean"`](https://surveyjs.io/form-library/documentation/api-reference/boolean-question-model)
+   * - [`"expression"`](https://surveyjs.io/form-library/documentation/api-reference/expression-model)
+   * - [`"rating"`](https://surveyjs.io/form-library/documentation/api-reference/rating-scale-question-model)
+   * - `"default"` (default) - Inherits the input type from the [`cellType`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#cellType) property specified for the parent matrix.
+   *
+   * The input types are based upon standalone question types. Depending on the selected input type, the matrix column can have additional configuration properties inherited from the corresponding question type. For instance, Dropdown, Checkboxes, Radio Button Group, and Tag Box columns can specify the [`choices`](https://surveyjs.io/form-library/documentation/api-reference/radio-button-question-model#choices) array, similar to the question types upon which they are based. Refer to the API Reference of these question types for a full list of available properties.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
+   */
   public get cellType(): string {
     return this.getPropertyValue("cellType");
   }
@@ -201,6 +226,13 @@ export class MatrixDropdownColumn extends Base
     if(this.isDesignMode) return true;
     return this.visible && this.hasVisibleCell;
   }
+  /**
+   * Gets or sets column visibility.
+   *
+   * If you want to display or hide a column based on a condition, specify the [`visibleIf`](#visibleIf) property.
+   * @see isRequired
+   * @see readOnly
+   */
   public get visible(): boolean { return this.getPropertyValue("visible"); }
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
@@ -239,12 +271,21 @@ export class MatrixDropdownColumn extends Base
     }
     return false;
   }
+  /**
+   * A column ID that is not visible to respondents.
+   *
+   * > Column IDs must be unique.
+   * @see title
+   */
   public get name(): string {
     return this.templateQuestion.name;
   }
   public set name(val: string) {
     this.templateQuestion.name = val;
   }
+  /**
+   * A user-friendly column caption to display. If `title` is undefined, [`name`](#name) is displayed instead.
+   */
   public get title(): string {
     return this.templateQuestion.title;
   }
@@ -257,6 +298,14 @@ export class MatrixDropdownColumn extends Base
   public get fullTitle(): string {
     return this.locTitle.textOrHtml;
   }
+  /**
+   * Marks the column as required. If a respondent skips any cell in a required column, the matrix displays a validation error.
+   *
+   * If you want to mark the column as required based on a condition, specify the [`requiredIf`](#requiredIf) property.
+   * @see requiredErrorText
+   * @see visible
+   * @see readOnly
+   */
   public get isRequired(): boolean {
     return this.templateQuestion.isRequired;
   }
@@ -275,6 +324,10 @@ export class MatrixDropdownColumn extends Base
   public get requiredText(): string {
     return this.isRenderedRequired && this.getSurvey() ? this.getSurvey().requiredText : this.templateQuestion.requiredText;
   }
+  /**
+   * Specifies a custom error message for a required column.
+   * @see isRequired
+   */
   public get requiredErrorText(): string {
     return this.templateQuestion.requiredErrorText;
   }
@@ -284,6 +337,13 @@ export class MatrixDropdownColumn extends Base
   get locRequiredErrorText(): LocalizableString {
     return this.templateQuestion.locRequiredErrorText;
   }
+  /**
+   * Makes the column read-only.
+   *
+   * If you want to switch the column to the read-only state based on a condition, specify the [`enableIf`](#enableIf) property.
+   * @see visible
+   * @see isRequired
+   */
   public get readOnly(): boolean {
     return this.templateQuestion.readOnly;
   }
@@ -296,54 +356,107 @@ export class MatrixDropdownColumn extends Base
   public set hasOther(val: boolean) {
     this.templateQuestion.hasOther = val;
   }
+  /**
+   * A Boolean expression. If it evaluates to `false`, this column becomes hidden.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see visible
+   */
   public get visibleIf(): string {
     return this.templateQuestion.visibleIf;
   }
   public set visibleIf(val: string) {
     this.templateQuestion.visibleIf = val;
   }
+  /**
+   * A Boolean expression. If it evaluates to `false`, this column becomes read-only.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see readOnly
+   */
   public get enableIf(): string {
     return this.templateQuestion.enableIf;
   }
   public set enableIf(val: string) {
     this.templateQuestion.enableIf = val;
   }
+  /**
+   * A Boolean expression. If it evaluates to `true`, this column becomes required.
+   *
+   * Refer to the following help topic for more information: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey-conditional-logic#conditional-visibility).
+   * @see isRequired
+   */
   public get requiredIf(): string {
     return this.templateQuestion.requiredIf;
   }
   public set requiredIf(val: string) {
     this.templateQuestion.requiredIf = val;
   }
+  /**
+   * A Boolean expression. If it evaluates to `true`, all cells in this column are set to a value calculated using the [`defaultValueExpression`](#defaultValueExpression).
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see setValueIf
+   */
   public get resetValueIf(): string {
     return this.templateQuestion.resetValueIf;
   }
   public set resetValueIf(val: string) {
     this.templateQuestion.resetValueIf = val;
   }
+  /**
+   * An expression used to calculate the column's default value. This expression applies to all cells of this column until the cell value is specified by an end user or programmatically.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see setValueExpression
+   */
   public get defaultValueExpression(): string {
     return this.templateQuestion.defaultValueExpression;
   }
   public set defaultValueExpression(val: string) {
     this.templateQuestion.defaultValueExpression = val;
   }
+  /**
+   * A Boolean expression. If it evaluates to `true`, all cells in this column are set to a value calculated using the [`setValueExpression`](#setValueExpression).
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see resetValueIf
+   */
   public get setValueIf(): string {
     return this.templateQuestion.setValueIf;
   }
   public set setValueIf(val: string) {
     this.templateQuestion.setValueIf = val;
   }
+  /**
+   * An expression used to calculate a value for all column cells.
+   *
+   * You can use `setValueExpression` as a standalone property or in conjunction with the [`setValueIf`](#setValueIf) expression, in which case the calculated cell value applies only when `setValueIf` evaluates to `true`.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   * @see defaultValueExpression
+   * @see resetValueIf
+   */
   public get setValueExpession(): string {
     return this.templateQuestion.setValueExpession;
   }
   public set setValueExpession(val: string) {
     this.templateQuestion.setValueExpession = val;
   }
+  /**
+   * Specifies whether a respondent is required to provide a unique response for each question within this column.
+   *
+   * Default value: `false`
+   */
   public get isUnique(): boolean {
     return this.getPropertyValue("isUnique");
   }
   public set isUnique(val: boolean) {
     this.setPropertyValue("isUnique", val);
   }
+  /**
+   * Specifies whether to create an individual column for each choice option. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
+   */
   public get showInMultipleColumns(): boolean {
     return this.getPropertyValue("showInMultipleColumns");
   }
@@ -356,18 +469,45 @@ export class MatrixDropdownColumn extends Base
   public get isShowInMultipleColumns(): boolean {
     return this.showInMultipleColumns && this.isSupportMultipleColumns;
   }
+  /**
+   * Column validators.
+   *
+   * [Data Validation](https://surveyjs.io/form-library/documentation/data-validation (linkStyle))
+   * @see isRequired
+   */
   public get validators(): Array<SurveyValidator> {
     return this.templateQuestion.validators;
   }
   public set validators(val: Array<SurveyValidator>) {
     this.templateQuestion.validators = val;
   }
+  /**
+   * An aggregation method used to calculate the column total.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default) - Disables total calculations.
+   * - `"sum"`
+   * - `"count"`
+   * - `"min"`
+   * - `"max"`
+   * - `"avg"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
+   * @see totalFormat
+   * @see totalDisplayStyle
+   */
   public get totalType(): string {
     return this.getPropertyValue("totalType");
   }
   public set totalType(val: string) {
     this.setPropertyValue("totalType", val);
   }
+  /**
+   * An expression used to calculate total values. Overrides the [`totalType`](#totalType) property.
+   *
+   * [Expressions](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#expressions (linkStyle))
+   */
   public get totalExpression(): string {
     return this.getPropertyValue("totalExpression");
   }
@@ -377,6 +517,13 @@ export class MatrixDropdownColumn extends Base
   public get hasTotal(): boolean {
     return this.totalType != "none" || !!this.totalExpression;
   }
+  /**
+   * A string pattern used to display column totals. To reference a total value within this pattern, use the `{0}` placeholder.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
+   * @see totalType
+   * @see totalDisplayStyle
+   */
   public get totalFormat(): string {
     return this.getLocalizableStringText("totalFormat", "");
   }
@@ -418,12 +565,31 @@ export class MatrixDropdownColumn extends Base
     if (val < -1 || val > 20) return;
     this.setPropertyValue("totalMinimumFractionDigits", val);
   }
+  /**
+   * A format for calculated total values.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default)
+   * - `"decimal"`
+   * - `"currency"`
+   * - `"percent"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
+   * @see totalType
+   * @see totalFormat
+   * @see totalCurrency
+   */
   public get totalDisplayStyle(): string {
     return this.getPropertyValue("totalDisplayStyle");
   }
   public set totalDisplayStyle(val: string) {
     this.setPropertyValue("totalDisplayStyle", val);
   }
+  /**
+   * Specifies a currency used to display calculated total values. Applies only if [`totalDisplayStyle`](#totalDisplayStyle) is set to `"currency"`.
+   * @see totalType
+   */
   public get totalCurrency(): string {
     return this.getPropertyValue("totalCurrency");
   }
@@ -431,18 +597,31 @@ export class MatrixDropdownColumn extends Base
     if (getCurrecyCodes().indexOf(val) < 0) return;
     this.setPropertyValue("totalCurrency", val);
   }
+  /**
+   * Gets or sets minimum column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.
+   * @see width
+   */
   public get minWidth(): string {
     return this.getPropertyValue("minWidth", "");
   }
   public set minWidth(val: string) {
     this.setPropertyValue("minWidth", val);
   }
+  /**
+   * Gets or sets column width in CSS values. By default, the matrix calculates column widths to optimally fit the content of all columns.
+   * @see minWidth
+  */
   public get width(): string {
     return this.templateQuestion.width;
   }
   public set width(val: string) {
     this.templateQuestion.width = val;
   }
+  /**
+   * Gets or sets the number of columns used to arrange choice options. Applies only to columns of `"checkbox"` or `"radiogroup"` [`cellType`](#cellType).
+   *
+   * Default value: -1 (inherits the actual value from the parent matrix's [`columnColCount`](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list#columnColCount) property)
+   */
   public get colCount(): number {
     return this.getPropertyValue("colCount");
   }
@@ -659,36 +838,8 @@ export class MatrixDropdownColumn extends Base
     }
   }
   private addProperties(curCellType: string) {
-    var question = this.templateQuestion;
-    var properties = this.getProperties(curCellType);
-    for (var i = 0; i < properties.length; i++) {
-      var prop = properties[i];
-      this.addProperty(question, prop.name, false);
-      if (prop.serializationProperty) {
-        this.addProperty(question, prop.serializationProperty, true);
-      }
-      if (prop.alternativeName) {
-        this.addProperty(question, prop.alternativeName, false);
-      }
-    }
-  }
-  private addProperty(
-    question: Question,
-    propName: string,
-    isReadOnly: boolean
-  ) {
-    var desc = {
-      configurable: true,
-      get: function () {
-        return (<any>question)[propName];
-      },
-    };
-    if (!isReadOnly) {
-      (<any>desc)["set"] = function (v: any) {
-        (<any>question)[propName] = v;
-      };
-    }
-    Object.defineProperty(this, propName, desc);
+    const props = this.getProperties(curCellType);
+    Serializer.addDynamicPropertiesIntoObj(this, this.templateQuestion, props);
   }
 }
 

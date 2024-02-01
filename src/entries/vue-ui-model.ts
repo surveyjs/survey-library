@@ -41,8 +41,8 @@ export { FileItem } from "../vue/components/file/file-item.vue";
 export { FileCleanButton } from "../vue/file-clean-button.vue";
 export { FileVideo } from "../vue/file-video.vue";
 export { FileChooseButton } from "../vue/components/file/file-choose-button.vue";
-
 export { MatrixCell } from "../vue/matrixcell.vue";
+export { MatrixDropdownCellComp } from "../vue/matrixdropdowncell.vue";
 export { MatrixHeaderRequired } from "../vue/matrixheaderrequired.vue";
 export { MatrixTable } from "../vue/matrixtable.vue";
 export { MatrixDropdown } from "../vue/matrixdropdown.vue";
@@ -56,7 +56,7 @@ export { PanelDynamic } from "../vue/paneldynamic.vue";
 export { PanelDynamicProgress } from "../vue/paneldynamicprogress.vue";
 export { PanelDynamicProgressV2 } from "../vue/paneldynamicprogressV2.vue";
 export { Progress } from "../vue/progress.vue";
-export { ProgressButtons } from "../vue/progressButtons.vue";
+export { ProgressButtonsComponent } from "../vue/progressButtons.vue";
 export { ProgressToc } from "../vue/progressToc.vue";
 export { TimerPanel } from "../vue/timerpanel.vue";
 export { Panel } from "../vue/panel.vue";

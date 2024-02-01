@@ -46,10 +46,11 @@ import MultipleText from "./Multipletext.vue";
 import MultipletextItem from "./MultipletextItem.vue";
 
 import Matrix from "./Matrix.vue";
+import MatrixCell from "./MatrixCell.vue";
 import MatrixDropdown from "./MatrixDropdown.vue";
 import MatrixTable from "./MatrixTable.vue";
 import MatrixHeaderRequired from "./MatrixHeaderRequired.vue";
-import MatrixCell from "./MatrixCell.vue";
+import MatrixDropdownCellComp from "./MatrixDropdownCellComp.vue";
 import MatrixDynamic from "./MatrixDynamic.vue";
 import RemoveButton from "./components/matrix-actions/remove-button/RemoveButton.vue";
 import DragDropIcon from "./components/matrix-actions/drag-drop-icon/DragDropIcon.vue";
@@ -88,7 +89,7 @@ import PopupPointer from "./components/popup/PopupPointer.vue";
 import Container from "./components/Container.vue";
 
 import Progress from "./components/progress/Progress.vue";
-import ProgressButtons from "./components/progress/ProgressButtons.vue";
+import ProgressButtonsComponent from "./components/progress/ProgressButtons.vue";
 import ProgressToc from "./components/progress/ProgressToc.vue";
 import SurveyVue from "./Survey.vue";
 import Notifier from "./Notifier.vue";
@@ -130,7 +131,7 @@ import SvgBundle from "./SvgBundle.vue";
 import FilePage from "./components/file/FilePage.vue";
 import FileItem from "./components/file/FileItem.vue";
 
-export { useBase, useLocString, useQuestion } from "./base";
+export { useBase, useLocString, useQuestion, useComputedArray } from "./base";
 
 SurveyModel.platform = "vue3";
 
@@ -196,10 +197,11 @@ function registerComponents(app: App) {
   app.component("survey-multipletext-item", MultipletextItem);
 
   app.component("survey-matrix", Matrix);
+  app.component("survey-matrix-cell", MatrixCell);
   app.component("survey-matrixdropdown", MatrixDropdown);
   app.component("survey-matrixtable", MatrixTable);
   app.component("survey-matrixheaderrequired", MatrixHeaderRequired);
-  app.component("survey-matrixcell", MatrixCell);
+  app.component("survey-matrixdropdown-cell", MatrixDropdownCellComp);
   app.component("survey-matrixdynamic", MatrixDynamic);
   app.component("sv-matrix-remove-button", RemoveButton);
   app.component("sv-matrix-drag-drop-icon", DragDropIcon);
@@ -216,8 +218,8 @@ function registerComponents(app: App) {
 
   app.component("sv-components-container", Container);
 
-  app.component("sv-progress-buttons", ProgressButtons);
-  app.component("sv-progress-toc", ProgressToc);
+  app.component("sv-progress-buttons", ProgressButtonsComponent);
+  app.component("sv-navigation-toc", ProgressToc);
   app.component("sv-progress-pages", Progress);
   app.component("sv-progress-questions", Progress);
   app.component("sv-progress-correctquestions", Progress);

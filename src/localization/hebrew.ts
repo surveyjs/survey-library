@@ -9,6 +9,8 @@ export var hebrewSurveyStrings = {
   startSurveyText: "הַתחָלָה",
   otherItemText: "אחר (נא לתאר)",
   noneItemText: "אף אחד",
+  refuseItemText: "מסרבים לענות",
+  dontKnowItemText: "לא יודע",
   selectAllItemText: "בחר הכל",
   progressText: "דף {1} מתוך {0}",
   indexText: "{0} מתוך {1}",
@@ -25,6 +27,7 @@ export var hebrewSurveyStrings = {
   requiredError: "אנא השב על השאלה",
   requiredErrorInPanel: "אנא ענה לפחות על שאלה אחת.",
   requiredInAllRowsError: "אנא ענה על שאלות בכל השורות.",
+  eachRowUniqueError: "לכל שורה חייב להיות ערך ייחודי.",
   numericError: "התשובה צריכה להיות מספר.",
   minError: "הערך לא צריך להיות קטן מ {0}",
   maxError: "הערך לא צריך להיות גדול מ- {0}",
@@ -42,6 +45,7 @@ export var hebrewSurveyStrings = {
   urlRequestError: "הבקשה החזירה את השגיאה '{0}'. {1}",
   urlGetChoicesError: "הבקשה החזירה נתונים ריקים או שהמאפיין 'נתיב' שגוי",
   exceedMaxSize: "גודל הקובץ לא יעלה על {0}.",
+  noUploadFilesHandler: "לא ניתן להעלות קבצים. אנא הוסף מטפל לאירוע 'onUploadFiles'.",
   otherRequiredError: "נא להזין נתונים בשדה \"אחר\"",
   uploadingFile: "הקובץ שלך נטען. המתן מספר שניות ונסה שוב.",
   loadingFile: "טוען...",
@@ -56,6 +60,8 @@ export var hebrewSurveyStrings = {
   emptyRowsText: "אין שורות.",
   addPanel: "הוסף חדש",
   removePanel: "לְהַסִיר",
+  showDetails: "הראה פרטים",
+  hideDetails: "הסתר פרטים",
   choices_Item: "פריט",
   matrix_column: "טור",
   matrix_row: "שׁוּרָה",
@@ -94,7 +100,9 @@ export var hebrewSurveyStrings = {
   more: "עוד",
   tagboxDoneButtonCaption: "אוקיי",
   selectToRankEmptyRankedAreaText: "כל האפשרויות מדורגות",
-  selectToRankEmptyUnrankedAreaText: "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"
+  selectToRankEmptyUnrankedAreaText: "גרור ושחרר אפשרויות לכאן כדי לדרג אותן",
+  ok: "אוקיי",
+  cancel: "ביטל"
 };
 
 surveyLocalization.locales["he"] = hebrewSurveyStrings;
@@ -123,4 +131,11 @@ surveyLocalization.localeNames["he"] = "עברית";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "גרור ושחרר אפשרויות לכאן כדי לדרג אותן"// takePhotoCaption: "Take Photo" => "צלם תמונה"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "לחץ על הלחצן למטה כדי לצלם תמונה באמצעות המצלמה."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "גרור ושחרר או בחר קובץ כדי להעלות או לצלם תמונה באמצעות המצלמה."
-// replaceFileCaption: "Replace file" => "החלפת קובץ"
+// replaceFileCaption: "Replace file" => "החלפת קובץ"// eachRowUniqueError: "Each row must have a unique value." => "לכל שורה חייב להיות ערך ייחודי."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "לא ניתן להעלות קבצים. אנא הוסף מטפל לאירוע 'onUploadFiles'."
+// showDetails: "Show Details" => "הראה פרטים"
+// hideDetails: "Hide Details" => "הסתר פרטים"
+// ok: "OK" => "אוקיי"
+// cancel: "Cancel" => "ביטל"
+// refuseItemText: "Refuse to answer" => "מסרבים לענות"
+// dontKnowItemText: "Don't know" => "לא יודע"

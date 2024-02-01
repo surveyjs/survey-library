@@ -610,6 +610,22 @@ export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
    */
   skip: number;
 }
+
+export interface ChoicesSearchEvent extends QuestionEventMixin {
+  /**
+   * A search string used to filter choice options.
+   */
+  filter: string;
+  /**
+   * An array of all choice options.
+   */
+  choices: Array<ItemValue>;
+  /**
+   * A filtered array of choice options. Apply `options.filter` to the `options.choices` array and assign the result to this parameter.
+   */
+  filteredChoices: Array<ItemValue>;
+}
+
 export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.
@@ -677,7 +693,7 @@ export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMix
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**
@@ -724,7 +740,7 @@ export interface MatrixAfterCellRenderEvent extends QuestionEventMixin, AfterRen
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn | MatrixDropdownCell;
 }
@@ -735,7 +751,7 @@ export interface MatrixCellValueBaseEvent extends MatrixDropdownQuestionEventMix
    */
   row: MatrixDropdownRowModelBase;
   /**
-   * A matrix column to which the cell belongs.
+   * A [matrix column](https://surveyjs.io/form-library/documentation/api-reference/multi-select-matrix-column-values) to which the cell belongs.
    */
   column: MatrixDropdownColumn;
   /**

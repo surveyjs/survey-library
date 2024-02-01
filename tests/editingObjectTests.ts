@@ -10,6 +10,7 @@ import {
 } from "../src/question_custom";
 import { QuestionDropdownModel } from "../src/question_dropdown";
 import { QuestionRatingModel } from "../src/question_rating";
+import { QuestionBooleanModel } from "../src/question_boolean";
 import { Serializer } from "../src/jsonobject";
 import { ItemValue } from "../src/itemvalue";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
@@ -17,6 +18,7 @@ import { QuestionMatrixModel } from "../src/question_matrix";
 import { Question } from "../src/question";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { SurveyTriggerComplete } from "../src/trigger";
+import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -1536,4 +1538,52 @@ QUnit.test("multipletextitem title in detail panel", function (assert) {
   titleQuestion.value = "";
   assert.notOk(titleCell.value, "cell #3");
   assert.notOk(titleQuestion.value, "question #3");
+});
+QUnit.test("reset property value", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "boolean", name: "q1" }
+    ]
+  });
+  const question = <QuestionBooleanModel>survey.getQuestionByName("q1");
+  const editSurvey = new SurveyModel({
+    elements: [
+      {
+        type: "comment",
+        name: "labelTrue"
+      }
+    ]
+  });
+  const comment = <QuestionMatrixDynamicModel>(editSurvey.getQuestionByName("labelTrue"));
+  editSurvey.editingObj = question;
+  assert.equal(comment.value, "Yes", "value #1");
+  question.labelTrue = "abc";
+  assert.equal(comment.value, "abc", "value #2");
+  question.resetPropertyValue("labelTrue");
+  assert.equal(question.labelTrue, "Yes", "labelTrue value");
+  assert.equal(comment.value, "Yes", "value #3");
+});
+QUnit.test("paneldynamic. templateVisibleIf", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "paneldynamic", name: "q2", templateVisibleIf: "{q1} = 'a'" }
+    ]
+  });
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("q2");
+  const editSurvey = new SurveyModel({
+    elements: [
+      {
+        type: "comment",
+        name: "templateVisibleIf"
+      }
+    ]
+  });
+  const comment = <QuestionMatrixDynamicModel>(editSurvey.getQuestionByName("templateVisibleIf"));
+  editSurvey.editingObj = question;
+  assert.equal(comment.value, "{q1} = 'a'", "value #1");
+  question.templateVisibleIf = "{q1} = 'b'";
+  assert.equal(comment.value, "{q1} = 'b'", "value #2");
+  comment.value = "{q1} = 'c'";
+  assert.equal(question.templateVisibleIf, "{q1} = 'c'", "property value #1");
 });

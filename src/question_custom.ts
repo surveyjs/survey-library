@@ -1,5 +1,6 @@
 import { Question, IConditionObject } from "./question";
-import { Serializer, CustomPropertiesCollection } from "./jsonobject";
+import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
+import { Base } from "./base";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -16,6 +17,7 @@ import { Helpers, HashTable } from "./helpers";
 import { ItemValue } from "./itemvalue";
 import { QuestionTextProcessor } from "./textPreProcessor";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { LocalizableString } from "./localizablestring";
 
 /**
  * An interface used to create custom question types.
@@ -50,13 +52,47 @@ export interface ICustomQuestionTypeConfiguration {
    */
   onInit?(): void;
   /**
-   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu.
+   * Specifies whether the custom question type is available in the Toolbox and the Add Question menu in Survey Creator.
    *
    * Default value: `true`
    *
    * Set this property to `false` if your custom question type is used only to customize Property Grid content and is not meant for a survey.
    */
   showInToolbox?: boolean;
+  /**
+   * A default title for questions created with this question type. Survey authors can change the default title in the JSON object or in Survey Creator's Property Grid.
+   *
+   * You can specify the question title with a string value or with an object that defines different titles for different locales:
+   *
+   * ```js
+   * import { ComponentCollection } from "survey-core";
+   *
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: "Default title"
+   * });
+   * // ===== OR =====
+   * ComponentCollection.Instance.add({
+   *   // ...
+   *   defaultQuestionTitle: {
+   *     en: "Default title",
+   *     de: "Standardtitel",
+   *     fr: "Titre par défaut"
+   *   }
+   * });
+   * ```
+   */
+  defaultQuestionTitle?: any;
+  /**
+   * An array of property names to inherit from a base question or a Boolean value that specifies whether or not to inherit all properties.
+   *
+   * Default value: `false`
+   *
+   * When you create a [custom specialized question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types), you base it on another question type configured within the [`questionJSON`](#questionJSON) object. If the custom question type should inherit all properties from the base type, set the `inheritBaseProps` property to `true`. If you want to inherit only certain properties, set the `inheritBaseProps` property to an array of their names.
+   *
+   * [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types (linkStyle))
+   */
+  inheritBaseProps?: false | true | Array<string>;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
    *
@@ -214,6 +250,7 @@ export interface ICustomQuestionTypeConfiguration {
 }
 
 export class ComponentQuestionJSON {
+  private dynamicProperties: Array<JsonObjectProperty>;
   public constructor(public name: string, public json: ICustomQuestionTypeConfiguration) {
     var self = this;
     Serializer.addClass(
@@ -292,6 +329,9 @@ export class ComponentQuestionJSON {
     if (!this.json.getDisplayValue) return question.getDisplayValue(keyAsText, value);
     return (this.json as any).getDisplayValue(question);
   }
+  public get defaultQuestionTitle(): any {
+    return this.json.defaultQuestionTitle;
+  }
   public setValueToQuestion(val: any): any {
     const converter = this.json.valueToQuestion || this.json.setValue;
     return !!converter ? converter(val): val;
@@ -302,6 +342,34 @@ export class ComponentQuestionJSON {
   }
   public get isComposite(): boolean {
     return !!this.json.elementsJSON || !!this.json.createElements;
+  }
+  public getDynamicProperties(): Array<JsonObjectProperty> {
+    if(!Array.isArray(this.dynamicProperties)) {
+
+    }
+    this.dynamicProperties = this.calcDynamicProperties();
+    return this.dynamicProperties;
+  }
+  private calcDynamicProperties(): Array<JsonObjectProperty> {
+    const baseProps = this.json.inheritBaseProps;
+    if(!baseProps || !this.json.questionJSON) return [];
+    const type = this.json.questionJSON.type;
+    if(!type) return [];
+    if(Array.isArray(baseProps)) {
+      const props: Array<JsonObjectProperty> = [];
+      baseProps.forEach(name => {
+        const prop = Serializer.findProperty(type, name);
+        if(prop) {
+          props.push(prop);
+        }
+      });
+      return props;
+    }
+    const invalidNames = [];
+    for(let key in this.json.questionJSON) {
+      invalidNames.push(key);
+    }
+    return Serializer.getDynamicPropertiesByTypes(this.name, type, invalidNames);
   }
 }
 
@@ -395,10 +463,13 @@ export class ComponentCollection {
 
 export abstract class QuestionCustomModelBase extends Question
   implements ISurveyImpl, ISurveyData, IPanel {
+  private locQuestionTitle: LocalizableString;
   constructor(name: string, public customQuestion: ComponentQuestionJSON) {
     super(name);
     CustomPropertiesCollection.createProperties(this);
     SurveyElement.CreateDisabledDesignElements = true;
+    this.locQuestionTitle = this.createLocalizableString("questionTitle", this);
+    this.locQuestionTitle.setJson(this.customQuestion.defaultQuestionTitle);
     this.createWrapper();
     SurveyElement.CreateDisabledDesignElements = false;
     if (!!this.customQuestion) {
@@ -419,6 +490,12 @@ export abstract class QuestionCustomModelBase extends Question
     if(!!this.getElement()) {
       this.getElement().localeChanged();
     }
+  }
+  protected getDefaultTitle(): string {
+    if(!this.locQuestionTitle.isEmpty) {
+      return this.getProcessedText(this.locQuestionTitle.textOrHtml);
+    }
+    return super.getDefaultTitle();
   }
   public addUsedLocales(locales: Array<string>): void {
     super.addUsedLocales(locales);
@@ -644,8 +721,18 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getTemplate(): string {
     return "custom";
   }
-  protected createWrapper() {
+  public getDynamicProperties(): Array<JsonObjectProperty> {
+    return this.customQuestion.getDynamicProperties() || [];
+  }
+  public getDynamicType(): string {
+    return this.questionWrapper ? this.questionWrapper.getType() : "question";
+  }
+  public getOriginalObj(): Base {
+    return this.questionWrapper;
+  }
+  protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
+    this.createDynamicProperties(this.questionWrapper);
   }
   protected getElement(): SurveyElement {
     return this.contentQuestion;
@@ -660,7 +747,9 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
     return this.contentQuestion;
   }
   protected getDefaultTitle(): string {
-    if(this.hasJSONTitle && this.contentQuestion) return this.contentQuestion.title;
+    if(this.hasJSONTitle && this.contentQuestion) {
+      return this.getProcessedText(this.contentQuestion.title);
+    }
     return super.getDefaultTitle();
   }
   setValue(name: string, newValue: any, locNotification: any, allowNotifyValueChanged?: boolean): any {
@@ -802,6 +891,13 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
       (<any>this.contentQuestion).setValueChangedDirectly(val);
     }
     this.isSettingValueChanged = false;
+  }
+  private createDynamicProperties(el: SurveyElement): void {
+    if(!el) return;
+    const props = this.getDynamicProperties();
+    if(Array.isArray(props)) {
+      Serializer.addDynamicPropertiesIntoObj(this, el, props);
+    }
   }
   protected initElement(el: SurveyElement): void {
     super.initElement(el);

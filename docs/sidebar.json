@@ -225,6 +225,10 @@
           "Title": "Matrix Dynamic"
         },
         {
+          "Name": "matrixdropdowncolumn",
+          "title": "MatrixDropdownColumn"
+        },
+        {
           "Name": "questionmultipletextmodel",
           "Title": "Multiple Text"
         },

@@ -68,6 +68,23 @@ export default QUnit.module("Survey");
 
 settings.autoAdvanceDelay = 0;
 
+function getContainerContentFunction(survey: SurveyModel) {
+  return (container: LayoutElementContainer) => {
+    const content = survey.getContainerContent(container);
+    const result: Array<any> = [];
+    content.forEach(item => {
+      const resItem: any = {};
+      Object.keys(item).forEach(key => {
+        if (["data", "processResponsiveness"].indexOf(key) === -1) {
+          resItem[key] = item[key];
+        }
+      });
+      result.push(resItem);
+    });
+    return result;
+  };
+}
+
 QUnit.test("set data property", function (assert) {
   var survey = new SurveyModel();
   assert.deepEqual(survey.data, {}, "there is no data");
@@ -715,6 +732,43 @@ QUnit.test("isShowNext/Prev/Complete buttons and showPreviewBeforeComplete: show
   assert.equal(survey.isCompleteButtonVisible, false, "isCompleteButtonVisible, read-only #4");
   survey.mode = "edit";
   assert.equal(survey.isCompleteButtonVisible, true, "isCompleteButtonVisible, edit mode #5");
+});
+QUnit.test("isShowPrevButton/isCompleteButtonVisible & showPrevButton/showCompleteButton", function (
+  assert
+) {
+  const survey = new SurveyModel({
+    showPrevButton: false,
+    pages: [
+      {
+        elements: [{ type: "text", name: "q1" }]
+      },
+      {
+        elements: [{ type: "text", name: "q2" }]
+      }
+    ]
+  });
+  survey.showCompleteButton = false;
+
+  assert.equal(survey.currentPageNo, 0, "Init current page");
+  assert.equal(survey.isShowPrevButton, false, "prev #1");
+  assert.equal(survey.isCompleteButtonVisible, false, "complete #1");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").isVisible, false, "sv-nav-prev, #1");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, false, "sv-nav-complete, #1");
+
+  survey.nextPage();
+  assert.equal(survey.currentPageNo, 1, "second page");
+  assert.equal(survey.isShowPrevButton, false, "prev #2");
+  assert.equal(survey.isCompleteButtonVisible, false, "complete #2");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").isVisible, false, "sv-nav-prev, #2");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, false, "sv-nav-complete, #2");
+
+  survey.showPrevButton = true;
+  survey.showCompleteButton = true;
+  assert.equal(survey.currentPageNo, 1, "second page, #2");
+  assert.equal(survey.isShowPrevButton, true, "prev #3");
+  assert.equal(survey.isCompleteButtonVisible, true, "complete #3");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-prev").isVisible, true, "sv-nav-prev, #3");
+  assert.equal(survey.navigationBar.getActionById("sv-nav-complete").isVisible, true, "sv-nav-complete, #3");
 });
 QUnit.test("Next, Prev, IsFirst and IsLast Page and progressText", function (
   assert
@@ -1619,6 +1673,8 @@ QUnit.test("Should not show errors with others bug #2014", function (assert) {
   assert.equal(survey.currentPageNo, 0, "The page is still first");
   assert.equal(question.errors.length, 0, "Do not show any error");
   question.comment = "Some text";
+  assert.equal(survey.currentPageNo, 0, "The page is still first, #2");
+  question.value = 2;
   assert.equal(survey.currentPageNo, 1, "The second page is shown");
 });
 QUnit.test(
@@ -3852,6 +3908,8 @@ QUnit.test("test goNextPageAutomatic property", function (assert) {
   );
   assert.notEqual(survey.state, "completed", "survey is still running");
   dropDownQ.comment = "other value";
+  assert.notEqual(survey.state, "completed", "survey is still running #2");
+  dropDownQ.value = 1;
   assert.equal(survey.state, "completed", "complete the survey");
 });
 QUnit.test("test goNextPageAutomatic property for boolean/switch", function (
@@ -16565,7 +16623,7 @@ QUnit.test("progress is not changed on the start page", function (assert) {
   question.value = ["1"];
   assert.equal(progressChangeCount, 0, "Progress hasn't been called");
 });
-QUnit.test("Make sure that panel is not collapsed on focusing the question", function (assert) {
+QUnit.test("Make sure that panel is not collapsed on focusing the question, #2", function (assert) {
   const survey = new SurveyModel({
     elements: [
       {
@@ -16906,7 +16964,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -16916,7 +16974,7 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav top footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav top contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "nav top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav top left");
@@ -16927,11 +16985,11 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav both footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav both contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav both left");
   assert.deepEqual(getContainerContent("right"), [], "nav both right");
@@ -16941,14 +16999,14 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav left footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav left contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav left contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "nav left left");
   assert.deepEqual(getContainerContent("right"), [], "nav left right");
@@ -16958,15 +17016,15 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("footer"), [], "nav right footer");
   assert.deepEqual(getContainerContent("contentTop"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav right contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "nav right contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "nav right left");
   assert.deepEqual(getContainerContent("right"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "nav right right");
 
@@ -16981,7 +17039,166 @@ QUnit.test("getContainerContent - navigation", function (assert) {
   assert.deepEqual(getContainerContent("right"), [], "nav none right");
 });
 
+QUnit.test("getContainerContent - progress (legacyProgressBarView)", function (assert) {
+  const json = {
+    showNavigationButtons: "none",
+    pages: [
+      {
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+          {
+            required: true,
+            "type": "rating",
+            "name": "recommend friends",
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+          {
+            "type": "radiogroup",
+            "name": "price",
+          },
+        ]
+      },
+    ]
+  };
+
+  try {
+    settings.legacyProgressBarView = true;
+
+    let survey = new SurveyModel(json);
+    const getContainerContent = getContainerContentFunction(survey);
+
+    assert.equal(survey.showNavigationButtons, "none");
+    assert.equal(survey.progressBarType, "pages");
+    assert.equal(survey.showProgressBar, "off");
+
+    assert.deepEqual(getContainerContent("header"), [], "default header");
+    assert.deepEqual(getContainerContent("footer"), [], "default footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "default contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "default left");
+    assert.deepEqual(getContainerContent("right"), [], "default right");
+
+    survey.showProgressBar = "top";
+    assert.deepEqual(getContainerContent("header"), [], "progress top header");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages"
+    }], "progress top center");
+    assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress top left");
+    assert.deepEqual(getContainerContent("right"), [], "progress top right");
+
+    survey.showProgressBar = "bottom";
+    assert.deepEqual(getContainerContent("header"), [], "progress bottom header");
+    assert.deepEqual(getContainerContent("footer"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages"
+    }], "progress bottom footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress bottom contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress bottom contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress bottom left");
+    assert.deepEqual(getContainerContent("right"), [], "progress bottom right");
+
+    survey.showProgressBar = "both";
+    assert.deepEqual(getContainerContent("header"), [], "progress both header");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages"
+    }], "progress both center");
+    assert.deepEqual(getContainerContent("footer"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages"
+    }], "progress both footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress both contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress both contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress both left");
+    assert.deepEqual(getContainerContent("right"), [], "progress both right");
+
+    survey.progressBarType = "questions";
+    assert.deepEqual(getContainerContent("header"), [], "progress questions both header");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-questions",
+      "id": "progress-questions"
+    }], "progress questions both header");
+    assert.deepEqual(getContainerContent("footer"), [{
+      "component": "sv-progress-questions",
+      "id": "progress-questions"
+    }], "progress questions both footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress questions both contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress questions both contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress questions both left");
+    assert.deepEqual(getContainerContent("right"), [], "progress questions both right");
+
+    survey.showTOC = true;
+    assert.deepEqual(getContainerContent("header"), [], "progress toc both header");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-questions",
+      "id": "progress-questions"
+    }], "progress toc both center");
+    assert.deepEqual(getContainerContent("footer"), [{
+      "component": "sv-progress-questions",
+      "id": "progress-questions"
+    }], "progress toc both footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress toc both contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc both contentBottom");
+    assert.deepEqual(getContainerContent("left"), [{
+      "component": "sv-navigation-toc",
+      "id": "toc-navigation"
+    }], "progress toc both left");
+    assert.deepEqual(getContainerContent("right"), [], "progress toc both right");
+
+    survey.showProgressBar = "off";
+    survey.tocLocation = "left";
+    assert.deepEqual(getContainerContent("header"), [], "progress toc left header");
+    assert.deepEqual(getContainerContent("footer"), [], "progress toc left footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress toc left contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc left contentBottom");
+    assert.deepEqual(getContainerContent("left"), [{
+      "component": "sv-navigation-toc",
+      "id": "toc-navigation"
+    }], "progress toc left left");
+    assert.deepEqual(getContainerContent("right"), [], "progress toc left right");
+
+    survey.tocLocation = "right";
+    assert.deepEqual(getContainerContent("header"), [], "progress toc right header");
+    assert.deepEqual(getContainerContent("footer"), [], "progress toc right footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress toc right contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc right contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress toc right left");
+    assert.deepEqual(getContainerContent("right"), [{
+      "component": "sv-navigation-toc",
+      "id": "toc-navigation"
+    }], "progress toc right right");
+
+    survey.showTOC = false;
+    assert.deepEqual(getContainerContent("header"), [], "default header");
+    assert.deepEqual(getContainerContent("footer"), [], "default footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "default contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "default left");
+    assert.deepEqual(getContainerContent("right"), [], "default right");
+
+  }
+  finally {
+    settings.legacyProgressBarView = false;
+  }
+});
+
 QUnit.test("getContainerContent - progress", function (assert) {
+  surveyCss.currentType = "defaultV2";
   const json = {
     showNavigationButtons: "none",
     pages: [
@@ -17015,11 +17232,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   };
 
   let survey = new SurveyModel(json);
-  function getContainerContent(container: LayoutElementContainer) {
-    let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "none");
   assert.equal(survey.progressBarType, "pages");
@@ -17035,8 +17248,8 @@ QUnit.test("getContainerContent - progress", function (assert) {
   survey.showProgressBar = "top";
   assert.deepEqual(getContainerContent("header"), [], "progress top header");
   assert.deepEqual(getContainerContent("center"), [{
-    "component": "sv-progress-pages",
-    "id": "progress-pages"
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
   }], "progress top center");
   assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
@@ -17047,8 +17260,8 @@ QUnit.test("getContainerContent - progress", function (assert) {
   survey.showProgressBar = "bottom";
   assert.deepEqual(getContainerContent("header"), [], "progress bottom header");
   assert.deepEqual(getContainerContent("footer"), [{
-    "component": "sv-progress-pages",
-    "id": "progress-pages"
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
   }], "progress bottom footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress bottom contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress bottom contentBottom");
@@ -17058,12 +17271,12 @@ QUnit.test("getContainerContent - progress", function (assert) {
   survey.showProgressBar = "both";
   assert.deepEqual(getContainerContent("header"), [], "progress both header");
   assert.deepEqual(getContainerContent("center"), [{
-    "component": "sv-progress-pages",
-    "id": "progress-pages"
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
   }], "progress both center");
   assert.deepEqual(getContainerContent("footer"), [{
-    "component": "sv-progress-pages",
-    "id": "progress-pages"
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
   }], "progress both footer");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress both contentBottom");
@@ -17098,7 +17311,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc both contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc both contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc both left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc both right");
@@ -17110,7 +17323,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentTop"), [], "progress toc left contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc left contentBottom");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc left left");
   assert.deepEqual(getContainerContent("right"), [], "progress toc left right");
@@ -17122,7 +17335,7 @@ QUnit.test("getContainerContent - progress", function (assert) {
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress toc right contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "progress toc right left");
   assert.deepEqual(getContainerContent("right"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "progress toc right right");
 
@@ -17171,10 +17384,10 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17187,7 +17400,7 @@ QUnit.test("getContainerContent - do not show TOC on preview", function (assert)
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "do not show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17237,7 +17450,7 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "empty on the start page");
 
@@ -17247,10 +17460,10 @@ QUnit.test("getContainerContent - do not show TOC on start page", function (asse
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [{
-    "component": "sv-progress-toc",
+    "component": "sv-navigation-toc",
     "id": "toc-navigation"
   }], "show toc left");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17289,11 +17502,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   };
 
   let survey = new SurveyModel(json);
-  function getContainerContent(container: LayoutElementContainer) {
-    let result = survey.getContainerContent(container);
-    result.forEach(item => delete item["data"]);
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.deepEqual(getContainerContent("header"), [], "");
   assert.deepEqual(getContainerContent("footer"), [], "");
@@ -17304,7 +17513,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17316,7 +17525,7 @@ QUnit.test("getContainerContent - do not show buttons progress on completed page
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17356,7 +17565,7 @@ QUnit.test("getContainerContent - do not advanced header on completed page", fun
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17368,7 +17577,7 @@ QUnit.test("getContainerContent - do not advanced header on completed page", fun
   assert.deepEqual(getContainerContent("contentTop"), [], "");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "");
   assert.deepEqual(getContainerContent("left"), [], "");
   assert.deepEqual(getContainerContent("right"), [], "");
@@ -17655,7 +17864,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -17666,7 +17875,7 @@ QUnit.test("getContainerContent - navigation with page.navigationButtonsVisibili
   assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
   assert.deepEqual(getContainerContent("contentBottom"), [{
     "component": "sv-action-bar",
-    "id": "navigationbuttons"
+    "id": "buttons-navigation"
   }], "default contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "default left");
   assert.deepEqual(getContainerContent("right"), [], "default right");
@@ -17962,6 +18171,7 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "scroll", "before applyTheme");
   assert.equal(survey.backgroundOpacity, 1, "before applyTheme");
   assert.equal(survey["isCompact"], false, "before applyTheme");
+  assert.equal(survey.headerView, "basic", "before applyTheme");
 
   survey.applyTheme({
     "cssVariables": {
@@ -17984,6 +18194,27 @@ QUnit.test("survey.applyTheme", function (assert) {
   assert.equal(survey.backgroundImageAttachment, "fixed");
   assert.equal(survey.backgroundOpacity, 0.6);
   assert.equal(survey["isCompact"], true);
+  assert.equal(survey.headerView, "basic", "before applyTheme");
+});
+QUnit.test("survey.applyTheme respects headerView", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      { type: "text", name: "q1" },
+      { type: "multipletext", name: "q2", items: [{ name: "q2_item1" }, { name: "q2_item2" }] }
+    ]
+  });
+
+  assert.equal(survey.headerView, "basic", "before applyTheme");
+  survey.applyTheme({
+    "headerView": "advanced"
+  });
+  assert.equal(survey.headerView, "advanced");
+  survey.applyTheme({
+    "headerView": "basic"
+  });
+  assert.equal(survey.headerView, "basic");
+  survey.applyTheme({});
+  assert.equal(survey.headerView, "basic");
 });
 QUnit.test("page/panel delete do it recursively", function (assert) {
   const survey = new SurveyModel({
@@ -18449,7 +18680,113 @@ QUnit.test("emptySurveyText, make it writable, #7456", function (assert) {
   assert.equal(survey.emptySurveyText, defaultText, "#3");
 });
 
+QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarView)", function (assert) {
+  const json = {
+    title: "My Survey",
+    showNavigationButtons: "none",
+    pages: [
+      {
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+          {
+            required: true,
+            "type": "rating",
+            "name": "recommend friends",
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+          {
+            "type": "radiogroup",
+            "name": "price",
+          },
+        ]
+      },
+    ]
+  };
+
+  try {
+    settings.legacyProgressBarView = true;
+
+    let survey = new SurveyModel(json);
+    survey.headerView = "advanced";
+    const getContainerContent = getContainerContentFunction(survey);
+
+    assert.equal(survey.showNavigationButtons, "none");
+    assert.equal(survey.progressBarType, "pages");
+    assert.equal(survey.showProgressBar, "off");
+
+    assert.deepEqual(getContainerContent("header"), [{
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    }], "default header");
+    assert.deepEqual(getContainerContent("center"), [], "default center");
+    assert.deepEqual(getContainerContent("footer"), [], "default footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "default contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "default left");
+    assert.deepEqual(getContainerContent("right"), [], "default right");
+
+    survey.showProgressBar = "top";
+    assert.deepEqual(getContainerContent("header"), [{
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    }], "progress top header alone");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages"
+    }], "progress top center alone");
+    assert.deepEqual(getContainerContent("footer"), [], "progress top footer alone");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop alone");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom alone");
+    assert.deepEqual(getContainerContent("left"), [], "progress top left alone");
+    assert.deepEqual(getContainerContent("right"), [], "progress top right alone");
+
+    survey.applyTheme({
+      header: {},
+      cssVariables: {
+        "--sjs-header-backcolor": "transparent"
+      }
+    } as any);
+    assert.deepEqual(getContainerContent("header"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages",
+      "index": -150
+    }, {
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    }], "progress top header");
+    assert.deepEqual(getContainerContent("center"), [], "progress top center");
+    assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress top left");
+    assert.deepEqual(getContainerContent("right"), [], "progress top right");
+
+  }
+  finally {
+    settings.legacyProgressBarView = false;
+  }
+
+});
+
 QUnit.test("getContainerContent - progress + advanced header", function (assert) {
+  surveyCss.currentType = "defaultV2";
   const json = {
     title: "My Survey",
     showNavigationButtons: "none",
@@ -18485,20 +18822,7 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
 
   let survey = new SurveyModel(json);
   survey.headerView = "advanced";
-  function getContainerContent(container: LayoutElementContainer) {
-    const content = survey.getContainerContent(container);
-    const result: Array<any> = [];
-    content.forEach(item => {
-      const resItem: any = {};
-      Object.keys(item).forEach(key => {
-        if (["data", "processResponsiveness"].indexOf(key) === -1) {
-          resItem[key] = item[key];
-        }
-      });
-      result.push(resItem);
-    });
-    return result;
-  }
+  const getContainerContent = getContainerContentFunction(survey);
 
   assert.equal(survey.showNavigationButtons, "none");
   assert.equal(survey.progressBarType, "pages");
@@ -18525,8 +18849,8 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
     "index": -100
   }], "progress top header alone");
   assert.deepEqual(getContainerContent("center"), [{
-    "component": "sv-progress-pages",
-    "id": "progress-pages"
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
   }], "progress top center alone");
   assert.deepEqual(getContainerContent("footer"), [], "progress top footer alone");
   assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop alone");
@@ -18541,8 +18865,8 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
     }
   } as any);
   assert.deepEqual(getContainerContent("header"), [{
-    "component": "sv-progress-pages",
-    "id": "progress-pages",
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons",
     "index": -150
   }, {
     "component": "sv-header",
@@ -18556,6 +18880,63 @@ QUnit.test("getContainerContent - progress + advanced header", function (assert)
   assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
   assert.deepEqual(getContainerContent("left"), [], "progress top left");
   assert.deepEqual(getContainerContent("right"), [], "progress top right");
+});
+
+QUnit.test("getContainerContent - do not show timer panel in display mode", function (assert) {
+  const json = {
+    "pages": [
+      {
+        "name": "Seite1",
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "question1",
+            "isRequired": true,
+            "choices": [
+              {
+                "value": "true",
+              },
+              {
+                "value": "false",
+              }
+            ]
+          }
+        ]
+      }
+    ],
+    "maxTimeToFinish": 10,
+    "showTimerPanel": "top",
+    "showTimerPanelMode": "survey"
+  };
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-timerpanel",
+    "id": "timerpanel",
+    "template": "survey-timerpanel"
+  }], "default header");
+  assert.deepEqual(getContainerContent("center"), [], "default center");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
+
+  survey.mode = "display";
+  assert.deepEqual(getContainerContent("header"), [], "default header");
+  assert.deepEqual(getContainerContent("center"), [], "default center");
+  assert.deepEqual(getContainerContent("footer"), [], "default footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "default contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [{
+    "component": "sv-action-bar",
+    "id": "buttons-navigation"
+  }], "default contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "default left");
+  assert.deepEqual(getContainerContent("right"), [], "default right");
 });
 
 QUnit.test("Check triggerReponsiveness is called when isCompact changed", function (assert) {
@@ -18593,4 +18974,230 @@ QUnit.test("Check triggerReponsiveness is called when isCompact changed", functi
   log = "";
   survey["isCompact"] = false;
   assert.equal(log, "->q1:true->q2:true");
+});
+QUnit.test("element.wasREndered", function (assert) {
+  const json = {
+    pages: [
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            type: "text",
+            name: "q2"
+          }
+        ]
+      },
+    ]
+  };
+  const survey = new SurveyModel(json);
+  assert.equal(survey.pages[0].wasRendered, true, "page1 wasRendered");
+  assert.equal(survey.getQuestionByName("q1").wasRendered, true, "q1 wasRendered");
+  const q3 = survey.pages[0].addNewQuestion("text", "q3");
+  assert.equal(q3.wasRendered, true, "q3 wasRendered");
+  const panel1 = survey.pages[0].addNewPanel("panel1");
+  assert.equal(panel1.wasRendered, true, "panel1 wasRendered");
+  const q4 = panel1.addNewQuestion("text", "q4");
+  assert.equal(q4.wasRendered, true, "q4 wasRendered");
+
+  assert.equal(survey.pages[1].wasRendered, false, "page2 wasRendered, #1");
+  assert.equal(survey.getQuestionByName("q2").wasRendered, false, "q2 wasRendered, #1");
+  const q5 = survey.pages[1].addNewQuestion("text", "q5");
+  assert.equal(q5.wasRendered, false, "q5 wasRendered, #1");
+  const panel2 = survey.pages[1].addNewPanel("panel1");
+  assert.equal(panel2.wasRendered, false, "panel2 wasRendered, #1");
+  const q6 = panel2.addNewQuestion("text", "q6");
+  assert.equal(q6.wasRendered, false, "q6 wasRendered, #1");
+
+  survey.nextPage();
+  assert.equal(survey.pages[1].wasRendered, true, "page2 wasRendered, #2");
+  assert.equal(survey.getQuestionByName("q2").wasRendered, true, "q2 wasRendered, #2");
+  assert.equal(q5.wasRendered, true, "q5 wasRendered, #2");
+  assert.equal(panel2.wasRendered, true, "panel2 wasRendered, #2");
+  assert.equal(q6.wasRendered, true, "q6 wasRendered, #2");
+});
+
+QUnit.test("getContainerContent - progress settings", function (assert) {
+  surveyCss.currentType = "defaultV2";
+  const json = {
+    showNavigationButtons: "none",
+    pages: [
+      {
+        "elements": [
+          {
+            required: true,
+            "type": "rating",
+            "name": "satisfaction",
+          },
+          {
+            required: true,
+            "type": "rating",
+            "name": "recommend friends",
+          }
+        ]
+      },
+      {
+        "elements": [
+          {
+            "type": "radiogroup",
+            "name": "price to competitors",
+          },
+          {
+            "type": "radiogroup",
+            "name": "price",
+          },
+        ]
+      },
+    ]
+  };
+
+  let survey = new SurveyModel(json);
+  const getContainerContent = getContainerContentFunction(survey);
+
+  assert.equal(settings.legacyProgressBarView, false, "show buttons progress for pages by default");
+  assert.equal(survey.showProgressBar, "off", "default show progress bar");
+  assert.equal(survey.progressBarType, "pages", "default progress bar type");
+  assert.equal(survey.progressBarShowPageNumbers, false, "don't show page numbers in progress by default");
+  assert.equal(survey.progressBarShowPageTitles, false, "don't show page titles in progress by default");
+
+  assert.deepEqual(getContainerContent("header"), [], "empty header");
+  assert.deepEqual(getContainerContent("footer"), [], "empty footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "empty contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "empty contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "empty left");
+  assert.deepEqual(getContainerContent("right"), [], "empty right");
+  assert.deepEqual(getContainerContent("center"), [], "empty center");
+
+  survey.showProgressBar = "auto";
+  assert.deepEqual(getContainerContent("header"), [], "auto pages header");
+  assert.deepEqual(getContainerContent("footer"), [], "auto pages footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "auto pages contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "auto pages contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "auto pages left");
+  assert.deepEqual(getContainerContent("right"), [], "auto pages right");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "auto pages center");
+
+  survey.progressBarType = "buttons";
+
+  assert.equal(survey.progressBarShowPageTitles, true, "show page titles in progress for buttons");
+
+  assert.deepEqual(getContainerContent("header"), [], "auto buttons header");
+  assert.deepEqual(getContainerContent("footer"), [], "auto buttons footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "auto buttons contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "auto buttons contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "auto buttons left");
+  assert.deepEqual(getContainerContent("right"), [], "auto buttons right");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "auto buttons center");
+
+  survey.progressBarType = "pages";
+
+  survey.showProgressBar = "aboveHeader";
+  assert.deepEqual(getContainerContent("header"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons",
+    "index": -150
+  }], "aboveHeader pages header");
+  assert.deepEqual(getContainerContent("footer"), [], "aboveHeader pages footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "aboveHeader pages contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "aboveHeader pages contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "aboveHeader pages left");
+  assert.deepEqual(getContainerContent("right"), [], "aboveHeader pages right");
+  assert.deepEqual(getContainerContent("center"), [], "aboveHeader pages center");
+
+  survey.showProgressBar = "belowHeader";
+  assert.deepEqual(getContainerContent("header"), [], "belowHeader pages header");
+  assert.deepEqual(getContainerContent("footer"), [], "belowHeader pages footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "belowHeader pages contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "belowHeader pages contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "belowHeader pages left");
+  assert.deepEqual(getContainerContent("right"), [], "belowHeader pages right");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "belowHeader pages center");
+
+  survey.showProgressBar = "topBottom";
+  assert.deepEqual(getContainerContent("header"), [], "topBottom pages header");
+  assert.deepEqual(getContainerContent("footer"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "topBottom pages footer");
+  assert.deepEqual(getContainerContent("contentTop"), [], "topBottom pages contentTop");
+  assert.deepEqual(getContainerContent("contentBottom"), [], "topBottom pages contentBottom");
+  assert.deepEqual(getContainerContent("left"), [], "topBottom pages left");
+  assert.deepEqual(getContainerContent("right"), [], "topBottom pages right");
+  assert.deepEqual(getContainerContent("center"), [{
+    "component": "sv-progress-buttons",
+    "id": "progress-buttons"
+  }], "topBottom pages center");
+});
+
+QUnit.test("survey.runExpressions(), #7694", function (assert) {
+  function func1(params: any[]): any {
+    return 1;
+  }
+  const survey = new SurveyModel({
+    elements: [
+      {
+        "name": "q1",
+        "type": "expression",
+        "expression": "func1()",
+      },
+      {
+        "name": "q2",
+        "type": "text",
+        "visibleIf": "func1() = 1",
+      }
+    ]
+  });
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(q1.value, undefined, "q1.value #1");
+  assert.equal(q2.isVisible, false, "q2.isVisible #1");
+
+  FunctionFactory.Instance.register("func1", func1);
+  survey.runExpressions();
+  assert.equal(q1.value, 1, "q1.value #2");
+  assert.equal(q2.isVisible, true, "q2.isVisible #2");
+
+  FunctionFactory.Instance.unregister("func1");
+});
+QUnit.test("survey.locale, default locale is not en and design-time, #7765", function (assert) {
+  const defautlLocale = surveyLocalization.defaultLocale;
+  surveyLocalization.defaultLocale = "fr";
+  const json = {
+    elements: [
+      {
+        type: "text",
+        name: "q1",
+        title: {
+          de: "German title",
+          en: "English question title",
+        },
+        description: {
+          de: "German description",
+          en: "English element description",
+        }
+      }
+    ],
+    locale: "de",
+  };
+  const survey = new SurveyModel();
+  survey.setDesignMode(true);
+  survey.fromJSON(json);
+  const q1 = survey.getQuestionByName("q1");
+  assert.equal(q1.hasDescription, true, "Description loaded correctly");
+  surveyLocalization.defaultLocale = defautlLocale;
 });

@@ -2,7 +2,13 @@
     <label [class]="model.getItemCss()">
       <input
         type="checkbox"
-        [attr.name]="model.name" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired" [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid" [attr.aria-describedby]="model.ariaDescribedBy"
+        [attr.name]="model.name" [attr.id]="model.inputId" 
+        [attr.role]="model.a11y_input_ariaRole"
+        [attr.aria-required]="model.a11y_input_ariaRequired"
+        [attr.aria-label]="model.a11y_input_ariaLabel"
+        [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+        [attr.aria-invalid]="model.a11y_input_ariaInvalid"
+        [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
         [class]="model.cssClasses.control" [disabled]="model.isInputReadOnly"  [indeterminate]="model.isIndeterminate" [value]="model.booleanValue" [(ngModel)]="model.booleanValue" />
       <div [class]="model.cssClasses.sliderGhost" (click)="model.onLabelClick($event, false)">
         <span [class]="model.getLabelCss(false)" [model]="model.locLabelFalse" sv-ng-string></span>

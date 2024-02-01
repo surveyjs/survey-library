@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [commit-and-tag-version](https://github.com/absolute-version/commit-and-tag-version) for commit guidelines.
 
+## [1.9.128](https://github.com/surveyjs/surveyjs/compare/v1.9.127...v1.9.128) (2024-01-31)
+
+## [1.9.127](https://github.com/surveyjs/surveyjs/compare/v1.9.126...v1.9.127) (2024-01-23)
+
+## [1.9.126](https://github.com/surveyjs/surveyjs/compare/v1.9.125...v1.9.126) (2024-01-17)
+
+## [1.9.125](https://github.com/surveyjs/surveyjs/compare/v1.9.124...v1.9.125) (2024-01-11)
+
+
+### Bug Fixes
+
+* 🐛 resolved globalThis is undefinded in react-native-window ([#7629](https://github.com/surveyjs/surveyjs/issues/7629)) ([36f25e6](https://github.com/surveyjs/surveyjs/commit/36f25e6b162d2482ce3c1e0d58d4a45d34053129))
+
+## [1.9.124](https://github.com/surveyjs/surveyjs/compare/v1.9.123...v1.9.124) (2024-01-05)
+
+## [1.9.123](https://github.com/surveyjs/surveyjs/compare/v1.9.122...v1.9.123) (2023-12-27)
+
 ## [1.9.122](https://github.com/surveyjs/surveyjs/compare/v1.9.121...v1.9.122) (2023-12-20)
 
 

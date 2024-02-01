@@ -9,6 +9,8 @@ export var icelandicSurveyStrings = {
   startSurveyText: "Byrjaðu",
   otherItemText: "Hinn (skýring)",
   noneItemText: "Enginn",
+  refuseItemText: "Neita að svara",
+  dontKnowItemText: "Veit ekki",
   selectAllItemText: "Velja allt",
   progressText: "Síða {0} of {1}",
   indexText: "{0} af {1}",
@@ -25,6 +27,7 @@ export var icelandicSurveyStrings = {
   requiredError: "Vinsamlegast svarið spurningunni.",
   requiredErrorInPanel: "Vinsamlegast svaraðu að minnsta kosti einni spurningu.",
   requiredInAllRowsError: "Vinsamlegast svarið spurningum í öllum röðum.",
+  eachRowUniqueError: "Hver lína verður að hafa einstakt gildi.",
   numericError: "Þetta gildi verður að vera tala.",
   minError: "Gildið má ekki vera lægra en {0}",
   maxError: "Gildið má ekki vera hærra en {0}",
@@ -42,6 +45,7 @@ export var icelandicSurveyStrings = {
   urlRequestError: "Beiðninn skilaði eftirfaranadi villu '{0}'. {1}",
   urlGetChoicesError: "Beiðninng skilaði engum gögnum eða slóðinn var röng",
   exceedMaxSize: "Skráinn skal ekki vera stærri en {0}.",
+  noUploadFilesHandler: "Ekki er hægt að hlaða upp skrám. Vinsamlegast bættu við rekli fyrir 'onUploadFiles' atvikið.",
   otherRequiredError: "Vinamlegast fyllið út hitt gildið.",
   uploadingFile: "Skráinn þín var send. Vinsamlegast bíðið í nokkrar sekúndur og reynið aftur.",
   loadingFile: "Hleður ...",
@@ -56,6 +60,8 @@ export var icelandicSurveyStrings = {
   emptyRowsText: "Það eru engar raðir.",
   addPanel: "Bæta við nýju",
   removePanel: "Fjarlægðu",
+  showDetails: "Sýna upplýsingar",
+  hideDetails: "Fela upplýsingar",
   choices_Item: "hlutur",
   matrix_column: "Dálkur",
   matrix_row: "Röð",
@@ -94,7 +100,9 @@ export var icelandicSurveyStrings = {
   more: "Fleiri",
   tagboxDoneButtonCaption: "ÓKEI",
   selectToRankEmptyRankedAreaText: "Öllum valkostum er raðað",
-  selectToRankEmptyUnrankedAreaText: "Dragðu og slepptu valkostum hér til að raða þeim"
+  selectToRankEmptyUnrankedAreaText: "Dragðu og slepptu valkostum hér til að raða þeim",
+  ok: "ÓKEI",
+  cancel: "Afturkalla"
 };
 
 surveyLocalization.locales["is"] = icelandicSurveyStrings;
@@ -123,4 +131,11 @@ surveyLocalization.localeNames["is"] = "íslenska";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Dragðu og slepptu valkostum hér til að raða þeim"// takePhotoCaption: "Take Photo" => "Taka mynd"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Smelltu á hnappinn hér að neðan til að taka mynd með myndavélinni."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Dragðu og slepptu eða veldu skrá til að hlaða upp eða taka mynd með myndavélinni."
-// replaceFileCaption: "Replace file" => "Skipta út skrá"
+// replaceFileCaption: "Replace file" => "Skipta út skrá"// eachRowUniqueError: "Each row must have a unique value." => "Hver lína verður að hafa einstakt gildi."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Ekki er hægt að hlaða upp skrám. Vinsamlegast bættu við rekli fyrir 'onUploadFiles' atvikið."
+// showDetails: "Show Details" => "Sýna upplýsingar"
+// hideDetails: "Hide Details" => "Fela upplýsingar"
+// ok: "OK" => "ÓKEI"
+// cancel: "Cancel" => "Afturkalla"
+// refuseItemText: "Refuse to answer" => "Neita að svara"
+// dontKnowItemText: "Don't know" => "Veit ekki"

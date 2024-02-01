@@ -11,6 +11,8 @@ export var portugueseBrSurveyStrings = {
   startSurveyText: "Começar",
   otherItemText: "Outros (descrever)",
   noneItemText: "Nenhum",
+  refuseItemText: "Recusar-se a responder",
+  dontKnowItemText: "Não sei",
   selectAllItemText: "Selecionar tudo",
   progressText: "Página {0} de {1}",
   indexText: "{0} de {1}",
@@ -27,6 +29,7 @@ export var portugueseBrSurveyStrings = {
   requiredError: "Por favor, responda a pergunta.",
   requiredErrorInPanel: "Por favor, responda pelo menos uma pergunta.",
   requiredInAllRowsError: "Por favor, responda as perguntas em todas as linhas.",
+  eachRowUniqueError: "Cada linha deve ter um valor exclusivo.",
   numericError: "O valor deve ser numérico.",
   minError: "O valor não deve ser inferior a {0}",
   maxError: "O valor não deve ser maior que {0}",
@@ -44,6 +47,7 @@ export var portugueseBrSurveyStrings = {
   urlRequestError: "A requisição retornou o erro '{0}'. {1}",
   urlGetChoicesError: "A requisição não retornou dados ou o 'caminho' da requisição não está correto",
   exceedMaxSize: "O tamanho do arquivo não deve exceder {0}.",
+  noUploadFilesHandler: "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'.",
   otherRequiredError: "Por favor, informe o outro valor.",
   uploadingFile: "Seu arquivo está sendo carregado. Por favor, aguarde alguns segundos e tente novamente.",
   loadingFile: "Carregando...",
@@ -58,6 +62,8 @@ export var portugueseBrSurveyStrings = {
   emptyRowsText: "Não há filas.",
   addPanel: "Adicionar novo",
   removePanel: "Retirar",
+  showDetails: "Mostrar detalhes",
+  hideDetails: "Ocultar detalhes",
   choices_Item: "item",
   matrix_column: "Coluna",
   matrix_row: "Remar",
@@ -96,7 +102,9 @@ export var portugueseBrSurveyStrings = {
   more: "Mais",
   tagboxDoneButtonCaption: "OKEY",
   selectToRankEmptyRankedAreaText: "Todas as opções são classificadas",
-  selectToRankEmptyUnrankedAreaText: "Arraste e solte as opções aqui para classificá-las"
+  selectToRankEmptyUnrankedAreaText: "Arraste e solte as opções aqui para classificá-las",
+  ok: "OKEY",
+  cancel: "Cancelar"
 };
 
 surveyLocalization.locales["pt-br"] = portugueseBrSurveyStrings;
@@ -172,4 +180,11 @@ surveyLocalization.localeNames["pt-br"] = "português brasileiro";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Arraste e solte as opções aqui para classificá-las"// takePhotoCaption: "Take Photo" => "Tirar foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Clique no botão abaixo para tirar uma foto usando a câmera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Arraste e solte ou selecione um arquivo para carregar ou tirar uma foto usando a câmera."
-// replaceFileCaption: "Replace file" => "Substituir arquivo"
+// replaceFileCaption: "Replace file" => "Substituir arquivo"// eachRowUniqueError: "Each row must have a unique value." => "Cada linha deve ter um valor exclusivo."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Os arquivos não podem ser carregados. Adicione um manipulador para o evento 'onUploadFiles'."
+// showDetails: "Show Details" => "Mostrar detalhes"
+// hideDetails: "Hide Details" => "Ocultar detalhes"
+// ok: "OK" => "OKEY"
+// cancel: "Cancel" => "Cancelar"
+// refuseItemText: "Refuse to answer" => "Recusar-se a responder"
+// dontKnowItemText: "Don't know" => "Não sei"

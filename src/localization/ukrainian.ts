@@ -9,6 +9,8 @@ export var ukrainianSurveyStrings = {
   startSurveyText: "Почати",
   otherItemText: "Інше (будь ласка, опишіть)",
   noneItemText: "Жоден",
+  refuseItemText: "Відмовтеся відповідати",
+  dontKnowItemText: "Не знаю",
   selectAllItemText: "Вибрати все",
   progressText: "Сторінка {0} з {1}",
   indexText: "{0} {1}",
@@ -25,6 +27,7 @@ export var ukrainianSurveyStrings = {
   requiredError: "Будь ласка, дайте відповідь.",
   requiredErrorInPanel: "Будь ласка, дайте відповідь хоча б на одне питання.",
   requiredInAllRowsError: "Будь ласка, дайте відповідь на питання в кожному рядку.",
+  eachRowUniqueError: "Кожен рядок повинен мати унікальне значення.",
   numericError: "Відповідь повинна бути числом.",
   minError: "Значення не повинно бути менше {0}",
   maxError: "Значення не повинно бути більше {0}",
@@ -42,6 +45,7 @@ export var ukrainianSurveyStrings = {
   urlRequestError: "Запит повернув помилку '{0}'. {1}",
   urlGetChoicesError: "Відповідь на запит повернулась порожньою або властивіть 'path' вказано невірно",
   exceedMaxSize: "Розмір файлу не повинен перевищувати {0}.",
+  noUploadFilesHandler: "Файли не можна завантажити. Будь ласка, додайте обробник для події 'onUploadFiles'.",
   otherRequiredError: "Будь ласка, введіть дані в поле 'Інше'",
   uploadingFile: "Ваш файл завантажується. Зачекайте декілька секунд і спробуйте знову.",
   loadingFile: "Завантаження...",
@@ -56,6 +60,8 @@ export var ukrainianSurveyStrings = {
   emptyRowsText: "Рядів немає.",
   addPanel: "Додати нову",
   removePanel: "Видалити",
+  showDetails: "Показати подробиці",
+  hideDetails: "Сховати подробиці",
   choices_Item: "Варіант",
   matrix_column: "Колонка",
   matrix_row: "Рядок",
@@ -94,7 +100,9 @@ export var ukrainianSurveyStrings = {
   more: "Більше",
   tagboxDoneButtonCaption: "ГАРАЗД",
   selectToRankEmptyRankedAreaText: "Всі варіанти ранжуються",
-  selectToRankEmptyUnrankedAreaText: "Перетягніть варіанти тут, щоб оцінити їх"
+  selectToRankEmptyUnrankedAreaText: "Перетягніть варіанти тут, щоб оцінити їх",
+  ok: "ГАРАЗД",
+  cancel: "Скасувати"
 };
 
 surveyLocalization.locales["ua"] = ukrainianSurveyStrings;
@@ -123,4 +131,10 @@ surveyLocalization.localeNames["ua"] = "українська";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Перетягніть варіанти тут, щоб оцінити їх"// takePhotoCaption: "Take Photo" => "Зробити фото"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Натисніть кнопку нижче, щоб зробити фото за допомогою камери."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Перетягніть або виберіть файл, щоб завантажити або зробити фотографію за допомогою камери."
-// replaceFileCaption: "Replace file" => "Замінити файл"
+// replaceFileCaption: "Replace file" => "Замінити файл"// eachRowUniqueError: "Each row must have a unique value." => "Кожен рядок повинен мати унікальне значення."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файли не можна завантажити. Будь ласка, додайте обробник для події 'onUploadFiles'."
+// showDetails: "Show Details" => "Показати подробиці"
+// hideDetails: "Hide Details" => "Сховати подробиці"
+// ok: "OK" => "ГАРАЗД"
+// cancel: "Cancel" => "Скасувати"// refuseItemText: "Refuse to answer" => "Відмовтеся відповідати"
+// dontKnowItemText: "Don't know" => "Не знаю"

@@ -3,6 +3,7 @@ import { QuestionCommentModel } from "../src/question_comment";
 import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
+import { StylesManager } from "../src/stylesmanager";
 
 QUnit.test("check dropdown disabled class", function(assert) {
   var json = {
@@ -349,6 +350,23 @@ QUnit.test("CharacterCounter + settings.showMaxLengthIndicator", function(assert
   ch.updateRemainingCharacterCounter("abcd", 7);
   assert.equal(ch.remainingCharacterCounter, "4/7", "#4");
 });
+QUnit.test("getControlClass with characterCounter", function(assert) {
+  StylesManager.applyTheme("defaultV2");
+  const inputClasses = "sd-input sd-text";
+  const constrolWithCharacterCounter = "sd-text__character-counter";
+  const characterCounterBig = "sd-text__character-counter--big";
+
+  const survey = new SurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  const q = survey.getQuestionByName("q1");
+  assert.equal(q.getControlClass(), inputClasses, "#1");
+
+  q.maxLength = 99;
+  assert.equal(q.getControlClass(), inputClasses + " " + constrolWithCharacterCounter, "#2");
+
+  q.maxLength = 100;
+  assert.equal(q.getControlClass(), inputClasses + " " + constrolWithCharacterCounter + " " + characterCounterBig, "#3");
+  StylesManager.applyTheme("default");
+});
 
 QUnit.test("Set empty text", function(assert) {
   const survey = new SurveyModel({
@@ -384,4 +402,16 @@ QUnit.test("Set empty text", function(assert) {
 QUnit.test("Text Question KeyHandler exists", function (assert) {
   const q = new QuestionTextModel("q1");
   assert.ok(q["onTextKeyDownHandler"], "we need this handler for using in Survey Creator");
+});
+QUnit.test("Test maxLength & getMaxLength", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maxLength = 10;
+  assert.equal(q.isTextInput, true, "isTextInput - text");
+  assert.equal(q.getMaxLength(), 10, "getMaxLength() - text");
+  q.inputType = "color";
+  assert.equal(q.isTextInput, false, "isTextInput - color");
+  assert.equal(q.getMaxLength(), null, "getMaxLength() - color");
+  q.inputType = "password";
+  assert.equal(q.isTextInput, true, "isTextInput - password");
+  assert.equal(q.getMaxLength(), 10, "getMaxLength() - password");
 });

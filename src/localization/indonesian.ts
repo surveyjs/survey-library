@@ -9,6 +9,8 @@ export var indonesianStrings = {
   startSurveyText: "Mulai",
   otherItemText: "Lainnya (jelaskan)",
   noneItemText: "Tidak Ada",
+  refuseItemText: "Menolak untuk menjawab",
+  dontKnowItemText: "Tidak tahu",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} dari {1}",
   indexText: "{0} dari {1}",
@@ -25,6 +27,7 @@ export var indonesianStrings = {
   requiredError: "Silahkan jawab pertanyaan berikut.",
   requiredErrorInPanel: "Silahkan jawab setidaknya satu petanyaan.",
   requiredInAllRowsError: "Silahkan jawab pertanyaan pada semua baris.",
+  eachRowUniqueError: "Setiap baris harus memiliki nilai unik.",
   numericError: "Nilai harus berupa angka.",
   minError: "Nilainya tidak boleh kurang dari {0}",
   maxError: "Nilai tidak boleh lebih besar dari {0}",
@@ -42,6 +45,7 @@ export var indonesianStrings = {
   urlRequestError: "Permintaan mengembalikan kesalahan '{0}'. {1}",
   urlGetChoicesError: "Permintaan mengembalikan data kosong atau properti 'path' salah.",
   exceedMaxSize: "Ukuran berkas tidak boleh melebihi {0}.",
+  noUploadFilesHandler: "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'.",
   otherRequiredError: "Silahkan masukkan nilai lainnnya.",
   uploadingFile: "Berkas Anda sedang diunggah. Silahkan tunggu beberapa saat atau coba lagi.",
   loadingFile: "Memuat...",
@@ -56,6 +60,8 @@ export var indonesianStrings = {
   emptyRowsText: "Tidak ada baris.",
   addPanel: "Tambah baru",
   removePanel: "Hapus",
+  showDetails: "Tampilkan Detail",
+  hideDetails: "Sembunyikan Detail",
   choices_Item: "item",
   matrix_column: "Kolom",
   matrix_row: "Baris",
@@ -94,7 +100,9 @@ export var indonesianStrings = {
   more: "Lebih",
   tagboxDoneButtonCaption: "OKE",
   selectToRankEmptyRankedAreaText: "Semua pilihan diberi peringkat",
-  selectToRankEmptyUnrankedAreaText: "Seret dan lepas pilihan di sini untuk memberi peringkat"
+  selectToRankEmptyUnrankedAreaText: "Seret dan lepas pilihan di sini untuk memberi peringkat",
+  ok: "OKE",
+  cancel: "Membatalkan"
 };
 
 surveyLocalization.locales["id"] = indonesianStrings;
@@ -123,4 +131,11 @@ surveyLocalization.localeNames["id"] = "bahasa Indonesia";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Seret dan lepas pilihan di sini untuk memberi peringkat"// takePhotoCaption: "Take Photo" => "Ambil Foto"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Klik tombol di bawah ini untuk mengambil foto menggunakan kamera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Seret dan lepas atau pilih file untuk diunggah atau mengambil foto menggunakan kamera."
-// replaceFileCaption: "Replace file" => "Ganti file"
+// replaceFileCaption: "Replace file" => "Ganti file"// eachRowUniqueError: "Each row must have a unique value." => "Setiap baris harus memiliki nilai unik."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "File tidak dapat diunggah. Harap tambahkan handler untuk acara 'onUploadFiles'."
+// showDetails: "Show Details" => "Tampilkan Detail"
+// hideDetails: "Hide Details" => "Sembunyikan Detail"
+// ok: "OK" => "OKE"
+// cancel: "Cancel" => "Membatalkan"
+// refuseItemText: "Refuse to answer" => "Menolak untuk menjawab"
+// dontKnowItemText: "Don't know" => "Tidak tahu"

@@ -9,6 +9,8 @@ export var romanianSurveyStrings: any = {
   startSurveyText: "start",
   otherItemText: "Altul(precizaţi)",
   noneItemText: "Nici unul",
+  refuseItemText: "Refuză să răspundă",
+  dontKnowItemText: "Nu ştiu",
   selectAllItemText: "Selectează tot",
   progressText: "Pagina {0} din {1}",
   indexText: "{0} de {1}",
@@ -25,6 +27,7 @@ export var romanianSurveyStrings: any = {
   requiredError: "Răspunsul la această întrebare este obligatoriu.",
   requiredErrorInPanel: "Vă rugăm să răspundeți la cel puțin o întrebare.",
   requiredInAllRowsError: "Toate răspunsurile sunt obligatorii",
+  eachRowUniqueError: "Fiecare rând trebuie să aibă o valoare unică.",
   numericError: "Răspunsul trebuie să fie numeric.",
   minError: "Valoarea nu trebuie să fie mai mică de {0}",
   maxError: "Valoarea nu trebuie să fie mai mare de {0}",
@@ -42,6 +45,7 @@ export var romanianSurveyStrings: any = {
   urlRequestError: "Request-ul a returnat eroarea '{0}'. {1}",
   urlGetChoicesError: "Request-ul nu a returnat date sau proprietatea 'path' este incorectă",
   exceedMaxSize: "Dimensiunea fişierului nu trebuie să depăşească {0}.",
+  noUploadFilesHandler: "Fișierele nu pot fi încărcate. Vă rugăm să adăugați un handler pentru evenimentul \"onUploadFiles\".",
   otherRequiredError: "Trebuie să completați câmpul 'Altul'.",
   uploadingFile: "Fișierul dumneavoastră este în curs de încărcare. Vă rugăm așteptați câteva secunde și reveniți apoi.",
   loadingFile: "Se încarcă...",
@@ -56,6 +60,8 @@ export var romanianSurveyStrings: any = {
   emptyRowsText: "Nu există rânduri.",
   addPanel: "Adăugare",
   removePanel: "Ștergere",
+  showDetails: "Arată detalii",
+  hideDetails: "Ascunde detalii",
   choices_Item: "opțiune",
   matrix_column: "Coloană",
   matrix_row: "Rând",
@@ -94,7 +100,9 @@ export var romanianSurveyStrings: any = {
   more: "Mai mult",
   tagboxDoneButtonCaption: "OK",
   selectToRankEmptyRankedAreaText: "Toate opțiunile sunt clasificate",
-  selectToRankEmptyUnrankedAreaText: "Glisați și fixați opțiunile aici pentru a le clasifica"
+  selectToRankEmptyUnrankedAreaText: "Glisați și fixați opțiunile aici pentru a le clasifica",
+  ok: "OK",
+  cancel: "Anula"
 };
 
 surveyLocalization.locales["ro"] = romanianSurveyStrings;
@@ -123,4 +131,11 @@ surveyLocalization.localeNames["ro"] = "română";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Glisați și fixați opțiunile aici pentru a le clasifica"// takePhotoCaption: "Take Photo" => "Faceți o fotografie"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Faceți clic pe butonul de mai jos pentru a face o fotografie folosind camera."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Glisați și fixați sau selectați un fișier pentru a încărca sau a face o fotografie folosind camera."
-// replaceFileCaption: "Replace file" => "Înlocuire fișier"
+// replaceFileCaption: "Replace file" => "Înlocuire fișier"// eachRowUniqueError: "Each row must have a unique value." => "Fiecare rând trebuie să aibă o valoare unică."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Fișierele nu pot fi încărcate. Vă rugăm să adăugați un handler pentru evenimentul \"onUploadFiles\"."
+// showDetails: "Show Details" => "Arată detalii"
+// hideDetails: "Hide Details" => "Ascunde detalii"
+// ok: "OK" => "OK"
+// cancel: "Cancel" => "Anula"
+// refuseItemText: "Refuse to answer" => "Refuză să răspundă"
+// dontKnowItemText: "Don't know" => "Nu ştiu"

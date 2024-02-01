@@ -17,7 +17,7 @@
   border-radius: $editor-corner-radius;
   text-align: start;
   box-shadow: $shadow-inner, 0 0 0 0px $primary;
-  transition: box-shadow 250ms;
+  transition: box-shadow $transition-duration;
 }
 
 .sd-input:focus {
@@ -79,6 +79,10 @@ textarea {
 
 .sd-text__character-counter:focus-within {
   padding-inline-end: calcSize(8);
+}
+
+.sd-text__character-counter.sd-text__character-counter--big:focus-within {
+  padding-inline-end: calcSize(11);
 }
 
 .sd-remaining-character-counter {

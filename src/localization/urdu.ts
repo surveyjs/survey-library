@@ -9,6 +9,8 @@ export var urduSurveyStrings = {
   startSurveyText: "شروع کریں",
   otherItemText: "دیگر (بیان کریں)",
   noneItemText: "کوئی نہیں",
+  refuseItemText: "جواب دینے سے انکار",
+  dontKnowItemText: "معلوم نہيں",
   selectAllItemText: "تمام منتخب کریں",
   progressText: "صفحہ {0} از {1}",
   indexText: "{1} کے {0}",
@@ -25,6 +27,7 @@ export var urduSurveyStrings = {
   requiredError: "براہ کرم سوال کا جواب دیں۔",
   requiredErrorInPanel: "براہ کرم کم از کم ایک سوال کا جواب دیں۔",
   requiredInAllRowsError: "براہ کرم تمام قطاروں میں سوالات کے جوابات دیں۔",
+  eachRowUniqueError: "ہر قطار کی ایک منفرد قدر ہونی چاہئے۔",
   numericError: "اس کا جواب عدد میں ہونا چاہئے۔",
   minError: "عدد صفر سے کم نہیں ہونی چاہئے",
   maxError: "عدد صفر سے زیادہ نہیں ہونی چاہیے",
@@ -42,6 +45,7 @@ export var urduSurveyStrings = {
   urlRequestError: "درخواست نے غلطی '{0}' لوٹائی۔ {1}",
   urlGetChoicesError: "درخواست نے خالی ڈیٹا واپس کر دیا۔ یا 'راستہ' پراپرٹی غلط ہے۔",
   exceedMaxSize: "فائل کا سائز {0} سے زیادہ نہیں ہونا چاہیے.",
+  noUploadFilesHandler: "فائلیں اپ لوڈ نہیں کی جا سکتیں۔ براہ کرم 'آن اپ لوڈ فائلز' ایونٹ کے لئے ایک ہینڈلر شامل کریں۔",
   otherRequiredError: "براہ کرم دوسری عدد درج کریں۔ ",
   uploadingFile: "آپ کی فائل اپ لوڈ ہو رہی ہے۔ براہ کرم چند سیکنڈ انتظار کریں اور دوبارہ کوشش کریں۔",
   loadingFile: "..لوڈ ہو رہا ہے۔",
@@ -56,6 +60,8 @@ export var urduSurveyStrings = {
   emptyRowsText: "کوئی قطار نہیں ہیں۔ ",
   addPanel: "نیا شامل کریں",
   removePanel: "مٹائے",
+  showDetails: "تفصیلات دکھائیں",
+  hideDetails: "تفصیلات چھپائیں",
   choices_Item: "آئٹم",
   matrix_column: "کالم۔",
   matrix_row: "قطار۔",
@@ -94,7 +100,9 @@ export var urduSurveyStrings = {
   more: "زیادہ",
   tagboxDoneButtonCaption: "ٹھيک ہے",
   selectToRankEmptyRankedAreaText: "تمام اختیارات کی درجہ بندی کی جاتی ہے",
-  selectToRankEmptyUnrankedAreaText: "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں"
+  selectToRankEmptyUnrankedAreaText: "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں",
+  ok: "ٹھيک ہے",
+  cancel: "منسوخ"
 };
 
 //Uncomment these two lines on creating a translation file. You should replace "en" and enStrings with your locale ("fr", "de" and so on) and your variable.
@@ -116,4 +124,10 @@ surveyLocalization.localeNames["ur"] = "Urdu";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "انہیں درجہ دینے کے لئے انتخاب کو یہاں گھسیٹیں اور چھوڑیں"// takePhotoCaption: "Take Photo" => "تصویر لیں"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر لینے کے لئے نیچے دیئے گئے بٹن پر کلک کریں۔"
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "کیمرے کا استعمال کرتے ہوئے تصویر اپ لوڈ کرنے یا لینے کے لئے فائل کو گھسیٹیں اور چھوڑیں یا منتخب کریں۔"
-// replaceFileCaption: "Replace file" => "فائل کو تبدیل کریں"
+// replaceFileCaption: "Replace file" => "فائل کو تبدیل کریں"// eachRowUniqueError: "Each row must have a unique value." => "ہر قطار کی ایک منفرد قدر ہونی چاہئے۔"
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "فائلیں اپ لوڈ نہیں کی جا سکتیں۔ براہ کرم 'آن اپ لوڈ فائلز' ایونٹ کے لئے ایک ہینڈلر شامل کریں۔"
+// showDetails: "Show Details" => "تفصیلات دکھائیں"
+// hideDetails: "Hide Details" => "تفصیلات چھپائیں"
+// ok: "OK" => "ٹھيک ہے"
+// cancel: "Cancel" => "منسوخ"// refuseItemText: "Refuse to answer" => "جواب دینے سے انکار"
+// dontKnowItemText: "Don't know" => "معلوم نہيں"

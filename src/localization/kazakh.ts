@@ -9,6 +9,8 @@ export var kazakhStrings = {
   startSurveyText: "Бастау",
   otherItemText: "Басқа (өтінеміз, жазыңыз)",
   noneItemText: "Жоқ",
+  refuseItemText: "Жауап беруден бас тарту",
+  dontKnowItemText: "Білмеймін",
   selectAllItemText: "Барлығын таңдау",
   progressText: "{0} ден {1} бет ",
   indexText: "{1} {0}",
@@ -25,6 +27,7 @@ export var kazakhStrings = {
   requiredError: "Өтінеміз, сұраққа жауап беріңіз.",
   requiredErrorInPanel: "Өтінеміз, кем дегенде бір сұраққа жауап беріңіз.",
   requiredInAllRowsError: "Өтінеміз, әрбір жолдың сұрағаны жауап беріңіз.",
+  eachRowUniqueError: "Әр жолдың бірегей мәні болуы тиіс.",
   numericError: "Жауап сан түрінде болуы керек.",
   minError: "Мәні {0} кем болмауы тиіс",
   maxError: "Мән {0} артық болмауы тиіс",
@@ -42,6 +45,7 @@ export var kazakhStrings = {
   urlRequestError: "Сұратым қателікті қайтарды'{0}'. {1}",
   urlGetChoicesError: "Сұратымға жауап бос келді немесе 'path' қасиеті қате көрсетілген ",
   exceedMaxSize: "Файлдың мөлшері {0} аспау керек.",
+  noUploadFilesHandler: "Файлдарды кері жүктеу мүмкін емес. 'OnUploadFiles' оқиғасына өңдеушіні қосуыңызды сұраймыз.",
   otherRequiredError: "Өтінеміз, “Басқа” жолына деректі енгізіңіз",
   uploadingFile: "Сіздің файлыңыз жүктеліп жатыр. Бірнеше секунд тосып, қайтадан байқап көріңіз.",
   loadingFile: "Жүктеу...",
@@ -56,6 +60,8 @@ export var kazakhStrings = {
   emptyRowsText: "Қатарлар жоқ.",
   addPanel: "Жаңа қосу",
   removePanel: "Өшіру",
+  showDetails: "Егжей-тегжейін көрсету",
+  hideDetails: "Егжей- тегжейін жасы",
   choices_Item: "Нұсқа",
   matrix_column: "Бағана",
   matrix_row: "Жол",
@@ -94,7 +100,9 @@ export var kazakhStrings = {
   more: "Қосымша",
   tagboxDoneButtonCaption: "ЖАҚСЫ",
   selectToRankEmptyRankedAreaText: "Барлық таңдаулар ранжирленген",
-  selectToRankEmptyUnrankedAreaText: "Таңдауды рангтеу үшін осында апарып тастау"
+  selectToRankEmptyUnrankedAreaText: "Таңдауды рангтеу үшін осында апарып тастау",
+  ok: "ЖАҚСЫ",
+  cancel: "Болдырмау"
 };
 
 surveyLocalization.locales["kk"] = kazakhStrings;
@@ -122,4 +130,11 @@ surveyLocalization.localeNames["kk"] = "Kazakh";
 // selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them" => "Таңдауды рангтеу үшін осында апарып тастау"// takePhotoCaption: "Take Photo" => "Фотосуретке түсу"
 // photoPlaceholder: "Click the button below to take a photo using the camera." => "Камераны пайдаланып суретке түсу үшін төмендегі түймені басыңыз."
 // fileOrPhotoPlaceholder: "Drag and drop or select a file to upload or take a photo using the camera." => "Фотоаппаратты пайдаланып кері жүктеу немесе суретке түсіру үшін файлды апарып тастаыңыз немесе таңдаңыз."
-// replaceFileCaption: "Replace file" => "Файлды ауыстыру"
+// replaceFileCaption: "Replace file" => "Файлды ауыстыру"// eachRowUniqueError: "Each row must have a unique value." => "Әр жолдың бірегей мәні болуы тиіс."
+// noUploadFilesHandler: "Files cannot be uploaded. Please add a handler for the 'onUploadFiles' event." => "Файлдарды кері жүктеу мүмкін емес. 'OnUploadFiles' оқиғасына өңдеушіні қосуыңызды сұраймыз."
+// showDetails: "Show Details" => "Егжей-тегжейін көрсету"
+// hideDetails: "Hide Details" => "Егжей- тегжейін жасы"
+// ok: "OK" => "ЖАҚСЫ"
+// cancel: "Cancel" => "Болдырмау"
+// refuseItemText: "Refuse to answer" => "Жауап беруден бас тарту"
+// dontKnowItemText: "Don't know" => "Білмеймін"

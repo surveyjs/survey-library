@@ -86,7 +86,7 @@
 }
 
 .sd-input.sd-dropdown:focus-within {
-  box-shadow: 0 0 0 2px $primary;
+  box-shadow: $shadow-inner-reset, 0 0 0 2px $primary;
 }
 
 .sd-input.sd-dropdown:focus-within {
@@ -164,7 +164,26 @@
     font-size: $font-editorfont-size;
     font-weight: $font-editorfont-weight;
     font-family: $font-editorfont-family;
-    padding-inline-end: calcSize(2);
+    padding-inline-end: calcSize(1.75);
+    padding-block: calcSize(1.25);
+    padding-inline-start: calcSize(1.75);
+    border: calcSize(0.25) solid transparent;
+    border-radius: calcCornerRadius(1);
+
+    // transition: border-color 1550ms;
+  }
+
+  .sv-list__item.sv-list__item--focused:not(.sv-list__item--selected) {
+    .sv-list__item-body {
+      @include borderLight;
+      padding-inline-end: calcSize(1.75);
+      padding-block: calcSize(1.25);
+      padding-inline-start: calcSize(1.75);
+    }
+  }
+
+  .sv-list__item span {
+    margin-inline-start: calcSize(-0.25);
   }
 }
 

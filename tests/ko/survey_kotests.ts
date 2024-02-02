@@ -1908,7 +1908,7 @@ QUnit.test("ProgressButtonsViewModel component scroll button", function (
       querySelectorAll: function () {
         return [] as any;
       },
-    } as any
+    } as any, "center", survey
   );
   progress.dispose();
   assert.equal(

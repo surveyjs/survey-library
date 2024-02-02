@@ -44,7 +44,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -64,7 +64,7 @@ import {
   MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
   DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent,
   GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
-  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent
+  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -443,6 +443,12 @@ export class SurveyModel extends SurveyElementCore
    * @see getResult
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
+  /**
+   * An event that is raised when Survey Creator opens a dialog window for users to select files.
+   * @see onUploadFile
+   * @see uploadFiles
+   */
+  public onOpenFileChooser: EventBase<SurveyModel, OpenFileChooserEvent> = this.addEvent<SurveyModel, OpenFileChooserEvent>();
   /**
    * An event that is raised when a File Upload or Signature Pad question starts to upload a file. Applies only if [`storeDataAsText`](https://surveyjs.io/form-library/documentation/api-reference/file-model#storeDataAsText) is `false`. Use this event to upload files to your server.
    *
@@ -5125,6 +5131,29 @@ export class SurveyModel extends SurveyElementCore
   }
 
   /**
+   * Opens a dialog window for users to select files.
+   * @param input A [file input HTML element](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement).
+   * @param callback A callback function that you can use to process selected files. Accepts an array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects.
+   * @see onOpenFileChooser
+   * @see onUploadFile
+   */
+  public chooseFiles(
+    input: HTMLInputElement,
+    callback: (files: File[]) => void,
+    context?: { element: ISurveyElement, item?: any }
+  ) {
+    if (this.onOpenFileChooser.isEmpty) {
+      chooseFiles(input, callback);
+    } else {
+      this.onOpenFileChooser.fire(this, {
+        input: input,
+        element: context && context.element || this.survey,
+        item: context && context.item,
+        callback: callback
+      });
+    }
+  }
+  /**
    * Uploads files to a server.
    *
    * The following code shows how to call this method:
@@ -6058,7 +6087,7 @@ export class SurveyModel extends SurveyElementCore
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
-    if(json && json.locale) {
+    if (json && json.locale) {
       this.locale = json.locale;
     }
   }
@@ -7489,6 +7518,9 @@ export class SurveyModel extends SurveyElementCore
         let isBelowHeader = !advHeader || advHeader.hasBackground;
         if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
           isBelowHeader = false;
+        }
+        if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
+          isBelowHeader = true;
         }
         if (container === "header" && !isBelowHeader) {
           layoutElement.index = -150;

@@ -2844,3 +2844,41 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Bug with visibleIf with composite.question and panel dynamic. Bug#7771", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        "name": "q1",
+        "type": "boolean",
+      },
+      {
+        "name": "q2",
+        "type": "paneldynamic",
+        "visibleIf": "{composite.q1} = true",
+        "minPanelCount": 1,
+        "templateElements": [
+          {
+            "name": "q3",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q1 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q1");
+  const q2 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "isVisible #1");
+  q1.value = true;
+  assert.equal(q2.isVisible, true, "isVisible #2");
+  q2.addPanel();
+  assert.equal(q2.isVisible, true, "isVisible #3");
+  ComponentCollection.Instance.clear();
+});

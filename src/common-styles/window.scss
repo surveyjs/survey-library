@@ -11,7 +11,8 @@
     background-clip: padding-box;
     z-index: 100;
     max-height: 50vh;
-    overflow: auto;
+    height: 100%;
+    overflow: hidden;
     box-sizing: border-box;
 }
 
@@ -36,6 +37,8 @@
 }
 
 .sv_window--collapsed {
+    height: initial;
+    
     .sv_window_header {
         height: calcSize(4);
         padding: calcSize(1) calcSize(1) calcSize(1) calcSize(2);

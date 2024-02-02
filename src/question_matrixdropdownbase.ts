@@ -202,8 +202,7 @@ class MatrixDropdownRowTextProcessor extends QuestionTextProcessor {
   }
 }
 
-export class MatrixDropdownRowModelBase
-  implements ISurveyData, ISurveyImpl, ILocalizableOwner {
+export class MatrixDropdownRowModelBase implements ISurveyData, ISurveyImpl, ILocalizableOwner {
   public static RowVariableName = "row";
   public static OwnerVariableName = "self";
   public static IndexVariableName = "rowIndex";

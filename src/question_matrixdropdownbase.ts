@@ -165,6 +165,9 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
   }
   public getQuestionWrapperClassName(className: string): string {
     let result = super.getQuestionWrapperClassName(className);
+    if (!result) {
+      return result;
+    }
     if (this.question.expression && this.question.expression != "''") {
       result += " " + className + "--expression";
     }

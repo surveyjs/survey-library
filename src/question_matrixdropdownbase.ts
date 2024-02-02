@@ -2509,7 +2509,7 @@ Serializer.addClass(
       name: "detailErrorLocation", default: "default", choices: ["default", "top", "bottom"],
       visibleIf: (obj: any) => { return !!obj && obj.detailPanelMode != "none"; }
     },
-    "horizontalScroll:boolean",
+    { name: "horizontalScroll:boolean", visible: false, },
     {
       name: "choices:itemvalue[]", uniqueProperty: "value",
     },

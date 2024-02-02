@@ -106,7 +106,7 @@ export var slovakSurveyStrings = {
 };
 
 surveyLocalization.locales["sk"] = slovakSurveyStrings;
-surveyLocalization.localeNames["sk"] = "slovenčina";
+surveyLocalization.localeNames["sk"] = "slovak";
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually

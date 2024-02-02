@@ -18778,11 +18778,26 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     assert.deepEqual(getContainerContent("left"), [], "progress top left");
     assert.deepEqual(getContainerContent("right"), [], "progress top right");
 
+    survey.showProgressBar = "belowHeader";
+    assert.deepEqual(getContainerContent("header"), [{
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    }], "progress top header");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages",
+    }], "progress top center");
+    assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress top left");
+    assert.deepEqual(getContainerContent("right"), [], "progress top right");
   }
   finally {
     settings.legacyProgressBarView = false;
   }
-
 });
 
 QUnit.test("getContainerContent - progress + advanced header", function (assert) {
@@ -19200,4 +19215,15 @@ QUnit.test("survey.locale, default locale is not en and design-time, #7765", fun
   const q1 = survey.getQuestionByName("q1");
   assert.equal(q1.hasDescription, true, "Description loaded correctly");
   surveyLocalization.defaultLocale = defautlLocale;
+});
+QUnit.test("onOpenFileChooser fires", function (assert) {
+  const survey = new SurveyModel();
+  let log = "";
+  survey.onOpenFileChooser.add((s, o) => {
+    log += "->onOpenFileChooser";
+    o.callback([]);
+  });
+  assert.equal(log, "");
+  survey.chooseFiles(document.createElement("input"), () => { });
+  assert.equal(log, "->onOpenFileChooser");
 });

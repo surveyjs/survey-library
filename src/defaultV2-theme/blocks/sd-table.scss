@@ -338,6 +338,7 @@
 .sd-table__cell--actions:not(.sd-table__cell--vertical),
 .sd-table__cell--empty,
 .sd-table__cell--row-text,
+.sd-table__cell--footer-total,
 .sd-matrix__cell:first-of-type,
 .sd-matrix tr>td:first-of-type {
   position: sticky;
@@ -520,18 +521,28 @@
       padding-bottom: calcSize(0);
     }
 
-    tr:not(.sd-table__row--expanded) {
-      &::after {
-        z-index: 12;
-        content: " ";
-        display: block;
-        position: relative;
-        height: 1px;
-        background-color: $border-light;
-        left: calcSize(-2);
-        bottom: calcSize(0);
-        width: calc(100% + 4 * #{$base-unit});
-        z-index: 12;
+    tfoot tr::before,
+    tr:not(.sd-table__row--expanded)::after {
+      z-index: 12;
+      content: " ";
+      display: block;
+      position: relative;
+      height: 1px;
+      background-color: $border-light;
+      left: calcSize(-2);
+      width: calc(100% + 4 * #{$base-unit});
+      z-index: 12;
+    }
+
+    tr:not(.sd-table__row--expanded)::after {
+      bottom: 0;
+    }
+
+    tfoot tr {
+      padding-top: calcSize(5);
+
+      &::before {
+        top: calcSize(-2);
       }
     }
   }
@@ -599,6 +610,7 @@
   .sd-matrix__cell,
   .sd-table__cell--actions,
   .sd-table__cell--row-text,
+  .sd-table__cell--footer-total,
   .sd-table__cell--error {
     &::before {
       content: none;
@@ -650,6 +662,7 @@
     margin-bottom: calcSize(-2);
   }
 
+  .sd-table__cell--footer-total:not(.sd-matrix__cell),
   .sd-table__cell--row-text:not(.sd-matrix__cell) {
     color: $foreground-light;
   }

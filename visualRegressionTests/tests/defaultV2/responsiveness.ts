@@ -734,4 +734,52 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("responsiveness-matrixdropdown-text-fields.png", Selector(".sd-question"), t, comparer);
     });
   });
+
+  test("check matrixdropdown with totals in mobile mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(600, 1920);
+      await initSurvey(framework,
+        {
+          "pages": [
+            {
+              "name": "page1",
+              "elements": [
+                {
+                  "type": "matrixdropdown",
+                  "name": "question1",
+                  "columns": [
+                    {
+                      "name": "Column 1",
+                      "totalType": "sum"
+                    },
+                    {
+                      "name": "Column 2",
+                      "totalType": "count"
+                    },
+                    {
+                      "name": "Column 3",
+                      "totalType": "max"
+                    }
+                  ],
+                  "choices": [
+                    1,
+                    2,
+                    3,
+                    4,
+                    5
+                  ],
+                  "rows": [
+                    "Row 1",
+                    "Row 2"
+                  ],
+                  "totalText": "Total:"
+                }
+              ]
+            }
+          ]
+        }
+      );
+      await takeElementScreenshot("responsiveness-matrixdropdown-totals.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 });

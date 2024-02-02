@@ -441,6 +441,21 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   return true;
 }
 
+function chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void): void {
+  if (!window || !window["FileReader"]) return;
+  input.value = "";
+  input.onchange = (event) => {
+    if (!window["FileReader"]) return;
+    if (!input || !input.files || input.files.length < 1) return;
+    let files = [];
+    for (let i = 0; i < input.files.length; i++) {
+      files.push(input.files[i]);
+    }
+    callback(files);
+  };
+  input.click();
+}
+
 export {
   mergeValues,
   getElementWidth,
@@ -467,4 +482,5 @@ export {
   preventDefaults,
   findParentByClassNames,
   getFirstVisibleChild,
+  chooseFiles
 };

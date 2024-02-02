@@ -15,6 +15,7 @@ import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
+import { ArrayChanges, Base } from "../src/base";
 
 export default QUnit.module("custom questions");
 
@@ -2770,7 +2771,7 @@ QUnit.test("single component: inheritBaseProps: array<string>", function (assert
 
   ComponentCollection.Instance.clear();
 });
-QUnit.test("single component: inheritBaseProps: array<string> #2", function (assert) {
+QUnit.test("single component: inheritBaseProps: array<string> #2 + check property change notification #", function (assert) {
   ComponentCollection.Instance.add({
     name: "customtext",
     inheritBaseProps: ["placeholder"],
@@ -2785,11 +2786,19 @@ QUnit.test("single component: inheritBaseProps: array<string> #2", function (ass
       { type: "customtext", name: "q1" }
     ]
   });
+  let propertyName = "";
+  let counter = 0;
   const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
   const content = <QuestionTextModel>q1.contentQuestion;
   assert.equal(q1.placeholder, "abc", "q1.placeholder #1");
   assert.equal(content.placeholder, "abc", "content.placeholder #1");
+  survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges): void => {
+    propertyName = name;
+    counter ++;
+  };
   q1.placeholder = "bcd";
+  assert.equal(propertyName, "placeholder", "send notification, propertyname");
+  assert.equal(counter, 1, "send notification, counter");
   assert.equal(q1.placeholder, "bcd", "q1.placeholder #2");
   assert.equal(content.placeholder, "bcd", "content.placeholder #2");
   content.placeholder = "cde";

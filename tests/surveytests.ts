@@ -18778,11 +18778,26 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     assert.deepEqual(getContainerContent("left"), [], "progress top left");
     assert.deepEqual(getContainerContent("right"), [], "progress top right");
 
+    survey.showProgressBar = "belowHeader";
+    assert.deepEqual(getContainerContent("header"), [{
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    }], "progress top header");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages",
+    }], "progress top center");
+    assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress top left");
+    assert.deepEqual(getContainerContent("right"), [], "progress top right");
   }
   finally {
     settings.legacyProgressBarView = false;
   }
-
 });
 
 QUnit.test("getContainerContent - progress + advanced header", function (assert) {

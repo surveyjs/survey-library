@@ -7519,6 +7519,9 @@ export class SurveyModel extends SurveyElementCore
         if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
           isBelowHeader = false;
         }
+        if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
+          isBelowHeader = true;
+        }
         if (container === "header" && !isBelowHeader) {
           layoutElement.index = -150;
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {

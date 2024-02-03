@@ -31,7 +31,7 @@ export interface IMatrixColumnOwner extends ILocalizableOwner {
   getCellType(): string;
   getCustomCellType(column: MatrixDropdownColumn, row: MatrixDropdownRowModelBase, cellType: string): string;
   onColumnCellTypeChanged(column: MatrixDropdownColumn): void;
-  getCellAriaLabel(rowTitle:string, columnTitle:string):string;
+  getCellAriaLabel(rowTitle: string, columnTitle: string): string;
 }
 
 function onUpdateSelectBaseCellQuestion(
@@ -223,7 +223,7 @@ export class MatrixDropdownColumn extends Base
     return true;
   }
   public get isColumnVisible(): boolean {
-    if(this.isDesignMode) return true;
+    if (this.isDesignMode) return true;
     return this.visible && this.hasVisibleCell;
   }
   /**
@@ -245,17 +245,17 @@ export class MatrixDropdownColumn extends Base
   }
   public getVisibleMultipleChoices(): Array<ItemValue> {
     const choices = this.templateQuestion.visibleChoices;
-    if(!Array.isArray(choices)) return [];
-    if(!Array.isArray(this._visiblechoices)) return choices;
+    if (!Array.isArray(choices)) return [];
+    if (!Array.isArray(this._visiblechoices)) return choices;
     const res = new Array<ItemValue>();
-    for(let i = 0; i < choices.length; i ++) {
+    for (let i = 0; i < choices.length; i++) {
       const item = choices[i];
-      if(this._visiblechoices.indexOf(item.value) > -1) res.push(item);
+      if (this._visiblechoices.indexOf(item.value) > -1) res.push(item);
     }
     return res;
   }
   public get getVisibleChoicesInCell(): Array<any> {
-    if(Array.isArray(this._visiblechoices)) return this._visiblechoices;
+    if (Array.isArray(this._visiblechoices)) return this._visiblechoices;
     const res = this.templateQuestion.visibleChoices;
     return Array.isArray(res) ? res : [];
   }
@@ -263,11 +263,11 @@ export class MatrixDropdownColumn extends Base
     this._visiblechoices = val;
   }
   public get isFilteredMultipleColumns(): boolean {
-    if(!this.showInMultipleColumns) return false;
+    if (!this.showInMultipleColumns) return false;
     const choices = this.templateQuestion.choices;
-    if(!Array.isArray(choices)) return false;
-    for(let i = 0; i < choices.length; i ++) {
-      if(choices[i].visibleIf) return true;
+    if (!Array.isArray(choices)) return false;
+    for (let i = 0; i < choices.length; i++) {
+      if (choices[i].visibleIf) return true;
     }
     return false;
   }
@@ -585,6 +585,28 @@ export class MatrixDropdownColumn extends Base
   }
   public set totalDisplayStyle(val: string) {
     this.setPropertyValue("totalDisplayStyle", val);
+  }
+  /**
+   * An alignment for calculated total values.
+   *
+   * Possible values:
+   *
+   * - `"auto"` (default)
+   * - `"left"`
+   * - `"center"`
+   * - `"right"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
+   * @see totalType
+   * @see totalFormat
+   * @see totalCurrency
+   * @see totalDisplayStyle
+   */
+  public get totalAlignment(): string {
+    return this.getPropertyValue("totalAlignment");
+  }
+  public set totalAlignment(val: string) {
+    this.setPropertyValue("totalAlignment", val);
   }
   /**
    * Specifies a currency used to display calculated total values. Applies only if [`totalDisplayStyle`](#totalDisplayStyle) is set to `"currency"`.
@@ -912,6 +934,11 @@ Serializer.addClass(
       name: "totalDisplayStyle",
       default: "none",
       choices: ["none", "decimal", "currency", "percent"],
+    },
+    {
+      name: "totalAlignment",
+      default: "auto",
+      choices: ["auto", "left", "center", "right"],
     },
     {
       name: "totalCurrency",

@@ -349,4 +349,86 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("matrixdropdown-with-totals.png", matrixdynamicRoot, t, comparer);
     });
   });
+  test("Check MatrixDynamic totals alignment", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1280, 1100);
+      await initSurvey(framework, {
+        pages: [
+          {
+            name: "page1",
+            elements: [
+              {
+                type: "matrixdynamic",
+                name: "question1",
+                title: "Select Your Coffee",
+                columns: [
+                  {
+                    name: "coffee",
+                    title: "Coffee",
+                    cellType: "dropdown",
+                    isRequired: true,
+                    isUnique: true,
+                    choices: [
+                      {
+                        value: "espresso",
+                        text: "Espresso",
+                      },
+                      {
+                        value: "ristretto",
+                        text: "Ristretto",
+                      },
+                      {
+                        value: "macchiato",
+                        text: "Macchiato",
+                      },
+                    ],
+                    storeOthersAsComment: true,
+                  },
+                  {
+                    name: "price",
+                    title: "Price",
+                    cellType: "expression",
+                    expression:
+                      "iif({row.coffee} = 'ristretto' or {row.coffee} = 'macchiato' or {row.coffee} = 'cappuchino', '2.5', iif({row.coffee} = 'flatWhite' or {row.coffee} = 'latte', 3, 2))\n",
+                  },
+                  {
+                    name: "amount",
+                    title: "Num of Items",
+                    cellType: "dropdown",
+                    totalType: "sum",
+                    choicesMin: 1,
+                    choicesMax: 10,
+                  },
+                  {
+                    name: "totalPerRow",
+                    title: "Total",
+                    cellType: "expression",
+                    totalType: "sum",
+                    totalDisplayStyle: "currency",
+                    totalAlignment: "center",
+                    expression: "{row.price} * {row.amount}",
+                  },
+                ],
+                rowCount: 1,
+                maxRowCount: 6,
+                defaultRowValue: {
+                  coffeeItem: "2",
+                  coffee: "espresso",
+                  price: 2,
+                  amount: 1,
+                  totalPerRow: 2,
+                },
+                addRowLocation: "topBottom",
+                addRowText: "Add Coffee",
+              },
+            ],
+          },
+        ],
+      });
+
+      const matrixdynamicRoot = Selector(".sd-question");
+      await resetFocusToBody();
+      await takeElementScreenshot("matrixdropdown-with-totals-alignment.png", matrixdynamicRoot, t, comparer);
+    });
+  });
 });

@@ -61,6 +61,10 @@ export class SurveyImplementor extends ImplementorBase {
     this.survey.disposeCallback = () => {
       this.dispose();
     };
+    this.survey["koRenderedHasHeader"] = ko.computed(()=>{
+      let renderedHtml = (<any>this.survey.locTitle).koRenderedHtml();
+      return this.survey.renderedHasHeader;
+    });
     new ImplementorBase(this.survey.timerModel);
   }
   public render(element: any = null) {

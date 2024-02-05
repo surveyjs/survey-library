@@ -812,6 +812,28 @@ QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
   assert.equal(dropdownListModel.hintString, "", "no hint again");
 });
 
+QUnit.test("Survey Markdown - dropdown and input string", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionDropdownModel("q1");
+  page.addQuestion(q1);
+  q1.choices = [
+    { value: 1, text: "$text1markdown" },
+    { value: 2, text: "$text2markdown" },
+  ];
+  survey.onTextMarkdown.add(function (survey, options) {
+    options.html = options.text.replace("$", "*<hr>");
+  });
+
+  q1.value = 2;
+  const dropdownListModel = q1.dropdownListModel;
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.inputString, "*text2markdown");
+  dropdownListModel.changeSelectionWithKeyboard(true);
+  assert.equal(dropdownListModel.inputString, "*text1markdown");
+});
+
 QUnit.test("lazy loading clear value", function (assert) {
   const survey = new SurveyModel({
     questions: [{

@@ -819,7 +819,7 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.maxLength)) {
         prop.maxLength = propInfo.maxLength;
       }
-      if (!Helpers.isValueEmpty(propInfo.displayName)) {
+      if (propInfo.displayName !== undefined) {
         prop.displayName = propInfo.displayName;
       }
       if (!Helpers.isValueEmpty(propInfo.category)) {

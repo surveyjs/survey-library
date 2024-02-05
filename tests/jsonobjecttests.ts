@@ -3264,3 +3264,16 @@ QUnit.test("Test showInMultipleColumns prop visibility", function (assert) {
   assert.ok(prop, "property is here");
   assert.equal(prop.isVisible("", column), true, "column is visible");
 });
+QUnit.test("Versions & alternative name", function (assert) {
+  const prop1 = Serializer.addProperty("question", { name: "testProperty1", displayName: "" });
+  const prop2 = Serializer.addProperty("question", { name: "testProperty2", displayName: undefined });
+  const prop3 = Serializer.addProperty("question", { name: "testProperty3" });
+
+  assert.strictEqual(prop1.displayName, "", "prop1");
+  assert.strictEqual(prop2.displayName, undefined, "prop2");
+  assert.strictEqual(prop3.displayName, undefined, "prop3");
+
+  Serializer.removeProperty("question", "testProperty1");
+  Serializer.removeProperty("question", "testProperty2");
+  Serializer.removeProperty("question", "testProperty3");
+});

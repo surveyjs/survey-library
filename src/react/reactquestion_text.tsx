@@ -17,7 +17,7 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
 
     const placeholder = this.question.renderedPlaceholder;
     if (this.question.isReadOnlyRenderDiv()) {
-      return <div>{this.question.value}</div>;
+      return <div>{this.question.renderedValue}</div>;
     }
     const counter = !!this.question.getMaxLength() ? (<CharacterCounterComponent counter={this.question.characterCounter} remainingCharacterCounter={this.question.cssClasses.remainingCharacterCounter}></CharacterCounterComponent>) : null;
     return (

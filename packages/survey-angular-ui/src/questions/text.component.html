@@ -5,7 +5,7 @@
       <option *ngFor="let dataListItem of model.dataList" [value]="dataListItem"></option>
     </datalist>
   </div>
-  <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ model.value }}</div>
+  <div *ngIf="model.isReadOnlyRenderDiv()" #contentElement>{{ value }}</div>
   <ng-template #input>
     <input [style]="model.inputStyle" [class]="model.getControlClass()" [attr.list]="model.dataListId"
     (change)="model.onChange($event)" [value]="value" [disabled]="model.isInputReadOnly" [type]="model.inputType" [id]="model.inputId" [attr.placeholder]="model.renderedPlaceholder || ''"

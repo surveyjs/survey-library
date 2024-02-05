@@ -105,8 +105,8 @@ export var englishStrings = {
   noEntriesReadonlyText: "There are no entries.",
   more: "More",
   tagboxDoneButtonCaption: "OK",
-  selectToRankEmptyRankedAreaText: "All choices are ranked",
-  selectToRankEmptyUnrankedAreaText: "Drag and drop choices here to rank them",
+  selectToRankEmptyRankedAreaText: "All choices are selected for ranking",
+  selectToRankEmptyUnrankedAreaText: "Drag choices here to rank them",
   ok: "OK",
   cancel: "Cancel",
 };

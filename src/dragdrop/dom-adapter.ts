@@ -40,7 +40,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   private savedTargetNodeIndex: any;
   private scrollIntervalId: number = null;
 
-  constructor(private dd: IDragDropEngine, private longTap: boolean = true) {}
+  constructor(private dd: IDragDropEngine, private longTap: boolean = true, private fitToContainer:boolean = false) {}
 
   private get rootElement() {
     if(isShadowDOM(settings.environment.root)) {
@@ -124,13 +124,13 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.stopPropagation();
   }
   private moveShortcutElement(event: PointerEvent) {
-    const rootElementX= this.rootElement.getBoundingClientRect().x;
-    const rootElementY = this.rootElement.getBoundingClientRect().y;
+    let rootElementX= this.rootElement.getBoundingClientRect().x;
+    let rootElementY = this.rootElement.getBoundingClientRect().y;
 
-    // if (!!survey.fitToContainer) {
-    //   rootElementX = 0;
-    //   rootElementY = 0;
-    // }
+    if (!!this.fitToContainer) {
+      rootElementX = 0;
+      rootElementY = 0;
+    }
 
     this.doScroll(event.clientY, event.clientX);
 

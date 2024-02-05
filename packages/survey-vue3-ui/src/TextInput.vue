@@ -15,7 +15,7 @@
     :list="question.dataListId"
     :placeholder="question.renderedPlaceholder"
     :autocomplete="question.autocomplete"
-    :value="question.value"
+    :value="question.renderedValue"
     @change="question.onChange"
     @keyup="question.onKeyUp"
     @keydown="question.onKeyDown"

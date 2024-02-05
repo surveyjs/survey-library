@@ -4,6 +4,7 @@ import { InputMaskBase } from "./mask_base";
 export interface IMaskOption {
   type: string;
   mask: string;
+  dataToSave?: "masked" | "unmasked";
 }
 
 export interface IMaskedValue {

@@ -64,6 +64,12 @@ export class SurveyQuestionText extends SurveyQuestionUncontrolledElement<
         this.renderInput()
     );
   }
+  protected setValueCore(newValue: any) {
+    this.question.renderedValue = newValue;
+  }
+  protected getValueCore(): any {
+    return this.question.renderedValue;
+  }
   private renderDataList(): JSX.Element | null {
     if (!this.question.dataListId) return null;
     var items = this.question.dataList;

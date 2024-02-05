@@ -116,6 +116,9 @@ export class InputMaskNumber extends InputMaskBase {
   get allowNegative(): boolean {
     return this.numberOptions?.allowNegative !== undefined ? this.numberOptions?.allowNegative : settings.numberOptions.allowNegative;
   }
+  get dataToSave(): string {
+    return this.numberOptions?.dataToSave || settings.numberOptions.dataToSave;
+  }
 
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
     let displayIntegralPart = parsedNumber.integralPart;

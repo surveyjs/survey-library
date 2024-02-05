@@ -415,3 +415,28 @@ QUnit.test("Test maxLength & getMaxLength", function (assert) {
   assert.equal(q.isTextInput, true, "isTextInput - password");
   assert.equal(q.getMaxLength(), 10, "getMaxLength() - password");
 });
+
+QUnit.test("Apply mask", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskOptions = { type: "pattern", mask: "+99-99" };
+  q.value = "1234";
+  assert.equal(q.value, "1234");
+  assert.equal(q.renderedValue, "+12-34");
+
+  q.renderedValue = "+78-68";
+  assert.equal(q.value, "7868");
+  assert.equal(q.renderedValue, "+78-68");
+});
+
+QUnit.test("Pattern mask", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskOptions = { type: "pattern", mask: "+99-99", dataToSave: "masked" };
+  q.renderedValue = "+12-34";
+  assert.equal(q.value, "+12-34", "masked value");
+  assert.equal(q.renderedValue, "+12-34", "masked renderedValue");
+
+  q.maskOptions = { type: "pattern", mask: "+99-99", dataToSave: "unmasked" };
+  q.renderedValue = "+45-67";
+  assert.equal(q.value, "4567", "unmasked value");
+  assert.equal(q.renderedValue, "+45-67", "unmasked renderedValue");
+});

@@ -42,6 +42,10 @@ export class QuestionTextModel extends QuestionTextBase {
       this.updateInputSize();
       this.calcRenderedPlaceholder();
     });
+    this.registerPropertyChangedHandlers(["value"],
+      () => {
+        this.updateRenderedValue(this.value);
+      });
   }
   protected isTextValue(): boolean {
     return ["text", "number", "password"].indexOf(this.inputType) > -1;
@@ -228,9 +232,27 @@ export class QuestionTextModel extends QuestionTextBase {
     onSet: (value: IMaskOption, target: QuestionTextModel) => { target.createMaskInstance(value); }
   }) maskOptions: IMaskOption;
 
+  @property({
+    onSet: (value: string, target: QuestionTextModel) => { target.setValue(value); }
+  }) renderedValue : string;
+
   private createMaskInstance(maskOptions: IMaskOption) {
     if(!maskOptions) return;
     this.maskInstance = MaskManagerType.Instance.createInputMask(maskOptions);
+  }
+  private updateRenderedValue(value: any) {
+    if(!!this.maskInstance) {
+      this.renderedValue = this.maskInstance.getMaskedValue(value);
+    } else {
+      this.renderedValue = value;
+    }
+  }
+  private setValue(renderedValue: string) {
+    if(!!this.maskInstance && this.maskOptions.dataToSave !== "masked") {
+      this.value = this.maskInstance.getUnmaskedValue(renderedValue);
+    } else {
+      this.value = renderedValue;
+    }
   }
 
   protected onCheckForErrors(

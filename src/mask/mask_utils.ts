@@ -6,7 +6,8 @@ export var settings = {
     thousands: ",",
     precision: 2,
     allowNegative: true,
-    align: "right"
+    dataToSave: "unmasked"
+    // align: "right"
   },
   definitions: <{ [key: string]: RegExp }>{
     "9": /[0-9]/,

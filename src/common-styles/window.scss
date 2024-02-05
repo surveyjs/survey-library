@@ -1,5 +1,6 @@
 @import "../defaultV2-theme/variables.scss";
 @import "../defaultV2-theme/mixins.scss";
+@import "../defaultV2-theme/blocks/mixins.scss";
 
 .sv_window {
     position: fixed;
@@ -11,8 +12,8 @@
     background-clip: padding-box;
     z-index: 100;
     max-height: 50vh;
-    height: 100%;
-    overflow: hidden;
+    overflow: auto;
+    @include scrollRules;
     box-sizing: border-box;
 }
 
@@ -26,15 +27,18 @@
     right: calcSize(2);
     bottom: calcSize(2);
     max-height: 100%;
-    height: initial;
     width: initial !important;
     max-width: initial!important;
+}
+
+.sv_window_header {
+    display: flex;
+    justify-content: end;
 }
 
 .sv_window_content {
     border-radius: calcSize(1);
     overflow: hidden;
-    height: 100%;
 }
 
 .sv_window--collapsed {
@@ -50,6 +54,11 @@
 
     .sv_window_content {
         display: none;
+    }
+
+    .sv_window_buttons_container {
+        margin-top: 0;
+        margin-right: 0;
     }
 }
 
@@ -72,9 +81,9 @@
 }
 
 .sv_window_buttons_container {
-    position: absolute;
-    top: calcSize(1);
-    right: calcSize(2);
+    position: fixed;
+    margin-top: calcSize(1);;
+    margin-right: calcSize(1);;
     display: flex;
     gap: calcSize(1);
     z-index: 1;

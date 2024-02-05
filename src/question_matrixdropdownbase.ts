@@ -119,6 +119,9 @@ export class MatrixDropdownCell {
   public set value(value: any) {
     this.question.value = value;
   }
+  public getQuestionWrapperClassName(className: string): string {
+    return className;
+  }
   public runCondition(values: HashTable<any>, properties: HashTable<any>) {
     this.question.runCondition(values, properties);
   }
@@ -159,6 +162,22 @@ export class MatrixDropdownTotalCell extends MatrixDropdownCell {
     this.question.minimumFractionDigits = this.column.totalMinimumFractionDigits;
     this.question.unlocCalculation();
     this.question.runIfReadOnly = true;
+  }
+  public getQuestionWrapperClassName(className: string): string {
+    let result = super.getQuestionWrapperClassName(className);
+    if (!result) {
+      return result;
+    }
+    if (this.question.expression && this.question.expression != "''") {
+      result += " " + className + "--expression";
+    }
+    let alignment = this.column.totalAlignment;
+    if (alignment === "auto") {
+      if (this.column.cellType === "dropdown") {
+        alignment = "left";
+      }
+    }
+    return result + " " + className + "--" + alignment;
   }
   public getTotalExpression(): string {
     if (!!this.column.totalExpression) return this.column.totalExpression;

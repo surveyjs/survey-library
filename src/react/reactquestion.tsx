@@ -354,7 +354,7 @@ export class SurveyQuestionAndErrorsCell extends SurveyQuestionAndErrorsWrapped 
       >
         {this.wrapCell(this.props.cell,
           (
-            <div className={this.cssClasses.cellQuestionWrapper}>
+            <div className={this.props.cell.cellQuestionWrapperClassName}>
               {this.renderQuestion()}
             </div>)
         )}

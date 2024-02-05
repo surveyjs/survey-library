@@ -22,7 +22,7 @@
       :question="cell.panel"
       :css="question.cssClasses"
     ></component>
-    <div v-if="cell.hasQuestion" :class="question.cssClasses.cellQuestionWrapper">
+    <div v-if="cell.hasQuestion" :class="cell.cellQuestionWrapperClassName">
       <component
         v-if="!cell.isChoice && cell.question.isDefaultRendering()"
         v-show="isVisible"

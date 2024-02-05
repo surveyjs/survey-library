@@ -19,6 +19,7 @@ export class SurveyFileChooseButton extends ReactSurveyElement {
         className={this.question.getChooseFileCss()}
         htmlFor={this.question.inputId}
         aria-label={this.question.chooseButtonText}
+        onClick={() => this.question.chooseFile()}
       >
         {(!!this.question.cssClasses.chooseFileIconId) ? <SvgIcon title={this.question.chooseButtonText} iconName={this.question.cssClasses.chooseFileIconId} size={"auto"}></SvgIcon>: null }
         <span>{this.question.chooseButtonText}</span>

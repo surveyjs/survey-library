@@ -3264,7 +3264,7 @@ QUnit.test("Test showInMultipleColumns prop visibility", function (assert) {
   assert.ok(prop, "property is here");
   assert.equal(prop.isVisible("", column), true, "column is visible");
 });
-QUnit.test("Versions & alternative name", function (assert) {
+QUnit.test("displayName, empty string", function (assert) {
   const prop1 = Serializer.addProperty("question", { name: "testProperty1", displayName: "" });
   const prop2 = Serializer.addProperty("question", { name: "testProperty2", displayName: undefined });
   const prop3 = Serializer.addProperty("question", { name: "testProperty3" });
@@ -3276,4 +3276,35 @@ QUnit.test("Versions & alternative name", function (assert) {
   Serializer.removeProperty("question", "testProperty1");
   Serializer.removeProperty("question", "testProperty2");
   Serializer.removeProperty("question", "testProperty3");
+});
+QUnit.test("enableIf", function (assert) {
+  const prop1 = Serializer.addProperty("question", { name: "testProperty1", readOnly: true });
+  const prop2 = Serializer.addProperty("question", { name: "testProperty2", enableIf: (obj) => { return obj.title === "abc"; } });
+  const prop3 = Serializer.addProperty("question", { name: "testProperty3" });
+  const prop4 = Serializer.addProperty("question", { name: "testProperty4", readOnly: true, enableIf: (obj) => { return true; } });
+
+  const q = new Question("q1");
+
+  assert.notOk(prop1.enableIf, "prop1.enableIf");
+  assert.equal(prop1.isEnable(null), false, "prop1 #1");
+  assert.equal(prop1.isEnable(q), false, "prop1 #2");
+
+  assert.ok(prop2.enableIf, "prop2.enableIf");
+  assert.equal(prop2.isEnable(null), true, "prop2 #1");
+  assert.equal(prop2.isEnable(q), false, "prop2 #2");
+  q.title = "abc";
+  assert.equal(prop2.isEnable(q), true, "prop2 #3");
+
+  assert.notOk(prop3.enableIf, "prop3.enableIf");
+  assert.equal(prop3.isEnable(null), true, "prop3 #1");
+  assert.equal(prop3.isEnable(q), true, "prop3 #2");
+
+  assert.ok(prop4.enableIf, "prop4.enableIf");
+  assert.equal(prop4.isEnable(null), false, "prop4 #1");
+  assert.equal(prop4.isEnable(q), false, "prop4 #2");
+
+  Serializer.removeProperty("question", "testProperty1");
+  Serializer.removeProperty("question", "testProperty2");
+  Serializer.removeProperty("question", "testProperty3");
+  Serializer.removeProperty("question", "testProperty4");
 });

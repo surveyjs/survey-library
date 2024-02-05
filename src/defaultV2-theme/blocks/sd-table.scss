@@ -161,6 +161,7 @@
   &:not(.sd-table__cell--empty):not(.sd-table__cell--actions):not(:empty) {
     min-width: calcSize(15);
   }
+
   .sd-item {
     text-align: initial;
   }
@@ -253,6 +254,7 @@
 
 .sd-table__cell--footer {
   text-align: right;
+  padding-top: calcSize(1);
 }
 
 .sd-table__cell--footer-total {
@@ -337,6 +339,7 @@
 .sd-table__cell--actions:not(.sd-table__cell--vertical),
 .sd-table__cell--empty,
 .sd-table__cell--row-text,
+.sd-table__cell--footer-total,
 .sd-matrix__cell:first-of-type,
 .sd-matrix tr>td:first-of-type {
   position: sticky;
@@ -519,18 +522,28 @@
       padding-bottom: calcSize(0);
     }
 
-    tr:not(.sd-table__row--expanded) {
-      &::after {
-        z-index: 12;
-        content: " ";
-        display: block;
-        position: relative;
-        height: 1px;
-        background-color: $border-light;
-        left: calcSize(-2);
-        bottom: calcSize(0);
-        width: calc(100% + 4 * #{$base-unit});
-        z-index: 12;
+    tfoot tr::before,
+    tr:not(.sd-table__row--expanded)::after {
+      z-index: 12;
+      content: " ";
+      display: block;
+      position: relative;
+      height: 1px;
+      background-color: $border-light;
+      left: calcSize(-2);
+      width: calc(100% + 4 * #{$base-unit});
+      z-index: 12;
+    }
+
+    tr:not(.sd-table__row--expanded)::after {
+      bottom: 0;
+    }
+
+    tfoot tr {
+      padding-top: calcSize(5);
+
+      &::before {
+        top: calcSize(-2);
       }
     }
   }
@@ -598,6 +611,7 @@
   .sd-matrix__cell,
   .sd-table__cell--actions,
   .sd-table__cell--row-text,
+  .sd-table__cell--footer-total,
   .sd-table__cell--error {
     &::before {
       content: none;
@@ -649,6 +663,7 @@
     margin-bottom: calcSize(-2);
   }
 
+  .sd-table__cell--footer-total:not(.sd-matrix__cell),
   .sd-table__cell--row-text:not(.sd-matrix__cell) {
     color: $foreground-light;
   }
@@ -703,6 +718,30 @@
     .sd-boolean-root {
       margin: initial;
     }
+  }
+}
+
+.sd-table__cell--footer {
+  .sd-table__question-wrapper--expression {
+    .sd-expression {
+      padding: calcSize(1.5) calcSize(2);
+      border-bottom: 1px solid $border-light;
+      font-size: calcFontSize(1);
+      font-weight: 600;
+      line-height: calcSize(3);
+    }
+  }
+
+  .sd-table__question-wrapper--left {
+    text-align: start;
+  }
+
+  .sd-table__question-wrapper--center {
+    text-align: center;
+  }
+
+  .sd-table__question-wrapper--right {
+    text-align: end;
   }
 }
 

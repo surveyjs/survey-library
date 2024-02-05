@@ -1287,6 +1287,49 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check multiple row in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(700, 1080);
+      const json = {
+        pages: [
+          {
+            name: "p1",
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q2",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q3",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q4",
+                title: "Question",
+                startWithNewLine: false
+              },
+            ]
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await ClientFunction(() => (window as any).survey.isCompact = true)();
+      await takeElementScreenshot("row-multiple-compact-mode.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
   test("Check survey logo right with empty title", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

@@ -276,6 +276,7 @@ export {
   loadFileFromBase64,
   increaseHeightByContent,
   createSvg,
+  chooseFiles,
   sanitizeEditableContent,
   IAttachKey2clickOptions
 } from "../../utils/utils";

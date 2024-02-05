@@ -1,6 +1,6 @@
 import { Question, IConditionObject } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
-import { Base } from "./base";
+import { Base, ArrayChanges } from "./base";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -345,9 +345,8 @@ export class ComponentQuestionJSON {
   }
   public getDynamicProperties(): Array<JsonObjectProperty> {
     if(!Array.isArray(this.dynamicProperties)) {
-
+      this.dynamicProperties = this.calcDynamicProperties();
     }
-    this.dynamicProperties = this.calcDynamicProperties();
     return this.dynamicProperties;
   }
   private calcDynamicProperties(): Array<JsonObjectProperty> {
@@ -733,6 +732,21 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
     this.createDynamicProperties(this.questionWrapper);
+    if(this.getDynamicProperties().length > 0) {
+      this.questionWrapper.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges): void => {
+        const prop = this.getDynamicProperty(name);
+        if(prop) {
+          this.propertyValueChanged(name, oldValue, newValue, arrayChanges);
+        }
+      };
+    }
+  }
+  private getDynamicProperty(name: string): JsonObjectProperty {
+    const props = this.getDynamicProperties();
+    for(let i = 0; i < props.length; i ++) {
+      if(props[i].name === name) return props[i];
+    }
+    return null;
   }
   protected getElement(): SurveyElement {
     return this.contentQuestion;
@@ -1106,6 +1120,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
+  }
+  getFilteredValues(): any {
+    const values = !!this.data ? this.data.getFilteredValues() : {};
+    if (!!this.contentPanel) {
+      values[
+        QuestionCompositeModel.ItemVariableName
+      ] = this.contentPanel.getValue();
+    }
+    return values;
   }
   private updateValueCoreWithPanelValue(): boolean {
     const panelValue = this.getContentPanelValue();

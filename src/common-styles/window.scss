@@ -15,6 +15,7 @@
     overflow: auto;
     @include scrollRules;
     box-sizing: border-box;
+    background: $background-dim;
 }
 
 .sv_window_root-content {
@@ -37,7 +38,6 @@
 }
 
 .sv_window_content {
-    border-radius: calcSize(1);
     overflow: hidden;
 }
 

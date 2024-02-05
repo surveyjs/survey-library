@@ -591,10 +591,10 @@ export class MatrixDropdownColumn extends Base
    *
    * Possible values:
    *
-   * - `"auto"` (default)
    * - `"left"`
    * - `"center"`
    * - `"right"`
+   * - `"auto"` (default) - Applies one of the values above based on the column's [cell type](#cellType).
    *
    * [View Demo](https://surveyjs.io/form-library/examples/aggregate-data-within-form/ (linkStyle))
    * @see totalType

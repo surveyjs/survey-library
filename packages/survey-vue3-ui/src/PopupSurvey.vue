@@ -8,6 +8,11 @@
         </div>
 
         <div :class="surveyWindow.cssHeaderButtonsContainer">
+          <div v-if="surveyWindow.allowFullScreen" :class="surveyWindow.cssHeaderFullScreenButton" @click="doToggleFullScreen">
+            <sv-svg-icon v-if="surveyWindow.isFullScreen" :iconName="'icon-back-to-panel_16x16'" :size="16"> </sv-svg-icon>
+            <sv-svg-icon v-if="!surveyWindow.isFullScreen" :iconName="'icon-full-screen_16x16'" :size="16"> </sv-svg-icon>
+          </div>
+
           <div :class="surveyWindow.cssHeaderCollapseButton" @click="doExpand">
             <sv-svg-icon v-if="surveyWindow.isExpanded" :iconName="'icon-minimize_16x16'" :size="16"> </sv-svg-icon>
             <sv-svg-icon v-if="surveyWindow.isCollapsed" :iconName="'icon-restore_16x16'" :size="16"> </sv-svg-icon>
@@ -34,6 +39,7 @@ const props = defineProps<{
   survey: SurveyModel;
   isExpanded: boolean;
   allowClose: boolean;
+  allowFullScreen: boolean;
   closeOnCompleteTimeout: number;
 }>();
 const surveyWindow =
@@ -55,6 +61,9 @@ const doExpand = () => {
 };
 const doHide = () => {
   surveyWindow.value.hide();
+};
+const doToggleFullScreen = () => {
+  surveyWindow.value.toggleFullScreen();
 };
 const getSurveyComponentName = () => {
   return "SurveyComponent";
@@ -85,6 +94,9 @@ const stopWatch = watch(
     }
     if (props.allowClose !== undefined) {
       model.allowClose = props.allowClose;
+    }
+    if (props.allowFullScreen !== undefined) {
+      model.allowFullScreen = props.allowFullScreen;
     }
     model.isShowing = true;
     surveyWindow.value = model;

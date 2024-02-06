@@ -11,6 +11,7 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
   @Input() isExpanded?: boolean;
   @Input() allowClose?: boolean;
   @Input() closeOnCompleteTimeout?: number;
+  @Input() allowFullScreen?: boolean;
   public popup!: PopupSurveyModel;
 
   constructor(changeDetectorRef: ChangeDetectorRef) {
@@ -40,6 +41,9 @@ export class PopupSurveyComponent extends BaseAngular<PopupSurveyModel> implemen
     }
     if (this.allowClose !== undefined) {
       this.popup.allowClose = this.allowClose;
+    }
+    if (this.allowFullScreen !== undefined) {
+      this.popup.allowFullScreen = this.allowFullScreen;
     }
     if (this.closeOnCompleteTimeout !== undefined) {
       this.popup.closeOnCompleteTimeout = this.closeOnCompleteTimeout;

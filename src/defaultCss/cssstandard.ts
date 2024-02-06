@@ -366,6 +366,7 @@ export var defaultStandardCss = {
   window: {
     root: "sv_window",
     rootCollapsedMod: "sv_window--collapsed",
+    rootFullScreenMode: "sv_window--full-screen",
     rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
@@ -376,7 +377,8 @@ export var defaultStandardCss = {
       buttonExpanded: "",
       buttonCollapsed: "",
       collapseButton: "sv_window_button sv_window_button_collapse",
-      closeButton: "sv_window_button sv_window_button_close"
+      closeButton: "sv_window_button sv_window_button_close",
+      fullScreenButton: "sv_window_button sv_window_button_full_screen"
     }
   },
   variables: {

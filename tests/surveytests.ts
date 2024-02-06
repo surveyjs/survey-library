@@ -12426,6 +12426,7 @@ QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
   var survey = new SurveyModel(json);
   var counter = 0;
 
+  let log = "";
   survey.onPropertyValueChangedCallback = (
     name: string,
     oldValue: any,
@@ -12434,13 +12435,14 @@ QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
     arrayChanges: ArrayChanges
   ) => {
     counter++;
+    log += "->" + name;
   };
 
   assert.equal(counter, 0, "initial");
 
   survey.title = "new";
-
   assert.equal(counter, 1, "callback called");
+  assert.equal(log, "->title", "callback called for title");
 });
 
 QUnit.test(
@@ -15019,12 +15021,22 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
 ) {
   var survey = new SurveyModel();
   assert.equal(
+    survey["titleIsEmpty"],
+    true,
+    "titleIsEmpty due to no title"
+  );
+  assert.equal(
     survey.renderedHasHeader,
     false,
     "hasHeader, title and logo are invisible"
   );
   assert.equal(survey.renderedHasTitle, false, "There is not title");
   survey.title = "title";
+  assert.equal(
+    survey["titleIsEmpty"],
+    false,
+    "titleIs not Empty due to title has been set"
+  );
   assert.equal(survey.renderedHasTitle, true, "There is title");
   assert.equal(survey.renderedHasHeader, true, "hasHeader, title is visible");
   survey.showTitle = false;

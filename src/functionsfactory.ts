@@ -372,3 +372,14 @@ function propertyValue(params: any[]): any {
   return q ? q[params[1]] : undefined;
 }
 FunctionFactory.Instance.register("propertyValue", propertyValue);
+function substring_(params: any[]): any {
+  if(params.length < 2) return "";
+  const s = params[0];
+  if(!s || typeof s !== "string") return "";
+  const start = params[1];
+  if(!Helpers.isNumber(start)) return "";
+  const end = params.length > 2 ? params[2] : undefined;
+  if(!Helpers.isNumber(end)) return s.substring(start);
+  return s.substring(start, end);
+}
+FunctionFactory.Instance.register("substring", substring_);

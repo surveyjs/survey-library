@@ -17,6 +17,7 @@ const json = {
       type: "dropdown",
       placeHolder: "Click me",
       name: "question2",
+      searchEnabled: false,
       choices: [
         { value: 1, text: "|choice 1|" },
         { value: 2, text: "|choice 2|" },

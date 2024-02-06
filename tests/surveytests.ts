@@ -63,6 +63,8 @@ import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrl
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
+import { ITheme } from "../src/themes";
+import { Cover } from "../src/header";
 
 export default QUnit.module("Survey");
 
@@ -19226,4 +19228,48 @@ QUnit.test("onOpenFileChooser fires", function (assert) {
   assert.equal(log, "");
   survey.chooseFiles(document.createElement("input"), () => { });
   assert.equal(log, "->onOpenFileChooser");
+});
+QUnit.test("Advanced header title/description color", function (assert) {
+  const survey = new SurveyModel();
+
+  const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(accHeaderBackTheme);
+  let headerLayoutElement = survey.findLayoutElement("advanced-header");
+  let headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--accent");
+  // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
+  // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
+  // assert.equal(survey.themeVariables["--sjs-font-headerdescription-color"], undefined);
+  // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"], undefined);
+  // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"], undefined);
+
+  const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(noneHeaderBackTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+
+  const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customNotSetHeaderBackTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+
+  const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customHeaderBackTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--custom");
+
+  const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background");
+
+  const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customHeaderBackAndTitleTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header");
 });

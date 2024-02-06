@@ -1,5 +1,6 @@
 @import "../defaultV2-theme/variables.scss";
 @import "../defaultV2-theme/mixins.scss";
+@import "../defaultV2-theme/blocks/mixins.scss";
 
 .sv_window {
     position: fixed;
@@ -10,17 +11,39 @@
     box-shadow: $shadow-large, $shadow-medium;
     background-clip: padding-box;
     z-index: 100;
-    max-height: 90vh;
+    max-height: 50vh;
     overflow: auto;
+    @include scrollRules;
     box-sizing: border-box;
+    background: $background-dim;
+}
+
+.sv_window_root-content {
+    height: 100%;
+}
+
+.sv_window--full-screen {
+    top: calcSize(2);
+    left: calcSize(2);
+    right: calcSize(2);
+    bottom: calcSize(2);
+    max-height: 100%;
+    width: initial !important;
+    max-width: initial!important;
+}
+
+.sv_window_header {
+    display: flex;
+    justify-content: flex-end;
 }
 
 .sv_window_content {
-    border-radius: calcSize(1);
     overflow: hidden;
 }
 
 .sv_window--collapsed {
+    height: initial;
+    
     .sv_window_header {
         height: calcSize(4);
         padding: calcSize(1) calcSize(1) calcSize(1) calcSize(2);
@@ -31,6 +54,11 @@
 
     .sv_window_content {
         display: none;
+    }
+
+    .sv_window_buttons_container {
+        margin-top: 0;
+        margin-right: 0;
     }
 }
 
@@ -53,9 +81,9 @@
 }
 
 .sv_window_buttons_container {
-    position: absolute;
-    top: calcSize(1);
-    right: calcSize(1);
+    position: fixed;
+    margin-top: calcSize(1);;
+    margin-right: calcSize(1);;
     display: flex;
     gap: calcSize(1);
     z-index: 1;

@@ -1,5 +1,5 @@
 import { Selector, ClientFunction } from "testcafe";
-import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest } from "../../helper";
+import { url, frameworks, initSurvey, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
 const title = "Advanced header screenshot";
 
@@ -86,6 +86,50 @@ frameworks.forEach(framework => {
         (<any>window).survey.setIsMobile(true);
       })();
       await takeElementScreenshot("survey-advanced-header-mobile-with-overlap.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+  test("Check header background color modes", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        focusFirstQuestionAutomatic: true,
+        title: "Survey Title",
+        description: "Survey description",
+        questions: [
+          {
+            type: "text",
+            title: "Question title",
+            name: "q1"
+          }
+        ]
+      });
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({ "cssVariables": {}, "header": {}, "headerView": "advanced" });
+      })();
+      await t.wait(500);
+      await resetFocusToBody();
+      await takeElementScreenshot("survey-advanced-header-background-accent.png", Selector(".sd-root-modern"), t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
+      })();
+      await t.wait(500);
+      await resetFocusToBody();
+      await takeElementScreenshot("survey-advanced-header-background-none.png", Selector(".sd-root-modern"), t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" });
+      })();
+      await t.wait(500);
+      await resetFocusToBody();
+      await takeElementScreenshot("survey-advanced-header-background-custom-none.png", Selector(".sd-root-modern"), t, comparer);
+
+      await ClientFunction(() => {
+        (<any>window).survey.applyTheme({ "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" });
+      })();
+      await t.wait(500);
+      await resetFocusToBody();
+      await takeElementScreenshot("survey-advanced-header-background-custom-set.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
 });

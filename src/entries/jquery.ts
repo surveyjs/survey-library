@@ -34,7 +34,7 @@ function doPopupSurvey(props: any): void {
     model.updateSurvey(props);
 
     var popupSurvey = props.popupModel || new PopupSurvey(null, model);
-    
+
     if (props.expanded !== undefined) {
       popupSurvey.isExpanded = props.expanded;
     }

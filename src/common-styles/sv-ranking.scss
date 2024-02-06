@@ -10,6 +10,24 @@
 .sv-ranking-item {
   cursor: pointer;
   position: relative;
+  height: calcSize(6);
+  opacity: 1;
+}
+
+.sv-ranking-item--animate-adding {
+  animation: sv-animate-adding-keyframes 5000ms;
+}
+
+@keyframes sv-animate-adding-keyframes {
+  0% {
+    height: 0px;
+    opacity: 0;
+  }
+
+  100% {
+    height: calcSize(6);
+    opacity: 1;
+  }
 }
 
 .sv-ranking-item:focus .sv-ranking-item__icon--hover {

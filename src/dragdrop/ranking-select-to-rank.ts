@@ -141,6 +141,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
 
+    questionModel.itemsToAnimate.push(item);
     questionModel.isValueSetByUser = true;
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);

@@ -37,7 +37,7 @@ export class MaskManagerType {
     return new InputMaskBase(maskOption);
   }
   public getAllTypes(): Array<string> {
-    var result = new Array<string>();
+    var result = ["none"];
     for (var key in this.creatorHash) {
       result.push(key);
     }

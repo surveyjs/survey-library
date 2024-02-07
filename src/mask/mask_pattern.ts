@@ -39,7 +39,8 @@ function getFirstMatch(str: string, strIndex: number, literal: IMaskLiteral): nu
   return strIndex;
 }
 
-export function getMaskedValueByPattern(str: string, pattern: string | Array<IMaskLiteral>, matchWholeMask:boolean): string {
+export function getMaskedValueByPattern(src: string, pattern: string | Array<IMaskLiteral>, matchWholeMask:boolean): string {
+  const input = (src === undefined || src === null) ? "" : src;
   let result = "";
   let strIndex = 0;
   const literals: Array<IMaskLiteral> = (typeof pattern === "string") ? getLiterals(pattern) : pattern;
@@ -48,11 +49,11 @@ export function getMaskedValueByPattern(str: string, pattern: string | Array<IMa
   for(let maskIndex = 0; maskIndex < literals.length; maskIndex++) {
     switch(literals[maskIndex].type) {
       case "regex" :
-        if(strIndex < str.length) {
-          strIndex = getFirstMatch(str, strIndex, literals[maskIndex]);
+        if(strIndex < input.length) {
+          strIndex = getFirstMatch(input, strIndex, literals[maskIndex]);
         }
-        if(strIndex < str.length) {
-          result += str[strIndex];
+        if(strIndex < input.length) {
+          result += input[strIndex];
         } else if(matchWholeMask) {
           result += settings.placeholderChar;
         } else {
@@ -65,7 +66,7 @@ export function getMaskedValueByPattern(str: string, pattern: string | Array<IMa
       case "const":
       case "fixed":
         result += literals[maskIndex].value;
-        if(literals[maskIndex].value === str[strIndex]) {
+        if(literals[maskIndex].value === input[strIndex]) {
           strIndex++;
         }
         break;

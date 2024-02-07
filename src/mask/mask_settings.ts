@@ -88,7 +88,12 @@ Serializer.addClass(
     },
     { name: "dataToSave",
       choices: ["masked", "unmasked"],
-      defaultValue: "unmasked"
+      defaultValue: "unmasked",
+      dependsOn: "type",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return obj.type !== "none";
+      },
     },
     { name: "allowNegative:boolean",
       dependsOn: "type",

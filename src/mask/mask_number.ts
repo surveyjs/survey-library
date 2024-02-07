@@ -212,7 +212,7 @@ export class InputMaskNumber extends InputMaskBase {
   }
 
   public getNumberMaskedValue(src: string | number, matchWholeMask: boolean = false): string {
-    const input = src.toString();
+    const input = (src === undefined || src === null) ? "" : src.toString();
     const parsedNumber = this.parseNumber(input);
     const displayText = this.displayNumber(parsedNumber, true, matchWholeMask);
     return displayText;

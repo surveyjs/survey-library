@@ -1317,7 +1317,7 @@ export class QuestionPanelDynamicModel extends Question
   public removePanelUI(value: any): void {
     if (!this.canRemovePanel) return;
     if(this.isRequireConfirmOnDelete(value)) {
-      confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); }, undefined, this.getLocale());
+      confirmActionAsync(this.confirmDeleteText, () => { this.removePanel(value); }, undefined, this.getLocale(), this.survey.rootElement);
     } else {
       this.removePanel(value);
     }

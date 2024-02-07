@@ -79,6 +79,9 @@ export class Cover extends Base {
     this.headerClasses = new CssClassBuilder()
       .append("sv-header")
       .append("sv-header__without-background", (this.backgroundColor === "transparent") && !this.backgroundImage)
+      .append("sv-header__background-color--none", this.backgroundColor === "transparent" && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--accent", !this.backgroundColor && !this.titleColor && !this.descriptionColor)
+      .append("sv-header__background-color--custom", !!this.backgroundColor && this.backgroundColor !== "transparent" && !this.titleColor && !this.descriptionColor)
       .append("sv-header__overlap", this.overlapEnabled)
       .toString();
   }
@@ -102,18 +105,24 @@ export class Cover extends Base {
     super.fromJSON(theme.header);
     if (!!theme.cssVariables) {
       this.backgroundColor = theme.cssVariables["--sjs-header-backcolor"];
+      this.titleColor = theme.cssVariables["--sjs-font-headertitle-color"];
+      this.descriptionColor = theme.cssVariables["--sjs-font-headerdescription-color"];
     }
+    this.init();
+  }
+  private init() {
+    this.renderBackgroundImage = wrapUrlForBackgroundImage(this.backgroundImage);
+    this.updateHeaderClasses();
+    this.updateContentClasses();
+    this.updateBackgroundImageClasses();
   }
 
   constructor() {
     super();
-    this.renderBackgroundImage = wrapUrlForBackgroundImage(this.backgroundImage);
     ["top", "middle", "bottom"].forEach((positionY: VerticalAlignment) =>
       ["left", "center", "right"].forEach((positionX: HorizontalAlignment) => this.cells.push(new CoverCell(this, positionX, positionY)))
     );
-    this.updateHeaderClasses();
-    this.updateContentClasses();
-    this.updateBackgroundImageClasses();
+    this.init();
   }
 
   public getType(): string {
@@ -128,6 +137,8 @@ export class Cover extends Base {
   @property() public textGlowEnabled: boolean;
   @property() public overlapEnabled: boolean;
   @property() public backgroundColor: string;
+  @property() public titleColor: string;
+  @property() public descriptionColor: string;
   @property({
     onSet: (newVal: string, target: Cover) => {
       target.renderBackgroundImage = wrapUrlForBackgroundImage(newVal);

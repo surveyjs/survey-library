@@ -8,6 +8,11 @@
         </div>
 
         <div :class="surveyWindow.cssHeaderButtonsContainer">
+          <div v-if="surveyWindow.allowFullScreen" :class="surveyWindow.cssHeaderFullScreenButton" @click="doToggleFullScreen">
+            <sv-svg-icon v-if="surveyWindow.isFullScreen" :iconName="'icon-back-to-panel_16x16'" :size="16"> </sv-svg-icon>
+            <sv-svg-icon v-if="!surveyWindow.isFullScreen" :iconName="'icon-full-screen_16x16'" :size="16"> </sv-svg-icon>
+          </div>
+
           <div :class="surveyWindow.cssHeaderCollapseButton" @click="doExpand">
             <sv-svg-icon v-if="surveyWindow.isExpanded" :iconName="'icon-minimize_16x16'" :size="16"> </sv-svg-icon>
             <sv-svg-icon v-if="surveyWindow.isCollapsed" :iconName="'icon-restore_16x16'" :size="16"> </sv-svg-icon>
@@ -39,7 +44,10 @@ export class PopupSurvey extends BaseVue {
   @Prop() isexpanded: boolean;
   @Prop() allowClose: boolean;
   @Prop() allowclose: boolean;
+  @Prop() allowFullScreen: boolean;
+  @Prop() allowfullscreen: boolean;
   @Prop() closeOnCompleteTimeout: number;
+  
 
   surveyWindow: PopupSurveyModel;
   constructor() {
@@ -63,6 +71,12 @@ export class PopupSurvey extends BaseVue {
     }
     if (this.allowClose !== undefined) {
       this.surveyWindow.allowClose = this.allowClose;
+    }
+    if (this.allowfullscreen !== undefined) {
+      this.surveyWindow.allowFullScreen = this.allowfullscreen;
+    }
+    if (this.allowFullScreen !== undefined) {
+      this.surveyWindow.allowFullScreen = this.allowFullScreen;
     }
     this.surveyWindow.isShowing = true;
   }
@@ -100,6 +114,9 @@ export class PopupSurvey extends BaseVue {
   }
   doHide() {
     this.surveyWindow.hide();
+  }
+  doToggleFullScreen() {
+    this.surveyWindow.toggleFullScreen();
   }
   getSurveyComponentName() {
     return "survey";

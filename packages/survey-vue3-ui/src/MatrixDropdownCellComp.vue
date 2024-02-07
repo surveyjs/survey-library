@@ -25,7 +25,7 @@
     ></component>
     <div
       v-if="cell.hasQuestion"
-      :class="question.cssClasses.cellQuestionWrapper"
+      :class="cell.cellQuestionWrapperClassName"
       v-show="isVisible"
     >
       <component

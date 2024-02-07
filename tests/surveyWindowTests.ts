@@ -101,3 +101,20 @@ QUnit.test("Check that popups inside survey are closed when scrolling container"
   assert.notOk(model.survey["onScrollCallback"]);
   model.onScroll();
 });
+
+QUnit.test("toggleFullScreen", function (assert) {
+  const popup = new PopupSurveyModel({ elements: [{ type: "text", name: "q1" }] });
+  popup.show();
+  assert.equal(popup.isExpanded, false, "It is not expanded by default");
+
+  popup.toggleFullScreen();
+  assert.equal(popup.isExpanded, true, "expanded if full screen on");
+
+  popup.isExpanded = false;
+  assert.equal(popup.isFullScreen, false, "fullScreen is off after collapsed");
+
+  popup.isExpanded = true;
+  popup.toggleFullScreen();
+  popup.toggleFullScreen();
+  assert.equal(popup.isExpanded, true, "expanded after full screen off");
+});

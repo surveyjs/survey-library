@@ -220,6 +220,7 @@ export class JsonObjectProperty implements IObject {
     "showMode",
     "dependedProperties",
     "visibleIf",
+    "enableIf",
     "onExecuteExpression",
     "onPropertyEditorUpdate",
     "maxLength",
@@ -270,6 +271,7 @@ export class JsonObjectProperty implements IObject {
   public onSettingValue: (obj: any, value: any) => any;
   public onSetValue: (obj: any, value: any, jsonConv: JsonObject) => any;
   public visibleIf: (obj: any) => boolean;
+  public enableIf: (obj: any) => boolean;
   public onExecuteExpression: (obj: any, res: any) => any;
   public onPropertyEditorUpdate: (obj: any, propEditor: any) => any;
 
@@ -445,19 +447,27 @@ export class JsonObjectProperty implements IObject {
   public set readOnly(val: boolean) {
     this.readOnlyValue = val;
   }
+  public isEnable(obj: any): boolean {
+    if(this.readOnly) return false;
+    if(!obj || !this.enableIf) return true;
+    return this.enableIf(this.getOriginalObj(obj));
+  }
   public isVisible(layout: string, obj: any = null): boolean {
     let isLayout = !this.layout || this.layout == layout;
     if (!this.visible || !isLayout) return false;
     if (!!this.visibleIf && !!obj) {
-      if (obj.getOriginalObj) {
-        const orjObj = obj.getOriginalObj();
-        if(orjObj && Serializer.findProperty(orjObj.getType(), this.name)) {
-          obj = orjObj;
-        }
-      }
-      return this.visibleIf(obj);
+      return this.visibleIf(this.getOriginalObj(obj));
     }
     return true;
+  }
+  private getOriginalObj(obj: any): any {
+    if (obj && obj.getOriginalObj) {
+      const orjObj = obj.getOriginalObj();
+      if(orjObj && Serializer.findProperty(orjObj.getType(), this.name)) {
+        return orjObj;
+      }
+    }
+    return obj;
   }
   public get visible(): boolean {
     return this.visibleValue != null ? this.visibleValue : true;
@@ -819,7 +829,7 @@ export class JsonMetadataClass {
       if (!Helpers.isValueEmpty(propInfo.maxLength)) {
         prop.maxLength = propInfo.maxLength;
       }
-      if (!Helpers.isValueEmpty(propInfo.displayName)) {
+      if (propInfo.displayName !== undefined) {
         prop.displayName = propInfo.displayName;
       }
       if (!Helpers.isValueEmpty(propInfo.category)) {
@@ -869,6 +879,9 @@ export class JsonMetadataClass {
       }
       if (!!propInfo.visibleIf) {
         prop.visibleIf = propInfo.visibleIf;
+      }
+      if (!!propInfo.enableIf) {
+        prop.enableIf = propInfo.enableIf;
       }
       if (!!propInfo.onExecuteExpression) {
         prop.onExecuteExpression = propInfo.onExecuteExpression;

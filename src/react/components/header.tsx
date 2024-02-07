@@ -94,7 +94,7 @@ export class Header extends SurveyElementBase<ILayoutElementProps<Cover>, any> {
   renderElement(): JSX.Element | null {
     this.model.survey = this.props.survey;
 
-    if(!(this.props.survey.headerView === "advanced" && this.props.survey.renderedHasHeader)) {
+    if(!(this.props.survey.headerView === "advanced")) {
       return null;
     }
 

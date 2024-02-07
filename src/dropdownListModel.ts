@@ -16,6 +16,8 @@ export class DropdownListModel extends Base {
   readonly minPageSize = 25;
   readonly loadingItemHeight = 40;
 
+  private htmlCleanerElement: HTMLDivElement;
+
   private _markdownMode = false;
   private _popupModel: PopupModel;
   private filteredItems: Array<ItemValue> = undefined;
@@ -251,12 +253,17 @@ export class DropdownListModel extends Base {
     const hasHtml = item?.locText.hasHtml;
     if (hasHtml || this.question.inputFieldComponentName) {
       this._markdownMode = true;
-      this.inputString = "";
+      this.inputString = this.cleanHtml(item?.locText.getHtmlValue());
       this.hintString = "";
     } else {
       this.inputString = item?.title;
       this.hintString = item?.title;
     }
+  }
+
+  private cleanHtml(html: string): string {
+    this.htmlCleanerElement.innerHTML = html;
+    return this.htmlCleanerElement.textContent;
   }
 
   protected fixInputCase() {
@@ -340,6 +347,7 @@ export class DropdownListModel extends Base {
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
+    this.htmlCleanerElement = document.createElement("div");
     question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 

@@ -182,10 +182,9 @@ export class PopupSurveyModel extends Base {
     this.setPropertyValue("allowClose", val);
   }
   /**
-   * Specifies whether to display a button that allow showing pop-up in full-screen mode.
+   * Specifies whether to display a button that allows respondents to show the pop-up survey in full screen mode.
    *
    * Default value: `false`
-   *
    */
   public get allowFullScreen(): boolean {
     return this.getPropertyValue("allowFullScreen", false);

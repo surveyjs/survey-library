@@ -136,15 +136,20 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return !this.isDropTargetRanked;
   }
 
-  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
 
-    questionModel.itemsToAnimate.push(item);
-    questionModel.isValueSetByUser = true;
-    rankingChoices.splice(toIndex, 0, item);
-    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    const ghostNode:any = document.querySelectorAll(".sv-ranking-item--ghost")[0]; //TODO
+    ghostNode.addEventListener("animationend", (event:any) => {
+      questionModel.itemsToAnimate.push(item);
+
+      questionModel.isValueSetByUser = true;
+      rankingChoices.splice(toIndex, 0, item);
+      questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    });
+    ghostNode.classList.add("sv-ranking-item--animate-item-removing");
   }
 
   public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void {
@@ -162,5 +167,15 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     rankingChoices.splice(fromIndex, 1);
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
+  }
+
+  public clear(): void {
+    document.querySelectorAll(".sv-ranking-item--animate-item-removing").forEach((node)=>{
+      node.classList.remove("sv-ranking-item--animate-item-removing");
+    });
+    document.querySelectorAll(".sv-ranking-item--animate-item-adding").forEach((node)=>{
+      node.classList.remove("sv-ranking-item--animate-item-adding");
+    });
+    super.clear();
   }
 }

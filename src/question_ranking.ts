@@ -74,7 +74,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
         itemIndex === dropTargetIndex - 1 && this.dropTargetNodeMove === "up"
       )
       .append(
-        "sv-ranking-item--animate-adding",
+        "sv-ranking-item--animate-item-adding",
         this.itemsToAnimate.indexOf(item) !== -1
       )
       .toString();

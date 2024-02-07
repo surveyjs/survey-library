@@ -10,8 +10,10 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { MaskManagerType, IMaskOption } from "./mask/mask_manager";
+import { IInputMaskType, MaskManagerType } from "./mask/mask_manager";
 import { InputElementAdapter } from "./mask/input_element_adapter";
+import { MaskSettings, IMaskSettings } from "./mask/mask_settings";
+import { InputMaskBase } from "./mask/mask_base";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -23,11 +25,13 @@ export class QuestionTextModel extends QuestionTextBase {
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
   private maskInputAdapter: InputElementAdapter;
+  maskSettings: MaskSettings;
 
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
     this.createLocalizableString("maxErrorText", this, true, "maxError");
+    this.maskSettings = new MaskSettings();
     this.locDataListValue = new LocalizableStrings(this);
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
       this.propertyValueChanged("dataList", oldValue, newValue);
@@ -42,10 +46,6 @@ export class QuestionTextModel extends QuestionTextBase {
       this.updateInputSize();
       this.calcRenderedPlaceholder();
     });
-    this.registerPropertyChangedHandlers(["value"],
-      () => {
-        this.updateRenderedValue(this.value);
-      });
   }
   protected isTextValue(): boolean {
     return ["text", "number", "password"].indexOf(this.inputType) > -1;
@@ -228,31 +228,20 @@ export class QuestionTextModel extends QuestionTextBase {
     return isMinMaxType(this);
   }
 
-  @property({
-    onSet: (value: IMaskOption, target: QuestionTextModel) => { target.createMaskInstance(value); }
-  }) maskOptions: IMaskOption;
-
-  @property({
-    onSet: (value: string, target: QuestionTextModel) => { target.setValue(value); }
-  }) renderedValue : string;
-
-  private createMaskInstance(maskOptions: IMaskOption) {
-    if(!maskOptions) return;
-    this.maskInstance = MaskManagerType.Instance.createInputMask(maskOptions);
+  public get maskInstance(): IInputMaskType {
+    return this.maskSettings?.maskInstance;
   }
-  private updateRenderedValue(value: any) {
-    if(!!this.maskInstance) {
-      this.renderedValue = this.maskInstance.getMaskedValue(value);
-    } else {
-      this.renderedValue = value;
-    }
+  public get inputValue(): string {
+    return !!this.maskInstance ? this.maskInstance.getMaskedValue(this.value) : this.value;
   }
-  private setValue(renderedValue: string) {
-    if(!!this.maskInstance && this.maskOptions.dataToSave !== "masked") {
-      this.value = this.maskInstance.getUnmaskedValue(renderedValue);
+  public set inputValue(val: string) {
+    let value;
+    if(!!this.maskInstance && this.maskSettings.dataToSave !== "masked") {
+      value = this.maskInstance.getUnmaskedValue(val);
     } else {
-      this.value = renderedValue;
+      value = val;
     }
+    this.value = value;
   }
 
   protected onCheckForErrors(
@@ -454,7 +443,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
-      this.value = newValue;
+      this.inputValue = newValue;
     }
   }
   onCompositionUpdate = (event: any) => {
@@ -507,7 +496,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!!el) {
       this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");
       if (this.maskInstance) {
-        this.maskInputAdapter = new InputElementAdapter(this.maskInstance, this.input, this.value);
+        this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
       }
     }
     super.afterRenderQuestionElement(el);
@@ -671,7 +660,14 @@ Serializer.addClass(
       },
     },
     {
-      name: "maskOptions"
+      name: "maskSettings:masksettings",
+      className: "masksettings",
+      onGetValue: function (obj: any) {
+        return obj.maskSettings.getData();
+      },
+      onSetValue: function (obj: any, value: any) {
+        obj.maskSettings.setData(value);
+      },
     },
     {
       name: "step:number",

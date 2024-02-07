@@ -1,8 +1,9 @@
 import { InputMaskBase } from "./mask_base";
-import { MaskManagerType, IMaskOption, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
+import { MaskManagerType, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
+import { IMaskSettings } from "./mask_settings";
 import { settings } from "./mask_utils";
 
-interface INumberMaskOption extends IMaskOption {
+interface INumberMaskOption extends IMaskSettings {
   // align?: "left" | "right";
   allowNegative?: boolean;
   decimal?: string;
@@ -98,7 +99,7 @@ export class InputMaskNumber extends InputMaskBase {
   }
 
   constructor(options?: INumberMaskOption) {
-    super(options || <IMaskOption>{ mask: "" });
+    super(options || <IMaskSettings>{ mask: "" });
   }
 
   get numberOptions(): INumberMaskOption {
@@ -248,4 +249,4 @@ export class InputMaskNumber extends InputMaskBase {
   }
 }
 
-MaskManagerType.Instance.registerMaskManagerType("number", (maskOptions: IMaskOption) => { return new InputMaskNumber(maskOptions); });
+MaskManagerType.Instance.registerMaskManagerType("number", (maskOptions: IMaskSettings) => { return new InputMaskNumber(maskOptions); });

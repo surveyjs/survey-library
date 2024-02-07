@@ -1,8 +1,9 @@
-import { IInputMaskType, IMaskOption, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
+import { IInputMaskType, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
+import { IMaskSettings } from "./mask_settings";
 
 export class InputMaskBase implements IInputMaskType {
 
-  constructor(protected maskOptions: IMaskOption) { }
+  constructor(protected maskOptions: IMaskSettings) { }
 
   // public get maskedInputValue(): string {
   //   return this.input.value;

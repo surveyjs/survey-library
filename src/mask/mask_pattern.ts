@@ -1,5 +1,6 @@
 import { InputMaskBase } from "./mask_base";
-import { MaskManagerType, IMaskOption, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
+import { MaskManagerType, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
+import { IMaskSettings } from "./mask_settings";
 import { settings } from "./mask_utils";
 
 export interface IMaskLiteral {
@@ -137,4 +138,4 @@ export class InputMaskPattern extends InputMaskBase {
   }
 }
 
-MaskManagerType.Instance.registerMaskManagerType("pattern", (mask: IMaskOption) => { return new InputMaskPattern(mask); });
+MaskManagerType.Instance.registerMaskManagerType("pattern", (mask: IMaskSettings) => { return new InputMaskPattern(mask); });

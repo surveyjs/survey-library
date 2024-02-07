@@ -1,11 +1,6 @@
 import { HashTable } from "../helpers";
 import { InputMaskBase } from "./mask_base";
-
-export interface IMaskOption {
-  type: string;
-  mask: string;
-  dataToSave?: "masked" | "unmasked";
-}
+import { IMaskSettings } from "./mask_settings";
 
 export interface IMaskedValue {
   text: string;
@@ -29,16 +24,23 @@ export interface IInputMaskType {
 
 export class MaskManagerType {
   public static Instance: MaskManagerType = new MaskManagerType();
-  private creatorHash: HashTable<(maskOption: IMaskOption) => IInputMaskType> = {};
+  private creatorHash: HashTable<(maskOption: IMaskSettings) => IInputMaskType> = {};
 
-  public registerMaskManagerType(maskType: string, maskCreator: (maskOption: IMaskOption) => IInputMaskType): void {
+  public registerMaskManagerType(maskType: string, maskCreator: (maskOption: IMaskSettings) => IInputMaskType): void {
     this.creatorHash[maskType] = maskCreator;
   }
 
-  public createInputMask(maskOption: IMaskOption): IInputMaskType {
+  public createInputMask(maskOption: IMaskSettings): IInputMaskType {
     const creator = MaskManagerType.Instance.creatorHash[maskOption.type];
     if (!!creator) return creator(maskOption);
 
     return new InputMaskBase(maskOption);
+  }
+  public getAllTypes(): Array<string> {
+    var result = new Array<string>();
+    for (var key in this.creatorHash) {
+      result.push(key);
+    }
+    return result.sort();
   }
 }

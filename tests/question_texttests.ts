@@ -4,6 +4,7 @@ import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
+import { MaskSettings } from "../src/mask/mask_settings";
 
 QUnit.test("check dropdown disabled class", function(assert) {
   var json = {
@@ -418,25 +419,28 @@ QUnit.test("Test maxLength & getMaxLength", function (assert) {
 
 QUnit.test("Apply mask", function (assert) {
   const q = new QuestionTextModel("q1");
-  q.maskOptions = { type: "pattern", mask: "+99-99" };
+  const maskSettings = new MaskSettings();
+  maskSettings.setData({ type: "pattern", mask: "+99-99" });
+  q.maskSettings = maskSettings;
   q.value = "1234";
   assert.equal(q.value, "1234");
-  assert.equal(q.renderedValue, "+12-34");
+  assert.equal(q.inputValue, "+12-34");
 
-  q.renderedValue = "+78-68";
+  q.inputValue = "+78-68";
   assert.equal(q.value, "7868");
-  assert.equal(q.renderedValue, "+78-68");
+  assert.equal(q.inputValue, "+78-68");
 });
 
 QUnit.test("Pattern mask", function (assert) {
   const q = new QuestionTextModel("q1");
-  q.maskOptions = { type: "pattern", mask: "+99-99", dataToSave: "masked" };
-  q.renderedValue = "+12-34";
-  assert.equal(q.value, "+12-34", "masked value");
-  assert.equal(q.renderedValue, "+12-34", "masked renderedValue");
+  q.maskSettings.setData({ type: "pattern", mask: "+99-99", dataToSave: "masked" });
 
-  q.maskOptions = { type: "pattern", mask: "+99-99", dataToSave: "unmasked" };
-  q.renderedValue = "+45-67";
+  q.inputValue = "+12-34";
+  assert.equal(q.value, "+12-34", "masked value");
+  assert.equal(q.inputValue, "+12-34", "masked inputValue");
+
+  q.maskSettings.setData({ type: "pattern", mask: "+99-99", dataToSave: "unmasked" });
+  q.inputValue = "+45-67";
   assert.equal(q.value, "4567", "unmasked value");
-  assert.equal(q.renderedValue, "+45-67", "unmasked renderedValue");
+  assert.equal(q.inputValue, "+45-67", "unmasked inputValue");
 });

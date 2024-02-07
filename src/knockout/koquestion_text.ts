@@ -32,7 +32,7 @@ export class QuestionTextImplementor extends QuestionImplementor {
       this.question.onCompositionUpdate(event);
       return true;
     });
-    this.setObservaleObj("koReadOnlyValue", ko.computed(() => this.question.renderedValue));
+    this.setObservaleObj("koReadOnlyValue", ko.computed(() => this.question.inputValue));
   }
 }
 export class QuestionText extends QuestionTextModel {

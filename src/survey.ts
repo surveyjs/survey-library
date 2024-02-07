@@ -1023,6 +1023,8 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-action-bar",
       data: this.navigationBar
     });
+
+    this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
   }
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
@@ -2084,9 +2086,10 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.logo)
       .append(logoClasses[this.logoPosition]).toString();
   }
+  @property({ defaultValue: true }) private titleIsEmpty: boolean;
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
-    return !this.locTitle.isEmpty && this.showTitle;
+    return !this.titleIsEmpty && this.showTitle;
   }
   public get renderedHasDescription(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("description");
@@ -6113,6 +6116,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateRenderBackgroundImage();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
+    this.titleIsEmpty = this.locTitle.isEmpty;
     this.setCalculatedWidthModeUpdater();
   }
 

@@ -18,7 +18,7 @@ import type {
   SurveyElement,
   SurveyModel,
 } from "survey-core";
-import { computed, onBeforeUnmount, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{

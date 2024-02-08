@@ -1053,43 +1053,46 @@ export class PanelModelBase extends SurveyElement<Question>
   }
 
   private locCountRowUpdates = 0;
-  private blockRowUpdates() {
+  private blockRowsUpdates() {
     this.locCountRowUpdates++;
   }
-  private releaseRowUpdates() {
+  private releaseRowsUpdates() {
     this.locCountRowUpdates--;
   }
   private updateRowsBeforeElementRemoved(element: IElement): void {
-    const targetElement = element;
-    const targetRow = this.findRowByElement(targetElement);
-    const targetRowIndex = this.rows.indexOf(targetRow);
-    const targetElementIndexInRow = targetRow.elements.indexOf(targetElement);
-    targetRow.elements.splice(targetElementIndexInRow, 1);
-    if(targetRow.elements.length == 0) {
-      this.rows.splice(targetRowIndex, 1);
-    } else if(!targetRow.elements[0].startWithNewLine && this.rows[targetRowIndex - 1]) {
-      targetRow.elements.forEach(el => this.rows[targetRowIndex - 1].addElement(el));
-      this.rows.splice(targetRowIndex, 1);
+    const elementRow = this.findRowByElement(element);
+    const elementRowIndex = this.rows.indexOf(elementRow);
+    const elementIndexInRow = elementRow.elements.indexOf(element);
+    elementRow.elements.splice(elementIndexInRow, 1);
+    if(elementRow.elements.length == 0) {
+      this.rows.splice(elementRowIndex, 1);
+    } else if(!elementRow.elements[0].startWithNewLine && this.rows[elementRowIndex - 1]) {
+      elementRow.elements.forEach(el => this.rows[elementRowIndex - 1].addElement(el));
+      this.rows.splice(elementRowIndex, 1);
     }
     else {
-      targetRow.updateVisible();
+      elementRow.updateVisible();
     }
   }
   private updateRowsOnElementAdded(element: IElement): void {
     const index = this.elements.indexOf(element);
     const targetElement = this.elements[index + 1];
-    const createRow = (index: number) => {
+    const createRowAtIndex = (index: number) => {
       const row = this.createRowAndSetLazy(index);
       if(this.isDesignModeV2) {
         row.setIsLazyRendering(false);
       }
+      this.rows.splice(index, 0, row);
       return row;
+    };
+    const updateRow = (row: QuestionRowModel, start: number, deleteCount: number, ...elements: IElement[]) => {
+      const removedElements = row.elements.splice(start, deleteCount, ...elements);
+      row.updateVisible();
+      return removedElements;
     };
     if(!targetElement) {
       if(index == 0 || element.startWithNewLine) {
-        const newRow = createRow(this.rows.length);
-        newRow.addElement(element);
-        this.rows.splice(this.rows.length, 0, newRow);
+        updateRow(createRowAtIndex(this.rows.length), 0, 0, element);
       } else {
         this.rows[this.rows.length - 1].addElement(element);
       }
@@ -1101,34 +1104,18 @@ export class PanelModelBase extends SurveyElement<Question>
     const targetElementIndexInRow = targetRow.elements.indexOf(targetElement);
     if(targetElementIndexInRow == 0) {
       if(!targetElement.startWithNewLine) {
-        targetRow.elements.splice(0, 0, element);
-        targetRow.updateVisible();
+        updateRow(targetRow, 0, 0, element);
       }
-      else if(element.startWithNewLine) {
-        const newRow = createRow(targetRowIndex);
-        newRow.addElement(element);
-        this.rows.splice(targetRowIndex, 0, newRow);
+      else if(element.startWithNewLine || targetRowIndex < 1) {
+        createRowAtIndex(targetRowIndex).addElement(element);
       } else {
-        if(targetRowIndex < 1) {
-          const newRow = createRow(targetRowIndex);
-          newRow.addElement(element);
-          this.rows.splice(targetRowIndex, 0, newRow);
-        } else {
-          const existingRow = this.rows[targetRowIndex - 1];
-          existingRow.addElement(element);
-        }
+        this.rows[targetRowIndex - 1].addElement(element);
       }
     } else {
       if(element.startWithNewLine) {
-        const newRow = createRow(targetRowIndex + 1);
-        const removedElements = targetRow.elements.splice(targetElementIndexInRow, targetRow.elements.length);
-        targetRow.updateVisible();
-        newRow.addElement(element);
-        removedElements.forEach(el => newRow.addElement(el));
-        this.rows.splice(targetRowIndex + 1, 0, newRow);
+        updateRow(createRowAtIndex(targetRowIndex + 1), 0, 0, ...[element].concat(updateRow(targetRow, targetElementIndexInRow, targetRow.elements.length)));
       } else {
-        targetRow.elements.splice(targetElementIndexInRow, 0, element);
-        targetRow.updateVisible();
+        updateRow(targetRow, targetElementIndexInRow, 0, element);
       }
     }
   }
@@ -1251,9 +1238,9 @@ export class PanelModelBase extends SurveyElement<Question>
     if (elIndex < 0) return;
     row.elements.splice(elIndex, 1);
     if (row.elements.length > 0) {
-      this.blockRowUpdates();
+      this.blockRowsUpdates();
       row.elements[0].startWithNewLine = true;
-      this.releaseRowUpdates();
+      this.releaseRowsUpdates();
       row.updateVisible();
     } else {
       if (row.index >= 0) {
@@ -1453,7 +1440,7 @@ export class PanelModelBase extends SurveyElement<Question>
       this.addElement(element);
       return;
     }
-    this.blockRowUpdates();
+    this.blockRowsUpdates();
     let index = this.elements.indexOf(dest);
     const destRow = this.findRowByElement(dest);
     if(location == "left" || location == "right") {
@@ -1478,7 +1465,7 @@ export class PanelModelBase extends SurveyElement<Question>
         index = this.elements.indexOf(destRow.elements[destRow.elements.length - 1]) + 1;
       }
     }
-    this.releaseRowUpdates();
+    this.releaseRowsUpdates();
     this.addElement(element, index);
   }
   public insertElementAfter(element: IElement, after: IElement) {
@@ -1526,7 +1513,7 @@ export class PanelModelBase extends SurveyElement<Question>
    *
    * This method returns `null` if the panel cannot be created or added to this panel/page; otherwise, the method returns the created panel.
    * @param name A panel name.
-   * @see elements
+   * @see elementsup
    * @see addElement
    */
   public addNewPanel(name: string = null): PanelModel {

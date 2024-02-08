@@ -284,6 +284,7 @@ export { MaskManagerType } from "../../mask/mask_manager";
 export { InputMaskBase } from "../../mask/mask_base";
 export { InputMaskPattern } from "../../mask/mask_pattern";
 export { InputMaskNumber } from "../../mask/mask_number";
+export { InputMaskDateTime } from "../../mask/mask_datetime";
 export * from "../../utils/cssClassBuilder";
 
 export { surveyCss, defaultV2Css, defaultV2ThemeName } from "../../defaultCss/defaultV2Css";

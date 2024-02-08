@@ -9,15 +9,15 @@ export interface IMaskSettings {
 }
 
 export class MaskSettings extends Base implements IMaskSettings {
-  type: string;
-  mask: string;
-  dataToSave?: "masked" | "unmasked";
-  allowNegative?: boolean;
-  decimal?: string;
-  precision?: number;
-  thousands?: string;
-  min?: number;
-  max?: number;
+  @property() type: string;
+  @property() mask: string;
+  @property() dataToSave?: "masked" | "unmasked";
+  @property() allowNegative?: boolean;
+  @property() decimal?: string;
+  @property() precision?: number;
+  @property() thousands?: string;
+  @property() min?: number;
+  @property() max?: number;
   maskInstance?: IInputMaskType;
 
   private createMaskInstance() {
@@ -75,16 +75,11 @@ export class MaskSettings extends Base implements IMaskSettings {
 Serializer.addClass(
   "masksettings",
   [
-    { name: "type",
+    {
+      name: "type",
+      type: "dropdown",
       choices: ["none", "pattern", "number"],
       default: "none"
-    },
-    { name: "mask",
-      dependsOn: "type",
-      visibleIf: function(obj: any) {
-        if (!obj) return false;
-        return obj.type === "pattern";
-      },
     },
     { name: "dataToSave",
       choices: ["masked", "unmasked"],
@@ -93,6 +88,13 @@ Serializer.addClass(
       visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.type !== "none";
+      },
+    },
+    { name: "mask",
+      dependsOn: "type",
+      visibleIf: function(obj: any) {
+        if (!obj) return false;
+        return obj.type === "pattern";
       },
     },
     { name: "allowNegative:boolean",

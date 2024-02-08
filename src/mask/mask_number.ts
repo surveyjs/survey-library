@@ -19,23 +19,6 @@ interface INumericalComposition {
   decimalSeparatorCount?: number;
 }
 
-// export function parseNumber(str: any, decimalSeparator = "."): INumericalComposition {
-//   const result: INumericalComposition = { integralPart: 0, fractionalPart: 0 };
-//   const input = str.toString();
-
-//   const parts = input.trim().split(decimalSeparator);
-//   if(parts.length >= 2) {
-//     result.integralPart = parseInt(parts[0].trim() || 0);
-//     result.fractionalPart = parseInt(parts[1].trim() || 0);
-//   } else if(parts.length == 1) {
-//     result.integralPart = parseInt(parts[0].trim() || 0);
-//   } else {
-//     result.integralPart = parseInt(input.trim() || 0);
-//   }
-
-//   return result;
-// }
-
 export function splitString(str: string, reverse = true, n = 3): Array<string> {
   let arr = [];
 
@@ -52,22 +35,6 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
 
   return arr;
 }
-
-// export function getNumberMaskedValueOld(str: string | number, option?: INumberMaskOption): string {
-//   const decimalSeparator = option?.decimal || settings.numberOptions.decimal;
-//   const thousandsSeparator = option?.thousands || settings.numberOptions.thousands;
-//   const precision = option?.precision || settings.numberOptions.precision;
-//   const parsedNumber = parseNumber(str, decimalSeparator);
-
-//   const integralPart = parsedNumber.integralPart ? splitString(parsedNumber.integralPart.toString()).join(thousandsSeparator) : "0";
-//   let fractionalPart = parsedNumber.fractionalPart ? parsedNumber.fractionalPart.toString() : "";
-//   if(fractionalPart === "") {
-//     return integralPart;
-//   } else {
-//     fractionalPart = fractionalPart.substring(0, precision);
-//     return [integralPart, fractionalPart].join(decimalSeparator);
-//   }
-// }
 
 export class InputMaskNumber extends InputMaskBase {
   private calcCursorPosition(leftPart: string, args: ITextMaskInputArgs, maskedValue: string) {

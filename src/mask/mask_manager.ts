@@ -37,10 +37,8 @@ export class MaskManagerType {
     return new InputMaskBase(maskOption);
   }
   public getAllTypes(): Array<string> {
-    var result = ["none"];
-    for (var key in this.creatorHash) {
-      result.push(key);
-    }
-    return result.sort();
+    const result = Object.keys(this.creatorHash).sort();
+    result.splice(0, 0, "none");
+    return result;
   }
 }

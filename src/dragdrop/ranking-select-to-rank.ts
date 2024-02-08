@@ -142,13 +142,18 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const item = unRankingChoices[fromIndex];
 
     const ghostNode:any = document.querySelectorAll(".sv-ranking-item--ghost")[0]; //TODO
-    ghostNode.addEventListener("animationend", (event:any) => {
-      questionModel.itemsToAnimate.push(item);
-
+    const handleTransitionEnd = (event: any) => {
+      if (event.target !== ghostNode) { return; }
+      if (event.propertyName !== "height") { return; }
+      ghostNode.removeEventListener("transitionend", handleTransitionEnd);
+      ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
       questionModel.isValueSetByUser = true;
       rankingChoices.splice(toIndex, 0, item);
       questionModel.setPropertyValue("rankingChoices", rankingChoices);
-    });
+    };
+    ghostNode.removeEventListener("transitionend", handleTransitionEnd);
+    ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
+    ghostNode.addEventListener("transitionend", handleTransitionEnd);
     ghostNode.classList.add("sv-ranking-item--animate-item-removing");
   }
 

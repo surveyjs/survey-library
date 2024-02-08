@@ -1051,13 +1051,93 @@ export class PanelModelBase extends SurveyElement<Question>
     if (this.isLoadingFromJson) return;
     this.setArrayPropertyDirectly("rows", this.buildRows());
   }
-  protected onAddElement(element: IElement, index: number) {
+
+  private locCountRowUpdates = 0;
+  private blockRowUpdates() {
+    this.locCountRowUpdates++;
+  }
+  private releaseRowUpdates() {
+    this.locCountRowUpdates--;
+  }
+  private updateRowsBeforeElementRemoved(element: IElement): void {
+    const targetElement = element;
+    const targetRow = this.findRowByElement(targetElement);
+    const targetRowIndex = this.rows.indexOf(targetRow);
+    const targetElementIndexInRow = targetRow.elements.indexOf(targetElement);
+    targetRow.elements.splice(targetElementIndexInRow, 1);
+    if(targetRow.elements.length == 0) {
+      this.rows.splice(targetRowIndex, 1);
+    } else if(!targetRow.elements[0].startWithNewLine && this.rows[targetRowIndex - 1]) {
+      targetRow.elements.forEach(el => this.rows[targetRowIndex - 1].addElement(el));
+      this.rows.splice(targetRowIndex, 1);
+    }
+    else {
+      targetRow.updateVisible();
+    }
+  }
+  private updateRowsOnElementAdded(element: IElement): void {
+    const index = this.elements.indexOf(element);
+    const targetElement = this.elements[index + 1];
+    const createRow = (index: number) => {
+      const row = this.createRowAndSetLazy(index);
+      if(this.isDesignModeV2) {
+        row.setIsLazyRendering(false);
+      }
+      return row;
+    };
+    if(!targetElement) {
+      if(index == 0 || element.startWithNewLine) {
+        const newRow = createRow(this.rows.length);
+        newRow.addElement(element);
+        this.rows.splice(this.rows.length, 0, newRow);
+      } else {
+        this.rows[this.rows.length - 1].addElement(element);
+      }
+      return;
+    }
+    const targetRow = this.findRowByElement(targetElement);
+    if(!targetRow) return;
+    const targetRowIndex = this.rows.indexOf(targetRow);
+    const targetElementIndexInRow = targetRow.elements.indexOf(targetElement);
+    if(targetElementIndexInRow == 0) {
+      if(!targetElement.startWithNewLine) {
+        targetRow.elements.splice(0, 0, element);
+        targetRow.updateVisible();
+      }
+      else if(element.startWithNewLine) {
+        const newRow = createRow(targetRowIndex);
+        newRow.addElement(element);
+        this.rows.splice(targetRowIndex, 0, newRow);
+      } else {
+        if(targetRowIndex < 1) {
+          const newRow = createRow(targetRowIndex);
+          newRow.addElement(element);
+          this.rows.splice(targetRowIndex, 0, newRow);
+        } else {
+          const existingRow = this.rows[targetRowIndex - 1];
+          existingRow.addElement(element);
+        }
+      }
+    } else {
+      if(element.startWithNewLine) {
+        const newRow = createRow(targetRowIndex + 1);
+        const removedElements = targetRow.elements.splice(targetElementIndexInRow, targetRow.elements.length);
+        targetRow.updateVisible();
+        newRow.addElement(element);
+        removedElements.forEach(el => newRow.addElement(el));
+        this.rows.splice(targetRowIndex + 1, 0, newRow);
+      } else {
+        targetRow.elements.splice(targetElementIndexInRow, 0, element);
+        targetRow.updateVisible();
+      }
+    }
+  }
+  protected onAddElement(element: IElement, index: number): void {
     element.setSurveyImpl(this.surveyImpl);
     element.parent = this;
     this.markQuestionListDirty();
     if (this.canBuildRows()) {
-      let dragDropInfo = settings.supportCreatorV2 ? this.getDragDropInfo() : undefined;
-      this.dragDropPanelHelper.updateRowsOnElementAdded(element, index, dragDropInfo, this);
+      this.updateRowsOnElementAdded(element);
     }
     if (element.isPanel) {
       var p = <PanelModel>element;
@@ -1106,7 +1186,9 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   private onElementStartWithNewLineChanged(element: any) {
-    this.onRowsChanged();
+    if(this.locCountRowUpdates > 0) return;
+    this.updateRowsBeforeElementRemoved(element);
+    this.updateRowsOnElementAdded(element);
   }
   private updateRowsVisibility(element: any) {
     var rows = this.rows;
@@ -1169,7 +1251,9 @@ export class PanelModelBase extends SurveyElement<Question>
     if (elIndex < 0) return;
     row.elements.splice(elIndex, 1);
     if (row.elements.length > 0) {
+      this.blockRowUpdates();
       row.elements[0].startWithNewLine = true;
+      this.releaseRowUpdates();
       row.updateVisible();
     } else {
       if (row.index >= 0) {
@@ -1364,7 +1448,39 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     return true;
   }
-
+  public insertElement(element: IElement, dest?: IElement, location: "bottom" | "top" | "left" | "right" = "bottom"): void {
+    if(!dest) {
+      this.addElement(element);
+      return;
+    }
+    this.blockRowUpdates();
+    let index = this.elements.indexOf(dest);
+    const destRow = this.findRowByElement(dest);
+    if(location == "left" || location == "right") {
+      if(location == "right") {
+        element.startWithNewLine = false;
+        index++;
+      }
+      else {
+        if(destRow.elements.indexOf(dest) == 0) {
+          dest.startWithNewLine = false;
+          element.startWithNewLine = true;
+        } else {
+          element.startWithNewLine = false;
+        }
+      }
+    }
+    else {
+      element.startWithNewLine = true;
+      if(location == "top") {
+        index = this.elements.indexOf(destRow.elements[0]);
+      } else {
+        index = this.elements.indexOf(destRow.elements[destRow.elements.length - 1]) + 1;
+      }
+    }
+    this.releaseRowUpdates();
+    this.addElement(element, index);
+  }
   public insertElementAfter(element: IElement, after: IElement) {
     const index = this.elements.indexOf(after);
     if (index >= 0) this.addElement(element, index + 1);

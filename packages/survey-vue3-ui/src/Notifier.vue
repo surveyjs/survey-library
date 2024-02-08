@@ -1,7 +1,7 @@
 <template>
   <div
     v-bind:class="model.css"
-    v-show="model.isDisplayed"
+    v-if="model.isDisplayed"
     :style="{ visibility: model.active ? 'visible' : 'hidden' }"
     role="alert"
     aria-live="polite"

@@ -8941,6 +8941,62 @@ QUnit.test("Errors: matrixdynamic + show in multiple columns + vertical layout",
   assert.strictEqual(table.rows[4].cells[1].question, table.rows[5].cells[1].question);
 });
 
+QUnit.test("transposeData property", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"],
+        columnLayout: "vertical",
+        columns: [
+          {
+            name: "col1",
+          }
+        ]
+      }
+    ]
+  });
+  const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(q.transposeData, true, "transposeData #1");
+  q.columnLayout = "horizontal";
+  assert.equal(q.transposeData, false, "transposeData #2");
+  q.transposeData = true;
+  assert.equal(q.columnLayout, "vertical", "columnsLayout #1");
+  assert.equal(q.isColumnLayoutHorizontal, false, "isColumnLayoutHorizontal #1");
+  q.transposeData = false;
+  assert.equal(q.columnLayout, "horizontal", "columnsLayout #2");
+  assert.equal(q.isColumnLayoutHorizontal, true, "isColumnLayoutHorizontal #2");
+  q.transposeData = true;
+  const json1 = q.toJSON();
+  const json2 = q.toJSON({ version: "1.9.129" });
+  assert.equal(json1.transposeData, true, "json #1");
+  assert.notOk(json1.columnLayout, "json #2");
+  assert.notOk(json2.transposeData, "json #3");
+  assert.equal(json2.columnLayout, "vertical", "json #4");
+});
+
+QUnit.test("transposeData property load from json", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        rows: ["row1"],
+        transposeData: true,
+        columns: [
+          {
+            name: "col1",
+          }
+        ]
+      }
+    ]
+  });
+  const q = <QuestionMatrixDynamicModel>survey.getQuestionByName("matrix");
+  assert.equal(q.transposeData, true, "transposeData #1");
+  assert.equal(q.columnLayout, "vertical", "columnsLayout #1");
+});
+
 QUnit.test("Errors: matrixdropdown + mobile mode", function (assert) {
   const survey = new SurveyModel({
     elements: [

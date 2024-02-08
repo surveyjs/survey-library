@@ -2024,8 +2024,8 @@ Serializer.addClass(
     { name: "separateSpecialChoices:boolean", visible: false },
     { name: "showOtherItem:boolean", alternativeName: "hasOther" },
     { name: "showNoneItem:boolean", alternativeName: "hasNone" },
-    { name: "showRefuseItem:boolean", visible: false },
-    { name: "showDontKnowItem:boolean", visible: false },
+    { name: "showRefuseItem:boolean", visible: false, version: "1.9.128" },
+    { name: "showDontKnowItem:boolean", visible: false, version: "1.9.128" },
     {
       name: "otherPlaceholder",
       alternativeName: "otherPlaceHolder",

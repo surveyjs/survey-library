@@ -419,9 +419,7 @@ QUnit.test("Test maxLength & getMaxLength", function (assert) {
 
 QUnit.test("Apply mask", function (assert) {
   const q = new QuestionTextModel("q1");
-  const maskSettings = new MaskSettings();
-  maskSettings.setData({ type: "pattern", mask: "+99-99" });
-  q.maskSettings = maskSettings;
+  q.maskSettings.setData({ type: "pattern", mask: "+99-99" });
   q.value = "1234";
   assert.equal(q.value, "1234");
   assert.equal(q.inputValue, "+12-34");

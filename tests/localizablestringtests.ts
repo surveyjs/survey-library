@@ -856,3 +856,12 @@ QUnit.test("Support defaultValue for localizable strings", function (assert) {
   assert.equal(locStr2.text, "str2", "str2 #3");
   assert.equal(locStr3.text, "Abschließen", "str3 #3");
 });
+QUnit.test("getJSON should copy values", function (assert) {
+  const owner = new LocalizableOwnerTester("");
+  const locStr = new LocalizableString(owner, true);
+  locStr.setJson({ default: "str", de: "de: str" });
+  assert.deepEqual(locStr.getJson(), { default: "str", de: "de: str" }, "getJson #1");
+  const json = locStr.getJson();
+  json["fr"] = "fr: str";
+  assert.deepEqual(locStr.getJson(), { default: "str", de: "de: str" }, "getJson #2");
+});

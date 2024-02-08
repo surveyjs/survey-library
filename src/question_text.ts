@@ -26,6 +26,22 @@ export class QuestionTextModel extends QuestionTextBase {
   private maxValueRunner: ExpressionRunner;
   private maskInputAdapter: InputElementAdapter;
 
+  private createMaskAdapter() {
+    if (this.maskInstance) {
+      this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
+    }
+  }
+  private deleteMaskAdapter() {
+    if (this.maskInputAdapter) {
+      this.maskInputAdapter.dispose();
+      this.maskInputAdapter = undefined;
+    }
+  }
+  private updateMaskAdapter() {
+    this.deleteMaskAdapter();
+    this.createMaskAdapter();
+  }
+
   public get maskSettings(): MaskSettings {
     return this.getPropertyValue("maskSettings");
   }
@@ -33,6 +49,7 @@ export class QuestionTextModel extends QuestionTextBase {
     if (!val) return;
     this.setNewMaskSettingsProperty();
     this.maskSettings.fromJSON(val.toJSON());
+    this.updateMaskAdapter();
   }
   private setNewMaskSettingsProperty() {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
@@ -509,17 +526,12 @@ export class QuestionTextModel extends QuestionTextBase {
   public afterRenderQuestionElement(el: HTMLElement) {
     if (!!el) {
       this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");
-      if (this.maskInstance) {
-        this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
-      }
+      this.createMaskAdapter();
     }
     super.afterRenderQuestionElement(el);
   }
   public beforeDestroyQuestionElement(el: HTMLElement) {
-    if (this.maskInputAdapter) {
-      this.maskInputAdapter.dispose();
-      this.maskInputAdapter = undefined;
-    }
+    this.deleteMaskAdapter();
   }
 }
 

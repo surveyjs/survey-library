@@ -28,7 +28,7 @@ export class MaskSettings extends Base implements IMaskSettings {
     return "masksettings";
   }
   public get isEmpty(): boolean {
-    return this.type === "none";
+    return !this.type || this.type === "none";
   }
   public setData(json: any) {
     // this.clear();
@@ -88,7 +88,7 @@ Serializer.addClass(
     },
     { name: "dataToSave",
       choices: ["masked", "unmasked"],
-      defaultValue: "unmasked",
+      default: "unmasked",
       dependsOn: "type",
       visibleIf: function(obj: any) {
         if (!obj) return false;

@@ -77,13 +77,13 @@ const json2 = {
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
-      await initSurvey(framework, json1);
     }
   );
 
   test("validate on error", async t => {
     let surveyResult;
 
+    await initSurvey(framework, json1);
     await t
       .pressKey("tab")
       .pressKey("tab")
@@ -98,18 +98,11 @@ frameworks.forEach(framework => {
     surveyResult = await getSurveyResult();
     await t.expect(surveyResult).eql({ q1: "1" });
   });
-});
-
-frameworks.forEach(framework => {
-  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
-    async t => {
-      await initSurvey(framework, json2);
-    }
-  );
 
   test("validate on error in matrix", async t => {
     let surveyResult;
 
+    await initSurvey(framework, json2);
     await t
       .pressKey("tab")
       .pressKey("tab")

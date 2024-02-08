@@ -3562,7 +3562,7 @@ export class SurveyModel extends SurveyElementCore
     return this.mode == "edit";
   }
   public get isDisplayMode(): boolean {
-    return this.mode == "display" || this.state == "preview";
+    return this.mode == "display" && !this.isDesignMode || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
@@ -4735,7 +4735,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.root)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
-      .append(this.css.rootReadOnly, this.mode === "display")
+      .append(this.css.rootReadOnly, this.mode === "display" && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();

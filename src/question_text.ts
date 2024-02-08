@@ -25,13 +25,27 @@ export class QuestionTextModel extends QuestionTextBase {
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
   private maskInputAdapter: InputElementAdapter;
-  maskSettings: MaskSettings;
+
+  public get maskSettings(): MaskSettings {
+    return this.getPropertyValue("maskSettings");
+  }
+  public set maskSettings(val: MaskSettings) {
+    if (!val) return;
+    this.setNewMaskSettingsProperty();
+    this.maskSettings.fromJSON(val.toJSON());
+  }
+  private setNewMaskSettingsProperty() {
+    this.setPropertyValue("maskSettings", this.createMaskSettings());
+  }
+  protected createMaskSettings(): MaskSettings {
+    return new MaskSettings();
+  }
 
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
     this.createLocalizableString("maxErrorText", this, true, "maxError");
-    this.maskSettings = new MaskSettings();
+    this.setNewMaskSettingsProperty();
     this.locDataListValue = new LocalizableStrings(this);
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
       this.propertyValueChanged("dataList", oldValue, newValue);

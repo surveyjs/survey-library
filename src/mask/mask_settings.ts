@@ -9,7 +9,7 @@ export interface IMaskSettings {
 }
 
 export class MaskSettings extends Base implements IMaskSettings {
-  @property() type: string;
+  type: string;
   mask: string;
   dataToSave?: "masked" | "unmasked";
   allowNegative?: boolean;

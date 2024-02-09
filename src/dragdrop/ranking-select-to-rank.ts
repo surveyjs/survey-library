@@ -145,6 +145,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const handleTransitionEnd = (event: any) => {
       if (event.target !== ghostNode) { return; }
       if (event.propertyName !== "height") { return; }
+      if (getComputedStyle(event.target).height !== "0px") { return; }
       ghostNode.removeEventListener("transitionend", handleTransitionEnd);
       ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
       questionModel.isValueSetByUser = true;

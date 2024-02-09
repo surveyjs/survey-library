@@ -312,7 +312,7 @@
 .sv-ranking__container-placeholder {
   color: var(--sjs-font-questiondescription-color, #{$foreground-dim-light});
   @include defaultFont;
-  white-space: break-spaces;
+  white-space: normal;
   display: flex;
   justify-content: center;
   align-items: center;

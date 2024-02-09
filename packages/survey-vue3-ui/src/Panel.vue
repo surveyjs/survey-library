@@ -19,10 +19,7 @@
       v-if="!element.isCollapsed"
       :class="element.cssClasses.panel.content"
     >
-      <template
-        v-for="(row, index) in element.rows"
-        :key="element.id + '_' + index"
-      >
+      <template v-for="row in element.rows" :key="row.id">
         <component
           :is="(element.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
           v-bind="{

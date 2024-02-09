@@ -19285,3 +19285,20 @@ QUnit.test("Advanced header title/description color", function (assert) {
   headerModel = headerLayoutElement.data as Cover;
   assert.equal(headerModel.headerClasses, "sv-header");
 });
+QUnit.test("Display mode in design time", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
+  assert.equal(survey.mode, "edit");
+  assert.equal(survey.isDisplayMode, false);
+  assert.equal(survey.getRootCss(), "sd-root-modern");
+
+  survey.mode = "display";
+  assert.equal(survey.mode, "display");
+  assert.equal(survey.isDisplayMode, true);
+  assert.ok(survey.getRootCss().indexOf(survey.css.rootReadOnly) !== -1);
+
+  survey.setDesignMode(true);
+  assert.equal(survey.mode, "display");
+  assert.equal(survey.isDisplayMode, false);
+  assert.equal(survey.getRootCss(), "sd-root-modern");
+});

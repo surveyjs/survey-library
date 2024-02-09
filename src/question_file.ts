@@ -1018,8 +1018,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
   }
   doChange = (event: any) => {
-    var src = event.target || event.srcElement;
-    this.onChange(src);
+    // var src = event.target || event.srcElement;
+    // this.onChange(src);
   }
   doClean = () => {
     if (this.needConfirmRemoveFile) {

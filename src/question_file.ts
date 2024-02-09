@@ -921,9 +921,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super.updateElementCss(reNew);
     this.updateCurrentMode();
   }
-
-  endLoadingFromJson(): void {
-    super.endLoadingFromJson();
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
     this.updateCurrentMode();
     this.updateActionsVisibility();
     this.loadPreview(this.value);

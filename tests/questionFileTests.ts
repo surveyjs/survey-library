@@ -1129,7 +1129,7 @@ QUnit.test("QuestionFile remove file by preview value", function (assert) {
   });
 });
 
-QUnit.test("QuestionFile download file content on preview", function (assert) {
+QUnit.test("QuestionFile download file content on preview, #1", function (assert) {
   var json = {
     showPreviewBeforeComplete: "showAnsweredQuestions",
     elements: [
@@ -1386,7 +1386,7 @@ QUnit.test("Check file question processResponsiveness method", (assert) => {
   assert.equal(question.pageSize, 4);
 });
 
-QUnit.test("QuestionFile download file content on preview", function (assert) {
+QUnit.test("QuestionFile download file content on preview, #2", function (assert) {
   const survey = new SurveyModel({
     elements: [
       { type: "file", name: "q1" },

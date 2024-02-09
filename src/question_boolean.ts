@@ -119,6 +119,14 @@ export class QuestionBooleanModel extends Question {
     return this.booleanValue !== null;
   }
 
+  @property({ defaultValue: false }) exchangeUIButtons: boolean;
+  get locLabelLeft(): LocalizableString {
+    return this.exchangeUIButtons ? this.getLocalizableString("labelTrue") : this.getLocalizableString("labelFalse");
+  }
+  get locLabelRight(): LocalizableString {
+    return this.exchangeUIButtons ? this.getLocalizableString("labelFalse") : this.getLocalizableString("labelTrue");
+  }
+
   /**
    * Gets or sets a text label that corresponds to a negative answer.
    *
@@ -179,6 +187,7 @@ export class QuestionBooleanModel extends Question {
       .append(css.itemDisabled, this.isReadOnly)
       .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)
+      .append(css.itemExchanged, !!this.exchangeUIButtons)
       .append(css.itemIndeterminate, this.booleanValue === null)
       .toString();
   }
@@ -202,8 +211,8 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
-      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === true)
-      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === false)
+      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.exchangeUIButtons)
+      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.exchangeUIButtons)
       .toString();
   }
 
@@ -311,6 +320,7 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
+    { name: "exchangeUIButtons", default: false, visible: false },
     { name: "renderAs", default: "default", visible: false },
   ],
   function () {

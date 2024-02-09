@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 
 import { QuestionBooleanModel } from "../src/question_boolean";
+import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 
 export default QUnit.module("boolean");
 
@@ -237,4 +238,24 @@ QUnit.test("Boolean shouldn't set booleanValue in design time", function (assert
   survey.setDesignMode(true);
   question.booleanValue = false;
   assert.equal(question.value, true);
+});
+QUnit.test("Boolean exchangeUIButtons", function (assert) {
+  const survey = new SurveyModel({});
+  const question = new QuestionBooleanModel("q1");
+  survey.css = defaultV2Css;
+  question.setSurveyImpl(survey);
+  assert.equal(question.exchangeUIButtons, false);
+  assert.equal(question.getItemCss(), "sd-boolean sd-boolean--allowhover sd-boolean--indeterminate");
+  assert.equal(question.getLabelCss(false), "sd-boolean__label");
+  assert.equal(question.getLabelCss(true), "sd-boolean__label");
+  assert.equal(question.locLabelLeft, question.locLabelFalse);
+  assert.equal(question.locLabelRight, question.locLabelTrue);
+
+  question.exchangeUIButtons = true;
+  assert.equal(question.exchangeUIButtons, true);
+  assert.equal(question.getItemCss(), "sd-boolean sd-boolean--allowhover sd-boolean--exchanged sd-boolean--indeterminate");
+  assert.equal(question.getLabelCss(false), "sd-boolean__label");
+  assert.equal(question.getLabelCss(true), "sd-boolean__label");
+  assert.equal(question.locLabelLeft, question.locLabelTrue);
+  assert.equal(question.locLabelRight, question.locLabelFalse);
 });

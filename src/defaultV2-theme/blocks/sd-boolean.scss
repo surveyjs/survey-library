@@ -75,6 +75,23 @@
   transform: translateX(-100%);
 }
 
+.sd-boolean--exchanged {
+  .sd-boolean__thumb {
+    margin-left: 100%;
+    transform: translateX(-100%);
+  }
+
+  &.sd-boolean--checked .sd-boolean__thumb {
+    margin-left: 0%;
+    transform: translateX(0);
+  }
+
+  &.sd-boolean:not(.sd-boolean--checked):not(sd-boolean--indeterminate) .sd-boolean__label--false,
+  &.sd-boolean.sd-boolean--checked .sd-boolean__label--true {
+    color: $font-editorfont-placeholdercolor;
+  }
+}
+
 .sd-boolean--disabled {
   pointer-events: none;
 

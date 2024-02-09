@@ -432,29 +432,45 @@ export var settings = {
    */
   tagboxCloseOnSelect: false,
   /**
-   * A property that allows you to display a custom confirm dialog.
+   * A function that activates a browser confirm dialog.
    *
-   * Set this property to a function that renders your custom dialog window. This function should return `true` if a user confirms an action or `false` otherwise.
+   * Use the following code to execute this function:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * // `result` contains `true` if the action was confirmed or `false` otherwise
+   * const result = settings.confirmActionFunc("Are you sure?");
+   * ```
+   *
+   * You can redefine the `confirmActionFunc` function if you want to display a custom dialog window. Your function should return `true` if a user confirms an action or `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    */
   confirmActionFunc: function (message: string): boolean {
     return confirm(message);
   },
   /**
-   * A property that allows you to display a custom confirm dialog in async mode or activate the standard browser dialog.
+   * A function that activates a proprietary SurveyJS confirm dialog.
    *
-   * To display a custom confirm dialog, set this property to a function that renders it. This function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
-   *
-   * To activate the standard browser dialog, set the `confirmActionAsync` property to a function that returns `false`. With this configuration, a survey falls back to the [`confirmActionFunc`](#confirmActionFunc) function, which renders the standard browser dialog by default.
+   * Use the following code to execute this function:
    *
    * ```js
    * import { settings } from "survey-core";
    *
-   * // Display the standard browser dialog
-   * settings.confirmActionAsync = () => {
-   *    return false;
-   * }
+   * settings.confirmActionAsync("Are you sure?", (confirmed) => {
+   *   if (confirmed) {
+   *     // ...
+   *     // Proceed with the action
+   *     // ...
+   *   } else {
+   *     // ...
+   *     // Cancel the action
+   *     // ...
+   *   }
+   * });
    * ```
+   *
+   * You can redefine the `confirmActionAsync` function if you want to display a custom dialog window. Your function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */

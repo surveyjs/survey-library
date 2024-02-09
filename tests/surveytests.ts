@@ -19301,7 +19301,7 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
   assert.equal(survey.mode, "edit");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
 
   survey.mode = "display";
   assert.equal(survey.mode, "display");
@@ -19311,5 +19311,5 @@ QUnit.test("Display mode in design time", function (assert) {
   survey.setDesignMode(true);
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
 });

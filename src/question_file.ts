@@ -921,9 +921,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super.updateElementCss(reNew);
     this.updateCurrentMode();
   }
-
-  endLoadingFromJson(): void {
-    super.endLoadingFromJson();
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
     this.updateCurrentMode();
     this.updateActionsVisibility();
     this.loadPreview(this.value);
@@ -1018,8 +1017,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
   }
   doChange = (event: any) => {
-    // var src = event.target || event.srcElement;
-    // this.onChange(src);
+    var src = event.target || event.srcElement;
+    this.onChange(src);
   }
   doClean = () => {
     if (this.needConfirmRemoveFile) {

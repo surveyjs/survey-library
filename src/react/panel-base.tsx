@@ -77,22 +77,8 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
       && this.panelBase.isVisible && !!this.panelBase.survey
     );
   }
-  private renderedRowsCache: any = {};
   protected renderRows(css: any): Array<JSX.Element> {
-    if (this.changedStatePropName !== "rows") {
-      this.renderedRowsCache = {};
-    }
-    var rows:Array<JSX.Element> = [];
-    var questionRows = this.panelBase.rows;
-    for (var i = 0; i < questionRows.length; i++) {
-      var row = this.renderedRowsCache[questionRows[i].id];
-      if (!row) {
-        row = this.createRow(questionRows[i], css);
-        this.renderedRowsCache[questionRows[i].id] = row;
-      }
-      rows.push(row);
-    }
-    return rows;
+    return this.panelBase.rows.map((row) => this.createRow(row, css));
   }
   protected createRow(row: QuestionRowModel, css: any): JSX.Element {
     return (

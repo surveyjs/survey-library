@@ -475,8 +475,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
   }
-  public chooseFile(): void {
+  public chooseFile(event: MouseEvent): void {
     const inputElement = document.getElementById(this.inputId) as HTMLInputElement;
+    event.preventDefault();
+    event.stopImmediatePropagation();
     if (inputElement) {
       if (this.survey) {
         this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this });
@@ -1021,7 +1023,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doClean = () => {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); }, undefined, this.getLocale());
+      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.clearFilesCore();
@@ -1037,7 +1039,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doRemoveFile(data: any) {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale());
+      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.removeFileCore(data);

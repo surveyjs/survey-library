@@ -436,7 +436,7 @@ frameworks.forEach(framework => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1280, 1100);
       await initSurvey(framework, {
-        focusFirstQuestionAutomatic: true,
+        focusFirstQuestionAutomatic: false,
         showQuestionNumbers: "off",
         questions: [
           {
@@ -473,6 +473,9 @@ frameworks.forEach(framework => {
       const popupContainer = Selector(".sv-popup__container").filterVisible();
       await t.click(questionDropdownSelect);
       await takeElementScreenshot("dropdown-with-markdown-popup.png", popupContainer, t, comparer);
+
+      await t.pressKey("Enter");
+      await takeElementScreenshot("dropdown-with-markdown-focused.png", questionDropdownSelect, t, comparer);
     });
   });
 

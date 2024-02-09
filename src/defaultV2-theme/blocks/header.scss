@@ -14,6 +14,7 @@
 }
 
 .sv-header__without-background {
+
   .sv-header--mobile,
   .sv-header__content {
     padding-bottom: 0;
@@ -111,15 +112,15 @@
   margin: 0;
 }
 
-.sv-header__logo ~ .sv-header__title {
+.sv-header__logo~.sv-header__title {
   margin-top: calcSize(3);
 }
 
-.sv-header__logo ~ .sv-header__description {
+.sv-header__logo~.sv-header__description {
   margin-top: calcSize(3);
 }
 
-.sv-header__title ~ .sv-header__description {
+.sv-header__title~.sv-header__description {
   margin-top: calcSize(1);
 }
 
@@ -146,5 +147,17 @@
 
   .sv-header__logo img {
     max-width: 100%;
+  }
+}
+
+.sv-header__background-color--none,
+.sv-header__background-color--custom {
+  .sv-header__title .sd-title {
+    color: $font-pagetitle-color;
+  }
+
+  .sv-header__description .sd-description {
+    @include header_description;
+    color: $font-pagedescription-color;
   }
 }

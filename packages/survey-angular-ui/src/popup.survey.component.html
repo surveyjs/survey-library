@@ -5,6 +5,11 @@
         {{popup.locTitle.renderedHtml}}
       </div>
       <div [class]="popup.cssHeaderButtonsContainer">
+        <div *ngIf="popup.allowFullScreen" [class]="popup.cssHeaderFullScreenButton" (click)="popup.toggleFullScreen()">
+          <svg *ngIf="popup.isFullScreen" [iconName]="'icon-back-to-panel_16x16'" [size]="16" sv-ng-svg-icon></svg>
+          <svg *ngIf="!popup.isFullScreen" [iconName]="'icon-full-screen_16x16'" [size]="16" sv-ng-svg-icon></svg>
+        </div>
+
         <div [class]="popup.cssHeaderCollapseButton" (click)="popup.changeExpandCollapse()">
             <svg *ngIf="popup.isExpanded" [iconName]="'icon-minimize_16x16'" [size]="16" sv-ng-svg-icon></svg>
             <svg *ngIf="popup.isCollapsed" [iconName]="'icon-restore_16x16'" [size]="16" sv-ng-svg-icon></svg>

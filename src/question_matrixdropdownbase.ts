@@ -900,7 +900,7 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     );
     this.registerPropertyChangedHandlers(
       [
-        "columnLayout",
+        "transposeData",
         "addRowLocation",
         "hideColumnsIfEmpty",
         "showHeader",
@@ -960,18 +960,26 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     }
   }
   /**
-   * Specifies the matrix layout. Set this property to `"vertical"` if you want to display columns instead of rows and rows instead of columns.
+   * Specifies whether to display [`columns`](#columns) as rows and [`rows`](#rows) as columns.
    *
-   * Default value: `"horizontal"`
-   * @see columns
-   * @see rows
-   * @see isColumnLayoutHorizontal
+   * Default value: `false`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/transpose-dynamic-rows-to-columns-in-matrix/ (linkStyle))
+   */
+  public get transposeData(): boolean {
+    return this.getPropertyValue("transposeData");
+  }
+  public set transposeData(val: boolean) {
+    this.setPropertyValue("transposeData", val);
+  }
+  /**
+   * This property is obsolete. Use the [`transposeData`](#transposeData) property instead.
    */
   public get columnLayout(): string {
-    return this.getPropertyValue("columnLayout");
+    return this.transposeData ? "vertical" : "horizontal";
   }
   public set columnLayout(val: string) {
-    this.setPropertyValue("columnLayout", val);
+    this.transposeData = val === "vertical";
   }
   get columnsLocation(): string {
     return this.columnLayout;
@@ -1017,14 +1025,13 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     return super.getChildErrorLocation(child);
   }
   /**
-   * Returns `true` if columns are placed in the horizontal direction and rows in the vertical direction.
+   * Returns `true` if [`columns`](#columns) are placed in the horizontal direction and [`rows`](#columns) in the vertical direction.
    *
-   * To specify the layout, use the `columnLayout` property. If you set it to `"vertical"`, the survey applies it only when the screen has enough space. Otherwise, the survey falls back to the horizontal layout, but the `columnLayout` property remains set to `"vertical"`. Unlike `columnLayout`, the `isColumnLayoutHorizontal` property always indicates the current layout.
-   * @see columnLayout
+   * To specify the layout, use the [`transposeData`](#transposeData) property. If you set it to `true`, the survey applies it only when the screen has enough space. Otherwise, the survey falls back to the original layout, but the `transposeData` property remains set to `true`. Unlike `transposeData`, the `isColumnLayoutHorizontal` property always indicates the current layout.
+   * @see transposeData
    */
-  public get isColumnLayoutHorizontal() {
-    if (this.isMobile) return true;
-    return this.columnLayout != "vertical";
+  public get isColumnLayoutHorizontal(): boolean {
+    return this.isMobile ? true : !this.transposeData;
   }
   /**
    * Enables case-sensitive comparison in columns with the `isUnique` property set to `true`.
@@ -2491,8 +2498,11 @@ Serializer.addClass(
     {
       name: "columnLayout",
       alternativeName: "columnsLocation",
-      default: "horizontal",
       choices: ["horizontal", "vertical"],
+      visible: false, isSerializable: false
+    },
+    {
+      name: "transposeData:boolean", version: "1.9.130", oldName: "columnLayout"
     },
     {
       name: "detailElements",

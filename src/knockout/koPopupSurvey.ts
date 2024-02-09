@@ -15,6 +15,9 @@ export class PopupSurveyImplementor extends ImplementorBase {
     (<any>this.window)["doHide"] = () => {
       this.window.hide();
     };
+    (<any>this.window)["doToggleFullScreen"] = () => {
+      this.window.toggleFullScreen();
+    };
   }
   private doShowingChanged() {
     const windowElement = this.window.windowElement;

@@ -12,6 +12,7 @@ import { AdaptiveActionContainer } from "../src/actions/adaptive-container";
 import { ActionContainer } from "../src/actions/container";
 import { IElement } from "../src/base-interfaces";
 import { StylesManager } from "../src/stylesmanager";
+import { assert } from "console";
 
 export default QUnit.module("Panel");
 
@@ -1973,4 +1974,741 @@ QUnit.test("Render name for collapsed/expanded questions in design-time", functi
   assert.equal(panel.state, "default", "the panel is not collapsed or expanded");
   assert.equal(panel.hasTitle, false, "We do not render the title");
   assert.notOk(panel.locTitle.renderedHtml, "Render title is empty, #3");
+});
+
+QUnit.test("Check updateRowsOnElementAdded: insert on empty page", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1"
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = new QuestionTextModel("q1");
+  page.addElement(question, 0);
+  assert.equal(page.rows.length, 1);
+  assert.equal(page.rows[0].visibleElements.length, 1);
+  assert.equal(page.rows[0].visibleElements[0].name, "q1");
+
+});
+QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: false", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = new QuestionTextModel("q2");
+  question.startWithNewLine = false;
+  page.addElement(question, 1);
+  assert.equal(page.rows.length, 1);
+  assert.equal(page.rows[0].visibleElements.length, 2);
+  assert.equal(page.rows[0].visibleElements[0].name, "q1");
+  assert.equal(page.rows[0].visibleElements[1].name, "q2");
+});
+QUnit.test("Check updateRowsOnElementAdded: insert into page with latest index and swnl: true", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1"
+          }
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = new QuestionTextModel("q2");
+  question.startWithNewLine = true;
+  page.addElement(question, 1);
+  assert.equal(page.rows.length, 2);
+  assert.equal(page.rows[0].visibleElements.length, 1);
+  assert.equal(page.rows[0].visibleElements[0].name, "q1");
+  assert.equal(page.rows[1].visibleElements.length, 1);
+  assert.equal(page.rows[1].visibleElements[0].name, "q2");
+});
+QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: false for next element", function(assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            name: "q1",
+            type: "text",
+            startWithNewLine: false
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel();
+  survey.fromJSON(json);
+  let page = <PageModel>survey.getPageByName("page1");
+  let question = new QuestionTextModel("q2");
+  page.addElement(question, 0);
+  assert.equal(page.rows.length, 1);
+  assert.equal(page.rows[0].visibleElements.length, 2);
+  assert.equal(page.rows[0].visibleElements[0].name, "q2");
+  assert.equal(page.rows[0].visibleElements[1].name, "q1");
+
+  survey = new SurveyModel();
+  survey.fromJSON(json);
+  page = <PageModel>survey.getPageByName("page1");
+  question = new QuestionTextModel("q2");
+  question.startWithNewLine = false;
+  page.addElement(question, 0);
+  assert.equal(page.rows.length, 1);
+  assert.equal(page.rows[0].visibleElements.length, 2);
+  assert.equal(page.rows[0].visibleElements[0].name, "q2");
+  assert.equal(page.rows[0].visibleElements[1].name, "q1");
+});
+QUnit.test("Check updateRowsOnElementAdded: insert into page with zero index and swnl: true for next element", function(assert) {
+  const json = {
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            name: "q1",
+            type: "text",
+            startWithNewLine: true
+          }
+        ]
+      }
+    ]
+  };
+  let survey = new SurveyModel();
+  survey.fromJSON(json);
+  let page = <PageModel>survey.getPageByName("page1");
+  let question = new QuestionTextModel("q2");
+  page.addElement(question, 0);
+  assert.equal(page.rows.length, 2);
+  assert.equal(page.rows[0].visibleElements.length, 1);
+  assert.equal(page.rows[0].visibleElements[0].name, "q2");
+  assert.equal(page.rows[1].visibleElements.length, 1);
+  assert.equal(page.rows[1].visibleElements[0].name, "q1");
+
+  survey = new SurveyModel();
+  survey.fromJSON(json);
+  page = <PageModel>survey.getPageByName("page1");
+  question = new QuestionTextModel("q2");
+  question.startWithNewLine = false;
+  page.addElement(question, 0);
+  assert.equal(page.rows[0].visibleElements.length, 1);
+  assert.equal(page.rows[0].visibleElements[0].name, "q2");
+  assert.equal(page.rows[1].visibleElements.length, 1);
+  assert.equal(page.rows[1].visibleElements[0].name, "q1");
+});
+QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: false", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3", startWithNewLine: false },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5" }
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  let question = new QuestionTextModel("q6");
+  question.startWithNewLine = false;
+  page.addElement(question, 2);
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q6", "q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  question = new QuestionTextModel("q7");
+  question.startWithNewLine = false;
+  page.addElement(question, 4);
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q6", "q3", "q7", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+});
+QUnit.test("Check updateRowsOnElementAdded method: insert between elements in one row with swnl: true", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3", startWithNewLine: false },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5" }
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  let question = new QuestionTextModel("q6");
+  question.startWithNewLine = true;
+  page.addElement(question, 2);
+  assert.equal(page.rows.length, 4);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q6", "q3", "q4"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q5"]);
+
+  question = new QuestionTextModel("q7");
+  question.startWithNewLine = true;
+  page.addElement(question, 4);
+  assert.equal(page.rows.length, 5);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q6", "q3"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7", "q4"]);
+  assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q5"]);
+});
+QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: false", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", startWithNewLine: false },
+          { type: "text", name: "q3", },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5" }
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  let question = new QuestionTextModel("q6");
+  question.startWithNewLine = false;
+  page.addElement(question, 2);
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2", "q6"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  question = new QuestionTextModel("q7");
+  question.startWithNewLine = false;
+  page.addElement(question, 5);
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2", "q6"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4", "q7"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+});
+QUnit.test("Check updateRowsOnElementAdded method: insert between rows with swnl: true", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", startWithNewLine: false },
+          { type: "text", name: "q3", },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5" }
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  let question = new QuestionTextModel("q6");
+  question.startWithNewLine = true;
+  page.addElement(question, 2);
+  assert.equal(page.rows.length, 4);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q6"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q5"]);
+
+  question = new QuestionTextModel("q7");
+  question.startWithNewLine = true;
+  page.addElement(question, 5);
+  assert.equal(page.rows.length, 5);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q6"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7"]);
+  assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q5"]);
+});
+QUnit.test("Check swnl changed: change swnl for first element on page", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2", startWithNewLine: false },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = survey.getQuestionByName("q1");
+
+  assert.equal(page.rows.length, 1);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+
+  question.startWithNewLine = false;
+  assert.equal(page.rows.length, 1);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+
+  question.startWithNewLine = true;
+  assert.equal(page.rows.length, 1);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+});
+QUnit.test("Check swnl changed: change swnl for first element in row", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3", startWithNewLine: false },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5" },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = survey.getQuestionByName("q2");
+
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  question.startWithNewLine = false;
+  assert.equal(page.rows.length, 2);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2", "q3", "q4"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q5"]);
+});
+
+QUnit.test("Check swnl changed: change swnl for last element in row", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3", startWithNewLine: false },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5" },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = survey.getQuestionByName("q4");
+
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+
+  question.startWithNewLine = true;
+  assert.equal(page.rows.length, 4);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q4"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q5"]);
+});
+
+QUnit.test("Check swnl changed: change swnl for middle element in row", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3", startWithNewLine: false },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5", startWithNewLine: false },
+          { type: "text", name: "q6", startWithNewLine: false },
+          { type: "text", name: "q7" },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = survey.getQuestionByName("q4");
+
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3", "q4", "q5", "q6"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q7"]);
+
+  question.startWithNewLine = true;
+  assert.equal(page.rows.length, 4);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q4", "q5", "q6"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7"]);
+});
+
+QUnit.test("Check swnl changed: change swnl for single element in row", function(assert) {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          { type: "text", name: "q1" },
+          { type: "text", name: "q2" },
+          { type: "text", name: "q3", startWithNewLine: false },
+          { type: "text", name: "q4", startWithNewLine: false },
+          { type: "text", name: "q5" },
+          { type: "text", name: "q6" },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  const question = survey.getQuestionByName("q5");
+
+  assert.equal(page.rows.length, 4);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q6"]);
+
+  question.startWithNewLine = false;
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q2", "q3", "q4", "q5"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q6"]);
+});
+
+QUnit.test("Check insert function: insert in empty page", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  assert.equal(page.rows.length, 0);
+  page.insertElement(new QuestionTextModel("q1"));
+  assert.equal(page.rows.length, 1);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1"]);
+});
+
+QUnit.test("Check insert function: insert before first element in row", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+          {
+            type: "text",
+            name: "q4",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q5",
+          },
+          {
+            type: "text",
+            name: "q6",
+            startWithNewLine: false
+          },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  let calledBuildRows = 0;
+  page["onRowsChanged"] = () => {
+    calledBuildRows++;
+  };
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q3"), "left");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q7", "q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  assert.equal(calledBuildRows, 0);
+});
+QUnit.test("Check insert function: insert after last element in row", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+          {
+            type: "text",
+            name: "q4",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q5",
+          },
+          {
+            type: "text",
+            name: "q6",
+            startWithNewLine: false
+          },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+  let calledBuildRows = 0;
+  page["onRowsChanged"] = () => {
+    calledBuildRows++;
+  };
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q4"), "right");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4", "q7"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  assert.equal(calledBuildRows, 0);
+});
+
+QUnit.test("Check insert function: insert between elements in row", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+          {
+            type: "text",
+            name: "q4",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q5",
+          },
+          {
+            type: "text",
+            name: "q6",
+            startWithNewLine: false
+          },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+
+  let calledBuildRows = 0;
+  page["onRowsChanged"] = () => {
+    calledBuildRows++;
+  };
+
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q3"), "right");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q7", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q8"), survey.getQuestionByName("q7"), "left");
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q8", "q7", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  assert.equal(calledBuildRows, 0);
+
+});
+
+QUnit.test("Check insert function: insert between rows", (assert) => {
+  const survey = new SurveyModel();
+  survey.fromJSON({
+    pages: [
+      {
+        name: "page1",
+        elements: [
+          {
+            type: "text",
+            name: "q1",
+          },
+          {
+            type: "text",
+            name: "q2",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q3",
+          },
+          {
+            type: "text",
+            name: "q4",
+            startWithNewLine: false
+          },
+          {
+            type: "text",
+            name: "q5",
+          },
+          {
+            type: "text",
+            name: "q6",
+            startWithNewLine: false
+          },
+        ]
+      }
+    ]
+  });
+  const page = <PageModel>survey.getPageByName("page1");
+
+  let calledBuildRows = 0;
+  page["onRowsChanged"] = () => {
+    calledBuildRows++;
+  };
+
+  assert.equal(page.rows.length, 3);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q7"), survey.getQuestionByName("q4"), "bottom");
+  assert.equal(page.rows.length, 4);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q7"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q8"), survey.getQuestionByName("q3"), "top");
+  assert.equal(page.rows.length, 5);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q8"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q7"]);
+  assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q9"), survey.getQuestionByName("q4"), "top");
+  assert.equal(page.rows.length, 6);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q8"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q9"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q7"]);
+  assert.deepEqual(page.rows[5].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  page.insertElement(new QuestionTextModel("q10"), survey.getQuestionByName("q3"), "bottom");
+  assert.equal(page.rows.length, 7);
+  assert.deepEqual(page.rows[0].visibleElements.map(q => q.name), ["q1", "q2"]);
+  assert.deepEqual(page.rows[1].visibleElements.map(q => q.name), ["q8"]);
+  assert.deepEqual(page.rows[2].visibleElements.map(q => q.name), ["q9"]);
+  assert.deepEqual(page.rows[3].visibleElements.map(q => q.name), ["q3", "q4"]);
+  assert.deepEqual(page.rows[4].visibleElements.map(q => q.name), ["q10"]);
+  assert.deepEqual(page.rows[5].visibleElements.map(q => q.name), ["q7"]);
+  assert.deepEqual(page.rows[6].visibleElements.map(q => q.name), ["q5", "q6"]);
+
+  assert.equal(calledBuildRows, 0);
 });

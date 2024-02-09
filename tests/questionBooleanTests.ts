@@ -116,8 +116,17 @@ QUnit.test("Check indeterminate defaultValue in design mode", function (assert) 
   assert.equal(question.defaultValue, "true");
   assert.strictEqual(question.value, true);
   question.defaultValue = undefined;
-  assert.equal(question.defaultValue, "indeterminate");
-  assert.strictEqual(question.value, null);
+  assert.strictEqual(question.defaultValue, undefined, "#1");
+  assert.strictEqual(question.value, undefined, "#2");
+  question.defaultValue = false;
+  assert.equal(question.defaultValue, "false");
+  assert.strictEqual(question.value, false);
+  question.defaultValue = "indeterminate";
+  assert.strictEqual(question.defaultValue, "indeterminate", "#3");
+  assert.strictEqual(question.value, undefined, "#4");
+  question.defaultValue = null;
+  assert.strictEqual(question.defaultValue, null, "#5");
+  assert.strictEqual(question.value, undefined, "#6");
 });
 QUnit.test("Check boolean with string values", function (assert) {
   var json = {
@@ -135,7 +144,7 @@ QUnit.test("Check boolean with string values", function (assert) {
   question.value = "false";
   assert.strictEqual(question.value, false);
   question.value = "indeterminate";
-  assert.strictEqual(question.value, null);
+  assert.strictEqual(question.value, undefined);
 });
 QUnit.test("Check boolean with valueTrue = 'true' and valueFalse = 'false'", function (assert) {
   var json = {

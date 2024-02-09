@@ -20,21 +20,21 @@
   opacity: 0;
 }
 
-// .sv-ranking-item--animate-item-adding {
-//   animation: sv-animate-item-adding-keyframes 5000ms;
-// }
+.sv-ranking-item--animate-item-adding {
+  animation: sv-animate-item-adding-keyframes 1000ms;
+}
 
-// @keyframes sv-animate-item-adding-keyframes {
-//   0% {
-//     height: 0px;
-//     opacity: 0;
-//   }
+@keyframes sv-animate-item-adding-keyframes {
+  0% {
+    height: 0px;
+    opacity: 0;
+  }
 
-//   100% {
-//     height: calcSize(6);
-//     opacity: 1;
-//   }
-// }
+  100% {
+    height: calcSize(6);
+    opacity: 1;
+  }
+}
 
 .sv-ranking-item:focus .sv-ranking-item__icon--hover {
   visibility: hidden;

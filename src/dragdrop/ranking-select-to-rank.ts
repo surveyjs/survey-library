@@ -149,8 +149,10 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       ghostNode.removeEventListener("transitionend", handleTransitionEnd);
       ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
       questionModel.isValueSetByUser = true;
+      questionModel.itemsToAnimate.push(item);
       rankingChoices.splice(toIndex, 0, item);
       questionModel.setPropertyValue("rankingChoices", rankingChoices);
+      
     };
     ghostNode.removeEventListener("transitionend", handleTransitionEnd);
     ghostNode.classList.remove("sv-ranking-item--animate-item-removing");

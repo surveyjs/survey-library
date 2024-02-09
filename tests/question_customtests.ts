@@ -16,6 +16,7 @@ import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
+import { QuestionFileModel } from "../src/question_file";
 
 export default QUnit.module("custom questions");
 
@@ -2889,5 +2890,56 @@ QUnit.test("Bug with visibleIf with composite.question and panel dynamic. Bug#77
   assert.equal(q2.isVisible, true, "isVisible #2");
   q2.addPanel();
   assert.equal(q2.isVisible, true, "isVisible #3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("file question in composite component doesn't show preview in preview mode. Bug#7826", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "file",
+        name: "file_q",
+        allowMultiple: true,
+        storeDataAsText: false
+      },
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+      { type: "file", name: "q2", storeDataAsText: false }
+    ]
+  });
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback(
+      "success",
+      options.files.map((file) => {
+        return { file: file, content: file.name + "_url" };
+      })
+    );
+  });
+
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1 = <QuestionFileModel>compQuestion.contentPanel.getQuestionByName("file_q");
+  const file_q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+  file_q1.loadFiles([{ name: "f1", type: "t1" } as any]);
+  file_q2.loadFiles([{ name: "f1", type: "t1" } as any]);
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
+  survey.showPreview();
+  assert.equal(survey.state, "preview", "state #1");
+  const compQuestion_preview = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1_preview = <QuestionFileModel>compQuestion_preview.contentPanel.getQuestionByName("file_q");
+  const file_q2_preview = <QuestionFileModel>survey.getQuestionByName("q2");
+  assert.equal(file_q1_preview.showPreviewContainer, true, "file_q1_preview #1");
+  assert.equal(file_q2_preview.showPreviewContainer, true, "file_q2_preview #1");
+
+  survey.cancelPreview();
+  assert.equal(survey.state, "running", "state #2");
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
   ComponentCollection.Instance.clear();
 });

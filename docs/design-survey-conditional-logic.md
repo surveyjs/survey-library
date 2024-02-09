@@ -79,7 +79,41 @@ In dynamic questions, use a zero-based index to access a specific value (questio
 | [Dynamic Panel](/Documentation/Library?id=questionpaneldynamicmodel)   | `{dynamicpanelname[index].questionname}`   |
 | [Dynamic Matrix](/Documentation/Library?id=questionmatrixdynamicmodel) | `{dynamicmatrixname[rowindex].columnname}` |
 
-In addition, Matrix questions support a `row` prefix that allows you to access cells on the same row: `{row.columnname}`. Similarly, you can use a `panel` prefix to access questions in the same Panel: `{panel.questionName}`.
+You can also use prefixes, such as `row`, `panel`, and `parentPanel`, to access a specific question or cell relative to the question you configure: 
+
+<div class="v2-class---doc-table-container">
+  <table class="v2-class---doc-table-container__table">
+    <thead>
+      <tr>
+        <th>Question Type</th>
+        <th>Syntax</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><a href="/form-library/documentation/api-reference/matrix-table-question-model" class="v2-class---paragraph-link">Single-Select Matrix</a></td>
+        <td rowspan="3" style="vertical-align:middle"><code>{row.columnname}</code></td>
+        <td rowspan="3" style="vertical-align:middle">Accesses a cell in the same row.</td>
+      </tr>
+      <tr>
+        <td><a href="/form-library/documentation/api-reference/matrix-table-with-dropdown-list" class="v2-class---paragraph-link">Multi-Select Matrix</a></td>
+      </tr>
+      <tr>
+        <td><a href="/form-library/documentation/api-reference/dynamic-matrix-table-question-model" class="v2-class---paragraph-link">Dynamic Matrix</a></td>
+      </tr>
+      <tr>
+        <td rowspan="2" style="vertical-align:middle"><a href="/form-library/documentation/api-reference/dynamic-panel-model" class="v2-class---paragraph-link">Dynamic Panel</a></td>
+        <td><code>{panel.questionname}</code></td>
+        <td>Accesses a question within the same panel.</td>
+      </tr>
+      <tr>
+        <td style="vertical-align:middle"><code>{parentPanel.questionname}</code></td>
+        <td>Accesses a question within a parent Dynamic Panel.<br>Applies when one Dynamic Panel question is nested in another.</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 
 [View Demo](/Examples/Library?id=condition-dynamic (linkStyle))
 

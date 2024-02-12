@@ -273,8 +273,8 @@ frameworks.forEach(framework => {
           width: "704px",
           maxWidth: "704px",
           name: "file_question",
-        }, { onOpenFileChooser: onOpenFileChooserHandler }]
-      });
+        }]
+      }, { onOpenFileChooser: onOpenFileChooserHandler });
       await resetFocusToBody();
       const questionRoot = Selector(".sd-question");
       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("currentMode", "camera"); })();

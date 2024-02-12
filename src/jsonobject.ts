@@ -1013,12 +1013,12 @@ export class JsonMetadata {
   private dynamicPropsCache: HashTable<Array<JsonObjectProperty>> = {};
   public onSerializingProperty: ((obj: Base, prop: JsonObjectProperty, value: any, json: any) => boolean) | undefined;
   public getObjPropertyValue(obj: any, name: string): any {
-    if (this.isObjWrapper(obj)) {
-      var orignalObj = obj.getOriginalObj();
-      var prop = Serializer.findProperty(orignalObj.getType(), name);
+    if (this.isObjWrapper(obj) && this.isNeedUseObjWrapper(obj, name)) {
+      const orignalObj = obj.getOriginalObj();
+      const prop = Serializer.findProperty(orignalObj.getType(), name);
       if (!!prop) return this.getObjPropertyValueCore(orignalObj, prop);
     }
-    var prop = Serializer.findProperty(obj.getType(), name);
+    const prop = Serializer.findProperty(obj.getType(), name);
     if (!prop) return obj[name];
     return this.getObjPropertyValueCore(obj, prop);
   }
@@ -1046,6 +1046,15 @@ export class JsonMetadata {
   }
   private isObjWrapper(obj: any): boolean {
     return !!obj.getOriginalObj && !!obj.getOriginalObj();
+  }
+  private isNeedUseObjWrapper(obj: any, name: string): boolean {
+    if(!obj.getDynamicProperties) return true;
+    const props = obj.getDynamicProperties();
+    if(!Array.isArray(props)) return false;
+    for(let i = 0; i < props.length; i ++) {
+      if(props[i].name === name) return true;
+    }
+    return false;
   }
   public addClass(
     name: string,

@@ -27,12 +27,17 @@ QUnit.test("Single: Register and load from json", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "newquestion", name: "q1" }],
+    elements: [{ type: "newquestion", name: "q1", title: "my title" }],
   });
   assert.equal(survey.getAllQuestions().length, 1, "Question is created");
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
   assert.equal(q.getType(), "newquestion", "type is correct");
   assert.equal(q.name, "q1", "name is correct");
+  const propName = Serializer.findProperty("newquestion", "name");
+  assert.equal(propName.getValue(q), "q1", "prop.name is correct");
+  assert.equal(q.getPropertyValue("name"), "q1", "getPropertyValue is correct");
+  assert.equal(Serializer.getObjPropertyValue(q, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q, "title"), "my title", "getObjPropertyValue is correct, #title");
   assert.equal(
     q.contentQuestion.getType(),
     "dropdown",
@@ -43,7 +48,7 @@ QUnit.test("Single: Register and load from json", function (assert) {
     survey.toJSON(),
     {
       pages: [
-        { name: "page1", elements: [{ type: "newquestion", name: "q1" }] },
+        { name: "page1", elements: [{ type: "newquestion", name: "q1", title: "my title" }] },
       ],
     },
     "Seralized correctly"
@@ -2823,10 +2828,13 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
 
   const survey = new SurveyModel({
     elements: [
-      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+      { type: "customdropdown", name: "q1", title: "my title", allowClear: false, showOtherItem: true }
     ]
   });
   const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(Serializer.getObjPropertyValue(q1, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q1, "title"), "my title", "getObjPropertyValue is correct, #title");
+  assert.equal(Serializer.getObjPropertyValue(q1, "showOtherItem"), true, "getObjPropertyValue is correct, #showOtherItem");
   const content = <QuestionDropdownModel>q1.contentQuestion;
   assert.equal(q1.getDynamicType(), "dropdown", "q1.getDynamicType()");
   assert.equal(content.choices.length, 3, "content.choices");

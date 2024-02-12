@@ -136,12 +136,14 @@ export class PopupDropdownViewModel extends PopupBaseViewModel {
 
   protected getActualHorizontalPosition(): "left" | "center" | "right" {
     let actualHorizontalPosition = this.model.horizontalPosition;
-    let isRtl = !!document && document.defaultView.getComputedStyle(document.body).direction == "rtl";
-    if (isRtl) {
-      if (this.model.horizontalPosition === "left") {
-        actualHorizontalPosition = "right";
-      } else if (this.model.horizontalPosition === "right") {
-        actualHorizontalPosition = "left";
+    if ("undefined" !== typeof document) {
+      let isRtl = !!document && document.defaultView.getComputedStyle(document.body).direction == "rtl";
+      if (isRtl) {
+        if (this.model.horizontalPosition === "left") {
+          actualHorizontalPosition = "right";
+        } else if (this.model.horizontalPosition === "right") {
+          actualHorizontalPosition = "left";
+        }
       }
     }
     return actualHorizontalPosition;

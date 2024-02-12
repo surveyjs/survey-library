@@ -243,7 +243,10 @@ export class QuestionBooleanModel extends Question {
     return true;
   }
   private calculateBooleanValueByEvent(event: any, isRightClick: boolean) {
-    var isRtl = document.defaultView.getComputedStyle(event.target).direction == "rtl";
+    let isRtl = false;
+    if ("undefined" !== typeof document) {
+      isRtl = document.defaultView.getComputedStyle(event.target).direction == "rtl";
+    }
     this.booleanValue = isRtl ? !isRightClick : isRightClick;
   }
   public onSwitchClickModel(event: any) {

@@ -239,20 +239,20 @@ QUnit.test("Boolean shouldn't set booleanValue in design time", function (assert
   question.booleanValue = false;
   assert.equal(question.value, true);
 });
-QUnit.test("Boolean exchangeUIButtons", function (assert) {
+QUnit.test("Boolean swapOrder", function (assert) {
   const survey = new SurveyModel({});
   const question = new QuestionBooleanModel("q1");
   survey.css = defaultV2Css;
   question.setSurveyImpl(survey);
-  assert.equal(question.exchangeUIButtons, false);
+  assert.equal(question.swapOrder, false);
   assert.equal(question.getItemCss(), "sd-boolean sd-boolean--allowhover sd-boolean--indeterminate");
   assert.equal(question.getLabelCss(false), "sd-boolean__label");
   assert.equal(question.getLabelCss(true), "sd-boolean__label");
   assert.equal(question.locLabelLeft, question.locLabelFalse);
   assert.equal(question.locLabelRight, question.locLabelTrue);
 
-  question.exchangeUIButtons = true;
-  assert.equal(question.exchangeUIButtons, true);
+  question.swapOrder = true;
+  assert.equal(question.swapOrder, true);
   assert.equal(question.getItemCss(), "sd-boolean sd-boolean--allowhover sd-boolean--exchanged sd-boolean--indeterminate");
   assert.equal(question.getLabelCss(false), "sd-boolean__label");
   assert.equal(question.getLabelCss(true), "sd-boolean__label");

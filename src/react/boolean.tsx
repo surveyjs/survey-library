@@ -80,8 +80,8 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             aria-invalid={this.question.a11y_input_ariaInvalid}
             aria-describedby={this.question.a11y_input_ariaDescribedBy}
           />
-          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, this.question.exchangeUIButtons)}>
-            <span className={this.question.getLabelCss(this.question.exchangeUIButtons)}>
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, this.question.swapOrder)}>
+            <span className={this.question.getLabelCss(this.question.swapOrder)}>
               {this.renderLocString(this.question.locLabelLeft)}
             </span>
           </div>
@@ -89,13 +89,13 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             <span className={cssClasses.slider}>
               {
                 this.question.isDeterminated && cssClasses.sliderText ?
-                  <span className={cssClasses.sliderText}>{ this.renderLocString(this.question.getCheckedLabel()) }</span>
+                  <span className={cssClasses.sliderText}>{this.renderLocString(this.question.getCheckedLabel())}</span>
                   : null
               }
             </span>
           </div>
-          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, !this.question.exchangeUIButtons)}>
-            <span className={this.question.getLabelCss(!this.question.exchangeUIButtons)}>
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, !this.question.swapOrder)}>
+            <span className={this.question.getLabelCss(!this.question.swapOrder)}>
               {this.renderLocString(this.question.locLabelRight)}
             </span>
           </div>

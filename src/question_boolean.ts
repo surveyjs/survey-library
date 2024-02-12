@@ -119,12 +119,12 @@ export class QuestionBooleanModel extends Question {
     return this.booleanValue !== null;
   }
 
-  @property({ defaultValue: false }) exchangeUIButtons: boolean;
+  @property({ defaultValue: false }) swapOrder: boolean;
   get locLabelLeft(): LocalizableString {
-    return this.exchangeUIButtons ? this.getLocalizableString("labelTrue") : this.getLocalizableString("labelFalse");
+    return this.swapOrder ? this.getLocalizableString("labelTrue") : this.getLocalizableString("labelFalse");
   }
   get locLabelRight(): LocalizableString {
-    return this.exchangeUIButtons ? this.getLocalizableString("labelFalse") : this.getLocalizableString("labelTrue");
+    return this.swapOrder ? this.getLocalizableString("labelFalse") : this.getLocalizableString("labelTrue");
   }
 
   /**
@@ -187,7 +187,7 @@ export class QuestionBooleanModel extends Question {
       .append(css.itemDisabled, this.isReadOnly)
       .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)
-      .append(css.itemExchanged, !!this.exchangeUIButtons)
+      .append(css.itemExchanged, !!this.swapOrder)
       .append(css.itemIndeterminate, this.booleanValue === null)
       .toString();
   }
@@ -211,8 +211,8 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
-      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.exchangeUIButtons)
-      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.exchangeUIButtons)
+      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.swapOrder)
+      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.swapOrder)
       .toString();
   }
 
@@ -320,7 +320,7 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
-    { name: "exchangeUIButtons", default: false, visible: false },
+    { name: "swapOrder", default: false, category: "general" },
     { name: "renderAs", default: "default", visible: false },
   ],
   function () {

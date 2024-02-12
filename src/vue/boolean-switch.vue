@@ -19,10 +19,10 @@
       />
       <div
         :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, question.exchangeUIButtons)"
+        v-on:click="onLabelClick($event, question.swapOrder)"
       >
       <span
-        :class="question.getLabelCss(question.exchangeUIButtons)"
+        :class="question.getLabelCss(question.swapOrder)"
         ><survey-string :locString="question.locLabelLeft"></survey-string
       ></span>
       </div>
@@ -38,8 +38,8 @@
       </div>
       <div
         :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, !question.exchangeUIButtons)"
-      ><span :class="question.getLabelCss(!question.exchangeUIButtons)"
+        v-on:click="onLabelClick($event, !question.swapOrder)"
+      ><span :class="question.getLabelCss(!question.swapOrder)"
         ><survey-string :locString="question.locLabelRight"></survey-string
       ></span>
       </div>

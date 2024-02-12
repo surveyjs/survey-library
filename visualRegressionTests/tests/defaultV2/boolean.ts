@@ -62,7 +62,7 @@ frameworks.forEach(framework => {
           {
             type: "boolean",
             name: "boolean_question",
-            exchangeUIButtons: true
+            swapOrder: true
           },
         ]
       });

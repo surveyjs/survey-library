@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { Selector, ClientFunction } from "testcafe";
 import { url, frameworks, initSurvey, setOptions, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 

@@ -104,7 +104,7 @@ frameworks.forEach(framework => {
     await t
       .hover("img")
       .click("input[value=Complete]");
-  
+
     surveyResult = await getSurveyResult();
     assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });

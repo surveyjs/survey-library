@@ -24,27 +24,37 @@ const json = {
     maxWidth: "704px",
   }]
 };
+function onOpenFileChooserHandler(s, o) {
+  var files = [];
+  for (var i = 0; i < o.input.files.length; i++) {
+    files.push(o.input.files[i]);
+  }
+  o.callback(files);
+}
 
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-    await initSurvey(framework, json);
-    await ClientFunction(() => {
-      document.body.focus();
-    })();
-  });
+      await applyTheme(theme);
+      await initSurvey(framework, json, { onOpenFileChooser: onOpenFileChooserHandler });
+      await ClientFunction(() => {
+        document.body.focus();
+      })();
+    });
 
   test("Check file question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
+      await t.click(".sd-file input[type=file] + div label");
 
       const questionRoot = Selector(".sd-question");
       await takeElementScreenshot("file-question-single-image.png", questionRoot, t, comparer);
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Flamingo.png"]);
+      await t.click(".sd-file input[type=file] + div label");
       await takeElementScreenshot("file-question-single-file-small-image.png", questionRoot, t, comparer);
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Portfolio.pdf"]);
+      await t.click(".sd-file input[type=file] + div label");
       await takeElementScreenshot("file-question-single-file.png", questionRoot, t, comparer);
       await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
@@ -52,9 +62,11 @@ frameworks.forEach(framework => {
         question.clear();
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
+      await t.click(".sd-file input[type=file] + div label");
       await takeElementScreenshot("file-question-multiple.png", questionRoot, t, comparer);
       await t
         .setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"])
+        .click(".sd-file input[type=file] + div label")
         .click(Selector(".sd-file #prevPage"));
       await takeElementScreenshot("file-question-multiple-navigator.png", questionRoot, t, comparer);
     });
@@ -69,6 +81,7 @@ frameworks.forEach(framework => {
         question.imageHeight = "100px";
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
+      await t.click(".sd-file input[type=file] + div label");
       const questionRoot = Selector(".sd-question");
       await takeElementScreenshot("file-question-single-small-image.png", questionRoot, t, comparer);
 
@@ -87,6 +100,7 @@ frameworks.forEach(framework => {
         question.clear();
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Flamingo.png"]);
+      await t.click(".sd-file input[type=file] + div label");
       await takeElementScreenshot("file-question-multiple-small-images.png", questionRoot, t, comparer);
 
       await ClientFunction(() => {
@@ -131,6 +145,7 @@ frameworks.forEach(framework => {
         (window as any).survey.getAllQuestions()[0].setIsMobile(true);
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/SingleImage.jpg"]);
+      await t.click(".sd-file input[type=file] + div label");
       const questionRoot = Selector(".sd-question");
       await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
@@ -138,6 +153,7 @@ frameworks.forEach(framework => {
         question.clear();
       })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Badger.png", "files/Bird.png", "files/Read Me.txt", "files/Flamingo.png"]);
+      await t.click(".sd-file input[type=file] + div label");
       await ClientFunction(() => {
         const question = (window as any).survey.getQuestionByName("file_question");
         question.indexToShow = 0;
@@ -170,7 +186,7 @@ frameworks.forEach(framework => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-  });
+    });
   test("Check file question placeholder mobile", async t => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(600, 1000);
@@ -180,7 +196,7 @@ frameworks.forEach(framework => {
           type: "file",
           title: "Upload everything what you’d like to.",
           name: "file_question",
-        }]
+        }, { onOpenFileChooser: onOpenFileChooserHandler }]
       });
       await resetFocusToBody();
       const questionRoot = Selector(".sd-question");
@@ -214,7 +230,7 @@ frameworks.forEach(framework => {
             startWithNewLine: false
           }
         ]
-      });
+      }, { onOpenFileChooser: onOpenFileChooserHandler });
       await t.resizeWindow(1920, 1080);
       await resetFocusToBody();
       const questionRoot = Selector(".sd-question");
@@ -241,7 +257,7 @@ frameworks.forEach(framework => {
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-  });
+    });
   test("Check file question camera", async t => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1980, 1000);
@@ -256,7 +272,7 @@ frameworks.forEach(framework => {
           width: "704px",
           maxWidth: "704px",
           name: "file_question",
-        }]
+        }, { onOpenFileChooser: onOpenFileChooserHandler }]
       });
       await resetFocusToBody();
       const questionRoot = Selector(".sd-question");
@@ -268,6 +284,7 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("file-question-video.png", questionRoot, t, comparer);
       await ClientFunction(() => { (window as any).survey.getAllQuestions()[0].setPropertyValue("isPlayingVideo", false); })();
       await t.setFilesToUpload(Selector(".sd-file input"), ["files/Read Me.txt"]);
+      await t.click(".sd-file input[type=file] + div label");
       await takeElementScreenshot("file-question-both-mode-answered.png", questionRoot, t, comparer);
     });
   });

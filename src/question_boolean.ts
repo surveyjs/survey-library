@@ -41,7 +41,7 @@ export class QuestionBooleanModel extends Question {
    * @see valueFalse
    */
   public get booleanValue(): any {
-    if (this.isEmpty()) return undefined;
+    if (this.isEmpty()) return null;
     return this.value == this.getValueTrue();
   }
   public set booleanValue(val: any) {
@@ -73,10 +73,9 @@ export class QuestionBooleanModel extends Question {
     this.updateValueWithDefaults();
   }
   public getDefaultValue(): any {
-    if (this.defaultValue == "indeterminate") return undefined;
-    return this.defaultValue == "true"
-      ? this.getValueTrue()
-      : this.getValueFalse();
+    const val = this.defaultValue;
+    if (val === "indeterminate" || val === undefined || val === null) return undefined;
+    return val == "true" ? this.getValueTrue() : this.getValueFalse();
   }
   public get locTitle(): LocalizableString {
     const original = this.getLocalizableString("title");
@@ -224,13 +223,10 @@ export class QuestionBooleanModel extends Question {
       return this.locLabelFalse;
     }
   }
-  protected setQuestionValue(
-    newValue: any,
-    updateIsAnswered: boolean = true
-  ) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     if (newValue === "true" && this.valueTrue !== "true") newValue = true;
     if (newValue === "false" && this.valueFalse !== "false") newValue = false;
-    if (newValue === "indeterminate") newValue = undefined;
+    if (newValue === "indeterminate" || newValue === null) newValue = undefined;
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   /* #region web-based methods */

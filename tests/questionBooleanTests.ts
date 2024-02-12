@@ -1,6 +1,7 @@
 import { SurveyModel } from "../src/survey";
 
 import { QuestionBooleanModel } from "../src/question_boolean";
+import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
 
 export default QUnit.module("boolean");
 
@@ -112,6 +113,7 @@ QUnit.test("Check indeterminate defaultValue in design mode", function (assert) 
   var survey = new SurveyModel(json);
   survey.setDesignMode(true);
   var question = <QuestionBooleanModel>survey.getAllQuestions()[0];
+  assert.strictEqual(question.getDefaultValue(), undefined, "getDefaultValue()");
   question.defaultValue = true;
   assert.equal(question.defaultValue, "true");
   assert.strictEqual(question.value, true);
@@ -246,4 +248,14 @@ QUnit.test("Boolean shouldn't set booleanValue in design time", function (assert
   survey.setDesignMode(true);
   question.booleanValue = false;
   assert.equal(question.value, true);
+});
+QUnit.test("Boolean in matrix dynamic", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "q1", columns: [{ cellType: "text", name: "col1" }, { cellType: "boolean", name: "col2" }], rowCount: 1 }
+    ]
+  });
+  const q = <QuestionMatrixDynamicModel>survey.getAllQuestions()[0];
+  q.visibleRows[0].cells[0].value = "abc";
+  assert.deepEqual(q.value, [{ col1: "abc" }], "there is not boolean value");
 });

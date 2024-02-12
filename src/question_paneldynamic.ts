@@ -1247,6 +1247,7 @@ export class QuestionPanelDynamicModel extends Question
     if (this.renderMode === "list" && this.panelsState !== "default") {
       newPanel.expand();
     }
+    newPanel.focusFirstQuestion();
     return newPanel;
   }
   /**

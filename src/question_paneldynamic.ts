@@ -2130,7 +2130,7 @@ export class QuestionPanelDynamicModel extends Question
       .toString();
   }
   /**
-   * A text displayed when Dynamic Panel contains no entries. Applies only in the Default V2 theme.
+   * A text displayed when Dynamic Panel contains no entries.
    */
   public get noEntriesText(): string {
     return this.getLocalizableStringText("noEntriesText");
@@ -2372,6 +2372,7 @@ Serializer.addClass(
       name: "panelsState",
       default: "default",
       choices: ["default", "collapsed", "expanded", "firstExpanded"],
+      visibleIf: (obj: any) => { return obj.renderMode === "list"; }
     },
     { name: "keyName" },
     {
@@ -2382,24 +2383,45 @@ Serializer.addClass(
     {
       name: "confirmDeleteText",
       serializationProperty: "locConfirmDeleteText",
+      visibleIf: (obj: any) => { return obj.confirmDelete; }
     },
-    { name: "panelAddText", serializationProperty: "locPanelAddText" },
-    { name: "panelRemoveText", serializationProperty: "locPanelRemoveText" },
-    { name: "panelPrevText", serializationProperty: "locPanelPrevText" },
-    { name: "panelNextText", serializationProperty: "locPanelNextText" },
+    {
+      name: "panelAddText",
+      serializationProperty: "locPanelAddText",
+      visibleIf: (obj: any) => { return obj.allowAddPanel; }
+    },
+    {
+      name: "panelRemoveText",
+      serializationProperty: "locPanelRemoveText",
+      visibleIf: (obj: any) => { return obj.allowRemovePanel; }
+    },
+    {
+      name: "panelPrevText",
+      serializationProperty: "locPanelPrevText",
+      visibleIf: (obj: any) => { return obj.renderMode !== "list"; }
+    },
+    {
+      name: "panelNextText",
+      serializationProperty: "locPanelNextText",
+      visibleIf: (obj: any) => { return obj.renderMode !== "list"; }
+    },
     {
       name: "showQuestionNumbers",
       default: "off",
       choices: ["off", "onPanel", "onSurvey"],
     },
-    { name: "showRangeInProgress:boolean", default: true },
+    {
+      name: "showRangeInProgress:boolean",
+      default: true,
+      visibleIf: (obj: any) => { return obj.renderMode !== "list"; }
+    },
     {
       name: "renderMode",
       default: "list",
       choices: ["list", "progressTop", "progressBottom", "progressTopBottom", "tab"],
     },
     {
-      name: "tabAlign", default: "center", choices: ["center", "left", "right"],
+      name: "tabAlign", default: "center", choices: ["left", "center", "right"],
       visibleIf: (obj: any) => { return obj.renderMode === "tab"; }
     },
     {
@@ -2416,6 +2438,7 @@ Serializer.addClass(
       name: "panelRemoveButtonLocation",
       default: "bottom",
       choices: ["bottom", "right"],
+      visibleIf: (obj: any) => { return obj.allowRemovePanel; }
     },
   ],
   function () {

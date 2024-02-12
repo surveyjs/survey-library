@@ -2039,7 +2039,7 @@ Serializer.addClass(
     { name: "minWidth", defaultFunc: () => "auto" },
     { name: "maxWidth", defaultFunc: () => settings.maxWidth },
     { name: "innerIndent:number", default: 0, choices: [0, 1, 2, 3] },
-    { name: "indent:number", default: 0, choices: [0, 1, 2, 3] },
+    { name: "indent:number", default: 0, choices: [0, 1, 2, 3], visible: false },
     {
       name: "page",
       isSerializable: false,

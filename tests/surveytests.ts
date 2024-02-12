@@ -16012,12 +16012,23 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
     ]
   });
   survey.css = defaultV2Css;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern");
 
   survey.setIsMobile(true);
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
 
   survey.mode = "display";
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
 
   survey.mode = "edit";
@@ -19290,7 +19301,7 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
   assert.equal(survey.mode, "edit");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
 
   survey.mode = "display";
   assert.equal(survey.mode, "display");
@@ -19300,5 +19311,5 @@ QUnit.test("Display mode in design time", function (assert) {
   survey.setDesignMode(true);
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, false);
-  assert.equal(survey.getRootCss(), "sd-root-modern");
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
 });

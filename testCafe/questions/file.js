@@ -20,10 +20,18 @@ const json = {
   ]
 };
 
+function onOpenFileChooserHandler(s, o) {
+  var files = [];
+  for (var i = 0; i < o.input.files.length; i++) {
+    files.push(o.input.files[i]);
+  }
+  o.callback(files);
+}
+
 frameworks.forEach(framework => {
   fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
     async t => {
-      await initSurvey(framework, json);
+      await initSurvey(framework, json, { onOpenFileChooser: onOpenFileChooserHandler });
     }
   );
 
@@ -31,7 +39,7 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
-
+    await t.click("input[type=file] + div label");
     await t.click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
@@ -66,11 +74,8 @@ frameworks.forEach(framework => {
   test("choose multiple files", async t => {
     let surveyResult;
 
-    await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
-    await t.setFilesToUpload(
-      "input[type=file]",
-      "../resources/small_Dashka.jpg"
-    );
+    await t.setFilesToUpload("input[type=file]", ["../resources/stub.txt", "../resources/small_Dashka.jpg"]);
+    await t.click("input[type=file] + div label");
 
     await t.click("input[value=Complete]");
 
@@ -83,11 +88,8 @@ frameworks.forEach(framework => {
     await ClientFunction(() => {
       window.survey.getAllQuestions()[0].needConfirmRemoveFile = false;
     })();
-    await t.setFilesToUpload("input[type=file]", "../resources/stub.txt");
-    await t.setFilesToUpload(
-      "input[type=file]",
-      "../resources/small_Dashka.jpg"
-    );
+    await t.setFilesToUpload("input[type=file]", ["../resources/stub.txt", "../resources/small_Dashka.jpg"]);
+    await t.click("input[type=file] + div label");
     const cleanButtonSelector = Selector("button").withText("Clear");
     await t.click(cleanButtonSelector);
     await t.expect(cleanButtonSelector.exists).notOk();
@@ -97,10 +99,12 @@ frameworks.forEach(framework => {
     let surveyResult;
 
     await t
-      .setFilesToUpload("input[type=file]", "../resources/small_Dashka.jpg")
+      .setFilesToUpload("input[type=file]", "../resources/small_Dashka.jpg");
+    await t.click("input[type=file] + div label");
+    await t
       .hover("img")
       .click("input[value=Complete]");
-
+  
     surveyResult = await getSurveyResult();
     assert(surveyResult.image[0].content.indexOf("image/jpeg") !== -1);
   });
@@ -118,6 +122,7 @@ frameworks.forEach(framework => {
       "input[type=file]",
       "../resources/small_Dashka.jpg"
     );
+    await t.click("input[type=file] + div label");
 
     assert(await getImageExistance());
 
@@ -133,6 +138,7 @@ frameworks.forEach(framework => {
     await setOptions("image", { storeDataAsText: false });
     await t
       .setFilesToUpload("input[type=file]", "../resources/stub.txt")
+      .click("input[type=file] + div label")
       .click("input[value=Complete]");
 
     surveyResult = await getSurveyResult();
@@ -148,6 +154,7 @@ frameworks.forEach(framework => {
       "input[type=file]",
       "../resources/small_Dashka.jpg"
     );
+    await t.click("input[type=file] + div label");
 
     await setOptions("image", {
       imageHeight: "50px",
@@ -162,6 +169,7 @@ frameworks.forEach(framework => {
       "input[type=file]",
       "../resources/small_Dashka.jpg"
     );
+    await t.click("input[type=file] + div label");
 
     const getFileName = ClientFunction(() => window["survey"].getAllQuestions()[0].value[0].name);
     const checkValue = ClientFunction(() => window["survey"].getAllQuestions()[0].value.length === 0);
@@ -232,7 +240,7 @@ frameworks.forEach(framework => {
             allowMultiple: true,
           }
         ]
-      });
+      }, { onOpenFileChooser: onOpenFileChooserHandler });
     }
   );
 
@@ -240,9 +248,8 @@ frameworks.forEach(framework => {
     await t.resizeWindow(1920, 1080);
     const fileNavigatorSelector = Selector(".sd-file .sv-action-bar");
     await t
-      .setFilesToUpload("input[type=file]", "../resources/stub.txt")
-      .setFilesToUpload("input[type=file]", "../resources/small_Dashka.jpg")
-      .setFilesToUpload("input[type=file]", "../resources/big_Dashka.jpg")
+      .setFilesToUpload("input[type=file]", ["../resources/stub.txt", "../resources/small_Dashka.jpg", "../resources/big_Dashka.jpg"])
+      .click("input[type=file] + div label")
       .expect(fileNavigatorSelector.exists)
       .notOk()
       .resizeWindow(620, 1080)

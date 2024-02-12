@@ -1,6 +1,6 @@
+import { Serializer, property } from "../jsonobject";
 import { InputMaskBase } from "./mask_base";
 import { MaskManagerType, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
-import { IMaskSettings } from "./mask_settings";
 import { settings } from "./mask_utils";
 
 export interface IMaskLiteral {
@@ -99,18 +99,54 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
 }
 
 export class InputMaskPattern extends InputMaskBase {
-  private _maskLiterals: Array<IMaskLiteral>;
-  get literals(): Array<IMaskLiteral> {
-    if(!this._maskLiterals) {
-      this._maskLiterals = getLiterals(this.maskOptions.mask);
-    }
-    return this._maskLiterals;
+  private literals: Array<IMaskLiteral> = [];
+
+  private updateLiterals(): void {
+    this.literals = getLiterals(this.mask || "");
   }
+  @property({
+    onSet: (val: string, target: InputMaskPattern) => {
+      target.updateLiterals();
+    }
+  }) mask: string;
+
+  public getType(): string {
+    return "patternmasksettings";
+  }
+
+  public isEmpty(): boolean {
+    return !this.mask;
+  }
+
+  public setData(json: any) {
+    this.clear();
+    super.setData(json);
+    if (json.mask) this.mask = json.mask;
+  }
+
+  public getData(): any {
+    if (this.isEmpty()) return null;
+
+    const res = super.getData();
+    if (this.mask) res["mask"] = this.mask;
+    return res;
+  }
+
+  public clear(): void {
+    this.mask = undefined;
+    // var properties = this.getCustomPropertiesNames();
+    // for (var i = 0; i < properties.length; i++) {
+    //   if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
+    // }
+  }
+
   public _getMaskedValue(src: string, matchWholeMask: boolean = false): string {
-    return getMaskedValueByPattern(src, this.literals, matchWholeMask);
+    const input = (src === undefined || src === null) ? "" : src;
+    return getMaskedValueByPattern(input, this.literals, matchWholeMask);
   }
   public _getUnmaskedValue(src: string, matchWholeMask: boolean = false): string {
-    return getUnmaskedValueByPattern(src, this.literals, matchWholeMask);
+    const input = (src === undefined || src === null) ? "" : src;
+    return getUnmaskedValueByPattern(input, this.literals, matchWholeMask);
   }
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
     const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
@@ -139,4 +175,13 @@ export class InputMaskPattern extends InputMaskBase {
   }
 }
 
-MaskManagerType.Instance.registerMaskManagerType("pattern", (mask: IMaskSettings) => { return new InputMaskPattern(mask); });
+MaskManagerType.Instance.registerMaskManagerType("pattern", () => { return new InputMaskPattern(); });
+
+Serializer.addClass(
+  "patternmasksettings",
+  [{ name: "mask" }],
+  function () {
+    return new InputMaskPattern();
+  },
+  "masksettings"
+);

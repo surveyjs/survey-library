@@ -70,6 +70,7 @@ export * from "../mask/mask_number_tests";
 export * from "../mask/lexical_analyzer_tests";
 export * from "../mask/syntactic_analyzer_tests";
 export * from "../mask/mask_datetime_tests";
+export * from "../mask/mask_settings_tests";
 export * from "../stylesManagerTests";
 export * from "../headerTests";
 

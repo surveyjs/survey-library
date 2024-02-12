@@ -1,6 +1,5 @@
-import { InputMaskBase } from "./mask_base";
 import { MaskManagerType } from "./mask_manager";
-import { IMaskSettings } from "./mask_settings";
+import { InputMaskPattern } from "./mask_pattern";
 
 export interface IDateTimeMaskLiteral {
   type: "month" | "day" | "year" | "separator";
@@ -42,13 +41,19 @@ export function getDateTimeLiterals(mask: string): Array<IDateTimeMaskLiteral> {
   return result;
 }
 
-export class InputMaskDateTime extends InputMaskBase {
+export class InputMaskDateTime extends InputMaskPattern {
   // public processInput(args: ITextMaskInputArgs): IMaskedValue {
   //   return { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
   // }
 
-  public getUnmaskedValue(src: string): string { return src; }
-  public getMaskedValue(src: string): string { return src; }
+  public getUnmaskedValue(src: string): string {
+    const input = (src === undefined || src === null) ? "" : src;
+    return input;
+  }
+  public getMaskedValue(src: string): string {
+    const input = (src === undefined || src === null) ? "" : src;
+    return input;
+  }
 }
 
-MaskManagerType.Instance.registerMaskManagerType("datetime", (maskOptions: IMaskSettings) => { return new InputMaskDateTime(maskOptions); });
+MaskManagerType.Instance.registerMaskManagerType("datetime", () => { return new InputMaskDateTime(); });

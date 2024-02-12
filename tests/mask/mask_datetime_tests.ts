@@ -45,7 +45,8 @@ QUnit.test("getDateTimeLiterals simple pattern", function(assert) {
 
 QUnit.skip("get masked valid date text matchWholeMask = true", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskDateTime({ type: "datetime", mask: "mm/dd/yyyy" });
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.mask = "mm/dd/yyyy";
   assert.equal(maskInstance.getMaskedValue(""), "**/**/****");
   assert.equal(maskInstance.getMaskedValue("1"), "1*/**/****");
   assert.equal(maskInstance.getMaskedValue("1234"), "12/3*/****");

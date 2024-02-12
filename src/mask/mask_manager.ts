@@ -1,6 +1,5 @@
 import { HashTable } from "../helpers";
 import { InputMaskBase } from "./mask_base";
-import { IMaskSettings } from "./mask_settings";
 
 export interface IMaskedValue {
   text: string;
@@ -20,21 +19,22 @@ export interface IInputMaskType {
   getMaskedValue(src: string): string;
   getUnmaskedValue(src: string): string;
   processInput(args: ITextMaskInputArgs): IMaskedValue;
+  isEmpty(): boolean;
 }
 
 export class MaskManagerType {
   public static Instance: MaskManagerType = new MaskManagerType();
-  private creatorHash: HashTable<(maskOption: IMaskSettings) => IInputMaskType> = {};
+  private creatorHash: HashTable<() => IInputMaskType> = {};
 
-  public registerMaskManagerType(maskType: string, maskCreator: (maskOption: IMaskSettings) => IInputMaskType): void {
+  public registerMaskManagerType(maskType: string, maskCreator: () => IInputMaskType): void {
     this.creatorHash[maskType] = maskCreator;
   }
 
-  public createInputMask(maskOption: IMaskSettings): IInputMaskType {
-    const creator = MaskManagerType.Instance.creatorHash[maskOption.type];
-    if (!!creator) return creator(maskOption);
+  public createInputMask(typeName: string): InputMaskBase {
+    const creator = MaskManagerType.Instance.creatorHash[typeName];
+    if (!!creator) return creator() as InputMaskBase;
 
-    return new InputMaskBase(maskOption);
+    return new InputMaskBase();
   }
   public getAllTypes(): Array<string> {
     const result = Object.keys(this.creatorHash).sort();

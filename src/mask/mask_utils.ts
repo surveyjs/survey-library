@@ -2,11 +2,10 @@ export var settings = {
   placeholderChar: "_",
   escapedChar: "\\",
   numberOptions: {
-    decimal: ".",
-    thousands: ",",
+    decimalSeparator: ".",
+    thousandsSeparator: ",",
     precision: 2,
     allowNegative: true,
-    dataToSave: "unmasked"
     // align: "right"
   },
   definitions: <{ [key: string]: RegExp }>{

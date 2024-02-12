@@ -12,7 +12,6 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IInputMaskType, MaskManagerType } from "./mask/mask_manager";
 import { InputElementAdapter } from "./mask/input_element_adapter";
-import { MaskSettings, IMaskSettings } from "./mask/mask_settings";
 import { InputMaskBase } from "./mask/mask_base";
 
 /**
@@ -27,7 +26,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private maskInputAdapter: InputElementAdapter;
 
   private createMaskAdapter() {
-    if (this.maskInstance) {
+    if (!!this.input && !!this.maskInstance && !this.maskInstance.isEmpty()) {
       this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
     }
   }
@@ -41,11 +40,18 @@ export class QuestionTextModel extends QuestionTextBase {
     this.deleteMaskAdapter();
     this.createMaskAdapter();
   }
+  onSetMaskType(newValue: string) {
+    this.setNewMaskSettingsProperty();
+    this.updateMaskAdapter();
+  }
 
-  public get maskSettings(): MaskSettings {
+  @property({
+    onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
+  }) maskType: string;
+  public get maskSettings(): InputMaskBase {
     return this.getPropertyValue("maskSettings");
   }
-  public set maskSettings(val: MaskSettings) {
+  public set maskSettings(val: InputMaskBase) {
     if (!val) return;
     this.setNewMaskSettingsProperty();
     this.maskSettings.fromJSON(val.toJSON());
@@ -54,8 +60,9 @@ export class QuestionTextModel extends QuestionTextBase {
   private setNewMaskSettingsProperty() {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
   }
-  protected createMaskSettings(): MaskSettings {
-    return new MaskSettings();
+  protected createMaskSettings(): InputMaskBase {
+    const inputMask = MaskManagerType.Instance.createInputMask(this.maskType);
+    return inputMask;
   }
 
   constructor(name: string) {
@@ -260,7 +267,7 @@ export class QuestionTextModel extends QuestionTextBase {
   }
 
   public get maskInstance(): IInputMaskType {
-    return this.maskSettings?.maskInstance;
+    return this.maskSettings;
   }
   public get inputValue(): string {
     return !!this.maskInstance ? this.maskInstance.getMaskedValue(this.value) : this.value;
@@ -686,12 +693,22 @@ Serializer.addClass(
       },
     },
     {
+      name: "maskType",
+      type: "dropdown",
+      choices: ["none", "pattern", "number"],
+      default: "none",
+      visibleIndex: 0
+    },
+    {
       name: "maskSettings:masksettings",
       className: "masksettings",
+      visibleIndex: 1,
       onGetValue: function (obj: any) {
+        if(obj.maskType === "none") return null;
         return obj.maskSettings.getData();
       },
       onSetValue: function (obj: any, value: any) {
+        if(obj.maskType === "none") return;
         obj.maskSettings.setData(value);
       },
     },

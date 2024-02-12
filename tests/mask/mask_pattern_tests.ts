@@ -149,7 +149,8 @@ QUnit.test("get unmasked invalid value, matchWholeMask is false", function(asser
 
 QUnit.test("pattern processInput: insert characters", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "+\\1(999)-999-99-99" });
+  const maskInstance = new InputMaskPattern();
+  maskInstance.mask = "+\\1(999)-999-99-99";
   let result = maskInstance.processInput({ insertedCharacters: "3", selectionStart: 3, selectionEnd: 3, prevValue: "+1(***)-***-**-**", inputDirection: "leftToRight" });
   assert.equal(result.text, "+1(3**)-***-**-**", "type #1");
   assert.equal(result.cursorPosition, 4, "type #1");
@@ -186,7 +187,8 @@ QUnit.test("pattern processInput: insert characters", function(assert) {
 
 QUnit.test("pattern processInput: insert characters into beginning string", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "+\\1(999)-999-99-99" });
+  const maskInstance = new InputMaskPattern();
+  maskInstance.mask = "+\\1(999)-999-99-99";
   let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 0, selectionEnd: 0, prevValue: "+1(***)-***-**-**", inputDirection: "leftToRight" });
   assert.equal(result.text, "+1(***)-***-**-**", "type #1");
   assert.equal(result.cursorPosition, 3, "type #1");
@@ -211,7 +213,8 @@ QUnit.test("pattern processInput: insert characters into beginning string", func
 
 QUnit.test("pattern processInput: insert characters into middle string", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "99+\\1(999)-999" });
+  const maskInstance = new InputMaskPattern();
+  maskInstance.mask = "99+\\1(999)-999";
   let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 2, selectionEnd: 2, prevValue: "56+1(***)-***", inputDirection: "leftToRight" });
   assert.equal(result.text, "56+1(***)-***", "type #1");
   assert.equal(result.cursorPosition, 5, "type #1");
@@ -245,7 +248,8 @@ QUnit.test("pattern processInput: insert characters into middle string", functio
 
 QUnit.test("pattern processInput: delete characters", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "+\\1(999)-999-99-99" });
+  const maskInstance = new InputMaskPattern();
+  maskInstance.mask = "+\\1(999)-999-99-99";
   let result = maskInstance.processInput({ prevValue: "+1(34*)-***-**-**", selectionStart: 4, selectionEnd: 5, insertedCharacters: null, inputDirection: "leftToRight" });
   assert.equal(result.text, "+1(3**)-***-**-**", "delete 4");
   assert.equal(result.cursorPosition, 4, "delete 4");
@@ -278,7 +282,8 @@ QUnit.test("pattern processInput: delete characters", function(assert) {
 
 QUnit.test("pattern processInput: delete characters by backspace", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "+\\1(999)-999-99-99" });
+  const maskInstance = new InputMaskPattern();
+  maskInstance.mask = "+\\1(999)-999-99-99";
   let result = maskInstance.processInput({ prevValue: "+1(34*)-***-**-**", selectionStart: 4, selectionEnd: 5, insertedCharacters: null, inputDirection: "rightToLeft" });
   assert.equal(result.text, "+1(3**)-***-**-**", "delete 4");
   assert.equal(result.cursorPosition, 4, "delete 4");
@@ -320,7 +325,8 @@ QUnit.test("pattern processInput: delete characters by backspace", function(asse
 
 QUnit.test("pattern processInput: cut characters", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "+\\1(999)-999-99-99" });
+  const maskInstance = new InputMaskPattern();
+  maskInstance.mask = "+\\1(999)-999-99-99";
   let result = maskInstance.processInput({ prevValue: "+1(123)-456-78-97", selectionStart: 9, selectionEnd: 14, insertedCharacters: null, inputDirection: "leftToRight" });
   assert.equal(result.text, "+1(123)-497-**-**", "cut #1");
   assert.equal(result.cursorPosition, 9, "cut #1");
@@ -346,7 +352,8 @@ QUnit.test("pattern processInput: cut characters", function(assert) {
 
 QUnit.test("pattern processInput: cut characters into middle string", function(assert) {
   settings.placeholderChar = "*";
-  const maskInstance = new InputMaskPattern({ type: "pattern", mask: "99+\\1(999)-999" });
+  const maskInstance = new InputMaskPattern();
+  maskInstance.mask = "99+\\1(999)-999";
   let result = maskInstance.processInput({ prevValue: "56+1(789)-123", selectionStart: 1, selectionEnd: 6, insertedCharacters: "2+14", inputDirection: "leftToRight" });
   assert.equal(result.text, "52+1(489)-123", "cut #1");
   assert.equal(result.cursorPosition, 6, "cut #1");

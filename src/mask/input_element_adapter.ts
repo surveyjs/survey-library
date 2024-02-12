@@ -2,14 +2,14 @@ import { InputMaskBase } from "./mask_base";
 import { ITextMaskInputArgs } from "./mask_manager";
 
 export class InputElementAdapter {
-  constructor(private mask: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {
-    this.inputElement.value = mask.getMaskedValue(value);
+  constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {
+    this.inputElement.value = inputMaskInstance.getMaskedValue(value);
     this.addInputEventListener();
   }
 
   beforeInputHandler = (event: any) => {
     const args = this.createArgs(event);
-    const result = this.mask.processInput(args);
+    const result = this.inputMaskInstance.processInput(args);
     this.inputElement.value = result.text;
     this.inputElement.setSelectionRange(result.cursorPosition, result.cursorPosition);
     if(!result.cancelPreventDefault) {
@@ -18,7 +18,7 @@ export class InputElementAdapter {
   };
 
   blurInputHandler = (event: any) => {
-    const result = this.mask.getMaskedValue(event.target.value);
+    const result = this.inputMaskInstance.getMaskedValue(event.target.value);
     this.inputElement.value = result;
   };
 

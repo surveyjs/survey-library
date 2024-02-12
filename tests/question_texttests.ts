@@ -4,7 +4,6 @@ import { SurveyModel } from "../src/survey";
 import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
-import { MaskSettings } from "../src/mask/mask_settings";
 
 QUnit.test("check dropdown disabled class", function(assert) {
   var json = {
@@ -415,30 +414,4 @@ QUnit.test("Test maxLength & getMaxLength", function (assert) {
   q.inputType = "password";
   assert.equal(q.isTextInput, true, "isTextInput - password");
   assert.equal(q.getMaxLength(), 10, "getMaxLength() - password");
-});
-
-QUnit.test("Apply mask", function (assert) {
-  const q = new QuestionTextModel("q1");
-  q.maskSettings.setData({ type: "pattern", mask: "+99-99" });
-  q.value = "1234";
-  assert.equal(q.value, "1234");
-  assert.equal(q.inputValue, "+12-34");
-
-  q.inputValue = "+78-68";
-  assert.equal(q.value, "7868");
-  assert.equal(q.inputValue, "+78-68");
-});
-
-QUnit.test("Pattern mask", function (assert) {
-  const q = new QuestionTextModel("q1");
-  q.maskSettings.setData({ type: "pattern", mask: "+99-99", dataToSave: "masked" });
-
-  q.inputValue = "+12-34";
-  assert.equal(q.value, "+12-34", "masked value");
-  assert.equal(q.inputValue, "+12-34", "masked inputValue");
-
-  q.maskSettings.setData({ type: "pattern", mask: "+99-99", dataToSave: "unmasked" });
-  q.inputValue = "+45-67";
-  assert.equal(q.value, "4567", "unmasked value");
-  assert.equal(q.inputValue, "+45-67", "unmasked inputValue");
 });

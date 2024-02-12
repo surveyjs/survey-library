@@ -40,7 +40,9 @@ QUnit.test("validationNumber", function(assert) {
   assert.equal(maskInstance.validateNumber({ integralPart: "", fractionalPart: "123" }), true, "#2");
   assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "456" }), true, "#3");
 
-  maskInstance = new InputMaskNumber({ mask: "", type: "numeric", min: -100, max: 100 });
+  maskInstance = new InputMaskNumber();
+  maskInstance.min = -100;
+  maskInstance.max = 100;
   assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "" }), false, "#4");
   assert.equal(maskInstance.validateNumber({ integralPart: "", fractionalPart: "123" }), true, "#5");
   assert.equal(maskInstance.validateNumber({ integralPart: "123", fractionalPart: "456" }), false, "#6");
@@ -106,7 +108,8 @@ QUnit.test("get numeric masked negative value by formated text", function(assert
 });
 
 QUnit.test("get numeric masked not allow negative value by formated text", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric", allowNegative: false });
+  const maskInstance = new InputMaskNumber();
+  maskInstance.allowNegative = false;
   assert.equal(maskInstance.getNumberMaskedValue("-123"), "123");
   assert.equal(maskInstance.getNumberMaskedValue("12-34"), "1,234");
   assert.equal(maskInstance.getNumberMaskedValue("-123-,456.78"), "123,456.78");
@@ -125,7 +128,7 @@ QUnit.test("get numeric unmasked valid text", function(assert) {
 });
 
 QUnit.test("numeric processInput: insert characters", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
   let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 1, selectionEnd: 1, prevValue: "0", inputDirection: "leftToRight" });
   assert.equal(result.text, "1", "type #1");
   assert.equal(result.cursorPosition, 1, "type #1");
@@ -200,7 +203,7 @@ QUnit.test("numeric processInput: insert characters", function(assert) {
 });
 
 QUnit.test("numeric processInput simple number: delete characters", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
 
   let result = maskInstance.processInput({ insertedCharacters: null, selectionStart: 1, selectionEnd: 2, prevValue: "0", inputDirection: "leftToRight" });
   assert.equal(result.text, "0", "#1");
@@ -221,7 +224,7 @@ QUnit.test("numeric processInput simple number: delete characters", function(ass
 });
 
 QUnit.test("numeric processInput decimal number: delete characters", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
 
   let result = maskInstance.processInput({ insertedCharacters: null, selectionStart: 2, selectionEnd: 3, prevValue: "123.45", inputDirection: "leftToRight" });
   assert.equal(result.text, "12.45", "remove 3");
@@ -237,7 +240,7 @@ QUnit.test("numeric processInput decimal number: delete characters", function(as
 });
 
 QUnit.test("numeric processInput big number: delete characters", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
 
   let result = maskInstance.processInput({ insertedCharacters: null, selectionStart: 0, selectionEnd: 1, prevValue: "1,234,567", inputDirection: "leftToRight" });
   assert.equal(result.text, "234,567", "remove 1");
@@ -262,7 +265,7 @@ QUnit.test("numeric processInput big number: delete characters", function(assert
 });
 
 QUnit.test("numeric processInput simple number: delete characters by backspace", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
 
   let result = maskInstance.processInput({ insertedCharacters: null, selectionStart: 0, selectionEnd: 0, prevValue: "0", inputDirection: "rightToLeft" });
   assert.equal(result.text, "0", "#1");
@@ -283,7 +286,7 @@ QUnit.test("numeric processInput simple number: delete characters by backspace",
 });
 
 QUnit.test("numeric processInput decimal number: delete characters by backspace", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
 
   let result = maskInstance.processInput({ insertedCharacters: null, selectionStart: 2, selectionEnd: 3, prevValue: "123.45", inputDirection: "rightToLeft" });
   assert.equal(result.text, "12.45", "remove 3");
@@ -299,7 +302,7 @@ QUnit.test("numeric processInput decimal number: delete characters by backspace"
 });
 
 QUnit.test("numeric processInput big number: delete characters by backspace", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
 
   let result = maskInstance.processInput({ insertedCharacters: null, selectionStart: 0, selectionEnd: 1, prevValue: "1,234,567", inputDirection: "rightToLeft" });
   assert.equal(result.text, "234,567", "remove 1");
@@ -323,7 +326,7 @@ QUnit.test("numeric processInput big number: delete characters by backspace", fu
 });
 
 QUnit.test("numeric processInput: cut + paste characters", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric" });
+  const maskInstance = new InputMaskNumber();
 
   let result = maskInstance.processInput({ insertedCharacters: null, selectionStart: 3, selectionEnd: 7, prevValue: "1,234,567", inputDirection: "leftToRight" });
   assert.equal(result.text, "1,267", "cut 34,5");
@@ -351,7 +354,8 @@ QUnit.test("numeric processInput: cut + paste characters", function(assert) {
 });
 
 QUnit.test("numeric processInput: allowNegative false", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric", allowNegative: false });
+  const maskInstance = new InputMaskNumber();
+  maskInstance.allowNegative = false;
 
   let result = maskInstance.processInput({ insertedCharacters: "-", selectionStart: 2, selectionEnd: 2, prevValue: "12", inputDirection: "leftToRight" });
   assert.equal(result.text, "12", "try insert minus");
@@ -359,7 +363,8 @@ QUnit.test("numeric processInput: allowNegative false", function(assert) {
 });
 
 QUnit.test("numeric processInput: allowNegative true", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric", allowNegative: true });
+  const maskInstance = new InputMaskNumber();
+  maskInstance.allowNegative = true;
 
   let result = maskInstance.processInput({ insertedCharacters: "-", selectionStart: 2, selectionEnd: 2, prevValue: "12", inputDirection: "leftToRight" });
   assert.equal(result.text, "-12", "insert minus");
@@ -371,7 +376,9 @@ QUnit.test("numeric processInput: allowNegative true", function(assert) {
 });
 
 QUnit.test("numeric processInput: min", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric", allowNegative: true, min: -100 });
+  const maskInstance = new InputMaskNumber();
+  maskInstance.allowNegative = true;
+  maskInstance.min = -100;
 
   let result = maskInstance.processInput({ insertedCharacters: "-", selectionStart: 2, selectionEnd: 2, prevValue: "12", inputDirection: "leftToRight" });
   assert.equal(result.text, "-12", "insert minus");
@@ -395,7 +402,9 @@ QUnit.test("numeric processInput: min", function(assert) {
 });
 
 QUnit.test("numeric processInput: max", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric", allowNegative: true, max: 100 });
+  const maskInstance = new InputMaskNumber();
+  maskInstance.allowNegative = true;
+  maskInstance.max = 100;
 
   let result = maskInstance.processInput({ insertedCharacters: "2", selectionStart: 1, selectionEnd: 1, prevValue: "1", inputDirection: "leftToRight" });
   assert.equal(result.text, "12", "type 2");
@@ -419,7 +428,10 @@ QUnit.test("numeric processInput: max", function(assert) {
 });
 
 QUnit.test("numeric processInput: min & max", function(assert) {
-  const maskInstance = new InputMaskNumber({ mask: "", type: "numeric", allowNegative: true, min: -100, max: 100 });
+  const maskInstance = new InputMaskNumber();
+  maskInstance.allowNegative = true;
+  maskInstance.min = -100;
+  maskInstance.max = 100;
 
   let result = maskInstance.processInput({ insertedCharacters: "2", selectionStart: 1, selectionEnd: 1, prevValue: "1", inputDirection: "leftToRight" });
   assert.equal(result.text, "12", "type 2");

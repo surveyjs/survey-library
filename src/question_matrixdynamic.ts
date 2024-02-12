@@ -270,7 +270,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
     return res;
   }
   /**
-   * Specifies whether users can drag and drop matrix rows to reorder them. Applies only if [`columnLayout`](#columnLayout) is `"horizontal"`.
+   * Specifies whether users can drag and drop matrix rows to reorder them. Applies only if [`transposeData`](#transposeData) is `false`.
    *
    * Default value: `false`
    */
@@ -654,8 +654,7 @@ export class QuestionMatrixDynamicModel extends QuestionMatrixDropdownModelBase
    * - `"bottom"` - Displays the Add Row button at the bottom of the matrix.
    * - `"topBottom"` - Displays the Add Row button at the top and bottom of the matrix.
    *
-   * Default value: `"top"` if `columnLayout` is `vertical`; `"bottom"` if `columnLayout` is `"horizontal"` or the matrix is in compact mode.
-   * @see columnLayout
+   * Default value: `"top"` if [`transposeData`](#transposeData) is `true`; `"bottom"` if `transposeData` is `false` or the matrix is in compact mode.
    * @see addRowText
    */
   public get addRowLocation(): string {

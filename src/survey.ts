@@ -3562,7 +3562,7 @@ export class SurveyModel extends SurveyElementCore
     return this.mode == "edit";
   }
   public get isDisplayMode(): boolean {
-    return this.mode == "display" || this.state == "preview";
+    return this.mode == "display" && !this.isDesignMode || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
@@ -4735,7 +4735,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.root)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
-      .append(this.css.rootReadOnly, this.mode === "display")
+      .append(this.css.rootReadOnly, this.mode === "display" && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
@@ -7757,7 +7757,11 @@ Serializer.addClass("survey", [
     default: "bottom",
     choices: ["none", "top", "bottom", "both"],
   },
-  { name: "showPrevButton:boolean", default: true },
+  {
+    name: "showPrevButton:boolean",
+    default: true,
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none"; }
+  },
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },
   { name: "showCompletedPage:boolean", default: true },
@@ -7808,9 +7812,19 @@ Serializer.addClass("survey", [
       "requiredQuestions",
       "correctQuestions",
     ],
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off"; }
   },
-  { name: "progressBarShowPageTitles:switch", category: "navigation" },
-  { name: "progressBarShowPageNumbers:switch", default: false, category: "navigation" },
+  {
+    name: "progressBarShowPageTitles:switch",
+    category: "navigation",
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+  },
+  {
+    name: "progressBarShowPageNumbers:switch",
+    default: false,
+    category: "navigation",
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+  },
   {
     name: "showTOC:switch",
     default: false
@@ -7850,12 +7864,36 @@ Serializer.addClass("survey", [
   },
   { name: "autoGrowComment:boolean", default: false },
   { name: "allowResizeComment:boolean", default: true },
-  { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
-  { name: "pagePrevText", serializationProperty: "locPagePrevText" },
-  { name: "pageNextText", serializationProperty: "locPageNextText" },
-  { name: "completeText", serializationProperty: "locCompleteText" },
-  { name: "previewText", serializationProperty: "locPreviewText" },
-  { name: "editText", serializationProperty: "locEditText" },
+  {
+    name: "startSurveyText",
+    serializationProperty: "locStartSurveyText",
+    visibleIf: (obj: any) => { return obj.firstPageIsStarted; }
+  },
+  {
+    name: "pagePrevText",
+    serializationProperty: "locPagePrevText",
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none" && obj.showPrevButton; }
+  },
+  {
+    name: "pageNextText",
+    serializationProperty: "locPageNextText",
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none"; }
+  },
+  {
+    name: "completeText",
+    serializationProperty: "locCompleteText",
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none"; }
+  },
+  {
+    name: "previewText",
+    serializationProperty: "locPreviewText",
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+  },
+  {
+    name: "editText",
+    serializationProperty: "locEditText",
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+  },
   { name: "requiredText", default: "*" },
   {
     name: "questionStartIndex",
@@ -7887,7 +7925,7 @@ Serializer.addClass("survey", [
   {
     name: "questionsOnPageMode",
     default: "standard",
-    choices: ["singlePage", "standard", "questionPerPage"],
+    choices: ["standard", "singlePage", "questionPerPage"],
   },
   {
     name: "showPreviewBeforeComplete",
@@ -7904,7 +7942,7 @@ Serializer.addClass("survey", [
   {
     name: "showTimerPanelMode",
     default: "all",
-    choices: ["all", "page", "survey"],
+    choices: ["page", "survey", "all"],
   },
   {
     name: "widthMode",
@@ -7912,7 +7950,7 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
-  { name: "fitToContainer:boolean", default: false },
+  { name: "fitToContainer:boolean", default: true },
   { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },

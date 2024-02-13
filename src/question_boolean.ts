@@ -116,6 +116,14 @@ export class QuestionBooleanModel extends Question {
     return this.booleanValue !== null && this.booleanValue !== undefined;
   }
 
+  @property({ defaultValue: false }) swapOrder: boolean;
+  get locLabelLeft(): LocalizableString {
+    return this.swapOrder ? this.getLocalizableString("labelTrue") : this.getLocalizableString("labelFalse");
+  }
+  get locLabelRight(): LocalizableString {
+    return this.swapOrder ? this.getLocalizableString("labelFalse") : this.getLocalizableString("labelTrue");
+  }
+
   /**
    * Gets or sets a text label that corresponds to a negative answer.
    *
@@ -177,7 +185,9 @@ export class QuestionBooleanModel extends Question {
       .append(css.itemDisabled, this.isReadOnly)
       .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)
+      .append(css.itemExchanged, !!this.swapOrder)
       .append(css.itemIndeterminate, !this.isDeterminated)
+      .append(css.itemIndeterminate, )
       .toString();
   }
 
@@ -200,8 +210,8 @@ export class QuestionBooleanModel extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.label)
       .append(this.cssClasses.disabledLabel, this.booleanValue === !checked || this.isReadOnly)
-      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === true)
-      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === false)
+      .append(this.cssClasses.labelTrue, !this.isIndeterminate && checked === !this.swapOrder)
+      .append(this.cssClasses.labelFalse, !this.isIndeterminate && checked === this.swapOrder)
       .toString();
   }
 
@@ -309,6 +319,7 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
+    { name: "swapOrder", default: false, category: "general" },
     { name: "renderAs", default: "default", visible: false },
   ],
   function () {

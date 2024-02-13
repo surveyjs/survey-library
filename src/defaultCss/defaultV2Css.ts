@@ -289,6 +289,7 @@ export var defaultV2Css = {
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
+    itemExchanged: "sd-boolean--exchanged",
     itemIndeterminate: "sd-boolean--indeterminate",
     itemDisabled: "sd-boolean--disabled",
     itemHover: "sd-boolean--allowhover",

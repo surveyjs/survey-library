@@ -23,10 +23,10 @@
       />
       <div
         :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, false)"
+        v-on:click="onLabelClick($event, question.swapOrder)"
       >
-        <span :class="question.getLabelCss(false)"
-          ><survey-string :locString="question.locLabelFalse"></survey-string
+        <span :class="question.getLabelCss(question.swapOrder)"
+          ><survey-string :locString="question.locLabelLeft"></survey-string
         ></span>
       </div>
       <div
@@ -46,10 +46,10 @@
       </div>
       <div
         :class="question.cssClasses.sliderGhost"
-        v-on:click="onLabelClick($event, true)"
+        v-on:click="onLabelClick($event, !question.swapOrder)"
       >
-        <span :class="question.getLabelCss(true)"
-          ><survey-string :locString="question.locLabelTrue"></survey-string
+        <span :class="question.getLabelCss(!question.swapOrder)"
+          ><survey-string :locString="question.locLabelRight"></survey-string
         ></span>
       </div>
     </label>

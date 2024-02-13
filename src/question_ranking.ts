@@ -57,7 +57,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       .toString();
   }
 
-  public itemsToAnimate:ItemValue[] = [];
+  public itemsToAnimateAdding:ItemValue[] = [];
   protected getItemClassCore(item: ItemValue, options: any): string {
     const itemIndex = this.rankingChoices.indexOf(item);
     const dropTargetIndex = this.rankingChoices.indexOf(this.currentDropTarget);
@@ -75,7 +75,7 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
       )
       .append(
         "sv-ranking-item--animate-item-adding",
-        this.itemsToAnimate.indexOf(item) !== -1
+        this.itemsToAnimateAdding.indexOf(item) !== -1
       )
       .toString();
   }

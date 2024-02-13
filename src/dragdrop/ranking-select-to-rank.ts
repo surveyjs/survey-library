@@ -149,7 +149,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       ghostNode.removeEventListener("transitionend", handleTransitionEnd);
       ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
       questionModel.isValueSetByUser = true;
-      questionModel.itemsToAnimate.push(item);
+      questionModel.itemsToAnimateAdding.push(item);
       rankingChoices.splice(toIndex, 0, item);
       questionModel.setPropertyValue("rankingChoices", rankingChoices);
       
@@ -177,13 +177,22 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
   }
 
+  protected doDrop = (): any => {
+    this.removeAllAnimationClasses();
+    super.doDrop();
+  };
+
   public clear(): void {
+    this.removeAllAnimationClasses();
+    super.clear();
+  }
+
+  private removeAllAnimationClasses() {
     document.querySelectorAll(".sv-ranking-item--animate-item-removing").forEach((node)=>{
       node.classList.remove("sv-ranking-item--animate-item-removing");
     });
     document.querySelectorAll(".sv-ranking-item--animate-item-adding").forEach((node)=>{
       node.classList.remove("sv-ranking-item--animate-item-adding");
     });
-    super.clear();
   }
 }

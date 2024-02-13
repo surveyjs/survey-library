@@ -7,12 +7,14 @@
   -webkit-user-select: none;
 }
 
+$ranking-animation-duration: 1000ms;
+
 .sv-ranking-item {
   cursor: pointer;
   position: relative;
   height: calcSize(6);
   opacity: 1;
-  transition: height 1000ms, opacity 1000ms;
+  transition: height $ranking-animation-duration, opacity $ranking-animation-duration;
 }
 
 .sv-ranking-item--animate-item-removing {
@@ -21,7 +23,7 @@
 }
 
 .sv-ranking-item--animate-item-adding {
-  animation: sv-animate-item-adding-keyframes 1000ms;
+  animation: sv-animate-item-adding-keyframes $ranking-animation-duration;
 }
 
 @keyframes sv-animate-item-adding-keyframes {

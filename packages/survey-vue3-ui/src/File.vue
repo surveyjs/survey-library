@@ -6,7 +6,6 @@
       tabindex="-1"
       type="file"
       :id="question.inputId"
-      @change="question.doChange"
       :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel"
       :aria-invalid="question.ariaInvalid"

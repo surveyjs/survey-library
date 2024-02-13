@@ -2,7 +2,7 @@
   <div data-bind="css: question.fileRootCss">
         <!-- ko ifnot: question.isInputReadOnly -->
           <!-- ko if: question.hasFileUI -->
-          <input type="file" tabindex="-1" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes, capture: question.renderCapture }, event: { change: question.dochange }">
+          <input type="file" tabindex="-1" data-bind="css: question.cssClasses.fileInput, attr: { id: question.inputId, 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy, multiple: question.allowMultiple ? 'multiple' : undefined, title: koInputTitle, accept: question.acceptedTypes, capture: question.renderCapture }">
           <!-- /ko -->
         <!-- /ko -->
         <!-- ko if: question.isReadOnly -->

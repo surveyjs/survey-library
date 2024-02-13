@@ -40,10 +40,8 @@ export class QuestionRowModel extends Base {
   }
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
-  public startLazyRendering(
-    rowContainerDiv: HTMLElement,
-    findScrollableContainer = findScrollableParent
-  ) {
+  public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
+    if ("undefined" === typeof document) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
     if (this._scrollableParent === document.documentElement) {

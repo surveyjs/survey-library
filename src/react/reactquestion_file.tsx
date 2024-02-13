@@ -37,7 +37,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
           id={this.question.inputId}
           ref={input => (this.setControl(input))}
           style={!this.isDisplayMode ? {} : { color: "transparent" }}
-          onChange={!this.isDisplayMode ? this.question.doChange : (() => {})}
           multiple={this.question.allowMultiple}
           placeholder={this.question.title}
           accept={this.question.acceptedTypes}
@@ -50,7 +49,6 @@ export class SurveyQuestionFile extends SurveyQuestionElementBase {
             id={this.question.inputId}
             ref={input => (this.setControl(input))}
             style={!this.isDisplayMode ? {} : { color: "transparent" }}
-            onChange={!this.isDisplayMode ? this.question.doChange : (() => {})}
             aria-required={this.question.ariaRequired}
             aria-label={this.question.ariaLabel}
             aria-invalid={this.question.ariaInvalid}

@@ -187,7 +187,6 @@ export class QuestionBooleanModel extends Question {
       .append(css.itemChecked, !!this.booleanValue)
       .append(css.itemExchanged, !!this.swapOrder)
       .append(css.itemIndeterminate, !this.isDeterminated)
-      .append(css.itemIndeterminate, )
       .toString();
   }
 

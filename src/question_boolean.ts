@@ -56,8 +56,8 @@ export class QuestionBooleanModel extends Question {
   public set checkedValue(val: any) { this.booleanValue = val; }
   private setBooleanValue(val: any) {
     if (this.isValueEmpty(val)) {
-      this.value = null;
-      this.booleanValueRendered = null;
+      this.value = undefined;
+      this.booleanValueRendered = undefined;
     } else {
       this.value = val == true ? this.getValueTrue() : this.getValueFalse();
       this.booleanValueRendered = val;
@@ -69,16 +69,13 @@ export class QuestionBooleanModel extends Question {
   public set defaultValue(val: any) {
     if (val === true) val = "true";
     if (val === false) val = "false";
-    if (val === undefined) val = "indeterminate";
     this.setPropertyValue("defaultValue", val);
     this.updateValueWithDefaults();
   }
   public getDefaultValue(): any {
-    if (this.defaultValue == "indeterminate") return null;
-    if (this.defaultValue === undefined) return null;
-    return this.defaultValue == "true"
-      ? this.getValueTrue()
-      : this.getValueFalse();
+    const val = this.defaultValue;
+    if (val === "indeterminate" || val === undefined || val === null) return undefined;
+    return val == "true" ? this.getValueTrue() : this.getValueFalse();
   }
   public get locTitle(): LocalizableString {
     const original = this.getLocalizableString("title");
@@ -115,8 +112,8 @@ export class QuestionBooleanModel extends Question {
   get locLabelTrue(): LocalizableString {
     return this.getLocalizableString("labelTrue");
   }
-  get isDeterminated() {
-    return this.booleanValue !== null;
+  get isDeterminated(): boolean {
+    return this.booleanValue !== null && this.booleanValue !== undefined;
   }
 
   /**
@@ -163,7 +160,8 @@ export class QuestionBooleanModel extends Question {
   protected setDefaultValue(): void {
     if (this.isDefaultValueSet("true", this.valueTrue)) this.setBooleanValue(true);
     if (this.isDefaultValueSet("false", this.valueFalse)) this.setBooleanValue(false);
-    if (this.defaultValue == "indeterminate") this.setBooleanValue(null);
+    const val = this.defaultValue;
+    if (val === "indeterminate" || val === null || val === undefined) this.setBooleanValue(undefined);
   }
   private isDefaultValueSet(defaultValueCheck: any, valueTrueOrFalse: any): boolean {
     return this.defaultValue == defaultValueCheck || (valueTrueOrFalse !== undefined && this.defaultValue === valueTrueOrFalse);
@@ -179,7 +177,7 @@ export class QuestionBooleanModel extends Question {
       .append(css.itemDisabled, this.isReadOnly)
       .append(css.itemHover, !this.isDesignMode)
       .append(css.itemChecked, !!this.booleanValue)
-      .append(css.itemIndeterminate, this.booleanValue === null)
+      .append(css.itemIndeterminate, !this.isDeterminated)
       .toString();
   }
 
@@ -209,7 +207,7 @@ export class QuestionBooleanModel extends Question {
 
   public get svgIcon(): string {
     if (this.booleanValue && this.cssClasses.svgIconCheckedId) return this.cssClasses.svgIconCheckedId;
-    if (this.booleanValue === null && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
+    if (!this.isDeterminated && this.cssClasses.svgIconIndId) return this.cssClasses.svgIconIndId;
     if (!this.booleanValue && this.cssClasses.svgIconUncheckedId) return this.cssClasses.svgIconUncheckedId;
     return this.cssClasses.svgIconId;
   }
@@ -225,13 +223,10 @@ export class QuestionBooleanModel extends Question {
       return this.locLabelFalse;
     }
   }
-  protected setQuestionValue(
-    newValue: any,
-    updateIsAnswered: boolean = true
-  ) {
+  protected setQuestionValue(newValue: any, updateIsAnswered: boolean = true): void {
     if (newValue === "true" && this.valueTrue !== "true") newValue = true;
     if (newValue === "false" && this.valueFalse !== "false") newValue = false;
-    if (newValue === "indeterminate") newValue = null;
+    if (newValue === "indeterminate" || newValue === null) newValue = undefined;
     super.setQuestionValue(newValue, updateIsAnswered);
   }
   /* #region web-based methods */

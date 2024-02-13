@@ -10,9 +10,9 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
-import { IInputMaskType, MaskManagerType } from "./mask/mask_manager";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
+import { IInputMaskType } from "./mask/mask_utils";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -61,7 +61,7 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
   }
   protected createMaskSettings(): InputMaskBase {
-    const inputMask = MaskManagerType.Instance.createInputMask(this.maskType);
+    const inputMask = Serializer.createClass((!this.maskType || this.maskType === "none") ? "masksettings" : this.maskType);
     return inputMask;
   }
 
@@ -513,7 +513,8 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
-    if (event.target === settings.environment.root.activeElement) {
+    const elementIsFocused = event.target === settings.environment.root.activeElement;
+    if (elementIsFocused) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }
@@ -693,9 +694,7 @@ Serializer.addClass(
       },
     },
     {
-      name: "maskType",
-      type: "dropdown",
-      choices: ["none", "pattern", "number"],
+      name: "maskType:masktype",
       default: "none",
       visibleIndex: 0
     },
@@ -704,11 +703,9 @@ Serializer.addClass(
       className: "masksettings",
       visibleIndex: 1,
       onGetValue: function (obj: any) {
-        if(obj.maskType === "none") return null;
         return obj.maskSettings.getData();
       },
       onSetValue: function (obj: any, value: any) {
-        if(obj.maskType === "none") return;
         obj.maskSettings.setData(value);
       },
     },

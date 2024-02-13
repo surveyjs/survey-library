@@ -1,5 +1,5 @@
 import { InputMaskBase } from "./mask_base";
-import { ITextMaskInputArgs } from "./mask_manager";
+import { ITextMaskInputArgs } from "./mask_utils";
 
 export class InputElementAdapter {
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {

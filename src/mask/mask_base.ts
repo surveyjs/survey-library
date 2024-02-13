@@ -1,8 +1,9 @@
 import { Base } from "../base";
-import { Serializer, property } from "../jsonobject";
-import { IInputMaskType, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
+import { JsonObject, Serializer, property } from "../jsonobject";
+import { IInputMaskType, IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
 
 export class InputMaskBase extends Base implements IInputMaskType {
+  [index: string]: any;
   @property() dataToSave: "masked" | "unmasked";
 
   public getType(): string {
@@ -11,35 +12,26 @@ export class InputMaskBase extends Base implements IInputMaskType {
   public isEmpty(): boolean {
     return true;
   }
-  public setData(json: any) {
-    this.clear();
-    if (json.dataToSave) this.dataToSave = json.dataToSave;
-
-    // var properties = this.getCustomPropertiesNames();
-    // for (var i = 0; i < properties.length; i++) {
-    //   if (json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
-    // }
+  public setData(json: any): void {
+    const properties = Serializer.getProperties(this.getType());
+    properties.forEach(property => {
+      const currentValue = json[property.name];
+      this[property.name] = currentValue !== undefined ? currentValue : property.defaultValue;
+    });
   }
   public getData(): any {
     if (this.isEmpty()) return null;
 
-    var res: any = {};
-    if (this.dataToSave) res["dataToSave"] = this.dataToSave;
+    const res: any = {};
+    const properties = Serializer.getProperties(this.getType());
+    properties.forEach(property => {
+      const currentValue = this[property.name];
+      if(!property.isDefaultValue(currentValue)) {
+        res[property.name] = currentValue;
+      }
+    });
 
-    // var properties = this.getCustomPropertiesNames();
-    // for (var i = 0; i < properties.length; i++) {
-    //   if ((<any>this)[properties[i]])
-    //     res[properties[i]] = (<any>this)[properties[i]];
-    // }
     return res;
-  }
-
-  public clear(): void {
-    this.dataToSave = undefined;
-    // var properties = this.getCustomPropertiesNames();
-    // for (var i = 0; i < properties.length; i++) {
-    //   if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
-    // }
   }
 
   // public get maskedInputValue(): string {

@@ -12,7 +12,7 @@ frameworks.forEach((framework) => {
         {
           name: "name",
           type: "text",
-          maskType: "pattern",
+          maskType: "patternmask",
           maskSettings: {
             mask: "+99-99"
           }

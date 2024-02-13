@@ -1,7 +1,6 @@
 import { Serializer, property } from "../jsonobject";
 import { InputMaskBase } from "./mask_base";
-import { MaskManagerType, IMaskedValue, ITextMaskInputArgs } from "./mask_manager";
-import { settings } from "./mask_utils";
+import { IMaskedValue, ITextMaskInputArgs, settings } from "./mask_utils";
 
 interface INumericalComposition {
   integralPart: string;
@@ -28,6 +27,8 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
 }
 
 export class InputMaskNumber extends InputMaskBase {
+  private currentDefinition = settings.definitions["9"];
+
   @property() allowNegative: boolean;
   @property() decimalSeparator: string;
   @property() precision: number;
@@ -63,8 +64,20 @@ export class InputMaskNumber extends InputMaskBase {
     return result;
   }
 
+  constructor() {
+    super();
+    this.initialize();
+  }
+
   get numberOptions(): InputMaskBase {
     return this;
+  }
+
+  protected initialize(): void {
+    this.allowNegative = settings.numberOptions.allowNegative;
+    this.decimalSeparator = settings.numberOptions.decimalSeparator;
+    this.precision = settings.numberOptions.precision;
+    this.thousandsSeparator = settings.numberOptions.thousandsSeparator;
   }
 
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
@@ -120,7 +133,6 @@ export class InputMaskNumber extends InputMaskBase {
     let minusCharCount = 0;
 
     for(let inputIndex = 0; inputIndex < input.length; inputIndex++) {
-      const currentDefinition = settings.definitions["9"];
       const currentChar = input[inputIndex];
       switch(currentChar) {
         case "-": {
@@ -137,7 +149,7 @@ export class InputMaskNumber extends InputMaskBase {
           break;
         }
         default: {
-          if(currentChar.match(currentDefinition)) {
+          if(currentChar.match(this.currentDefinition)) {
             if(result.decimalSeparatorCount === 0) {
               result.integralPart += currentChar;
             } else {
@@ -195,76 +207,21 @@ export class InputMaskNumber extends InputMaskBase {
   }
 
   public getType(): string {
-    return "numbermasksettings";
+    return "numbermask";
   }
 
   public isEmpty(): boolean {
-    return this.allowNegative !== settings.numberOptions.allowNegative &&
-    this.decimalSeparator !== settings.numberOptions.decimalSeparator &&
-    this.precision !== settings.numberOptions.precision &&
-    this.thousandsSeparator !== settings.numberOptions.thousandsSeparator &&
-    this.min !== undefined &&
-    this.max !== undefined;
-  }
-
-  public setData(json: any) {
-    this.clear();
-    super.setData(json);
-
-    if (json.allowNegative !== undefined) this.allowNegative = json.allowNegative;
-    if (json.decimalSeparator) this.decimalSeparator = json.decimalSeparator;
-    if (json.precision) this.precision = json.precision;
-    if (json.thousandsSeparator) this.thousandsSeparator = json.thousandsSeparator;
-    if (json.min !== undefined) this.min = json.min;
-    if (json.max !== undefined) this.max = json.max;
-
-    // var properties = this.getCustomPropertiesNames();
-    // for (var i = 0; i < properties.length; i++) {
-    //   if (json[properties[i]]) (<any>this)[properties[i]] = json[properties[i]];
-    // }
-  }
-  public getData(): any {
-    if (this.isEmpty()) return null;
-
-    var res = super.getData();
-    if (this.allowNegative) res["allowNegative"] = this.allowNegative;
-    if (this.decimalSeparator) res["decimalSeparator"] = this.decimalSeparator;
-    if (this.precision) res["precision"] = this.precision;
-    if (this.thousandsSeparator) res["thousandsSeparator"] = this.thousandsSeparator;
-    if (this.min !== undefined) res["min"] = this.min;
-    if (this.max !== undefined) res["max"] = this.max;
-
-    // var properties = this.getCustomPropertiesNames();
-    // for (var i = 0; i < properties.length; i++) {
-    //   if ((<any>this)[properties[i]])
-    //     res[properties[i]] = (<any>this)[properties[i]];
-    // }
-    return res;
-  }
-
-  public clear(): void {
-    this.allowNegative = undefined;
-    this.decimalSeparator = undefined;
-    this.precision = undefined;
-    this.thousandsSeparator = undefined;
-    this.min = undefined;
-    this.max = undefined;
-    // var properties = this.getCustomPropertiesNames();
-    // for (var i = 0; i < properties.length; i++) {
-    //   if ((<any>this)[properties[i]]) (<any>this)[properties[i]] = "";
-    // }
+    return false;
   }
 }
 
-MaskManagerType.Instance.registerMaskManagerType("number", () => { return new InputMaskNumber(); });
-
 Serializer.addClass(
-  "numbermasksettings",
+  "numbermask",
   [
-    { name: "allowNegative:boolean", default: settings.numberOptions.allowNegative },
-    { name: "decimalSeparator", default: settings.numberOptions.decimalSeparator },
-    { name: "precision:number", default: settings.numberOptions.precision },
-    { name: "thousandsSeparator", default: settings.numberOptions.thousandsSeparator },
+    { name: "allowNegative:boolean" },
+    { name: "decimalSeparator" },
+    { name: "thousandsSeparator" },
+    { name: "precision:number" },
     { name: "min:number" },
     { name: "max:number" },
   ],

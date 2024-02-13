@@ -1,4 +1,6 @@
+import { JsonObject } from "../../src/jsonobject";
 import { splitString, InputMaskNumber } from "../../src/mask/mask_number";
+import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Numeric mask");
 
@@ -452,4 +454,91 @@ QUnit.test("numeric processInput: min & max", function(assert) {
   result = maskInstance.processInput({ insertedCharacters: "", selectionStart: 1, selectionEnd: 2, prevValue: "-1", inputDirection: "leftToRight" });
   assert.equal(result.text, "-", "remove 1");
   assert.equal(result.cursorPosition, 1, "remove 1");
+});
+
+QUnit.test("Serialize InputMaskNumber properties", function (assert) {
+  const q = new QuestionTextModel("q1");
+  const jsonObject = new JsonObject();
+  let json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, { name: "q1" }, "empty mask");
+
+  q.maskType = "numbermask";
+  json = jsonObject.toJsonObject(q);
+  // assert.deepEqual(json, {
+  //   name: "q1",
+  //   maskType: "numbermask",
+  //   maskSettings: {
+  //     "allowNegative": true,
+  //     "decimalSeparator": ".",
+  //     "precision": 2,
+  //     "thousandsSeparator": ","
+  //   }
+  // }, "init numbermask");
+
+  q.maskSettings["dataToSave"] = "masked";
+  q.maskSettings["decimalSeparator"] = "-";
+  q.maskSettings["thousandsSeparator"] = "*";
+  q.maskSettings["precision"] = 5;
+  q.maskSettings["allowNegative"] = false;
+  q.maskSettings["min"] = 0;
+  q.maskSettings["max"] = 1000;
+
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, {
+    name: "q1",
+    maskType: "numbermask",
+    maskSettings: {
+      dataToSave: "masked",
+      decimalSeparator: "-",
+      thousandsSeparator: "*",
+      precision: 5,
+      min: 0,
+      max: 1000
+    }
+  }, "all setting is changed numbermask");
+});
+
+QUnit.test("Deserialize InputMaskNumber properties", function (assert) {
+  const q = new QuestionTextModel("q1");
+  const jsonObject = new JsonObject();
+  jsonObject.toObject({ name: "q1" }, q);
+  let maskSettings = q.maskSettings as InputMaskNumber;
+  assert.equal(q.maskType, "none");
+  assert.equal(maskSettings.getType(), "masksettings");
+
+  jsonObject.toObject({ name: "q1", maskType: "numbermask" }, q);
+  maskSettings = q.maskSettings as InputMaskNumber;
+  assert.equal(q.maskType, "numbermask");
+  assert.equal(maskSettings.getType(), "numbermask", "numbermask type");
+  assert.equal(maskSettings.dataToSave, "unmasked", "numbermask dataToSave");
+  assert.equal(maskSettings.decimalSeparator, ".", "numbermask decimalSeparator");
+  assert.equal(maskSettings.thousandsSeparator, ",", "numbermask thousandsSeparator");
+  assert.equal(maskSettings.precision, 2, "numbermask precision");
+  assert.equal(maskSettings.allowNegative, true, "numbermask allowNegative");
+  assert.equal(maskSettings.min, undefined, "numbermask min");
+  assert.equal(maskSettings.max, undefined, "numbermask max");
+
+  jsonObject.toObject({
+    name: "q1",
+    maskType: "numbermask",
+    maskSettings: {
+      dataToSave: "masked",
+      decimalSeparator: "-",
+      thousandsSeparator: "*",
+      allowNegative: true,
+      precision: 5,
+      min: 0,
+      max: 1000
+    }
+  }, q);
+  maskSettings = q.maskSettings as InputMaskNumber;
+  assert.equal(q.maskType, "numbermask");
+  assert.equal(maskSettings.getType(), "numbermask", "numbermask type");
+  assert.equal(maskSettings.dataToSave, "masked", "numbermask dataToSave");
+  assert.equal(maskSettings.decimalSeparator, "-", "numbermask decimalSeparator");
+  assert.equal(maskSettings.thousandsSeparator, "*", "numbermask thousandsSeparator");
+  assert.equal(maskSettings.precision, 5, "numbermask precision");
+  assert.equal(maskSettings.allowNegative, true, "numbermask allowNegative");
+  assert.equal(maskSettings.min, 0, "numbermask min");
+  assert.equal(maskSettings.max, 1000, "numbermask max");
 });

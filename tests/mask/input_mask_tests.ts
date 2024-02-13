@@ -1,5 +1,4 @@
 import { InputElementAdapter } from "../../src/mask/input_element_adapter";
-import { InputMaskBase } from "../../src/mask/mask_base";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
 
 export default QUnit.module("Input mask");

@@ -1,5 +1,7 @@
 import { settings } from "../../src/mask/mask_utils";
 import { getMaskedValueByPattern, getUnmaskedValueByPattern, getLiterals, InputMaskPattern } from "../../src/mask/mask_pattern";
+import { QuestionTextModel } from "../../src/question_text";
+import { JsonObject } from "../../src/jsonobject";
 
 export default QUnit.module("Pattern mask");
 
@@ -367,4 +369,66 @@ QUnit.test("pattern processInput: cut characters into middle string", function(a
   assert.equal(result.cursorPosition, 6, "cut #3");
 
   settings.placeholderChar = "_";
+});
+
+QUnit.test("Serialize InputMaskPattern properties", function (assert) {
+  const q = new QuestionTextModel("q1");
+  const jsonObject = new JsonObject();
+  let json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, { name: "q1" }, "empty mask");
+
+  q.maskType = "patternmask";
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, { name: "q1", maskType: "patternmask" }, "empty patternmask");
+
+  q.maskSettings["mask"] = "9999-9999";
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, {
+    name: "q1",
+    maskType: "patternmask",
+    maskSettings: {
+      mask: "9999-9999"
+    }
+  }, "set mask patternmask");
+
+  q.maskSettings["dataToSave"] = "masked";
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, {
+    name: "q1",
+    maskType: "patternmask",
+    maskSettings: {
+      dataToSave: "masked",
+      mask: "9999-9999"
+    }
+  }, "dataToSave patternmask");
+});
+
+QUnit.test("Deserialize InputMaskPattern properties", function (assert) {
+  const q = new QuestionTextModel("q1");
+  const jsonObject = new JsonObject();
+  jsonObject.toObject({ name: "q1" }, q);
+  let maskSettings = q.maskSettings as InputMaskPattern;
+  assert.equal(q.maskType, "none");
+  assert.equal(maskSettings.getType(), "masksettings");
+
+  jsonObject.toObject({ name: "q1", maskType: "patternmask" }, q);
+  maskSettings = q.maskSettings as InputMaskPattern;
+  assert.equal(q.maskType, "patternmask");
+  assert.equal(maskSettings.getType(), "patternmask", "patternmask type");
+  assert.equal(maskSettings.mask, undefined, "patternmask mask");
+  assert.equal(maskSettings.dataToSave, "unmasked", "patternmask dataToSave");
+
+  jsonObject.toObject({
+    name: "q1",
+    maskType: "patternmask",
+    maskSettings: {
+      dataToSave: "masked",
+      mask: "9999-9999",
+    }
+  }, q);
+  maskSettings = q.maskSettings as InputMaskPattern;
+  assert.equal(q.maskType, "patternmask");
+  assert.equal(maskSettings.getType(), "patternmask", "patternmask type");
+  assert.equal(maskSettings.mask, "9999-9999", "patternmask mask");
+  assert.equal(maskSettings.dataToSave, "masked", "patternmask dataToSave");
 });

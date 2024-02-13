@@ -5964,6 +5964,46 @@ QUnit.test("isFit custom widgets on renderAs", function (assert) {
   assert.equal(q1.customWidget.name, "pretty", "Correct custom widget name");
   CustomWidgetCollection.Instance.clear();
 });
+QUnit.test("Validate function for custom widget", function (assert) {
+  CustomWidgetCollection.Instance.clear();
+  CustomWidgetCollection.Instance.addCustomWidget({
+    name: "first",
+    isFit: (question): boolean => {
+      return question.name == "question1";
+    },
+    validate: (question): string => {
+      const val = question.value;
+      return val < 1 || val > 3 ? "Out of range" : "";
+    }
+  });
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "radiogroup",
+        name: "question1",
+        choices: [1, 2, 3]
+      },
+    ],
+  });
+  var q1 = <QuestionSelectBase>(
+    survey.getQuestionByName("question1")
+  );
+  assert.equal(q1.validate(), true, "There is no errors, #1");
+  q1.value = 1;
+  assert.equal(q1.validate(), true, "There is no errors, #2");
+  q1.value = 4;
+  assert.equal(q1.validate(), false, "There is a error, #3");
+  assert.equal(q1.errors.length, 1, "Errors list, #4");
+  assert.equal(q1.errors[0].text, "Out of range", "Error text #5");
+  q1.value = 2;
+  assert.equal(q1.errors.length, 0, "Errors list, #6");
+  q1.value = 5;
+  assert.equal(q1.validate(), false, "There is a error, #7");
+  q1.clearValue();
+  assert.equal(q1.errors.length, 0, "Errors list, #8");
+  CustomWidgetCollection.Instance.clear();
+});
+
 QUnit.test("Update choices order on changing locale, bug #2832", function (
   assert
 ) {

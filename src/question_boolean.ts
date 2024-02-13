@@ -318,7 +318,7 @@ Serializer.addClass(
     },
     "valueTrue",
     "valueFalse",
-    { name: "swapOrder", default: false, category: "general" },
+    { name: "swapOrder:boolean", category: "general" },
     { name: "renderAs", default: "default", visible: false },
   ],
   function () {

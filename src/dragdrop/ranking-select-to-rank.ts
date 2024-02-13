@@ -156,6 +156,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     };
     ghostNode.removeEventListener("transitionend", handleTransitionEnd);
     ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
+    questionModel.itemsToAnimateAdding = [];
     ghostNode.addEventListener("transitionend", handleTransitionEnd);
     ghostNode.classList.add("sv-ranking-item--animate-item-removing");
   }
@@ -188,6 +189,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
   }
 
   private removeAllAnimationClasses() {
+    this.parentElement.itemsToAnimateAdding = [];
     document.querySelectorAll(".sv-ranking-item--animate-item-removing").forEach((node)=>{
       node.classList.remove("sv-ranking-item--animate-item-removing");
     });

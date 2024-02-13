@@ -60,7 +60,8 @@ export class InputMaskBase extends Base implements IInputMaskType {
 Serializer.addClass(
   "masksettings",
   [
-    { name: "dataToSave",
+    {
+      name: "dataToSave",
       choices: ["masked", "unmasked"],
       default: "unmasked",
       visibleIf: function(obj: any) {

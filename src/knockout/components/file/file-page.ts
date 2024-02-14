@@ -1,5 +1,5 @@
 import * as ko from "knockout";
-import { ImplementorBase } from "src/knockout/kobase";
+import { ImplementorBase } from "../../kobase";
 
 const template = require("./file-page.html");
 

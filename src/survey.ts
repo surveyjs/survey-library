@@ -4753,7 +4753,7 @@ export class SurveyModel extends SurveyElementCore
       if (!!mobileWidth) {
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-          window.requestAnimationFrame((): void | undefined => {
+          queueMicrotask((): void | undefined => {
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {

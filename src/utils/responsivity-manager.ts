@@ -36,7 +36,7 @@ export class ResponsivityManager {
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        window.requestAnimationFrame((): void | undefined => {
+        queueMicrotask((): void | undefined => {
           this.process();
         });
       });

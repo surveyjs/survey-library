@@ -15842,7 +15842,7 @@ class CustomResizeObserver {
 }
 
 QUnit.test("Check survey resize observer double process", function (assert) {
-  window.requestAnimationFrame = (func: any) => !!func && func();
+  window.queueMicrotask = (func: any) => !!func && func();
   const getComputedStyle = window.getComputedStyle;
   window.getComputedStyle = <any>((el: HTMLElement) => {
     return el.style;

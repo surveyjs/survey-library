@@ -216,7 +216,7 @@ export class CustomResizeObserver {
 }
 
 QUnit.test("check resizeObserver behavior", function (assert) {
-  window.requestAnimationFrame = (func: any) => !!func && func();
+  window.queueMicrotask = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const setTimeout = window.setTimeout;
   window.ResizeObserver = <any>CustomResizeObserver;
@@ -267,7 +267,7 @@ QUnit.test("check resizeObserver behavior", function (assert) {
 });
 
 QUnit.test("check resizeObserver not process if container is not visible", function (assert) {
-  window.requestAnimationFrame = (func: any) => !!func && func();
+  window.queueMicrotask = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;
   const rootEl = document.createElement("div");

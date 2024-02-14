@@ -86,7 +86,7 @@ QUnit.test("check rating initResponsiveness", (assert) => {
 });
 
 QUnit.test("check rating resize observer behavior", (assert) => {
-  window.requestAnimationFrame = (func: any) => !!func && func();
+  window.queueMicrotask = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
   const getComputedStyle = window.getComputedStyle;
   window.ResizeObserver = <any>CustomResizeObserver;
@@ -1520,11 +1520,13 @@ QUnit.test("Generate empty rating in column", (assert) => {
   const col2: any = q1.addColumn("col2");
   col2.cellType = "rating";
   col2.rateType = "stars";
-  assert.deepEqual(q1.toJSON(), { name: "q1",
+  assert.deepEqual(q1.toJSON(), {
+    name: "q1",
     columns: [
       { name: "col1", cellType: "rating" },
       { name: "col2", cellType: "rating", rateType: "stars" }
-    ] });
+    ]
+  });
   assert.equal(col1.itemComponent, "sv-rating-item");
   assert.equal(col2.itemComponent, "sv-rating-item-star");
 });

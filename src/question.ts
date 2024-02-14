@@ -2517,7 +2517,7 @@ export class Question extends SurveyElement<Question>
 
       };
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        window.requestAnimationFrame((): void | undefined => {
+        queueMicrotask((): void | undefined => {
           this.triggerResponsiveness(false);
         });
       });

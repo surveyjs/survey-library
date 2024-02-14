@@ -80,23 +80,23 @@ export class SurveyQuestionBoolean extends SurveyQuestionElementBase {
             aria-invalid={this.question.a11y_input_ariaInvalid}
             aria-describedby={this.question.a11y_input_ariaDescribedBy}
           />
-          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, false)}>
-            <span className={this.question.getLabelCss(false)}>
-              {this.renderLocString(this.question.locLabelFalse)}
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, this.question.swapOrder)}>
+            <span className={this.question.getLabelCss(this.question.swapOrder)}>
+              {this.renderLocString(this.question.locLabelLeft)}
             </span>
           </div>
           <div className={cssClasses.switch} onClick={this.handleOnSwitchClick}>
             <span className={cssClasses.slider}>
               {
                 this.question.isDeterminated && cssClasses.sliderText ?
-                  <span className={cssClasses.sliderText}>{ this.renderLocString(this.question.getCheckedLabel()) }</span>
+                  <span className={cssClasses.sliderText}>{this.renderLocString(this.question.getCheckedLabel())}</span>
                   : null
               }
             </span>
           </div>
-          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, true)}>
-            <span className={this.question.getLabelCss(true)}>
-              {this.renderLocString(this.question.locLabelTrue)}
+          <div className={cssClasses.sliderGhost} onClick={(event) => this.handleOnLabelClick(event, !this.question.swapOrder)}>
+            <span className={this.question.getLabelCss(!this.question.swapOrder)}>
+              {this.renderLocString(this.question.locLabelRight)}
             </span>
           </div>
         </label>

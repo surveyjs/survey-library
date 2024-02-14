@@ -675,27 +675,21 @@ export class Base {
     arrayChanges?: ArrayChanges,
     target?: Base
   ) {
-    if (this.isInternal) return;
+    const fireCallback = (obj: Base): void => {
+      if (!!obj && !!obj.onPropertyValueChangedCallback) {
+        obj.onPropertyValueChangedCallback(name, oldValue, newValue, target, arrayChanges);
+      }
+    };
+    if (this.isInternal) {
+      fireCallback(this);
+      return;
+    }
     if (!target) target = this;
     var notifier: any = this.getSurvey();
     if (!notifier) notifier = this;
-    if (!!notifier.onPropertyValueChangedCallback) {
-      notifier.onPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        target,
-        arrayChanges
-      );
-    }
-    if (notifier !== this && !!this.onPropertyValueChangedCallback) {
-      this.onPropertyValueChangedCallback(
-        name,
-        oldValue,
-        newValue,
-        target,
-        arrayChanges
-      );
+    fireCallback(notifier);
+    if (notifier !== this) {
+      fireCallback(this);
     }
   }
   public addExpressionProperty(name: string, onExecute: (obj: Base, res: any) => void, canRun?: (obj: Base) => boolean): void {

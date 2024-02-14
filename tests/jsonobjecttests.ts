@@ -849,6 +849,58 @@ QUnit.test(
     );
   }
 );
+QUnit.test("Custom object deserialization, remove pos", function (assert) {
+  Serializer.addClass("optionstype",
+    [
+      { name: "itemValue" },
+      { name: "colorId" },
+      { name: "label:text", isLocalizable: true },
+    ], undefined);
+  Serializer.addProperty("car", { name: "options:optionstype" });
+  Serializer.addProperty("car", { name: "optionsarray:optionstype[]" });
+  const json: any = {
+    options: {
+      pos: { start: 1, end: 5 },
+      itemValue: "abcdef",
+      label: {
+        pos: { start: 10, end: 15 },
+        default: "default text",
+        en: "en text",
+        de: "de text",
+      },
+      colorId: "black"
+    },
+    optionsarray: [{
+      pos: { start: 20, end: 25 },
+      itemValue: "abcdef",
+      label: {
+        pos: { start: 30, end: 35 },
+        default: "default text",
+        en: "en text",
+        de: "de text",
+      },
+      colorId: "black"
+    }]
+  };
+  const car: any = new Car();
+  car.fromJSON(json);
+
+  assert.equal(car.options.itemValue, "abcdef", "check itemValue");
+  assert.equal(car.options.pos.start, 1, "pos1");
+  assert.equal(car.options.label.pos.start, 10, "pos2");
+  assert.equal(car.optionsarray[0].pos.start, 20, "pos3");
+  assert.equal(car.optionsarray[0].label.pos.start, 30, "pos4");
+
+  const car_json = car.toJSON();
+  assert.notOk(car_json.options["pos"], "no pos1");
+  assert.notOk(car_json.options.label["pos"], "no pos2");
+  assert.notOk(car_json.optionsarray[0]["pos"], "no pos3");
+  assert.notOk(car_json.optionsarray[0].label["pos"], "no pos4");
+
+  Serializer.removeProperty("car", "options");
+  Serializer.removeProperty("car", "optionsarray");
+  Serializer.removeClass("optionstype");
+});
 QUnit.test(
   "ItemValue and settings.itemValueAlwaysSerializeAsObject = true",
   function (assert) {
@@ -3211,4 +3263,48 @@ QUnit.test("Test showInMultipleColumns prop visibility", function (assert) {
   const prop = Serializer.findProperty("matrixdropdowncolumn", "showInMultipleColumns");
   assert.ok(prop, "property is here");
   assert.equal(prop.isVisible("", column), true, "column is visible");
+});
+QUnit.test("displayName, empty string", function (assert) {
+  const prop1 = Serializer.addProperty("question", { name: "testProperty1", displayName: "" });
+  const prop2 = Serializer.addProperty("question", { name: "testProperty2", displayName: undefined });
+  const prop3 = Serializer.addProperty("question", { name: "testProperty3" });
+
+  assert.strictEqual(prop1.displayName, "", "prop1");
+  assert.strictEqual(prop2.displayName, undefined, "prop2");
+  assert.strictEqual(prop3.displayName, undefined, "prop3");
+
+  Serializer.removeProperty("question", "testProperty1");
+  Serializer.removeProperty("question", "testProperty2");
+  Serializer.removeProperty("question", "testProperty3");
+});
+QUnit.test("enableIf", function (assert) {
+  const prop1 = Serializer.addProperty("question", { name: "testProperty1", readOnly: true });
+  const prop2 = Serializer.addProperty("question", { name: "testProperty2", enableIf: (obj) => { return obj.title === "abc"; } });
+  const prop3 = Serializer.addProperty("question", { name: "testProperty3" });
+  const prop4 = Serializer.addProperty("question", { name: "testProperty4", readOnly: true, enableIf: (obj) => { return true; } });
+
+  const q = new Question("q1");
+
+  assert.notOk(prop1.enableIf, "prop1.enableIf");
+  assert.equal(prop1.isEnable(null), false, "prop1 #1");
+  assert.equal(prop1.isEnable(q), false, "prop1 #2");
+
+  assert.ok(prop2.enableIf, "prop2.enableIf");
+  assert.equal(prop2.isEnable(null), true, "prop2 #1");
+  assert.equal(prop2.isEnable(q), false, "prop2 #2");
+  q.title = "abc";
+  assert.equal(prop2.isEnable(q), true, "prop2 #3");
+
+  assert.notOk(prop3.enableIf, "prop3.enableIf");
+  assert.equal(prop3.isEnable(null), true, "prop3 #1");
+  assert.equal(prop3.isEnable(q), true, "prop3 #2");
+
+  assert.ok(prop4.enableIf, "prop4.enableIf");
+  assert.equal(prop4.isEnable(null), false, "prop4 #1");
+  assert.equal(prop4.isEnable(q), false, "prop4 #2");
+
+  Serializer.removeProperty("question", "testProperty1");
+  Serializer.removeProperty("question", "testProperty2");
+  Serializer.removeProperty("question", "testProperty3");
+  Serializer.removeProperty("question", "testProperty4");
 });

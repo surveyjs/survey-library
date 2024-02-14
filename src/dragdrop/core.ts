@@ -32,7 +32,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     return `[data-sv-drop-target-${this.draggedElementType}]`;
   }
   protected get survey(): SurveyModel {
-    return this.surveyValue || this.creator.survey;
+    return this.surveyValue || this.creator?.survey;
   }
 
   public prevDropTarget: any = null;
@@ -40,7 +40,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
   protected domAdapter: IDragDropDOMAdapter;
   constructor(private surveyValue?: ISurvey, private creator?: any, longTap?: boolean, domAdapter?: IDragDropDOMAdapter) {
-    this.domAdapter = domAdapter || new DragDropDOMAdapter(this, longTap);
+    this.domAdapter = domAdapter || new DragDropDOMAdapter(this, longTap, this.survey?.fitToContainer);
   }
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {

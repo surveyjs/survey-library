@@ -31,7 +31,7 @@ export class LocalizableString implements ILocalizableString {
   }
   public static defaultRenderer = "sv-string-viewer";
   public static editableRenderer = "sv-string-editor";
-  private values = {};
+  private values: any = {};
   private htmlValues = {};
   private renderedText: string;
   private calculatedTextValue: string;
@@ -268,7 +268,11 @@ export class LocalizableString implements ILocalizableString {
       !settings.serialization.localizableStringSerializeAsObject
     )
       return (<any>this).values[keys[0]];
-    return this.values;
+    const res: any = {};
+    for(let key in this.values) {
+      res[key] = this.values[key];
+    }
+    return res;
   }
   public setJson(value: any): void {
     if (!!this.sharedData) {

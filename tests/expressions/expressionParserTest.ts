@@ -1509,3 +1509,12 @@ QUnit.test("Custom function returns object&array, #7050", function(assert) {
   FunctionFactory.Instance.unregister("func1");
   FunctionFactory.Instance.unregister("func2");
 });
+QUnit.test("ExpressionRunner: substring", function(assert) {
+  var runner = new ExpressionRunner("substring({s}, 1, 3)");
+  const values: any = { s: "abcdef" };
+  assert.equal(runner.run(values), "bc", "abcdef");
+  values.s = undefined;
+  assert.equal(runner.run(values), "", "undefined");
+  values.s = 10;
+  assert.equal(runner.run(values), "", "10");
+});

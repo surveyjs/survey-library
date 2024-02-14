@@ -935,7 +935,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;
-    if ((document as any)["selection"]) {
+    if ((typeof document !== "undefined") && (document as any)["selection"]) {
       elementWithSelection = (document as any)["selection"].createRange().parentElement();
     }
     else {

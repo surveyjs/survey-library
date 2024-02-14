@@ -106,7 +106,8 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
     this.signaturePad.fromDataURL(data, { width: this.canvas.width * this.scale, height: this.canvas.height * this.scale });
   }
 
-  private fromUrl(url: string) {
+  private fromUrl(url: string): void {
+    if ("undefined" === typeof document) return;
     const img = document.createElement("img");
     img.crossOrigin = "anonymous";
     img.src = url;

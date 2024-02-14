@@ -25,14 +25,14 @@ function confirmAction(message: string): boolean {
   return confirm(message);
 }
 
-function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void, locale?: string): void {
+function confirmActionAsync(message: string, funcOnYes: () => void, funcOnNo?: () => void, locale?: string, rootElement?: HTMLElement): void {
   const callbackFunc = (res: boolean): void => {
     if (res) funcOnYes();
     else if (!!funcOnNo) funcOnNo();
   };
 
   if (!!settings && !!settings.confirmActionAsync) {
-    if (settings.confirmActionAsync(message, callbackFunc, undefined, locale)) return;
+    if (settings.confirmActionAsync(message, callbackFunc, undefined, locale, rootElement)) return;
   }
 
   callbackFunc(confirmAction(message));
@@ -412,7 +412,7 @@ export class Logger {
   }
 }
 
-export function showConfirmDialog(message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string): boolean {
+export function showConfirmDialog(message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string, rootElement?: HTMLElement): boolean {
   const locStr = new LocalizableString(undefined);
   const popupViewModel: PopupBaseViewModel = settings.showDialog(<IDialogOptions>{
     componentName: "sv-string-viewer",
@@ -429,7 +429,7 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
     displayMode: "popup",
     isFocusedContent: false,
     cssClass: "sv-popup--confirm-delete"
-  }, /*settings.rootElement*/document.body); //TODO survey root
+  }, rootElement);
   const toolbar = popupViewModel.footerToolbar;
   const applyBtn = toolbar.getActionById("apply");
   const cancelBtn = toolbar.getActionById("cancel");
@@ -439,6 +439,21 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
   popupViewModel.width = "452px";
   return true;
+}
+
+function chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void): void {
+  if (!window || !window["FileReader"]) return;
+  input.value = "";
+  input.onchange = (event) => {
+    if (!window["FileReader"]) return;
+    if (!input || !input.files || input.files.length < 1) return;
+    let files = [];
+    for (let i = 0; i < input.files.length; i++) {
+      files.push(input.files[i]);
+    }
+    callback(files);
+  };
+  input.click();
 }
 
 export {
@@ -467,4 +482,5 @@ export {
   preventDefaults,
   findParentByClassNames,
   getFirstVisibleChild,
+  chooseFiles
 };

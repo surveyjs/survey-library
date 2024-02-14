@@ -51,7 +51,7 @@
     data-bind="css: $data.className, style: { minWidth: $data.minWidth, width: $data.width }, attr: { 'data-responsive-title': headers, title: $data.getTitle(), colspan: $data.colSpans }, event: {focusin: $data.focusIn }"
   >
     <!-- ko if: $data.matrix -->
-    <div data-bind="visible: question.isVisible, css: $parentContext.question.cssClasses.cellQuestionWrapper">
+    <div data-bind="visible: question.isVisible, css: cellQuestionWrapperClassName">
       <!-- ko if: $data.isOtherChoice -->
         <div data-bind="css: question.getCommentAreaCss(true), template: { name: 'survey-other', data: {'question': question, 'visible': true } }"></div>
       <!-- /ko -->

@@ -18,65 +18,6 @@ const insertDiv = ClientFunction(() => {
 
 const theme = "defaultV2";
 
-const json = {
-  focusFirstQuestionAutomatic: true,
-  "title": "Minimum data reporting form – for suspected and probable cases of COVID-19",
-  "pages": [{
-    "name": "page1",
-    "navigationTitle": "Sign In",
-    "navigationDescription": "... to continue purchasing.",
-    "elements": [
-      {
-        "name": "q1",
-        type: "text"
-      }
-    ]
-  }, {
-    "name": "page2",
-    "navigationTitle": "Shipping",
-    "title": "Shipping",
-    "navigationDescription": "Enter shipping information.",
-    "elements": [
-      {
-        "type": "radiogroup",
-        "name": "q1",
-        "title": "Select a shipping method.",
-        "choices": ["FedEx", "DHL", "USP", "In-Store Pickup"]
-      },
-    ]
-  }, {
-    "name": "page3",
-    "navigationTitle": "Payment",
-    "navigationDescription": "Select a payment method.",
-    "elements": [
-      {
-        "name": "q1",
-        type: "text"
-      }
-    ]
-  }, {
-    "name": "page4",
-    "navigationTitle": "Gift Options",
-    "navigationDescription": "Choose your gift.",
-    "elements": [
-      {
-        "name": "q1",
-        type: "text"
-      }
-    ]
-  }, {
-    "name": "page5",
-    "navigationTitle": "Place Order",
-    "navigationDescription": "Finish your purchasing.",
-    "elements": [{
-      "name": "q1",
-      type: "text"
-    }]
-  }],
-  "showProgressBar": "top",
-  "progressBarType": "buttons"
-};
-
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`
@@ -1284,6 +1225,49 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-compact-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
       await ClientFunction(() => (window as any).survey.isCompact = false)();
       await takeElementScreenshot("survey-spm-page-with-error-without-title.png", Selector(".sd-root-modern"), t, comparer);
+    });
+  });
+
+  test("Check multiple row in compact mode", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(700, 1080);
+      const json = {
+        pages: [
+          {
+            name: "p1",
+            elements: [
+              {
+                type: "text",
+                name: "q1",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q2",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q3",
+                title: "Question",
+                startWithNewLine: false
+              },
+              {
+                type: "text",
+                name: "q4",
+                title: "Question",
+                startWithNewLine: false
+              },
+            ]
+          },
+        ]
+      };
+
+      await initSurvey(framework, json);
+      await ClientFunction(() => (window as any).survey.isCompact = true)();
+      await takeElementScreenshot("row-multiple-compact-mode.png", Selector(".sd-root-modern"), t, comparer);
     });
   });
 

@@ -59,6 +59,9 @@ export class PopupSurveyNG {
     if (props.closeOnCompleteTimeout !== undefined) {
       survey.closeOnCompleteTimeout = props.closeOnCompleteTimeout;
     }
+    if (props.allowFullScreen !== undefined) {
+      survey.allowFullScreen = props.allowFullScreen;
+    }
     survey.show();
   }
 }

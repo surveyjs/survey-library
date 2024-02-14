@@ -63,6 +63,8 @@ import { getRenderedSize, getRenderedStyleSize, increaseHeightByContent, wrapUrl
 import { Helpers } from "../src/helpers";
 import { defaultV2Css } from "../src/defaultCss/defaultV2Css";
 import { StylesManager } from "../src/stylesmanager";
+import { ITheme } from "../src/themes";
+import { Cover } from "../src/header";
 
 export default QUnit.module("Survey");
 
@@ -12426,6 +12428,7 @@ QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
   var survey = new SurveyModel(json);
   var counter = 0;
 
+  let log = "";
   survey.onPropertyValueChangedCallback = (
     name: string,
     oldValue: any,
@@ -12434,13 +12437,14 @@ QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
     arrayChanges: ArrayChanges
   ) => {
     counter++;
+    log += "->" + name;
   };
 
   assert.equal(counter, 0, "initial");
 
   survey.title = "new";
-
   assert.equal(counter, 1, "callback called");
+  assert.equal(log, "->title", "callback called for title");
 });
 
 QUnit.test(
@@ -15019,12 +15023,22 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
 ) {
   var survey = new SurveyModel();
   assert.equal(
+    survey["titleIsEmpty"],
+    true,
+    "titleIsEmpty due to no title"
+  );
+  assert.equal(
     survey.renderedHasHeader,
     false,
     "hasHeader, title and logo are invisible"
   );
   assert.equal(survey.renderedHasTitle, false, "There is not title");
   survey.title = "title";
+  assert.equal(
+    survey["titleIsEmpty"],
+    false,
+    "titleIs not Empty due to title has been set"
+  );
   assert.equal(survey.renderedHasTitle, true, "There is title");
   assert.equal(survey.renderedHasHeader, true, "hasHeader, title is visible");
   survey.showTitle = false;
@@ -15998,12 +16012,23 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
     ]
   });
   survey.css = defaultV2Css;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern");
 
   survey.setIsMobile(true);
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
 
   survey.mode = "display";
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
 
   survey.mode = "edit";
@@ -18778,11 +18803,26 @@ QUnit.test("getContainerContent - progress + advanced header (legacyProgressBarV
     assert.deepEqual(getContainerContent("left"), [], "progress top left");
     assert.deepEqual(getContainerContent("right"), [], "progress top right");
 
+    survey.showProgressBar = "belowHeader";
+    assert.deepEqual(getContainerContent("header"), [{
+      "component": "sv-header",
+      "container": "header",
+      "id": "advanced-header",
+      "index": -100
+    }], "progress top header");
+    assert.deepEqual(getContainerContent("center"), [{
+      "component": "sv-progress-pages",
+      "id": "progress-pages",
+    }], "progress top center");
+    assert.deepEqual(getContainerContent("footer"), [], "progress top footer");
+    assert.deepEqual(getContainerContent("contentTop"), [], "progress top contentTop");
+    assert.deepEqual(getContainerContent("contentBottom"), [], "progress top contentBottom");
+    assert.deepEqual(getContainerContent("left"), [], "progress top left");
+    assert.deepEqual(getContainerContent("right"), [], "progress top right");
   }
   finally {
     settings.legacyProgressBarView = false;
   }
-
 });
 
 QUnit.test("getContainerContent - progress + advanced header", function (assert) {
@@ -19200,4 +19240,76 @@ QUnit.test("survey.locale, default locale is not en and design-time, #7765", fun
   const q1 = survey.getQuestionByName("q1");
   assert.equal(q1.hasDescription, true, "Description loaded correctly");
   surveyLocalization.defaultLocale = defautlLocale;
+});
+QUnit.test("onOpenFileChooser fires", function (assert) {
+  const survey = new SurveyModel();
+  let log = "";
+  survey.onOpenFileChooser.add((s, o) => {
+    log += "->onOpenFileChooser";
+    o.callback([]);
+  });
+  assert.equal(log, "");
+  survey.chooseFiles(document.createElement("input"), () => { });
+  assert.equal(log, "->onOpenFileChooser");
+});
+QUnit.test("Advanced header title/description color", function (assert) {
+  const survey = new SurveyModel();
+
+  const accHeaderBackTheme: any = { "cssVariables": {}, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(accHeaderBackTheme);
+  let headerLayoutElement = survey.findLayoutElement("advanced-header");
+  let headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--accent");
+  // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
+  // assert.equal(survey.themeVariables["--sjs-font-headertitle-color"], undefined);
+  // assert.equal(survey.themeVariables["--sjs-font-headerdescription-color"], undefined);
+  // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headertitle-color"], undefined);
+  // assert.equal(accHeaderBackTheme.cssVariables["--sjs-font-headerdescription-color"], undefined);
+
+  const noneHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(noneHeaderBackTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+
+  const customNotSetHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customNotSetHeaderBackTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background sv-header__background-color--none");
+
+  const customHeaderBackTheme: any = { "cssVariables": { "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customHeaderBackTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__background-color--custom");
+
+  const customNotSetHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "transparent" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customNotSetHeaderBackAndTitleTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header sv-header__without-background");
+
+  const customHeaderBackAndTitleTheme: any = { "cssVariables": { "--sjs-font-headertitle-color": "rgba(255, 0, 0, 1)", "--sjs-font-headerdescription-color": "rgba(255, 0, 0, 1)", "--sjs-header-backcolor": "rgba(0, 255, 0, 1)" }, "header": {}, "headerView": "advanced" };
+  survey.applyTheme(customHeaderBackAndTitleTheme);
+  headerLayoutElement = survey.findLayoutElement("advanced-header");
+  headerModel = headerLayoutElement.data as Cover;
+  assert.equal(headerModel.headerClasses, "sv-header");
+});
+QUnit.test("Display mode in design time", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
+  assert.equal(survey.mode, "edit");
+  assert.equal(survey.isDisplayMode, false);
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+
+  survey.mode = "display";
+  assert.equal(survey.mode, "display");
+  assert.equal(survey.isDisplayMode, true);
+  assert.ok(survey.getRootCss().indexOf(survey.css.rootReadOnly) !== -1);
+
+  survey.setDesignMode(true);
+  assert.equal(survey.mode, "display");
+  assert.equal(survey.isDisplayMode, false);
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
 });

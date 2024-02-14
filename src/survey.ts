@@ -44,7 +44,7 @@ import {
 } from "./expressionItems";
 import { ExpressionRunner, ConditionRunner } from "./conditions";
 import { settings } from "./settings";
-import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage } from "./utils/utils";
+import { isContainerVisible, isMobile, mergeValues, scrollElementByChildId, navigateToUrl, getRenderedStyleSize, getRenderedSize, wrapUrlForBackgroundImage, chooseFiles } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { IAction, Action } from "./actions/action";
 import { ActionContainer } from "./actions/container";
@@ -64,7 +64,7 @@ import {
   MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
   DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent,
   GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
-  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent
+  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -443,6 +443,12 @@ export class SurveyModel extends SurveyElementCore
    * @see getResult
    */
   public onGetResult: EventBase<SurveyModel, GetResultEvent> = this.addEvent<SurveyModel, GetResultEvent>();
+  /**
+   * An event that is raised when Survey Creator opens a dialog window for users to select files.
+   * @see onUploadFile
+   * @see uploadFiles
+   */
+  public onOpenFileChooser: EventBase<SurveyModel, OpenFileChooserEvent> = this.addEvent<SurveyModel, OpenFileChooserEvent>();
   /**
    * An event that is raised when a File Upload or Signature Pad question starts to upload a file. Applies only if [`storeDataAsText`](https://surveyjs.io/form-library/documentation/api-reference/file-model#storeDataAsText) is `false`. Use this event to upload files to your server.
    *
@@ -1017,6 +1023,8 @@ export class SurveyModel extends SurveyElementCore
       component: "sv-action-bar",
       data: this.navigationBar
     });
+
+    this.locTitle.onStringChanged.add(() => this.titleIsEmpty = this.locTitle.isEmpty);
   }
   processClosedPopup(question: IQuestion, popupModel: PopupModel<any>): void {
     throw new Error("Method not implemented.");
@@ -2078,9 +2086,10 @@ export class SurveyModel extends SurveyElementCore
     return new CssClassBuilder().append(this.css.logo)
       .append(logoClasses[this.logoPosition]).toString();
   }
+  @property({ defaultValue: true }) private titleIsEmpty: boolean;
   public get renderedHasTitle(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("title");
-    return !this.locTitle.isEmpty && this.showTitle;
+    return !this.titleIsEmpty && this.showTitle;
   }
   public get renderedHasDescription(): boolean {
     if (this.isDesignMode) return this.isPropertyVisible("description");
@@ -3553,7 +3562,7 @@ export class SurveyModel extends SurveyElementCore
     return this.mode == "edit";
   }
   public get isDisplayMode(): boolean {
-    return this.mode == "display" || this.state == "preview";
+    return this.mode == "display" && !this.isDesignMode || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {
     return this.textUpdateMode == "onTyping";
@@ -4726,7 +4735,7 @@ export class SurveyModel extends SurveyElementCore
       .append(this.css.root)
       .append(this.css.rootMobile, this.isMobile)
       .append(this.css.rootAnimationDisabled, !settings.animationEnabled)
-      .append(this.css.rootReadOnly, this.mode === "display")
+      .append(this.css.rootReadOnly, this.mode === "display" && !this.isDesignMode)
       .append(this.css.rootCompact, this.isCompact)
       .append(this.css.rootFitToContainer, this.fitToContainer)
       .toString();
@@ -5124,6 +5133,29 @@ export class SurveyModel extends SurveyElementCore
     }
   }
 
+  /**
+   * Opens a dialog window for users to select files.
+   * @param input A [file input HTML element](https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement).
+   * @param callback A callback function that you can use to process selected files. Accepts an array of JavaScript <a href="https://developer.mozilla.org/en-US/docs/Web/API/File" target="_blank">File</a> objects.
+   * @see onOpenFileChooser
+   * @see onUploadFile
+   */
+  public chooseFiles(
+    input: HTMLInputElement,
+    callback: (files: File[]) => void,
+    context?: { element: ISurveyElement, item?: any }
+  ) {
+    if (this.onOpenFileChooser.isEmpty) {
+      chooseFiles(input, callback);
+    } else {
+      this.onOpenFileChooser.fire(this, {
+        input: input,
+        element: context && context.element || this.survey,
+        item: context && context.item,
+        callback: callback
+      });
+    }
+  }
   /**
    * Uploads files to a server.
    *
@@ -6058,7 +6090,7 @@ export class SurveyModel extends SurveyElementCore
   }
   startLoadingFromJson(json?: any): void {
     super.startLoadingFromJson(json);
-    if(json && json.locale) {
+    if (json && json.locale) {
       this.locale = json.locale;
     }
   }
@@ -6084,6 +6116,7 @@ export class SurveyModel extends SurveyElementCore
     this.updateRenderBackgroundImage();
     this.updateCurrentPage();
     this.hasDescription = !!this.description;
+    this.titleIsEmpty = this.locTitle.isEmpty;
     this.setCalculatedWidthModeUpdater();
   }
 
@@ -7490,6 +7523,9 @@ export class SurveyModel extends SurveyElementCore
         if (isStrCiEqual(this.showProgressBar, "aboveHeader")) {
           isBelowHeader = false;
         }
+        if (isStrCiEqual(this.showProgressBar, "belowHeader")) {
+          isBelowHeader = true;
+        }
         if (container === "header" && !isBelowHeader) {
           layoutElement.index = -150;
           if (this.isShowProgressBarOnTop && !this.isShowStartingPage) {
@@ -7721,7 +7757,11 @@ Serializer.addClass("survey", [
     default: "bottom",
     choices: ["none", "top", "bottom", "both"],
   },
-  { name: "showPrevButton:boolean", default: true },
+  {
+    name: "showPrevButton:boolean",
+    default: true,
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none"; }
+  },
   { name: "showTitle:boolean", default: true },
   { name: "showPageTitles:boolean", default: true },
   { name: "showCompletedPage:boolean", default: true },
@@ -7772,9 +7812,19 @@ Serializer.addClass("survey", [
       "requiredQuestions",
       "correctQuestions",
     ],
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off"; }
   },
-  { name: "progressBarShowPageTitles:switch", category: "navigation" },
-  { name: "progressBarShowPageNumbers:switch", default: false, category: "navigation" },
+  {
+    name: "progressBarShowPageTitles:switch",
+    category: "navigation",
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+  },
+  {
+    name: "progressBarShowPageNumbers:switch",
+    default: false,
+    category: "navigation",
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+  },
   {
     name: "showTOC:switch",
     default: false
@@ -7814,12 +7864,36 @@ Serializer.addClass("survey", [
   },
   { name: "autoGrowComment:boolean", default: false },
   { name: "allowResizeComment:boolean", default: true },
-  { name: "startSurveyText", serializationProperty: "locStartSurveyText" },
-  { name: "pagePrevText", serializationProperty: "locPagePrevText" },
-  { name: "pageNextText", serializationProperty: "locPageNextText" },
-  { name: "completeText", serializationProperty: "locCompleteText" },
-  { name: "previewText", serializationProperty: "locPreviewText" },
-  { name: "editText", serializationProperty: "locEditText" },
+  {
+    name: "startSurveyText",
+    serializationProperty: "locStartSurveyText",
+    visibleIf: (obj: any) => { return obj.firstPageIsStarted; }
+  },
+  {
+    name: "pagePrevText",
+    serializationProperty: "locPagePrevText",
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none" && obj.showPrevButton; }
+  },
+  {
+    name: "pageNextText",
+    serializationProperty: "locPageNextText",
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none"; }
+  },
+  {
+    name: "completeText",
+    serializationProperty: "locCompleteText",
+    visibleIf: (obj: any) => { return obj.showNavigationButtons !== "none"; }
+  },
+  {
+    name: "previewText",
+    serializationProperty: "locPreviewText",
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+  },
+  {
+    name: "editText",
+    serializationProperty: "locEditText",
+    visibleIf: (obj: any) => { return obj.showPreviewBeforeComplete !== "noPreview"; }
+  },
   { name: "requiredText", default: "*" },
   {
     name: "questionStartIndex",
@@ -7851,7 +7925,7 @@ Serializer.addClass("survey", [
   {
     name: "questionsOnPageMode",
     default: "standard",
-    choices: ["singlePage", "standard", "questionPerPage"],
+    choices: ["standard", "singlePage", "questionPerPage"],
   },
   {
     name: "showPreviewBeforeComplete",
@@ -7868,7 +7942,7 @@ Serializer.addClass("survey", [
   {
     name: "showTimerPanelMode",
     default: "all",
-    choices: ["all", "page", "survey"],
+    choices: ["page", "survey", "all"],
   },
   {
     name: "widthMode",
@@ -7876,7 +7950,7 @@ Serializer.addClass("survey", [
     choices: ["auto", "static", "responsive"],
   },
   { name: "width", visibleIf: (obj: any) => { return obj.widthMode === "static"; } },
-  { name: "fitToContainer:boolean", default: false },
+  { name: "fitToContainer:boolean", default: true, visible: false },
   { name: "headerView", default: "basic", choices: ["basic", "advanced"], visible: false },
   { name: "backgroundImage:file", visible: false },
   { name: "backgroundImageFit", default: "cover", choices: ["auto", "contain", "cover"], visible: false },

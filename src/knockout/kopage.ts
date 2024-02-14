@@ -51,7 +51,9 @@ export class QuestionRow extends QuestionRowModel {
       ko.utils.domNodeDisposal.addDisposeCallback(rowContainerDiv, () => {
         clearTimeout(timer);
         model.stopLazyRendering();
-        model.isNeedRender = !model.isLazyRendering();
+        if(!model.isDisposed) {
+          model.isNeedRender = !model.isLazyRendering();
+        }
       });
     }
   }

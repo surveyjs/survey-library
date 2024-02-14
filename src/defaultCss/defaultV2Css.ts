@@ -289,6 +289,7 @@ export var defaultV2Css = {
     itemOnError: "sd-boolean--error",
     control: "sd-boolean__control sd-visuallyhidden",
     itemChecked: "sd-boolean--checked",
+    itemExchanged: "sd-boolean--exchanged",
     itemIndeterminate: "sd-boolean--indeterminate",
     itemDisabled: "sd-boolean--disabled",
     itemHover: "sd-boolean--allowhover",
@@ -660,6 +661,7 @@ export var defaultV2Css = {
   window: {
     root: "sv_window",
     rootCollapsedMod: "sv_window--collapsed",
+    rootFullScreenMode: "sv_window--full-screen",
     rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
@@ -670,7 +672,8 @@ export var defaultV2Css = {
       buttonExpanded: "",
       buttonCollapsed: "",
       collapseButton: "sv_window_button sv_window_button_collapse",
-      closeButton: "sv_window_button sv_window_button_close"
+      closeButton: "sv_window_button sv_window_button_close",
+      fullScreenButton: "sv_window_button sv_window_button_full_screen"
     }
   },
   ranking: {

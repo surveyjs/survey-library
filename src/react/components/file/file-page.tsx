@@ -14,7 +14,7 @@ export class SurveyFilePage extends SurveyElementBase<{ question: QuestionFileMo
   }
 
   protected renderElement(): JSX.Element | null {
-    const items = this.page.items.map((item: any, index) => { return (<SurveyFileItem item={item} question={this.question} key={index}></SurveyFileItem>); });
+    const items = this.page.items.map((item: any, index: number) => { return (<SurveyFileItem item={item} question={this.question} key={index}></SurveyFileItem>); });
     return (
       <div className={this.page.css}>
         {items}

@@ -903,6 +903,32 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Check question - multiline description", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      const focusBody = ClientFunction(() => {
+        document.body.focus();
+        document.body.style.setProperty("--base-unit", "4px");
+      });
+
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            name: "q1",
+            type: "text",
+            title: "Question",
+            description: "First Line\nSecond Line"
+          }
+        ]
+      });
+
+      const questionRoot = Selector(".sd-question");
+      await focusBody();
+      await takeElementScreenshot("question-multiline-description.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Question descriptionLocation property", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

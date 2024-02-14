@@ -1,5 +1,5 @@
 .sv-string-viewer {
-    .sv-string-viewer--multiline {
+    &.sv-string-viewer--multiline {
         white-space: pre-wrap;
     }
 }

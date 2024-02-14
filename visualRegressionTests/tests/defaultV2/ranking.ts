@@ -180,19 +180,26 @@ frameworks.forEach(framework => {
         .withText("ranking question")
         .parent("[aria-labelledby]");
 
-      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
-        (<HTMLElement>document.getElementById("surveyElement")).style.margin = "50px";
+      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(({ isRelative }) => {
+        if (isRelative) {
+          (<HTMLElement>document.getElementById("surveyElement")).style.position = "relative";
+        }
+        (<HTMLElement>document.getElementById("surveyElement")).style.margin = "500px";
         const question = window["survey"].getAllQuestions()[0];
         question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
         question.dragDropRankingChoices.domAdapter.drop = () => { };
         question.dragDropRankingChoices.domAdapter.clear = () => { };
       });
 
-      await patchDragDropToShowGhostElementAfterDrop();
+      await patchDragDropToShowGhostElementAfterDrop({ isRelative: false });
 
       await t.dragToElement(item1, qustion);
 
       await takeElementScreenshot("question-ranking-shortcut-position-container-layout.png", Selector(".sd-question"), t, comparer);
+
+      await patchDragDropToShowGhostElementAfterDrop({ isRelative: true });
+      await takeElementScreenshot("question-ranking-shortcut-position-container-relative-layout.png", Selector(".sd-question"), t, comparer);
+
     });
   });
 

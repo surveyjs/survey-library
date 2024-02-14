@@ -149,11 +149,6 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     const clientX = event.clientX;
     const clientY = event.clientY;
 
-    if (!!this.fitToContainer) {
-      rootElementX = clientX - pageX;
-      rootElementY = clientY - pageY;
-    }
-
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);
     const shortcutRightCoordinate = this.getShortcutRightCoordinate(clientX, shortcutWidth, shortcutXOffset);
 

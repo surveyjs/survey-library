@@ -180,26 +180,102 @@ frameworks.forEach(framework => {
         .withText("ranking question")
         .parent("[aria-labelledby]");
 
-      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(({ isRelative }) => {
-        if (isRelative) {
-          (<HTMLElement>document.getElementById("surveyElement")).style.position = "relative";
-        }
-        (<HTMLElement>document.getElementById("surveyElement")).style.margin = "500px";
+      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
+        (<HTMLElement>document.getElementById("surveyElement")).style.margin = "50px";
         const question = window["survey"].getAllQuestions()[0];
         question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
         question.dragDropRankingChoices.domAdapter.drop = () => { };
         question.dragDropRankingChoices.domAdapter.clear = () => { };
       });
 
-      await patchDragDropToShowGhostElementAfterDrop({ isRelative: false });
-
+      await patchDragDropToShowGhostElementAfterDrop();
       await t.dragToElement(item1, qustion);
-
       await takeElementScreenshot("question-ranking-shortcut-position-container-layout.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 
-      await patchDragDropToShowGhostElementAfterDrop({ isRelative: true });
+  test("Shortcut position due container layout (relative)", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            title: "ranking question",
+            name: "ranking_question",
+            choices: ["item1", "item2", "item3", "item4"]
+          }
+        ]
+      });
+
+      const item1 = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]")
+        .find("span")
+        .withText("item1");
+
+      const qustion = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]");
+
+      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
+        (<HTMLElement>document.getElementById("surveyElement")).style.position = "relative";
+        (<HTMLElement>document.getElementById("surveyElement")).style.margin = "100px";
+
+        const question = window["survey"].getAllQuestions()[0];
+        question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
+        question.dragDropRankingChoices.domAdapter.drop = () => { };
+        question.dragDropRankingChoices.domAdapter.clear = () => { };
+      });
+
+      await patchDragDropToShowGhostElementAfterDrop();
+      await t.dragToElement(item1, qustion);
       await takeElementScreenshot("question-ranking-shortcut-position-container-relative-layout.png", Selector(".sd-question"), t, comparer);
+    });
+  });
 
+  test("Shortcut position due container layout (scroll)", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            type: "ranking",
+            title: "ranking question",
+            name: "ranking_question",
+            choices: ["item1", "item2", "item3", "item4"]
+          }
+        ]
+      });
+
+      const item1 = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]")
+        .find("span")
+        .withText("item1");
+
+      const qustion = Selector("span")
+        .withText("ranking question")
+        .parent("[aria-labelledby]");
+
+      const patchDragDropToShowGhostElementAfterDrop = ClientFunction(() => {
+        (<HTMLElement>document.getElementById("surveyElement")).style.height = "300px";
+        const surveyContainer = (<HTMLElement>document.getElementById("surveyElement")).querySelector(".sd-root-modern--full-container");
+        if (!!surveyContainer) {
+          surveyContainer.scrollTop = 50;
+        }
+
+        const question = window["survey"].getAllQuestions()[0];
+        question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
+        question.dragDropRankingChoices.domAdapter.drop = () => { };
+        question.dragDropRankingChoices.domAdapter.clear = () => { };
+      });
+
+      await patchDragDropToShowGhostElementAfterDrop();
+      await t.dragToElement(item1, qustion);
+      await takeElementScreenshot("question-ranking-shortcut-position-container-scroll-layout.png", Selector(".sd-question"), t, comparer);
     });
   });
 

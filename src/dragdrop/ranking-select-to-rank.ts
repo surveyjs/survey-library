@@ -57,6 +57,8 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
 
+    this.removeAllAnimationClasses();
+
     if (this.isDraggedElementUnranked && this.isDropTargetRanked) {
       this.doRankBetween(dropTargetNode, unRankingChoices, rankingChoices, this.selectToRank);
       return;
@@ -136,7 +138,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return !this.isDropTargetRanked;
   }
 
-  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void {
+  public selectToRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void => {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
@@ -147,16 +149,14 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       if (event.propertyName !== "height") { return; }
       if (getComputedStyle(event.target).height !== "0px") { return; }
       ghostNode.removeEventListener("transitionend", handleTransitionEnd);
-      ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
+      this.removeAllAnimationClasses();
       questionModel.isValueSetByUser = true;
       questionModel.itemsToAnimateAdding.push(item);
       rankingChoices.splice(toIndex, 0, item);
       questionModel.setPropertyValue("rankingChoices", rankingChoices);
-      
     };
     ghostNode.removeEventListener("transitionend", handleTransitionEnd);
-    ghostNode.classList.remove("sv-ranking-item--animate-item-removing");
-    questionModel.itemsToAnimateAdding = [];
+    this.removeAllAnimationClasses();
     ghostNode.addEventListener("transitionend", handleTransitionEnd);
     ghostNode.classList.add("sv-ranking-item--animate-item-removing");
   }

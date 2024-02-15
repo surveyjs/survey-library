@@ -284,6 +284,9 @@ function clearClasses(el: Element) {
       if(className.search(/^ng-/) > -1) {
         classesToRemove.push(className);
       }
+      if(["top", "bottom"].filter(direction => className == `sv-popup--${direction}`).length > 0) {
+        classesToRemove.push(className);
+      }
     });
     el.classList.remove(...classesToRemove);
   }

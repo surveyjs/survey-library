@@ -322,6 +322,7 @@ $ranking-animation-duration: 1000ms;
   height: 100%;
   padding-top: calcSize(0.5);
   padding-bottom: calcSize(0.5);
+  box-sizing: border-box;
 }
 
 .sv-ranking__container {

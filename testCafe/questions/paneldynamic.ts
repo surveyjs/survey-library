@@ -465,4 +465,63 @@ frameworks.forEach((framework) => {
     await t.expect(Selector("button").withText("#Add#").exists).ok();
     await t.expect(Selector("button").withText("#Remove#").exists).ok();
   });
+  test("Focus first input on adding a new panel", async (t) => {
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 0,
+          newPanelPosition: "next",
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await t.click(Selector("button").withText("Add"))
+      .pressKey("1 2 3")
+      .click(Selector("button").withText("Add"))
+      .pressKey("4 5 6")
+      .click(Selector("button").withText("Add"))
+      .pressKey("7 8 9")
+      .click(Selector(".sd-navigation__complete-btn"));
+
+    await t.expect(await getSurveyResult()).eql({
+      panel1: [{ name: "123" }, { name: "456" }, { name: "789" }]
+    });
+  });
+  test("Focus first input on adding a new panel, renderMode='tab'", async (t) => {
+    await initSurvey(framework, {
+      elements: [
+        {
+          type: "paneldynamic",
+          name: "panel1",
+          panelCount: 0,
+          renderMode: "tab",
+          newPanelPosition: "next",
+          templateElements: [
+            {
+              type: "text",
+              name: "name"
+            },
+          ],
+        }
+      ]
+    });
+    await t.click(Selector("button").withText("Add"))
+      .pressKey("1 2 3")
+      .click(Selector("button").withText("Add"))
+      .pressKey("4 5 6")
+      .click(Selector("button").withText("Add"))
+      .pressKey("7 8 9")
+      .click(Selector(".sd-navigation__complete-btn"));
+
+    await t.expect(await getSurveyResult()).eql({
+      panel1: [{ name: "123" }, { name: "456" }, { name: "789" }]
+    });
+  });
 });

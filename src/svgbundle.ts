@@ -12,7 +12,8 @@ export class SvgIconRegistry {
   public registerIconFromSymbol(iconId: string, iconSymbolSvg: string) {
     this.icons[iconId] = iconSymbolSvg;
   }
-  public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix) {
+  public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix): void {
+    if(typeof document === "undefined") return;
     iconId = this.processId(iconId, iconPrefix);
     let divSvg = document.createElement("div");
     divSvg.innerHTML = iconSvg;

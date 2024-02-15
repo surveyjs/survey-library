@@ -115,7 +115,9 @@ export class SurveyProgressButtons extends SurveyNavigationBase implements IProg
     }, 10);
   }
   componentWillUnmount() {
-    this.respManager.dispose();
+    if(!!this.respManager) {
+      this.respManager.dispose();
+    }
     super.componentWillUnmount();
   }
 }

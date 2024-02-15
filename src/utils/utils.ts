@@ -389,19 +389,14 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     element.innerText = innerText;
     range = document.createRange();
 
-    const newPosition = innerText.length - tail_len;
-    let sumLen = 0;
-    for (let i = 0; i < element.childNodes.length; i++) {
-      const elementLen = element.childNodes[i].textContent.length;
-      if (elementLen == 0) continue;
-      if (sumLen + elementLen >= newPosition) {
-        range.setStart(element.childNodes[i], newPosition - sumLen);
-        range.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        return;
-      }
-      sumLen += elementLen;
+    range.setStart(element.lastChild, element.lastChild.textContent.length);
+    range.setEnd(element.lastChild, element.lastChild.textContent.length);
+
+    selection.removeAllRanges();
+    selection.addRange(range);
+
+    for (let i = 0; i < tail_len; i++) {
+      selection.modify("move", "backward", "character");
     }
   }
 }

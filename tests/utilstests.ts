@@ -4,7 +4,7 @@ import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent } fr
 import { mouseInfo } from "../src/utils/devices";
 
 export default QUnit.module("utils");
-function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
+function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
   element.innerHTML = text;
   const selection = document.getSelection();
   const range = document.createRange();
@@ -15,11 +15,13 @@ function checkSanitizer(element, text, selectionNodeIndex, selectionStart) {
   selection.removeAllRanges();
   selection.addRange(range);
 
-  sanitizeEditableContent(element);
+  sanitizeEditableContent(element, cleanLineBreaks);
   const newSelection = document.getSelection();
   return {
     text: element.innerHTML,
-    offset: newSelection.getRangeAt(0).startOffset
+    plainText: element.innerText,
+    offset: newSelection.getRangeAt(0).startOffset,
+    nodeText: newSelection.getRangeAt(0).startContainer.textContent
   };
 }
 QUnit.test(
@@ -28,6 +30,7 @@ QUnit.test(
     var element: HTMLSpanElement = document.createElement("span");
     document.body.appendChild(element);
     element.contentEditable = "true";
+    element.focus();
 
     var res = checkSanitizer(element, "sometext", 0, 2);
     assert.equal(res.text, "sometext");
@@ -48,6 +51,27 @@ QUnit.test(
     var res = checkSanitizer(element, "", -1, 0);
     assert.equal(res.text, "");
     assert.equal(res.offset, 0);
+
+    element.remove();
+  }
+);
+
+QUnit.test(
+  "utils: sanitizer with linebreaks",
+  function(assert) {
+    var element: HTMLSpanElement = document.createElement("span");
+    document.body.appendChild(element);
+    element.contentEditable = "true";
+
+    var res = checkSanitizer(element, "some<br/>text", 0, 2, false);
+    assert.equal(res.plainText, "some\ntext");
+    assert.equal(res.offset, 2);
+    assert.equal(res.nodeText, "some");
+
+    var res = checkSanitizer(element, "some<br/>text<br/>and more", 2, 3, false);
+    assert.equal(res.plainText, "some\ntext\nand more");
+    assert.equal(res.offset, 3);
+    assert.equal(res.nodeText, "text");
 
     element.remove();
   }

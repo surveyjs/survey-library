@@ -2517,9 +2517,11 @@ export class Question extends SurveyElement<Question>
 
       };
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        queueMicrotask((): void | undefined => {
+        this.resizeObserver.unobserve(el);
+        setTimeout((): void | undefined => {
           this.triggerResponsiveness(false);
-        });
+          this.resizeObserver.observe(el);
+        }, 1);
       });
       this.onMobileChangedCallback = () => {
         setTimeout(() => {

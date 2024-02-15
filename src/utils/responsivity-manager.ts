@@ -36,9 +36,11 @@ export class ResponsivityManager {
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        queueMicrotask((): void | undefined => {
+        this.resizeObserver.unobserve(this.container.parentElement);
+        setTimeout((): void | undefined => {
           this.process();
-        });
+          this.resizeObserver.observe(this.container.parentElement);
+        }, 1);
       });
       this.resizeObserver.observe(this.container.parentElement);
     }

@@ -4753,14 +4753,14 @@ export class SurveyModel extends SurveyElementCore
       if (!!mobileWidth) {
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-          this.resizeObserver.unobserve(observedElement);
+          observedElement && this.resizeObserver.unobserve(observedElement);
           setTimeout((): void | undefined => {
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {
               isProcessed = this.processResponsiveness(observedElement.offsetWidth, mobileWidth);
             }
-            this.resizeObserver.observe(observedElement);
+            observedElement && this.resizeObserver.observe(observedElement);
           }, 1);
         });
         this.resizeObserver.observe(observedElement);

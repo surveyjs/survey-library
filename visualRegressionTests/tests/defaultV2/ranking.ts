@@ -271,10 +271,11 @@ frameworks.forEach(framework => {
         question.dragDropRankingChoices.removeGhostElementFromSurvey = () => { };
         question.dragDropRankingChoices.domAdapter.drop = () => { };
         question.dragDropRankingChoices.domAdapter.clear = () => { };
+        question.dragDropRankingChoices.domAdapter.doScroll = () => { };
       });
 
       await patchDragDropToShowGhostElementAfterDrop();
-      await t.dragToElement(item1, qustion);
+      await t.dragToElement(item1, item1);
       await takeElementScreenshot("question-ranking-shortcut-position-container-scroll-layout.png", Selector(".sd-question"), t, comparer);
     });
   });

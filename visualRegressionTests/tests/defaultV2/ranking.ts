@@ -194,7 +194,6 @@ frameworks.forEach(framework => {
     });
   });
 
-  
   test("Shortcut position due container layout (relative)", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1920, 1080);

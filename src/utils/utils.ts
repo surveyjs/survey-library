@@ -388,10 +388,21 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
 
     element.innerText = innerText;
     range = document.createRange();
-    range.setStart(element.childNodes[0], innerText.length - tail_len);
-    range.collapse(true);
-    selection.removeAllRanges();
-    selection.addRange(range);
+
+    const newPosition = innerText.length - tail_len;
+    let sumLen = 0;
+    for (let i = 0; i < element.childNodes.length; i++) {
+      const elementLen = element.childNodes[i].textContent.length;
+      if (elementLen == 0) continue;
+      if (sumLen + elementLen >= newPosition) {
+        range.setStart(element.childNodes[i], newPosition - sumLen);
+        range.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        return;
+      }
+      sumLen += elementLen;
+    }
   }
 }
 function mergeValues(src: any, dest: any) {

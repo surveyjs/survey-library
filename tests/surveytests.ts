@@ -12428,6 +12428,7 @@ QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
   var survey = new SurveyModel(json);
   var counter = 0;
 
+  let log = "";
   survey.onPropertyValueChangedCallback = (
     name: string,
     oldValue: any,
@@ -12436,13 +12437,14 @@ QUnit.test("Survey<=Base propertyValueChanged", function (assert) {
     arrayChanges: ArrayChanges
   ) => {
     counter++;
+    log += "->" + name;
   };
 
   assert.equal(counter, 0, "initial");
 
   survey.title = "new";
-
   assert.equal(counter, 1, "callback called");
+  assert.equal(log, "->title", "callback called for title");
 });
 
 QUnit.test(
@@ -15021,12 +15023,22 @@ QUnit.test("Test survey renderedHasTitle/renderedHasLogo properties", function (
 ) {
   var survey = new SurveyModel();
   assert.equal(
+    survey["titleIsEmpty"],
+    true,
+    "titleIsEmpty due to no title"
+  );
+  assert.equal(
     survey.renderedHasHeader,
     false,
     "hasHeader, title and logo are invisible"
   );
   assert.equal(survey.renderedHasTitle, false, "There is not title");
   survey.title = "title";
+  assert.equal(
+    survey["titleIsEmpty"],
+    false,
+    "titleIs not Empty due to title has been set"
+  );
   assert.equal(survey.renderedHasTitle, true, "There is title");
   assert.equal(survey.renderedHasHeader, true, "hasHeader, title is visible");
   survey.showTitle = false;
@@ -16000,12 +16012,23 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
     ]
   });
   survey.css = defaultV2Css;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern");
 
   survey.setIsMobile(true);
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile");
 
   survey.mode = "display";
+  survey.fitToContainer = true;
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly sd-root-modern--full-container");
+
+  survey.fitToContainer = false;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--mobile sd-root--readonly");
 
   survey.mode = "edit";
@@ -19272,4 +19295,21 @@ QUnit.test("Advanced header title/description color", function (assert) {
   headerLayoutElement = survey.findLayoutElement("advanced-header");
   headerModel = headerLayoutElement.data as Cover;
   assert.equal(headerModel.headerClasses, "sv-header");
+});
+QUnit.test("Display mode in design time", function (assert) {
+  const survey = new SurveyModel();
+  assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
+  assert.equal(survey.mode, "edit");
+  assert.equal(survey.isDisplayMode, false);
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+
+  survey.mode = "display";
+  assert.equal(survey.mode, "display");
+  assert.equal(survey.isDisplayMode, true);
+  assert.ok(survey.getRootCss().indexOf(survey.css.rootReadOnly) !== -1);
+
+  survey.setDesignMode(true);
+  assert.equal(survey.mode, "display");
+  assert.equal(survey.isDisplayMode, false);
+  assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
 });

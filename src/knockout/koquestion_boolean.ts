@@ -13,10 +13,10 @@ export class QuestionBoolean extends QuestionBooleanModel {
     return super.onSwitchClickModel(getOriginalEvent(event));
   }
   public onTrueLabelClick(data: any, event: any) {
-    return this.onLabelClick(event, true);
+    return this.onLabelClick(event, !this.swapOrder);
   }
   public onFalseLabelClick(data: any, event: any) {
-    return this.onLabelClick(event, false);
+    return this.onLabelClick(event, this.swapOrder);
   }
   public onKeyDown(data: any, event: any): boolean {
     return this.onKeyDownCore(event);
@@ -27,7 +27,7 @@ export class QuestionBoolean extends QuestionBooleanModel {
     super.dispose();
   }
 }
-Serializer.overrideClassCreator("boolean", function() {
+Serializer.overrideClassCreator("boolean", function () {
   return new QuestionBoolean("");
 });
 

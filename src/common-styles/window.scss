@@ -16,6 +16,7 @@
     @include scrollRules;
     box-sizing: border-box;
     background: $background-dim;
+    width: calc(100% - calcSize(4)) !important;
 }
 
 .sv_window_root-content {
@@ -86,7 +87,7 @@
     margin-right: calcSize(1);;
     display: flex;
     gap: calcSize(1);
-    z-index: 1;
+    z-index: 10000;
 }
 
 .sv_window_button {

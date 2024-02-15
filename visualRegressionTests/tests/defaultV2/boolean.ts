@@ -1,3 +1,4 @@
+/* eslint-disable indent */
 import { Selector, ClientFunction } from "testcafe";
 import { url, frameworks, initSurvey, setOptions, url_test, takeElementScreenshot, wrapVisualTest, resetFocusToBody } from "../../helper";
 
@@ -16,8 +17,8 @@ const theme = "defaultV2";
 frameworks.forEach(framework => {
   fixture`${framework} ${title} ${theme}`
     .page`${url_test}${theme}/${framework}`.beforeEach(async t => {
-    await applyTheme(theme);
-  });
+      await applyTheme(theme);
+    });
 
   test("Check boolean question", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
@@ -50,6 +51,41 @@ frameworks.forEach(framework => {
 
       await setOptions("boolean_question", { value: null });
       await takeElementScreenshot("boolean-question-disabled.png", questionRoot, t, comparer);
+    });
+  });
+
+  test("Check boolean question - interchange buttons", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1600, 800);
+      await initSurvey(framework, {
+        questions: [
+          {
+            type: "boolean",
+            name: "boolean_question",
+            swapOrder: true
+          },
+        ]
+      });
+      const questionRoot = Selector(".sd-question--boolean");
+      await t.wait(1000);
+      await resetFocusToBody();
+      await takeElementScreenshot("boolean-question-exch-indeterminate.png", questionRoot, t, comparer);
+
+      await t.hover(".sd-boolean__thumb-ghost");
+      await takeElementScreenshot("boolean-question-exch-indeterminate-hovered.png", questionRoot, t, comparer);
+
+      await t.click(Selector(".sv-string-viewer").withText("No"));
+      await takeElementScreenshot("boolean-question-exch-clicked.png", questionRoot, t, comparer);
+
+      await t.hover(Selector(".sd-boolean__thumb-ghost").nth(1));
+      await takeElementScreenshot("boolean-question-exch-clicked-hovered.png", questionRoot, t, comparer);
+
+      await t.hover(".sd-boolean__thumb-ghost");
+      await setOptions("boolean_question", { readOnly: true });
+      await takeElementScreenshot("boolean-question-exch-clicked-disabled.png", questionRoot, t, comparer);
+
+      await setOptions("boolean_question", { value: null });
+      await takeElementScreenshot("boolean-question-exch-disabled.png", questionRoot, t, comparer);
     });
   });
 

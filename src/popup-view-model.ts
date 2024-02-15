@@ -239,7 +239,7 @@ export class PopupBaseViewModel extends Base {
     this.resetComponentElement();
   }
   public initializePopupContainer(): void {
-    if (!this.container) {
+    if (!this.container && ("undefined" !== typeof document)) {
       const container: HTMLElement = document.createElement("div");
       this.createdContainer = container;
       getElement(settings.environment.popupMountContainer).appendChild(container);

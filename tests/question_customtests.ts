@@ -16,6 +16,7 @@ import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
 import { ArrayChanges, Base } from "../src/base";
+import { QuestionFileModel } from "../src/question_file";
 
 export default QUnit.module("custom questions");
 
@@ -26,12 +27,17 @@ QUnit.test("Single: Register and load from json", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "newquestion", name: "q1" }],
+    elements: [{ type: "newquestion", name: "q1", title: "my title" }],
   });
   assert.equal(survey.getAllQuestions().length, 1, "Question is created");
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
   assert.equal(q.getType(), "newquestion", "type is correct");
   assert.equal(q.name, "q1", "name is correct");
+  const propName = Serializer.findProperty("newquestion", "name");
+  assert.equal(propName.getValue(q), "q1", "prop.name is correct");
+  assert.equal(q.getPropertyValue("name"), "q1", "getPropertyValue is correct");
+  assert.equal(Serializer.getObjPropertyValue(q, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q, "title"), "my title", "getObjPropertyValue is correct, #title");
   assert.equal(
     q.contentQuestion.getType(),
     "dropdown",
@@ -42,7 +48,7 @@ QUnit.test("Single: Register and load from json", function (assert) {
     survey.toJSON(),
     {
       pages: [
-        { name: "page1", elements: [{ type: "newquestion", name: "q1" }] },
+        { name: "page1", elements: [{ type: "newquestion", name: "q1", title: "my title" }] },
       ],
     },
     "Seralized correctly"
@@ -2822,10 +2828,13 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
 
   const survey = new SurveyModel({
     elements: [
-      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+      { type: "customdropdown", name: "q1", title: "my title", allowClear: false, showOtherItem: true }
     ]
   });
   const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(Serializer.getObjPropertyValue(q1, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q1, "title"), "my title", "getObjPropertyValue is correct, #title");
+  assert.equal(Serializer.getObjPropertyValue(q1, "showOtherItem"), true, "getObjPropertyValue is correct, #showOtherItem");
   const content = <QuestionDropdownModel>q1.contentQuestion;
   assert.equal(q1.getDynamicType(), "dropdown", "q1.getDynamicType()");
   assert.equal(content.choices.length, 3, "content.choices");
@@ -2889,5 +2898,56 @@ QUnit.test("Bug with visibleIf with composite.question and panel dynamic. Bug#77
   assert.equal(q2.isVisible, true, "isVisible #2");
   q2.addPanel();
   assert.equal(q2.isVisible, true, "isVisible #3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("file question in composite component doesn't show preview in preview mode. Bug#7826", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "file",
+        name: "file_q",
+        allowMultiple: true,
+        storeDataAsText: false
+      },
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+      { type: "file", name: "q2", storeDataAsText: false }
+    ]
+  });
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback(
+      "success",
+      options.files.map((file) => {
+        return { file: file, content: file.name + "_url" };
+      })
+    );
+  });
+
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1 = <QuestionFileModel>compQuestion.contentPanel.getQuestionByName("file_q");
+  const file_q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+  file_q1.loadFiles([{ name: "f1", type: "t1" } as any]);
+  file_q2.loadFiles([{ name: "f1", type: "t1" } as any]);
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
+  survey.showPreview();
+  assert.equal(survey.state, "preview", "state #1");
+  const compQuestion_preview = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1_preview = <QuestionFileModel>compQuestion_preview.contentPanel.getQuestionByName("file_q");
+  const file_q2_preview = <QuestionFileModel>survey.getQuestionByName("q2");
+  assert.equal(file_q1_preview.showPreviewContainer, true, "file_q1_preview #1");
+  assert.equal(file_q2_preview.showPreviewContainer, true, "file_q2_preview #1");
+
+  survey.cancelPreview();
+  assert.equal(survey.state, "running", "state #2");
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
   ComponentCollection.Instance.clear();
 });

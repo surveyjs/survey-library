@@ -262,6 +262,7 @@ export class DropdownListModel extends Base {
   }
 
   private cleanHtml(html: string): string {
+    if(!this.htmlCleanerElement) return "";
     this.htmlCleanerElement.innerHTML = html;
     return this.htmlCleanerElement.textContent;
   }
@@ -347,7 +348,9 @@ export class DropdownListModel extends Base {
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
-    this.htmlCleanerElement = document.createElement("div");
+    if ("undefined" !== typeof document) {
+      this.htmlCleanerElement = document.createElement("div");
+    }
     question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 

@@ -475,8 +475,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
   }
-  public chooseFile(): void {
+  public chooseFile(event: MouseEvent): void {
     const inputElement = document.getElementById(this.inputId) as HTMLInputElement;
+    event.preventDefault();
+    event.stopImmediatePropagation();
     if (inputElement) {
       if (this.survey) {
         this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this });
@@ -919,9 +921,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super.updateElementCss(reNew);
     this.updateCurrentMode();
   }
-
-  endLoadingFromJson(): void {
-    super.endLoadingFromJson();
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
     this.updateCurrentMode();
     this.updateActionsVisibility();
     this.loadPreview(this.value);

@@ -9,6 +9,8 @@ export var frenchSurveyStrings = {
   startSurveyText: "Commencer",
   otherItemText: "Autre (préciser)",
   noneItemText: "Aucun",
+  refuseItemText: "Refuser de répondre",
+  dontKnowItemText: "Sais pas",
   selectAllItemText: "Tout sélectionner",
   progressText: "Page {0} sur {1}",
   indexText: "{0} sur {1}",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["fr"] = "français";
 // hideDetails: "Hide Details" => "Masquer les détails"
 // ok: "OK" => "D’ACCORD"
 // cancel: "Cancel" => "Annuler"
+// refuseItemText: "Refuse to answer" => "Refuser de répondre"
+// dontKnowItemText: "Don't know" => "Sais pas"

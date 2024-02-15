@@ -619,8 +619,8 @@ export class QuestionRatingModel extends Question {
   }
 
   public get ratingRootCss(): string {
-    const baseClass = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
-      this.cssClasses.rootWrappable : this.cssClasses.root;
+    const baseClassModifier = ((this.displayMode == "buttons" || (!!this.survey && this.survey.isDesignMode)) && this.cssClasses.rootWrappable) ?
+      this.cssClasses.rootWrappable : "";
     let rootClassModifier = "";
     if(this.hasMaxLabel || this.hasMinLabel) {
       if (this.rateDescriptionLocation == "top") rootClassModifier = this.cssClasses.rootLabelsTop;
@@ -628,7 +628,8 @@ export class QuestionRatingModel extends Question {
       if (this.rateDescriptionLocation == "topBottom") rootClassModifier = this.cssClasses.rootLabelsDiagonal;
     }
     return new CssClassBuilder()
-      .append(baseClass)
+      .append(this.cssClasses.root)
+      .append(baseClassModifier)
       .append(rootClassModifier)
       .append(this.cssClasses.itemSmall, this.itemSmallMode && this.rateType != "labels")
       .toString();
@@ -885,7 +886,7 @@ Serializer.addClass(
       default: "labels",
       category: "rateValues",
       choices: ["labels", "stars", "smileys"],
-      visibleIndex: 0
+      visibleIndex: 1
     },
     {
       name: "scaleColorMode",
@@ -895,7 +896,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.rateDisplayMode == "smileys";
       },
-      visibleIndex: 1
+      visibleIndex: 2
     },
     {
       name: "rateColorMode",
@@ -905,20 +906,20 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return obj.rateDisplayMode == "smileys" && obj.scaleColorMode == "monochrome";
       },
-      visibleIndex: 2
+      visibleIndex: 3
     },
     {
       name: "autoGenerate",
       category: "rateValues",
       default: true,
       choices: [true, false],
-      visibleIndex: 4
+      visibleIndex: 5
     },
     {
       name: "rateCount:number",
       default: 5,
       category: "rateValues",
-      visibleIndex: 3,
+      visibleIndex: 4,
       onSettingValue: (obj: any, val: any): any => {
         if (val < 2) return 2;
         if (val > settings.ratingMaximumRateValueCount && val > obj.rateValues.length) return settings.ratingMaximumRateValueCount;
@@ -935,7 +936,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !obj.autoGenerate;
       },
-      visibleIndex: 5
+      visibleIndex: 6
     },
     {
       name: "rateMin:number", default: 1,
@@ -945,7 +946,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 6
+      visibleIndex: 7
     },
     {
       name: "rateMax:number", default: 5,
@@ -955,7 +956,7 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 7
+      visibleIndex: 8
     },
     {
       name: "rateStep:number", default: 1, minValue: 0.1,
@@ -968,24 +969,24 @@ Serializer.addClass(
       visibleIf: function (obj: any) {
         return !!obj.autoGenerate;
       },
-      visibleIndex: 8
+      visibleIndex: 9
     },
     {
       name: "minRateDescription",
       alternativeName: "mininumRateDescription",
       serializationProperty: "locMinRateDescription",
-      visibleIndex: 17
+      visibleIndex: 18
     },
     {
       name: "maxRateDescription",
       alternativeName: "maximumRateDescription",
       serializationProperty: "locMaxRateDescription",
-      visibleIndex: 18
+      visibleIndex: 19
     },
     {
       name: "displayRateDescriptionsAsExtremeItems:boolean",
       default: false,
-      visibleIndex: 19,
+      visibleIndex: 21,
       visibleIf: function (obj: any) {
         return obj.rateType == "labels";
       }
@@ -993,14 +994,14 @@ Serializer.addClass(
     {
       name: "rateDescriptionLocation",
       default: "leftRight",
-      category: "layout",
       choices: ["leftRight", "top", "bottom", "topBottom"],
+      visibleIndex: 20
     },
     {
       name: "displayMode",
       default: "auto",
       choices: ["auto", "buttons", "dropdown"],
-      visibleIndex: 20
+      visibleIndex: 0
     },
     { name: "itemComponent", visible: false,
       defaultFunc: (obj: any): any => {

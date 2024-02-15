@@ -200,7 +200,7 @@ export var defaultStandardCss = {
     cellText: "sv_q_m_cell_text",
     cellTextSelected: "sv_q_m_cell_selected",
     cellLabel: "sv_q_m_cell_label",
-    cellResponsiveTitle: "sv-hidden"
+    cellResponsiveTitle: "sv_q_m_cell_responsive_title"
   },
   matrixdropdown: {
     root: "sv_q_matrix_dropdown",
@@ -366,6 +366,7 @@ export var defaultStandardCss = {
   window: {
     root: "sv_window",
     rootCollapsedMod: "sv_window--collapsed",
+    rootFullScreenMode: "sv_window--full-screen",
     rootContent: "sv_window_root-content",
     body: "sv_window_content",
     header: {
@@ -376,7 +377,8 @@ export var defaultStandardCss = {
       buttonExpanded: "",
       buttonCollapsed: "",
       collapseButton: "sv_window_button sv_window_button_collapse",
-      closeButton: "sv_window_button sv_window_button_close"
+      closeButton: "sv_window_button sv_window_button_close",
+      fullScreenButton: "sv_window_button sv_window_button_full_screen"
     }
   },
   variables: {

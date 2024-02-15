@@ -9,6 +9,8 @@ export var indonesianStrings = {
   startSurveyText: "Mulai",
   otherItemText: "Lainnya (jelaskan)",
   noneItemText: "Tidak Ada",
+  refuseItemText: "Menolak untuk menjawab",
+  dontKnowItemText: "Tidak tahu",
   selectAllItemText: "Pilih Semua",
   progressText: "Halaman {0} dari {1}",
   indexText: "{0} dari {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["id"] = "bahasa Indonesia";
 // hideDetails: "Hide Details" => "Sembunyikan Detail"
 // ok: "OK" => "OKE"
 // cancel: "Cancel" => "Membatalkan"
+// refuseItemText: "Refuse to answer" => "Menolak untuk menjawab"
+// dontKnowItemText: "Don't know" => "Tidak tahu"

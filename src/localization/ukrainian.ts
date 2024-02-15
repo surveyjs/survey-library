@@ -9,6 +9,8 @@ export var ukrainianSurveyStrings = {
   startSurveyText: "Почати",
   otherItemText: "Інше (будь ласка, опишіть)",
   noneItemText: "Жоден",
+  refuseItemText: "Відмовтеся відповідати",
+  dontKnowItemText: "Не знаю",
   selectAllItemText: "Вибрати все",
   progressText: "Сторінка {0} з {1}",
   indexText: "{0} {1}",
@@ -134,4 +136,5 @@ surveyLocalization.localeNames["ua"] = "українська";
 // showDetails: "Show Details" => "Показати подробиці"
 // hideDetails: "Hide Details" => "Сховати подробиці"
 // ok: "OK" => "ГАРАЗД"
-// cancel: "Cancel" => "Скасувати"
+// cancel: "Cancel" => "Скасувати"// refuseItemText: "Refuse to answer" => "Відмовтеся відповідати"
+// dontKnowItemText: "Don't know" => "Не знаю"

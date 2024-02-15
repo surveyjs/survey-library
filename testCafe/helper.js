@@ -84,7 +84,7 @@ export const initSurvey = ClientFunction(
 );
 
 export const initSurveyPopup = ClientFunction(
-  (framework, json, events, isDesignMode, props) => {
+  (framework, json, isDesignMode) => {
     // eslint-disable-next-line no-console
     console.error = (msg) => {
       throw new Error(msg);
@@ -96,6 +96,8 @@ export const initSurveyPopup = ClientFunction(
     // eslint-disable-next-line no-console
     console.log("surveyjs console.error and console.warn override");
 
+    window["Survey"].settings.animationEnabled = false;
+
     const popupSurvey = new window["Survey"].PopupSurveyModel(json);
     const model = popupSurvey.survey;
     model.setDesignMode(isDesignMode);
@@ -104,6 +106,7 @@ export const initSurveyPopup = ClientFunction(
       popupSurvey.isExpanded = true;
       popupSurvey.allowClose = true;
       popupSurvey.closeOnCompleteTimeout = -1;
+      popupSurvey.allowFullScreen = true;
       popupSurvey.show();
     } else if (framework === "react") {
       document.getElementById("surveyElement").innerHTML = "";
@@ -114,12 +117,12 @@ export const initSurveyPopup = ClientFunction(
           model: model,
           isExpanded: true,
           allowClose: true,
-          closeOnCompleteTimeout: -1
+          allowFullScreen: true
         }),
       );
     } else if (framework === "vue") {
       document.getElementById("surveyElement").innerHTML =
-        "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :closeOnCompleteTimeout='-1' />";
+        "<popup-survey :survey='survey' :isExpanded='true' :allowClose='true' :allowFullScreen='true'/>";
       !!window["vueApp"] && window["vueApp"].$destroy();
       window["vueApp"] = new window["Vue"]({
         el: "#surveyElement",

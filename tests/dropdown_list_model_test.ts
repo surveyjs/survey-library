@@ -812,6 +812,28 @@ QUnit.test("Survey Markdown - dropdown and other option", function (assert) {
   assert.equal(dropdownListModel.hintString, "", "no hint again");
 });
 
+QUnit.test("Survey Markdown - dropdown and input string", function (assert) {
+  var survey = new SurveyModel();
+  var page = survey.addNewPage("Page 1");
+  var q1 = new QuestionDropdownModel("q1");
+  page.addQuestion(q1);
+  q1.choices = [
+    { value: 1, text: "#text1markdown" },
+    { value: 2, text: "#text2markdown" },
+  ];
+  survey.onTextMarkdown.add(function (survey, options) {
+    options.html = options.text.replace(/#/g, "*<hr>");
+  });
+
+  q1.value = 2;
+  const dropdownListModel = q1.dropdownListModel;
+
+  dropdownListModel.changeSelectionWithKeyboard(false);
+  assert.equal(dropdownListModel.inputString, "*text2markdown");
+  dropdownListModel.changeSelectionWithKeyboard(true);
+  assert.equal(dropdownListModel.inputString, "*text1markdown");
+});
+
 QUnit.test("lazy loading clear value", function (assert) {
   const survey = new SurveyModel({
     questions: [{
@@ -916,4 +938,66 @@ QUnit.test("DropdownListModel in panel filterString change callback", (assert) =
   const dropdownListModel = (question.panels[0].elements[0] as QuestionDropdownModel).dropdownListModel;
   dropdownListModel["listModel"].filterString = "abc";
   assert.equal(dropdownListModel.filterString, "abc");
+});
+QUnit.test("DropdownListModel filter options", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      searchEnabled: true,
+      choices: [
+        "abc",
+        "abd",
+        "cab",
+        "efg"
+      ]
+    }]
+  });
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.filterString = "ab";
+  const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 3);
+
+  question.searchMode = "startsWith";
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 2);
+});
+
+QUnit.test("DropdownListModel filter event", (assert) => {
+  const survey = new SurveyModel({
+    questions: [{
+      type: "dropdown",
+      name: "question1",
+      searchEnabled: true,
+      choices: [
+        "abcd",
+        "abdd",
+        "cabd",
+        "efab"
+      ]
+    }]
+  });
+
+  survey.onChoicesSearch.add((sender, options) => {
+    options.filteredChoices = options.choices.filter(item => item.text.indexOf(options.filter) + options.filter.length == item.text.length);
+  });
+
+  const question = <QuestionDropdownModel>survey.getAllQuestions()[0];
+  const dropdownListModel = question.dropdownListModel;
+  const list: ListModel = dropdownListModel.popupModel.contentComponentData.model as ListModel;
+
+  dropdownListModel.filterString = "ab";
+  const getfilteredItems = () => list.renderedActions.filter(item => list.isItemVisible(item));
+
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 1);
+
+  question.searchMode = "startsWith";
+  assert.equal(list.renderedActions.length, 4);
+  assert.equal(getfilteredItems().length, 1);
 });

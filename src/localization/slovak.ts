@@ -9,6 +9,8 @@ export var slovakSurveyStrings = {
   startSurveyText: "Spustiť",
   otherItemText: "Iné (opíšte)",
   noneItemText: "Žiadne",
+  refuseItemText: "Odmietnuť odpovedať",
+  dontKnowItemText: "Neviem",
   selectAllItemText: "Vybrať všetky",
   progressText: "Strana {0} z {1}",
   indexText: "{0} {1}",
@@ -104,7 +106,7 @@ export var slovakSurveyStrings = {
 };
 
 surveyLocalization.locales["sk"] = slovakSurveyStrings;
-surveyLocalization.localeNames["sk"] = "slovenčina";
+surveyLocalization.localeNames["sk"] = "slovak";
 
 // The following strings have been translated by a machine translation service
 // Remove those strings that you have corrected manually
@@ -125,3 +127,5 @@ surveyLocalization.localeNames["sk"] = "slovenčina";
 // hideDetails: "Hide Details" => "Skryť podrobnosti"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Zrušiť"
+// refuseItemText: "Refuse to answer" => "Odmietnuť odpovedať"
+// dontKnowItemText: "Don't know" => "Neviem"

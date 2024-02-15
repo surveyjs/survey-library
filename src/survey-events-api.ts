@@ -504,6 +504,25 @@ export interface UploadFilesEvent extends LoadFilesEvent {
    */
   files: Array<File>;
 }
+export interface OpenFileChooserEvent {
+  /**
+   * A file input HTML element.
+   */
+  input: HTMLInputElement;
+  /**
+   * A question, panel, page, or survey for which this event is raised.
+   */
+  element: Base;
+  /**
+   * A choice item for which the event is raised. This parameter has a value only when the dialog window is opened to select images for an [Image Picker](https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model) question.
+   */
+  item: ItemValue;
+  /**
+   * A callback function to which you should pass selected files.
+   * @param files An array of selected files.
+   */
+  callback: (files: Array<File>) => void;
+}
 export interface DownloadFileEvent extends LoadFilesEvent {
   /**
    * A callback function that you should call when a file is downloaded successfully or when deletion fails. Pass `"success"` or `"error"` as the first argument to indicate the operation status. As the second argument, you can pass the downloaded file's data as a Base64 string if file download was successful or an error message if file download failed.
@@ -610,6 +629,22 @@ export interface ChoicesLazyLoadEvent extends QuestionEventMixin {
    */
   skip: number;
 }
+
+export interface ChoicesSearchEvent extends QuestionEventMixin {
+  /**
+   * A search string used to filter choice options.
+   */
+  filter: string;
+  /**
+   * An array of all choice options.
+   */
+  choices: Array<ItemValue>;
+  /**
+   * A filtered array of choice options. Apply `options.filter` to the `options.choices` array and assign the result to this parameter.
+   */
+  filteredChoices: Array<ItemValue>;
+}
+
 export interface GetChoiceDisplayValueEvent extends QuestionEventMixin {
   /**
    * A method that you should call to assign display texts to the question.

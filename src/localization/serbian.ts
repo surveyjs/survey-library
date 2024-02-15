@@ -9,6 +9,8 @@ export var serbianStrings = {
   startSurveyText: "Započni",
   otherItemText: "Drugo (upiši)",
   noneItemText: "Ništa",
+  refuseItemText: "Odbijanje odgovora",
+  dontKnowItemText: "Ne znam",
   selectAllItemText: "Izaberi sve",
   progressText: "Stranica {0} od {1}",
   indexText: "{0} {1}",
@@ -130,3 +132,5 @@ surveyLocalization.localeNames["rs"] = "Srpski";
 // hideDetails: "Hide Details" => "Sakrij detalje"
 // ok: "OK" => "U redu"
 // cancel: "Cancel" => "Otkaži"
+// refuseItemText: "Refuse to answer" => "Odbijanje odgovora"
+// dontKnowItemText: "Don't know" => "Ne znam"

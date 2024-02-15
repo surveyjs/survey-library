@@ -9,6 +9,8 @@ export var danishSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Valgfrit svar...",
   noneItemText: "Ingen",
+  refuseItemText: "Nægt at svare",
+  dontKnowItemText: "Ved ikke",
   selectAllItemText: "Vælg alle",
   progressText: "Side {0} af {1}",
   indexText: "{0} af {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["da"] = "dansk";
 // hideDetails: "Hide Details" => "Skjul detaljer"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Aflyse"
+// refuseItemText: "Refuse to answer" => "Nægt at svare"
+// dontKnowItemText: "Don't know" => "Ved ikke"

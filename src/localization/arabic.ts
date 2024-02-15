@@ -9,6 +9,8 @@ export var arabicSurveyStrings = {
   startSurveyText: "بداية",
   otherItemText: "نص آخر",
   noneItemText: "لا شيء",
+  refuseItemText: "رفض الإجابة",
+  dontKnowItemText: "لا أعرف",
   selectAllItemText: "اختر الكل",
   progressText: "{1} صفحة {0} من",
   indexText: "{0} من {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["ar"] = "العربية";
 // hideDetails: "Hide Details" => "إخفاء التفاصيل"
 // ok: "OK" => "موافق"
 // cancel: "Cancel" => "إلغاء الأمر"
+// refuseItemText: "Refuse to answer" => "رفض الإجابة"
+// dontKnowItemText: "Don't know" => "لا أعرف"

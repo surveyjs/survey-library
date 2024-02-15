@@ -9,6 +9,8 @@ export var welshSurveyStrings = {
   startSurveyText: "Dechrau",
   otherItemText: "Arall (disgrifiwch)",
   noneItemText: "Dim",
+  refuseItemText: "Gwrthod ateb",
+  dontKnowItemText: "Ddim yn gwybod",
   selectAllItemText: "Dewis y Cyfan ",
   progressText: "Tudalen {0} o {1}",
   indexText: "{0} o {1}",
@@ -134,4 +136,5 @@ surveyLocalization.localeNames["cy"] = "cymraeg";
 // showDetails: "Show Details" => "Dangos manylion"
 // hideDetails: "Hide Details" => "Manylion Cuddio"
 // ok: "OK" => "OCÊ"
-// cancel: "Cancel" => "Canslo"
+// cancel: "Cancel" => "Canslo"// refuseItemText: "Refuse to answer" => "Gwrthod ateb"
+// dontKnowItemText: "Don't know" => "Ddim yn gwybod"

@@ -1,5 +1,6 @@
 import { Question, IConditionObject } from "./question";
 import { Serializer, CustomPropertiesCollection, JsonObjectProperty } from "./jsonobject";
+import { Base, ArrayChanges } from "./base";
 import {
   ISurveyImpl,
   ISurveyData,
@@ -82,6 +83,15 @@ export interface ICustomQuestionTypeConfiguration {
    * ```
    */
   defaultQuestionTitle?: any;
+  /**
+   * An array of property names to inherit from a base question or a Boolean value that specifies whether or not to inherit all properties.
+   *
+   * Default value: `false`
+   *
+   * When you create a [custom specialized question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types), you base it on another question type configured within the [`questionJSON`](#questionJSON) object. If the custom question type should inherit all properties from the base type, set the `inheritBaseProps` property to `true`. If you want to inherit only certain properties, set the `inheritBaseProps` property to an array of their names.
+   *
+   * [Create Specialized Question Types](https://surveyjs.io/form-library/documentation/customize-question-types/create-specialized-question-types (linkStyle))
+   */
   inheritBaseProps?: false | true | Array<string>;
   /**
    * A function that is called when the custom question is created. Use it to access questions nested within a [composite question type](https://surveyjs.io/form-library/documentation/customize-question-types/create-composite-question-types).
@@ -335,9 +345,8 @@ export class ComponentQuestionJSON {
   }
   public getDynamicProperties(): Array<JsonObjectProperty> {
     if(!Array.isArray(this.dynamicProperties)) {
-
+      this.dynamicProperties = this.calcDynamicProperties();
     }
-    this.dynamicProperties = this.calcDynamicProperties();
     return this.dynamicProperties;
   }
   private calcDynamicProperties(): Array<JsonObjectProperty> {
@@ -717,9 +726,27 @@ export class QuestionCustomModel extends QuestionCustomModelBase {
   public getDynamicType(): string {
     return this.questionWrapper ? this.questionWrapper.getType() : "question";
   }
+  public getOriginalObj(): Base {
+    return this.questionWrapper;
+  }
   protected createWrapper(): void {
     this.questionWrapper = this.createQuestion();
     this.createDynamicProperties(this.questionWrapper);
+    if(this.getDynamicProperties().length > 0) {
+      this.questionWrapper.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges): void => {
+        const prop = this.getDynamicProperty(name);
+        if(prop) {
+          this.propertyValueChanged(name, oldValue, newValue, arrayChanges);
+        }
+      };
+    }
+  }
+  private getDynamicProperty(name: string): JsonObjectProperty {
+    const props = this.getDynamicProperties();
+    for(let i = 0; i < props.length; i ++) {
+      if(props[i].name === name) return props[i];
+    }
+    return null;
   }
   protected getElement(): SurveyElement {
     return this.contentQuestion;
@@ -1093,6 +1120,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
+  }
+  getFilteredValues(): any {
+    const values = !!this.data ? this.data.getFilteredValues() : {};
+    if (!!this.contentPanel) {
+      values[
+        QuestionCompositeModel.ItemVariableName
+      ] = this.contentPanel.getValue();
+    }
+    return values;
   }
   private updateValueCoreWithPanelValue(): boolean {
     const panelValue = this.getContentPanelValue();

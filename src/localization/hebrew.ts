@@ -9,6 +9,8 @@ export var hebrewSurveyStrings = {
   startSurveyText: "הַתחָלָה",
   otherItemText: "אחר (נא לתאר)",
   noneItemText: "אף אחד",
+  refuseItemText: "מסרבים לענות",
+  dontKnowItemText: "לא יודע",
   selectAllItemText: "בחר הכל",
   progressText: "דף {1} מתוך {0}",
   indexText: "{0} מתוך {1}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["he"] = "עברית";
 // hideDetails: "Hide Details" => "הסתר פרטים"
 // ok: "OK" => "אוקיי"
 // cancel: "Cancel" => "ביטל"
+// refuseItemText: "Refuse to answer" => "מסרבים לענות"
+// dontKnowItemText: "Don't know" => "לא יודע"

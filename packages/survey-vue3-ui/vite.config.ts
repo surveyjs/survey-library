@@ -2,6 +2,7 @@ import { resolve } from "node:path";
 import { fileURLToPath, URL } from "node:url";
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
+import copy from "rollup-plugin-copy";
 import generatePackageJson from "rollup-plugin-generate-package-json";
 const json = require("./publish/package.json");
 const packageJson = require("./package.json");
@@ -14,7 +15,6 @@ const libraryName = "survey-vue3-ui";
 export default defineConfig(({ mode }) => {
   return {
     plugins: [vue()],
-
     build: {
       sourcemap: mode == "development",
       // Output compiled files to /dist.
@@ -33,6 +33,11 @@ export default defineConfig(({ mode }) => {
         external: ["vue", "survey-core"],
 
         plugins: [
+          copy({
+            targets: [
+              { src: "./README.md", dest: "../../build/survey-vue3-ui" },
+            ],
+          }),
           generatePackageJson({
             inputFolder: "publish",
             outputFolder: "../../build/survey-vue3-ui",

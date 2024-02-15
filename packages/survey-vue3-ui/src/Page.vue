@@ -5,7 +5,7 @@
       <survey-string :locString="page.locDescription" />
     </div>
     <survey-errors :element="page" />
-    <template v-for="(row, index) in page.rows" :key="page.id + '_' + index">
+    <template v-for="row in page.rows" :key="row.id">
       <component
         :is="(page.getSurvey() as SurveyModel).getRowWrapperComponentName(row)"
         v-bind="{

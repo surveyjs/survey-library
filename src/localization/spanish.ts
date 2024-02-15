@@ -9,6 +9,8 @@ export var spanishSurveyStrings = {
   startSurveyText: "Comienza",
   otherItemText: "Otro (describa)",
   noneItemText: "Ninguno",
+  refuseItemText: "Negarse a responder",
+  dontKnowItemText: "No sé",
   selectAllItemText: "Seleccionar todo",
   progressText: "Página {0} de {1}",
   indexText: "{0} de {1}",
@@ -76,7 +78,7 @@ export var spanishSurveyStrings = {
   timerLimitAll: "Has gastado {0} de {1} en esta página y {2} de {3} en total.",
   timerLimitPage: "Has gastado {0} de {1} en esta página.",
   timerLimitSurvey: "Usted ha gastado {0} de {1} en total.",
-  clearCaption: "Despejen",
+  clearCaption: "Borrar",
   signaturePlaceHolder: "Firma aqui",
   chooseFileCaption: "Elija el archivo",
   takePhotoCaption: "Tomar foto",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["es"] = "español";
 // hideDetails: "Hide Details" => "Ocultar detalles"
 // ok: "OK" => "De acuerdo"
 // cancel: "Cancel" => "Cancelar"
+// refuseItemText: "Refuse to answer" => "Negarse a responder"
+// dontKnowItemText: "Don't know" => "No sé"

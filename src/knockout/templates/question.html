@@ -10,8 +10,13 @@
   <!-- /ko -->
   <!-- ko component: { name: question.survey.getQuestionContentWrapperComponentName(question), params: { componentData:  question.survey.getElementWrapperComponentData(question), templateData: { name: 'survey-question-content', data: question } } } -->
   <!-- /ko -->
+  <!-- ko if: question.hasTitleOnBottom -->
+    <!--ko template: { name: 'survey-question-title', data: question  } -->
+    <!-- /ko -->
+  <!-- /ko -->
   <!-- ko if: question.showErrorsBelowQuestion -->
     <!-- ko template: { name: 'survey-question-errors', data: question } -->
     <!-- /ko -->
   <!-- /ko -->
-  </script>
+</div>
+</script>

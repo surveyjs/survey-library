@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div *ngIf="(survey.headerView === 'advanced' && survey.renderedHasHeader)" [class]="model.headerClasses" [style]="{ height: model.renderedHeight }">
+  <div *ngIf="(survey.headerView === 'advanced')" [class]="model.headerClasses" [style]="{ height: model.renderedHeight }">
     <div *ngIf="!!model.backgroundImage" [style]="model.backgroundImageStyle" [class]="model.backgroundImageClasses"></div>
     <div *ngIf="!survey.isMobile" [class]="model.contentClasses" [style.width]="model.maxWidth">
       <ng-container *ngFor="let cell of model.cells">

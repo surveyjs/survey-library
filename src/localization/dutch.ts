@@ -9,6 +9,8 @@ export var dutchSurveyStrings = {
   startSurveyText: "Start",
   otherItemText: "Anders, nl.",
   noneItemText: "Geen",
+  refuseItemText: "Weiger te antwoorden",
+  dontKnowItemText: "Weet niet",
   selectAllItemText: "Selecteer Alles",
   progressText: "Pagina {0} van {1}",
   indexText: "{0} van {1}",
@@ -133,3 +135,5 @@ surveyLocalization.localeNames["nl"] = "nederlands";
 // hideDetails: "Hide Details" => "Verberg details"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Annuleren"
+// refuseItemText: "Refuse to answer" => "Weiger te antwoorden"
+// dontKnowItemText: "Don't know" => "Weet niet"

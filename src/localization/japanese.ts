@@ -9,6 +9,8 @@ export var japaneseSurveyStrings = {
   startSurveyText: "スタート",
   otherItemText: "その他（説明）",
   noneItemText: "なし",
+  refuseItemText: "回答を拒否する",
+  dontKnowItemText: "わかりません",
   selectAllItemText: "すべて選択",
   progressText: "{0}/{1}頁",
   indexText: "{1}の{0}",
@@ -135,3 +137,5 @@ surveyLocalization.localeNames["ja"] = "日本語";
 // hideDetails: "Hide Details" => "詳細を隠す"
 // ok: "OK" => "わかりました"
 // cancel: "Cancel" => "キャンセル"
+// refuseItemText: "Refuse to answer" => "回答を拒否する"
+// dontKnowItemText: "Don't know" => "わかりません"

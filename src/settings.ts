@@ -129,7 +129,7 @@ export var settings = {
    *     ```
    */
   web: {
-    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => {},
+    onBeforeRequestChoices: (sender: any, options: { request: XMLHttpRequest }): void => { },
     encodeUrlParams: true,
     cacheLoadedChoices: true,
     disableQuestionWhileLoadingChoices: false,
@@ -432,34 +432,50 @@ export var settings = {
    */
   tagboxCloseOnSelect: false,
   /**
-   * A property that allows you to display a custom confirm dialog.
+   * A function that activates a browser confirm dialog.
    *
-   * Set this property to a function that renders your custom dialog window. This function should return `true` if a user confirms an action or `false` otherwise.
+   * Use the following code to execute this function:
+   *
+   * ```js
+   * import { settings } from "survey-core";
+   *
+   * // `result` contains `true` if the action was confirmed or `false` otherwise
+   * const result = settings.confirmActionFunc("Are you sure?");
+   * ```
+   *
+   * You can redefine the `confirmActionFunc` function if you want to display a custom dialog window. Your function should return `true` if a user confirms an action or `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    */
   confirmActionFunc: function (message: string): boolean {
     return confirm(message);
   },
   /**
-   * A property that allows you to display a custom confirm dialog in async mode or activate the standard browser dialog.
+   * A function that activates a proprietary SurveyJS confirm dialog.
    *
-   * To display a custom confirm dialog, set this property to a function that renders it. This function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
-   *
-   * To activate the standard browser dialog, set the `confirmActionAsync` property to a function that returns `false`. With this configuration, a survey falls back to the [`confirmActionFunc`](#confirmActionFunc) function, which renders the standard browser dialog by default.
+   * Use the following code to execute this function:
    *
    * ```js
    * import { settings } from "survey-core";
    *
-   * // Display the standard browser dialog
-   * settings.confirmActionAsync = () => {
-   *    return false;
-   * }
+   * settings.confirmActionAsync("Are you sure?", (confirmed) => {
+   *   if (confirmed) {
+   *     // ...
+   *     // Proceed with the action
+   *     // ...
+   *   } else {
+   *     // ...
+   *     // Cancel the action
+   *     // ...
+   *   }
+   * });
    * ```
+   *
+   * You can redefine the `confirmActionAsync` function if you want to display a custom dialog window. Your function should return `true` to be enabled; otherwise, a survey executes the [`confirmActionFunc`](#confirmActionFunc) function. Pass the dialog result as the `callback` parameter: `true` if a user confirms an action, `false` otherwise.
    * @param message A message to be displayed in the confirm dialog window.
    * @param callback A callback function that should be called with `true` if a user confirms an action or `false` otherwise.
    */
-  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string): boolean {
-    return showConfirmDialog(message, callback, applyTitle, locale);
+  confirmActionAsync: function (message: string, callback: (res: boolean) => void, applyTitle?: string, locale?: string, rootElement?: HTMLElement): boolean {
+    return showConfirmDialog(message, callback, applyTitle, locale, rootElement);
   },
   /**
    * A minimum width value for all survey elements.
@@ -510,15 +526,27 @@ export var settings = {
    */
   showItemsInOrder: "default",
   /**
-   * A value to save in survey results when respondents select the None choice item.
+   * A value to save in survey results when respondents select the "None" choice item.
    *
    * Default value: `"none"`
    */
   noneItemValue: "none",
   /**
-   * An object whose properties specify the order of the special choice items (None, Other, Select All) in select-based questions.
+   * A value to save in survey results when respondents select the "Refuse to answer" choice item.
    *
-   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2] }`
+   * Default value: `"refused"`
+   */
+  refuseItemValue: "refused",
+  /**
+   * A value to save in survey results when respondents select the "Don't know" choice item.
+   *
+   * Default value: `"dontknow"`
+   */
+  dontKnowItemValue: "dontknow",
+  /**
+   * An object whose properties specify the order of the special choice items ("None", "Other", "Select All", "Refuse to answer", "Don't know") in select-based questions.
+   *
+   * Default value: `{ selectAllItem: [-1], noneItem: [1], otherItem: [2], dontKnowItem: [3], otherItem: [4] }`
    *
    * Use this object to reorder special choices. Each property accepts an array of integer numbers. Negative numbers place a special choice item above regular choice items, positive numbers place it below them. For instance, the code below specifies the following order of choices: None, Select All, regular choices, Other.
    *
@@ -539,7 +567,9 @@ export var settings = {
   specialChoicesOrder: {
     selectAllItem: [-1],
     noneItem: [1],
-    otherItem: [2]
+    refuseItem: [2],
+    dontKnowItem: [3],
+    otherItem: [4]
   },
   /**
    * A list of supported validators by question type.
@@ -605,6 +635,13 @@ export var settings = {
    * Default value: `true`
    */
   showMaxLengthIndicator: true,
+
+  /**
+   * Set to `false` to disable animations
+   *
+   * Default value: `true`
+  */
+  animationEnabled: true,
 
   /**
    * An object that specifies heading levels (`<h1>`, `<h2>`, etc.) to use when rendering survey, page, panel, and question titles.
@@ -692,5 +729,5 @@ export var settings = {
       "impp",
     ]
   },
-  animationEnabled: true
+  legacyProgressBarView: false
 };

@@ -147,9 +147,11 @@ export class QuestionFileModel extends QuestionFileModelBase {
   @propertyArray({}) public previewValue: any[];
 
   @property({ defaultValue: 0 }) indexToShow: number;
-  @property({ defaultValue: 1, onSet: (_, target) => {
-    target.updateFileNavigator();
-  } }) pageSize: number;
+  @property({
+    defaultValue: 1, onSet: (_, target) => {
+      target.updateFileNavigator();
+    }
+  }) pageSize: number;
   @property({ defaultValue: false }) containsMultiplyFiles: boolean;
   @property() allowCameraAccess: boolean;
   /**
@@ -164,11 +166,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
    * @see photoPlaceholder
    * @see fileOrPhotoPlaceholder
    */
-  @property({ onSet: (val: string, obj: QuestionFileModel) => {
-    if(!obj.isLoadingFromJson) {
-      obj.updateCurrentMode();
+  @property({
+    onSet: (val: string, obj: QuestionFileModel) => {
+      if (!obj.isLoadingFromJson) {
+        obj.updateCurrentMode();
+      }
     }
-  } }) sourceType: string;
+  }) sourceType: string;
 
   public fileNavigator: ActionContainer = new ActionContainer();
   protected prevFileAction: Action;
@@ -300,7 +304,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public get hasFileUI(): boolean { return this.currentMode !== "camera"; }
   private videoStream: MediaStream;
   public startVideo(): void {
-    if(this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
+    if (this.currentMode === "file" || this.isDesignMode || this.isPlayingVideo) return;
     this.setIsPlayingVideo(true);
     setTimeout(() => {
       this.startVideoInCamera();
@@ -310,7 +314,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private startVideoInCamera(): void {
     this.camera.startVideo(this.videoId, (stream: MediaStream) => {
       this.videoStream = stream;
-      if(!stream) {
+      if (!stream) {
         this.stopVideo();
       }
     }, getRenderedSize(this.imageWidth), getRenderedSize(this.imageHeight));
@@ -320,9 +324,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.closeVideoStream();
   }
   public snapPicture(): void {
-    if(!this.isPlayingVideo) return;
+    if (!this.isPlayingVideo) return;
     const blobCallback = (blob: Blob | null): void => {
-      if(blob) {
+      if (blob) {
         const file = new File([blob], "snap_picture.png", { type: "image/png" });
         this.loadFiles([file]);
       }
@@ -332,7 +336,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   @property() private canFlipCameraValue: boolean = undefined;
   public canFlipCamera(): boolean {
-    if(this.canFlipCameraValue === undefined) {
+    if (this.canFlipCameraValue === undefined) {
       this.canFlipCameraValue = this.camera.canFlip((res: boolean) => {
         this.canFlipCameraValue = res;
       });
@@ -340,13 +344,13 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.canFlipCameraValue;
   }
   public flipCamera(): void {
-    if(!this.canFlipCamera()) return;
+    if (!this.canFlipCamera()) return;
     this.closeVideoStream();
     this.camera.flip();
     this.startVideoInCamera();
   }
   private closeVideoStream(): void {
-    if(!!this.videoStream) {
+    if (!!this.videoStream) {
       this.videoStream.getTracks().forEach(track => {
         track.stop();
       });
@@ -372,9 +376,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   private prevPreviewLength = 0;
   private previewValueChanged() {
-    if(this.previewValue.length !== this.prevPreviewLength) {
-      if(this.previewValue.length > 0) {
-        if(this.prevPreviewLength > this.previewValue.length) {
+    if (this.previewValue.length !== this.prevPreviewLength) {
+      if (this.previewValue.length > 0) {
+        if (this.prevPreviewLength > this.previewValue.length) {
           this.indexToShow = this.indexToShow >= this.pagesCount && this.indexToShow > 0 ? this.pagesCount - 1 : this.indexToShow;
         } else {
           this.indexToShow = Math.floor(this.prevPreviewLength / this.pageSize);
@@ -385,7 +389,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
-    if(this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
+    if (this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
       setTimeout(() => {
         this.processResponsiveness(0, this._width);
       });
@@ -471,6 +475,18 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public set maxSize(val: number) {
     this.setPropertyValue("maxSize", val);
   }
+  public chooseFile(event: MouseEvent): void {
+    const inputElement = document.getElementById(this.inputId) as HTMLInputElement;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (inputElement) {
+      if (this.survey) {
+        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this });
+      } else {
+        inputElement.click();
+      }
+    }
+  }
   /**
    * Specifies whether users should confirm file deletion.
    *
@@ -518,19 +534,19 @@ export class QuestionFileModel extends QuestionFileModelBase {
 
   @property() locRenderedPlaceholderValue: LocalizableString;
   public get locRenderedPlaceholder(): LocalizableString {
-    if(this.locRenderedPlaceholderValue === undefined) {
+    if (this.locRenderedPlaceholderValue === undefined) {
       this.locRenderedPlaceholderValue = <LocalizableString><unknown>(new ComputedUpdater<LocalizableString>(() => {
         const isReadOnly = this.isReadOnly;
         const hasFileUI = (!this.isDesignMode && this.hasFileUI) || (this.isDesignMode && this.sourceType != "camera");
         const hasVideoUI = (!this.isDesignMode && this.hasVideoUI) || (this.isDesignMode && this.sourceType != "file");
         let renderedPlaceholder: LocalizableString;
-        if(isReadOnly) {
+        if (isReadOnly) {
           renderedPlaceholder = this.locNoFileChosenCaption;
         }
-        else if(hasFileUI && hasVideoUI) {
+        else if (hasFileUI && hasVideoUI) {
           renderedPlaceholder = this.locFileOrPhotoPlaceholder;
         }
-        else if(hasFileUI) {
+        else if (hasFileUI) {
           renderedPlaceholder = this.locFilePlaceholder;
         }
         else {
@@ -551,8 +567,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("isPlayingVideo", show);
   }
   private updateCurrentMode(): void {
-    if(!this.isDesignMode) {
-      if(this.sourceType !== "file") {
+    if (!this.isDesignMode) {
+      if (this.sourceType !== "file") {
         this.camera.hasCamera((res: boolean) => {
           this.setPropertyValue("currentMode", res && this.isDefaultV2Theme ? this.sourceType : "file");
         });
@@ -573,7 +589,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return " ";
   }
 
-  public get chooseButtonText () {
+  public get chooseButtonText() {
     return this.isEmpty() || this.allowMultiple ? this.chooseButtonCaption : this.replaceButtonCaption;
   }
 
@@ -719,7 +735,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private cameraValue: Camera;
 
   protected get camera(): Camera {
-    if(!this.cameraValue) {
+    if (!this.cameraValue) {
       this.cameraValue = new Camera();
     }
     return this.cameraValue;
@@ -887,7 +903,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   protected onChangeQuestionValue(newValue: any): void {
     super.onChangeQuestionValue(newValue);
     this.stateChanged(this.isEmpty() ? "empty" : "loaded");
-    if(!this.isLoadingFromJson) {
+    if (!this.isLoadingFromJson) {
       this.loadPreview(newValue);
     }
   }
@@ -905,9 +921,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
     super.updateElementCss(reNew);
     this.updateCurrentMode();
   }
-
-  endLoadingFromJson(): void {
-    super.endLoadingFromJson();
+  public onSurveyLoad(): void {
+    super.onSurveyLoad();
     this.updateCurrentMode();
     this.updateActionsVisibility();
     this.loadPreview(this.value);
@@ -933,7 +948,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   private calculatedItemWidth: number;
   private _width: number;
   public triggerResponsiveness(hard?: boolean): void {
-    if(hard) {
+    if (hard) {
       this.calculatedGapBetweenItems = undefined;
       this.calculatedItemWidth = undefined;
     }
@@ -941,20 +956,20 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   protected processResponsiveness(_: number, availableWidth: number): boolean {
     this._width = availableWidth;
-    if(this.rootElement) {
-      if((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
+    if (this.rootElement) {
+      if ((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
-        if(fileListElement) {
+        if (fileListElement) {
           this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(fileListElement).gap));
           const firstVisibleItem = Array.from(fileListElement.children).filter((_, index) => this.isPreviewVisible(index))[0];
-          if(firstVisibleItem) {
+          if (firstVisibleItem) {
             this.calculatedItemWidth = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisibleItem).width));
           }
         }
       }
     }
-    if(this.calculatedGapBetweenItems && this.calculatedItemWidth) {
+    if (this.calculatedGapBetweenItems && this.calculatedItemWidth) {
       this.pageSize = this.calcAvailableItemsCount(availableWidth, this.calculatedItemWidth, this.calculatedGapBetweenItems);
       return true;
     }
@@ -973,7 +988,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     if (this.canDragDrop()) {
       event.preventDefault();
       this.isDragging = true;
-      this.dragCounter ++;
+      this.dragCounter++;
     }
   }
   onDragOver = (event: any) => {
@@ -995,8 +1010,8 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   onDragLeave = (event: any) => {
     if (this.canDragDrop()) {
-      this.dragCounter --;
-      if(this.dragCounter === 0) {
+      this.dragCounter--;
+      if (this.dragCounter === 0) {
         this.isDragging = false;
       }
     }
@@ -1007,15 +1022,15 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doClean = () => {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); }, undefined, this.getLocale());
+      confirmActionAsync(this.confirmRemoveAllMessage, () => { this.clearFilesCore(); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.clearFilesCore();
   }
   private clearFilesCore(): void {
-    if(this.rootElement) {
+    if (this.rootElement) {
       const input = this.rootElement.querySelectorAll("input")[0];
-      if(input) {
+      if (input) {
         input.value = "";
       }
     }
@@ -1023,7 +1038,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
   doRemoveFile(data: any) {
     if (this.needConfirmRemoveFile) {
-      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale());
+      confirmActionAsync(this.getConfirmRemoveMessage(data.name), () => { this.removeFileCore(data); }, undefined, this.getLocale(), this.survey.rootElement);
       return;
     }
     this.removeFileCore(data);
@@ -1103,7 +1118,7 @@ export class FileLoader {
               name: value.name,
               type: value.type,
             };
-            downloadedCount ++;
+            downloadedCount++;
             if (downloadedCount === files.length) {
               this.callback("loaded", this.loaded);
             }

@@ -9,6 +9,8 @@ export var italianSurveyStrings = {
   startSurveyText: "Inizio",
   otherItemText: "Altro (descrivi)",
   noneItemText: "Nessuno",
+  refuseItemText: "Rifiuta di rispondere",
+  dontKnowItemText: "Non lo so",
   selectAllItemText: "Seleziona tutti",
   progressText: "Pagina {0} di {1}",
   indexText: "{0} da {1}",
@@ -123,3 +125,5 @@ surveyLocalization.localeNames["it"] = "italiano";
 // hideDetails: "Hide Details" => "Nascondi dettagli"
 // ok: "OK" => "OK"
 // cancel: "Cancel" => "Annulla"
+// refuseItemText: "Refuse to answer" => "Rifiuta di rispondere"
+// dontKnowItemText: "Don't know" => "Non lo so"

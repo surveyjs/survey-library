@@ -15,6 +15,8 @@ import { ItemValue } from "../src/itemvalue";
 import { LocalizableString } from "../src/localizablestring";
 import { PanelModel } from "../src/panel";
 import { StylesManager } from "../src/stylesmanager";
+import { ArrayChanges, Base } from "../src/base";
+import { QuestionFileModel } from "../src/question_file";
 
 export default QUnit.module("custom questions");
 
@@ -25,12 +27,17 @@ QUnit.test("Single: Register and load from json", function (assert) {
   };
   ComponentCollection.Instance.add(json);
   var survey = new SurveyModel({
-    elements: [{ type: "newquestion", name: "q1" }],
+    elements: [{ type: "newquestion", name: "q1", title: "my title" }],
   });
   assert.equal(survey.getAllQuestions().length, 1, "Question is created");
   var q = <QuestionCustomModel>survey.getAllQuestions()[0];
   assert.equal(q.getType(), "newquestion", "type is correct");
   assert.equal(q.name, "q1", "name is correct");
+  const propName = Serializer.findProperty("newquestion", "name");
+  assert.equal(propName.getValue(q), "q1", "prop.name is correct");
+  assert.equal(q.getPropertyValue("name"), "q1", "getPropertyValue is correct");
+  assert.equal(Serializer.getObjPropertyValue(q, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q, "title"), "my title", "getObjPropertyValue is correct, #title");
   assert.equal(
     q.contentQuestion.getType(),
     "dropdown",
@@ -41,7 +48,7 @@ QUnit.test("Single: Register and load from json", function (assert) {
     survey.toJSON(),
     {
       pages: [
-        { name: "page1", elements: [{ type: "newquestion", name: "q1" }] },
+        { name: "page1", elements: [{ type: "newquestion", name: "q1", title: "my title" }] },
       ],
     },
     "Seralized correctly"
@@ -2770,6 +2777,45 @@ QUnit.test("single component: inheritBaseProps: array<string>", function (assert
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("single component: inheritBaseProps: array<string> #2 + check property change notification #", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "customtext",
+    inheritBaseProps: ["placeholder"],
+    questionJSON: {
+      type: "text",
+      placeholder: "abc"
+    },
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "customtext", name: "q1" }
+    ]
+  });
+  let propertyName = "";
+  let counter = 0;
+  const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  const content = <QuestionTextModel>q1.contentQuestion;
+  assert.equal(q1.placeholder, "abc", "q1.placeholder #1");
+  assert.equal(content.placeholder, "abc", "content.placeholder #1");
+  survey.onPropertyValueChangedCallback = (name: string, oldValue: any, newValue: any, sender: Base, arrayChanges: ArrayChanges): void => {
+    propertyName = name;
+    counter ++;
+  };
+  q1.placeholder = "bcd";
+  assert.equal(propertyName, "placeholder", "send notification, propertyname");
+  assert.equal(counter, 1, "send notification, counter");
+  assert.equal(q1.placeholder, "bcd", "q1.placeholder #2");
+  assert.equal(content.placeholder, "bcd", "content.placeholder #2");
+  content.placeholder = "cde";
+  assert.equal(q1.placeholder, "cde", "q1.placeholder #3");
+  assert.equal(content.placeholder, "cde", "content.placeholder #3");
+
+  const prop = Serializer.getOriginalProperty(q1, "placeholder");
+  assert.equal(prop.name, "placeholder", "prop.className is correct");
+  assert.equal(prop.isVisible("form", q1), true, "it is visible");
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("single component: inheritBaseProps: true", function (assert) {
   ComponentCollection.Instance.add({
     name: "customdropdown",
@@ -2782,10 +2828,13 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
 
   const survey = new SurveyModel({
     elements: [
-      { type: "customdropdown", name: "q1", allowClear: false, showOtherItem: true }
+      { type: "customdropdown", name: "q1", title: "my title", allowClear: false, showOtherItem: true }
     ]
   });
   const q1 = <QuestionCustomModel>survey.getQuestionByName("q1");
+  assert.equal(Serializer.getObjPropertyValue(q1, "name"), "q1", "getObjPropertyValue is correct, #name");
+  assert.equal(Serializer.getObjPropertyValue(q1, "title"), "my title", "getObjPropertyValue is correct, #title");
+  assert.equal(Serializer.getObjPropertyValue(q1, "showOtherItem"), true, "getObjPropertyValue is correct, #showOtherItem");
   const content = <QuestionDropdownModel>q1.contentQuestion;
   assert.equal(q1.getDynamicType(), "dropdown", "q1.getDynamicType()");
   assert.equal(content.choices.length, 3, "content.choices");
@@ -2810,6 +2859,95 @@ QUnit.test("single component: inheritBaseProps: true", function (assert) {
   const json = q1.toJSON();
   assert.equal(json.allowClear, false, "json.allowClear");
   assert.equal(json.showOtherItem, true, "json.showOtherItem");
+
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("Bug with visibleIf with composite.question and panel dynamic. Bug#7771", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        "name": "q1",
+        "type": "boolean",
+      },
+      {
+        "name": "q2",
+        "type": "paneldynamic",
+        "visibleIf": "{composite.q1} = true",
+        "minPanelCount": 1,
+        "templateElements": [
+          {
+            "name": "q3",
+            "type": "text"
+          }
+        ]
+      }
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" }
+    ]
+  });
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const q1 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q1");
+  const q2 = <QuestionPanelDynamicModel>compQuestion.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isVisible, false, "isVisible #1");
+  q1.value = true;
+  assert.equal(q2.isVisible, true, "isVisible #2");
+  q2.addPanel();
+  assert.equal(q2.isVisible, true, "isVisible #3");
+  ComponentCollection.Instance.clear();
+});
+QUnit.test("file question in composite component doesn't show preview in preview mode. Bug#7826", function (assert) {
+  ComponentCollection.Instance.add({
+    name: "test",
+    elementsJSON: [
+      {
+        type: "file",
+        name: "file_q",
+        allowMultiple: true,
+        storeDataAsText: false
+      },
+    ]
+  });
+
+  const survey = new SurveyModel({
+    elements: [
+      { type: "test", name: "q1" },
+      { type: "file", name: "q2", storeDataAsText: false }
+    ]
+  });
+  survey.onUploadFiles.add((survey, options) => {
+    options.callback(
+      "success",
+      options.files.map((file) => {
+        return { file: file, content: file.name + "_url" };
+      })
+    );
+  });
+
+  const compQuestion = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1 = <QuestionFileModel>compQuestion.contentPanel.getQuestionByName("file_q");
+  const file_q2 = <QuestionFileModel>survey.getQuestionByName("q2");
+  file_q1.loadFiles([{ name: "f1", type: "t1" } as any]);
+  file_q2.loadFiles([{ name: "f1", type: "t1" } as any]);
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
+  survey.showPreview();
+  assert.equal(survey.state, "preview", "state #1");
+  const compQuestion_preview = <QuestionCompositeModel>survey.getQuestionByName("q1");
+  const file_q1_preview = <QuestionFileModel>compQuestion_preview.contentPanel.getQuestionByName("file_q");
+  const file_q2_preview = <QuestionFileModel>survey.getQuestionByName("q2");
+  assert.equal(file_q1_preview.showPreviewContainer, true, "file_q1_preview #1");
+  assert.equal(file_q2_preview.showPreviewContainer, true, "file_q2_preview #1");
+
+  survey.cancelPreview();
+  assert.equal(survey.state, "running", "state #2");
+  assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
+  assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
 
   ComponentCollection.Instance.clear();
 });

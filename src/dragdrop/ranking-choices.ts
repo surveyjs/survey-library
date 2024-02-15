@@ -158,7 +158,7 @@ export class DragDropRankingChoices extends DragDropChoices {
   protected doDrop(): any {
     this.parentElement.setValue();
     return this.parentElement;
-  };
+  }
 
   public clear(): void {
     if(!!this.parentElement) {

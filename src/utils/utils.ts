@@ -396,7 +396,7 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     selection.addRange(range);
 
     for (let i = 0; i < tail_len; i++) {
-      selection.modify("move", "backward", "character");
+      (selection as any).modify("move", "backward", "character");
     }
   }
 }

@@ -366,7 +366,7 @@ function findParentByClassNames(element: HTMLElement, classNames: Array<string>)
     }
   }
 }
-export function sanitizeEditableContent(element: any) {
+export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean = true) {
   if (window.getSelection && document.createRange && element.childNodes.length > 0) {
     const selection = document.getSelection();
     if (selection.rangeCount == 0) {
@@ -378,14 +378,26 @@ export function sanitizeEditableContent(element: any) {
     range.setEndAfter(element.lastChild);
     selection.removeAllRanges();
     selection.addRange(range);
-    const tail_len = selection.toString().replace(/\n/g, "").length;
+    let tail = selection.toString();
+    let innerText = element.innerText;
+    if (cleanLineBreaks) {
+      tail = tail.replace(/\n/g, "");
+      innerText = innerText.replace(/\n/g, "");
+    }
+    const tail_len = tail.length;
 
-    element.innerText = element.innerText.replace(/\n/g, "");
+    element.innerText = innerText;
     range = document.createRange();
-    range.setStart(element.childNodes[0], element.innerText.length - tail_len);
-    range.collapse(true);
+
+    range.setStart(element.lastChild, element.lastChild.textContent.length);
+    range.setEnd(element.lastChild, element.lastChild.textContent.length);
+
     selection.removeAllRanges();
     selection.addRange(range);
+
+    for (let i = 0; i < tail_len; i++) {
+      (selection as any).modify("move", "backward", "character");
+    }
   }
 }
 function mergeValues(src: any, dest: any) {

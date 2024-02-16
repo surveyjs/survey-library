@@ -148,7 +148,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       rankingChoices.splice(toIndex, 0, item);
       questionModel.setPropertyValue("rankingChoices", rankingChoices);
     };
-    this.animateItemMovingToContainer(questionModel, item, animationCallback)
+    this.animateItemMovingToContainer(questionModel, item, animationCallback);
   }
 
   public unselectFromRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void => {

@@ -64,22 +64,6 @@ export class InputMaskNumber extends InputMaskBase {
     return result;
   }
 
-  constructor() {
-    super();
-    this.initialize();
-  }
-
-  get numberOptions(): InputMaskBase {
-    return this;
-  }
-
-  protected initialize(): void {
-    this.allowNegative = settings.numberOptions.allowNegative;
-    this.decimalSeparator = settings.numberOptions.decimalSeparator;
-    this.precision = settings.numberOptions.precision;
-    this.thousandsSeparator = settings.numberOptions.thousandsSeparator;
-  }
-
   public displayNumber(parsedNumber: INumericalComposition, insertThousandsSeparator = true, matchWholeMask: boolean = false): string {
     let displayIntegralPart = parsedNumber.integralPart;
     if(insertThousandsSeparator && !!displayIntegralPart) {
@@ -106,7 +90,7 @@ export class InputMaskNumber extends InputMaskBase {
     let value;
     const minusSign = parsedNumber.isNegative ? "-" : "";
     if(!!parsedNumber.fractionalPart) {
-      value = parseFloat(minusSign + (parsedNumber.integralPart || "0") + this.decimalSeparator + parsedNumber.fractionalPart.substring(0, this.precision));
+      value = parseFloat(minusSign + (parsedNumber.integralPart || "0") + "." + parsedNumber.fractionalPart.substring(0, this.precision));
     } else {
       value = parseInt(minusSign + parsedNumber.integralPart || "0");
     }
@@ -218,10 +202,10 @@ export class InputMaskNumber extends InputMaskBase {
 Serializer.addClass(
   "numbermask",
   [
-    { name: "allowNegative:boolean" },
-    { name: "decimalSeparator" },
-    { name: "thousandsSeparator" },
-    { name: "precision:number" },
+    { name: "allowNegative:boolean", default: true },
+    { name: "decimalSeparator", default: "." },
+    { name: "thousandsSeparator", default: "," },
+    { name: "precision:number", default: 2 },
     { name: "min:number" },
     { name: "max:number" },
   ],

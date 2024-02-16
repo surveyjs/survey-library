@@ -1,5 +1,6 @@
 import { Serializer, property } from "../jsonobject";
 import { InputMaskNumber } from "./mask_number";
+import { IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
 
 export class InputMaskCurrency extends InputMaskNumber {
   @property() prefix: string;
@@ -9,23 +10,48 @@ export class InputMaskCurrency extends InputMaskNumber {
     return "currencymask";
   }
 
-  public isEmpty(): boolean {
-    return super.isEmpty() &&
-    this.prefix !== undefined &&
-    this.suffix !== undefined;
+  private wrapText(str: string): string {
+    const prefixValue = this.prefix || "";
+    const suffixValue = this.suffix || "";
+    let result = str;
+    if(!result) return result;
+
+    if(result.indexOf(prefixValue) === -1) {
+      result = prefixValue + result;
+    }
+    if(result.indexOf(suffixValue) === -1) {
+      result += suffixValue;
+    }
+    return result;
   }
 
-  // public processInput(args: ITextMaskInputArgs): IMaskedValue {
-  //   return { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
-  // }
+  public unwrapInputArgs(args: ITextMaskInputArgs): void {
+    let result = args.prevValue;
+    if(!result) return;
 
-  public getUnmaskedValue(src: string): string {
-    const input = (src === undefined || src === null) ? "" : src;
-    return input;
+    if(this.prefix && result.indexOf(this.prefix) !== -1) {
+      result = result.slice(result.indexOf(this.prefix) + this.prefix.length);
+      const preffixPadding = (this.prefix || "").length;
+      args.selectionStart -= preffixPadding;
+      args.selectionEnd -= preffixPadding;
+    }
+    if(this.suffix && result.indexOf(this.suffix) !== -1) {
+      result = result.slice(0, result.indexOf(this.suffix));
+    }
+    args.prevValue = result;
   }
+  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+    this.unwrapInputArgs(args);
+    const result = super.processInput(args);
+    const preffixPadding = (this.prefix || "").length;
+    result.cursorPosition += preffixPadding;
+    result.text = this.wrapText(result.text);
+    return result;
+  }
+
   public getMaskedValue(src: string): string {
-    const input = (src === undefined || src === null) ? "" : src;
-    return input;
+    const result = super.getMaskedValue(src);
+    return this.wrapText(result);
   }
 }
 

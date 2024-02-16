@@ -129,6 +129,16 @@ QUnit.test("get numeric unmasked valid text", function(assert) {
   assert.equal(maskInstance.getUnmaskedValue("123,456,789,101.12"), 123456789101.12);
 });
 
+QUnit.test("get numeric unmasked valid text custom settings", function(assert) {
+  const maskInstance = new InputMaskNumber();
+  maskInstance.setData({ "decimalSeparator": ",", "thousandsSeparator": "." });
+  assert.equal(maskInstance.getUnmaskedValue("123"), 123);
+  assert.equal(maskInstance.getUnmaskedValue("123.456"), 123456);
+  assert.equal(maskInstance.getUnmaskedValue("123.456,78"), 123456.78);
+  assert.equal(maskInstance.getUnmaskedValue("123.456,789"), 123456.78);
+  assert.equal(maskInstance.getUnmaskedValue("123.456.789.101,12"), 123456789101.12);
+});
+
 QUnit.test("numeric processInput: insert characters", function(assert) {
   const maskInstance = new InputMaskNumber();
   let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 1, selectionEnd: 1, prevValue: "0", inputDirection: "leftToRight" });
@@ -202,6 +212,23 @@ QUnit.test("numeric processInput: insert characters", function(assert) {
   result = maskInstance.processInput({ insertedCharacters: "0", selectionStart: 2, selectionEnd: 2, prevValue: "1,234,567.89", inputDirection: "leftToRight" });
   assert.equal(result.text, "10,234,567.89", "type #7.1");
   assert.equal(result.cursorPosition, 2, "type #7.1");
+});
+
+QUnit.skip("numeric with custom settings processInput: insert characters", function(assert) {
+  const maskInstance = new InputMaskNumber();
+  maskInstance.setData({
+    decimalSeparator: ",",
+    thousandsSeparator: " ",
+    precision: 3,
+    allowNegative: false,
+  });
+  let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 1, selectionEnd: 1, prevValue: "0", inputDirection: "leftToRight" });
+  assert.equal(result.text, "1", "type #1");
+  assert.equal(result.cursorPosition, 1, "type #1");
+
+  result = maskInstance.processInput({ insertedCharacters: "4", selectionStart: 3, selectionEnd: 3, prevValue: "123", inputDirection: "leftToRight" });
+  assert.equal(result.text, "1 234", "type #2.0");
+  assert.equal(result.cursorPosition, 5, "type #2.0");
 });
 
 QUnit.test("numeric processInput simple number: delete characters", function(assert) {
@@ -464,16 +491,10 @@ QUnit.test("Serialize InputMaskNumber properties", function (assert) {
 
   q.maskType = "numbermask";
   json = jsonObject.toJsonObject(q);
-  // assert.deepEqual(json, {
-  //   name: "q1",
-  //   maskType: "numbermask",
-  //   maskSettings: {
-  //     "allowNegative": true,
-  //     "decimalSeparator": ".",
-  //     "precision": 2,
-  //     "thousandsSeparator": ","
-  //   }
-  // }, "init numbermask");
+  assert.deepEqual(json, {
+    name: "q1",
+    maskType: "numbermask"
+  }, "init numbermask");
 
   q.maskSettings["dataToSave"] = "masked";
   q.maskSettings["decimalSeparator"] = "-";
@@ -492,6 +513,7 @@ QUnit.test("Serialize InputMaskNumber properties", function (assert) {
       decimalSeparator: "-",
       thousandsSeparator: "*",
       precision: 5,
+      allowNegative: false,
       min: 0,
       max: 1000
     }

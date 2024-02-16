@@ -25,6 +25,11 @@ export class QuestionCustomWidget {
       return this.widgetJson.getDisplayValue(question, value);
     return null;
   }
+  public validate(question: IQuestion): string {
+    if (this.widgetJson.validate)
+      return this.widgetJson.validate(question);
+    return undefined;
+  }
   public isFit(question: IQuestion): boolean {
     if (this.isLibraryLoaded() && this.widgetJson.isFit)
       return this.widgetJson.isFit(question);

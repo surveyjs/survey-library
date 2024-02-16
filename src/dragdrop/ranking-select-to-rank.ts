@@ -143,29 +143,48 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
 
-    const ghostNode:any = document.querySelectorAll(".sv-ranking-item--ghost")[0]; //TODO
+    const animationCallback = ()=> {
+      questionModel.isValueSetByUser = true;
+      rankingChoices.splice(toIndex, 0, item);
+      questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    };
+    this.animateItemMovingToContainer(questionModel, item, animationCallback)
+  }
+
+  public unselectFromRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void => {
+    const rankingChoices = questionModel.rankingChoices;
+    const item = rankingChoices[fromIndex];
+
+    const animationCallback = ()=> {
+      questionModel.isValueSetByUser = true;
+      rankingChoices.splice(fromIndex, 1);
+      questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    };
+    this.animateItemMovingToContainer(questionModel, item, animationCallback);
+  }
+
+  private animateItemMovingToContainer = (questionModel: QuestionRankingModel, itemToAnimateAdding:ItemValue, callbackOnAnimationEnd:()=>void) => {
+    const ghostNode:any = document.querySelectorAll(".sv-ranking-item--ghost")[0];
+
+    if (!ghostNode) {
+      callbackOnAnimationEnd();
+      return;
+    }
+
     const handleTransitionEnd = (event: any) => {
       if (event.target !== ghostNode) { return; }
       if (event.propertyName !== "height") { return; }
       if (getComputedStyle(event.target).height !== "0px") { return; }
       ghostNode.removeEventListener("transitionend", handleTransitionEnd);
       this.removeAllAnimationClasses();
-      questionModel.isValueSetByUser = true;
-      questionModel.itemsToAnimateAdding.push(item);
-      rankingChoices.splice(toIndex, 0, item);
-      questionModel.setPropertyValue("rankingChoices", rankingChoices);
+      questionModel.itemsToAnimateAdding.push(itemToAnimateAdding);
+      callbackOnAnimationEnd();
     };
+
     ghostNode.removeEventListener("transitionend", handleTransitionEnd);
     this.removeAllAnimationClasses();
     ghostNode.addEventListener("transitionend", handleTransitionEnd);
     ghostNode.classList.add("sv-ranking-item--animate-item-removing");
-  }
-
-  public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void {
-    const rankingChoices = questionModel.rankingChoices;
-    questionModel.isValueSetByUser = true;
-    rankingChoices.splice(fromIndex, 1);
-    questionModel.setPropertyValue("rankingChoices", rankingChoices);
   }
 
   public reorderRankedItem(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {

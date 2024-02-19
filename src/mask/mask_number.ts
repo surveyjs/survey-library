@@ -1,6 +1,6 @@
 import { Serializer, property } from "../jsonobject";
 import { InputMaskBase } from "./mask_base";
-import { IMaskedValue, ITextMaskInputArgs, settings } from "./mask_utils";
+import { IMaskedValue, ITextMaskInputArgs, numberDefinition } from "./mask_utils";
 
 interface INumericalComposition {
   integralPart: string;
@@ -27,8 +27,6 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
 }
 
 export class InputMaskNumber extends InputMaskBase {
-  private currentDefinition = settings.definitions["9"];
-
   @property() allowNegative: boolean;
   @property() decimalSeparator: string;
   @property() precision: number;
@@ -136,7 +134,7 @@ export class InputMaskNumber extends InputMaskBase {
           break;
         }
         default: {
-          if(currentChar.match(this.currentDefinition)) {
+          if(currentChar.match(numberDefinition)) {
             if(result.decimalSeparatorCount === 0) {
               result.integralPart += currentChar;
             } else {

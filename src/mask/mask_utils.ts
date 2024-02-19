@@ -8,6 +8,8 @@ export var settings = {
   }
 };
 
+export var numberDefinition = /[0-9]/;
+
 export interface IMaskedValue {
   text: string;
   cursorPosition: number;

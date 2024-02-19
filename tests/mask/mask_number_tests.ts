@@ -122,21 +122,21 @@ QUnit.test("get numeric masked not allow negative value by formated text", funct
 
 QUnit.test("get numeric unmasked valid text", function(assert) {
   const maskInstance = new InputMaskNumber();
-  assert.equal(maskInstance.getUnmaskedValue("123"), 123);
-  assert.equal(maskInstance.getUnmaskedValue("123,456"), 123456);
-  assert.equal(maskInstance.getUnmaskedValue("123,456.78"), 123456.78);
-  assert.equal(maskInstance.getUnmaskedValue("123,456.789"), 123456.78);
-  assert.equal(maskInstance.getUnmaskedValue("123,456,789,101.12"), 123456789101.12);
+  assert.ok(maskInstance.getUnmaskedValue("123") === 123);
+  assert.ok(maskInstance.getUnmaskedValue("123,456") === 123456);
+  assert.ok(maskInstance.getUnmaskedValue("123,456.78") === 123456.78);
+  assert.ok(maskInstance.getUnmaskedValue("123,456.789") === 123456.78);
+  assert.ok(maskInstance.getUnmaskedValue("123,456,789,101.12") === 123456789101.12);
 });
 
 QUnit.test("get numeric unmasked valid text custom settings", function(assert) {
   const maskInstance = new InputMaskNumber();
   maskInstance.setData({ "decimalSeparator": ",", "thousandsSeparator": "." });
-  assert.equal(maskInstance.getUnmaskedValue("123"), 123);
-  assert.equal(maskInstance.getUnmaskedValue("123.456"), 123456);
-  assert.equal(maskInstance.getUnmaskedValue("123.456,78"), 123456.78);
-  assert.equal(maskInstance.getUnmaskedValue("123.456,789"), 123456.78);
-  assert.equal(maskInstance.getUnmaskedValue("123.456.789.101,12"), 123456789101.12);
+  assert.ok(maskInstance.getUnmaskedValue("123") === 123);
+  assert.ok(maskInstance.getUnmaskedValue("123.456") === 123456);
+  assert.ok(maskInstance.getUnmaskedValue("123.456,78") === 123456.78);
+  assert.ok(maskInstance.getUnmaskedValue("123.456,789") === 123456.78);
+  assert.ok(maskInstance.getUnmaskedValue("123.456.789.101,12") === 123456789101.12);
 });
 
 QUnit.test("numeric processInput: insert characters", function(assert) {
@@ -212,23 +212,6 @@ QUnit.test("numeric processInput: insert characters", function(assert) {
   result = maskInstance.processInput({ insertedCharacters: "0", selectionStart: 2, selectionEnd: 2, prevValue: "1,234,567.89", inputDirection: "leftToRight" });
   assert.equal(result.text, "10,234,567.89", "type #7.1");
   assert.equal(result.cursorPosition, 2, "type #7.1");
-});
-
-QUnit.skip("numeric with custom settings processInput: insert characters", function(assert) {
-  const maskInstance = new InputMaskNumber();
-  maskInstance.setData({
-    decimalSeparator: ",",
-    thousandsSeparator: " ",
-    precision: 3,
-    allowNegative: false,
-  });
-  let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 1, selectionEnd: 1, prevValue: "0", inputDirection: "leftToRight" });
-  assert.equal(result.text, "1", "type #1");
-  assert.equal(result.cursorPosition, 1, "type #1");
-
-  result = maskInstance.processInput({ insertedCharacters: "4", selectionStart: 3, selectionEnd: 3, prevValue: "123", inputDirection: "leftToRight" });
-  assert.equal(result.text, "1 234", "type #2.0");
-  assert.equal(result.cursorPosition, 5, "type #2.0");
 });
 
 QUnit.test("numeric processInput simple number: delete characters", function(assert) {
@@ -563,4 +546,47 @@ QUnit.test("Deserialize InputMaskNumber properties", function (assert) {
   assert.equal(maskSettings.allowNegative, true, "numbermask allowNegative");
   assert.equal(maskSettings.min, 0, "numbermask min");
   assert.equal(maskSettings.max, 1000, "numbermask max");
+});
+
+const customMaskSettings = {
+  decimalSeparator: ",",
+  thousandsSeparator: " ",
+  precision: 3,
+  allowNegative: false,
+};
+QUnit.test("parseNumber with custom settings", assert => {
+  const maskInstance = new InputMaskNumber();
+  maskInstance.setData(customMaskSettings);
+
+  assert.equal(maskInstance.parseNumber(123.45).integralPart, 123);
+  assert.equal(maskInstance.parseNumber(123.45).fractionalPart, 45);
+  assert.equal(maskInstance.parseNumber("123,45").integralPart, 123);
+  assert.equal(maskInstance.parseNumber("123,45").fractionalPart, 45);
+
+  assert.equal(maskInstance.parseNumber(",45").integralPart, 0);
+  assert.equal(maskInstance.parseNumber(",45").fractionalPart, 45);
+  assert.equal(maskInstance.parseNumber("123,").integralPart, 123);
+  assert.equal(maskInstance.parseNumber("123,").fractionalPart, 0);
+});
+
+QUnit.test("get numeric masked value with custom settings", function(assert) {
+  const maskInstance = new InputMaskNumber();
+  maskInstance.setData(customMaskSettings);
+  assert.equal(maskInstance.getMaskedValue(123456.78 as any), "123 456,78");
+  assert.equal(maskInstance.getMaskedValue(123456.789 as any), "123 456,789");
+
+  assert.equal(maskInstance.getMaskedValue("123456,78"), "123 456,78");
+  assert.equal(maskInstance.getMaskedValue("123456,789"), "123 456,789");
+});
+
+QUnit.test("numeric with custom settings processInput: insert characters", function(assert) {
+  const maskInstance = new InputMaskNumber();
+  maskInstance.setData(customMaskSettings);
+  let result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 1, selectionEnd: 1, prevValue: "0", inputDirection: "leftToRight" });
+  assert.equal(result.text, "1", "type #1");
+  assert.equal(result.cursorPosition, 1, "type #1");
+
+  result = maskInstance.processInput({ insertedCharacters: "4", selectionStart: 3, selectionEnd: 3, prevValue: "123", inputDirection: "leftToRight" });
+  assert.equal(result.text, "1 234", "type #2.0");
+  assert.equal(result.cursorPosition, 5, "type #2.0");
 });

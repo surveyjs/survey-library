@@ -113,7 +113,10 @@ export class InputMaskNumber extends InputMaskBase {
 
   public parseNumber(src: string | number): INumericalComposition {
     const result: INumericalComposition = { integralPart: "", fractionalPart: "", decimalSeparatorCount: 0, isNegative: false };
-    const input = (src === undefined || src === null) ? "" : src.toString();
+    let input = (src === undefined || src === null) ? "" : src.toString();
+    if(typeof src === "number") {
+      input = src.toString().replace(".", this.decimalSeparator);
+    }
     let minusCharCount = 0;
 
     for(let inputIndex = 0; inputIndex < input.length; inputIndex++) {
@@ -154,7 +157,7 @@ export class InputMaskNumber extends InputMaskBase {
   }
 
   public getNumberMaskedValue(src: string | number, matchWholeMask: boolean = false): string {
-    const input = (src === undefined || src === null) ? "" : src.toString();
+    const input = (src === undefined || src === null) ? "" : src;
     const parsedNumber = this.parseNumber(input);
     const displayText = this.displayNumber(parsedNumber, true, matchWholeMask);
     return displayText;
@@ -168,8 +171,8 @@ export class InputMaskNumber extends InputMaskBase {
   public getMaskedValue(src: string): string {
     return this.getNumberMaskedValue(src, true);
   }
-  public getUnmaskedValue(src: string): string {
-    return this.getNumberUnmaskedValue(src).toString();
+  public getUnmaskedValue(src: string): any {
+    return this.getNumberUnmaskedValue(src);
   }
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
     const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
@@ -192,6 +195,10 @@ export class InputMaskNumber extends InputMaskBase {
 
   public getType(): string {
     return "numbermask";
+  }
+
+  protected isPropertyEmpty(value: any): boolean {
+    return value === "" || value === undefined || value === null;
   }
 
   public isEmpty(): boolean {

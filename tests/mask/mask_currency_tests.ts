@@ -182,11 +182,11 @@ QUnit.test("get currency masked not allow negative value by formated text", func
 
 QUnit.test("get currency unmasked valid text", function(assert) {
   const maskInstance = new InputMaskCurrency();
-  assert.equal(maskInstance.getUnmaskedValue("$ 123"), 123);
-  assert.equal(maskInstance.getUnmaskedValue("$ 123,456"), 123456);
-  assert.equal(maskInstance.getUnmaskedValue("$ 123,456.78"), 123456.78);
-  assert.equal(maskInstance.getUnmaskedValue("$ 123,456.789"), 123456.78);
-  assert.equal(maskInstance.getUnmaskedValue("$ 123,456,789,101.12"), 123456789101.12);
+  assert.ok(maskInstance.getUnmaskedValue("$ 123") === 123);
+  assert.ok(maskInstance.getUnmaskedValue("$ 123,456") === 123456);
+  assert.ok(maskInstance.getUnmaskedValue("$ 123,456.78") === 123456.78);
+  assert.ok(maskInstance.getUnmaskedValue("$ 123,456.789") === 123456.78);
+  assert.ok(maskInstance.getUnmaskedValue("$ 123,456,789,101.12") === 123456789101.12);
 });
 
 QUnit.test("currency processInput: insert characters v2.0", function(assert) {

@@ -15797,6 +15797,8 @@ QUnit.test("Run expressions on changing comments", function (assert) {
 });
 
 QUnit.test("Check survey resize observer", function (assert) {
+  const prevSetTimeout = window.setTimeout;
+  window.setTimeout = <any>((func: any) => !!func && func());
   const getComputedStyle = window.getComputedStyle;
   window.getComputedStyle = <any>((el: HTMLElement) => {
     return el.style;
@@ -15828,21 +15830,29 @@ QUnit.test("Check survey resize observer", function (assert) {
   survey.dispose();
   assert.notOk(survey["resizeObserver"]);
   window.getComputedStyle = getComputedStyle;
+  window.setTimeout = prevSetTimeout;
   rootEl.remove();
 });
 
 class CustomResizeObserver {
+  active = true;
   constructor(private callback: () => void) { }
   observe() {
-    this.call();
+    this.active = true;
   }
   call() {
-    this.callback();
+    if (this.active) {
+      this.callback();
+    }
+  }
+  unobserve() {
+    this.active = false;
   }
 }
 
 QUnit.test("Check survey resize observer double process", function (assert) {
-  window.queueMicrotask = (func: any) => !!func && func();
+  const prevSetTimeout = window.setTimeout;
+  window.setTimeout = <any>((func: any) => !!func && func());
   const getComputedStyle = window.getComputedStyle;
   window.getComputedStyle = <any>((el: HTMLElement) => {
     return el.style;
@@ -15867,17 +15877,20 @@ QUnit.test("Check survey resize observer double process", function (assert) {
     return true;
   };
   survey.afterRenderSurvey(rootEl);
+  assert.equal(trace, "");
+  (<any>survey["resizeObserver"]).call();
   assert.equal(trace, "->processed");
   (<any>survey["resizeObserver"]).call();
   assert.equal(trace, "->processed", "prevent double process");
-  (<any>survey["resizeObserver"]).call();
-  assert.equal(trace, "->processed->processed");
+  window.setTimeout = prevSetTimeout;
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
   rootEl.remove();
 });
 
 QUnit.test("Check survey resize observer do not process if container is not visible", function (assert) {
+  const prevSetTimeout = window.setTimeout;
+  window.setTimeout = <any>((func: any) => !!func && func());
   const getComputedStyle = window.getComputedStyle;
   window.getComputedStyle = <any>((el: HTMLElement) => {
     return el.style;
@@ -15909,6 +15922,7 @@ QUnit.test("Check survey resize observer do not process if container is not visi
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
   window.getComputedStyle = getComputedStyle;
+  window.setTimeout = prevSetTimeout;
   rootEl.remove();
 });
 

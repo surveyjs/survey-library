@@ -86,7 +86,8 @@ QUnit.test("check rating initResponsiveness", (assert) => {
 });
 
 QUnit.test("check rating resize observer behavior", (assert) => {
-  window.queueMicrotask = (func: any) => !!func && func();
+  const prevSetTimeout = window.setTimeout;
+  window.setTimeout = <any>((func: any) => !!func && func());
   const ResizeObserver = window.ResizeObserver;
   const getComputedStyle = window.getComputedStyle;
   window.ResizeObserver = <any>CustomResizeObserver;
@@ -146,6 +147,7 @@ QUnit.test("check rating resize observer behavior", (assert) => {
   assert.equal(q1.renderAs, "default", "https://github.com/surveyjs/survey-creator/issues/2966: after destroying resize observer renderAs should return to default state");
   window.getComputedStyle = getComputedStyle;
   window.ResizeObserver = ResizeObserver;
+  window.setTimeout = prevSetTimeout;
 
   contentElement.remove();
   rootElement.remove();

@@ -205,22 +205,29 @@ QUnit.test("check isResponsive getter after end of loading json", function (asse
 });
 
 export class CustomResizeObserver {
+  active = true;
   constructor(private callback: () => void) { }
   observe() {
-    this.call();
+    this.active = true;
   }
   call() {
-    this.callback();
+    if (this.active) {
+      this.callback();
+    }
   }
-  disconnect() { }
+  unobserve() {
+    this.active = false;
+  }
+  disconnect() {
+    this.unobserve();
+  }
 }
 
 QUnit.test("check resizeObserver behavior", function (assert) {
-  window.queueMicrotask = (func: any) => !!func && func();
   const ResizeObserver = window.ResizeObserver;
-  const setTimeout = window.setTimeout;
   window.ResizeObserver = <any>CustomResizeObserver;
-  window.setTimeout = <any>((f) => f());
+  const setTimeout = window.setTimeout;
+  window.setTimeout = <any>((f) => !!f && f());
   const rootEl = document.createElement("div");
   const contentEl = document.createElement("div");
   contentEl.className = "sd-selectbase sd-imagepicker";
@@ -252,13 +259,13 @@ QUnit.test("check resizeObserver behavior", function (assert) {
     return true;
   };
   q.afterRender(rootEl);
-  assert.equal(trace, "->processed");
+  assert.equal(trace, "");
   (<any>q["resizeObserver"]).call();
   assert.equal(trace, "->processed", "prevent from double call");
   (<any>q["resizeObserver"]).call();
-  assert.equal(trace, "->processed->processed");
+  assert.equal(trace, "->processed", "prevent from double call");
   survey.setIsMobile(true);
-  assert.equal(trace, "->processed->processed->processed", "always process when isMobile changed");
+  assert.equal(trace, "->processed->processed", "always process when isMobile changed");
   window.ResizeObserver = ResizeObserver;
   window.setTimeout = setTimeout;
 
@@ -267,7 +274,8 @@ QUnit.test("check resizeObserver behavior", function (assert) {
 });
 
 QUnit.test("check resizeObserver not process if container is not visible", function (assert) {
-  window.queueMicrotask = (func: any) => !!func && func();
+  const prevSetTimeout = window.setTimeout;
+  window.setTimeout = <any>((func: any) => !!func && func());
   const ResizeObserver = window.ResizeObserver;
   window.ResizeObserver = <any>CustomResizeObserver;
   const rootEl = document.createElement("div");
@@ -307,6 +315,7 @@ QUnit.test("check resizeObserver not process if container is not visible", funct
   (<any>q["resizeObserver"]).call();
   assert.equal(trace, "->processed", "process responsivness on visible container");
   window.ResizeObserver = ResizeObserver;
+  window.setTimeout = prevSetTimeout;
 
   contentEl.remove();
   rootEl.remove();

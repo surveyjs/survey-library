@@ -44,11 +44,12 @@ export class SurveyLocStringViewer extends React.Component<any, any> {
     return strEl;
   }
   protected renderString(): JSX.Element {
+    const className = this.locStr.allowLineBreaks ? "sv-string-viewer sv-string-viewer--multiline" : "sv-string-viewer";
     if (this.locStr.hasHtml) {
       let htmlValue = { __html: this.locStr.renderedHtml };
-      return <span ref={this.rootRef} className="sv-string-viewer" style={this.style} dangerouslySetInnerHTML={htmlValue} />;
+      return <span ref={this.rootRef} className={className} style={this.style} dangerouslySetInnerHTML={htmlValue} />;
     }
-    return <span ref={this.rootRef} className="sv-string-viewer" style={this.style}>{this.locStr.renderedHtml}</span>;
+    return <span ref={this.rootRef} className={className} style={this.style}>{this.locStr.renderedHtml}</span>;
   }
 }
 

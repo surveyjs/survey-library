@@ -127,6 +127,9 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     let rootElementX = this.rootElement.getBoundingClientRect().x;
     let rootElementY = this.rootElement.getBoundingClientRect().y;
 
+    let rootElementScrollLeft = this.rootElement.scrollLeft;
+    let rootElementScrollTop = this.rootElement.scrollTop;
+
     this.doScroll(event.clientY, event.clientX);
 
     const shortcutHeight = this.draggedElementShortcut.offsetHeight;
@@ -150,8 +153,8 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     const clientY = event.clientY;
 
     if (!!this.fitToContainer) {
-      rootElementX = clientX - pageX;
-      rootElementY = clientY - pageY;
+      rootElementX -= rootElementScrollLeft;
+      rootElementY -= rootElementScrollTop;
     }
 
     const shortcutBottomCoordinate = this.getShortcutBottomCoordinate(clientY, shortcutHeight, shortcutYOffset);

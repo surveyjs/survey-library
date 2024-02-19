@@ -45,6 +45,16 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
       this.dropdownListModel = new DropdownMultiSelectListModel(this);
     }
   }
+  /**
+   * Specifies a comparison operation used to filter the drop-down list. Applies only if [`searchEnabled`](#searchEnabled) is `true`.
+   *
+   * Possible values:
+   *
+   * - `"contains"` (default)
+   * - `"startsWith"`
+   * @see [SurveyModel.onChoicesSearch](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onChoicesSearch)
+   */
+  @property() searchMode: "contains" | "startsWith";
 
   /**
    * Specifies whether to display a button that clears the selected value.
@@ -242,7 +252,8 @@ Serializer.addClass(
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },
     { name: "closeOnSelect:boolean" },
-    { name: "itemComponent", visible: false, default: "" }
+    { name: "itemComponent", visible: false, default: "" },
+    { name: "searchMode", default: "contains", choices: ["contains", "startsWith"] }
   ],
   function () {
     return new QuestionTagboxModel("");

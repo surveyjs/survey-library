@@ -152,6 +152,15 @@ export class DropdownListModel extends Base {
   protected getAvailableItems(): Array<ItemValue> {
     return this.question.visibleChoices;
   }
+  protected setOnTextSearchCallbackForListModel(listModel: ListModel<ItemValue>) {
+    listModel.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
+      if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
+      let textInLow = item.text.toLocaleLowerCase();
+      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
+      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
+      return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
+    });
+  }
   protected createListModel(): ListModel<ItemValue> {
     const visibleItems = this.getAvailableItems();
     let _onSelectionChanged = this.onSelectionChanged;
@@ -163,13 +172,7 @@ export class DropdownListModel extends Base {
       };
     }
     const res = new ListModel<ItemValue>(visibleItems, _onSelectionChanged, false, undefined, this.question.choicesLazyLoadEnabled ? this.listModelFilterStringChanged : undefined, this.listElementId);
-    res.setOnTextSearchCallback((item: ItemValue, textToSearch: string) => {
-      if (this.filteredItems) return this.filteredItems.indexOf(item) >= 0;
-      let textInLow = item.text.toLocaleLowerCase();
-      textInLow = settings.comparator.normalizeTextCallback(textInLow, "filter");
-      const index = textInLow.indexOf(textToSearch.toLocaleLowerCase());
-      return this.question.searchMode == "startsWith" ? index == 0 : index > -1;
-    });
+    this.setOnTextSearchCallbackForListModel(res);
     res.renderElements = false;
     res.forceShowFilter = true;
     res.areSameItemsCallback = (item1: IAction, item2: IAction): boolean => {

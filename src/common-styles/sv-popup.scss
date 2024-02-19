@@ -86,11 +86,13 @@ sv-popup {
 
   .sv-popup__body-content {
     border-radius: calcSize(1);
+    max-width: min-content;
   }
 
   .sv-popup__body-header {
     color: $font-editorfont-color;
     margin-bottom: 0;
+    min-width: 452px;
 
     /* UI/Default */
     font-family: $font-family;
@@ -107,6 +109,7 @@ sv-popup {
 
   .sv-popup__body-footer {
     padding-bottom: 0;
+    max-width: max-content;
 
     .sv-action-bar {
       gap: calcSize(2);

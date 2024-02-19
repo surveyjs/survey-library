@@ -85,8 +85,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
 
     let { fromIndex, toIndex } = this.getIndixies(questionModel, fromChoicesArray, toChoicesArray);
 
-    rankFunction(questionModel, fromIndex, toIndex);
-    this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+    rankFunction(questionModel, fromIndex, toIndex, dropTargetNode);
   }
 
   public getIndixies(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
@@ -187,7 +186,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     ghostNode.classList.add("sv-ranking-item--animate-item-removing");
   }
 
-  public reorderRankedItem(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+  public reorderRankedItem = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void => {
     const rankingChoices = questionModel.rankingChoices;
     const item = rankingChoices[fromIndex];
 
@@ -195,6 +194,8 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     rankingChoices.splice(fromIndex, 1);
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
+
+    this.doUIEffects(dropTargetNode, fromIndex, toIndex);
   }
 
   protected doDrop = (): any => {

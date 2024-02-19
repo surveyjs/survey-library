@@ -1016,4 +1016,63 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("question-empty-title-height.png", questionRows.nth(0), t, comparer);
     });
   });
+
+  test("Question content scroll", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1920, 1080);
+      await initSurvey(framework, {
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "radiogroup",
+                "name": "question2",
+                "choices": [
+                  {
+                    "value": "Item 1",
+                    "text": "11111111111111111111111"
+                  },
+                  {
+                    "value": "Item 2",
+                    "text": "2222222222222222222222222222"
+                  },
+                  {
+                    "value": "Item 3",
+                    "text": "333333333333333"
+                  },
+                  {
+                    "value": "Item 4",
+                    "text": "44444444444444444444444444444"
+                  },
+                  {
+                    "value": "Item 5",
+                    "text": "555555555555555555555555"
+                  },
+                  {
+                    "value": "Item 6",
+                    "text": "6666666666666"
+                  },
+                  {
+                    "value": "Item 7",
+                    "text": "7777777777777777777777777"
+                  },
+                  {
+                    "value": "Item 8",
+                    "text": "88888888888888888888888888888888888888"
+                  }
+                ],
+                "colCount": 3
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "650"
+      });
+      const question = Selector(".sd-question");
+      await takeElementScreenshot("question-multicolumn-scroll.png", question, t, comparer);
+    });
+  });
 });

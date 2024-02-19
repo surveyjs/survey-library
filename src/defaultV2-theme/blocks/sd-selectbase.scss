@@ -46,3 +46,6 @@
 .sd-selectbase__column.sv-q-column-1 {
   width: 100%;
 }
+.sd-selectbase:not(.sd-imagepicker) {
+  overflow-x: auto;
+}

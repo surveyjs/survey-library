@@ -136,6 +136,7 @@ export {
   JsonMissingTypeError,
   JsonMissingTypeErrorBase,
   JsonObject,
+  IJsonPropertyInfo,
   JsonObjectProperty,
   JsonRequiredPropertyError,
   JsonUnknownPropertyError,

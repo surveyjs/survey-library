@@ -5015,7 +5015,7 @@ QUnit.test("customWidgets support displayValue", function (assert) {
     },
     getDisplayValue: (question: Question): string => {
       if (question.value === 1) return "one";
-      return null;
+      return "";
     },
   });
   var survey = twoPageSimplestSurvey();
@@ -5044,7 +5044,7 @@ QUnit.test("customWidgets camel name", function (assert) {
     },
   });
   if (!Serializer.findClass("camelName")) {
-    Serializer.addClass("camelName", [], null, "text");
+    Serializer.addClass("camelName", [], undefined, "text");
   }
 
   var survey = new SurveyModel({

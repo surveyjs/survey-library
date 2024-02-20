@@ -380,6 +380,7 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     selection.addRange(range);
     let tail = selection.toString();
     let innerText = element.innerText;
+    tail = tail.replace(/\r/g, "");
     if (cleanLineBreaks) {
       tail = tail.replace(/\n/g, "");
       innerText = innerText.replace(/\n/g, "");
@@ -389,14 +390,14 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     element.innerText = innerText;
     range = document.createRange();
 
-    range.setStart(element.lastChild, element.lastChild.textContent.length);
-    range.setEnd(element.lastChild, element.lastChild.textContent.length);
+    range.setStart(element.firstChild, 0);
+    range.setEnd(element.firstChild, 0);
 
     selection.removeAllRanges();
     selection.addRange(range);
 
-    for (let i = 0; i < tail_len; i++) {
-      (selection as any).modify("move", "backward", "character");
+    for (let i = 0; i < innerText.length - tail_len; i++) {
+      (selection as any).modify("move", "forward", "character");
     }
   }
 }

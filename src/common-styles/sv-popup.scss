@@ -87,12 +87,14 @@ sv-popup {
   .sv-popup__body-content {
     border-radius: calcSize(1);
     max-width: min-content;
+    align-items: flex-end;
+    min-width: 452px;
   }
 
   .sv-popup__body-header {
     color: $font-editorfont-color;
     margin-bottom: 0;
-    min-width: 452px;
+    align-self: self-start;
 
     /* UI/Default */
     font-family: $font-family;

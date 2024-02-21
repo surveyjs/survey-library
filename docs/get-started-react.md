@@ -1,10 +1,12 @@
 ---
 title: React Form Library | Getting Started Guide
-description: A step-by-step tutorial on how to add the SurveyJS Form Library to a React application.
+description: SurveyJS Form Library for React is an open-source UI component that renders forms built from JSON schema in React applications. It offers a rich collection of reusable input fields and other form components and simplifies form handling by managing form state, validation, and submission.
 ---
-# Add a Survey to a React Application
+# React Form Library
 
-This step-by-step tutorial will help you get started with the SurveyJS Form Library in a React application. To add a survey to your React application, follow the steps below:
+The SurveyJS Form Library for React is a client-side component that uses JSON objects to render dynamic forms in React applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the rendering Form Library dynamically generates the corresponding HTML elements and renders them on a web page.
+
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a React application. To add a form to your React application, follow the steps below:
 
 - [Install the `survey-react-ui` npm Package](#install-the-survey-react-npm-package)
 - [Configure Styles](#configure-styles)
@@ -12,7 +14,7 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
 - [Render the Survey](#render-the-survey)
 - [Handle Survey Completion](#handle-survey-completion)
 
-As a result, you will create a survey displayed below:
+As a result, you will create a form displayed below:
 
 <iframe src="https://codesandbox.io/embed/surveyjs-add-a-survey-to-a-react-application-j206b?fontsize=14&hidenavigation=1&theme=dark"
     style="width:100%; height:600px; border:0; border-radius: 4px; overflow:hidden;"
@@ -36,7 +38,7 @@ SurveyJS Form Library is shipped with several predefined themes illustrated belo
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To add SurveyJS themes to your application, open the React component that will render your survey and import the Form Library style sheet:
+To add SurveyJS themes to your application, open the React component that will render your form or survey and import the Form Library style sheet:
 
 ```js
 import 'survey-core/defaultV2.min.css';
@@ -107,9 +109,9 @@ export default App;
 ```
 </details>
 
-## Render the Survey
+## Render the Form
 
-To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
+To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
 
 ```js
 import { Survey } from 'survey-react-ui';
@@ -123,7 +125,7 @@ function App() {
 }
 ```
 
-If you replicate the code correctly, you should see the following survey:
+If you replicate the code correctly, you should see the following form:
 
 ![Get Started with SurveyJS - Primitive Survey](images/get-started-primitive-survey.png)
 
@@ -157,9 +159,9 @@ export default App;
 ```
 </details>
 
-## Handle Survey Completion
+## Handle Form Completion
 
-After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
+After a respondent submits a form, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
 
 ```js
 import { useCallback } from 'react';
@@ -221,7 +223,7 @@ function App() {
 
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
-As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
+As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 To view the application, run `npm run start` in a command line and open [http://localhost:3000/](http://localhost:3000/) in your browser.
 

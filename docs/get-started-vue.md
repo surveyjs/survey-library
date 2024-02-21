@@ -4,7 +4,7 @@ description: SurveyJS Form Library for Vue.js is an open-source UI component tha
 ---
 # Vue.js Form Library
 
-The SurveyJS Form Library for Vue.js is a client-side component that uses JSON objects to render dynamic forms in Vue 2 and Vue 3 applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the Form Library dynamically generates the corresponding HTML elements and renders them using native Vue rendering mechanism.
+SurveyJS Form Library for Vue.js is a client-side component that uses JSON objects to render dynamic forms in Vue 2 and Vue 3 applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the Form Library dynamically generates the corresponding HTML elements and renders them using native Vue rendering mechanism.
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue 2 or Vue 3 application. As a result, you will create a form displayed below:
 
@@ -16,6 +16,8 @@ This step-by-step tutorial will help you get started with the SurveyJS Form Libr
 
 [View Full Code for Vue 3](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
 [View Full Code for Vue 2](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue (linkStyle))
+
+<a id="add-a-survey-to-a-vue-3-application"></a>
 
 ## Add a Form to a Vue 3 Application
 
@@ -114,6 +116,7 @@ const survey = new Model(surveyJson);
 ```
 </details>
 
+<a id="render-the-survey"></a>
 
 ### Render the Form
 
@@ -172,6 +175,8 @@ const survey = new Model(surveyJson);
 </template>
 ```
 </details>
+
+<a id="handle-survey-completion"></a>
 
 ### Handle Form Completion
 
@@ -279,6 +284,8 @@ survey.onComplete.add(alertResults);
 </details>
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
+
+<a id="add-a-survey-to-a-vue-3-application"></a>
 
 ## Add a Form to a Vue 2 Application
 
@@ -392,6 +399,7 @@ export default {
 ```
 </details>
 
+<a id="render-the-survey"></a>
 
 ### Render the Form
 
@@ -466,6 +474,8 @@ export default {
 </script>
 ```
 </details>
+
+<a id="handle-survey-completion"></a>
 
 ### Handle Form Completion
 

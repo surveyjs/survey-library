@@ -4,15 +4,15 @@ description: SurveyJS Form Library for React is an open-source UI component that
 ---
 # React Form Library
 
-The SurveyJS Form Library for React is a client-side component that uses JSON objects to render dynamic forms in React applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the rendering Form Library dynamically generates the corresponding HTML elements and renders them on a web page.
+SurveyJS Form Library for React is a client-side component that uses JSON objects to render dynamic forms in React applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the rendering Form Library dynamically generates the corresponding HTML elements and displays them on a web page.
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in a React application. To add a form to your React application, follow the steps below:
 
 - [Install the `survey-react-ui` npm Package](#install-the-survey-react-npm-package)
 - [Configure Styles](#configure-styles)
 - [Create a Model](#create-a-model)
-- [Render the Form](#render-the-survey)
-- [Handle Form Completion](#handle-survey-completion)
+- [Render the Form](#render-the-form)
+- [Handle Form Completion](#handle-form-completion)
 
 As a result, you will create a form displayed below:
 
@@ -109,6 +109,8 @@ export default App;
 ```
 </details>
 
+<a id="render-the-survey"></a>
+
 ## Render the Form
 
 To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
@@ -158,6 +160,8 @@ function App() {
 export default App;
 ```
 </details>
+
+<a id="handle-survey-completion"></a>
 
 ## Handle Form Completion
 

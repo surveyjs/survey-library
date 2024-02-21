@@ -4,15 +4,15 @@ description: SurveyJS Form Library for Angular is an open-source UI component th
 ---
 # Angular Form Library
 
-The SurveyJS Form Library for Angular is a client-side component that uses JSON objects to render dynamic forms in Angular applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the rendering Form Library dynamically generates the corresponding HTML elements and renders them on a web page.
+SurveyJS Form Library for Angular is a client-side component that uses JSON objects to render dynamic forms in Angular applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the rendering Form Library dynamically generates the corresponding HTML elements and displays them on a web page.
 
 This step-by-step tutorial will help you get started with the SurveyJS Form Library in an Angular application. To add a form to your Angular application, follow the steps below:
 
 - [Install the `survey-angular-ui` npm Package](#install-the-survey-angular-ui-npm-package)
 - [Configure Styles](#configure-styles)
 - [Create a Model](#create-a-model)
-- [Render the Form](#render-the-survey)
-- [Handle Form Completion](#handle-survey-completion)
+- [Render the Form](#render-the-form)
+- [Handle Form Completion](#handle-form-completion)
 
 As a result, you will create a form displayed below:
 
@@ -154,7 +154,9 @@ export class AppComponent implements OnInit {
 ```
 </details>
 
-## Render the Survey
+<a id="render-the-survey"></a>
+
+## Render the Form
 
 Before you render the survey, you need to import the module that integrates the SurveyJS Form Library with Angular. Open your NgModule class (usually resides in the `app.module.ts` file), import the `SurveyModule` from `survey-angular-ui`, and list it in the `imports` array.
 
@@ -248,6 +250,8 @@ import { AppComponent } from './app.component';
 export class AppModule { }
 ```
 </details>
+
+<a id="handle-survey-completion"></a>
 
 ## Handle Form Completion
 

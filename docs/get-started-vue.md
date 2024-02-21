@@ -1,21 +1,23 @@
 ---
 title: Vue.js Form Library | Getting Started Guide
-description: A step-by-step tutorial on how to add the SurveyJS Form Library to a Vue.js application.
+description: SurveyJS Form Library for Vue.js is an open-source UI component that renders forms built from JSON schema in Vue.js applications. It offers a rich collection of reusable input fields and other form components and simplifies form handling by managing form state, validation, and submission.
 ---
-# Add a Survey to a Vue.js Application
+# Vue.js Form Library
 
-This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue 2 or Vue 3 application. As a result, you will create a survey displayed below:
+The SurveyJS Form Library for Vue.js is a client-side component that uses JSON objects to render dynamic forms in Vue 2 and Vue 3 applications and send submission data to a database for storage. These JSON objects contain key-value pairs representing various aspects of a form, including descriptions of each form field, instructions on how to organize form fields on the page, and how the form should behave in response to user interactions, such as submitting data, validating input, and displaying error messages. By loading the JSON schemas that define form layout and content, the Form Library dynamically generates the corresponding HTML elements and renders them using native Vue rendering mechanism.
+
+This step-by-step tutorial will help you get started with the SurveyJS Form Library in a Vue 2 or Vue 3 application. As a result, you will create a form displayed below:
 
 <iframe src="https://codesandbox.io/embed/surveyjs-add-a-survey-to-a-vue-application-nn9zm?fontsize=14&hidenavigation=1&module=%2Fsrc%2Fcomponents%2FMyFirstSurvey.vue&theme=dark"
     style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;"
-    title="SurveyJS - Add a Survey to a Vue Application"
+    title="SurveyJS - Add a Form to a Vue Application"
     sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
 ></iframe>
 
 [View Full Code for Vue 3](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
 [View Full Code for Vue 2](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue (linkStyle))
 
-## Add a Survey to a Vue 3 Application
+## Add a Form to a Vue 3 Application
 
 ### Install the `survey-vue3-ui` npm Package
 
@@ -31,7 +33,7 @@ SurveyJS Form Library is shipped with several predefined themes illustrated belo
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To add SurveyJS themes to your application, open the Vue component that will render your survey and import the Form Library style sheet:
+To add SurveyJS themes to your application, open the Vue component that will render your form and import the Form Library style sheet:
 
 ```html
 <script setup lang="ts">
@@ -49,7 +51,7 @@ This style sheet applies the Default theme. If you want to apply a different pre
 
 ### Create a Model
 
-A model describes the layout and contents of your survey. The simplest survey model contains one or several questions without layout modifications.
+A model describes the layout and contents of your survey. The simplest form model contains one or several questions without layout modifications.
 
 Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
@@ -113,9 +115,9 @@ const survey = new Model(surveyJson);
 </details>
 
 
-### Render the Survey
+### Render the Form
 
-Survey rendering code is encapsulated in the `SurveyComponent`. To use it in your template, you need to install `surveyPlugin`. Open the `main.ts` file, import `surveyPlugin`, and install it using the `app.use()` method:
+Form rendering code is encapsulated in the `SurveyComponent`. To use it in your template, you need to install `surveyPlugin`. Open the `main.ts` file, import `surveyPlugin`, and install it using the `app.use()` method:
 
 ```js
 // main.ts
@@ -171,7 +173,7 @@ const survey = new Model(surveyJson);
 ```
 </details>
 
-### Handle Survey Completion
+### Handle Form Completion
 
 After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
 
@@ -237,7 +239,7 @@ const alertResults = (sender: any) => {
 
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
-As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
+As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 To view the application, run `npm run dev` in a command line and open [http://localhost:5173/](http://localhost:5173/) in your browser.
 
@@ -278,7 +280,7 @@ survey.onComplete.add(alertResults);
 
 [View Full Code on GitHub](https://github.com/surveyjs/code-examples/tree/main/get-started-library/vue3 (linkStyle))
 
-## Add a Survey to a Vue 2 Application
+## Add a Form to a Vue 2 Application
 
 ### Install the `survey-vue-ui` npm Package
 
@@ -294,7 +296,7 @@ SurveyJS Form Library is shipped with several predefined themes illustrated belo
 
 ![Themes in SurveyJS Form Library](images/survey-library-themes.png)
 
-To add SurveyJS themes to your application, open the Vue component that will render your survey and import the Form Library style sheet:
+To add SurveyJS themes to your application, open the Vue component that will render your form or survey and import the Form Library style sheet:
 
 ```html
 <template>
@@ -312,7 +314,7 @@ This style sheet applies the Default theme. If you want to apply a different pre
 
 ### Create a Model
 
-A model describes the layout and contents of your survey. The simplest survey model contains one or several questions without layout modifications.
+A model describes the layout and contents of your survey. The simplest form model contains one or several questions without layout modifications.
 
 Models are specified by model schemas (JSON objects). For example, the following model schema declares two [textual questions](https://surveyjs.io/Documentation/Library?id=questiontextmodel), each with a [title](https://surveyjs.io/Documentation/Library?id=questiontextmodel#title) and a [name](https://surveyjs.io/Documentation/Library?id=questiontextmodel#name). Titles are displayed on screen. Names are used to identify the questions in code.
 
@@ -391,7 +393,7 @@ export default {
 </details>
 
 
-### Render the Survey
+### Render the Form
 
 To render a survey, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `survey` attribute:
 
@@ -465,7 +467,7 @@ export default {
 ```
 </details>
 
-### Handle Survey Completion
+### Handle Form Completion
 
 After a respondent completes a survey, the results are available within the [onComplete](https://surveyjs.io/Documentation/Library?id=surveymodel#onComplete) event handler. In real-world applications, you should send the results to a server where they will be stored in a database and processed:
 
@@ -551,7 +553,7 @@ export default {
 
 ![Get Started with SurveyJS - Survey Results](images/get-started-primitive-survey-alert.png)
 
-As you can see, survey results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
+As you can see, form results are saved in a JSON object. Its properties correspond to the `name` property values of your questions in the model schema.
 
 To view the application, run `npm run serve` in a command line and open [http://localhost:8080/](http://localhost:8080/) in your browser.
 

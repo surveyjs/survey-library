@@ -2265,6 +2265,38 @@ QUnit.test("Composite: with expression", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with setValueIf & setValueExpression, bug#7888", function (assert) {
+  const json = {
+    name: "comp1",
+    elementsJSON: [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "enableIf": "{composite.q1} notempty",
+        "setValueIf": "{composite.q1} notempty",
+        "setValueExpression": "{composite.q1} + {composite.q1}"
+      }
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "comp1", name: "question1" }] });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "#1");
+  q1.value = 1;
+  assert.equal(q2.value, 2, "#2");
+  q1.value = 3;
+  assert.equal(q2.value, 6, "#3");
+  q1.clearValue();
+  assert.equal(q2.value, 6, "#4");
+
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: check valueToData and valueFromData callbacks", function (assert) {
   const json = {
     name: "test",

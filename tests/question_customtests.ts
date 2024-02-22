@@ -2265,6 +2265,38 @@ QUnit.test("Composite: with expression", function (assert) {
 
   ComponentCollection.Instance.clear();
 });
+QUnit.test("Composite: with setValueIf & setValueExpression, bug#7888", function (assert) {
+  const json = {
+    name: "comp1",
+    elementsJSON: [
+      {
+        "type": "text",
+        "name": "q1"
+      },
+      {
+        "type": "text",
+        "name": "q2",
+        "enableIf": "{composite.q1} notempty",
+        "setValueIf": "{composite.q1} notempty",
+        "setValueExpression": "{composite.q1} + {composite.q1}"
+      }
+    ],
+  };
+  ComponentCollection.Instance.add(json);
+  const survey = new SurveyModel({ elements: [{ type: "comp1", name: "question1" }] });
+  const q = <QuestionCompositeModel>survey.getAllQuestions()[0];
+  const q1 = q.contentPanel.getQuestionByName("q1");
+  const q2 = q.contentPanel.getQuestionByName("q2");
+  assert.equal(q2.isEmpty(), true, "#1");
+  q1.value = 1;
+  assert.equal(q2.value, 2, "#2");
+  q1.value = 3;
+  assert.equal(q2.value, 6, "#3");
+  q1.clearValue();
+  assert.equal(q2.value, 6, "#4");
+
+  ComponentCollection.Instance.clear();
+});
 QUnit.test("Composite: check valueToData and valueFromData callbacks", function (assert) {
   const json = {
     name: "test",
@@ -2948,6 +2980,39 @@ QUnit.test("file question in composite component doesn't show preview in preview
   assert.equal(survey.state, "running", "state #2");
   assert.equal(file_q1.showPreviewContainer, true, "file_q1 #1");
   assert.equal(file_q2.showPreviewContainer, true, "file_q2 #1");
+
+  ComponentCollection.Instance.clear();
+});
+
+QUnit.test("Composite + Ranking", function (assert) {
+  const json = {
+    "elements": [{
+      "name": "q_composite",
+      "type": "compostite_witn_ranking"
+    }]
+  };
+  const comp_json = {
+    name: "compostite_witn_ranking",
+    showInToolbox: false,
+    internal: true,
+    elementsJSON: [
+      {
+        name: "q_ranking",
+        type: "ranking",
+        selectToRankEnabled: true,
+      }
+    ]
+  };
+  ComponentCollection.Instance.add(comp_json);
+
+  const survey = new SurveyModel(json);
+  const q_composite = survey.getQuestionByName("q_composite");
+  const q_ranking = q_composite.contentPanel.getQuestionByName("q_ranking");
+  q_ranking.choices = ["a", "b", "c", "d", "e"];
+  q_ranking.value = ["a", "b", "c"];
+
+  assert.equal(q_ranking.unRankingChoices.length, 2, "ranking value is correct (unrank list length) ['d', 'e']");
+  assert.equal(q_ranking.rankingChoices.length, 3, "ranking value is correct (rank list length) ['a', 'b', 'c'");
 
   ComponentCollection.Instance.clear();
 });

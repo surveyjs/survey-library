@@ -545,8 +545,8 @@ export class Base {
     var survey = this.getSurvey();
     return !!survey && survey.isEditingSurveyElement;
   }
-  public iteratePropertiesHash(func: (hash: any, key: any) => void) {
-    var keys: any[] = [];
+  public iteratePropertiesHash(func: (hash: any, key: string) => void) {
+    var keys: string[] = [];
     for (var key in this.propertyHash) {
       if (
         key === "value" &&

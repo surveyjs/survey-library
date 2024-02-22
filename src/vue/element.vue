@@ -8,6 +8,7 @@
         :aria-required="element.ariaRequired"
         :aria-invalid="element.ariaInvalid"
         :aria-labelledby="element.ariaLabelledBy"
+        :aria-describedby="element.ariaDescribedBy"
         :aria-expanded="element.ariaExpanded"
         :data-name="element.name">
     <survey-errors

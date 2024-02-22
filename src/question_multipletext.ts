@@ -38,6 +38,10 @@ export class MultipleTextEditorModel extends QuestionTextModel {
   public get a11y_input_ariaLabelledBy(): string {
     return null;
   }
+
+  public get a11y_input_ariaDescribedBy(): string {
+    return null;
+  }
 }
 
 /**

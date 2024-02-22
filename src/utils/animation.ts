@@ -1,3 +1,5 @@
+import { ArrayChanges, Base } from "../base";
+
 export interface AnimationOptions<T> {
   classes: T;
   onBeforeRunAnimation?: (element: HTMLElement) => void;
@@ -59,3 +61,104 @@ export class Animation {
     }
   }
 }
+
+export class AnimationCollection<T> {
+  constructor(private obj: Base, private propertyName: string, private animationOptions: { onEnter: OnEnterOptions, onLeave: OnLeaveOptions }, private update: (arr: Array<T>) => void) {
+    obj.registerFunctionOnPropertyValueChanged(propertyName, (newValue: Array<T>, arrayChanges: ArrayChanges<T>) => { this.sync(newValue, arrayChanges); }, "animation");
+  }
+  sync(array: Array<T>, { itemsToAdd, deletedItems }: ArrayChanges<T>): void {
+    itemsToAdd?.forEach((element) =>
+      new Animation().onEnter(
+        () =>
+                  document.getElementById(
+                    (element as any).id
+                  ) as HTMLElement,
+        {
+          classes: { onEnter: "fadeIn" },
+          onBeforeRunAnimation: (el) => {
+            el.style.setProperty(
+              "--animation-height",
+              el.offsetHeight + "px"
+            );
+          },
+        }
+      )
+    );
+    if (deletedItems?.length > 0) {
+      let counter = deletedItems.length;
+      deletedItems.forEach((row) => {
+        new Animation().onLeave(
+          () =>
+                    document.getElementById(
+                      (row as any).id
+                    ) as HTMLElement,
+          () => {
+            if (--counter <= 0) {
+              this.update(array);
+            }
+          },
+          { classes: { onLeave: "fadeOut", onHide: "hidden" } }
+        );
+      });
+    } else {
+      this.update(array);
+    }
+  }
+  dispose() {
+    this.obj.unRegisterFunctionOnPropertyValueChanged(this.propertyName, "animation");
+  }
+}
+
+// watch(
+//   () => props.page.rows.filter((row) => row.visible),
+//   (newValue, oldValue) => {
+//     if (oldValue) {
+//       const addedRows = newValue.filter((el) => oldValue.indexOf(el) < 0);
+//       const removedRows = oldValue.filter((el) => newValue.indexOf(el) < 0);
+//       // rows.value = mergeArrays(oldValue, newValue);
+//       // triggerRef(rows);
+//       addedRows.forEach((row) =>
+//         new Animation().onEnter(
+//           () =>
+//             document.getElementById(
+//               (row as QuestionRowModel).id
+//             ) as HTMLElement,
+//           {
+//             classes: { onEnter: "fadeIn" },
+//             onBeforeRunAnimation: (el) => {
+//               el.style.setProperty(
+//                 "--animation-height",
+//                 el.offsetHeight + "px"
+//               );
+//             },
+//           }
+//         )
+//       );
+//       if (removedRows.length > 0) {
+//         let counter = removedRows.length;
+//         removedRows.forEach((row) => {
+//           new Animation().onLeave(
+//             () =>
+//               document.getElementById(
+//                 (row as QuestionRowModel).id
+//               ) as HTMLElement,
+//             () => {
+//               if (--counter <= 0) {
+//                 rows.value = newValue;
+//                 triggerRef(rows);
+//               }
+//             },
+//             { classes: { onLeave: "fadeOut", onHide: "hidden" } }
+//           );
+//         });
+//       } else {
+//         rows.value = newValue;
+//         triggerRef(rows);
+//       }
+//     } else {
+//       rows.value = newValue;
+//       triggerRef(rows);
+//     }
+//   },
+//   { immediate: true }
+// );

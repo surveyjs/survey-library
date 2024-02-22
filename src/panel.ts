@@ -210,6 +210,12 @@ export class QuestionRowModel extends Base {
         visElements.push(this.elements[i]);
       }
     }
+    if(visElements.length <= 0) {
+      this.visible = false;
+      this.blockUIChanges();
+    } else {
+      this.releaseUIChanges();
+    }
     if (this.needToUpdateVisibleElements(visElements)) {
       this.setPropertyValue("visibleElements", visElements);
     }
@@ -236,6 +242,15 @@ export class QuestionRowModel extends Base {
       .toString();
 
   }
+
+  public blockUIChanges(): void {
+    super.blockUIChanges();
+    this.elements.forEach(el => (el as any).blockUIChanges());
+  }
+  public releaseUIChanges(): void {
+    super.releaseUIChanges();
+    this.elements.forEach(el => (el as any).releaseUIChanges());
+  }
 }
 
 /**
@@ -257,9 +272,45 @@ export class PanelModelBase extends SurveyElement<Question>
 
   private dragDropPanelHelper: DragDropPanelHelperV1;
 
+  public onAddRow(row: QuestionRowModel): void {
+    this.onRowVisibleChanged(row);
+    row.registerFunctionOnPropertyValueChanged("visible", () => {
+      () => {
+        this.onRowVisibleChanged(row);
+      };
+    }, this.id);
+  }
+  public onRemoveRow(row: QuestionRowModel): void {
+    this.removeRowFromVisibleRows(row);
+    row.unRegisterFunctionOnPropertyValueChanged("visible", this.id);
+  }
+  onRowVisibleChanged(row: QuestionRowModel) {
+    if(row.visible) {
+      this.addRowsToVisibleRows(row);
+    } else {
+      this.removeRowFromVisibleRows(row);
+    }
+  }
+  removeRowFromVisibleRows(row: QuestionRowModel) {
+    this.visibleRows.splice(this.visibleRows.indexOf(row), 1);
+  }
+  addRowsToVisibleRows(row: QuestionRowModel) {
+    let addIndex: number = 0;
+    let index = this.rows.indexOf(row);
+    this.visibleRows.forEach(row => {
+      if(this.rows.indexOf(row) < index) {
+        addIndex++;
+      } else {
+        return;
+      }
+    });
+    this.visibleRows.splice(addIndex, 0, row);
+  }
   constructor(name: string = "") {
     super(name);
-    this.createNewArray("rows");
+    this.createNewArray("rows", (el: QuestionRowModel, index: number) => { this.onAddRow(el); }, (el: QuestionRowModel) => { this.onRemoveRow(el); });
+    this.createNewArray("visibleRows");
+
     this.elementsValue = this.createNewArray(
       "elements",
       this.onAddElement.bind(this),
@@ -1034,6 +1085,13 @@ export class PanelModelBase extends SurveyElement<Question>
       }
     }
     this.onRowsChanged();
+  }
+
+  set visibleRows(val: Array<QuestionRowModel>) {
+    this.setPropertyValue("visibleRows", val);
+  }
+  get visibleRows(): Array<QuestionRowModel> {
+    return this.getPropertyValue("visibleRows");
   }
   get rows(): Array<QuestionRowModel> {
     return this.getPropertyValue("rows");

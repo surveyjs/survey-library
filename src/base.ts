@@ -658,7 +658,7 @@ export class Base {
     if (!this.onPropChangeFunctions) return;
     for (var i = 0; i < this.onPropChangeFunctions.length; i++) {
       if (this.onPropChangeFunctions[i].name == name)
-        this.onPropChangeFunctions[i].func(newValue);
+        this.onPropChangeFunctions[i].func(newValue, arrayChanges);
     }
   }
   public onBindingChanged(oldValue: any, newValue: any): void {
@@ -1140,14 +1140,24 @@ export class Base {
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];
   }
+  private _isUIChangedBlocked: boolean = false;
+  public get isUIChangesBlocked() {
+    return this._isUIChangedBlocked;
+  }
+  public blockUIChanges() {
+    this._isUIChangedBlocked = true;
+  }
+  public releaseUIChanges() {
+    this._isUIChangedBlocked = false;
+  }
 }
 
-export class ArrayChanges {
+export class ArrayChanges<T = any> {
   constructor(
     public index: number,
     public deleteCount: number,
-    public itemsToAdd: any[],
-    public deletedItems: any[]
+    public itemsToAdd: T[],
+    public deletedItems: T[]
   ) { }
 }
 

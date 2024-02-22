@@ -1,5 +1,6 @@
 <template>
   <div
+    :data-wrap="element.id"
     :style="getRootStyle(element)"
     :class="element.cssClasses.questionWrapper"
   >

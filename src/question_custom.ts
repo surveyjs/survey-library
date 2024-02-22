@@ -1097,6 +1097,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       }
     }
   }
+  onSurveyValueChanged(newValue: any): void {
+    super.onSurveyValueChanged(newValue);
+    const val = !!newValue ? newValue : {};
+    if (!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.onSurveyValueChanged(val[q.getValueName()]);
+      });
+    }
+  }
   getValue(name: string): any {
     var val = this.value;
     return !!val ? val[name] : null;

@@ -637,7 +637,7 @@ export var settings = {
   showMaxLengthIndicator: true,
 
   /**
-   * Set to `false` to disable animations
+   * Specifies whether to animate survey elements.
    *
    * Default value: `true`
   */

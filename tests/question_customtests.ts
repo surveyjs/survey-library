@@ -2951,3 +2951,48 @@ QUnit.test("file question in composite component doesn't show preview in preview
 
   ComponentCollection.Instance.clear();
 });
+
+QUnit.test("Composite + Ranking", function (
+  assert
+) {
+  var json = {
+    "elements": [{
+      "name": "q_composite",
+      "type": "compostite_witn_ranking"
+    }]
+  };
+
+  const comp_json = {
+    name: "compostite_witn_ranking",
+    showInToolbox: false,
+    internal: true,
+    elementsJSON: [
+      {
+        name: "q_ranking",
+        type: "ranking",
+        selectToRankEnabled: true,
+      }
+    ]
+  }
+  ComponentCollection.Instance.add(comp_json);
+
+  var survey = new SurveyModel(json);
+  const q_composite = survey.getQuestionByName("q_composite");
+  const q_ranking = q_composite.contentPanel.getQuestionByName("q_ranking")
+  q_ranking.choices = ["a", "b", "c", "d", "e"];
+  q_ranking.value = ["a", "b", "c"];
+
+  assert.equal(
+    q_ranking.unRankingChoices.length,
+    2, // ["d", "e"]
+    "ranking value is correct (unrank list length)"
+  );
+
+  assert.equal(
+    q_ranking.rankingChoices.length,
+    3, // ["a", "b", "c"]
+    "ranking value is correct (rank list length)"
+  );
+
+  ComponentCollection.Instance.clear();
+});

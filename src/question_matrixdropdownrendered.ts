@@ -931,6 +931,7 @@ export class QuestionMatrixDropdownRenderedTable extends Base {
   }
   private setItemCellCssClasses(cell: QuestionMatrixDropdownRenderedCell) {
     cell.className = new CssClassBuilder()
+      .append(this.cssClasses.cell)
       .append(this.cssClasses.itemCell)
       .append(this.cssClasses.radioCell, cell.isRadio)
       .append(this.cssClasses.checkboxCell, cell.isCheckbox)

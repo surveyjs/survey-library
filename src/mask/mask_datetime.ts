@@ -58,7 +58,7 @@ export function getDateTimeLexems(mask: string): Array<IDateTimeMaskLexem> {
 }
 
 export class InputMaskDateTime extends InputMaskPattern {
-
+  private currentValue: Array<{ lexem: IDateTimeMaskLexem, data?: string }> = [];
   private lexems: Array<IDateTimeMaskLexem> = [];
 
   protected updateLiterals(): void {
@@ -134,31 +134,50 @@ export class InputMaskDateTime extends InputMaskPattern {
     const paddings = paddingsLength > 0 ? char.repeat(paddingsLength) : "";
     return paddings;
   }
-  private getCorrectLexemData(lexem: IDateTimeMaskLexem, dateTime: IDateTimeComposition, propertyName: string, matchWholeMask: boolean): string {
-    let str = lexem.data;
-    if(!str) return undefined;
+  private isEntryComplete(lexem: IDateTimeMaskLexem, dateTime: IDateTimeComposition): boolean {
+    let data = lexem.data;
+    let result = false;
+    if(!data) return result;
 
-    dateTime[propertyName] = parseInt(str);
-    if(str.length >= lexem.count) {
+    const propertyName = lexem.type;
+    dateTime[propertyName] = parseInt(data);
+    if(data.length === lexem.maxCount) {
       if(this.isDateValid(dateTime)) {
-        str = parseInt(str).toString();
-        const zeroPaddings = this.getPlaceholder(lexem.count, str, "0", true);
-        str = zeroPaddings + str;
+        data = parseInt(data).toString();
+        result = true;
       } else {
         // copy-paste ???
-        str = str.slice(0, str.length - 1);
-        str += this.getPlaceholder(lexem.count, str, lexem.value, matchWholeMask);
+        data = data.slice(0, data.length - 1);
+        result = false;
       }
-    } else if((propertyName === "day" && parseInt(str[0]) > 3) ||
-    (propertyName === "month" && parseInt(str[0]) > 1)) {
-      const zeroPaddings = this.getPlaceholder(lexem.count, str, "0", true);
-      str = zeroPaddings + str;
+    } else if((propertyName === "day" && parseInt(data[0]) > 3) ||
+    (propertyName === "month" && parseInt(data[0]) > 1)) {
+      result = true;
     } else {
-      str += this.getPlaceholder(lexem.count, str, lexem.value, matchWholeMask);
+      result = false;
     }
 
-    dateTime[propertyName] = parseInt(str) > 0 ? parseInt(str) : undefined;
-    return str;
+    lexem.data = data;
+    dateTime[propertyName] = parseInt(data) > 0 ? parseInt(data) : undefined;
+    return result;
+  }
+
+  private getCorrectDataFormat(lexem: IDateTimeMaskLexem, isCompleted: boolean, matchWholeMask: boolean): string {
+    let data = lexem.data || "";
+    if(isCompleted) {
+      const zeroPaddings = this.getPlaceholder(lexem.count, data, "0", true);
+      data = zeroPaddings + data;
+    } else {
+      if(((lexem.type === "day" && parseInt(data[0]) === 0) || (lexem.type === "month" && parseInt(data[0]) === 0)) && lexem.count < lexem.maxCount) {
+        data = data.slice(1, data.length);
+      }
+      data += this.getPlaceholder(lexem.count, data, lexem.value, matchWholeMask);
+    }
+
+    if(!data && matchWholeMask) {
+      data += lexem.value.repeat(lexem.count);
+    }
+    return data;
   }
 
   private getFormatedString(matchWholeMask: boolean): string {
@@ -167,14 +186,14 @@ export class InputMaskDateTime extends InputMaskPattern {
     for(let index = 0; index < this.lexems.length; index++) {
       const lexem = this.lexems[index];
       if(lexem.type === "day" || lexem.type === "month" || lexem.type === "year") {
-        const data = this.getCorrectLexemData(lexem, tempDateTime, lexem.type, matchWholeMask);
+        const isCompleted = this.isEntryComplete(lexem, tempDateTime);
+        let data = this.getCorrectDataFormat(lexem, isCompleted, matchWholeMask);
         if(!!data) {
           result += data;
-          if(data.length < lexem.count) {
+          // if(data.length < lexem.count) {
+          if(!isCompleted && !matchWholeMask) {
             break;
           }
-        } else if(matchWholeMask) {
-          result += lexem.value.repeat(lexem.count);
         } else {
           break;
         }
@@ -193,7 +212,6 @@ export class InputMaskDateTime extends InputMaskPattern {
       numberParts.forEach((part, index) => {
         const _data = this.getOnlyNumbers(part);
         numberLexems[index].data = _data.slice(0, numberLexems[index].maxCount);
-        // numberLexems[index].data = this.getOnlyNumbers(part);
       });
     }
   }

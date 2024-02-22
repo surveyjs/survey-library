@@ -91,7 +91,10 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     let fromIndex = fromChoicesArray.indexOf(this.draggedElement);
     let toIndex = toChoicesArray.indexOf(this.dropTarget);
 
-    if (toIndex === -1) toIndex = model.value.length;
+    if (toIndex === -1) {
+      const length = model.value.length;
+      toIndex = fromChoicesArray === toChoicesArray ? length - 1 : length;
+    }
 
     return { fromIndex, toIndex };
   }

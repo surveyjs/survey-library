@@ -118,9 +118,14 @@ export default App;
 
 ## Render the Form
 
-To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute:
+To render a form, import the `Survey` component, add it to the template, and pass the model instance you created in the previous step to the component's `model` attribute, as shown below.
+
+> If you are using [Next.js](https://nextjs.org) or another framework that [has adopted React Server Components](https://react.dev/learn/start-a-new-react-project#bleeding-edge-react-frameworks), you need to explicitly mark the React component that renders a SurveyJS component as client code using the ['use client'](https://react.dev/reference/react/use-client) directive.
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import { Survey } from 'survey-react-ui';
 // ...
 const surveyJson = { ... };
@@ -140,6 +145,9 @@ If you replicate the code correctly, you should see the following form:
     <summary>View Full Code</summary>  
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import 'survey-core/defaultV2.min.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
@@ -240,6 +248,9 @@ To view the application, run `npm run start` in a command line and open [http://
     <summary>View Full Code</summary>  
 
 ```js
+// Uncomment the following line if you are using Next.js:
+// 'use client'
+
 import { useCallback } from 'react';
 
 import 'survey-core/defaultV2.min.css';

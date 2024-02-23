@@ -82,6 +82,7 @@ sv-popup {
 
   .sv-popup__container {
     border-radius: calcSize(1);
+    width: min-content !important;
   }
 
   .sv-popup__body-content {

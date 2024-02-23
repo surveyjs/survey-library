@@ -50,6 +50,7 @@
       <div
         v-if="!element.isPanel && element.hasDescriptionUnderInput"
         :class="element.cssClasses.descriptionUnderInput"
+        :id="element.ariaDescriptionId"
       >
         <survey-string :locString="element.locDescription" />
       </div>

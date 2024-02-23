@@ -58,6 +58,7 @@
         <div
           v-if="element.hasDescriptionUnderInput"
           :class="element.cssClasses.descriptionUnderInput"
+          :id="element.ariaDescriptionId"
         >
           <survey-string :locString="element.locDescription" />
         </div>

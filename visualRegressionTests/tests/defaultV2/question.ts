@@ -1072,7 +1072,7 @@ frameworks.forEach(framework => {
         "width": "650"
       });
       const question = Selector(".sd-question");
-      await takeElementScreenshot("question-multicolumn-scroll.png", question, t, comparer);
+      await takeElementScreenshot("question-multicolumn-overflow.png", question, t, comparer);
     });
   });
 });

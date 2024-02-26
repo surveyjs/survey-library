@@ -450,7 +450,7 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
   applyBtn.title = applyTitle || surveyLocalization.getString("ok", locale);
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
-  this.configConfirmDialog(popupViewModel);
+  configConfirmDialog(popupViewModel);
   return true;
 }
 

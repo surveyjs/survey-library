@@ -299,7 +299,7 @@ function clearAttributes(el: Element, removeIds = false) {
   if(!!removeIds) {
     el.removeAttribute("id");
   }
-  //el.removeAttribute("aria-describedby");
+  //el.removeAttribute("aria-errormessage");
   //if(el.getAttribute("list")) el.removeAttribute("list");
   el.removeAttribute("fragment");
   if(el.getAttribute("style") === "") {

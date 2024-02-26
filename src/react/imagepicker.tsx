@@ -203,7 +203,7 @@ export class SurveyQuestionImagePickerItem extends ReactSurveyElement {
             aria-required={this.question.ariaRequired}
             aria-label={this.question.ariaLabel}
             aria-invalid={this.question.ariaInvalid}
-            aria-describedby={this.question.ariaDescribedBy}
+            aria-errormessage={this.question.ariaErrormessage}
           />
           <div className={this.question.cssClasses.itemDecorator}>
             <div className={this.question.cssClasses.imageContainer}>

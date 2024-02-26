@@ -11,7 +11,7 @@
       :aria-required="question.a11y_input_ariaRequired"
       :aria-label="question.getCellAriaLabel(row.locText.renderedHtml, column.locText.renderedHtml)"
       :aria-invalid="question.a11y_input_ariaInvalid"
-      :aria-describedby="question.a11y_input_ariaDescribedBy"
+      :aria-errormessage="question.a11y_input_ariaErrormessage"
     />
     <span :class="question.cssClasses.materialDecorator">
       <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">

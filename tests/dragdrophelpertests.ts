@@ -309,8 +309,10 @@ QUnit.test("DragDropRankingSelectToRank getIndixies", function (assert) {
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel(withDefaultValue);
 
-  let { toIndex } = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices);
+  let toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
   assert.equal(toIndex, 2);
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 1);
 });
 // EO selectToRankEnabled
 

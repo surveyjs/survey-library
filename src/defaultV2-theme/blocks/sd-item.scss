@@ -53,6 +53,14 @@
   white-space: normal;
   width: 100%;
   text-align: left;
+  min-width: 0;
+
+  .sv-string-viewer {
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+  }
 }
 
 .sd-item--disabled .sd-item__control-label {

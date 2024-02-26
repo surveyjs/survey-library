@@ -100,7 +100,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
       aria-required={this.question.ariaRequired}
       aria-label={this.question.ariaLabel}
       aria-invalid={this.question.ariaInvalid}
-      aria-describedby={this.question.ariaDescribedBy}
+      aria-errormessage={this.question.ariaErrormessage}
       aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
       aria-controls={dropdownListModel.listElementId}
       aria-activedescendant={dropdownListModel.ariaActivedescendant}
@@ -124,6 +124,7 @@ export class SurveyQuestionDropdownBase<T extends Question> extends SurveyQuesti
           aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
           aria-label={this.question.a11y_input_ariaLabel}
           aria-labelledby={this.question.a11y_input_ariaLabelledBy}
+          aria-describedby={this.question.a11y_input_ariaDescribedBy}
           aria-controls={dropdownListModel.listElementId}
           aria-activedescendant={dropdownListModel.ariaActivedescendant}
           placeholder={dropdownListModel.placeholderRendered}

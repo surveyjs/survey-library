@@ -252,7 +252,7 @@ export class SurveyQuestionMatrixCell extends ReactSurveyElement {
       aria-required={this.question.a11y_input_ariaRequired}
       aria-label={this.question.getCellAriaLabel(this.row.locText.renderedHtml, this.column.locText.renderedHtml)}
       aria-invalid={this.question.a11y_input_ariaInvalid}
-      aria-describedby={this.question.a11y_input_ariaDescribedBy}
+      aria-errormessage={this.question.a11y_input_ariaErrormessage}
     />);
   }
 }

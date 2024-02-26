@@ -4,7 +4,7 @@
       :value="item.value" :disabled="question.isInputReadOnly"
       @click="(e) => question.setValueFromClick(e.target.value)" :aria-required="question.ariaRequired"
       :aria-label="question.ariaLabel" :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy" />
+      :aria-errormessage="question.ariaErrormessage" />
     <span :class="question.cssClasses.itemText">
       <survey-string :locString="item.locText" />
     </span>

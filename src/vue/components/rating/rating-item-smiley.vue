@@ -4,7 +4,7 @@
     <input type="radio" class="sv-visuallyhidden" :name="question.name" :id="question.getInputId(index)"
       :value="item.value" :disabled="question.isInputReadOnly" @click="(e) => question.setValueFromClick(e.target.value)"
       :aria-required="question.ariaRequired" :aria-label="question.ariaLabel" :aria-invalid="question.ariaInvalid"
-      :aria-describedby="question.ariaDescribedBy" />
+      :aria-errormessage="question.ariaErrormessage" />
     <sv-svg-icon :iconName="question.getItemSmileyIconName(item.itemValue)" :size="'auto'"
       :title="item.text"></sv-svg-icon>
   </label>

@@ -5,6 +5,7 @@
       v-if="element.hasDescriptionUnderTitle"
       v-show="element.hasDescription"
       :class="element.cssDescription"
+      :id="element.ariaDescriptionId"
     >
       <survey-string :locString="element.locDescription" />
     </div>

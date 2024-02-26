@@ -36,8 +36,9 @@ export class SurveyQuestionRadiogroup extends SurveyQuestionElementBase {
         aria-required={this.question.a11y_input_ariaRequired}
         aria-label={this.question.a11y_input_ariaLabel}
         aria-labelledby={this.question.a11y_input_ariaLabelledBy}
-        aria-invalid={this.question.a11y_input_ariaInvalid}
         aria-describedby={this.question.a11y_input_ariaDescribedBy}
+        aria-invalid={this.question.a11y_input_ariaInvalid}
+        aria-errormessage={this.question.a11y_input_ariaErrormessage}
       >
         {this.question.hasColumns
           ? this.getColumnedBody(cssClasses)
@@ -200,7 +201,7 @@ export class SurveyQuestionRadioItem extends ReactSurveyElement {
       >
         <label onMouseDown={this.handleOnMouseDown} className={labelClass}>
           <input
-            aria-describedby={this.question.ariaDescribedBy}
+            aria-errormessage={this.question.ariaErrormessage}
             className={this.cssClasses.itemControl}
             id={this.question.getItemId(this.item)}
             type="radio"

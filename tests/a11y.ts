@@ -54,6 +54,25 @@ QUnit.test(
 );
 
 QUnit.test(
+  "a11y: aria-describedbby",
+  function(assert) {
+    var json = {
+      questions: [
+        {
+          type: "text",
+          title: "Title",
+          description: "Description",
+          name: "q1"
+        },
+      ],
+    };
+    var survey = new SurveyModel(json);
+    var question = survey.getQuestionByName("q1");
+    assert.equal(question.a11y_input_ariaDescribedBy.indexOf("_ariaDescription") !== -1, true, "aria-describedbby is correct");
+  }
+);
+
+QUnit.test(
   "a11y: aria-invalid",
   function(assert) {
     var question = new Question("q1");
@@ -69,17 +88,17 @@ QUnit.test(
 );
 
 QUnit.test(
-  "a11y: aria-describedby",
+  "a11y: aria-errormessage",
   function(assert) {
     var question = new Question("q1");
     question.isRequired = true;
 
     question.hasErrors();
-    assert.equal(question.ariaDescribedBy, question.id + "_errors", "aria-describedby is NOT NULL because we have errors");
+    assert.equal(question.ariaErrormessage, question.id + "_errors", "aria-errormessage is NOT NULL because we have errors");
 
     question.value = "test";
     question.hasErrors();
-    assert.equal(question.ariaDescribedBy, null, "aria-describedby is NULL because we don't have any errors");
+    assert.equal(question.ariaErrormessage, null, "aria-errormessage is NULL because we don't have any errors");
   }
 );
 
@@ -108,7 +127,7 @@ QUnit.test(
     assert.equal(question.ariaInvalid, null, "old aria-invalid is null");
     assert.equal(question.ariaLabelledBy, null, "old aria-labelledby is null");
     assert.equal(question.ariaExpanded, null, "old aria-expanded is null");
-    assert.equal(question.ariaDescribedBy, null, "old aria-describedby is null");
+    assert.equal(question.ariaErrormessage, null, "old aria-errormessage is null");
 
     assert.equal(question.a11y_input_ariaLabel, null, "aria-label does not exist because we have a title");
     assert.equal(question.a11y_input_ariaLabelledBy.indexOf("_ariaTitle") !== -1, true, "aria-labelledby is correct");
@@ -116,6 +135,6 @@ QUnit.test(
     assert.equal(question.a11y_input_ariaRequired, "true", "aria-required is true");
     assert.equal(question.a11y_input_ariaInvalid, "false", "aria-invalid is false");
     assert.equal(question.a11y_input_ariaExpanded, null, "aria-expanded is null");
-    assert.equal(question.a11y_input_ariaDescribedBy, null, "aria-describedby is null");
+    assert.equal(question.a11y_input_ariaErrormessage, null, "aria-errormessage is null");
   }
 );

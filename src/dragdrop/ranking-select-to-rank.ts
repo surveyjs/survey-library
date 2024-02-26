@@ -10,16 +10,11 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       return dragOverNode;
     }
 
-    if (
-      this.parentElement.rankingChoices.length === 0 ||
-      this.parentElement.unRankingChoices.length === 0
-    ) {
-      let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
-      let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
+    let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
+    let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
 
-      if (!!toContainer) return toContainer;
-      if (!!fromContainer) return fromContainer;
-    }
+    if (this.parentElement.rankingChoices.length === 0 && !!toContainer) return toContainer;
+    if (this.parentElement.unRankingChoices.length === 0 && !!fromContainer) return fromContainer;
 
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
@@ -175,19 +170,19 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       return;
     }
 
-    const handleTransitionEnd = (event: any) => {
+    const handleAnimationEnd = (event: any) => {
       if (event.target !== ghostNode) { return; }
-      if (event.propertyName !== "height") { return; }
+      //if (event.propertyName !== "height") { return; }
       if (getComputedStyle(event.target).height !== "0px") { return; }
-      ghostNode.removeEventListener("transitionend", handleTransitionEnd);
+      ghostNode.removeEventListener("animationend", handleAnimationEnd);
       this.removeAllAnimationClasses();
       questionModel.itemsToAnimateAdding.push(itemToAnimateAdding);
       callbackOnAnimationEnd();
     };
 
-    ghostNode.removeEventListener("transitionend", handleTransitionEnd);
+    ghostNode.removeEventListener("animationend", handleAnimationEnd);
     this.removeAllAnimationClasses();
-    ghostNode.addEventListener("transitionend", handleTransitionEnd);
+    ghostNode.addEventListener("animationend", handleAnimationEnd);
     ghostNode.classList.add("sv-ranking-item--animate-item-removing");
   }
 

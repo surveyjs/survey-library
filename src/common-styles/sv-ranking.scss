@@ -291,6 +291,14 @@
     justify-content: center;
     align-items: center;
   }
+
+  .sv-ranking-item--animate-item-removing {
+    animation: sv-animate-item-removing-keyframes 0ms;
+  }
+  
+  .sv-ranking-item--animate-item-adding {
+    animation: sv-animate-item-adding-keyframes 0ms;
+  }
 }
 
 .sv-ranking--select-to-rank-horizontal {

@@ -39,7 +39,7 @@ export class SurveyQuestionTagbox extends SurveyQuestionDropdownBase<QuestionTag
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}
-        aria-describedby={this.question.ariaDescribedBy}
+        aria-errormessage={this.question.ariaErrormessage}
         aria-expanded={this.question.ariaExpanded === null ? undefined : this.question.ariaExpanded === "true"}
         aria-controls={dropdownListModel.listElementId}
         aria-activedescendant={dropdownListModel.ariaActivedescendant}

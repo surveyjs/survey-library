@@ -10,6 +10,7 @@ import { settings } from "../src/settings";
 import { surveyLocalization } from "../src/surveyStrings";
 import { englishStrings } from "../src/localization/english";
 import { Base } from "../src/base";
+import { SurveyElement, SurveyElementCore } from "../src/survey-element";
 
 export default QUnit.module("LocalizableString");
 
@@ -77,8 +78,41 @@ class LocalizableObjectTester {
   }
 }
 
+class LocalizableStringObjectTester extends SurveyElement {
+  private locString: LocalizableString;
+  constructor() {
+    super("locstringtester");
+    this.locString = new LocalizableString(this);
+  }
+  public get locText(): LocalizableString {
+    return this.locString;
+  }
+  public getType(): string {
+    return "locstringobjecttester";
+  }
+}
+class LocalizableTextObjectTester extends SurveyElement {
+  private locString: LocalizableString;
+  constructor() {
+    super("locstringtester");
+    this.locString = new LocalizableString(this);
+  }
+  public get locText(): LocalizableString {
+    return this.locString;
+  }
+  public getType(): string {
+    return "loctextobjecttester";
+  }
+}
+
 Serializer.addClass("locstringtester", [
   { name: "text", serializationProperty: "locText" },
+]);
+Serializer.addClass("locstringobjecttester", [
+  { name: "text", serializationProperty: "locText" },
+]);
+Serializer.addClass("loctextobjecttester", [
+  { name: "text:text", serializationProperty: "locText" },
 ]);
 
 QUnit.test("Simple get/set tests", function (assert) {
@@ -864,4 +898,10 @@ QUnit.test("getJSON should copy values", function (assert) {
   const json = locStr.getJson();
   json["fr"] = "fr: str";
   assert.deepEqual(locStr.getJson(), { default: "str", de: "de: str" }, "getJson #2");
+});
+QUnit.test("allowLineBreaks check", function (assert) {
+  var tester = new LocalizableStringObjectTester();
+  const testerText = new LocalizableTextObjectTester();
+  assert.notOk(tester.locText.allowLineBreaks);
+  assert.ok(testerText.locText.allowLineBreaks);
 });

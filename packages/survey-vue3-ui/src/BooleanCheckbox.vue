@@ -14,7 +14,7 @@
           :aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
-          :aria-describedby="question.ariaDescribedBy"
+          :aria-errormessage="question.ariaErrormessage"
         />
         <span :class="question.cssClasses.checkboxMaterialDecorator">
           <svg
@@ -45,6 +45,7 @@
       <div
         v-if="question.canRenderLabelDescription"
         :class="question.cssDescription"
+        :id="question.ariaDescriptionId"
       >
         <survey-string :locString="question.locDescription" />
       </div>

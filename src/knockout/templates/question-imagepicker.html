@@ -22,7 +22,7 @@
 <script type="text/html" id="survey-imagepicker-item">
     <div data-bind="css: question.koGetItemClass(item)">
         <label data-bind="css: question.cssClasses.label">
-            <input data-bind="attr: {type: question.inputType, name: question.questionName, value: item.value, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-describedby': question.ariaDescribedBy}, checked: question.koValue, enable: question.getItemEnabled(item), css: question.cssClasses.itemControl"
+            <input data-bind="attr: {type: question.inputType, name: question.questionName, value: item.value, id: question.getItemId(item), 'aria-required': question.ariaRequired, 'aria-label': question.ariaLabel, 'aria-invalid': question.ariaInvalid, 'aria-errormessage': question.ariaErrormessage}, checked: question.koValue, enable: question.getItemEnabled(item), css: question.cssClasses.itemControl"
             />
             <div data-bind="css: question.cssClasses.itemDecorator">
                 <div data-bind="css: question.cssClasses.imageContainer">

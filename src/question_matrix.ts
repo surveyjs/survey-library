@@ -451,7 +451,7 @@ export class QuestionMatrixModel
     return loc ? loc : this.emptyLocalizableString;
   }
   supportGoNextPageAutomatic(): boolean {
-    return this.isMouseDown === true && this.hasValuesInAllRows();
+    return this.isMouseDown === true && this.hasValuesInAllRows(false);
   }
   private errorsInRow: HashTable<boolean>;
   protected onCheckForErrors(errors: Array<SurveyError>, isOnValueChanged: boolean): void {
@@ -467,12 +467,12 @@ export class QuestionMatrixModel
     }
   }
   private hasErrorAllRowsRequired(): boolean {
-    return this.isAllRowRequired && !this.hasValuesInAllRows();
+    return this.isAllRowRequired && !this.hasValuesInAllRows(true);
   }
   private hasErrorEachRowUnique(): boolean {
     return this.eachRowUnique && this.hasNonUniqueValueInRow();
   }
-  private hasValuesInAllRows(): boolean {
+  private hasValuesInAllRows(addError: boolean): boolean {
     var rows = this.generatedVisibleRows;
     if (!rows) rows = this.visibleRows;
     if (!rows) return true;
@@ -480,7 +480,7 @@ export class QuestionMatrixModel
     for (var i = 0; i < rows.length; i++) {
       const row = rows[i];
       const hasValue = !this.isValueEmpty(row.value);
-      if(!hasValue) {
+      if(addError && !hasValue) {
         this.addErrorIntoRow(row);
       }
       res = res && hasValue;
@@ -512,7 +512,7 @@ export class QuestionMatrixModel
     this.errorsInRow[row.name] = true;
   }
   protected getIsAnswered(): boolean {
-    return super.getIsAnswered() && this.hasValuesInAllRows();
+    return super.getIsAnswered() && this.hasValuesInAllRows(false);
   }
   private createMatrixRow(
     item: ItemValue,

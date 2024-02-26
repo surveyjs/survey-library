@@ -6,7 +6,7 @@
         :name="question.questionName"
         :value="item.value"
         :id="question.getItemId(item)"
-        :aria-describedby="question.ariaDescribedBy"
+        :aria-errormessage="question.ariaErrormessage"
         v-model="renderedValue"
         :disabled="!question.getItemEnabled(item)"
         :class="question.cssClasses.itemControl"

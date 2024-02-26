@@ -12,7 +12,7 @@
         :aria-required="question.ariaRequired"
         :aria-label="question.ariaLabel"
         :aria-invalid="question.ariaInvalid"
-        :aria-describedby="question.ariaDescribedBy"
+        :aria-errormessage="question.ariaErrormessage"
         :required="question.isRequired"
       >
         <option v-if="question.allowClear" :value="undefined">{{ question.placeholder }}</option>

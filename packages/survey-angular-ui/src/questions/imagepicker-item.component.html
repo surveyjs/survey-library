@@ -1,7 +1,7 @@
 <ng-template #template>
   <div [class]="question.getItemClass(model)">
     <label [class]="question.cssClasses.label">
-        <input [type]="question.inputType" [attr.name]="question.questionName" [attr.value]="model.value" [id]="question.getItemId(model)" [attr.aria-required]="question.ariaRequired" [attr.aria-label]="question.ariaLabel" [attr.aria-invalid]="question.ariaInvalid" [attr.aria-describedby]="question.ariaDescribedBy"
+        <input [type]="question.inputType" [attr.name]="question.questionName" [attr.value]="model.value" [id]="question.getItemId(model)" [attr.aria-required]="question.ariaRequired" [attr.aria-label]="question.ariaLabel" [attr.aria-invalid]="question.ariaInvalid" [attr.aria-errormessage]="question.ariaErrormessage"
         (change)="onChange($event)" [checked]="question.isItemSelected(model)" [disabled]="!question.getItemEnabled(model)" [class]="question.cssClasses.itemControl"
         />
         <div [class]="question.cssClasses.itemDecorator">

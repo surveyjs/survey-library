@@ -6,7 +6,7 @@
         :name="question.name"
         :value="value"
         :checked="value === question.booleanValueRendered"
-        :aria-describedby="question.ariaDescribedBy"
+        :aria-errormessage="question.ariaErrormessage"
         :disabled="question.isInputReadOnly"
         :class="question.cssClasses.itemRadioControl"
         @change="handleChange"

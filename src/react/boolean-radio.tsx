@@ -16,7 +16,7 @@ export class SurveyQuestionBooleanRadio extends SurveyQuestionBoolean {
             type="radio"
             name = { this.question.name }
             value = { value }
-            aria-describedby = { this.question.ariaDescribedBy }
+            aria-errormessage = { this.question.ariaErrormessage }
             checked={value === this.question.booleanValueRendered}
             disabled = { this.question.isInputReadOnly }
             className = { cssClasses.itemRadioControl }

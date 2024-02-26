@@ -47,6 +47,7 @@ export class InputMaskBase extends Base implements IInputMaskType {
 
   public getUnmaskedValue(src: string): string { return src; }
   public getMaskedValue(src: string): string { return src; }
+  public formatString(src: string): string { return this.getMaskedValue(src); }
 }
 
 Serializer.addClass(

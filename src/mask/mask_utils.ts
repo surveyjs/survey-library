@@ -28,5 +28,6 @@ export interface IInputMaskType {
   getMaskedValue(src: string): string;
   getUnmaskedValue(src: string): any;
   processInput(args: ITextMaskInputArgs): IMaskedValue;
+  formatString(src: string): string;
   isEmpty(): boolean;
 }

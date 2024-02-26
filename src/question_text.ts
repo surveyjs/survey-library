@@ -270,7 +270,7 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskSettings;
   }
   public get inputValue(): string {
-    return !!this.maskInstance ? this.maskInstance.getMaskedValue(this.value) : this.value;
+    return !!this.maskInstance ? this.maskInstance.formatString(this.value) : this.value;
   }
   public set inputValue(val: string) {
     let value;

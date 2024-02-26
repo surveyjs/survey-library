@@ -44,7 +44,6 @@ export function getMaskedValueByPattern(src: string, pattern: string | Array<IMa
   let strIndex = 0;
   const literals: Array<IMaskLiteral> = (typeof pattern === "string") ? getLiterals(pattern) : pattern;
 
-  maskEnumerator:
   for(let maskIndex = 0; maskIndex < literals.length; maskIndex++) {
     switch(literals[maskIndex].type) {
       case "regex" :
@@ -56,7 +55,7 @@ export function getMaskedValueByPattern(src: string, pattern: string | Array<IMa
         } else if(matchWholeMask) {
           result += settings.placeholderChar;
         } else {
-          break maskEnumerator;
+          return result;
         }
 
         strIndex++;

@@ -1,6 +1,90 @@
+import { JsonObject } from "../../src/jsonobject";
 import { InputMaskDateTime, getDateTimeLexems } from "../../src/mask/mask_datetime";
+import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Datetime mask");
+
+QUnit.test("Serialize InputMaskPattern properties", function (assert) {
+  const q = new QuestionTextModel("q1");
+  const jsonObject = new JsonObject();
+  let json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, { name: "q1" }, "empty mask");
+
+  q.maskType = "datetimemask";
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, { name: "q1", maskType: "datetimemask" }, "empty datetimemask");
+
+  q.maskSettings["mask"] = "mm/dd/yyyy";
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, {
+    name: "q1",
+    maskType: "datetimemask",
+    maskSettings: {
+      mask: "mm/dd/yyyy"
+    }
+  }, "set mask datetimemask");
+
+  q.maskSettings["dataToSave"] = "masked";
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, {
+    name: "q1",
+    maskType: "datetimemask",
+    maskSettings: {
+      dataToSave: "masked",
+      mask: "mm/dd/yyyy"
+    }
+  }, "dataToSave datetimemask");
+
+  q.maskSettings["max"] = "2000-01-01";
+  q.maskSettings["min"] = "1900-01-01";
+  json = jsonObject.toJsonObject(q);
+  assert.deepEqual(json, {
+    name: "q1",
+    maskType: "datetimemask",
+    maskSettings: {
+      dataToSave: "masked",
+      mask: "mm/dd/yyyy",
+      min: "1900-01-01",
+      max: "2000-01-01"
+    }
+  }, "min & max datetimemask");
+});
+
+QUnit.test("Deserialize InputMaskPattern properties", function (assert) {
+  const q = new QuestionTextModel("q1");
+  const jsonObject = new JsonObject();
+  jsonObject.toObject({ name: "q1" }, q);
+  let maskSettings = q.maskSettings as InputMaskDateTime;
+  assert.equal(q.maskType, "none");
+  assert.equal(maskSettings.getType(), "masksettings");
+
+  jsonObject.toObject({ name: "q1", maskType: "datetimemask" }, q);
+  maskSettings = q.maskSettings as InputMaskDateTime;
+  assert.equal(q.maskType, "datetimemask");
+  assert.equal(maskSettings.getType(), "datetimemask", "datetimemask type");
+  assert.equal(maskSettings.mask, undefined, "datetimemask mask");
+  assert.equal(maskSettings.dataToSave, "unmasked", "datetimemask dataToSave");
+  assert.equal(maskSettings.min, undefined, "datetimemask min");
+  assert.equal(maskSettings.max, undefined, "datetimemask max");
+
+  jsonObject.toObject({
+    name: "q1",
+    maskType: "datetimemask",
+    maskSettings: {
+      dataToSave: "masked",
+      mask: "mm/dd/yyyy",
+      min: "1900-01-01",
+      max: "2000-01-01"
+    }
+  }, q);
+  maskSettings = q.maskSettings as InputMaskDateTime;
+  assert.equal(q.maskType, "datetimemask");
+  assert.equal(maskSettings.getType(), "datetimemask", "datetimemask type");
+  assert.equal(maskSettings.mask, "mm/dd/yyyy", "datetimemask mask");
+  assert.equal(maskSettings.dataToSave, "masked", "datetimemask dataToSave");
+  assert.equal(maskSettings.min, "1900-01-01", "datetimemask min");
+  assert.equal(maskSettings.max, "2000-01-01", "datetimemask max");
+});
 
 QUnit.test("getDateTimeLiterals simple pattern", function(assert) {
   let result = getDateTimeLexems("m/d/yy");
@@ -254,6 +338,21 @@ QUnit.test("_getMaskedValue matchWholeMask m/d/yy", function(assert) {
   assert.equal(maskInstance.getUnmaskedValue("12/30/00"), "2000-12-30");
 });
 
+QUnit.test("_getMaskedValue with max m/d/yy", function(assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.mask = "m/d/yy";
+  maskInstance.min = "1950-05-30";
+  maskInstance.max = "2024-02-27";
+
+  assert.equal(maskInstance.getUnmaskedValue("12/30/01"), "2001-12-30");
+  assert.equal(maskInstance.getUnmaskedValue("12/30/00"), "2000-12-30");
+  assert.equal(maskInstance.getUnmaskedValue("12/30/24"), "2024-12-30");
+  assert.equal(maskInstance.getUnmaskedValue("1/3/69"), "1969-01-03");
+  assert.equal(maskInstance.getUnmaskedValue("12/30/68"), "1968-12-30");
+  assert.equal(maskInstance.getUnmaskedValue("8/5/91"), "1991-08-05");
+  assert.equal(maskInstance.getUnmaskedValue("8/5/50"), "1950-08-05");
+});
+
 QUnit.test("dateTime processInput serial input: insert characters", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.mask = "mm/dd/yyyy";
@@ -484,4 +583,76 @@ QUnit.test("dateTime processInput: copy/paste", function(assert) {
   result = maskInstance.processInput({ prevValue: "5/12/2024", selectionStart: 0, selectionEnd: 0, insertedCharacters: "10.28.1996", inputDirection: "rightToLeft" });
   assert.equal(result.text, "10/28/1996", "insert new value 10.28.1996");
   assert.equal(result.cursorPosition, 10, "insert new value 10.28.1996");
+});
+
+QUnit.test("dateTime processInput: min", function(assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.mask = "mm/dd/yyyy";
+  maskInstance.min = "1972-02-01";
+  let result = maskInstance.processInput({ insertedCharacters: "0", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/yyyy", "try type 0");
+  assert.equal(result.cursorPosition, 6, "try type 0");
+
+  result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/1yyy", "type 1");
+  assert.equal(result.cursorPosition, 7, "type 1");
+
+  result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 9, selectionEnd: 9, prevValue: "04/05/197y", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/197y", "try type 1");
+  assert.equal(result.cursorPosition, 9, "try type 1");
+
+  result = maskInstance.processInput({ insertedCharacters: "2", selectionStart: 9, selectionEnd: 9, prevValue: "04/05/197y", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/1972", "type 2");
+  assert.equal(result.cursorPosition, 10, "type 2");
+});
+
+QUnit.test("dateTime processInput: max", function(assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.mask = "mm/dd/yyyy";
+  maskInstance.max = "1972-02-01";
+  let result = maskInstance.processInput({ insertedCharacters: "2", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/yyyy", "try type 2");
+  assert.equal(result.cursorPosition, 6, "try type 2");
+
+  result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/1yyy", "type 1");
+  assert.equal(result.cursorPosition, 7, "type 1");
+
+  result = maskInstance.processInput({ insertedCharacters: "3", selectionStart: 9, selectionEnd: 9, prevValue: "04/05/197y", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/197y", "try type 3");
+  assert.equal(result.cursorPosition, 9, "try type 3");
+
+  result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 9, selectionEnd: 9, prevValue: "04/05/197y", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/1971", "type 1");
+  assert.equal(result.cursorPosition, 10, "type 1");
+});
+
+QUnit.test("dateTime processInput: min & max", function(assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.mask = "mm/dd/yyyy";
+  maskInstance.min = "1960-01-01";
+  maskInstance.max = "1980-12-31";
+  let result = maskInstance.processInput({ insertedCharacters: "2", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/yyyy", "try type 2");
+  assert.equal(result.cursorPosition, 6, "try type 2");
+
+  result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 6, selectionEnd: 6, prevValue: "04/05/yyyy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/1yyy", "type 1");
+  assert.equal(result.cursorPosition, 7, "type 1");
+
+  result = maskInstance.processInput({ insertedCharacters: "9", selectionStart: 8, selectionEnd: 8, prevValue: "04/05/19yy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/19yy", "try type 9");
+  assert.equal(result.cursorPosition, 8, "try type 9");
+
+  result = maskInstance.processInput({ insertedCharacters: "8", selectionStart: 8, selectionEnd: 8, prevValue: "04/05/19yy", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/198y", "type 8");
+  assert.equal(result.cursorPosition, 9, "type 8");
+
+  result = maskInstance.processInput({ insertedCharacters: "1", selectionStart: 9, selectionEnd: 9, prevValue: "04/05/198y", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/198y", "try type 1");
+  assert.equal(result.cursorPosition, 9, "try type 1");
+
+  result = maskInstance.processInput({ insertedCharacters: "0", selectionStart: 9, selectionEnd: 9, prevValue: "04/05/198y", inputDirection: "leftToRight" });
+  assert.equal(result.text, "04/05/1980", "type 1");
+  assert.equal(result.cursorPosition, 10, "type 1");
 });

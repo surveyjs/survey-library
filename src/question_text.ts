@@ -696,12 +696,20 @@ Serializer.addClass(
     {
       name: "maskType:masktype",
       default: "none",
-      visibleIndex: 0
+      visibleIndex: 0,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      }
     },
     {
       name: "maskSettings:masksettings",
       className: "masksettings",
       visibleIndex: 1,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      },
       onGetValue: function (obj: any) {
         return obj.maskSettings.getData();
       },

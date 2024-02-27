@@ -1,4 +1,4 @@
-import { Serializer } from "../jsonobject";
+import { Serializer, property } from "../jsonobject";
 import { InputMaskPattern } from "./mask_pattern";
 import { IMaskedValue, ITextMaskInputArgs, numberDefinition } from "./mask_utils";
 
@@ -11,7 +11,6 @@ export interface IDateTimeMaskLexem {
 }
 
 interface IDateTimeComposition {
-  [index: string]: any;
   day: number;
   month: number;
   year: number;
@@ -36,6 +35,29 @@ function getMaxCountLexem(currentLexemType: string, count: number): number {
     }
   }
 }
+function trimDatePart(lexem: IDateTimeMaskLexem, data: string): string {
+  let result = data;
+  if(lexem.count < lexem.maxCount && ((lexem.type === "day" && parseInt(data[0]) === 0) || (lexem.type === "month" && parseInt(data[0]) === 0))) {
+    result = data.slice(1, data.length);
+  }
+  return result;
+}
+
+function getDefaultYearForValidation(minYear: number, maxYear: number): number {
+  let defaultVal = 2000;
+  if(defaultVal > maxYear) {
+    defaultVal = parseInt(maxYear.toString().slice(0, maxYear.toString().length - 2)) * 100;
+  }
+  if(defaultVal < minYear) {
+    const middle = (maxYear - minYear)/2 + minYear;
+    defaultVal = parseInt(middle.toString().slice(0, middle.toString().length - 1)) * 10;
+  }
+  if(defaultVal >= minYear && defaultVal <= maxYear) {
+    return defaultVal;
+  }
+  return minYear;
+}
+
 export function getDateTimeLexems(mask: string): Array<IDateTimeMaskLexem> {
   const result: Array<IDateTimeMaskLexem> = [];
   let prevLexemType: string;
@@ -74,7 +96,15 @@ export function getDateTimeLexems(mask: string): Array<IDateTimeMaskLexem> {
 }
 
 export class InputMaskDateTime extends InputMaskPattern {
+  private turnOfTheCentury = 68;
   private lexems: Array<IDateTimeMaskLexem> = [];
+
+  @property() min: string;
+  @property() max: string;
+
+  public getType(): string {
+    return "datetimemask";
+  }
 
   protected updateLiterals(): void {
     this.lexems = getDateTimeLexems(this.mask || "");
@@ -128,20 +158,21 @@ export class InputMaskDateTime extends InputMaskPattern {
     return [year, month, day].join("-");
   }
 
-  private getCorrectData(lexem: IDateTimeMaskLexem): string {
-    if(lexem.type !== "year" || lexem.count > 2) return lexem.data;
+  private isYearValid(dateTime: IDateTimeComposition): boolean {
+    if(dateTime.min === undefined && dateTime.max === undefined) return false;
 
-    const year = parseInt(lexem.data);
-    const result = (year > 68 ? "19": "20") + lexem.data;
-    return result;
+    const data = dateTime.year.toString();
+    const minYearPart = dateTime.min.toISOString().slice(0, data.length);
+    const maxYearPart = dateTime.max.toISOString().slice(0, data.length);
+    return dateTime.year >= parseInt(minYearPart) && dateTime.year <= parseInt(maxYearPart);
   }
 
   private isDateValid(dateTime: IDateTimeComposition): boolean {
-    const year = dateTime.year !== undefined ? dateTime.year : 2000;
+    const min = dateTime.min;
+    const max = dateTime.max;
+    const year = dateTime.year !== undefined ? dateTime.year : getDefaultYearForValidation(min.getFullYear(), max.getFullYear());
     const month = dateTime.month !== undefined ? dateTime.month : 1;
     const day = dateTime.day !== undefined ? dateTime.day : 1;
-    const min = dateTime.min !== undefined ? dateTime.min : new Date("0001-01-01");
-    const max = dateTime.max !== undefined ? dateTime.max : new Date("9999-12-31");
     const date = new Date(this.getISO_8601Format({ year: year, month: month, day: day }));
     const monthIndex = month - 1;
 
@@ -149,7 +180,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     date.getDate() === day &&
     date.getMonth() === monthIndex &&
     date.getFullYear() === year &&
-    date >= min && date <= max;
+    date >= dateTime.min && date <= dateTime.max;
   }
 
   private getPlaceholder(lexemLength: number, str: string, char: string) {
@@ -157,56 +188,80 @@ export class InputMaskDateTime extends InputMaskPattern {
     const paddings = paddingsLength > 0 ? char.repeat(paddingsLength) : "";
     return paddings;
   }
+
   private isEntryComplete(lexem: IDateTimeMaskLexem, dateTime: IDateTimeComposition): boolean {
     let data = lexem.data;
     let result = false;
     if(!data) return result;
 
     const propertyName = lexem.type;
-    dateTime[propertyName] = parseInt(data);
+    (dateTime as any)[propertyName] = parseInt(data);
     if(data.length === lexem.maxCount) {
       if(this.isDateValid(dateTime)) {
         data = parseInt(data).toString();
         result = true;
       } else {
-        // copy-paste ???
+        //
         data = data.slice(0, data.length - 1);
         result = false;
       }
-    } else if((propertyName === "day" && parseInt(data[0]) > 3) ||
-    (propertyName === "month" && parseInt(data[0]) > 1)) {
+    } else if (propertyName === "year" && !this.isYearValid(dateTime)) {
+      //
+      data = data.slice(0, data.length - 1);
+      result = false;
+    } else if((propertyName === "day" && parseInt(data[0]) > 3) || (propertyName === "month" && parseInt(data[0]) > 1)) {
       result = true;
     } else {
       result = false;
     }
 
     lexem.data = data;
-    dateTime[propertyName] = parseInt(data) > 0 ? parseInt(data) : undefined;
+    (dateTime as any)[propertyName] = parseInt(data) > 0 ? parseInt(data) : undefined;
     return result;
   }
 
-  private getCorrectDataFormat(lexem: IDateTimeMaskLexem, isCompleted: boolean, matchWholeMask: boolean): string {
+  private getCorrectDatePartFormat(lexem: IDateTimeMaskLexem, isCompleted: boolean, matchWholeMask: boolean): string {
     let data = lexem.data || "";
     if(isCompleted) {
       const zeroPaddings = this.getPlaceholder(lexem.count, data, "0");
       data = zeroPaddings + data;
     } else {
-      if(((lexem.type === "day" && parseInt(data[0]) === 0) || (lexem.type === "month" && parseInt(data[0]) === 0)) && lexem.count < lexem.maxCount) {
-        data = data.slice(1, data.length);
-      }
+      // !!!
+
+      data = trimDatePart(lexem, data);
       if(matchWholeMask) {
         data += this.getPlaceholder(lexem.count, data, lexem.value);
       }
     }
-
-    if(!data && matchWholeMask) {
-      data += lexem.value.repeat(lexem.count);
-    }
     return data;
   }
 
+  private createIDateTimeComposition(): IDateTimeComposition {
+    const tempDateTime: IDateTimeComposition = {
+      day: undefined,
+      month: undefined,
+      year: undefined,
+      min: new Date(this.min || "0001-01-01"),
+      max: new Date(this.max || "9999-12-31")
+    };
+    return tempDateTime;
+  }
+
+  private parseTwoDigitYear (lexem: IDateTimeMaskLexem): string {
+    if(lexem.type !== "year" || lexem.count > 2) return lexem.data;
+
+    if(!!this.max && this.max.length >= 4) {
+      this.turnOfTheCentury = parseInt(this.max.slice(2, 4));
+    }
+
+    const year = parseInt(lexem.data);
+    const result = (year > this.turnOfTheCentury ? "19" : "20") + lexem.data;
+    return result;
+  }
+
   private getFormatedString(matchWholeMask: boolean): string {
-    const tempDateTime: IDateTimeComposition = { day: undefined, month: undefined, year: undefined };
+    const tempDateTime = this.createIDateTimeComposition();
+
     let result = "";
     let prevSeparator = "";
     let prevIsCompleted = false;
@@ -222,7 +277,7 @@ export class InputMaskDateTime extends InputMaskPattern {
             return result;
           } else {
             const isCompleted = this.isEntryComplete(lexem, tempDateTime);
-            const data = this.getCorrectDataFormat(lexem, isCompleted, matchWholeMask);
+            const data = this.getCorrectDatePartFormat(lexem, isCompleted, matchWholeMask);
             result += (prevSeparator + data);
             prevIsCompleted = isCompleted;
           }
@@ -288,11 +343,11 @@ export class InputMaskDateTime extends InputMaskPattern {
 
   private getParts(input: string): Array<string> {
     const inputParts: Array<string> = [];
-    const nonSeparatorLexems = this.lexems.filter(l => l.type !== "separator");
+    const lexemsWithValue = this.lexems.filter(l => l.type !== "separator");
     let curPart = "";
     let foundSeparator = false;
     for(let i = 0; i < input.length; i++) {
-      if(!input[i].match(numberDefinition) && input[i] !== nonSeparatorLexems[inputParts.length].value) {
+      if(!input[i].match(numberDefinition) && input[i] !== lexemsWithValue[inputParts.length].value) {
         foundSeparator = true;
         if(curPart != "") {
           inputParts.push(curPart);
@@ -302,7 +357,7 @@ export class InputMaskDateTime extends InputMaskPattern {
         foundSeparator = false;
         curPart += input[i];
       }
-      if(inputParts.length >= nonSeparatorLexems.length) {
+      if(inputParts.length >= lexemsWithValue.length) {
         foundSeparator = false;
         break;
       }
@@ -319,11 +374,11 @@ export class InputMaskDateTime extends InputMaskPattern {
     const inputParts = this.getParts(input);
     this.setLexemData(inputParts);
 
-    const tempDateTime: IDateTimeComposition = { day: undefined, month: undefined, year: undefined };
+    const tempDateTime = this.createIDateTimeComposition();
     this.lexems.forEach(lexem => {
       let str = lexem.data;
       if(!str || str.length < lexem.count) return undefined;
-      tempDateTime[lexem.type] = parseInt(this.getCorrectData(lexem));
+      (tempDateTime as any)[lexem.type] = parseInt(this.parseTwoDigitYear(lexem));
     });
 
     return this.getISO_8601Format(tempDateTime);
@@ -357,7 +412,22 @@ export class InputMaskDateTime extends InputMaskPattern {
 
 Serializer.addClass(
   "datetimemask",
-  [],
+  [
+    {
+      name: "min",
+      type: "datetime",
+      enableIf: (obj: any) => {
+        return !!obj.mask;
+      }
+    },
+    {
+      name: "max",
+      type: "datetime",
+      enableIf: (obj: any) => {
+        return !!obj.mask;
+      }
+    }
+  ],
   function () {
     return new InputMaskDateTime();
   },

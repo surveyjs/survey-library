@@ -3,7 +3,6 @@ import { JsonObject, Serializer, property } from "../jsonobject";
 import { IInputMaskType, IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
 
 export class InputMaskBase extends Base implements IInputMaskType {
-  [index: string]: any;
   @property() dataToSave: "masked" | "unmasked";
 
   public getType(): string {
@@ -16,7 +15,7 @@ export class InputMaskBase extends Base implements IInputMaskType {
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
       const currentValue = json[property.name];
-      this[property.name] = currentValue !== undefined ? currentValue : property.defaultValue;
+      (this as any)[property.name] = currentValue !== undefined ? currentValue : property.defaultValue;
     });
   }
   public getData(): any {
@@ -25,7 +24,7 @@ export class InputMaskBase extends Base implements IInputMaskType {
     const res: any = {};
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
-      const currentValue = this[property.name];
+      const currentValue = (this as any)[property.name];
       if(!property.isDefaultValue(currentValue)) {
         res[property.name] = currentValue;
       }

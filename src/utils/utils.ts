@@ -450,8 +450,12 @@ export function showConfirmDialog(message: string, callback: (res: boolean) => v
   cancelBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sd-btn sd-btn--small";
   applyBtn.title = applyTitle || surveyLocalization.getString("ok", locale);
   applyBtn.innerCss = "sv-popup__body-footer-item sv-popup__button sv-popup__button--danger sd-btn sd-btn--small sd-btn--danger";
-  //popupViewModel.width = "452px";
+  configConfirmDialog(popupViewModel);
   return true;
+}
+
+export function configConfirmDialog(popupViewModel: PopupBaseViewModel): void {
+  popupViewModel.width = "min-content";
 }
 
 function chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void): void {

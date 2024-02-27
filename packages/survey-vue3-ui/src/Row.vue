@@ -1,5 +1,5 @@
 <template>
-  <div :class="row.getRowCss()" ref="root" :id="row.id">
+  <div :class="rowCss" ref="root" :id="row.id">
     <survey-element
       :row="row"
       :css="css"
@@ -11,9 +11,23 @@
 </template>
 
 <script lang="ts" setup>
-import type { QuestionRowModel, SurveyElement, SurveyModel } from "survey-core";
-import { Animation } from "survey-core";
-import { computed, onMounted, ref, shallowRef, triggerRef, watch } from "vue";
+import {
+  AnimationCollection,
+  type IElement,
+  type QuestionRowModel,
+  type SurveyElement,
+  type SurveyModel,
+} from "survey-core";
+import {
+  computed,
+  onMounted,
+  onUnmounted,
+  onUpdated,
+  ref,
+  shallowRef,
+  toRaw,
+  triggerRef,
+} from "vue";
 import { useBase } from "./base";
 
 const props = defineProps<{
@@ -23,88 +37,61 @@ const props = defineProps<{
 }>();
 const root = ref<HTMLElement>();
 
-const elements = shallowRef();
-function mergeArrays<T>(arr1: Array<T>, arr2: Array<T>) {
-  const res: Array<T> = [];
-  for (let i = 0; i < Math.max(arr1.length, arr2.length); i++) {
-    if (arr2[i]) {
-      res.push(arr2[i]);
-    }
-    if (arr1[i] && res.indexOf(arr1[i]) < 0) {
-      res.push(arr1[i]);
-    }
-  }
-  return res;
-}
-watch(
-  () => [].concat(props.row.visibleElements),
-  (newValue, oldValue) => {
-    if (oldValue) {
-      const addedRows = newValue.filter((el) => oldValue.indexOf(el) < 0);
-      const removedRows = oldValue.filter((el) => newValue.indexOf(el) < 0);
-      // elements.value = mergeArrays(oldValue, newValue);
-      // triggerRef(elements);
-      addedRows.forEach((element) =>
-        new Animation().onEnter(
-          () =>
-            document.querySelector(`[data-wrap=${element.id}]`) as HTMLElement,
-          {
-            classes: { onEnter: "elementFadeIn" },
-            onBeforeRunAnimation: (el) => {
-              el.style.setProperty("--animation-width", el.offsetWidth + "px");
-            },
-          }
-        )
-      );
-      if (removedRows.length > 0) {
-        let counter = removedRows.length;
-        removedRows.forEach((element) => {
-          new Animation().onLeave(
-            () =>
-              document.querySelector(
-                `[data-wrap=${element.id}]`
-              ) as HTMLElement,
-            () => {
-              if (--counter <= 0) {
-                elements.value = newValue;
-                triggerRef(elements);
-              }
-            },
-            {
-              classes: { onLeave: "elementFadeOut", onHide: "hidden" },
-              onBeforeRunAnimation: (el) => {
-                el.style.setProperty(
-                  "--animation-width",
-                  el.offsetWidth + "px"
-                );
-              },
-            }
-          );
-        });
-      } else {
-        elements.value = newValue;
-        triggerRef(elements);
-      }
-    } else {
-      elements.value = newValue;
-      triggerRef(elements);
-    }
-  },
-  { immediate: true }
-);
+const value = props.row.visibleElements;
 
+const rowCss = computed(() => {
+  return props.row.getRowCss();
+});
+
+const elements = shallowRef();
+elements.value = toRaw(props.row.visibleElements);
+
+onUpdated(() => {
+  debugger;
+});
+
+let animationCollection: AnimationCollection<IElement>;
 useBase(
   () => props.row,
   (newValue, oldValue) => {
     if (oldValue) {
       newValue.isNeedRender = oldValue.isNeedRender;
     }
+    if (animationCollection) {
+      animationCollection.dispose();
+    }
+    animationCollection = new AnimationCollection(
+      newValue,
+      "visibleElements",
+      {
+        getElement: (element: IElement) =>
+          document.querySelector(`[data-wrap=${element.id}]`) as HTMLElement,
+        onLeave: { classes: { onLeave: "elementFadeOut", onHide: "hidden" } },
+        onEnter: {
+          classes: { onEnter: "elementFadeIn" },
+          onBeforeRunAnimation: (el) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+            el.style.setProperty("--animation-width", el.offsetWidth + "px");
+          },
+        },
+      },
+      (updatedElements: Array<IElement>) => {
+        elements.value = updatedElements;
+        triggerRef(elements);
+      }
+    );
   },
   (value) => {
     value.stopLazyRendering();
     value.isNeedRender = !value.isLazyRendering();
   }
 );
+
+onUnmounted(() => {
+  if (animationCollection) {
+    animationCollection.dispose();
+  }
+});
 
 onMounted(() => {
   if (props.row) {

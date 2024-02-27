@@ -32,6 +32,7 @@ import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
+import { debounce } from "./utils/taskmanager";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -127,10 +128,22 @@ export class QuestionRowModel extends Base {
   public set isNeedRender(val: boolean) {
     this.setPropertyValue("isneedrender", val);
   }
-  public updateVisible() {
+
+  private _updateVisible() {
     const isVisible = this.calcVisible();
     this.setWidth();
     this.visible = isVisible;
+  }
+  private _debouncedUpdateVisible = debounce(() => {
+    this._updateVisible();
+  });
+
+  public updateVisible(isSync = false) {
+    if(isSync) {
+      this._updateVisible();
+    } else {
+      this._debouncedUpdateVisible();
+    }
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -274,11 +287,9 @@ export class PanelModelBase extends SurveyElement<Question>
 
   public onAddRow(row: QuestionRowModel): void {
     this.onRowVisibleChanged(row);
-    row.registerFunctionOnPropertyValueChanged("visible", () => {
-      () => {
-        this.onRowVisibleChanged(row);
-      };
-    }, this.id);
+    row.registerFunctionOnPropertyValueChanged("visible",
+      () => this.onRowVisibleChanged(row),
+      this.id);
   }
   public onRemoveRow(row: QuestionRowModel): void {
     this.removeRowFromVisibleRows(row);
@@ -292,7 +303,10 @@ export class PanelModelBase extends SurveyElement<Question>
     }
   }
   removeRowFromVisibleRows(row: QuestionRowModel) {
-    this.visibleRows.splice(this.visibleRows.indexOf(row), 1);
+    const index = this.visibleRows.indexOf(row);
+    if(index >= 0) {
+      this.visibleRows.splice(this.visibleRows.indexOf(row), 1);
+    }
   }
   addRowsToVisibleRows(row: QuestionRowModel) {
     let addIndex: number = 0;
@@ -1260,7 +1274,7 @@ export class PanelModelBase extends SurveyElement<Question>
       row.addElement(el);
     }
     for (var i = 0; i < result.length; i++) {
-      result[i].updateVisible();
+      result[i].updateVisible(true);
     }
     return result;
   }

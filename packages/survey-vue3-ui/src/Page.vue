@@ -59,11 +59,20 @@ useBase(
     animationCollection = new AnimationCollection(
       newValue,
       "visibleRows",
-      {} as any,
+      {
+        getElement: (row: QuestionRowModel) =>
+          document.getElementById((row as any).id) as HTMLElement,
+        onLeave: { classes: { onLeave: "fadeOut", onHide: "hidden" } },
+        onEnter: {
+          classes: { onEnter: "fadeIn" },
+          onBeforeRunAnimation: (el) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+          },
+        },
+      },
       (updateRows: Array<any>) => {
         rows.value = updateRows;
         triggerRef(rows);
-        getCurrentInstance()?.proxy?.$forceUpdate();
       }
     );
     onAfterRender();

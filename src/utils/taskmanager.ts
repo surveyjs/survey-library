@@ -57,3 +57,19 @@ export class TaskManger {
     TaskManger.tasks.push(task);
   }
 }
+
+export function debounce(func: (...args: []) => void, syncCondition?: () => boolean): (...args: []) => void {
+  let isSheduled = false;
+  return (...args) => {
+    if(syncCondition && syncCondition()) {
+      func(...args);
+    }
+    else if(!isSheduled) {
+      isSheduled = true;
+      queueMicrotask(() => {
+        func(...args);
+        isSheduled = false;
+      });
+    }
+  };
+}

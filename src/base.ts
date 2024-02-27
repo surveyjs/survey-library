@@ -565,6 +565,9 @@ export class Base {
    * @param val A new value for the property.
    */
   public setPropertyValue(name: string, val: any): void {
+    if(name) {
+
+    }
     if(!this.isLoadingFromJson) {
       const prop = this.getPropertyByName(name);
       if(!!prop) {

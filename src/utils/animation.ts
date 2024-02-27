@@ -63,45 +63,39 @@ export class Animation {
 }
 
 export class AnimationCollection<T> {
-  constructor(private obj: Base, private propertyName: string, private animationOptions: { onEnter: OnEnterOptions, onLeave: OnLeaveOptions }, private update: (arr: Array<T>) => void) {
+  constructor(private obj: Base, private propertyName: string, private animationOptions: { onEnter: OnEnterOptions, onLeave: OnLeaveOptions, getElement: (el: T) => HTMLElement }, private update: (arr: Array<T>) => void) {
     obj.registerFunctionOnPropertyValueChanged(propertyName, (newValue: Array<T>, arrayChanges: ArrayChanges<T>) => { this.sync(newValue, arrayChanges); }, "animation");
   }
   sync(array: Array<T>, { itemsToAdd, deletedItems }: ArrayChanges<T>): void {
-    itemsToAdd?.forEach((element) =>
+    if(deletedItems.length != 0 && itemsToAdd.length == array.length) {
+      itemsToAdd = array.filter((el) => deletedItems.indexOf(el) < 0);
+      deletedItems = deletedItems.filter(el => array.indexOf(el) < 0);
+    }
+    itemsToAdd?.forEach((item) =>
       new Animation().onEnter(
-        () =>
-                  document.getElementById(
-                    (element as any).id
-                  ) as HTMLElement,
-        {
-          classes: { onEnter: "fadeIn" },
-          onBeforeRunAnimation: (el) => {
-            el.style.setProperty(
-              "--animation-height",
-              el.offsetHeight + "px"
-            );
-          },
-        }
+        () => this.animationOptions.getElement(item),
+        this.animationOptions.onEnter
       )
     );
     if (deletedItems?.length > 0) {
       let counter = deletedItems.length;
-      deletedItems.forEach((row) => {
+      deletedItems.forEach((item) => {
         new Animation().onLeave(
-          () =>
-                    document.getElementById(
-                      (row as any).id
-                    ) as HTMLElement,
+          () => this.animationOptions.getElement(item),
           () => {
             if (--counter <= 0) {
-              this.update(array);
+              if(!this.obj.isUIChangesBlocked) {
+                this.update(array);
+              }
             }
           },
-          { classes: { onLeave: "fadeOut", onHide: "hidden" } }
+          this.animationOptions.onLeave
         );
       });
     } else {
-      this.update(array);
+      if(!this.obj.isUIChangesBlocked) {
+        this.update(array);
+      }
     }
   }
   dispose() {

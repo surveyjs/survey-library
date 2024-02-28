@@ -2,7 +2,7 @@
 title: jQuery Form Library | Getting Started Guide
 description: A step-by-step tutorial on how to add SurveyJS Form Library to a jQuery application.
 ---
-# Add a Survey to a jQuery Application
+# jQuery Form Library
 
 This step-by-step tutorial will help you get started with SurveyJS Form Library in a jQuery application. To add a survey to your jQuery application, follow the steps below:
 

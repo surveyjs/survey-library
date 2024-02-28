@@ -9,6 +9,7 @@
     :aria-required="element.ariaRequired"
     :aria-invalid="element.ariaInvalid"
     :aria-labelledby="element.ariaLabelledBy"
+    :aria-describedby="element.ariaDescribedBy"
     :aria-expanded="
       element.ariaExpanded === null
         ? undefined
@@ -57,6 +58,7 @@
         <div
           v-if="element.hasDescriptionUnderInput"
           :class="element.cssClasses.descriptionUnderInput"
+          :id="element.ariaDescriptionId"
         >
           <survey-string :locString="element.locDescription" />
         </div>

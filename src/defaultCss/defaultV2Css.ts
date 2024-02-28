@@ -210,7 +210,7 @@ export var defaultV2Css = {
     expanded: "sd-element--expanded",
     nested: "sd-element--nested",
     invisible: "sd-element--invisible",
-    composite: "sd-element--complex",
+    composite: "sd-element--complex sd-composite",
     disabled: "sd-question--disabled",
     errorsContainer: "sd-element__erbox sd-question__erbox",
     errorsContainerTop: "sd-element__erbox--above-element sd-question__erbox--above-question",

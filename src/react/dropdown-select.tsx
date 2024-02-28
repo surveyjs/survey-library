@@ -33,7 +33,7 @@ export class SurveyQuestionDropdownSelect extends SurveyQuestionDropdown {
         aria-required={this.question.ariaRequired}
         aria-label={this.question.ariaLabel}
         aria-invalid={this.question.ariaInvalid}
-        aria-describedby={this.question.ariaDescribedBy}
+        aria-errormessage={this.question.ariaErrormessage}
         required={this.question.isRequired}>
         {this.question.allowClear ? (<option value="">{this.question.placeholder}</option>) : null}
         {this.question.visibleChoices.map((item: ItemValue, i: number) => <SurveyQuestionOptionItem key={"item" + i} item={item} />)}

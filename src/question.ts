@@ -1303,6 +1303,9 @@ export class Question extends SurveyElement<Question>
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
   }
+  public get ariaDescriptionId(): string {
+    return this.id + "_ariaDescription";
+  }
   public get commentId(): string {
     return this.id + "_comment";
   }
@@ -2043,13 +2046,12 @@ export class Question extends SurveyElement<Question>
     questions.push(this);
   }
   public getConditionJson(operator: string = null, path: string = null): any {
-    var json = new JsonObject().toJsonObject(this);
+    const json = new JsonObject().toJsonObject(this);
     json["type"] = this.getType();
     return json;
   }
   public hasErrors(fireCallback: boolean = true, rec: any = null): boolean {
-    var oldHasErrors = this.errors.length > 0;
-    var errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
+    const errors = this.checkForErrors(!!rec && rec.isOnValueChanged === true);
     if (fireCallback) {
       if (!!this.survey) {
         this.survey.beforeSettingQuestionErrors(this, errors);
@@ -2095,11 +2097,14 @@ export class Question extends SurveyElement<Question>
     if (!error) return;
     let newError: SurveyError = null;
     if (typeof error === "string" || error instanceof String) {
-      newError = new CustomError(<string>error, this.survey);
+      newError = this.addCustomError(<string>error);
     } else {
       newError = <SurveyError>error;
     }
     this.errors.push(newError);
+  }
+  private addCustomError(error: string): SurveyError {
+    return new CustomError(error, this.survey);
   }
   public removeError(error: SurveyError): void {
     var errors = this.errors;
@@ -2149,6 +2154,12 @@ export class Question extends SurveyElement<Question>
       const err = new AnswerRequiredError(this.requiredErrorText, this);
       err.onUpdateErrorTextCallback = (err) => { err.text = this.requiredErrorText; };
       errors.push(err);
+    }
+    if(!this.isEmpty() && this.customWidget) {
+      const text = this.customWidget.validate(this);
+      if(!!text) {
+        errors.push(this.addCustomError(text));
+      }
     }
   }
   protected hasRequiredError(): boolean {
@@ -2602,10 +2613,19 @@ export class Question extends SurveyElement<Question>
       return null;
     }
   }
+  public get ariaDescribedBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    if (this.hasTitle) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
   public get ariaExpanded(): string {
     return null;
   }
-  public get ariaDescribedBy(): string {
+  public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
     return this.hasCssError() ? this.id + "_errors" : null;
@@ -2637,6 +2657,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaErrormessage(): string {
     return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO new a11y

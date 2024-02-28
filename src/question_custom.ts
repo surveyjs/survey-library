@@ -1097,6 +1097,15 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
       }
     }
   }
+  onSurveyValueChanged(newValue: any): void {
+    super.onSurveyValueChanged(newValue);
+    const val = !!newValue ? newValue : {};
+    if (!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.onSurveyValueChanged(val[q.getValueName()]);
+      });
+    }
+  }
   getValue(name: string): any {
     var val = this.value;
     return !!val ? val[name] : null;
@@ -1120,6 +1129,14 @@ export class QuestionCompositeModel extends QuestionCustomModelBase {
     this.setNewValueIntoQuestion(name, newValue);
     super.setValue(name, newValue, locNotification, allowNotifyValueChanged);
     this.settingNewValue = false;
+    this.runPanelTriggers(QuestionCompositeModel.ItemVariableName + "." + name, newValue);
+  }
+  private runPanelTriggers(name: string, value: any): void {
+    if(!!this.contentPanel) {
+      this.contentPanel.questions.forEach(q => {
+        q.runTriggers(name, value);
+      });
+    }
   }
   getFilteredValues(): any {
     const values = !!this.data ? this.data.getFilteredValues() : {};

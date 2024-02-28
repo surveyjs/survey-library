@@ -27,6 +27,7 @@
                 :aria-expanded="question.ariaExpanded"
                 :aria-label="question.a11y_input_ariaLabel"
                 :aria-labelledby="question.a11y_input_ariaLabelledBy"
+                :aria-describedby="question.a11y_input_ariaDescribedBy"
                 :aria-controls="model.listElementId"
                 :aria-activedescendant="model.ariaActivedescendant"
                 :id="question.getInputId()"

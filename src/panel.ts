@@ -159,7 +159,14 @@ export class QuestionRowModel extends Base {
   }
 
   public updateVisible() {
-    this.updateVisibleElements();
+    var visElements: Array<IElement> = [];
+    for (var i = 0; i < this.elements.length; i++) {
+      if (this.elements[i].isVisible) {
+        visElements.push(this.elements[i]);
+      }
+    }
+    this.visibleElements = visElements;
+    return;
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -232,16 +239,6 @@ export class QuestionRowModel extends Base {
   private getRenderedWidthFromWidth(width: string): string {
     return Helpers.isNumber(width) ? width + "px" : width;
   }
-  private updateVisibleElements(): boolean {
-    var visElements: Array<IElement> = [];
-    for (var i = 0; i < this.elements.length; i++) {
-      if (this.elements[i].isVisible) {
-        visElements.push(this.elements[i]);
-      }
-    }
-    this.visibleElements = visElements;
-    return;
-  }
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose(): void {
     super.dispose();
@@ -255,15 +252,6 @@ export class QuestionRowModel extends Base {
       .append(this.panel.cssClasses.rowMultiple, this.visibleElements.length > 1)
       .toString();
 
-  }
-
-  public blockUIChanges(): void {
-    super.blockUIChanges();
-    this.elements.forEach(el => (el as any).blockUIChanges());
-  }
-  public releaseUIChanges(): void {
-    super.releaseUIChanges();
-    this.elements.forEach(el => (el as any).releaseUIChanges());
   }
 }
 

@@ -1143,16 +1143,6 @@ export class Base {
   public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
     return [];
   }
-  private _isUIChangedBlocked: boolean = false;
-  public get isUIChangesBlocked() {
-    return this._isUIChangedBlocked;
-  }
-  public blockUIChanges() {
-    this._isUIChangedBlocked = true;
-  }
-  public releaseUIChanges() {
-    this._isUIChangedBlocked = false;
-  }
 }
 
 export class ArrayChanges<T = any> {

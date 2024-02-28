@@ -26,6 +26,7 @@
   position: relative;
   gap: calcSize(1);
   vertical-align: top;
+  max-width: 100%;
 }
 
 .sd-selectbase__column {
@@ -36,6 +37,7 @@
   display: block;
   box-sizing: border-box;
   flex: 1 1 0px;
+  min-width: 0;
 }
 
 .sd-selectbase__column:not(:last-child) {

@@ -12,7 +12,7 @@
           v-bind:aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
-          :aria-describedby="question.ariaDescribedBy"
+          :aria-errormessage="question.ariaErrormessage"
           :class="question.cssClasses.itemControl"
         />
         <input
@@ -26,7 +26,7 @@
           v-bind:aria-required="question.ariaRequired"
           :aria-label="question.ariaLabel"
           :aria-invalid="question.ariaInvalid"
-          :aria-describedby="question.ariaDescribedBy"
+          :aria-errormessage="question.ariaErrormessage"
           :class="question.cssClasses.itemControl"
         /><div :class="question.cssClasses.itemDecorator">
           <div :class="question.cssClasses.imageContainer">

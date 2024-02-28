@@ -1303,6 +1303,9 @@ export class Question extends SurveyElement<Question>
   public get ariaTitleId(): string {
     return this.id + "_ariaTitle";
   }
+  public get ariaDescriptionId(): string {
+    return this.id + "_ariaDescription";
+  }
   public get commentId(): string {
     return this.id + "_comment";
   }
@@ -2610,10 +2613,19 @@ export class Question extends SurveyElement<Question>
       return null;
     }
   }
+  public get ariaDescribedBy(): string {
+    if (this.isNewA11yStructure) return null;
+
+    if (this.hasTitle) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
   public get ariaExpanded(): string {
     return null;
   }
-  public get ariaDescribedBy(): string {
+  public get ariaErrormessage(): string {
     if (this.isNewA11yStructure) return null;
 
     return this.hasCssError() ? this.id + "_errors" : null;
@@ -2645,6 +2657,13 @@ export class Question extends SurveyElement<Question>
     }
   }
   public get a11y_input_ariaDescribedBy(): string {
+    if (this.hasTitle && !this.parentQuestion) {
+      return this.ariaDescriptionId;
+    } else {
+      return null;
+    }
+  }
+  public get a11y_input_ariaErrormessage(): string {
     return this.hasCssError() ? this.id + "_errors" : null;
   }
   //EO new a11y

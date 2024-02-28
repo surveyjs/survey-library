@@ -3,7 +3,7 @@
         [attr.disabled]="model.isInputReadOnly ? true : null" (blur)="blur($event)"
         (keydown)="keyhandler($event)" [attr.id]="model.inputId" [attr.aria-required]="model.ariaRequired"
         [attr.aria-label]="model.ariaLabel" [attr.aria-invalid]="model.ariaInvalid"
-        [attr.aria-describedby]="model.ariaDescribedBy" [attr.role]="model.ariaRole"
+        [attr.aria-errormessage]="model.ariaErrormessage" [attr.role]="model.ariaRole"
         [attr.aria-controls]="dropdownModel.listElementId"
         [attr.aria-expanded]="model.ariaExpanded"
         [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant">
@@ -28,6 +28,7 @@
             [attr.aria-controls]="dropdownModel.listElementId"
             [attr.aria-label]="model.a11y_input_ariaLabel"
             [attr.aria-labelledby]="model.a11y_input_ariaLabelledBy"
+            [attr.aria-describedby]="model.a11y_input_ariaDescribedBy"
             [attr.aria-expanded]="model.ariaExpanded"
             [attr.aria-activedescendant]="dropdownModel.ariaActivedescendant"
             [attr.placeholder]="dropdownModel.placeholderRendered" 

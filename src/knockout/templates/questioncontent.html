@@ -27,7 +27,7 @@
     <!-- /ko -->
   <!-- /ko -->
   <!-- ko if: question.hasDescriptionUnderInput -->
-  <div data-bind="css: cssClasses.descriptionUnderInput">
+  <div data-bind="css: cssClasses.descriptionUnderInput, attr: {'id': question.ariaDescriptionId}">
     <!-- ko template: { name: 'survey-string', data: locDescription } -->
     <!-- /ko -->
   </div>

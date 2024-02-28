@@ -32,7 +32,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     return this.props.css;
   }
   protected canRender(): boolean {
-    return !!this.row && !!this.survey && !!this.creator && this.row.visible;
+    return !!this.row && !!this.survey && !!this.creator;
   }
   protected renderElementContent(): JSX.Element {
     const elements = this.row.visibleElements.map((element, elementIndex) => {
@@ -53,7 +53,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     });
 
     return (
-      <div ref={this.rootRef} className={this.row.getRowCss()} >
+      <div ref={this.rootRef} className={this.row.getRowCss()} id={this.row.id} >
         {elements}
       </div>
     );
@@ -76,7 +76,6 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   public shouldComponentUpdate(nextProps: any, nextState: any): boolean {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
-
     if (nextProps.row !== this.row) {
       nextProps.row.isNeedRender = this.row.isNeedRender;
       this.stopLazyRendering();

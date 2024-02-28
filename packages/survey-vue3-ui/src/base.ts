@@ -26,9 +26,9 @@ function makeReactive(surveyElement: Base) {
     const arrayRef = shallowRef(arr);
 
     arr.onArrayChanged = () => {
-      if (!surveyElement.isUIChangesBlocked) {
-        triggerRef(arrayRef);
-      }
+      // if (!surveyElement.isUIChangesBlocked) {
+      triggerRef(arrayRef);
+      // }
     };
     hash[key] = arrayRef;
     return unref(hash[key]);
@@ -37,9 +37,9 @@ function makeReactive(surveyElement: Base) {
     if (Array.isArray(hash[key])) {
       const arrayRef = shallowRef(hash[key]);
       hash[key]["onArrayChanged"] = () => {
-        if (!surveyElement.isUIChangesBlocked) {
-          triggerRef(arrayRef);
-        }
+        // if (!surveyElement.isUIChangesBlocked) {
+        triggerRef(arrayRef);
+        // }
       };
       hash[key] = arrayRef;
     }

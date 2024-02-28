@@ -78,7 +78,7 @@ export class SurveyPanelBase extends SurveyElementBase<any, any> {
     );
   }
   protected renderRows(css: any): Array<JSX.Element> {
-    return this.panelBase.rows.map((row) => this.createRow(row, css));
+    return this.panelBase.visibleRows.map((row) => this.createRow(row, css));
   }
   protected createRow(row: QuestionRowModel, css: any): JSX.Element {
     return (

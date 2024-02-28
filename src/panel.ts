@@ -32,7 +32,7 @@ import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
-import { debounce } from "./utils/taskmanager";
+import { Animation, AnimationCollection, AnimationOptions } from "./utils/animation";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -113,14 +113,43 @@ export class QuestionRowModel extends Base {
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
   }
+  private visibleAnimationOptions: any = {
+    getElement: (element: IElement) =>
+    document.querySelector(`[data-wrap=${(element as any).id}]`) as HTMLElement,
+    onLeave: { classes: { onLeave: "elementFadeOut", onHide: "hidden" } },
+    onEnter: {
+      classes: { onEnter: "elementFadeIn" },
+      onBeforeRunAnimation: (el: HTMLElement) => {
+        el.style.setProperty("--animation-height", el.offsetHeight + "px");
+        el.style.setProperty("--animation-width", el.offsetWidth + "px");
+      },
+    },
+  }
+  private visibleElementsAnimation: AnimationCollection<IElement> = new AnimationCollection(this.visibleAnimationOptions, (value) => {
+    this.setPropertyValue("visibleElements", value);
+    this.setWidth();
+  });
+  public set visibleElements(val: Array<IElement>) {
+    if(!val.length) {
+      this.visible = false;
+      this.visibleElementsAnimation.cancel();
+      return;
+    } else {
+      this.visible = true;
+    }
+    this.visibleElementsAnimation.sync(val, this.visibleElements);
+  }
   public get visibleElements(): Array<IElement> {
     return this.getPropertyValue("visibleElements");
   }
+
+  public onVisibleChangedCallback: () => void;
   public get visible(): boolean {
     return this.getPropertyValue("visible", true);
   }
   public set visible(val: boolean) {
     this.setPropertyValue("visible", val);
+    this.onVisibleChangedCallback && this.onVisibleChangedCallback();
   }
   public get isNeedRender(): boolean {
     return this.getPropertyValue("isneedrender", true);
@@ -129,21 +158,8 @@ export class QuestionRowModel extends Base {
     this.setPropertyValue("isneedrender", val);
   }
 
-  private _updateVisible() {
-    const isVisible = this.calcVisible();
-    this.setWidth();
-    this.visible = isVisible;
-  }
-  private _debouncedUpdateVisible = debounce(() => {
-    this._updateVisible();
-  });
-
-  public updateVisible(isSync = false) {
-    if(isSync) {
-      this._updateVisible();
-    } else {
-      this._debouncedUpdateVisible();
-    }
+  public updateVisible() {
+    this.updateVisibleElements();
   }
   public addElement(q: IElement) {
     this.elements.push(q);
@@ -216,30 +232,15 @@ export class QuestionRowModel extends Base {
   private getRenderedWidthFromWidth(width: string): string {
     return Helpers.isNumber(width) ? width + "px" : width;
   }
-  private calcVisible(): boolean {
+  private updateVisibleElements(): boolean {
     var visElements: Array<IElement> = [];
     for (var i = 0; i < this.elements.length; i++) {
       if (this.elements[i].isVisible) {
         visElements.push(this.elements[i]);
       }
     }
-    if(visElements.length <= 0) {
-      this.visible = false;
-      this.blockUIChanges();
-    } else {
-      this.releaseUIChanges();
-    }
-    if (this.needToUpdateVisibleElements(visElements)) {
-      this.setPropertyValue("visibleElements", visElements);
-    }
-    return visElements.length > 0;
-  }
-  private needToUpdateVisibleElements(visElements: Array<IElement>): boolean {
-    if (visElements.length !== this.visibleElements.length) return true;
-    for (var i = 0; i < visElements.length; i++) {
-      if (visElements[i] !== this.visibleElements[i]) return true;
-    }
-    return false;
+    this.visibleElements = visElements;
+    return;
   }
   @property({ defaultValue: null }) dragTypeOverMe: DragTypeOverMeEnum;
   public dispose(): void {
@@ -286,39 +287,36 @@ export class PanelModelBase extends SurveyElement<Question>
   private dragDropPanelHelper: DragDropPanelHelperV1;
 
   public onAddRow(row: QuestionRowModel): void {
-    this.onRowVisibleChanged(row);
-    row.registerFunctionOnPropertyValueChanged("visible",
-      () => this.onRowVisibleChanged(row),
-      this.id);
+    this.onRowVisibleChanged();
+    row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
   }
+  private rowsAnimationsOptions: any = {
+    getElement: (row: QuestionRowModel) =>
+      document.getElementById((row as any).id) as HTMLElement,
+    onLeave: { classes: { onLeave: "fadeOut", onHide: "hidden" } },
+    onEnter: {
+      classes: { onEnter: "fadeIn" },
+      onBeforeRunAnimation: (el: HTMLElement) => {
+        el.style.setProperty("--animation-height", el.offsetHeight + "px");
+      },
+    }
+  }
+  private rowsAnimation: AnimationCollection<QuestionRowModel> = new AnimationCollection(this.rowsAnimationsOptions, (value) => {
+    this.setPropertyValue("visibleRows", value);
+  })
+  get visibleRows(): Array<QuestionRowModel> {
+    return this.getPropertyValue("visibleRows");
+  }
+  set visibleRows(val: Array<QuestionRowModel>) {
+    this.rowsAnimation.sync(val, this.visibleRows);
+  }
+
   public onRemoveRow(row: QuestionRowModel): void {
-    this.removeRowFromVisibleRows(row);
-    row.unRegisterFunctionOnPropertyValueChanged("visible", this.id);
+    this.visibleRows = this.rows.filter(row => row.visible);
+    row.onVisibleChangedCallback = undefined;
   }
-  onRowVisibleChanged(row: QuestionRowModel) {
-    if(row.visible) {
-      this.addRowsToVisibleRows(row);
-    } else {
-      this.removeRowFromVisibleRows(row);
-    }
-  }
-  removeRowFromVisibleRows(row: QuestionRowModel) {
-    const index = this.visibleRows.indexOf(row);
-    if(index >= 0) {
-      this.visibleRows.splice(this.visibleRows.indexOf(row), 1);
-    }
-  }
-  addRowsToVisibleRows(row: QuestionRowModel) {
-    let addIndex: number = 0;
-    let index = this.rows.indexOf(row);
-    this.visibleRows.forEach(row => {
-      if(this.rows.indexOf(row) < index) {
-        addIndex++;
-      } else {
-        return;
-      }
-    });
-    this.visibleRows.splice(addIndex, 0, row);
+  onRowVisibleChanged() {
+    this.visibleRows = this.rows.filter(row => row.visible);
   }
   constructor(name: string = "") {
     super(name);
@@ -1100,13 +1098,6 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     this.onRowsChanged();
   }
-
-  set visibleRows(val: Array<QuestionRowModel>) {
-    this.setPropertyValue("visibleRows", val);
-  }
-  get visibleRows(): Array<QuestionRowModel> {
-    return this.getPropertyValue("visibleRows");
-  }
   get rows(): Array<QuestionRowModel> {
     return this.getPropertyValue("rows");
   }
@@ -1274,7 +1265,7 @@ export class PanelModelBase extends SurveyElement<Question>
       row.addElement(el);
     }
     for (var i = 0; i < result.length; i++) {
-      result[i].updateVisible(true);
+      result[i].updateVisible();
     }
     return result;
   }

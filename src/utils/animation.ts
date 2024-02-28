@@ -1,4 +1,5 @@
 import { ArrayChanges, Base } from "../base";
+import { debounce } from "./taskmanager";
 
 export interface AnimationOptions<T> {
   classes: T;
@@ -63,13 +64,15 @@ export class Animation {
 }
 
 export class AnimationCollection<T> {
-  constructor(private obj: Base, private propertyName: string, private animationOptions: { onEnter: OnEnterOptions, onLeave: OnLeaveOptions, getElement: (el: T) => HTMLElement }, private update: (arr: Array<T>) => void) {
-    obj.registerFunctionOnPropertyValueChanged(propertyName, (newValue: Array<T>, arrayChanges: ArrayChanges<T>) => { this.sync(newValue, arrayChanges); }, "animation");
+  constructor(private animationOptions: { onEnter: OnEnterOptions, onLeave: OnLeaveOptions, getElement: (el: T) => HTMLElement }, private update: (arr: Array<T>) => void) {
   }
-  sync(array: Array<T>, { itemsToAdd, deletedItems }: ArrayChanges<T>): void {
-    if(deletedItems.length != 0 && itemsToAdd.length == array.length) {
-      itemsToAdd = array.filter((el) => deletedItems.indexOf(el) < 0);
-      deletedItems = deletedItems.filter(el => array.indexOf(el) < 0);
+  private _sync (newValue: Array<T>, oldValue: Array<T>) {
+    const itemsToAdd = newValue.filter(el => oldValue.indexOf(el) < 0);
+    const deletedItems = oldValue.filter(el => newValue.indexOf(el) < 0);
+
+    if(itemsToAdd.length == newValue.length) {
+      this.update(newValue);
+      return;
     }
     itemsToAdd?.forEach((item) =>
       new Animation().onEnter(
@@ -84,75 +87,23 @@ export class AnimationCollection<T> {
           () => this.animationOptions.getElement(item),
           () => {
             if (--counter <= 0) {
-              if(!this.obj.isUIChangesBlocked) {
-                this.update(array);
-              }
+              this.update(newValue);
             }
           },
           this.animationOptions.onLeave
         );
       });
     } else {
-      if(!this.obj.isUIChangesBlocked) {
-        this.update(array);
-      }
+      this.update(newValue);
     }
   }
-  dispose() {
-    this.obj.unRegisterFunctionOnPropertyValueChanged(this.propertyName, "animation");
+  private _debouncedSync = debounce((newValue: Array<T>, oldValue: Array<T>) => {
+    this._sync(newValue, oldValue);
+  })
+  sync(newValue: Array<T>, oldValue: Array<T>): void {
+    this._debouncedSync.run(newValue, oldValue);
+  }
+  cancel() {
+    this._debouncedSync.cancel();
   }
 }
-
-// watch(
-//   () => props.page.rows.filter((row) => row.visible),
-//   (newValue, oldValue) => {
-//     if (oldValue) {
-//       const addedRows = newValue.filter((el) => oldValue.indexOf(el) < 0);
-//       const removedRows = oldValue.filter((el) => newValue.indexOf(el) < 0);
-//       // rows.value = mergeArrays(oldValue, newValue);
-//       // triggerRef(rows);
-//       addedRows.forEach((row) =>
-//         new Animation().onEnter(
-//           () =>
-//             document.getElementById(
-//               (row as QuestionRowModel).id
-//             ) as HTMLElement,
-//           {
-//             classes: { onEnter: "fadeIn" },
-//             onBeforeRunAnimation: (el) => {
-//               el.style.setProperty(
-//                 "--animation-height",
-//                 el.offsetHeight + "px"
-//               );
-//             },
-//           }
-//         )
-//       );
-//       if (removedRows.length > 0) {
-//         let counter = removedRows.length;
-//         removedRows.forEach((row) => {
-//           new Animation().onLeave(
-//             () =>
-//               document.getElementById(
-//                 (row as QuestionRowModel).id
-//               ) as HTMLElement,
-//             () => {
-//               if (--counter <= 0) {
-//                 rows.value = newValue;
-//                 triggerRef(rows);
-//               }
-//             },
-//             { classes: { onLeave: "fadeOut", onHide: "hidden" } }
-//           );
-//         });
-//       } else {
-//         rows.value = newValue;
-//         triggerRef(rows);
-//       }
-//     } else {
-//       rows.value = newValue;
-//       triggerRef(rows);
-//     }
-//   },
-//   { immediate: true }
-// );

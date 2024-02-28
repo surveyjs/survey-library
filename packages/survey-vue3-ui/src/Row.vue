@@ -1,10 +1,10 @@
 <template>
-  <div :class="rowCss" ref="root" :id="row.id">
+  <div :class="row.getRowCss()" ref="root" :id="row.id">
     <survey-element
       :row="row"
       :css="css"
       :element="element"
-      v-for="element in elements"
+      v-for="element in row.visibleElements"
       :key="element.id"
     ></survey-element>
   </div>
@@ -37,49 +37,39 @@ const props = defineProps<{
 }>();
 const root = ref<HTMLElement>();
 
-const value = props.row.visibleElements;
+// const elements = shallowRef();
+// elements.value = toRaw(props.row.visibleElements);
 
-const rowCss = computed(() => {
-  return props.row.getRowCss();
-});
-
-const elements = shallowRef();
-elements.value = toRaw(props.row.visibleElements);
-
-onUpdated(() => {
-  debugger;
-});
-
-let animationCollection: AnimationCollection<IElement>;
+// let animationCollection: AnimationCollection<IElement>;
 useBase(
   () => props.row,
   (newValue, oldValue) => {
     if (oldValue) {
       newValue.isNeedRender = oldValue.isNeedRender;
     }
-    if (animationCollection) {
-      animationCollection.dispose();
-    }
-    animationCollection = new AnimationCollection(
-      newValue,
-      "visibleElements",
-      {
-        getElement: (element: IElement) =>
-          document.querySelector(`[data-wrap=${element.id}]`) as HTMLElement,
-        onLeave: { classes: { onLeave: "elementFadeOut", onHide: "hidden" } },
-        onEnter: {
-          classes: { onEnter: "elementFadeIn" },
-          onBeforeRunAnimation: (el) => {
-            el.style.setProperty("--animation-height", el.offsetHeight + "px");
-            el.style.setProperty("--animation-width", el.offsetWidth + "px");
-          },
-        },
-      },
-      (updatedElements: Array<IElement>) => {
-        elements.value = updatedElements;
-        triggerRef(elements);
-      }
-    );
+    // if (animationCollection) {
+    //   animationCollection.dispose();
+    // }
+    // animationCollection = new AnimationCollection(
+    //   newValue,
+    //   "visibleElements",
+    //   {
+    //     getElement: (element: IElement) =>
+    //       document.querySelector(`[data-wrap=${element.id}]`) as HTMLElement,
+    //     onLeave: { classes: { onLeave: "elementFadeOut", onHide: "hidden" } },
+    //     onEnter: {
+    //       classes: { onEnter: "elementFadeIn" },
+    //       onBeforeRunAnimation: (el) => {
+    //         el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    //         el.style.setProperty("--animation-width", el.offsetWidth + "px");
+    //       },
+    //     },
+    //   },
+    //   (updatedElements: Array<IElement>) => {
+    //     elements.value = updatedElements;
+    //     triggerRef(elements);
+    //   }
+    // );
   },
   (value) => {
     value.stopLazyRendering();
@@ -87,11 +77,11 @@ useBase(
   }
 );
 
-onUnmounted(() => {
-  if (animationCollection) {
-    animationCollection.dispose();
-  }
-});
+// onUnmounted(() => {
+//   // if (animationCollection) {
+//   //   animationCollection.dispose();
+//   // }
+// });
 
 onMounted(() => {
   if (props.row) {

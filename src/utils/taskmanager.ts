@@ -58,18 +58,24 @@ export class TaskManger {
   }
 }
 
-export function debounce(func: (...args: []) => void, syncCondition?: () => boolean): (...args: []) => void {
+export function debounce<T extends (...args: any) => void>(func: T): { run: T, cancel: () => void } {
   let isSheduled = false;
-  return (...args) => {
-    if(syncCondition && syncCondition()) {
-      func(...args);
-    }
-    else if(!isSheduled) {
+  let isCanceled = false;
+  let funcArgs: any;
+  return { run: ((...args: any) => {
+    isCanceled = false;
+    funcArgs = args;
+    if(!isSheduled) {
       isSheduled = true;
       queueMicrotask(() => {
-        func(...args);
+        if(!isCanceled) {
+          func.apply(this, funcArgs);
+        }
+        isCanceled = false;
         isSheduled = false;
       });
     }
-  };
+  }) as T, cancel: () => {
+    isCanceled = true;
+  } };
 }

@@ -1,7 +1,9 @@
 import { IAction } from "../src/actions/action";
 import { defaultListCss } from "../src/list";
-import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent } from "../src/utils/utils";
+import { createSvg, doKey2ClickDown, doKey2ClickUp, sanitizeEditableContent, configConfirmDialog } from "../src/utils/utils";
 import { mouseInfo } from "../src/utils/devices";
+import { PopupBaseViewModel } from "../src/popup-view-model";
+import { PopupModel } from "../src/popup";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -199,5 +201,14 @@ QUnit.test(
     if(!hasTouchEvent) {
       window["ontouchstart"] = undefined;
     }
+  }
+);
+
+QUnit.test(
+  "utils: configConfirmDialog",
+  function (assert) {
+    const popupViewModel = new PopupBaseViewModel(new PopupModel("", undefined));
+    configConfirmDialog(popupViewModel);
+    assert.equal(popupViewModel.width, "min-content");
   }
 );

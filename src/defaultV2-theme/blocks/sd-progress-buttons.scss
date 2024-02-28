@@ -45,16 +45,20 @@
     flex-wrap: nowrap;
     text-align: center;
     flex-direction: column;
+    cursor: pointer;
 
     &:not(:first-child)>.sd-progress-buttons__connector {
       display: block;
       content: "";
-      width: 100%;
       height: calcSize(0.25);
-      background-color: $navigation;
+      background-color: $foreground-dim-light;
+      opacity: 0.5;
       position: absolute;
-      bottom: calcSize(0.875);
-      right: 50%;
+      bottom: calcSize(1.375);
+      // right: 50%;
+      right: calc(50% + 6px);
+      width: calc(100% - 12px);
+      pointer-events: none;
     }
 
     &:after {
@@ -62,11 +66,11 @@
       content: attr(data-page-number);
       width: calcSize(0);
       height: calcSize(0);
-      margin: calcSize(0.5);
-      border: calcSize(0.5) solid transparent;
-      background-color: $navigation;
+      margin: calcSize(0.75);
+      border: calcSize(0.75) solid transparent;
+      background-color: $border-inside;
+      // opacity: 0.5;
       border-radius: 50%;
-      cursor: pointer;
       align-self: center;
       z-index: 1;
       font-size: calcFontSize(0.75);
@@ -75,6 +79,14 @@
       justify-content: center;
       color: $background-dim;
     }
+  }
+
+  li:hover:after {
+    color: $primary;
+    padding: calcSize(0.5);
+    margin: calcSize(0.25);
+    border: calcSize(0.75) solid $primary;
+    background-color: $primary-foreground;
   }
 
   .sd-progress-buttons__list-element--passed {
@@ -93,11 +105,11 @@
     }
 
     &:after {
-      border-color: $primary;
+      border: calcSize(0.5) solid $primary;
       background-color: $primary-foreground;
       color: $primary;
       padding: calcSize(0.5);
-      margin: 0;
+      margin: calcSize(0.5);
     }
   }
 }
@@ -140,7 +152,7 @@
       flex-direction: column-reverse;
 
       &:not(:first-child)>.sd-progress-buttons__connector {
-        top: calcSize(0.875);
+        top: calcSize(1.375);
       }
     }
   }
@@ -169,12 +181,18 @@
   .sd-progress-buttons__list {
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {
-        bottom: calcSize(1.875);
+        bottom: calcSize(2.375);
+        right: calc(50% + 14px);
+        width: calc(100% - 28px);
       }
 
       &:after {
         width: calcSize(2);
         height: calcSize(2);
+      }
+
+      &:hover:after {
+        padding: calcSize(0.5);
       }
     }
   }
@@ -196,7 +214,7 @@
   .sd-progress-buttons__list {
     li {
       &:not(:first-child)>.sd-progress-buttons__connector {
-        top: calcSize(1.875);
+        top: calcSize(2.375);
       }
     }
   }
@@ -206,4 +224,11 @@
   .sd-progress-buttons {
     padding: calcSize(2) calcSize(3);
   }
+}
+
+.sd-progress-buttons--fit-survey-width {
+  max-width: calcSize(90);
+  box-sizing: border-box;
+  width: 100%;
+  margin: auto;
 }

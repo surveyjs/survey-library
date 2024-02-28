@@ -2684,6 +2684,14 @@ export class SurveyModel extends SurveyElementCore
    * @see progressBarShowPageTitles
    */
   @property() progressBarShowPageNumbers: boolean;
+  /**
+   * Specifies whether the progress bar occupies whole container width or survey width only. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   *
+   * Default value: `container`
+   * @see progressBarShowPageTitles
+   * @see progressBarShowPageNumbers
+   */
+  @property() progressBarInheritWidthFrom: "survey" | "container";
   public get isShowProgressBarOnTop(): boolean {
     if (!this.canShowProresBar()) return false;
     return ["auto", "aboveheader", "belowheader", "topbottom", "top", "both"].indexOf(this.showProgressBar) !== -1;
@@ -7822,6 +7830,13 @@ Serializer.addClass("survey", [
   {
     name: "progressBarShowPageNumbers:switch",
     default: false,
+    category: "navigation",
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+  },
+  {
+    name: "progressBarInheritWidthFrom",
+    default: "container",
+    choices: ["container", "survey"],
     category: "navigation",
     visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
   },

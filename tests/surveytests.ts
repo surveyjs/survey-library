@@ -16003,6 +16003,7 @@ QUnit.test("Check navigation bar css update", function (assert) {
   assert.equal(survey.navigationBar.getRootCss(), "custom-navigation custom-footer");
 });
 QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) {
+  settings.animationEnabled = true;
   const survey = new SurveyModel({
     "elements": [
       {
@@ -16038,6 +16039,7 @@ QUnit.test("Check survey getRootCss function - defaultV2Css", function (assert) 
 
   survey.fitToContainer = true;
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root--compact sd-root-modern--full-container");
+  settings.animationEnabled = false;
 });
 
 QUnit.test("Check survey isMobile in design mode", function (assert) {
@@ -19298,6 +19300,7 @@ QUnit.test("Advanced header title/description color", function (assert) {
 });
 QUnit.test("Display mode in design time", function (assert) {
   const survey = new SurveyModel();
+  settings.animationEnabled = true;
   assert.equal(survey.css.rootReadOnly, "sd-root--readonly");
   assert.equal(survey.mode, "edit");
   assert.equal(survey.isDisplayMode, false);
@@ -19312,4 +19315,5 @@ QUnit.test("Display mode in design time", function (assert) {
   assert.equal(survey.mode, "display");
   assert.equal(survey.isDisplayMode, false);
   assert.equal(survey.getRootCss(), "sd-root-modern sd-root-modern--full-container");
+  settings.animationEnabled = false;
 });

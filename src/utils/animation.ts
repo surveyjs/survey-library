@@ -1,4 +1,4 @@
-import { ArrayChanges, Base } from "../base";
+import { settings } from "../settings";
 import { debounce } from "./taskmanager";
 
 export interface AnimationOptions<T> {
@@ -101,7 +101,11 @@ export class AnimationCollection<T> {
     this._sync(newValue, oldValue);
   })
   sync(newValue: Array<T>, oldValue: Array<T>): void {
-    this._debouncedSync.run(newValue, oldValue);
+    if(settings.animationEnabled) {
+      this._debouncedSync.run(newValue, oldValue);
+    } else {
+      this.update(newValue);
+    }
   }
   cancel() {
     this._debouncedSync.cancel();

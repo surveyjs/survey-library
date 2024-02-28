@@ -1,3 +1,5 @@
+import { settings } from "../../src/settings";
+
 // common
 export * from "../basetests";
 export * from "../choicesRestfultests";
@@ -23,3 +25,5 @@ export * from "../ko/kosurveymodeltests";
 export * from "../ko/survey_kotests";
 export * from "../ko/templatetexttests";
 export * from "../ko/actionbar";
+
+settings.animationEnabled = false;

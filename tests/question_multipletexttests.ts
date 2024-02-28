@@ -1,3 +1,4 @@
+import { Serializer } from "../src/jsonobject";
 import { QuestionMultipleTextModel } from "../src/question_multipletext";
 import { SurveyModel } from "../src/survey";
 
@@ -240,4 +241,8 @@ QUnit.test("defaultValueExpression executing", (assert) => {
   q1.items[0].value = 10;
   q1.items[1].value = 5;
   assert.equal(q1.items[2].editor.value, 15, "Calculated correctly");
+});
+QUnit.test("Make itemSize invisible by default", (assert) => {
+  const prop = Serializer.findProperty("multipletext", "itemSize");
+  assert.strictEqual(prop.visible, false);
 });

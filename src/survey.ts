@@ -904,7 +904,7 @@ export class SurveyModel extends SurveyElementCore
       }
     );
     this.registerPropertyChangedHandlers(
-      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
+      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage", "isShowingPreview"],
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });

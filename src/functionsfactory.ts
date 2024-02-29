@@ -228,12 +228,14 @@ FunctionFactory.Instance.register("getDate", getDate);
 function age(params: any[]): any {
   if (!params && params.length < 1) return null;
   if (!params[0]) return null;
-  var birthDate = new Date(params[0]);
-  var today = new Date();
-  var age = today.getFullYear() - birthDate.getFullYear();
-  var m = today.getMonth() - birthDate.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-    age -= age > 0 ? 1 : 0;
+  const birthDate = new Date(params[0]);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  if(age > 0) {
+    const m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+      age -= 1;
+    }
   }
   return age;
 }

@@ -1,5 +1,3 @@
-import { settings } from "./mask_utils";
-
 export type LexemTokenType = "literal" | "expression" | "or";
 export interface ILexemToken {
   data: any;
@@ -9,6 +7,8 @@ export interface ILexemToken {
 }
 
 export class LexicalAnalyzer {
+  escapeChar = "\\";
+
   getLexems(str: string): Array<ILexemToken> {
     const result: Array<ILexemToken> = [];
 
@@ -40,7 +40,7 @@ export class LexicalAnalyzer {
           currentTocken = <ILexemToken>{ data: currentChar, isConst: true };
         } else {
           switch (currentChar) {
-            case settings.escapedChar:
+            case this.escapeChar:
               prevChartIsEscaped = true;
               break;
             case "|":

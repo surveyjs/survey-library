@@ -1,33 +1,21 @@
-export var settings = {
-  placeholderChar: "_",
-  escapedChar: "\\",
-  definitions: <{ [key: string]: RegExp }>{
-    "9": /[0-9]/,
-    "a": /[a-zA-Z]/,
-    "#": /[a-zA-Z0-9]/
-  }
-};
-
 export var numberDefinition = /[0-9]/;
 
 export interface IMaskedValue {
-  text: string;
-  cursorPosition: number;
-  cancelPreventDefault: boolean;
+  value: string;
+  caretPosition: number;
+  cancelPreventDefault?: boolean;
 }
 
 export interface ITextMaskInputArgs {
   prevValue: string;
   selectionStart: number;
   selectionEnd: number;
-  insertedCharacters: string | null;
-  inputDirection?: "leftToRight" | "rightToLeft";
+  insertedChars: string | null;
+  inputDirection?: "forward" | "backward";
 }
 
-export interface IInputMaskType {
-  getMaskedValue(src: string): string;
+export interface IInputMask {
+  getMaskedValue(src: any): string;
   getUnmaskedValue(src: string): any;
   processInput(args: ITextMaskInputArgs): IMaskedValue;
-  formatString(src: string): string;
-  isEmpty(): boolean;
 }

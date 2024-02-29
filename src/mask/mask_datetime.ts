@@ -58,7 +58,7 @@ function getDefaultYearForValidation(minYear: number, maxYear: number): number {
   return minYear;
 }
 
-export function getDateTimeLexems(mask: string): Array<IDateTimeMaskLexem> {
+export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   const result: Array<IDateTimeMaskLexem> = [];
   let prevLexemType: string;
 
@@ -73,8 +73,8 @@ export function getDateTimeLexems(mask: string): Array<IDateTimeMaskLexem> {
     }
   };
 
-  for(let index = 0; index < mask.length; index++) {
-    const currentChar = mask[index];
+  for(let index = 0; index < pattern.length; index++) {
+    const currentChar = pattern[index];
     switch (currentChar) {
       case "m":
         createOrUpdateLexem("month", "m");
@@ -107,7 +107,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   protected updateLiterals(): void {
-    this.lexems = getDateTimeLexems(this.mask || "");
+    this.lexems = getDateTimeLexems(this.pattern || "");
   }
 
   private leaveOnlyNumbers(input: string): string {
@@ -369,7 +369,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     return inputParts;
   }
 
-  public getUnmaskedValue(src: string): string {
+  public getUnmaskedValue(src: string): any {
     let input = (src === undefined || src === null) ? "" : src.toString();
     const inputParts = this.getParts(input);
     this.setLexemData(inputParts);
@@ -383,28 +383,25 @@ export class InputMaskDateTime extends InputMaskPattern {
 
     return this.getISO_8601Format(tempDateTime);
   }
-  public getMaskedValue(src: string): string {
-    const input = (src === undefined || src === null) ? "" : src;
-    return this._getMaskedValue(input);
-  }
-  public formatString(src: string) : string {
-    if(this.dataToSave === "unmasked") {
-      return this.getMaskedStrFromISO(src);
+
+  public getMaskedValue(src: string) : string {
+    if(this.saveMaskedValue) {
+      return this._getMaskedValue(src);
     } else {
-      return this.getMaskedValue(src);
+      return this.getMaskedStrFromISO(src);
     }
   }
 
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
-    const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
+    const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
     const leftPart = args.prevValue.slice(0, args.selectionStart);
     const rightPart = args.prevValue.slice(args.selectionEnd);
 
-    result.text = this._getMaskedValue(leftPart + (args.insertedCharacters || "") + rightPart);
-    if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
-      result.cursorPosition = args.selectionStart;
+    result.value = this._getMaskedValue(leftPart + (args.insertedChars || "") + rightPart);
+    if(!args.insertedChars && args.inputDirection === "backward") {
+      result.caretPosition = args.selectionStart;
     } else {
-      result.cursorPosition = this._getMaskedValue(leftPart + (args.insertedCharacters || ""), false).length;
+      result.caretPosition = this._getMaskedValue(leftPart + (args.insertedChars || ""), false).length;
     }
     return result;
   }
@@ -417,14 +414,14 @@ Serializer.addClass(
       name: "min",
       type: "datetime",
       enableIf: (obj: any) => {
-        return !!obj.mask;
+        return !!obj.pattern;
       }
     },
     {
       name: "max",
       type: "datetime",
       enableIf: (obj: any) => {
-        return !!obj.mask;
+        return !!obj.pattern;
       }
     }
   ],

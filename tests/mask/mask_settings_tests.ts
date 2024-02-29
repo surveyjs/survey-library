@@ -1,14 +1,14 @@
 import { InputMaskBase } from "../../src/mask/mask_base";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
-import { InputMaskNumber } from "../../src/mask/mask_number";
+import { InputMaskNumeric } from "../../src/mask/mask_number";
 import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Question text: Input mask");
 
 QUnit.test("Apply mask", function (assert) {
   const q = new QuestionTextModel("q1");
-  q.maskType = "patternmask";
-  q.maskSettings.fromJSON({ mask: "+99-99" });
+  q.maskType = "pattern";
+  q.maskSettings.fromJSON({ pattern: "+99-99" });
   q.value = "1234";
   assert.equal(q.value, "1234");
   assert.equal(q.inputValue, "+12-34");
@@ -18,19 +18,34 @@ QUnit.test("Apply mask", function (assert) {
   assert.equal(q.inputValue, "+78-68");
 });
 
-QUnit.test("Pattern mask", function (assert) {
+QUnit.test("Pattern mask: value is completed", function (assert) {
   const q = new QuestionTextModel("q1");
-  q.maskType = "patternmask";
-  q.maskSettings.fromJSON({ mask: "+99-99", dataToSave: "masked" });
+  q.maskType = "pattern";
+  q.maskSettings.fromJSON({ pattern: "+99-99", saveMaskedValue: true });
 
   q.inputValue = "+12-34";
   assert.equal(q.value, "+12-34", "masked value");
   assert.equal(q.inputValue, "+12-34", "masked inputValue");
 
-  q.maskSettings.fromJSON({ mask: "+99-99", dataToSave: "unmasked" });
+  q.maskSettings.fromJSON({ pattern: "+99-99", saveMaskedValue: false });
   q.inputValue = "+45-67";
   assert.equal(q.value, "4567", "unmasked value");
   assert.equal(q.inputValue, "+45-67", "unmasked inputValue");
+});
+
+QUnit.test("Pattern mask: value is incompleted", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "pattern";
+  q.maskSettings.fromJSON({ pattern: "+99-99", saveMaskedValue: true });
+
+  q.inputValue = "+12-";
+  assert.equal(q.value, undefined, "masked value");
+  assert.equal(q.inputValue, "+__-__", "masked inputValue");
+
+  q.maskSettings.fromJSON({ pattern: "+99-99", saveMaskedValue: false });
+  q.inputValue = "+45-";
+  assert.equal(q.value, undefined, "unmasked value");
+  assert.equal(q.inputValue, "+__-__", "unmasked inputValue");
 });
 
 QUnit.test("Switch mask type", function (assert) {
@@ -38,13 +53,13 @@ QUnit.test("Switch mask type", function (assert) {
   assert.equal(q.maskType, "none");
   assert.equal(q.maskSettings instanceof InputMaskBase, true);
 
-  q.maskType = "patternmask";
-  assert.equal(q.maskType, "patternmask");
+  q.maskType = "pattern";
+  assert.equal(q.maskType, "pattern");
   assert.equal(q.maskSettings instanceof InputMaskPattern, true);
 
-  q.maskType = "numbermask";
-  assert.equal(q.maskType, "numbermask");
-  assert.equal(q.maskSettings instanceof InputMaskNumber, true);
+  q.maskType = "numeric";
+  assert.equal(q.maskType, "numeric");
+  assert.equal(q.maskSettings instanceof InputMaskNumeric, true);
 
   q.maskType = "none";
   assert.equal(q.maskType, "none");

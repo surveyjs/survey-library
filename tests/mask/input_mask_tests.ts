@@ -6,7 +6,7 @@ export default QUnit.module("Input mask");
 QUnit.test("InputElementAdapter createArgs insertText", function(assert) {
   const testInput = document.createElement("input");
   const inputMaskPattern = new InputMaskPattern();
-  inputMaskPattern.mask = "999";
+  inputMaskPattern.pattern = "999";
   let adapter = new InputElementAdapter(inputMaskPattern, testInput);
   const target = {
     selectionStart: 1,
@@ -14,11 +14,11 @@ QUnit.test("InputElementAdapter createArgs insertText", function(assert) {
     value: "123"
   };
   let args = adapter.createArgs({ data: "a", inputType: "insertText", target: target });
-  assert.equal(args.insertedCharacters, "a");
+  assert.equal(args.insertedChars, "a");
   assert.equal(args.selectionStart, 1);
   assert.equal(args.selectionEnd, 1);
   assert.equal(args.prevValue, "123");
-  assert.equal(args.inputDirection, "leftToRight");
+  assert.equal(args.inputDirection, "forward");
 
   testInput.remove();
 });
@@ -26,7 +26,7 @@ QUnit.test("InputElementAdapter createArgs insertText", function(assert) {
 QUnit.test("InputElementAdapter createArgs deleteContentForward", function(assert) {
   const testInput = document.createElement("input");
   const inputMaskPattern = new InputMaskPattern();
-  inputMaskPattern.mask = "999";
+  inputMaskPattern.pattern = "999";
   let adapter = new InputElementAdapter(inputMaskPattern, testInput);
   const target = {
     selectionStart: 1,
@@ -34,21 +34,21 @@ QUnit.test("InputElementAdapter createArgs deleteContentForward", function(asser
     value: "123"
   };
   let args = adapter.createArgs({ data: null, inputType: "deleteContentForward", target: target });
-  assert.equal(args.insertedCharacters, null);
+  assert.equal(args.insertedChars, null);
   assert.equal(args.selectionStart, 1);
   assert.equal(args.selectionEnd, 2);
   assert.equal(args.prevValue, "123");
-  assert.equal(args.inputDirection, "leftToRight");
+  assert.equal(args.inputDirection, "forward");
 
   target.selectionStart = 3;
   target.selectionEnd = 3;
 
   args = adapter.createArgs({ data: null, inputType: "deleteContentForward", target: target });
-  assert.equal(args.insertedCharacters, null);
+  assert.equal(args.insertedChars, null);
   assert.equal(args.selectionStart, 3);
   assert.equal(args.selectionEnd, 4);
   assert.equal(args.prevValue, "123");
-  assert.equal(args.inputDirection, "leftToRight");
+  assert.equal(args.inputDirection, "forward");
 
   testInput.remove();
 });
@@ -56,7 +56,7 @@ QUnit.test("InputElementAdapter createArgs deleteContentForward", function(asser
 QUnit.test("InputElementAdapter createArgs deleteContentBackward", function(assert) {
   const testInput = document.createElement("input");
   const inputMaskPattern = new InputMaskPattern();
-  inputMaskPattern.mask = "999";
+  inputMaskPattern.pattern = "999";
   let adapter = new InputElementAdapter(inputMaskPattern, testInput);
 
   const target = {
@@ -65,20 +65,20 @@ QUnit.test("InputElementAdapter createArgs deleteContentBackward", function(asse
     value: "123"
   };
   let args = adapter.createArgs({ data: null, inputType: "deleteContentBackward", target: target });
-  assert.equal(args.insertedCharacters, null);
+  assert.equal(args.insertedChars, null);
   assert.equal(args.selectionStart, 0);
   assert.equal(args.selectionEnd, 1);
   assert.equal(args.prevValue, "123");
-  assert.equal(args.inputDirection, "rightToLeft");
+  assert.equal(args.inputDirection, "backward");
 
   target.selectionStart = 0;
   target.selectionEnd = 0;
   args = adapter.createArgs({ data: null, inputType: "deleteContentBackward", target: target });
-  assert.equal(args.insertedCharacters, null);
+  assert.equal(args.insertedChars, null);
   assert.equal(args.selectionStart, 0);
   assert.equal(args.selectionEnd, 0);
   assert.equal(args.prevValue, "123");
-  assert.equal(args.inputDirection, "rightToLeft");
+  assert.equal(args.inputDirection, "backward");
 
   testInput.remove();
 });

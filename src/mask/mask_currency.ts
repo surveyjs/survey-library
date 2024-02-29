@@ -1,8 +1,8 @@
 import { Serializer, property } from "../jsonobject";
-import { InputMaskNumber } from "./mask_number";
+import { InputMaskNumeric } from "./mask_number";
 import { IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
 
-export class InputMaskCurrency extends InputMaskNumber {
+export class InputMaskCurrency extends InputMaskNumeric {
   @property() prefix: string;
   @property() suffix: string;
 
@@ -44,12 +44,12 @@ export class InputMaskCurrency extends InputMaskNumber {
     this.unwrapInputArgs(args);
     const result = super.processInput(args);
     const preffixPadding = (this.prefix || "").length;
-    result.cursorPosition += preffixPadding;
-    result.text = this.wrapText(result.text);
+    result.caretPosition += preffixPadding;
+    result.value = this.wrapText(result.value);
     return result;
   }
 
-  public getMaskedValue(src: string): string {
+  public getMaskedValue(src: any): string {
     const result = super.getMaskedValue(src);
     return this.wrapText(result);
   }
@@ -64,5 +64,5 @@ Serializer.addClass(
   () => {
     return new InputMaskCurrency();
   },
-  "numbermask"
+  "numericmask"
 );

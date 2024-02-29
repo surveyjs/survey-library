@@ -26,20 +26,20 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
   return arr;
 }
 
-export class InputMaskNumber extends InputMaskBase {
-  @property() allowNegative: boolean;
+export class InputMaskNumeric extends InputMaskBase {
+  @property() allowNegativeValues: boolean;
   @property() decimalSeparator: string;
   @property() precision: number;
   @property() thousandsSeparator: string;
   @property() min: number;
   @property() max: number;
 
-  private calcCursorPosition(leftPart: string, args: ITextMaskInputArgs, maskedValue: string) {
+  private calccaretPosition(leftPart: string, args: ITextMaskInputArgs, maskedValue: string) {
     const leftPartMaskedLength = !! leftPart ? this.displayNumber(this.parseNumber(leftPart), false).length : 0;
     let validCharIndex = 0;
     let result = args.selectionStart;
     // let result = 0;
-    const isDeleteKeyOperation = !args.insertedCharacters && args.inputDirection === "leftToRight";
+    const isDeleteKeyOperation = !args.insertedChars && args.inputDirection === "forward";
 
     for (let index = 0; index < maskedValue.length; index++) {
       const currentChar = maskedValue[index];
@@ -121,7 +121,7 @@ export class InputMaskNumber extends InputMaskBase {
       const currentChar = input[inputIndex];
       switch(currentChar) {
         case "-": {
-          if(this.allowNegative) {
+          if(this.allowNegativeValues) {
             minusCharCount++;
           }
           break;
@@ -166,15 +166,15 @@ export class InputMaskNumber extends InputMaskBase {
     return this.convertNumber(parsedNumber);
   }
 
-  public getMaskedValue(src: string): string {
+  public getMaskedValue(src: any): string {
     return this.getNumberMaskedValue(src, true);
   }
   public getUnmaskedValue(src: string): any {
     return this.getNumberUnmaskedValue(src);
   }
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
-    const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
-    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
+    const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
+    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedChars || "");
     const rightPart = args.prevValue.slice(args.selectionEnd);
     const src = leftPart + rightPart;
     const parsedNumber = this.parseNumber(src);
@@ -184,30 +184,26 @@ export class InputMaskNumber extends InputMaskBase {
     }
 
     const maskedValue = this.getNumberMaskedValue(src);
-    const cursorPosition = this.calcCursorPosition(leftPart, args, maskedValue);
-    result.text = maskedValue;
-    result.cursorPosition = cursorPosition;
+    const caretPosition = this.calccaretPosition(leftPart, args, maskedValue);
+    result.value = maskedValue;
+    result.caretPosition = caretPosition;
 
     return result;
   }
 
   public getType(): string {
-    return "numbermask";
+    return "numericmask";
   }
 
   protected isPropertyEmpty(value: any): boolean {
     return value === "" || value === undefined || value === null;
   }
-
-  public isEmpty(): boolean {
-    return false;
-  }
 }
 
 Serializer.addClass(
-  "numbermask",
+  "numericmask",
   [
-    { name: "allowNegative:boolean", default: true },
+    { name: "allowNegativeValues:boolean", default: true },
     { name: "decimalSeparator", default: "." },
     { name: "thousandsSeparator", default: "," },
     { name: "precision:number", default: 2 },
@@ -215,7 +211,7 @@ Serializer.addClass(
     { name: "max:number" },
   ],
   function () {
-    return new InputMaskNumber();
+    return new InputMaskNumeric();
   },
   "masksettings"
 );

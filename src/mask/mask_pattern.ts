@@ -1,20 +1,21 @@
+import { settings } from "../settings";
 import { Serializer, property } from "../jsonobject";
 import { InputMaskBase } from "./mask_base";
-import { IMaskedValue, ITextMaskInputArgs, settings } from "./mask_utils";
+import { IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
 
 export interface IMaskLiteral {
   type: "const" | "regex" | "fixed";
   value: any;
 }
 
-export function getLiterals(mask: string): Array<IMaskLiteral> {
+export function getLiterals(pattern: string): Array<IMaskLiteral> {
   const result: Array<IMaskLiteral> = [];
   let prevCharIsEscaped = false;
-  const definitionsKeys = Object.keys(settings.definitions);
+  const definitionsKeys = Object.keys(settings.maskSettings.patternDefinitions);
 
-  for(let index = 0; index < mask.length; index++) {
-    const currentChar = mask[index];
-    if(currentChar === settings.escapedChar) {
+  for(let index = 0; index < pattern.length; index++) {
+    const currentChar = pattern[index];
+    if(currentChar === settings.maskSettings.patternEscapeChar) {
       prevCharIsEscaped = true;
     } else if(prevCharIsEscaped) {
       prevCharIsEscaped = false;
@@ -28,7 +29,7 @@ export function getLiterals(mask: string): Array<IMaskLiteral> {
 }
 
 function getFirstMatch(str: string, strIndex: number, literal: IMaskLiteral): number {
-  const currentDefinition = settings.definitions[literal.value];
+  const currentDefinition = settings.maskSettings.patternDefinitions[literal.value];
   while(strIndex < str.length) {
     if(str[strIndex].match(currentDefinition)) {
       return strIndex;
@@ -53,7 +54,7 @@ export function getMaskedValueByPattern(src: string, pattern: string | Array<IMa
         if(strIndex < input.length) {
           result += input[strIndex];
         } else if(matchWholeMask) {
-          result += settings.placeholderChar;
+          result += settings.maskSettings.patternPlaceholderChar;
         } else {
           return result;
         }
@@ -82,7 +83,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
     if(literals[index].type === "fixed" && !skipFixedChar) {
       result += literals[index].value;
     } if(literals[index].type === "regex") {
-      const currentDefinition = settings.definitions[literals[index].value];
+      const currentDefinition = settings.maskSettings.patternDefinitions[literals[index].value];
       if(!!str[index] && str[index].match(currentDefinition)) {
         result += str[index];
       } else if(matchWholeMask) {
@@ -103,18 +104,14 @@ export class InputMaskPattern extends InputMaskBase {
     onSet: (val: string, target: InputMaskPattern) => {
       target.updateLiterals();
     }
-  }) mask: string;
+  }) pattern: string;
 
   protected updateLiterals(): void {
-    this.literals = getLiterals(this.mask || "");
+    this.literals = getLiterals(this.pattern || "");
   }
 
   public getType(): string {
     return "patternmask";
-  }
-
-  public isEmpty(): boolean {
-    return !this.mask;
   }
 
   public _getMaskedValue(src: string, matchWholeMask: boolean = false): string {
@@ -126,28 +123,28 @@ export class InputMaskPattern extends InputMaskBase {
     return getUnmaskedValueByPattern(input, this.literals, matchWholeMask);
   }
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
-    const result = { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
-    if(!args.insertedCharacters && args.selectionStart === args.selectionEnd) {
+    const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
+    if(!args.insertedChars && args.selectionStart === args.selectionEnd) {
       return result;
     }
 
-    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedCharacters || "");
+    const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedChars || "");
     const leftPartUnmasked = getUnmaskedValueByPattern(args.prevValue.slice(0, args.selectionStart), this.literals.slice(0, args.selectionStart), false);
     const rightPartUnmasked = getUnmaskedValueByPattern(args.prevValue.slice(args.selectionEnd), this.literals.slice(args.selectionEnd), false, true);
-    result.text = this._getMaskedValue(leftPartUnmasked + (args.insertedCharacters || "") + rightPartUnmasked, true);
+    result.value = this._getMaskedValue(leftPartUnmasked + (args.insertedChars || "") + rightPartUnmasked, true);
 
-    if(!args.insertedCharacters && args.inputDirection === "rightToLeft") {
-      result.cursorPosition = args.selectionStart;
+    if(!args.insertedChars && args.inputDirection === "backward") {
+      result.caretPosition = args.selectionStart;
     } else {
-      result.cursorPosition = this._getMaskedValue(leftPart).length;
+      result.caretPosition = this._getMaskedValue(leftPart).length;
     }
 
     return result;
   }
-  public getMaskedValue(src: string): string {
+  public getMaskedValue(src: any): string {
     return this._getMaskedValue(src, true);
   }
-  public getUnmaskedValue(src: string): string {
+  public getUnmaskedValue(src: string): any {
     return this._getUnmaskedValue(src, true);
   }
 }
@@ -155,7 +152,7 @@ export class InputMaskPattern extends InputMaskBase {
 Serializer.addClass(
   "patternmask",
   [
-    { name: "mask" },
+    { name: "pattern" },
   ],
   function () {
     return new InputMaskPattern();

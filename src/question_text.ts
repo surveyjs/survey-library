@@ -12,7 +12,7 @@ import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { InputElementAdapter } from "./mask/input_element_adapter";
 import { InputMaskBase } from "./mask/mask_base";
-import { IInputMaskType } from "./mask/mask_utils";
+import { IInputMask } from "./mask/mask_utils";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -26,7 +26,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private maskInputAdapter: InputElementAdapter;
 
   private createMaskAdapter() {
-    if (!!this.input && !!this.maskInstance && !this.maskInstance.isEmpty()) {
+    if (!!this.input && !!this.maskInstance) {
       this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
     }
   }
@@ -61,7 +61,11 @@ export class QuestionTextModel extends QuestionTextBase {
     this.setPropertyValue("maskSettings", this.createMaskSettings());
   }
   protected createMaskSettings(): InputMaskBase {
-    const inputMask = Serializer.createClass((!this.maskType || this.maskType === "none") ? "masksettings" : this.maskType);
+    let maskClassName = (!this.maskType || this.maskType === "none") ? "masksettings" : (this.maskType + "mask");
+    if(!Serializer.findClass(maskClassName)) {
+      maskClassName = "masksettings";
+    }
+    const inputMask = Serializer.createClass(maskClassName);
     return inputMask;
   }
 
@@ -266,18 +270,19 @@ export class QuestionTextModel extends QuestionTextBase {
     return isMinMaxType(this);
   }
 
-  public get maskInstance(): IInputMaskType {
+  public get maskInstance(): IInputMask {
     return this.maskSettings;
   }
   public get inputValue(): string {
-    return !!this.maskInstance ? this.maskInstance.formatString(this.value) : this.value;
+    return !!this.maskInstance ? this.maskInstance.getMaskedValue(this.value) : this.value;
   }
   public set inputValue(val: string) {
-    let value;
-    if(!!this.maskInstance && this.maskSettings.dataToSave !== "masked") {
+    let value = val;
+    if(!!this.maskInstance) {
       value = this.maskInstance.getUnmaskedValue(val);
-    } else {
-      value = val;
+      if(!!value && this.maskSettings.saveMaskedValue) {
+        value = this.maskInstance.getMaskedValue(value);
+      }
     }
     this.value = value;
   }

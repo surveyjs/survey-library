@@ -1,16 +1,14 @@
 import { Base } from "../base";
 import { JsonObject, Serializer, property } from "../jsonobject";
-import { IInputMaskType, IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
+import { IInputMask, IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
 
-export class InputMaskBase extends Base implements IInputMaskType {
-  @property() dataToSave: "masked" | "unmasked";
+export class InputMaskBase extends Base implements IInputMask {
+  @property() saveMaskedValue: boolean;
 
   public getType(): string {
     return "masksettings";
   }
-  public isEmpty(): boolean {
-    return true;
-  }
+
   public setData(json: any): void {
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
@@ -19,8 +17,6 @@ export class InputMaskBase extends Base implements IInputMaskType {
     });
   }
   public getData(): any {
-    if (this.isEmpty()) return null;
-
     const res: any = {};
     const properties = Serializer.getProperties(this.getType());
     properties.forEach(property => {
@@ -41,21 +37,18 @@ export class InputMaskBase extends Base implements IInputMaskType {
   // }
 
   public processInput(args: ITextMaskInputArgs): IMaskedValue {
-    return { text: args.prevValue, cursorPosition: args.selectionEnd, cancelPreventDefault: false };
+    return { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
   }
 
-  public getUnmaskedValue(src: string): string { return src; }
-  public getMaskedValue(src: string): string { return src; }
-  public formatString(src: string): string { return this.getMaskedValue(src); }
+  public getUnmaskedValue(src: string): any { return src; }
+  public getMaskedValue(src: any): string { return src; }
 }
 
 Serializer.addClass(
   "masksettings",
   [
     {
-      name: "dataToSave",
-      choices: ["masked", "unmasked"],
-      default: "unmasked",
+      name: "saveMaskedValue:boolean",
       visibleIf: function(obj: any) {
         if (!obj) return false;
         return obj.getType() !== "masksettings";

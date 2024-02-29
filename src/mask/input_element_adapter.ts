@@ -3,37 +3,38 @@ import { ITextMaskInputArgs } from "./mask_utils";
 
 export class InputElementAdapter {
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {
-    this.inputElement.value = inputMaskInstance.formatString(value);
+    this.inputElement.value = inputMaskInstance.getMaskedValue(value);
     this.addInputEventListener();
   }
 
   beforeInputHandler = (event: any) => {
     const args = this.createArgs(event);
     const result = this.inputMaskInstance.processInput(args);
-    this.inputElement.value = result.text;
-    this.inputElement.setSelectionRange(result.cursorPosition, result.cursorPosition);
+    this.inputElement.value = result.value;
+    this.inputElement.setSelectionRange(result.caretPosition, result.caretPosition);
     if(!result.cancelPreventDefault) {
       event.preventDefault();
     }
   };
 
   blurInputHandler = (event: any) => {
-    const result = this.inputMaskInstance.getMaskedValue(event.target.value);
-    this.inputElement.value = result;
+    const unmaskedValue = this.inputMaskInstance.getUnmaskedValue(event.target.value);
+    const maskedValue = this.inputMaskInstance.getMaskedValue(unmaskedValue);
+    this.inputElement.value = maskedValue;
   };
 
   public createArgs(event: any): ITextMaskInputArgs {
     const args: ITextMaskInputArgs = {
-      insertedCharacters: event.data,
+      insertedChars: event.data,
       selectionStart: event.target.selectionStart,
       selectionEnd: event.target.selectionEnd,
       prevValue: event.target.value,
-      inputDirection: "leftToRight"
+      inputDirection: "forward"
     };
     switch (event.inputType) {
       case "deleteContentBackward": {
         args.selectionStart = Math.max(args.selectionStart - 1, 0);
-        args.inputDirection = "rightToLeft";
+        args.inputDirection = "backward";
         break;
       }
       case "deleteContentForward": {

@@ -2146,14 +2146,14 @@ export class SurveyModel extends SurveyElementCore
     return this._isMobile && !this.isDesignMode;
   }
   @property() private _isCompact: boolean = false;
-  private set isCompact(newVal: boolean) {
+  public set isCompact(newVal: boolean) {
     if (newVal !== this._isCompact) {
       this._isCompact = newVal;
       this.updateElementCss();
       this.triggerResponsiveness(true);
     }
   }
-  private get isCompact() {
+  public get isCompact(): boolean {
     return this._isCompact;
   }
   protected isLogoImageChoosen() {

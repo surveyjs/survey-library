@@ -1678,7 +1678,7 @@ export class SurveyModel extends SurveyElementCore
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get allowCompleteSurveyAutomatic(): boolean {
-    return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
+    return this.getPropertyValue("allowCompleteSurveyAutomatic");
   }
   public set allowCompleteSurveyAutomatic(val: boolean) {
     this.setPropertyValue("allowCompleteSurveyAutomatic", val);
@@ -7846,6 +7846,10 @@ Serializer.addClass("survey", [
       }
       obj.setPropertyValue("goNextPageAutomatic", value);
     }
+  },
+  {
+    name: "allowCompleteSurveyAutomatic:boolean", default: true,
+    visibleIf: (obj: any): boolean => obj.goNextPageAutomatic === true
   },
   {
     name: "clearInvisibleValues",

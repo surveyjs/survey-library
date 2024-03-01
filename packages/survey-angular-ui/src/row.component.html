@@ -1,5 +1,5 @@
 <ng-template #template>
-  <div [class]="row.getRowCss()" #container [attr.id]="row.id">
+  <div [class]="row.getRowCss()" #container>
     <ng-container *ngFor="let element of row.visibleElements; trackBy: trackElementBy">
       <sv-ng-element [model]="$any(element)" *ngIf="row.isNeedRender"></sv-ng-element>
       <ng-template *ngIf="!row.isNeedRender && element.skeletonComponentName" [component]="{ name: element.skeletonComponentName, data: { element: element } }"></ng-template>

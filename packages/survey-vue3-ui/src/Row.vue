@@ -1,5 +1,5 @@
 <template>
-  <div :class="row.getRowCss()" ref="root" :id="row.id">
+  <div :class="row.getRowCss()" ref="root">
     <survey-element
       :row="row"
       :css="css"
@@ -36,55 +36,24 @@ const props = defineProps<{
   survey: SurveyModel;
 }>();
 const root = ref<HTMLElement>();
-
-// const elements = shallowRef();
-// elements.value = toRaw(props.row.visibleElements);
-
-// let animationCollection: AnimationCollection<IElement>;
 useBase(
   () => props.row,
   (newValue, oldValue) => {
+    newValue.setRootElement(root.value);
     if (oldValue) {
       newValue.isNeedRender = oldValue.isNeedRender;
     }
-    // if (animationCollection) {
-    //   animationCollection.dispose();
-    // }
-    // animationCollection = new AnimationCollection(
-    //   newValue,
-    //   "visibleElements",
-    //   {
-    //     getElement: (element: IElement) =>
-    //       document.querySelector(`[data-wrap=${element.id}]`) as HTMLElement,
-    //     onLeave: { classes: { onLeave: "elementFadeOut", onHide: "hidden" } },
-    //     onEnter: {
-    //       classes: { onEnter: "elementFadeIn" },
-    //       onBeforeRunAnimation: (el) => {
-    //         el.style.setProperty("--animation-height", el.offsetHeight + "px");
-    //         el.style.setProperty("--animation-width", el.offsetWidth + "px");
-    //       },
-    //     },
-    //   },
-    //   (updatedElements: Array<IElement>) => {
-    //     elements.value = updatedElements;
-    //     triggerRef(elements);
-    //   }
-    // );
   },
   (value) => {
+    value.setRootElement(undefined);
     value.stopLazyRendering();
     value.isNeedRender = !value.isLazyRendering();
   }
 );
 
-// onUnmounted(() => {
-//   // if (animationCollection) {
-//   //   animationCollection.dispose();
-//   // }
-// });
-
 onMounted(() => {
   if (props.row) {
+    props.row.setRootElement(root.value);
     if (!props.row.isNeedRender) {
       const rowContainerDiv = root.value;
       setTimeout(() => {

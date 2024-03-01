@@ -6,11 +6,11 @@ import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { settings, ISurveyEnvironment } from "./settings";
 import { getElement } from "./utils/utils";
-import { Animation } from "./utils/animation";
+import { Animation, AnimationBoolean, OnEnterOptions, OnLeaveOptions, IAnimationConsumer } from "./utils/animation";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
-export class PopupBaseViewModel extends Base {
+export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   protected popupSelector = ".sv-popup";
   protected fixedPopupContainer = ".sv-popup";
   protected containerSelector = ".sv-popup__container";
@@ -31,18 +31,28 @@ export class PopupBaseViewModel extends Base {
     this.onVisibilityChanged.fire(this, { isVisible: val });
   }
 
-  private _animation: Animation;
-  protected get animation(): Animation {
-    if(!this._animation) {
-      this._animation = this.createAnimation();
+  private visibilityAnimation: AnimationBoolean = new AnimationBoolean(this, (val) => {
+    if(this._isVisible !== val) {
+      if(!val) {
+        this.updateOnHiding();
+        this.updateIsVisible(val);
+      }
+      else {
+        this.updateIsVisible(val);
+      }
     }
-    return this._animation;
-  }
-  protected createAnimation(): Animation {
-    return new Animation();
-  }
+  });
 
-  protected getShouldRunAnimation(): boolean {
+  getLeaveOptions(): OnLeaveOptions {
+    return { classes: { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" } };
+  }
+  getEnterOptions(): OnEnterOptions {
+    return { classes: { onEnter: "sv-popup--animate-enter" } };
+  }
+  getAnimatedElement(): HTMLElement {
+    return this.getAnimationContainer();
+  }
+  isAnimationEnabled (): boolean {
     return this.model.displayMode !== "overlay" && settings.animationEnabled;
   }
 
@@ -50,31 +60,8 @@ export class PopupBaseViewModel extends Base {
     return <HTMLElement>this.container?.querySelector(this.fixedPopupContainer);
   }
 
-  protected onAfterShowing(): void {
-    if(this.getShouldRunAnimation()) {
-      this.animation.onEnter(() => this.getAnimationContainer(), { classes: { onEnter: "sv-popup--animate-enter" } });
-    }
-  }
-  protected onBeforeHiding(callback: () => void): void {
-    if(this.getShouldRunAnimation()) {
-      this.animation.onLeave(() => this.getAnimationContainer(), callback, { classes: { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" } });
-    } else {
-      callback();
-    }
-  }
-
   public set isVisible(val: boolean) {
-    if(this._isVisible !== val) {
-      if(!val) {
-        this.onBeforeHiding(() => {
-          this.updateOnHiding();
-          this.updateIsVisible(val);
-        });
-      } else {
-        this.updateIsVisible(val);
-        this.onAfterShowing();
-      }
-    }
+    this.visibilityAnimation.sync(val, this.isVisible);
   }
   public get isVisible(): boolean {
     return this._isVisible;

@@ -8,7 +8,7 @@ import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
 import { settings, ISurveyEnvironment } from "../../src/settings";
-import { Animation, OnEnterOptions, OnLeaveOptions } from "../../src/utils/animation";
+import { Animation, AnimationBoolean, OnEnterOptions, OnLeaveOptions } from "../../src/utils/animation";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -1663,21 +1663,25 @@ class TestAnimation extends Animation {
     callback();
   }
 }
+
 class TestAnimationPopupViewModel extends PopupBaseViewModel {
-  public logger: { log: string };
-  protected createAnimation(): TestAnimation {
-    const animation = new TestAnimation();
-    animation.logger = this.logger;
-    return animation;
+  constructor(model: PopupModel) {
+    super(model);
+    this["visibilityAnimation"]["animation"] = new TestAnimation();
   }
-  public getAnimation(): TestAnimation {
-    return this.animation as TestAnimation;
+  public set logger(logger: { log: string }) {
+    (this["visibilityAnimation"]["animation"] as any).logger = logger;
+  }
+  public getAnimation() {
+    return this["visibilityAnimation"]["animation"] as TestAnimation;
   }
 }
 
 QUnit.test("PopupViewModel: check animation's onEnter, onLeave are called correctly", (assert) => {
   const logger = { log: "" };
   settings.animationEnabled = true;
+  const oldQueueMicrotask = window.queueMicrotask;
+  window.queueMicrotask = (cb) => cb();
   const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
   model.onVisibilityChanged.add((_: PopupModel, options: { isVisible: boolean }) => {
     logger.log += `->model:isVisible:${options.isVisible}`;
@@ -1698,6 +1702,7 @@ QUnit.test("PopupViewModel: check animation's onEnter, onLeave are called correc
   assert.equal(logger.log, "->model:isVisible:false->onLeave->viewModel:isVisible:false", "correct order of updates when leaving");
   assert.deepEqual(viewModel.getAnimation().passedLeaveClasses, { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" }, "correct css classes passed to animation's onLeave");
   settings.animationEnabled = false;
+  window.queueMicrotask = oldQueueMicrotask;
 });
 
 QUnit.test("PopupViewModel: check popupViewModel without container is working correctly", (assert) => {
@@ -1743,8 +1748,8 @@ QUnit.test("PopupViewModel: check getShouldRunAnimation method", (assert) => {
   settings.animationEnabled = true;
   const model: PopupModel = new PopupModel("sv-list", {}, "top", "center");
   const viewModel: TestAnimationPopupViewModel = new TestAnimationPopupViewModel(model);
-  assert.ok(viewModel["getShouldRunAnimation"]());
+  assert.ok(viewModel.isAnimationEnabled());
   model.displayMode = "overlay";
-  assert.notOk(viewModel["getShouldRunAnimation"]());
+  assert.notOk(viewModel.isAnimationEnabled());
   settings.animationEnabled = false;
 });

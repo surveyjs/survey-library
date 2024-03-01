@@ -5,6 +5,14 @@ export interface AnimationOptions<T> {
   classes: T;
   onBeforeRunAnimation?: (element: HTMLElement) => void;
 }
+
+export interface IAnimationConsumer<T extends Array<any> = []> {
+  getLeaveOptions(...args: T): OnLeaveOptions;
+  getEnterOptions(...args: T): OnEnterOptions;
+  getAnimatedElement(...args: T): HTMLElement;
+  isAnimationEnabled(): boolean;
+}
+
 export type OnEnterOptions = AnimationOptions<{ onEnter: string }>;
 export type OnLeaveOptions = AnimationOptions<{ onLeave: string, onHide: string }>;
 
@@ -30,78 +38,78 @@ export class Animation {
     }
   }
 
+  private beforeEnterAnimationRunQueue: Array<() => void> = [];
+  private enterAnimationQueue: Array<() => void> = [];
+  private onEnterAnimationSheduled: boolean;
+
   public onEnter(getElement: () => HTMLElement, options: OnEnterOptions): void {
-    requestAnimationFrame(() => {
+    this.beforeEnterAnimationRunQueue.push(() => {
       const element = getElement();
       if(element) {
         options.onBeforeRunAnimation && options.onBeforeRunAnimation(element);
+      }
+    });
+    this.enterAnimationQueue.push(() => {
+      const element = getElement();
+      if(element) {
         element.classList.add(options.classes.onEnter);
         this.onAnimationEnd(element, () => {
           element.classList.remove(options.classes.onEnter);
         });
       }
     });
+    if(!this.onEnterAnimationSheduled) {
+      requestAnimationFrame(() => {
+        const element = getElement();
+        if(element) {
+          this.beforeEnterAnimationRunQueue.forEach(func => func());
+          this.beforeEnterAnimationRunQueue = [];
+          this.enterAnimationQueue.forEach(func => func());
+          this.enterAnimationQueue= [];
+          this.onEnterAnimationSheduled = false;
+        }
+      });
+      this.onEnterAnimationSheduled = true;
+    }
   }
 
   public onLeave(getElement: () => HTMLElement, callback: () => void, options: OnLeaveOptions): void {
     const element = getElement();
     if(element) {
       options.onBeforeRunAnimation && options.onBeforeRunAnimation(element);
-      element.classList.add(options.classes.onLeave);
-      const onAnimationEndCallback = () => {
-        element.classList.remove(options.classes.onLeave);
-        element.classList.add(options.classes.onHide);
-        callback();
-        setTimeout(() => {
-          element.classList.remove(options.classes.onHide);
-        }, 1);
-      };
-      this.onAnimationEnd(element, onAnimationEndCallback);
+      requestAnimationFrame(() => {
+        element.classList.add(options.classes.onLeave);
+        const onAnimationEndCallback = () => {
+          element.classList.remove(options.classes.onLeave);
+          element.classList.add(options.classes.onHide);
+          callback();
+          setTimeout(() => {
+            element.classList.remove(options.classes.onHide);
+          }, 1);
+        };
+        this.onAnimationEnd(element, onAnimationEndCallback);
+      });
     } else {
       callback();
     }
   }
+
+  public clear() {
+    this.beforeEnterAnimationRunQueue = [];
+    this.enterAnimationQueue = [];
+  }
 }
-
-export class AnimationCollection<T> {
-  constructor(private animationOptions: { onEnter: OnEnterOptions, onLeave: OnLeaveOptions, getElement: (el: T) => HTMLElement }, private update: (arr: Array<T>) => void) {
+abstract class AnimationProperty<T, S extends Array<any> = []> {
+  public allowEmptyAnimation: boolean = false;
+  constructor(protected animationOptions: IAnimationConsumer<S>, protected update: (val: T) => void) {
   }
-  private _sync (newValue: Array<T>, oldValue: Array<T>) {
-    const itemsToAdd = newValue.filter(el => oldValue.indexOf(el) < 0);
-    const deletedItems = oldValue.filter(el => newValue.indexOf(el) < 0);
-
-    if(itemsToAdd.length == newValue.length) {
-      this.update(newValue);
-      return;
-    }
-    itemsToAdd?.forEach((item) =>
-      new Animation().onEnter(
-        () => this.animationOptions.getElement(item),
-        this.animationOptions.onEnter
-      )
-    );
-    if (deletedItems?.length > 0) {
-      let counter = deletedItems.length;
-      deletedItems.forEach((item) => {
-        new Animation().onLeave(
-          () => this.animationOptions.getElement(item),
-          () => {
-            if (--counter <= 0) {
-              this.update(newValue);
-            }
-          },
-          this.animationOptions.onLeave
-        );
-      });
-    } else {
-      this.update(newValue);
-    }
-  }
-  private _debouncedSync = debounce((newValue: Array<T>, oldValue: Array<T>) => {
+  protected animation = new Animation();
+  protected abstract _sync(newValue: T, oldValue: T): void;
+  private _debouncedSync = debounce((newValue: T, oldValue: T) => {
     this._sync(newValue, oldValue);
   })
-  sync(newValue: Array<T>, oldValue: Array<T>): void {
-    if(settings.animationEnabled) {
+  sync(newValue: T, oldValue: T): void {
+    if(this.animationOptions.isAnimationEnabled()) {
       this._debouncedSync.run(newValue, oldValue);
     } else {
       this.update(newValue);
@@ -109,5 +117,56 @@ export class AnimationCollection<T> {
   }
   cancel() {
     this._debouncedSync.cancel();
+  }
+}
+
+export class AnimationBoolean extends AnimationProperty<boolean> {
+  protected _sync(newValue: boolean, oldValue: boolean): void {
+    this.animation.clear();
+    if(newValue !== oldValue) {
+      if(newValue) {
+        this.update(newValue);
+        this.animation.onEnter(() => this.animationOptions.getAnimatedElement(), this.animationOptions.getEnterOptions());
+      } else {
+        this.animation.onLeave(() => this.animationOptions.getAnimatedElement(), () => {
+          this.update(newValue);
+        }, this.animationOptions.getLeaveOptions());
+      }
+    }
+  }
+}
+
+export class AnimationGroup<T> extends AnimationProperty<Array<T>, [T]> {
+  protected _sync (newValue: Array<T>, oldValue: Array<T>): void {
+    this.animation.clear();
+    const itemsToAdd = newValue.filter(el => oldValue.indexOf(el) < 0);
+    const deletedItems = oldValue.filter(el => newValue.indexOf(el) < 0);
+
+    if(!this.allowEmptyAnimation && itemsToAdd.length == newValue.length) {
+      this.update(newValue);
+      return;
+    }
+    itemsToAdd?.forEach((item) =>
+      this.animation.onEnter(
+        () => this.animationOptions.getAnimatedElement(item),
+        this.animationOptions.getEnterOptions(item)
+      )
+    );
+    if (deletedItems?.length > 0) {
+      let counter = deletedItems.length;
+      deletedItems.forEach((item) => {
+        this.animation.onLeave(
+          () => this.animationOptions.getAnimatedElement(item),
+          () => {
+            if (--counter <= 0) {
+              this.update(newValue);
+            }
+          },
+          this.animationOptions.getLeaveOptions(item)
+        );
+      });
+    } else {
+      this.update(newValue);
+    }
   }
 }

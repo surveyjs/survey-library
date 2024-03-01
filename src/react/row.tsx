@@ -53,7 +53,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     });
 
     return (
-      <div ref={this.rootRef} className={this.row.getRowCss()} id={this.row.id} >
+      <div ref={this.rootRef} className={this.row.getRowCss()} >
         {elements}
       </div>
     );
@@ -67,6 +67,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   componentDidMount() {
     super.componentDidMount();
     var el = this.rootRef.current;
+    this.row.setRootElement(this.rootRef.current);
     if (!!el && !this.row.isNeedRender) {
       var rowContainerDiv = el;
       setTimeout(() => {
@@ -78,6 +79,8 @@ export class SurveyRow extends SurveyElementBase<any, any> {
     if (!super.shouldComponentUpdate(nextProps, nextState)) return false;
     if (nextProps.row !== this.row) {
       nextProps.row.isNeedRender = this.row.isNeedRender;
+      nextProps.row.setRootElement(this.rootRef.current);
+      this.row.setRootElement(undefined);
       this.stopLazyRendering();
     }
     this.recalculateCss();
@@ -89,6 +92,7 @@ export class SurveyRow extends SurveyElementBase<any, any> {
   }
   componentWillUnmount() {
     super.componentWillUnmount();
+    this.row.setRootElement(undefined);
     this.stopLazyRendering();
   }
 

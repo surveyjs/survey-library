@@ -1,6 +1,6 @@
 import { property, Serializer } from "./jsonobject";
 import { HashTable, Helpers } from "./helpers";
-import { Base, EventBase } from "./base";
+import { Base } from "./base";
 import {
   ISurveyImpl,
   IPage,
@@ -17,22 +17,19 @@ import {
 } from "./base-interfaces";
 import { DragTypeOverMeEnum, SurveyElement } from "./survey-element";
 import { Question } from "./question";
-import { ConditionRunner } from "./conditions";
 import { ElementFactory, QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
 import { OneAnswerRequiredError } from "./error";
-import { PageModel } from "./page";
 import { settings } from "./settings";
-import { findScrollableParent, isElementVisible } from "./utils/utils";
+import { findScrollableParent, getElementWidth, isElementVisible } from "./utils/utils";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { IAction } from "./actions/action";
-import { AdaptiveActionContainer } from "./actions/adaptive-container";
 import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
-import { Animation, AnimationCollection, AnimationOptions } from "./utils/animation";
+import { AnimationBoolean, AnimationGroup, IAnimationConsumer } from "./utils/animation";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -113,19 +110,28 @@ export class QuestionRowModel extends Base {
   public get elements(): Array<IElement> {
     return this.getPropertyValue("elements");
   }
-  private visibleAnimationOptions: any = {
-    getElement: (element: IElement) =>
-    document.querySelector(`[data-wrap=${(element as any).id}]`) as HTMLElement,
-    onLeave: { classes: { onLeave: "elementFadeOut", onHide: "hidden" } },
-    onEnter: {
-      classes: { onEnter: "elementFadeIn" },
-      onBeforeRunAnimation: (el: HTMLElement) => {
-        el.style.setProperty("--animation-height", el.offsetHeight + "px");
-        el.style.setProperty("--animation-width", el.offsetWidth + "px");
-      },
-    },
+  private getVisibleAnimationOptions(): IAnimationConsumer<[IElement]> {
+    return {
+      isAnimationEnabled: () => settings.animationEnabled,
+      getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
+      getLeaveOptions: (element: IElement) => {
+        return { classes: { onLeave: "elementFadeOut", onHide: "hidden" },
+          onBeforeRunAnimation: (el: HTMLElement) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+            el.style.setProperty("--animation-width", getElementWidth(el) + "px");
+          }, }; },
+      getEnterOptions: (element: IElement) => {
+        return {
+          classes: { onEnter: "elementFadeIn" },
+          onBeforeRunAnimation: (el: HTMLElement) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+            el.style.setProperty("--animation-width", getElementWidth(el) + "px");
+          },
+        };
+      }
+    };
   }
-  private visibleElementsAnimation: AnimationCollection<IElement> = new AnimationCollection(this.visibleAnimationOptions, (value) => {
+  private visibleElementsAnimation: AnimationGroup<IElement> = new AnimationGroup(this.getVisibleAnimationOptions(), (value) => {
     this.setPropertyValue("visibleElements", value);
     this.setWidth();
   });
@@ -253,6 +259,13 @@ export class QuestionRowModel extends Base {
       .toString();
 
   }
+  private rootElement?: HTMLElement;
+  public setRootElement(element?: HTMLElement) {
+    this.rootElement = element;
+  }
+  public getRootElement(): HTMLElement {
+    return this.rootElement;
+  }
 }
 
 /**
@@ -278,18 +291,27 @@ export class PanelModelBase extends SurveyElement<Question>
     this.onRowVisibleChanged();
     row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
   }
-  private rowsAnimationsOptions: any = {
-    getElement: (row: QuestionRowModel) =>
-      document.getElementById((row as any).id) as HTMLElement,
-    onLeave: { classes: { onLeave: "fadeOut", onHide: "hidden" } },
-    onEnter: {
-      classes: { onEnter: "fadeIn" },
-      onBeforeRunAnimation: (el: HTMLElement) => {
-        el.style.setProperty("--animation-height", el.offsetHeight + "px");
+  private getRowsAnimationOptions(): IAnimationConsumer<[QuestionRowModel]> {
+    return {
+      isAnimationEnabled: () => settings.animationEnabled,
+      getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
+      getLeaveOptions: (row: QuestionRowModel) => {
+        return { classes: { onLeave: "fadeOut", onHide: "hidden" },
+          onBeforeRunAnimation: (el: HTMLElement) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+          }, };
       },
-    }
+      getEnterOptions: (row: QuestionRowModel) => {
+        return {
+          classes: { onEnter: "fadeIn" },
+          onBeforeRunAnimation: (el: HTMLElement) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+          },
+        };
+      }
+    };
   }
-  private rowsAnimation: AnimationCollection<QuestionRowModel> = new AnimationCollection(this.rowsAnimationsOptions, (value) => {
+  private rowsAnimation: AnimationGroup<QuestionRowModel> = new AnimationGroup(this.getRowsAnimationOptions(), (value) => {
     this.setPropertyValue("visibleRows", value);
   })
   get visibleRows(): Array<QuestionRowModel> {

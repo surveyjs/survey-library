@@ -161,7 +161,7 @@
 .fadeIn {
   animation-name: fadeIn;
   min-height: 0 !important;
-  animation-duration: 0.5s;
+  animation-duration: 1s;
 }
 
 @keyframes fadeOut {
@@ -182,7 +182,7 @@
 .fadeOut {
   animation-name: fadeOut;
   min-height: 0 !important;
-  animation-duration: 5s;
+  animation-duration: 1s;
 }
 .fadeIn .elementFadeIn {
   animation: none;
@@ -196,28 +196,27 @@
   0% {
     opacity: 0;
     flex-basis: 0;
+    flex-grow: 0;
     max-width: 0;
     min-width: 0;
     width: 0;
+    overflow: hidden;
     height: var(--animation-height);
-    max-height: var(--animation-height);
-    min-height: var(--animation-height);
+    padding-left: 0;
   }
   50% {
     opacity: 0;
     height: var(--animation-height);
-    max-height: var(--animation-height);
-    min-height: var(--animation-height);
-    height: var(--animation-height);
     flex-basis: var(--animation-width);
     width: var(--animation-width);
     min-width: var(--animation-width);
+    overflow: visible;
+    padding-left: calcSize(2);
   }
   100% {
+    padding-left: calcSize(2);
     width: var(--animation-width);
     height: var(--animation-height);
-    max-height: var(--animation-height);
-    min-height: var(--animation-height);
     min-width: var(--animation-width);
     flex-basis: var(--animation-width);
     opacity: 1;
@@ -226,8 +225,8 @@
 
 .elementFadeIn {
   animation-name: elementFadeIn;
-  flex-shrink: 0;
   animation-duration: 1s;
+  opacity: 0;
 }
 
 @keyframes elementFadeOut {
@@ -236,16 +235,19 @@
     height: var(--animation-height);
     flex-basis: var(--animation-width);
     min-width: var(--animation-width);
+    padding-left: calcSize(2);
   }
   50% {
     opacity: 0;
     height: var(--animation-height);
+    padding-left: calcSize(2);
     flex-basis: var(--animation-width);
     min-width: var(--animation-width);
   }
   100% {
     height: var(--animation-height);
     opacity: 0;
+    padding-left: 0;
     flex-grow: 0;
     flex-shrink: 1;
     flex-basis: 0;
@@ -260,5 +262,5 @@
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }

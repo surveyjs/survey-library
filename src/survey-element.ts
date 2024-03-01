@@ -996,6 +996,15 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       });
     }
   }
+
+  private wrapperElement?: HTMLElement;
+  public setWrapperElement(element?: HTMLElement) {
+    this.wrapperElement = element;
+  }
+  public getWrapperElement(): HTMLElement {
+    return this.wrapperElement;
+  }
+
   public dispose(): void {
     super.dispose();
     if (this.titleToolbarValue) {

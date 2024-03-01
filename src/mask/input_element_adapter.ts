@@ -1,5 +1,5 @@
 import { InputMaskBase } from "./mask_base";
-import { ITextMaskInputArgs } from "./mask_utils";
+import { ITextInputParams } from "./mask_utils";
 
 export class InputElementAdapter {
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {
@@ -23,8 +23,8 @@ export class InputElementAdapter {
     this.inputElement.value = maskedValue;
   };
 
-  public createArgs(event: any): ITextMaskInputArgs {
-    const args: ITextMaskInputArgs = {
+  public createArgs(event: any): ITextInputParams {
+    const args: ITextInputParams = {
       insertedChars: event.data,
       selectionStart: event.target.selectionStart,
       selectionEnd: event.target.selectionEnd,

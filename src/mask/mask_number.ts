@@ -1,6 +1,6 @@
 import { Serializer, property } from "../jsonobject";
 import { InputMaskBase } from "./mask_base";
-import { IMaskedValue, ITextMaskInputArgs, numberDefinition } from "./mask_utils";
+import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
 
 interface INumericalComposition {
   integralPart: string;
@@ -34,7 +34,7 @@ export class InputMaskNumeric extends InputMaskBase {
   @property() min: number;
   @property() max: number;
 
-  private calccaretPosition(leftPart: string, args: ITextMaskInputArgs, maskedValue: string) {
+  private calccaretPosition(leftPart: string, args: ITextInputParams, maskedValue: string) {
     const leftPartMaskedLength = !! leftPart ? this.displayNumber(this.parseNumber(leftPart), false).length : 0;
     let validCharIndex = 0;
     let result = args.selectionStart;
@@ -172,7 +172,7 @@ export class InputMaskNumeric extends InputMaskBase {
   public getUnmaskedValue(src: string): any {
     return this.getNumberUnmaskedValue(src);
   }
-  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+  public processInput(args: ITextInputParams): IMaskedInputResult {
     const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
     const leftPart = args.prevValue.slice(0, args.selectionStart) + (args.insertedChars || "");
     const rightPart = args.prevValue.slice(args.selectionEnd);

@@ -1,6 +1,6 @@
 import { Serializer, property } from "../jsonobject";
 import { InputMaskNumeric } from "./mask_number";
-import { IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
+import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
 export class InputMaskCurrency extends InputMaskNumeric {
   @property() prefix: string;
@@ -25,7 +25,7 @@ export class InputMaskCurrency extends InputMaskNumeric {
     return result;
   }
 
-  public unwrapInputArgs(args: ITextMaskInputArgs): void {
+  public unwrapInputArgs(args: ITextInputParams): void {
     let result = args.prevValue;
     if(!result) return;
 
@@ -40,7 +40,7 @@ export class InputMaskCurrency extends InputMaskNumeric {
     }
     args.prevValue = result;
   }
-  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+  public processInput(args: ITextInputParams): IMaskedInputResult {
     this.unwrapInputArgs(args);
     const result = super.processInput(args);
     const preffixPadding = (this.prefix || "").length;

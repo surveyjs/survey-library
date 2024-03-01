@@ -1,12 +1,12 @@
 export var numberDefinition = /[0-9]/;
 
-export interface IMaskedValue {
+export interface IMaskedInputResult {
   value: string;
   caretPosition: number;
   cancelPreventDefault?: boolean;
 }
 
-export interface ITextMaskInputArgs {
+export interface ITextInputParams {
   prevValue: string;
   selectionStart: number;
   selectionEnd: number;
@@ -17,5 +17,5 @@ export interface ITextMaskInputArgs {
 export interface IInputMask {
   getMaskedValue(src: any): string;
   getUnmaskedValue(src: string): any;
-  processInput(args: ITextMaskInputArgs): IMaskedValue;
+  processInput(args: ITextInputParams): IMaskedInputResult;
 }

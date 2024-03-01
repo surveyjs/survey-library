@@ -1,7 +1,7 @@
 import { settings } from "../settings";
 import { Serializer, property } from "../jsonobject";
 import { InputMaskBase } from "./mask_base";
-import { IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
+import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
 export interface IMaskLiteral {
   type: "const" | "regex" | "fixed";
@@ -122,7 +122,7 @@ export class InputMaskPattern extends InputMaskBase {
     const input = (src === undefined || src === null) ? "" : src;
     return getUnmaskedValueByPattern(input, this.literals, matchWholeMask);
   }
-  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+  public processInput(args: ITextInputParams): IMaskedInputResult {
     const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
     if(!args.insertedChars && args.selectionStart === args.selectionEnd) {
       return result;

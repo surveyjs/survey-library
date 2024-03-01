@@ -1,6 +1,6 @@
 import { Base } from "../base";
 import { JsonObject, Serializer, property } from "../jsonobject";
-import { IInputMask, IMaskedValue, ITextMaskInputArgs } from "./mask_utils";
+import { IInputMask, IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
 export class InputMaskBase extends Base implements IInputMask {
   @property() saveMaskedValue: boolean;
@@ -36,7 +36,7 @@ export class InputMaskBase extends Base implements IInputMask {
   //   return this.getUnmaskedValue(this.input.value, true);
   // }
 
-  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+  public processInput(args: ITextInputParams): IMaskedInputResult {
     return { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
   }
 

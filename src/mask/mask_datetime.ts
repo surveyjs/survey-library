@@ -1,6 +1,6 @@
 import { Serializer, property } from "../jsonobject";
 import { InputMaskPattern } from "./mask_pattern";
-import { IMaskedValue, ITextMaskInputArgs, numberDefinition } from "./mask_utils";
+import { IMaskedInputResult, ITextInputParams, numberDefinition } from "./mask_utils";
 
 export interface IDateTimeMaskLexem {
   type: "month" | "day" | "year" | "separator";
@@ -392,7 +392,7 @@ export class InputMaskDateTime extends InputMaskPattern {
     }
   }
 
-  public processInput(args: ITextMaskInputArgs): IMaskedValue {
+  public processInput(args: ITextInputParams): IMaskedInputResult {
     const result = { value: args.prevValue, caretPosition: args.selectionEnd, cancelPreventDefault: false };
     const leftPart = args.prevValue.slice(0, args.selectionStart);
     const rightPart = args.prevValue.slice(args.selectionEnd);

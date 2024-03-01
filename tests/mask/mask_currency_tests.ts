@@ -1,6 +1,6 @@
 import { JsonObject } from "../../src/jsonobject";
 import { InputMaskCurrency } from "../../src/mask/mask_currency";
-import { ITextMaskInputArgs } from "../../src/mask/mask_utils";
+import { ITextInputParams } from "../../src/mask/mask_utils";
 import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Currency mask");
@@ -103,7 +103,7 @@ QUnit.test("get currency masked invalid text", function(assert) {
   maskInstance.prefix = "$_";
   maskInstance.suffix = "_USD";
 
-  let args: ITextMaskInputArgs = { prevValue: "$_1_USD", selectionStart: 0, selectionEnd: 0, insertedChars: "" };
+  let args: ITextInputParams = { prevValue: "$_1_USD", selectionStart: 0, selectionEnd: 0, insertedChars: "" };
   maskInstance.unwrapInputArgs(args);
   assert.equal(args.prevValue, "1");
 

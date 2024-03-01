@@ -5,6 +5,23 @@ import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Question text: Input mask");
 
+QUnit.test("Initial mask settings", function (assert) {
+  const testInput = document.createElement("input");
+
+  const q = new QuestionTextModel("q1");
+  q.input = testInput;
+  assert.equal(q.maskType, "none");
+  assert.equal(q.maskSettings.getType(), "masksettings");
+  assert.equal(!!q["maskInputAdapter"], false);
+
+  q.maskType = "pattern";
+  assert.equal(q.maskType, "pattern");
+  assert.equal(q.maskSettings.getType(), "patternmask");
+  assert.equal(!!q["maskInputAdapter"], true);
+
+  testInput.remove();
+});
+
 QUnit.test("Apply mask", function (assert) {
   const q = new QuestionTextModel("q1");
   q.maskType = "pattern";

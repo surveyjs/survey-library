@@ -26,7 +26,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private maskInputAdapter: InputElementAdapter;
 
   private createMaskAdapter() {
-    if (!!this.input && !!this.maskInstance) {
+    if (!!this.input && !this.maskTypeIsEmpty) {
       this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
     }
   }
@@ -48,6 +48,11 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({
     onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
   }) maskType: string;
+
+  get maskTypeIsEmpty(): boolean {
+    return this.maskType === "none";
+  }
+
   public get maskSettings(): InputMaskBase {
     return this.getPropertyValue("maskSettings");
   }
@@ -274,11 +279,11 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskSettings;
   }
   public get inputValue(): string {
-    return !!this.maskInstance ? this.maskInstance.getMaskedValue(this.value) : this.value;
+    return !this.maskTypeIsEmpty ? this.maskInstance.getMaskedValue(this.value) : this.value;
   }
   public set inputValue(val: string) {
     let value = val;
-    if(!!this.maskInstance) {
+    if(!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
       if(!!value && this.maskSettings.saveMaskedValue) {
         value = this.maskInstance.getMaskedValue(value);

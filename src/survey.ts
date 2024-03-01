@@ -904,7 +904,7 @@ export class SurveyModel extends SurveyElementCore
       }
     );
     this.registerPropertyChangedHandlers(
-      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
+      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage", "isShowingPreview"],
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
@@ -1678,7 +1678,7 @@ export class SurveyModel extends SurveyElementCore
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get allowCompleteSurveyAutomatic(): boolean {
-    return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
+    return this.getPropertyValue("allowCompleteSurveyAutomatic");
   }
   public set allowCompleteSurveyAutomatic(val: boolean) {
     this.setPropertyValue("allowCompleteSurveyAutomatic", val);
@@ -2146,14 +2146,14 @@ export class SurveyModel extends SurveyElementCore
     return this._isMobile && !this.isDesignMode;
   }
   @property() private _isCompact: boolean = false;
-  private set isCompact(newVal: boolean) {
+  public set isCompact(newVal: boolean) {
     if (newVal !== this._isCompact) {
       this._isCompact = newVal;
       this.updateElementCss();
       this.triggerResponsiveness(true);
     }
   }
-  private get isCompact() {
+  public get isCompact(): boolean {
     return this._isCompact;
   }
   protected isLogoImageChoosen() {
@@ -7861,6 +7861,10 @@ Serializer.addClass("survey", [
       }
       obj.setPropertyValue("goNextPageAutomatic", value);
     }
+  },
+  {
+    name: "allowCompleteSurveyAutomatic:boolean", default: true,
+    visibleIf: (obj: any): boolean => obj.goNextPageAutomatic === true
   },
   {
     name: "clearInvisibleValues",

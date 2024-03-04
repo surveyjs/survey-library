@@ -32,7 +32,8 @@ export class InputMaskCurrency extends InputMaskNumeric {
     if(this.prefix && result.indexOf(this.prefix) !== -1) {
       result = result.slice(result.indexOf(this.prefix) + this.prefix.length);
       const preffixPadding = (this.prefix || "").length;
-      args.selectionStart -= preffixPadding;
+
+      args.selectionStart = Math.max((args.selectionStart - preffixPadding), 0);
       args.selectionEnd -= preffixPadding;
     }
     if(this.suffix && result.indexOf(this.suffix) !== -1) {
@@ -44,7 +45,9 @@ export class InputMaskCurrency extends InputMaskNumeric {
     this.unwrapInputArgs(args);
     const result = super.processInput(args);
     const preffixPadding = (this.prefix || "").length;
-    result.caretPosition += preffixPadding;
+    if(!!result.value) {
+      result.caretPosition += preffixPadding;
+    }
     result.value = this.wrapText(result.value);
     return result;
   }

@@ -50,6 +50,16 @@ QUnit.test("InputElementAdapter createArgs deleteContentForward", function(asser
   assert.equal(args.prevValue, "123");
   assert.equal(args.inputDirection, "forward");
 
+  target.selectionStart = 1;
+  target.selectionEnd = 2;
+
+  args = adapter.createArgs({ data: null, inputType: "deleteContentForward", target: target });
+  assert.equal(args.insertedChars, null);
+  assert.equal(args.selectionStart, 1);
+  assert.equal(args.selectionEnd, 2);
+  assert.equal(args.prevValue, "123");
+  assert.equal(args.inputDirection, "forward");
+
   testInput.remove();
 });
 
@@ -77,6 +87,15 @@ QUnit.test("InputElementAdapter createArgs deleteContentBackward", function(asse
   assert.equal(args.insertedChars, null);
   assert.equal(args.selectionStart, 0);
   assert.equal(args.selectionEnd, 0);
+  assert.equal(args.prevValue, "123");
+  assert.equal(args.inputDirection, "backward");
+
+  target.selectionStart = 1;
+  target.selectionEnd = 2;
+  args = adapter.createArgs({ data: null, inputType: "deleteContentBackward", target: target });
+  assert.equal(args.insertedChars, null);
+  assert.equal(args.selectionStart, 1);
+  assert.equal(args.selectionEnd, 2);
   assert.equal(args.prevValue, "123");
   assert.equal(args.inputDirection, "backward");
 

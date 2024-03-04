@@ -287,7 +287,7 @@ QUnit.test("currency processInput simple number: delete characters", function(as
 
   result = maskInstance.processInput({ insertedChars: null, selectionStart: 2, selectionEnd: 3, prevValue: "$ 0", inputDirection: "forward" });
   assert.equal(result.value, "", "remove 0");
-  assert.equal(result.caretPosition, 2, "remove 0");
+  assert.equal(result.caretPosition, 0, "remove 0");
 
   result = maskInstance.processInput({ insertedChars: null, selectionStart: 4, selectionEnd: 5, prevValue: "$ 123", inputDirection: "forward" });
   assert.equal(result.value, "$ 12", "remove 3");
@@ -314,6 +314,10 @@ QUnit.test("currency processInput decimal number: delete characters", function(a
   result = maskInstance.processInput({ insertedChars: null, selectionStart: 6, selectionEnd: 7, prevValue: "$ 123.45", inputDirection: "forward" });
   assert.equal(result.value, "$ 123.5", "remove 4");
   assert.equal(result.caretPosition, 6, "remove 4");
+
+  result = maskInstance.processInput({ insertedChars: null, selectionStart: 0, selectionEnd: 11, prevValue: "$ 1,234,567", inputDirection: "forward" });
+  assert.equal(result.value, "", "remove all");
+  assert.equal(result.caretPosition, 0, "remove all");
 });
 
 QUnit.test("currency processInput big number: delete characters", function(assert) {
@@ -352,7 +356,7 @@ QUnit.test("currency processInput simple number: delete characters by backspace"
 
   result = maskInstance.processInput({ insertedChars: null, selectionStart: 2, selectionEnd: 3, prevValue: "$ 0", inputDirection: "backward" });
   assert.equal(result.value, "", "remove 0");
-  assert.equal(result.caretPosition, 2, "remove 0");
+  assert.equal(result.caretPosition, 0, "remove 0");
 
   result = maskInstance.processInput({ insertedChars: null, selectionStart: 4, selectionEnd: 5, prevValue: "$ 123", inputDirection: "backward" });
   assert.equal(result.value, "$ 12", "remove 3");

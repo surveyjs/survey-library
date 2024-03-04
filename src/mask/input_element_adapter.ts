@@ -31,17 +31,18 @@ export class InputElementAdapter {
       prevValue: event.target.value,
       inputDirection: "forward"
     };
-    switch (event.inputType) {
-      case "deleteContentBackward": {
+
+    if(event.inputType === "deleteContentBackward") {
+      args.inputDirection = "backward";
+
+      if(args.selectionStart === args.selectionEnd) {
         args.selectionStart = Math.max(args.selectionStart - 1, 0);
-        args.inputDirection = "backward";
-        break;
-      }
-      case "deleteContentForward": {
-        args.selectionEnd += 1;
-        break;
       }
     }
+    if(event.inputType === "deleteContentForward" && args.selectionStart === args.selectionEnd) {
+      args.selectionEnd += 1;
+    }
+
     return args;
   }
   public addInputEventListener(): void {

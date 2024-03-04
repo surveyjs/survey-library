@@ -126,70 +126,42 @@ QUnit.test("getDateTimeLiterals simple pattern", function(assert) {
   assert.equal(result[4].count, 4);
 });
 
-QUnit.test("parseDateTime valid string", function(assert) {
+QUnit.test("parseDateTime valid string mm/dd/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
 
-  let result = maskInstance._getMaskedValue("02/14/2024");
-  assert.equal(result, "02/14/2024");
-
-  result = maskInstance._getMaskedValue("2/4/2024");
-  assert.equal(result, "02/04/2024");
-
-  result = maskInstance._getMaskedValue("2");
-  assert.equal(result, "02/dd/yyyy");
-
-  result = maskInstance._getMaskedValue("2/");
-  assert.equal(result, "02/dd/yyyy");
-
-  result = maskInstance._getMaskedValue("2/4");
-  assert.equal(result, "02/04/yyyy");
-
-  result = maskInstance._getMaskedValue("2/4/");
-  assert.equal(result, "02/04/yyyy");
+  assert.equal(maskInstance._getMaskedValue("02/14/2024"), "02/14/2024");
+  assert.equal(maskInstance._getMaskedValue("2/4/2024"), "02/04/2024");
+  assert.equal(maskInstance._getMaskedValue("2"), "02/dd/yyyy");
+  assert.equal(maskInstance._getMaskedValue("2/"), "02/dd/yyyy");
+  assert.equal(maskInstance._getMaskedValue("2/4"), "02/04/yyyy");
+  assert.equal(maskInstance._getMaskedValue("2/4/"), "02/04/yyyy");
+  assert.equal(maskInstance._getMaskedValue("m/4/1990"), "mm/04/1990");
+  assert.equal(maskInstance._getMaskedValue("/4/1990"), "mm/04/1990");
 });
 
-QUnit.test("parseDateTime with validation", function(assert) {
+QUnit.test("parseDateTime with validation mm/dd/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
 
-  let result = maskInstance._getMaskedValue("13");
-  assert.equal(result, "1m/dd/yyyy");
-
-  result = maskInstance._getMaskedValue("02/33");
-  assert.equal(result, "02/3d/yyyy");
-
-  result = maskInstance._getMaskedValue("06/30");
-  assert.equal(result, "06/30/yyyy");
-
-  result = maskInstance._getMaskedValue("06/31");
-  assert.equal(result, "06/3d/yyyy");
-
-  result = maskInstance._getMaskedValue("02/29/2000");
-  assert.equal(result, "02/29/2000");
-
-  result = maskInstance._getMaskedValue("02/29/2001");
-  assert.equal(result, "02/29/200y");
+  assert.equal(maskInstance._getMaskedValue("13"), "1m/dd/yyyy");
+  assert.equal(maskInstance._getMaskedValue("02/33"), "02/3d/yyyy");
+  assert.equal(maskInstance._getMaskedValue("06/30"), "06/30/yyyy");
+  assert.equal(maskInstance._getMaskedValue("06/31"), "06/3d/yyyy");
+  assert.equal(maskInstance._getMaskedValue("02/29/2000"), "02/29/2000");
+  assert.equal(maskInstance._getMaskedValue("02/29/2001"), "02/29/200y");
 });
 
-QUnit.test("parseDateTime invalid string", function(assert) {
+QUnit.test("parseDateTime invalid string mm/dd/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
 
-  let result = maskInstance._getMaskedValue("02a/14/2024");
-  assert.equal(result, "02/14/2024");
+  assert.equal(maskInstance._getMaskedValue("02a/14/2024"), "02/14/2024");
+  assert.equal(maskInstance._getMaskedValue("2/4+/2024"), "02/04/2024");
+  assert.equal(maskInstance._getMaskedValue("2+"), "02/dd/yyyy");
 
-  result = maskInstance._getMaskedValue("2/4+/2024");
-  assert.equal(result, "02/04/2024");
-
-  result = maskInstance._getMaskedValue("2+");
-  assert.equal(result, "02/dd/yyyy");
-
-  // result = maskInstance._getMaskedValue("11/022/yyyy");
-  // assert.equal(result, "11/02/yyyy");
-
-  // result = maskInstance._getMaskedValue("11/002/yyyy");
-  // assert.equal(result, "11/02/yyyy");
+  assert.equal(maskInstance._getMaskedValue("11/022/yyyy"), "11/02/yyyy");
+  // assert.equal(maskInstance._getMaskedValue("11/002/yyyy"), "11/02/yyyy");
 });
 
 QUnit.test("get masked valid date text mm/dd/yyyy", function(assert) {
@@ -221,7 +193,7 @@ QUnit.test("get masked valid date text m/d/yyyy", function(assert) {
   assert.equal(maskInstance.getMaskedValue("12/3/1987"), "12/3/1987");
 });
 
-QUnit.test("parseDateTime invalid string", function(assert) {
+QUnit.test("parseDateTime invalid string m/d/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "m/d/yyyy";
 
@@ -229,6 +201,8 @@ QUnit.test("parseDateTime invalid string", function(assert) {
   assert.equal(maskInstance._getMaskedValue("/d/yyyy"), "m/d/yyyy");
   assert.equal(maskInstance._getMaskedValue("0m/d/yyyy"), "m/d/yyyy");
   assert.equal(maskInstance._getMaskedValue("10/0d/yyyy"), "10/d/yyyy");
+  assert.equal(maskInstance._getMaskedValue("/5/1990"), "m/5/1990");
+  assert.equal(maskInstance._getMaskedValue("12//1990"), "12/d/1990");
 });
 
 QUnit.test("_getMaskedValue matchWholeMask is false m/d/yyyy", function(assert) {
@@ -297,7 +271,7 @@ QUnit.test("get masked date if text with dots m/d/yyyy", function(assert) {
   assert.equal(maskInstance._getMaskedValue("1.3.1987"), "1/3/1987");
 });
 
-QUnit.test("get masked valid date text mm/dd/yyyy", function(assert) {
+QUnit.test("get unmasked valid date text mm/dd/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
   assert.equal(maskInstance.getUnmaskedValue("mm/dd/yyyy"), "");
@@ -310,6 +284,18 @@ QUnit.test("get masked valid date text mm/dd/yyyy", function(assert) {
   assert.equal(maskInstance.getUnmaskedValue("12/30/0001"), "0001-12-30");
   assert.equal(maskInstance.getUnmaskedValue("12/30/1987"), "1987-12-30");
   assert.equal(maskInstance.getUnmaskedValue("01/03/1987"), "1987-01-03");
+});
+
+QUnit.test("get input value onBlur mm/dd/yyyy", function(assert) {
+  const maskInstance = new InputMaskDateTime();
+  maskInstance.pattern = "mm/dd/yyyy";
+
+  const input = "01/01/1970";
+  const unmaskedValue = maskInstance.getUnmaskedValue(input);
+  assert.equal(unmaskedValue, "1970-01-01", "unmaskedValue");
+
+  const maskedValue = maskInstance.getMaskedValue(unmaskedValue);
+  assert.equal(maskedValue, input, "");
 });
 
 QUnit.test("get masked valid date text m/d/yyyy", function(assert) {
@@ -433,7 +419,7 @@ QUnit.test("dateTime processInput serial input: insert characters m/d/yyyy", fun
   assert.equal(result.caretPosition, 10, "type 0 2024");
 });
 
-QUnit.test("dateTime processInput: insert characters", function(assert) {
+QUnit.test("dateTime processInput: insert characters mm/dd/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "mm/dd/yyyy";
   let result = maskInstance.processInput({ insertedChars: "4", selectionStart: 0, selectionEnd: 0, prevValue: "mm/dd/yyyy", inputDirection: "forward" });
@@ -447,9 +433,17 @@ QUnit.test("dateTime processInput: insert characters", function(assert) {
   result = maskInstance.processInput({ insertedChars: "1", selectionStart: 9, selectionEnd: 9, prevValue: "04/05/000y", inputDirection: "forward" });
   assert.equal(result.value, "04/05/0001", "type 1");
   assert.equal(result.caretPosition, 10, "type 1");
+
+  result = maskInstance.processInput({ insertedChars: "4", selectionStart: 4, selectionEnd: 4, prevValue: "01/3d/1991", inputDirection: "forward" });
+  assert.equal(result.value, "01/3d/1991", "try type 4");
+  assert.equal(result.caretPosition, 4, "try type 4");
+
+  result = maskInstance.processInput({ insertedChars: "3", selectionStart: 1, selectionEnd: 1, prevValue: "1m/30/1991", inputDirection: "forward" });
+  assert.equal(result.value, "1m/30/1991", "try type 3");
+  assert.equal(result.caretPosition, 1, "try type 3");
 });
 
-QUnit.test("dateTime processInput: insert characters", function(assert) {
+QUnit.test("dateTime processInput: insert characters m/d/yy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "m/d/yy";
   let result = maskInstance.processInput({ insertedChars: "4", selectionStart: 0, selectionEnd: 0, prevValue: "m/d/yy", inputDirection: "forward" });
@@ -483,6 +477,14 @@ QUnit.test("dateTime processInput: insert characters", function(assert) {
   result = maskInstance.processInput({ insertedChars: "8", selectionStart: 6, selectionEnd: 6, prevValue: "4/5/13", inputDirection: "forward" });
   assert.equal(result.value, "4/5/13", "try type 8");
   assert.equal(result.caretPosition, 6, "try type 8");
+
+  result = maskInstance.processInput({ insertedChars: "4", selectionStart: 3, selectionEnd: 3, prevValue: "1/3/91", inputDirection: "forward" });
+  assert.equal(result.value, "1/3/91", "try type 4");
+  assert.equal(result.caretPosition, 3, "try type 4");
+
+  result = maskInstance.processInput({ insertedChars: "3", selectionStart: 1, selectionEnd: 1, prevValue: "1/30/91", inputDirection: "forward" });
+  assert.equal(result.value, "1/30/91", "try type 3");
+  assert.equal(result.caretPosition, 1, "try type 3");
 });
 
 QUnit.test("dateTime processInput: delete characters by backspace", function(assert) {
@@ -540,9 +542,9 @@ QUnit.test("dateTime processInput: editing by delete characters by backspace", f
   assert.equal(result.value, "05/1d/2024", "delete 2");
   assert.equal(result.caretPosition, 4, "delete 2");
 
-  // result = maskInstance.processInput({ prevValue: "05/12/2024", selectionStart: 3, selectionEnd: 4, insertedChars: null, inputDirection: "backward" });
-  // assert.equal(result.text, "05/d2/2024", "delete 1");
-  // assert.equal(result.caretPosition, 3, "delete 1");
+  result = maskInstance.processInput({ prevValue: "05/12/2024", selectionStart: 3, selectionEnd: 4, insertedChars: null, inputDirection: "backward" });
+  assert.equal(result.value, "05/2d/2024", "delete 1");
+  assert.equal(result.caretPosition, 3, "delete 1");
 
   result = maskInstance.processInput({ prevValue: "05/12/2024", selectionStart: 7, selectionEnd: 8, insertedChars: null, inputDirection: "backward" });
   assert.equal(result.value, "05/12/224y", "delete 0");
@@ -569,7 +571,7 @@ QUnit.test("dateTime processInput: copy/paste", function(assert) {
   assert.equal(result.caretPosition, 10, "insert new value 5/12/2024");
 
   // result = maskInstance.processInput({ prevValue: "mm/dd/yyyy", selectionStart: 0, selectionEnd: 0, insertedChars: "5/1/2024", inputDirection: "backward" });
-  // assert.equal(result.text, "05/01/2024", "insert new value 5/1/2024");
+  // assert.equal(result.value, "05/01/2024", "insert new value 5/1/2024");
   // assert.equal(result.caretPosition, 10, "insert new value 5/1/2024");
 
   result = maskInstance.processInput({ prevValue: "mm/dd/yyyy", selectionStart: 0, selectionEnd: 0, insertedChars: "10.28.1996", inputDirection: "backward" });

@@ -115,14 +115,18 @@ export class QuestionRowModel extends Base {
       isAnimationEnabled: () => settings.animationEnabled,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
-        return { classes: { onLeave: "elementFadeOut", onHide: "hidden" },
+        const surveyElement = element as unknown as SurveyElement;
+        const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
+        return { classes: { onLeave: cssClasses.fadeOutActive, onHide: cssClasses.fadeOut },
           onBeforeRunAnimation: (el: HTMLElement) => {
             el.style.setProperty("--animation-height", el.offsetHeight + "px");
             el.style.setProperty("--animation-width", getElementWidth(el) + "px");
           }, }; },
       getEnterOptions: (element: IElement) => {
+        const surveyElement = element as unknown as SurveyElement;
+        const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
         return {
-          classes: { onEnter: "elementFadeIn" },
+          classes: { onEnter: cssClasses.fadeIn },
           onBeforeRunAnimation: (el: HTMLElement) => {
             el.style.setProperty("--animation-height", el.offsetHeight + "px");
             el.style.setProperty("--animation-width", getElementWidth(el) + "px");
@@ -296,14 +300,14 @@ export class PanelModelBase extends SurveyElement<Question>
       isAnimationEnabled: () => settings.animationEnabled,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
       getLeaveOptions: (row: QuestionRowModel) => {
-        return { classes: { onLeave: "fadeOut", onHide: "hidden" },
+        return { classes: { onLeave: this.cssClasses.rowFadeOutActive, onHide: this.cssClasses.rowFadeOut },
           onBeforeRunAnimation: (el: HTMLElement) => {
             el.style.setProperty("--animation-height", el.offsetHeight + "px");
           }, };
       },
       getEnterOptions: (row: QuestionRowModel) => {
         return {
-          classes: { onEnter: "fadeIn" },
+          classes: { onEnter: this.cssClasses.rowFadeIn },
           onBeforeRunAnimation: (el: HTMLElement) => {
             el.style.setProperty("--animation-height", el.offsetHeight + "px");
           },
@@ -526,7 +530,7 @@ export class PanelModelBase extends SurveyElement<Question>
     this.setPropertyValue("visibleIf", val);
   }
   protected calcCssClasses(css: any): any {
-    var classes = { panel: {}, error: {}, row: "", rowMultiple: "", pageRow: "", rowCompact: "" };
+    var classes = { panel: {}, error: {}, row: "", rowFadeIn: "", rowFadeOut: "", rowFadeOutActive: "", rowMultiple: "", pageRow: "", rowCompact: "" };
     this.copyCssClasses(classes.panel, css.panel);
     this.copyCssClasses(classes.error, css.error);
     if (!!css.pageRow) {
@@ -537,6 +541,15 @@ export class PanelModelBase extends SurveyElement<Question>
     }
     if (!!css.row) {
       classes.row = css.row;
+    }
+    if (!!css.rowFadeIn) {
+      classes.rowFadeIn = css.rowFadeIn;
+    }
+    if (!!css.rowFadeOut) {
+      classes.rowFadeOut = css.rowFadeOut;
+    }
+    if (!!css.rowFadeOutActive) {
+      classes.rowFadeOutActive = css.rowFadeOutActive;
     }
     if (!!css.rowMultiple) {
       classes.rowMultiple = css.rowMultiple;

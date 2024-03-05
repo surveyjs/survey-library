@@ -143,55 +143,6 @@
   background-color: transparent;
 }
 
-@keyframes fadeIn {
-  0% {
-    opacity: 0;
-    height: 0;
-  }
-  50% {
-    opacity: 0;
-    height: var(--animation-height);
-  }
-  100% {
-    height: var(--animation-height);
-    opacity: 1;
-  }
-}
-
-.fadeIn {
-  animation-name: fadeIn;
-  min-height: 0 !important;
-  animation-duration: 1s;
-}
-
-@keyframes fadeOut {
-  0% {
-    opacity: 1;
-    height: var(--animation-height);
-  }
-  50% {
-    opacity: 0;
-    height: var(--animation-height);
-  }
-  100% {
-    opacity: 0;
-    height: 0;
-  }
-}
-
-.fadeOut {
-  animation-name: fadeOut;
-  min-height: 0 !important;
-  animation-duration: 1s;
-}
-.fadeIn .elementFadeIn {
-  animation: none;
-}
-
-.fadeOut .elementFadeOut {
-  animation: none;
-}
-
 @keyframes elementFadeIn {
   0% {
     opacity: 0;
@@ -223,7 +174,7 @@
   }
 }
 
-.elementFadeIn {
+.sd-element-wrapper--fade-in {
   animation-name: elementFadeIn;
   animation-duration: 1s;
   opacity: 0;
@@ -243,6 +194,7 @@
     padding-left: calcSize(2);
     flex-basis: var(--animation-width);
     min-width: var(--animation-width);
+    overflow: hidden;
   }
   100% {
     height: var(--animation-height);
@@ -252,15 +204,11 @@
     flex-shrink: 1;
     flex-basis: 0;
     min-width: 0;
+    overflow: hidden;
   }
 }
 
-.elementFadeOut {
+.sd-element-wrapper--fade-out {
   animation-name: elementFadeOut;
   animation-duration: 1s;
-  overflow: hidden;
-}
-
-.hidden {
-  display: none !important;
 }

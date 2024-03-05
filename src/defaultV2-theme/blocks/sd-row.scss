@@ -87,3 +87,52 @@
   width: 100%;
   white-space: nowrap;
 }
+
+@keyframes rowFadeIn {
+  0% {
+    opacity: 0;
+    height: 0;
+  }
+  50% {
+    opacity: 0;
+    height: var(--animation-height);
+  }
+  100% {
+    height: var(--animation-height);
+    opacity: 1;
+  }
+}
+
+.sd-row--fade-in {
+  animation-name: rowFadeIn;
+  min-height: 0 !important;
+  animation-duration: 1s;
+}
+
+@keyframes rowFadeOut {
+  0% {
+    opacity: 1;
+    height: var(--animation-height);
+  }
+  50% {
+    opacity: 0;
+    height: var(--animation-height);
+  }
+  100% {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+.sd-row--fade-out {
+  animation-name: rowFadeOut;
+  min-height: 0 !important;
+  animation-duration: 1s;
+}
+.sd-row--fade-in .sd-element-wrapper--fade-in {
+  animation: none;
+}
+
+.sd-row--fade-out .sd-element-wrapper--fade-out {
+  animation: none;
+}

@@ -204,8 +204,8 @@ Serializer.addClass(
   "numericmask",
   [
     { name: "allowNegativeValues:boolean", default: true },
-    { name: "decimalSeparator", default: "." },
-    { name: "thousandsSeparator", default: "," },
+    { name: "decimalSeparator", default: ".", maxLength: 1 },
+    { name: "thousandsSeparator", default: ",", maxLength: 1 },
     { name: "precision:number", default: 2 },
     { name: "min:number" },
     { name: "max:number" },

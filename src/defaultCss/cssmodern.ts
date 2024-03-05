@@ -327,6 +327,7 @@ export var modernCss = {
     cell: "sv-table__cell",
     headerCell: "sv-table__cell sv-table__cell--header",
     row: "sv-table__row",
+    rowTextCell: "sv-table__cell--row-text",
     rowAdditional: "sv-table__row--additional",
     detailRow: "sv-table__row--detail",
     detailRowText: "sv-table__cell--detail-rowtext",

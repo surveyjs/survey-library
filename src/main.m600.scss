@@ -46,6 +46,11 @@
                     content: attr(data-responsive-title);
                   }
                 }
+                .sv-table__cell--row-text {
+                  &::before {
+                    content: none;
+                  }
+                }
               }
 
               table.sv_q_matrix {

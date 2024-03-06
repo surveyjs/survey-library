@@ -17,7 +17,6 @@ export type OnEnterOptions = AnimationOptions<{ onEnter: string }>;
 export type OnLeaveOptions = AnimationOptions<{ onLeave: string, onHide: string }>;
 
 export class Animation {
-
   protected isAnimationExists(element: HTMLElement): boolean {
     let animationName = "";
     if(getComputedStyle) {
@@ -25,23 +24,29 @@ export class Animation {
     }
     return animationName && animationName != "none";
   }
-
-  protected onAnimationEnd(element: HTMLElement, callback: () => void): void {
-    const onAnimationEndCallback = () => {
-      callback();
+  protected onAnimationEnd(element: HTMLElement, update: () => void): void {
+    const callback = () => {
+      update();
       element.removeEventListener("animationend", onAnimationEndCallback);
+    };
+    this.cancelQueue.push(callback);
+
+    const onAnimationEndCallback = (event: AnimationEvent) => {
+      if(event.target == event.currentTarget) {
+        callback();
+        this.cancelQueue.splice(this.cancelQueue.indexOf(callback), 1);
+      }
     };
     if(this.isAnimationExists(element)) {
       element.addEventListener("animationend", onAnimationEndCallback);
     } else {
-      onAnimationEndCallback();
+      update();
     }
   }
-
+  private cancelQueue: Array<() => void> = [];
   private beforeEnterAnimationRunQueue: Array<() => void> = [];
   private enterAnimationQueue: Array<() => void> = [];
   private onEnterAnimationSheduled: boolean;
-
   public onEnter(getElement: () => HTMLElement, options: OnEnterOptions): void {
     this.beforeEnterAnimationRunQueue.push(() => {
       const element = getElement();
@@ -93,10 +98,11 @@ export class Animation {
       callback();
     }
   }
-
-  public clear() {
+  public cancel() {
     this.beforeEnterAnimationRunQueue = [];
     this.enterAnimationQueue = [];
+    this.cancelQueue.forEach(func => func());
+    this.cancelQueue = [];
   }
 }
 abstract class AnimationProperty<T, S extends Array<any> = []> {
@@ -106,6 +112,7 @@ abstract class AnimationProperty<T, S extends Array<any> = []> {
   protected animation = new Animation();
   protected abstract _sync(newValue: T, oldValue: T): void;
   private _debouncedSync = debounce((newValue: T, oldValue: T) => {
+    this.animation.cancel();
     this._sync(newValue, oldValue);
   })
   sync(newValue: T, oldValue: T): void {
@@ -122,7 +129,6 @@ abstract class AnimationProperty<T, S extends Array<any> = []> {
 
 export class AnimationBoolean extends AnimationProperty<boolean> {
   protected _sync(newValue: boolean, oldValue: boolean): void {
-    this.animation.clear();
     if(newValue !== oldValue) {
       if(newValue) {
         this.update(newValue);
@@ -132,13 +138,14 @@ export class AnimationBoolean extends AnimationProperty<boolean> {
           this.update(newValue);
         }, this.animationOptions.getLeaveOptions());
       }
+    } else {
+      this.update(newValue);
     }
   }
 }
 
 export class AnimationGroup<T> extends AnimationProperty<Array<T>, [T]> {
   protected _sync (newValue: Array<T>, oldValue: Array<T>): void {
-    this.animation.clear();
     const itemsToAdd = newValue.filter(el => oldValue.indexOf(el) < 0);
     const deletedItems = oldValue.filter(el => newValue.indexOf(el) < 0);
 

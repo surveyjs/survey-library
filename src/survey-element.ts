@@ -177,7 +177,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       elLeft = el.getBoundingClientRect().left;
       needScroll = elLeft < 0;
     }
-    iif(!needScroll && DomWindowHelper.isAvailable()) {
+    if(!needScroll && DomWindowHelper.isAvailable()) {
       const height = DomWindowHelper.getInnerHeight();
       needScroll = height > 0 && height < elTop;
       if(!needScroll && checkLeft) {

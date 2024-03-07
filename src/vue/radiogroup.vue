@@ -1,5 +1,5 @@
 <template>
-  <fieldset :class="question.getSelectBaseRootCss()" 
+  <fieldset :class="question.getSelectBaseRootCss()"
     :role="question.a11y_input_ariaRole"
     :aria-required="question.a11y_input_ariaRequired"
     :aria-label="question.a11y_input_ariaLabel"
@@ -26,12 +26,13 @@
       :item="item"
     ></component>
     </div>
-    <div 
+    <div
       v-if="question.hasColumns"
       :class="question.cssClasses.rootMultiColumn">
     <div
       v-if="question.hasColumns"
       v-for="(column, colIndex) in question.columns"
+      v-bind:key="colIndex"
       :class="question.getColumnClass()"
       role="presentation"
     >
@@ -45,7 +46,7 @@
     </div>
     </div>
         <component
-        v-for="(item, index) in question.footItems"
+        v-for="item in question.footItems"
         v-if="question.hasFootItems"
         :key="item.value"
         :is="question.itemComponent"
@@ -85,4 +86,4 @@ export class Radiogroup extends QuestionVue<QuestionRadiogroupModel> {
 }
 Vue.component("survey-radiogroup", Radiogroup);
 export default Radiogroup;
-</script> 
+</script>

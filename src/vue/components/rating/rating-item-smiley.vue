@@ -16,7 +16,6 @@ import { Component, Prop } from "vue-property-decorator";
 import { RenderedRatingItem, QuestionRatingModel, Action } from "survey-core";
 import { BaseVue } from "../../base";
 
-
 @Component
 export class RatingItemSmiley extends BaseVue {
   @Prop() item: RenderedRatingItem;

@@ -1,8 +1,9 @@
 <template>
   <div v-if="components.length > 0" class="sv-components-column">
-    <template v-for="(component, index) in components">
-      <component 
+    <template v-for="component in components">
+      <component
         :is="component.component"
+        :key="component.index"
         :survey="survey"
         :container="container"
         :model="component.data"

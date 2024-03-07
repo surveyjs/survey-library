@@ -59,24 +59,23 @@
       <sv-character-counter :counter="question.characterCounter" :remainingCharacterCounter="question.cssClasses.remainingCharacterCounter"></sv-character-counter>
     </div>
   </template>
-  
-  <script lang="ts">
-  import Vue from "vue";
-  import { Component, Prop } from "vue-property-decorator";
-  import { BaseVue } from "./base";
-  import { QuestionTextModel } from "survey-core";
-  
+
+<script lang="ts">
+import Vue from "vue";
+import { Component, Prop } from "vue-property-decorator";
+import { BaseVue } from "./base";
+import { QuestionTextModel } from "survey-core";
+
   @Component
-  export class QuestionTextInput extends BaseVue {
+export class QuestionTextInput extends BaseVue {
     @Prop() question: QuestionTextModel;
     get inputStyle(): any {
       return this.question.inputStyle;
     }
     protected getModel() {
-        return this.question;
+      return this.question;
     }
-  }
-  Vue.component("survey-text-input", QuestionTextInput);
-  export default QuestionTextInput;
-  </script>
-  
+}
+Vue.component("survey-text-input", QuestionTextInput);
+export default QuestionTextInput;
+</script>

@@ -59,9 +59,9 @@
               :class="question.cssClasses.itemNoImage"
               v-bind:style="{ width: question.renderedImageWidth + 'px', height: question.renderedImageHeight + 'px', objectFit: question.imageFit }"
             >
-              <sv-svg-icon 
+              <sv-svg-icon
                 :class="question.cssClasses.itemNoImageSvgIcon"
-                :iconName="question.cssClasses.itemNoImageSvgIconId" 
+                :iconName="question.cssClasses.itemNoImageSvgIconId"
                 :size="48"></sv-svg-icon>
             </div>
           </div><span
@@ -88,7 +88,7 @@ export class ImagePickerItem extends QuestionVue<QuestionImagePickerModel> {
   getItemClass(item: any) {
     return this.question.getItemClass(item);
   }
-   getModel() {
+  getModel() {
     return this.item;
   }
 }

@@ -3,7 +3,8 @@
     <div v-if="!!model.backgroundImage" :class="model.backgroundImageClasses" :style="model.backgroundImageStyle"></div>
     <div v-if="!survey.isMobile" :class="model.contentClasses" :style="{ maxWidth: model.maxWidth }">
     <sv-header-cell
-      v-for="cell in model.cells"
+      v-for="(cell, index) in model.cells"
+      v-bind:key="index"
       :model="cell"
     ></sv-header-cell>
     </div>

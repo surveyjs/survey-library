@@ -5,7 +5,7 @@
           <sv-popup :model="model.popupModel"></sv-popup>
       </div>
       <sv-list v-else :model="model.listModel"></sv-list>
-  </div>  
+  </div>
 </template>
 
 <script lang="ts">

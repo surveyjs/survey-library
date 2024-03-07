@@ -19,7 +19,6 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { PanelDynamicProgress } from "./paneldynamicprogress.vue";
 
-
 @Component
 export class PanelDynamicProgressV2 extends PanelDynamicProgress {
 }

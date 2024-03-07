@@ -115,6 +115,7 @@
     "@types/signature_pad": "^2.3.0",
     "@typescript-eslint/eslint-plugin": "^4.29.0",
     "@typescript-eslint/parser": "^4.29.0",
+    "@vue/eslint-config-typescript": "^11.0.0",
     "ace-builds": "1.2.2",
     "ajv": "6.12.3",
     "autoprefixer": "^10.4.17",

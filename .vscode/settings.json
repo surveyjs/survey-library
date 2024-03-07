@@ -24,4 +24,5 @@
         "revealWithFocus": "test-results",
         "clearOnRun": "none"
     },
+    "testing.openTesting": "neverOpen",
 }

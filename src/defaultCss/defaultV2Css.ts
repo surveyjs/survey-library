@@ -133,6 +133,7 @@ export var defaultV2Css = {
   progressText: "sd-progress__text",
   progressButtonsRoot: "sd-progress-buttons",
   progressButtonsNumbered: "sd-progress-buttons--numbered",
+  progressButtonsFitSurveyWidth: "sd-progress-buttons--fit-survey-width",
   progressButtonsContainerCenter: "sd-progress-buttons__container-center",
   progressButtonsContainer: "sd-progress-buttons__container",
   progressButtonsConnector: "sd-progress-buttons__connector",

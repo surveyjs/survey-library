@@ -19,4 +19,9 @@
     "editor.tabSize": 2,
     "editor.formatOnSave": true,
     "eslint.format.enable": true,
+    "jest.outputConfig": {
+        "revealOn": "run",
+        "revealWithFocus": "test-results",
+        "clearOnRun": "none"
+    },
 }

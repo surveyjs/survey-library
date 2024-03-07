@@ -166,12 +166,24 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const { root } = settings.environment;
     if (!elementId || typeof root === "undefined") return false;
     const el = root.getElementById(elementId);
+    return SurveyElement.ScrollElementToViewCore(el, false, scrollIfVisible);
+  }
+  private static ScrollElementToViewCore(el: HTMLElement, checkLeft: boolean, scrollIfVisible?: boolean): boolean {
     if (!el || !el.scrollIntoView) return false;
-    const elemTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
-    let needScroll = elemTop < 0;
-    if(!needScroll && DomWindowHelper.isAvailable()) {
+    const elTop: number = scrollIfVisible ? -1 : el.getBoundingClientRect().top;
+    let needScroll = elTop < 0;
+    let elLeft: number = -1;
+    if(!needScroll && checkLeft) {
+      elLeft = el.getBoundingClientRect().left;
+      needScroll = elLeft < 0;
+    }
+    iif(!needScroll && DomWindowHelper.isAvailable()) {
       const height = DomWindowHelper.getInnerHeight();
-      needScroll = height > 0 && height < elemTop;
+      needScroll = height > 0 && height < elTop;
+      if(!needScroll && checkLeft) {
+        const width = DomWindowHelper.getInnerWidth();
+        needScroll = width > 0 && width < elLeft;
+      }
     }
     if (needScroll) {
       el.scrollIntoView();
@@ -208,6 +220,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     const el = root.getElementById(elementId);
     // https://stackoverflow.com/questions/19669786/check-if-element-is-visible-in-dom
     if (el && !(<any>el)["disabled"] && el.style.display !== "none" && el.offsetParent !== null) {
+      SurveyElement.ScrollElementToViewCore(el, true, false);
       el.focus();
       return true;
     }

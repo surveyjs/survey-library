@@ -153,3 +153,77 @@ frameworks.forEach(framework => {
     await t.expect(requiredSpan.exists).ok();
   });
 });
+
+const json3 = {
+  "elements": [
+    {
+      "type": "matrixdropdown",
+      "name": "question1",
+      "columns": [
+        {
+          "name": "Column 1"
+        },
+        {
+          "name": "Column 2"
+        },
+        {
+          "name": "Column 3"
+        },
+        {
+          "name": "Column 4"
+        },
+        {
+          "name": "Column 5"
+        },
+        {
+          "name": "Column 6"
+        },
+        {
+          "name": "Column 7"
+        },
+        {
+          "name": "Column 8"
+        },
+        {
+          "name": "Column 9"
+        },
+        {
+          "name": "Column 10",
+          "isRequired": true
+        }
+      ],
+      "choices": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "rows": [
+        "Row 1",
+        "Row 2"
+      ]
+    }
+  ]
+};
+frameworks.forEach(framework => {
+  fixture`${framework} ${title}`.page`${url}${framework}`.beforeEach(
+    async t => {
+      await initSurvey(framework, json3);
+    }
+  );
+  test("Make a horizontal scroll to show a column with an error", async t => {
+    function filterIsInViewport(node) {
+      const rect = node.getBoundingClientRect();
+      return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right <= (window.innerWidth || document.documentElement.clientWidth)
+      );
+    }
+    const requiredSpan = Selector("span").withExactText("Response required.");
+    await t.click("input[value=Complete]")
+      .expect(Selector(requiredSpan).filter(filterIsInViewport).exists).ok();
+  });
+});

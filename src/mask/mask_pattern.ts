@@ -2,6 +2,7 @@ import { settings } from "../settings";
 import { Serializer, property } from "../jsonobject";
 import { InputMaskBase } from "./mask_base";
 import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
+import { ILoadFromJSONOptions } from "../base-interfaces";
 
 export interface IMaskLiteral {
   type: "const" | "regex" | "fixed";
@@ -113,6 +114,11 @@ export class InputMaskPattern extends InputMaskBase {
 
   public getType(): string {
     return "patternmask";
+  }
+
+  public fromJSON(json: any, options?: ILoadFromJSONOptions): void {
+    super.fromJSON(json, options);
+    this.updateLiterals();
   }
 
   public _getMaskedValue(src: string, matchWholeMask: boolean = false): string {

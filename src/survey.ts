@@ -1058,7 +1058,7 @@ export class SurveyModel extends SurveyElementCore
   public getType(): string {
     return "survey";
   }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     if (name === "questionsOnPageMode") {
       this.onQuestionsOnPageModeChanged(oldValue);
     }
@@ -3589,7 +3589,7 @@ export class SurveyModel extends SurveyElementCore
     return this._isDesignMode;
   }
   private _isDesignMode: boolean = false;
-  public setDesignMode(value: boolean) {
+  public setDesignMode(value: boolean): void {
     if (!!this._isDesignMode != !!value) {
       this._isDesignMode = !!value;
       this.onQuestionsOnPageModeChanged("standard");
@@ -4174,7 +4174,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return;
     if (this.isShowingPreview) {
       this.runningPages = this.pages.slice(0, this.pages.length);
-      this.setupPagesForPageModes(true);
+      this.setupPagesForPageModes(true, false);
     } else {
       if (this.runningPages) {
         this.restoreOriginalPages(this.runningPages);
@@ -4201,7 +4201,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private changeCurrentPageFromPreview: boolean;
   private originalPages: any;
-  protected onQuestionsOnPageModeChanged(oldValue: string) {
+  protected onQuestionsOnPageModeChanged(oldValue: string, isFirstLoad: boolean = false): void {
     if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.originalPages) {
@@ -4212,7 +4212,7 @@ export class SurveyModel extends SurveyElementCore
       if (!oldValue || oldValue == "standard") {
         this.originalPages = this.pages.slice(0, this.pages.length);
       }
-      this.setupPagesForPageModes(this.isSinglePage);
+      this.setupPagesForPageModes(this.isSinglePage, isFirstLoad);
     }
     this.runConditions();
     this.updateVisibleIndexes();
@@ -4229,10 +4229,10 @@ export class SurveyModel extends SurveyElementCore
   private getPageStartIndex(): number {
     return this.firstPageIsStarted && this.pages.length > 0 ? 1 : 0;
   }
-  private isCreatingPagesForPreview: boolean;
-  private setupPagesForPageModes(isSinglePage: boolean) {
+  private isLockingUpdateOnPageModes: boolean;
+  private setupPagesForPageModes(isSinglePage: boolean, isFirstLoad: boolean) {
     this.questionHashesClear();
-    this.isCreatingPagesForPreview = true;
+    this.isLockingUpdateOnPageModes = !isFirstLoad;
     var startIndex = this.getPageStartIndex();
     super.startLoadingFromJson();
     var newPages = this.createPagesForQuestionOnPageMode(
@@ -4250,7 +4250,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.doElementsOnLoad();
     this.updateCurrentPage();
-    this.isCreatingPagesForPreview = false;
+    this.isLockingUpdateOnPageModes = false;
   }
   private createPagesForQuestionOnPageMode(
     isSinglePage: boolean,
@@ -6116,7 +6116,7 @@ export class SurveyModel extends SurveyElementCore
   endLoadingFromJson() {
     this.isEndLoadingFromJson = "processing";
     this.onFirstPageIsStartedChanged();
-    this.onQuestionsOnPageModeChanged("standard");
+    this.onQuestionsOnPageModeChanged("standard", true);
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.isCompletedBefore = true;
@@ -6443,7 +6443,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
-    if (this.isCreatingPagesForPreview) return;
+    if (this.isLockingUpdateOnPageModes) return;
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);

@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import { findScrollableParent, isShadowDOM } from "../utils/utils";
 import { IsMobile, IsTouch } from "../utils/devices";
 import { settings, ISurveyEnvironment } from "../settings";

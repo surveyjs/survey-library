@@ -1,3 +1,5 @@
+import { DomDocumentHelper } from "./global_variables_utils";
+
 class SvgIconData {
   [key: string]: string
 }
@@ -13,11 +15,11 @@ export class SvgIconRegistry {
     this.icons[iconId] = iconSymbolSvg;
   }
   public registerIconFromSvgViaElement(iconId: string, iconSvg: string, iconPrefix: string = this.iconPrefix): void {
-    if(typeof document === "undefined") return;
+    if(!DomDocumentHelper.isAvailable()) return;
     iconId = this.processId(iconId, iconPrefix);
-    let divSvg = document.createElement("div");
+    let divSvg = DomDocumentHelper.createElement("div");
     divSvg.innerHTML = iconSvg;
-    let symbol = document.createElement("symbol");
+    let symbol = DomDocumentHelper.createElement("symbol");
     let svg = divSvg.querySelector("svg");
     symbol.innerHTML = svg.innerHTML;
 

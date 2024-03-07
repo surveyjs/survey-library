@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import * as ko from "knockout";
 import { SurveyElementCore } from "survey-core";
 

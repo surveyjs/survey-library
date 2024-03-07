@@ -1,4 +1,4 @@
-import { slice } from "lodash";
+import { DomDocumentHelper, DomWindowHelper } from "../global_variables_utils";
 import { Action } from "../actions/action";
 import { AdaptiveActionContainer } from "../actions/adaptive-container";
 import { isContainerVisible, isElementVisible } from "./utils";
@@ -18,9 +18,9 @@ export class ResponsivityManager {
   private dotsSizeConst = 48;
   protected recalcMinDimensionConst = true;
 
-  public getComputedStyle: (
-    elt: Element
-  ) => CSSStyleDeclaration = window.getComputedStyle.bind(window);
+  public getComputedStyle = (elt: Element): CSSStyleDeclaration => {
+    return DomDocumentHelper.getComputedStyle(elt);
+  }
 
   constructor(
     protected container: HTMLDivElement,
@@ -36,7 +36,7 @@ export class ResponsivityManager {
     };
     if (typeof ResizeObserver !== "undefined") {
       this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-        window.requestAnimationFrame((): void | undefined => {
+        DomWindowHelper.requestAnimationFrame((): void | undefined => {
           this.process();
         });
       });

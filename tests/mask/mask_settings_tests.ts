@@ -1,6 +1,6 @@
 import { InputMaskBase } from "../../src/mask/mask_base";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
-import { InputMaskNumeric } from "../../src/mask/mask_number";
+import { InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Question text: Input mask");

@@ -6,7 +6,7 @@ interface INumericalComposition {
   integralPart: string;
   fractionalPart: string;
   isNegative?: boolean;
-  decimalSeparatorCount?: number;
+  hasDecimalSeparator?: boolean;
 }
 
 export function splitString(str: string, reverse = true, n = 3): Array<string> {
@@ -73,7 +73,7 @@ export class InputMaskNumeric extends InputMaskBase {
       if(matchWholeMask) {
         return (!displayIntegralPart || displayIntegralPart === "0") ? displayIntegralPart : minusSign + displayIntegralPart;
       } else {
-        const displayDecimalSeparator = parsedNumber.decimalSeparatorCount && !matchWholeMask ? this.decimalSeparator : "";
+        const displayDecimalSeparator = parsedNumber.hasDecimalSeparator && !matchWholeMask ? this.decimalSeparator : "";
         const src = displayIntegralPart + displayDecimalSeparator;
         return src === "0" ? src : minusSign + src;
       }
@@ -110,7 +110,7 @@ export class InputMaskNumeric extends InputMaskBase {
   }
 
   public parseNumber(src: string | number): INumericalComposition {
-    const result: INumericalComposition = { integralPart: "", fractionalPart: "", decimalSeparatorCount: 0, isNegative: false };
+    const result: INumericalComposition = { integralPart: "", fractionalPart: "", hasDecimalSeparator: false, isNegative: false };
     let input = (src === undefined || src === null) ? "" : src.toString();
     if(typeof src === "number") {
       input = src.toString().replace(".", this.decimalSeparator);
@@ -127,7 +127,9 @@ export class InputMaskNumeric extends InputMaskBase {
           break;
         }
         case this.decimalSeparator: {
-          result.decimalSeparatorCount++;
+          if(this.precision > 0) {
+            result.hasDecimalSeparator = true;
+          }
           break;
         }
         case this.thousandsSeparator: {
@@ -135,10 +137,10 @@ export class InputMaskNumeric extends InputMaskBase {
         }
         default: {
           if(currentChar.match(numberDefinition)) {
-            if(result.decimalSeparatorCount === 0) {
-              result.integralPart += currentChar;
-            } else {
+            if(result.hasDecimalSeparator) {
               result.fractionalPart += currentChar;
+            } else {
+              result.integralPart += currentChar;
             }
           }
         }
@@ -206,7 +208,7 @@ Serializer.addClass(
     { name: "allowNegativeValues:boolean", default: true },
     { name: "decimalSeparator", default: ".", maxLength: 1 },
     { name: "thousandsSeparator", default: ",", maxLength: 1 },
-    { name: "precision:number", default: 2 },
+    { name: "precision:number", default: 2, minValue: 0 },
     { name: "min:number" },
     { name: "max:number" },
   ],

@@ -2,9 +2,21 @@ import { InputMaskBase } from "./mask_base";
 import { ITextInputParams } from "./mask_utils";
 
 export class InputElementAdapter {
+  private prevUnmaskedValue: string = undefined;
+
   constructor(private inputMaskInstance: InputMaskBase, private inputElement: HTMLInputElement, value: string = "") {
     this.inputElement.value = inputMaskInstance.getMaskedValue(value);
+    this.prevUnmaskedValue = value;
+
+    inputMaskInstance.onPropertyChanged.add(this.inputMaskInstancePropertyChangedHandler);
     this.addInputEventListener();
+  }
+
+  inputMaskInstancePropertyChangedHandler = (sender: any, options: any) => {
+    if(options.name !== "saveMaskedValue") {
+      const maskedValue = this.inputMaskInstance.getMaskedValue(this.prevUnmaskedValue);
+      this.inputElement.value = maskedValue;
+    }
   }
 
   beforeInputHandler = (event: any) => {
@@ -19,6 +31,7 @@ export class InputElementAdapter {
 
   blurInputHandler = (event: any) => {
     const unmaskedValue = this.inputMaskInstance.getUnmaskedValue(event.target.value);
+    this.prevUnmaskedValue = unmaskedValue;
     const maskedValue = this.inputMaskInstance.getMaskedValue(unmaskedValue);
     this.inputElement.value = maskedValue;
   };
@@ -59,5 +72,6 @@ export class InputElementAdapter {
   }
   public dispose(): void {
     this.removeInputEventListener();
+    this.inputMaskInstance.onPropertyChanged.remove(this.inputMaskInstancePropertyChangedHandler);
   }
 }

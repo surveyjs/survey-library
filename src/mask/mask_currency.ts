@@ -1,5 +1,5 @@
 import { Serializer, property } from "../jsonobject";
-import { InputMaskNumeric } from "./mask_number";
+import { InputMaskNumeric } from "./mask_numeric";
 import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
 export class InputMaskCurrency extends InputMaskNumeric {

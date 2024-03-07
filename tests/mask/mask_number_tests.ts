@@ -1,5 +1,5 @@
 import { JsonObject } from "../../src/jsonobject";
-import { splitString, InputMaskNumeric } from "../../src/mask/mask_number";
+import { splitString, InputMaskNumeric } from "../../src/mask/mask_numeric";
 import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Numeric mask");
@@ -464,6 +464,24 @@ QUnit.test("numeric processInput: min & max", function(assert) {
   result = maskInstance.processInput({ insertedChars: "", selectionStart: 1, selectionEnd: 2, prevValue: "-1", inputDirection: "forward" });
   assert.equal(result.value, "-", "remove 1");
   assert.equal(result.caretPosition, 1, "remove 1");
+});
+
+QUnit.test("numeric processInput: precision", function(assert) {
+  const maskInstance = new InputMaskNumeric();
+
+  let result = maskInstance.processInput({ insertedChars: "2", selectionStart: 3, selectionEnd: 3, prevValue: "1.0", inputDirection: "forward" });
+  assert.equal(result.value, "1.02", "type 2");
+  assert.equal(result.caretPosition, 4, "type 2");
+
+  result = maskInstance.processInput({ insertedChars: "3", selectionStart: 4, selectionEnd: 4, prevValue: "1.02", inputDirection: "forward" });
+  assert.equal(result.value, "1.02", "try insert 3");
+  assert.equal(result.caretPosition, 4, "try insert 3");
+
+  maskInstance.precision = 0;
+
+  result = maskInstance.processInput({ insertedChars: ".", selectionStart: 1, selectionEnd: 1, prevValue: "1", inputDirection: "forward" });
+  assert.equal(result.value, "1", "try insert dot");
+  assert.equal(result.caretPosition, 1, "try insert dot");
 });
 
 QUnit.test("Serialize InputMaskNumeric properties", function (assert) {

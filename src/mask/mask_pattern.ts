@@ -100,14 +100,15 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
 export class InputMaskPattern extends InputMaskBase {
   private literals: Array<IMaskLiteral> = [];
 
-  @property({
-    onSet: (val: string, target: InputMaskPattern) => {
-      target.updateLiterals();
-    }
-  }) pattern: string;
+  @property() pattern: string;
 
   protected updateLiterals(): void {
     this.literals = getLiterals(this.pattern || "");
+  }
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
+    if(name === "pattern") {
+      this.updateLiterals();
+    }
   }
 
   public getType(): string {

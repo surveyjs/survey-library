@@ -8,7 +8,7 @@ import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
 import { settings, ISurveyEnvironment } from "../../src/settings";
-import { Animation, AnimationBoolean, OnEnterOptions, OnLeaveOptions } from "../../src/utils/animation";
+import { AnimationUtils, OnEnterOptions, OnLeaveOptions } from "../../src/utils/animation";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -1649,7 +1649,7 @@ QUnit.test("PopupModel into modal window with translate/transform", (assert) => 
   targetElement.remove();
 });
 
-class TestAnimation extends Animation {
+class TestAnimation extends AnimationUtils {
   public logger: { log: string };
   public passedEnterClasses: { onEnter: string };
   public passedLeaveClasses: { onLeave: string, onHide: string };

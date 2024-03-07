@@ -21,6 +21,8 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
+import { IAnimationConsumer, AnimationBoolean } from "./utils/animation";
+import { classesToSelector } from "./utils/utils";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -277,6 +279,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public set state(val: string) {
     this.setPropertyValue("state", val);
+    this.renderedIsExpanded = !(this.state === "collapsed" && !this.isDesignMode);
   }
   protected notifyStateChanged(prevState: string): void {
     if (this.survey) {
@@ -820,6 +823,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
       .append(cssClasses.collapsed, !!this.isCollapsed)
       .append(cssClasses.expanded, !!this.isExpanded)
+      .append(cssClasses.expandable, !!this.isCollapsed || !!this.isExpanded)
       .append(cssClasses.nested, this.getIsNested())
       .toString();
   }
@@ -1003,6 +1007,44 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public getWrapperElement(): HTMLElement {
     return this.wrapperElement;
+  }
+
+  @property() private _renderedIsExpanded: boolean = true;
+  private getExpandCollapseAnimationOptions(): IAnimationConsumer {
+    return {
+      getEnterOptions: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return {
+          classes: { onEnter: cssClasses.contentFadeIn },
+          onBeforeRunAnimation: (el: HTMLElement) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+          },
+        };
+      },
+      getLeaveOptions: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return { classes: { onLeave: cssClasses.contentFadeOutActive, onHide: cssClasses.contentFadeOut },
+          onBeforeRunAnimation: (el: HTMLElement) => {
+            el.style.setProperty("--animation-height", el.offsetHeight + "px");
+          }, };
+      },
+      getAnimatedElement: () => {
+        const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
+        return this.getWrapperElement()?.querySelector(classesToSelector(cssClasses.content));
+      },
+      isAnimationEnabled: () => settings.animationEnabled
+    };
+  }
+
+  private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
+    this._renderedIsExpanded = val;
+  });
+  public set renderedIsExpanded(val: boolean) {
+    this.animationCollapsed.sync(val, this._renderedIsExpanded);
+  }
+
+  public get renderedIsExpanded(): boolean {
+    return this._renderedIsExpanded;
   }
 
   public dispose(): void {

@@ -14,7 +14,7 @@
       <!-- ko template: { name: 'survey-question-errors', data: $data } -->
       <!-- /ko -->
     <!-- /ko -->
-    <!-- ko if: state != "collapsed" || isDesignMode -->
+    <!-- ko if: renderedIsExpanded -->
     <div
       data-bind="style: { paddingLeft: innerPaddingLeft }, css: cssClasses.panel.content, attr: {id:contentId}"
     >

@@ -115,6 +115,8 @@
   position: absolute;
   left: calcSize(-3);
   top: calcSize(0.5);
+  transition-property: transform;
+  transition-duration: 1s;
 }
 
 .sd-element__title--expandable.sd-element__title--expanded:before {
@@ -211,4 +213,64 @@
 .sd-element-wrapper--fade-out {
   animation-name: elementFadeOut;
   animation-duration: 1s;
+}
+
+@keyframes elementContentFadeIn {
+  0% {
+    opacity: 0;
+    height: 0;
+    padding-top: 0;
+  }
+  50% {
+    opacity: 0;
+    padding-top: var(--animation-padding-top);
+    height: var(--animation-height);
+  }
+  100% {
+    height: var(--animation-height);
+    opacity: 1;
+  }
+}
+
+@keyframes elementContentFadeOut {
+  0% {
+    opacity: 1;
+    height: var(--animation-height);
+  }
+  50% {
+    opacity: 0;
+    padding-top: var(--animation-padding-top);
+    height: var(--animation-height);
+  }
+  100% {
+    padding-top: 0;
+    opacity: 0;
+    height: 0;
+  }
+}
+.sd-element__content {
+  box-sizing: border-box;
+}
+.sd-element__content--fade-in {
+  animation-name: elementContentFadeIn;
+  min-height: 0 !important;
+  animation-duration: 1s;
+}
+
+.sd-element__content--fade-out {
+  animation-name: elementContentFadeOut;
+  min-height: 0 !important;
+  animation-duration: 1s;
+}
+.sd-element--expandable {
+  transition-property: padding-top, padding-bottom;
+  transition-duration: 0.5s, 0.5s;
+  .sd-element__header {
+    transition-property: padding-top, padding-bottom;
+    transition-duration: 0.5s, 0.5s;
+  }
+  &.sd-element--collapsed,
+  &.sd-element--collapsed .sd-element__header {
+    transition-delay: 0.5s, 0.5s;
+  }
 }

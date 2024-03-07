@@ -16,7 +16,7 @@
     <div
       :id="element.contentId"
       :style="{ paddingLeft: element.innerPaddingLeft }"
-      v-if="!element.isCollapsed"
+      v-if="element.renderedIsExpanded"
       :class="element.cssClasses.panel.content"
     >
       <template v-for="row in element.rows" :key="row.id">

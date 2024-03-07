@@ -29,11 +29,11 @@ export class SurveyPanel extends SurveyPanelBase {
     );
     const style = {
       paddingLeft: this.panel.innerPaddingLeft,
-      display: !this.panel.isCollapsed ? undefined : "none",
+      display: this.panel.renderedIsExpanded ? undefined : "none",
     };
     let content: JSX.Element | null = null;
-    if (!this.panel.isCollapsed || this.hasBeenExpanded) {
-      this.hasBeenExpanded = true;
+    if (this.panel.renderedIsExpanded) {
+      // this.hasBeenExpanded = true;
       const rows: JSX.Element[] = this.renderRows(this.panelBase.cssClasses);
       const className: string = this.panelBase.cssClasses.panel.content;
       content = this.renderContent(style, rows, className);

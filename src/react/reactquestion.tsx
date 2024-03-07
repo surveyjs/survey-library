@@ -98,7 +98,7 @@ export class SurveyQuestion extends SurveyElementBase<any, any> {
   protected renderQuestionContent(): JSX.Element {
     let question = this.question;
     var contentStyle = {
-      display: !this.question.isCollapsed ? "" : "none",
+      display: this.question.renderedIsExpanded ? "" : "none",
     };
     var cssClasses = question.cssClasses;
     var questionRender = this.renderQuestion();

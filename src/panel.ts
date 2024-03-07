@@ -29,7 +29,7 @@ import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
-import { AnimationBoolean, AnimationGroup, IAnimationConsumer } from "./utils/animation";
+import { AnimationGroup, IAnimationConsumer } from "./utils/animation";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;

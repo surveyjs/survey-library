@@ -116,9 +116,10 @@ $sd-panel-medium-min-width: 176px;
 
 :root {
   --sjs-transition-duration: 150ms;
+  --sjs-ranking-animation-duration: 1000ms;
 }
 $transition-duration: var(--sjs-transition-duration, 150ms);
-
+$ranking-animation-duration: var(--sjs-ranking-animation-duration, 50ms);
 
 @mixin useEditorFontSize {
   --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});

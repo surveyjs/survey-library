@@ -10,16 +10,11 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       return dragOverNode;
     }
 
-    if (
-      this.parentElement.rankingChoices.length === 0 ||
-      this.parentElement.unRankingChoices.length === 0
-    ) {
-      let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
-      let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
+    let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
+    let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
 
-      if (!!toContainer) return toContainer;
-      if (!!fromContainer) return fromContainer;
-    }
+    if (this.parentElement.rankingChoices.length === 0 && !!toContainer) return toContainer;
+    if (this.parentElement.unRankingChoices.length === 0 && !!fromContainer) return fromContainer;
 
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }
@@ -59,6 +54,8 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
 
+    this.removeAllAnimationClasses();
+
     if (this.isDraggedElementUnranked && this.isDropTargetRanked) {
       this.doRankBetween(dropTargetNode, unRankingChoices, rankingChoices, this.selectToRank);
       return;
@@ -85,8 +82,7 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
 
     let { fromIndex, toIndex } = this.getIndixies(questionModel, fromChoicesArray, toChoicesArray);
 
-    rankFunction(questionModel, fromIndex, toIndex);
-    this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+    rankFunction(questionModel, fromIndex, toIndex, dropTargetNode);
   }
 
   public getIndixies(model: any, fromChoicesArray: Array<ItemValue>, toChoicesArray: Array<ItemValue>) {
@@ -141,24 +137,56 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return !this.isDropTargetRanked;
   }
 
-  public selectToRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+  public selectToRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void => {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
 
-    questionModel.isValueSetByUser = true;
-    rankingChoices.splice(toIndex, 0, item);
-    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    const animationCallback = ()=> {
+      questionModel.isValueSetByUser = true;
+      rankingChoices.splice(toIndex, 0, item);
+      questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    };
+    this.animateItemMovingToContainer(questionModel, item, animationCallback);
   }
 
-  public unselectFromRank(questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void {
+  public unselectFromRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void => {
     const rankingChoices = questionModel.rankingChoices;
-    questionModel.isValueSetByUser = true;
-    rankingChoices.splice(fromIndex, 1);
-    questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    const item = rankingChoices[fromIndex];
+
+    const animationCallback = ()=> {
+      questionModel.isValueSetByUser = true;
+      rankingChoices.splice(fromIndex, 1);
+      questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    };
+    this.animateItemMovingToContainer(questionModel, item, animationCallback);
   }
 
-  public reorderRankedItem(questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void {
+  private animateItemMovingToContainer = (questionModel: QuestionRankingModel, itemToAnimateAdding:ItemValue, callbackOnAnimationEnd:()=>void) => {
+    const ghostNode:any = document.querySelectorAll(".sv-ranking-item--ghost")[0];
+
+    if (!ghostNode) {
+      callbackOnAnimationEnd();
+      return;
+    }
+
+    const handleAnimationEnd = (event: any) => {
+      if (event.target !== ghostNode) { return; }
+      //if (event.propertyName !== "height") { return; }
+      if (getComputedStyle(event.target).height !== "0px") { return; }
+      ghostNode.removeEventListener("animationend", handleAnimationEnd);
+      this.removeAllAnimationClasses();
+      questionModel.itemsToAnimateAdding.push(itemToAnimateAdding);
+      callbackOnAnimationEnd();
+    };
+
+    ghostNode.removeEventListener("animationend", handleAnimationEnd);
+    this.removeAllAnimationClasses();
+    ghostNode.addEventListener("animationend", handleAnimationEnd);
+    ghostNode.classList.add("sv-ranking-item--animate-item-removing");
+  }
+
+  public reorderRankedItem = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void => {
     const rankingChoices = questionModel.rankingChoices;
     const item = rankingChoices[fromIndex];
 
@@ -166,5 +194,27 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     rankingChoices.splice(fromIndex, 1);
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
+
+    this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+  }
+
+  protected doDrop = (): any => {
+    this.removeAllAnimationClasses();
+    super.doDrop();
+  };
+
+  public clear(): void {
+    this.removeAllAnimationClasses();
+    super.clear();
+  }
+
+  private removeAllAnimationClasses() {
+    this.parentElement.itemsToAnimateAdding = [];
+    document.querySelectorAll(".sv-ranking-item--animate-item-removing").forEach((node)=>{
+      node.classList.remove("sv-ranking-item--animate-item-removing");
+    });
+    document.querySelectorAll(".sv-ranking-item--animate-item-adding").forEach((node)=>{
+      node.classList.remove("sv-ranking-item--animate-item-adding");
+    });
   }
 }

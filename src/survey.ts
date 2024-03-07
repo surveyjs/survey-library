@@ -904,7 +904,7 @@ export class SurveyModel extends SurveyElementCore
       }
     );
     this.registerPropertyChangedHandlers(
-      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage"],
+      ["isLoading", "isCompleted", "isCompletedBefore", "mode", "isStartedState", "currentPage", "isShowingPreview"],
       () => { this.updateState(); });
     this.registerPropertyChangedHandlers(["state", "currentPage", "showPreviewBeforeComplete"],
       () => { this.onStateAndCurrentPageChanged(); });
@@ -1058,7 +1058,7 @@ export class SurveyModel extends SurveyElementCore
   public getType(): string {
     return "survey";
   }
-  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any) {
+  protected onPropertyValueChanged(name: string, oldValue: any, newValue: any): void {
     if (name === "questionsOnPageMode") {
       this.onQuestionsOnPageModeChanged(oldValue);
     }
@@ -1678,7 +1678,7 @@ export class SurveyModel extends SurveyElementCore
    * @see [`settings.autoAdvanceDelay`](https://surveyjs.io/form-library/documentation/api-reference/settings#autoAdvanceDelay)
    */
   public get allowCompleteSurveyAutomatic(): boolean {
-    return this.getPropertyValue("allowCompleteSurveyAutomatic", true);
+    return this.getPropertyValue("allowCompleteSurveyAutomatic");
   }
   public set allowCompleteSurveyAutomatic(val: boolean) {
     this.setPropertyValue("allowCompleteSurveyAutomatic", val);
@@ -2671,6 +2671,7 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `false`
    * @see progressBarShowPageNumbers
+   * @see progressBarInheritWidthFrom
    */
   @property({
     getDefaultValue: (self: SurveyModel) => {
@@ -2682,8 +2683,22 @@ export class SurveyModel extends SurveyElementCore
    *
    * Default value: `false`
    * @see progressBarShowPageTitles
+   * @see progressBarInheritWidthFrom
    */
   @property() progressBarShowPageNumbers: boolean;
+  /**
+   * Specifies whether the progress bar spans the width of the survey or that of the survey container. Applies only when the [progress bar is visible](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#showProgressBar) and [`progressBarType`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#progressBarType) is `"pages"`.
+   *
+   * Possible values:
+   *
+   * - `"survey"`\
+   * The progress bar width is the same as the survey width.
+   * - `"container"` (default)\
+   * The progress bar width is the same as the survey container width.
+   * @see progressBarShowPageTitles
+   * @see progressBarShowPageNumbers
+   */
+  @property() progressBarInheritWidthFrom: "survey" | "container";
   public get isShowProgressBarOnTop(): boolean {
     if (!this.canShowProresBar()) return false;
     return ["auto", "aboveheader", "belowheader", "topbottom", "top", "both"].indexOf(this.showProgressBar) !== -1;
@@ -3574,7 +3589,7 @@ export class SurveyModel extends SurveyElementCore
     return this._isDesignMode;
   }
   private _isDesignMode: boolean = false;
-  public setDesignMode(value: boolean) {
+  public setDesignMode(value: boolean): void {
     if (!!this._isDesignMode != !!value) {
       this._isDesignMode = !!value;
       this.onQuestionsOnPageModeChanged("standard");
@@ -4159,7 +4174,7 @@ export class SurveyModel extends SurveyElementCore
     if (this.isDesignMode) return;
     if (this.isShowingPreview) {
       this.runningPages = this.pages.slice(0, this.pages.length);
-      this.setupPagesForPageModes(true);
+      this.setupPagesForPageModes(true, false);
     } else {
       if (this.runningPages) {
         this.restoreOriginalPages(this.runningPages);
@@ -4186,7 +4201,7 @@ export class SurveyModel extends SurveyElementCore
   }
   private changeCurrentPageFromPreview: boolean;
   private originalPages: any;
-  protected onQuestionsOnPageModeChanged(oldValue: string) {
+  protected onQuestionsOnPageModeChanged(oldValue: string, isFirstLoad: boolean = false): void {
     if (this.isShowingPreview) return;
     if (this.questionsOnPageMode == "standard" || this.isDesignMode) {
       if (this.originalPages) {
@@ -4197,7 +4212,7 @@ export class SurveyModel extends SurveyElementCore
       if (!oldValue || oldValue == "standard") {
         this.originalPages = this.pages.slice(0, this.pages.length);
       }
-      this.setupPagesForPageModes(this.isSinglePage);
+      this.setupPagesForPageModes(this.isSinglePage, isFirstLoad);
     }
     this.runConditions();
     this.updateVisibleIndexes();
@@ -4214,10 +4229,10 @@ export class SurveyModel extends SurveyElementCore
   private getPageStartIndex(): number {
     return this.firstPageIsStarted && this.pages.length > 0 ? 1 : 0;
   }
-  private isCreatingPagesForPreview: boolean;
-  private setupPagesForPageModes(isSinglePage: boolean) {
+  private isLockingUpdateOnPageModes: boolean;
+  private setupPagesForPageModes(isSinglePage: boolean, isFirstLoad: boolean) {
     this.questionHashesClear();
-    this.isCreatingPagesForPreview = true;
+    this.isLockingUpdateOnPageModes = !isFirstLoad;
     var startIndex = this.getPageStartIndex();
     super.startLoadingFromJson();
     var newPages = this.createPagesForQuestionOnPageMode(
@@ -4235,7 +4250,7 @@ export class SurveyModel extends SurveyElementCore
     }
     this.doElementsOnLoad();
     this.updateCurrentPage();
-    this.isCreatingPagesForPreview = false;
+    this.isLockingUpdateOnPageModes = false;
   }
   private createPagesForQuestionOnPageMode(
     isSinglePage: boolean,
@@ -6101,7 +6116,7 @@ export class SurveyModel extends SurveyElementCore
   endLoadingFromJson() {
     this.isEndLoadingFromJson = "processing";
     this.onFirstPageIsStartedChanged();
-    this.onQuestionsOnPageModeChanged("standard");
+    this.onQuestionsOnPageModeChanged("standard", true);
     super.endLoadingFromJson();
     if (this.hasCookie) {
       this.isCompletedBefore = true;
@@ -6428,7 +6443,7 @@ export class SurveyModel extends SurveyElementCore
     allowNotifyValueChanged: boolean = true,
     questionName?: string
   ): void {
-    if (this.isCreatingPagesForPreview) return;
+    if (this.isLockingUpdateOnPageModes) return;
     var newValue = newQuestionValue;
     if (allowNotifyValueChanged) {
       newValue = this.questionOnValueChanging(name, newQuestionValue);
@@ -7826,6 +7841,13 @@ Serializer.addClass("survey", [
     visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
   },
   {
+    name: "progressBarInheritWidthFrom",
+    default: "container",
+    choices: ["container", "survey"],
+    category: "navigation",
+    visibleIf: (obj: any) => { return obj.showProgressBar !== "off" && obj.progressBarType === "pages"; }
+  },
+  {
     name: "showTOC:switch",
     default: false
   },
@@ -7846,6 +7868,10 @@ Serializer.addClass("survey", [
       }
       obj.setPropertyValue("goNextPageAutomatic", value);
     }
+  },
+  {
+    name: "allowCompleteSurveyAutomatic:boolean", default: true,
+    visibleIf: (obj: any): boolean => obj.goNextPageAutomatic === true
   },
   {
     name: "clearInvisibleValues",

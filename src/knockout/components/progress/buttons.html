@@ -1,4 +1,4 @@
-<div data-bind="css: model.getRootCss(container)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
+<div data-bind="css: model.getRootCss(container), style: { maxWidth: model.progressWidth }" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
     <!-- ko if: canShowHeader -->
     <div data-bind="css: survey.css.progressButtonsHeader">
         <div data-bind="css: survey.css.progressButtonsPageTitle, text: model.headerText, attr: { title: model.headerText }"></div>

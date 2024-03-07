@@ -1,5 +1,5 @@
 <template>
-  <div :class="model.getRootCss(container)" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
+  <div :class="model.getRootCss(container)" :style="{'maxWidth': model.progressWidth}" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-label="progress">
     <div v-if="canShowHeader" :class="survey.css.progressButtonsHeader">
       <div :class="survey.css.progressButtonsPageTitle" :title="model.headerText">{{ model.headerText }}</div>
     </div>

@@ -287,7 +287,7 @@ QUnit.test("Check numeric item values recalculation", (assert) => {
   q1.rateStep = 2;
   assert.equal(q1.visibleRateValues.length, 3);
   q1.rateMin = 0;
-  assert.equal(q1.visibleRateValues.length, 4);
+  assert.equal(q1.visibleRateValues.length, 3);
 });
 
 QUnit.test("Check rateValues on text change", (assert) => {
@@ -827,22 +827,50 @@ QUnit.test("rateMin/rateMax/rateStep changing rateCount", (assert) => {
   assert.equal(q1.rateCount, 5);
 
   q1.rateMax = 6;
+  assert.equal(q1.rateMax, 6, "rateMax #1");
+  assert.equal(q1.rateMin, 1, "rateMin #1");
+  assert.equal(q1.visibleRateValues.length, 6, "length #1");
+  assert.equal(q1.rateCount, 6, "count #1");
+
+  q1.rateMin = 2;
+  assert.equal(q1.rateMax, 6, "rateMax #2");
+  assert.equal(q1.rateMin, 2, "rateMin #2");
+  assert.equal(q1.visibleRateValues.length, 5, "length #2");
+  assert.equal(q1.rateCount, 5, "length #2");
+
+  q1.rateStep = 3;
+  assert.equal(q1.rateMax, 5, "rateMax #3");
+  assert.equal(q1.rateMin, 2, "rateMin #3");
+  assert.equal(q1.visibleRateValues.length, 2, "length #3");
+  assert.equal(q1.rateCount, 2, "length #2");
+});
+
+QUnit.test("rateStep changing rateMax", (assert) => {
+  var json = {
+    questions: [
+      {
+        type: "rating",
+        name: "q1"
+      },
+    ],
+  };
+  const survey = new SurveyModel(json);
+  const q1 = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateCount, 5);
+
+  q1.rateMax = 6;
   assert.equal(q1.rateMax, 6);
   assert.equal(q1.rateMin, 1);
   assert.equal(q1.visibleRateValues.length, 6);
   assert.equal(q1.rateCount, 6);
 
-  q1.rateMin = 2;
-  assert.equal(q1.rateMax, 6);
-  assert.equal(q1.rateMin, 2);
-  assert.equal(q1.visibleRateValues.length, 5);
-  assert.equal(q1.rateCount, 5);
-
-  q1.rateStep = 3;
-  assert.equal(q1.rateMax, 6);
-  assert.equal(q1.rateMin, 2);
-  assert.equal(q1.visibleRateValues.length, 2);
-  assert.equal(q1.rateCount, 2);
+  q1.rateStep = 2;
+  assert.equal(q1.rateMax, 5);
+  assert.equal(q1.rateMin, 1);
+  assert.equal(q1.visibleRateValues.length, 3);
+  assert.equal(q1.rateCount, 3);
 });
 
 QUnit.test("rateValues changing rateCount", (assert) => {

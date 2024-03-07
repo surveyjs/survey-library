@@ -84,6 +84,23 @@ QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   assert.equal(q2.renderedPlaceholder, "comment_de", "text, locale de");
   survey.locale = "";
 });
+QUnit.test("Test renderedPlaceholder on locale change, bug#7911", function(assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        name: "q1",
+        type: "text",
+        placeholder: "my text"
+      }
+    ]
+  });
+  survey.showPreview();
+  let q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.notOk(q1.renderedPlaceholder, "#1");
+  survey.cancelPreview();
+  q1 = <QuestionTextModel>survey.getQuestionByName("q1");
+  assert.equal(q1.renderedPlaceholder, "my text", "#2");
+});
 QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   const survey = new SurveyModel({
     "elements": [
@@ -102,6 +119,7 @@ QUnit.test("Test renderedPlaceholder on locale change", function(assert) {
   const q1 = <QuestionTextModel>survey.getAllQuestions()[0];
   assert.equal(q1.renderedPlaceholder, "Spanish", "text, locale es");
 });
+
 QUnit.test("min date error text, bug #4596", function(assert) {
   const survey = new SurveyModel({
     elements: [{ type: "text", name: "q1", inputType: "date", min: "2000-10-10" }]

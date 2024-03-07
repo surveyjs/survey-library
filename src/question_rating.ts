@@ -346,6 +346,9 @@ export class QuestionRatingModel extends Question {
       rateValues = this.createRateValues();
     }
 
+    if (this.autoGenerate) {
+      this.rateMax = rateValues[rateValues.length - 1].value;
+    }
     if (this.rateType == "smileys" && rateValues.length > 10) rateValues = rateValues.slice(0, 10);
 
     this.renderedRateItems = rateValues.map((v, i) => {

@@ -4179,6 +4179,26 @@ QUnit.test(
     assert.equal(survey.state, "completed");
   }
 );
+QUnit.test("goNextPageAutomatic and allowCompleteSurveyAutomatic=false", function (assert) {
+  const emptySurvey = new SurveyModel();
+  assert.equal(emptySurvey.allowCompleteSurveyAutomatic, true, "allowCompleteSurveyAutomatic value # 1");
+  const survey = new SurveyModel({
+    pages: [
+      { elements: [{ type: "dropdown", name: "q1", choices: [1, 2, 3] }] },
+      { elements: [{ type: "dropdown", name: "q2", choices: [1, 2, 3] }] }
+    ],
+    goNextPageAutomatic: true,
+    allowCompleteSurveyAutomatic: false
+  });
+  assert.equal(survey.allowCompleteSurveyAutomatic, false, "allowCompleteSurveyAutomatic value # 2");
+  const q1 = survey.getQuestionByName("q1");
+  const q2 = survey.getQuestionByName("q2");
+  assert.equal(survey.currentPageNo, 0, "curPage #1");
+  q1.value = 1;
+  assert.equal(survey.currentPageNo, 1, "curPage #2");
+  q2.value = 1;
+  assert.equal(survey.currentPageNo, 1, "curPage #2");
+});
 
 QUnit.test("goNextPageAutomatic and checkbox wiht valueName bug #70", function (
   assert
@@ -18558,6 +18578,62 @@ QUnit.test("survey.toJSON() doesn't work correctly if questionsOnPageMode=questi
   assert.equal(prepareJSON.pages[0].elements.length, 3, "prepareJSON elements count");
 
   assert.deepEqual(surveyJson, prepareJSON);
+});
+QUnit.test("defaultValue & visibleIf issues if questionsOnPageMode=questionPerPage is used #7932", function (assert) {
+  const surveyJson = {
+    elements: [
+      {
+        type: "panel",
+        name: "panel1",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q1_1",
+            choices: ["A", "B"],
+            defaultValue: "A",
+          },
+          {
+            type: "text",
+            name: "q1_2",
+            visibleIf:
+              "{q1_1} equals 'A'",
+          },
+        ],
+      },
+      {
+        type: "panel",
+        name: "panel2",
+        elements: [
+          {
+            type: "radiogroup",
+            name: "q2_1",
+            choices: ["A", "B"],
+            defaultValue: "A",
+          },
+          {
+            type: "text",
+            name: "q2_2",
+            visibleIf:
+              "{q2_1} equals 'A'",
+          },
+        ],
+      }
+    ],
+    questionsOnPageMode: "questionPerPage",
+  };
+
+  const survey = new SurveyModel(surveyJson);
+  assert.deepEqual(survey.data, { q1_1: "A", q2_1: "A" }, "survey.data");
+  survey.setValue("q3", "B");
+  const q1_1 = survey.getQuestionByName("q1_1");
+  const q2_1 = survey.getQuestionByName("q2_1");
+  const q1_2 = survey.getQuestionByName("q1_2");
+  const q2_2 = survey.getQuestionByName("q2_2");
+
+  assert.equal(q1_1.value, "A", "q1_1.value");
+  assert.equal(q2_1.value, "A", "q2_1.value");
+  assert.equal(q1_2.visible, true, "q1_2.visible");
+  assert.equal(q2_2.visible, true, "q2_2.visible");
 });
 
 QUnit.test("Bug on loading json with collapsed panel. It was fixed in v1.9.117, #7355", function (assert) {

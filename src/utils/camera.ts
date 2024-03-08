@@ -10,7 +10,9 @@ export class Camera {
     const getDeviceType = function(device: MediaDeviceInfo): string {
       const lbl = device.label.toLocaleLowerCase();
       if(lbl.indexOf("user") > -1) return "user";
-      if(lbl.indexOf("enviroment") > -1) return "enviroment";
+      if(lbl.indexOf("environment") > -1) return "environment";
+      if(lbl.indexOf("front") > -1) return "user";
+      if(lbl.indexOf("back") > -1) return "environment";
       return "";
     };
     Camera.clear();
@@ -24,8 +26,8 @@ export class Camera {
           if(lblA !== lblB) {
             if(lblA === "user") return -1;
             if(lblB === "user") return 1;
-            if(lblA === "enviroment") return -1;
-            if(lblB === "enviroment") return 1;
+            if(lblA === "environment") return -1;
+            if(lblB === "environment") return 1;
           }
         }
         const iA = list.indexOf(a);

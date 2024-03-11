@@ -2,7 +2,7 @@ import { IPlainDataOptions } from "./base-interfaces";
 import { IQuestionPlainData, Question } from "./question";
 import { property, propertyArray, Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
-import { EventBase, ComputedUpdater } from "./base";
+import { EventBase, ComputedUpdater, Base } from "./base";
 import { UploadingFileError, ExceedSizeError } from "./error";
 import { SurveyError } from "./survey-error";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
@@ -142,10 +142,39 @@ export class QuestionFileModelBase extends Question {
  *
  * [View Demo](https://surveyjs.io/form-library/examples/file-upload/ (linkStyle))
  */
+
+export class QuestionFilePage extends Base {
+  @propertyArray({}) public items: Array<any>
+  constructor(private question: QuestionFileModel, private index: number) {
+    super();
+  }
+  private get nextPageIndex() {
+    return this.index == this.question.pages.length - 1 ? 0 : this.index + 1;
+  }
+  private get prevPageIndex() {
+    return this.index == 0 ? this.question.pages.length - 1 : this.index - 1;
+  }
+  get css(): string {
+    const isLeavingRight = this.prevPageIndex == this.question.indexToShow && this.question.navigationDirection == "left";
+    const isLeavingLeft = this.nextPageIndex == this.question.indexToShow && this.question.navigationDirection == "right";
+    const isAnimationEnabled = settings.animationEnabled;
+    const pageClass = this.question.cssClasses.page;
+    return new CssClassBuilder()
+      .append(pageClass)
+      .append(`${pageClass}--enter-from-left`, isAnimationEnabled && this.index === this.question.indexToShow && (this.question.navigationDirection == "left" || this.question.navigationDirection == "left-delete"))
+      .append(`${pageClass}--enter-from-right`, isAnimationEnabled && this.index === this.question.indexToShow && this.question.navigationDirection == "right")
+      .append(`${pageClass}--leave-to-left`, isAnimationEnabled && isLeavingLeft)
+      .append(`${pageClass}--leave-to-right`, isAnimationEnabled && isLeavingRight)
+      .append(`${pageClass}--hidden`, (this.index !== this.question.indexToShow) && (!isAnimationEnabled || !(isLeavingLeft || isLeavingRight))).toString();
+  }
+
+}
 export class QuestionFileModel extends QuestionFileModelBase {
   @property() isDragging: boolean = false;
   @propertyArray({}) public previewValue: any[];
+  @propertyArray({}) public pages: QuestionFilePage[];
 
+  navigationDirection: "left" | "right" | "left-delete";
   @property({ defaultValue: 0 }) indexToShow: number;
   @property({
     defaultValue: 1, onSet: (_, target) => {
@@ -186,6 +215,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
   public cleanAction: Action;
   public actionsContainer: ActionContainer;
 
+  get supportFileNavigator(): boolean {
+    return this.isDefaultV2Theme;
+  }
+
   get fileNavigatorVisible(): boolean {
     const isUploading = this.isUploading;
     const isPlayingVideo = this.isPlayingVideo;
@@ -218,6 +251,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       id: "prevPage",
       iconSize: 16,
       action: () => {
+        this.navigationDirection = "left";
         this.indexToShow = this.previewValue.length && ((this.indexToShow - 1 + this.pagesCount) % this.pagesCount) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
       }
@@ -226,6 +260,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       id: "nextPage",
       iconSize: 16,
       action: () => {
+        this.navigationDirection = "right";
         this.indexToShow = this.previewValue.length && ((this.indexToShow + 1) % this.pagesCount) || 0;
         this.fileIndexAction.title = this.getFileIndexCaption();
       }
@@ -371,15 +406,32 @@ export class QuestionFileModel extends QuestionFileModelBase {
     return this.getLocalizationFormatString("indexText", this.indexToShow + 1, this.pagesCount);
   }
   private updateFileNavigator() {
+    this.updatePages();
+    this.navigationDirection = undefined;
     this.indexToShow = this.previewValue.length && ((this.indexToShow + this.pagesCount) % this.pagesCount) || 0;
     this.fileIndexAction.title = this.getFileIndexCaption();
   }
+  private updatePages() {
+    let currentPage: QuestionFilePage;
+    this.pages = [];
+    this.previewValue.forEach((val, index) => {
+      if(index % this.pageSize == 0) {
+        currentPage = new QuestionFilePage(this, this.pages.length);
+        this.pages.push(currentPage);
+      }
+      currentPage.items.push(val);
+    });
+  }
   private prevPreviewLength = 0;
   private previewValueChanged() {
-    if (this.previewValue.length !== this.prevPreviewLength) {
-      if (this.previewValue.length > 0) {
-        if (this.prevPreviewLength > this.previewValue.length) {
-          this.indexToShow = this.indexToShow >= this.pagesCount && this.indexToShow > 0 ? this.pagesCount - 1 : this.indexToShow;
+    this.navigationDirection = undefined;
+    if(this.previewValue.length !== this.prevPreviewLength) {
+      if(this.previewValue.length > 0) {
+        if(this.prevPreviewLength > this.previewValue.length) {
+          if(this.indexToShow >= this.pagesCount && this.indexToShow > 0) {
+            this.indexToShow = this.pagesCount - 1;
+            this.navigationDirection = "left-delete";
+          }
         } else {
           this.indexToShow = Math.floor(this.prevPreviewLength / this.pageSize);
         }
@@ -387,6 +439,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
         this.indexToShow = 0;
       }
     }
+    this.updatePages();
     this.fileIndexAction.title = this.getFileIndexCaption();
     this.containsMultiplyFiles = this.previewValue.length > 1;
     if (this.previewValue.length > 0 && !this.calculatedGapBetweenItems && !this.calculatedItemWidth) {
@@ -396,10 +449,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
     }
     this.prevPreviewLength = this.previewValue.length;
   }
-  public isPreviewVisible(index: number) {
-    const isFileNavigatorVisible = this.fileNavigatorVisible;
-    const isPreviewVisible = (this.indexToShow * this.pageSize <= index && index < (this.indexToShow + 1) * this.pageSize);
-    return !isFileNavigatorVisible || isPreviewVisible;
+  public isPageVisible(index: number): boolean {
+    return this.indexToShow == index;
+  }
+  public isPreviewVisible(index: number): boolean {
+    return true;
+    // const isFileNavigatorVisible = this.fileNavigatorVisible;
+    // const isPreviewVisible = (this.indexToShow * this.pageSize <= index && index < (this.indexToShow + 1) * this.pageSize);
+    // return !isFileNavigatorVisible || isPreviewVisible;
   }
 
   public getType(): string {
@@ -763,6 +820,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
           },
         );
       });
+      this.previewValueChanged();
     } else {
       if (!!this._previewLoader) {
         this._previewLoader.dispose();
@@ -781,7 +839,6 @@ export class QuestionFileModel extends QuestionFileModelBase {
       });
       this._previewLoader.load(newValues);
     }
-    this.previewValueChanged();
   }
   private isFileLoadingValue: boolean;
   protected get isFileLoading(): boolean { return this.isFileLoadingValue; }
@@ -960,10 +1017,12 @@ export class QuestionFileModel extends QuestionFileModelBase {
       if ((!this.calculatedGapBetweenItems || !this.calculatedItemWidth) && this.allowMultiple) {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
-        if (fileListElement) {
-          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(fileListElement).gap));
-          const firstVisibleItem = Array.from(fileListElement.children).filter((_, index) => this.isPreviewVisible(index))[0];
-          if (firstVisibleItem) {
+        if(fileListElement) {
+          const firstVisiblePage = Array.from(fileListElement.querySelectorAll(classesToSelector(this.cssClasses.page))).filter((_, index) => this.isPageVisible(index))[0];
+          const firstVisibleItem = firstVisiblePage.querySelector(classesToSelector(this.cssClasses.preview));
+
+          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisiblePage).gap));
+          if(firstVisibleItem) {
             this.calculatedItemWidth = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisibleItem).width));
           }
         }

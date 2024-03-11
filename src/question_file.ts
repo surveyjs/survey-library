@@ -265,6 +265,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
       id: "sv-file-choose-file",
       iconSize: "auto",
       data: { question: this },
+      enabledIf: () => !this.isInputReadOnly,
       component: "sv-file-choose-btn"
     });
     this.startCameraAction = new Action({

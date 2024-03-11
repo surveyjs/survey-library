@@ -10,7 +10,7 @@ import { AngularComponentFactory } from "../component-factory";
 })
 export class TextQuestionComponent extends QuestionAngular<QuestionTextModel> {
   get value(): string {
-    return this.model.value ?? "";
+    return this.model.inputValue ?? "";
   }
 }
 

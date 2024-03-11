@@ -729,5 +729,14 @@ export var settings = {
       "impp",
     ]
   },
-  legacyProgressBarView: false
+  legacyProgressBarView: false,
+  maskSettings: {
+    patternPlaceholderChar: "_",
+    patternEscapeChar: "\\",
+    patternDefinitions: <{ [key: string]: RegExp }>{
+      "9": /[0-9]/,
+      "a": /[a-zA-Z]/,
+      "#": /[a-zA-Z0-9]/
+    }
+  }
 };

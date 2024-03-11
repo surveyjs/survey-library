@@ -64,6 +64,14 @@ export * from "../components/liststests";
 export * from "../responsivityTests";
 export * from "../svgRegistryTests";
 export * from "../utilstests";
+export * from "../mask/input_mask_tests";
+export * from "../mask/mask_pattern_tests";
+export * from "../mask/mask_number_tests";
+export * from "../mask/mask_currency_tests";
+export * from "../mask/lexical_analyzer_tests";
+export * from "../mask/syntactic_analyzer_tests";
+export * from "../mask/mask_datetime_tests";
+export * from "../mask/mask_settings_tests";
 export * from "../stylesManagerTests";
 export * from "../headerTests";
 

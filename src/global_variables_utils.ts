@@ -43,11 +43,11 @@ export class DomWindowHelper {
   }
   public static addEventListener(type: string, listener: (e?: any) => void): void {
     if(!DomWindowHelper.isAvailable()) return;
-    document.addEventListener(type, listener);
+    window.addEventListener(type, listener);
   }
   public static removeEventListener(type: string, listener: (e?: any) => void): void {
     if(!DomWindowHelper.isAvailable()) return;
-    document.removeEventListener(type, listener);
+    window.removeEventListener(type, listener);
   }
 }
 

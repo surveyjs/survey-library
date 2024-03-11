@@ -313,6 +313,12 @@ QUnit.test("DragDropRankingSelectToRank getIndixies", function (assert) {
   assert.equal(toIndex, 2);
   toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
   assert.equal(toIndex, 1);
+
+  questionModel.value = ["11", "22", "33"];
+  dndModel.draggedElement = questionModel.rankingChoices[0];
+  dndModel.dropTarget = questionModel.rankingChoices[1];
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 1);
 });
 // EO selectToRankEnabled
 

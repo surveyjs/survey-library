@@ -10,16 +10,11 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
       return dragOverNode;
     }
 
-    if (
-      this.parentElement.rankingChoices.length === 0 ||
-      this.parentElement.unRankingChoices.length === 0
-    ) {
-      let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
-      let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
+    let toContainer: HTMLElement = dragOverNode.closest("[data-ranking='to-container']");
+    let fromContainer: HTMLElement = dragOverNode.closest("[data-ranking='from-container']");
 
-      if (!!toContainer) return toContainer;
-      if (!!fromContainer) return fromContainer;
-    }
+    if (this.parentElement.unRankingChoices.length === 0 && fromContainer) return fromContainer;
+    if (this.parentElement.rankingChoices.length === 0 && toContainer) return toContainer;
 
     return super.findDropTargetNodeByDragOverNode(dragOverNode);
   }

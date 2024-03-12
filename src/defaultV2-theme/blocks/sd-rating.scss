@@ -327,6 +327,14 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
     stroke: transparent;
     fill: $primary;
   }
+
+  @for $i from 1 through 25 {
+    &:nth-child(#{$i}) {
+      svg {
+        transition-delay: #{($i - 1) * 25}ms;
+      }
+    }
+  }
 }
 
 .sd-rating__item-star--error {

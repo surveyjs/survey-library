@@ -28,6 +28,7 @@ If you are looking for a quick-start application that includes all SurveyJS comp
 
 - <a href="https://github.com/surveyjs/surveyjs_react_quickstart" target="_blank">SurveyJS + React Quickstart Template</a>
 - <a href="https://github.com/surveyjs/surveyjs-nextjs" target="_blank">SurveyJS + Next.js Quickstart Template</a>
+- <a href="https://github.com/surveyjs/surveyjs-remix" target="_blank">SurveyJS + Remix Quickstart Template</a>
 
 ## Install the `survey-react-ui` npm Package
 

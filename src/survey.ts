@@ -2949,6 +2949,9 @@ export class SurveyModel extends SurveyElementCore
       this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
         if (!Serializer.hasOriginalProperty(this.editingObj, options.name))
           return;
+        if(options.name === "locale") {
+          this.setDataCore({});
+        }
         this.updateOnSetValue(options.name, (<any>this.editingObj)[options.name], options.oldValue);
       };
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);

@@ -19,6 +19,7 @@ import { Question } from "../src/question";
 import { QuestionCheckboxModel } from "../src/question_checkbox";
 import { SurveyTriggerComplete } from "../src/trigger";
 import { QuestionPanelDynamicModel } from "../src/question_paneldynamic";
+import { QuestionCommentModel } from "../src/question_comment";
 
 export default QUnit.module("Survey.editingObj Tests");
 
@@ -1586,4 +1587,47 @@ QUnit.test("paneldynamic. templateVisibleIf", function (assert) {
   assert.equal(comment.value, "{q1} = 'b'", "value #2");
   comment.value = "{q1} = 'c'";
   assert.equal(question.templateVisibleIf, "{q1} = 'c'", "property value #1");
+});
+QUnit.test("survey, complete text & locale", function (assert) {
+  const survey = new SurveyModel({
+    completedHtml: "html:default",
+    description: "text:default",
+  });
+  const editSurvey = new SurveyModel({
+    elements: [
+      {
+        type: "comment",
+        name: "completedHtml"
+      },
+      {
+        type: "comment",
+        name: "description"
+      }
+    ]
+  });
+  const commentHtml = <QuestionCommentModel>(editSurvey.getQuestionByName("completedHtml"));
+  const commentText = <QuestionCommentModel>(editSurvey.getQuestionByName("description"));
+  editSurvey.editingObj = survey;
+  assert.equal(commentHtml.value, "html:default", "comment #1");
+  assert.equal(commentText.value, "text:default", "commentText #1");
+  survey.locale = "de";
+  assert.equal(commentHtml.value, "html:default", "comment #2");
+  assert.equal(commentText.value, "text:default", "commentText #2");
+  commentHtml.value = "html:de";
+  commentText.value = "text:de";
+  assert.equal(survey.completedHtml, "html:de", "completedHtml #1");
+  assert.equal(survey.description, "text:de", "description #1");
+  survey.locale = "";
+  assert.equal(survey.completedHtml, "html:default", "completedHtml #2");
+  assert.equal(commentHtml.value, "html:default", "comment  #3");
+  assert.equal(survey.description, "text:default", "description #2");
+  assert.equal(commentText.value, "text:default", "commentText  #3");
+  survey.locale = "fr";
+  commentHtml.value = "html:fr";
+  commentText.value = "text:fr";
+  survey.locale = "de";
+  assert.equal(survey.completedHtml, "html:de", "completedHtml #3");
+  assert.equal(commentHtml.value, "html:de", "comment #4");
+  assert.equal(survey.description, "text:de", "description #3");
+  assert.equal(commentText.value, "text:de", "commentText #4");
 });

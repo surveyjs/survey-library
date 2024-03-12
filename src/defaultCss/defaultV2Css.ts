@@ -608,6 +608,7 @@ export var defaultV2Css = {
     chooseFileAsIcon: "sd-file__choose-btn--icon",
     chooseFileIconId: "icon-choosefile",
     disabled: "sd-file__choose-btn--disabled",
+    controlDisabled: "sd-file__choose-file-btn--disabled",
     //todo: remove it in v2
     removeButton: "sd-context-btn--negative",
     removeButtonBottom: "",

@@ -1371,7 +1371,9 @@ export class QuestionSelectBase extends Question {
         newComment = this.getCommentFromValue(newValue);
         newValue = this.setOtherValueIntoValue(newValue);
       } else {
-        newComment = this.data.getComment(this.getValueName());
+        if(this.data) {
+          newComment = this.data.getComment(this.getValueName());
+        }
       }
     }
     super.updateValueFromSurvey(newValue, clearData);

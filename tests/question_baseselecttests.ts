@@ -1814,3 +1814,20 @@ QUnit.test("Do not show show choices in designer", function(assert) {
   assert.equal(question.visibleChoices.length, 5 + 1 + 3, "Show choices in designer, #1");
   settings.supportCreatorV2 = false;
 });
+QUnit.test("question checkbox displayValue() with other and comment", (assert) => {
+  const q1 = new QuestionCheckboxModel("q1");
+  q1.fromJSON({
+    "type": "checkbox",
+    "name": "q1",
+    "showCommentArea": true,
+    "commentText": "Comment",
+    "choices": [
+      "Item 1",
+      "Item 2",
+      "Item 3"
+    ],
+    "showOtherItem": true
+  });
+  q1.value = ["Item 1", "Item 2", "Other Value"];
+  assert.deepEqual(q1.displayValue, "Item 1, Item 2, Other Value", "Other value should be kept");
+});

@@ -41,7 +41,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
         this.updateIsVisible(val);
       }
     }
-  });
+  }, () => this._isVisible);
 
   getLeaveOptions(): OnLeaveOptions {
     return { classes: { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" } };
@@ -61,7 +61,7 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
   }
 
   public set isVisible(val: boolean) {
-    this.visibilityAnimation.sync(val, this.isVisible);
+    this.visibilityAnimation.sync(val);
   }
   public get isVisible(): boolean {
     return this._isVisible;

@@ -397,6 +397,7 @@ export class Base {
   endLoadingFromJson() {
     this.isLoadingFromJsonValue = false;
   }
+
   /**
    * Returns a JSON object that corresponds to the current SurveyJS object.
    * @see fromJSON

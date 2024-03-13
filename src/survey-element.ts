@@ -638,7 +638,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   public updateCustomWidgets(): void { }
 
-  public onSurveyLoad(): void { }
+  public onSurveyLoad(): void {}
   private wasRenderedValue: boolean;
   public get wasRendered(): boolean { return !!this.wasRenderedValue; }
   public onFirstRendering(): void {
@@ -1032,19 +1032,28 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
         return this.getWrapperElement()?.querySelector(classesToSelector(cssClasses.content));
       },
-      isAnimationEnabled: () => settings.animationEnabled
+      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed && !this.isDesignMode
     };
   }
 
   private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
     this._renderedIsExpanded = val;
-  });
+  }, () => this.renderedIsExpanded);
   public set renderedIsExpanded(val: boolean) {
-    this.animationCollapsed.sync(val, this._renderedIsExpanded);
+    this.animationCollapsed.sync(val);
   }
 
   public get renderedIsExpanded(): boolean {
-    return this._renderedIsExpanded;
+    return !!this._renderedIsExpanded;
+  }
+
+  private animationAllowedValue: boolean = true;
+  public get animationAllowed(): boolean {
+    return !this.isLoadingFromJson && !this.isDisposed && !!this.survey && this.animationAllowedValue;
+  }
+
+  public set animationAllowed(val: boolean) {
+    this.animationAllowedValue = val;
   }
 
   public dispose(): void {

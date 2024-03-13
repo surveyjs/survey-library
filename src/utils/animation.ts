@@ -117,31 +117,31 @@ export class AnimationGroupUtils<T> extends AnimationUtils {
 }
 
 abstract class AnimationProperty<T, S extends Array<any> = []> {
-  public allowEmptyAnimation: boolean = false;
-  constructor(protected animationOptions: IAnimationConsumer<S>, protected update: (val: T) => void) {
+  constructor(protected animationOptions: IAnimationConsumer<S>, protected update: (val: T) => void, protected getCurrentValue: () => T) {
   }
   protected animation: AnimationUtils;
-  protected abstract _sync(newValue: T, oldValue: T): void;
-  private _debouncedSync = debounce((newValue: T, oldValue: T) => {
+  protected abstract _sync(newValue: T): void;
+  private _debouncedSync = debounce((newValue: T) => {
     this.animation.cancel();
-    this._sync(newValue, oldValue);
+    this._sync(newValue);
   })
-  sync(newValue: T, oldValue: T): void {
+  sync(newValue: T): void {
     if(this.animationOptions.isAnimationEnabled()) {
-      this._debouncedSync.run(newValue, oldValue);
+      this._debouncedSync.run(newValue);
     } else {
       this.update(newValue);
     }
   }
   cancel() {
+    this.animation.cancel();
     this._debouncedSync.cancel();
   }
 }
 
 export class AnimationBoolean extends AnimationProperty<boolean> {
   protected animation: AnimationPropertyUtils = new AnimationPropertyUtils();
-  protected _sync(newValue: boolean, oldValue: boolean): void {
-    if(newValue !== oldValue) {
+  protected _sync(newValue: boolean): void {
+    if(newValue !== this.getCurrentValue()) {
       if(newValue) {
         this.update(newValue);
         this.animation.onEnter(() => this.animationOptions.getAnimatedElement(), this.animationOptions.getEnterOptions());
@@ -158,14 +158,10 @@ export class AnimationBoolean extends AnimationProperty<boolean> {
 
 export class AnimationGroup<T> extends AnimationProperty<Array<T>, [T]> {
   protected animation: AnimationGroupUtils<T> = new AnimationGroupUtils();
-  protected _sync (newValue: Array<T>, oldValue: Array<T>): void {
+  protected _sync (newValue: Array<T>): void {
+    const oldValue = this.getCurrentValue();
     const itemsToAdd = newValue.filter(el => oldValue.indexOf(el) < 0);
     const deletedItems = oldValue.filter(el => newValue.indexOf(el) < 0);
-
-    if(!this.allowEmptyAnimation && itemsToAdd.length == newValue.length) {
-      this.update(newValue);
-      return;
-    }
     this.animation.onEnter((el) => this.animationOptions.getAnimatedElement(el), (el) => this.animationOptions.getEnterOptions(el), itemsToAdd);
     if (deletedItems?.length > 0) {
       let counter = deletedItems.length;

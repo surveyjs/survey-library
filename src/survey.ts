@@ -2615,7 +2615,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"belowHeader"` - Displays the progress bar below the survey header.
    * - `"bottom"` - Displays the progress bar below survey content.
    * - `"topBottom"` - Displays the progress bar above and below survey content.
-   * - `"auto"` - Automatically selects between `"aboveHeader"` and `"belowHeader"`.
+   * - `"auto"` - Displays the progress bar below the survey header if the header has a [background image](https://surveyjs.io/form-library/documentation/api-reference/iheader#backgroundImage) or color. Otherwise, the progress bar is displayed above the header.
    * - `"top"` - *(Obsolete)* Use the `"aboveHeader"` or `"belowHeader"` property value instead.
    * - `"both"` - *(Obsolete)* Use the `"topBottom"` property value instead.
    *

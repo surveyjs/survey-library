@@ -3,6 +3,11 @@ import { JsonObject, Serializer, property } from "../jsonobject";
 import { IInputMask, IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
 export class InputMaskBase extends Base implements IInputMask {
+  /**
+   * Specifies whether to store the question value with an applied mask in survey results.
+   *
+   * Default value: `false`
+   */
   @property() saveMaskedValue: boolean;
 
   public getType(): string {

@@ -77,7 +77,7 @@ export var settings = {
    * Nested properties:
    *
    * - `useLocalTimeZone`: `boolean`\
-   * Disable this property if you want internal SurveyJS functions to use methods that work with UTC date and time (`setUTCDate()` `setUTCHours()`, etc.) instead of methods that work with local date and time (`setYear`, `setHours()`, etc.). Default value: `true`.
+   * Disable this property if you want internal SurveyJS functions to use methods that work with UTC date and time (`setUTCDate()` `setUTCHours()`, etc.) instead of methods that work with local date and time (`setYear()`, `setHours()`, etc.). Default value: `true`.
    *
    * - `defaultLocaleName`: `string`\
    * A property key that stores a translation for the default locale. Default value: `"default"`.
@@ -730,6 +730,20 @@ export var settings = {
     ]
   },
   legacyProgressBarView: false,
+  /**
+   * An object with properties that configure input masks.
+   *
+   * Nested properties:
+   *
+   * - `patternPlaceholderChar`: `string`\
+   * A symbol used as a placeholder for characters to be entered in [pattern masks](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern). Default value: `"_"`.
+   *
+   * - `patternEscapeChar`: `string`\
+   * A symbol used to insert literal representations of special characters in [pattern masks](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern). Default value: `"\\"`.
+   *
+   * - `patternDefinitions`: `<{ [key: string]: RegExp }>`\
+   * An object that maps placeholder symbols to regular expressions in [pattern masks](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern). Default value: `{ "9": /[0-9]/, "a": /[a-zA-Z]/, "#": /[a-zA-Z0-9]/ }`.
+   */
   maskSettings: {
     patternPlaceholderChar: "_",
     patternEscapeChar: "\\",

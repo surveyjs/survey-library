@@ -26,12 +26,66 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
   return arr;
 }
 
+/**
+ * A class that describes an input mask of the `"numeric"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
+ *
+ * The following code shows how to specify the properties of this class within a survey JSON schema:
+ *
+ * ```
+ * const surveyJson = {
+ *   "elements": [{
+ *     "name": "textquestion1"
+ *     "type": "text",
+ *     "maskType": "numeric",
+ *     "maskSettings": {
+ *       // Specify the properties of a numeric input mask here
+ *     }
+ *   }]
+ * }
+ * ```
+ */
 export class InputMaskNumeric extends InputMaskBase {
+  /**
+   * Specifies whether respondents can enter negative values.
+   *
+   * Default value: `true`
+   * @see min
+   * @see max
+   */
   @property() allowNegativeValues: boolean;
+  /**
+   * A symbol used to separate the fractional part from the integer part of a displayed number.
+   *
+   * Default value: `"."`
+   * @see precision
+   * @see thousandsSeparator
+   */
   @property() decimalSeparator: string;
+  /**
+   * Limits how many digits to retain after the decimal point for a displayed number.
+   *
+   * Default value: 2
+   * @see decimalSeparator
+   */
   @property() precision: number;
+  /**
+   * A symbol used to separate the digits of a large number into groups of three.
+   *
+   * Default value: `","`
+   * @see decimalSeparator
+   */
   @property() thousandsSeparator: string;
+  /**
+   * A minimum value that respondents can enter.
+   * @see max
+   * @see allowNegativeValues
+   */
   @property() min: number;
+  /**
+   * A maximum value that respondents can enter.
+   * @see min
+   * @see allowNegativeValues
+   */
   @property() max: number;
 
   private calccaretPosition(leftPart: string, args: ITextInputParams, maskedValue: string) {

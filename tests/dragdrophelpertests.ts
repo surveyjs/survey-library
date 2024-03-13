@@ -432,8 +432,8 @@ QUnit.test("DragDropDOMAdapter: insertNodeToParentAtIndex", function (assert) {
 QUnit.test("check rootContainer", function (assert) {
   let h1 = document.createElement("h1");
   let h2 = document.createElement("h2");
-  let survey:any = { rootElement: h1};
-  let creator:any = { rootElement: h2};
+  let survey:any = { rootElement: h1 };
+  let creator:any = { rootElement: h2 };
   let dd: any = new DragDropChoices(survey);
   assert.equal(dd.getRootElement(survey), h1);
   assert.equal(dd.getRootElement(survey, creator), h2);

@@ -44,8 +44,12 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   }
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
-    this.domAdapter.rootContainer = this.survey?.rootElement;
+    this.domAdapter.rootContainer = this.getRootElement(this.survey, this.creator);
     this.domAdapter.startDrag(event, draggedElement, parentElement, draggedElementNode, preventSaveTargetNode);
+  }
+
+  private getRootElement(survey: SurveyModel, creator: any): HTMLElement {
+    return creator ? creator.rootElement : survey.rootElement;
   }
 
   public dragInit(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement): void {

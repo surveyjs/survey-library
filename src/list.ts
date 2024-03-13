@@ -15,6 +15,7 @@ export let defaultListCss = {
   itemWithIcon: "sv-list__item--with-icon",
   itemDisabled: "sv-list__item--disabled",
   itemFocused: "sv-list__item--focused",
+  itemTextWrap: "sv-list__item-text--wrap",
   itemIcon: "sv-list__item-icon",
   itemSeparator: "sv-list__item-separator",
   itemBody: "sv-list__item-body",
@@ -58,6 +59,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
   @property({ defaultValue: true }) isAllDataLoaded: boolean;
   @property({ defaultValue: false }) showSearchClearButton: boolean;
   @property({ defaultValue: true }) renderElements: boolean;
+  @property({ defaultValue: false }) textWrapEnabled: boolean;
 
   public static INDENT: number = 16;
   public static MINELEMENTCOUNT: number = 10;
@@ -178,6 +180,7 @@ export class ListModel<T extends BaseAction = Action> extends ActionContainer<T>
       .append(this.cssClasses.itemDisabled, this.isItemDisabled(itemValue))
       .append(this.cssClasses.itemFocused, this.isItemFocused(itemValue))
       .append(this.cssClasses.itemSelected, this.isItemSelected(itemValue))
+      .append(this.cssClasses.itemTextWrap, this.textWrapEnabled)
       .append(itemValue.css)
       .toString();
   };

@@ -352,13 +352,18 @@ export class QuestionSelectBase extends Question {
     return true; //for comments and others
   }
   private isSettingDefaultValue: boolean = false;
-  protected setDefaultValue() {
+  protected setDefaultValue(): void {
     this.isSettingDefaultValue =
       !this.isValueEmpty(this.defaultValue) &&
       this.hasUnknownValue(this.defaultValue);
     this.prevOtherValue = undefined;
+    const prevComment = this.comment;
     super.setDefaultValue();
     this.isSettingDefaultValue = false;
+    if(this.comment && this.getStoreOthersAsComment() && prevComment !== this.comment) {
+      this.setValueCore(this.setOtherValueIntoValue(this.value));
+      this.setCommentIntoData(this.comment);
+    }
   }
   protected getIsMultipleValue(): boolean {
     return false;
@@ -707,12 +712,16 @@ export class QuestionSelectBase extends Question {
       }
     });
   }
-  protected hasUnknownValue(
-    val: any,
-    includeOther: boolean = false,
-    isFilteredChoices: boolean = true,
-    checkEmptyValue: boolean = false
-  ): boolean {
+  protected hasUnknownValue(val: any, includeOther: boolean = false,
+    isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
+    if(!Array.isArray(val)) return this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue);
+    for(let i = 0; i < val.length; i ++) {
+      if(this.hasUnknownValueItem(val, includeOther, isFilteredChoices, checkEmptyValue)) return true;
+    }
+    return false;
+  }
+  protected hasUnknownValueItem(val: any, includeOther: boolean = false,
+    isFilteredChoices: boolean = true, checkEmptyValue: boolean = false): boolean {
     if (!checkEmptyValue && this.isValueEmpty(val)) return false;
     if (includeOther && val == this.otherItem.value) return false;
     if (this.showNoneItem && val == this.noneItem.value) return false;

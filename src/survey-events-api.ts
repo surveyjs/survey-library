@@ -709,6 +709,18 @@ export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMix
    */
   allow: boolean;
 }
+export interface MatrixDetailPanelVisibleChangedEvent extends MatrixDropdownQuestionEventMixin {
+  /**
+   * A matrix row for which the event is raised.
+   */
+  row: MatrixDropdownRowModelBase;
+  /**
+   * A zero-based row index.
+   */
+  rowIndex: number;
+  isShowing: boolean;
+  detailPanel: PanelModel;
+}
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**

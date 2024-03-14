@@ -1585,23 +1585,7 @@ export class JsonError {
 }
 export class JsonUnknownPropertyError extends JsonError {
   constructor(public propertyName: string, public className: string) {
-    super(
-      "unknownproperty",
-      "The property '" +
-      propertyName +
-      "' in class '" +
-      className +
-      "' is unknown."
-    );
-    var properties = Serializer.getProperties(className);
-    if (properties) {
-      this.description = "The list of available properties are: ";
-      for (var i = 0; i < properties.length; i++) {
-        if (i > 0) this.description += ", ";
-        this.description += properties[i].name;
-      }
-      this.description += ".";
-    }
+    super("unknownproperty", "Unknown property in class '" + className + "': '" + propertyName + "'.");
   }
 }
 export class JsonMissingTypeErrorBase extends JsonError {
@@ -1611,13 +1595,6 @@ export class JsonMissingTypeErrorBase extends JsonError {
     public message: string
   ) {
     super(type, message);
-    this.description = "The following types are available: ";
-    var types = Serializer.getChildrenClasses(baseClassName, true);
-    for (var i = 0; i < types.length; i++) {
-      if (i > 0) this.description += ", ";
-      this.description += "'" + types[i].name + "'";
-    }
-    this.description += ".";
   }
 }
 export class JsonMissingTypeError extends JsonMissingTypeErrorBase {

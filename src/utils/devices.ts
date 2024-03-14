@@ -1,14 +1,11 @@
+import { DomWindowHelper } from "../global_variables_utils";
+
 // isMobile
 let _isMobile = false;
 let vendor = null;
 
-if (
-  typeof navigator !== "undefined" &&
-  typeof window !== "undefined" &&
-  navigator &&
-  window
-) {
-  vendor = navigator.userAgent || navigator.vendor || (<any>window).opera;
+if (typeof navigator !== "undefined" && !!navigator && DomWindowHelper.isAvailable()) {
+  vendor = navigator.userAgent || navigator.vendor || DomWindowHelper.hasOwn("opera");
 }
 
 (function (a: any) {
@@ -35,7 +32,7 @@ export var mouseInfo = {
     return !this.hasMouse && this.hasTouchEvent;
   },
   get hasTouchEvent(): boolean {
-    return typeof window !== "undefined" && ("ontouchstart" in (<any>window) || navigator.maxTouchPoints > 0);
+    return DomWindowHelper.isAvailable() && (DomWindowHelper.hasOwn("ontouchstart") || navigator.maxTouchPoints > 0);
   },
   hasMouse: true
 };

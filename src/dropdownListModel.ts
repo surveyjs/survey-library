@@ -1,5 +1,6 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
@@ -135,6 +136,10 @@ export class DropdownListModel extends Base {
     if (!this.listModel.focusedItem || !this.listModel.isItemVisible(this.listModel.focusedItem)) {
       this.listModel.focusFirstVisibleItem();
     }
+  }
+
+  private setTextWrapEnabled(newValue: boolean): void {
+    this.listModel.textWrapEnabled = newValue;
   }
 
   protected popupRecalculatePosition(isResetHeight: boolean): void {
@@ -351,15 +356,14 @@ export class DropdownListModel extends Base {
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
-    if ("undefined" !== typeof document) {
-      this.htmlCleanerElement = document.createElement("div");
-    }
+    this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
     this.setSearchEnabled(this.question.searchEnabled);
+    this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
     this.resetItemsSettings();
   }
@@ -380,7 +384,7 @@ export class DropdownListModel extends Base {
     return IsTouch ? "none" : "text";
   }
 
-  public setSearchEnabled(newValue: boolean) {
+  public setSearchEnabled(newValue: boolean): void {
     this.listModel.searchEnabled = IsTouch;
     this.listModel.showSearchClearButton = IsTouch;
     this.searchEnabled = newValue;
@@ -408,6 +412,9 @@ export class DropdownListModel extends Base {
     }
     if(options.name == "choicesLazyLoadEnabled" && options.newValue) {
       this.listModel.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
+    }
+    if(options.name == "textWrapEnabled") {
+      this.setTextWrapEnabled(options.newValue);
     }
   }
   protected focusItemOnClickAndPopup() {

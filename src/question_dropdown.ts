@@ -218,6 +218,7 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() searchMode: "contains" | "startsWith";
 
+  @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;
   /**
@@ -356,6 +357,7 @@ Serializer.addClass(
     { name: "choicesMax:number", default: 0 },
     { name: "choicesStep:number", default: 1, minValue: 1 },
     { name: "autocomplete", alternativeName: "autoComplete", choices: settings.questions.dataList, },
+    { name: "textWrapEnabled:boolean", default: true },
     { name: "renderAs", default: "default", visible: false },
     { name: "searchEnabled:boolean", default: true, visible: false },
     { name: "searchMode", default: "contains", choices: ["contains", "startsWith"], },

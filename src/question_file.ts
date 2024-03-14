@@ -14,6 +14,7 @@ import { Camera } from "./utils/camera";
 import { LocalizableString } from "./localizablestring";
 import { settings } from "./settings";
 import { getRenderedSize } from "./utils/utils";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 export function dataUrl2File(dataUrl: string, fileName: string, type: string) {
   const str = atob(dataUrl.split(",")[1]);
@@ -477,7 +478,9 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("maxSize", val);
   }
   public chooseFile(event: MouseEvent): void {
-    const inputElement = document.getElementById(this.inputId) as HTMLInputElement;
+    if(!DomDocumentHelper.isAvailable()) return;
+
+    const inputElement = DomDocumentHelper.getDocument().getElementById(this.inputId) as HTMLInputElement;
     event.preventDefault();
     event.stopImmediatePropagation();
     if (inputElement) {
@@ -890,7 +893,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
   }
 
   private onChange(src: any) {
-    if (!(<any>window)["FileReader"]) return;
+    if (!DomWindowHelper.isFileReaderAvailable()) return;
     if (!src || !src.files || src.files.length < 1) return;
     let files = [];
     let allowCount = this.allowMultiple ? src.files.length : 1;
@@ -962,10 +965,10 @@ export class QuestionFileModel extends QuestionFileModelBase {
         const fileListSelector = this.getFileListSelector();
         const fileListElement = fileListSelector ? this.rootElement.querySelector(this.getFileListSelector()) : undefined;
         if (fileListElement) {
-          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(fileListElement).gap));
+          this.calculatedGapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(fileListElement).gap));
           const firstVisibleItem = Array.from(fileListElement.children).filter((_, index) => this.isPreviewVisible(index))[0];
           if (firstVisibleItem) {
-            this.calculatedItemWidth = Math.ceil(Number.parseFloat(window.getComputedStyle(firstVisibleItem).width));
+            this.calculatedItemWidth = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(firstVisibleItem).width));
           }
         }
       }

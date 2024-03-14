@@ -32,6 +32,7 @@ import { ActionContainer } from "./actions/container";
 import { SurveyModel } from "./survey";
 import { DragDropPanelHelperV1 } from "./drag-drop-panel-helper-v1";
 import { DragDropInfo } from "./drag-drop-helper-v1";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 export class QuestionRowModel extends Base {
   private static rowCounter = 100;
@@ -41,11 +42,11 @@ export class QuestionRowModel extends Base {
   protected _scrollableParent: any = undefined;
   protected _updateVisibility: any = undefined;
   public startLazyRendering(rowContainerDiv: HTMLElement, findScrollableContainer = findScrollableParent): void {
-    if ("undefined" === typeof document) return;
+    if (!DomDocumentHelper.isAvailable()) return;
     this._scrollableParent = findScrollableContainer(rowContainerDiv);
     // if  this._scrollableParent is html the scroll event isn't fired, so we should use window
-    if (this._scrollableParent === document.documentElement) {
-      this._scrollableParent = window;
+    if (this._scrollableParent === DomDocumentHelper.getDocumentElement()) {
+      this._scrollableParent = DomWindowHelper.getWindow();
     }
     const hasScroll = this._scrollableParent.scrollHeight > this._scrollableParent.clientHeight;
     this.isNeedRender = !hasScroll;

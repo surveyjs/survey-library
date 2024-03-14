@@ -2346,6 +2346,9 @@ export class QuestionMatrixDropdownModelBase extends QuestionMatrixBaseModel<Mat
     if (!!this.renderedTable) {
       this.renderedTable.onDetailPanelChangeVisibility(row, val);
     }
+    if(this.survey) {
+      this.survey.matrixDetailPanelVisibleChanged(this, row.rowIndex - 1, row, val);
+    }
     if (val && this.detailPanelMode === "underRowSingle") {
       var rows = this.visibleRows;
       for (var i = 0; i < rows.length; i++) {

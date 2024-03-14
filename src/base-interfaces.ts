@@ -201,11 +201,8 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   }): any;
   matrixRowRemoved(question: IQuestion, rowIndex: number, row: any): any;
   matrixRowRemoving(question: IQuestion, rowIndex: number, row: any): boolean;
-  matrixAllowRemoveRow(
-    question: IQuestion,
-    rowIndex: number,
-    row: any
-  ): boolean;
+  matrixAllowRemoveRow(question: IQuestion, rowIndex: number, row: any): boolean;
+  matrixDetailPanelVisibleChanged(question: IQuestion, rowIndex: number, row: any, isShowing: boolean): void;
   matrixCellCreating(question: IQuestion, options: any): any;
   matrixCellCreated(question: IQuestion, options: any): any;
   matrixAfterCellRender(question: IQuestion, options: any): any;

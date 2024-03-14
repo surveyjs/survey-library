@@ -1103,3 +1103,33 @@ QUnit.test("Do not resetTable for always invisible column", function (assert) {
   cellQuestion.value = "test";
   assert.equal(matrix.renderedTable["$ref"], "ref1", "Do not recreate the rendered table");
 });
+QUnit.test("survey.onMatrixDetailPanelVisibleChanged event", function (assert) {
+  const survey = new SurveyModel({
+    questionErrorLocation: "bottom",
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrix",
+        columns: [{ name: "col1" }],
+        rows: [0],
+        detailPanelMode: "underRow",
+        detailElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+  const actions = new Array<string>();
+  survey.onMatrixDetailPanelVisibleChanged.add((sender, options) => {
+    const action = (options.isShowing ? "show" : "hide") + ":" + options.rowIndex;
+    actions.push(action);
+    if(options.isShowing) {
+      options.detailPanel.getQuestionByName("q1").title = "Question 1";
+    }
+  });
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+  const row = matrix.visibleRows[0];
+  row.showDetailPanel();
+  const qDetail = row.detailPanel.getQuestionByName("q1");
+  assert.equal(qDetail.title, "Question 1", "set title");
+  row.hideDetailPanel();
+  assert.deepEqual(actions, ["show:0", "hide:0"], "check actions");
+});

@@ -60,10 +60,10 @@ import {
   ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
-  MatrixAllowRemoveRowEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent,
-  MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
-  DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent,
-  GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
+  MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
+  MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
+  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent,
+  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
   ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
@@ -673,7 +673,7 @@ export class SurveyModel extends SurveyElementCore
    * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
-
+  public onMatrixDetailPanelVisibleChanged: EventBase<SurveyModel, MatrixDetailPanelVisibleChangedEvent> = this.addEvent<SurveyModel, MatrixDetailPanelVisibleChangedEvent >();
   /**
    * An event that is raised before a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created. Use this event to change the type of individual matrix cells.
    * @see onAfterRenderMatrixCell
@@ -4956,33 +4956,28 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixRowRemoving.fire(this, options);
     return options.allow;
   }
-  matrixAllowRemoveRow(
-    question: QuestionMatrixDynamicModel,
-    rowIndex: number,
-    row: any
-  ): boolean {
-    var options = {
-      question: question,
-      rowIndex: rowIndex,
-      row: row,
-      allow: true,
-    };
+  matrixAllowRemoveRow(question: QuestionMatrixDynamicModel, rowIndex: number, row: any): boolean {
+    const options = { question: question, rowIndex: rowIndex, row: row, allow: true };
     this.onMatrixRenderRemoveButton.fire(this, options);
     return options.allow;
   }
-  matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, rowIndex: number, row: any, isShowing: boolean): void {
+    const options = { question: question, rowIndex: rowIndex, row: row, isShowing: isShowing, detailPanel: row.detailPanel };
+    this.onMatrixDetailPanelVisibleChanged.fire(this, options);
+  }
+  matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onMatrixCellCreating.fire(this, options);
   }
-  matrixCellCreated(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixCellCreated(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
   }
-  matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onAfterRenderMatrixCell.fire(this, options);
   }
-  matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onMatrixCellValueChanged.fire(this, options);
   }

@@ -385,9 +385,12 @@ frameworks.forEach(framework => {
             action: () => {
               const model = new window["Survey"].Model(json);
               model.focusFirstQuestionAutomatic = false;
-              window["Survey"].settings.showModal("survey", {
-                model: model,
-                survey: model
+              window["Survey"].settings.showDialog({
+                componentName: "survey",
+                data: {
+                  model: model,
+                  survey: model
+                }
               });
             }
           });

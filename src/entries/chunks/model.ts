@@ -2,6 +2,8 @@
 // import "../../main.scss";
 //import "../../modern.scss";
 
+import { DomWindowHelper } from "../../global_variables_utils";
+
 export var Version: string;
 export var ReleaseDate: string;
 Version = `${process.env.VERSION}`;
@@ -57,8 +59,9 @@ function checkPrefix(prefix: string): boolean {
   if (index < 0) return true;
   const ds = prefix.substring(index + s.length).toLowerCase().split(",");
   if (!Array.isArray(ds) || ds.length === 0) return true;
-  if (typeof window !== "undefined" && !!window.location && !!window.location.hostname) {
-    const hn = window.location.hostname.toLowerCase();
+  const location = DomWindowHelper.getLocation();
+  if (!!location && !!location.hostname) {
+    const hn = location.hostname.toLowerCase();
     ds.push("localhost");
     for (let i = 0; i < ds.length; i++) {
       if (hn.indexOf(ds[i]) > -1) return true;

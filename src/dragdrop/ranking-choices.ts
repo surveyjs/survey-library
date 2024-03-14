@@ -2,6 +2,7 @@ import { ItemValue } from "../itemvalue";
 import { DragDropChoices } from "./choices";
 import { CssClassBuilder } from "../utils/cssClassBuilder";
 import { IsMobile } from "../utils/devices";
+import { DomDocumentHelper } from "../global_variables_utils";
 export class DragDropRankingChoices extends DragDropChoices {
   protected get draggedElementType(): string {
     return "ranking-item";
@@ -12,7 +13,9 @@ export class DragDropRankingChoices extends DragDropChoices {
     draggedElementNode: HTMLElement,
     event: PointerEvent
   ): HTMLElement {
-    const draggedElementShortcut: any = document.createElement("div");
+    const draggedElementShortcut: any = DomDocumentHelper.createElement("div");
+    if(!draggedElementShortcut) return;
+
     draggedElementShortcut.className = this.shortcutClass + " sv-ranking-shortcut";
     draggedElementShortcut.style.cssText = ` 
           cursor: grabbing;

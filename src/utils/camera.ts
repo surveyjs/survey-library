@@ -1,4 +1,5 @@
-import { IElement, settings } from "survey-core";
+import { settings } from "../settings";
+import { DomDocumentHelper } from "../global_variables_utils";
 
 export class Camera {
   public static mediaDevicesCallback: ((callback: (devices: Array<MediaDeviceInfo>) => void) => void) | undefined;
@@ -121,9 +122,9 @@ export class Camera {
 
   }
   public snap(videoElementId: string, callback: BlobCallback): boolean {
-    if("undefined" === typeof document) return false;
-    const root = document;
-    const videoEl: HTMLVideoElement = root.getElementById(videoElementId) as HTMLVideoElement;
+    if(!DomDocumentHelper.isAvailable()) return false;
+    const root = DomDocumentHelper.getDocument();
+    const videoEl: HTMLVideoElement = root?.getElementById(videoElementId) as HTMLVideoElement;
     if(!videoEl) return false;
     const canvasEl = root.createElement("canvas");
     const imageSize = this.getImageSize(videoEl);

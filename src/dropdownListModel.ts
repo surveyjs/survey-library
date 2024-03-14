@@ -1,5 +1,6 @@
 import { IAction } from "./actions/action";
 import { Base } from "./base";
+import { DomDocumentHelper } from "./global_variables_utils";
 import { ItemValue } from "./itemvalue";
 import { property } from "./jsonobject";
 import { ListModel } from "./list";
@@ -351,9 +352,7 @@ export class DropdownListModel extends Base {
   };
   constructor(protected question: Question, protected onSelectionChanged?: (item: IAction, ...params: any[]) => void) {
     super();
-    if ("undefined" !== typeof document) {
-      this.htmlCleanerElement = document.createElement("div");
-    }
+    this.htmlCleanerElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     question.onPropertyChanged.add(this.qustionPropertyChangedHandler);
     this.showInputFieldComponent = this.question.showInputFieldComponent;
 

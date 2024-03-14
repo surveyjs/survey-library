@@ -342,11 +342,15 @@ QUnit.test("emptyText & isAllDataLoaded", function (assert) {
   assert.equal(list.emptyMessage, "No data to display");
 });
 
-QUnit.test("getItemClass", (assert) => {
+QUnit.test("getItemClass test", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel(items, () => { }, true);
   assert.equal(list.getItemClass(list.actions[0]), "sv-list__item");
 
+  list.textWrapEnabled = true;
+  assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item-text--wrap");
+
+  list.textWrapEnabled = false;
   list.focusedItem = list.actions[0];
   assert.equal(list.getItemClass(list.actions[0]), "sv-list__item sv-list__item--focused");
 
@@ -361,7 +365,7 @@ QUnit.test("getItemClass", (assert) => {
   assert.equal(list.getItemClass(list.actions[1]), "sv-list__item sv-list__item--disabled custom-css");
 });
 
-QUnit.test("getListClass", (assert) => {
+QUnit.test("getListClass test", (assert) => {
   const items = createIActionArray(12);
   const list = new ListModel(items, () => { }, true);
   assert.equal(list.getListClass(), "sv-list");

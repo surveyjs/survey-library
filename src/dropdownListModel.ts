@@ -138,6 +138,10 @@ export class DropdownListModel extends Base {
     }
   }
 
+  private setTextWrapEnabled(newValue: boolean): void {
+    this.listModel.textWrapEnabled = newValue;
+  }
+
   protected popupRecalculatePosition(isResetHeight: boolean): void {
     setTimeout(() => {
       this.popupModel.recalculatePosition(isResetHeight);
@@ -359,6 +363,7 @@ export class DropdownListModel extends Base {
     this.listModel = this.createListModel();
     this.updateAfterListModelCreated(this.listModel);
     this.setSearchEnabled(this.question.searchEnabled);
+    this.setTextWrapEnabled(this.question.textWrapEnabled);
     this.createPopup();
     this.resetItemsSettings();
   }
@@ -379,7 +384,7 @@ export class DropdownListModel extends Base {
     return IsTouch ? "none" : "text";
   }
 
-  public setSearchEnabled(newValue: boolean) {
+  public setSearchEnabled(newValue: boolean): void {
     this.listModel.searchEnabled = IsTouch;
     this.listModel.showSearchClearButton = IsTouch;
     this.searchEnabled = newValue;
@@ -407,6 +412,9 @@ export class DropdownListModel extends Base {
     }
     if(options.name == "choicesLazyLoadEnabled" && options.newValue) {
       this.listModel.setOnFilterStringChangedCallback(this.listModelFilterStringChanged);
+    }
+    if(options.name == "textWrapEnabled") {
+      this.setTextWrapEnabled(options.newValue);
     }
   }
   protected focusItemOnClickAndPopup() {

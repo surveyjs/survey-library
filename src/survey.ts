@@ -254,7 +254,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPageVisibleChanged: EventBase<SurveyModel, PageVisibleChangedEvent> = this.addEvent<SurveyModel, PageVisibleChangedEvent>();
   /**
-   * An event that is raised after page visibility is changed.
+   * An event that is raised after panel visibility is changed.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *

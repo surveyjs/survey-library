@@ -38,17 +38,17 @@ export class AnimationUtils {
   }
   private cancelQueue: Array<() => void> = [];
 
-  protected onAnimationEnd(element: HTMLElement, update: () => void): void {
+  protected onAnimationEnd(element: HTMLElement, update: (event?: AnimationEvent) => void): void {
     let cancelTimeout: any;
-    const callback = () => {
-      update();
+    const callback = (event?: AnimationEvent) => {
+      update(event);
       clearTimeout(cancelTimeout);
       element.removeEventListener("animationend", onAnimationEndCallback);
     };
     this.cancelQueue.push(callback);
     const onAnimationEndCallback = (event: AnimationEvent) => {
       if(event.target == event.currentTarget) {
-        callback();
+        callback(event);
         this.cancelQueue.splice(this.cancelQueue.indexOf(callback), 1);
       }
     };
@@ -70,13 +70,15 @@ export class AnimationUtils {
   protected runLeaveAnimation(element: HTMLElement, options: OnLeaveOptions, callback: () => void): void {
     if(element) {
       element.classList.add(options.classes.onLeave);
-      const onAnimationEndCallback = () => {
+      const onAnimationEndCallback = (event?: any) => {
         element.classList.remove(options.classes.onLeave);
-        element.classList.add(options.classes.onHide);
         callback();
-        setTimeout(() => {
-          element.classList.remove(options.classes.onHide);
-        }, 1);
+        if(!!event) {
+          element.classList.add(options.classes.onHide);
+          setTimeout(() => {
+            element.classList.remove(options.classes.onHide);
+          }, 1);
+        }
       };
       this.onAnimationEnd(element, onAnimationEndCallback);
     } else {
@@ -180,7 +182,7 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, [T]> {
     const itemsToAdd = newValue.filter(el => oldValue.indexOf(el) < 0);
     const deletedItems = oldValue.filter(el => newValue.indexOf(el) < 0);
     this.animation.onEnter((el) => this.animationOptions.getAnimatedElement(el), (el) => this.animationOptions.getEnterOptions(el), itemsToAdd);
-    if (deletedItems?.length > 0) {
+    if (itemsToAdd.length == 0 && deletedItems?.length > 0) {
       let counter = deletedItems.length;
       this.animation.onLeave((el) => this.animationOptions.getAnimatedElement(el), () => {
         if (--counter <= 0) {

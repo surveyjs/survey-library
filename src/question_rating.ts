@@ -13,6 +13,7 @@ import { SurveyModel } from "./survey";
 import { ISurveyImpl } from "./base-interfaces";
 import { IsTouch } from "./utils/devices";
 import { ITheme } from "./themes";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 export class RenderedRatingItem extends Base {
   private onStringChangedCallback() {
@@ -284,16 +285,18 @@ export class QuestionRatingModel extends Question {
 
   private updateColors(themeVariables: any) {
     if (this.colorMode === "monochrome") return;
-    if (typeof document === "undefined" || !document) return;
+    if (!DomDocumentHelper.isAvailable()) return;
     if (QuestionRatingModel.colorsCalculated) return;
     function getRGBColor(colorName: string, varName: string) {
       let str: string = !!themeVariables && themeVariables[colorName] as any;
       if(!str) {
-        const style = getComputedStyle(document.documentElement);
+        const style = getComputedStyle(DomDocumentHelper.getDocumentElement());
         str = style.getPropertyValue && style.getPropertyValue(varName);
       }
       if (!str) return null;
-      var ctx = document.createElement("canvas").getContext("2d");
+      const canvasElement = DomDocumentHelper.createElement("canvas") as HTMLCanvasElement;
+      if (!canvasElement) return null;
+      var ctx = canvasElement.getContext("2d");
       ctx.fillStyle = str;
       const newStr = ctx.fillStyle;
 

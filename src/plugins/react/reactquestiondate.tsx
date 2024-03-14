@@ -25,6 +25,7 @@ export default class SurveyQuestionDate extends React.Component<any, any> {
     var funcText = this.question.getjQueryScript(this.getDateId());
     var scriptText = "$(function () { " + funcText + " });";
     var rootId = this.getDivId();
+    // eslint-disable-next-line no-restricted-globals
     var scriptEl = document.createElement("script");
     scriptEl.type = "text/javascript";
     scriptEl.text = scriptText;

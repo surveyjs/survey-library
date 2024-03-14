@@ -16,6 +16,19 @@ export type OnEnterOptions = AnimationOptions<{ onEnter: string }>;
 export type OnLeaveOptions = AnimationOptions<{ onLeave: string, onHide: string }>;
 
 export class AnimationUtils {
+  private getMsFromRule(value: string) {
+    if (value === "auto") return 0;
+    return Number(value.slice(0, -1).replace(",", ".")) * 1000;
+  }
+  private getAnimationDuration(element: HTMLElement): number {
+    const style = getComputedStyle(element);
+    let duration = 0;
+    ["animationDelay", "animationDuration"].forEach((rule: any) => {
+      duration += this.getMsFromRule(style[rule].split(", ")[0]);
+    });
+    return duration;
+  }
+
   protected isAnimationExists(element: HTMLElement): boolean {
     let animationName = "";
     if(getComputedStyle) {
@@ -26,12 +39,13 @@ export class AnimationUtils {
   private cancelQueue: Array<() => void> = [];
 
   protected onAnimationEnd(element: HTMLElement, update: () => void): void {
+    let cancelTimeout: any;
     const callback = () => {
       update();
+      clearTimeout(cancelTimeout);
       element.removeEventListener("animationend", onAnimationEndCallback);
     };
     this.cancelQueue.push(callback);
-
     const onAnimationEndCallback = (event: AnimationEvent) => {
       if(event.target == event.currentTarget) {
         callback();
@@ -40,6 +54,9 @@ export class AnimationUtils {
     };
     if(this.isAnimationExists(element)) {
       element.addEventListener("animationend", onAnimationEndCallback);
+      cancelTimeout = setTimeout(() => {
+        callback();
+      }, this.getAnimationDuration(element) + 1);
     } else {
       update();
     }

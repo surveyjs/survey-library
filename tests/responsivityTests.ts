@@ -403,8 +403,8 @@ QUnit.test("ResponsivityManager - vertical process", function (assert) {
     },
     querySelectorAll: (query: string) => {
       if(query == ".sv-action") {
-        let items = [];
-        for(var i = 0; i < 10; i++) items.push(<any>{ offsetWidth: 20, offsetHeight: 20 });
+        let items: Array<{ offsetWidth: number, offsetHeight: number }> = [];
+        for(var i = 0; i < 10; i++) items.push({ offsetWidth: 20, offsetHeight: 20 });
         return items;
       }
     }

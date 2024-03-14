@@ -1,6 +1,7 @@
 <template>
   <input
     v-if="!question.getMaxLength()"
+    :ref="(el)=>getRef(el as HTMLElement)"
     :disabled="question.isInputReadOnly"
     :class="question.getControlClass()"
     :type="question.inputType"
@@ -14,7 +15,7 @@
     :list="question.dataListId"
     :placeholder="question.renderedPlaceholder"
     :autocomplete="question.autocomplete"
-    :value="question.value"
+    :value="question.inputValue"
     @change="question.onChange"
     @keyup="question.onKeyUp"
     @keydown="question.onKeyDown"
@@ -28,7 +29,7 @@
     :aria-invalid="question.a11y_input_ariaInvalid"
     :aria-errormessage="question.a11y_input_ariaErrormessage"
   />
-  <div v-else>
+  <div v-else :ref="(el)=>getRef(el as HTMLElement)">
     <input
       :disabled="question.isInputReadOnly"
       :class="question.getControlClass()"
@@ -43,7 +44,7 @@
       :list="question.dataListId"
       :placeholder="question.renderedPlaceholder"
       :autocomplete="question.autocomplete"
-      :value="question.value"
+      :value="question.inputValue"
       @change="question.onChange"
       @keyup="question.onKeyUp"
       @keydown="question.onKeyDown"
@@ -67,9 +68,14 @@
 <script lang="ts" setup>
 import type { QuestionTextModel } from "survey-core";
 import { useBase } from "./base";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 
-const props = defineProps<{ question: QuestionTextModel }>();
+const props = defineProps<{ question: QuestionTextModel; getRef?: Function; }>();
+const getRef = function (element: HTMLElement) {
+  if (props.getRef) props.getRef(element);
+}
+const root = ref(null);
+defineExpose({ root });
 
 useBase(() => props.question);
 

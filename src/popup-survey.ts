@@ -2,6 +2,7 @@ import { Base, ComputedUpdater } from "./base";
 import { SurveyModel } from "./survey";
 import { LocalizableString } from "./localizablestring";
 import { property } from "./jsonobject";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 /**
  * A class that renders a survey in a pop-up window.
@@ -24,9 +25,7 @@ export class PopupSurveyModel extends Base {
       this.surveyValue = this.createSurvey(jsonObj);
     }
     this.surveyValue.fitToContainer = true;
-    if ("undefined" !== typeof document) {
-      this.windowElement = <HTMLDivElement>document.createElement("div");
-    }
+    this.windowElement = DomDocumentHelper.createElement("div") as HTMLDivElement;
     this.survey.onComplete.add((survey, options) => {
       this.onSurveyComplete();
     });
@@ -283,14 +282,9 @@ export class PopupSurveyModel extends Base {
       var timerId: any = null;
       var func = function () {
         self.hide();
-        if (typeof window !== "undefined") {
-          window.clearInterval(timerId);
-        }
+        clearInterval(timerId);
       };
-      timerId =
-        typeof window !== "undefined"
-          ? window.setInterval(func, this.closeOnCompleteTimeout * 1000)
-          : 0;
+      timerId = setInterval(func, this.closeOnCompleteTimeout * 1000);
     }
   }
   public onScroll(): void {

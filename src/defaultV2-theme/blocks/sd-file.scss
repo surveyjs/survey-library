@@ -1,4 +1,5 @@
 @import "../variables.scss";
+
 .sd-file {
   position: relative;
   font-size: calcFontSize(1);
@@ -6,7 +7,7 @@
   min-height: calcSize(36);
   box-sizing: border-box;
   padding: 0 calcSize(6);
-  
+
   .sv-action-bar {
     padding: calcSize(1) 0;
     justify-content: center;
@@ -58,6 +59,7 @@
     container-type: unset;
   }
 }
+
 .sd-file__decorator--drag {
   z-index: 1;
   border: 1px solid $primary;
@@ -89,6 +91,7 @@
   .sd-file__drag-area-placeholder {
     display: none;
   }
+
   .sd-file__decorator .sd-action {
     padding: calcSize(1);
 
@@ -404,4 +407,9 @@
     top: 50%;
     transform: translate(-50%, -50%);
   }
+}
+
+.sd-file__choose-file-btn--disabled {
+  opacity: 0.25;
+  cursor: default;
 }

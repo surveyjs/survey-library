@@ -99,6 +99,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
    */
   @property({ getDefaultValue: () => { return settings.tagboxCloseOnSelect; } }) closeOnSelect: number;
 
+  @property() textWrapEnabled: boolean;
+
   /**
    * A text displayed in the input field when it doesn't have a value.
    */
@@ -224,8 +226,8 @@ export class QuestionTagboxModel extends QuestionCheckboxModel {
   }
   public dispose(): void {
     super.dispose();
-    if(!!this.dropdownListModelValue) {
-      this.dropdownListModelValue.dispose();
+    if(!!this.dropdownListModel) {
+      this.dropdownListModel.dispose();
     }
   }
   public clearValue(): void {
@@ -248,6 +250,7 @@ Serializer.addClass(
     { name: "placeholder", serializationProperty: "locPlaceholder" },
     { name: "allowClear:boolean", default: true },
     { name: "searchEnabled:boolean", default: true },
+    { name: "textWrapEnabled:boolean", default: true },
     { name: "choicesLazyLoadEnabled:boolean", default: false, visible: false },
     { name: "choicesLazyLoadPageSize:number", default: 25, visible: false },
     { name: "hideSelectedItems:boolean", default: false },

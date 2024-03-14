@@ -107,8 +107,7 @@ export class QuestionSignaturePadModel extends QuestionFileModelBase {
   }
 
   private fromUrl(url: string): void {
-    if ("undefined" === typeof document) return;
-    const img = document.createElement("img");
+    const img = new Image();
     img.crossOrigin = "anonymous";
     img.src = url;
     img.onload = ()=>{

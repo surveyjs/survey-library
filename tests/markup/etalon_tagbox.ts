@@ -127,7 +127,29 @@ registerMarkupTests(
       },
       removeIds: true,
       snapshot: "tagbox-without-clear-button",
-    }, {
+    },
+    {
+      name: "Test Tagbox question without textWrapEnabled",
+      json: {
+        questions: [
+          {
+            "type": "tagbox",
+            "name": "name",
+            "title": "Question title",
+            "textWrapEnabled": false,
+            "choices": [
+              "item1",
+              "item2",
+              "item3"
+            ],
+            titleLocation: "hidden"
+          }
+        ]
+      },
+      removeIds: true,
+      snapshot: "tagbox-without-textWrapEnabled"
+    },
+    {
       name: "Test Tagbox question searchEnabled false markup",
       json: {
         questions: [

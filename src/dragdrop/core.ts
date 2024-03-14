@@ -4,6 +4,7 @@ import { IShortcutText, ISurvey, ISurveyElement } from "../base-interfaces";
 import { DragTypeOverMeEnum } from "../survey-element";
 import { IDragDropEngine } from "./engine";
 import { DragDropDOMAdapter, IDragDropDOMAdapter } from "./dom-adapter";
+import { DomDocumentHelper } from "../global_variables_utils";
 
 export abstract class DragDropCore<T> implements IDragDropEngine {
   private _isBottom: boolean = null;
@@ -44,8 +45,12 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
   }
 
   public startDrag(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement, preventSaveTargetNode: boolean = false): void {
-    this.domAdapter.rootContainer = this.survey?.rootElement;
+    this.domAdapter.rootContainer = this.getRootElement(this.survey, this.creator);
     this.domAdapter.startDrag(event, draggedElement, parentElement, draggedElementNode, preventSaveTargetNode);
+  }
+
+  private getRootElement(survey: SurveyModel, creator: any): HTMLElement {
+    return creator ? creator.rootElement : survey.rootElement;
   }
 
   public dragInit(event: PointerEvent, draggedElement: any, parentElement?: any, draggedElementNode?: HTMLElement): void {
@@ -78,9 +83,11 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     draggedElementNode?: HTMLElement,
     event?: PointerEvent
   ): HTMLElement {
-    const draggedElementShortcut = document.createElement("div");
-    draggedElementShortcut.innerText = text;
-    draggedElementShortcut.className = this.getDraggedElementClass();
+    const draggedElementShortcut = DomDocumentHelper.createElement("div");
+    if(!!draggedElementShortcut) {
+      draggedElementShortcut.innerText = text;
+      draggedElementShortcut.className = this.getDraggedElementClass();
+    }
     return draggedElementShortcut;
   }
 
@@ -116,7 +123,9 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     const displayProp = this.domAdapter.draggedElementShortcut.style.display;
     //this.domAdapter.draggedElementShortcut.hidden = true;
     this.domAdapter.draggedElementShortcut.style.display = "none";
-    let dragOverNode = <HTMLElement>document.elementFromPoint(clientX, clientY);
+
+    if(!DomDocumentHelper.isAvailable()) return null;
+    let dragOverNode = <HTMLElement>DomDocumentHelper.getDocument().elementFromPoint(clientX, clientY);
     // this.domAdapter.draggedElementShortcut.hidden = false;
     this.domAdapter.draggedElementShortcut.style.display = displayProp || "block";
 

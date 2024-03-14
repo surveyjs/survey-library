@@ -78,6 +78,7 @@ import { QuestionSignaturePadModel } from "./question_signaturepad";
 import { SurveyTaskManagerModel } from "./surveyTaskManager";
 import { ProgressButtons } from "./progress-buttons";
 import { TOCModel } from "./surveyToc";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 
 /**
  * The `SurveyModel` object contains properties and methods that allow you to control the survey and access its elements.
@@ -244,7 +245,7 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
   public onQuestionVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.addEvent<SurveyModel, QuestionVisibleChangedEvent>();
-  public onVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.onQuestionVisibleChanged;
+  public onVisibleChanged: EventBase<SurveyModel, any> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.
    *
@@ -254,7 +255,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public onPageVisibleChanged: EventBase<SurveyModel, PageVisibleChangedEvent> = this.addEvent<SurveyModel, PageVisibleChangedEvent>();
   /**
-   * An event that is raised after page visibility is changed.
+   * An event that is raised after panel visibility is changed.
    *
    * For information on event handler parameters, refer to descriptions within the interface.
    *
@@ -843,7 +844,7 @@ export class SurveyModel extends SurveyElementCore
 
   constructor(jsonObj: any = null, renderedElement: any = null) {
     super();
-    if (typeof document !== "undefined") {
+    if (DomDocumentHelper.isAvailable()) {
       SurveyModel.stylesManager = new StylesManager();
     }
     const htmlCallBack = (str: string): string => { return "<h3>" + str + "</h3>"; };
@@ -2949,6 +2950,9 @@ export class SurveyModel extends SurveyElementCore
       this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
         if (!Serializer.hasOriginalProperty(this.editingObj, options.name))
           return;
+        if(options.name === "locale") {
+          this.setDataCore({});
+        }
         this.updateOnSetValue(options.name, (<any>this.editingObj)[options.name], options.oldValue);
       };
       this.editingObj.onPropertyChanged.add(this.onEditingObjPropertyChanged);
@@ -3644,8 +3648,8 @@ export class SurveyModel extends SurveyElementCore
    * @see deleteCookie
    */
   public get hasCookie(): boolean {
-    if (!this.cookieName || typeof document === "undefined") return false;
-    var cookies = document.cookie;
+    if (!this.cookieName) return false;
+    var cookies = DomDocumentHelper.getCookie();
     return cookies && cookies.indexOf(this.cookieName + "=true") > -1;
   }
   /**
@@ -3654,9 +3658,8 @@ export class SurveyModel extends SurveyElementCore
    * @see deleteCookie
    */
   public setCookie() {
-    if (!this.cookieName || typeof document === "undefined") return;
-    document.cookie =
-      this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT";
+    if (!this.cookieName) return;
+    DomDocumentHelper.setCookie(this.cookieName + "=true; expires=Fri, 31 Dec 9999 0:0:0 GMT");
   }
   /**
    * Deletes a cookie with a specified [`cookieName`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#cookieName) from the browser.
@@ -3665,7 +3668,7 @@ export class SurveyModel extends SurveyElementCore
    */
   public deleteCookie() {
     if (!this.cookieName) return;
-    document.cookie = this.cookieName + "=;";
+    DomDocumentHelper.setCookie(this.cookieName + "=;");
   }
   /**
    * This property is obsolete. Use the [`validationEnabled`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#validationEnabled) property instead.
@@ -4764,11 +4767,11 @@ export class SurveyModel extends SurveyElementCore
     let observedElement: HTMLElement = htmlElement;
     const cssVariables = this.css.variables;
     if (!!cssVariables) {
-      const mobileWidth = Number.parseFloat(window.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
+      const mobileWidth = Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).getPropertyValue(cssVariables.mobileWidth));
       if (!!mobileWidth) {
         let isProcessed = false;
         this.resizeObserver = new ResizeObserver((entries: ResizeObserverEntry[]) => {
-          window.requestAnimationFrame((): void | undefined => {
+          DomWindowHelper.requestAnimationFrame((): void | undefined => {
             if (isProcessed || !isContainerVisible(observedElement)) {
               isProcessed = false;
             } else {

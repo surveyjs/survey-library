@@ -1,5 +1,5 @@
 import { QuestionFactory } from "./questionfactory";
-import { Serializer } from "./jsonobject";
+import { Serializer, property } from "./jsonobject";
 import { LocalizableString, LocalizableStrings } from "./localizablestring";
 import { Helpers, HashTable } from "./helpers";
 import { EmailValidator } from "./validator";
@@ -10,6 +10,9 @@ import { QuestionTextBase } from "./question_textbase";
 import { ExpressionRunner } from "./conditions";
 import { SurveyModel } from "./survey";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { InputElementAdapter } from "./mask/input_element_adapter";
+import { InputMaskBase } from "./mask/mask_base";
+import { IInputMask } from "./mask/mask_utils";
 
 /**
  * A class that describes the Single-Line Input question type.
@@ -20,10 +23,62 @@ export class QuestionTextModel extends QuestionTextBase {
   private locDataListValue: LocalizableStrings;
   private minValueRunner: ExpressionRunner;
   private maxValueRunner: ExpressionRunner;
+  private maskInputAdapter: InputElementAdapter;
+
+  private createMaskAdapter() {
+    if (!!this.input && !this.maskTypeIsEmpty) {
+      this.maskInputAdapter = new InputElementAdapter(this.maskInstance as InputMaskBase, this.input, this.value);
+    }
+  }
+  private deleteMaskAdapter() {
+    if (this.maskInputAdapter) {
+      this.maskInputAdapter.dispose();
+      this.maskInputAdapter = undefined;
+    }
+  }
+  private updateMaskAdapter() {
+    this.deleteMaskAdapter();
+    this.createMaskAdapter();
+  }
+  onSetMaskType(newValue: string) {
+    this.setNewMaskSettingsProperty();
+    this.updateMaskAdapter();
+  }
+
+  @property({
+    onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
+  }) maskType: string;
+
+  get maskTypeIsEmpty(): boolean {
+    return this.maskType === "none";
+  }
+
+  public get maskSettings(): InputMaskBase {
+    return this.getPropertyValue("maskSettings");
+  }
+  public set maskSettings(val: InputMaskBase) {
+    if (!val) return;
+    this.setNewMaskSettingsProperty();
+    this.maskSettings.fromJSON(val.toJSON());
+    this.updateMaskAdapter();
+  }
+  private setNewMaskSettingsProperty() {
+    this.setPropertyValue("maskSettings", this.createMaskSettings());
+  }
+  protected createMaskSettings(): InputMaskBase {
+    let maskClassName = (!this.maskType || this.maskType === "none") ? "masksettings" : (this.maskType + "mask");
+    if(!Serializer.findClass(maskClassName)) {
+      maskClassName = "masksettings";
+    }
+    const inputMask = Serializer.createClass(maskClassName);
+    return inputMask;
+  }
+
   constructor(name: string) {
     super(name);
     this.createLocalizableString("minErrorText", this, true, "minError");
     this.createLocalizableString("maxErrorText", this, true, "maxError");
+    this.setNewMaskSettingsProperty();
     this.locDataListValue = new LocalizableStrings(this);
     this.locDataListValue.onValueChanged = (oldValue: any, newValue: any) => {
       this.propertyValueChanged("dataList", oldValue, newValue);
@@ -219,6 +274,24 @@ export class QuestionTextModel extends QuestionTextBase {
   public get isMinMaxType(): boolean {
     return isMinMaxType(this);
   }
+
+  public get maskInstance(): IInputMask {
+    return this.maskSettings;
+  }
+  public get inputValue(): string {
+    return !this.maskTypeIsEmpty ? this.maskInstance.getMaskedValue(this.value) : this.value;
+  }
+  public set inputValue(val: string) {
+    let value = val;
+    if(!this.maskTypeIsEmpty) {
+      value = this.maskInstance.getUnmaskedValue(val);
+      if(!!value && this.maskSettings.saveMaskedValue) {
+        value = this.maskInstance.getMaskedValue(value);
+      }
+    }
+    this.value = value;
+  }
+
   protected onCheckForErrors(
     errors: Array<SurveyError>,
     isOnValueChanged: boolean
@@ -418,7 +491,7 @@ export class QuestionTextModel extends QuestionTextBase {
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
-      this.value = newValue;
+      this.inputValue = newValue;
     }
   }
   onCompositionUpdate = (event: any) => {
@@ -450,7 +523,8 @@ export class QuestionTextModel extends QuestionTextBase {
     this.onTextKeyDownHandler(event);
   }
   public onChange = (event: any): void => {
-    if (event.target === settings.environment.root.activeElement) {
+    const elementIsFocused = event.target === settings.environment.root.activeElement;
+    if (elementIsFocused) {
       if (this.isInputTextUpdate) {
         this.updateValueOnEvent(event);
       }
@@ -465,6 +539,17 @@ export class QuestionTextModel extends QuestionTextBase {
   };
   public onFocus = (event: any): void => {
     this.updateRemainingCharacterCounter(event.target.value);
+  }
+
+  public afterRenderQuestionElement(el: HTMLElement) {
+    if (!!el) {
+      this.input = el instanceof HTMLInputElement ? el : el.querySelector("input");
+      this.createMaskAdapter();
+    }
+    super.afterRenderQuestionElement(el);
+  }
+  public beforeDestroyQuestionElement(el: HTMLElement) {
+    this.deleteMaskAdapter();
   }
 }
 
@@ -616,6 +701,30 @@ Serializer.addClass(
       dependsOn: "inputType",
       visibleIf: function(obj: any) {
         return isMinMaxType(obj);
+      },
+    },
+    {
+      name: "maskType:masktype",
+      default: "none",
+      visibleIndex: 0,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      }
+    },
+    {
+      name: "maskSettings:masksettings",
+      className: "masksettings",
+      visibleIndex: 1,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      },
+      onGetValue: function (obj: any) {
+        return obj.maskSettings.getData();
+      },
+      onSetValue: function (obj: any, value: any) {
+        obj.maskSettings.setData(value);
       },
     },
     {

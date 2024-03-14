@@ -115,7 +115,6 @@ export class DragDropMatrixRows extends DragDropCore<QuestionMatrixDynamicModel>
 
   protected afterDragOver(dropTargetNode: HTMLElement): void {
     if (this.isDropTargetDoesntChanged(this.isBottom)) return;
-    if (this.dropTarget === this.draggedElement) return;
 
     let dropTargetIndex;
     let draggedElementIndex;

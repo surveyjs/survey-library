@@ -15,8 +15,6 @@
 }
 
 .sv-ranking-item--animate-item-removing {
-  height: 0px;
-  opacity: 0;
   animation: sv-animate-item-removing-keyframes $ranking-animation-duration;
 }
 
@@ -139,7 +137,9 @@
   box-sizing: border-box;
   font-weight: 600;
   margin-left: calcSize(0);
-  transition: outline $transition-duration, background $transition-duration;
+  transition:
+    outline $transition-duration,
+    background $transition-duration;
   outline: calcSize(0.25) solid transparent;
 
   svg {
@@ -293,11 +293,31 @@
   }
 
   .sv-ranking-item--animate-item-removing {
-    animation: sv-animate-item-removing-keyframes 0ms;
+    animation: sv-animate-item-opacity-keyframes $ranking-animation-duration;
   }
-  
+
   .sv-ranking-item--animate-item-adding {
-    animation: sv-animate-item-adding-keyframes 0ms;
+    animation: sv-animate-item-opacity-reverse-keyframes $ranking-animation-duration;
+  }
+}
+
+@keyframes sv-animate-item-opacity-reverse-keyframes {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes sv-animate-item-opacity-keyframes {
+  0% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
   }
 }
 
@@ -371,5 +391,13 @@
 .sv-ranking__container--from {
   .sv-ranking-item__icon--focus {
     display: none;
+  }
+}
+
+.sv-ranking--select-to-rank-horizontal .sv-ranking__container--to .sv-ranking-item {
+  left: 0 !important;
+  padding-left: 16px;
+  .sv-ranking-item__ghost {
+    left: initial;
   }
 }

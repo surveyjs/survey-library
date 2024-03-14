@@ -297,6 +297,7 @@ QUnit.test("DragDropRankingSelectToRank reorderRankedItem", function (assert) {
   const withDefaultValue = true;
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel(withDefaultValue);
+  dndModel["parentElement"] = questionModel;
 
   dndModel.reorderRankedItem(questionModel, 0, 1);
   assert.equal(questionModel.rankingChoices[0].value, "22", "item 1 is correct");

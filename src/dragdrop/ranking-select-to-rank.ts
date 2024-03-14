@@ -54,8 +54,6 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     const rankingChoices = questionModel.rankingChoices;
     const unRankingChoices = questionModel.unRankingChoices;
 
-    this.removeAllAnimationClasses();
-
     if (this.isDraggedElementUnranked && this.isDropTargetRanked) {
       this.doRankBetween(dropTargetNode, unRankingChoices, rankingChoices, this.selectToRank);
       return;
@@ -137,56 +135,27 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     return !this.isDropTargetRanked;
   }
 
-  public selectToRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void => {
-    const rankingChoices = questionModel.rankingChoices;
+  private updateChoices(questionModel: QuestionRankingModel, rankingChoices: Array<ItemValue>) {
+    questionModel.isValueSetByUser = true;
+    questionModel.rankingChoices = rankingChoices;
+    questionModel.updateUnRankingChoices(rankingChoices);
+  }
+
+  public selectToRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number): void => {
+    const rankingChoices = [].concat(questionModel.rankingChoices);
     const unRankingChoices = questionModel.unRankingChoices;
     const item = unRankingChoices[fromIndex];
-
-    const animationCallback = ()=> {
-      questionModel.isValueSetByUser = true;
-      rankingChoices.splice(toIndex, 0, item);
-      questionModel.setPropertyValue("rankingChoices", rankingChoices);
-    };
-    this.animateItemMovingToContainer(questionModel, item, animationCallback);
+    rankingChoices.splice(toIndex, 0, item);
+    this.updateChoices(questionModel, rankingChoices);
   }
 
   public unselectFromRank = (questionModel: QuestionRankingModel, fromIndex: number, toIndex?: number): void => {
-    const rankingChoices = questionModel.rankingChoices;
-    const item = rankingChoices[fromIndex];
-
-    const animationCallback = ()=> {
-      questionModel.isValueSetByUser = true;
-      rankingChoices.splice(fromIndex, 1);
-      questionModel.setPropertyValue("rankingChoices", rankingChoices);
-    };
-    this.animateItemMovingToContainer(questionModel, item, animationCallback);
+    const rankingChoices = [].concat(questionModel.rankingChoices);
+    rankingChoices.splice(fromIndex, 1);
+    this.updateChoices(questionModel, rankingChoices);
   }
 
-  private animateItemMovingToContainer = (questionModel: QuestionRankingModel, itemToAnimateAdding:ItemValue, callbackOnAnimationEnd:()=>void) => {
-    const ghostNode:any = document.querySelectorAll(".sv-ranking-item--ghost")[0];
-
-    if (!ghostNode) {
-      callbackOnAnimationEnd();
-      return;
-    }
-
-    const handleAnimationEnd = (event: any) => {
-      if (event.target !== ghostNode) { return; }
-      //if (event.propertyName !== "height") { return; }
-      if (getComputedStyle(event.target).height !== "0px") { return; }
-      ghostNode.removeEventListener("animationend", handleAnimationEnd);
-      this.removeAllAnimationClasses();
-      questionModel.itemsToAnimateAdding.push(itemToAnimateAdding);
-      callbackOnAnimationEnd();
-    };
-
-    ghostNode.removeEventListener("animationend", handleAnimationEnd);
-    this.removeAllAnimationClasses();
-    ghostNode.addEventListener("animationend", handleAnimationEnd);
-    ghostNode.classList.add("sv-ranking-item--animate-item-removing");
-  }
-
-  public reorderRankedItem = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode: HTMLElement): void => {
+  public reorderRankedItem = (questionModel: QuestionRankingModel, fromIndex: number, toIndex: number, dropTargetNode?: HTMLElement): void => {
     const rankingChoices = questionModel.rankingChoices;
     const item = rankingChoices[fromIndex];
 
@@ -194,27 +163,17 @@ export class DragDropRankingSelectToRank extends DragDropRankingChoices {
     rankingChoices.splice(fromIndex, 1);
     rankingChoices.splice(toIndex, 0, item);
     questionModel.setPropertyValue("rankingChoices", rankingChoices);
+    if(dropTargetNode) {
+      this.doUIEffects(dropTargetNode, fromIndex, toIndex);
+    }
 
-    this.doUIEffects(dropTargetNode, fromIndex, toIndex);
   }
-
-  protected doDrop = (): any => {
-    this.removeAllAnimationClasses();
-    super.doDrop();
-  };
-
   public clear(): void {
-    this.removeAllAnimationClasses();
+    const questionModel = <QuestionRankingModel>this.parentElement;
+    if(!!questionModel) {
+      questionModel.rankingChoicesAnimation.cancel();
+      questionModel.unRankingChoicesAnimation.cancel();
+    }
     super.clear();
-  }
-
-  private removeAllAnimationClasses() {
-    this.parentElement.itemsToAnimateAdding = [];
-    document.querySelectorAll(".sv-ranking-item--animate-item-removing").forEach((node)=>{
-      node.classList.remove("sv-ranking-item--animate-item-removing");
-    });
-    document.querySelectorAll(".sv-ranking-item--animate-item-adding").forEach((node)=>{
-      node.classList.remove("sv-ranking-item--animate-item-adding");
-    });
   }
 }

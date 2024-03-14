@@ -91,7 +91,6 @@ export class DragDropRankingChoices extends DragDropChoices {
 
     return true;
   }
-
   protected calculateIsBottom(clientY: number): boolean {
     const choices = this.parentElement.rankingChoices;
     return (

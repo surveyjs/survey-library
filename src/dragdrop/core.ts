@@ -210,8 +210,9 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
 
     this.isBottom = null; //TODO need for property change trigger with guarantee but it would be better not to watch on isBottom property but have some event like onValidTargetDragOver
     this.isBottom = isBottom;
-
-    this.afterDragOver(dropTargetNode);
+    if(this.draggedElement != this.dropTarget) {
+      this.afterDragOver(dropTargetNode);
+    }
     this.prevDropTarget = this.dropTarget;
   }
 

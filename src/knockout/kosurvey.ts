@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import * as ko from "knockout";
 import { Base, SurveyModel, SvgRegistry, doKey2ClickDown, doKey2ClickUp, doKey2ClickBlur, IAttachKey2clickOptions, settings } from "survey-core";
 import { SurveyElement } from "survey-core";

@@ -5,9 +5,7 @@ import { DragDropRankingSelectToRank } from "../src/dragdrop/ranking-select-to-r
 import { SurveyModel } from "../src/survey";
 import { ItemValue } from "../src/itemvalue";
 import { ImageItemValue } from "../src/question_imagepicker";
-import { Question } from "../src/question";
 import { QuestionSelectBase } from "../src/question_baseselect";
-import { DragDropCore } from "../src/dragdrop/core";
 import { DragDropDOMAdapter } from "../src/dragdrop/dom-adapter";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { DragDropMatrixRows } from "../src/dragdrop/matrix-rows";
@@ -429,4 +427,14 @@ QUnit.test("DragDropDOMAdapter: insertNodeToParentAtIndex", function (assert) {
 
   assert.equal(domAdapter.getNodeIndexInParent(child2), 0);
   assert.equal(domAdapter.getNodeIndexInParent(child1), 1);
+});
+
+QUnit.test("check rootContainer", function (assert) {
+  let h1 = document.createElement("h1");
+  let h2 = document.createElement("h2");
+  let survey:any = { rootElement: h1 };
+  let creator:any = { rootElement: h2 };
+  let dd: any = new DragDropChoices(survey);
+  assert.equal(dd.getRootElement(survey), h1);
+  assert.equal(dd.getRootElement(survey, creator), h2);
 });

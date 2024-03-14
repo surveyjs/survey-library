@@ -21,6 +21,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { ActionContainer, defaultActionBarCss } from "./actions/container";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { SurveyModel } from "./survey";
+import { DomDocumentHelper, DomWindowHelper } from "./global_variables_utils";
 /**
  * A base class for the [`SurveyElement`](https://surveyjs.io/form-library/documentation/surveyelement) and [`SurveyModel`](https://surveyjs.io/form-library/documentation/surveymodel) classes.
  */
@@ -176,11 +177,11 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       elLeft = el.getBoundingClientRect().left;
       needScroll = elLeft < 0;
     }
-    if(!!window && !needScroll) {
-      const height = window.innerHeight;
+    if(!needScroll && DomWindowHelper.isAvailable()) {
+      const height = DomWindowHelper.getInnerHeight();
       needScroll = height > 0 && height < elTop;
       if(!needScroll && checkLeft) {
-        const width = window.innerWidth;
+        const width = DomWindowHelper.getInnerWidth();
         needScroll = width > 0 && width < elLeft;
       }
     }
@@ -204,7 +205,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return null;
   }
   public static FocusElement(elementId: string): boolean {
-    if (!elementId || typeof document === "undefined") return false;
+    if (!elementId || !DomDocumentHelper.isAvailable()) return false;
     const res: boolean = SurveyElement.focusElementCore(elementId);
     if (!res) {
       setTimeout(() => {
@@ -949,12 +950,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
   private isContainsSelection(el: any) {
     let elementWithSelection: any = undefined;
-    if ((typeof document !== "undefined") && (document as any)["selection"]) {
-      elementWithSelection = (document as any)["selection"].createRange().parentElement();
+    const _document = DomDocumentHelper.getDocument();
+    if (DomDocumentHelper.isAvailable() && !!_document && (_document as any)["selection"]) {
+      elementWithSelection = (_document as any)["selection"].createRange().parentElement();
     }
     else {
-      var selection = window.getSelection();
-      if (selection.rangeCount > 0) {
+      var selection = DomWindowHelper.getSelection();
+      if (!!selection && selection.rangeCount > 0) {
         const range = selection.getRangeAt(0);
         if (range.startOffset !== range.endOffset) {
           elementWithSelection = range.startContainer.parentNode;

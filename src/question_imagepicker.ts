@@ -7,6 +7,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
 import { classesToSelector } from "./utils/utils";
+import { DomDocumentHelper } from "./global_variables_utils";
 
 export class ImageItemValue extends ItemValue implements ILocalizableOwner {
 
@@ -416,7 +417,7 @@ export class QuestionImagePickerModel extends QuestionCheckboxBase {
     const observedElement = el && selector ? el.querySelector(selector) : undefined;
     if (!!observedElement) {
       this.reCalcGapBetweenItemsCallback = () => {
-        this.gapBetweenItems = Math.ceil(Number.parseFloat(window.getComputedStyle(observedElement).gap)) || 16;
+        this.gapBetweenItems = Math.ceil(Number.parseFloat(DomDocumentHelper.getComputedStyle(observedElement).gap)) || 16;
       };
       this.reCalcGapBetweenItemsCallback();
     }

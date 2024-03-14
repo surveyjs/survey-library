@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import * as ko from "knockout";
 import { LocalizableString } from "survey-core";
 const template = require("./string-editor.html");

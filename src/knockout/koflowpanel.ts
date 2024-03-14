@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 import * as ko from "knockout";
 import { FlowPanelModel } from "survey-core";
 import { Question } from "survey-core";
@@ -88,7 +89,7 @@ ko.components.register("f-panel", {
         self.isContentUpdating = false;
       };
       question.getContent = self.getContent = function (deletedName: string) {
-        var content = document.createElement("DIV");
+        var content = document.createElement("div");
         content.innerHTML = self.element.innerHTML;
         var cps = content.querySelectorAll('span[question="true"]');
         for (var i = 0; i < cps.length; i++) {

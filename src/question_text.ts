@@ -74,7 +74,7 @@ export class QuestionTextModel extends QuestionTextBase {
    * | ---------- | ----- |
    * | `"numeric"` | [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric) |
    * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
-   * | `"datetime"` | [``](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
+   * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
    * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
    */
   public get maskSettings(): InputMaskBase {

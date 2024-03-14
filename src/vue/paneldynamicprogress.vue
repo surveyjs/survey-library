@@ -23,7 +23,6 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { Question, QuestionPanelDynamicModel, CssClassBuilder } from "survey-core";
 
-
 @Component
 export class PanelDynamicProgress extends Vue {
   @Prop() question: QuestionPanelDynamicModel;

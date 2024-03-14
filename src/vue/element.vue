@@ -1,5 +1,5 @@
 <template>
-  <div :class="!element.isPanel ? element.getRootCss() : null" 
+  <div :class="!element.isPanel ? element.getRootCss() : null"
         v-if="row.isNeedRender"
         ref="root"
         v-on:focusin="element.focusIn()"
@@ -66,7 +66,7 @@
       :location="'bottom'"
     />
   </div>
-  
+
   <component
   v-else-if="!!element.skeletonComponentName"
   ref="root"
@@ -112,10 +112,10 @@ export class SurveyElementVue extends BaseVue {
     this.previousElement = el;
   }
   onUpdated() {
-      this.afterRender(this.$refs.root as HTMLElement);
+    this.afterRender(this.$refs.root as HTMLElement);
   }
   mounted(): void {
-    this.afterRender(this.$refs.root as HTMLElement)
+    this.afterRender(this.$refs.root as HTMLElement);
   }
   destroyed(): void {
     this.previousElement = undefined as any;

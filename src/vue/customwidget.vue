@@ -31,9 +31,7 @@ export class CustomWidget extends Vue {
   get hasVueComponent(): boolean {
     var options = (<any>Vue)["options"];
     if (!options) return false;
-    return (
-      options.components && options.components[this.question.customWidget.name]
-    );
+    return !!(options.components && options.components[this.question.customWidget.name]);
   }
   get componentName(): string {
     if (this.hasVueComponent) return this.question.customWidget.name;

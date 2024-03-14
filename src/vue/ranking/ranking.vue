@@ -38,7 +38,7 @@ import { QuestionRankingModel } from "survey-core";
 @Component
 export class Ranking extends QuestionVue<QuestionRankingModel> {
   getNumberByIndex(index: any) {
-    return this.question.getNumberByIndex(index)
+    return this.question.getNumberByIndex(index);
   }
 }
 

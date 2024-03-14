@@ -33,8 +33,8 @@
         >{{ item.title }}</span
       >
     </button>
-    <sv-popup 
-      :model="item.popupModel" 
+    <sv-popup
+      :model="item.popupModel"
       :getTarget="getTarget"></sv-popup>
   </div>
 </template>

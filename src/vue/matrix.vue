@@ -23,7 +23,7 @@
             :class="row.rowClasses || undefined"
           >
             <td :class="row.rowTextClasses" v-show="question.hasRows"
-              :style="{minWidth: question.rowTitleWidth, width: question.rowTitleWidth}"> 
+              :style="{minWidth: question.rowTitleWidth, width: question.rowTitleWidth}">
               <survey-string :locString="row.locText" />
             </td>
             <td
@@ -62,7 +62,7 @@ import { QuestionMatrixModel } from "survey-core";
 
 @Component
 export class Matrix extends QuestionVue<QuestionMatrixModel> {
-   cellClick(row: any, column: any) {
+  cellClick(row: any, column: any) {
     row.value = column.value;
   }
 }

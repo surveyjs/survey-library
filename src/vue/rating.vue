@@ -8,7 +8,8 @@
         </span>
         <component
           v-for="(item, index) in question.renderedRateItems"
-              :is="question.itemComponent"
+          v-bind:key="index"
+          :is="question.itemComponent"
           :item="item"
           :index="index"
           :question="question"
@@ -31,7 +32,7 @@ import { QuestionRatingModel } from "survey-core";
 @Component
 export class Rating extends QuestionVue<QuestionRatingModel> {
   getInputId(index: any) {
-    return this.question.getInputId(index)
+    return this.question.getInputId(index);
   }
 }
 Vue.component("survey-rating", Rating);

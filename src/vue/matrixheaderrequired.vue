@@ -1,7 +1,7 @@
 <template>
   <span class="sv-vue-title-additional-div" v-if="column.isRenderedRequired">
     <span>&nbsp;</span>
-    <span :class="question.cssClasses.cellRequiredText">{{ column.requiredText }}</span>      
+    <span :class="question.cssClasses.cellRequiredText">{{ column.requiredText }}</span>
   </span>
 </template>
 
@@ -20,7 +20,7 @@ export class MatrixHeaderRequired extends BaseVue {
   @Prop() question: Question;
   @Prop() column: MatrixDropdownColumn;
 
-protected getModel(): Base {
+  protected getModel(): Base {
     return this.column;
   }
 }

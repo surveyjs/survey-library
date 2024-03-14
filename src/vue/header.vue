@@ -42,7 +42,6 @@ import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
 import { SurveyModel } from "survey-core";
 
-
 @Component
 export class SurveyHeader extends Vue {
   @Prop() survey: SurveyModel;

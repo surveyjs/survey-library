@@ -401,7 +401,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
   private getFirstUnknownIndex(newValue: any): number {
     if (!Array.isArray(newValue)) return -1;
     for (var i = 0; i < newValue.length; i++) {
-      if (this.hasUnknownValue(newValue[i], false, false)) return i;
+      if (this.hasUnknownValueItem(newValue[i], false, false)) return i;
     }
     return -1;
   }
@@ -602,7 +602,7 @@ export class QuestionCheckboxModel extends QuestionCheckboxBase {
     if (!this.hasActiveChoices) return val;
     for (var i = 0; i < val.length; i++) {
       if (val[i] == this.otherItem.value) return val;
-      if (this.hasUnknownValue(val[i], true, false)) {
+      if (this.hasUnknownValueItem(val[i], true, false)) {
         this.otherValue = val[i];
         var newVal = val.slice();
         newVal[i] = this.otherItem.value;

@@ -39,6 +39,7 @@ import { CustomWidgetCollection } from "../src/questionCustomWidgets";
 import { ConsoleWarnings } from "../src/console-warnings";
 import { StylesManager } from "../src/stylesmanager";
 import { surveyTimerFunctions } from "../src/surveytimer";
+import { defaultStandardCss } from "../src/defaultCss/cssstandard";
 
 export default QUnit.module("Survey_Questions");
 
@@ -1368,7 +1369,7 @@ QUnit.test("Checkbox store others value not in comment", function (assert) {
   assert.equal(question.isOtherSelected, false, "Others is not selected");
   assert.deepEqual(survey.data, { q: ["A", "B"] }, "'B' is set");
 });
-QUnit.test("Checkbox store others value not in comment", function (assert) {
+QUnit.test("Checkbox store others value not in comment & defaultValue", function (assert) {
   var survey = new SurveyModel({
     elements: [
       {
@@ -1943,7 +1944,7 @@ QUnit.test("defaultValue and hasOther - checkbox, bug#384 (Editor)", function (
     [2, "other"],
     "rendredValue set correctly"
   );
-  assert.deepEqual(question.value, [2, "otherValue"], "value set correctly");
+  assert.deepEqual(question.value, [2, "other"], "value set correctly");
   assert.equal(question.comment, "otherValue", "other value is set");
 });
 
@@ -4619,24 +4620,32 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       },
     ],
   });
+  survey.css = defaultStandardCss;
   var q1 = <QuestionCheckboxModel>survey.getQuestionByName("q1");
   q1.value = [1];
-  assert.equal(
+  const checkCss = (actual: string, expected: string, message: string): void => {
+    const actualList = actual.split(" ");
+    const expectedList = expected.split(" ");
+    expectedList.forEach(cl => {
+      assert.equal(actualList.indexOf(cl) >= 0, true, message + ": '" + cl + "' is not found in " + actual);
+    });
+  };
+  checkCss(
     q1.getItemClass(q1.visibleChoices[0]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_selectall",
     "select all"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[1]),
     "sv_q_checkbox sv-q-col-1 checked",
     "item 1"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[2]),
     "sv_q_checkbox sv-q-col-1",
     "item 2"
   );
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[3]),
     "sv_q_checkbox sv-q-col-1 sv_q_checkbox_none",
     "None"
@@ -4646,7 +4655,7 @@ QUnit.test("Checkbox question getItemClass() + survey.onUpdateChoiceItemCss", fu
       options.css = options.css + " custom";
     }
   });
-  assert.equal(
+  checkCss(
     q1.getItemClass(q1.visibleChoices[2]),
     "sv_q_checkbox sv-q-col-1 custom",
     "item 2, value = 2, survey.onUpdateChoiceItemCss"

@@ -64,7 +64,7 @@ import {
   MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
   DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent,
   GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
-  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent
+  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, IChooseFileContext
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -2949,7 +2949,7 @@ export class SurveyModel extends SurveyElementCore
       this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
         if (!Serializer.hasOriginalProperty(this.editingObj, options.name))
           return;
-        if(options.name === "locale") {
+        if (options.name === "locale") {
           this.setDataCore({});
         }
         this.updateOnSetValue(options.name, (<any>this.editingObj)[options.name], options.oldValue);
@@ -5161,8 +5161,8 @@ export class SurveyModel extends SurveyElementCore
   public chooseFiles(
     input: HTMLInputElement,
     callback: (files: File[]) => void,
-    context?: { element: ISurveyElement, item?: any }
-  ) {
+    context?: { element: ISurveyElement, item?: any, target?: any, type?: string, property?: string }
+  ): void {
     if (this.onOpenFileChooser.isEmpty) {
       chooseFiles(input, callback);
     } else {
@@ -5170,7 +5170,8 @@ export class SurveyModel extends SurveyElementCore
         input: input,
         element: context && context.element || this.survey,
         item: context && context.item,
-        callback: callback
+        callback: callback,
+        context: context as IChooseFileContext
       });
     }
   }

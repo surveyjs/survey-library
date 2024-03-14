@@ -482,7 +482,7 @@ export class QuestionFileModel extends QuestionFileModelBase {
     event.stopImmediatePropagation();
     if (inputElement) {
       if (this.survey) {
-        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this });
+        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this, target: this.survey, type: this.getType(), property: this.name });
       } else {
         inputElement.click();
       }

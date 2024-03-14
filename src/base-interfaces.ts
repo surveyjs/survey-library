@@ -234,7 +234,7 @@ export interface ISurvey extends ITextProcessor, ISurveyErrorOwner {
   elementContentVisibilityChanged(element: ISurveyElement): void;
   onCorrectQuestionAnswer(question: IQuestion, options: any): void;
   processPopupVisiblityChanged(question: IQuestion, popupModel: PopupModel, visible: boolean): void;
-  chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: ISurveyElement, item?: any }): void;
+  chooseFiles(input: HTMLInputElement, callback: (files: File[]) => void, context?: { element: ISurveyElement, item?: any, target?: any, type?: string, property?: string }): void;
 }
 export interface ISurveyImpl {
   getSurveyData(): ISurveyData;

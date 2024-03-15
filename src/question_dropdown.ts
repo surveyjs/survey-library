@@ -218,6 +218,13 @@ export class QuestionDropdownModel extends QuestionSelectBase {
    */
   @property() searchMode: "contains" | "startsWith";
 
+  /**
+   * Specifies whether to wrap long texts in choice options onto a new line.
+   *
+   * Default value: `true`
+   *
+   * Disable this property if you want the texts to be truncated with ellipsis.
+   */
   @property() textWrapEnabled: boolean;
   @property({ defaultValue: false }) inputHasValue: boolean;
   @property({ defaultValue: "" }) readOnlyText: string;

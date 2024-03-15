@@ -115,7 +115,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
  *   }]
  * }
  * ```
- * 
+ *
  * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskPattern extends InputMaskBase {
@@ -144,7 +144,7 @@ export class InputMaskPattern extends InputMaskBase {
    * - `yyyy` - A four-digit year.
    *
    * Example: `mm/dd/yyyy`
-   * 
+   *
    * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see [settings.maskSettings](https://surveyjs.io/form-library/documentation/api-reference/settings#maskSettings)
    */

@@ -55,6 +55,8 @@ export class QuestionTextModel extends QuestionTextBase {
    * - `"currency"`
    * - `"datetime"`
    * - `"pattern"`
+   * 
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see maskSettings
    */
   @property({
@@ -76,6 +78,8 @@ export class QuestionTextModel extends QuestionTextBase {
    * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
    * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
    * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
+   * 
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    */
   public get maskSettings(): InputMaskBase {
     return this.getPropertyValue("maskSettings");

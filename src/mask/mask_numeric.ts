@@ -43,6 +43,8 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
  *   }]
  * }
  * ```
+ * 
+ * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskNumeric extends InputMaskBase {
   /**
@@ -65,6 +67,8 @@ export class InputMaskNumeric extends InputMaskBase {
    * Limits how many digits to retain after the decimal point for a displayed number.
    *
    * Default value: 2
+   * 
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see decimalSeparator
    */
   @property() precision: number;

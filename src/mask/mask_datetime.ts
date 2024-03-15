@@ -118,6 +118,8 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
  *   }]
  * }
  * ```
+ * 
+ * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskDateTime extends InputMaskPattern {
   private turnOfTheCentury = 68;

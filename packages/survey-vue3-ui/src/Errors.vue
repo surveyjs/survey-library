@@ -8,6 +8,7 @@
     ref="root"
   >
     <div v-for="(error, index) in element.errors" :key="'error_' + index">
+    <div>
       <span
         :class="
           element.cssClasses
@@ -25,6 +26,7 @@
       >
         <survey-string :locString="error.locText" />
       </span>
+    </div>
     </div>
   </div>
 </template>

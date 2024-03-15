@@ -7,6 +7,7 @@
     :id="element.id + '_errors'"
   >
     <div v-for="(error, index) in element.errors" :key="'error_' + index">
+    <div>
       <span
         :class="element.cssClasses ? element.cssClasses.error.icon || undefined : 'panel-error-icon'"
         aria-hidden="true"
@@ -16,6 +17,7 @@
       >
         <survey-string :locString="error.locText" />
       </span>
+    </div>
     </div>
   </div>
 </template>

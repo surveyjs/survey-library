@@ -59,7 +59,7 @@ export class Survey extends SurveyElementBase<any, any>
   componentDidUpdate(prevProps: any, prevState: any) {
     super.componentDidUpdate(prevProps, prevState);
     this.updateSurvey(this.props, prevProps);
-    if(this.isSurveyUpdated) {
+    if (this.isSurveyUpdated) {
       this.onSurveyUpdated();
       this.isSurveyUpdated = false;
     }
@@ -108,7 +108,7 @@ export class Survey extends SurveyElementBase<any, any>
 
     return (
       <div id={this.rootNodeId} ref={this.rootRef} className={cssClasses} style={this.survey.themeVariables}>
-        {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null }
+        {this.survey.needRenderIcons ? <SvgBundleComponent></SvgBundleComponent> : null}
         <div className={this.survey.wrapperFormCss}>
           {backgroundImage}
           <form onSubmit={onSubmit}>
@@ -120,7 +120,7 @@ export class Survey extends SurveyElementBase<any, any>
               <ComponentsContainer survey={this.survey} container={"footer"} needRenderWrapper={false}></ComponentsContainer>
             </div>
           </form>
-          { this.survey.showBrandInfo ? <BrandInfo/> : null }
+          {this.survey.showBrandInfo ? <BrandInfo /> : null}
           <NotifierComponent notifier={this.survey.notifier} ></NotifierComponent>
         </div>
       </div>
@@ -170,7 +170,7 @@ export class Survey extends SurveyElementBase<any, any>
 
     let className = this.survey.bodyCss;
     const style: any = {};
-    if(!!this.survey.renderedWidth) {
+    if (!!this.survey.renderedWidth) {
       style.maxWidth = this.survey.renderedWidth;
     }
     return (
@@ -290,10 +290,12 @@ export class Survey extends SurveyElementBase<any, any>
   ): JSX.Element {
     return (
       <div key={key}>
-        <span className={cssClasses.error.icon || undefined} aria-hidden="true" />
-        <span className={cssClasses.error.item || undefined}>
-          <SurveyLocStringViewer locStr={error.locText} />
-        </span>
+        <div>
+          <span className={cssClasses.error.icon || undefined} aria-hidden="true" />
+          <span className={cssClasses.error.item || undefined}>
+            <SurveyLocStringViewer locStr={error.locText} />
+          </span>
+        </div>
       </div>
     );
   }

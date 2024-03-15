@@ -103,7 +103,7 @@ export function getUnmaskedValueByPattern(str: string, pattern: string | Array<I
  *
  * The following code shows how to specify the properties of this class within a survey JSON schema:
  *
- * ```
+ * ```js
  * const surveyJson = {
  *   "elements": [{
  *     "name": "textquestion1"

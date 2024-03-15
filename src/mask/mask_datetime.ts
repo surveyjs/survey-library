@@ -106,7 +106,7 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
  *
  * The following code shows how to specify the properties of this class within a survey JSON schema:
  *
- * ```
+ * ```js
  * const surveyJson = {
  *   "elements": [{
  *     "name": "textquestion1"

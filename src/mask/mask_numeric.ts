@@ -31,7 +31,7 @@ export function splitString(str: string, reverse = true, n = 3): Array<string> {
  *
  * The following code shows how to specify the properties of this class within a survey JSON schema:
  *
- * ```
+ * ```js
  * const surveyJson = {
  *   "elements": [{
  *     "name": "textquestion1"

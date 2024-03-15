@@ -725,7 +725,7 @@ export interface MatrixDetailPanelVisibleChangedEvent extends MatrixDropdownQues
   /**
    * Indicates whether the detail section is visible now.
    */
-  isShowing: boolean;
+  visible: boolean;
 }
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {

@@ -676,7 +676,7 @@ export class SurveyModel extends SurveyElementCore
   /**
    * An event that is raised after the visibility of an [expandable detail section](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/) is changed. This event can be raised for [Multi-Select](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions.
    */
-  public onMatrixDetailPanelVisibleChanged: EventBase<SurveyModel, MatrixDetailPanelVisibleChangedEvent> = this.addEvent<SurveyModel, MatrixDetailPanelVisibleChangedEvent >();
+  public onMatrixDetailPanelVisibleChanged: EventBase<SurveyModel, MatrixDetailPanelVisibleChangedEvent> = this.addEvent<SurveyModel, MatrixDetailPanelVisibleChangedEvent>();
   /**
    * An event that is raised before a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created. Use this event to change the type of individual matrix cells.
    * @see onAfterRenderMatrixCell
@@ -2953,7 +2953,7 @@ export class SurveyModel extends SurveyElementCore
       this.onEditingObjPropertyChanged = (sender: Base, options: any) => {
         if (!Serializer.hasOriginalProperty(this.editingObj, options.name))
           return;
-        if(options.name === "locale") {
+        if (options.name === "locale") {
           this.setDataCore({});
         }
         this.updateOnSetValue(options.name, (<any>this.editingObj)[options.name], options.oldValue);
@@ -4964,8 +4964,8 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixRenderRemoveButton.fire(this, options);
     return options.allow;
   }
-  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, rowIndex: number, row: any, isShowing: boolean): void {
-    const options = { question: question, rowIndex: rowIndex, row: row, isShowing: isShowing, detailPanel: row.detailPanel };
+  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, rowIndex: number, row: any, visible: boolean): void {
+    const options = { question: question, rowIndex: rowIndex, row: row, visible: visible, detailPanel: row.detailPanel };
     this.onMatrixDetailPanelVisibleChanged.fire(this, options);
   }
   matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any): void {

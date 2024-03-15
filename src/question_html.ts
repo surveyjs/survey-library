@@ -2,7 +2,6 @@ import { QuestionNonValue } from "./questionnonvalue";
 import { Serializer } from "./jsonobject";
 import { QuestionFactory } from "./questionfactory";
 import { LocalizableString } from "./localizablestring";
-import { CssClassBuilder } from "./utils/cssClassBuilder";
 
 /**
   * A class that describes the HTML question type. Unlike other question types, HTML cannot have a title or value.

@@ -38,6 +38,6 @@ registerMarkupTests([
         }
       ]
     },
-    etalon: "<div class=\"sv_q sv_qstn\">HTML content here</div>"
+    etalon: "<div>HTML content here</div>"
   },
 ]);

@@ -466,47 +466,4 @@ frameworks.forEach(framework => {
       await takeElementScreenshot("survey-theme-mobile-popup-input-size.png", popupContainer, t, comparer);
     });
   });
-
-  test("HTML default color", async (t) => {
-    await wrapVisualTest(t, async (t, comparer) => {
-      await t.resizeWindow(800, 3000);
-      await initSurvey(framework, {
-        "pages": [
-          {
-            "name": "page1",
-            "elements": [
-              {
-                "type": "html",
-                "name": "question1",
-                "html": "HTML on surface"
-              },
-              {
-                "type": "panel",
-                "name": "panel1",
-                "title": "Panel",
-                "elements": [
-                  {
-                    "type": "html",
-                    "name": "question2",
-                    "html": "HTML in panel"
-                  }
-                ]
-              }
-            ],
-            "title": "Page"
-          }
-        ]
-      });
-      await ClientFunction(() => {
-        (<any>window).survey.applyTheme({
-          "cssVariables": {
-            "--sjs-general-forecolor": "red",
-            "--sjs-general-dim-forecolor": "blue"
-          }
-        });
-      })();
-
-      await takeElementScreenshot("survey-html-theme.png", Selector(".sd-page"), t, comparer);
-    });
-  });
 });

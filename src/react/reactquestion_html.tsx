@@ -14,7 +14,7 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
     this.reactOnStrChanged();
   }
   componentWillUnmount() {
-    this.question.locHtml.onChanged = function () { };
+    this.question.locHtml.onChanged = function () {};
   }
   componentDidUpdate(prevProps: any, prevState: any) {
     this.reactOnStrChanged();
@@ -31,7 +31,7 @@ export class SurveyQuestionHtml extends SurveyQuestionElementBase {
     var htmlValue = { __html: this.question.locHtml.renderedHtml };
     return (
       <div
-        className={this.question.cssRoot}
+        className={this.question.renderCssRoot}
         dangerouslySetInnerHTML={htmlValue}
       />
     );

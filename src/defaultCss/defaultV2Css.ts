@@ -227,10 +227,9 @@ export var defaultV2Css = {
     withFrame: ""
   },
   html: {
-    mainRoot: "sd-question sd-row__question sd-html sd-question--html",
+    mainRoot: "sd-question sd-row__question sd-question--html",
     root: "sd-html",
-    withFrame: "",
-    nested: "sd-html--nested"
+    withFrame: ""
   },
   error: {
     root: "sd-error",

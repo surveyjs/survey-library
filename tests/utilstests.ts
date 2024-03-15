@@ -16,14 +16,15 @@ function checkSanitizer(element, text, selectionNodeIndex, selectionStart, clean
   range.collapse(true);
   selection.removeAllRanges();
   selection.addRange(range);
-
   sanitizeEditableContent(element, cleanLineBreaks);
-  const newSelection = document.getSelection();
+  const range = document.getSelection().getRangeAt(0);
+  if (element.childNodes.length > 0) range.setStart(element.childNodes[0], 0);
   return {
     text: element.innerHTML,
     plainText: element.innerText,
-    offset: newSelection.getRangeAt(0).startOffset,
-    nodeText: newSelection.getRangeAt(0).startContainer.textContent
+    position: selection?.toString().length,
+    offset: range.endOffset,
+    nodeText: range.endContainer.textContent
   };
 }
 QUnit.test(
@@ -70,10 +71,42 @@ QUnit.test(
     assert.equal(res.offset, 2);
     assert.equal(res.nodeText, "some");
 
+    var res = checkSanitizer(element, "some<br/>text<br/><br/>", 3, 0, false);
+    assert.equal(res.plainText, "some\ntext\n\n");
+    assert.equal(res.position, 10);
+
     var res = checkSanitizer(element, "some<br/>text<br/>and more", 2, 3, false);
     assert.equal(res.plainText, "some\ntext\nand more");
     assert.equal(res.offset, 3);
     assert.equal(res.nodeText, "text");
+
+    element.remove();
+  }
+);
+
+QUnit.test(
+  "utils: sanitizer with grapheme clusters",
+  function (assert) {
+    var element: HTMLSpanElement = document.createElement("span");
+    document.body.appendChild(element);
+    element.contentEditable = "true";
+
+    var res = checkSanitizer(element, "พุธ", 0, 2, false);
+    assert.equal(res.plainText.length, 3);
+    assert.equal(res.plainText, "พุธ");
+    assert.equal(res.offset, 2);
+    assert.equal(res.nodeText, "พุธ");
+
+    var res = checkSanitizer(element, "sพุธe", 0, 3, false);
+    assert.equal(res.plainText.length, 5);
+    assert.equal(res.plainText, "sพุธe");
+    assert.equal(res.offset, 3);
+    assert.equal(res.nodeText, "sพุธe");
+
+    var res = checkSanitizer(element, "พุธs<br/>พุธe", 2, 2, false);
+    assert.equal(res.plainText, "พุธs\nพุธe");
+    assert.equal(res.offset, 2);
+    assert.equal(res.nodeText, "พุธe");
 
     element.remove();
   }

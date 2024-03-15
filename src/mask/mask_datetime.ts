@@ -101,12 +101,37 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
   return result;
 }
 
+/**
+ * A class that describes an input mask of the `"datetime"` [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType).
+ *
+ * The following code shows how to specify the properties of this class within a survey JSON schema:
+ *
+ * ```
+ * const surveyJson = {
+ *   "elements": [{
+ *     "name": "textquestion1"
+ *     "type": "text",
+ *     "maskType": "datetime",
+ *     "maskSettings": {
+ *       // Specify the properties of a date-time input mask here
+ *     }
+ *   }]
+ * }
+ * ```
+ */
 export class InputMaskDateTime extends InputMaskPattern {
   private turnOfTheCentury = 68;
   private lexems: Array<IDateTimeMaskLexem> = [];
   private inputDateTimeData: Array<IInputDateTimeData> = [];
-
+  /**
+   * A minimum date and time value that respondents can enter.
+   * @see max
+   */
   @property() min: string;
+  /**
+   * A maximum date and time value that respondents can enter.
+   * @see min
+   */
   @property() max: string;
 
   public getType(): string {

@@ -45,6 +45,18 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateMaskAdapter();
   }
 
+  /**
+   * Specifies the type of a mask applied to the input.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default)
+   * - `"numeric"`
+   * - `"currency"`
+   * - `"datetime"`
+   * - `"pattern"`
+   * @see maskSettings
+   */
   @property({
     onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
   }) maskType: string;
@@ -53,6 +65,18 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskType === "none";
   }
 
+  /**
+   * An object with properties that configure the mask applied to the input.
+   *
+   * Available properties depend on the specified [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) and belong to corresponding classes. Refer to the class APIs for a full list of properties:
+   *
+   * | `maskType` | Class |
+   * | ---------- | ----- |
+   * | `"numeric"` | [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric) |
+   * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
+   * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
+   * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
+   */
   public get maskSettings(): InputMaskBase {
     return this.getPropertyValue("maskSettings");
   }

@@ -106,7 +106,7 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
  *
  * The following code shows how to specify the properties of this class within a survey JSON schema:
  *
- * ```
+ * ```js
  * const surveyJson = {
  *   "elements": [{
  *     "name": "textquestion1"
@@ -118,6 +118,8 @@ export function getDateTimeLexems(pattern: string): Array<IDateTimeMaskLexem> {
  *   }]
  * }
  * ```
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskDateTime extends InputMaskPattern {
   private turnOfTheCentury = 68;

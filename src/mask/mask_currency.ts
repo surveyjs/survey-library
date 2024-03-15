@@ -7,7 +7,7 @@ import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
  *
  * The following code shows how to specify the properties of this class within a survey JSON schema:
  *
- * ```
+ * ```js
  * const surveyJson = {
  *   "elements": [{
  *     "name": "textquestion1"
@@ -19,10 +19,14 @@ import { IMaskedInputResult, ITextInputParams } from "./mask_utils";
  *   }]
  * }
  * ```
+ *
+ * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
  */
 export class InputMaskCurrency extends InputMaskNumeric {
   /**
    * One or several symbols to be displayed before the currency value.
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
    * @see suffix
    */
   @property() prefix: string;

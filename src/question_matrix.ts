@@ -334,7 +334,7 @@ export class QuestionMatrixModel
     return new CssClassBuilder()
       .append(css.cell, hasCellText)
       .append(hasCellText ? css.cellText : css.label)
-      .append(css.itemOnError, !hasCellText && this.hasCssError())
+      .append(css.itemOnError, !hasCellText && this.hasErrorInRow(row))
       .append(hasCellText ? css.cellTextSelected : css.itemChecked, isChecked)
       .append(hasCellText ? css.cellTextDisabled : css.itemDisabled, isDisabled)
       .append(css.itemHover, allowHover && !hasCellText)

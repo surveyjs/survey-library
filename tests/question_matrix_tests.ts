@@ -268,3 +268,25 @@ QUnit.test("rows.class, ItemValue.enableIf", (assert) => {
     survey.css.matrix.rowDisabled = prevCssValue;
   }
 });
+QUnit.test("matirix isAllRowRequired & getItemClass #7963", function (assert) {
+  const survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrix",
+        name: "q1",
+        columns: ["col1", "col2"],
+        rows: ["row1", "row2"],
+        isAllRowRequired: true
+      },
+    ],
+  });
+  const itemError = "required_row_error";
+  survey.css = { matrix: { row: "row", rowError: "row_error", itemOnError: itemError } };
+  const question = <QuestionMatrixModel>survey.getQuestionByName("q1");
+  question.validate(true);
+  const row = question.visibleRows[0];
+  const column = question.columns[1];
+  assert.equal(question.getItemClass(row, column).indexOf(itemError) > -1, true, "itemError exists");
+  question.value = { row1: "col1" };
+  assert.equal(question.getItemClass(row, column).indexOf(itemError) > -1, false, "itemError doesn't exist");
+});

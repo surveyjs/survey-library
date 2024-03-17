@@ -20,21 +20,22 @@ export class AnimationUtils {
     if (value === "auto") return 0;
     return Number(value.slice(0, -1).replace(",", ".")) * 1000;
   }
-  private getAnimationDuration(element: HTMLElement): number {
-    const style = getComputedStyle(element);
-    let duration = 0;
-    ["animationDelay", "animationDuration"].forEach((rule: any) => {
-      duration += this.getMsFromRule(style[rule].split(", ")[0]);
-    });
-    return duration;
-  }
-
-  protected isAnimationExists(element: HTMLElement): boolean {
+  private getAnimationsCount(element: HTMLElement) {
     let animationName = "";
     if(getComputedStyle) {
       animationName = getComputedStyle(element).animationName;
     }
-    return animationName && animationName != "none";
+    return (animationName && animationName != "none" ? animationName.split(", ").length : 0);
+  }
+  private getAnimationDuration(element: HTMLElement): number {
+    const style = getComputedStyle(element);
+    const delays = style["animationDelay"].split(", ");
+    const durations = style["animationDuration"].split(", ");
+    let duration = 0;
+    for (let i = 0; i < Math.max(durations.length, delays.length); i ++) {
+      duration += this.getMsFromRule(durations[i % durations.length]) + this.getMsFromRule(delays[i % delays.length]);
+    }
+    return duration;
   }
   private cancelQueue: Array<() => void> = [];
 
@@ -47,12 +48,14 @@ export class AnimationUtils {
     };
     this.cancelQueue.push(callback);
     const onAnimationEndCallback = (event: AnimationEvent) => {
-      if(event.target == event.currentTarget) {
+      if(event.target == event.currentTarget && --animationsCount <= 0) {
         callback(event);
         this.cancelQueue.splice(this.cancelQueue.indexOf(callback), 1);
       }
     };
-    if(this.isAnimationExists(element)) {
+    let animationsCount = this.getAnimationsCount(element);
+    if(animationsCount > 0) {
+      animationsCount = this.getAnimationsCount(element);
       element.addEventListener("animationend", onAnimationEndCallback);
       cancelTimeout = setTimeout(() => {
         callback();
@@ -72,13 +75,11 @@ export class AnimationUtils {
       element.classList.add(options.classes.onLeave);
       const onAnimationEndCallback = (event?: any) => {
         element.classList.remove(options.classes.onLeave);
+        if(!!event) element.classList.add(options.classes.onHide);
         callback();
-        if(!!event) {
-          element.classList.add(options.classes.onHide);
-          setTimeout(() => {
-            element.classList.remove(options.classes.onHide);
-          }, 1);
-        }
+        if(!!event) setTimeout(() => {
+          element.classList.remove(options.classes.onHide);
+        }, 1);
       };
       this.onAnimationEnd(element, onAnimationEndCallback);
     } else {

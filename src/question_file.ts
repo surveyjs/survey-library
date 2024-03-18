@@ -478,14 +478,14 @@ export class QuestionFileModel extends QuestionFileModelBase {
     this.setPropertyValue("maxSize", val);
   }
   public chooseFile(event: MouseEvent): void {
-    if(!DomDocumentHelper.isAvailable()) return;
+    if (!DomDocumentHelper.isAvailable()) return;
 
     const inputElement = DomDocumentHelper.getDocument().getElementById(this.inputId) as HTMLInputElement;
     event.preventDefault();
     event.stopImmediatePropagation();
     if (inputElement) {
       if (this.survey) {
-        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this, target: this.survey, type: this.getType(), property: this.name });
+        this.survey.chooseFiles(inputElement, files => this.loadFiles(files), { element: this, elementType: this.getType(), propertyName: this.name });
       } else {
         inputElement.click();
       }

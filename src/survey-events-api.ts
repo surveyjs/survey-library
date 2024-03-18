@@ -504,11 +504,6 @@ export interface UploadFilesEvent extends LoadFilesEvent {
    */
   files: Array<File>;
 }
-export interface IChooseFileContext {
-  target: any;
-  type: string;
-  property: string;
-}
 export interface OpenFileChooserEvent {
   /**
    * A file input HTML element.
@@ -527,7 +522,8 @@ export interface OpenFileChooserEvent {
    * @param files An array of selected files.
    */
   callback: (files: Array<File>) => void;
-  context: IChooseFileContext;
+  elementType: String;
+  propertyName: String;
 }
 export interface DownloadFileEvent extends LoadFilesEvent {
   /**

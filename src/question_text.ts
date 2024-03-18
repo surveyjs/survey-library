@@ -323,7 +323,8 @@ export class QuestionTextModel extends QuestionTextBase {
     this.value = value;
   }
 
-  protected onValueChanged(): void {
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
     this.updateInputValue();
   }
 

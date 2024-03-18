@@ -44,7 +44,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
   constructor(private dd: IDragDropEngine, private longTap: boolean = true, private fitToContainer:boolean = false) {}
 
-  public get documentOrShadowRoot() {
+  public get documentOrShadowRoot(): Document | ShadowRoot {
     return settings.environment.root;
   }
   private get rootElement() {

@@ -390,9 +390,13 @@ export function sanitizeEditableContent(element: any, cleanLineBreaks: boolean =
     selection.removeAllRanges();
     selection.addRange(range);
 
-    for (let i = 0; i < innerText.length - tail_len; i++) {
-      (selection as any).modify("move", "forward", "character");
+    while (selection.toString().length < innerText.length - tail_len) {
+      const selLen = selection.toString().length;
+      (selection as any).modify("extend", "forward", "character");
+      if (selection.toString().length == selLen) break;
     }
+    range = selection.getRangeAt(0);
+    range.setStart(range.endContainer, range.endOffset);
   }
 }
 function mergeValues(src: any, dest: any) {

@@ -543,8 +543,9 @@ QUnit.test("Rows with value = 0, Bug#6370", function (assert) {
   assert.deepEqual(survey.data, { q1: { 0: { col1: "val1" } } }, "Set row value correctly");
 });
 QUnit.test("survey.onPropertyValueChangedCallback on column property changed", function (assert) {
-  var survey = new SurveyModel({ elements: [
-    { type: "matrixdynamic", name: "q", columns: [{ cellType: "expression", name: "col1" }] }]
+  var survey = new SurveyModel({
+    elements: [
+      { type: "matrixdynamic", name: "q", columns: [{ cellType: "expression", name: "col1" }] }]
   });
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("q");
   const column = matrix.columns[0];
@@ -837,7 +838,8 @@ QUnit.test("question.resetValueIf, cycle calls", function (assert) {
             "choices": ["none"]
           }]
       }
-    ] });
+    ]
+  });
   const row = survey.getQuestionByName("matrix").visibleRows[0];
   const q1 = row.getQuestionByName("dog");
   const q2 = row.getQuestionByName("cat");
@@ -917,13 +919,13 @@ QUnit.test("question.onHidingContent", function (assert) {
   let counter2 = 0;
   const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
   const row = matrix.visibleRows[0];
-  row.getQuestionByName("col1").onHidingContent = (): void => { counter1 ++; };
+  row.getQuestionByName("col1").onHidingContent = (): void => { counter1++; };
   row.showDetailPanel();
-  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2++; };
   row.hideDetailPanel();
   assert.equal(counter2, 1, "Close detail");
   row.showDetailPanel();
-  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2 ++; };
+  row.detailPanel.getQuestionByName("q1").onHidingContent = (): void => { counter2++; };
   survey.doComplete();
   assert.equal(counter1, 1, "cell on complete");
   assert.equal(counter2, 2, "detail questions");
@@ -1119,9 +1121,9 @@ QUnit.test("survey.onMatrixDetailPanelVisibleChanged event", function (assert) {
   });
   const actions = new Array<string>();
   survey.onMatrixDetailPanelVisibleChanged.add((sender, options) => {
-    const action = (options.isShowing ? "show" : "hide") + ":" + options.rowIndex;
+    const action = (options.visible ? "show" : "hide") + ":" + options.rowIndex;
     actions.push(action);
-    if(options.isShowing) {
+    if (options.visible) {
       options.detailPanel.getQuestionByName("q1").title = "Question 1";
     }
   });

@@ -232,6 +232,8 @@ export var settings = {
    * - `enabled`: `boolean`\
    * Specifies whether to add questions to the DOM only when they get into the viewport. Default value: `false`.
    *
+   * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
+   *
    * > Lazy rendering is an experimental feature that may not work as expected in all use cases.
    */
   lazyRender: {

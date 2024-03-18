@@ -5,7 +5,7 @@
   />
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextOnStart"
-    :class="element.cssClasses.requiredText"
+    :class="cssClasses.requiredText"
     :aria-hidden="true"
     >{{ element.requiredText }}</span
   >
@@ -19,7 +19,7 @@
   <span v-if="!element.isTitleRenderedAsString && element.no">&nbsp;</span>
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextBeforeTitle"
-    :class="element.cssClasses.requiredText"
+    :class="cssClasses.requiredText"
     :aria-hidden="true"
     >{{ element.requiredText }}</span
   >
@@ -37,7 +37,7 @@
   >
   <span
     v-if="!element.isTitleRenderedAsString && element.isRequireTextAfterTitle"
-    :class="element.cssClasses.requiredText"
+    :class="cssClasses.requiredText"
     :aria-hidden="true"
     >{{ element.requiredText }}</span
   >
@@ -45,9 +45,16 @@
 
 <script lang="ts" setup>
 import type { PanelModel, Question } from "survey-core";
+import { computed } from "vue";
 defineOptions({ inheritAttrs: false });
-defineProps<{
+const props = defineProps<{
   element: Question | PanelModel;
   css: any;
 }>();
+
+const cssClasses = computed(() =>
+  props.element.isPanel
+    ? props.element.cssClasses.panel
+    : props.element.cssClasses
+);
 </script>

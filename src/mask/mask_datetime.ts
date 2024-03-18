@@ -437,11 +437,7 @@ export class InputMaskDateTime extends InputMaskPattern {
   }
 
   public getMaskedValue(src: string) : string {
-    if(this.saveMaskedValue) {
-      return this._getMaskedValue(src);
-    } else {
-      return this.getMaskedStrFromISO(src);
-    }
+    return this.getMaskedStrFromISO(src);
   }
 
   public processInput(args: ITextInputParams): IMaskedInputResult {

@@ -303,21 +303,39 @@ export class QuestionTextModel extends QuestionTextBase {
     return isMinMaxType(this);
   }
 
+  @property() _inputValue: string;
   public get maskInstance(): IInputMask {
     return this.maskSettings;
   }
   public get inputValue(): string {
-    return !this.maskTypeIsEmpty ? this.maskInstance.getMaskedValue(this.value) : this.value;
+    return this._inputValue;
   }
   public set inputValue(val: string) {
     let value = val;
+    this._inputValue = val;
     if(!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
+      this._inputValue = this.maskInstance.getMaskedValue(value);
       if(!!value && this.maskSettings.saveMaskedValue) {
         value = this.maskInstance.getMaskedValue(value);
       }
     }
     this.value = value;
+  }
+
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    this.updateInputValue();
+  }
+
+  private updateInputValue() {
+    if (this.maskTypeIsEmpty) {
+      this._inputValue = this.value;
+    } else if (this.maskSettings.saveMaskedValue) {
+      this._inputValue = !!this.value ? this.value : this.maskInstance.getMaskedValue("");
+    } else {
+      this._inputValue = this.maskInstance.getMaskedValue(this.value);
+    }
   }
 
   protected onCheckForErrors(

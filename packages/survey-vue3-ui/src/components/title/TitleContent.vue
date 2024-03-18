@@ -53,8 +53,8 @@ const props = defineProps<{
 }>();
 
 const cssClasses = computed(() =>
-  props.element.isPanel
+  (props.element.isPanel
     ? props.element.cssClasses.panel
-    : props.element.cssClasses
+    : props.element.cssClasses) || {}
 );
 </script>

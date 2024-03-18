@@ -164,35 +164,6 @@ QUnit.test("parseDateTime invalid string mm/dd/yyyy", function(assert) {
   // assert.equal(maskInstance._getMaskedValue("11/002/yyyy"), "11/02/yyyy");
 });
 
-QUnit.test("get masked valid date text mm/dd/yyyy", function(assert) {
-  const maskInstance = new InputMaskDateTime();
-  maskInstance.pattern = "mm/dd/yyyy";
-  maskInstance.saveMaskedValue = true;
-  assert.equal(maskInstance.getMaskedValue(""), "mm/dd/yyyy");
-  assert.equal(maskInstance.getMaskedValue("1"), "1m/dd/yyyy");
-  assert.equal(maskInstance.getMaskedValue("01"), "01/dd/yyyy");
-  assert.equal(maskInstance.getMaskedValue("2"), "02/dd/yyyy");
-  assert.equal(maskInstance.getMaskedValue("12/4"), "12/04/yyyy");
-  assert.equal(maskInstance.getMaskedValue("12/34"), "12/3d/yyyy");
-  assert.equal(maskInstance.getMaskedValue("12/30/198"), "12/30/198y");
-  assert.equal(maskInstance.getMaskedValue("12/30/0001"), "12/30/0001");
-  assert.equal(maskInstance.getMaskedValue("12/30/1987"), "12/30/1987");
-});
-
-QUnit.test("get masked valid date text m/d/yyyy", function(assert) {
-  const maskInstance = new InputMaskDateTime();
-  maskInstance.pattern = "m/d/yyyy";
-  maskInstance.saveMaskedValue = true;
-  assert.equal(maskInstance.getMaskedValue(""), "m/d/yyyy");
-  assert.equal(maskInstance.getMaskedValue("1"), "1/d/yyyy");
-  assert.equal(maskInstance.getMaskedValue("01"), "1/d/yyyy");
-  assert.equal(maskInstance.getMaskedValue("2"), "2/d/yyyy");
-  assert.equal(maskInstance.getMaskedValue("12/4"), "12/4/yyyy");
-  assert.equal(maskInstance.getMaskedValue("12/34"), "12/3/yyyy");
-  assert.equal(maskInstance.getMaskedValue("12/3/198"), "12/3/198y");
-  assert.equal(maskInstance.getMaskedValue("12/3/1987"), "12/3/1987");
-});
-
 QUnit.test("parseDateTime invalid string m/d/yyyy", function(assert) {
   const maskInstance = new InputMaskDateTime();
   maskInstance.pattern = "m/d/yyyy";

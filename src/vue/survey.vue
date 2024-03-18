@@ -159,7 +159,6 @@ Object.defineProperty(Survey, "cssType", {
   configurable: false,
 });
 
-
 Vue.component("survey", Survey);
 export default Survey;
 </script>

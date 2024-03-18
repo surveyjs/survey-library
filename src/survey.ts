@@ -60,11 +60,11 @@ import {
   ProcessTextValueEvent, UpdateQuestionCssClassesEvent, UpdatePanelCssClassesEvent, UpdatePageCssClassesEvent, UpdateChoiceItemCssEvent, AfterRenderSurveyEvent,
   AfterRenderHeaderEvent, AfterRenderPageEvent, AfterRenderQuestionEvent, AfterRenderQuestionInputEvent, AfterRenderPanelEvent, FocusInQuestionEvent, FocusInPanelEvent,
   ShowingChoiceItemEvent, ChoicesLazyLoadEvent, GetChoiceDisplayValueEvent, MatrixRowAddedEvent, MatrixBeforeRowAddedEvent, MatrixRowRemovingEvent, MatrixRowRemovedEvent,
-  MatrixAllowRemoveRowEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent, MatrixCellValueChangingEvent,
-  MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent, DynamicPanelGetTabTitleEvent,
-  DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent, GetPanelTitleActionsEvent,
-  GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
-  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent, IChooseFileContext
+  MatrixAllowRemoveRowEvent, MatrixDetailPanelVisibleChangedEvent, MatrixCellCreatingEvent, MatrixCellCreatedEvent, MatrixAfterCellRenderEvent, MatrixCellValueChangedEvent,
+  MatrixCellValueChangingEvent, MatrixCellValidateEvent, DynamicPanelModifiedEvent, DynamicPanelRemovingEvent, TimerPanelInfoTextEvent, DynamicPanelItemValueChangedEvent,
+  DynamicPanelGetTabTitleEvent, DynamicPanelCurrentIndexChangedEvent, IsAnswerCorrectEvent, DragDropAllowEvent, ScrollingElementToTopEvent, GetQuestionTitleActionsEvent,
+  GetPanelTitleActionsEvent, GetPageTitleActionsEvent, GetPanelFooterActionsEvent, GetMatrixRowActionsEvent, ElementContentVisibilityChangedEvent, GetExpressionDisplayValueEvent,
+  ServerValidateQuestionsEvent, MultipleTextItemAddedEvent, MatrixColumnAddedEvent, GetQuestionDisplayValueEvent, PopupVisibleChangedEvent, ChoicesSearchEvent, OpenFileChooserEvent
 } from "./survey-events-api";
 import { QuestionMatrixDropdownModelBase } from "./question_matrixdropdownbase";
 import { QuestionMatrixDynamicModel } from "./question_matrixdynamic";
@@ -245,7 +245,7 @@ export class SurveyModel extends SurveyElementCore
    * Refer to the following help topic for information on how to implement conditional visibility: [Conditional Visibility](https://surveyjs.io/form-library/documentation/design-survey/conditional-logic#conditional-visibility).
    */
   public onQuestionVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.addEvent<SurveyModel, QuestionVisibleChangedEvent>();
-  public onVisibleChanged: EventBase<SurveyModel, QuestionVisibleChangedEvent> = this.onQuestionVisibleChanged;
+  public onVisibleChanged: EventBase<SurveyModel, any> = this.onQuestionVisibleChanged;
   /**
    * An event that is raised after page visibility is changed.
    *
@@ -673,7 +673,10 @@ export class SurveyModel extends SurveyElementCore
    * This event is obsolete. Use the [`onMatrixRenderRemoveButton`](https://surveyjs.io/form-library/documentation/api-reference/survey-data-model#onMatrixRenderRemoveButton) event instead.
    */
   public onMatrixAllowRemoveRow: EventBase<SurveyModel, MatrixAllowRemoveRowEvent> = this.onMatrixRenderRemoveButton;
-
+  /**
+   * An event that is raised after the visibility of an [expandable detail section](https://surveyjs.io/form-library/examples/add-expandable-details-section-under-matrix-rows/) is changed. This event can be raised for [Multi-Select](https://surveyjs.io/form-library/documentation/api-reference/matrix-table-with-dropdown-list) and [Dynamic Matrix](https://surveyjs.io/form-library/documentation/api-reference/dynamic-matrix-table-question-model) questions.
+   */
+  public onMatrixDetailPanelVisibleChanged: EventBase<SurveyModel, MatrixDetailPanelVisibleChangedEvent> = this.addEvent<SurveyModel, MatrixDetailPanelVisibleChangedEvent>();
   /**
    * An event that is raised before a cell in a [Multi-Select Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdropdown/) or [Dynamic Matrix](https://surveyjs.io/form-library/examples/questiontype-matrixdynamic/) is created. Use this event to change the type of individual matrix cells.
    * @see onAfterRenderMatrixCell
@@ -2616,7 +2619,7 @@ export class SurveyModel extends SurveyElementCore
    * - `"belowHeader"` - Displays the progress bar below the survey header.
    * - `"bottom"` - Displays the progress bar below survey content.
    * - `"topBottom"` - Displays the progress bar above and below survey content.
-   * - `"auto"` - Automatically selects between `"aboveHeader"` and `"belowHeader"`.
+   * - `"auto"` - Displays the progress bar below the survey header if the header has a [background image](https://surveyjs.io/form-library/documentation/api-reference/iheader#backgroundImage) or color. Otherwise, the progress bar is displayed above the header.
    * - `"top"` - *(Obsolete)* Use the `"aboveHeader"` or `"belowHeader"` property value instead.
    * - `"both"` - *(Obsolete)* Use the `"topBottom"` property value instead.
    *
@@ -4956,33 +4959,28 @@ export class SurveyModel extends SurveyElementCore
     this.onMatrixRowRemoving.fire(this, options);
     return options.allow;
   }
-  matrixAllowRemoveRow(
-    question: QuestionMatrixDynamicModel,
-    rowIndex: number,
-    row: any
-  ): boolean {
-    var options = {
-      question: question,
-      rowIndex: rowIndex,
-      row: row,
-      allow: true,
-    };
+  matrixAllowRemoveRow(question: QuestionMatrixDynamicModel, rowIndex: number, row: any): boolean {
+    const options = { question: question, rowIndex: rowIndex, row: row, allow: true };
     this.onMatrixRenderRemoveButton.fire(this, options);
     return options.allow;
   }
-  matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixDetailPanelVisibleChanged(question: QuestionMatrixDropdownModelBase, rowIndex: number, row: any, visible: boolean): void {
+    const options = { question: question, rowIndex: rowIndex, row: row, visible: visible, detailPanel: row.detailPanel };
+    this.onMatrixDetailPanelVisibleChanged.fire(this, options);
+  }
+  matrixCellCreating(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onMatrixCellCreating.fire(this, options);
   }
-  matrixCellCreated(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixCellCreated(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onMatrixCellCreated.fire(this, options);
   }
-  matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixAfterCellRender(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onAfterRenderMatrixCell.fire(this, options);
   }
-  matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any) {
+  matrixCellValueChanged(question: QuestionMatrixDropdownModelBase, options: any): void {
     options.question = question;
     this.onMatrixCellValueChanged.fire(this, options);
   }
@@ -5161,7 +5159,7 @@ export class SurveyModel extends SurveyElementCore
   public chooseFiles(
     input: HTMLInputElement,
     callback: (files: File[]) => void,
-    context?: { element: ISurveyElement, item?: any, target?: any, type?: string, property?: string }
+    context?: { element: Base, item?: any, elementType?: string, propertyName?: string }
   ): void {
     if (this.onOpenFileChooser.isEmpty) {
       chooseFiles(input, callback);
@@ -5169,10 +5167,12 @@ export class SurveyModel extends SurveyElementCore
       this.onOpenFileChooser.fire(this, {
         input: input,
         element: context && context.element || this.survey,
+        elementType: context && context.elementType,
         item: context && context.item,
+        propertyName: context && context.propertyName,
         callback: callback,
-        context: context as IChooseFileContext
-      });
+        context: context
+      } as any);
     }
   }
   /**

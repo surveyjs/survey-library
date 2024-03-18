@@ -2,7 +2,20 @@ import { Base } from "../base";
 import { JsonObject, Serializer, property } from "../jsonobject";
 import { IInputMask, IMaskedInputResult, ITextInputParams } from "./mask_utils";
 
+/**
+ * A base class for classes that implement input masks:
+ *
+ * - [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/inputmasknumeric)
+ * - [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/inputmaskcurrency)
+ * - [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/inputmaskdatetime)
+ * - [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/inputmaskpattern)
+ */
 export class InputMaskBase extends Base implements IInputMask {
+  /**
+   * Specifies whether to store the question value with an applied mask in survey results.
+   *
+   * Default value: `false`
+   */
   @property() saveMaskedValue: boolean;
 
   public getType(): string {

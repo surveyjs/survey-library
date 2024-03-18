@@ -45,6 +45,20 @@ export class QuestionTextModel extends QuestionTextBase {
     this.updateMaskAdapter();
   }
 
+  /**
+   * Specifies the type of a mask applied to the input.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default)
+   * - `"numeric"`
+   * - `"currency"`
+   * - `"datetime"`
+   * - `"pattern"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * @see maskSettings
+   */
   @property({
     onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
   }) maskType: string;
@@ -53,6 +67,20 @@ export class QuestionTextModel extends QuestionTextBase {
     return this.maskType === "none";
   }
 
+  /**
+   * An object with properties that configure the mask applied to the input.
+   *
+   * Available properties depend on the specified [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) and belong to corresponding classes. Refer to the class APIs for a full list of properties:
+   *
+   * | `maskType` | Class |
+   * | ---------- | ----- |
+   * | `"numeric"` | [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric) |
+   * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
+   * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
+   * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   */
   public get maskSettings(): InputMaskBase {
     return this.getPropertyValue("maskSettings");
   }
@@ -275,21 +303,39 @@ export class QuestionTextModel extends QuestionTextBase {
     return isMinMaxType(this);
   }
 
+  @property() _inputValue: string;
   public get maskInstance(): IInputMask {
     return this.maskSettings;
   }
   public get inputValue(): string {
-    return !this.maskTypeIsEmpty ? this.maskInstance.getMaskedValue(this.value) : this.value;
+    return this._inputValue;
   }
   public set inputValue(val: string) {
     let value = val;
+    this._inputValue = val;
     if(!this.maskTypeIsEmpty) {
       value = this.maskInstance.getUnmaskedValue(val);
+      this._inputValue = this.maskInstance.getMaskedValue(value);
       if(!!value && this.maskSettings.saveMaskedValue) {
         value = this.maskInstance.getMaskedValue(value);
       }
     }
     this.value = value;
+  }
+
+  protected onChangeQuestionValue(newValue: any): void {
+    super.onChangeQuestionValue(newValue);
+    this.updateInputValue();
+  }
+
+  private updateInputValue() {
+    if (this.maskTypeIsEmpty) {
+      this._inputValue = this.value;
+    } else if (this.maskSettings.saveMaskedValue) {
+      this._inputValue = !!this.value ? this.value : this.maskInstance.getMaskedValue("");
+    } else {
+      this._inputValue = this.maskInstance.getMaskedValue(this.value);
+    }
   }
 
   protected onCheckForErrors(

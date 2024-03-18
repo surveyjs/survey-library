@@ -16,7 +16,7 @@
     <span :class="question.cssClasses.materialDecorator">
       <svg v-if="question.itemSvgIcon" :class="question.cssClasses.itemDecorator">
         <use :xlink:href="question.itemSvgIcon"></use>
-      </svg> 
+      </svg>
     </span>
     <span v-if="question.isMobile" :class="question.cssClasses.cellResponsiveTitle">
       <survey-string :locString="column.locText"></survey-string>

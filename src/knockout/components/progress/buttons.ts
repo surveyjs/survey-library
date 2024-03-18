@@ -39,12 +39,14 @@ export class ProgressButtonsViewModel implements IProgressButtonsViewModel {
 ko.components.register("sv-progress-buttons", {
   viewModel: {
     createViewModel: (params: any, componentInfo: any) => {
-      return new ProgressButtonsViewModel(
+      const viewModel = new ProgressButtonsViewModel(
         params.model,
         componentInfo.element.nextElementSibling,
         params.container,
         params.survey
       );
+      setTimeout(() => (params.model as ProgressButtons)?.processResponsiveness(0), 10);
+      return viewModel;
     },
   },
   template: template

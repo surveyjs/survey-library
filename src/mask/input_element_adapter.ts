@@ -29,13 +29,6 @@ export class InputElementAdapter {
     }
   };
 
-  blurInputHandler = (event: any) => {
-    const unmaskedValue = this.inputMaskInstance.getUnmaskedValue(event.target.value);
-    this.prevUnmaskedValue = unmaskedValue;
-    const maskedValue = this.inputMaskInstance.getMaskedValue(unmaskedValue);
-    this.inputElement.value = maskedValue;
-  };
-
   public createArgs(event: any): ITextInputParams {
     const args: ITextInputParams = {
       insertedChars: event.data,
@@ -61,13 +54,11 @@ export class InputElementAdapter {
   public addInputEventListener(): void {
     if (!!this.inputElement) {
       this.inputElement.addEventListener("beforeinput", this.beforeInputHandler);
-      this.inputElement.addEventListener("blur", this.blurInputHandler);
     }
   }
   public removeInputEventListener(): void {
     if (!!this.inputElement) {
       this.inputElement.removeEventListener("beforeinput", this.beforeInputHandler);
-      this.inputElement.removeEventListener("blur", this.blurInputHandler);
     }
   }
   public dispose(): void {

@@ -73,7 +73,7 @@ export class FlowPanel extends Vue {
       );
     }
     this.isCollapsed = this.question.isCollapsed;
-    this.question.registerPropertyChangedHandlers(["state"],  (val: any) => { this.isCollapsed = this.question.isCollapsed; });
+    this.question.registerPropertyChangedHandlers(["state"], (val: any) => { this.isCollapsed = this.question.isCollapsed; });
   }
   get rootStyle() {
     var result = {};

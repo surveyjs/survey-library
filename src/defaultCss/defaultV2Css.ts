@@ -229,7 +229,8 @@ export var defaultV2Css = {
   html: {
     mainRoot: "sd-question sd-row__question sd-question--html",
     root: "sd-html",
-    withFrame: ""
+    withFrame: "",
+    nested: "sd-element--nested sd-html--nested"
   },
   error: {
     root: "sd-error",

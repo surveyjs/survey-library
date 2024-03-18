@@ -715,6 +715,24 @@ export interface MatrixAllowRemoveRowEvent extends MatrixDynamicQuestionEventMix
    */
   allow: boolean;
 }
+export interface MatrixDetailPanelVisibleChangedEvent extends MatrixDropdownQuestionEventMixin {
+  /**
+   * A matrix row to which the detail section belongs.
+   */
+  row: MatrixDropdownRowModelBase;
+  /**
+   * A zero-based row index.
+   */
+  rowIndex: number;
+  /**
+   * A [PanelModel](https://surveyjs.io/form-library/documentation/panelmodel) that represents the detail section.
+   */
+  detailPanel: PanelModel;
+  /**
+   * Indicates whether the detail section is visible now.
+   */
+  visible: boolean;
+}
 
 export interface MatrixCellCreatingBaseEvent extends MatrixDropdownQuestionEventMixin {
   /**

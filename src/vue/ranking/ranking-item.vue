@@ -29,7 +29,7 @@
 <script lang="ts">
 import Vue from "vue";
 import { Component, Prop } from "vue-property-decorator";
-import { ItemValue, QuestionRankingModel } from "survey-core"
+import { ItemValue, QuestionRankingModel } from "survey-core";
 
 @Component
 export class RankingItem extends Vue {

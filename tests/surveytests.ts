@@ -19320,13 +19320,22 @@ QUnit.test("survey.locale, default locale is not en and design-time, #7765", fun
 QUnit.test("onOpenFileChooser fires", function (assert) {
   const survey = new SurveyModel();
   let log = "";
+  let lastContext;
+  let lastContextElement;
+  let lastContextPropertyName;
   survey.onOpenFileChooser.add((s, o) => {
     log += "->onOpenFileChooser";
+    lastContextElement = o.element;
+    lastContextPropertyName = o.propertyName;
+    lastContext = (o as any).context;
     o.callback([]);
   });
   assert.equal(log, "");
-  survey.chooseFiles(document.createElement("input"), () => { });
+  survey.chooseFiles(document.createElement("input"), () => { }, { element: { a: 1 }, propertyName: "a" } as any);
   assert.equal(log, "->onOpenFileChooser");
+  assert.deepEqual(lastContext, { element: { a: 1 }, propertyName: "a" });
+  assert.deepEqual(lastContextElement, { a: 1 });
+  assert.equal(lastContextPropertyName, "a");
 });
 QUnit.test("Advanced header title/description color", function (assert) {
   const survey = new SurveyModel();

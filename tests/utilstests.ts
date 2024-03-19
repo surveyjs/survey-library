@@ -9,15 +9,15 @@ export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
   element.innerHTML = text;
   const selection = document.getSelection();
-  const range = document.createRange();
-  if(selectionNodeIndex >= 0) {
+  let range = document.createRange();
+  if (selectionNodeIndex >= 0) {
     range.setStart(element.childNodes[selectionNodeIndex], selectionStart);
   }
   range.collapse(true);
   selection.removeAllRanges();
   selection.addRange(range);
   sanitizeEditableContent(element, cleanLineBreaks);
-  const range = document.getSelection().getRangeAt(0);
+  range = document.getSelection().getRangeAt(0);
   if (element.childNodes.length > 0) range.setStart(element.childNodes[0], 0);
   return {
     text: element.innerHTML,
@@ -29,7 +29,7 @@ function checkSanitizer(element, text, selectionNodeIndex, selectionStart, clean
 }
 QUnit.test(
   "utils: sanitizer",
-  function(assert) {
+  function (assert) {
     var element: HTMLSpanElement = document.createElement("span");
     document.body.appendChild(element);
     element.contentEditable = "true";
@@ -61,7 +61,7 @@ QUnit.test(
 
 QUnit.test(
   "utils: sanitizer with linebreaks",
-  function(assert) {
+  function (assert) {
     var element: HTMLSpanElement = document.createElement("span");
     document.body.appendChild(element);
     element.contentEditable = "true";
@@ -223,15 +223,15 @@ QUnit.test(
     mouseInfo.hasMouse = false;
     const hasTouchEvent = mouseInfo.hasTouchEvent;
     assert.equal(mouseInfo.isTouch, hasTouchEvent, "isTouch, #2. hasTouch in window: " + hasTouchEvent);
-    if(!hasTouchEvent) {
-      window["ontouchstart"] = ()=>{};
+    if (!hasTouchEvent) {
+      window["ontouchstart"] = () => { };
     }
     mouseInfo.hasMouse = true;
     assert.equal(mouseInfo.isTouch, false, "isTouch, #3");
     mouseInfo.hasMouse = false;
     assert.equal(mouseInfo.isTouch, true, "isTouch, #4");
     mouseInfo.hasMouse = true;
-    if(!hasTouchEvent) {
+    if (!hasTouchEvent) {
       window["ontouchstart"] = undefined;
     }
   }

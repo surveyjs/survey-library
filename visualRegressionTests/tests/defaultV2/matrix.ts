@@ -447,6 +447,71 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Matrix multi-select column width", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(1200, 1200);
+      await initSurvey(framework, {
+        "logoPosition": "right",
+        "pages": [
+          {
+            "name": "page1",
+            "elements": [
+              {
+                "type": "matrixdropdown",
+                "name": "q",
+                "title": "Question",
+                "columns": [
+                  {
+                    "name": "Column 1",
+                    "title": "Title",
+                    "width": "100px"
+                  },
+                  {
+                    "name": "Column 2",
+                    "title": "Title"
+                  },
+                  {
+                    "name": "Column 3",
+                    "title": "Title"
+                  }
+                ],
+                "choices": [
+                  1,
+                  2,
+                  3,
+                  4,
+                  5
+                ],
+                "cellType": "text",
+                "rows": [
+                  {
+                    "value": "Row 1",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Row 2",
+                    "text": "Title"
+                  },
+                  {
+                    "value": "Row 3",
+                    "text": "Title"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "showQuestionNumbers": "off",
+        "widthMode": "static",
+        "width": "720px",
+        focusFirstQuestionAutomatic: false
+      });
+
+      const questionRoot = Selector(".sd-row");
+      await takeElementScreenshot("question-matrix-multi-select-col-width.png", questionRoot, t, comparer);
+    });
+  });
+
   test("Matrix dynamic", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(1200, 1200);

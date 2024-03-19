@@ -125,8 +125,7 @@ export abstract class DragDropCore<T> implements IDragDropEngine {
     this.domAdapter.draggedElementShortcut.style.display = "none";
 
     if(!DomDocumentHelper.isAvailable()) return null;
-
-    let dragOverNode = <HTMLElement>this.domAdapter.documentOrShadowRoot.elementFromPoint(clientX, clientY);
+    let dragOverNode = <HTMLElement>DomDocumentHelper.getDocument().elementFromPoint(clientX, clientY);
     // this.domAdapter.draggedElementShortcut.hidden = false;
     this.domAdapter.draggedElementShortcut.style.display = displayProp || "block";
 

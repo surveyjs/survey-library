@@ -3507,8 +3507,10 @@ export class SurveyModel extends SurveyElementCore
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
     const options = this.createPageChangeEventOptions(newValue, oldValue);
-    if (options.isNextPage) {
-      oldValue.passed = true;
+    if (oldValue && !oldValue.passed) {
+      if (oldValue.validate(false)) {
+        oldValue.passed = true;
+      }
     }
     this.onCurrentPageChanged.fire(this, options);
   }

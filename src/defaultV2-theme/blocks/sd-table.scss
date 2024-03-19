@@ -17,7 +17,7 @@
   background-clip: padding-box;
 }
 
-.sd-root-modern:not(.sd-root-modern--mobile) {
+.sd-table.sd-table--columnsautowidth {
   .sd-table__cell:not(.sd-table__cell--actions):not(.sd-table__cell--action):not(.sd-table__cell--empty.sd-table__cell--error) {
     width: 10000px;
   }

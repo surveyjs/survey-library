@@ -92,6 +92,45 @@ QUnit.test("table vertical align and alternate rows", function (assert) {
   matrix.alternateRows = true;
   assert.equal(matrix.getTableCss(), "rootClass rootAlternateRowsClass rootVerticalAlignTopClass", "table css is rootAlternateRowsClass rootVerticalAlignMiddleClass");
 });
+
+QUnit.test("table autocolumn width", function (assert) {
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "matrixdropdown",
+        name: "matrixd",
+        columns: ["c"]
+      },
+      {
+        type: "matrix",
+        name: "matrix",
+      },
+    ],
+  });
+
+  const matrixd = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrixd");
+  const matrix = <QuestionMatrixDropdownModelBase>survey.getQuestionByName("matrix");
+
+  matrix.cssClasses.root = "rootClass";
+  matrix.cssClasses.columnsAutoWidth = "rootColumnsAutoWidth";
+  matrix.cssClasses.rootVerticalAlignMiddle = "";
+
+  matrixd.cssClasses.root = "rootClass";
+  matrixd.cssClasses.columnsAutoWidth = "rootColumnsAutoWidth";
+  matrixd.cssClasses.rootVerticalAlignMiddle = "";
+
+  assert.equal(matrix.getTableCss(), "rootClass rootColumnsAutoWidth", "matrix");
+  assert.equal(matrixd.getTableCss(), "rootClass rootColumnsAutoWidth", "matrixd");
+
+  matrixd.columns[0].width = "100px";
+  assert.equal(matrixd.getTableCss(), "rootClass", "matrixd");
+
+  matrixd.columns[0].width = "";
+  survey.setIsMobile(true);
+  assert.equal(matrix.getTableCss(), "rootClass", "matrix mobile");
+  assert.equal(matrixd.getTableCss(), "rootClass", "matrixd mobile");
+});
+
 QUnit.test("column.templateQuestion has set parentQuestion", function (assert) {
   var survey = new SurveyModel({
     elements: [

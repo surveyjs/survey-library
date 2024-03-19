@@ -3,7 +3,11 @@ import { debounce } from "./taskmanager";
 export interface AnimationOptions<T> {
   classes: T;
   onBeforeRunAnimation?: (element: HTMLElement) => void;
+  onAfterRunAnimation?: (element: HTMLElement) => void;
 }
+
+export type OnEnterOptions = AnimationOptions<{ onEnter: string }>;
+export type OnLeaveOptions = AnimationOptions<{ onLeave: string, onHide: string }>;
 
 export interface IAnimationConsumer<T extends Array<any> = []> {
   getLeaveOptions(...args: T): OnLeaveOptions;
@@ -11,9 +15,6 @@ export interface IAnimationConsumer<T extends Array<any> = []> {
   getAnimatedElement(...args: T): HTMLElement;
   isAnimationEnabled(): boolean;
 }
-
-export type OnEnterOptions = AnimationOptions<{ onEnter: string }>;
-export type OnLeaveOptions = AnimationOptions<{ onLeave: string, onHide: string }>;
 
 export class AnimationUtils {
   private getMsFromRule(value: string) {
@@ -33,35 +34,35 @@ export class AnimationUtils {
     const durations = style["animationDuration"].split(", ");
     let duration = 0;
     for (let i = 0; i < Math.max(durations.length, delays.length); i ++) {
-      duration += this.getMsFromRule(durations[i % durations.length]) + this.getMsFromRule(delays[i % delays.length]);
+      duration = Math.max(duration, this.getMsFromRule(durations[i % durations.length]) + this.getMsFromRule(delays[i % delays.length]));
     }
     return duration;
   }
   private cancelQueue: Array<() => void> = [];
 
-  protected onAnimationEnd(element: HTMLElement, update: (event?: AnimationEvent) => void): void {
+  protected onAnimationEnd(element: HTMLElement, callback: (event?: AnimationEvent) => void, options: AnimationOptions<any>): void {
     let cancelTimeout: any;
-    const callback = (event?: AnimationEvent) => {
-      update(event);
+    let animationsCount = this.getAnimationsCount(element);
+    const onEndCallback = (event?: AnimationEvent) => {
+      options.onAfterRunAnimation && options.onAfterRunAnimation(element);
+      callback(event);
       clearTimeout(cancelTimeout);
+      this.cancelQueue.splice(this.cancelQueue.indexOf(onEndCallback), 1);
       element.removeEventListener("animationend", onAnimationEndCallback);
     };
-    this.cancelQueue.push(callback);
     const onAnimationEndCallback = (event: AnimationEvent) => {
       if(event.target == event.currentTarget && --animationsCount <= 0) {
-        callback(event);
-        this.cancelQueue.splice(this.cancelQueue.indexOf(callback), 1);
+        onEndCallback(event);
       }
     };
-    let animationsCount = this.getAnimationsCount(element);
     if(animationsCount > 0) {
-      animationsCount = this.getAnimationsCount(element);
       element.addEventListener("animationend", onAnimationEndCallback);
+      this.cancelQueue.push(onEndCallback);
       cancelTimeout = setTimeout(() => {
-        callback();
-      }, this.getAnimationDuration(element) + 1);
+        onEndCallback();
+      }, this.getAnimationDuration(element) + 10);
     } else {
-      update();
+      callback();
     }
   }
 
@@ -81,7 +82,7 @@ export class AnimationUtils {
           element.classList.remove(options.classes.onHide);
         }, 1);
       };
-      this.onAnimationEnd(element, onAnimationEndCallback);
+      this.onAnimationEnd(element, onAnimationEndCallback, options);
     } else {
       callback();
     }
@@ -91,7 +92,7 @@ export class AnimationUtils {
       element.classList.add(options.classes.onEnter);
       this.onAnimationEnd(element, () => {
         element.classList.remove(options.classes.onEnter);
-      });
+      }, options);
     }
   }
 
@@ -130,8 +131,14 @@ export class AnimationGroupUtils<T> extends AnimationUtils {
     elements.forEach((el) => {
       this.beforeAnimationRun(getElement(el), getOptions(el));
     });
+    let counter = elements.length;
+    const onEndCallback = () => {
+      if (--counter <= 0) {
+        callback();
+      }
+    };
     elements.forEach((el) => {
-      this.runLeaveAnimation(getElement(el), getOptions(el), callback);
+      this.runLeaveAnimation(getElement(el), getOptions(el), onEndCallback);
     });
   }
 }
@@ -184,11 +191,8 @@ export class AnimationGroup<T> extends AnimationProperty<Array<T>, [T]> {
     const deletedItems = oldValue.filter(el => newValue.indexOf(el) < 0);
     this.animation.onEnter((el) => this.animationOptions.getAnimatedElement(el), (el) => this.animationOptions.getEnterOptions(el), itemsToAdd);
     if (itemsToAdd.length == 0 && deletedItems?.length > 0) {
-      let counter = deletedItems.length;
       this.animation.onLeave((el) => this.animationOptions.getAnimatedElement(el), () => {
-        if (--counter <= 0) {
-          this.update(newValue);
-        }
+        this.update(newValue);
       }, (el) => this.animationOptions.getLeaveOptions(el), deletedItems);
     } else {
       this.update(newValue);

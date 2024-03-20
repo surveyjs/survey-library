@@ -44,6 +44,14 @@ textarea {
   user-select: none;
 }
 
+.sd-input--readonly {
+  background-color: $background-dark;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
 .sd-input::placeholder {
   color: $font-editorfont-placeholdercolor;
   -webkit-user-select: none;
@@ -56,6 +64,16 @@ textarea {
 .sd-input.sd-input--disabled::placeholder {
   color: $foreground;
   opacity: 0.25;
+}
+
+.sd-input.sd-input--readonly {
+  color: $foreground-dim;
+  box-shadow: none;
+  transition: none;
+}
+
+.sd-input.sd-input--readonly::placeholder {
+  color: $foreground-dim-light;
 }
 
 .sd-root--readonly .sd-input--disabled,

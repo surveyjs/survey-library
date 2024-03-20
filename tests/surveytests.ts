@@ -17932,7 +17932,7 @@ QUnit.test("check title classes when readOnly changed", function (assert) {
   const customDisabledClass = "custom_disabled_class";
   survey.css = {
     question: {
-      titleDisabled: customDisabledClass
+      titleReadOnly: customDisabledClass
     },
   };
   const question = survey.getQuestionByName("q1");

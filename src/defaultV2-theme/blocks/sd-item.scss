@@ -19,9 +19,24 @@
   transition: box-shadow $transition-duration, background $transition-duration;
 }
 
-.sd-radio__decorator:after {
-  
+.sd-item--readonly.sd-item--readonly .sd-item__decorator,
+.sd-item__decorator {
+  @include useEditorFontSize;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: calcSize(3);
+  height: calcSize(3);
+  box-sizing: border-box;
+  background-color: $background-dark;
+  border: none;
+  flex-shrink: 0;
+  margin-top: calc(calc(multiply(1.5, $font-editorfont-size) - calcSize(3)) / 2);
+  box-shadow: none;
+  transition: none;
 }
+
+.sd-radio__decorator:after {}
 
 .sd-item--checked .sd-item__decorator {
   box-shadow: none;

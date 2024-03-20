@@ -3584,7 +3584,7 @@ export class SurveyModel extends SurveyElementCore
   public get isEditMode(): boolean {
     return this.mode == "edit";
   }
-  public get isDisplayMode(): boolean {
+  public get isDisplayMode(): boolean { //
     return this.mode == "display" && !this.isDesignMode || this.state == "preview";
   }
   public get isUpdateValueTextOnTyping(): boolean {

@@ -1722,7 +1722,10 @@ export class QuestionSelectBase extends Question {
     options.isChecked = isChecked;
     options.isNone = isNone;
 
-    return builder.append(this.cssClasses.itemDisabled, isDisabled)
+    return builder
+      .append(this.cssClasses.itemDisabled, !item.isEnabled)
+      .append(this.cssClasses.itemReadOnly, this.isReadOnly && !(this.survey && this.survey.state === "preview"))
+      //.append(this.cssClasses.itemPreview, (this.survey && this.survey.state === "preview")) //TODO
       .append(this.cssClasses.itemChecked, isChecked)
       .append(this.cssClasses.itemHover, allowHover)
       .append(this.cssClasses.itemNone, isNone)

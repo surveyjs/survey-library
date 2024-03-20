@@ -999,7 +999,7 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(cssClasses.titleExpandable, isExpandable)
       .append(cssClasses.titleExpanded, this.isExpanded)
       .append(cssClasses.titleCollapsed, this.isCollapsed)
-      .append(cssClasses.titleDisabled, this.isReadOnly)
+      .append(cssClasses.titleReadOnly, this.isReadOnly)
       .append(cssClasses.titleOnError, this.containsErrors).toString();
   }
   public localeChanged() {

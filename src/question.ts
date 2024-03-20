@@ -1099,7 +1099,7 @@ export class Question extends SurveyElement<Question>
   public getRootCss(): string {
     return new CssClassBuilder()
       .append(this.cssRoot)
-      .append(this.cssClasses.disabled, this.isReadOnly)
+      .append(this.cssClasses.readOnly, this.isReadOnly)
       .append(this.cssClasses.invisible, !this.isDesignMode && this.areInvisibleElementsShowing && !this.visible)
       .toString();
   }
@@ -1339,7 +1339,7 @@ export class Question extends SurveyElement<Question>
   public get requireUpdateCommentValue(): boolean {
     return this.hasComment || this.hasOther;
   }
-  public get isReadOnly(): boolean {
+  public get isReadOnly(): boolean { //
     const isParentReadOnly = !!this.parent && this.parent.isReadOnly;
     const isPareQuestionReadOnly = !!this.parentQuestion && this.parentQuestion.isReadOnly;
     const isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;

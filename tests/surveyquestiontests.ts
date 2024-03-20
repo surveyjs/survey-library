@@ -7034,9 +7034,9 @@ QUnit.test("question.getRootCss apply disable css correctly", function (assert) 
       }]
   });
   const q = survey.getQuestionByName("q1");
-  survey.setCss({ question: { titleDisabled: "css-disabled" } });
+  survey.setCss({ question: { titleReadOnly: "css-disabled" } });
   q.updateElementCss(true);
-  const disableCss = q.cssClasses.titleDisabled;
+  const disableCss = q.cssClasses.titleReadOnly;
   assert.equal(disableCss, "css-disabled", "#1");
   assert.ok(q.cssTitle.indexOf(disableCss) === -1, "disableCss is not in the title, #2");
   q.readOnly = true;

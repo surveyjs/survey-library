@@ -1251,13 +1251,12 @@ export class SurveyModel extends SurveyElementCore
   /**
    * Specifies whether to enable lazy rendering.
    *
-   * In default mode, a survey renders the entire current page. With lazy rendering, the survey renders the page gradually as a user scrolls it. This helps reduce survey startup time and oprimizes large surveys for low-end devices.
+   * In default mode, a survey renders the entire current page. With lazy rendering, the survey renders the page gradually as a user scrolls it. This helps reduce survey startup time and optimizes large surveys for low-end devices.
    *
    * Default value: `false`
    *
    * [View Demo](https://surveyjs.io/form-library/examples/survey-lazy/ (linkStyle))
-   *
-   * > This is an experimental feature that may not work properly in certain cases.
+   * @see [settings.lazyRender](https://surveyjs.io/form-library/documentation/api-reference/settings#lazyRender)
    */
   public get lazyRendering(): boolean {
     return this.lazyRenderingValue === true;
@@ -3508,8 +3507,10 @@ export class SurveyModel extends SurveyElementCore
   protected currentPageChanged(newValue: PageModel, oldValue: PageModel): void {
     this.notifyQuestionsOnHidingContent(oldValue);
     const options = this.createPageChangeEventOptions(newValue, oldValue);
-    if (options.isNextPage) {
-      oldValue.passed = true;
+    if (oldValue && !oldValue.passed) {
+      if (oldValue.validate(false)) {
+        oldValue.passed = true;
+      }
     }
     this.onCurrentPageChanged.fire(this, options);
   }

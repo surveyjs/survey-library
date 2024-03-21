@@ -7,6 +7,7 @@ import { ItemValue } from "../src/itemvalue";
 import { ImageItemValue } from "../src/question_imagepicker";
 import { QuestionSelectBase } from "../src/question_baseselect";
 import { DragDropDOMAdapter } from "../src/dragdrop/dom-adapter";
+import { settings } from "../src/settings";
 import { QuestionRankingModel } from "../src/question_ranking";
 import { DragDropMatrixRows } from "../src/dragdrop/matrix-rows";
 import { QuestionMatrixDynamicModel } from "../src/question_matrixdynamic";
@@ -230,6 +231,20 @@ QUnit.test("DragDrop shortcutCoordinates", function (assert) {
   const shortcutYOffset = 5;
   const shortcutBottomCoordinate = dnd["getShortcutBottomCoordinate"](currentYCoordinate, shortcutHeight, shortcutYOffset);
   assert.equal(shortcutBottomCoordinate, 10 + 10 - 5);
+});
+
+QUnit.test("DragDropDOMAdapter documentOrShadowRoot", function (assert) {
+  let dndDomAdapter: any = new DragDropDOMAdapter(<any>null);
+  assert.equal(dndDomAdapter.documentOrShadowRoot, document);
+
+  let node = document.createElement("div");
+  node.attachShadow({ mode: "open" });
+  document.body.appendChild(node);
+  let shadowRoot = <Document | ShadowRoot>node.shadowRoot;
+  settings.environment.root = shadowRoot;
+  assert.equal(dndDomAdapter.documentOrShadowRoot, shadowRoot);
+  settings.environment.root = document;
+  document.body.removeChild(node);
 });
 
 QUnit.test("createImagePickerShortcut", function (assert) {

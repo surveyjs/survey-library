@@ -210,14 +210,16 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return {
       isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
       getLeaveOptions: (item: ItemValue) => {
-        return {
-          classes: { onLeave: "sv-ranking-item--animate-item-removing", onHide: "sd-hidden" }
-        };
+        if(this.renderedSelectToRankAreasLayout == "vertical" && this.unRankingChoices.length == 1 && this.unRankingChoices.indexOf(item) >= 0) {
+          return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
+        }
+        return { cssClass: "sv-ranking-item--animate-item-removing" };
       },
       getEnterOptions: (item: ItemValue) => {
-        return {
-          classes: { onEnter: "sv-ranking-item--animate-item-adding" }
-        };
+        if(this.renderedSelectToRankAreasLayout == "vertical" && this.unRankingChoices.length == 1 && this.unRankingChoices.indexOf(item) >= 0) {
+          return { cssClass: "sv-ranking-item--animate-item-adding-empty" };
+        }
+        return { cssClass: "sv-ranking-item--animate-item-adding" };
       },
       getAnimatedElement: (item: ItemValue) => {
         return this.getWrapperElement()?.querySelector(".sv-ranking__container--from .sv-ranking-item--ghost");
@@ -228,13 +230,19 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     return {
       isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
       getLeaveOptions: (item: ItemValue) => {
+        if(this.renderedSelectToRankAreasLayout == "vertical" && this.rankingChoices.length == 1 && this.rankingChoices.indexOf(item) >= 0) {
+          return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
+        }
         return {
-          classes: { onLeave: "sv-ranking-item--animate-item-removing", onHide: "sd-hidden" }
+          cssClass: "sv-ranking-item--animate-item-removing"
         };
       },
       getEnterOptions: (item: ItemValue) => {
+        if(this.renderedSelectToRankAreasLayout == "vertical" && this.rankingChoices.length == 1 && this.rankingChoices.indexOf(item) >= 0) {
+          return { cssClass: "sv-ranking-item--animate-item-adding-empty" };
+        }
         return {
-          classes: { onEnter: "sv-ranking-item--animate-item-adding" }
+          cssClass: "sv-ranking-item--animate-item-adding"
         };
       },
       getAnimatedElement: (item: ItemValue) => {

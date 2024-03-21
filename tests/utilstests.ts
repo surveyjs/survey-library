@@ -5,7 +5,6 @@ import { mouseInfo } from "../src/utils/devices";
 import { PopupBaseViewModel } from "../src/popup-view-model";
 import { PopupModel } from "../src/popup";
 import { AnimationBoolean, AnimationGroup, AnimationGroupUtils, AnimationPropertyUtils, AnimationUtils } from "../src/utils/animation";
-import { assert } from "console";
 
 export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
@@ -341,9 +340,7 @@ QUnit.test("Test animation utils: enter animation", (assert) => {
       assert.equal(element, element);
       log+= "->beforeRunAnimation";
     },
-    classes: {
-      onEnter: "enter"
-    }
+    cssClass: "enter"
   });
   assert.equal(log, "->beforeRunAnimation");
   assert.ok(element.classList.contains("enter"));
@@ -356,7 +353,7 @@ QUnit.test("Test animation utils: enter animation", (assert) => {
 QUnit.test("Test animation utils: leave animation", (assert) => {
   const done = assert.async();
   const oldRequestAnimationFrame = window.requestAnimationFrame;
-  window.requestAnimationFrame = ((cb) => cb()) as any;
+  window.requestAnimationFrame = (cb) => setTimeout(cb);
   const animationUtils = new AnimationPropertyUtils();
   const element = document.createElement("div");
   element.style.animationName = "animation1";
@@ -374,22 +371,18 @@ QUnit.test("Test animation utils: leave animation", (assert) => {
       assert.equal(element, element);
       log+= "->beforeRunAnimation";
     },
-    classes: {
-      onLeave: "leave",
-      onHide: "hide"
-    }
+    cssClass: "leave"
   });
   assert.equal(log, "->beforeRunAnimation");
   assert.ok(element.classList.contains("leave"));
   element.dispatchEvent(new AnimationEvent("animationend"));
   assert.equal(log, "->beforeRunAnimation->afterRunAnimation->updated");
-  assert.notOk(element.classList.contains("leave"));
-  assert.ok(element.classList.contains("hide"));
+  assert.ok(element.classList.contains("leave"));
   setTimeout(() => {
-    assert.notOk(element.classList.contains("hide"));
+    assert.notOk(element.classList.contains("leave"));
     window.requestAnimationFrame = oldRequestAnimationFrame;
     done();
-  });
+  }, 10);
 });
 
 QUnit.test("Test animation utils: group enter animation", (assert) => {
@@ -415,9 +408,7 @@ QUnit.test("Test animation utils: group enter animation", (assert) => {
         assert.equal(element, element);
         log+= "->beforeRunAnimation_" + i;
       },
-      classes: {
-        onEnter: "enter_" + i
-      }
+      cssClass: "enter_" + i
     };
   }, [0, 1, 2]);
   assert.equal(log, "->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
@@ -441,7 +432,8 @@ QUnit.test("Test animation utils: group enter animation", (assert) => {
 
 QUnit.test("Test animation utils: group leave animation", (assert) => {
   const done = assert.async();
-  window.requestAnimationFrame = ((cb) => cb()) as any;
+  const oldRequestAnimationFrame = window.requestAnimationFrame;
+  window.requestAnimationFrame = (cb) => setTimeout(cb);
   const animationUtils = new AnimationGroupUtils<number>();
   const elements = [0, 1, 2];
   const htmlElements = elements.map(() => {
@@ -464,10 +456,7 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
         assert.equal(element, element);
         log+= "->beforeRunAnimation_" + i;
       },
-      classes: {
-        onLeave: "leave_" + i,
-        onHide: "hide_" + i
-      }
+      cssClass: "leave_" + i
     };
   }, [0, 1, 2]);
   assert.equal(log, "->beforeRunAnimation_0->beforeRunAnimation_1->beforeRunAnimation_2");
@@ -481,20 +470,18 @@ QUnit.test("Test animation utils: group leave animation", (assert) => {
   htmlElements[2].dispatchEvent(new AnimationEvent("animationend"));
 
   assert.equal(log, "->afterRunAnimation_0->afterRunAnimation_1->afterRunAnimation_2->updated");
-  assert.notOk(htmlElements[0].classList.contains("leave_0"));
-  assert.notOk(htmlElements[1].classList.contains("leave_1"));
-  assert.notOk(htmlElements[2].classList.contains("leave_2"));
-  assert.ok(htmlElements[0].classList.contains("hide_0"));
-  assert.ok(htmlElements[1].classList.contains("hide_1"));
-  assert.ok(htmlElements[2].classList.contains("hide_2"));
+  assert.ok(htmlElements[0].classList.contains("leave_0"));
+  assert.ok(htmlElements[1].classList.contains("leave_1"));
+  assert.ok(htmlElements[2].classList.contains("leave_2"));
 
   setTimeout(() => {
-    assert.notOk(htmlElements[0].classList.contains("hide_0"));
-    assert.notOk(htmlElements[1].classList.contains("hide_1"));
-    assert.notOk(htmlElements[2].classList.contains("hide_2"));
+    assert.notOk(htmlElements[0].classList.contains("leave_0"));
+    assert.notOk(htmlElements[1].classList.contains("leave_1"));
+    assert.notOk(htmlElements[2].classList.contains("leave_2"));
     htmlElements.forEach(el => el.remove());
+    window.requestAnimationFrame = oldRequestAnimationFrame;
     done();
-  }, 2);
+  }, 10);
 });
 
 QUnit.test("Test animation property: boolean", (assert) => {
@@ -515,7 +502,8 @@ QUnit.test("Test animation property: boolean", (assert) => {
         onAfterRunAnimation: () => {
           log += "->after-enter";
         },
-        classes: { onEnter: "enter" } };
+        cssClass: "enter",
+      };
     },
     isAnimationEnabled: () => {
       return true;
@@ -531,7 +519,8 @@ QUnit.test("Test animation property: boolean", (assert) => {
         onAfterRunAnimation: () => {
           log += "->after-leave";
         },
-        classes: { onLeave: "leave", onHide: "hide" } };
+        cssClass: "leave"
+      };
     }
   }, (val: boolean) => {
     value = val;
@@ -570,7 +559,8 @@ QUnit.test("Test animation property: array", (assert) => {
         onAfterRunAnimation: () => {
           log += `->after-enter_${i}`;
         },
-        classes: { onEnter: "enter" } };
+        cssClass: "enter"
+      };
     },
     isAnimationEnabled: () => {
       return true;
@@ -586,7 +576,8 @@ QUnit.test("Test animation property: array", (assert) => {
         onAfterRunAnimation: () => {
           log += `->after-leave_${i}`;
         },
-        classes: { onLeave: "leave", onHide: "hide" } };
+        cssClass: "leave"
+      };
     }
   }, (val: Array<number>) => {
     elements = val;

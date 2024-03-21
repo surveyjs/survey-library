@@ -6,7 +6,7 @@ import { ActionContainer } from "./actions/container";
 import { IAction } from "./actions/action";
 import { settings } from "./settings";
 import { getElement } from "./utils/utils";
-import { AnimationBoolean, OnEnterOptions, OnLeaveOptions, IAnimationConsumer } from "./utils/animation";
+import { AnimationBoolean, AnimationOptions, IAnimationConsumer } from "./utils/animation";
 
 export const FOCUS_INPUT_SELECTOR = "input:not(:disabled):not([readonly]):not([type=hidden]),select:not(:disabled):not([readonly]),textarea:not(:disabled):not([readonly]), button:not(:disabled):not([readonly]), [tabindex]:not([tabindex^=\"-\"])";
 
@@ -43,11 +43,11 @@ export class PopupBaseViewModel extends Base implements IAnimationConsumer {
     }
   }, () => this._isVisible);
 
-  getLeaveOptions(): OnLeaveOptions {
-    return { classes: { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" } };
+  getLeaveOptions(): AnimationOptions {
+    return { cssClass: "sv-popup--animate-leave" };
   }
-  getEnterOptions(): OnEnterOptions {
-    return { classes: { onEnter: "sv-popup--animate-enter" } };
+  getEnterOptions(): AnimationOptions {
+    return { cssClass: "sv-popup--animate-enter" };
   }
   getAnimatedElement(): HTMLElement {
     return this.getAnimationContainer();

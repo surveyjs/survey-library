@@ -8,7 +8,7 @@ import { PopupModalViewModel } from "../../src/popup-modal-view-model";
 import { englishStrings } from "../../src/localization/english";
 import { germanSurveyStrings } from "../../src/localization/german";
 import { settings, ISurveyEnvironment } from "../../src/settings";
-import { AnimationUtils, OnEnterOptions, OnLeaveOptions } from "../../src/utils/animation";
+import { AnimationOptions, AnimationUtils } from "../../src/utils/animation";
 
 const popupTemplate = require("html-loader?interpolate!val-loader!../../src/knockout/components/popup/popup.html");
 
@@ -1651,15 +1651,15 @@ QUnit.test("PopupModel into modal window with translate/transform", (assert) => 
 
 class TestAnimation extends AnimationUtils {
   public logger: { log: string };
-  public passedEnterClasses: { onEnter: string };
-  public passedLeaveClasses: { onLeave: string, onHide: string };
-  public onEnter(getElement: () => HTMLElement, options: OnEnterOptions): void {
+  public passedEnterClass: string;
+  public passedLeaveClass: string;
+  public onEnter(getElement: () => HTMLElement, options: AnimationOptions): void {
     this.logger.log += "->onEnter";
-    this.passedEnterClasses = options.classes;
+    this.passedEnterClass = options.cssClass;
   }
-  public onLeave(element: () => HTMLElement, callback: () => void, options: OnLeaveOptions): void {
+  public onLeave(element: () => HTMLElement, callback: () => void, options: AnimationOptions): void {
     this.logger.log += "->onLeave";
-    this.passedLeaveClasses = options.classes;
+    this.passedLeaveClass = options.cssClass;
     callback();
   }
 }
@@ -1696,11 +1696,11 @@ QUnit.test("PopupViewModel: check animation's onEnter, onLeave are called correc
   });
   model.isVisible = true;
   assert.equal(logger.log, "->model:isVisible:true->viewModel:isVisible:true->onEnter", "correct order of updates when entering");
-  assert.deepEqual(viewModel.getAnimation().passedEnterClasses, { onEnter: "sv-popup--animate-enter" }, "correct css classes passed to animation's onEnter");
+  assert.deepEqual(viewModel.getAnimation().passedEnterClass, "sv-popup--animate-enter", "correct css classes passed to animation's onEnter");
   logger.log = "";
   model.isVisible = false;
   assert.equal(logger.log, "->model:isVisible:false->onLeave->viewModel:isVisible:false", "correct order of updates when leaving");
-  assert.deepEqual(viewModel.getAnimation().passedLeaveClasses, { onLeave: "sv-popup--animate-leave", onHide: "sv-popup--hidden" }, "correct css classes passed to animation's onLeave");
+  assert.deepEqual(viewModel.getAnimation().passedLeaveClass, "sv-popup--animate-leave", "correct css classes passed to animation's onLeave");
   settings.animationEnabled = false;
   window.queueMicrotask = oldQueueMicrotask;
 });

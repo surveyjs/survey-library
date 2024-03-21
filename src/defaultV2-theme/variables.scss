@@ -10,14 +10,10 @@ $secondary-backcolor-semi-light: var(--sjs-secondary-backcolor-semi-light, rgba(
 $secondary-forecolor: var(--sjs-secondary-forecolor, #fff);
 $secondary-forecolor-light: var(--sjs-secondary-forecolor-light, rgba(#fff, 0.25));
 
-$editor-background: var(
-  --sjs-editorpanel-backcolor,
-  var(--sjs-editor-background, var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9)))
-);
-$question-background: var(
-  --sjs-questionpanel-backcolor,
-  var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff)))
-);
+$editor-background: var(--sjs-editorpanel-backcolor,
+    var(--sjs-editor-background, var(--sjs-general-backcolor-dim-light, var(--background-dim-light, #f9f9f9))));
+$question-background: var(--sjs-questionpanel-backcolor,
+    var(--sjs-question-background, var(--sjs-general-backcolor, var(--background, #fff))));
 
 $background: var(--sjs-general-backcolor, var(--background, #fff));
 $background-dim: var(--sjs-general-backcolor-dim, var(--background-dim, #f3f3f3));
@@ -87,39 +83,29 @@ $font-pagetitle-color: var(--sjs-font-pagetitle-color, var(--sjs-general-dim-for
 
 $font-pagedescription-family: var(--sjs-font-pagedescription-family, #{$font-family});
 $font-pagedescription-weight: var(--sjs-font-pagedescription-weight, 400);
-$font-pagedescription-color: var(
-  --sjs-font-pagedescription-color,
-  var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45))
-);
+$font-pagedescription-color: var(--sjs-font-pagedescription-color,
+    var(--sjs-general-dim-forecolor-light, rgba(0, 0, 0, 0.45)));
 $font-pagedescription-size: var(--sjs-font-pagedescription-size, $font-size);
 
 $font-questiontitle-family: var(--sjs-font-questiontitle-family, #{$font-family});
 $font-questiontitle-weight: var(--sjs-font-questiontitle-weight, 600);
-$font-questiontitle-color: var(
-  --sjs-font-questiontitle-color,
-  var(--sjs-general-forecolor, var(--foreground, #161616))
-);
+$font-questiontitle-color: var(--sjs-font-questiontitle-color,
+    var(--sjs-general-forecolor, var(--foreground, #161616)));
 $font-questiontitle-size: var(--sjs-font-questiontitle-size, $font-size);
 
 $font-questiondescription-family: var(--sjs-font-questiondescription-family, #{$font-family});
 $font-questiondescription-weight: var(--sjs-font-questiondescription-weight, 400);
-$font-questiondescription-color: var(
-  --sjs-font-questiondescription-color,
-  var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45))
-);
+$font-questiondescription-color: var(--sjs-font-questiondescription-color,
+    var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45)));
 $font-questiondescription-size: var(--sjs-font-questiondescription-size, $font-size);
-$font-questionplaceholder-color: var(
-  --sjs-font-questiondescription-color,
-  var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45))
-);
+$font-questionplaceholder-color: var(--sjs-font-questiondescription-color,
+    var(--sjs-general-forecolor-light, rgba(0, 0, 0, 0.45)));
 
 $font-editorfont-family: var(--sjs-font-editorfont-family, #{$font-family});
 $font-editorfont-weight: var(--sjs-font-editorfont-weight, 400);
 $font-editorfont-color: var(--sjs-font-editorfont-color, var(--sjs-general-forecolor, rgba(0, 0, 0, 0.91)));
-$font-editorfont-placeholdercolor: var(
-  --sjs-font-editorfont-placeholdercolor,
-  var(--sjs-general-forecolor-light, var(--foreground-light, #909090))
-);
+$font-editorfont-placeholdercolor: var(--sjs-font-editorfont-placeholdercolor,
+    var(--sjs-general-forecolor-light, var(--foreground-light, #909090)));
 $font-default-editorfont-size: var(--sjs-font-editorfont-size, $font-size);
 $base-unit: var(--sjs-base-unit, var(--base-unit, 8px));
 
@@ -131,10 +117,34 @@ $sd-panel-medium-min-width: 176px;
 
 :root {
   --sjs-transition-duration: 150ms;
-  --sjs-ranking-animation-duration: 5000ms;
 }
-$transition-duration: var(--sjs-transition-duration, 150ms);
-$ranking-animation-duration: var(--sjs-ranking-animation-duration, 50ms);
+
+$transition-duration: var(--sjs-transition-duration, 1s);
+
+$row-fade-in-duration: var(--sjs-row-fade-in-duration, 100ms);
+$row-move-in-duration: var(--sjs-row-move-in-duration, 200ms);
+$row-fade-in-delay: var(--sjs-row-fade-in-delay, 150ms);
+$row-fade-out-duration: var(--sjs-row-fade-out-duration, 100ms);
+$row-move-out-duration: var(--sjs-row-move-out-duration, 250ms);
+$row-move-out-delay: var(--sjs-row-move-out-delay, 0ms);
+
+$elements-animation-duration: var(--sjs-elements-animation-duration, 1s);
+
+$expand-fade-in-duration: var(--sjs-expand-fade-in-duration, 100ms);
+$expand-move-in-duration: var(--sjs-expand-move-in-duration, 200ms);
+$expand-fade-in-delay: var(--sjs-collapse-fade-in-delay, 150ms);
+$collapse-fade-out-duration: var(--sjs-collapse-fade-out-duration, 100ms);
+$collapse-move-out-duration: var(--sjs-collapse-move-out-duration, 250ms);
+$collapse-move-out-delay: var(--sjs-collapse-move-out-delay, 0ms);
+
+$ranking-fade-in-duration: var(--sjs-ranking-fade-in-duration, 100ms);
+$ranking-move-in-duration: var(--sjs-ranking-move-in-duration, 150ms);
+$ranking-fade-in-delay: var(--sjs-ranking-fade-in-delay, 150ms);
+$ranking-fade-out-duration: var(--sjs-ranking-fade-out-duration, 100ms);
+$ranking-move-out-duration: var(--sjs-ranking-move-out-duration, 150ms);
+$ranking-move-out-delay: var(--sjs-ranking-move-out-delay, 0ms);
+
+
 $transition-duration: var(--sjs-transition-duration, 150ms);
 
 @mixin useEditorFontSize {
@@ -145,7 +155,9 @@ $transition-duration: var(--sjs-transition-duration, 150ms);
   @if $a ==1 {
     $result: #{$b};
     @return $result;
-  } @else {
+  }
+
+  @else {
     $result: calc(#{$a} * (#{$b}));
     @return $result;
   }
@@ -155,7 +167,9 @@ $transition-duration: var(--sjs-transition-duration, 150ms);
   @if $multiplier ==1 {
     $result: #{$base-unit};
     @return $result;
-  } @else {
+  }
+
+  @else {
     $result: calc(#{$multiplier} * (#{$base-unit}));
     @return $result;
   }
@@ -165,7 +179,9 @@ $transition-duration: var(--sjs-transition-duration, 150ms);
   @if $multiplier ==1 {
     $result: #{$font-size};
     @return $result;
-  } @else {
+  }
+
+  @else {
     $result: calc(#{$multiplier} * (#{$font-size}));
     @return $result;
   }
@@ -175,7 +191,9 @@ $transition-duration: var(--sjs-transition-duration, 150ms);
   @if $multiplier ==1 {
     $result: #{$font-size};
     @return $result;
-  } @else {
+  }
+
+  @else {
     $result: calc(#{$multiplier} * (#{$font-size}));
     @return $result;
   }
@@ -185,7 +203,9 @@ $transition-duration: var(--sjs-transition-duration, 150ms);
   @if $multiplier ==1 {
     $result: #{$corner-radius};
     @return $result;
-  } @else {
+  }
+
+  @else {
     $result: calc(#{$multiplier} * (#{$corner-radius}));
     @return $result;
   }

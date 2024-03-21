@@ -504,7 +504,6 @@ sv-popup {
   }
 }
 
-
 .sv-popup--dropdown-overlay.sv-popup--tablet {
   .sv-popup__body-content {
     --sv-popup-overlay-max-height: calc(var(--sv-popup-overlay-height, 100vh) - #{$base-unit} * 8);
@@ -540,7 +539,8 @@ sv-popup {
 }
 
 .sv-popup--animate-enter {
-  animation-name: popupFadeIn;
+  animation-name: fadeIn;
+  animation-fill-mode: forwards;
   animation-duration: 0.15s;
 }
 
@@ -548,36 +548,15 @@ sv-popup {
   animation-duration: 0.25s;
 }
 
-@keyframes popupFadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
-}
-
-
 .sv-popup--animate-leave {
-  animation-name: popupFadeOut;
+  animation-direction: reverse;
+  animation-name: fadeIn;
+  animation-fill-mode: forwards;
   animation-duration: 0.15s;
 }
 
 .sv-popup--modal.sv-popup--animate-leave {
   animation-duration: 0.25s;
-}
-
-
-
-@keyframes popupFadeOut {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
 }
 
 .sv-popup--hidden {
@@ -606,10 +585,12 @@ sv-popup {
 
 .sv-popup--modal.sv-popup--animate-leave .sv-popup__container {
   animation-name: modalMoveDown;
+  animation-fill-mode: forwards;
   animation-duration: 0.25s;
 }
 
 .sv-popup--modal.sv-popup--animate-enter .sv-popup__container {
   animation-name: modalMoveUp;
+  animation-fill-mode: forwards;
   animation-duration: 0.25s;
 }

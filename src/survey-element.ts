@@ -818,12 +818,14 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
     return this.shouldAddRunnerStyles() && (this.hasParent);
   }
   protected getCssRoot(cssClasses: { [index: string]: string }): string {
+    const isExpanadable = !!this.isCollapsed || !!this.isExpanded;
     return new CssClassBuilder()
       .append(cssClasses.withFrame, this.getHasFrameV2() && !this.isCompact)
       .append(cssClasses.compact, this.isCompact && this.getHasFrameV2())
       .append(cssClasses.collapsed, !!this.isCollapsed)
-      .append(cssClasses.expanded, !!this.isExpanded)
-      .append(cssClasses.expandable, !!this.isCollapsed || !!this.isExpanded)
+      .append(cssClasses.expandableAnimating, isExpanadable && this.isAnimatingCollapseExpand)
+      .append(cssClasses.expanded, !!this.isExpanded && this.renderedIsExpanded)
+      .append(cssClasses.expandable, isExpanadable)
       .append(cssClasses.nested, this.getIsNested())
       .toString();
   }
@@ -1010,23 +1012,43 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   @property() private _renderedIsExpanded: boolean = true;
+  private _isAnimatingCollapseExpand: boolean = false;
+  private set isAnimatingCollapseExpand(val: boolean) {
+    if(val !== this._isAnimatingCollapseExpand) {
+      this._isAnimatingCollapseExpand = val;
+      this.updateElementCss(false);
+    }
+  }
+  private get isAnimatingCollapseExpand() {
+    return this._isAnimatingCollapseExpand || this._renderedIsExpanded != this.isExpanded;
+  }
+
   private getExpandCollapseAnimationOptions(): IAnimationConsumer {
     return {
       getEnterOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
         return {
-          classes: { onEnter: cssClasses.contentFadeIn },
+          cssClass: cssClasses.contentFadeIn,
           onBeforeRunAnimation: (el: HTMLElement) => {
+            this.isAnimatingCollapseExpand = true;
             el.style.setProperty("--animation-height", el.offsetHeight + "px");
+          },
+          onAfterRunAnimation: (el: HTMLElement) => {
+            this.isAnimatingCollapseExpand = false;
           },
         };
       },
       getLeaveOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
-        return { classes: { onLeave: cssClasses.contentFadeOutActive, onHide: cssClasses.contentFadeOut },
+        return { cssClass: cssClasses.contentFadeOut,
           onBeforeRunAnimation: (el: HTMLElement) => {
+            this.isAnimatingCollapseExpand = true;
             el.style.setProperty("--animation-height", el.offsetHeight + "px");
-          }, };
+          },
+          onAfterRunAnimation: (el: HTMLElement) => {
+            this.isAnimatingCollapseExpand = false;
+          },
+        };
       },
       getAnimatedElement: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
@@ -1038,6 +1060,13 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
 
   private animationCollapsed = new AnimationBoolean(this.getExpandCollapseAnimationOptions(), (val) => {
     this._renderedIsExpanded = val;
+    if(this.animationAllowed) {
+      if(val) {
+        this.isAnimatingCollapseExpand = true;
+      } else {
+        this.updateElementCss(false);
+      }
+    }
   }, () => this.renderedIsExpanded);
   public set renderedIsExpanded(val: boolean) {
     this.animationCollapsed.sync(val);

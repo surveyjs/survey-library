@@ -1,17 +1,14 @@
 import { debounce } from "./taskmanager";
 
-export interface AnimationOptions<T> {
-  classes: T;
+export interface AnimationOptions{
+  cssClass: string;
   onBeforeRunAnimation?: (element: HTMLElement) => void;
   onAfterRunAnimation?: (element: HTMLElement) => void;
 }
 
-export type OnEnterOptions = AnimationOptions<{ onEnter: string }>;
-export type OnLeaveOptions = AnimationOptions<{ onLeave: string, onHide: string }>;
-
 export interface IAnimationConsumer<T extends Array<any> = []> {
-  getLeaveOptions(...args: T): OnLeaveOptions;
-  getEnterOptions(...args: T): OnEnterOptions;
+  getLeaveOptions(...args: T): AnimationOptions;
+  getEnterOptions(...args: T): AnimationOptions;
   getAnimatedElement(...args: T): HTMLElement;
   isAnimationEnabled(): boolean;
 }
@@ -40,58 +37,62 @@ export class AnimationUtils {
   }
   private cancelQueue: Array<() => void> = [];
 
-  protected onAnimationEnd(element: HTMLElement, callback: (event?: AnimationEvent) => void, options: AnimationOptions<any>): void {
+  protected onAnimationEnd(element: HTMLElement, callback: (isCancel?: boolean) => void, options: AnimationOptions): void {
     let cancelTimeout: any;
     let animationsCount = this.getAnimationsCount(element);
-    const onEndCallback = (event?: AnimationEvent) => {
+    const onEndCallback = (isCancel: boolean = true) => {
       options.onAfterRunAnimation && options.onAfterRunAnimation(element);
-      callback(event);
+      callback(isCancel);
       clearTimeout(cancelTimeout);
       this.cancelQueue.splice(this.cancelQueue.indexOf(onEndCallback), 1);
       element.removeEventListener("animationend", onAnimationEndCallback);
     };
     const onAnimationEndCallback = (event: AnimationEvent) => {
       if(event.target == event.currentTarget && --animationsCount <= 0) {
-        onEndCallback(event);
+        onEndCallback(false);
       }
     };
     if(animationsCount > 0) {
       element.addEventListener("animationend", onAnimationEndCallback);
       this.cancelQueue.push(onEndCallback);
       cancelTimeout = setTimeout(() => {
-        onEndCallback();
+        onEndCallback(false);
       }, this.getAnimationDuration(element) + 10);
     } else {
-      callback();
+      callback(true);
     }
   }
 
-  protected beforeAnimationRun(element: HTMLElement, options: OnEnterOptions | OnLeaveOptions): void {
+  protected beforeAnimationRun(element: HTMLElement, options: AnimationOptions | AnimationOptions): void {
     if(element) {
       options.onBeforeRunAnimation && options.onBeforeRunAnimation(element);
     }
   }
-  protected runLeaveAnimation(element: HTMLElement, options: OnLeaveOptions, callback: () => void): void {
+  protected runLeaveAnimation(element: HTMLElement, options: AnimationOptions, callback: () => void): void {
     if(element) {
-      element.classList.add(options.classes.onLeave);
-      const onAnimationEndCallback = (event?: any) => {
-        element.classList.remove(options.classes.onLeave);
-        if(!!event) element.classList.add(options.classes.onHide);
+      element.classList.add(options.cssClass);
+      const onAnimationEndCallback = (isCancel?: boolean) => {
         callback();
-        if(!!event) setTimeout(() => {
-          element.classList.remove(options.classes.onHide);
-        }, 1);
+        if(isCancel) {
+          element.classList.remove(options.cssClass);
+        } else {
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              element.classList.remove(options.cssClass);
+            });
+          });
+        }
       };
       this.onAnimationEnd(element, onAnimationEndCallback, options);
     } else {
       callback();
     }
   }
-  protected runEnterAnimation(element: HTMLElement, options: OnEnterOptions): void {
+  protected runEnterAnimation(element: HTMLElement, options: AnimationOptions): void {
     if(element) {
-      element.classList.add(options.classes.onEnter);
+      element.classList.add(options.cssClass);
       this.onAnimationEnd(element, () => {
-        element.classList.remove(options.classes.onEnter);
+        element.classList.remove(options.cssClass);
       }, options);
     }
   }
@@ -103,31 +104,46 @@ export class AnimationUtils {
 }
 
 export class AnimationPropertyUtils extends AnimationUtils {
-  public onEnter(getElement: () => HTMLElement, options: OnEnterOptions): void {
-    requestAnimationFrame(() => {
+  public onEnter(getElement: () => HTMLElement, options: AnimationOptions): void {
+    const callback = () => {
       const element = getElement();
       this.beforeAnimationRun(element, options);
       this.runEnterAnimation(element, options);
+    };
+    requestAnimationFrame(() => {
+      if(getElement()) {
+        callback();
+      } else {
+        requestAnimationFrame(callback);
+      }
     });
   }
-  public onLeave(getElement: () => HTMLElement, callback: () => void, options: OnLeaveOptions): void {
+  public onLeave(getElement: () => HTMLElement, callback: () => void, options: AnimationOptions): void {
     const element = getElement();
     this.beforeAnimationRun(element, options);
     this.runLeaveAnimation(element, options, callback);
   }
 }
 export class AnimationGroupUtils<T> extends AnimationUtils {
-  public onEnter(getElement: (el: T) => HTMLElement, getOptions: (el: T) => OnEnterOptions, elements: Array<T>): void {
+  public onEnter(getElement: (el: T) => HTMLElement, getOptions: (el: T) => AnimationOptions, elements: Array<T>): void {
+    if(elements.length == 0) return;
     requestAnimationFrame(() => {
-      elements.forEach((el) => {
-        this.beforeAnimationRun(getElement(el), getOptions(el));
-      });
-      elements.forEach((el) => {
-        this.runEnterAnimation(getElement(el), getOptions(el));
-      });
+      const callback = () => {
+        elements.forEach((el) => {
+          this.beforeAnimationRun(getElement(el), getOptions(el));
+        });
+        elements.forEach((el) => {
+          this.runEnterAnimation(getElement(el), getOptions(el));
+        });
+      };
+      if(!getElement(elements[0])) {
+        requestAnimationFrame(callback);
+      } else {
+        callback();
+      }
     });
   }
-  public onLeave(getElement: (el: T) => HTMLElement, callback: () => void, getOptions: (el: T) => OnLeaveOptions, elements: Array<T>): void {
+  public onLeave(getElement: (el: T) => HTMLElement, callback: () => void, getOptions: (el: T) => AnimationOptions, elements: Array<T>): void {
     elements.forEach((el) => {
       this.beforeAnimationRun(getElement(el), getOptions(el));
     });

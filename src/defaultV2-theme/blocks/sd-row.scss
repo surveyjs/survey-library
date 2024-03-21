@@ -3,35 +3,42 @@
   flex-direction: row;
   width: 100%;
   box-sizing: border-box;
+  --animate-margin: var(--sd-base-vertical-padding);
   margin-top: var(--sd-base-vertical-padding);
 }
 
 .sd-row.sd-page__row {
   margin-top: calcSize(2);
+  --animate-margin: #{calcSize(2)};
 }
 
 .sd-page__row.sd-row--compact {
   margin-top: var(--sd-base-vertical-padding);
+  --animate-margin: var(--sd-base-vertical-padding);
 }
 
 .sd-row:first-of-type {
   margin-top: 0;
+  --animate-margin: 0;
 }
 
 .sd-page__title,
 .sd-page__description {
-  & ~ .sd-row.sd-page__row:not(.sd-row--compact) {
+  &~.sd-row.sd-page__row:not(.sd-row--compact) {
     margin-top: calcSize(3);
+    --animate-margin: #{calcSize(3)};
   }
 
-  & ~ .sd-page__row.sd-row--compact {
+  &~.sd-page__row.sd-row--compact {
     margin-top: var(--sd-base-vertical-padding);
+    --animate-margin: var(--sd-base-vertical-padding);
   }
 }
 
 .sd-row.sd-page__row:not(.sd-row--compact) {
-  & ~ .sd-row.sd-page__row:not(.sd-row--compact) {
+  &~.sd-row.sd-page__row:not(.sd-row--compact) {
     margin-top: calcSize(2);
+    --animate-margin: #{calcSize(2)};
   }
 }
 
@@ -41,7 +48,7 @@
   width: calc(100% + var(--sd-base-padding));
   flex-wrap: wrap;
 
-  & > div {
+  &>div {
     box-sizing: border-box;
     padding-left: calcSize(2);
     display: flex;
@@ -53,14 +60,14 @@
   .sd-row--multiple {
     row-gap: var(--sd-base-vertical-padding);
 
-    & > div {
+    &>div {
       padding-left: var(--sd-base-padding);
     }
   }
 }
 
 .sd-row--multiple.sd-row--compact {
-  & > div {
+  &>div {
     padding-left: var(--sd-base-padding);
   }
 }
@@ -88,47 +95,36 @@
   white-space: nowrap;
 }
 
-@keyframes rowFadeIn {
-  0% {
-    opacity: 0;
-    height: 0;
+@keyframes marginFadeIn {
+  from {
+    margin-top: 0;
   }
-  50% {
-    opacity: 0;
-    height: var(--animation-height);
-  }
-  100% {
-    height: var(--animation-height);
-    opacity: 1;
+
+  to {
+    margin-top: var(--animate-margin);
   }
 }
 
 .sd-row--fade-in {
-  animation-name: rowFadeIn;
+  animation-fill-mode: forwards;
+  animation-name: fadeIn, moveIn, marginFadeIn;
   min-height: 0 !important;
-  animation-duration: 1s;
-}
-
-@keyframes rowFadeOut {
-  0% {
-    opacity: 1;
-    height: var(--animation-height);
-  }
-  50% {
-    opacity: 0;
-    height: var(--animation-height);
-  }
-  100% {
-    opacity: 0;
-    height: 0;
-  }
+  opacity: 0;
+  animation-timing-function: ease-in;
+  animation-delay: $row-fade-in-delay, 0s, 0s;
+  animation-duration: $row-fade-in-duration, $row-move-in-duration, $row-move-in-duration;
 }
 
 .sd-row--fade-out {
-  animation-name: rowFadeOut;
+  animation-name: fadeIn, moveIn, marginFadeIn;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+  animation-direction: reverse;
   min-height: 0 !important;
-  animation-duration: 1s;
+  animation-delay: 0s, $row-move-out-delay, $row-move-out-delay;
+  animation-duration: $row-fade-out-duration, $row-move-out-duration, $row-move-out-duration;
 }
+
 .sd-row--fade-in .sd-element-wrapper--fade-in {
   animation: none;
 }

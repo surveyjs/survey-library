@@ -530,6 +530,9 @@ export class QuestionTextModel extends QuestionTextBase {
   get inputStyle(): any {
     var style: any = {};
     style.width = this.inputWidth;
+    if(!this.maskTypeIsEmpty && "align" in this.maskSettings) {
+      style.textAlign = this.maskSettings["align"];
+    }
     return style;
   }
   //web-based methods

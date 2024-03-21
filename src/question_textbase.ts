@@ -129,7 +129,8 @@ export class QuestionTextBase extends Question {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
       .append(this.cssClasses.onError, this.hasCssError())
-      .append(this.cssClasses.controlReadOnly, this.isReadOnly);
+      .append(this.cssClasses.controlReadOnly, this.isReadOnly && !this.isPreview)
+      .append(this.cssClasses.controlPreview, this.isPreview);
   }
   public getControlClass(): string {
     return this.getControlCssClassBuilder().toString();

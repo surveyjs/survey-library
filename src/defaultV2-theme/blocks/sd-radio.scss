@@ -29,6 +29,10 @@
   background-color: $foreground-dim;
 }
 
+.sd-radio--checked.sd-radio--preview .sd-radio__decorator:after {
+  background-color: $foreground-dim;
+}
+
 .sd-radio--checked .sd-radio__control:focus+.sd-radio__decorator:after {
   background-color: $primary;
 }

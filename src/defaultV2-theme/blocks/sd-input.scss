@@ -52,6 +52,21 @@ textarea {
   user-select: none;
 }
 
+.sd-input--preview {
+  background-color: tomato;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  background: none;
+  box-shadow: none;
+  transition: none;
+  border-bottom: 1px solid $foreground-dim;
+  border-radius: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 .sd-input::placeholder {
   color: $font-editorfont-placeholdercolor;
   -webkit-user-select: none;

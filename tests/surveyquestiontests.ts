@@ -3187,6 +3187,24 @@ QUnit.test(
 );
 
 QUnit.test(
+  "isPreview property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionMultipleTextModel("q1");
+    assert.equal(question.isPreview, false, "false if survey doesn't exist");
+
+    page.addQuestion(question);
+    assert.equal(question.isPreview, false, "false in not preview mode");
+
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.isPreview, true, "true in preview mode");
+  }
+);
+
+QUnit.test(
   "Multipletext, item isRequired, 0 is a valid value, bug #1225",
   function (assert) {
     var question = new QuestionMultipleTextModel("q1");

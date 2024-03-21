@@ -1345,6 +1345,9 @@ export class Question extends SurveyElement<Question>
     const isSurveyReadOnly = !!this.survey && this.survey.isDisplayMode;
     return this.readOnly || isParentReadOnly || isSurveyReadOnly || isPareQuestionReadOnly;
   }
+  public get isPreview(): boolean {
+    return !!this.survey && this.survey.state === "preview";
+  }
   public get isInputReadOnly(): boolean {
     if (this.forceIsInputReadOnly !== undefined) {
       return this.forceIsInputReadOnly;

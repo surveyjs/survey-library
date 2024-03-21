@@ -49,7 +49,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
   }
   private get rootElement() {
     if(isShadowDOM(settings.environment.root)) {
-      return settings.environment.root.host;
+      return this.rootContainer || settings.environment.root.host;
     } else {
       return this.rootContainer || settings.environment.root.documentElement || document.body;
     }
@@ -107,7 +107,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
         `;
         this.savedTargetNodeParent = this.savedTargetNode.parentElement;
         this.savedTargetNodeIndex = this.getNodeIndexInParent(this.savedTargetNode);
-        this.rootContainer.appendChild(this.savedTargetNode);
+        this.rootElement.appendChild(this.savedTargetNode);
       }
 
       this.stopLongTap();
@@ -129,11 +129,11 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
     event.stopPropagation();
   }
   private moveShortcutElement(event: PointerEvent) {
-    let rootElementX = this.rootContainer.getBoundingClientRect().x;
-    let rootElementY = this.rootContainer.getBoundingClientRect().y;
+    let rootElementX = this.rootElement.getBoundingClientRect().x;
+    let rootElementY = this.rootElement.getBoundingClientRect().y;
 
-    let rootElementScrollLeft = this.rootContainer.scrollLeft;
-    let rootElementScrollTop = this.rootContainer.scrollTop;
+    let rootElementScrollLeft = this.rootElement.scrollLeft;
+    let rootElementScrollTop = this.rootElement.scrollTop;
 
     this.doScroll(event.clientY, event.clientX);
 
@@ -314,7 +314,7 @@ export class DragDropDOMAdapter implements IDragDropDOMAdapter {
 
     this.dd.dragInit(event, draggedElement, parentElement, draggedElementNode);
 
-    this.rootContainer.append(this.draggedElementShortcut);
+    this.rootElement.append(this.draggedElementShortcut);
     this.moveShortcutElement(event);
 
     document.addEventListener("pointermove", this.dragOver);

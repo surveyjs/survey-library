@@ -97,6 +97,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });
@@ -109,6 +110,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-bottom.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });
@@ -129,6 +131,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-bottom-brand.png", Selector("#surveyElement"), t, comparer); // title + progress
     });
   });
@@ -152,8 +155,10 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarShowPageNumbers = true;
       })();
       await t.click(Selector("li").nth(1));
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-numbered-buttons.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-numbered-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
@@ -165,8 +170,10 @@ frameworks.forEach(framework => {
         (<any>window).survey.showProgressBar = "topBottom";
       })();
       await t.click(Selector("li").nth(1));
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-bottom-buttons.png", Selector(".sd-container-modern"), t, comparer);
       await t.resizeWindow(500, 1080);
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-bottom-buttons-mobile.png", Selector(".sd-container-modern"), t, comparer);
     });
   });
@@ -179,6 +186,7 @@ frameworks.forEach(framework => {
         (<any>window).survey.progressBarType = "pages";
         (<any>window).survey.currentPageNo = 1;
       })();
+      await t.wait(500);
       await takeElementScreenshot("survey-progress-bar-top-and-toc.png", Selector(".sd-container-modern"), t, comparer); // title + progress
     });
   });

@@ -4795,13 +4795,12 @@ export class SurveyModel extends SurveyElementCore
   }
   private processResponsiveness(width: number, mobileWidth: number): boolean {
     const isMobile = width < mobileWidth;
-    this.layoutElements.forEach(layoutElement => layoutElement.processResponsiveness && layoutElement.processResponsiveness(width));
-    if (this.isMobile === isMobile) {
-      return false;
-    } else {
+    const isMobileChanged = this.isMobile !== isMobile;
+    if (isMobileChanged) {
       this.setIsMobile(isMobile);
-      return true;
     }
+    this.layoutElements.forEach(layoutElement => layoutElement.processResponsiveness && layoutElement.processResponsiveness(width));
+    return isMobileChanged;
   }
 
   public triggerResponsiveness(hard: boolean) {

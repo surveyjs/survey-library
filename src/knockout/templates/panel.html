@@ -1,5 +1,5 @@
 <script type="text/html" id="survey-panel">
-  <!-- ko if: $data.isVisible -->
+  <!-- ko if: $data.getIsContentVisible() -->
   <div
     data-bind="attr: { id: id }, css: $data.getContainerCss(), event: {focusin: focusIn}"
   >

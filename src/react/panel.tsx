@@ -95,6 +95,10 @@ export class SurveyPanel extends SurveyPanelBase {
     if (!footerToolbar.hasActions) return null;
     return <SurveyActionBar model={footerToolbar}></SurveyActionBar>;
   }
+  protected getIsVisible(): boolean {
+    return this.panelBase.getIsContentVisible();
+  }
+
 }
 
 ReactElementFactory.Instance.registerElement("panel", (props) => {

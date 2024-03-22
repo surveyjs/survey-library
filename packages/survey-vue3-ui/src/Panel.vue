@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="element.isVisible"
+    v-if="element.getIsContentVisible()"
     :class="element.getContainerCss()"
     :id="element.id"
     @focusin="element.focusIn()"

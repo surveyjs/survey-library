@@ -9,26 +9,27 @@ export default QUnit.module("utils");
 function checkSanitizer(element, text, selectionNodeIndex, selectionStart, cleanLineBreaks = true) {
   element.innerHTML = text;
   const selection = document.getSelection();
-  const range = document.createRange();
-  if(selectionNodeIndex >= 0) {
+  let range = document.createRange();
+  if (selectionNodeIndex >= 0) {
     range.setStart(element.childNodes[selectionNodeIndex], selectionStart);
   }
   range.collapse(true);
   selection.removeAllRanges();
   selection.addRange(range);
-
   sanitizeEditableContent(element, cleanLineBreaks);
-  const newSelection = document.getSelection();
+  range = document.getSelection().getRangeAt(0);
+  if (element.childNodes.length > 0) range.setStart(element.childNodes[0], 0);
   return {
     text: element.innerHTML,
     plainText: element.innerText,
-    offset: newSelection.getRangeAt(0).startOffset,
-    nodeText: newSelection.getRangeAt(0).startContainer.textContent
+    position: selection?.toString().length,
+    offset: range.endOffset,
+    nodeText: range.endContainer.textContent
   };
 }
 QUnit.test(
   "utils: sanitizer",
-  function(assert) {
+  function (assert) {
     var element: HTMLSpanElement = document.createElement("span");
     document.body.appendChild(element);
     element.contentEditable = "true";
@@ -60,7 +61,7 @@ QUnit.test(
 
 QUnit.test(
   "utils: sanitizer with linebreaks",
-  function(assert) {
+  function (assert) {
     var element: HTMLSpanElement = document.createElement("span");
     document.body.appendChild(element);
     element.contentEditable = "true";
@@ -70,10 +71,42 @@ QUnit.test(
     assert.equal(res.offset, 2);
     assert.equal(res.nodeText, "some");
 
+    var res = checkSanitizer(element, "some<br/>text<br/><br/>", 3, 0, false);
+    assert.equal(res.plainText, "some\ntext\n\n");
+    assert.equal(res.position, 10);
+
     var res = checkSanitizer(element, "some<br/>text<br/>and more", 2, 3, false);
     assert.equal(res.plainText, "some\ntext\nand more");
     assert.equal(res.offset, 3);
     assert.equal(res.nodeText, "text");
+
+    element.remove();
+  }
+);
+
+QUnit.test(
+  "utils: sanitizer with grapheme clusters",
+  function (assert) {
+    var element: HTMLSpanElement = document.createElement("span");
+    document.body.appendChild(element);
+    element.contentEditable = "true";
+
+    var res = checkSanitizer(element, "พุธ", 0, 2, false);
+    assert.equal(res.plainText.length, 3);
+    assert.equal(res.plainText, "พุธ");
+    assert.equal(res.offset, 2);
+    assert.equal(res.nodeText, "พุธ");
+
+    var res = checkSanitizer(element, "sพุธe", 0, 3, false);
+    assert.equal(res.plainText.length, 5);
+    assert.equal(res.plainText, "sพุธe");
+    assert.equal(res.offset, 3);
+    assert.equal(res.nodeText, "sพุธe");
+
+    var res = checkSanitizer(element, "พุธs<br/>พุธe", 2, 2, false);
+    assert.equal(res.plainText, "พุธs\nพุธe");
+    assert.equal(res.offset, 2);
+    assert.equal(res.nodeText, "พุธe");
 
     element.remove();
   }
@@ -190,15 +223,15 @@ QUnit.test(
     mouseInfo.hasMouse = false;
     const hasTouchEvent = mouseInfo.hasTouchEvent;
     assert.equal(mouseInfo.isTouch, hasTouchEvent, "isTouch, #2. hasTouch in window: " + hasTouchEvent);
-    if(!hasTouchEvent) {
-      window["ontouchstart"] = ()=>{};
+    if (!hasTouchEvent) {
+      window["ontouchstart"] = () => { };
     }
     mouseInfo.hasMouse = true;
     assert.equal(mouseInfo.isTouch, false, "isTouch, #3");
     mouseInfo.hasMouse = false;
     assert.equal(mouseInfo.isTouch, true, "isTouch, #4");
     mouseInfo.hasMouse = true;
-    if(!hasTouchEvent) {
+    if (!hasTouchEvent) {
       window["ontouchstart"] = undefined;
     }
   }

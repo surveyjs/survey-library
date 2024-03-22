@@ -5,6 +5,7 @@ import { property, Serializer } from "./jsonobject";
 import { ConditionRunner } from "./conditions";
 import { Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
+import { ComputedUpdater } from "./base";
 
 /**
  * A base class for all matrix question types.
@@ -305,9 +306,13 @@ export class QuestionMatrixBaseModel<TRow, TColumn> extends Question {
     return true;
   }
 
+  protected get columnsAutoWidth() {
+    return !this.isMobile && !this.columns.some(col => !!col.width);
+  }
   public getTableCss(): string {
     return new CssClassBuilder()
       .append(this.cssClasses.root)
+      .append(this.cssClasses.columnsAutoWidth, this.columnsAutoWidth)
       .append(this.cssClasses.noHeader, !this.showHeader)
       .append(this.cssClasses.hasFooter, !!this.renderedTable?.showAddRowOnBottom)
       .append(this.cssClasses.rootAlternateRows, this.alternateRows)

@@ -6,3 +6,7 @@
 .sd-html {
   @include articleHtml;
 }
+
+.sd-html--nested {
+  color: $font-questiontitle-color;
+}

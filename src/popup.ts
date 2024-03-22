@@ -131,7 +131,7 @@ export function createDialogOptions(
   cssClass?: string,
   title?: string,
   displayMode: "popup" | "overlay" = "popup"): IDialogOptions {
-  ConsoleWarnings.warn("Methods showModal and createDialogOptions is obsolete. Please use showDialog function.");
+  ConsoleWarnings.warn("The `showModal()` and `createDialogOptions()` methods are obsolete. Use the `showDialog()` method instead.");
 
   return <IDialogOptions>{
     componentName: componentName,

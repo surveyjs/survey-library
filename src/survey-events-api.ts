@@ -510,9 +510,18 @@ export interface OpenFileChooserEvent {
    */
   input: HTMLInputElement;
   /**
-   * A question, panel, page, or survey for which this event is raised.
+   * A survey element (question, panel, page, or survey) or a theme JSON schema for which this event is raised.
    */
   element: Base;
+  /**
+   * The type of the element passed as the `options.element` parameter.\
+   * Possible values: `"theme"`, `"header"`, or any value returned from the [`getType()`](https://surveyjs.io/form-library/documentation/api-reference/question#getType) method.
+   */
+  elementType: String;
+  /**
+   * The name of the survey element property or theme property for which files are being selected.
+   */
+  propertyName: String;
   /**
    * A choice item for which the event is raised. This parameter has a value only when the dialog window is opened to select images for an [Image Picker](https://surveyjs.io/form-library/documentation/api-reference/image-picker-question-model) question.
    */

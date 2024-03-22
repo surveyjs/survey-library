@@ -82,3 +82,94 @@ QUnit.test("Switch mask type", function (assert) {
   assert.equal(q.maskType, "none");
   assert.equal(q.maskSettings instanceof InputMaskBase, true);
 });
+
+QUnit.test("Datetime mask: value & inputValue", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "datetime";
+  q.maskSettings.fromJSON({ pattern: "dd/mm/yyyy" });
+  q.inputValue = "12/03/2024";
+  assert.equal(q.value, "2024-03-12", "unmasked value #1");
+  assert.equal(q.inputValue, "12/03/2024", "unmasked inputValue #1");
+
+  q.inputValue = "12/03/202y";
+  assert.equal(q.value, "", "unmasked value #2");
+  assert.equal(q.inputValue, "dd/mm/yyyy", "unmasked inputValue #2");
+
+  q.maskSettings.saveMaskedValue = true;
+
+  q.inputValue = "12/03/2024";
+  assert.equal(q.value, "12/03/2024", "masked value #3");
+  assert.equal(q.inputValue, "12/03/2024", "masked inputValue #3");
+
+  q.inputValue = "12/03/202y";
+  assert.equal(q.value, "", "masked value #4");
+  assert.equal(q.inputValue, "dd/mm/yyyy", "masked inputValue #4");
+});
+
+QUnit.test("Pattern mask: value & inputValue", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "pattern";
+  q.maskSettings.fromJSON({ pattern: "999-999" });
+  q.inputValue = "123-456";
+  assert.equal(q.value, "123456", "unmasked value #1");
+  assert.equal(q.inputValue, "123-456", "unmasked inputValue #1");
+
+  q.inputValue = "123-45_";
+  assert.equal(q.value, "", "unmasked value #2");
+  assert.equal(q.inputValue, "___-___", "unmasked inputValue #2");
+
+  q.maskSettings.saveMaskedValue = true;
+
+  q.inputValue = "123-456";
+  assert.equal(q.value, "123-456", "masked value #3");
+  assert.equal(q.inputValue, "123-456", "masked inputValue #3");
+
+  q.inputValue = "123-45_";
+  assert.equal(q.value, "", "masked value #4");
+  assert.equal(q.inputValue, "___-___", "masked inputValue #4");
+});
+
+QUnit.test("Numeric mask: value & inputValue", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "numeric";
+  q.inputValue = "123,456";
+  assert.equal(q.value, 123456, "unmasked value #1");
+  assert.equal(q.inputValue, "123,456", "unmasked inputValue #1");
+
+  q.inputValue = "123,456.";
+  assert.equal(q.value, 123456, "unmasked value #2");
+  assert.equal(q.inputValue, "123,456", "masked inputValue #2");
+
+  q.maskSettings.saveMaskedValue = true;
+
+  q.inputValue = "123,456";
+  assert.equal(q.value, "123,456", "masked value #3");
+  assert.equal(q.inputValue, "123,456", "masked inputValue #3");
+
+  q.inputValue = "123,456.";
+  assert.equal(q.value, "123,456", "masked value #4");
+  assert.equal(q.inputValue, "123,456", "masked inputValue #4");
+});
+
+QUnit.test("Currency mask: value & inputValue", function (assert) {
+  const q = new QuestionTextModel("q1");
+  q.maskType = "currency";
+  q.maskSettings.fromJSON({ prefix: "$ " });
+  q.inputValue = "123,456";
+  assert.equal(q.value, 123456, "unmasked value #1");
+  assert.equal(q.inputValue, "$ 123,456", "unmasked inputValue #1");
+
+  q.inputValue = "123,456.";
+  assert.equal(q.value, 123456, "unmasked value #2");
+  assert.equal(q.inputValue, "$ 123,456", "masked inputValue #2");
+
+  q.maskSettings.saveMaskedValue = true;
+
+  q.inputValue = "123,456";
+  assert.equal(q.value, "$ 123,456", "masked value #3");
+  assert.equal(q.inputValue, "$ 123,456", "masked inputValue #3");
+
+  q.inputValue = "123,456.";
+  assert.equal(q.value, "$ 123,456", "masked value #4");
+  assert.equal(q.inputValue, "$ 123,456", "masked inputValue #4");
+});

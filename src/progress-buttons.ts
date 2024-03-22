@@ -82,7 +82,7 @@ export class ProgressButtons extends Base {
     const listContainerElement = element.querySelector("ul");
     if (!listContainerElement) return;
     const listContainerElements = element.querySelectorAll(".sd-progress-buttons__connector");
-    const circleWidth = this.showItemNumbers ? 17 : 7;
+    const circleWidth = this.showItemNumbers ? 17 : 5;
     const connectorWidth = listContainerElement.clientWidth / (listContainerElement.children.length - 1) - circleWidth;
     for (let i = 0; i < listContainerElements.length; i++) {
       (listContainerElements[i] as HTMLDivElement).style.width = connectorWidth + "px";

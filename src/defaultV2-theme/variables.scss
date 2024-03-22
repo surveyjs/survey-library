@@ -36,7 +36,6 @@ $header-backcolor: var(--sjs-header-backcolor, #{$primary});
 $border: var(--sjs-border-default, var(--border, #d6d6d6));
 $border-light: var(--sjs-border-light, var(--border-light, #eaeaea));
 $border-inside: var(--sjs-border-inside, var(--border-inside, rgba(0, 0, 0, 0.16)));
-$navigation: var(--sjs-navigation-default, #bcbcbc);
 
 $shadow-small: var(--sjs-shadow-small, 0px 1px 2px 0px rgba(0, 0, 0, 0.15));
 $shadow-small-reset: var(--sjs-shadow-small-reset, 0px 0px 0px 0px rgba(0, 0, 0, 0.15));

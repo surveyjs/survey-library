@@ -180,12 +180,8 @@ QUnit.test("Currency mask: text aligment", function (assert) {
   assert.deepEqual(q.inputStyle, { width: undefined });
 
   q.maskType = "currency";
-
-  const maskSettings = q.maskSettings as InputMaskCurrency;
-  assert.equal(maskSettings.align, "right");
   assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "right" });
 
-  maskSettings.align = "left";
-
+  q.inputTextAlignment = "left";
   assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
 });

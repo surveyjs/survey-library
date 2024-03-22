@@ -62,6 +62,7 @@ export class QuestionTextModel extends QuestionTextBase {
   @property({
     onSet: (newValue: string, target: QuestionTextModel) => { target.onSetMaskType(newValue); }
   }) maskType: string;
+  @property() inputTextAlignment: "left" | "right" | "auto" ;
 
   get maskTypeIsEmpty(): boolean {
     return this.maskType === "none";
@@ -530,13 +531,19 @@ export class QuestionTextModel extends QuestionTextBase {
   get inputStyle(): any {
     var style: any = {};
     style.width = this.inputWidth;
-    if(!this.maskTypeIsEmpty && "align" in this.maskSettings) {
-      style.textAlign = this.maskSettings["align"];
-    }
+    this.updateTextAlign(style);
     return style;
+  }
+  private updateTextAlign(style: any) {
+    if (this.inputTextAlignment !== "auto") {
+      style.textAlign = this.inputTextAlignment;
+    } else if (this.maskType === "numeric" || this.maskType === "currency") {
+      style.textAlign = "right";
+    }
   }
   //web-based methods
   private _isWaitingForEnter = false;
+
   private updateValueOnEvent(event: any) {
     const newValue = event.target.value;
     if (!this.isTwoValueEquals(this.value, newValue)) {
@@ -752,6 +759,7 @@ Serializer.addClass(
         return isMinMaxType(obj);
       },
     },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
     {
       name: "maskType:masktype",
       default: "none",

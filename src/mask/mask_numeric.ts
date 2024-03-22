@@ -91,7 +91,6 @@ export class InputMaskNumeric extends InputMaskBase {
    * @see allowNegativeValues
    */
   @property() max: number;
-  @property() align: "left" | "right";
 
   private calccaretPosition(leftPart: string, args: ITextInputParams, maskedValue: string) {
     const leftPartMaskedLength = !! leftPart ? this.displayNumber(this.parseNumber(leftPart), false).length : 0;
@@ -270,7 +269,6 @@ Serializer.addClass(
     { name: "precision:number", default: 2, minValue: 0 },
     { name: "min:number" },
     { name: "max:number" },
-    { name: "align", default: "right", choices: ["right", "left"] },
   ],
   function () {
     return new InputMaskNumeric();

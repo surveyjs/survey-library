@@ -437,11 +437,11 @@ export class MatrixDropdownColumn extends Base
    * @see defaultValueExpression
    * @see resetValueIf
    */
-  public get setValueExpession(): string {
-    return this.templateQuestion.setValueExpession;
+  public get setValueExpression(): string {
+    return this.templateQuestion.setValueExpression;
   }
-  public set setValueExpession(val: string) {
-    this.templateQuestion.setValueExpession = val;
+  public set setValueExpression(val: string) {
+    this.templateQuestion.setValueExpression = val;
   }
   /**
    * Specifies whether a respondent is required to provide a unique response for each question within this column.

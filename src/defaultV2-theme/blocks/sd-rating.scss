@@ -179,9 +179,26 @@ legend+sv-ng-rating-item+.sd-rating__item {
   }
 }
 
-.sd-rating__item.sd-rating__item--preview {}
+.sd-rating__item.sd-rating__item--preview {
+  fill: transparent;
+  background-color: transparent;
+  border: 1px solid transparent;
+  box-shadow: none;
+  transform: none;
 
-.sd-rating__item.sd-rating__item--selected.sd-rating__item--preview {}
+  .sd-rating__item-text.sd-rating__item-text {
+    color: $foreground-dim;
+  }
+}
+
+.sd-rating__item.sd-rating__item--selected.sd-rating__item--preview {
+  border-color: $foreground-dim;
+  border-width: 1px;
+
+  .sd-rating__item-text.sd-rating__item-text {
+    color: $foreground-dim;
+  }
+}
 
 .sd-question--disabled .sd-rating__item-text {
   opacity: 0.25;

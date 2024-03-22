@@ -29,8 +29,16 @@
   background-color: $foreground-dim;
 }
 
-.sd-radio--checked.sd-radio--preview .sd-radio__decorator:after {
-  background-color: $foreground-dim;
+.sd-radio--checked.sd-radio--preview .sd-radio__decorator {
+  &:after {
+    display: none;
+  }
+
+  .sd-radio__svg {
+    display: block;
+    width: calcSize(2.5);
+    height: calcSize(2.5);
+  }
 }
 
 .sd-radio--checked .sd-radio__control:focus+.sd-radio__decorator:after {

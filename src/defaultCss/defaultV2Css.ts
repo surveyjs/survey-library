@@ -277,6 +277,7 @@ export var defaultV2Css = {
     itemDisabled: "sd-item--disabled sd-radio--disabled",
     itemReadOnly: "sd-item--readonly sd-radio--readonly",
     itemPreview: "sd-item--preview sd-radio--preview",
+    itemPreviewSvgIconId: "#icon-v2check",
     itemChecked: "sd-item--checked sd-radio--checked",
     itemHover: "sd-item--allowhover sd-radio--allowhover",
     itemControl: "sd-visuallyhidden sd-item__control sd-radio__control",

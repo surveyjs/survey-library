@@ -66,7 +66,7 @@ frameworks.forEach(framework => {
     });
   });
 
-  test.only("Rating ReadOnly and Preview", async (t) => {
+  test("Rating ReadOnly and Preview", async (t) => {
     await wrapVisualTest(t, async (t, comparer) => {
       await t.resizeWindow(800, 600);
       await initSurvey(framework, {

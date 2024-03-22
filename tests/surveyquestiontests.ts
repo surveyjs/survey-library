@@ -3187,20 +3187,58 @@ QUnit.test(
 );
 
 QUnit.test(
-  "isPreview property",
+  "isDisabledStyle isReadOnlyStyle properties",
   function (assert) {
     var survey = new SurveyModel();
     survey.showPreviewBeforeComplete = "showAllQuestions";
     var page = survey.addNewPage("p");
     var question = new QuestionMultipleTextModel("q1");
-    assert.equal(question.isPreview, false, "false if survey doesn't exist");
+    assert.equal(question.isDisabledStyle, false);
 
     page.addQuestion(question);
-    assert.equal(question.isPreview, false, "false in not preview mode");
+    assert.equal(question.isReadOnlyStyle, false);
+    question.readOnly = true;
+    assert.equal(question.isReadOnlyStyle, true);
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.isReadOnlyStyle, false);
+  }
+);
+
+QUnit.test(
+  "isPreviewStyle property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionMultipleTextModel("q1");
+    assert.equal(question.isPreviewStyle, false, "false if survey doesn't exist");
+
+    page.addQuestion(question);
+    assert.equal(question.isPreviewStyle, false, "false in not preview mode");
 
     survey.showPreview();
     var questionPreview = survey.getQuestionByName("q1");
-    assert.equal(questionPreview.isPreview, true, "true in preview mode");
+    assert.equal(questionPreview.isPreviewStyle, true, "true in preview mode");
+  }
+);
+
+QUnit.test(
+  "itemSvgIcon property",
+  function (assert) {
+    var survey = new SurveyModel();
+    survey.showPreviewBeforeComplete = "showAllQuestions";
+    var page = survey.addNewPage("p");
+    var question = new QuestionRadiogroupModel("q1");
+    page.addQuestion(question);
+
+    survey.setCss({ radiogroup: { itemSvgIconId: "icon-id", itemPreviewSvgIconId: undefined } });
+    assert.equal(question.itemSvgIcon, "icon-id");
+    survey.showPreview();
+    var questionPreview = survey.getQuestionByName("q1");
+    assert.equal(questionPreview.itemSvgIcon, "icon-id", "preview mode");
+    survey.setCss({ radiogroup: { itemPreviewSvgIconId: "preview-icon-id" } });
+    assert.equal(questionPreview.itemSvgIcon, "preview-icon-id");
   }
 );
 

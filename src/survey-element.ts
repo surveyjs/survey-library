@@ -999,8 +999,18 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
       .append(cssClasses.titleExpandable, isExpandable)
       .append(cssClasses.titleExpanded, this.isExpanded)
       .append(cssClasses.titleCollapsed, this.isCollapsed)
+      .append(cssClasses.titleDisabled, this.isDisabledStyle)
       .append(cssClasses.titleReadOnly, this.isReadOnly)
       .append(cssClasses.titleOnError, this.containsErrors).toString();
+  }
+  public get isDisabledStyle(): boolean {
+    return false;
+  }
+  public get isReadOnlyStyle(): boolean {
+    return this.isReadOnly && !this.isPreviewStyle;
+  }
+  public get isPreviewStyle(): boolean {
+    return !!this.survey && this.survey.state === "preview";
   }
   public localeChanged() {
     super.localeChanged();

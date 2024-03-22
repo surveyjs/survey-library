@@ -309,11 +309,46 @@ QUnit.test("DragDropRankingSelectToRank getIndixies", function (assert) {
   const withDefaultValue = true;
   const dndModel = new DragDropRankingSelectToRank();
   const questionModel = createRankingQuestionModel(withDefaultValue);
-
   let toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
   assert.equal(toIndex, 2);
   toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 2);
+
+  dndModel.draggedElement = questionModel.rankingChoices[0];
+  dndModel.dropTarget = questionModel.rankingChoices[1];
+  dndModel["_isBottom"] = false;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 0);
+
+  dndModel.draggedElement = questionModel.rankingChoices[0];
+  dndModel.dropTarget = questionModel.rankingChoices[1];
+  dndModel["_isBottom"] = true;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
   assert.equal(toIndex, 1);
+
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  dndModel.dropTarget = questionModel.rankingChoices[0];
+  dndModel["_isBottom"] = false;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 0);
+
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  dndModel.dropTarget = questionModel.rankingChoices[0];
+  dndModel["_isBottom"] = true;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.rankingChoices).toIndex;
+  assert.equal(toIndex, 1);
+
+  dndModel.dropTarget = questionModel.unRankingChoices[0];
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  dndModel["_isBottom"] = true;
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
+  assert.equal(toIndex, 1);
+
+  dndModel["_isBottom"] = false;
+  dndModel.dropTarget = questionModel.unRankingChoices[0];
+  dndModel.draggedElement = questionModel.rankingChoices[1];
+  toIndex = dndModel.getIndixies(questionModel, questionModel.rankingChoices, questionModel.unRankingChoices).toIndex;
+  assert.equal(toIndex, 0);
 });
 // EO selectToRankEnabled
 

@@ -128,8 +128,6 @@ $row-fade-out-duration: var(--sjs-row-fade-out-duration, 100ms);
 $row-move-out-duration: var(--sjs-row-move-out-duration, 250ms);
 $row-move-out-delay: var(--sjs-row-move-out-delay, 0ms);
 
-$elements-animation-duration: var(--sjs-elements-animation-duration, 1s);
-
 $expand-fade-in-duration: var(--sjs-expand-fade-in-duration, 100ms);
 $expand-move-in-duration: var(--sjs-expand-move-in-duration, 200ms);
 $expand-fade-in-delay: var(--sjs-collapse-fade-in-delay, 150ms);
@@ -143,6 +141,13 @@ $ranking-fade-in-delay: var(--sjs-ranking-fade-in-delay, 150ms);
 $ranking-fade-out-duration: var(--sjs-ranking-fade-out-duration, 100ms);
 $ranking-move-out-duration: var(--sjs-ranking-move-out-duration, 150ms);
 $ranking-move-out-delay: var(--sjs-ranking-move-out-delay, 0ms);
+
+$element-fade-in-duration: var(--sjs-element-fade-in-duration, 150ms);
+$element-move-in-duration: var(--sjs-element-move-in-duration, 250ms);
+$element-fade-in-delay: var(--sjs-element-fade-in-delay, 100ms);
+$element-fade-out-duration: var(--sjs-element-fade-out-duration, 150ms);
+$element-move-out-duration: var(--sjs-element-move-out-duration, 250ms);
+$element-move-out-delay: var(--sjs-element-move-out-delay, 0ms);
 
 
 $transition-duration: var(--sjs-transition-duration, 150ms);

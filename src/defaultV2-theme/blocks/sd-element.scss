@@ -145,80 +145,47 @@
   background-color: transparent;
 }
 
-@keyframes elementFadeIn {
-  0% {
-    opacity: 0;
+@keyframes elementMoveIn {
+  from {
     flex-basis: 0;
     flex-grow: 0;
     max-width: 0;
     min-width: 0;
     width: 0;
-    overflow: hidden;
-    height: var(--animation-height);
+    height: 0;
     padding-left: 0;
+    overflow: hidden;
   }
 
-  50% {
-    opacity: 0;
+  to {
     height: var(--animation-height);
     flex-basis: var(--animation-width);
     width: var(--animation-width);
     min-width: var(--animation-width);
+    padding-left: calcSize(2);
     overflow: visible;
-    padding-left: calcSize(2);
-  }
-
-  100% {
-    padding-left: calcSize(2);
-    width: var(--animation-width);
-    height: var(--animation-height);
-    min-width: var(--animation-width);
-    flex-basis: var(--animation-width);
-    opacity: 1;
   }
 }
 
 .sd-element-wrapper--fade-in {
-  animation-name: elementFadeIn;
-  animation-duration: $elements-animation-duration;
+  animation-name: elementMoveIn, fadeIn;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+  animation-duration: $element-move-in-duration, $element-fade-in-duration;
+  animation-delay: 0s, $element-fade-in-delay;
   opacity: 0;
-}
 
-@keyframes elementFadeOut {
-  0% {
-    opacity: 1;
-    height: var(--animation-height);
-    flex-basis: var(--animation-width);
-    min-width: var(--animation-width);
-    padding-left: calcSize(2);
-  }
-
-  50% {
-    opacity: 0;
-    height: var(--animation-height);
-    padding-left: calcSize(2);
-    flex-basis: var(--animation-width);
-    min-width: var(--animation-width);
-    overflow: hidden;
-  }
-
-  100% {
-    height: var(--animation-height);
-    opacity: 0;
-    padding-left: 0;
-    flex-grow: 0;
-    flex-shrink: 1;
-    flex-basis: 0;
-    min-width: 0;
-    overflow: hidden;
-  }
 }
 
 .sd-element-wrapper--fade-out {
-  animation-name: elementFadeOut;
+  animation-name: elementMoveIn, fadeIn;
+  animation-timing-function: ease-in;
   animation-fill-mode: forwards;
-  animation-duration: $elements-animation-duration;
+  animation-direction: reverse;
+  animation-duration: $element-move-out-duration, $element-fade-out-duration;
+  animation-delay: $element-move-out-delay, 0s;
 }
+
 
 @keyframes paddingFadeIn {
   from {

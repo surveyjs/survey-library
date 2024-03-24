@@ -17,13 +17,3 @@
     height: var(--animation-height)
   }
 }
-
-@keyframes hMoveIn {
-  from {
-    width: 0
-  }
-
-  to {
-    width: var(--animation-width)
-  }
-}

@@ -20,6 +20,7 @@ import { ILocalizableOwner, LocalizableString } from "./localizablestring";
 import { HashTable, Helpers } from "./helpers";
 import { CssClassBuilder } from "./utils/cssClassBuilder";
 import { settings } from "./settings";
+import { InputMaskBase } from "./mask/mask_base";
 
 export interface IMultipleTextData extends ILocalizableOwner, IPanel {
   getSurvey(): ISurvey;
@@ -250,6 +251,52 @@ export class MultipleTextItemModel extends Base
   }
   public getValidators(): Array<SurveyValidator> {
     return this.validators;
+  }
+  /**
+   * Specifies the type of a mask applied to the input.
+   *
+   * Possible values:
+   *
+   * - `"none"` (default)
+   * - `"numeric"`
+   * - `"currency"`
+   * - `"datetime"`
+   * - `"pattern"`
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   * @see maskSettings
+   */
+  public get maskType(): string {
+    return this.editor.maskType;
+  }
+  public set maskType(val: string) {
+    this.editor.maskType = val;
+  }
+  /**
+   * An object with properties that configure the mask applied to the input.
+   *
+   * Available properties depend on the specified [`maskType`](https://surveyjs.io/form-library/documentation/api-reference/text-entry-question-model#maskType) and belong to corresponding classes. Refer to the class APIs for a full list of properties:
+   *
+   * | `maskType` | Class |
+   * | ---------- | ----- |
+   * | `"numeric"` | [`InputMaskNumeric`](https://surveyjs.io/form-library/documentation/api-reference/inputmasknumeric) |
+   * | `"currency"` | [`InputMaskCurrency`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskcurrency) |
+   * | `"datetime"` | [`InputMaskDateTime`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskdatetime) |
+   * | `"pattern"` | [`InputMaskPattern`](https://surveyjs.io/form-library/documentation/api-reference/inputmaskpattern) |
+   *
+   * [View Demo](https://surveyjs.io/form-library/examples/masked-input-fields/ (linkStyle))
+   */
+  public get maskSettings(): InputMaskBase {
+    return this.editor.maskSettings;
+  }
+  public set maskSettings(val: InputMaskBase) {
+    this.editor.maskSettings = val;
+  }
+  public get inputTextAlignment(): "left" | "right" | "auto" {
+    return this.editor.inputTextAlignment;
+  }
+  public set inputTextAlignment(val: "left" | "right" | "auto") {
+    this.editor.inputTextAlignment = val;
   }
   /**
    * The item value.
@@ -825,6 +872,31 @@ Serializer.addClass(
       default: "text",
       choices: settings.questions.inputTypes,
     },
+    {
+      name: "maskType:masktype",
+      default: "none",
+      visibleIndex: 0,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      }
+    },
+    {
+      name: "maskSettings:masksettings",
+      className: "masksettings",
+      visibleIndex: 1,
+      dependsOn: "inputType",
+      visibleIf: (obj: any) => {
+        return obj.inputType === "text";
+      },
+      onGetValue: function (obj: any) {
+        return obj.maskSettings.getData();
+      },
+      onSetValue: function (obj: any, value: any) {
+        obj.maskSettings.setData(value);
+      },
+    },
+    { name: "inputTextAlignment", default: "auto", choices: ["left", "right", "auto"], visible: false },
     { name: "title", serializationProperty: "locTitle" },
     { name: "maxLength:number", default: -1 },
     { name: "size:number", minValue: 0 },

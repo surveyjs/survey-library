@@ -1,6 +1,7 @@
 import { InputMaskBase } from "../../src/mask/mask_base";
 import { InputMaskPattern } from "../../src/mask/mask_pattern";
 import { InputMaskNumeric } from "../../src/mask/mask_numeric";
+import { InputMaskCurrency } from "../../src/mask/mask_currency";
 import { QuestionTextModel } from "../../src/question_text";
 
 export default QUnit.module("Question text: Input mask");
@@ -172,4 +173,15 @@ QUnit.test("Currency mask: value & inputValue", function (assert) {
   q.inputValue = "123,456.";
   assert.equal(q.value, "$ 123,456", "masked value #4");
   assert.equal(q.inputValue, "$ 123,456", "masked inputValue #4");
+});
+
+QUnit.test("Currency mask: text aligment", function (assert) {
+  const q = new QuestionTextModel("q1");
+  assert.deepEqual(q.inputStyle, { width: undefined });
+
+  q.maskType = "currency";
+  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "right" });
+
+  q.inputTextAlignment = "left";
+  assert.deepEqual(q.inputStyle, { width: undefined, textAlign: "left" });
 });

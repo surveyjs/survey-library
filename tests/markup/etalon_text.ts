@@ -121,3 +121,18 @@ registerMarkupTest({
   },
   snapshot: "text-datalist",
 });
+registerMarkupTest({
+  name: "Test Text numeric mask type markup",
+  json: {
+
+    questions: [
+      {
+        type: "text",
+        name: "q1",
+        maskType: "numeric",
+        titleLocation: "hidden"
+      }
+    ],
+  },
+  snapshot: "text-masktype-numeric",
+});

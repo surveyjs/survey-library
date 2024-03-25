@@ -495,6 +495,11 @@ export class QuestionMultipleTextModel extends Question
     }
     return null;
   }
+  public getElementsInDesign(includeHidden: boolean = false): Array<IElement> {
+    let elements: Array<IElement>;
+    elements = super.getElementsInDesign(includeHidden);
+    return elements.concat(this.items as any);
+  }
   public addConditionObjectsByContext(objects: Array<IConditionObject>, context: any): void {
     for (var i = 0; i < this.items.length; i++) {
       var item = this.items[i];

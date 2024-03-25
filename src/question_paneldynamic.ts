@@ -2098,9 +2098,9 @@ export class QuestionPanelDynamicModel extends Question
       .append(this.cssClasses.headerTab, showTab)
       .toString();
   }
-  public getPanelWrapperCss(): string {
+  public getPanelWrapperCss(panel: PanelModel): string {
     return new CssClassBuilder()
-      .append(this.cssClasses.panelWrapper)
+      .append(this.cssClasses.panelWrapper, panel && panel.isVisible)
       .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
       .toString();
   }

@@ -4170,23 +4170,45 @@ QUnit.test("getPanelWrapperCss", function(assert) {
       {
         type: "paneldynamic",
         name: "panel",
+        panelCount: 1,
         templateElements: [{ type: "text", name: "q1" }],
       },
     ],
   });
 
-  var question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  const panel = question.panels[0];
   assert.equal(
-    question.getPanelWrapperCss(),
+    question.getPanelWrapperCss(panel),
     "sv_p_wrapper",
     "Default rendering: remove button in the bottom of the panel"
   );
   question.panelRemoveButtonLocation = "right";
   assert.equal(
-    question.getPanelWrapperCss(),
+    question.getPanelWrapperCss(panel),
     "sv_p_wrapper sv_p_wrapper_in_row",
     "Non-default rendering: remove button in the right of the panel"
   );
+});
+QUnit.test("getPanelWrapperCss & templateVisibleIf", function(assert) {
+  StylesManager.applyTheme("default");
+  var survey = new SurveyModel({
+    elements: [
+      {
+        type: "paneldynamic",
+        name: "panel",
+        panelCount: 2,
+        templateVisibleIf: "{panelIndex} > 0",
+        templateElements: [{ type: "text", name: "q1" }],
+      },
+    ],
+  });
+
+  const question = <QuestionPanelDynamicModel>survey.getQuestionByName("panel");
+  assert.equal(question.panels[0].isVisible, false, "The firt panel is not visible");
+  assert.equal(question.getPanelWrapperCss(question.panels[0]), "", "panel invisible");
+  assert.equal(question.panels[1].isVisible, true, "The second panel is visible");
+  assert.equal(question.getPanelWrapperCss(question.panels[1]), "sv_p_wrapper", "panel visible");
 });
 
 QUnit.test("getPanelRemoveButtonCss", function(assert) {

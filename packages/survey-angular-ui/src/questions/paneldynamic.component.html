@@ -13,7 +13,7 @@
   <ng-container [ngTemplateOutlet]="progress" *ngIf="model.showLegacyNavigation && model.isProgressTopShowing"></ng-container>
   <!-- add track by [key]="panel.id" -->
   <ng-container *ngFor="let panel of renderedPanels; index as index"> 
-    <div [class]="model.getPanelWrapperCss()">
+    <div [class]="model.getPanelWrapperCss(panel)">
       <ng-template [component]="{ name: getPanelComponentName(panel), data: getPanelComponentData(panel) }"></ng-template>
       <ng-container *ngIf="model.panelRemoveButtonLocation ==='right' && model.canRemovePanel && panel.state != 'collapsed'">
         <ng-template [component]="{ name: 'sv-paneldynamic-remove-btn', data: { data: { panel, question: model }}}"></ng-template>

@@ -28,7 +28,7 @@
       :question="question"
     />
     <template v-for="(panel, index) in renderedPanels" :key="panel.id">
-      <div :class="question.getPanelWrapperCss()">
+      <div :class="question.getPanelWrapperCss(panel)">
         <component
           :is="getPanelComponentName(panel)"
           v-bind="getPanelComponentData(panel)"

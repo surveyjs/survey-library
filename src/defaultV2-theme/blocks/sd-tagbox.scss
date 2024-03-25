@@ -5,8 +5,12 @@
   padding-inline-start: calcSize(0.5); //padding-left
 }
 
-.sd-tagbox.sd-input--disabled {
-  white-space: normal;
+.sd-tagbox{
+  &.sd-input--disabled,
+  &.sd-input--readonly,
+  &.sd-input--preview {
+    white-space: normal;
+  }
 }
 
 .sd-tagbox.sd-tagbox--empty {

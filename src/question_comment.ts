@@ -66,7 +66,7 @@ export class QuestionCommentModel extends QuestionTextBase {
     this.setPropertyValue("allowResize", val);
   }
   public get renderedAllowResize(): boolean {
-    return this.allowResize && (this.survey && this.survey.allowResizeComment);
+    return this.allowResize && (this.survey && this.survey.allowResizeComment) && !this.isPreviewStyle && !this.isReadOnlyStyle;
   }
   public get resizeStyle() {
     return this.renderedAllowResize ? "both" : "none";

@@ -54,7 +54,8 @@ frameworks.forEach(framework => {
           {
             "name": "username",
             "type": "text",
-            "defaultValue": "John"
+            "defaultValue": "John",
+            readOnly: true
           },
         ]
       });
@@ -63,6 +64,29 @@ frameworks.forEach(framework => {
         (<any>window).survey.showPreview();
       })();
       await takeElementScreenshot("preview-single-input.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+
+  test("Comment Input ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "name": "username",
+            "type": "comment",
+            "defaultValue": "text\nto\ntest\ncomment",
+            "readOnly": true
+          },
+        ]
+      });
+      await takeElementScreenshot("readonly-comment.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-comment.png", Selector(".sd-question__content"), t, comparer);
     });
   });
 

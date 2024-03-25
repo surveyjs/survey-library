@@ -600,6 +600,8 @@ export var defaultV2Css = {
     root: "sd-input sd-comment",
     small: "sd-row__question--small",
     controlDisabled: "sd-input--disabled",
+    controlReadOnly: "sd-input--readonly",
+    controlPreview: "sd-input--preview",
     content: "sd-comment__content sd-question__content",
     remainingCharacterCounter: "sd-remaining-character-counter",
     onError: "sd-input--error"

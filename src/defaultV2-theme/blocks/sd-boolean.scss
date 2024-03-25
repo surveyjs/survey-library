@@ -81,7 +81,7 @@
 
 .sd-boolean--exchanged {
   .sd-boolean__thumb {
-    margin-left: 50%;
+    margin-left: calc(50% + calcSize(0.5));
   }
 
   &.sd-boolean--checked .sd-boolean__thumb {

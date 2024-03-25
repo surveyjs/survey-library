@@ -5,7 +5,7 @@ import { QuestionTextBase, CharacterCounter } from "../src/question_textbase";
 import { settings } from "../src/settings";
 import { StylesManager } from "../src/stylesmanager";
 
-QUnit.test("check dropdown disabled class", function(assert) {
+QUnit.test("check text disabled class", function (assert) {
   var json = {
     questions: [
       {

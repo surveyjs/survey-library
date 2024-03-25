@@ -94,4 +94,104 @@ frameworks.forEach(framework => {
     });
   });
 
+  test("Rating Stars ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "rating",
+            "name": "nps-score",
+            "title": "Rating",
+            "rateType": "stars",
+            "rateMin": 1,
+            "rateMax": 5,
+            "minRateDescription": "Not Satisfied",
+            "maxRateDescription": "Completely Satisfied",
+            "defaultValue": 4,
+            "readOnly": true
+          }
+        ]
+      });
+      await takeElementScreenshot("readonly-rating-stars.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-rating-stars.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+  test("Rating Smileys ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        showPreviewBeforeComplete: "showAnsweredQuestions",
+        showQuestionNumbers: "off",
+        questions: [
+          {
+            "type": "rating",
+            "name": "nps-score",
+            "title": "Rating",
+            "rateType": "smileys",
+            "rateMin": 1,
+            "rateMax": 5,
+            "minRateDescription": "Not Satisfied",
+            "maxRateDescription": "Completely Satisfied",
+            "defaultValue": 4,
+            "readOnly": true
+          }
+        ]
+      });
+      await takeElementScreenshot("readonly-rating-smileys.png", Selector(".sd-question__content"), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-rating-smileys.png", Selector(".sd-question__content"), t, comparer);
+    });
+  });
+  test("Rating Smileys and Stars in matrix ReadOnly and Preview", async (t) => {
+    await wrapVisualTest(t, async (t, comparer) => {
+      await t.resizeWindow(800, 600);
+      await initSurvey(framework, {
+        "showPreviewBeforeComplete": "showAnsweredQuestions",
+        widthMode: "static",
+        width: "700px",
+        elements: [{
+          "type": "matrixdropdown",
+          "name": "question1",
+          "defaultValue": {
+            "Row 1": {
+              "Column 1": 3,
+              "Column 2": 2
+            }
+          },
+          "readOnly": true,
+          "columns": [
+            {
+              "name": "Column 1",
+              "cellType": "rating",
+              "rateType": "smileys"
+            },
+            {
+              "name": "Column 2",
+              "cellType": "rating",
+              "rateType": "stars"
+            }
+          ],
+          "cellType": "rating",
+          "rows": [
+            "Row 1"
+          ]
+        }]
+      });
+      await takeElementScreenshot("readonly-rating-smileys-matrix.png", Selector(".sd-table__cell .sd-rating").nth(0), t, comparer);
+      await takeElementScreenshot("readonly-rating-stars-matrix.png", Selector(".sd-table__cell .sd-rating").nth(1), t, comparer);
+      await ClientFunction(() => {
+        (<any>window).survey.showPreview();
+      })();
+      await takeElementScreenshot("preview-rating-smileys-matrix.png", Selector(".sd-table__cell .sd-rating").nth(0), t, comparer);
+      await takeElementScreenshot("preview-rating-stars-matrix.png", Selector(".sd-table__cell .sd-rating").nth(1), t, comparer);
+    });
+  });
 });

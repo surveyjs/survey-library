@@ -690,7 +690,9 @@ export class QuestionRatingModel extends Question {
   }
 
   public getItemStyle(item: ItemValue, highlight: "none" | "highlighted" | "unhighlighted" = "none") {
-    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default") return { borderColor: null, fill: null, backgroundColor: null };
+    if (this.scaleColorMode === "monochrome" && this.rateColorMode == "default" ||
+      this.isPreviewStyle ||
+      this.isReadOnlyStyle) return { borderColor: null, fill: null, backgroundColor: null };
     const index = this.visibleRateValues.indexOf(item);
     const color = this.getRenderedItemColor(index, false);
     if (this.value != this.renderedRateItems[index].value) {

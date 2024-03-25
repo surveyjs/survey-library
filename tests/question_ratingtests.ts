@@ -1231,6 +1231,23 @@ QUnit.test("rating colors", (assert) => {
   assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: "rgba(132, 207, 10, 1)", backgroundColor: "rgba(132, 207, 10, 1)" });
   assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: "rgba(10, 200, 20, 1)", borderColor: "rgba(10, 200, 20, 1)", backgroundColor: null });
 
+  q1.readOnly = true;
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+  q1.readOnly = false;
+
+  survey.showPreview();
+  let qp = <QuestionRatingModel>survey.getQuestionByName("q1");
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[0]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[1]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[2]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[3]), { fill: null, borderColor: null, backgroundColor: null });
+  assert.deepEqual(qp.getItemStyle(qp.visibleRateValues[4]), { fill: null, borderColor: null, backgroundColor: null });
+  survey.cancelPreview();
+
   q1.onItemMouseIn(q1.renderedRateItems[1]);
   assert.deepEqual(q1.getItemStyle(q1.visibleRateValues[1], q1.renderedRateItems[1].highlight), { fill: "rgba(227, 117, 5, 1)", borderColor: "rgba(227, 117, 5, 1)", backgroundColor: "rgba(227, 117, 5, 0.2)" });
   q1.onItemMouseOut(q1.renderedRateItems[1]);

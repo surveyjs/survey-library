@@ -288,6 +288,30 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   fill: $primary-foreground;
 }
 
+.sd-rating__item-smiley.sd-rating__item-smiley--readonly {
+  //
+}
+
+.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--readonly {
+  fill: $foreground;
+  border-color: $foreground;
+  background-color: unset;
+}
+
+.sd-rating__item-smiley.sd-rating__item-smiley--preview {
+  border-color: $foreground;
+  border-width: 1px;
+  fill: $foreground;
+
+  svg {
+    margin: 1px;
+  }
+}
+
+.sd-rating__item-smiley.sd-rating__item-smiley--selected.sd-rating__item-smiley--preview {
+  fill: $background;
+  background-color: $foreground;
+}
 .sd-rating__item-smiley--allowhover:hover {
   background-color: $background-dark;
   border-color: $border;
@@ -343,6 +367,7 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
 
   svg {
     stroke: $border;
+    stroke-width: 2px;
     fill: transparent;
     width: calcSize(6);
     height: calcSize(6);
@@ -400,6 +425,34 @@ legend+sv-ng-rating-item+.sd-rating__item-smiley {
   }
 }
 
+.sd-rating__item-star--readonly {
+  svg {
+    stroke: $border;
+    fill: none;
+  }
+}
+
+.sd-rating__item-star--selected.sd-rating__item-star--readonly {
+  svg {
+    stroke: none;
+    fill: $foreground;
+  }
+}
+
+.sd-rating__item-star--preview {
+  svg {
+    stroke: $foreground;
+    stroke-width: 1px;
+    fill: none;
+  }
+}
+
+.sd-rating__item-star--selected.sd-rating__item-star--preview {
+  svg {
+    stroke: none;
+    fill: $foreground;
+  }
+}
 .sd-rating__item-star:focus-within {
   svg {
     stroke: $primary;

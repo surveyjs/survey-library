@@ -114,26 +114,27 @@ export class QuestionRowModel extends Base {
     return this.getPropertyValue("elements");
   }
   private getVisibleElementsAnimationOptions(): IAnimationConsumer<[IElement]> {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+      el.style.setProperty("--animation-width", getElementWidth(el) + "px");
+    };
     return {
       isAnimationEnabled: () => settings.animationEnabled && this.panel?.animationAllowed && this.visible,
       getAnimatedElement: (element: IElement) => (element as any as SurveyElement).getWrapperElement(),
       getLeaveOptions: (element: IElement) => {
         const surveyElement = element as unknown as SurveyElement;
         const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
-        return { cssClass: cssClasses.fadeOut,
-          onBeforeRunAnimation: (el: HTMLElement) => {
-            el.style.setProperty("--animation-height", el.offsetHeight + "px");
-            el.style.setProperty("--animation-width", getElementWidth(el) + "px");
-          }, }; },
+        return {
+          cssClass: cssClasses.fadeOut,
+          onBeforeRunAnimation: beforeRunAnimation
+        };
+      },
       getEnterOptions: (element: IElement) => {
         const surveyElement = element as unknown as SurveyElement;
         const cssClasses = element.isPanel ? surveyElement.cssClasses.panel : surveyElement.cssClasses;
         return {
           cssClass: cssClasses.fadeIn,
-          onBeforeRunAnimation: (el: HTMLElement) => {
-            el.style.setProperty("--animation-height", el.offsetHeight + "px");
-            el.style.setProperty("--animation-width", getElementWidth(el) + "px");
-          },
+          onBeforeRunAnimation: beforeRunAnimation
         };
       }
     };
@@ -299,21 +300,21 @@ export class PanelModelBase extends SurveyElement<Question>
     row.onVisibleChangedCallback = () => this.onRowVisibleChanged();
   }
   private getRowsAnimationOptions(): IAnimationConsumer<[QuestionRowModel]> {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    };
     return {
       isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
       getAnimatedElement: (row: QuestionRowModel) => row.getRootElement(),
-      getLeaveOptions: (row: QuestionRowModel) => {
+      getLeaveOptions: (_: QuestionRowModel) => {
         return { cssClass: this.cssClasses.rowFadeOut,
-          onBeforeRunAnimation: (el: HTMLElement) => {
-            el.style.setProperty("--animation-height", el.offsetHeight + "px");
-          }, };
+          onBeforeRunAnimation: beforeRunAnimation
+        };
       },
-      getEnterOptions: (row: QuestionRowModel) => {
+      getEnterOptions: (_: QuestionRowModel) => {
         return {
           cssClass: this.cssClasses.rowFadeIn,
-          onBeforeRunAnimation: (el: HTMLElement) => {
-            el.style.setProperty("--animation-height", el.offsetHeight + "px");
-          },
+          onBeforeRunAnimation: beforeRunAnimation
         };
       }
     };

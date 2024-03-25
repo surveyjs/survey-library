@@ -206,57 +206,37 @@ export class QuestionRankingModel extends QuestionCheckboxModel {
     this.value = newValue;
   }
 
-  private getUNRankingChoicesAnimation(): IAnimationConsumer<[ItemValue]> {
+  private getChoicesAnimation(isRankingChoices: boolean): IAnimationConsumer<[ItemValue]> {
     return {
       isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
       getLeaveOptions: (item: ItemValue) => {
-        if(this.renderedSelectToRankAreasLayout == "vertical" && this.unRankingChoices.length == 1 && this.unRankingChoices.indexOf(item) >= 0) {
+        const choices = isRankingChoices ? this.rankingChoices : this.unRankingChoices;
+        if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
           return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
         }
         return { cssClass: "sv-ranking-item--animate-item-removing" };
       },
       getEnterOptions: (item: ItemValue) => {
-        if(this.renderedSelectToRankAreasLayout == "vertical" && this.unRankingChoices.length == 1 && this.unRankingChoices.indexOf(item) >= 0) {
+        const choices = isRankingChoices ? this.rankingChoices : this.unRankingChoices;
+        if(this.renderedSelectToRankAreasLayout == "vertical" && choices.length == 1 && choices.indexOf(item) >= 0) {
           return { cssClass: "sv-ranking-item--animate-item-adding-empty" };
         }
         return { cssClass: "sv-ranking-item--animate-item-adding" };
       },
       getAnimatedElement: (item: ItemValue) => {
-        return this.getWrapperElement()?.querySelector(".sv-ranking__container--from .sv-ranking-item--ghost");
+        const containerSelector = isRankingChoices ? ".sv-ranking__container--to" : ".sv-ranking__container--from";
+        return this.getWrapperElement()?.querySelector(`${containerSelector} .sv-ranking-item--ghost`);
       }
     };
   }
-  private getRankingChoicesAnimation(): IAnimationConsumer<[ItemValue]> {
-    return {
-      isAnimationEnabled: () => settings.animationEnabled && this.animationAllowed,
-      getLeaveOptions: (item: ItemValue) => {
-        if(this.renderedSelectToRankAreasLayout == "vertical" && this.rankingChoices.length == 1 && this.rankingChoices.indexOf(item) >= 0) {
-          return { cssClass: "sv-ranking-item--animate-item-removing-empty" };
-        }
-        return {
-          cssClass: "sv-ranking-item--animate-item-removing"
-        };
-      },
-      getEnterOptions: (item: ItemValue) => {
-        if(this.renderedSelectToRankAreasLayout == "vertical" && this.rankingChoices.length == 1 && this.rankingChoices.indexOf(item) >= 0) {
-          return { cssClass: "sv-ranking-item--animate-item-adding-empty" };
-        }
-        return {
-          cssClass: "sv-ranking-item--animate-item-adding"
-        };
-      },
-      getAnimatedElement: (item: ItemValue) => {
-        return this.getWrapperElement()?.querySelector(".sv-ranking__container--to .sv-ranking-item--ghost");
-      }
-    };
-  }
-  private _rankingChoicesAnimation = new AnimationGroup(this.getRankingChoicesAnimation(), (val) => {
+
+  private _rankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimation(true), (val) => {
     this.setPropertyValue("rankingChoices", val);
   }, () => this.rankingChoices)
   public get rankingChoicesAnimation(): AnimationGroup<ItemValue> {
     return this._rankingChoicesAnimation;
   }
-  private _unRankingChoicesAnimation = new AnimationGroup(this.getUNRankingChoicesAnimation(), (val) => {
+  private _unRankingChoicesAnimation = new AnimationGroup(this.getChoicesAnimation(false), (val) => {
     this.setPropertyValue("unRankingChoices", val);
   }, () => this.unRankingChoices)
   public get unRankingChoicesAnimation(): AnimationGroup<ItemValue> {

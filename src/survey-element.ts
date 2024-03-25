@@ -1024,30 +1024,27 @@ export class SurveyElement<E = any> extends SurveyElementCore implements ISurvey
   }
 
   private getExpandCollapseAnimationOptions(): IAnimationConsumer {
+    const beforeRunAnimation = (el: HTMLElement) => {
+      this.isAnimatingCollapseExpand = true;
+      el.style.setProperty("--animation-height", el.offsetHeight + "px");
+    };
+    const afterRunAnimation = (el: HTMLElement) => {
+      this.isAnimatingCollapseExpand = false;
+    };
     return {
       getEnterOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
         return {
           cssClass: cssClasses.contentFadeIn,
-          onBeforeRunAnimation: (el: HTMLElement) => {
-            this.isAnimatingCollapseExpand = true;
-            el.style.setProperty("--animation-height", el.offsetHeight + "px");
-          },
-          onAfterRunAnimation: (el: HTMLElement) => {
-            this.isAnimatingCollapseExpand = false;
-          },
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: afterRunAnimation,
         };
       },
       getLeaveOptions: () => {
         const cssClasses = this.isPanel ? this.cssClasses.panel : this.cssClasses;
         return { cssClass: cssClasses.contentFadeOut,
-          onBeforeRunAnimation: (el: HTMLElement) => {
-            this.isAnimatingCollapseExpand = true;
-            el.style.setProperty("--animation-height", el.offsetHeight + "px");
-          },
-          onAfterRunAnimation: (el: HTMLElement) => {
-            this.isAnimatingCollapseExpand = false;
-          },
+          onBeforeRunAnimation: beforeRunAnimation,
+          onAfterRunAnimation: afterRunAnimation
         };
       },
       getAnimatedElement: () => {

@@ -110,14 +110,14 @@
   animation-name: fadeIn, moveIn, marginFadeIn;
   min-height: 0 !important;
   opacity: 0;
-  animation-timing-function: ease-in;
+  animation-timing-function: $ease-out;
   animation-delay: $row-fade-in-delay, 0s, 0s;
   animation-duration: $row-fade-in-duration, $row-move-in-duration, $row-move-in-duration;
 }
 
 .sd-row--fade-out {
   animation-name: fadeIn, moveIn, marginFadeIn;
-  animation-timing-function: ease-in;
+  animation-timing-function: $reverse-ease-out;
   animation-fill-mode: forwards;
   animation-direction: reverse;
   min-height: 0 !important;

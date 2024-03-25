@@ -142,15 +142,18 @@ $ranking-fade-out-duration: var(--sjs-ranking-fade-out-duration, 100ms);
 $ranking-move-out-duration: var(--sjs-ranking-move-out-duration, 150ms);
 $ranking-move-out-delay: var(--sjs-ranking-move-out-delay, 0ms);
 
-$element-fade-in-duration: var(--sjs-element-fade-in-duration, 150ms);
+$element-fade-in-duration: var(--sjs-element-fade-in-duration, 250ms);
 $element-move-in-duration: var(--sjs-element-move-in-duration, 250ms);
-$element-fade-in-delay: var(--sjs-element-fade-in-delay, 100ms);
-$element-fade-out-duration: var(--sjs-element-fade-out-duration, 150ms);
+$element-fade-in-delay: var(--sjs-element-fade-in-delay, 0ms);
+$element-fade-out-duration: var(--sjs-element-fade-out-duration, 100ms);
 $element-move-out-duration: var(--sjs-element-move-out-duration, 250ms);
 $element-move-out-delay: var(--sjs-element-move-out-delay, 0ms);
 
 
 $transition-duration: var(--sjs-transition-duration, 150ms);
+
+$ease-out: cubic-bezier(0, 0, 0.58, 1);
+$reverse-ease-out: cubic-bezier(0.42, 0, 1, 1);
 
 @mixin useEditorFontSize {
   --sjs-internal-font-editorfont-size: var(--sjs-mobile-font-editorfont-size, #{$font-default-editorfont-size});

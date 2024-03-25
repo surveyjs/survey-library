@@ -169,7 +169,7 @@
 
 .sd-element-wrapper--fade-in {
   animation-name: elementMoveIn, fadeIn;
-  animation-timing-function: ease-in;
+  animation-timing-function: $ease-out;
   animation-fill-mode: forwards;
   animation-duration: $element-move-in-duration, $element-fade-in-duration;
   animation-delay: 0s, $element-fade-in-delay;
@@ -179,7 +179,7 @@
 
 .sd-element-wrapper--fade-out {
   animation-name: elementMoveIn, fadeIn;
-  animation-timing-function: ease-in;
+  animation-timing-function: $reverse-ease-out;
   animation-fill-mode: forwards;
   animation-direction: reverse;
   animation-duration: $element-move-out-duration, $element-fade-out-duration;
@@ -206,7 +206,7 @@
   min-height: 0 !important;
   opacity: 0;
   animation-fill-mode: forwards;
-  animation-timing-function: ease-in;
+  animation-timing-function: $ease-out;
   animation-duration: $expand-fade-in-duration, $expand-move-in-duration, $expand-move-in-duration;
   animation-delay: $expand-fade-in-delay, 0s, 0s;
 }
@@ -216,7 +216,7 @@
   min-height: 0 !important;
   animation-direction: reverse;
   animation-fill-mode: forwards;
-  animation-timing-function: ease-in;
+  animation-timing-function: $reverse-ease-out;
   animation-duration: $collapse-fade-out-duration, $collapse-move-out-duration, $collapse-move-out-duration;
   animation-delay: 0s, $collapse-move-out-delay, $collapse-move-out-delay;
 }
@@ -237,12 +237,12 @@
   }
 
   &.sd-element--expanded {
-    transition-timing-function: ease-in;
+    transition-timing-function: $ease-out;
     transition-duration: $expand-move-in-duration;
 
     &>.sd-element__header {
 
-      transition-timing-function: ease-in;
+      transition-timing-function: $ease-out;
       transition-duration: $expand-move-in-duration;
 
       .sd-element__title:before {
@@ -253,12 +253,12 @@
   }
 
   &.sd-element--collapsed {
-    transition-timing-function: ease-out;
+    transition-timing-function: $ease-out;
     transition-duration: $collapse-move-out-duration;
     transition-delay: $collapse-move-out-delay;
 
     &>.sd-element__header {
-      transition-timing-function: ease-out;
+      transition-timing-function: $ease-out;
       transition-duration:
         $collapse-move-out-duration;
       transition-delay:

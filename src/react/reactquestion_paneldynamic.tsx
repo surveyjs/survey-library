@@ -208,7 +208,7 @@ export class SurveyQuestionPanelDynamicItem extends SurveyPanel {
       (<hr className={this.question.cssClasses.separator} />) : null;
     return (
       <>
-        <div className={this.question.getPanelWrapperCss()}>
+        <div className={this.question.getPanelWrapperCss(this.panel)}>
           {panel}
           {removeButton}
         </div>

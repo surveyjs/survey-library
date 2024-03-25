@@ -2100,7 +2100,7 @@ export class QuestionPanelDynamicModel extends Question
   }
   public getPanelWrapperCss(panel: PanelModel): string {
     return new CssClassBuilder()
-      .append(this.cssClasses.panelWrapper, panel && panel.isVisible)
+      .append(this.cssClasses.panelWrapper, !panel || panel.visible)
       .append(this.cssClasses.panelWrapperInRow, this.panelRemoveButtonLocation === "right")
       .toString();
   }

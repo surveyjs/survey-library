@@ -4209,6 +4209,7 @@ QUnit.test("getPanelWrapperCss & templateVisibleIf", function(assert) {
   assert.equal(question.getPanelWrapperCss(question.panels[0]), "", "panel invisible");
   assert.equal(question.panels[1].isVisible, true, "The second panel is visible");
   assert.equal(question.getPanelWrapperCss(question.panels[1]), "sv_p_wrapper", "panel visible");
+  assert.equal(question.getPanelWrapperCss(undefined), "sv_p_wrapper", "panel is empty");
 });
 
 QUnit.test("getPanelRemoveButtonCss", function(assert) {

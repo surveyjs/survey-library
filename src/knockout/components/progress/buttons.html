@@ -14,6 +14,7 @@
                     <div data-bind="css: css.progressButtonsPageTitle, text: renderedNavigationTitle, attr: { title: renderedNavigationTitle }"></div>
                     <div data-bind="css: css.progressButtonsPageDescription, text: locNavigationDescription.koRenderedHtml(), attr: { title: locNavigationDescription.koRenderedHtml() }"></div>
                     <!-- /ko -->
+                    <div data-bind="css: css.progressButtonsButton"><div data-bind="css: css.progressButtonsButtonBackground"></div><div data-bind="css: css.progressButtonsButtonContent"></div><span data-bind="text: $parent.model.getItemNumber($data)"></span></div>
                 </li>
             </ul>
         </div>

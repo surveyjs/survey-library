@@ -36,6 +36,7 @@
             >
               {{ page.locNavigationDescription.renderedHtml }}
             </div>
+            <div :class="css.progressButtonsButton"><div :class="css.progressButtonsButtonBackground"></div><div :class="css.progressButtonsButtonContent"></div><span>{{model.getItemNumber(page)}}</span></div>
           </li>
         </ul>
       </div>
